@@ -331,19 +331,19 @@ function Player({
           </mesh>
         </group>
 
-        {/* Bikini bottoms */}
+        {/* Bikini bottoms — wider feminine hips */}
         <mesh position={[0, 0.83, 0]} castShadow>
-          <cylinderGeometry args={[0.255, 0.235, 0.13, 14]} />
+          <cylinderGeometry args={[0.30, 0.275, 0.17, 14]} />
           <meshStandardMaterial color={bikiniColor} roughness={0.55} metalness={0.06} />
         </mesh>
-        <mesh position={[0, 0.9, 0]}>
-          <cylinderGeometry args={[0.262, 0.262, 0.022, 14]} />
+        <mesh position={[0, 0.91, 0]}>
+          <cylinderGeometry args={[0.308, 0.308, 0.022, 14]} />
           <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
         </mesh>
 
-        {/* Torso — bare skin, beach athlete physique */}
+        {/* Torso — narrow feminine waist */}
         <mesh ref={torsoRef} position={[0, 1.09, 0]} castShadow>
-          <capsuleGeometry args={[0.255, 0.48, 4, 14]} />
+          <capsuleGeometry args={[0.20, 0.48, 4, 14]} />
           <meshStandardMaterial color={skinColor} roughness={0.42} metalness={0.025} />
         </mesh>
         {/* Subtle ab definition */}
@@ -352,23 +352,45 @@ function Player({
           <meshStandardMaterial color="#c8906a" roughness={0.65} transparent opacity={0.30} />
         </mesh>
 
-        {/* Bikini top */}
-        <mesh position={[0, 1.22, 0]} castShadow>
-          <cylinderGeometry args={[0.22, 0.20, 0.095, 14]} />
-          <meshStandardMaterial color={bikiniColor} roughness={0.55} metalness={0.06} />
+        {/* Feminine bust — skin-toned curves */}
+        <mesh position={[-0.08, 1.22, 0.17]} castShadow>
+          <sphereGeometry args={[0.108, 12, 10]} />
+          <meshStandardMaterial color={skinColor} roughness={0.40} metalness={0.022} />
         </mesh>
-        <mesh position={[0, 1.27, 0]}>
-          <cylinderGeometry args={[0.228, 0.228, 0.020, 14]} />
+        <mesh position={[ 0.08, 1.22, 0.17]} castShadow>
+          <sphereGeometry args={[0.108, 12, 10]} />
+          <meshStandardMaterial color={skinColor} roughness={0.40} metalness={0.022} />
+        </mesh>
+        {/* Bikini top — shaped cups */}
+        <mesh position={[-0.08, 1.22, 0.198]} scale={[1.10, 0.86, 0.56]} castShadow>
+          <sphereGeometry args={[0.108, 12, 10]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.52} metalness={0.07} />
+        </mesh>
+        <mesh position={[ 0.08, 1.22, 0.198]} scale={[1.10, 0.86, 0.56]} castShadow>
+          <sphereGeometry args={[0.108, 12, 10]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.52} metalness={0.07} />
+        </mesh>
+        {/* Band under bust */}
+        <mesh position={[0, 1.128, 0]}>
+          <cylinderGeometry args={[0.196, 0.192, 0.044, 14]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.52} metalness={0.07} />
+        </mesh>
+        <mesh position={[0, 1.107, 0]}>
+          <cylinderGeometry args={[0.200, 0.200, 0.018, 14]} />
           <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
         </mesh>
-        {/* Bikini neck strap */}
-        <mesh position={[0, 1.46, -0.04]} rotation={[0.28, 0, 0]}>
-          <capsuleGeometry args={[0.013, 0.24, 4, 6]} />
+        {/* Halter neck ties */}
+        <mesh position={[-0.060, 1.39, -0.018]} rotation={[0.28, 0.14, 0]}>
+          <capsuleGeometry args={[0.011, 0.20, 4, 6]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.6} />
+        </mesh>
+        <mesh position={[ 0.060, 1.39, -0.018]} rotation={[0.28, -0.14, 0]}>
+          <capsuleGeometry args={[0.011, 0.20, 4, 6]} />
           <meshStandardMaterial color={bikiniColor} roughness={0.6} />
         </mesh>
 
         {/* Arms */}
-        <group ref={armLRef} position={[-0.36, 1.26, 0]}>
+        <group ref={armLRef} position={[-0.28, 1.26, 0]}>
           <mesh position={[0, -0.21, 0]} castShadow>
             <capsuleGeometry args={[0.092, 0.36, 4, 8]} />
             <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
@@ -378,7 +400,7 @@ function Player({
             <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
           </mesh>
         </group>
-        <group ref={armRRef} position={[0.36, 1.26, 0]}>
+        <group ref={armRRef} position={[0.28, 1.26, 0]}>
           <mesh position={[0, -0.21, 0]} castShadow>
             <capsuleGeometry args={[0.092, 0.36, 4, 8]} />
             <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
@@ -1593,8 +1615,9 @@ function useVolleyballPhysics(
     touches:         0 as number,
     side:            "away" as "home" | "away",
     toucherIdx:      -1 as number,
-    serveSide:       "home" as "home" | "away", // who is currently serving
-    isServeInFlight: true  as boolean,           // true until serve clears the net
+    serveSide:       "home" as "home" | "away",
+    isServeInFlight: true  as boolean,
+    sidesFlipped:    false as boolean,           // toggled at end of each set
   });
   const prevBallX = useRef(0);
 
@@ -1610,21 +1633,23 @@ function useVolleyballPhysics(
 
     const srvPlayers = r.serveSide === "home" ? homePlayers.current : awayPlayers.current;
     const server     = srvPlayers[0];
-    const sideSign   = r.serveSide === "home" ? -1 : 1;
-    const serveZ     = (Math.random() - 0.5) * 2;
+    // Account for court-side swaps: home normally on x<0, unless flipped
+    const homeLeft = !r.sidesFlipped;
+    const sideSign = r.serveSide === "home" ? (homeLeft ? -1 : 1) : (homeLeft ? 1 : -1);
+    const serveZ   = (Math.random() - 0.5) * 2;
 
     // Teleport server to behind baseline
     server.pos.set(sideSign * (COURT_HALF_X + 2.1), 0, serveZ);
     server.vel.set(0, 0, 0);
 
-    // Ball starts at server hand height, then launches over the net
-    const dirX    = r.serveSide === "home" ? 1 : -1;
+    // High arc serve — guaranteed to clear the net regardless of drag
+    const dirX    = -sideSign;
     const targetZ = (Math.random() - 0.5) * 5;
-    b.pos.set(server.pos.x, 1.8, server.pos.z);
+    b.pos.set(server.pos.x, 2.2, server.pos.z);
     b.vel.set(
-      dirX * (8.5 + Math.random() * 2.5),
-      7.0 + Math.random() * 1.5,
-      (targetZ - server.pos.z) * 0.55
+      dirX * (9.5 + Math.random() * 1.5),
+      9.5 + Math.random() * 1.0,
+      (targetZ - server.pos.z) * 0.40
     );
     b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
@@ -1888,7 +1913,14 @@ function useVolleyballPhysics(
     }
   });
 
-  return { ballRef, homePlayers, awayPlayers, resetBall };
+  const swapCourts = useCallback(() => {
+    const r = rallyRef.current;
+    r.sidesFlipped = !r.sidesFlipped;
+    for (const p of homePlayers.current) { p.pos.x = -p.pos.x; p.vel.x = -p.vel.x; }
+    for (const p of awayPlayers.current) { p.pos.x = -p.pos.x; p.vel.x = -p.vel.x; }
+  }, []);
+
+  return { ballRef, homePlayers, awayPlayers, resetBall, swapCourts };
 }
 
 function estimateTimeToReach(b: BallPhysics, targetHeight: number): number {
@@ -1974,13 +2006,198 @@ function ScoreBoard({ match }: { match: MatchState }) {
   );
 }
 
+// ── Man Walking Dog ────────────────────────────────────────────────────────────
+function ManWithDog() {
+  const groupRef   = useRef<THREE.Group>(null!);
+  const legLRef    = useRef<THREE.Group>(null!);
+  const legRRef    = useRef<THREE.Group>(null!);
+  const armLRef    = useRef<THREE.Group>(null!);
+  const dogRef     = useRef<THREE.Group>(null!);
+  const dogTailRef = useRef<THREE.Mesh>(null!);
+  const dogLeg0    = useRef<THREE.Mesh>(null!);
+  const dogLeg1    = useRef<THREE.Mesh>(null!);
+  const dogLeg2    = useRef<THREE.Mesh>(null!);
+  const dogLeg3    = useRef<THREE.Mesh>(null!);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    const walkX = Math.sin(t * 0.24) * 13;
+    const dir   = Math.cos(t * 0.24) >= 0 ? 1 : -1;
+    const faceY = dir > 0 ? 0 : Math.PI;
+
+    if (groupRef.current) {
+      groupRef.current.position.set(walkX, 0, 8.8);
+      groupRef.current.rotation.y = faceY;
+    }
+    const wc = t * 3.0;
+    if (legLRef.current) legLRef.current.rotation.x =  Math.sin(wc) * 0.42;
+    if (legRRef.current) legRRef.current.rotation.x = -Math.sin(wc) * 0.42;
+    if (armLRef.current) armLRef.current.rotation.x = -Math.sin(wc) * 0.26;
+
+    if (dogRef.current) {
+      dogRef.current.position.set(walkX + dir * 1.5, 0, 8.5);
+      dogRef.current.rotation.y = faceY;
+    }
+    const dt = t * 5.5;
+    if (dogLeg0.current) dogLeg0.current.rotation.x =  Math.sin(dt) * 0.50;
+    if (dogLeg1.current) dogLeg1.current.rotation.x = -Math.sin(dt) * 0.50;
+    if (dogLeg2.current) dogLeg2.current.rotation.x = -Math.sin(dt) * 0.50;
+    if (dogLeg3.current) dogLeg3.current.rotation.x =  Math.sin(dt) * 0.50;
+    if (dogTailRef.current) dogTailRef.current.rotation.z = Math.sin(t * 7) * 0.65 + 0.4;
+  });
+
+  const manSkin = "#c8895a";
+  const shirt   = "#f0f0f0";
+  const shorts  = "#3366cc";
+  const shoe    = "#222222";
+  const fur     = "#c8a070";
+
+  return (
+    <>
+      {/* Man */}
+      <group ref={groupRef} position={[0, 0, 8.8]}>
+        <mesh position={[-0.15, 0.055, 0.09]} castShadow>
+          <boxGeometry args={[0.15, 0.07, 0.29]} />
+          <meshStandardMaterial color={shoe} roughness={0.9} />
+        </mesh>
+        <mesh position={[0.15, 0.055, 0.09]} castShadow>
+          <boxGeometry args={[0.15, 0.07, 0.29]} />
+          <meshStandardMaterial color={shoe} roughness={0.9} />
+        </mesh>
+        <group ref={legLRef} position={[-0.17, 0.74, 0]}>
+          <mesh position={[0, -0.29, 0]} castShadow>
+            <capsuleGeometry args={[0.10, 0.52, 4, 8]} />
+            <meshStandardMaterial color={shorts} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, -0.69, 0.03]} castShadow>
+            <capsuleGeometry args={[0.085, 0.34, 4, 8]} />
+            <meshStandardMaterial color={manSkin} roughness={0.6} />
+          </mesh>
+        </group>
+        <group ref={legRRef} position={[0.17, 0.74, 0]}>
+          <mesh position={[0, -0.29, 0]} castShadow>
+            <capsuleGeometry args={[0.10, 0.52, 4, 8]} />
+            <meshStandardMaterial color={shorts} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, -0.69, 0.03]} castShadow>
+            <capsuleGeometry args={[0.085, 0.34, 4, 8]} />
+            <meshStandardMaterial color={manSkin} roughness={0.6} />
+          </mesh>
+        </group>
+        {/* Torso — broad male build */}
+        <mesh position={[0, 1.16, 0]} castShadow>
+          <capsuleGeometry args={[0.32, 0.50, 4, 12]} />
+          <meshStandardMaterial color={shirt} roughness={0.7} />
+        </mesh>
+        {/* Left arm (holds leash) */}
+        <group ref={armLRef} position={[-0.47, 1.34, 0]}>
+          <mesh position={[0, -0.22, 0]} castShadow>
+            <capsuleGeometry args={[0.095, 0.40, 4, 8]} />
+            <meshStandardMaterial color={shirt} roughness={0.7} />
+          </mesh>
+          <mesh position={[0, -0.54, 0.04]} castShadow>
+            <capsuleGeometry args={[0.08, 0.30, 4, 8]} />
+            <meshStandardMaterial color={manSkin} roughness={0.6} />
+          </mesh>
+        </group>
+        {/* Right arm (relaxed) */}
+        <mesh position={[0.47, 1.10, 0]} castShadow>
+          <capsuleGeometry args={[0.095, 0.40, 4, 8]} />
+          <meshStandardMaterial color={shirt} roughness={0.7} />
+        </mesh>
+        <mesh position={[0.47, 0.77, 0.04]} castShadow>
+          <capsuleGeometry args={[0.08, 0.30, 4, 8]} />
+          <meshStandardMaterial color={manSkin} roughness={0.6} />
+        </mesh>
+        {/* Neck */}
+        <mesh position={[0, 1.63, 0]} castShadow>
+          <capsuleGeometry args={[0.105, 0.12, 4, 8]} />
+          <meshStandardMaterial color={manSkin} roughness={0.6} />
+        </mesh>
+        {/* Head */}
+        <mesh position={[0, 1.90, 0]} castShadow>
+          <sphereGeometry args={[0.225, 20, 16]} />
+          <meshStandardMaterial color={manSkin} roughness={0.52} />
+        </mesh>
+        {/* Cap */}
+        <mesh position={[0, 2.06, 0]}>
+          <cylinderGeometry args={[0.215, 0.215, 0.10, 14]} />
+          <meshStandardMaterial color="#cc3322" roughness={0.65} />
+        </mesh>
+        <mesh position={[0, 2.01, 0.25]} rotation={[0.10, 0, 0]}>
+          <boxGeometry args={[0.38, 0.052, 0.20]} />
+          <meshStandardMaterial color="#cc3322" roughness={0.65} />
+        </mesh>
+      </group>
+
+      {/* Dog */}
+      <group ref={dogRef} position={[1.5, 0, 8.5]}>
+        <mesh position={[0, 0.30, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.11, 0.30, 4, 8]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+        <mesh position={[0, 0.40, 0.30]} castShadow>
+          <sphereGeometry args={[0.11, 12, 10]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+        <mesh position={[0, 0.36, 0.40]}>
+          <sphereGeometry args={[0.065, 8, 8]} />
+          <meshStandardMaterial color="#d4b078" roughness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.38, 0.46]}>
+          <sphereGeometry args={[0.022, 6, 6]} />
+          <meshStandardMaterial color="#111" roughness={0.3} />
+        </mesh>
+        <mesh position={[-0.055, 0.43, 0.38]}>
+          <sphereGeometry args={[0.020, 6, 6]} />
+          <meshStandardMaterial color="#111" roughness={0.3} />
+        </mesh>
+        <mesh position={[0.055, 0.43, 0.38]}>
+          <sphereGeometry args={[0.020, 6, 6]} />
+          <meshStandardMaterial color="#111" roughness={0.3} />
+        </mesh>
+        <mesh position={[-0.10, 0.33, 0.22]} rotation={[0.15, 0, 0.28]} castShadow>
+          <capsuleGeometry args={[0.028, 0.11, 4, 6]} />
+          <meshStandardMaterial color="#b88a50" roughness={0.9} />
+        </mesh>
+        <mesh position={[0.10, 0.33, 0.22]} rotation={[0.15, 0, -0.28]} castShadow>
+          <capsuleGeometry args={[0.028, 0.11, 4, 6]} />
+          <meshStandardMaterial color="#b88a50" roughness={0.9} />
+        </mesh>
+        <mesh ref={dogTailRef} position={[0, 0.38, -0.25]} rotation={[-0.5, 0, 0.4]} castShadow>
+          <capsuleGeometry args={[0.025, 0.16, 4, 6]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+        <mesh ref={dogLeg0} position={[-0.09, 0.10,  0.10]} castShadow>
+          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+        <mesh ref={dogLeg1} position={[ 0.09, 0.10,  0.10]} castShadow>
+          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+        <mesh ref={dogLeg2} position={[-0.09, 0.10, -0.10]} castShadow>
+          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+        <mesh ref={dogLeg3} position={[ 0.09, 0.10, -0.10]} castShadow>
+          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
+          <meshStandardMaterial color={fur} roughness={0.85} />
+        </mesh>
+      </group>
+    </>
+  );
+}
+
 // ── Scene ─────────────────────────────────────────────────────────────────────
-function Scene({ paused, autoRotate, onPoint }: {
+function Scene({ paused, autoRotate, onPoint, swapCourtsRef }: {
   paused: boolean;
   autoRotate: boolean;
   onPoint: (winner: "home" | "away", isPoint: boolean) => void;
+  swapCourtsRef?: { current: () => void };
 }) {
-  const { ballRef, homePlayers, awayPlayers } = useVolleyballPhysics(paused, onPoint);
+  const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint);
+  useEffect(() => { if (swapCourtsRef) swapCourtsRef.current = swapCourts; }, [swapCourts, swapCourtsRef]);
 
   const sandColor = "#dfc97a";
 
@@ -2041,6 +2258,7 @@ function Scene({ paused, autoRotate, onPoint }: {
       <Ocean />
       <Seagulls />
       <GroundSeagulls />
+      <ManWithDog />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
@@ -2076,6 +2294,7 @@ export default function ThreeDCourt() {
   const [paused, setPaused] = useState(false);
   const [autoRotate, setAutoRotate] = useState(false);
   const [key, setKey] = useState(0);
+  const swapCourtsRef = useRef<() => void>(() => {});
 
   const POINTS_TO_WIN = 11;
   const SETS_TO_WIN   = 2;
@@ -2114,6 +2333,8 @@ export default function ThreeDCourt() {
             matchWinner: homeSets >= SETS_TO_WIN ? "home" : "away",
           };
         }
+        // Swap court sides for the new set
+        setTimeout(() => swapCourtsRef.current(), 0);
         return {
           homeScore: 0, awayScore: 0, homeSets, awaySets,
           currentSet: prev.currentSet + 1,
@@ -2145,7 +2366,7 @@ export default function ThreeDCourt() {
         }}
         dpr={[1, 2]}
       >
-        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} />
+        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} />
       </Canvas>
 
       {/* Score */}
