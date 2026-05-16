@@ -1,8 +1,38 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import authRouter from "./auth";
+import profileRouter from "./profile";
+import locationsRouter from "./locations";
+import playersRouter from "./players";
+import outfitsRouter from "./outfits";
+import teamRouter from "./team";
+import contractsRouter from "./contracts";
+import staffRouter from "./staff";
+import trainingRouter from "./training";
+import matchesRouter from "./matches";
+import seasonsRouter from "./seasons";
+import financesRouter from "./finances";
+import draftRouter from "./draft";
+import leaderboardRouter from "./leaderboard";
+import dashboardRouter from "./dashboard";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
+router.use(profileRouter);
+router.use(locationsRouter);
+router.use(playersRouter);
+router.use(outfitsRouter);
+router.use(teamRouter);
+router.use(contractsRouter);
+router.use(staffRouter);
+router.use(trainingRouter);
+router.use(matchesRouter);
+router.use(seasonsRouter);
+router.use(financesRouter);
+router.use(draftRouter);
+router.use(leaderboardRouter);
+router.use(dashboardRouter);
 
 export default router;

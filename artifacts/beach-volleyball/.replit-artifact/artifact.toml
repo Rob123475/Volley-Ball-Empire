@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Beach Volleyball Manager"
+version = "1.0.0"
+id = "artifacts/beach-volleyball"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18798
+
+[services.development]
+run = "pnpm --filter @workspace/beach-volleyball run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/beach-volleyball", "run", "build" ]
+publicDir = "artifacts/beach-volleyball/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18798"
+BASE_PATH = "/"
