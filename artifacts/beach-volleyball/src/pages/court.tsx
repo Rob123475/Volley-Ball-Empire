@@ -535,12 +535,12 @@ function BeachCourt({ sandColor }: { sandColor: string }) {
 
 // ── Sponsor Boards ────────────────────────────────────────────────────────────
 const SPONSORS = [
-  { name: "BEACH PRO",  color: "#0077B6", accent: "#fff" },
-  { name: "SAND QUEEN", color: "#E76F51", accent: "#fff" },
-  { name: "VOLLEY FIT", color: "#2d6a4f", accent: "#fff" },
-  { name: "SUN SPORT",  color: "#e9c46a", accent: "#1a1a1a" },
-  { name: "WAVE RIDER", color: "#4cc9f0", accent: "#1a1a1a" },
-  { name: "CORAL GEAR", color: "#c1121f", accent: "#fff" },
+  { name: "VOLLEY FIT",  color: "#d62828", accent: "#fff", em: "#ff2020", ei: 0.55 },
+  { name: "SUN SPORT",  color: "#f77f00", accent: "#fff", em: "#ff9900", ei: 0.45 },
+  { name: "WAVE RIDER", color: "#0096c7", accent: "#fff", em: "#00c8ff", ei: 0.55 },
+  { name: "CORAL GEAR", color: "#e63946", accent: "#fff", em: "#ff1a2e", ei: 0.50 },
+  { name: "BEACH PRO",  color: "#2dc653", accent: "#fff", em: "#00ff66", ei: 0.45 },
+  { name: "SAND QUEEN", color: "#f72585", accent: "#fff", em: "#ff00bb", ei: 0.55 },
 ];
 
 function SponsorBoard({
@@ -555,43 +555,101 @@ function SponsorBoard({
   const s = SPONSORS[sponsorIdx % SPONSORS.length];
   return (
     <group position={position} rotation={rotation}>
-      {/* Post left */}
-      <mesh position={[-1.45, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.05, 0.06, 2.0, 8]} />
-        <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
+      {/* Posts — chrome finish */}
+      <mesh position={[-1.55, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.3, 8]} />
+        <meshStandardMaterial color="#ccc" metalness={0.9} roughness={0.15} />
       </mesh>
-      {/* Post right */}
-      <mesh position={[1.45, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.05, 0.06, 2.0, 8]} />
-        <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
+      <mesh position={[1.55, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.3, 8]} />
+        <meshStandardMaterial color="#ccc" metalness={0.9} roughness={0.15} />
       </mesh>
-      {/* Board background */}
+      {/* Board — vibrant with emissive glow */}
       <mesh castShadow receiveShadow>
-        <boxGeometry args={[2.8, 0.9, 0.06]} />
-        <meshStandardMaterial color={s.color} roughness={0.5} metalness={0.05} />
+        <boxGeometry args={[3.1, 1.05, 0.08]} />
+        <meshStandardMaterial color={s.color} emissive={s.em} emissiveIntensity={s.ei} roughness={0.25} metalness={0.1} />
       </mesh>
-      {/* White trim top & bottom */}
-      <mesh position={[0, 0.465, 0.035]}>
-        <boxGeometry args={[2.82, 0.06, 0.01]} />
-        <meshStandardMaterial color="white" />
+      {/* Glowing white trim top */}
+      <mesh position={[0, 0.545, 0.045]}>
+        <boxGeometry args={[3.12, 0.07, 0.01]} />
+        <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.8} />
       </mesh>
-      <mesh position={[0, -0.465, 0.035]}>
-        <boxGeometry args={[2.82, 0.06, 0.01]} />
-        <meshStandardMaterial color="white" />
+      {/* Glowing white trim bottom */}
+      <mesh position={[0, -0.545, 0.045]}>
+        <boxGeometry args={[3.12, 0.07, 0.01]} />
+        <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.8} />
       </mesh>
-      {/* Sponsor name */}
+      {/* Sponsor name — bold */}
       <Text
-        position={[0, 0, 0.07]}
-        fontSize={0.26}
+        position={[0, 0, 0.09]}
+        fontSize={0.30}
         font={undefined}
         color={s.accent}
         anchorX="center"
         anchorY="middle"
-        letterSpacing={0.08}
-        maxWidth={2.6}
+        letterSpacing={0.10}
+        maxWidth={2.9}
+        outlineColor="#00000066"
+        outlineWidth={0.012}
       >
         {s.name}
       </Text>
+    </group>
+  );
+}
+
+// ── Beach Umbrellas ────────────────────────────────────────────────────────────
+function BeachUmbrella({ position, color, tiltZ = 0 }: {
+  position: [number, number, number];
+  color: string;
+  tiltZ?: number;
+}) {
+  const stripeColor = "#fff8e1";
+  return (
+    <group position={position} rotation={[0, 0, tiltZ]}>
+      {/* Pole */}
+      <mesh castShadow>
+        <cylinderGeometry args={[0.045, 0.055, 2.4, 8]} />
+        <meshStandardMaterial color="#c8a94a" metalness={0.3} roughness={0.55} />
+      </mesh>
+      {/* Canopy outer (coloured) */}
+      <mesh position={[0, 1.38, 0]} castShadow>
+        <coneGeometry args={[1.35, 0.65, 16, 1, true]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.75} />
+      </mesh>
+      {/* Canopy stripes (alternating) */}
+      {[0,1,2,3,4,5,6,7].map(i => (
+        <mesh key={i} position={[0, 1.38, 0]} rotation={[0, (i / 8) * Math.PI * 2, 0]}>
+          <coneGeometry args={[1.36, 0.65, 16, 1, true, (i / 8) * Math.PI * 2, Math.PI / 8]} />
+          <meshStandardMaterial color={i % 2 === 0 ? color : stripeColor} side={THREE.FrontSide} roughness={0.75} />
+        </mesh>
+      ))}
+      {/* Canopy underside */}
+      <mesh position={[0, 1.38, 0]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[1.33, 0.63, 16, 1, true]} />
+        <meshStandardMaterial color="#fffbe8" side={THREE.FrontSide} roughness={0.9} />
+      </mesh>
+      {/* Tip finial */}
+      <mesh position={[0, 1.72, 0]} castShadow>
+        <sphereGeometry args={[0.065, 8, 8]} />
+        <meshStandardMaterial color="#c8a94a" metalness={0.5} roughness={0.4} />
+      </mesh>
+    </group>
+  );
+}
+
+function BeachUmbrellas() {
+  const corners: { pos: [number, number, number]; color: string; tilt: number }[] = [
+    { pos: [-(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.4)], color: "#e63946", tilt:  0.08 },
+    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.4)], color: "#f4a261", tilt: -0.07 },
+    { pos:  [(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.4)], color: "#2a9d8f", tilt:  0.09 },
+    { pos:  [(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.4)], color: "#e9c46a", tilt: -0.08 },
+  ];
+  return (
+    <group>
+      {corners.map((c, i) => (
+        <BeachUmbrella key={i} position={c.pos} color={c.color} tiltZ={c.tilt} />
+      ))}
     </group>
   );
 }
@@ -1060,13 +1118,13 @@ function Ocean() {
 // ── Seagulls ──────────────────────────────────────────────────────────────────
 interface GullConfig { rx: number; rz: number; cy: number; spd: number; phase: number; sz: number }
 const GULL_CONFIGS: GullConfig[] = [
-  { rx: 20, rz: 10, cy: 11, spd: 0.38, phase: 0,            sz: 0.52 },
-  { rx: 28, rz: 13, cy: 15, spd: 0.27, phase: Math.PI*0.7,  sz: 0.65 },
-  { rx: 15, rz:  8, cy:  9, spd: 0.52, phase: Math.PI*1.4,  sz: 0.44 },
-  { rx: 34, rz: 16, cy: 19, spd: 0.22, phase: Math.PI*0.3,  sz: 0.72 },
-  { rx: 22, rz: 11, cy: 13, spd: 0.44, phase: Math.PI*1.9,  sz: 0.48 },
-  { rx: 12, rz:  6, cy:  7, spd: 0.60, phase: Math.PI*1.1,  sz: 0.38 },
-  { rx: 40, rz: 18, cy: 22, spd: 0.18, phase: Math.PI*0.55, sz: 0.80 },
+  { rx:  9, rz: 5, cy: 6, spd: 0.55, phase: 0,            sz: 0.52 },
+  { rx: 13, rz: 7, cy: 8, spd: 0.35, phase: Math.PI*0.7,  sz: 0.65 },
+  { rx:  6, rz: 4, cy: 5, spd: 0.72, phase: Math.PI*1.4,  sz: 0.44 },
+  { rx: 12, rz: 6, cy: 7, spd: 0.28, phase: Math.PI*0.3,  sz: 0.60 },
+  { rx:  8, rz: 5, cy: 6, spd: 0.48, phase: Math.PI*1.9,  sz: 0.48 },
+  { rx:  7, rz: 4, cy: 4, spd: 0.65, phase: Math.PI*1.1,  sz: 0.38 },
+  { rx: 14, rz: 8, cy: 9, spd: 0.22, phase: Math.PI*0.55, sz: 0.70 },
 ];
 
 function Seagull({ rx, rz, cy, spd, phase, sz }: GullConfig) {
@@ -1078,7 +1136,7 @@ function Seagull({ rx, rz, cy, spd, phase, sz }: GullConfig) {
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime() * spd + phase;
     const px = Math.cos(t) * rx;
-    const pz = Math.sin(t) * rz + 26;          // orbit centred over ocean
+    const pz = Math.sin(t) * rz + 2;           // orbit centred over court
     const py = cy + Math.sin(t * 2.5) * 0.8;   // gentle altitude wobble
 
     // Heading: tangent of the ellipse
@@ -1214,7 +1272,10 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
 }
 
 // ── Physics Simulation Hook ──────────────────────────────────────────────────
-function useVolleyballPhysics(paused: boolean, onPoint: (scorer: "home" | "away") => void) {
+function useVolleyballPhysics(
+  paused: boolean,
+  onPoint: (winner: "home" | "away", isPoint: boolean) => void
+) {
   const onPointRef = useRef(onPoint);
   useEffect(() => { onPointRef.current = onPoint; }, [onPoint]);
   const ballRef = useRef<BallPhysics>({
@@ -1239,10 +1300,11 @@ function useVolleyballPhysics(paused: boolean, onPoint: (scorer: "home" | "away"
 
   // ── Rally state: tracks possession + 3-touch rule ──
   const rallyRef = useRef({
-    touches:    0 as number,           // touches made this possession (0 = just received)
-    side:       "away" as "home" | "away", // side currently in possession
-    toucherIdx: -1 as number,          // player index (0|1) who made the last touch
-    serveSide:  "home" as "home" | "away", // who serves next
+    touches:         0 as number,
+    side:            "away" as "home" | "away",
+    toucherIdx:      -1 as number,
+    serveSide:       "home" as "home" | "away", // who is currently serving
+    isServeInFlight: true  as boolean,           // true until serve clears the net
   });
   const prevBallX = useRef(0);
 
@@ -1250,11 +1312,11 @@ function useVolleyballPhysics(paused: boolean, onPoint: (scorer: "home" | "away"
     const b = ballRef.current;
     const r = rallyRef.current;
 
-    // Alternate service each rally
-    r.serveSide = r.serveSide === "home" ? "away" : "home";
-    r.touches    = 0;
-    r.toucherIdx = -1;
-    r.side       = r.serveSide === "home" ? "away" : "home"; // receiving side
+    // serveSide is already set by the scoring logic before resetBall is called
+    r.touches         = 0;
+    r.toucherIdx      = -1;
+    r.side            = r.serveSide === "home" ? "away" : "home"; // receiving side
+    r.isServeInFlight = true;
 
     const srvPlayers = r.serveSide === "home" ? homePlayers.current : awayPlayers.current;
     const server     = srvPlayers[0];
@@ -1306,13 +1368,33 @@ function useVolleyballPhysics(paused: boolean, onPoint: (scorer: "home" | "away"
 
     b.pos.addScaledVector(b.vel, clampedDt);
 
-    // ── Net crossing → new possession, reset touch count ──
+    // ── Net crossing → clear serve flag + new possession ──
     const px = prevBallX.current;
     prevBallX.current = b.pos.x;
     if (px * b.pos.x < 0 && Math.abs(b.vel.x) > 0.5) {
+      r.isServeInFlight = false;   // serve cleared the net — normal rally
       r.touches    = 0;
       r.toucherIdx = -1;
       r.side       = b.pos.x < 0 ? "home" : "away";
+    }
+
+    // ── Net collision (includes service fault detection) ──
+    if (Math.abs(b.pos.x) < 0.22 && b.pos.y < NET_HEIGHT + BALL_RADIUS && b.pos.y > 0.8) {
+      if (r.isServeInFlight && b.inPlay) {
+        // SERVICE FAULT — serve hit the net
+        b.inPlay = false;
+        r.isServeInFlight = false;
+        // Receiver wins the serve (side-out), no point scored
+        const newServer: "home" | "away" = r.serveSide === "home" ? "away" : "home";
+        r.serveSide = newServer;
+        onPointRef.current(newServer, false); // false = side-out, no point
+        setTimeout(resetBall, 1200);
+      } else {
+        // Normal rally net touch — bounce back
+        b.vel.x  = -b.vel.x * 0.55;
+        b.vel.y *= 0.7;
+        b.pos.x  = Math.sign(b.pos.x || -1) * 0.26;
+      }
     }
 
     // ── Sand floor: one bounce = point over ──
@@ -1326,22 +1408,18 @@ function useVolleyballPhysics(paused: boolean, onPoint: (scorer: "home" | "away"
       b.onGround = Math.abs(b.vel.y) < 0.6;
       if (b.inPlay) {
         b.inPlay = false;
-        // In-bounds: side who let it land loses; out-of-bounds: last hitter loses
+        // Determine who won the rally
         const outX = Math.abs(b.pos.x) > COURT_HALF_X;
         const outZ = Math.abs(b.pos.z) > COURT_HALF_Z;
-        const scorer: "home" | "away" = (outX || outZ)
-          ? (b.lastHitter === "home" ? "away" : "home")   // hitter hit it out
-          : (b.pos.x < 0 ? "away" : "home");              // ball landed on their side
-        onPointRef.current(scorer);
+        const winner: "home" | "away" = (outX || outZ)
+          ? (b.lastHitter === "home" ? "away" : "home")
+          : (b.pos.x < 0 ? "away" : "home");
+        // Sideout scoring: point only if serving team won
+        const isPoint = winner === r.serveSide;
+        if (!isPoint) r.serveSide = winner; // side-out: winner now serves
+        onPointRef.current(winner, isPoint);
         setTimeout(resetBall, 1500);
       }
-    }
-
-    // ── Net collision ──
-    if (Math.abs(b.pos.x) < 0.22 && b.pos.y < NET_HEIGHT + BALL_RADIUS && b.pos.y > 0.8) {
-      b.vel.x  = -b.vel.x * 0.55;
-      b.vel.y *= 0.7;
-      b.pos.x  = Math.sign(b.pos.x || -1) * 0.26;
     }
 
     // ── Soft side boundaries ──
@@ -1610,7 +1688,7 @@ function ScoreBoard({ match }: { match: MatchState }) {
 function Scene({ paused, autoRotate, onPoint }: {
   paused: boolean;
   autoRotate: boolean;
-  onPoint: (scorer: "home" | "away") => void;
+  onPoint: (winner: "home" | "away", isPoint: boolean) => void;
 }) {
   const { ballRef, homePlayers, awayPlayers } = useVolleyballPhysics(paused, onPoint);
 
@@ -1666,6 +1744,7 @@ function Scene({ paused, autoRotate, onPoint }: {
       </Clouds>
 
       <BeachCourt sandColor={sandColor} />
+      <BeachUmbrellas />
       <SponsorBoards />
       <UmpireChair />
       <SpectatorStand />
@@ -1716,12 +1795,17 @@ export default function ThreeDCourt() {
     currentSet: 1, matchOver: false, matchWinner: null,
   });
 
-  const onPoint = useCallback((scorer: "home" | "away") => {
+  // Sideout scoring: only the serving team can score a point.
+  // If the receiving team wins the rally they win the serve (side-out), no point.
+  // Service faults also produce a side-out with no point.
+  const onPoint = useCallback((winner: "home" | "away", isPoint: boolean) => {
+    if (!isPoint) return; // side-out — serve changes (handled in physics), no score update
+
     setMatch(prev => {
       if (prev.matchOver) return prev;
 
-      const homeScore = prev.homeScore + (scorer === "home" ? 1 : 0);
-      const awayScore = prev.awayScore + (scorer === "away" ? 1 : 0);
+      const homeScore = prev.homeScore + (winner === "home" ? 1 : 0);
+      const awayScore = prev.awayScore + (winner === "away" ? 1 : 0);
 
       // Set won: first to POINTS_TO_WIN, must lead by 2
       const homeWonSet = homeScore >= POINTS_TO_WIN && homeScore - awayScore >= 2;
@@ -1739,7 +1823,6 @@ export default function ThreeDCourt() {
             matchWinner: homeSets >= SETS_TO_WIN ? "home" : "away",
           };
         }
-        // Start next set
         return {
           homeScore: 0, awayScore: 0, homeSets, awaySets,
           currentSet: prev.currentSet + 1,
