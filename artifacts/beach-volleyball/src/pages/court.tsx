@@ -50,13 +50,16 @@ interface BallPhysics {
   inPlay: boolean;
 }
 
+type HitType = "spike" | "set" | "dig";
 interface PlayerState {
   pos: THREE.Vector3;
   vel: THREE.Vector3;
-  jumpT: number;     // 0..1 jump animation progress
-  hitT: number;      // 0..1 hit arm swing progress
+  jumpT: number;      // 0..1 jump animation progress
+  hitT: number;       // 0..1 hit arm swing progress
+  diveT: number;      // 0..1 dive/dig animation progress
   isJumping: boolean;
   facingAngle: number;
+  hitType: HitType;
 }
 
 // ── Ball shadow ring that projects onto sand ────────────────────────────────
@@ -185,47 +188,92 @@ function Player({
     const s = state;
     if (!groupRef.current) return;
 
-    groupRef.current.position.lerp(s.pos, 8 * dt);
+    groupRef.current.position.lerp(s.pos, 10 * dt);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y,
-      s.facingAngle,
-      10 * dt
+      groupRef.current.rotation.y, s.facingAngle, 13 * dt
     );
 
-    const t = state.hitT;
-    const jt = state.jumpT;
-    const walkCycle = Date.now() / 400;
-    const isMoving = s.vel.length() > 0.3;
+    const t   = s.hitT;
+    const jt  = s.jumpT;
+    const dvt = s.diveT;
+    const isMoving = s.vel.length() > 0.4;
+    const walkCycle = Date.now() / 340;
 
-    // Arms
-    if (armRRef.current) {
-      const hitAngle = t > 0 ? -Math.PI * 1.1 * Math.sin(t * Math.PI) : 0;
-      const walkAngle = isMoving ? Math.sin(walkCycle) * 0.3 : 0;
-      armRRef.current.rotation.x = hitAngle + walkAngle;
-    }
-    if (armLRef.current) {
-      const walkAngle = isMoving ? -Math.sin(walkCycle) * 0.3 : 0;
-      armLRef.current.rotation.x = walkAngle;
-    }
-    // Legs
-    if (legLRef.current) {
-      const walkAngle = isMoving ? Math.sin(walkCycle) * 0.35 : 0;
-      const jumpAngle = jt > 0 ? Math.PI * 0.15 * Math.sin(jt * Math.PI) : 0;
-      legLRef.current.rotation.x = walkAngle + jumpAngle;
-    }
-    if (legRRef.current) {
-      const walkAngle = isMoving ? -Math.sin(walkCycle) * 0.35 : 0;
-      const jumpAngle = jt > 0 ? Math.PI * 0.15 * Math.sin(jt * Math.PI) : 0;
-      legRRef.current.rotation.x = walkAngle + jumpAngle;
+    // ── DIVE — body pitches forward, both arms platform out ──
+    if (dvt > 0) {
+      const arc = Math.sin(dvt * Math.PI);
+      groupRef.current.rotation.x = arc * 1.08;
+      if (armLRef.current) { armLRef.current.rotation.x = -arc * 1.15; armLRef.current.rotation.z = arc * 0.25; }
+      if (armRRef.current) { armRRef.current.rotation.x = -arc * 1.15; armRRef.current.rotation.z = -arc * 0.25; }
+      if (legLRef.current) { legLRef.current.rotation.x = -arc * 0.3; }
+      if (legRRef.current) { legRRef.current.rotation.x =  arc * 0.2; }
+      if (torsoRef.current) torsoRef.current.scale.y = 1 - arc * 0.12;
+    } else {
+      // smoothly upright
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, 10 * dt);
+
+      // ── SPIKE — jump + overhead smash ──
+      if (jt > 0 && s.hitType === "spike") {
+        const arc  = Math.sin(jt * Math.PI);
+        const smash = jt > 0.38 ? Math.sin(((jt - 0.38) / 0.62) * Math.PI) : 0;
+        if (torsoRef.current) torsoRef.current.scale.y = 1 + 0.24 * arc;
+        if (armRRef.current) {
+          armRRef.current.rotation.x = jt < 0.42
+            ? -arc * 0.7                   // wind-up: arm pulls back/up
+            : -Math.PI * 1.45 * smash;     // smash: drives hard forward-down
+          armRRef.current.rotation.z = 0.22 * (1 - arc);
+        }
+        if (armLRef.current) { armLRef.current.rotation.x = arc * 0.55; armLRef.current.rotation.z = 0; }
+        if (legLRef.current) legLRef.current.rotation.x =  arc * 0.22;
+        if (legRRef.current) legRRef.current.rotation.x =  arc * 0.22;
+
+      // ── SET / DIG arm swing ──
+      } else if (t > 0) {
+        const arc = Math.sin(t * Math.PI);
+        const isSpikeHit = s.hitType === "spike";
+        if (armRRef.current) {
+          armRRef.current.rotation.x = isSpikeHit ? -arc * Math.PI * 1.2 : -arc * Math.PI * 0.9;
+          armRRef.current.rotation.z = 0;
+        }
+        if (armLRef.current) {
+          armLRef.current.rotation.x = -arc * Math.PI * 0.5;
+          armLRef.current.rotation.z = 0;
+        }
+        if (jt > 0) {
+          const ja = Math.sin(jt * Math.PI);
+          if (torsoRef.current) torsoRef.current.scale.y = 1 + 0.16 * ja;
+          if (legLRef.current) legLRef.current.rotation.x = ja * 0.18;
+          if (legRRef.current) legRRef.current.rotation.x = ja * 0.18;
+        }
+
+      // ── JUMP (generic / approach) ──
+      } else if (jt > 0) {
+        const arc = Math.sin(jt * Math.PI);
+        if (torsoRef.current) torsoRef.current.scale.y = 1 + 0.15 * arc;
+        if (legLRef.current) legLRef.current.rotation.x =  arc * 0.2;
+        if (legRRef.current) legRRef.current.rotation.x =  arc * 0.2;
+        if (armLRef.current) armLRef.current.rotation.x = -arc * 0.3;
+        if (armRRef.current) armRRef.current.rotation.x = -arc * 0.3;
+
+      // ── WALK — sand-heavy stride ──
+      } else if (isMoving) {
+        if (torsoRef.current) torsoRef.current.scale.y = 1;
+        if (legLRef.current) { legLRef.current.rotation.x =  Math.sin(walkCycle) * 0.52; }
+        if (legRRef.current) { legRRef.current.rotation.x = -Math.sin(walkCycle) * 0.52; }
+        if (armLRef.current) { armLRef.current.rotation.x = -Math.sin(walkCycle) * 0.34; armLRef.current.rotation.z = 0; }
+        if (armRRef.current) { armRRef.current.rotation.x =  Math.sin(walkCycle) * 0.34; armRRef.current.rotation.z = 0; }
+
+      // ── IDLE — gentle sway, ready stance ──
+      } else {
+        if (torsoRef.current) torsoRef.current.scale.y = 1;
+        const sway = Math.sin(Date.now() / 950) * 0.05;
+        if (armLRef.current) { armLRef.current.rotation.x = sway + 0.15; armLRef.current.rotation.z = 0.08; }
+        if (armRRef.current) { armRRef.current.rotation.x = -sway + 0.15; armRRef.current.rotation.z = -0.08; }
+        if (legLRef.current) legLRef.current.rotation.x = THREE.MathUtils.lerp(legLRef.current.rotation.x, 0, 8 * dt);
+        if (legRRef.current) legRRef.current.rotation.x = THREE.MathUtils.lerp(legRRef.current.rotation.x, 0, 8 * dt);
+      }
     }
 
-    // Body crouch / stretch on jump
-    if (torsoRef.current) {
-      const jumpStretch = jt > 0 ? 1 + 0.15 * Math.sin(jt * Math.PI) : 1;
-      torsoRef.current.scale.y = jumpStretch;
-    }
-
-    // Shadow
     if (shadowRef.current) {
       shadowRef.current.position.set(groupRef.current.position.x, 0.01, groupRef.current.position.z);
     }
@@ -726,14 +774,24 @@ function SimpleSpectator({ position, colorIdx }: { position: [number, number, nu
   const jerseyColor = SPECTATOR_COLORS[colorIdx % SPECTATOR_COLORS.length];
   return (
     <group position={position}>
-      {/* Body */}
-      <mesh position={[0, 0.22, 0]}>
-        <capsuleGeometry args={[0.11, 0.28, 4, 6]} />
+      {/* Torso */}
+      <mesh position={[0, 0.30, 0]}>
+        <capsuleGeometry args={[0.148, 0.36, 4, 6]} />
+        <meshStandardMaterial color={jerseyColor} roughness={0.8} />
+      </mesh>
+      {/* Left arm */}
+      <mesh position={[-0.22, 0.30, 0]} rotation={[0, 0, 0.38]}>
+        <capsuleGeometry args={[0.055, 0.26, 4, 6]} />
+        <meshStandardMaterial color={jerseyColor} roughness={0.8} />
+      </mesh>
+      {/* Right arm */}
+      <mesh position={[0.22, 0.30, 0]} rotation={[0, 0, -0.38]}>
+        <capsuleGeometry args={[0.055, 0.26, 4, 6]} />
         <meshStandardMaterial color={jerseyColor} roughness={0.8} />
       </mesh>
       {/* Head */}
-      <mesh position={[0, 0.54, 0]}>
-        <sphereGeometry args={[0.11, 10, 10]} />
+      <mesh position={[0, 0.72, 0]}>
+        <sphereGeometry args={[0.138, 10, 10]} />
         <meshStandardMaterial color={skinColor} roughness={0.6} />
       </mesh>
     </group>
@@ -1168,41 +1226,13 @@ function useVolleyballPhysics(paused: boolean) {
   });
 
   const homePlayers = useRef<PlayerState[]>([
-    {
-      pos: new THREE.Vector3(-4, 0, -2),
-      vel: new THREE.Vector3(0, 0, 0),
-      jumpT: 0,
-      hitT: 0,
-      isJumping: false,
-      facingAngle: 0,
-    },
-    {
-      pos: new THREE.Vector3(-6.5, 0, 1.5),
-      vel: new THREE.Vector3(0, 0, 0),
-      jumpT: 0,
-      hitT: 0,
-      isJumping: false,
-      facingAngle: 0,
-    },
+    { pos: new THREE.Vector3(-4, 0, -2),  vel: new THREE.Vector3(), jumpT: 0, hitT: 0, diveT: 0, isJumping: false, facingAngle: 0, hitType: "set" },
+    { pos: new THREE.Vector3(-6.5, 0, 1.5), vel: new THREE.Vector3(), jumpT: 0, hitT: 0, diveT: 0, isJumping: false, facingAngle: 0, hitType: "set" },
   ]);
 
   const awayPlayers = useRef<PlayerState[]>([
-    {
-      pos: new THREE.Vector3(4, 0, 2),
-      vel: new THREE.Vector3(0, 0, 0),
-      jumpT: 0,
-      hitT: 0,
-      isJumping: false,
-      facingAngle: 0,
-    },
-    {
-      pos: new THREE.Vector3(6.5, 0, -1.5),
-      vel: new THREE.Vector3(0, 0, 0),
-      jumpT: 0,
-      hitT: 0,
-      isJumping: false,
-      facingAngle: 0,
-    },
+    { pos: new THREE.Vector3(4, 0, 2),    vel: new THREE.Vector3(), jumpT: 0, hitT: 0, diveT: 0, isJumping: false, facingAngle: 0, hitType: "set" },
+    { pos: new THREE.Vector3(6.5, 0, -1.5), vel: new THREE.Vector3(), jumpT: 0, hitT: 0, diveT: 0, isJumping: false, facingAngle: 0, hitType: "set" },
   ]);
 
   const resetBall = useCallback(() => {
@@ -1223,45 +1253,50 @@ function useVolleyballPhysics(paused: boolean) {
 
   useFrame((_, dt) => {
     if (paused) return;
-    const clampedDt = Math.min(dt, 0.033); // cap at 30fps physics
+    const clampedDt = Math.min(dt, 0.033);
     const b = ballRef.current;
 
-    // ── gravity + drag ──
+    // ── Gravity + air drag ──
     b.vel.y += GRAVITY * clampedDt;
     b.vel.multiplyScalar(Math.pow(DRAG, clampedDt * 60));
-    b.angVel.multiplyScalar(Math.pow(0.98, clampedDt * 60));
+    b.angVel.multiplyScalar(Math.pow(0.97, clampedDt * 60));
 
-    // ── integrate position ──
+    // ── Magnus effect: spinning ball curves (ω × v) ──
+    const magnus = _tmpVec.crossVectors(b.angVel, b.vel).multiplyScalar(0.0014 * clampedDt);
+    b.vel.add(magnus);
+
+    // ── Integrate position ──
     b.pos.addScaledVector(b.vel, clampedDt);
 
-    // ── floor bounce ──
+    // ── Sand floor bounce (more energy absorption than hard court) ──
     if (b.pos.y - BALL_RADIUS <= 0) {
       b.pos.y = BALL_RADIUS;
-      b.vel.y = -b.vel.y * RESTITUTION;
-      b.vel.x *= 0.82;
-      b.vel.z *= 0.82;
+      b.vel.y = -b.vel.y * 0.55;   // sand: lower restitution
+      b.vel.x *= 0.70;              // heavy sand friction
+      b.vel.z *= 0.70;
+      b.angVel.multiplyScalar(0.55);
       b.bounceCount++;
-      b.onGround = Math.abs(b.vel.y) < 0.5;
+      b.onGround = Math.abs(b.vel.y) < 0.6;
 
-      // reset after 2 bounces in-bounds or 1 out-of-bounds
       const outX = Math.abs(b.pos.x) > COURT_HALF_X;
       const outZ = Math.abs(b.pos.z) > COURT_HALF_Z;
-      if (b.bounceCount >= 2 || (outX || outZ)) {
-        setTimeout(resetBall, 1200);
+      if (b.bounceCount >= 2 || outX || outZ) {
+        setTimeout(resetBall, 1400);
         b.inPlay = false;
       }
     }
 
-    // ── net collision ──
-    if (Math.abs(b.pos.x) < 0.25 && b.pos.y < NET_HEIGHT + BALL_RADIUS) {
-      b.vel.x = -b.vel.x * 0.6;
-      b.pos.x += b.vel.x > 0 ? 0.3 : -0.3;
+    // ── Net collision — elastic side-kick ──
+    if (Math.abs(b.pos.x) < 0.22 && b.pos.y < NET_HEIGHT + BALL_RADIUS && b.pos.y > 0.8) {
+      b.vel.x = -b.vel.x * 0.55;
+      b.vel.y *= 0.7;
+      b.pos.x = Math.sign(b.pos.x || -1) * 0.25;
     }
 
-    // ── side walls (keep ball in play area roughly) ──
-    if (Math.abs(b.pos.z) > 6) {
-      b.vel.z = -b.vel.z * 0.7;
-      b.pos.z = Math.sign(b.pos.z) * 6;
+    // ── Soft side boundaries ──
+    if (Math.abs(b.pos.z) > 6.5) {
+      b.vel.z = -b.vel.z * 0.65;
+      b.pos.z = Math.sign(b.pos.z) * 6.5;
     }
 
     // ── Player AI ──────────────────────────────────────────────────────────
@@ -1271,81 +1306,102 @@ function useVolleyballPhysics(paused: boolean) {
     ];
 
     for (const { p, side } of allPlayers) {
-      // Only the side where ball currently is chases it
       const ballOnMySide = side === "home" ? b.pos.x < 0 : b.pos.x > 0;
       const isLastHitter = b.lastHitter === side;
+      const isP1 = side === "home" ? homePlayers.current[0] === p : awayPlayers.current[0] === p;
 
-      let targetX: number;
-      let targetZ: number;
+      let targetX: number, targetZ: number;
 
       if (ballOnMySide && !isLastHitter) {
-        // predict where ball lands
         const tToHit = estimateTimeToReach(b, PLAYER_REACH);
-        targetX = Math.max(-COURT_HALF_X + 1, Math.min(COURT_HALF_X - 1,
-          b.pos.x + b.vel.x * tToHit));
-        targetZ = Math.max(-COURT_HALF_Z + 0.5, Math.min(COURT_HALF_Z - 0.5,
-          b.pos.z + b.vel.z * tToHit));
+        targetX = Math.max(-COURT_HALF_X + 1, Math.min(COURT_HALF_X - 1, b.pos.x + b.vel.x * tToHit));
+        targetZ = Math.max(-COURT_HALF_Z + 0.5, Math.min(COURT_HALF_Z - 0.5, b.pos.z + b.vel.z * tToHit));
       } else {
-        // return to base
-        const isP1 = side === "home" ? homePlayers.current[0] === p : awayPlayers.current[0] === p;
-        targetX = side === "home" ? (isP1 ? -4 : -6.5) : (isP1 ? 4 : 6.5);
-        targetZ = isP1 ? -2 : 1.5;
+        // Return to beach volleyball base positions (wider spread)
+        targetX = side === "home" ? (isP1 ? -3.5 : -6.8) : (isP1 ? 3.5 : 6.8);
+        targetZ = isP1 ? -1.8 : 1.8;
       }
 
-      // Move player
-      _tmpVec.set(targetX - p.pos.x, 0, targetZ - p.pos.z);
-      const distToTarget = _tmpVec.length();
+      // ── Movement with sand drag (acceleration in sand is sluggish) ──
+      const toTarget = new THREE.Vector3(targetX - p.pos.x, 0, targetZ - p.pos.z);
+      const distToTarget = toTarget.length();
+      const sandLerp = 7 * clampedDt; // slower to accelerate in sand
       if (distToTarget > 0.15) {
-        _tmpVec.normalize();
-        p.vel.lerp(_tmpVec.multiplyScalar(PLAYER_SPEED), 10 * clampedDt);
+        toTarget.normalize();
+        p.vel.lerp(toTarget.multiplyScalar(PLAYER_SPEED), sandLerp);
         p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
       } else {
-        p.vel.multiplyScalar(0.1);
+        p.vel.multiplyScalar(0.08); // sand braking
       }
       p.pos.addScaledVector(p.vel, clampedDt);
 
-      // Clamp player to their half
       p.pos.x = side === "home"
-        ? Math.max(-COURT_HALF_X + 0.5, Math.min(-0.6, p.pos.x))
-        : Math.max(0.6, Math.min(COURT_HALF_X - 0.5, p.pos.x));
+        ? Math.max(-COURT_HALF_X + 0.5, Math.min(-0.55, p.pos.x))
+        : Math.max(0.55, Math.min(COURT_HALF_X - 0.5, p.pos.x));
       p.pos.z = Math.max(-COURT_HALF_Z + 0.3, Math.min(COURT_HALF_Z - 0.3, p.pos.z));
 
       // ── Hit detection ──
-      const dx = p.pos.x - b.pos.x;
-      const dy = (p.pos.y + PLAYER_REACH * 0.75) - b.pos.y;
-      const dz = p.pos.z - b.pos.z;
-      const distToBall = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      const hdx = p.pos.x - b.pos.x;
+      const hdz = p.pos.z - b.pos.z;
+      const distXZ = Math.sqrt(hdx * hdx + hdz * hdz);
+      const ballH = b.pos.y;
+      const inRange = distXZ < 1.4 && Math.abs(ballH - (p.pos.y + 1.0)) < 1.6;
 
-      if (ballOnMySide && distToBall < HIT_RANGE && !isLastHitter && b.inPlay) {
-        // Spike / set / serve — redirect ball to opposite side with variability
-        const targetZOut = (Math.random() - 0.5) * 6;
+      if (ballOnMySide && inRange && !isLastHitter && b.inPlay && p.diveT === 0 && p.jumpT === 0) {
         const dirX = side === "home" ? 1 : -1;
-        const speed = 11 + Math.random() * 4;
-        const vx = dirX * speed * 0.82;
-        const vy = 5.5 + Math.random() * 2;
-        const vz = (targetZOut - b.pos.z) * 0.55;
-        b.vel.set(vx, vy, vz);
-        b.angVel.set(
-          (Math.random() - 0.5) * 8,
-          (Math.random() - 0.5) * 8,
-          (Math.random() - 0.5) * 8
-        );
-        b.lastHitter = side;
+        const targetZOut = (Math.random() - 0.5) * 5.5;
 
-        // Trigger hit animation
-        p.hitT = 0.01;
-        p.jumpT = 0.01;
+        // Determine hit type by ball height
+        let hitType: HitType;
+        if (ballH < 1.0) {
+          hitType = "dig";
+        } else if (ballH > 2.4 && p.pos.y > 0.2) {
+          hitType = "spike";
+        } else {
+          hitType = "set";
+        }
+        p.hitType = hitType;
+
+        if (hitType === "dig") {
+          // Low ball → DIVE: player lunges, lower speed contact
+          const speed = 7 + Math.random() * 3;
+          b.vel.set(dirX * speed * 0.75, 6 + Math.random() * 1.5, (targetZOut - b.pos.z) * 0.5);
+          b.angVel.set((Math.random()-0.5)*6, (Math.random()-0.5)*6, (Math.random()-0.5)*6);
+          p.diveT = 0.01;
+          p.hitT  = 0.01;
+        } else if (hitType === "spike") {
+          // High ball → SPIKE JUMP: fast cross-court attack
+          const speed = 13 + Math.random() * 5;
+          b.vel.set(dirX * speed, 2.5 + Math.random(), (targetZOut - b.pos.z) * 0.7);
+          b.angVel.set((Math.random()-0.5)*12, (Math.random()-0.5)*10, (Math.random()-0.5)*12);
+          p.jumpT = 0.01;
+          p.hitT  = 0.01;
+        } else {
+          // Mid ball → SET: high arc, precise placement
+          const speed = 9 + Math.random() * 2.5;
+          b.vel.set(dirX * speed * 0.78, 7 + Math.random() * 2, (targetZOut - b.pos.z) * 0.45);
+          b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
+          p.hitT = 0.01;
+        }
+        b.lastHitter = side;
       }
 
-      // Animate hit / jump
+      // ── Advance animation timers ──
       if (p.hitT > 0) {
-        p.hitT = Math.min(1, p.hitT + clampedDt * 2.8);
+        p.hitT = Math.min(1, p.hitT + clampedDt * 2.6);
         if (p.hitT >= 1) p.hitT = 0;
       }
       if (p.jumpT > 0) {
-        p.jumpT = Math.min(1, p.jumpT + clampedDt * 2.2);
-        p.pos.y = Math.sin(p.jumpT * Math.PI) * 0.55;
+        p.jumpT = Math.min(1, p.jumpT + clampedDt * 2.0);
+        const jumpH = p.hitType === "spike" ? 1.05 : 0.55;
+        p.pos.y = Math.sin(p.jumpT * Math.PI) * jumpH;
         if (p.jumpT >= 1) { p.jumpT = 0; p.pos.y = 0; }
+      }
+      if (p.diveT > 0) {
+        p.diveT = Math.min(1, p.diveT + clampedDt * 1.8);
+        // Slide forward during dive
+        p.pos.addScaledVector(p.vel, clampedDt * 0.6);
+        if (p.diveT >= 1) { p.diveT = 0; }
       }
     }
   });
