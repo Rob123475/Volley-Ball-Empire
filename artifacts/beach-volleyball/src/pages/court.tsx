@@ -1275,7 +1275,7 @@ function Scene({ paused, autoRotate }: { paused: boolean; autoRotate: boolean })
     <>
       <PixelRatioSetter />
 
-      <PerspectiveCamera makeDefault position={[18, 11, 18]} fov={52} />
+      <PerspectiveCamera makeDefault position={[28, 8, 0]} fov={52} />
       <OrbitControls
         minPolarAngle={0.2}
         maxPolarAngle={Math.PI / 2.05}
