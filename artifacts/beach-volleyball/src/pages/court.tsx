@@ -833,6 +833,141 @@ function SpectatorStand() {
   );
 }
 
+// ── Animated Ocean ────────────────────────────────────────────────────────────
+function Ocean() {
+  const geoRef = useRef<THREE.PlaneGeometry>(null!);
+  const foamRef = useRef<THREE.PlaneGeometry>(null!);
+  const shallowRef = useRef<THREE.PlaneGeometry>(null!);
+
+  const W_SEGS = 64;
+  const D_SEGS = 40;
+  const FOAM_SEGS = 32;
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+
+    // ── Deep ocean waves ──
+    const geo = geoRef.current;
+    if (geo) {
+      const pos = geo.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const z = pos.getZ(i);
+        const y =
+          Math.sin(x * 0.18 + t * 1.1) * 0.55 +
+          Math.sin(x * 0.32 - t * 0.75) * 0.3 +
+          Math.sin(z * 0.22 + t * 0.9) * 0.4 +
+          Math.sin((x * 0.12 + z * 0.08) + t * 1.4) * 0.25 +
+          Math.cos(x * 0.08 - z * 0.15 + t * 0.6) * 0.18;
+        pos.setY(i, y);
+      }
+      pos.needsUpdate = true;
+      geo.computeVertexNormals();
+    }
+
+    // ── Shallow ripples ──
+    const sg = shallowRef.current;
+    if (sg) {
+      const pos = sg.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const z = pos.getZ(i);
+        const y =
+          Math.sin(x * 0.4 + t * 1.6) * 0.12 +
+          Math.sin(z * 0.5 + t * 1.2) * 0.08;
+        pos.setY(i, y);
+      }
+      pos.needsUpdate = true;
+      sg.computeVertexNormals();
+    }
+
+    // ── Foam line ripples ──
+    const fg = foamRef.current;
+    if (fg) {
+      const pos = fg.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const y = Math.sin(x * 0.35 + t * 1.8) * 0.06 + 0.02;
+        pos.setY(i, y);
+      }
+      pos.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group>
+      {/* Wet sand shoreline strip */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 13.5]} receiveShadow>
+        <planeGeometry args={[80, 3.5]} />
+        <meshStandardMaterial color="#c8a85a" roughness={0.82} metalness={0.08} />
+      </mesh>
+      {/* Very wet sand — dark strip right at waterline */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 15.6]}>
+        <planeGeometry args={[80, 1.6]} />
+        <meshStandardMaterial color="#a8864a" roughness={0.7} metalness={0.12} />
+      </mesh>
+
+      {/* Shallow water (transparent, rippled) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 18]}>
+        <planeGeometry ref={shallowRef} args={[80, 6, FOAM_SEGS, 16]} />
+        <meshStandardMaterial
+          color="#38b2c8"
+          transparent
+          opacity={0.55}
+          roughness={0.05}
+          metalness={0.45}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* Rolling foam at waterline */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.06, 16.4]}>
+        <planeGeometry ref={foamRef} args={[80, 0.5, FOAM_SEGS, 2]} />
+        <meshStandardMaterial
+          color="white"
+          transparent
+          opacity={0.65}
+          roughness={0.9}
+          emissive="white"
+          emissiveIntensity={0.08}
+        />
+      </mesh>
+
+      {/* Deep ocean */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 33]}>
+        <planeGeometry ref={geoRef} args={[100, 36, W_SEGS, D_SEGS]} />
+        <meshStandardMaterial
+          color="#0e6b8a"
+          roughness={0.08}
+          metalness={0.55}
+          transparent
+          opacity={0.92}
+          side={THREE.FrontSide}
+        />
+      </mesh>
+
+      {/* Distant ocean fill — flat, no waves */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.15, 60]}>
+        <planeGeometry args={[200, 50]} />
+        <meshStandardMaterial color="#0a5070" roughness={0.15} metalness={0.5} />
+      </mesh>
+
+      {/* Horizon sky glow strip */}
+      <mesh rotation={[0, 0, 0]} position={[0, 4, 82]}>
+        <planeGeometry args={[200, 12]} />
+        <meshStandardMaterial
+          color="#a8d8ea"
+          emissive="#6ab8d8"
+          emissiveIntensity={0.25}
+          transparent
+          opacity={0.55}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 // ── Sun + Lighting ───────────────────────────────────────────────────────────
 function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; elevation: number; intensity: number }) {
   const lightRef = useRef<THREE.DirectionalLight>(null!);
@@ -1187,6 +1322,7 @@ function Scene({ paused, autoRotate }: { paused: boolean; autoRotate: boolean })
       <SponsorBoards />
       <UmpireChair />
       <SpectatorStand />
+      <Ocean />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
