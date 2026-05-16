@@ -2659,7 +2659,7 @@ export default function ThreeDCourt() {
     }, 1000);
   }, []);
 
-  const POINTS_TO_WIN = 11;
+  const POINTS_TO_WIN = 7;
   const SETS_TO_WIN   = 2;
 
   const [match, setMatch] = useState<MatchState>({
