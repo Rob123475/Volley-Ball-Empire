@@ -331,14 +331,24 @@ function Player({
           </mesh>
         </group>
 
-        {/* Bikini bottoms — wider feminine hips */}
-        <mesh position={[0, 0.83, 0]} castShadow>
-          <cylinderGeometry args={[0.30, 0.275, 0.17, 14]} />
-          <meshStandardMaterial color={bikiniColor} roughness={0.55} metalness={0.06} />
+        {/* Bikini bottoms — tight, form-fitting ellipsoid hugging the hips */}
+        <mesh position={[0, 0.83, 0]} scale={[1.0, 0.46, 0.84]} castShadow>
+          <sphereGeometry args={[0.298, 18, 12]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.50} metalness={0.07} />
         </mesh>
-        <mesh position={[0, 0.91, 0]}>
-          <cylinderGeometry args={[0.308, 0.308, 0.022, 14]} />
-          <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
+        {/* Waistband ring */}
+        <mesh position={[0, 0.916, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.288, 0.017, 8, 22]} />
+          <meshStandardMaterial color={bikiniTrim} roughness={0.46} metalness={0.10} />
+        </mesh>
+        {/* Side tie knots */}
+        <mesh position={[-0.290, 0.874, 0]} rotation={[0, 0, Math.PI * 0.14]} castShadow>
+          <capsuleGeometry args={[0.014, 0.052, 4, 6]} />
+          <meshStandardMaterial color={bikiniTrim} roughness={0.50} />
+        </mesh>
+        <mesh position={[ 0.290, 0.874, 0]} rotation={[0, 0, -Math.PI * 0.14]} castShadow>
+          <capsuleGeometry args={[0.014, 0.052, 4, 6]} />
+          <meshStandardMaterial color={bikiniTrim} roughness={0.50} />
         </mesh>
 
         {/* Torso — narrow feminine waist */}
