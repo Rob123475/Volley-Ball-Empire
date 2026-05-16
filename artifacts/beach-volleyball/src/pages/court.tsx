@@ -279,9 +279,9 @@ function Player({
     }
   });
 
-  const skinColor = "#f4c08a";
-  const shoeColor = "#1a1a1a";
-  const shortColor = accentColor;
+  const skinColor   = "#e8aa78";
+  const bikiniColor = teamColor;
+  const bikiniTrim  = accentColor;
 
   return (
     <>
@@ -292,96 +292,166 @@ function Player({
       </mesh>
 
       <group ref={groupRef} position={state.pos.toArray()}>
-        {/* Jersey number billboard */}
-        <Billboard position={[0, 2.2, 0]}>
+        {/* Player number billboard */}
+        <Billboard position={[0, 2.28, 0]}>
           <Text fontSize={0.22} color="white" outlineWidth={0.02} outlineColor="#000000" outlineOpacity={0.5}>
             #{number}
           </Text>
         </Billboard>
 
-        {/* Shoes */}
-        <mesh position={[-0.18, 0.12, 0]} castShadow>
-          <boxGeometry args={[0.18, 0.12, 0.3]} />
-          <meshStandardMaterial color={shoeColor} roughness={0.9} />
+        {/* Bare feet */}
+        <mesh position={[-0.15, 0.055, 0.06]} rotation={[0.08, 0, 0]} castShadow>
+          <boxGeometry args={[0.12, 0.065, 0.22]} />
+          <meshStandardMaterial color={skinColor} roughness={0.85} />
         </mesh>
-        <mesh position={[0.18, 0.12, 0]} castShadow>
-          <boxGeometry args={[0.18, 0.12, 0.3]} />
-          <meshStandardMaterial color={shoeColor} roughness={0.9} />
+        <mesh position={[0.15, 0.055, 0.06]} rotation={[0.08, 0, 0]} castShadow>
+          <boxGeometry args={[0.12, 0.065, 0.22]} />
+          <meshStandardMaterial color={skinColor} roughness={0.85} />
         </mesh>
 
-        {/* Legs */}
-        <group ref={legLRef} position={[-0.18, 0.68, 0]}>
-          <mesh position={[0, -0.3, 0]} castShadow>
-            <capsuleGeometry args={[0.11, 0.55, 4, 8]} />
-            <meshStandardMaterial color={shortColor} roughness={0.8} />
+        {/* Legs — full skin (beach volleyball is bareleg) */}
+        <group ref={legLRef} position={[-0.16, 0.68, 0]}>
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <capsuleGeometry args={[0.105, 0.52, 4, 10]} />
+            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
           </mesh>
-          {/* shin */}
-          <mesh position={[0, -0.72, 0.04]} castShadow>
-            <capsuleGeometry args={[0.09, 0.38, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.6} />
+          <mesh position={[0, -0.68, 0.04]} castShadow>
+            <capsuleGeometry args={[0.082, 0.35, 4, 8]} />
+            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
           </mesh>
         </group>
-        <group ref={legRRef} position={[0.18, 0.68, 0]}>
-          <mesh position={[0, -0.3, 0]} castShadow>
-            <capsuleGeometry args={[0.11, 0.55, 4, 8]} />
-            <meshStandardMaterial color={shortColor} roughness={0.8} />
+        <group ref={legRRef} position={[0.16, 0.68, 0]}>
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <capsuleGeometry args={[0.105, 0.52, 4, 10]} />
+            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
           </mesh>
-          <mesh position={[0, -0.72, 0.04]} castShadow>
-            <capsuleGeometry args={[0.09, 0.38, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.6} />
+          <mesh position={[0, -0.68, 0.04]} castShadow>
+            <capsuleGeometry args={[0.082, 0.35, 4, 8]} />
+            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
           </mesh>
         </group>
 
-        {/* Torso (jersey) */}
-        <mesh ref={torsoRef} position={[0, 1.08, 0]} castShadow>
-          <capsuleGeometry args={[0.28, 0.55, 4, 12]} />
-          <meshStandardMaterial color={teamColor} roughness={0.7} metalness={0.05} />
+        {/* Bikini bottoms */}
+        <mesh position={[0, 0.83, 0]} castShadow>
+          <cylinderGeometry args={[0.255, 0.235, 0.13, 14]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.55} metalness={0.06} />
+        </mesh>
+        <mesh position={[0, 0.9, 0]}>
+          <cylinderGeometry args={[0.262, 0.262, 0.022, 14]} />
+          <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
+        </mesh>
+
+        {/* Torso — bare skin, beach athlete physique */}
+        <mesh ref={torsoRef} position={[0, 1.09, 0]} castShadow>
+          <capsuleGeometry args={[0.255, 0.48, 4, 14]} />
+          <meshStandardMaterial color={skinColor} roughness={0.42} metalness={0.025} />
+        </mesh>
+        {/* Subtle ab definition */}
+        <mesh position={[0, 0.96, 0.245]}>
+          <boxGeometry args={[0.11, 0.20, 0.018]} />
+          <meshStandardMaterial color="#c8906a" roughness={0.65} transparent opacity={0.30} />
+        </mesh>
+
+        {/* Bikini top */}
+        <mesh position={[0, 1.22, 0]} castShadow>
+          <cylinderGeometry args={[0.22, 0.20, 0.095, 14]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.55} metalness={0.06} />
+        </mesh>
+        <mesh position={[0, 1.27, 0]}>
+          <cylinderGeometry args={[0.228, 0.228, 0.020, 14]} />
+          <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
+        </mesh>
+        {/* Bikini neck strap */}
+        <mesh position={[0, 1.46, -0.04]} rotation={[0.28, 0, 0]}>
+          <capsuleGeometry args={[0.013, 0.24, 4, 6]} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.6} />
         </mesh>
 
         {/* Arms */}
-        <group ref={armLRef} position={[-0.38, 1.25, 0]}>
-          <mesh position={[0, -0.22, 0]} castShadow>
-            <capsuleGeometry args={[0.1, 0.38, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.6} />
+        <group ref={armLRef} position={[-0.36, 1.26, 0]}>
+          <mesh position={[0, -0.21, 0]} castShadow>
+            <capsuleGeometry args={[0.092, 0.36, 4, 8]} />
+            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
           </mesh>
-          {/* forearm */}
-          <mesh position={[0, -0.54, 0.04]} castShadow>
-            <capsuleGeometry args={[0.085, 0.32, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.6} />
+          <mesh position={[0, -0.52, 0.04]} castShadow>
+            <capsuleGeometry args={[0.078, 0.30, 4, 8]} />
+            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
           </mesh>
         </group>
-        <group ref={armRRef} position={[0.38, 1.25, 0]}>
-          <mesh position={[0, -0.22, 0]} castShadow>
-            <capsuleGeometry args={[0.1, 0.38, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.6} />
+        <group ref={armRRef} position={[0.36, 1.26, 0]}>
+          <mesh position={[0, -0.21, 0]} castShadow>
+            <capsuleGeometry args={[0.092, 0.36, 4, 8]} />
+            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
           </mesh>
-          <mesh position={[0, -0.54, 0.04]} castShadow>
-            <capsuleGeometry args={[0.085, 0.32, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.6} />
+          <mesh position={[0, -0.52, 0.04]} castShadow>
+            <capsuleGeometry args={[0.078, 0.30, 4, 8]} />
+            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
           </mesh>
         </group>
 
         {/* Neck */}
-        <mesh position={[0, 1.5, 0]} castShadow>
-          <capsuleGeometry args={[0.1, 0.15, 4, 8]} />
-          <meshStandardMaterial color={skinColor} roughness={0.6} />
+        <mesh position={[0, 1.51, 0]} castShadow>
+          <capsuleGeometry args={[0.088, 0.12, 4, 8]} />
+          <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
         </mesh>
 
         {/* Head */}
-        <group ref={headRef} position={[0, 1.73, 0]}>
+        <group ref={headRef} position={[0, 1.76, 0]}>
           <mesh castShadow>
-            <sphereGeometry args={[0.22, 32, 32]} />
-            <meshStandardMaterial color={skinColor} roughness={0.55} metalness={0.0} />
+            <sphereGeometry args={[0.215, 32, 32]} />
+            <meshStandardMaterial color={skinColor} roughness={0.42} metalness={0.02} />
           </mesh>
-          {/* ponytail */}
-          <mesh position={[0, 0.04, -0.22]} rotation={[0.4, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.055, 0.28, 4, 8]} />
-            <meshStandardMaterial color="#3d1c00" roughness={0.9} />
+          {/* Eye whites */}
+          <mesh position={[-0.086, 0.042, 0.188]}>
+            <sphereGeometry args={[0.036, 10, 10]} />
+            <meshStandardMaterial color="#fefefe" roughness={0.25} />
           </mesh>
-          {/* visor */}
-          <mesh position={[0, 0.08, 0.17]} rotation={[0.2, 0, 0]}>
-            <boxGeometry args={[0.3, 0.05, 0.14]} />
-            <meshStandardMaterial color={accentColor} roughness={0.5} />
+          <mesh position={[0.086, 0.042, 0.188]}>
+            <sphereGeometry args={[0.036, 10, 10]} />
+            <meshStandardMaterial color="#fefefe" roughness={0.25} />
+          </mesh>
+          {/* Irises */}
+          <mesh position={[-0.086, 0.042, 0.198]}>
+            <sphereGeometry args={[0.020, 8, 8]} />
+            <meshStandardMaterial color="#3a2200" roughness={0.3} />
+          </mesh>
+          <mesh position={[0.086, 0.042, 0.198]}>
+            <sphereGeometry args={[0.020, 8, 8]} />
+            <meshStandardMaterial color="#3a2200" roughness={0.3} />
+          </mesh>
+          {/* Nose */}
+          <mesh position={[0, -0.028, 0.208]} rotation={[0.25, 0, 0]}>
+            <sphereGeometry args={[0.020, 8, 8]} />
+            <meshStandardMaterial color="#d49068" roughness={0.55} />
+          </mesh>
+          {/* Lips */}
+          <mesh position={[0, -0.072, 0.200]} rotation={[0.1, 0, 0]}>
+            <capsuleGeometry args={[0.020, 0.060, 4, 6]} />
+            <meshStandardMaterial color="#c0705a" roughness={0.5} />
+          </mesh>
+          {/* Hair — dark base on scalp */}
+          <mesh position={[0, 0.06, -0.04]} rotation={[0.1, 0, 0]}>
+            <sphereGeometry args={[0.22, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
+            <meshStandardMaterial color="#2c1200" roughness={0.95} side={THREE.BackSide} />
+          </mesh>
+          {/* Ponytail main */}
+          <mesh position={[0, 0.07, -0.21]} rotation={[0.5, 0, 0]} castShadow>
+            <capsuleGeometry args={[0.058, 0.34, 4, 8]} />
+            <meshStandardMaterial color="#2c1200" roughness={0.95} />
+          </mesh>
+          {/* Ponytail strands */}
+          <mesh position={[0.04, 0.03, -0.32]} rotation={[0.72, 0.08, 0]} castShadow>
+            <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
+            <meshStandardMaterial color="#2c1200" roughness={0.95} />
+          </mesh>
+          <mesh position={[-0.04, 0.03, -0.32]} rotation={[0.72, -0.08, 0]} castShadow>
+            <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
+            <meshStandardMaterial color="#2c1200" roughness={0.95} />
+          </mesh>
+          {/* Visor */}
+          <mesh position={[0, 0.11, 0.19]} rotation={[0.18, 0, 0]}>
+            <boxGeometry args={[0.34, 0.055, 0.15]} />
+            <meshStandardMaterial color={bikiniColor} roughness={0.4} />
           </mesh>
         </group>
       </group>
@@ -589,7 +659,8 @@ function SponsorBoard({
         anchorY="middle"
         letterSpacing={0.10}
         maxWidth={2.9}
-        outlineColor="#00000066"
+        outlineColor="black"
+        outlineOpacity={0.45}
         outlineWidth={0.012}
       >
         {s.name}
@@ -605,50 +676,123 @@ function BeachUmbrella({ position, color, tiltZ = 0 }: {
   tiltZ?: number;
 }) {
   const stripeColor = "#fff8e1";
+  const POLE_H = 3.5;
+  const CANOPY_Y = 2.95;
   return (
     <group position={position} rotation={[0, 0, tiltZ]}>
-      {/* Pole */}
-      <mesh castShadow>
-        <cylinderGeometry args={[0.045, 0.055, 2.4, 8]} />
-        <meshStandardMaterial color="#c8a94a" metalness={0.3} roughness={0.55} />
+      {/* Pole — goes y=0 → y=POLE_H */}
+      <mesh position={[0, POLE_H / 2, 0]} castShadow>
+        <cylinderGeometry args={[0.042, 0.055, POLE_H, 8]} />
+        <meshStandardMaterial color="#c8a94a" metalness={0.4} roughness={0.45} />
       </mesh>
-      {/* Canopy outer (coloured) */}
-      <mesh position={[0, 1.38, 0]} castShadow>
-        <coneGeometry args={[1.35, 0.65, 16, 1, true]} />
-        <meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.75} />
+      {/* Canopy outer — coloured panel */}
+      <mesh position={[0, CANOPY_Y, 0]} castShadow>
+        <coneGeometry args={[1.55, 0.75, 16, 1, true]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.70} />
       </mesh>
-      {/* Canopy stripes (alternating) */}
+      {/* Canopy alternating white stripes */}
       {[0,1,2,3,4,5,6,7].map(i => (
-        <mesh key={i} position={[0, 1.38, 0]} rotation={[0, (i / 8) * Math.PI * 2, 0]}>
-          <coneGeometry args={[1.36, 0.65, 16, 1, true, (i / 8) * Math.PI * 2, Math.PI / 8]} />
-          <meshStandardMaterial color={i % 2 === 0 ? color : stripeColor} side={THREE.FrontSide} roughness={0.75} />
+        <mesh key={i} position={[0, CANOPY_Y, 0]} rotation={[0, (i / 8) * Math.PI * 2, 0]}>
+          <coneGeometry args={[1.56, 0.75, 16, 1, true, (i / 8) * Math.PI * 2, Math.PI / 8]} />
+          <meshStandardMaterial color={i % 2 === 0 ? color : stripeColor} side={THREE.FrontSide} roughness={0.70} />
         </mesh>
       ))}
-      {/* Canopy underside */}
-      <mesh position={[0, 1.38, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[1.33, 0.63, 16, 1, true]} />
-        <meshStandardMaterial color="#fffbe8" side={THREE.FrontSide} roughness={0.9} />
+      {/* Canopy underside — cream */}
+      <mesh position={[0, CANOPY_Y, 0]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[1.53, 0.73, 16, 1, true]} />
+        <meshStandardMaterial color="#fffaec" side={THREE.FrontSide} roughness={0.90} />
+      </mesh>
+      {/* Fringe ring at canopy edge */}
+      <mesh position={[0, CANOPY_Y - 0.375, 0]}>
+        <torusGeometry args={[1.545, 0.012, 6, 48]} />
+        <meshStandardMaterial color={stripeColor} roughness={0.8} />
       </mesh>
       {/* Tip finial */}
-      <mesh position={[0, 1.72, 0]} castShadow>
-        <sphereGeometry args={[0.065, 8, 8]} />
-        <meshStandardMaterial color="#c8a94a" metalness={0.5} roughness={0.4} />
+      <mesh position={[0, CANOPY_Y + 0.41, 0]} castShadow>
+        <sphereGeometry args={[0.07, 8, 8]} />
+        <meshStandardMaterial color="#c8a94a" metalness={0.6} roughness={0.35} />
       </mesh>
     </group>
   );
 }
 
+// ── Table & Chairs ────────────────────────────────────────────────────────────
+function CafeSet({ position }: { position: [number, number, number] }) {
+  const woodColor  = "#c8955a";
+  const woodDark   = "#7a5230";
+  const cushion    = "#f5e6cc";
+  const chairLeg   = (lx: number, lz: number) => (
+    <mesh position={[lx, 0.22, lz]} castShadow>
+      <cylinderGeometry args={[0.018, 0.018, 0.44, 6]} />
+      <meshStandardMaterial color={woodDark} roughness={0.85} />
+    </mesh>
+  );
+  const chair = (cx: number, cz: number, ry: number) => (
+    <group position={[cx, 0, cz]} rotation={[0, ry, 0]}>
+      {/* Seat */}
+      <mesh position={[0, 0.44, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.42, 0.04, 0.42]} />
+        <meshStandardMaterial color={cushion} roughness={0.65} />
+      </mesh>
+      {/* Back rest */}
+      <mesh position={[0, 0.72, -0.18]} castShadow>
+        <boxGeometry args={[0.40, 0.44, 0.030]} />
+        <meshStandardMaterial color={woodColor} roughness={0.6} />
+      </mesh>
+      {/* Back slat */}
+      <mesh position={[0, 0.72, -0.165]}>
+        <boxGeometry args={[0.36, 0.16, 0.018]} />
+        <meshStandardMaterial color={cushion} roughness={0.65} />
+      </mesh>
+      {chairLeg(-0.16, -0.16)}
+      {chairLeg( 0.16, -0.16)}
+      {chairLeg(-0.16,  0.16)}
+      {chairLeg( 0.16,  0.16)}
+    </group>
+  );
+  return (
+    <group position={position}>
+      {/* Table top */}
+      <mesh position={[0, 0.76, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.48, 0.48, 0.038, 20]} />
+        <meshStandardMaterial color={woodColor} roughness={0.55} metalness={0.04} />
+      </mesh>
+      {/* Table lip */}
+      <mesh position={[0, 0.745, 0]}>
+        <torusGeometry args={[0.47, 0.016, 6, 36]} />
+        <meshStandardMaterial color={woodDark} roughness={0.7} />
+      </mesh>
+      {/* Table pedestal */}
+      <mesh position={[0, 0.38, 0]} castShadow>
+        <cylinderGeometry args={[0.03, 0.045, 0.76, 8]} />
+        <meshStandardMaterial color={woodDark} roughness={0.7} />
+      </mesh>
+      {/* Base spread */}
+      <mesh position={[0, 0.028, 0]}>
+        <cylinderGeometry args={[0.30, 0.30, 0.038, 12]} />
+        <meshStandardMaterial color={woodDark} roughness={0.8} />
+      </mesh>
+      {chair( 0.72, 0,    -Math.PI / 2)}
+      {chair(-0.72, 0,     Math.PI / 2)}
+    </group>
+  );
+}
+
 function BeachUmbrellas() {
-  const corners: { pos: [number, number, number]; color: string; tilt: number }[] = [
-    { pos: [-(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.4)], color: "#e63946", tilt:  0.08 },
-    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.4)], color: "#f4a261", tilt: -0.07 },
-    { pos:  [(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.4)], color: "#2a9d8f", tilt:  0.09 },
-    { pos:  [(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.4)], color: "#e9c46a", tilt: -0.08 },
+  const spots: { pos: [number, number, number]; color: string; tilt: number }[] = [
+    { pos: [-(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#e63946", tilt:  0.07 },
+    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#f4a261", tilt: -0.06 },
+    { pos:  [(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#2a9d8f", tilt:  0.08 },
+    { pos:  [(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#e9c46a", tilt: -0.07 },
   ];
   return (
     <group>
-      {corners.map((c, i) => (
-        <BeachUmbrella key={i} position={c.pos} color={c.color} tiltZ={c.tilt} />
+      {spots.map((s, i) => (
+        <group key={i}>
+          <BeachUmbrella position={s.pos} color={s.color} tiltZ={s.tilt} />
+          {/* Table sits slightly offset so it's under the shade */}
+          <CafeSet position={[s.pos[0] + (s.pos[0] < 0 ? 0.4 : -0.4), 0, s.pos[2]]} />
+        </group>
       ))}
     </group>
   );
@@ -1213,6 +1357,152 @@ function Seagulls() {
   );
 }
 
+// ── Ground Seagulls (walking + sitting near sidelines) ────────────────────────
+interface GroundGullConfig {
+  pos: [number, number, number];
+  sitting: boolean;
+  facing: number;
+  sz: number;
+  walkRadius: number;
+  walkSpeed: number;
+  phase: number;
+}
+const GROUND_GULL_CONFIGS: GroundGullConfig[] = [
+  { pos: [-7.5,  0, -6.2], sitting: false, facing:  0.6, sz: 0.30, walkRadius: 0.6, walkSpeed: 0.55, phase: 0 },
+  { pos: [-5.0,  0,  6.5], sitting: true,  facing: -0.4, sz: 0.28, walkRadius: 0.0, walkSpeed: 0.00, phase: 0 },
+  { pos: [ 6.8,  0, -6.0], sitting: false, facing:  2.2, sz: 0.32, walkRadius: 0.5, walkSpeed: 0.48, phase: 1.2 },
+  { pos: [ 4.5,  0,  6.3], sitting: true,  facing:  1.7, sz: 0.26, walkRadius: 0.0, walkSpeed: 0.00, phase: 0 },
+  { pos: [-2.5,  0, -6.8], sitting: false, facing: -0.9, sz: 0.29, walkRadius: 0.4, walkSpeed: 0.62, phase: 2.1 },
+  { pos: [ 1.8,  0,  6.6], sitting: false, facing:  2.9, sz: 0.27, walkRadius: 0.5, walkSpeed: 0.50, phase: 3.5 },
+  { pos: [ 8.5,  0,  5.8], sitting: true,  facing:  0.3, sz: 0.31, walkRadius: 0.0, walkSpeed: 0.00, phase: 0 },
+  { pos: [-8.0,  0,  5.5], sitting: false, facing: -1.2, sz: 0.28, walkRadius: 0.35, walkSpeed: 0.70, phase: 4.8 },
+];
+
+function GroundGull({ pos, sitting, facing, sz, walkRadius, walkSpeed, phase }: GroundGullConfig) {
+  const groupRef = useRef<THREE.Group>(null!);
+  const headRef  = useRef<THREE.Group>(null!);
+  const legLRef  = useRef<THREE.Mesh>(null!);
+  const legRRef  = useRef<THREE.Mesh>(null!);
+  const originX  = pos[0];
+  const originZ  = pos[2];
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (!groupRef.current) return;
+
+    if (!sitting && walkRadius > 0) {
+      const wt = t * walkSpeed + phase;
+      groupRef.current.position.x = originX + Math.cos(wt) * walkRadius;
+      groupRef.current.position.z = originZ + Math.sin(wt * 0.7) * walkRadius * 0.5;
+      groupRef.current.rotation.y = facing + Math.sin(wt * 0.4) * 0.6;
+      // Leg waddle
+      if (legLRef.current) legLRef.current.rotation.x =  Math.sin(t * 3.5) * 0.38;
+      if (legRRef.current) legRRef.current.rotation.x = -Math.sin(t * 3.5) * 0.38;
+    }
+    // Head bob for all gulls
+    if (headRef.current) {
+      headRef.current.position.y = (sitting ? sz * 0.68 : sz * 0.80) + Math.sin(t * 1.6 + phase) * 0.015;
+    }
+  });
+
+  const white = "#f5f5f5";
+  const grey  = "#c8cdd0";
+  const bodyY = sitting ? sz * 0.08 : sz * 0.22;
+
+  return (
+    <group ref={groupRef} position={[pos[0], 0, pos[2]]} rotation={[0, facing, 0]}>
+      {/* Body — horizontal capsule */}
+      <mesh position={[0, bodyY, 0]} rotation={[sitting ? 0.25 : Math.PI / 2, 0, 0]} castShadow>
+        <capsuleGeometry args={[sz * 0.13, sz * 0.72, 4, 10]} />
+        <meshStandardMaterial color={white} roughness={0.82} />
+      </mesh>
+
+      {/* Folded wings — resting on body sides */}
+      <mesh position={[-sz * 0.13, bodyY + sz * 0.06, sz * 0.04]} rotation={[0, 0.18, 0]}>
+        <boxGeometry args={[sz * 0.08, sz * 0.07, sz * 0.62]} />
+        <meshStandardMaterial color={grey} roughness={0.8} />
+      </mesh>
+      <mesh position={[ sz * 0.13, bodyY + sz * 0.06, sz * 0.04]} rotation={[0, -0.18, 0]}>
+        <boxGeometry args={[sz * 0.08, sz * 0.07, sz * 0.62]} />
+        <meshStandardMaterial color={grey} roughness={0.8} />
+      </mesh>
+      {/* Wing-tip darker patch */}
+      <mesh position={[-sz * 0.13, bodyY + sz * 0.06, -sz * 0.28]}>
+        <boxGeometry args={[sz * 0.07, sz * 0.05, sz * 0.14]} />
+        <meshStandardMaterial color="#555" roughness={0.85} />
+      </mesh>
+      <mesh position={[ sz * 0.13, bodyY + sz * 0.06, -sz * 0.28]}>
+        <boxGeometry args={[sz * 0.07, sz * 0.05, sz * 0.14]} />
+        <meshStandardMaterial color="#555" roughness={0.85} />
+      </mesh>
+
+      {/* Tail feathers */}
+      <mesh position={[0, bodyY - sz * 0.04, -sz * 0.38]} rotation={[-0.25, 0, 0]}>
+        <boxGeometry args={[sz * 0.18, sz * 0.04, sz * 0.18]} />
+        <meshStandardMaterial color={white} roughness={0.85} />
+      </mesh>
+
+      {/* Legs — only visible when standing */}
+      {!sitting && (
+        <>
+          <mesh ref={legLRef} position={[-sz * 0.08, sz * 0.04, sz * 0.06]}>
+            <capsuleGeometry args={[sz * 0.022, sz * 0.20, 4, 6]} />
+            <meshStandardMaterial color="#e8a840" roughness={0.7} />
+          </mesh>
+          <mesh ref={legRRef} position={[ sz * 0.08, sz * 0.04, sz * 0.06]}>
+            <capsuleGeometry args={[sz * 0.022, sz * 0.20, 4, 6]} />
+            <meshStandardMaterial color="#e8a840" roughness={0.7} />
+          </mesh>
+          {/* Feet */}
+          <mesh position={[-sz * 0.08, -sz * 0.06, sz * 0.12]}>
+            <boxGeometry args={[sz * 0.06, sz * 0.018, sz * 0.18]} />
+            <meshStandardMaterial color="#e8a840" roughness={0.75} />
+          </mesh>
+          <mesh position={[ sz * 0.08, -sz * 0.06, sz * 0.12]}>
+            <boxGeometry args={[sz * 0.06, sz * 0.018, sz * 0.18]} />
+            <meshStandardMaterial color="#e8a840" roughness={0.75} />
+          </mesh>
+        </>
+      )}
+
+      {/* Head */}
+      <group ref={headRef} position={[0, sitting ? sz * 0.68 : sz * 0.80, sz * 0.38]}>
+        <mesh castShadow>
+          <sphereGeometry args={[sz * 0.155, 10, 10]} />
+          <meshStandardMaterial color={white} roughness={0.80} />
+        </mesh>
+        {/* Dark eye patch */}
+        <mesh position={[-sz * 0.09, sz * 0.02, sz * 0.11]}>
+          <sphereGeometry args={[sz * 0.042, 8, 8]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.3} />
+        </mesh>
+        <mesh position={[ sz * 0.09, sz * 0.02, sz * 0.11]}>
+          <sphereGeometry args={[sz * 0.042, 8, 8]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.3} />
+        </mesh>
+        {/* Beak */}
+        <mesh position={[0, -sz * 0.018, sz * 0.155]} rotation={[0.15, 0, 0]}>
+          <coneGeometry args={[sz * 0.032, sz * 0.16, 6]} />
+          <meshStandardMaterial color="#e8a840" roughness={0.55} />
+        </mesh>
+        {/* Beak tip red spot */}
+        <mesh position={[0, -sz * 0.055, sz * 0.22]}>
+          <sphereGeometry args={[sz * 0.018, 6, 6]} />
+          <meshStandardMaterial color="#c0392b" roughness={0.4} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+function GroundSeagulls() {
+  return (
+    <group>
+      {GROUND_GULL_CONFIGS.map((cfg, i) => <GroundGull key={i} {...cfg} />)}
+    </group>
+  );
+}
+
 // ── Sun + Lighting ───────────────────────────────────────────────────────────
 function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; elevation: number; intensity: number }) {
   const lightRef = useRef<THREE.DirectionalLight>(null!);
@@ -1750,6 +2040,7 @@ function Scene({ paused, autoRotate, onPoint }: {
       <SpectatorStand />
       <Ocean />
       <Seagulls />
+      <GroundSeagulls />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
