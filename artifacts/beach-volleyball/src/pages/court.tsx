@@ -1235,18 +1235,54 @@ function useVolleyballPhysics(paused: boolean) {
     { pos: new THREE.Vector3(6.5, 0, -1.5), vel: new THREE.Vector3(), jumpT: 0, hitT: 0, diveT: 0, isJumping: false, facingAngle: 0, hitType: "set" },
   ]);
 
+  // ── Rally state: tracks possession + 3-touch rule ──
+  const rallyRef = useRef({
+    touches:    0 as number,           // touches made this possession (0 = just received)
+    side:       "away" as "home" | "away", // side currently in possession
+    toucherIdx: -1 as number,          // player index (0|1) who made the last touch
+    serveSide:  "home" as "home" | "away", // who serves next
+  });
+  const prevBallX = useRef(0);
+
   const resetBall = useCallback(() => {
     const b = ballRef.current;
-    b.pos.set(-5, 4.5, (Math.random() - 0.5) * 3);
-    b.vel.set(8 + Math.random() * 2, 5 + Math.random() * 2, (Math.random() - 0.5) * 1.5);
-    b.angVel.set(
-      (Math.random() - 0.5) * 6,
-      (Math.random() - 0.5) * 6,
-      (Math.random() - 0.5) * 6
+    const r = rallyRef.current;
+
+    // Alternate service each rally
+    r.serveSide = r.serveSide === "home" ? "away" : "home";
+    r.touches    = 0;
+    r.toucherIdx = -1;
+    r.side       = r.serveSide === "home" ? "away" : "home"; // receiving side
+
+    const srvPlayers = r.serveSide === "home" ? homePlayers.current : awayPlayers.current;
+    const server     = srvPlayers[0];
+    const sideSign   = r.serveSide === "home" ? -1 : 1;
+    const serveZ     = (Math.random() - 0.5) * 2;
+
+    // Teleport server to behind baseline
+    server.pos.set(sideSign * (COURT_HALF_X + 2.1), 0, serveZ);
+    server.vel.set(0, 0, 0);
+
+    // Ball starts at server hand height, then launches over the net
+    const dirX    = r.serveSide === "home" ? 1 : -1;
+    const targetZ = (Math.random() - 0.5) * 5;
+    b.pos.set(server.pos.x, 1.8, server.pos.z);
+    b.vel.set(
+      dirX * (8.5 + Math.random() * 2.5),
+      7.0 + Math.random() * 1.5,
+      (targetZ - server.pos.z) * 0.55
     );
+    b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
-    b.lastHitter = "away";
-    b.inPlay = true;
+    b.lastHitter  = r.serveSide;
+    b.inPlay      = true;
+
+    // Trigger serve animation (jump-serve look)
+    server.hitType = "spike";
+    server.jumpT   = 0.01;
+    server.hitT    = 0.01;
+
+    prevBallX.current = b.pos.x;
   }, []);
 
   const _tmpVec = useMemo(() => new THREE.Vector3(), []);
@@ -1255,42 +1291,45 @@ function useVolleyballPhysics(paused: boolean) {
     if (paused) return;
     const clampedDt = Math.min(dt, 0.033);
     const b = ballRef.current;
+    const r = rallyRef.current;
 
     // ── Gravity + air drag ──
     b.vel.y += GRAVITY * clampedDt;
     b.vel.multiplyScalar(Math.pow(DRAG, clampedDt * 60));
     b.angVel.multiplyScalar(Math.pow(0.97, clampedDt * 60));
 
-    // ── Magnus effect: spinning ball curves (ω × v) ──
+    // ── Magnus effect (ω × v) — spinning ball curves ──
     const magnus = _tmpVec.crossVectors(b.angVel, b.vel).multiplyScalar(0.0014 * clampedDt);
     b.vel.add(magnus);
 
-    // ── Integrate position ──
     b.pos.addScaledVector(b.vel, clampedDt);
 
-    // ── Sand floor bounce (more energy absorption than hard court) ──
+    // ── Net crossing → new possession, reset touch count ──
+    const px = prevBallX.current;
+    prevBallX.current = b.pos.x;
+    if (px * b.pos.x < 0 && Math.abs(b.vel.x) > 0.5) {
+      r.touches    = 0;
+      r.toucherIdx = -1;
+      r.side       = b.pos.x < 0 ? "home" : "away";
+    }
+
+    // ── Sand floor: one bounce = point over ──
     if (b.pos.y - BALL_RADIUS <= 0) {
       b.pos.y = BALL_RADIUS;
-      b.vel.y = -b.vel.y * 0.55;   // sand: lower restitution
-      b.vel.x *= 0.70;              // heavy sand friction
+      b.vel.y = -b.vel.y * 0.55;
+      b.vel.x *= 0.70;
       b.vel.z *= 0.70;
       b.angVel.multiplyScalar(0.55);
       b.bounceCount++;
       b.onGround = Math.abs(b.vel.y) < 0.6;
-
-      const outX = Math.abs(b.pos.x) > COURT_HALF_X;
-      const outZ = Math.abs(b.pos.z) > COURT_HALF_Z;
-      if (b.bounceCount >= 2 || outX || outZ) {
-        setTimeout(resetBall, 1400);
-        b.inPlay = false;
-      }
+      if (b.inPlay) { setTimeout(resetBall, 1500); b.inPlay = false; }
     }
 
-    // ── Net collision — elastic side-kick ──
+    // ── Net collision ──
     if (Math.abs(b.pos.x) < 0.22 && b.pos.y < NET_HEIGHT + BALL_RADIUS && b.pos.y > 0.8) {
-      b.vel.x = -b.vel.x * 0.55;
+      b.vel.x  = -b.vel.x * 0.55;
       b.vel.y *= 0.7;
-      b.pos.x = Math.sign(b.pos.x || -1) * 0.25;
+      b.pos.x  = Math.sign(b.pos.x || -1) * 0.26;
     }
 
     // ── Soft side boundaries ──
@@ -1299,109 +1338,172 @@ function useVolleyballPhysics(paused: boolean) {
       b.pos.z = Math.sign(b.pos.z) * 6.5;
     }
 
-    // ── Player AI ──────────────────────────────────────────────────────────
-    const allPlayers = [
-      ...homePlayers.current.map(p => ({ p, side: "home" as const })),
-      ...awayPlayers.current.map(p => ({ p, side: "away" as const })),
+    // ── Player AI — 3-touch rally system ──────────────────────────────────
+    const sides: { side: "home" | "away"; players: PlayerState[] }[] = [
+      { side: "home", players: homePlayers.current },
+      { side: "away", players: awayPlayers.current },
     ];
 
-    for (const { p, side } of allPlayers) {
+    for (const { side, players } of sides) {
       const ballOnMySide = side === "home" ? b.pos.x < 0 : b.pos.x > 0;
-      const isLastHitter = b.lastHitter === side;
-      const isP1 = side === "home" ? homePlayers.current[0] === p : awayPlayers.current[0] === p;
+      const myPossession = r.side === side && ballOnMySide;
 
-      let targetX: number, targetZ: number;
+      for (let pi = 0; pi < players.length; pi++) {
+        const p = players[pi];
+        const madeLastTouch = r.toucherIdx === pi && r.side === side;
 
-      if (ballOnMySide && !isLastHitter) {
-        const tToHit = estimateTimeToReach(b, PLAYER_REACH);
-        targetX = Math.max(-COURT_HALF_X + 1, Math.min(COURT_HALF_X - 1, b.pos.x + b.vel.x * tToHit));
-        targetZ = Math.max(-COURT_HALF_Z + 0.5, Math.min(COURT_HALF_Z - 0.5, b.pos.z + b.vel.z * tToHit));
-      } else {
-        // Return to beach volleyball base positions (wider spread)
-        targetX = side === "home" ? (isP1 ? -3.5 : -6.8) : (isP1 ? 3.5 : 6.8);
-        targetZ = isP1 ? -1.8 : 1.8;
-      }
+        // ── Targeting ──
+        let targetX: number, targetZ: number;
 
-      // ── Movement with sand drag (acceleration in sand is sluggish) ──
-      const toTarget = new THREE.Vector3(targetX - p.pos.x, 0, targetZ - p.pos.z);
-      const distToTarget = toTarget.length();
-      const sandLerp = 7 * clampedDt; // slower to accelerate in sand
-      if (distToTarget > 0.15) {
-        toTarget.normalize();
-        p.vel.lerp(toTarget.multiplyScalar(PLAYER_SPEED), sandLerp);
-        p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
-      } else {
-        p.vel.multiplyScalar(0.08); // sand braking
-      }
-      p.pos.addScaledVector(p.vel, clampedDt);
+        if (ballOnMySide && b.inPlay) {
+          const tFly  = estimateTimeToReach(b, PLAYER_REACH);
+          const predX = Math.max(-COURT_HALF_X + 1, Math.min(COURT_HALF_X - 1, b.pos.x + b.vel.x * tFly));
+          const predZ = Math.max(-COURT_HALF_Z + 0.5, Math.min(COURT_HALF_Z - 0.5, b.pos.z + b.vel.z * tFly));
 
-      p.pos.x = side === "home"
-        ? Math.max(-COURT_HALF_X + 0.5, Math.min(-0.55, p.pos.x))
-        : Math.max(0.55, Math.min(COURT_HALF_X - 0.5, p.pos.x));
-      p.pos.z = Math.max(-COURT_HALF_Z + 0.3, Math.min(COURT_HALF_Z - 0.3, p.pos.z));
+          if (!myPossession || r.touches === 0) {
+            // Receive: non-last-toucher chases; other recovers
+            if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
+            else { targetX = side === "home" ? -6 : 6; targetZ = pi === 0 ? -2 : 2; }
 
-      // ── Hit detection ──
-      const hdx = p.pos.x - b.pos.x;
-      const hdz = p.pos.z - b.pos.z;
-      const distXZ = Math.sqrt(hdx * hdx + hdz * hdz);
-      const ballH = b.pos.y;
-      const inRange = distXZ < 1.4 && Math.abs(ballH - (p.pos.y + 1.0)) < 1.6;
+          } else if (r.touches === 1) {
+            // After dig: setter chases set target; digger recovers toward net
+            if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
+            else {
+              // Digger runs into attack approach position
+              targetX = side === "home" ? -2.2 : 2.2;
+              targetZ = predZ * 0.5;
+            }
 
-      if (ballOnMySide && inRange && !isLastHitter && b.inPlay && p.diveT === 0 && p.jumpT === 0) {
-        const dirX = side === "home" ? 1 : -1;
-        const targetZOut = (Math.random() - 0.5) * 5.5;
-
-        // Determine hit type by ball height
-        let hitType: HitType;
-        if (ballH < 1.0) {
-          hitType = "dig";
-        } else if (ballH > 2.4 && p.pos.y > 0.2) {
-          hitType = "spike";
+          } else { // touches === 2 — attack approach
+            // Attacker (non-setter) closes on set ball
+            if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
+            else {
+              // Setter steps off — near net, own side
+              targetX = side === "home" ? -3.0 : 3.0;
+              targetZ = pi === 0 ? 1.5 : -1.5;
+            }
+          }
         } else {
-          hitType = "set";
+          // Off-ball: return to base positions (wide beach-volleyball spread)
+          const bx = side === "home" ? -1 : 1;
+          targetX = bx * (pi === 0 ? 3.8 : 6.6);
+          targetZ = pi === 0 ? -1.8 : 1.8;
         }
-        p.hitType = hitType;
 
-        if (hitType === "dig") {
-          // Low ball → DIVE: player lunges, lower speed contact
-          const speed = 7 + Math.random() * 3;
-          b.vel.set(dirX * speed * 0.75, 6 + Math.random() * 1.5, (targetZOut - b.pos.z) * 0.5);
-          b.angVel.set((Math.random()-0.5)*6, (Math.random()-0.5)*6, (Math.random()-0.5)*6);
-          p.diveT = 0.01;
-          p.hitT  = 0.01;
-        } else if (hitType === "spike") {
-          // High ball → SPIKE JUMP: fast cross-court attack
-          const speed = 13 + Math.random() * 5;
-          b.vel.set(dirX * speed, 2.5 + Math.random(), (targetZOut - b.pos.z) * 0.7);
-          b.angVel.set((Math.random()-0.5)*12, (Math.random()-0.5)*10, (Math.random()-0.5)*12);
-          p.jumpT = 0.01;
-          p.hitT  = 0.01;
+        // ── Sand-drag movement ──
+        const toT = new THREE.Vector3(targetX - p.pos.x, 0, targetZ - p.pos.z);
+        const dist = toT.length();
+        if (dist > 0.15) {
+          toT.normalize();
+          p.vel.lerp(toT.multiplyScalar(PLAYER_SPEED), 7 * clampedDt);
+          p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
         } else {
-          // Mid ball → SET: high arc, precise placement
-          const speed = 9 + Math.random() * 2.5;
-          b.vel.set(dirX * speed * 0.78, 7 + Math.random() * 2, (targetZOut - b.pos.z) * 0.45);
-          b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
-          p.hitT = 0.01;
+          p.vel.multiplyScalar(0.08);
         }
-        b.lastHitter = side;
-      }
+        p.pos.addScaledVector(p.vel, clampedDt);
 
-      // ── Advance animation timers ──
-      if (p.hitT > 0) {
-        p.hitT = Math.min(1, p.hitT + clampedDt * 2.6);
-        if (p.hitT >= 1) p.hitT = 0;
-      }
-      if (p.jumpT > 0) {
-        p.jumpT = Math.min(1, p.jumpT + clampedDt * 2.0);
-        const jumpH = p.hitType === "spike" ? 1.05 : 0.55;
-        p.pos.y = Math.sin(p.jumpT * Math.PI) * jumpH;
-        if (p.jumpT >= 1) { p.jumpT = 0; p.pos.y = 0; }
-      }
-      if (p.diveT > 0) {
-        p.diveT = Math.min(1, p.diveT + clampedDt * 1.8);
-        // Slide forward during dive
-        p.pos.addScaledVector(p.vel, clampedDt * 0.6);
-        if (p.diveT >= 1) { p.diveT = 0; }
+        // Clamp to half — but let server start outside baseline
+        const outsideBaseline = Math.abs(p.pos.x) > COURT_HALF_X;
+        if (!outsideBaseline) {
+          p.pos.x = side === "home"
+            ? Math.max(-COURT_HALF_X + 0.5, Math.min(-0.55, p.pos.x))
+            : Math.max(0.55, Math.min(COURT_HALF_X - 0.5, p.pos.x));
+        }
+        p.pos.z = Math.max(-COURT_HALF_Z + 0.3, Math.min(COURT_HALF_Z - 0.3, p.pos.z));
+
+        // ── Hit detection ──
+        const hdx      = p.pos.x - b.pos.x;
+        const hdz      = p.pos.z - b.pos.z;
+        const distXZ   = Math.sqrt(hdx * hdx + hdz * hdz);
+        const ballH    = b.pos.y;
+        const reachH   = p.pos.y + 1.05;
+        const inRange  = distXZ < 1.5 && Math.abs(ballH - reachH) < 1.9;
+        const canHit   = ballOnMySide && inRange && !madeLastTouch && b.inPlay
+                         && p.diveT === 0 && p.jumpT === 0;
+
+        if (canHit) {
+          const dirX    = side === "home" ? 1 : -1;
+          const partner = players[1 - pi];
+
+          if (!myPossession || r.touches === 0) {
+            // ── TOUCH 1: RECEIVE — dig/pass high to partner (same side) ──
+            const toPartner = new THREE.Vector3(
+              partner.pos.x - b.pos.x, 0, partner.pos.z - b.pos.z
+            );
+            const pd = Math.max(1, toPartner.length());
+            toPartner.normalize();
+            b.vel.set(
+              toPartner.x * Math.min(4.5, pd * 1.3),
+              8.5 + Math.random() * 2,
+              toPartner.z * Math.min(4.5, pd * 1.3)
+            );
+            b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
+
+            if (ballH < 1.15) {
+              // Low ball — DIVE DIG
+              p.hitType = "dig";
+              p.diveT   = 0.01;
+            } else {
+              p.hitType = "set";
+            }
+            p.hitT       = 0.01;
+            r.touches    = 1;
+            r.toucherIdx = pi;
+            r.side       = side;
+
+          } else if (r.touches === 1) {
+            // ── TOUCH 2: SET — high ball toward attack zone near net ──
+            const attackX = side === "home" ? -2.0 : 2.0;
+            const attackZ = (Math.random() - 0.5) * 2.8;
+            const toAtk   = new THREE.Vector3(attackX - b.pos.x, 0, attackZ - b.pos.z);
+            const ad      = Math.max(1, toAtk.length());
+            toAtk.normalize();
+            b.vel.set(
+              toAtk.x * Math.min(5.5, ad * 1.4),
+              9.5 + Math.random() * 2,
+              toAtk.z * Math.min(5.5, ad * 1.4)
+            );
+            b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
+
+            p.hitType    = "set";
+            p.hitT       = 0.01;
+            r.touches    = 2;
+            r.toucherIdx = pi;
+
+          } else if (r.touches === 2) {
+            // ── TOUCH 3: SPIKE — jump smash over net ──
+            const targetZspike = (Math.random() - 0.5) * 5.5;
+            const spikeSpeed   = 12.5 + Math.random() * 5;
+            b.vel.set(
+              dirX * spikeSpeed,
+              2.2 + Math.random() * 1.2,
+              (targetZspike - b.pos.z) * 0.78
+            );
+            b.angVel.set((Math.random()-0.5)*14, (Math.random()-0.5)*10, (Math.random()-0.5)*14);
+
+            p.hitType    = "spike";
+            p.jumpT      = 0.01;
+            p.hitT       = 0.01;
+            r.touches    = 3;
+            b.lastHitter = side;
+          }
+        }
+
+        // ── Advance animation timers ──
+        if (p.hitT > 0) {
+          p.hitT = Math.min(1, p.hitT + clampedDt * 2.6);
+          if (p.hitT >= 1) p.hitT = 0;
+        }
+        if (p.jumpT > 0) {
+          p.jumpT = Math.min(1, p.jumpT + clampedDt * 1.9);
+          p.pos.y = Math.sin(p.jumpT * Math.PI) * (p.hitType === "spike" ? 1.05 : 0.55);
+          if (p.jumpT >= 1) { p.jumpT = 0; p.pos.y = 0; }
+        }
+        if (p.diveT > 0) {
+          p.diveT = Math.min(1, p.diveT + clampedDt * 1.8);
+          p.pos.addScaledVector(p.vel, clampedDt * 0.55);
+          if (p.diveT >= 1) { p.diveT = 0; }
+        }
       }
     }
   });
