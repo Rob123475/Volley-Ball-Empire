@@ -834,61 +834,92 @@ function SpectatorStand() {
 }
 
 // ── Animated Ocean ────────────────────────────────────────────────────────────
-function Ocean() {
-  const geoRef = useRef<THREE.PlaneGeometry>(null!);
-  const foamRef = useRef<THREE.PlaneGeometry>(null!);
-  const shallowRef = useRef<THREE.PlaneGeometry>(null!);
+// Gerstner wave params: [dirX, dirZ, amplitude, wavenumber, speed]
+const GERSTNER_WAVES: [number, number, number, number, number][] = [
+  [ 1.0,  0.0,  0.62, 0.14, 1.25],
+  [ 0.7,  0.7,  0.38, 0.21, 0.95],
+  [-0.5,  0.86, 0.28, 0.29, 1.55],
+  [ 0.3, -0.95, 0.18, 0.38, 0.72],
+  [ 0.9,  0.4,  0.14, 0.17, 2.05],
+  [-0.8,  0.6,  0.10, 0.45, 1.80],
+];
 
-  const W_SEGS = 64;
-  const D_SEGS = 40;
-  const FOAM_SEGS = 32;
+function Ocean() {
+  const geoRef   = useRef<THREE.PlaneGeometry>(null!);
+  const foamRef  = useRef<THREE.PlaneGeometry>(null!);
+  const shallowRef = useRef<THREE.PlaneGeometry>(null!);
+  // Cache original rest positions so waves compute from the undeformed mesh
+  const origDeep    = useRef<Float32Array | null>(null);
+  const origShallow = useRef<Float32Array | null>(null);
+
+  const W_SEGS   = 72;
+  const D_SEGS   = 48;
+  const FOAM_SEGS = 40;
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
 
-    // ── Deep ocean waves ──
+    // ── Gerstner deep ocean ──
     const geo = geoRef.current;
     if (geo) {
       const pos = geo.attributes.position as THREE.BufferAttribute;
+      if (!origDeep.current) {
+        origDeep.current = new Float32Array(pos.count * 2);
+        for (let i = 0; i < pos.count; i++) {
+          origDeep.current[i * 2]     = pos.getX(i);
+          origDeep.current[i * 2 + 1] = pos.getZ(i);
+        }
+      }
       for (let i = 0; i < pos.count; i++) {
-        const x = pos.getX(i);
-        const z = pos.getZ(i);
-        const y =
-          Math.sin(x * 0.18 + t * 1.1) * 0.55 +
-          Math.sin(x * 0.32 - t * 0.75) * 0.3 +
-          Math.sin(z * 0.22 + t * 0.9) * 0.4 +
-          Math.sin((x * 0.12 + z * 0.08) + t * 1.4) * 0.25 +
-          Math.cos(x * 0.08 - z * 0.15 + t * 0.6) * 0.18;
+        const ox = origDeep.current[i * 2];
+        const oz = origDeep.current[i * 2 + 1];
+        let y = 0;
+        for (const [dx, dz, A, k, spd] of GERSTNER_WAVES) {
+          const phase = k * (ox * dx + oz * dz) - spd * t;
+          // Gerstner: squared cosine gives sharp crests, flat troughs
+          y += A * (Math.pow((Math.cos(phase) + 1) * 0.5, 1.8) * 2 - 0.9);
+          // High-freq chop
+          y += A * 0.18 * Math.sin(phase * 2.1 + ox * 0.07 - oz * 0.05);
+        }
         pos.setY(i, y);
       }
       pos.needsUpdate = true;
       geo.computeVertexNormals();
     }
 
-    // ── Shallow ripples ──
+    // ── Shallow ripples (physics-lite) ──
     const sg = shallowRef.current;
     if (sg) {
       const pos = sg.attributes.position as THREE.BufferAttribute;
+      if (!origShallow.current) {
+        origShallow.current = new Float32Array(pos.count * 2);
+        for (let i = 0; i < pos.count; i++) {
+          origShallow.current[i * 2]     = pos.getX(i);
+          origShallow.current[i * 2 + 1] = pos.getZ(i);
+        }
+      }
       for (let i = 0; i < pos.count; i++) {
-        const x = pos.getX(i);
-        const z = pos.getZ(i);
+        const ox = origShallow.current[i * 2];
+        const oz = origShallow.current[i * 2 + 1];
         const y =
-          Math.sin(x * 0.4 + t * 1.6) * 0.12 +
-          Math.sin(z * 0.5 + t * 1.2) * 0.08;
+          Math.sin(ox * 0.38 + t * 1.7) * 0.14 +
+          Math.sin(oz * 0.52 + t * 1.3) * 0.09 +
+          Math.sin(ox * 0.72 - oz * 0.31 + t * 2.2) * 0.05;
         pos.setY(i, y);
       }
       pos.needsUpdate = true;
       sg.computeVertexNormals();
     }
 
-    // ── Foam line ripples ──
+    // ── Foam — pulses in toward shore ──
     const fg = foamRef.current;
     if (fg) {
       const pos = fg.attributes.position as THREE.BufferAttribute;
+      const surge = Math.sin(t * 0.55) * 0.5; // shore-surge offset
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
-        const y = Math.sin(x * 0.35 + t * 1.8) * 0.06 + 0.02;
-        pos.setY(i, y);
+        pos.setY(i, Math.sin(x * 0.38 + t * 1.9) * 0.09 + 0.03);
+        pos.setZ(i, surge);
       }
       pos.needsUpdate = true;
     }
@@ -964,6 +995,104 @@ function Ocean() {
           side={THREE.DoubleSide}
         />
       </mesh>
+    </group>
+  );
+}
+
+// ── Seagulls ──────────────────────────────────────────────────────────────────
+interface GullConfig { rx: number; rz: number; cy: number; spd: number; phase: number; sz: number }
+const GULL_CONFIGS: GullConfig[] = [
+  { rx: 20, rz: 10, cy: 11, spd: 0.38, phase: 0,            sz: 0.52 },
+  { rx: 28, rz: 13, cy: 15, spd: 0.27, phase: Math.PI*0.7,  sz: 0.65 },
+  { rx: 15, rz:  8, cy:  9, spd: 0.52, phase: Math.PI*1.4,  sz: 0.44 },
+  { rx: 34, rz: 16, cy: 19, spd: 0.22, phase: Math.PI*0.3,  sz: 0.72 },
+  { rx: 22, rz: 11, cy: 13, spd: 0.44, phase: Math.PI*1.9,  sz: 0.48 },
+  { rx: 12, rz:  6, cy:  7, spd: 0.60, phase: Math.PI*1.1,  sz: 0.38 },
+  { rx: 40, rz: 18, cy: 22, spd: 0.18, phase: Math.PI*0.55, sz: 0.80 },
+];
+
+function Seagull({ rx, rz, cy, spd, phase, sz }: GullConfig) {
+  const groupRef  = useRef<THREE.Group>(null!);
+  const wingLRef  = useRef<THREE.Mesh>(null!);
+  const wingRRef  = useRef<THREE.Mesh>(null!);
+  const prevAngle = useRef(phase);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() * spd + phase;
+    const px = Math.cos(t) * rx;
+    const pz = Math.sin(t) * rz + 26;          // orbit centred over ocean
+    const py = cy + Math.sin(t * 2.5) * 0.8;   // gentle altitude wobble
+
+    // Heading: tangent of the ellipse
+    const tx2 = -Math.sin(t) * rx;
+    const tz2 =  Math.cos(t) * rz;
+    const heading = Math.atan2(tx2, tz2);
+
+    // Bank angle proportional to turn rate
+    const dAngle = heading - prevAngle.current;
+    prevAngle.current = heading;
+    const bank = Math.max(-0.45, Math.min(0.45, dAngle * 18));
+
+    groupRef.current.position.set(px, py, pz);
+    groupRef.current.rotation.set(0, heading, bank);
+
+    // Wing flap — faster when banking harder
+    const flapSpeed = 7 + Math.abs(bank) * 4;
+    const flap = Math.sin(clock.getElapsedTime() * flapSpeed) * 0.45;
+    wingLRef.current.rotation.z =  flap;
+    wingRRef.current.rotation.z = -flap;
+  });
+
+  const white = "#f5f5f5";
+  const grey  = "#c8cdd0";
+  return (
+    <group ref={groupRef}>
+      {/* Body */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <capsuleGeometry args={[sz * 0.10, sz * 0.55, 4, 8]} />
+        <meshStandardMaterial color={white} roughness={0.85} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, sz * 0.05, sz * 0.34]}>
+        <sphereGeometry args={[sz * 0.11, 8, 8]} />
+        <meshStandardMaterial color={white} roughness={0.85} />
+      </mesh>
+      {/* Beak */}
+      <mesh position={[0, sz * 0.02, sz * 0.47]} rotation={[0.2, 0, 0]}>
+        <coneGeometry args={[sz * 0.025, sz * 0.12, 6]} />
+        <meshStandardMaterial color="#e8a840" roughness={0.6} />
+      </mesh>
+      {/* Left wing pivot */}
+      <group position={[-sz * 0.06, 0, 0]}>
+        <mesh ref={wingLRef} position={[-sz * 0.38, 0, 0]} rotation={[0, 0, 0]}>
+          <boxGeometry args={[sz * 0.72, sz * 0.035, sz * 0.18]} />
+          <meshStandardMaterial color={white} roughness={0.8} />
+        </mesh>
+      </group>
+      {/* Right wing pivot */}
+      <group position={[sz * 0.06, 0, 0]}>
+        <mesh ref={wingRRef} position={[sz * 0.38, 0, 0]}>
+          <boxGeometry args={[sz * 0.72, sz * 0.035, sz * 0.18]} />
+          <meshStandardMaterial color={white} roughness={0.8} />
+        </mesh>
+      </group>
+      {/* Wing tips (darker) */}
+      <mesh position={[-sz * 0.82, sz * 0.01, -sz * 0.02]}>
+        <boxGeometry args={[sz * 0.2, sz * 0.03, sz * 0.12]} />
+        <meshStandardMaterial color={grey} roughness={0.8} />
+      </mesh>
+      <mesh position={[sz * 0.82, sz * 0.01, -sz * 0.02]}>
+        <boxGeometry args={[sz * 0.2, sz * 0.03, sz * 0.12]} />
+        <meshStandardMaterial color={grey} roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+function Seagulls() {
+  return (
+    <group>
+      {GULL_CONFIGS.map((cfg, i) => <Seagull key={i} {...cfg} />)}
     </group>
   );
 }
@@ -1310,12 +1439,14 @@ function Scene({ paused, autoRotate }: { paused: boolean; autoRotate: boolean })
 
       {/* Randomised clouds */}
       <Clouds material={THREE.MeshLambertMaterial} limit={80}>
-        <Cloud position={[-18, 14, -10]} seed={1} scale={2.2} volume={5} color="#d8e8f5" fade={60} speed={0.12} opacity={0.55} bounds={[8, 2, 4]} segments={24} />
-        <Cloud position={[20, 18, -16]} seed={3} scale={2.8} volume={6} color="#ccddef" fade={80} speed={0.08} opacity={0.45} bounds={[10, 2, 5]} segments={20} />
-        <Cloud position={[4, 22, 22]} seed={7} scale={1.8} volume={4} color="#e0eaf6" fade={70} speed={0.15} opacity={0.38} bounds={[6, 1.5, 3]} segments={16} />
-        <Cloud position={[-30, 16, 8]} seed={12} scale={3.2} volume={7} color="#d0e2f2" fade={90} speed={0.06} opacity={0.5} bounds={[12, 2, 6]} segments={28} />
-        <Cloud position={[35, 20, -4]} seed={5} scale={2.4} volume={5} color="#cfe0f0" fade={75} speed={0.1} opacity={0.42} bounds={[9, 2, 4]} segments={22} />
-        <Cloud position={[-8, 26, -28]} seed={9} scale={2.0} volume={4} color="#dde9f8" fade={65} speed={0.14} opacity={0.35} bounds={[7, 1.5, 3.5]} segments={18} />
+        <Cloud position={[-18, 14, -10]} seed={1} scale={2.2} volume={5} color="#d8e8f5" fade={60} speed={0.55} opacity={0.55} bounds={[8, 2, 4]} segments={24} />
+        <Cloud position={[20, 18, -16]} seed={3} scale={2.8} volume={6} color="#ccddef" fade={80} speed={0.40} opacity={0.45} bounds={[10, 2, 5]} segments={20} />
+        <Cloud position={[4, 22, 22]} seed={7} scale={1.8} volume={4} color="#e0eaf6" fade={70} speed={0.70} opacity={0.38} bounds={[6, 1.5, 3]} segments={16} />
+        <Cloud position={[-30, 16, 8]} seed={12} scale={3.2} volume={7} color="#d0e2f2" fade={90} speed={0.30} opacity={0.5} bounds={[12, 2, 6]} segments={28} />
+        <Cloud position={[35, 20, -4]} seed={5} scale={2.4} volume={5} color="#cfe0f0" fade={75} speed={0.50} opacity={0.42} bounds={[9, 2, 4]} segments={22} />
+        <Cloud position={[-8, 26, -28]} seed={9} scale={2.0} volume={4} color="#dde9f8" fade={65} speed={0.65} opacity={0.35} bounds={[7, 1.5, 3.5]} segments={18} />
+        <Cloud position={[10, 19, 35]} seed={14} scale={2.6} volume={5} color="#d5e5f5" fade={85} speed={0.45} opacity={0.40} bounds={[9, 2, 4]} segments={20} />
+        <Cloud position={[-22, 24, 18]} seed={6} scale={1.6} volume={3} color="#e5eefa" fade={55} speed={0.80} opacity={0.30} bounds={[5, 1.5, 3]} segments={14} />
       </Clouds>
 
       <BeachCourt sandColor={sandColor} />
@@ -1323,6 +1454,7 @@ function Scene({ paused, autoRotate }: { paused: boolean; autoRotate: boolean })
       <UmpireChair />
       <SpectatorStand />
       <Ocean />
+      <Seagulls />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
@@ -1430,7 +1562,7 @@ export default function ThreeDCourt() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-3 pt-0 space-y-3">
-              <Select onValueChange={setSelectedLocId} value={selectedLocId || selectedLocation?.id.toString()}>
+              <Select onValueChange={setSelectedLocId} value={selectedLocId}>
                 <SelectTrigger className="bg-background/60 h-8 text-xs">
                   <SelectValue placeholder="Select Location" />
                 </SelectTrigger>
