@@ -25,7 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw, RefreshCw } from "lucide-react";
+import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw, RefreshCw, Zap, Shield } from "lucide-react";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const GRAVITY = -9.81;
@@ -803,7 +803,7 @@ function CafeSet({ position }: { position: [number, number, number] }) {
 function BeachUmbrellas() {
   const spots: { pos: [number, number, number]; color: string; tilt: number }[] = [
     { pos: [-(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#e63946", tilt:  0.07 },
-    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#f4a261", tilt: -0.06 },
+    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#f72585", tilt: -0.06 },
     { pos:  [(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#2a9d8f", tilt:  0.08 },
     { pos:  [(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#e9c46a", tilt: -0.07 },
   ];
@@ -1586,7 +1586,8 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
 // ── Physics Simulation Hook ──────────────────────────────────────────────────
 function useVolleyballPhysics(
   paused: boolean,
-  onPoint: (winner: "home" | "away", isPoint: boolean) => void
+  onPoint: (winner: "home" | "away", isPoint: boolean) => void,
+  boostRef?: { current: { attack: boolean; defense: boolean } }
 ) {
   const onPointRef = useRef(onPoint);
   useEffect(() => { onPointRef.current = onPoint; }, [onPoint]);
@@ -1822,7 +1823,8 @@ function useVolleyballPhysics(
         const distXZ   = Math.sqrt(hdx * hdx + hdz * hdz);
         const ballH    = b.pos.y;
         const reachH   = p.pos.y + 1.05;
-        const inRange  = distXZ < 1.5 && Math.abs(ballH - reachH) < 1.9;
+        const defBoost = side === "home" && !!boostRef?.current.defense;
+        const inRange  = distXZ < (defBoost ? 2.2 : 1.5) && Math.abs(ballH - reachH) < (defBoost ? 2.6 : 1.9);
         const canHit   = ballOnMySide && inRange && !madeLastTouch && b.inPlay
                          && p.diveT === 0 && p.jumpT === 0;
 
@@ -1878,7 +1880,8 @@ function useVolleyballPhysics(
           } else if (r.touches === 2) {
             // ── TOUCH 3: SPIKE — jump smash over net ──
             const targetZspike = (Math.random() - 0.5) * 5.5;
-            const spikeSpeed   = 12.5 + Math.random() * 5;
+            const atkBoost     = side === "home" && !!boostRef?.current.attack;
+            const spikeSpeed   = (12.5 + Math.random() * 5) * (atkBoost ? 1.40 : 1.0);
             b.vel.set(
               dirX * spikeSpeed,
               2.2 + Math.random() * 1.2,
@@ -2003,6 +2006,312 @@ function ScoreBoard({ match }: { match: MatchState }) {
         </div>
       )}
     </div>
+  );
+}
+
+// ── TV Crew + Broadcast Camera ────────────────────────────────────────────────
+function TVCrew() {
+  // Near the pink umbrella at [-10.5, 0, 6.0] — positioned just outside, aimed at court
+  const skin   = "#d4956a";
+  const dark   = "#2a2a2a";
+  const silver = "#aaaaaa";
+  return (
+    <group position={[-12.8, 0, 7.8]} rotation={[0, Math.PI * 0.22, 0]}>
+      {/* Camera operator */}
+      <group position={[0, 0, 0]}>
+        <mesh position={[-0.12, 0.62, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
+          <meshStandardMaterial color="#1a1a2e" roughness={0.8} />
+        </mesh>
+        <mesh position={[0.12, 0.62, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
+          <meshStandardMaterial color="#1a1a2e" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 1.14, 0]} castShadow>
+          <capsuleGeometry args={[0.24, 0.44, 4, 10]} />
+          <meshStandardMaterial color="#2d3748" roughness={0.7} />
+        </mesh>
+        {/* Headset */}
+        <mesh position={[0, 1.84, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.19, 0.018, 8, 20, Math.PI * 1.2]} />
+          <meshStandardMaterial color="#222" metalness={0.8} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 1.72, 0]} castShadow>
+          <sphereGeometry args={[0.18, 14, 14]} />
+          <meshStandardMaterial color={skin} roughness={0.55} />
+        </mesh>
+        {/* Shoulder-mount camera body */}
+        <group position={[-0.30, 1.28, -0.38]} rotation={[0.15, 0, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.20, 0.16, 0.46]} />
+            <meshStandardMaterial color={dark} roughness={0.35} metalness={0.65} />
+          </mesh>
+          <mesh position={[0, 0, -0.30]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.058, 0.048, 0.24, 12]} />
+            <meshStandardMaterial color="#111" metalness={0.85} roughness={0.25} />
+          </mesh>
+          <mesh position={[0, 0, -0.44]}>
+            <circleGeometry args={[0.048, 12]} />
+            <meshStandardMaterial color="#3366aa" metalness={0.9} roughness={0.08} transparent opacity={0.75} />
+          </mesh>
+          {/* REC light */}
+          <mesh position={[0.08, 0.10, -0.15]}>
+            <sphereGeometry args={[0.016, 6, 6]} />
+            <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={4} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* Large broadcast camera on tripod */}
+      <group position={[-1.4, 0, -0.6]}>
+        {/* Tripod legs */}
+        {([ [-0.38, 0.38], [0.38, 0.38], [0, -0.52] ] as [number,number][]).map(([lx, lz], i) => (
+          <mesh key={i} position={[lx * 0.5, 0.58, lz * 0.5]} rotation={[Math.atan2(1.15, 0.55), Math.atan2(lx, lz), 0]} castShadow>
+            <capsuleGeometry args={[0.018, 1.12, 4, 6]} />
+            <meshStandardMaterial color={silver} metalness={0.7} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Tripod head */}
+        <mesh position={[0, 1.18, 0]}>
+          <boxGeometry args={[0.10, 0.10, 0.10]} />
+          <meshStandardMaterial color="#555" metalness={0.8} roughness={0.3} />
+        </mesh>
+        {/* Big camera body */}
+        <group position={[0, 1.36, 0]} rotation={[0.08, 0.4, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.30, 0.22, 0.66]} />
+            <meshStandardMaterial color={dark} roughness={0.28} metalness={0.72} />
+          </mesh>
+          {/* Big lens barrel */}
+          <mesh position={[0, 0, -0.52]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.090, 0.075, 0.42, 16]} />
+            <meshStandardMaterial color="#1a1a1a" metalness={0.82} roughness={0.22} />
+          </mesh>
+          <mesh position={[0, 0, -0.75]}>
+            <circleGeometry args={[0.074, 16]} />
+            <meshStandardMaterial color="#224466" metalness={0.95} roughness={0.05} transparent opacity={0.88} />
+          </mesh>
+          {/* Red station branding stripe */}
+          <mesh position={[0, 0.125, 0]}>
+            <boxGeometry args={[0.28, 0.055, 0.02]} />
+            <meshStandardMaterial color="#e63946" roughness={0.55} />
+          </mesh>
+          {/* REC indicator */}
+          <mesh position={[0.13, 0.08, -0.32]}>
+            <sphereGeometry args={[0.022, 6, 6]} />
+            <meshStandardMaterial color="#ff2200" emissive="#ff2200" emissiveIntensity={5} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* Reporter holding mic */}
+      <group position={[1.1, 0, 0.25]}>
+        <mesh position={[-0.11, 0.62, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
+          <meshStandardMaterial color="#2c3e50" roughness={0.8} />
+        </mesh>
+        <mesh position={[0.11, 0.62, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
+          <meshStandardMaterial color="#2c3e50" roughness={0.8} />
+        </mesh>
+        {/* Blazer torso */}
+        <mesh position={[0, 1.14, 0]} castShadow>
+          <capsuleGeometry args={[0.21, 0.44, 4, 10]} />
+          <meshStandardMaterial color="#e74c3c" roughness={0.65} />
+        </mesh>
+        {/* Microphone */}
+        <mesh position={[-0.28, 1.06, -0.14]} rotation={[-0.3, 0, 0.2]}>
+          <capsuleGeometry args={[0.022, 0.28, 4, 6]} />
+          <meshStandardMaterial color={silver} metalness={0.8} roughness={0.3} />
+        </mesh>
+        <mesh position={[-0.32, 1.22, -0.19]}>
+          <sphereGeometry args={[0.036, 8, 8]} />
+          <meshStandardMaterial color="#888" metalness={0.6} roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 1.75, 0]} castShadow>
+          <sphereGeometry args={[0.183, 14, 14]} />
+          <meshStandardMaterial color="#f5cba7" roughness={0.55} />
+        </mesh>
+        {/* Hair */}
+        <mesh position={[0, 1.87, 0]}>
+          <sphereGeometry args={[0.178, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.50]} />
+          <meshStandardMaterial color="#2c1810" roughness={0.95} side={THREE.BackSide} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// ── Food Stall ─────────────────────────────────────────────────────────────────
+function FoodStall({ position, rotation = [0, 0, 0] as [number,number,number], stallType }: {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  stallType: "food" | "drinks";
+}) {
+  const awningColor = stallType === "food" ? "#e63946" : "#0077b6";
+  return (
+    <group position={position} rotation={rotation}>
+      {/* 4 frame posts */}
+      {([ [-0.92, 0], [0.92, 0], [-0.92, 0.52], [0.92, 0.52] ] as [number,number][]).map(([fx, fz], i) => (
+        <mesh key={i} position={[fx, 1.15, fz]} castShadow>
+          <boxGeometry args={[0.055, 2.30, 0.055]} />
+          <meshStandardMaterial color="#888" metalness={0.7} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Counter top */}
+      <mesh position={[0, 0.90, 0]} castShadow>
+        <boxGeometry args={[1.78, 0.08, 0.52]} />
+        <meshStandardMaterial color="#5d4037" roughness={0.7} />
+      </mesh>
+      {/* Counter front panel */}
+      <mesh position={[0, 0.50, -0.23]} castShadow>
+        <boxGeometry args={[1.78, 0.78, 0.055]} />
+        <meshStandardMaterial color="#795548" roughness={0.7} />
+      </mesh>
+      {/* Awning */}
+      <mesh position={[0, 2.18, -0.32]} rotation={[-0.32, 0, 0]} castShadow>
+        <boxGeometry args={[2.00, 0.06, 0.95]} />
+        <meshStandardMaterial color={awningColor} roughness={0.65} />
+      </mesh>
+      {/* Awning white stripes */}
+      {([-0.68, -0.22, 0.24, 0.70] as number[]).map((sx, i) => (
+        <mesh key={i} position={[sx, 2.19, -0.32]} rotation={[-0.32, 0, 0]}>
+          <boxGeometry args={[0.075, 0.065, 0.95]} />
+          <meshStandardMaterial color="white" roughness={0.7} />
+        </mesh>
+      ))}
+      {/* Sign board */}
+      <mesh position={[0, 2.40, -0.36]}>
+        <boxGeometry args={[1.60, 0.34, 0.04]} />
+        <meshStandardMaterial color={awningColor} roughness={0.58} />
+      </mesh>
+      {/* Server person */}
+      <group position={[0, 0, 0.30]}>
+        <mesh position={[0, 0.60, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.58, 4, 8]} />
+          <meshStandardMaterial color="#fff3e0" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 1.12, 0]} castShadow>
+          <capsuleGeometry args={[0.20, 0.42, 4, 10]} />
+          <meshStandardMaterial color={awningColor} roughness={0.65} />
+        </mesh>
+        <mesh position={[0, 1.68, 0]} castShadow>
+          <sphereGeometry args={[0.172, 12, 12]} />
+          <meshStandardMaterial color="#d4956a" roughness={0.55} />
+        </mesh>
+      </group>
+      {/* Items on counter */}
+      {stallType === "food" ? (
+        ([-0.5, 0, 0.5] as number[]).map((hx, i) => (
+          <mesh key={i} position={[hx, 0.965, -0.08]} rotation={[0, i * 0.5, 0]} castShadow>
+            <capsuleGeometry args={[0.042, 0.20, 4, 8]} />
+            <meshStandardMaterial color="#d4a055" roughness={0.8} />
+          </mesh>
+        ))
+      ) : (
+        ([-0.52, 0, 0.52] as number[]).map((cx, i) => (
+          <mesh key={i} position={[cx, 0.975, -0.08]} castShadow>
+            <cylinderGeometry args={[0.048, 0.036, 0.22, 8]} />
+            <meshStandardMaterial color={i % 2 === 0 ? "#e63946" : "#f4a261"} roughness={0.6} />
+          </mesh>
+        ))
+      )}
+    </group>
+  );
+}
+
+// ── Merchandise Store ──────────────────────────────────────────────────────────
+function MerchStore({ position, rotation = [0, 0, 0] as [number,number,number] }: {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+}) {
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Frame posts */}
+      {([-1.48, -0.75, 0.75, 1.48] as number[]).map((fx, i) => (
+        <mesh key={i} position={[fx, 1.15, 0]} castShadow>
+          <boxGeometry args={[0.055, 2.32, 0.055]} />
+          <meshStandardMaterial color="#888" metalness={0.7} roughness={0.4} />
+        </mesh>
+      ))}
+      {([-1.48, 1.48] as number[]).map((fx, i) => (
+        <mesh key={i} position={[fx, 1.15, 0.52]} castShadow>
+          <boxGeometry args={[0.055, 2.32, 0.055]} />
+          <meshStandardMaterial color="#888" metalness={0.7} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Back wall (display area) */}
+      <mesh position={[0, 1.15, 0.50]} castShadow>
+        <boxGeometry args={[2.96, 2.30, 0.05]} />
+        <meshStandardMaterial color="#fafafa" roughness={0.9} />
+      </mesh>
+      {/* Counter */}
+      <mesh position={[0, 0.90, -0.18]} castShadow>
+        <boxGeometry args={[2.82, 0.08, 0.52]} />
+        <meshStandardMaterial color="#4e342e" roughness={0.7} />
+      </mesh>
+      <mesh position={[0, 0.50, -0.42]} castShadow>
+        <boxGeometry args={[2.82, 0.78, 0.055]} />
+        <meshStandardMaterial color="#6d4c41" roughness={0.7} />
+      </mesh>
+      {/* Awning */}
+      <mesh position={[0, 2.24, -0.36]} rotation={[-0.28, 0, 0]} castShadow>
+        <boxGeometry args={[3.08, 0.07, 1.05]} />
+        <meshStandardMaterial color="#f72585" roughness={0.62} />
+      </mesh>
+      {([-1.15, -0.55, 0.05, 0.65, 1.25] as number[]).map((sx, i) => (
+        <mesh key={i} position={[sx, 2.25, -0.36]} rotation={[-0.28, 0, 0]}>
+          <boxGeometry args={[0.085, 0.075, 1.05]} />
+          <meshStandardMaterial color="white" roughness={0.7} />
+        </mesh>
+      ))}
+      {/* Sign board */}
+      <mesh position={[0, 2.48, -0.40]}>
+        <boxGeometry args={[2.68, 0.40, 0.04]} />
+        <meshStandardMaterial color="#f72585" roughness={0.58} />
+      </mesh>
+      {/* Jersey display rail */}
+      <mesh position={[0, 1.94, 0.28]}>
+        <boxGeometry args={[2.50, 0.038, 0.038]} />
+        <meshStandardMaterial color="#aaa" metalness={0.8} roughness={0.3} />
+      </mesh>
+      {/* Hanging jerseys */}
+      {([-1.0, -0.33, 0.33, 1.0] as number[]).map((jx, i) => (
+        <group key={i} position={[jx, 1.67, 0.28]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.26, 0.33, 0.03]} />
+            <meshStandardMaterial color={i % 2 === 0 ? "#0077B6" : "#E76F51"} roughness={0.65} />
+          </mesh>
+          {/* Hanger bar */}
+          <mesh position={[0, 0.21, 0]}>
+            <boxGeometry args={[0.15, 0.038, 0.015]} />
+            <meshStandardMaterial color="#aaa" metalness={0.7} roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
+      {/* Merch boxes on counter */}
+      {([-0.90, -0.30, 0.30, 0.90] as number[]).map((ix, i) => (
+        <mesh key={i} position={[ix, 0.965, -0.20]} castShadow>
+          <boxGeometry args={[0.14, 0.12, 0.12]} />
+          <meshStandardMaterial color={i % 2 === 0 ? "#0077B6" : "#E76F51"} roughness={0.7} />
+        </mesh>
+      ))}
+      {/* Seller */}
+      <group position={[0.5, 0, 0.26]}>
+        <mesh position={[0, 0.60, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.60, 4, 8]} />
+          <meshStandardMaterial color="#fff3e0" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 1.12, 0]} castShadow>
+          <capsuleGeometry args={[0.20, 0.42, 4, 10]} />
+          <meshStandardMaterial color="#f72585" roughness={0.65} />
+        </mesh>
+        <mesh position={[0, 1.68, 0]} castShadow>
+          <sphereGeometry args={[0.172, 12, 12]} />
+          <meshStandardMaterial color="#c8895a" roughness={0.55} />
+        </mesh>
+      </group>
+    </group>
   );
 }
 
@@ -2190,13 +2499,14 @@ function ManWithDog() {
 }
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
-function Scene({ paused, autoRotate, onPoint, swapCourtsRef }: {
+function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
   paused: boolean;
   autoRotate: boolean;
   onPoint: (winner: "home" | "away", isPoint: boolean) => void;
   swapCourtsRef?: { current: () => void };
+  boostRef?: { current: { attack: boolean; defense: boolean } };
 }) {
-  const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint);
+  const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint, boostRef);
   useEffect(() => { if (swapCourtsRef) swapCourtsRef.current = swapCourts; }, [swapCourts, swapCourtsRef]);
 
   const sandColor = "#dfc97a";
@@ -2259,6 +2569,10 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef }: {
       <Seagulls />
       <GroundSeagulls />
       <ManWithDog />
+      <TVCrew />
+      <FoodStall position={[-7, 0, 12]} rotation={[0, Math.PI, 0]} stallType="food" />
+      <FoodStall position={[0.5, 0, 12]} rotation={[0, Math.PI, 0]} stallType="drinks" />
+      <MerchStore position={[8, 0, 12]} rotation={[0, Math.PI, 0]} />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
@@ -2295,6 +2609,45 @@ export default function ThreeDCourt() {
   const [autoRotate, setAutoRotate] = useState(false);
   const [key, setKey] = useState(0);
   const swapCourtsRef = useRef<() => void>(() => {});
+
+  // ── Boost system ─────────────────────────────────────────────────────────
+  const boostRef    = useRef({ attack: false, defense: false });
+  const atkPhaseRef = useRef<"ready" | "active" | "cooldown">("ready");
+  const defPhaseRef = useRef<"ready" | "active" | "cooldown">("ready");
+  const [atkDisplay, setAtkDisplay] = useState<{ phase: "ready" | "active" | "cooldown"; timer: number }>({ phase: "ready", timer: 0 });
+  const [defDisplay, setDefDisplay] = useState<{ phase: "ready" | "active" | "cooldown"; timer: number }>({ phase: "ready", timer: 0 });
+
+  const activateBoost = useCallback((type: "attack" | "defense") => {
+    const phaseRef  = type === "attack" ? atkPhaseRef : defPhaseRef;
+    const setDisplay = type === "attack" ? setAtkDisplay : setDefDisplay;
+    if (phaseRef.current !== "ready") return;
+    const ACTIVE = 15, COOL = 45;
+    phaseRef.current = "active";
+    boostRef.current[type] = true;
+    setDisplay({ phase: "active", timer: ACTIVE });
+    let rem = ACTIVE;
+    const activeId = setInterval(() => {
+      rem -= 1;
+      if (rem <= 0) {
+        clearInterval(activeId);
+        boostRef.current[type] = false;
+        phaseRef.current = "cooldown";
+        setDisplay({ phase: "cooldown", timer: COOL });
+        let cool = COOL;
+        const coolId = setInterval(() => {
+          cool -= 1;
+          setDisplay({ phase: "cooldown", timer: cool });
+          if (cool <= 0) {
+            clearInterval(coolId);
+            phaseRef.current = "ready";
+            setDisplay({ phase: "ready", timer: 0 });
+          }
+        }, 1000);
+      } else {
+        setDisplay({ phase: "active", timer: rem });
+      }
+    }, 1000);
+  }, []);
 
   const POINTS_TO_WIN = 11;
   const SETS_TO_WIN   = 2;
@@ -2366,11 +2719,62 @@ export default function ThreeDCourt() {
         }}
         dpr={[1, 2]}
       >
-        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} />
+        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} boostRef={boostRef} />
       </Canvas>
 
       {/* Score */}
       <ScoreBoard match={match} />
+
+      {/* Boost Panel — bottom-left */}
+      <div className="absolute bottom-20 left-4 flex flex-col gap-2">
+        {/* Attack Boost */}
+        <button
+          onClick={() => activateBoost("attack")}
+          disabled={atkDisplay.phase !== "ready"}
+          className={[
+            "flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold shadow-xl transition-all select-none",
+            atkDisplay.phase === "active"
+              ? "bg-red-500 border-red-300 text-white shadow-red-500/60 animate-pulse cursor-default"
+              : atkDisplay.phase === "cooldown"
+              ? "bg-gray-800/80 border-gray-600 text-gray-400 cursor-not-allowed backdrop-blur"
+              : "bg-red-600/90 border-red-400 text-white hover:bg-red-500 active:scale-95 cursor-pointer backdrop-blur",
+          ].join(" ")}
+        >
+          <Zap className="h-4 w-4 flex-shrink-0" />
+          <span>ATTACK</span>
+          {atkDisplay.phase === "active" && (
+            <span className="ml-1 text-xs opacity-90 tabular-nums">{atkDisplay.timer}s</span>
+          )}
+          {atkDisplay.phase === "cooldown" && (
+            <span className="ml-1 text-xs opacity-70 tabular-nums">{atkDisplay.timer}s</span>
+          )}
+        </button>
+        {/* Defense Boost */}
+        <button
+          onClick={() => activateBoost("defense")}
+          disabled={defDisplay.phase !== "ready"}
+          className={[
+            "flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold shadow-xl transition-all select-none",
+            defDisplay.phase === "active"
+              ? "bg-blue-500 border-blue-300 text-white shadow-blue-500/60 animate-pulse cursor-default"
+              : defDisplay.phase === "cooldown"
+              ? "bg-gray-800/80 border-gray-600 text-gray-400 cursor-not-allowed backdrop-blur"
+              : "bg-blue-600/90 border-blue-400 text-white hover:bg-blue-500 active:scale-95 cursor-pointer backdrop-blur",
+          ].join(" ")}
+        >
+          <Shield className="h-4 w-4 flex-shrink-0" />
+          <span>DEFENSE</span>
+          {defDisplay.phase === "active" && (
+            <span className="ml-1 text-xs opacity-90 tabular-nums">{defDisplay.timer}s</span>
+          )}
+          {defDisplay.phase === "cooldown" && (
+            <span className="ml-1 text-xs opacity-70 tabular-nums">{defDisplay.timer}s</span>
+          )}
+        </button>
+        <div className="text-center text-[10px] font-semibold text-white/50 tracking-widest uppercase">
+          Team Boost
+        </div>
+      </div>
 
       {/* Control bar bottom-center */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-3">
