@@ -1214,7 +1214,9 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
 }
 
 // ── Physics Simulation Hook ──────────────────────────────────────────────────
-function useVolleyballPhysics(paused: boolean) {
+function useVolleyballPhysics(paused: boolean, onPoint: (scorer: "home" | "away") => void) {
+  const onPointRef = useRef(onPoint);
+  useEffect(() => { onPointRef.current = onPoint; }, [onPoint]);
   const ballRef = useRef<BallPhysics>({
     pos: new THREE.Vector3(-5, 4, 0.5),
     vel: new THREE.Vector3(7, 5, 0.2),
@@ -1322,7 +1324,17 @@ function useVolleyballPhysics(paused: boolean) {
       b.angVel.multiplyScalar(0.55);
       b.bounceCount++;
       b.onGround = Math.abs(b.vel.y) < 0.6;
-      if (b.inPlay) { setTimeout(resetBall, 1500); b.inPlay = false; }
+      if (b.inPlay) {
+        b.inPlay = false;
+        // In-bounds: side who let it land loses; out-of-bounds: last hitter loses
+        const outX = Math.abs(b.pos.x) > COURT_HALF_X;
+        const outZ = Math.abs(b.pos.z) > COURT_HALF_Z;
+        const scorer: "home" | "away" = (outX || outZ)
+          ? (b.lastHitter === "home" ? "away" : "home")   // hitter hit it out
+          : (b.pos.x < 0 ? "away" : "home");              // ball landed on their side
+        onPointRef.current(scorer);
+        setTimeout(resetBall, 1500);
+      }
     }
 
     // ── Net collision ──
@@ -1534,27 +1546,73 @@ function PixelRatioSetter() {
 }
 
 // ── Score Display ─────────────────────────────────────────────────────────────
-function ScoreBoard({ score }: { score: [number, number] }) {
+interface MatchState {
+  homeScore: number;
+  awayScore: number;
+  homeSets:  number;
+  awaySets:  number;
+  currentSet: number;
+  matchOver:  boolean;
+  matchWinner: "home" | "away" | null;
+}
+
+function ScoreBoard({ match }: { match: MatchState }) {
+  const setDots = (won: number) =>
+    [0, 1].map(i => (
+      <span
+        key={i}
+        className={`inline-block w-2.5 h-2.5 rounded-full border border-white/50 ${
+          i < won ? "bg-white" : "bg-white/20"
+        }`}
+      />
+    ));
+
   return (
-    <div className="absolute top-5 left-1/2 -translate-x-1/2 flex items-center gap-0 rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-      <div className="bg-[#0077B6]/90 backdrop-blur px-6 py-3 text-white">
-        <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-0.5">HOME</div>
-        <div className="text-4xl font-black tabular-nums">{score[0]}</div>
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none select-none">
+      {/* Set indicator */}
+      <div className="text-[10px] font-bold uppercase tracking-widest text-white/70 bg-black/50 backdrop-blur px-3 py-0.5 rounded-full">
+        Set {match.currentSet} · First to 11
       </div>
-      <div className="bg-black/70 backdrop-blur px-4 py-3 text-white/60">
-        <div className="text-xl font-black">:</div>
+
+      {/* Main scoreboard */}
+      <div className="flex items-stretch gap-0 rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+        {/* Home */}
+        <div className="bg-[#0077B6]/90 backdrop-blur px-5 py-2.5 text-white min-w-[90px] text-center">
+          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-0.5">HOME</div>
+          <div className="text-4xl font-black tabular-nums leading-none">{match.homeScore}</div>
+          <div className="flex justify-center gap-1 mt-1.5">{setDots(match.homeSets)}</div>
+        </div>
+
+        {/* Divider */}
+        <div className="bg-black/70 backdrop-blur px-3 flex items-center text-white/50 text-xl font-black">:</div>
+
+        {/* Away */}
+        <div className="bg-[#E76F51]/90 backdrop-blur px-5 py-2.5 text-white min-w-[90px] text-center">
+          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-0.5">AWAY</div>
+          <div className="text-4xl font-black tabular-nums leading-none">{match.awayScore}</div>
+          <div className="flex justify-center gap-1 mt-1.5">{setDots(match.awaySets)}</div>
+        </div>
       </div>
-      <div className="bg-[#E76F51]/90 backdrop-blur px-6 py-3 text-white">
-        <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-0.5">AWAY</div>
-        <div className="text-4xl font-black tabular-nums">{score[1]}</div>
-      </div>
+
+      {/* Match-over banner */}
+      {match.matchOver && (
+        <div className={`text-sm font-black uppercase tracking-widest px-6 py-1.5 rounded-full shadow-lg text-white ${
+          match.matchWinner === "home" ? "bg-[#0077B6]" : "bg-[#E76F51]"
+        }`}>
+          {match.matchWinner === "home" ? "Home" : "Away"} wins the match!
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
-function Scene({ paused, autoRotate }: { paused: boolean; autoRotate: boolean }) {
-  const { ballRef, homePlayers, awayPlayers } = useVolleyballPhysics(paused);
+function Scene({ paused, autoRotate, onPoint }: {
+  paused: boolean;
+  autoRotate: boolean;
+  onPoint: (scorer: "home" | "away") => void;
+}) {
+  const { ballRef, homePlayers, awayPlayers } = useVolleyballPhysics(paused, onPoint);
 
   const sandColor = "#dfc97a";
 
@@ -1647,8 +1705,51 @@ export default function ThreeDCourt() {
   const [selectedLocId, setSelectedLocId] = useState<string>("");
   const [paused, setPaused] = useState(false);
   const [autoRotate, setAutoRotate] = useState(false);
-  const [score] = useState<[number, number]>([2, 1]);
   const [key, setKey] = useState(0);
+
+  const POINTS_TO_WIN = 11;
+  const SETS_TO_WIN   = 2;
+
+  const [match, setMatch] = useState<MatchState>({
+    homeScore: 0, awayScore: 0,
+    homeSets: 0,  awaySets: 0,
+    currentSet: 1, matchOver: false, matchWinner: null,
+  });
+
+  const onPoint = useCallback((scorer: "home" | "away") => {
+    setMatch(prev => {
+      if (prev.matchOver) return prev;
+
+      const homeScore = prev.homeScore + (scorer === "home" ? 1 : 0);
+      const awayScore = prev.awayScore + (scorer === "away" ? 1 : 0);
+
+      // Set won: first to POINTS_TO_WIN, must lead by 2
+      const homeWonSet = homeScore >= POINTS_TO_WIN && homeScore - awayScore >= 2;
+      const awayWonSet = awayScore >= POINTS_TO_WIN && awayScore - homeScore >= 2;
+
+      if (homeWonSet || awayWonSet) {
+        const homeSets = prev.homeSets + (homeWonSet ? 1 : 0);
+        const awaySets = prev.awaySets + (awayWonSet ? 1 : 0);
+
+        if (homeSets >= SETS_TO_WIN || awaySets >= SETS_TO_WIN) {
+          return {
+            homeScore, awayScore, homeSets, awaySets,
+            currentSet: prev.currentSet,
+            matchOver: true,
+            matchWinner: homeSets >= SETS_TO_WIN ? "home" : "away",
+          };
+        }
+        // Start next set
+        return {
+          homeScore: 0, awayScore: 0, homeSets, awaySets,
+          currentSet: prev.currentSet + 1,
+          matchOver: false, matchWinner: null,
+        };
+      }
+
+      return { ...prev, homeScore, awayScore };
+    });
+  }, []);
 
   const selectedLocation = useMemo(
     () => locations?.find(l => l.id.toString() === selectedLocId) || locations?.[0],
@@ -1670,11 +1771,11 @@ export default function ThreeDCourt() {
         }}
         dpr={[1, 2]}
       >
-        <Scene paused={paused} autoRotate={autoRotate} />
+        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} />
       </Canvas>
 
       {/* Score */}
-      <ScoreBoard score={score} />
+      <ScoreBoard match={match} />
 
       {/* Control bar bottom-center */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-3">
