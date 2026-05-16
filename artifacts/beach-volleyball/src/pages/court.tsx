@@ -2026,7 +2026,7 @@ function TVCrew() {
   const dark   = "#2a2a2a";
   const silver = "#aaaaaa";
   return (
-    <group position={[-12.8, 0, 7.8]} rotation={[0, Math.PI * 0.22, 0]}>
+    <group position={[-12.8, 0, 7.8]} rotation={[0, Math.atan2(12.8, -7.8), 0]}>
       {/* Camera operator */}
       <group position={[0, 0, 0]}>
         <mesh position={[-0.12, 0.62, 0]} castShadow>
@@ -2580,9 +2580,9 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <GroundSeagulls />
       <ManWithDog />
       <TVCrew />
-      <FoodStall position={[-7, 0, 12]} rotation={[0, Math.PI, 0]} stallType="food" />
-      <FoodStall position={[0.5, 0, 12]} rotation={[0, Math.PI, 0]} stallType="drinks" />
-      <MerchStore position={[8, 0, 12]} rotation={[0, Math.PI, 0]} />
+      <FoodStall position={[-7, 0, 7.8]} rotation={[0, 0, 0]} stallType="food" />
+      <FoodStall position={[0.5, 0, 7.8]} rotation={[0, 0, 0]} stallType="drinks" />
+      <MerchStore position={[8, 0, 7.8]} rotation={[0, 0, 0]} />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
