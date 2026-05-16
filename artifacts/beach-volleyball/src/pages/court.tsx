@@ -4,10 +4,11 @@ import {
   Sky,
   PerspectiveCamera,
   Environment,
-  MeshReflectorMaterial,
   Sparkles,
   Billboard,
   Text,
+  Cloud,
+  Clouds,
 } from "@react-three/drei";
 import { EffectComposer, Bloom, ToneMapping, Vignette } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
@@ -340,10 +341,68 @@ function Player({
   );
 }
 
+// ── Procedural sand texture ───────────────────────────────────────────────────
+function useSandTexture(size = 512) {
+  return useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+
+    // base sand colour
+    ctx.fillStyle = "#d4b97a";
+    ctx.fillRect(0, 0, size, size);
+
+    // grain: many tiny ellipses at random angles
+    const grainCount = 18000;
+    for (let i = 0; i < grainCount; i++) {
+      const x = Math.random() * size;
+      const y = Math.random() * size;
+      const len = 1.5 + Math.random() * 3.5;
+      const w = 0.4 + Math.random() * 0.8;
+      const angle = Math.random() * Math.PI;
+      const brightness = 0.72 + Math.random() * 0.36;
+      const alpha = 0.3 + Math.random() * 0.5;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, len, w, 0, 0, Math.PI * 2);
+      const r = Math.round(brightness * 210);
+      const g = Math.round(brightness * 175);
+      const b = Math.round(brightness * 110);
+      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // subtle ripple lines
+    for (let row = 0; row < 24; row++) {
+      const y = (row / 24) * size + Math.random() * 6;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      for (let x = 0; x <= size; x += 12) {
+        ctx.lineTo(x, y + Math.sin(x / 18 + row) * 1.8);
+      }
+      ctx.strokeStyle = `rgba(160,120,60,0.06)`;
+      ctx.lineWidth = 0.6 + Math.random() * 0.8;
+      ctx.stroke();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(8, 8);
+    tex.anisotropy = 16;
+    return tex;
+  }, [size]);
+}
+
 // ── Detailed Beach Court ─────────────────────────────────────────────────────
 function BeachCourt({ sandColor }: { sandColor: string }) {
   const NET_SEGMENTS = 18;
   const NET_ROWS = 6;
+  const sandTex = useSandTexture(512);
+  const courtTex = useSandTexture(256);
 
   return (
     <group>
@@ -351,17 +410,17 @@ function BeachCourt({ sandColor }: { sandColor: string }) {
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
         <planeGeometry args={[80, 80, 48, 48]} />
         <meshStandardMaterial
+          map={sandTex}
           color={sandColor}
-          roughness={0.95}
+          roughness={0.97}
           metalness={0.0}
-          bumpScale={0.04}
         />
       </mesh>
 
       {/* Court sand slightly raised */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} receiveShadow>
         <planeGeometry args={[18, 9, 24, 12]} />
-        <meshStandardMaterial color="#e8d59e" roughness={0.92} />
+        <meshStandardMaterial map={courtTex} color="#ddc888" roughness={0.94} />
       </mesh>
 
       {/* Court boundary lines */}
@@ -465,7 +524,7 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
         color="#fff9e6"
       />
       {/* Sky hemisphere: warm sky / cool ground bounce */}
-      <hemisphereLight args={["#87ceeb", "#c8a96e", 0.45]} />
+      <hemisphereLight args={["#6ea8d8", "#9c7d3a", 0.28]} />
       {/* Soft fill from opposite side */}
       <directionalLight
         position={[-sunPos.x * 0.3, sunPos.y * 0.5, -sunPos.z * 0.3]}
@@ -747,22 +806,32 @@ function Scene({ paused }: { paused: boolean }) {
       {/* Sky */}
       <Sky
         sunPosition={[80, 22, 50]}
-        turbidity={3.5}
-        rayleigh={0.5}
-        mieCoefficient={0.004}
-        mieDirectionalG={0.87}
+        turbidity={6}
+        rayleigh={1.2}
+        mieCoefficient={0.006}
+        mieDirectionalG={0.84}
         inclination={0.495}
         azimuth={0.25}
       />
 
       {/* Lighting */}
-      <SunLighting azimuth={135} elevation={42} intensity={3.8} />
+      <SunLighting azimuth={135} elevation={42} intensity={2.6} />
 
       {/* Environment for reflections */}
       <Environment preset="sunset" backgroundIntensity={0} />
 
       {/* Sparkles near water side (ambient atmosphere) */}
       <Sparkles count={60} scale={[30, 4, 30]} size={0.8} speed={0.1} opacity={0.18} color="#fff9c4" />
+
+      {/* Randomised clouds */}
+      <Clouds material={THREE.MeshLambertMaterial} limit={80}>
+        <Cloud position={[-18, 14, -10]} seed={1} scale={2.2} volume={5} color="#d8e8f5" fade={60} speed={0.12} opacity={0.55} bounds={[8, 2, 4]} segments={24} />
+        <Cloud position={[20, 18, -16]} seed={3} scale={2.8} volume={6} color="#ccddef" fade={80} speed={0.08} opacity={0.45} bounds={[10, 2, 5]} segments={20} />
+        <Cloud position={[4, 22, 22]} seed={7} scale={1.8} volume={4} color="#e0eaf6" fade={70} speed={0.15} opacity={0.38} bounds={[6, 1.5, 3]} segments={16} />
+        <Cloud position={[-30, 16, 8]} seed={12} scale={3.2} volume={7} color="#d0e2f2" fade={90} speed={0.06} opacity={0.5} bounds={[12, 2, 6]} segments={28} />
+        <Cloud position={[35, 20, -4]} seed={5} scale={2.4} volume={5} color="#cfe0f0" fade={75} speed={0.1} opacity={0.42} bounds={[9, 2, 4]} segments={22} />
+        <Cloud position={[-8, 26, -28]} seed={9} scale={2.0} volume={4} color="#dde9f8" fade={65} speed={0.14} opacity={0.35} bounds={[7, 1.5, 3.5]} segments={18} />
+      </Clouds>
 
       <BeachCourt sandColor={sandColor} />
 
@@ -816,7 +885,7 @@ export default function ThreeDCourt() {
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.05,
+          toneMappingExposure: 0.76,
           powerPreference: "high-performance",
         }}
         dpr={[1, 2]}
