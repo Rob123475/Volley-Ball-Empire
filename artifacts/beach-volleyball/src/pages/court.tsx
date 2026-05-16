@@ -2342,7 +2342,7 @@ function ManWithDog() {
     const t = clock.getElapsedTime();
     const walkX = Math.sin(t * 0.24) * 13;
     const dir   = Math.cos(t * 0.24) >= 0 ? 1 : -1;
-    const faceY = dir > 0 ? 0 : Math.PI;
+    const faceY = dir > 0 ? -Math.PI / 2 : Math.PI / 2;
 
     if (groupRef.current) {
       groupRef.current.position.set(walkX, 0, 8.8);
