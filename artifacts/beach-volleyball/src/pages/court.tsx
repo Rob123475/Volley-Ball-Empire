@@ -602,7 +602,7 @@ function UmpireChair() {
   const SEAT_H = 2.55;
   const skinColor = "#f4c08a";
   return (
-    <group position={[1.4, 0, -6.2]} rotation={[0, 0.3, 0]}>
+    <group position={[0, 0, -6.6]} rotation={[0, 0, 0]}>
       {/* Four legs */}
       {[[-0.32, -0.32], [0.32, -0.32], [-0.32, 0.32], [0.32, 0.32]].map(([lx, lz], i) => (
         <mesh key={i} position={[lx, SEAT_H / 2, lz]} castShadow>
