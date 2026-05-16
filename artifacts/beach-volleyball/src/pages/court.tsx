@@ -1422,37 +1422,29 @@ export default function ThreeDCourt() {
 
       {/* Sidebar */}
       <div className="absolute top-16 left-5 w-64 space-y-3">
-        <Card className="bg-background/80 backdrop-blur border-white/20 shadow-xl">
-          <CardHeader className="p-3 pb-1.5">
-            <CardTitle className="text-xs font-bold flex items-center gap-2">
-              <MapPin className="h-3.5 w-3.5 text-primary" /> VENUE
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 space-y-3">
-            <Select onValueChange={setSelectedLocId} value={selectedLocId || selectedLocation?.id.toString()}>
-              <SelectTrigger className="bg-background/60 h-8 text-xs">
-                <SelectValue placeholder="Select Location" />
-              </SelectTrigger>
-              <SelectContent>
-                {locations?.map(l => (
-                  <SelectItem key={l.id} value={l.id.toString()} className="text-xs">
-                    {l.city}, {l.country}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedLocation && (
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant="outline" className="gap-1 text-[10px]">
-                  <CloudSun className="h-2.5 w-2.5" /> {selectedLocation.weatherPatterns}
-                </Badge>
-                <Badge className="bg-secondary text-secondary-foreground text-[10px]">
-                  {selectedLocation.courtType}
-                </Badge>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {!selectedLocation && (
+          <Card className="bg-background/80 backdrop-blur border-white/20 shadow-xl">
+            <CardHeader className="p-3 pb-1.5">
+              <CardTitle className="text-xs font-bold flex items-center gap-2">
+                <MapPin className="h-3.5 w-3.5 text-primary" /> VENUE
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 space-y-3">
+              <Select onValueChange={setSelectedLocId} value={selectedLocId || selectedLocation?.id.toString()}>
+                <SelectTrigger className="bg-background/60 h-8 text-xs">
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations?.map(l => (
+                    <SelectItem key={l.id} value={l.id.toString()} className="text-xs">
+                      {l.city}, {l.country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        )}
 
         {activePlayers.length > 0 && (
           <Card className="bg-background/80 backdrop-blur border-white/20 shadow-xl">
