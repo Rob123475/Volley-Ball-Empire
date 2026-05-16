@@ -246,7 +246,7 @@ function Player({
       <group ref={groupRef} position={state.pos.toArray()}>
         {/* Jersey number billboard */}
         <Billboard position={[0, 2.2, 0]}>
-          <Text fontSize={0.22} color="white" outlineWidth={0.02} outlineColor="#00000088">
+          <Text fontSize={0.22} color="white" outlineWidth={0.02} outlineColor="#000000" outlineOpacity={0.5}>
             #{number}
           </Text>
         </Billboard>
@@ -480,6 +480,354 @@ function BeachCourt({ sandColor }: { sandColor: string }) {
       <mesh position={[0, 2.33, 0]}>
         <boxGeometry args={[0.03, 0.025, 10.2]} />
         <meshStandardMaterial color="#aaa" metalness={0.8} roughness={0.2} />
+      </mesh>
+    </group>
+  );
+}
+
+// ── Sponsor Boards ────────────────────────────────────────────────────────────
+const SPONSORS = [
+  { name: "BEACH PRO",  color: "#0077B6", accent: "#fff" },
+  { name: "SAND QUEEN", color: "#E76F51", accent: "#fff" },
+  { name: "VOLLEY FIT", color: "#2d6a4f", accent: "#fff" },
+  { name: "SUN SPORT",  color: "#e9c46a", accent: "#1a1a1a" },
+  { name: "WAVE RIDER", color: "#4cc9f0", accent: "#1a1a1a" },
+  { name: "CORAL GEAR", color: "#c1121f", accent: "#fff" },
+];
+
+function SponsorBoard({
+  position,
+  rotation,
+  sponsorIdx,
+}: {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  sponsorIdx: number;
+}) {
+  const s = SPONSORS[sponsorIdx % SPONSORS.length];
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Post left */}
+      <mesh position={[-1.45, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.05, 0.06, 2.0, 8]} />
+        <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
+      </mesh>
+      {/* Post right */}
+      <mesh position={[1.45, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.05, 0.06, 2.0, 8]} />
+        <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
+      </mesh>
+      {/* Board background */}
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[2.8, 0.9, 0.06]} />
+        <meshStandardMaterial color={s.color} roughness={0.5} metalness={0.05} />
+      </mesh>
+      {/* White trim top & bottom */}
+      <mesh position={[0, 0.465, 0.035]}>
+        <boxGeometry args={[2.82, 0.06, 0.01]} />
+        <meshStandardMaterial color="white" />
+      </mesh>
+      <mesh position={[0, -0.465, 0.035]}>
+        <boxGeometry args={[2.82, 0.06, 0.01]} />
+        <meshStandardMaterial color="white" />
+      </mesh>
+      {/* Sponsor name */}
+      <Text
+        position={[0, 0, 0.07]}
+        fontSize={0.26}
+        font={undefined}
+        color={s.accent}
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.08}
+        maxWidth={2.6}
+      >
+        {s.name}
+      </Text>
+    </group>
+  );
+}
+
+function SponsorBoards() {
+  const BOARD_H = 0.8; // centre height above ground
+  // sideline boards: along z = ±7, spaced across x
+  const sideX = [-7, -3.5, 0, 3.5, 7];
+  // end line boards: along x = ±10.8, two per end
+  const endZ = [-2.5, 2.5];
+  return (
+    <group>
+      {/* Front sideline (z = -7, face toward +z) */}
+      {sideX.map((x, i) => (
+        <SponsorBoard
+          key={`fs${i}`}
+          position={[x, BOARD_H, -7]}
+          rotation={[0, 0, 0]}
+          sponsorIdx={i}
+        />
+      ))}
+      {/* Back sideline (z = 7, face toward -z) */}
+      {sideX.map((x, i) => (
+        <SponsorBoard
+          key={`bs${i}`}
+          position={[x, BOARD_H, 7]}
+          rotation={[0, Math.PI, 0]}
+          sponsorIdx={i + 2}
+        />
+      ))}
+      {/* Left end (x = -11, face toward +x) */}
+      {endZ.map((z, i) => (
+        <SponsorBoard
+          key={`le${i}`}
+          position={[-11, BOARD_H, z]}
+          rotation={[0, Math.PI / 2, 0]}
+          sponsorIdx={i + 1}
+        />
+      ))}
+      {/* Right end (x = 11, face toward -x) */}
+      {endZ.map((z, i) => (
+        <SponsorBoard
+          key={`re${i}`}
+          position={[11, BOARD_H, z]}
+          rotation={[0, -Math.PI / 2, 0]}
+          sponsorIdx={i + 4}
+        />
+      ))}
+    </group>
+  );
+}
+
+// ── Umpire Chair ──────────────────────────────────────────────────────────────
+function UmpireChair() {
+  // Positioned beside the right net post (z = -5.8), facing the court
+  const SEAT_H = 2.55;
+  const skinColor = "#f4c08a";
+  return (
+    <group position={[1.4, 0, -6.2]} rotation={[0, 0.3, 0]}>
+      {/* Four legs */}
+      {[[-0.32, -0.32], [0.32, -0.32], [-0.32, 0.32], [0.32, 0.32]].map(([lx, lz], i) => (
+        <mesh key={i} position={[lx, SEAT_H / 2, lz]} castShadow>
+          <boxGeometry args={[0.06, SEAT_H, 0.06]} />
+          <meshStandardMaterial color="#c0c0c0" metalness={0.8} roughness={0.25} />
+        </mesh>
+      ))}
+      {/* Cross braces */}
+      {[0.7, 1.5].map((yBrace, i) => (
+        <group key={i}>
+          <mesh position={[0, yBrace, -0.32]}>
+            <boxGeometry args={[0.7, 0.04, 0.04]} />
+            <meshStandardMaterial color="#aaa" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[0, yBrace, 0.32]}>
+            <boxGeometry args={[0.7, 0.04, 0.04]} />
+            <meshStandardMaterial color="#aaa" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[-0.32, yBrace, 0]}>
+            <boxGeometry args={[0.04, 0.04, 0.7]} />
+            <meshStandardMaterial color="#aaa" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[0.32, yBrace, 0]}>
+            <boxGeometry args={[0.04, 0.04, 0.7]} />
+            <meshStandardMaterial color="#aaa" metalness={0.7} roughness={0.3} />
+          </mesh>
+        </group>
+      ))}
+      {/* Seat platform */}
+      <mesh position={[0, SEAT_H + 0.06, 0]} castShadow>
+        <boxGeometry args={[0.72, 0.1, 0.72]} />
+        <meshStandardMaterial color="#e8e8e8" roughness={0.5} />
+      </mesh>
+      {/* Seat cushion */}
+      <mesh position={[0, SEAT_H + 0.14, 0]}>
+        <boxGeometry args={[0.62, 0.06, 0.62]} />
+        <meshStandardMaterial color="#0077B6" roughness={0.8} />
+      </mesh>
+      {/* Back rest */}
+      <mesh position={[0, SEAT_H + 0.56, -0.34]}>
+        <boxGeometry args={[0.66, 0.82, 0.06]} />
+        <meshStandardMaterial color="#e8e8e8" roughness={0.5} />
+      </mesh>
+      {/* Armrests */}
+      {[-0.34, 0.34].map((ax, i) => (
+        <mesh key={i} position={[ax, SEAT_H + 0.38, 0]}>
+          <boxGeometry args={[0.06, 0.06, 0.62]} />
+          <meshStandardMaterial color="#bbb" metalness={0.6} roughness={0.3} />
+        </mesh>
+      ))}
+      {/* Footrest */}
+      <mesh position={[0, 1.85, 0.32]}>
+        <boxGeometry args={[0.64, 0.05, 0.2]} />
+        <meshStandardMaterial color="#ccc" roughness={0.5} />
+      </mesh>
+      {/* Canopy frame */}
+      {[[-0.34, 0.34], [0.34, 0.34], [-0.34, -0.34], [0.34, -0.34]].map(([cx, cz], i) => (
+        <mesh key={i} position={[cx, SEAT_H + 1.32, cz]}>
+          <boxGeometry args={[0.04, 0.82, 0.04]} />
+          <meshStandardMaterial color="#999" metalness={0.7} roughness={0.3} />
+        </mesh>
+      ))}
+      {/* Canopy roof */}
+      <mesh position={[0, SEAT_H + 1.76, 0]}>
+        <boxGeometry args={[0.96, 0.04, 0.96]} />
+        <meshStandardMaterial color="#e9c46a" roughness={0.6} />
+      </mesh>
+      {/* Canopy overhang front */}
+      <mesh position={[0, SEAT_H + 1.73, 0.52]}>
+        <boxGeometry args={[0.96, 0.03, 0.08]} />
+        <meshStandardMaterial color="#d4a017" roughness={0.6} />
+      </mesh>
+
+      {/* ── Umpire figure (seated) ── */}
+      {/* Torso */}
+      <mesh position={[0, SEAT_H + 0.54, -0.1]} castShadow>
+        <capsuleGeometry args={[0.15, 0.42, 4, 8]} />
+        <meshStandardMaterial color="#1a3a5c" roughness={0.8} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, SEAT_H + 0.98, -0.08]} castShadow>
+        <sphereGeometry args={[0.14, 16, 16]} />
+        <meshStandardMaterial color={skinColor} roughness={0.6} />
+      </mesh>
+      {/* Cap */}
+      <mesh position={[0, SEAT_H + 1.1, -0.06]}>
+        <cylinderGeometry args={[0.15, 0.16, 0.1, 16]} />
+        <meshStandardMaterial color="#1a3a5c" roughness={0.7} />
+      </mesh>
+      {/* Cap brim */}
+      <mesh position={[0, SEAT_H + 1.05, 0.1]} rotation={[0.25, 0, 0]}>
+        <boxGeometry args={[0.32, 0.025, 0.14]} />
+        <meshStandardMaterial color="#1a3a5c" roughness={0.7} />
+      </mesh>
+      {/* Arms on armrest */}
+      {[-0.28, 0.28].map((ax, i) => (
+        <mesh key={i} position={[ax, SEAT_H + 0.38, 0.1]} rotation={[0.5, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.065, 0.3, 4, 6]} />
+          <meshStandardMaterial color={skinColor} roughness={0.6} />
+        </mesh>
+      ))}
+      {/* Legs (bent) */}
+      {[-0.14, 0.14].map((lx, i) => (
+        <mesh key={i} position={[lx, SEAT_H + 0.14, 0.22]} rotation={[0.8, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.075, 0.45, 4, 8]} />
+          <meshStandardMaterial color="#1a3a5c" roughness={0.8} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// ── Spectator Stand ───────────────────────────────────────────────────────────
+const SPECTATOR_COLORS = [
+  "#e76f51","#2a9d8f","#e9c46a","#264653","#f4a261",
+  "#a8dadc","#e63946","#457b9d","#f1faee","#d62828",
+];
+
+function SimpleSpectator({ position, colorIdx }: { position: [number, number, number]; colorIdx: number }) {
+  const skinColor = "#e8c9a0";
+  const jerseyColor = SPECTATOR_COLORS[colorIdx % SPECTATOR_COLORS.length];
+  return (
+    <group position={position}>
+      {/* Body */}
+      <mesh position={[0, 0.22, 0]}>
+        <capsuleGeometry args={[0.11, 0.28, 4, 6]} />
+        <meshStandardMaterial color={jerseyColor} roughness={0.8} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 0.54, 0]}>
+        <sphereGeometry args={[0.11, 10, 10]} />
+        <meshStandardMaterial color={skinColor} roughness={0.6} />
+      </mesh>
+    </group>
+  );
+}
+
+function SpectatorStand() {
+  const ROWS = 4;
+  const SEATS_PER_ROW = 14;
+  const ROW_DEPTH = 0.75;
+  const ROW_RISE = 0.55;
+  const STAND_WIDTH = SEATS_PER_ROW * 0.85;
+  const BASE_Z = 8.5; // starts just beyond the sideline
+  const BASE_X = -STAND_WIDTH / 2;
+
+  return (
+    <group>
+      {/* Concrete base block */}
+      <mesh position={[0, -0.25, BASE_Z + (ROWS * ROW_DEPTH) / 2]} receiveShadow castShadow>
+        <boxGeometry args={[STAND_WIDTH + 1, 0.5, ROWS * ROW_DEPTH + 1]} />
+        <meshStandardMaterial color="#c8c2b8" roughness={0.9} />
+      </mesh>
+
+      {/* Tiered rows */}
+      {Array.from({ length: ROWS }, (_, row) => {
+        const zRow = BASE_Z + row * ROW_DEPTH;
+        const yRow = row * ROW_RISE;
+        return (
+          <group key={row}>
+            {/* Step riser */}
+            <mesh position={[0, yRow - ROW_RISE / 2 + 0.01, zRow]} receiveShadow castShadow>
+              <boxGeometry args={[STAND_WIDTH, ROW_RISE, 0.08]} />
+              <meshStandardMaterial color="#b0a898" roughness={0.9} />
+            </mesh>
+            {/* Step tread */}
+            <mesh position={[0, yRow + 0.04, zRow + ROW_DEPTH / 2]} receiveShadow>
+              <boxGeometry args={[STAND_WIDTH, 0.08, ROW_DEPTH]} />
+              <meshStandardMaterial color="#c8c2b8" roughness={0.9} />
+            </mesh>
+            {/* Seat backs */}
+            <mesh position={[0, yRow + 0.4, zRow + 0.1]}>
+              <boxGeometry args={[STAND_WIDTH, 0.5, 0.06]} />
+              <meshStandardMaterial color="#0077B6" roughness={0.7} />
+            </mesh>
+
+            {/* Spectators */}
+            {Array.from({ length: SEATS_PER_ROW }, (_, col) => {
+              const sx = BASE_X + col * 0.85 + 0.42 as number;
+              return (
+                <SimpleSpectator
+                  key={col}
+                  position={[sx, yRow + 0.35, zRow + 0.25]}
+                  colorIdx={row * SEATS_PER_ROW + col}
+                />
+              );
+            })}
+          </group>
+        );
+      })}
+
+      {/* Canopy roof */}
+      {/* Back support columns */}
+      {[-STAND_WIDTH / 2 + 0.4, 0, STAND_WIDTH / 2 - 0.4].map((cx, i) => (
+        <mesh key={i} position={[cx, ROWS * ROW_RISE + 1.6, BASE_Z + ROWS * ROW_DEPTH - 0.4]} castShadow>
+          <boxGeometry args={[0.18, ROWS * ROW_RISE + 3.2, 0.18]} />
+          <meshStandardMaterial color="#888" metalness={0.5} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Front support columns */}
+      {[-STAND_WIDTH / 2 + 0.4, 0, STAND_WIDTH / 2 - 0.4].map((cx, i) => (
+        <mesh key={i} position={[cx, 1.6, BASE_Z - 0.3]} castShadow>
+          <boxGeometry args={[0.14, 3.2, 0.14]} />
+          <meshStandardMaterial color="#888" metalness={0.5} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Roof panel */}
+      <mesh
+        position={[0, ROWS * ROW_RISE + 3.25, BASE_Z + (ROWS * ROW_DEPTH) / 2 + 0.6]}
+        rotation={[-0.12, 0, 0]}
+        castShadow
+      >
+        <boxGeometry args={[STAND_WIDTH + 1.2, 0.08, ROWS * ROW_DEPTH + 2.0]} />
+        <meshStandardMaterial color="#e9c46a" roughness={0.55} metalness={0.05} />
+      </mesh>
+      {/* Roof underside shadow trim */}
+      <mesh position={[0, ROWS * ROW_RISE + 3.22, BASE_Z - 0.5]} rotation={[-0.12, 0, 0]}>
+        <boxGeometry args={[STAND_WIDTH + 1.2, 0.04, 0.18]} />
+        <meshStandardMaterial color="#c8a800" roughness={0.6} />
+      </mesh>
+
+      {/* Fence / barrier at front of stand */}
+      <mesh position={[0, 0.55, BASE_Z - 0.35]}>
+        <boxGeometry args={[STAND_WIDTH, 1.0, 0.06]} />
+        <meshStandardMaterial color="#e0dbd0" roughness={0.8} />
       </mesh>
     </group>
   );
@@ -834,6 +1182,9 @@ function Scene({ paused }: { paused: boolean }) {
       </Clouds>
 
       <BeachCourt sandColor={sandColor} />
+      <SponsorBoards />
+      <UmpireChair />
+      <SpectatorStand />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
@@ -881,7 +1232,7 @@ export default function ThreeDCourt() {
     <div className="h-[calc(100vh-11rem)] w-full rounded-3xl overflow-hidden relative border border-primary/20 shadow-2xl">
       <Canvas
         key={key}
-        shadows={{ type: THREE.PCFSoftShadowMap }}
+        shadows={{ type: THREE.PCFShadowMap }}
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
