@@ -75,6 +75,7 @@ export const playersTable = pgTable("players", {
   block: integer("block").notNull().default(70),
   stamina: integer("stamina").notNull().default(70),
   morale: integer("morale").notNull().default(80),
+  fatigue: integer("fatigue").notNull().default(0),
   salary: numeric("salary", { precision: 10, scale: 2 }).notNull().default("5000"),
   teamId: integer("team_id").references(() => teamsTable.id),
   outfitId: integer("outfit_id").references(() => outfitsTable.id),

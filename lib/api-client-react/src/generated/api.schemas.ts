@@ -75,7 +75,9 @@ export interface Player {
   serve: number;
   block: number;
   stamina: number;
-  morale?: number;
+  morale: number;
+  /** Player fatigue level 0-100. High fatigue reduces performance. */
+  fatigue: number;
   salary: number;
   /** @nullable */
   teamId: number | null;
@@ -288,6 +290,28 @@ export interface TrainingResult {
   newStats: Player;
 }
 
+export type TeamTrainingInputType = typeof TeamTrainingInputType[keyof typeof TeamTrainingInputType];
+
+
+export const TeamTrainingInputType = {
+  strength: 'strength',
+  agility: 'agility',
+  serving: 'serving',
+  blocking: 'blocking',
+  defense: 'defense',
+  teamplay: 'teamplay',
+  recovery: 'recovery',
+} as const;
+
+export interface TeamTrainingInput {
+  type: TeamTrainingInputType;
+  focus?: string;
+  durationHours: number;
+  scheduledAt: string;
+  /** @nullable */
+  coachId?: number | null;
+}
+
 export type TrainingPlanWeeklyLoad = typeof TrainingPlanWeeklyLoad[keyof typeof TrainingPlanWeeklyLoad];
 
 
@@ -302,6 +326,7 @@ export interface TrainingPlan {
   weeklyLoad: TrainingPlanWeeklyLoad;
   averageFitness: number;
   averageMorale: number;
+  averageFatigue?: number;
   scheduledSessions: TrainingSession[];
   completedThisWeek: number;
 }

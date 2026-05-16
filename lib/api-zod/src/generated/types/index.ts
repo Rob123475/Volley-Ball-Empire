@@ -51,6 +51,8 @@ export * from './staffMemberRole';
 export * from './team';
 export * from './teamInput';
 export * from './teamRoster';
+export * from './teamTrainingInput';
+export * from './teamTrainingInputType';
 export * from './teamUpdate';
 export * from './trainingInput';
 export * from './trainingPlan';

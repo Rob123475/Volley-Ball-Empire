@@ -51,6 +51,7 @@ import type {
   Team,
   TeamInput,
   TeamRoster,
+  TeamTrainingInput,
   TeamUpdate,
   TrainingInput,
   TrainingPlan,
@@ -2366,6 +2367,77 @@ export const useCompleteTraining = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getCompleteTrainingMutationOptions(options));
+    }
+
+export const getScheduleTeamTrainingUrl = () => {
+
+
+
+
+  return `/api/training/team`
+}
+
+/**
+ * @summary Schedule a training session for the entire active roster
+ */
+export const scheduleTeamTraining = async (teamTrainingInput: TeamTrainingInput, options?: RequestInit): Promise<TrainingSession[]> => {
+
+  return customFetch<TrainingSession[]>(getScheduleTeamTrainingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      teamTrainingInput,)
+  }
+);}
+
+
+
+
+export const getScheduleTeamTrainingMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scheduleTeamTraining>>, TError,{data: BodyType<TeamTrainingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof scheduleTeamTraining>>, TError,{data: BodyType<TeamTrainingInput>}, TContext> => {
+
+const mutationKey = ['scheduleTeamTraining'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof scheduleTeamTraining>>, {data: BodyType<TeamTrainingInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  scheduleTeamTraining(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ScheduleTeamTrainingMutationResult = NonNullable<Awaited<ReturnType<typeof scheduleTeamTraining>>>
+    export type ScheduleTeamTrainingMutationBody = BodyType<TeamTrainingInput>
+    export type ScheduleTeamTrainingMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Schedule a training session for the entire active roster
+ */
+export const useScheduleTeamTraining = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scheduleTeamTraining>>, TError,{data: BodyType<TeamTrainingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof scheduleTeamTraining>>,
+        TError,
+        {data: BodyType<TeamTrainingInput>},
+        TContext
+      > => {
+      return useMutation(getScheduleTeamTrainingMutationOptions(options));
     }
 
 export const getGetTrainingPlanUrl = () => {

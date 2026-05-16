@@ -562,6 +562,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/TrainingResult"
 
+  /training/team:
+    post:
+      operationId: scheduleTeamTraining
+      tags: [training]
+      summary: Schedule a training session for the entire active roster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamTrainingInput"
+      responses:
+        "201":
+          description: Team training sessions created (one per active player)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingSession"
+
   /training/plan:
     get:
       operationId: getTrainingPlan
@@ -976,7 +997,7 @@ components:
 
     Player:
       type: object
-      required: [id, name, nationality, age, height, position, speed, power, defense, serve, block, stamina, salary, teamId, outfitId, isActive, imageUrl, createdAt]
+      required: [id, name, nationality, age, height, position, speed, power, defense, serve, block, stamina, morale, fatigue, salary, teamId, outfitId, isActive, imageUrl, createdAt]
       properties:
         id:
           type: integer
@@ -1005,6 +1026,9 @@ components:
           type: integer
         morale:
           type: integer
+        fatigue:
+          type: integer
+          description: Player fatigue level 0-100. High fatigue reduces performance.
         salary:
           type: number
         teamId:
@@ -1295,6 +1319,22 @@ components:
         newStats:
           $ref: "#/components/schemas/Player"
 
+    TeamTrainingInput:
+      type: object
+      required: [type, durationHours, scheduledAt]
+      properties:
+        type:
+          type: string
+          enum: [strength, agility, serving, blocking, defense, teamplay, recovery]
+        focus:
+          type: string
+        durationHours:
+          type: number
+        scheduledAt:
+          type: string
+        coachId:
+          type: ["integer", "null"]
+
     TrainingPlan:
       type: object
       required: [weeklyLoad, averageFitness, averageMorale, scheduledSessions, completedThisWeek]
@@ -1305,6 +1345,8 @@ components:
         averageFitness:
           type: number
         averageMorale:
+          type: number
+        averageFatigue:
           type: number
         scheduledSessions:
           type: array

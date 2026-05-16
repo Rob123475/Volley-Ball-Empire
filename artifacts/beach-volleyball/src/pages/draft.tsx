@@ -5,13 +5,14 @@ import {
   getGetTeamRosterQueryKey
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Box, Zap, Shield, Target, Wind } from "lucide-react";
+import { Box, Zap, Shield, Target, Wind, Activity, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 
 export default function PlayerDraft() {
   const queryClient = useQueryClient();
@@ -24,7 +25,7 @@ export default function PlayerDraft() {
 
   if (isLoading) {
     return <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
+      {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
     </div>;
   }
 
@@ -45,31 +46,59 @@ export default function PlayerDraft() {
           <Box className="h-8 w-8 text-secondary" />
           Rookie Draft Pool
         </h2>
-        <p className="text-muted-foreground">Select the future of your franchise. 6-month rookie contracts apply immediately.</p>
+        <p className="text-muted-foreground">
+          Young stars aged 20 and under. All rookies receive a 6-month contract on signing.
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {pool?.map((player) => {
           const avgRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
-            <Card key={player.id} data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary transition-all">
-              <CardHeader className="bg-secondary/10 p-4">
-                <div className="flex justify-between items-start">
-                  <Badge className="bg-secondary text-secondary-foreground">{player.position}</Badge>
-                  <span className="text-2xl font-bold text-secondary">{avgRating}</span>
+            <Card key={player.id} data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary hover:shadow-lg transition-all">
+              <div className="relative">
+                <div className="h-32 bg-gradient-to-br from-secondary/30 via-primary/10 to-transparent flex items-end px-4 pb-3">
+                  <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
+                    <AvatarImage src={player.imageUrl ?? undefined} alt={player.name} />
+                    <AvatarFallback className="text-xl font-bold bg-secondary/20">{player.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="ml-3 mb-1">
+                    <div className="flex gap-1 mb-1">
+                      <Badge className="bg-secondary text-secondary-foreground text-[10px]">
+                        {player.position.replace(/_/g, " ").toUpperCase()}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px] border-green-500 text-green-600">
+                        AGE {player.age}
+                      </Badge>
+                    </div>
+                    <div className="font-bold text-base leading-tight">{player.name}</div>
+                    <div className="text-xs text-muted-foreground">{player.nationality} • {player.height}cm</div>
+                  </div>
+                  <div className="ml-auto mb-1 text-right">
+                    <div className="text-3xl font-black text-secondary">{avgRating}</div>
+                    <div className="text-[10px] text-muted-foreground">OVR</div>
+                  </div>
                 </div>
-                <div className="mt-2">
-                  <CardTitle className="text-xl font-bold">{player.name}</CardTitle>
-                  <CardDescription>{player.nationality} • {player.age} yrs • {player.height}cm</CardDescription>
-                </div>
-              </CardHeader>
+              </div>
+
               <CardContent className="p-4 space-y-4">
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1.5">
                   <StatBar label="Power" value={player.power} icon={Zap} color="bg-orange-500" />
                   <StatBar label="Speed" value={player.speed} icon={Wind} color="bg-blue-500" />
                   <StatBar label="Defense" value={player.defense} icon={Shield} color="bg-green-500" />
                   <StatBar label="Serve" value={player.serve} icon={Target} color="bg-purple-500" />
                   <StatBar label="Block" value={player.block} icon={Shield} color="bg-red-500" />
+                  <StatBar label="Stamina" value={player.stamina} icon={Activity} color="bg-cyan-500" />
+                </div>
+
+                <div className="flex items-center justify-between text-xs border-t border-border pt-2">
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                    Morale: {(player as any).morale ?? 80}%
+                  </span>
+                  <span className="text-muted-foreground text-[10px] font-medium">
+                    High Potential
+                  </span>
                 </div>
 
                 <Button 
@@ -87,7 +116,8 @@ export default function PlayerDraft() {
         {(!pool || pool.length === 0) && (
           <div className="col-span-full text-center py-16 text-muted-foreground">
             <Box className="h-16 w-16 mx-auto mb-4 opacity-20" />
-            <p className="text-lg">No players available in the draft pool.</p>
+            <p className="text-lg">No rookies available in the draft pool.</p>
+            <p className="text-sm">All players aged 20 and under have been drafted.</p>
           </div>
         )}
       </div>
@@ -97,13 +127,16 @@ export default function PlayerDraft() {
 
 function StatBar({ label, value, icon: Icon, color }: { label: string, value: number, icon: any, color: string }) {
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-[10px] uppercase tracking-wider font-bold">
-        <span className="flex items-center gap-1 text-muted-foreground"><Icon className="h-3 w-3" /> {label}</span>
-        <span>{value}</span>
-      </div>
-      <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-        <div className={`h-full ${color} rounded-full`} style={{ width: `${value}%` }} />
+    <div className="flex items-center gap-2">
+      <Icon className="h-3 w-3 text-muted-foreground shrink-0" />
+      <div className="flex-1">
+        <div className="flex justify-between text-[10px] uppercase tracking-wider font-bold mb-0.5">
+          <span className="text-muted-foreground">{label}</span>
+          <span>{value}</span>
+        </div>
+        <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+          <div className={`h-full ${color} rounded-full`} style={{ width: `${value}%` }} />
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ export interface TrainingPlan {
   weeklyLoad: TrainingPlanWeeklyLoad;
   averageFitness: number;
   averageMorale: number;
+  averageFatigue?: number;
   scheduledSessions: TrainingSession[];
   completedThisWeek: number;
 }

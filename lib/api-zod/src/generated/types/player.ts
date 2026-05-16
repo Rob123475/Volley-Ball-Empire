@@ -20,7 +20,9 @@ export interface Player {
   serve: number;
   block: number;
   stamina: number;
-  morale?: number;
+  morale: number;
+  /** Player fatigue level 0-100. High fatigue reduces performance. */
+  fatigue: number;
   salary: number;
   /** @nullable */
   teamId: number | null;
