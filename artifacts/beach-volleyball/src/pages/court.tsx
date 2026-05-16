@@ -25,7 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw } from "lucide-react";
+import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw, RefreshCw } from "lucide-react";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const GRAVITY = -9.81;
@@ -1131,7 +1131,7 @@ function ScoreBoard({ score }: { score: [number, number] }) {
 }
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
-function Scene({ paused }: { paused: boolean }) {
+function Scene({ paused, autoRotate }: { paused: boolean; autoRotate: boolean }) {
   const { ballRef, homePlayers, awayPlayers } = useVolleyballPhysics(paused);
 
   const sandColor = "#dfc97a";
@@ -1149,6 +1149,8 @@ function Scene({ paused }: { paused: boolean }) {
         target={[0, 1, 0]}
         enableDamping
         dampingFactor={0.06}
+        autoRotate={autoRotate}
+        autoRotateSpeed={0.6}
       />
 
       {/* Sky */}
@@ -1218,6 +1220,7 @@ export default function ThreeDCourt() {
   const { data: roster } = useGetTeamRoster();
   const [selectedLocId, setSelectedLocId] = useState<string>("");
   const [paused, setPaused] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(false);
   const [score] = useState<[number, number]>([2, 1]);
   const [key, setKey] = useState(0);
 
@@ -1241,7 +1244,7 @@ export default function ThreeDCourt() {
         }}
         dpr={[1, 2]}
       >
-        <Scene paused={paused} />
+        <Scene paused={paused} autoRotate={autoRotate} />
       </Canvas>
 
       {/* Score */}
@@ -1257,6 +1260,15 @@ export default function ThreeDCourt() {
         >
           {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
           {paused ? "Resume" : "Pause"}
+        </Button>
+        <Button
+          size="sm"
+          variant={autoRotate ? "default" : "outline"}
+          className={`backdrop-blur gap-2 h-9 border-white/20 shadow-xl ${autoRotate ? "" : "bg-background/80"}`}
+          onClick={() => setAutoRotate(r => !r)}
+        >
+          <RefreshCw className={`h-4 w-4 ${autoRotate ? "animate-spin" : ""}`} />
+          {autoRotate ? "360° ON" : "360°"}
         </Button>
         <Button
           size="sm"
