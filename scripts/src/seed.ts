@@ -1,9 +1,10 @@
 import { pool } from "@workspace/db";
 
-// Unsplash CDN — 400×500, top-crop (shows face/upper body), 4K quality.
+// Unsplash CDN — 400×500, face-detection crop (centres on the subject's face
+// so the frame shows head + shoulders/waist, never the lower body), 4K quality.
 // All IDs are full photo-XXXXXXXXXX CDN hashes verified to return HTTP 200.
 const u = (id: string) =>
-  `https://images.unsplash.com/${id}?w=400&h=500&fit=crop&crop=top&auto=format&q=90`;
+  `https://images.unsplash.com/${id}?w=400&h=500&fit=crop&crop=faces&auto=format&q=90`;
 
 // ─── PLAYER PHOTOS ────────────────────────────────────────────────────────────
 // 40 players — every name maps to a unique CDN hash, ethnicity matched.
