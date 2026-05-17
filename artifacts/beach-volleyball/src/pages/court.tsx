@@ -2751,8 +2751,6 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
 
       {/* Post-processing */}
       <EffectComposer multisampling={0}>
-        {/* Depth of field — focus on the court, soft bokeh beyond */}
-        <DepthOfField focusDistance={0.027} focalLength={0.038} bokehScale={2.4} height={720} />
         {/* Punchy bloom on sun glints and highlights */}
         <Bloom intensity={0.80} luminanceThreshold={0.65} luminanceSmoothing={0.10} mipmapBlur />
         {/* Subtle lens fringing */}
