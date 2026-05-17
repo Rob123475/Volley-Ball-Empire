@@ -37,7 +37,7 @@ const COURT_HALF_X = 8;   // FIVB: 16 m court length
 const COURT_HALF_Z = 4;   // FIVB: 8 m court width
 const BALL_RADIUS = 0.21;
 const RESTITUTION = 0.55;
-const DRAG = 0.994;
+const DRAG = 0.998;
 const PLAYER_SPEED = 7.0;
 const HIT_RANGE = 1.4;
 const PLAYER_HEIGHT = 1.75;
@@ -2813,9 +2813,9 @@ function useVolleyballPhysics(
     const targetZ = (Math.random() - 0.5) * 5;
     b.pos.set(server.pos.x, 2.2, server.pos.z);
     b.vel.set(
-      dirX * (13.0 + Math.random() * 2.0),
-      7.0 + Math.random() * 1.0,
-      (targetZ - server.pos.z) * 0.55
+      dirX * (22.0 + Math.random() * 4.0),
+      8.5 + Math.random() * 1.5,
+      (targetZ - server.pos.z) * 0.85
     );
     b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
@@ -3014,9 +3014,9 @@ function useVolleyballPhysics(
             const pd = Math.max(1, toPartner.length());
             toPartner.normalize();
             b.vel.set(
-              toPartner.x * Math.min(7.0, pd * 1.8),
-              6.0 + Math.random() * 1.0,
-              toPartner.z * Math.min(7.0, pd * 1.8)
+              toPartner.x * Math.min(12.0, pd * 2.8),
+              7.5 + Math.random() * 1.5,
+              toPartner.z * Math.min(12.0, pd * 2.8)
             );
             b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
 
@@ -3040,9 +3040,9 @@ function useVolleyballPhysics(
             const ad      = Math.max(1, toAtk.length());
             toAtk.normalize();
             b.vel.set(
-              toAtk.x * Math.min(8.0, ad * 1.9),
-              6.5 + Math.random() * 1.0,
-              toAtk.z * Math.min(8.0, ad * 1.9)
+              toAtk.x * Math.min(13.0, ad * 2.9),
+              8.0 + Math.random() * 1.5,
+              toAtk.z * Math.min(13.0, ad * 2.9)
             );
             b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
 
@@ -3054,11 +3054,11 @@ function useVolleyballPhysics(
           } else if (r.touches === 2) {
             // ── TOUCH 3: SPIKE — jump smash over net ──
             const targetZspike = (Math.random() - 0.5) * 5.5;
-            const spikeSpeed   = (12.5 + Math.random() * 5) * (atkActive ? 2.5 : 1.0);
+            const spikeSpeed   = (22.0 + Math.random() * 8.0) * (atkActive ? 2.5 : 1.0);
             b.vel.set(
               dirX * spikeSpeed,
-              atkActive ? -(1.5 + Math.random() * 1.0) : 2.2 + Math.random() * 1.2,
-              (targetZspike - b.pos.z) * (atkActive ? 1.4 : 0.78)
+              atkActive ? -(2.5 + Math.random() * 1.5) : 3.0 + Math.random() * 1.5,
+              (targetZspike - b.pos.z) * (atkActive ? 1.6 : 1.0)
             );
             b.angVel.set((Math.random()-0.5)*14, (Math.random()-0.5)*10, (Math.random()-0.5)*14);
 
