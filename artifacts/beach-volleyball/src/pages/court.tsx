@@ -3120,16 +3120,35 @@ interface MatchState {
   matchWinner: "home" | "away" | null;
 }
 
-function ScoreBoard({ match }: { match: MatchState }) {
+function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayers, serveInfo }: {
+  match: MatchState;
+  homeTeamName: string;
+  awayTeamName: string;
+  homePlayers: { name: string }[];
+  awayPlayers: { name: string }[];
+  serveInfo: { side: "home" | "away"; playerIdx: number };
+}) {
   const setDots = (won: number) =>
     [0, 1].map(i => (
-      <span
-        key={i}
-        className={`inline-block w-2.5 h-2.5 rounded-full border border-white/50 ${
-          i < won ? "bg-white" : "bg-white/20"
-        }`}
-      />
+      <span key={i} className={`inline-block w-2 h-2 rounded-full border border-white/40 ${i < won ? "bg-white" : "bg-white/20"}`} />
     ));
+
+  const PlayerList = ({ side, players }: { side: "home" | "away"; players: { name: string }[] }) => (
+    <div className="flex flex-col justify-center gap-1">
+      {players.map((p, idx) => {
+        const isServing = serveInfo.side === side && serveInfo.playerIdx === idx;
+        return (
+          <div key={idx} className={`flex items-center gap-1.5 text-xs font-semibold ${side === "home" ? "flex-row" : "flex-row-reverse"}`}>
+            {isServing
+              ? <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 shadow-[0_0_5px_2px_rgba(239,68,68,0.9)]" />
+              : <span className="w-1.5 h-1.5 rounded-full bg-white/50 shrink-0" />
+            }
+            <span className="truncate max-w-[100px] text-white">{p.name}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none select-none">
@@ -3138,23 +3157,36 @@ function ScoreBoard({ match }: { match: MatchState }) {
         Set {match.currentSet} · First to {match.currentSet >= 3 ? 15 : 21}
       </div>
 
-      {/* Main scoreboard */}
+      {/* Unified scoreboard + team panels */}
       <div className="flex items-stretch gap-0 rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-        {/* Home */}
-        <div className="bg-[#0077B6]/90 backdrop-blur px-5 py-2.5 text-white min-w-[90px] text-center">
-          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-0.5">HOME</div>
+
+        {/* Home team names (blue left) */}
+        <div className="bg-[#005f8e]/90 backdrop-blur px-3 py-2 text-white border-r border-white/10 min-w-[110px]">
+          <div className="text-[8px] font-black uppercase tracking-widest text-white/60 mb-1.5">{homeTeamName}</div>
+          <PlayerList side="home" players={homePlayers} />
+        </div>
+
+        {/* Home score */}
+        <div className="bg-[#0077B6]/90 backdrop-blur px-4 py-2.5 text-white min-w-[72px] text-center">
+          <div className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-0.5">HOME</div>
           <div className="text-4xl font-black tabular-nums leading-none">{match.homeScore}</div>
           <div className="flex justify-center gap-1 mt-1.5">{setDots(match.homeSets)}</div>
         </div>
 
         {/* Divider */}
-        <div className="bg-black/70 backdrop-blur px-3 flex items-center text-white/50 text-xl font-black">:</div>
+        <div className="bg-black/70 backdrop-blur px-3 flex items-center text-white/40 text-xl font-black">:</div>
 
-        {/* Away */}
-        <div className="bg-[#E76F51]/90 backdrop-blur px-5 py-2.5 text-white min-w-[90px] text-center">
-          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-0.5">AWAY</div>
+        {/* Away score */}
+        <div className="bg-[#E76F51]/90 backdrop-blur px-4 py-2.5 text-white min-w-[72px] text-center">
+          <div className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-0.5">AWAY</div>
           <div className="text-4xl font-black tabular-nums leading-none">{match.awayScore}</div>
           <div className="flex justify-center gap-1 mt-1.5">{setDots(match.awaySets)}</div>
+        </div>
+
+        {/* Away team names (orange right) */}
+        <div className="bg-[#c45a38]/90 backdrop-blur px-3 py-2 text-white border-l border-white/10 min-w-[110px] text-right">
+          <div className="text-[8px] font-black uppercase tracking-widest text-white/60 mb-1.5">{awayTeamName}</div>
+          <PlayerList side="away" players={awayPlayers} />
         </div>
       </div>
 
@@ -3163,7 +3195,7 @@ function ScoreBoard({ match }: { match: MatchState }) {
         <div className={`text-sm font-black uppercase tracking-widest px-6 py-1.5 rounded-full shadow-lg text-white ${
           match.matchWinner === "home" ? "bg-[#0077B6]" : "bg-[#E76F51]"
         }`}>
-          {match.matchWinner === "home" ? "Home" : "Away"} wins the match!
+          {match.matchWinner === "home" ? homeTeamName : awayTeamName} wins the match!
         </div>
       )}
     </div>
@@ -4281,8 +4313,15 @@ export default function ThreeDCourt() {
         <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} boostRef={boostRef} onServeChange={onServeChange} />
       </Canvas>
 
-      {/* Score */}
-      <ScoreBoard match={match} />
+      {/* Score + team name panels */}
+      <ScoreBoard
+        match={match}
+        homeTeamName={roster?.team?.name ?? "Home"}
+        awayTeamName="Rivals"
+        homePlayers={activePlayers.length >= 2 ? activePlayers.slice(0, 2) : [{ name: "Player 1" }, { name: "Player 2" }]}
+        awayPlayers={[{ name: "Taylor" }, { name: "Jordan" }]}
+        serveInfo={serveInfo}
+      />
 
       {/* Control bar bottom-center */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-3">
@@ -4378,41 +4417,6 @@ export default function ThreeDCourt() {
           </Card>
         )}
 
-        {(() => {
-          const homeTeamName = roster?.team?.name ?? "Home";
-          const homePlayers  = activePlayers.slice(0, 2) as { id: number; name: string }[];
-          const awayTeamName = "Rivals";
-          const awayPlayerNames = ["Taylor", "Jordan"];
-          type TeamRowProps = { side: "home" | "away"; teamName: string; players: { id?: number; name: string }[] };
-          const TeamRows = ({ side, teamName, players }: TeamRowProps) => (
-            <div>
-              <div className={`text-[9px] font-bold uppercase tracking-widest mb-1 ${side === "home" ? "text-[#00b4d8]" : "text-[#f4a261]"}`}>
-                {teamName}
-              </div>
-              {players.map((p, idx) => {
-                const isServing = serveInfo.side === side && serveInfo.playerIdx === idx;
-                return (
-                  <div key={p.id ?? idx} className="flex items-center gap-1.5 text-xs py-0.5">
-                    {isServing
-                      ? <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 shadow-[0_0_4px_1px_rgba(239,68,68,0.8)]" />
-                      : <span className="w-2 h-2 rounded-full shrink-0" style={{ background: side === "home" ? "#0077B6" : "#E76F51" }} />
-                    }
-                    <span className="font-medium truncate max-w-[110px]">{p.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          );
-          return (
-            <Card className="bg-background/80 backdrop-blur border-white/20 shadow-xl">
-              <CardContent className="p-3 space-y-2.5">
-                <TeamRows side="home" teamName={homeTeamName} players={homePlayers.length >= 2 ? homePlayers : [{ name: "Player 1" }, { name: "Player 2" }]} />
-                <div className="border-t border-white/10" />
-                <TeamRows side="away" teamName={awayTeamName} players={awayPlayerNames.map(n => ({ name: n }))} />
-              </CardContent>
-            </Card>
-          );
-        })()}
       </div>
     </div>
   );
