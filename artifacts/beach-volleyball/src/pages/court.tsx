@@ -3635,6 +3635,351 @@ function TVCrew() {
   );
 }
 
+// ── Commentary Scaffold — behind blue umbrella [9.5,0,-5.5] ──────────────────
+function CommentaryScaffold() {
+  const DECK_H       = 1.30;
+  const steel        = "#8a9ba8";
+  const steelDark    = "#4a5568";
+  const plankCol     = "#5c4033";
+
+  const posts: [number, number][] = [
+    [-2.2, -1.4], [-2.2,  0.7],
+    [-0.2, -1.4], [-0.2,  0.7],
+    [ 1.8, -1.4], [ 1.8,  0.7],
+  ];
+
+  // ── Seated commentator helper ────────────────────────────────────────────────
+  function Commentator({ x, skinCol, jacketCol, trouserCol, facingZ = -1 }:
+    { x: number; skinCol: string; jacketCol: string; trouserCol: string; facingZ?: number }) {
+    const flip = facingZ < 0 ? 0 : Math.PI;
+    return (
+      <group position={[x, 0, 0]} rotation={[0, flip, 0]}>
+        {/* Chair frame */}
+        <mesh position={[0, 0.44, 0.12]}>
+          <boxGeometry args={[0.40, 0.04, 0.38]} />
+          <meshStandardMaterial color="#2d2d2d" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 0.70, 0.32]}>
+          <boxGeometry args={[0.38, 0.52, 0.04]} />
+          <meshStandardMaterial color="#2d2d2d" roughness={0.8} />
+        </mesh>
+        {/* Chair legs */}
+        {[[-0.17, 0.17], [-0.17, -0.08], [0.17, 0.17], [0.17, -0.08]].map(([cx, cz], i) => (
+          <mesh key={i} position={[cx, 0.22, cz]}>
+            <boxGeometry args={[0.024, 0.44, 0.024]} />
+            <meshStandardMaterial color="#555" metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Thighs */}
+        <mesh position={[0, 0.45, -0.18]}>
+          <boxGeometry args={[0.26, 0.09, 0.44]} />
+          <meshStandardMaterial color={trouserCol} roughness={0.85} />
+        </mesh>
+        {/* Calves */}
+        <mesh position={[0, 0.24, -0.40]}>
+          <boxGeometry args={[0.22, 0.08, 0.26]} />
+          <meshStandardMaterial color={trouserCol} roughness={0.85} />
+        </mesh>
+        {/* Shoes */}
+        <mesh position={[-0.09, 0.06, -0.52]}>
+          <boxGeometry args={[0.10, 0.07, 0.22]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.90} />
+        </mesh>
+        <mesh position={[0.09, 0.06, -0.52]}>
+          <boxGeometry args={[0.10, 0.07, 0.22]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.90} />
+        </mesh>
+        {/* Torso */}
+        <mesh position={[0, 0.82, 0.05]}>
+          <boxGeometry args={[0.30, 0.42, 0.22]} />
+          <meshStandardMaterial color={jacketCol} roughness={0.80} />
+        </mesh>
+        {/* Shirt collar / tie glimpse */}
+        <mesh position={[0, 1.00, -0.06]}>
+          <boxGeometry args={[0.08, 0.16, 0.02]} />
+          <meshStandardMaterial color="#fff" roughness={0.9} />
+        </mesh>
+        {/* Left arm on desk */}
+        <mesh position={[-0.20, 0.84, -0.22]} rotation={[0.55, 0, 0.12]}>
+          <boxGeometry args={[0.09, 0.09, 0.36]} />
+          <meshStandardMaterial color={jacketCol} roughness={0.80} />
+        </mesh>
+        {/* Right arm on desk */}
+        <mesh position={[0.20, 0.84, -0.22]} rotation={[0.55, 0, -0.12]}>
+          <boxGeometry args={[0.09, 0.09, 0.36]} />
+          <meshStandardMaterial color={jacketCol} roughness={0.80} />
+        </mesh>
+        {/* Hands */}
+        <mesh position={[-0.20, 0.80, -0.44]}>
+          <sphereGeometry args={[0.044, 6, 6]} />
+          <meshStandardMaterial color={skinCol} roughness={0.70} />
+        </mesh>
+        <mesh position={[0.20, 0.80, -0.44]}>
+          <sphereGeometry args={[0.044, 6, 6]} />
+          <meshStandardMaterial color={skinCol} roughness={0.70} />
+        </mesh>
+        {/* Head */}
+        <mesh position={[0, 1.20, 0.01]} castShadow>
+          <sphereGeometry args={[0.11, 10, 8]} />
+          <meshStandardMaterial color={skinCol} roughness={0.65} />
+        </mesh>
+        {/* Hair */}
+        <mesh position={[0, 1.28, 0.03]}>
+          <sphereGeometry args={[0.10, 8, 5]} />
+          <meshStandardMaterial color="#2c1810" roughness={0.90} />
+        </mesh>
+        {/* Headset band */}
+        <mesh position={[0, 1.22, 0.01]} rotation={[0, 0, 0]}>
+          <torusGeometry args={[0.115, 0.012, 6, 18, Math.PI]} />
+          <meshStandardMaterial color="#111" metalness={0.7} roughness={0.3} />
+        </mesh>
+        {/* Ear cups */}
+        <mesh position={[-0.118, 1.20, 0.01]}>
+          <cylinderGeometry args={[0.028, 0.028, 0.04, 8]} />
+          <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
+        </mesh>
+        <mesh position={[0.118, 1.20, 0.01]}>
+          <cylinderGeometry args={[0.028, 0.028, 0.04, 8]} />
+          <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
+        </mesh>
+        {/* Boom mic arm */}
+        <mesh position={[-0.11, 1.18, -0.16]} rotation={[0.6, 0, 0.15]}>
+          <cylinderGeometry args={[0.006, 0.006, 0.22, 5]} />
+          <meshStandardMaterial color="#333" metalness={0.7} roughness={0.35} />
+        </mesh>
+        {/* Mic capsule */}
+        <mesh position={[-0.18, 1.14, -0.26]}>
+          <cylinderGeometry args={[0.012, 0.010, 0.048, 6]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
+        </mesh>
+      </group>
+    );
+  }
+
+  // ── Desk mic on stand ────────────────────────────────────────────────────────
+  function DeskMic({ x }: { x: number }) {
+    return (
+      <group position={[x, 0, -0.52]}>
+        {/* Mic base */}
+        <mesh position={[0, 0.03, 0]}>
+          <cylinderGeometry args={[0.06, 0.07, 0.04, 8]} />
+          <meshStandardMaterial color="#222" metalness={0.7} roughness={0.4} />
+        </mesh>
+        {/* Stand pole */}
+        <mesh position={[0, 0.28, 0]}>
+          <cylinderGeometry args={[0.008, 0.010, 0.46, 6]} />
+          <meshStandardMaterial color="#555" metalness={0.75} roughness={0.30} />
+        </mesh>
+        {/* Mic flag cube */}
+        <mesh position={[0, 0.54, 0]}>
+          <boxGeometry args={[0.072, 0.072, 0.072]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.6} />
+        </mesh>
+        {/* Mic flag logo face (emissive stripe) */}
+        <mesh position={[0.037, 0.54, 0]}>
+          <boxGeometry args={[0.002, 0.052, 0.052]} />
+          <meshStandardMaterial color="#e8c020" emissive="#e8c020" emissiveIntensity={0.8} roughness={0.3} />
+        </mesh>
+        {/* Foam windscreen */}
+        <mesh position={[0, 0.64, 0]}>
+          <sphereGeometry args={[0.030, 7, 6]} />
+          <meshStandardMaterial color="#555" roughness={0.95} />
+        </mesh>
+      </group>
+    );
+  }
+
+  return (
+    <group position={[12.5, 0, -5.5]} rotation={[0, Math.atan2(-12.5, 5.5), 0]}>
+
+      {/* ══ Scaffold platform (identical geometry to TVCrew) ═════════════════ */}
+      <group>
+        {posts.map(([px, pz], i) => (
+          <mesh key={i} position={[px, DECK_H / 2, pz]} castShadow>
+            <boxGeometry args={[0.08, DECK_H, 0.08]} />
+            <meshStandardMaterial color={steel} metalness={0.72} roughness={0.35} envMapIntensity={1.2} />
+          </mesh>
+        ))}
+        {([-1.4, 0.7] as number[]).map((bz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H, bz]} castShadow>
+            <boxGeometry args={[4.06, 0.07, 0.07]} />
+            <meshStandardMaterial color={steel} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
+          </mesh>
+        ))}
+        {([-2.2, -0.2, 1.8] as number[]).map((bx, i) => (
+          <mesh key={i} position={[bx, DECK_H, -0.35]} castShadow>
+            <boxGeometry args={[0.07, 0.07, 2.16]} />
+            <meshStandardMaterial color={steel} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
+          </mesh>
+        ))}
+        {([-1.4, 0.7] as number[]).map((bz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H * 0.5, bz]}>
+            <boxGeometry args={[4.06, 0.055, 0.055]} />
+            <meshStandardMaterial color={steelDark} metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+        {[[-1.4, 1], [0.7, -1]].map(([bz, dir], i) => (
+          <mesh key={i} position={[-0.2, DECK_H * 0.5, bz]}
+            rotation={[0, 0, Math.atan2(DECK_H, 2.0) * dir]}>
+            <boxGeometry args={[Math.sqrt(4 + DECK_H * DECK_H) + 0.1, 0.04, 0.04]} />
+            <meshStandardMaterial color={steelDark} metalness={0.55} roughness={0.45} />
+          </mesh>
+        ))}
+        {[-1.1, -0.7, -0.3, 0.1, 0.5].map((pz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H + 0.03, pz]} receiveShadow>
+            <boxGeometry args={[4.0, 0.05, 0.34]} />
+            <meshStandardMaterial color={i % 2 === 0 ? plankCol : "#6b4c38"} roughness={0.90} envMapIntensity={0.3} />
+          </mesh>
+        ))}
+        {posts.map(([px, pz], i) => (
+          <mesh key={i} position={[px, DECK_H + 0.55, pz]}>
+            <boxGeometry args={[0.05, 1.12, 0.05]} />
+            <meshStandardMaterial color={steel} metalness={0.68} roughness={0.38} />
+          </mesh>
+        ))}
+        {([-1.4, 0.7] as number[]).map((rz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H + 1.08, rz]}>
+            <boxGeometry args={[4.06, 0.05, 0.05]} />
+            <meshStandardMaterial color={steel} metalness={0.68} roughness={0.35} />
+          </mesh>
+        ))}
+        {([-1.4, 0.7] as number[]).map((rz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H + 0.60, rz]}>
+            <boxGeometry args={[4.06, 0.04, 0.04]} />
+            <meshStandardMaterial color={steelDark} metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+        {[0, 1, 2].map((s) => {
+          const sh = ((s + 1) / 3) * DECK_H;
+          const sz = 0.7 + (3 - s) * 0.46;
+          return (
+            <group key={s}>
+              <mesh position={[-0.2, sh - 0.065, sz]} castShadow>
+                <boxGeometry args={[1.0, 0.06, 0.42]} />
+                <meshStandardMaterial color={plankCol} roughness={0.88} />
+              </mesh>
+              <mesh position={[-0.2, (sh - 0.065) / 2, sz]}>
+                <boxGeometry args={[0.06, sh - 0.065, 0.06]} />
+                <meshStandardMaterial color={steel} metalness={0.65} roughness={0.4} />
+              </mesh>
+            </group>
+          );
+        })}
+        <mesh position={[0.56, DECK_H * 0.7, 1.35]} rotation={[0.5, 0, 0]}>
+          <capsuleGeometry args={[0.018, 1.42, 4, 6]} />
+          <meshStandardMaterial color={steel} metalness={0.72} roughness={0.30} />
+        </mesh>
+      </group>
+
+      {/* ══ Commentary team — on the deck ════════════════════════════════════ */}
+      <group position={[0, DECK_H, 0]}>
+
+        {/* Broadcast desk */}
+        <mesh position={[0, 0.375, -0.52]} castShadow>
+          <boxGeometry args={[1.70, 0.75, 0.52]} />
+          <meshStandardMaterial color="#1c2b4a" roughness={0.70} metalness={0.10} />
+        </mesh>
+        {/* Desk top surface */}
+        <mesh position={[0, 0.755, -0.52]}>
+          <boxGeometry args={[1.72, 0.022, 0.54]} />
+          <meshStandardMaterial color="#0d1b2e" roughness={0.55} metalness={0.25} />
+        </mesh>
+        {/* Desk fascia logo strip */}
+        <mesh position={[0, 0.50, -0.248]}>
+          <boxGeometry args={[1.60, 0.18, 0.012]} />
+          <meshStandardMaterial color="#e8c020" emissive="#e8c020" emissiveIntensity={0.45} roughness={0.4} />
+        </mesh>
+
+        {/* Monitor on desk (facing commentators = +z) */}
+        <group position={[0, 0.78, -0.35]}>
+          {/* Monitor stand */}
+          <mesh position={[0, 0.08, 0]}>
+            <boxGeometry args={[0.10, 0.02, 0.10]} />
+            <meshStandardMaterial color="#222" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[0, 0.20, 0]}>
+            <boxGeometry args={[0.02, 0.24, 0.02]} />
+            <meshStandardMaterial color="#333" metalness={0.7} roughness={0.3} />
+          </mesh>
+          {/* Screen bezel */}
+          <mesh position={[0, 0.38, 0]}>
+            <boxGeometry args={[0.40, 0.28, 0.03]} />
+            <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
+          </mesh>
+          {/* Screen face — shows live feed glow */}
+          <mesh position={[0, 0.38, -0.017]}>
+            <boxGeometry args={[0.36, 0.24, 0.002]} />
+            <meshStandardMaterial color="#4a9de0" emissive="#2a6aaa" emissiveIntensity={1.0} roughness={0.15} />
+          </mesh>
+        </group>
+
+        {/* Water bottles */}
+        {[-0.62, 0.62].map((bx, i) => (
+          <mesh key={i} position={[bx, 0.82, -0.38]}>
+            <cylinderGeometry args={[0.022, 0.022, 0.18, 7]} />
+            <meshStandardMaterial color={i === 0 ? "#2255cc" : "#cc3322"} transparent opacity={0.75} roughness={0.3} />
+          </mesh>
+        ))}
+
+        {/* Notepad on desk */}
+        {[-0.42, 0.42].map((nx, i) => (
+          <mesh key={i} position={[nx, 0.77, -0.55]}>
+            <boxGeometry args={[0.18, 0.005, 0.22]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.95} />
+          </mesh>
+        ))}
+
+        {/* Commentator 1 — left, lighter jacket */}
+        <Commentator x={-0.62} skinCol="#f0c08a" jacketCol="#1a3c6e" trouserCol="#2a2a3a" />
+        {/* Commentator 2 — right, different kit */}
+        <Commentator x={0.62} skinCol="#7d4e24" jacketCol="#6b0c1e" trouserCol="#1a1a2a" />
+
+        {/* Desk mics for each commentator */}
+        <DeskMic x={-0.55} />
+        <DeskMic x={0.55} />
+
+        {/* Producer behind them — standing, checking clipboard */}
+        <group position={[0, 0, 0.55]} rotation={[0, Math.PI, 0]}>
+          {/* Body */}
+          <mesh position={[0, 0.90, 0]}>
+            <boxGeometry args={[0.26, 0.46, 0.18]} />
+            <meshStandardMaterial color="#2c4a2c" roughness={0.80} />
+          </mesh>
+          {/* Head */}
+          <mesh position={[0, 1.25, 0]} castShadow>
+            <sphereGeometry args={[0.10, 9, 7]} />
+            <meshStandardMaterial color="#e0a86c" roughness={0.65} />
+          </mesh>
+          {/* Hair */}
+          <mesh position={[0, 1.32, 0]}>
+            <sphereGeometry args={[0.09, 7, 5]} />
+            <meshStandardMaterial color="#1a0a00" roughness={0.90} />
+          </mesh>
+          {/* Clipboard */}
+          <mesh position={[0.16, 0.95, -0.15]} rotation={[0.3, 0, -0.2]}>
+            <boxGeometry args={[0.18, 0.24, 0.012]} />
+            <meshStandardMaterial color="#d4c9a0" roughness={0.90} />
+          </mesh>
+          {/* Headset */}
+          <mesh position={[0, 1.27, 0]} rotation={[0, 0, 0]}>
+            <torusGeometry args={[0.106, 0.011, 5, 16, Math.PI]} />
+            <meshStandardMaterial color="#111" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[-0.11, 1.24, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.036, 7]} />
+            <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
+          </mesh>
+          <mesh position={[0.11, 1.24, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.036, 7]} />
+            <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
+          </mesh>
+        </group>
+
+      </group>{/* end deck group */}
+    </group>
+  );
+}
+
 // ── Food Stall ─────────────────────────────────────────────────────────────────
 function FoodStall({ position, rotation = [0, 0, 0] as [number,number,number], stallType }: {
   position: [number, number, number];
@@ -4393,6 +4738,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
       <GroundSeagulls />
       <ManWithDog />
       <TVCrew />
+      <CommentaryScaffold />
       <FoodStall position={[-7, 0, -11]} rotation={[0, Math.PI, 0]} stallType="food" />
       <FoodStall position={[0.5, 0, -11]} rotation={[0, Math.PI, 0]} stallType="drinks" />
       <MerchStore position={[8, 0, -11]} rotation={[0, Math.PI, 0]} />
