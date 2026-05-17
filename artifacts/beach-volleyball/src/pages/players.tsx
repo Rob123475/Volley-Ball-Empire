@@ -120,22 +120,24 @@ export default function PlayerMarket() {
           const overall = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
             <Card key={player.id} className="overflow-hidden hover:shadow-lg transition-all group">
-              <div className="relative">
-                <div className="h-28 bg-gradient-to-br from-primary/30 via-secondary/20 to-transparent flex items-end px-4 pb-3">
-                  <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
-                    <AvatarImage src={player.imageUrl ?? undefined} alt={player.name} />
-                    <AvatarFallback className="text-xl font-bold">{player.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="ml-3 mb-1">
-                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] mb-1">
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={player.imageUrl ?? undefined}
+                  alt={player.name}
+                  className="w-full h-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
+                  <div>
+                    <Badge className="bg-primary text-white border-0 text-[10px] mb-1">
                       {player.position.replace(/_/g, " ").toUpperCase()}
                     </Badge>
-                    <div className="font-bold text-base leading-tight">{player.name}</div>
-                    <div className="text-xs text-muted-foreground">{player.age} yrs • {player.height}cm</div>
+                    <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
+                    <div className="text-xs text-white/70">{player.age} yrs • {player.height}cm</div>
                   </div>
-                  <div className="ml-auto mb-1 text-right">
-                    <div className="text-3xl font-black text-primary">{overall}</div>
-                    <div className="text-[10px] text-muted-foreground">OVR</div>
+                  <div className="text-right">
+                    <div className="text-3xl font-black text-white drop-shadow">{overall}</div>
+                    <div className="text-[10px] text-white/70">OVR</div>
                   </div>
                 </div>
               </div>

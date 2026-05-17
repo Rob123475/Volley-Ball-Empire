@@ -117,21 +117,23 @@ export default function TeamRoster() {
     
     return (
       <Card data-testid={`card-player-${player.id}`} className="overflow-hidden group hover:shadow-md transition-all duration-300">
-        <div className="relative">
-          <div className="h-24 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-end px-4 pb-2">
-            <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
-              <AvatarImage src={player.imageUrl ?? undefined} alt={player.name} />
-              <AvatarFallback className="text-lg font-bold">{player.name[0]}</AvatarFallback>
-            </Avatar>
-            <div className="ml-3 mb-1">
-              <div className="text-xs font-bold text-primary/80 uppercase tracking-widest">
+        <div className="relative h-44 overflow-hidden">
+          <img
+            src={player.imageUrl ?? undefined}
+            alt={player.name}
+            className="w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
+            <div>
+              <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-0.5">
                 {player.position.replace(/_/g, " ")}
               </div>
-              <div className="text-lg font-black leading-tight">{player.name}</div>
+              <div className="text-lg font-black leading-tight text-white drop-shadow">{player.name}</div>
             </div>
-            <div className="ml-auto mb-1 text-right">
-              <div className="text-2xl font-black text-primary">{rating}</div>
-              <div className="text-[10px] text-muted-foreground">OVR</div>
+            <div className="text-right">
+              <div className="text-2xl font-black text-white drop-shadow">{rating}</div>
+              <div className="text-[10px] text-white/70">OVR</div>
             </div>
           </div>
         </div>

@@ -1,20 +1,15 @@
 import { pool } from "@workspace/db";
 
-// Deterministic hash → consistent photo per person across runs
+// Deterministic hash → same photo every time for the same person
 const nameHash = (s: string, mod: number) =>
   Math.abs(s.split("").reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0)) % mod;
 
-// All players are women athletes — realistic portraits 0-99
+// pravatar.cc — real stock-photo human faces at 300×300, indices 1-70
 const getPlayerImageUrl = (name: string) =>
-  `https://randomuser.me/api/portraits/women/${nameHash(name, 100)}.jpg`;
+  `https://i.pravatar.cc/300?img=${nameHash(name, 70) + 1}`;
 
-// Staff — mix men (even hash) and women (odd hash), realistic portraits
-const getStaffImageUrl = (name: string) => {
-  const h = nameHash(name, 200);
-  return h % 2 === 0
-    ? `https://randomuser.me/api/portraits/men/${nameHash(name, 100)}.jpg`
-    : `https://randomuser.me/api/portraits/women/${nameHash(name, 100)}.jpg`;
-};
+const getStaffImageUrl = (name: string) =>
+  `https://i.pravatar.cc/300?img=${nameHash(name + "_staff", 70) + 1}`;
 
 const getLocationImageUrl = (city: string) =>
   `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;

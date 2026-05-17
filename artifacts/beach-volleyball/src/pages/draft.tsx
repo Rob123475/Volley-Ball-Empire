@@ -56,27 +56,29 @@ export default function PlayerDraft() {
           const avgRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
             <Card key={player.id} data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary hover:shadow-lg transition-all">
-              <div className="relative">
-                <div className="h-32 bg-gradient-to-br from-secondary/30 via-primary/10 to-transparent flex items-end px-4 pb-3">
-                  <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
-                    <AvatarImage src={player.imageUrl ?? undefined} alt={player.name} />
-                    <AvatarFallback className="text-xl font-bold bg-secondary/20">{player.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="ml-3 mb-1">
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={player.imageUrl ?? undefined}
+                  alt={player.name}
+                  className="w-full h-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
+                  <div>
                     <div className="flex gap-1 mb-1">
                       <Badge className="bg-secondary text-secondary-foreground text-[10px]">
                         {player.position.replace(/_/g, " ").toUpperCase()}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] border-green-500 text-green-600">
+                      <Badge className="bg-green-600 text-white border-0 text-[10px]">
                         AGE {player.age}
                       </Badge>
                     </div>
-                    <div className="font-bold text-base leading-tight">{player.name}</div>
-                    <div className="text-xs text-muted-foreground">{player.nationality} • {player.height}cm</div>
+                    <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
+                    <div className="text-xs text-white/70">{player.nationality} • {player.height}cm</div>
                   </div>
-                  <div className="ml-auto mb-1 text-right">
-                    <div className="text-3xl font-black text-secondary">{avgRating}</div>
-                    <div className="text-[10px] text-muted-foreground">OVR</div>
+                  <div className="text-right">
+                    <div className="text-3xl font-black text-white drop-shadow">{avgRating}</div>
+                    <div className="text-[10px] text-white/70">OVR</div>
                   </div>
                 </div>
               </div>
