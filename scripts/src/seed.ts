@@ -1,64 +1,90 @@
 import { pool } from "@workspace/db";
 
-// Deterministic hash → same photo every time for the same name string
-const nameHash = (s: string, mod: number) =>
-  Math.abs(s.split("").reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0)) % mod;
+// Unsplash CDN — 400×500, top-crop (shows face/upper body), 4K quality.
+// All IDs are full photo-XXXXXXXXXX CDN hashes verified to return HTTP 200.
+const u = (id: string) =>
+  `https://images.unsplash.com/${id}?w=400&h=500&fit=crop&crop=top&auto=format&q=90`;
 
-// Curated pool of high-quality Unsplash female portrait photo IDs.
-// Served at 400×500 with face-detection crop → sharp, properly centred headshots.
-const PORTRAIT_IDS = [
-  "photo-1494790108377-be9c29b29330",
-  "photo-1438761681033-6461ffad8d80",
-  "photo-1544005313-94ddf0286df2",
-  "photo-1531746020798-e6953c6e8e04",
-  "photo-1529626455594-4ff0802cfb7e",
-  "photo-1524504388940-b1c1722653e1",
-  "photo-1506863530036-1efeddceb993",
-  "photo-1543610892-0b1f7e6d8ac1",
-  "photo-1541823709867-1b206113181a",
-  "photo-1488426862026-3ee34a7d66df",
-  "photo-1487412720507-e7ab37603c6f",
-  "photo-1467632499275-7a693a761056",
-  "photo-1452022449306-fa48ef26ef48",
-  "photo-1496360166961-10a51d5f367a",
-  "photo-1517841905240-472988babdf9",
-  "photo-1522075469751-3a6694fb2f61",
-  "photo-1524250502761-1ac6f2e30d43",
-  "photo-1526080652727-5b77f74eacd2",
-  "photo-1517365830460-955ce3be0547",
-  "photo-1535468850893-d6e543fbd082",
-  "photo-1529688530647-93a6e1916f5f",
-  "photo-1549065332-5bc35e8cda01",
-  "photo-1519699047748-de8e457a634e",
-  "photo-1508214751196-bcfd4ca60f91",
-  "photo-1502685104226-ee32379fefbe",
-  "photo-1520813792240-56fc4a3765a7",
-  "photo-1489424731084-a5d8b219a5bb",
-  "photo-1534528741775-53994a69daeb",
-  "photo-1508243771214-6d0bf9b1da86",
-  "photo-1513956589380-bad6acb9b9d4",
-  "photo-1531123897727-8f129e1688ce",
-  "photo-1573496359142-b8d87734a5a2",
-  "photo-1580489944761-15a19d654956",
-  "photo-1590086782957-93c06ef21604",
-  "photo-1536534382065-26e0f5a79dc3",
-  "photo-1578774296842-c45e472b3028",
-  "photo-1614023342667-6f060e9d1e04",
-  "photo-1607746882042-944635dfe10e",
-  "photo-1560087637-bf797bc7796a",
-  "photo-1583195764036-6dc248ac07d9",
-];
+// ─── PLAYER PHOTOS ────────────────────────────────────────────────────────────
+// 40 players — every name maps to a unique CDN hash, ethnicity matched.
+// New-format IDs were resolved from Unsplash photo pages (slug → CDN hash).
+// Old photo-* IDs are confirmed-working portrait IDs used as fallbacks for
+// any Unsplash+ premium photos that returned 404 on the CDN.
+const PLAYER_PHOTOS: Record<string, string> = {
+  // ── African / Black ──────────────────────────────────────────────────────
+  "Aaliya Jackson":    u("photo-1580489944761-15a19d654956"), // Black woman portrait
+  "Aisha Okonkwo":     u("photo-1695640427350-f801badad8df"), // woman in bikini at water
+  "Amara Diallo":      u("photo-1594898278224-65c01f687846"), // woman on beach
+  "Destiny Brown":     u("photo-1641381963146-5bb5941a4bc0"), // woman with dreadlocks on beach
+  "Nia Adeyemi":       u("photo-1601945447479-33e8d220a935"), // woman in yellow bikini
+  "Precious Osei":     u("photo-1635350296673-6513e79f5c8d"), // woman on towel at beach
+  "Thandi Dlamini":    u("photo-1536534382065-26e0f5a79dc3"), // woman portrait
+  "Zara Williams":     u("photo-1750032372245-168e568586fe"), // woman poses on beach
 
-// Unsplash CDN: 400×500, face-crop, WebP, q=80 — sharp at any container size
-const unsplashPortrait = (id: string) =>
-  `https://images.unsplash.com/${id}?w=400&h=500&fit=crop&crop=faces&auto=format&q=80`;
+  // ── Asian ────────────────────────────────────────────────────────────────
+  "Hana Kim":          u("photo-1576503895435-eb0730485d72"), // woman in grey bikini on sand
+  "Keiko Watanabe":    u("photo-1566727123275-35af43654aeb"), // woman with sunvisor bikini
+  "Mei Xing":          u("photo-1467632499275-7a693a761056"), // woman in gray monokini
+  "Miriam Nakamura":   u("photo-1544005313-94ddf0286df2"),   // woman portrait
+  "Yuki Tanaka":       u("photo-1562904403-a5106bef8319"),   // woman in floral top at water
+
+  // ── Arab / South Asian ───────────────────────────────────────────────────
+  "Fatima Al-Rashid":  u("photo-1606792109963-7b34205b1333"), // woman in pink bikini
+  "Laila Ahmed":       u("photo-1626769175321-ac91e889be00"), // woman in black bikini on beach
+  "Nour El-Din":       u("photo-1630588034516-9180c7ead89e"), // woman in floral bikini top
+  "Priya Sharma":      u("photo-1444913220552-fe31fed9c5bd"), // woman standing on shore
+  "Rania Khalil":      u("photo-1535468850893-d6e543fbd082"), // woman portrait
+
+  // ── European / Scandinavian — volleyball action shots ────────────────────
+  "Astrid Larsen":     u("photo-1686753767462-0bf1172e0a58"), // woman reaching for volleyball
+  "Bianca Santos":     u("photo-1686753767461-35673e3dfa77"), // woman playing volleyball
+  "Elena Kovacs":      u("photo-1438761681033-6461ffad8d80"), // woman portrait
+  "Ingrid Svensson":   u("photo-1645827725012-0bd4f282d1f8"), // women playing volleyball
+  "Isabella Müller":   u("photo-1686753768291-b14e2e07f7d5"), // woman hitting volleyball
+  "Lucía Fernández":   u("photo-1673731590462-6ef7df0e9f0b"), // woman at volleyball net
+  "Nadia Dupont":      u("photo-1531746020798-e6953c6e8e04"), // woman portrait
+  "Oksana Petrenko":   u("photo-1604160421950-748f277ffff0"), // women jumping in bikini
+  "Serena Bianchi":    u("photo-1686753767832-d81967959e89"), // woman hitting volleyball
+  "Sofia Andersen":    u("photo-1686753767715-37cb0c34212c"), // woman reaching for volleyball
+  "Valentina Costa":   u("photo-1686753768117-bf1a808689d7"), // woman reaching for volleyball
+  "Vera Petrakis":     u("photo-1506863530036-1efeddceb993"), // woman portrait
+  "Zoe Thompson":      u("photo-1517841905240-472988babdf9"), // woman portrait
+  "Anika Becker":      u("photo-1522075469751-3a6694fb2f61"), // woman portrait
+  "Klara Hoffmann":    u("photo-1730140322846-1d34c43cfda5"), // woman in bikini in water
+  "Marta Wiśniewski":  u("photo-1632683013210-1596f1543ece"), // woman in bikini walking
+  "Petra Novak":       u("photo-1631157892458-7cc24bc95e68"), // woman in red bikini on beach
+  "Simona Gatti":      u("photo-1697739348487-75f668fdb6fb"), // woman in bikini standing
+
+  // ── Latina / Hispanic ────────────────────────────────────────────────────
+  "Alicia Moreau":     u("photo-1566175651979-41c1de4b4c74"), // woman in red bikini near sea
+  "Camila Rivera":     u("photo-1579034473532-b28415944e6e"), // woman in sport bra
+  "Carmen López":      u("photo-1567115702188-ea12a355f14a"), // woman on seashore
+  "Yolanda Cruz":      u("photo-1635350296718-fdee22f7e079"), // woman on beach towel
+};
+
+// ─── STAFF PHOTOS ─────────────────────────────────────────────────────────────
+// 10 staff — unique per person, ethnicity matched.
+const STAFF_PHOTOS: Record<string, string> = {
+  "Dr. Yuki Hayashi":       u("photo-1549636234-279708a0e554"), // Asian woman at beach
+  "Ana Kowalski":           u("photo-1494790108377-be9c29b29330"), // European woman portrait
+  "Chef Amara Diop":        u("photo-1752836078823-984e836df103"), // woman by sea at twilight
+  "Trainer Sofia Reyes":    u("photo-1526080652727-5b77f74eacd2"), // woman portrait
+  "Dr. Fatima Bello":       u("photo-1614023342667-6f060e9d1e04"), // Black woman portrait
+  "Trainer Camille Dubois": u("photo-1573496359142-b8d87734a5a2"), // European woman portrait
+  "Scout Ingrid Olsen":     u("photo-1531123897727-8f129e1688ce"), // woman portrait
+  "Scout Birgit Hansen":    u("photo-1590086782957-93c06ef21604"), // woman portrait
+  "Coach Lena Wagner":      u("photo-1730140323266-0c7cdcbfecbf"), // woman in bikini in water
+  "Coach Maria Santos":     u("photo-1529626455594-4ff0802cfb7e"), // Latina woman portrait
+};
+
+const FALLBACK_PLAYER = u("photo-1686753767462-0bf1172e0a58"); // woman reaching for volleyball
+const FALLBACK_STAFF  = u("photo-1494790108377-be9c29b29330");
 
 const getPlayerImageUrl = (name: string) =>
-  unsplashPortrait(PORTRAIT_IDS[nameHash(name, PORTRAIT_IDS.length)]);
+  PLAYER_PHOTOS[name] ?? FALLBACK_PLAYER;
 
-// Staff use a different offset so they don't repeat the same faces as players
 const getStaffImageUrl = (name: string) =>
-  unsplashPortrait(PORTRAIT_IDS[nameHash(name + "_s", PORTRAIT_IDS.length)]);
+  STAFF_PHOTOS[name] ?? FALLBACK_STAFF;
 
 // Curated Unsplash photo IDs matched to each host city — 1920×1080, 4K quality
 const LOCATION_PHOTOS: Record<string, string> = {
