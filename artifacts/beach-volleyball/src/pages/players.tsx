@@ -35,14 +35,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format, addMonths } from "date-fns";
 
-const POSITIONS = ["ALL", "setter", "libero", "outside_hitter", "middle_blocker", "opposite", "universal"] as const;
+const POSITIONS = ["ALL", "setter", "defender", "blocker", "opposite", "server", "universal"] as const;
 const POSITION_LABELS: Record<string, string> = {
   ALL: "All",
   setter: "S",
-  libero: "D",
-  outside_hitter: "B",
-  middle_blocker: "MB",
+  defender: "D",
+  blocker: "B",
   opposite: "OPP",
+  server: "SV",
   universal: "UNI",
 };
 
