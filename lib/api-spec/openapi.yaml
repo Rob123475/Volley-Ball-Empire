@@ -997,7 +997,7 @@ components:
 
     Player:
       type: object
-      required: [id, name, nationality, age, height, position, speed, power, defense, serve, block, stamina, morale, fatigue, salary, teamId, outfitId, isActive, imageUrl, createdAt]
+      required: [id, name, nationality, age, height, position, speed, power, defense, serve, block, stamina, morale, fatigue, trainingPoints, salary, teamId, outfitId, isActive, imageUrl, createdAt]
       properties:
         id:
           type: integer
@@ -1029,6 +1029,9 @@ components:
         fatigue:
           type: integer
           description: Player fatigue level 0-100. High fatigue reduces performance.
+        trainingPoints:
+          type: integer
+          description: Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.
         salary:
           type: number
         teamId:

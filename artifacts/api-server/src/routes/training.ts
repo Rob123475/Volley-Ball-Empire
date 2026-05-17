@@ -6,33 +6,50 @@ import { eq, and } from "drizzle-orm";
 const router = Router();
 
 const serializeSession = (s: any) => ({ ...s, durationHours: Number(s.durationHours) });
+const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
-const serializePlayer = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
-
-const getTeamForUser = async (userId: string) => {
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
-};
+const getTeamForUser = async (userId: string) =>
+  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const typeToStat: Record<string, string> = {
   strength: "power", agility: "speed", serving: "serve",
-  blocking: "block", defense: "defense", teamplay: "stamina", recovery: "stamina"
+  blocking: "block", defense: "defense", teamplay: "stamina", recovery: "stamina",
 };
+
+// ── Training XP accumulation ──────────────────────────────────────────────────
+// Each session adds XP to the player's persistent trainingPoints bank.
+// Every 100 points crossed = +1 to the targeted stat.
+// Points never reset between seasons — they carry over until retirement/draft exit.
+const POINTS_PER_SESSION_MIN = 25;
+const POINTS_PER_SESSION_MAX = 35;
+const POINTS_THRESHOLD = 100;
 
 const applyFatigueAndStats = async (playerId: number, type: string) => {
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
   if (!player) return null;
 
-  const statGain = Math.floor(Math.random() * 3) + 1;
-  const stat = typeToStat[type] || "stamina";
-  const statGains: Record<string, number> = { [stat]: statGain };
+  const sessionXp = Math.floor(Math.random() * (POINTS_PER_SESSION_MAX - POINTS_PER_SESSION_MIN + 1)) + POINTS_PER_SESSION_MIN;
+  const prevPoints = player.trainingPoints;
+  const newPoints  = prevPoints + sessionXp;
 
-  const updates: Record<string, number> = {};
-  if (stat === "power") updates.power = Math.min(99, player.power + statGain);
-  if (stat === "speed") updates.speed = Math.min(99, player.speed + statGain);
-  if (stat === "serve") updates.serve = Math.min(99, player.serve + statGain);
-  if (stat === "block") updates.block = Math.min(99, player.block + statGain);
-  if (stat === "defense") updates.defense = Math.min(99, player.defense + statGain);
-  if (stat === "stamina") updates.stamina = Math.min(99, player.stamina + statGain);
+  // How many full 100-point thresholds were crossed this session
+  const prevMilestone = Math.floor(prevPoints / POINTS_THRESHOLD);
+  const newMilestone  = Math.floor(newPoints  / POINTS_THRESHOLD);
+  const statGain = newMilestone - prevMilestone; // 0 or 1 (rarely 2 on a big session)
+
+  const stat = typeToStat[type] || "stamina";
+  const statGains: Record<string, number> = statGain > 0 ? { [stat]: statGain } : {};
+
+  const updates: Record<string, number> = { trainingPoints: newPoints };
+
+  if (statGain > 0) {
+    if (stat === "power")   updates.power   = Math.min(99, player.power   + statGain);
+    if (stat === "speed")   updates.speed   = Math.min(99, player.speed   + statGain);
+    if (stat === "serve")   updates.serve   = Math.min(99, player.serve   + statGain);
+    if (stat === "block")   updates.block   = Math.min(99, player.block   + statGain);
+    if (stat === "defense") updates.defense = Math.min(99, player.defense + statGain);
+    if (stat === "stamina") updates.stamina = Math.min(99, player.stamina + statGain);
+  }
 
   if (type === "recovery") {
     updates.fatigue = Math.max(0, player.fatigue - 25);
@@ -41,7 +58,14 @@ const applyFatigueAndStats = async (playerId: number, type: string) => {
   }
 
   const [newPlayer] = await db.update(playersTable).set(updates).where(eq(playersTable.id, playerId)).returning();
-  return { newPlayer: serializePlayer(newPlayer), statGains };
+  return {
+    newPlayer: serializePlayer(newPlayer),
+    statGains,
+    xpGained: sessionXp,
+    totalXp: newPoints,
+    nextThreshold: (newMilestone + 1) * POINTS_THRESHOLD,
+    xpToNextStat: (newMilestone + 1) * POINTS_THRESHOLD - newPoints,
+  };
 };
 
 router.get("/training", async (req, res) => {
@@ -111,11 +135,14 @@ router.post("/training/:id/complete", async (req, res) => {
 
   const result = await applyFatigueAndStats(session.playerId, session.type);
   if (result) {
-    const { newPlayer, statGains } = result;
+    const { newPlayer, statGains, xpGained, totalXp, xpToNextStat } = result;
     res.json({
       session: { ...serializeSession(updatedSession), player: newPlayer },
       statGains,
       newStats: newPlayer,
+      xpGained,
+      totalXp,
+      xpToNextStat,
     });
     return;
   }
@@ -135,7 +162,7 @@ router.get("/training/plan", async (req, res) => {
 
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
   const avgFitness = players.length > 0 ? players.reduce((acc, p) => acc + p.stamina, 0) / players.length : 80;
-  const avgMorale = players.length > 0 ? players.reduce((acc, p) => acc + p.morale, 0) / players.length : 80;
+  const avgMorale  = players.length > 0 ? players.reduce((acc, p) => acc + p.morale,  0) / players.length : 80;
   const avgFatigue = players.length > 0 ? players.reduce((acc, p) => acc + p.fatigue, 0) / players.length : 0;
 
   res.json({

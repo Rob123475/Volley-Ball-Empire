@@ -23,6 +23,8 @@ export interface Player {
   morale: number;
   /** Player fatigue level 0-100. High fatigue reduces performance. */
   fatigue: number;
+  /** Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons. */
+  trainingPoints: number;
   salary: number;
   /** @nullable */
   teamId: number | null;
