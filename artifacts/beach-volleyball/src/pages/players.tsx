@@ -39,8 +39,8 @@ const POSITIONS = ["ALL", "setter", "libero", "outside_hitter", "middle_blocker"
 const POSITION_LABELS: Record<string, string> = {
   ALL: "All",
   setter: "S",
-  libero: "L",
-  outside_hitter: "OH",
+  libero: "D",
+  outside_hitter: "B",
   middle_blocker: "MB",
   opposite: "OPP",
   universal: "UNI",
