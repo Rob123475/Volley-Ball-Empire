@@ -1400,41 +1400,83 @@ function BeachUmbrella({ position, color, tiltZ = 0 }: {
   tiltZ?: number;
 }) {
   const stripeColor = "#fff8e1";
-  const POLE_H = 3.5;
-  const CANOPY_Y = 2.95;
+  const brassColor  = "#c8a94a";
+  const POLE_H  = 3.6;
+  const CANOPY_Y = 3.05;
+  const SEGS = 16;
   return (
     <group position={position} rotation={[0, 0, tiltZ]}>
-      {/* Pole — goes y=0 → y=POLE_H */}
-      <mesh position={[0, POLE_H / 2, 0]} castShadow>
-        <cylinderGeometry args={[0.042, 0.055, POLE_H, 8]} />
-        <meshStandardMaterial color="#c8a94a" metalness={0.4} roughness={0.45} />
+      {/* Ground spike anchor */}
+      <mesh position={[0, 0.12, 0]} castShadow>
+        <cylinderGeometry args={[0.062, 0.038, 0.24, 8]} />
+        <meshStandardMaterial color="#888" metalness={0.85} roughness={0.25} envMapIntensity={1.5} />
       </mesh>
-      {/* Canopy outer — coloured panel */}
-      <mesh position={[0, CANOPY_Y, 0]} castShadow>
-        <coneGeometry args={[1.55, 0.75, 16, 1, true]} />
-        <meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.70} />
+      {/* Main pole — aluminium tube */}
+      <mesh position={[0, POLE_H / 2 + 0.12, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.038, 0.048, POLE_H, 10]} />
+        <meshStandardMaterial color={brassColor} metalness={0.72} roughness={0.28} envMapIntensity={1.8} />
       </mesh>
-      {/* Canopy alternating white stripes */}
-      {[0,1,2,3,4,5,6,7].map(i => (
-        <mesh key={i} position={[0, CANOPY_Y, 0]} rotation={[0, (i / 8) * Math.PI * 2, 0]}>
-          <coneGeometry args={[1.56, 0.75, 16, 1, true, (i / 8) * Math.PI * 2, Math.PI / 8]} />
-          <meshStandardMaterial color={i % 2 === 0 ? color : stripeColor} side={THREE.FrontSide} roughness={0.70} />
+      {/* Pole collar ring */}
+      <mesh position={[0, CANOPY_Y - 0.55, 0]}>
+        <torusGeometry args={[0.055, 0.018, 8, 16]} />
+        <meshStandardMaterial color="#aaa" metalness={0.9} roughness={0.15} envMapIntensity={2.0} />
+      </mesh>
+
+      {/* Canopy — alternating panels (coloured + cream) */}
+      {Array.from({ length: 16 }, (_, i) => (
+        <mesh key={i} position={[0, CANOPY_Y, 0]} rotation={[0, (i / 16) * Math.PI * 2, 0]} castShadow>
+          <coneGeometry args={[1.62, 0.80, 16, 1, true, (i / 16) * Math.PI * 2, Math.PI / 16]} />
+          <meshStandardMaterial
+            color={i % 2 === 0 ? color : stripeColor}
+            side={THREE.DoubleSide}
+            roughness={0.72}
+            envMapIntensity={0.6}
+          />
         </mesh>
       ))}
-      {/* Canopy underside — cream */}
+      {/* Canopy underside — warm cream */}
       <mesh position={[0, CANOPY_Y, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[1.53, 0.73, 16, 1, true]} />
-        <meshStandardMaterial color="#fffaec" side={THREE.FrontSide} roughness={0.90} />
+        <coneGeometry args={[1.58, 0.78, SEGS, 1, true]} />
+        <meshStandardMaterial color="#f7f0dc" side={THREE.FrontSide} roughness={0.92} envMapIntensity={0.3} />
       </mesh>
-      {/* Fringe ring at canopy edge */}
-      <mesh position={[0, CANOPY_Y - 0.375, 0]}>
-        <torusGeometry args={[1.545, 0.012, 6, 48]} />
-        <meshStandardMaterial color={stripeColor} roughness={0.8} />
+      {/* Crown cap over pole tip */}
+      <mesh position={[0, CANOPY_Y + 0.05, 0]}>
+        <cylinderGeometry args={[0.072, 0.072, 0.06, 12]} />
+        <meshStandardMaterial color={brassColor} metalness={0.7} roughness={0.3} envMapIntensity={1.6} />
       </mesh>
-      {/* Tip finial */}
-      <mesh position={[0, CANOPY_Y + 0.41, 0]} castShadow>
-        <sphereGeometry args={[0.07, 8, 8]} />
-        <meshStandardMaterial color="#c8a94a" metalness={0.6} roughness={0.35} />
+
+      {/* Rib spokes — 8 structural ribs */}
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i / 8) * Math.PI * 2;
+        return (
+          <mesh key={i}
+            position={[Math.sin(a) * 0.78, CANOPY_Y - 0.20, Math.cos(a) * 0.78]}
+            rotation={[Math.atan2(0.40, 0.80), a + Math.PI / 2, 0]}
+          >
+            <cylinderGeometry args={[0.008, 0.008, 1.70, 4]} />
+            <meshStandardMaterial color={brassColor} metalness={0.75} roughness={0.22} envMapIntensity={1.4} />
+          </mesh>
+        );
+      })}
+
+      {/* Fringe strips — hanging from canopy edge */}
+      {Array.from({ length: 24 }, (_, i) => {
+        const a = (i / 24) * Math.PI * 2;
+        return (
+          <mesh key={i}
+            position={[Math.sin(a) * 1.60, CANOPY_Y - 0.44, Math.cos(a) * 1.60]}
+            rotation={[0, 0, 0]}
+          >
+            <boxGeometry args={[0.03, 0.18, 0.005]} />
+            <meshStandardMaterial color={i % 2 === 0 ? stripeColor : color} roughness={0.85} side={THREE.DoubleSide} />
+          </mesh>
+        );
+      })}
+
+      {/* Tip finial — brass sphere */}
+      <mesh position={[0, CANOPY_Y + 0.48, 0]} castShadow>
+        <sphereGeometry args={[0.068, 12, 10]} />
+        <meshStandardMaterial color={brassColor} metalness={0.80} roughness={0.18} envMapIntensity={2.4} />
       </mesh>
     </group>
   );
@@ -1442,31 +1484,47 @@ function BeachUmbrella({ position, color, tiltZ = 0 }: {
 
 // ── Table & Chairs ────────────────────────────────────────────────────────────
 function CafeSet({ position }: { position: [number, number, number] }) {
-  const woodColor  = "#c8955a";
-  const woodDark   = "#7a5230";
-  const cushion    = "#f5e6cc";
-  const chairLeg   = (lx: number, lz: number) => (
+  const teak    = "#a0693a";
+  const teakDrk = "#6b4220";
+  const cushion = "#f0e2c8";
+  const steel   = "#c0c0c0";
+
+  const chairLeg = (lx: number, lz: number) => (
     <mesh position={[lx, 0.22, lz]} castShadow>
-      <cylinderGeometry args={[0.018, 0.018, 0.44, 6]} />
-      <meshStandardMaterial color={woodDark} roughness={0.85} />
+      <cylinderGeometry args={[0.014, 0.014, 0.44, 6]} />
+      <meshStandardMaterial color={steel} metalness={0.85} roughness={0.20} envMapIntensity={1.6} />
     </mesh>
   );
   const chair = (cx: number, cz: number, ry: number) => (
     <group position={[cx, 0, cz]} rotation={[0, ry, 0]}>
-      {/* Seat */}
+      {/* Seat cushion */}
       <mesh position={[0, 0.44, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.42, 0.04, 0.42]} />
-        <meshStandardMaterial color={cushion} roughness={0.65} />
+        <boxGeometry args={[0.40, 0.048, 0.40]} />
+        <meshStandardMaterial color={cushion} roughness={0.80} envMapIntensity={0.5} />
       </mesh>
-      {/* Back rest */}
-      <mesh position={[0, 0.72, -0.18]} castShadow>
-        <boxGeometry args={[0.40, 0.44, 0.030]} />
-        <meshStandardMaterial color={woodColor} roughness={0.6} />
+      {/* Seat cushion side welt */}
+      <mesh position={[0, 0.425, 0]}>
+        <torusGeometry args={[0.196, 0.016, 6, 24, Math.PI * 2]} />
+        <meshStandardMaterial color="#d4c4a0" roughness={0.85} />
       </mesh>
-      {/* Back slat */}
-      <mesh position={[0, 0.72, -0.165]}>
-        <boxGeometry args={[0.36, 0.16, 0.018]} />
-        <meshStandardMaterial color={cushion} roughness={0.65} />
+      {/* Back rest frame */}
+      <mesh position={[0, 0.74, -0.185]} castShadow>
+        <boxGeometry args={[0.38, 0.46, 0.026]} />
+        <meshStandardMaterial color={teak} roughness={0.50} metalness={0.02} envMapIntensity={0.9} />
+      </mesh>
+      {/* Back rest cushion inset */}
+      <mesh position={[0, 0.74, -0.172]}>
+        <boxGeometry args={[0.32, 0.36, 0.018]} />
+        <meshStandardMaterial color={cushion} roughness={0.80} />
+      </mesh>
+      {/* Arm rests */}
+      <mesh position={[-0.21, 0.60, 0]} castShadow>
+        <boxGeometry args={[0.022, 0.022, 0.38]} />
+        <meshStandardMaterial color={steel} metalness={0.88} roughness={0.18} envMapIntensity={1.8} />
+      </mesh>
+      <mesh position={[0.21, 0.60, 0]} castShadow>
+        <boxGeometry args={[0.022, 0.022, 0.38]} />
+        <meshStandardMaterial color={steel} metalness={0.88} roughness={0.18} envMapIntensity={1.8} />
       </mesh>
       {chairLeg(-0.16, -0.16)}
       {chairLeg( 0.16, -0.16)}
@@ -1476,28 +1534,52 @@ function CafeSet({ position }: { position: [number, number, number] }) {
   );
   return (
     <group position={position}>
-      {/* Table top */}
+      {/* Table top — teak wood grain disc */}
       <mesh position={[0, 0.76, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.48, 0.48, 0.038, 20]} />
-        <meshStandardMaterial color={woodColor} roughness={0.55} metalness={0.04} />
+        <cylinderGeometry args={[0.50, 0.50, 0.032, 24]} />
+        <meshStandardMaterial color={teak} roughness={0.42} metalness={0.02} envMapIntensity={1.1} />
       </mesh>
-      {/* Table lip */}
-      <mesh position={[0, 0.745, 0]}>
-        <torusGeometry args={[0.47, 0.016, 6, 36]} />
-        <meshStandardMaterial color={woodDark} roughness={0.7} />
+      {/* Edge lip ring */}
+      <mesh position={[0, 0.752, 0]}>
+        <torusGeometry args={[0.492, 0.012, 6, 40]} />
+        <meshStandardMaterial color={teakDrk} roughness={0.55} metalness={0.04} />
       </mesh>
-      {/* Table pedestal */}
-      <mesh position={[0, 0.38, 0]} castShadow>
-        <cylinderGeometry args={[0.03, 0.045, 0.76, 8]} />
-        <meshStandardMaterial color={woodDark} roughness={0.7} />
+      {/* Pedestal stem */}
+      <mesh position={[0, 0.40, 0]} castShadow>
+        <cylinderGeometry args={[0.024, 0.038, 0.72, 10]} />
+        <meshStandardMaterial color={steel} metalness={0.88} roughness={0.18} envMapIntensity={1.6} />
       </mesh>
-      {/* Base spread */}
-      <mesh position={[0, 0.028, 0]}>
-        <cylinderGeometry args={[0.30, 0.30, 0.038, 12]} />
-        <meshStandardMaterial color={woodDark} roughness={0.8} />
+      {/* Base spider */}
+      {[0, Math.PI / 2, Math.PI, Math.PI * 1.5].map((a, i) => (
+        <mesh key={i} position={[Math.sin(a) * 0.16, 0.028, Math.cos(a) * 0.16]}
+          rotation={[0, a, 0]} castShadow>
+          <boxGeometry args={[0.034, 0.028, 0.32]} />
+          <meshStandardMaterial color={steel} metalness={0.88} roughness={0.20} envMapIntensity={1.4} />
+        </mesh>
+      ))}
+      {/* Rubber foot pads */}
+      {[0, Math.PI / 2, Math.PI, Math.PI * 1.5].map((a, i) => (
+        <mesh key={i} position={[Math.sin(a) * 0.30, 0.012, Math.cos(a) * 0.30]}>
+          <cylinderGeometry args={[0.030, 0.030, 0.016, 8]} />
+          <meshStandardMaterial color="#222" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Small drink glasses on table */}
+      <mesh position={[-0.15, 0.78, 0]} castShadow>
+        <cylinderGeometry args={[0.032, 0.024, 0.10, 10]} />
+        <meshStandardMaterial color="#a8d8ea" metalness={0.0} roughness={0.05} transparent opacity={0.72} envMapIntensity={2.5} />
       </mesh>
-      {chair( 0.72, 0,    -Math.PI / 2)}
-      {chair(-0.72, 0,     Math.PI / 2)}
+      <mesh position={[0.15, 0.78, 0.05]} castShadow>
+        <cylinderGeometry args={[0.032, 0.024, 0.10, 10]} />
+        <meshStandardMaterial color="#f9c74f" metalness={0.0} roughness={0.05} transparent opacity={0.80} envMapIntensity={2.0} />
+      </mesh>
+      {/* Napkin/serviette */}
+      <mesh position={[0, 0.778, -0.12]} rotation={[0, 0.3, 0]}>
+        <boxGeometry args={[0.14, 0.003, 0.14]} />
+        <meshStandardMaterial color="#fffdf5" roughness={0.95} />
+      </mesh>
+      {chair( 0.76, 0,    -Math.PI / 2)}
+      {chair(-0.76, 0,     Math.PI / 2)}
     </group>
   );
 }
@@ -1695,31 +1777,73 @@ const SPECTATOR_COLORS = [
   "#a8dadc","#e63946","#457b9d","#f1faee","#d62828",
 ];
 
+const SPECTATOR_SKIN_TONES = ["#f5d5b0","#e8c09a","#d4956a","#c07840","#8b5e3c","#4a2c12","#f0c8a0","#b07848"];
+const SPECTATOR_HAT_COLORS = ["#e63946","#0077b6","#f4a261","#2a9d8f","#f1faee","#457b9d","#e9c46a","#264653"];
+
 function SimpleSpectator({ position, colorIdx }: { position: [number, number, number]; colorIdx: number }) {
-  const skinColor = "#e8c9a0";
-  const jerseyColor = SPECTATOR_COLORS[colorIdx % SPECTATOR_COLORS.length];
+  const skin    = SPECTATOR_SKIN_TONES[colorIdx % SPECTATOR_SKIN_TONES.length];
+  const jersey  = SPECTATOR_COLORS[colorIdx % SPECTATOR_COLORS.length];
+  const hatCol  = SPECTATOR_HAT_COLORS[(colorIdx + 3) % SPECTATOR_HAT_COLORS.length];
+  const hasHat  = colorIdx % 3 !== 0;
+  const hasSunglasses = colorIdx % 4 === 0;
   return (
     <group position={position}>
-      {/* Torso */}
-      <mesh position={[0, 0.30, 0]}>
-        <capsuleGeometry args={[0.148, 0.36, 4, 6]} />
-        <meshStandardMaterial color={jerseyColor} roughness={0.8} />
+      {/* Shorts */}
+      <mesh position={[0, 0.08, 0]}>
+        <capsuleGeometry args={[0.120, 0.14, 4, 6]} />
+        <meshStandardMaterial color={SPECTATOR_COLORS[(colorIdx + 5) % SPECTATOR_COLORS.length]} roughness={0.82} />
+      </mesh>
+      {/* Torso / jersey */}
+      <mesh position={[0, 0.34, 0]} castShadow>
+        <capsuleGeometry args={[0.148, 0.38, 4, 8]} />
+        <meshStandardMaterial color={jersey} roughness={0.75} envMapIntensity={0.5} />
       </mesh>
       {/* Left arm */}
-      <mesh position={[-0.22, 0.30, 0]} rotation={[0, 0, 0.38]}>
-        <capsuleGeometry args={[0.055, 0.26, 4, 6]} />
-        <meshStandardMaterial color={jerseyColor} roughness={0.8} />
+      <mesh position={[-0.22, 0.32, 0]} rotation={[0, 0, 0.40]} castShadow>
+        <capsuleGeometry args={[0.050, 0.28, 4, 6]} />
+        <meshStandardMaterial color={jersey} roughness={0.78} />
       </mesh>
-      {/* Right arm */}
-      <mesh position={[0.22, 0.30, 0]} rotation={[0, 0, -0.38]}>
-        <capsuleGeometry args={[0.055, 0.26, 4, 6]} />
-        <meshStandardMaterial color={jerseyColor} roughness={0.8} />
+      {/* Right arm (raised slightly — cheering) */}
+      <mesh position={[0.22, 0.38, 0]} rotation={[0, 0, -0.55]} castShadow>
+        <capsuleGeometry args={[0.050, 0.28, 4, 6]} />
+        <meshStandardMaterial color={jersey} roughness={0.78} />
+      </mesh>
+      {/* Neck */}
+      <mesh position={[0, 0.66, 0]}>
+        <capsuleGeometry args={[0.048, 0.06, 4, 6]} />
+        <meshStandardMaterial color={skin} roughness={0.60} />
       </mesh>
       {/* Head */}
-      <mesh position={[0, 0.72, 0]}>
-        <sphereGeometry args={[0.138, 10, 10]} />
-        <meshStandardMaterial color={skinColor} roughness={0.6} />
+      <mesh position={[0, 0.80, 0]} castShadow>
+        <sphereGeometry args={[0.136, 12, 10]} />
+        <meshStandardMaterial color={skin} roughness={0.58} envMapIntensity={0.7} />
       </mesh>
+      {/* Sunglasses */}
+      {hasSunglasses && (
+        <>
+          <mesh position={[-0.055, 0.81, 0.122]} rotation={[0.08, 0, 0]}>
+            <boxGeometry args={[0.072, 0.032, 0.008]} />
+            <meshStandardMaterial color="#111" roughness={0.1} metalness={0.6} />
+          </mesh>
+          <mesh position={[0.055, 0.81, 0.122]} rotation={[0.08, 0, 0]}>
+            <boxGeometry args={[0.072, 0.032, 0.008]} />
+            <meshStandardMaterial color="#111" roughness={0.1} metalness={0.6} />
+          </mesh>
+        </>
+      )}
+      {/* Cap / hat */}
+      {hasHat && (
+        <>
+          <mesh position={[0, 0.902, 0]}>
+            <cylinderGeometry args={[0.138, 0.138, 0.08, 12]} />
+            <meshStandardMaterial color={hatCol} roughness={0.70} />
+          </mesh>
+          <mesh position={[0, 0.878, 0.14]} rotation={[0.12, 0, 0]}>
+            <boxGeometry args={[0.24, 0.032, 0.12]} />
+            <meshStandardMaterial color={hatCol} roughness={0.72} />
+          </mesh>
+        </>
+      )}
     </group>
   );
 }
@@ -1728,48 +1852,68 @@ function SpectatorStand() {
   const ROWS = 4;
   const SEATS_PER_ROW = 14;
   const ROW_DEPTH = 0.75;
-  const ROW_RISE = 0.55;
+  const ROW_RISE  = 0.55;
   const STAND_WIDTH = SEATS_PER_ROW * 0.85;
-  const BASE_Z = 8.5; // starts just beyond the sideline
-  const BASE_X = -STAND_WIDTH / 2;
+  const BASE_Z  = 8.5;
+  const BASE_X  = -STAND_WIDTH / 2;
+  const concrete = "#c2bdb5";
+  const concrDrk = "#a09890";
+  const steel    = "#9a9a9a";
 
   return (
     <group>
-      {/* Concrete base block */}
-      <mesh position={[0, -0.25, BASE_Z + (ROWS * ROW_DEPTH) / 2]} receiveShadow castShadow>
-        <boxGeometry args={[STAND_WIDTH + 1, 0.5, ROWS * ROW_DEPTH + 1]} />
-        <meshStandardMaterial color="#c8c2b8" roughness={0.9} />
+      {/* Concrete foundation slab */}
+      <mesh position={[0, -0.28, BASE_Z + (ROWS * ROW_DEPTH) / 2]} receiveShadow castShadow>
+        <boxGeometry args={[STAND_WIDTH + 1.4, 0.56, ROWS * ROW_DEPTH + 1.2]} />
+        <meshStandardMaterial color={concrDrk} roughness={0.94} envMapIntensity={0.2} />
       </mesh>
 
       {/* Tiered rows */}
       {Array.from({ length: ROWS }, (_, row) => {
         const zRow = BASE_Z + row * ROW_DEPTH;
         const yRow = row * ROW_RISE;
+        const seatColor = row % 2 === 0 ? "#0077B6" : "#005a8a";
         return (
           <group key={row}>
             {/* Step riser */}
             <mesh position={[0, yRow - ROW_RISE / 2 + 0.01, zRow]} receiveShadow castShadow>
-              <boxGeometry args={[STAND_WIDTH, ROW_RISE, 0.08]} />
-              <meshStandardMaterial color="#b0a898" roughness={0.9} />
+              <boxGeometry args={[STAND_WIDTH, ROW_RISE, 0.09]} />
+              <meshStandardMaterial color={concrDrk} roughness={0.92} envMapIntensity={0.2} />
             </mesh>
             {/* Step tread */}
-            <mesh position={[0, yRow + 0.04, zRow + ROW_DEPTH / 2]} receiveShadow>
-              <boxGeometry args={[STAND_WIDTH, 0.08, ROW_DEPTH]} />
-              <meshStandardMaterial color="#c8c2b8" roughness={0.9} />
+            <mesh position={[0, yRow + 0.042, zRow + ROW_DEPTH / 2]} receiveShadow castShadow>
+              <boxGeometry args={[STAND_WIDTH, 0.084, ROW_DEPTH]} />
+              <meshStandardMaterial color={concrete} roughness={0.90} envMapIntensity={0.25} />
             </mesh>
-            {/* Seat backs */}
-            <mesh position={[0, yRow + 0.4, zRow + 0.1]}>
-              <boxGeometry args={[STAND_WIDTH, 0.5, 0.06]} />
-              <meshStandardMaterial color="#0077B6" roughness={0.7} />
+            {/* Yellow safety nosing strip on step edge */}
+            <mesh position={[0, yRow + 0.086, zRow + 0.02]}>
+              <boxGeometry args={[STAND_WIDTH, 0.018, 0.06]} />
+              <meshStandardMaterial color="#f4c430" roughness={0.65} />
             </mesh>
-
+            {/* Individual molded seat backs */}
+            {Array.from({ length: SEATS_PER_ROW }, (_, col) => {
+              const sx = BASE_X + col * 0.85 + 0.42;
+              return (
+                <group key={col}>
+                  <mesh position={[sx, yRow + 0.46, zRow + 0.06]} castShadow>
+                    <boxGeometry args={[0.72, 0.52, 0.058]} />
+                    <meshStandardMaterial color={seatColor} roughness={0.65} envMapIntensity={0.8} />
+                  </mesh>
+                  {/* Seat number stencil hint — slightly lighter strip */}
+                  <mesh position={[sx, yRow + 0.52, zRow + 0.09]}>
+                    <boxGeometry args={[0.16, 0.08, 0.005]} />
+                    <meshStandardMaterial color="#ffffff" roughness={0.5} transparent opacity={0.25} />
+                  </mesh>
+                </group>
+              );
+            })}
             {/* Spectators */}
             {Array.from({ length: SEATS_PER_ROW }, (_, col) => {
-              const sx = BASE_X + col * 0.85 + 0.42 as number;
+              const sx = BASE_X + col * 0.85 + 0.42;
               return (
                 <SimpleSpectator
                   key={col}
-                  position={[sx, yRow + 0.35, zRow + 0.25]}
+                  position={[sx, yRow + 0.38, zRow + 0.28]}
                   colorIdx={row * SEATS_PER_ROW + col}
                 />
               );
@@ -1778,41 +1922,69 @@ function SpectatorStand() {
         );
       })}
 
-      {/* Canopy roof */}
-      {/* Back support columns */}
-      {[-STAND_WIDTH / 2 + 0.4, 0, STAND_WIDTH / 2 - 0.4].map((cx, i) => (
-        <mesh key={i} position={[cx, ROWS * ROW_RISE + 1.6, BASE_Z + ROWS * ROW_DEPTH - 0.4]} castShadow>
-          <boxGeometry args={[0.18, ROWS * ROW_RISE + 3.2, 0.18]} />
-          <meshStandardMaterial color="#888" metalness={0.5} roughness={0.4} />
+      {/* Steel truss back columns — 4 uprights */}
+      {[-STAND_WIDTH / 2 + 0.5, -STAND_WIDTH / 6, STAND_WIDTH / 6, STAND_WIDTH / 2 - 0.5].map((cx, i) => (
+        <group key={i}>
+          <mesh position={[cx, ROWS * ROW_RISE + 1.5, BASE_Z + ROWS * ROW_DEPTH - 0.3]} castShadow>
+            <boxGeometry args={[0.16, ROWS * ROW_RISE + 3.0, 0.16]} />
+            <meshStandardMaterial color={steel} metalness={0.60} roughness={0.35} envMapIntensity={1.0} />
+          </mesh>
+          {/* Cross brace */}
+          <mesh position={[cx, ROWS * ROW_RISE * 0.65, BASE_Z + ROWS * ROW_DEPTH - 0.3]}
+            rotation={[0, 0, 0.28]}>
+            <boxGeometry args={[0.06, ROWS * ROW_RISE * 1.1, 0.06]} />
+            <meshStandardMaterial color={steel} metalness={0.58} roughness={0.38} />
+          </mesh>
+        </group>
+      ))}
+      {/* Steel front columns */}
+      {[-STAND_WIDTH / 2 + 0.5, -STAND_WIDTH / 6, STAND_WIDTH / 6, STAND_WIDTH / 2 - 0.5].map((cx, i) => (
+        <mesh key={i} position={[cx, 1.5, BASE_Z - 0.3]} castShadow>
+          <boxGeometry args={[0.12, 3.0, 0.12]} />
+          <meshStandardMaterial color={steel} metalness={0.60} roughness={0.35} envMapIntensity={1.0} />
         </mesh>
       ))}
-      {/* Front support columns */}
-      {[-STAND_WIDTH / 2 + 0.4, 0, STAND_WIDTH / 2 - 0.4].map((cx, i) => (
-        <mesh key={i} position={[cx, 1.6, BASE_Z - 0.3]} castShadow>
-          <boxGeometry args={[0.14, 3.2, 0.14]} />
-          <meshStandardMaterial color="#888" metalness={0.5} roughness={0.4} />
-        </mesh>
-      ))}
-      {/* Roof panel */}
+      {/* Horizontal truss beam across top */}
+      <mesh position={[0, ROWS * ROW_RISE + 3.04, BASE_Z + ROWS * ROW_DEPTH - 0.3]} castShadow>
+        <boxGeometry args={[STAND_WIDTH + 0.8, 0.20, 0.20]} />
+        <meshStandardMaterial color={steel} metalness={0.62} roughness={0.32} envMapIntensity={1.0} />
+      </mesh>
+      <mesh position={[0, ROWS * ROW_RISE + 3.04, BASE_Z - 0.3]} castShadow>
+        <boxGeometry args={[STAND_WIDTH + 0.8, 0.20, 0.20]} />
+        <meshStandardMaterial color={steel} metalness={0.62} roughness={0.32} envMapIntensity={1.0} />
+      </mesh>
+      {/* Roof panel — corrugated-look (slightly translucent polycarbonate) */}
       <mesh
-        position={[0, ROWS * ROW_RISE + 3.25, BASE_Z + (ROWS * ROW_DEPTH) / 2 + 0.6]}
+        position={[0, ROWS * ROW_RISE + 3.22, BASE_Z + (ROWS * ROW_DEPTH) / 2 + 0.5]}
         rotation={[-0.12, 0, 0]}
         castShadow
       >
-        <boxGeometry args={[STAND_WIDTH + 1.2, 0.08, ROWS * ROW_DEPTH + 2.0]} />
-        <meshStandardMaterial color="#e9c46a" roughness={0.55} metalness={0.05} />
+        <boxGeometry args={[STAND_WIDTH + 1.4, 0.055, ROWS * ROW_DEPTH + 2.2]} />
+        <meshStandardMaterial color="#ddd8c0" roughness={0.40} metalness={0.08} envMapIntensity={0.8}
+          transparent opacity={0.88} />
       </mesh>
-      {/* Roof underside shadow trim */}
-      <mesh position={[0, ROWS * ROW_RISE + 3.22, BASE_Z - 0.5]} rotation={[-0.12, 0, 0]}>
-        <boxGeometry args={[STAND_WIDTH + 1.2, 0.04, 0.18]} />
-        <meshStandardMaterial color="#c8a800" roughness={0.6} />
+      {/* Roof guttering / fascia */}
+      <mesh position={[0, ROWS * ROW_RISE + 3.19, BASE_Z - 0.65]} rotation={[-0.12, 0, 0]}>
+        <boxGeometry args={[STAND_WIDTH + 1.4, 0.12, 0.12]} />
+        <meshStandardMaterial color="#888" metalness={0.75} roughness={0.28} envMapIntensity={1.2} />
       </mesh>
 
-      {/* Fence / barrier at front of stand */}
-      <mesh position={[0, 0.55, BASE_Z - 0.35]}>
-        <boxGeometry args={[STAND_WIDTH, 1.0, 0.06]} />
-        <meshStandardMaterial color="#e0dbd0" roughness={0.8} />
+      {/* Safety barrier / railing at front — tubular steel */}
+      <mesh position={[0, 0.62, BASE_Z - 0.36]} castShadow>
+        <boxGeometry args={[STAND_WIDTH + 0.2, 0.06, 0.06]} />
+        <meshStandardMaterial color={steel} metalness={0.78} roughness={0.28} envMapIntensity={1.2} />
       </mesh>
+      <mesh position={[0, 0.92, BASE_Z - 0.36]}>
+        <boxGeometry args={[STAND_WIDTH + 0.2, 0.06, 0.06]} />
+        <meshStandardMaterial color={steel} metalness={0.78} roughness={0.28} envMapIntensity={1.2} />
+      </mesh>
+      {/* Barrier uprights */}
+      {Array.from({ length: 7 }, (_, i) => (
+        <mesh key={i} position={[BASE_X + i * (STAND_WIDTH / 6) + 0.42, 0.78, BASE_Z - 0.36]}>
+          <boxGeometry args={[0.05, 0.62, 0.05]} />
+          <meshStandardMaterial color={steel} metalness={0.75} roughness={0.30} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -2725,131 +2897,291 @@ function ScoreBoard({ match }: { match: MatchState }) {
 
 // ── TV Crew + Broadcast Camera ────────────────────────────────────────────────
 function TVCrew() {
-  // Near the pink umbrella at [-10.5, 0, 6.0] — positioned just outside, aimed at court
-  const skin   = "#d4956a";
-  const dark   = "#2a2a2a";
-  const silver = "#aaaaaa";
+  const skin    = "#d4956a";
+  const dark    = "#1c1c1c";
+  const silver  = "#b8b8b8";
+  const black   = "#111111";
+
   return (
     <group position={[-12.8, 0, 7.8]} rotation={[0, Math.atan2(12.8, -7.8), 0]}>
-      {/* Camera operator */}
+
+      {/* ── Camera operator ── */}
       <group position={[0, 0, 0]}>
-        <mesh position={[-0.12, 0.62, 0]} castShadow>
-          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
-          <meshStandardMaterial color="#1a1a2e" roughness={0.8} />
+        {/* Legs */}
+        <mesh position={[-0.12, 0.42, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.58, 4, 8]} />
+          <meshStandardMaterial color="#1a1a2e" roughness={0.78} />
         </mesh>
-        <mesh position={[0.12, 0.62, 0]} castShadow>
-          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
-          <meshStandardMaterial color="#1a1a2e" roughness={0.8} />
+        <mesh position={[0.12, 0.42, 0]} castShadow>
+          <capsuleGeometry args={[0.085, 0.58, 4, 8]} />
+          <meshStandardMaterial color="#1a1a2e" roughness={0.78} />
         </mesh>
+        {/* Torso — black crew polo */}
         <mesh position={[0, 1.14, 0]} castShadow>
-          <capsuleGeometry args={[0.24, 0.44, 4, 10]} />
-          <meshStandardMaterial color="#2d3748" roughness={0.7} />
+          <capsuleGeometry args={[0.24, 0.44, 4, 12]} />
+          <meshStandardMaterial color="#2d3748" roughness={0.68} envMapIntensity={0.4} />
         </mesh>
-        {/* Headset */}
-        <mesh position={[0, 1.84, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[0.19, 0.018, 8, 20, Math.PI * 1.2]} />
-          <meshStandardMaterial color="#222" metalness={0.8} roughness={0.3} />
+        {/* Channel logo patch on chest */}
+        <mesh position={[0.14, 1.22, 0.23]}>
+          <boxGeometry args={[0.12, 0.08, 0.008]} />
+          <meshStandardMaterial color="#e63946" roughness={0.55} />
         </mesh>
-        <mesh position={[0, 1.72, 0]} castShadow>
-          <sphereGeometry args={[0.18, 14, 14]} />
-          <meshStandardMaterial color={skin} roughness={0.55} />
+        {/* Neck */}
+        <mesh position={[0, 1.62, 0]}>
+          <capsuleGeometry args={[0.075, 0.09, 4, 6]} />
+          <meshStandardMaterial color={skin} roughness={0.58} />
         </mesh>
+        {/* Head */}
+        <mesh position={[0, 1.82, 0]} castShadow>
+          <sphereGeometry args={[0.18, 16, 14]} />
+          <meshStandardMaterial color={skin} roughness={0.55} envMapIntensity={0.8} />
+        </mesh>
+        {/* Headset band */}
+        <mesh position={[0, 1.90, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.195, 0.014, 8, 24, Math.PI * 1.3]} />
+          <meshStandardMaterial color="#222" metalness={0.82} roughness={0.25} envMapIntensity={1.2} />
+        </mesh>
+        {/* Left ear cup */}
+        <mesh position={[-0.20, 1.90, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 0.04, 10]} />
+          <meshStandardMaterial color="#333" metalness={0.6} roughness={0.4} />
+        </mesh>
+        {/* Right ear cup */}
+        <mesh position={[0.20, 1.90, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 0.04, 10]} />
+          <meshStandardMaterial color="#333" metalness={0.6} roughness={0.4} />
+        </mesh>
+        {/* Mic boom */}
+        <mesh position={[-0.18, 1.76, 0.12]} rotation={[-0.5, 0, 0.2]}>
+          <capsuleGeometry args={[0.008, 0.18, 4, 6]} />
+          <meshStandardMaterial color="#444" metalness={0.7} roughness={0.3} />
+        </mesh>
+
         {/* Shoulder-mount camera body */}
-        <group position={[-0.30, 1.28, -0.38]} rotation={[0.15, 0, 0]}>
+        <group position={[-0.30, 1.30, -0.42]} rotation={[0.14, 0, 0]}>
           <mesh castShadow>
-            <boxGeometry args={[0.20, 0.16, 0.46]} />
-            <meshStandardMaterial color={dark} roughness={0.35} metalness={0.65} />
+            <boxGeometry args={[0.22, 0.17, 0.50]} />
+            <meshStandardMaterial color={dark} roughness={0.28} metalness={0.72} envMapIntensity={1.5} />
           </mesh>
-          <mesh position={[0, 0, -0.30]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.058, 0.048, 0.24, 12]} />
-            <meshStandardMaterial color="#111" metalness={0.85} roughness={0.25} />
+          {/* Viewfinder eyepiece */}
+          <mesh position={[0, 0.11, 0.20]}>
+            <cylinderGeometry args={[0.030, 0.030, 0.08, 10]} />
+            <meshStandardMaterial color="#222" metalness={0.6} roughness={0.4} />
           </mesh>
-          <mesh position={[0, 0, -0.44]}>
-            <circleGeometry args={[0.048, 12]} />
-            <meshStandardMaterial color="#3366aa" metalness={0.9} roughness={0.08} transparent opacity={0.75} />
+          {/* Handle grip on top */}
+          <mesh position={[0, 0.135, 0]} rotation={[0, 0, 0]}>
+            <boxGeometry args={[0.06, 0.06, 0.30]} />
+            <meshStandardMaterial color="#333" roughness={0.85} />
+          </mesh>
+          {/* Lens barrel */}
+          <mesh position={[0, 0, -0.34]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.065, 0.052, 0.26, 14]} />
+            <meshStandardMaterial color={black} metalness={0.88} roughness={0.18} envMapIntensity={1.8} />
+          </mesh>
+          {/* Lens ring grooves */}
+          <mesh position={[0, 0, -0.34]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.065, 0.006, 6, 16]} />
+            <meshStandardMaterial color="#444" metalness={0.7} roughness={0.3} />
+          </mesh>
+          {/* Glass element */}
+          <mesh position={[0, 0, -0.48]}>
+            <circleGeometry args={[0.052, 14]} />
+            <meshStandardMaterial color="#1a3a66" metalness={0.96} roughness={0.04} transparent opacity={0.82} envMapIntensity={3.0} />
           </mesh>
           {/* REC light */}
-          <mesh position={[0.08, 0.10, -0.15]}>
-            <sphereGeometry args={[0.016, 6, 6]} />
-            <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={4} />
+          <mesh position={[0.09, 0.10, -0.18]}>
+            <sphereGeometry args={[0.015, 6, 6]} />
+            <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={6} />
+          </mesh>
+          {/* Cable running down from camera */}
+          <mesh position={[0, -0.16, 0.10]} rotation={[0.4, 0, 0.1]}>
+            <capsuleGeometry args={[0.009, 0.38, 4, 6]} />
+            <meshStandardMaterial color="#333" roughness={0.90} />
           </mesh>
         </group>
       </group>
 
-      {/* Large broadcast camera on tripod */}
-      <group position={[-1.4, 0, -0.6]}>
-        {/* Tripod legs */}
-        {([ [-0.38, 0.38], [0.38, 0.38], [0, -0.52] ] as [number,number][]).map(([lx, lz], i) => (
-          <mesh key={i} position={[lx * 0.5, 0.58, lz * 0.5]} rotation={[Math.atan2(1.15, 0.55), Math.atan2(lx, lz), 0]} castShadow>
-            <capsuleGeometry args={[0.018, 1.12, 4, 6]} />
-            <meshStandardMaterial color={silver} metalness={0.7} roughness={0.4} />
-          </mesh>
+      {/* ── Large broadcast camera on heavy tripod ── */}
+      <group position={[-1.6, 0, -0.7]}>
+        {/* Tripod legs — 3 tubes */}
+        {([ [-0.40, 0.42], [0.40, 0.42], [0, -0.56] ] as [number,number][]).map(([lx, lz], i) => (
+          <group key={i}>
+            <mesh position={[lx * 0.55, 0.60, lz * 0.55]}
+              rotation={[Math.atan2(1.20, 0.58), Math.atan2(lx, lz), 0]} castShadow>
+              <capsuleGeometry args={[0.016, 1.18, 4, 6]} />
+              <meshStandardMaterial color={silver} metalness={0.78} roughness={0.30} envMapIntensity={1.4} />
+            </mesh>
+            {/* Rubber foot */}
+            <mesh position={[lx, 0.04, lz]}>
+              <cylinderGeometry args={[0.030, 0.030, 0.06, 8]} />
+              <meshStandardMaterial color="#222" roughness={0.95} />
+            </mesh>
+          </group>
         ))}
-        {/* Tripod head */}
-        <mesh position={[0, 1.18, 0]}>
-          <boxGeometry args={[0.10, 0.10, 0.10]} />
-          <meshStandardMaterial color="#555" metalness={0.8} roughness={0.3} />
+        {/* Tripod spreader / centre brace */}
+        <mesh position={[0, 0.42, 0]}>
+          <cylinderGeometry args={[0.022, 0.022, 0.02, 8]} />
+          <meshStandardMaterial color="#666" metalness={0.8} roughness={0.3} />
+        </mesh>
+        {/* Fluid head pan/tilt */}
+        <mesh position={[0, 1.24, 0]}>
+          <boxGeometry args={[0.16, 0.12, 0.20]} />
+          <meshStandardMaterial color="#555" metalness={0.82} roughness={0.28} envMapIntensity={1.2} />
         </mesh>
         {/* Big camera body */}
-        <group position={[0, 1.36, 0]} rotation={[0.08, 0.4, 0]}>
+        <group position={[0, 1.46, 0]} rotation={[0.06, 0.35, 0]}>
           <mesh castShadow>
-            <boxGeometry args={[0.30, 0.22, 0.66]} />
-            <meshStandardMaterial color={dark} roughness={0.28} metalness={0.72} />
+            <boxGeometry args={[0.32, 0.24, 0.72]} />
+            <meshStandardMaterial color={dark} roughness={0.24} metalness={0.75} envMapIntensity={1.8} />
           </mesh>
-          {/* Big lens barrel */}
-          <mesh position={[0, 0, -0.52]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.090, 0.075, 0.42, 16]} />
-            <meshStandardMaterial color="#1a1a1a" metalness={0.82} roughness={0.22} />
+          {/* Side panel detail */}
+          <mesh position={[0.155, 0, 0]}>
+            <boxGeometry args={[0.01, 0.18, 0.50]} />
+            <meshStandardMaterial color="#2a2a2a" roughness={0.30} metalness={0.70} />
           </mesh>
-          <mesh position={[0, 0, -0.75]}>
-            <circleGeometry args={[0.074, 16]} />
-            <meshStandardMaterial color="#224466" metalness={0.95} roughness={0.05} transparent opacity={0.88} />
+          {/* Big telephoto lens — 3 barrel sections */}
+          <mesh position={[0, 0, -0.55]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.098, 0.082, 0.46, 18]} />
+            <meshStandardMaterial color="#1a1a1a" metalness={0.86} roughness={0.18} envMapIntensity={2.0} />
           </mesh>
-          {/* Red station branding stripe */}
-          <mesh position={[0, 0.125, 0]}>
-            <boxGeometry args={[0.28, 0.055, 0.02]} />
-            <meshStandardMaterial color="#e63946" roughness={0.55} />
+          <mesh position={[0, 0, -0.82]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.085, 0.070, 0.26, 16]} />
+            <meshStandardMaterial color="#111" metalness={0.88} roughness={0.14} envMapIntensity={2.0} />
+          </mesh>
+          {/* Focus ring groove */}
+          <mesh position={[0, 0, -0.70]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.093, 0.007, 6, 20]} />
+            <meshStandardMaterial color="#555" metalness={0.6} roughness={0.4} />
+          </mesh>
+          {/* Front element */}
+          <mesh position={[0, 0, -0.96]}>
+            <circleGeometry args={[0.068, 18]} />
+            <meshStandardMaterial color="#0d2240" metalness={0.97} roughness={0.03} transparent opacity={0.90} envMapIntensity={4.0} />
+          </mesh>
+          {/* Station logo stripe */}
+          <mesh position={[0, 0.135, 0.12]}>
+            <boxGeometry args={[0.30, 0.056, 0.018]} />
+            <meshStandardMaterial color="#e63946" roughness={0.50} />
           </mesh>
           {/* REC indicator */}
-          <mesh position={[0.13, 0.08, -0.32]}>
-            <sphereGeometry args={[0.022, 6, 6]} />
-            <meshStandardMaterial color="#ff2200" emissive="#ff2200" emissiveIntensity={5} />
+          <mesh position={[0.14, 0.10, -0.34]}>
+            <sphereGeometry args={[0.020, 6, 6]} />
+            <meshStandardMaterial color="#ff1a00" emissive="#ff1a00" emissiveIntensity={7} />
+          </mesh>
+          {/* Top handle */}
+          <mesh position={[0, 0.165, 0]}>
+            <boxGeometry args={[0.072, 0.055, 0.44]} />
+            <meshStandardMaterial color="#333" roughness={0.88} />
+          </mesh>
+        </group>
+
+        {/* Broadcast monitor on side arm */}
+        <group position={[0.55, 1.52, 0]} rotation={[0, -0.4, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.32, 0.22, 0.035]} />
+            <meshStandardMaterial color="#111" metalness={0.75} roughness={0.25} envMapIntensity={1.4} />
+          </mesh>
+          {/* Screen glow */}
+          <mesh position={[0, 0, -0.018]}>
+            <boxGeometry args={[0.28, 0.18, 0.002]} />
+            <meshStandardMaterial color="#1a5fa8" emissive="#1a5fa8" emissiveIntensity={0.6} roughness={0.1} />
+          </mesh>
+          {/* Monitor arm */}
+          <mesh position={[-0.20, -0.05, 0]}>
+            <boxGeometry args={[0.12, 0.022, 0.022]} />
+            <meshStandardMaterial color={silver} metalness={0.82} roughness={0.25} />
           </mesh>
         </group>
       </group>
 
-      {/* Reporter holding mic */}
-      <group position={[1.1, 0, 0.25]}>
-        <mesh position={[-0.11, 0.62, 0]} castShadow>
-          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
-          <meshStandardMaterial color="#2c3e50" roughness={0.8} />
+      {/* ── Reporter holding mic ── */}
+      <group position={[1.2, 0, 0.30]}>
+        {/* Legs */}
+        <mesh position={[-0.10, 0.42, 0]} castShadow>
+          <capsuleGeometry args={[0.082, 0.58, 4, 8]} />
+          <meshStandardMaterial color="#1c2b3a" roughness={0.78} />
         </mesh>
-        <mesh position={[0.11, 0.62, 0]} castShadow>
-          <capsuleGeometry args={[0.085, 0.62, 4, 8]} />
-          <meshStandardMaterial color="#2c3e50" roughness={0.8} />
+        <mesh position={[0.10, 0.42, 0]} castShadow>
+          <capsuleGeometry args={[0.082, 0.58, 4, 8]} />
+          <meshStandardMaterial color="#1c2b3a" roughness={0.78} />
         </mesh>
-        {/* Blazer torso */}
+        {/* Blazer */}
         <mesh position={[0, 1.14, 0]} castShadow>
-          <capsuleGeometry args={[0.21, 0.44, 4, 10]} />
-          <meshStandardMaterial color="#e74c3c" roughness={0.65} />
+          <capsuleGeometry args={[0.21, 0.44, 4, 12]} />
+          <meshStandardMaterial color="#c0392b" roughness={0.62} envMapIntensity={0.5} />
         </mesh>
-        {/* Microphone */}
-        <mesh position={[-0.28, 1.06, -0.14]} rotation={[-0.3, 0, 0.2]}>
-          <capsuleGeometry args={[0.022, 0.28, 4, 6]} />
-          <meshStandardMaterial color={silver} metalness={0.8} roughness={0.3} />
+        {/* White shirt collar */}
+        <mesh position={[0, 1.50, 0.19]}>
+          <boxGeometry args={[0.14, 0.12, 0.016]} />
+          <meshStandardMaterial color="#f9f9f9" roughness={0.80} />
         </mesh>
-        <mesh position={[-0.32, 1.22, -0.19]}>
-          <sphereGeometry args={[0.036, 8, 8]} />
-          <meshStandardMaterial color="#888" metalness={0.6} roughness={0.4} />
+        {/* IFB earpiece cord */}
+        <mesh position={[0.22, 1.40, 0.05]} rotation={[0.3, 0, -0.2]}>
+          <capsuleGeometry args={[0.005, 0.28, 4, 4]} />
+          <meshStandardMaterial color="#e8d5c0" roughness={0.9} />
         </mesh>
-        <mesh position={[0, 1.75, 0]} castShadow>
-          <sphereGeometry args={[0.183, 14, 14]} />
-          <meshStandardMaterial color="#f5cba7" roughness={0.55} />
+        {/* Neck */}
+        <mesh position={[0, 1.62, 0]}>
+          <capsuleGeometry args={[0.070, 0.08, 4, 6]} />
+          <meshStandardMaterial color="#f5cba7" roughness={0.58} />
         </mesh>
-        {/* Hair */}
-        <mesh position={[0, 1.87, 0]}>
-          <sphereGeometry args={[0.178, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.50]} />
-          <meshStandardMaterial color="#2c1810" roughness={0.95} side={THREE.BackSide} />
+        {/* Microphone handle */}
+        <mesh position={[-0.30, 1.12, -0.18]} rotation={[-0.28, 0, 0.18]} castShadow>
+          <capsuleGeometry args={[0.024, 0.32, 4, 8]} />
+          <meshStandardMaterial color={silver} metalness={0.82} roughness={0.25} envMapIntensity={1.6} />
+        </mesh>
+        {/* Mic ball/grill */}
+        <mesh position={[-0.34, 1.30, -0.24]}>
+          <sphereGeometry args={[0.042, 10, 10]} />
+          <meshStandardMaterial color="#999" metalness={0.65} roughness={0.38} envMapIntensity={1.2} />
+        </mesh>
+        {/* Station bug on mic */}
+        <mesh position={[-0.30, 1.12, -0.17]}>
+          <boxGeometry args={[0.048, 0.032, 0.010]} />
+          <meshStandardMaterial color="#e63946" roughness={0.50} />
+        </mesh>
+        {/* Head */}
+        <mesh position={[0, 1.80, 0]} castShadow>
+          <sphereGeometry args={[0.182, 16, 14]} />
+          <meshStandardMaterial color="#f5cba7" roughness={0.55} envMapIntensity={0.7} />
+        </mesh>
+        {/* Hair — dark brown */}
+        <mesh position={[0, 1.92, 0]}>
+          <sphereGeometry args={[0.176, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.52]} />
+          <meshStandardMaterial color="#2c1810" roughness={0.92} side={THREE.BackSide} />
+        </mesh>
+        {/* Earring hint */}
+        <mesh position={[-0.19, 1.78, 0.08]}>
+          <sphereGeometry args={[0.010, 6, 6]} />
+          <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.15} envMapIntensity={2.5} />
+        </mesh>
+      </group>
+
+      {/* ── Portable light reflector / LED panel on stand ── */}
+      <group position={[0.6, 0, -1.2]} rotation={[0, 0.5, 0]}>
+        {/* Stand tube */}
+        <mesh position={[0, 0.90, 0]} castShadow>
+          <cylinderGeometry args={[0.018, 0.022, 1.80, 8]} />
+          <meshStandardMaterial color={silver} metalness={0.80} roughness={0.28} envMapIntensity={1.2} />
+        </mesh>
+        {/* LED panel face */}
+        <mesh position={[0, 1.90, 0]} rotation={[0.1, 0, 0]} castShadow>
+          <boxGeometry args={[0.44, 0.28, 0.055]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.70} roughness={0.30} />
+        </mesh>
+        {/* Emissive light surface */}
+        <mesh position={[0, 1.90, -0.028]} rotation={[0.1, 0, 0]}>
+          <boxGeometry args={[0.40, 0.24, 0.002]} />
+          <meshStandardMaterial color="#fff5e0" emissive="#fff5e0" emissiveIntensity={1.4} roughness={0.1} />
+        </mesh>
+        {/* Barn door flaps */}
+        <mesh position={[-0.24, 1.90, 0.03]} rotation={[0.1, 0.35, 0]}>
+          <boxGeometry args={[0.025, 0.28, 0.14]} />
+          <meshStandardMaterial color="#222" metalness={0.5} roughness={0.5} />
+        </mesh>
+        <mesh position={[0.24, 1.90, 0.03]} rotation={[0.1, -0.35, 0]}>
+          <boxGeometry args={[0.025, 0.28, 0.14]} />
+          <meshStandardMaterial color="#222" metalness={0.5} roughness={0.5} />
         </mesh>
       </group>
     </group>
@@ -2862,74 +3194,196 @@ function FoodStall({ position, rotation = [0, 0, 0] as [number,number,number], s
   rotation?: [number, number, number];
   stallType: "food" | "drinks";
 }) {
-  const awningColor = stallType === "food" ? "#e63946" : "#0077b6";
+  const awningColor  = stallType === "food" ? "#e63946" : "#0077b6";
+  const awningStripe = stallType === "food" ? "#ff8fa3" : "#48cae4";
+  const steel = "#aaaaaa";
+  const wood  = "#5d4037";
+  const woodL = "#8d6e63";
+
   return (
     <group position={position} rotation={rotation}>
-      {/* 4 frame posts */}
+      {/* 4 square frame posts — brushed steel */}
       {([ [-0.92, 0], [0.92, 0], [-0.92, 0.52], [0.92, 0.52] ] as [number,number][]).map(([fx, fz], i) => (
         <mesh key={i} position={[fx, 1.15, fz]} castShadow>
-          <boxGeometry args={[0.055, 2.30, 0.055]} />
-          <meshStandardMaterial color="#888" metalness={0.7} roughness={0.4} />
+          <boxGeometry args={[0.052, 2.30, 0.052]} />
+          <meshStandardMaterial color={steel} metalness={0.78} roughness={0.28} envMapIntensity={1.4} />
         </mesh>
       ))}
-      {/* Counter top */}
-      <mesh position={[0, 0.90, 0]} castShadow>
-        <boxGeometry args={[1.78, 0.08, 0.52]} />
-        <meshStandardMaterial color="#5d4037" roughness={0.7} />
+      {/* Top horizontal rails */}
+      <mesh position={[0, 2.28, 0.26]} castShadow>
+        <boxGeometry args={[1.88, 0.048, 0.048]} />
+        <meshStandardMaterial color={steel} metalness={0.78} roughness={0.28} envMapIntensity={1.2} />
       </mesh>
-      {/* Counter front panel */}
-      <mesh position={[0, 0.50, -0.23]} castShadow>
-        <boxGeometry args={[1.78, 0.78, 0.055]} />
-        <meshStandardMaterial color="#795548" roughness={0.7} />
+      <mesh position={[0, 2.28, -0.22]} castShadow>
+        <boxGeometry args={[1.88, 0.048, 0.048]} />
+        <meshStandardMaterial color={steel} metalness={0.78} roughness={0.28} envMapIntensity={1.2} />
       </mesh>
-      {/* Awning */}
-      <mesh position={[0, 2.18, -0.32]} rotation={[-0.32, 0, 0]} castShadow>
-        <boxGeometry args={[2.00, 0.06, 0.95]} />
-        <meshStandardMaterial color={awningColor} roughness={0.65} />
+
+      {/* Counter top — dark stained wood */}
+      <mesh position={[0, 0.91, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.80, 0.072, 0.54]} />
+        <meshStandardMaterial color={wood} roughness={0.52} metalness={0.02} envMapIntensity={0.8} />
       </mesh>
-      {/* Awning white stripes */}
-      {([-0.68, -0.22, 0.24, 0.70] as number[]).map((sx, i) => (
-        <mesh key={i} position={[sx, 2.19, -0.32]} rotation={[-0.32, 0, 0]}>
-          <boxGeometry args={[0.075, 0.065, 0.95]} />
-          <meshStandardMaterial color="white" roughness={0.7} />
+      {/* Counter edge trim */}
+      <mesh position={[0, 0.905, -0.27]}>
+        <boxGeometry args={[1.80, 0.068, 0.022]} />
+        <meshStandardMaterial color="#3e2723" roughness={0.60} />
+      </mesh>
+      {/* Counter front panel — lighter wood */}
+      <mesh position={[0, 0.50, -0.24]} castShadow>
+        <boxGeometry args={[1.80, 0.80, 0.052]} />
+        <meshStandardMaterial color={woodL} roughness={0.65} envMapIntensity={0.5} />
+      </mesh>
+      {/* Back wall / display shelf */}
+      <mesh position={[0, 1.05, 0.32]} castShadow>
+        <boxGeometry args={[1.80, 1.54, 0.04]} />
+        <meshStandardMaterial color="#f5f5f0" roughness={0.88} />
+      </mesh>
+      {/* Shelf ledge */}
+      <mesh position={[0, 1.55, 0.30]}>
+        <boxGeometry args={[1.70, 0.032, 0.18]} />
+        <meshStandardMaterial color={wood} roughness={0.58} />
+      </mesh>
+
+      {/* Awning — rolled fabric with drape angle */}
+      <mesh position={[0, 2.22, -0.34]} rotation={[-0.30, 0, 0]} castShadow>
+        <boxGeometry args={[2.02, 0.055, 1.00]} />
+        <meshStandardMaterial color={awningColor} roughness={0.68} envMapIntensity={0.5} />
+      </mesh>
+      {/* Awning candy stripes */}
+      {([-0.72, -0.26, 0.20, 0.66] as number[]).map((sx, i) => (
+        <mesh key={i} position={[sx, 2.23, -0.34]} rotation={[-0.30, 0, 0]}>
+          <boxGeometry args={[0.08, 0.058, 1.00]} />
+          <meshStandardMaterial color={awningStripe} roughness={0.70} />
+        </mesh>
+      ))}
+      {/* Awning valance (hanging fringe strip) */}
+      {Array.from({ length: 12 }, (_, i) => (
+        <mesh key={i} position={[-0.84 + i * 0.155, 1.94, -0.72]}>
+          <boxGeometry args={[0.08, 0.20, 0.005]} />
+          <meshStandardMaterial color={i % 2 === 0 ? awningColor : awningStripe} roughness={0.80} side={THREE.DoubleSide} />
         </mesh>
       ))}
       {/* Sign board */}
-      <mesh position={[0, 2.40, -0.36]}>
-        <boxGeometry args={[1.60, 0.34, 0.04]} />
-        <meshStandardMaterial color={awningColor} roughness={0.58} />
+      <mesh position={[0, 2.46, -0.38]} castShadow>
+        <boxGeometry args={[1.64, 0.36, 0.038]} />
+        <meshStandardMaterial color={awningColor} roughness={0.55} envMapIntensity={0.6} />
       </mesh>
-      {/* Server person */}
-      <group position={[0, 0, 0.30]}>
-        <mesh position={[0, 0.60, 0]} castShadow>
-          <capsuleGeometry args={[0.085, 0.58, 4, 8]} />
-          <meshStandardMaterial color="#fff3e0" roughness={0.8} />
+      {/* Sign board highlight strip */}
+      <mesh position={[0, 2.54, -0.38]}>
+        <boxGeometry args={[1.60, 0.06, 0.006]} />
+        <meshStandardMaterial color="#fff" roughness={0.5} transparent opacity={0.35} />
+      </mesh>
+
+      {/* Menu board on back wall */}
+      <mesh position={[0.52, 1.82, 0.33]}>
+        <boxGeometry args={[0.56, 0.36, 0.018]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.55} />
+      </mesh>
+      <mesh position={[0.52, 1.82, 0.32]}>
+        <boxGeometry args={[0.50, 0.28, 0.005]} />
+        <meshStandardMaterial color="#1e1e1e" emissive="#2a2a2a" emissiveIntensity={0.4} roughness={0.4} />
+      </mesh>
+
+      {/* Server person — in stall uniform */}
+      <group position={[0.20, 0, 0.30]}>
+        {/* Apron */}
+        <mesh position={[0, 0.78, 0.10]} castShadow>
+          <boxGeometry args={[0.28, 0.60, 0.018]} />
+          <meshStandardMaterial color="#f5f0e8" roughness={0.80} />
+        </mesh>
+        <mesh position={[-0.10, 0.60, 0]} castShadow>
+          <capsuleGeometry args={[0.082, 0.56, 4, 8]} />
+          <meshStandardMaterial color="#fff3e0" roughness={0.78} />
+        </mesh>
+        <mesh position={[0.10, 0.60, 0]} castShadow>
+          <capsuleGeometry args={[0.082, 0.56, 4, 8]} />
+          <meshStandardMaterial color="#fff3e0" roughness={0.78} />
         </mesh>
         <mesh position={[0, 1.12, 0]} castShadow>
           <capsuleGeometry args={[0.20, 0.42, 4, 10]} />
-          <meshStandardMaterial color={awningColor} roughness={0.65} />
+          <meshStandardMaterial color={awningColor} roughness={0.62} envMapIntensity={0.5} />
+        </mesh>
+        {/* Paper cap */}
+        <mesh position={[0, 1.72, 0]}>
+          <cylinderGeometry args={[0.15, 0.17, 0.08, 12]} />
+          <meshStandardMaterial color="#f5f5f5" roughness={0.80} />
         </mesh>
         <mesh position={[0, 1.68, 0]} castShadow>
-          <sphereGeometry args={[0.172, 12, 12]} />
-          <meshStandardMaterial color="#d4956a" roughness={0.55} />
+          <sphereGeometry args={[0.170, 14, 12]} />
+          <meshStandardMaterial color="#d4956a" roughness={0.56} envMapIntensity={0.6} />
         </mesh>
       </group>
+
       {/* Items on counter */}
       {stallType === "food" ? (
-        ([-0.5, 0, 0.5] as number[]).map((hx, i) => (
-          <mesh key={i} position={[hx, 0.965, -0.08]} rotation={[0, i * 0.5, 0]} castShadow>
-            <capsuleGeometry args={[0.042, 0.20, 4, 8]} />
-            <meshStandardMaterial color="#d4a055" roughness={0.8} />
+        <>
+          {/* Hot dog containers */}
+          {([-0.58, -0.16, 0.26, 0.68] as number[]).map((hx, i) => (
+            <group key={i} position={[hx, 0.952, -0.10]}>
+              <mesh rotation={[0, i * 0.6, 0]} castShadow>
+                <capsuleGeometry args={[0.038, 0.22, 4, 8]} />
+                <meshStandardMaterial color="#c8a060" roughness={0.82} />
+              </mesh>
+              {/* Tray */}
+              <mesh position={[0, -0.042, 0]}>
+                <boxGeometry args={[0.10, 0.018, 0.14]} />
+                <meshStandardMaterial color="#e8e0d0" roughness={0.85} />
+              </mesh>
+            </group>
+          ))}
+          {/* Sauce bottles */}
+          <mesh position={[0.74, 0.975, -0.06]} castShadow>
+            <cylinderGeometry args={[0.030, 0.025, 0.18, 8]} />
+            <meshStandardMaterial color="#cc0000" roughness={0.55} />
           </mesh>
-        ))
+          <mesh position={[0.74, 1.07, -0.06]}>
+            <sphereGeometry args={[0.030, 8, 6]} />
+            <meshStandardMaterial color="#cc0000" roughness={0.55} />
+          </mesh>
+        </>
       ) : (
-        ([-0.52, 0, 0.52] as number[]).map((cx, i) => (
-          <mesh key={i} position={[cx, 0.975, -0.08]} castShadow>
-            <cylinderGeometry args={[0.048, 0.036, 0.22, 8]} />
-            <meshStandardMaterial color={i % 2 === 0 ? "#e63946" : "#f4a261"} roughness={0.6} />
+        <>
+          {/* Drinks cups with lids and straws */}
+          {([-0.60, -0.20, 0.20, 0.60] as number[]).map((cx, i) => (
+            <group key={i} position={[cx, 0.952, -0.10]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.042, 0.032, 0.24, 10]} />
+                <meshStandardMaterial color={i % 2 === 0 ? "#e63946" : "#f4a261"} roughness={0.60} />
+              </mesh>
+              {/* Lid */}
+              <mesh position={[0, 0.128, 0]}>
+                <cylinderGeometry args={[0.045, 0.042, 0.028, 10]} />
+                <meshStandardMaterial color="#f0f0f0" roughness={0.60} />
+              </mesh>
+              {/* Straw */}
+              <mesh position={[0.016, 0.22, 0]} rotation={[0, 0, 0.12]}>
+                <cylinderGeometry args={[0.005, 0.005, 0.22, 6]} />
+                <meshStandardMaterial color={i % 2 === 0 ? "#fff" : "#f4d03f"} roughness={0.5} />
+              </mesh>
+            </group>
+          ))}
+          {/* Blender / drinks machine on back shelf */}
+          <mesh position={[-0.55, 1.60, 0.26]} castShadow>
+            <cylinderGeometry args={[0.065, 0.055, 0.28, 10]} />
+            <meshStandardMaterial color="#e0e0e0" metalness={0.5} roughness={0.35} envMapIntensity={1.2} />
           </mesh>
-        ))
+          <mesh position={[-0.55, 1.76, 0.26]}>
+            <cylinderGeometry args={[0.058, 0.065, 0.18, 10]} />
+            <meshStandardMaterial color="#c0d8f0" roughness={0.08} transparent opacity={0.72} envMapIntensity={2.5} />
+          </mesh>
+        </>
       )}
+
+      {/* Cash register / POS terminal on counter */}
+      <mesh position={[-0.70, 0.958, -0.05]} castShadow>
+        <boxGeometry args={[0.18, 0.10, 0.14]} />
+        <meshStandardMaterial color="#2a2a2a" metalness={0.5} roughness={0.40} envMapIntensity={0.8} />
+      </mesh>
+      <mesh position={[-0.70, 1.008, -0.05]}>
+        <boxGeometry args={[0.14, 0.008, 0.10]} />
+        <meshStandardMaterial color="#1a1a1a" emissive="#2255aa" emissiveIntensity={0.5} roughness={0.2} />
+      </mesh>
     </group>
   );
 }
@@ -3034,45 +3488,117 @@ function UmbrellaReserves({ position, faceY }: {
   position: [number, number, number];
   faceY: number;
 }) {
-  const skinTones  = ["#d4956a", "#c8895a", "#b07040"];
+  const skinTones   = ["#d4956a", "#c8895a", "#b07040"];
   const shirtColors = ["#ff6b6b", "#4ecdc4", "#ffd166"];
+  const loungerFabric = "#c8b87a";
+  const loungerFrame  = "#888880";
+
   return (
     <group>
-      {([-0.5, 0, 0.5] as number[]).map((dz, i) => (
+      {([-0.58, 0, 0.58] as number[]).map((dz, i) => (
         <group key={i} position={[position[0], 0, position[2] + dz]} rotation={[0, faceY, 0]}>
-          {/* Beach-chair seat */}
-          <mesh position={[0, 0.33, 0.08]} rotation={[-0.22, 0, 0]} castShadow>
-            <boxGeometry args={[0.34, 0.045, 0.48]} />
-            <meshStandardMaterial color="#c4a862" roughness={0.8} />
+
+          {/* Beach lounger frame — aluminium legs */}
+          {/* Front legs */}
+          <mesh position={[-0.18, 0.18, 0.28]} rotation={[0.55, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.012, 0.012, 0.38, 6]} />
+            <meshStandardMaterial color={loungerFrame} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
           </mesh>
-          {/* Backrest */}
-          <mesh position={[0, 0.60, -0.16]} rotation={[0.30, 0, 0]} castShadow>
-            <boxGeometry args={[0.34, 0.50, 0.04]} />
-            <meshStandardMaterial color="#c4a862" roughness={0.8} />
+          <mesh position={[0.18, 0.18, 0.28]} rotation={[0.55, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.012, 0.012, 0.38, 6]} />
+            <meshStandardMaterial color={loungerFrame} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
           </mesh>
-          {/* Lap / lower body */}
-          <mesh position={[0, 0.38, 0.14]} rotation={[-0.22, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.12, 0.24, 4, 8]} />
-            <meshStandardMaterial color="#3366cc" roughness={0.8} />
+          {/* Rear legs */}
+          <mesh position={[-0.18, 0.26, -0.28]} rotation={[-0.22, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.012, 0.012, 0.52, 6]} />
+            <meshStandardMaterial color={loungerFrame} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
           </mesh>
-          {/* Lower legs */}
-          <mesh position={[-0.10, 0.18, 0.35]} rotation={[0.55, 0.04, 0]}>
-            <capsuleGeometry args={[0.055, 0.28, 4, 6]} />
-            <meshStandardMaterial color={skinTones[i]} roughness={0.6} />
+          <mesh position={[0.18, 0.26, -0.28]} rotation={[-0.22, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.012, 0.012, 0.52, 6]} />
+            <meshStandardMaterial color={loungerFrame} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
           </mesh>
-          <mesh position={[ 0.10, 0.18, 0.35]} rotation={[0.55, -0.04, 0]}>
-            <capsuleGeometry args={[0.055, 0.28, 4, 6]} />
-            <meshStandardMaterial color={skinTones[i]} roughness={0.6} />
+          {/* Side rails */}
+          <mesh position={[-0.18, 0.34, 0.02]} rotation={[-0.14, 0, 0]} castShadow>
+            <boxGeometry args={[0.016, 0.016, 0.78]} />
+            <meshStandardMaterial color={loungerFrame} metalness={0.72} roughness={0.32} />
+          </mesh>
+          <mesh position={[0.18, 0.34, 0.02]} rotation={[-0.14, 0, 0]} castShadow>
+            <boxGeometry args={[0.016, 0.016, 0.78]} />
+            <meshStandardMaterial color={loungerFrame} metalness={0.72} roughness={0.32} />
+          </mesh>
+
+          {/* Seat pad — woven fabric sling */}
+          <mesh position={[0, 0.35, 0.06]} rotation={[-0.18, 0, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.36, 0.038, 0.52]} />
+            <meshStandardMaterial color={loungerFabric} roughness={0.88} envMapIntensity={0.3} />
+          </mesh>
+          {/* Backrest pad — angled up */}
+          <mesh position={[0, 0.62, -0.22]} rotation={[0.28, 0, 0]} castShadow>
+            <boxGeometry args={[0.36, 0.038, 0.42]} />
+            <meshStandardMaterial color={loungerFabric} roughness={0.88} envMapIntensity={0.3} />
+          </mesh>
+          {/* Towel draped over chair */}
+          <mesh position={[0.06, 0.39, 0.10]} rotation={[-0.16, 0.08, 0.05]}>
+            <boxGeometry args={[0.28, 0.012, 0.44]} />
+            <meshStandardMaterial
+              color={i === 0 ? "#e8f4f8" : i === 1 ? "#ffeaa0" : "#d4f0d4"}
+              roughness={0.94}
+            />
+          </mesh>
+
+          {/* Person — reclined */}
+          {/* Lower legs extending forward */}
+          <mesh position={[-0.10, 0.22, 0.40]} rotation={[0.48, 0.04, 0]} castShadow>
+            <capsuleGeometry args={[0.052, 0.30, 4, 6]} />
+            <meshStandardMaterial color={skinTones[i]} roughness={0.62} envMapIntensity={0.5} />
+          </mesh>
+          <mesh position={[0.10, 0.22, 0.40]} rotation={[0.48, -0.04, 0]} castShadow>
+            <capsuleGeometry args={[0.052, 0.30, 4, 6]} />
+            <meshStandardMaterial color={skinTones[i]} roughness={0.62} envMapIntensity={0.5} />
+          </mesh>
+          {/* Shorts / lower body */}
+          <mesh position={[0, 0.38, 0.16]} rotation={[-0.16, 0, 0]} castShadow>
+            <capsuleGeometry args={[0.124, 0.26, 4, 8]} />
+            <meshStandardMaterial color={shirtColors[(i + 1) % 3]} roughness={0.78} />
           </mesh>
           {/* Torso leaning back */}
-          <mesh position={[0, 0.68, -0.06]} rotation={[0.22, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.155, 0.28, 4, 10]} />
-            <meshStandardMaterial color={shirtColors[i]} roughness={0.65} />
+          <mesh position={[0, 0.70, -0.08]} rotation={[0.24, 0, 0]} castShadow>
+            <capsuleGeometry args={[0.152, 0.30, 4, 10]} />
+            <meshStandardMaterial color={shirtColors[i]} roughness={0.68} envMapIntensity={0.5} />
           </mesh>
-          {/* Head */}
-          <mesh position={[0, 1.01, -0.02]} castShadow>
-            <sphereGeometry args={[0.145, 12, 10]} />
-            <meshStandardMaterial color={skinTones[i]} roughness={0.55} />
+          {/* Arms resting outward */}
+          <mesh position={[-0.22, 0.64, -0.02]} rotation={[0.24, 0, 0.28]} castShadow>
+            <capsuleGeometry args={[0.048, 0.24, 4, 6]} />
+            <meshStandardMaterial color={shirtColors[i]} roughness={0.70} />
+          </mesh>
+          <mesh position={[0.22, 0.64, -0.02]} rotation={[0.24, 0, -0.28]} castShadow>
+            <capsuleGeometry args={[0.048, 0.24, 4, 6]} />
+            <meshStandardMaterial color={shirtColors[i]} roughness={0.70} />
+          </mesh>
+          {/* Head tilted back slightly */}
+          <mesh position={[0, 1.00, -0.10]} rotation={[0.18, 0, 0]} castShadow>
+            <sphereGeometry args={[0.145, 14, 12]} />
+            <meshStandardMaterial color={skinTones[i]} roughness={0.56} envMapIntensity={0.6} />
+          </mesh>
+          {/* Sunglasses */}
+          <mesh position={[-0.052, 1.005, 0.128]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.068, 0.034, 0.008]} />
+            <meshStandardMaterial color="#111" roughness={0.1} metalness={0.6} />
+          </mesh>
+          <mesh position={[0.052, 1.005, 0.128]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.068, 0.034, 0.008]} />
+            <meshStandardMaterial color="#111" roughness={0.1} metalness={0.6} />
+          </mesh>
+
+          {/* Drink/sunscreen on ground beside chair */}
+          <mesh position={[0.26, 0.05, 0.10]}>
+            <cylinderGeometry args={[0.028, 0.022, 0.14, 8]} />
+            <meshStandardMaterial color={i % 2 === 0 ? "#f4a261" : "#48cae4"} roughness={0.55} />
+          </mesh>
+          {/* Sunscreen bottle */}
+          <mesh position={[-0.28, 0.055, 0.05]}>
+            <cylinderGeometry args={[0.018, 0.018, 0.12, 8]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.62} />
           </mesh>
         </group>
       ))}
