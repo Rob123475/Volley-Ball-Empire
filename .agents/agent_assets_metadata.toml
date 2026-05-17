@@ -6,8 +6,20 @@ uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
 type = "image"
 title = "swimwear sponsor ad"
 
+[[generated]]
+id = "iW-QUcAuyxQT2OD6TLDeU"
+uri = "file://artifacts/beach-volleyball/public/prohydrate-sponsor.png"
+type = "image"
+title = "prohydrate water bottle"
+
 [[outputs]]
 id = "XCcLc6p_yRoa2T48ZEAei"
 uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
 type = "image"
 title = "Swimwear Sponsor Ad"
+
+[[outputs]]
+id = "jvbc-Gwax4ndGtEb7lMx0"
+uri = "file://artifacts/beach-volleyball/public/prohydrate-sponsor.png"
+type = "image"
+title = "ProHydrate Sports Drinks Sponsor"
