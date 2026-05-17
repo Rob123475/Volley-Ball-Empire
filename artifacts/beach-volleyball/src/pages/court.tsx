@@ -4553,18 +4553,25 @@ function StandingSpectators() {
     }
   });
 
-  // Court-side home (x=−9 to −10.5, z=−5 to +5): 2 rows × 6
-  for (let i = 0; i < 12; i++) {
-    gen.push({ x: (i < 6 ? -9.2 : -10.6) + jt(gi*3,0.2),
-               z: -5 + (i % 6) * 2 + jt(gi*7,0.3),
-               faceY: Math.PI/2 + jt(gi*11,0.2), idx: gi++ });
-  }
-  // Court-side away (mirror): 2 rows × 6
-  for (let i = 0; i < 12; i++) {
-    gen.push({ x: (i < 6 ? 9.2 : 10.6) + jt(gi*3,0.2),
-               z: -5 + (i % 6) * 2 + jt(gi*7,0.3),
-               faceY: -Math.PI/2 + jt(gi*11,0.2), idx: gi++ });
-  }
+  // Baseline spectators moved to corners behind the four umbrellas
+  // 4 corners × 6 figures = 24 total (replaces the two court-side rows)
+  // Corner sign convention: sx = ±1 (home/away X side), sz = ±1 (near/far Z side)
+  ([ [-1, -1,  Math.PI / 2],   // home-near corner (behind umbrella [-9.5,0,-5.5])
+     [-1,  1,  Math.PI / 2],   // home-far  corner (behind umbrella [-9.5,0, 5.5])
+     [ 1, -1, -Math.PI / 2],   // away-near corner (behind umbrella [ 9.5,0,-5.5])
+     [ 1,  1, -Math.PI / 2],   // away-far  corner (behind umbrella [ 9.5,0, 5.5])
+  ] as [number, number, number][]).forEach(([sx, sz, fy]) => {
+    for (let i = 0; i < 6; i++) {
+      const row = Math.floor(i / 3); // 0 = closer to court, 1 = further back
+      const col = i % 3;
+      gen.push({
+        x: sx * (10.6 + row * 1.2) + jt(gi * 3, 0.22),
+        z: sz * (5.8  + col * 0.85) + jt(gi * 7, 0.28),
+        faceY: fy + jt(gi * 11, 0.20),
+        idx: gi++,
+      });
+    }
+  });
 
   // Near stall side (z=−7, facing +Z≈0): 8 figures
   for (let i = 0; i < 8; i++) {
