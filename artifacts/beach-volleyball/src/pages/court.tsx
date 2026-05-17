@@ -11,10 +11,10 @@ import {
   Clouds,
 } from "@react-three/drei";
 import {
-  EffectComposer, Bloom, ToneMapping, Vignette,
+  EffectComposer, Bloom, Vignette,
   DepthOfField, ChromaticAberration, HueSaturation, BrightnessContrast, Noise,
 } from "@react-three/postprocessing";
-import { ToneMappingMode, BlendFunction } from "postprocessing";
+import { BlendFunction } from "postprocessing";
 import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import * as THREE from "three";
 import { useListLocations, useGetTeamRoster } from "@workspace/api-client-react";
@@ -3267,12 +3267,12 @@ function FoodStall({ position, rotation = [0, 0, 0] as [number,number,number], s
       {/* Sign board */}
       <mesh position={[0, 2.46, -0.38]} castShadow>
         <boxGeometry args={[1.64, 0.36, 0.038]} />
-        <meshStandardMaterial color={awningColor} roughness={0.55} envMapIntensity={0.6} />
+        <meshStandardMaterial color={awningColor} emissive={awningColor} emissiveIntensity={0.35} roughness={0.55} side={THREE.DoubleSide} />
       </mesh>
       {/* Sign board highlight strip */}
       <mesh position={[0, 2.54, -0.38]}>
         <boxGeometry args={[1.60, 0.06, 0.006]} />
-        <meshStandardMaterial color="#fff" roughness={0.5} transparent opacity={0.35} />
+        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.4} roughness={0.5} transparent opacity={0.55} />
       </mesh>
 
       {/* Menu board on back wall */}
@@ -3436,7 +3436,7 @@ function MerchStore({ position, rotation = [0, 0, 0] as [number,number,number] }
       {/* Sign board */}
       <mesh position={[0, 2.48, -0.40]}>
         <boxGeometry args={[2.68, 0.40, 0.04]} />
-        <meshStandardMaterial color="#f72585" roughness={0.58} />
+        <meshStandardMaterial color="#f72585" emissive="#f72585" emissiveIntensity={0.35} roughness={0.58} side={THREE.DoubleSide} />
       </mesh>
       {/* Jersey display rail */}
       <mesh position={[0, 1.94, 0.28]}>
@@ -3863,7 +3863,6 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
         <HueSaturation saturation={0.14} />
         <BrightnessContrast brightness={0.04} contrast={0.12} />
         <Noise opacity={0.028} premultiply blendFunction={BlendFunction.ADD} />
-        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         <Vignette eskil={false} offset={0.06} darkness={0.52} />
       </EffectComposer>
     </>
@@ -3983,7 +3982,8 @@ export default function ThreeDCourt() {
         shadows={{ type: THREE.VSMShadowMap }}
         gl={{
           antialias: true,
-          toneMapping: THREE.NoToneMapping,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.0,
           powerPreference: "high-performance",
           outputColorSpace: THREE.SRGBColorSpace,
         }}
