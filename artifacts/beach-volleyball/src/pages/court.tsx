@@ -3322,12 +3322,12 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <BallShadowRing ballPos={ballRef.current.pos} />
 
       {/* Home players (blue) */}
-      <Player state={homePlayers.current[0]} teamColor="#0077B6" accentColor="#00b4d8" number="7"  side="home" hairColor="#d4a843" hairStyle="beachWaves" />
-      <Player state={homePlayers.current[1]} teamColor="#0077B6" accentColor="#00b4d8" number="11" side="home" hairColor="#1a0800" hairStyle="afro" />
+      <Player state={homePlayers.current[0]} teamColor="#0077B6" accentColor="#00b4d8" number="7"  side="home" hairColor="#d4a843" hairStyle="ponytail" />
+      <Player state={homePlayers.current[1]} teamColor="#0077B6" accentColor="#00b4d8" number="11" side="home" hairColor="#1a0800" hairStyle="ponytail" />
 
       {/* Away players (orange) */}
-      <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4"  side="away" hairColor="#8b3a1a" hairStyle="frenchBraid" />
-      <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="highPonytail" />
+      <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4"  side="away" hairColor="#8b3a1a" hairStyle="ponytail" />
+      <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="ponytail" />
 
       {/* Post-processing — cinematic pipeline */}
       <EffectComposer multisampling={8}>
