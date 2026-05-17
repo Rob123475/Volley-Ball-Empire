@@ -63,19 +63,23 @@ const getStaffImageUrl = (name: string) =>
 const getLocationImageUrl = (city: string) =>
   `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;
 
-// Hand-picked Unsplash keyword searches — one per sponsor so images are always on-brand
+// Curated Unsplash photo IDs for sponsor cards (landscape 600×300, face-safe crop)
+// Uses images.unsplash.com (the live CDN) — source.unsplash.com is shut down.
+const unsplashBanner = (id: string) =>
+  `https://images.unsplash.com/${id}?w=600&h=300&fit=crop&crop=center&auto=format&q=80`;
+
 const SPONSOR_IMAGES: Record<string, string> = {
-  "Sunny Sport Sunscreen":     "https://source.unsplash.com/600x300/?sunscreen,spf,sun-lotion",
-  "CoastalWave Swimwear":      "https://source.unsplash.com/600x300/?swimwear,bikini,beachwear",
-  "ProHydrate Sports Drinks":  "https://source.unsplash.com/600x300/?sports-drink,electrolyte,bottle",
-  "AirJump Footwear":          "https://source.unsplash.com/600x300/?sneakers,athletic-shoes,trainers",
-  "TurboNet Sports Equipment": "https://source.unsplash.com/600x300/?volleyball,net,beach-sport",
-  "VitaBoost Supplements":     "https://source.unsplash.com/600x300/?protein,supplement,fitness-nutrition",
-  "BeachGlow Beauty":          "https://source.unsplash.com/600x300/?skincare,beauty,cosmetics",
-  "SandMaster Courts":         "https://source.unsplash.com/600x300/?beach-volleyball-court,sand,arena",
+  "AirJump Footwear":          unsplashBanner("photo-1542291026-7eec264c27ff"), // red Nike runner
+  "SandMaster Courts":         unsplashBanner("photo-1547153760-18fc86324498"), // beach volleyball match
+  "CoastalWave Swimwear":      unsplashBanner("photo-1520390138845-fd2d229dd553"), // swimwear on beach
+  "VitaBoost Supplements":     unsplashBanner("photo-1490645935967-10de6ba17061"), // healthy food bowls
+  "Sunny Sport Sunscreen":     unsplashBanner("photo-1507525428034-b723cf961d3e"), // tropical beach / sun
+  "TurboNet Sports Equipment": unsplashBanner("photo-1612872087720-bb876e2e67d1"), // volleyball net action
+  "BeachGlow Beauty":          unsplashBanner("photo-1522337360788-8b13dee7a37e"), // beauty / skincare
+  "ProHydrate Sports Drinks":  unsplashBanner("photo-1550673671-5ee5e3f89d90"), // sports water bottle
 };
 const getSponsorImageUrl = (name: string) =>
-  SPONSOR_IMAGES[name] ?? "https://source.unsplash.com/600x300/?sports,brand";
+  SPONSOR_IMAGES[name] ?? unsplashBanner("photo-1476480862126-209bfaa8edc8"); // generic sport
 
 async function main() {
   const client = await pool.connect();

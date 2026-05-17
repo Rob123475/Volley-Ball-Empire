@@ -27,6 +27,18 @@ const queryClient = new QueryClient({
       retry: false,
     },
   },
+  mutationCache: undefined,
+});
+
+// Redirect to login whenever any query or mutation gets a 401
+queryClient.getQueryCache().subscribe((event) => {
+  if (
+    event.type === "updated" &&
+    event.action.type === "error" &&
+    (event.action.error as any)?.status === 401
+  ) {
+    window.location.href = `/api/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
+  }
 });
 
 function Router() {
