@@ -165,18 +165,135 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
 }
 
 // ── Articulated Player ───────────────────────────────────────────────────────
+type HairStyle = "ponytail" | "bun" | "braids" | "straight";
+
+function PlayerHair({ hairColor: hc, hairStyle }: { hairColor: string; hairStyle: HairStyle }) {
+  const scalp = (
+    <mesh position={[0, 0.07, -0.04]} rotation={[0.10, 0, 0]}>
+      <sphereGeometry args={[0.222, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.56]} />
+      <meshStandardMaterial color={hc} roughness={0.92} side={THREE.BackSide} />
+    </mesh>
+  );
+
+  if (hairStyle === "bun") return (
+    <>
+      {scalp}
+      {/* Stub leading to bun */}
+      <mesh position={[0, 0.14, -0.19]} rotation={[0.50, 0, 0]} castShadow>
+        <capsuleGeometry args={[0.038, 0.12, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.88} />
+      </mesh>
+      {/* Bun sphere */}
+      <mesh position={[0, 0.22, -0.18]} castShadow>
+        <sphereGeometry args={[0.088, 14, 12]} />
+        <meshStandardMaterial color={hc} roughness={0.86} />
+      </mesh>
+      {/* Bun wrap ring */}
+      <mesh position={[0, 0.22, -0.18]} rotation={[0.50, 0, 0]}>
+        <torusGeometry args={[0.068, 0.016, 6, 18]} />
+        <meshStandardMaterial color={hc} roughness={0.80} />
+      </mesh>
+    </>
+  );
+
+  if (hairStyle === "braids") return (
+    <>
+      {scalp}
+      {/* Left braid — 3 tapering segments */}
+      <mesh position={[-0.12, 0.04, -0.16]} rotation={[0.58, -0.18, 0.06]} castShadow>
+        <capsuleGeometry args={[0.032, 0.28, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.92} />
+      </mesh>
+      <mesh position={[-0.165, -0.10, -0.28]} rotation={[0.68, -0.14, 0.05]} castShadow>
+        <capsuleGeometry args={[0.027, 0.26, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.92} />
+      </mesh>
+      <mesh position={[-0.195, -0.24, -0.38]} rotation={[0.72, -0.10, 0.04]} castShadow>
+        <capsuleGeometry args={[0.022, 0.22, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.92} />
+      </mesh>
+      {/* Right braid */}
+      <mesh position={[0.12, 0.04, -0.16]} rotation={[0.58, 0.18, -0.06]} castShadow>
+        <capsuleGeometry args={[0.032, 0.28, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.92} />
+      </mesh>
+      <mesh position={[0.165, -0.10, -0.28]} rotation={[0.68, 0.14, -0.05]} castShadow>
+        <capsuleGeometry args={[0.027, 0.26, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.92} />
+      </mesh>
+      <mesh position={[0.195, -0.24, -0.38]} rotation={[0.72, 0.10, -0.04]} castShadow>
+        <capsuleGeometry args={[0.022, 0.22, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.92} />
+      </mesh>
+    </>
+  );
+
+  if (hairStyle === "straight") return (
+    <>
+      {scalp}
+      {/* Main curtain — back */}
+      <mesh position={[0, -0.05, -0.22]} rotation={[0.07, 0, 0]} castShadow>
+        <boxGeometry args={[0.40, 0.54, 0.055]} />
+        <meshStandardMaterial color={hc} roughness={0.88} />
+      </mesh>
+      {/* Left side panel */}
+      <mesh position={[-0.198, -0.03, -0.15]} rotation={[0.07, 0.20, 0]} castShadow>
+        <boxGeometry args={[0.086, 0.46, 0.050]} />
+        <meshStandardMaterial color={hc} roughness={0.88} />
+      </mesh>
+      {/* Right side panel */}
+      <mesh position={[0.198, -0.03, -0.15]} rotation={[0.07, -0.20, 0]} castShadow>
+        <boxGeometry args={[0.086, 0.46, 0.050]} />
+        <meshStandardMaterial color={hc} roughness={0.88} />
+      </mesh>
+      {/* Front curtain framing face */}
+      <mesh position={[-0.172, -0.05, 0.12]} rotation={[-0.05, 0.25, 0]} castShadow>
+        <boxGeometry args={[0.075, 0.38, 0.045]} />
+        <meshStandardMaterial color={hc} roughness={0.88} />
+      </mesh>
+      <mesh position={[0.172, -0.05, 0.12]} rotation={[-0.05, -0.25, 0]} castShadow>
+        <boxGeometry args={[0.075, 0.38, 0.045]} />
+        <meshStandardMaterial color={hc} roughness={0.88} />
+      </mesh>
+    </>
+  );
+
+  // ── Default: ponytail ──
+  return (
+    <>
+      {scalp}
+      <mesh position={[0, 0.07, -0.21]} rotation={[0.50, 0, 0]} castShadow>
+        <capsuleGeometry args={[0.058, 0.34, 4, 8]} />
+        <meshStandardMaterial color={hc} roughness={0.90} />
+      </mesh>
+      <mesh position={[0.04, 0.03, -0.32]} rotation={[0.72, 0.08, 0]} castShadow>
+        <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.90} />
+      </mesh>
+      <mesh position={[-0.04, 0.03, -0.32]} rotation={[0.72, -0.08, 0]} castShadow>
+        <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
+        <meshStandardMaterial color={hc} roughness={0.90} />
+      </mesh>
+    </>
+  );
+}
+
 function Player({
   state,
   teamColor,
   accentColor,
   number,
   side,
+  hairColor,
+  hairStyle,
 }: {
   state: PlayerState;
   teamColor: string;
   accentColor: string;
   number: string;
   side: "home" | "away";
+  hairColor?: string;
+  hairStyle?: HairStyle;
 }) {
   const groupRef = useRef<THREE.Group>(null!);
   const torsoRef = useRef<THREE.Mesh>(null!);
@@ -451,25 +568,8 @@ function Player({
             <capsuleGeometry args={[0.020, 0.060, 4, 6]} />
             <meshStandardMaterial color="#c0705a" roughness={0.5} />
           </mesh>
-          {/* Hair — dark base on scalp */}
-          <mesh position={[0, 0.06, -0.04]} rotation={[0.1, 0, 0]}>
-            <sphereGeometry args={[0.22, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
-            <meshStandardMaterial color="#2c1200" roughness={0.95} side={THREE.BackSide} />
-          </mesh>
-          {/* Ponytail main */}
-          <mesh position={[0, 0.07, -0.21]} rotation={[0.5, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.058, 0.34, 4, 8]} />
-            <meshStandardMaterial color="#2c1200" roughness={0.95} />
-          </mesh>
-          {/* Ponytail strands */}
-          <mesh position={[0.04, 0.03, -0.32]} rotation={[0.72, 0.08, 0]} castShadow>
-            <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
-            <meshStandardMaterial color="#2c1200" roughness={0.95} />
-          </mesh>
-          <mesh position={[-0.04, 0.03, -0.32]} rotation={[0.72, -0.08, 0]} castShadow>
-            <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
-            <meshStandardMaterial color="#2c1200" roughness={0.95} />
-          </mesh>
+          {/* Hair */}
+          <PlayerHair hairColor={hairColor ?? "#2c1200"} hairStyle={hairStyle ?? "ponytail"} />
           {/* Sun visor — headband ring */}
           <mesh position={[0, 0.09, 0]} rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[0.228, 0.019, 8, 28]} />
@@ -2642,12 +2742,12 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <BallShadowRing ballPos={ballRef.current.pos} />
 
       {/* Home players (blue) */}
-      <Player state={homePlayers.current[0]} teamColor="#0077B6" accentColor="#00b4d8" number="7" side="home" />
-      <Player state={homePlayers.current[1]} teamColor="#0077B6" accentColor="#00b4d8" number="11" side="home" />
+      <Player state={homePlayers.current[0]} teamColor="#0077B6" accentColor="#00b4d8" number="7"  side="home" hairColor="#d4a843" hairStyle="ponytail" />
+      <Player state={homePlayers.current[1]} teamColor="#0077B6" accentColor="#00b4d8" number="11" side="home" hairColor="#1a0800" hairStyle="bun" />
 
       {/* Away players (orange) */}
-      <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4" side="away" />
-      <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9" side="away" />
+      <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4"  side="away" hairColor="#8b3a1a" hairStyle="braids" />
+      <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="straight" />
 
       {/* Post-processing */}
       <EffectComposer multisampling={0}>
@@ -2780,7 +2880,7 @@ export default function ThreeDCourt() {
     <div className="h-[calc(100vh-11rem)] w-full rounded-3xl overflow-hidden relative border border-primary/20 shadow-2xl">
       <Canvas
         key={key}
-        shadows={{ type: THREE.PCFSoftShadowMap }}
+        shadows={{ type: THREE.VSMShadowMap }}
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
