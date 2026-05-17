@@ -11,12 +11,15 @@ import {
   getGetDashboardQueryKey,
   getGetMyTeamQueryKey
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Calendar, MapPin, Loader2, Play, Users, CheckCircle2 } from "lucide-react";
+import {
+  Trophy, Calendar, MapPin, Loader2, Play, Users, CheckCircle2,
+  Lock, Star, Swords, Flag
+} from "lucide-react";
 import { useState } from "react";
 import {
   Dialog,
@@ -41,12 +44,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const weatherIcons: Record<string, string> = {
-  sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", 
+  sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥",
   cloudy: "☁️", overcast: "⛅", perfect: "✨",
 };
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
+}
+
+function formatCurrency(val: number) {
+  if (val >= 1000) return `$${(val / 1000).toFixed(0)}K`;
+  return `$${val}`;
 }
 
 export default function Matches() {
@@ -64,6 +72,15 @@ export default function Matches() {
   const { data: locations } = useListLocations();
   const { data: roster } = useGetTeamRoster();
 
+  const { data: fixture, isLoading: fixtureLoading, refetch: refetchFixture } = useQuery({
+    queryKey: ["matches", "fixture"],
+    queryFn: async () => {
+      const res = await fetch("/api/matches/fixture");
+      if (!res.ok) throw new Error("Failed to fetch fixture");
+      return res.json() as Promise<any[]>;
+    },
+  });
+
   const scheduleMutation = useScheduleMatch();
   const simulateMutation = useSimulateMatch();
   const lineupMutation = useUpdateMatchLineup();
@@ -75,8 +92,8 @@ export default function Matches() {
     }
     const now = new Date();
     now.setDate(now.getDate() + 7);
-    scheduleMutation.mutate({ 
-      data: { 
+    scheduleMutation.mutate({
+      data: {
         locationId: parseInt(scheduleForm.locationId),
         teamSize: parseInt(scheduleForm.teamSize),
         prizeAmount: parseInt(scheduleForm.prizeAmount),
@@ -84,7 +101,7 @@ export default function Matches() {
         season: 1,
         round: 1,
         scheduledAt: now.toISOString(),
-      } 
+      }
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListUpcomingMatchesQueryKey() });
@@ -108,6 +125,7 @@ export default function Matches() {
             queryClient.invalidateQueries({ queryKey: getListMatchesQueryKey() });
             queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
             queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
+            refetchFixture();
           }
         });
       }
@@ -116,6 +134,9 @@ export default function Matches() {
 
   const activePlayers = roster?.activePlayers ?? [];
 
+  // First scheduled fixture match is the "next to play"
+  const nextFixtureMatchId = fixture?.find(m => m.status === "scheduled")?.id ?? null;
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -123,7 +144,7 @@ export default function Matches() {
           <h2 className="text-3xl font-bold tracking-tight text-primary">Match Center</h2>
           <p className="text-muted-foreground">Schedule and compete in world-class tournaments.</p>
         </div>
-        
+
         <Dialog>
           <DialogTrigger asChild>
             <Button className="gap-2" data-testid="button-schedule-match">
@@ -158,8 +179,8 @@ export default function Matches() {
               </div>
               <div className="space-y-2">
                 <Label>Prize Amount ($)</Label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   value={scheduleForm.prizeAmount}
                   onChange={(e) => setScheduleForm(f => ({ ...f, prizeAmount: e.target.value }))}
                   data-testid="input-prize-amount"
@@ -173,19 +194,92 @@ export default function Matches() {
         </Dialog>
       </div>
 
-      <Tabs defaultValue="upcoming" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+      <Tabs defaultValue="fixture" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 max-w-[480px]">
+          <TabsTrigger value="fixture">📅 Season Fixture</TabsTrigger>
           <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
           <TabsTrigger value="results">Results</TabsTrigger>
         </TabsList>
-        
+
+        {/* ── FIXTURE TAB ── */}
+        <TabsContent value="fixture" className="mt-6">
+          {fixtureLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Season banner */}
+              <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/5 to-transparent border border-primary/20 mb-6">
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-primary/60">2026 Season</div>
+                  <div className="text-xl font-black">World Beach Pro Series</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground">
+                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 11} played
+                  </div>
+                  <div className="text-sm font-bold text-primary">
+                    {fixture?.filter(m => m.status === "completed" && (m.homeScore ?? 0) > (m.awayScore ?? 0)).length ?? 0}W –{" "}
+                    {fixture?.filter(m => m.status === "completed" && (m.homeScore ?? 0) <= (m.awayScore ?? 0)).length ?? 0}L
+                  </div>
+                </div>
+              </div>
+
+              {fixture?.map((match) => {
+                const isFinal = match.round === 11;
+                const isCompleted = match.status === "completed";
+                const isNext = match.id === nextFixtureMatchId && !isFinal;
+                const isNextFinal = match.id === nextFixtureMatchId && isFinal;
+                const homeWon = (match.homeScore ?? 0) > (match.awayScore ?? 0);
+
+                if (isFinal) {
+                  return (
+                    <FinalCard
+                      key={match.id}
+                      match={match}
+                      isCompleted={isCompleted}
+                      isPlayable={!!isNextFinal}
+                      homeWon={homeWon}
+                      onSimulate={(ids) => handleSimulate(match.id, ids)}
+                      isSimulating={simulateMutation.isPending || lineupMutation.isPending}
+                      activePlayers={activePlayers}
+                    />
+                  );
+                }
+
+                return (
+                  <FixtureRoundCard
+                    key={match.id}
+                    match={match}
+                    isCompleted={isCompleted}
+                    isNext={isNext}
+                    homeWon={homeWon}
+                    onSimulate={(ids) => handleSimulate(match.id, ids)}
+                    isSimulating={simulateMutation.isPending || lineupMutation.isPending}
+                    activePlayers={activePlayers}
+                  />
+                );
+              })}
+
+              {(!fixture || fixture.length === 0) && (
+                <div className="text-center text-muted-foreground py-12">
+                  <Calendar className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Generating your season fixture…</p>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* ── UPCOMING TAB ── */}
         <TabsContent value="upcoming" className="mt-6 space-y-4">
-          {upcomingLoading ? <Skeleton className="h-48 w-full" /> : 
+          {upcomingLoading ? <Skeleton className="h-48 w-full" /> :
             upcoming?.map(match => (
-              <MatchCard 
-                key={match.id} 
-                match={match} 
-                onSimulate={(ids) => handleSimulate(match.id, ids)} 
+              <MatchCard
+                key={match.id}
+                match={match}
+                onSimulate={(ids) => handleSimulate(match.id, ids)}
                 isSimulating={simulateMutation.isPending || lineupMutation.isPending}
                 activePlayers={activePlayers}
               />
@@ -199,9 +293,10 @@ export default function Matches() {
           )}
         </TabsContent>
 
+        {/* ── RESULTS TAB ── */}
         <TabsContent value="results" className="mt-6 space-y-4">
-          {resultsLoading ? <Skeleton className="h-48 w-full" /> : 
-            results?.filter(m => m.status === 'completed').map(match => {
+          {resultsLoading ? <Skeleton className="h-48 w-full" /> :
+            results?.filter(m => m.status === "completed").map(match => {
               const homeScore = match.homeScore ?? 0;
               const awayScore = match.awayScore ?? 0;
               const isWin = homeScore > awayScore;
@@ -212,13 +307,13 @@ export default function Matches() {
                       <div className="text-4xl">{weatherIcons[match.weather] || "☀️"}</div>
                       <div>
                         <div className="font-bold text-lg">{match.locationName ?? "Beach"}</div>
-                        <div className="text-sm text-muted-foreground">vs Opponent #{match.awayTeamId}</div>
+                        <div className="text-sm text-muted-foreground">vs {match.awayTeamName ?? `Opponent #${match.awayTeamId}`}</div>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="text-2xl font-black">{homeScore} – {awayScore}</div>
-                      <Badge className={isWin ? 'bg-green-500' : 'bg-red-500'}>
-                        {isWin ? 'WIN' : 'LOSS'}
+                      <Badge className={isWin ? "bg-green-500" : "bg-red-500"}>
+                        {isWin ? "WIN" : "LOSS"}
                       </Badge>
                     </div>
                   </div>
@@ -226,7 +321,7 @@ export default function Matches() {
               );
             })
           }
-          {!resultsLoading && (!results || results.filter(m => m.status === 'completed').length === 0) && (
+          {!resultsLoading && (!results || results.filter(m => m.status === "completed").length === 0) && (
             <div className="text-center text-muted-foreground py-12">
               <Trophy className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <p>No completed matches yet.</p>
@@ -235,11 +330,14 @@ export default function Matches() {
         </TabsContent>
       </Tabs>
 
+      {/* Simulation result dialog */}
       {simulationResult && (
         <Dialog open={!!simulationResult} onOpenChange={() => setSimulationResult(null)}>
           <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-black text-center mb-4">MATCH RESULT</DialogTitle>
+              <DialogTitle className="text-3xl font-black text-center mb-4">
+                {simulationResult.isFinal ? "🏆 GRAND FINAL RESULT" : "MATCH RESULT"}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-8 py-4">
               <div className="flex items-center justify-center gap-12">
@@ -298,7 +396,222 @@ export default function Matches() {
   );
 }
 
-function MatchCard({ match, onSimulate, isSimulating, activePlayers }: { match: any, onSimulate: (ids: number[]) => void, isSimulating: boolean, activePlayers: any[] }) {
+// ── Regular fixture round card ──
+function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isSimulating, activePlayers }: {
+  match: any; isCompleted: boolean; isNext: boolean; homeWon: boolean;
+  onSimulate: (ids: number[]) => void; isSimulating: boolean; activePlayers: any[];
+}) {
+  const [selected, setSelected] = useState<number[]>([]);
+  const [expanded, setExpanded] = useState(false);
+  const date = match.scheduledAt ? new Date(match.scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "TBD";
+
+  return (
+    <div className={cn(
+      "rounded-xl border transition-all",
+      isCompleted && homeWon ? "border-green-500/30 bg-green-500/5" :
+      isCompleted && !homeWon ? "border-red-500/30 bg-red-500/5" :
+      isNext ? "border-primary shadow-md shadow-primary/10" :
+      "border-border bg-card opacity-80"
+    )}>
+      <div className="flex items-center gap-4 p-4 cursor-pointer" onClick={() => isNext && setExpanded(e => !e)}>
+        {/* Round badge */}
+        <div className={cn(
+          "flex-shrink-0 h-12 w-12 rounded-full flex flex-col items-center justify-center text-xs font-black",
+          isCompleted && homeWon ? "bg-green-500 text-white" :
+          isCompleted && !homeWon ? "bg-red-500 text-white" :
+          isNext ? "bg-primary text-primary-foreground" :
+          "bg-muted text-muted-foreground"
+        )}>
+          <span className="text-[9px] leading-none">RND</span>
+          <span className="text-base leading-tight">{match.round}</span>
+        </div>
+
+        {/* Main info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground">{date}</span>
+            <span className="text-xs">{weatherIcons[match.weather] ?? "☀️"}</span>
+          </div>
+          <div className="font-bold truncate">{match.locationName ?? "TBD"}</div>
+          <div className="text-xs text-muted-foreground flex items-center gap-1">
+            <Swords className="h-3 w-3" /> vs <span className="font-medium">{match.awayTeamName ?? "Opponent"}</span>
+          </div>
+        </div>
+
+        {/* Right side */}
+        <div className="flex-shrink-0 text-right space-y-1">
+          <div className="text-sm font-black text-green-600">{formatCurrency(match.prizeAmount ?? 0)}</div>
+          {isCompleted ? (
+            <div className="flex items-center gap-1 justify-end">
+              <span className="text-lg font-black">{match.homeScore} – {match.awayScore}</span>
+              <Badge className={cn("text-[10px]", homeWon ? "bg-green-500" : "bg-red-500")}>{homeWon ? "W" : "L"}</Badge>
+            </div>
+          ) : isNext ? (
+            <Badge className="bg-primary text-primary-foreground animate-pulse text-[10px]">PLAY NOW</Badge>
+          ) : (
+            <div className="flex items-center gap-1 justify-end text-muted-foreground">
+              <Lock className="h-3 w-3" /><span className="text-xs">Upcoming</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Expandable lineup for next match */}
+      {isNext && expanded && (
+        <div className="px-4 pb-4 border-t border-border/50 pt-3 space-y-3">
+          <div className="text-sm font-bold flex items-center gap-2">
+            <Users className="h-4 w-4" /> Select Lineup ({selected.length}/{match.teamSize ?? 2})
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {activePlayers.map((p: any) => (
+              <div
+                key={p.id}
+                className={cn(
+                  "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
+                  selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                )}
+                onClick={() => {
+                  if (selected.includes(p.id)) setSelected(selected.filter(id => id !== p.id));
+                  else if (selected.length < (match.teamSize ?? 2)) setSelected([...selected, p.id]);
+                }}
+              >
+                <Checkbox checked={selected.includes(p.id)} />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-primary">{p.position}</span>
+                  <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button
+            className="w-full gap-2"
+            disabled={selected.length !== (match.teamSize ?? 2) || isSimulating}
+            onClick={() => onSimulate(selected)}
+            data-testid={`button-simulate-${match.id}`}
+          >
+            {isSimulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Play className="h-4 w-4 fill-current" /> Simulate Round {match.round}</>}
+          </Button>
+        </div>
+      )}
+      {isNext && !expanded && (
+        <div className="px-4 pb-3 text-xs text-primary cursor-pointer hover:underline" onClick={() => setExpanded(true)}>
+          ▸ Click to select lineup & play
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Grand Final card ──
+function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimulating, activePlayers }: {
+  match: any; isCompleted: boolean; isPlayable: boolean; homeWon: boolean;
+  onSimulate: (ids: number[]) => void; isSimulating: boolean; activePlayers: any[];
+}) {
+  const [selected, setSelected] = useState<number[]>([]);
+  const [expanded, setExpanded] = useState(false);
+  const date = match.scheduledAt ? new Date(match.scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "10 Dec 2026";
+
+  return (
+    <div className={cn(
+      "rounded-2xl border-2 overflow-hidden mt-6 transition-all",
+      isCompleted && homeWon ? "border-yellow-500 shadow-lg shadow-yellow-500/20" :
+      isCompleted && !homeWon ? "border-red-500/50" :
+      isPlayable ? "border-yellow-500 shadow-xl shadow-yellow-500/30 animate-pulse" :
+      "border-yellow-500/30 opacity-60"
+    )}>
+      {/* Header banner */}
+      <div className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-amber-500 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Trophy className="h-8 w-8 text-yellow-900" />
+          <div>
+            <div className="text-xs font-bold text-yellow-900/70 uppercase tracking-widest">2026 World Beach Pro Series</div>
+            <div className="text-xl font-black text-yellow-900">GRAND FINAL</div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-2xl font-black text-yellow-900">{formatCurrency(match.prizeAmount ?? 50000)}</div>
+          <div className="text-xs text-yellow-900/70">Championship Prize</div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-4 bg-gradient-to-b from-yellow-500/5 to-transparent">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">{date} • {weatherIcons[match.weather] ?? "☀️"}</div>
+            <div className="font-bold flex items-center gap-1">
+              <Flag className="h-4 w-4 text-yellow-500" /> {match.locationName ?? "Copacabana Beach, Brazil"}
+            </div>
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
+              <Swords className="h-3.5 w-3.5" /> vs <span className="font-bold text-foreground ml-1">{match.awayTeamName ?? "World All-Stars"}</span>
+            </div>
+          </div>
+          <div className="text-right">
+            {isCompleted ? (
+              <div className="space-y-1">
+                <div className="text-3xl font-black">{match.homeScore} – {match.awayScore}</div>
+                <Badge className={cn("text-sm px-3", homeWon ? "bg-yellow-500 text-yellow-900" : "bg-red-500")}>
+                  {homeWon ? "🏆 CHAMPIONS!" : "RUNNER UP"}
+                </Badge>
+              </div>
+            ) : isPlayable ? (
+              <Badge className="bg-yellow-500 text-yellow-900 text-sm px-3 animate-pulse">READY TO PLAY</Badge>
+            ) : (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Lock className="h-4 w-4" /> <span className="text-sm">Locked</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Lineup for final */}
+        {isPlayable && (
+          <div className="mt-4 space-y-3 border-t border-yellow-500/20 pt-3">
+            <div className="text-sm font-bold flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-500" /> Select Championship Lineup ({selected.length}/{match.teamSize ?? 2})
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {activePlayers.map((p: any) => (
+                <div
+                  key={p.id}
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
+                    selected.includes(p.id) ? "bg-yellow-500/20 border-yellow-500" : "hover:bg-muted"
+                  )}
+                  onClick={() => {
+                    if (selected.includes(p.id)) setSelected(selected.filter(id => id !== p.id));
+                    else if (selected.length < (match.teamSize ?? 2)) setSelected([...selected, p.id]);
+                  }}
+                >
+                  <Checkbox checked={selected.includes(p.id)} />
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-yellow-600">{p.position}</span>
+                    <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button
+              className="w-full gap-2 bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-black text-base h-12"
+              disabled={selected.length !== (match.teamSize ?? 2) || isSimulating}
+              onClick={() => onSimulate(selected)}
+              data-testid={`button-simulate-${match.id}`}
+            >
+              {isSimulating
+                ? <Loader2 className="h-5 w-5 animate-spin" />
+                : <><Trophy className="h-5 w-5" /> PLAY THE FINAL</>}
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Generic match card (used in Upcoming tab) ──
+function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
+  match: any; onSimulate: (ids: number[]) => void; isSimulating: boolean; activePlayers: any[];
+}) {
   const [selected, setSelected] = useState<number[]>([]);
 
   return (
@@ -325,8 +638,8 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: { match: 
             <div className="text-sm font-bold flex items-center gap-2"><Users className="h-4 w-4" /> Select Lineup ({selected.length}/{match.teamSize})</div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {activePlayers.map((p: any) => (
-                <div 
-                  key={p.id} 
+                <div
+                  key={p.id}
                   data-testid={`player-select-${p.id}`}
                   className={cn(
                     "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
@@ -351,9 +664,9 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: { match: 
           </div>
         </div>
         <div className="bg-muted/30 p-6 flex items-center justify-center border-l">
-          <Button 
-            size="lg" 
-            className="h-16 px-12 gap-3 text-lg font-black shadow-lg" 
+          <Button
+            size="lg"
+            className="h-16 px-12 gap-3 text-lg font-black shadow-lg"
             disabled={selected.length !== match.teamSize || isSimulating}
             onClick={() => onSimulate(selected)}
             data-testid={`button-simulate-${match.id}`}
