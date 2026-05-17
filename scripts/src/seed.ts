@@ -50,7 +50,7 @@ const PLAYER_PHOTOS: Record<string, string> = {
   "Valentina Costa":   u("photo-1686753768117-bf1a808689d7"), // woman reaching for volleyball
   "Vera Petrakis":     u("photo-1506863530036-1efeddceb993"), // woman portrait
   "Zoe Thompson":      u("photo-1517841905240-472988babdf9"), // woman portrait
-  "Anika Becker":      u("photo-1522075469751-3a6694fb2f61"), // woman portrait
+  "Anika Becker":      u("photo-1524550158212-33f2ff985344"), // woman wearing white shirt outdoors
   "Klara Hoffmann":    u("photo-1730140322846-1d34c43cfda5"), // woman in bikini in water
   "Marta Wiśniewski":  u("photo-1632683013210-1596f1543ece"), // woman in bikini walking
   "Petra Novak":       u("photo-1631157892458-7cc24bc95e68"), // woman in red bikini on beach
@@ -73,7 +73,7 @@ const STAFF_PHOTOS: Record<string, string> = {
   "Dr. Fatima Bello":       u("photo-1614023342667-6f060e9d1e04"), // Black woman portrait
   "Trainer Camille Dubois": u("photo-1573496359142-b8d87734a5a2"), // European woman portrait
   "Scout Ingrid Olsen":     u("photo-1531123897727-8f129e1688ce"), // woman portrait
-  "Scout Birgit Hansen":    u("photo-1590086782957-93c06ef21604"), // woman portrait
+  "Scout Birgit Hansen":    u("photo-1518305860742-0d7119d4567f"), // woman in gray top portrait
   "Coach Lena Wagner":      u("photo-1730140323266-0c7cdcbfecbf"), // woman in bikini in water
   "Coach Maria Santos":     u("photo-1529626455594-4ff0802cfb7e"), // Latina woman portrait
 };
