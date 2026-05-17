@@ -71,7 +71,7 @@ const unsplashBanner = (id: string) =>
 const SPONSOR_IMAGES: Record<string, string> = {
   "AirJump Footwear":          unsplashBanner("photo-1542291026-7eec264c27ff"), // red Nike runner
   "SandMaster Courts":         unsplashBanner("photo-1547153760-18fc86324498"), // beach volleyball match
-  "CoastalWave Swimwear":      unsplashBanner("photo-1520390138845-fd2d229dd553"), // swimwear on beach
+  "CoastalWave Swimwear":      unsplashBanner("photo-1570295064577-4be29dbab2cf"), // woman in red swimsuit on beach
   "VitaBoost Supplements":     unsplashBanner("photo-1490645935967-10de6ba17061"), // healthy food bowls
   "Sunny Sport Sunscreen":     unsplashBanner("photo-1507525428034-b723cf961d3e"), // tropical beach / sun
   "TurboNet Sports Equipment": unsplashBanner("photo-1612872087720-bb876e2e67d1"), // volleyball net action
