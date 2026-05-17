@@ -1673,16 +1673,16 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
         castShadow
         color="#fff9e6"
       />
-      {/* Sky hemisphere: deep blue sky / warm golden ground bounce */}
-      <hemisphereLight args={["#4a90d9", "#b8800a", 0.55]} />
-      {/* Cool blue fill from shadow side */}
+      {/* Sky hemisphere: warm sky / cool ground bounce */}
+      <hemisphereLight args={["#6ea8d8", "#9c7d3a", 0.28]} />
+      {/* Soft fill from opposite side */}
       <directionalLight
         position={[-sunPos.x * 0.3, sunPos.y * 0.5, -sunPos.z * 0.3]}
-        intensity={intensity * 0.18}
-        color="#9bbfe0"
+        intensity={intensity * 0.12}
+        color="#b0cfe8"
       />
-      {/* Warm rim light — players pop against background */}
-      <directionalLight position={[0, 5, -20]} intensity={0.55} color="#ffcc66" />
+      {/* Rim light to make players pop */}
+      <directionalLight position={[0, 4, -18]} intensity={0.3} color="#ffe0a0" />
 
       {/* Sun sphere in sky */}
       <mesh position={sunPos.clone().multiplyScalar(0.9)}>
@@ -2751,16 +2751,9 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
 
       {/* Post-processing */}
       <EffectComposer multisampling={8}>
-        {/* Punchy bloom on sun glints and highlights */}
-        <Bloom intensity={0.80} luminanceThreshold={0.65} luminanceSmoothing={0.10} mipmapBlur />
-        {/* Warm colour grade — sun-drenched beach */}
-        <HueSaturation hue={0.015} saturation={0.28} />
-        <BrightnessContrast brightness={0.03} contrast={0.18} />
-        {/* Fine film grain */}
-        <Noise premultiply blendFunction={BlendFunction.ADD} />
+        <Bloom intensity={0.55} luminanceThreshold={0.78} luminanceSmoothing={0.08} mipmapBlur />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-        {/* Deeper vignette for cinematic framing */}
-        <Vignette eskil={false} offset={0.14} darkness={0.70} />
+        <Vignette eskil={false} offset={0.1} darkness={0.35} />
       </EffectComposer>
     </>
   );
@@ -2880,7 +2873,7 @@ export default function ThreeDCourt() {
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.92,
+          toneMappingExposure: 0.76,
           powerPreference: "high-performance",
         }}
         dpr={[1, 2]}
