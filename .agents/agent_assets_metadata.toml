@@ -24,6 +24,12 @@ uri = "file://artifacts/beach-volleyball/public/location-egypt.png"
 type = "image"
 title = "hurghada egypt red sea beach"
 
+[[generated]]
+id = "wLav7QbxXZjda5eMFnPKH"
+uri = "file://artifacts/beach-volleyball/public/location-waikiki.png"
+type = "image"
+title = "waikiki beach hawaii diamond head"
+
 [[outputs]]
 id = "XCcLc6p_yRoa2T48ZEAei"
 uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
@@ -47,3 +53,9 @@ id = "set9oN6g6ZAq5iZ2QATki"
 uri = "file://artifacts/beach-volleyball/public/location-egypt.png"
 type = "image"
 title = "Hurghada Beach, Egypt — Round 1"
+
+[[outputs]]
+id = "7JQ_6vBQ2NQQGAqXNik_v"
+uri = "file://artifacts/beach-volleyball/public/location-waikiki.png"
+type = "image"
+title = "Waikiki Beach, Hawaii — Round 3"
