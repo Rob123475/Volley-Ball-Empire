@@ -2335,67 +2335,139 @@ function Seagulls() {
 }
 
 // ── Palm Trees ────────────────────────────────────────────────────────────────
-function PalmTree({ position, leanX = 0, leanZ = 0, height = 5.5 }: {
+function PalmTree({ position, leanX = 0, leanZ = 0, height = 5.5, variant = 0 }: {
   position: [number, number, number];
   leanX?: number;
   leanZ?: number;
   height?: number;
+  variant?: number;
 }) {
-  const trunkColor  = "#8B6914";
-  const frondColor  = "#4a7c3f";
-  const coconutClr  = "#5a3a1a";
-  const sections = 5;
-  const sectionH = height / sections;
+  const TRUNK_N = 10;
+  const sH = height / TRUNK_N;
+  // Three chained arc-segment lengths per frond
+  const S0 = 0.72, S1 = 0.68, S2 = 0.60;
+  // Per-frond base tilt from horizontal (varies naturally across fronds)
+  const frondTilt = (i: number) => 0.30 + ((i * 5 + variant * 3) % 9) / 9 * 0.58;
+  const NUM_FRONDS = 11;
+
   return (
-    <group position={position} rotation={[leanX, 0, leanZ]}>
-      {/* Trunk — tapered, slightly wavy sections */}
-      {Array.from({ length: sections }, (_, i) => {
-        const y  = i * sectionH + sectionH / 2;
-        const r  = 0.13 - i * 0.018;
-        const ox = Math.sin(i * 0.55) * 0.06;
+    <group position={position} rotation={[leanX, variant * 0.9, leanZ]}>
+
+      {/* Root swelling */}
+      <mesh position={[0, 0.13, 0]}>
+        <sphereGeometry args={[0.25, 10, 7, 0, Math.PI * 2, 0, Math.PI * 0.40]} />
+        <meshStandardMaterial color="#563408" roughness={0.97} />
+      </mesh>
+
+      {/* Trunk: 10 tapered sections with bark-ring scars */}
+      {Array.from({ length: TRUNK_N }, (_, i) => {
+        const t  = i / (TRUNK_N - 1);
+        const y  = i * sH + sH / 2;
+        const rB = 0.168 - t * 0.078;
+        const rT = rB * 0.82;
+        const ox = Math.sin(i * 0.62 + variant * 0.4) * 0.044;
+        const oz = Math.cos(i * 0.48 + variant * 0.3) * 0.030;
+        const col = i < 3 ? "#6a480a" : i < 7 ? "#8B6914" : "#9e7c26";
         return (
-          <mesh key={i} position={[ox, y, 0]} castShadow>
-            <cylinderGeometry args={[r * 0.82, r, sectionH + 0.06, 8]} />
-            <meshStandardMaterial color={trunkColor} roughness={0.92} />
+          <group key={i}>
+            <mesh position={[ox, y, oz]} castShadow>
+              <cylinderGeometry args={[rT, rB, sH + 0.02, 9]} />
+              <meshStandardMaterial color={col} roughness={0.94} />
+            </mesh>
+            {/* Bark ring scar */}
+            <mesh position={[ox, i * sH + sH * 0.91, oz]}>
+              <cylinderGeometry args={[rT * 1.07, rT * 1.07, 0.042, 9]} />
+              <meshStandardMaterial color="#3e2504" roughness={0.99} />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Fibrous crown skirt — dried frond-base stumps */}
+      {Array.from({ length: 18 }, (_, i) => {
+        const a = (i / 18) * Math.PI * 2;
+        return (
+          <mesh key={i}
+            position={[Math.cos(a) * 0.10, height - 0.24, Math.sin(a) * 0.10]}
+            rotation={[0.75, a, 0]} castShadow>
+            <boxGeometry args={[0.036, 0.54, 0.020]} />
+            <meshStandardMaterial color="#593808" roughness={0.98} />
           </mesh>
         );
       })}
-      {/* Fronds fanning from crown */}
-      {Array.from({ length: 8 }, (_, i) => {
-        const angle = (i / 8) * Math.PI * 2;
+
+      {/* Young central spear at crown tip */}
+      <mesh position={[0.04 * Math.cos(variant), height + 0.52, 0.04 * Math.sin(variant)]}
+        rotation={[0.13, variant, 0]}>
+        <coneGeometry args={[0.036, 0.92, 6]} />
+        <meshStandardMaterial color="#1a580f" roughness={0.80} />
+      </mesh>
+
+      {/* Fronds: 3-segment articulated arc via nested groups */}
+      {Array.from({ length: NUM_FRONDS }, (_, i) => {
+        const baseAngle = (i / NUM_FRONDS) * Math.PI * 2;
+        const tilt      = frondTilt(i);
+        const isDead    = i === NUM_FRONDS - 1;
+        const midrib    = isDead ? "#7a5c18" : "#1b440f";
+        const leafA     = isDead ? "#8b6a20" : "#4a8c2c";
+        const leafB     = isDead ? "#6e5018" : "#2e6e1a";
+
+        const leaflets = (seg: number, count: number) =>
+          Array.from({ length: count }, (_, j) => {
+            const lz  = 0.09 + j * (seg === 0 ? 0.12 : 0.10);
+            const w   = isDead ? 0.26 : Math.max(0.16, 0.48 - seg * 0.07 - j * 0.016);
+            const ang = 0.30 + seg * 0.10 + j * 0.012;
+            return (
+              <group key={j} position={[0, 0, lz]}>
+                <mesh position={[-w * 0.52, -0.01, 0]} rotation={[ang * 0.3, 0,  ang]}>
+                  <boxGeometry args={[w, 0.012, 0.062]} />
+                  <meshStandardMaterial color={j % 2 === 0 ? leafA : leafB} roughness={0.74} side={THREE.DoubleSide} />
+                </mesh>
+                <mesh position={[ w * 0.52,  -0.01, 0]} rotation={[ang * 0.3, 0, -ang]}>
+                  <boxGeometry args={[w, 0.012, 0.062]} />
+                  <meshStandardMaterial color={j % 2 === 0 ? leafA : leafB} roughness={0.74} side={THREE.DoubleSide} />
+                </mesh>
+              </group>
+            );
+          });
+
         return (
-          <group key={i} position={[0, height, 0]} rotation={[0, angle, 0]}>
-            <group rotation={[-0.58, 0, 0]}>
-              {/* Frond midrib */}
-              <mesh position={[0, 0, 0.9]}>
-                <boxGeometry args={[0.035, 0.035, 1.9]} />
-                <meshStandardMaterial color="#2d5a27" roughness={0.88} />
+          <group key={i} position={[0, height - 0.06, 0]} rotation={[0, baseAngle, 0]}>
+            <group rotation={[-tilt, 0, 0]}>
+              {/* Segment 0 */}
+              <mesh position={[0, 0, S0 / 2]}>
+                <boxGeometry args={[0.025, 0.025, S0]} />
+                <meshStandardMaterial color={midrib} roughness={0.88} />
               </mesh>
-              {/* Leaflets */}
-              {Array.from({ length: 7 }, (_, j) => {
-                const lz = 0.18 + j * 0.22;
-                return (
-                  <group key={j} position={[0, 0, lz]}>
-                    <mesh position={[-0.23, 0, 0]} rotation={[0, 0, 0.42]}>
-                      <boxGeometry args={[0.40, 0.018, 0.09]} />
-                      <meshStandardMaterial color={frondColor} roughness={0.80} side={THREE.DoubleSide} />
-                    </mesh>
-                    <mesh position={[0.23, 0, 0]} rotation={[0, 0, -0.42]}>
-                      <boxGeometry args={[0.40, 0.018, 0.09]} />
-                      <meshStandardMaterial color={frondColor} roughness={0.80} side={THREE.DoubleSide} />
-                    </mesh>
-                  </group>
-                );
-              })}
+              {leaflets(0, 6)}
+              {/* Segment 1 — droops 0.27 rad further */}
+              <group position={[0, 0, S0]} rotation={[-0.27, 0, 0]}>
+                <mesh position={[0, 0, S1 / 2]}>
+                  <boxGeometry args={[0.020, 0.020, S1]} />
+                  <meshStandardMaterial color={midrib} roughness={0.88} />
+                </mesh>
+                {leaflets(1, 6)}
+                {/* Segment 2 — droops 0.34 rad further */}
+                <group position={[0, 0, S1]} rotation={[-0.34, 0, 0]}>
+                  <mesh position={[0, 0, S2 / 2]}>
+                    <boxGeometry args={[0.015, 0.015, S2]} />
+                    <meshStandardMaterial color={midrib} roughness={0.88} />
+                  </mesh>
+                  {leaflets(2, 5)}
+                </group>
+              </group>
             </group>
           </group>
         );
       })}
-      {/* Coconuts */}
-      {([0, 2.1, 4.2] as number[]).map((a, i) => (
-        <mesh key={i} position={[Math.cos(a) * 0.24, height - 0.38, Math.sin(a) * 0.24]} castShadow>
-          <sphereGeometry args={[0.14, 10, 8]} />
-          <meshStandardMaterial color={coconutClr} roughness={0.92} />
+
+      {/* Coconut cluster */}
+      {([0, 1.26, 2.51, 3.77, 4.71] as number[]).map((a, i) => (
+        <mesh key={i}
+          position={[Math.cos(a) * (i < 3 ? 0.30 : 0.16), height - (i < 3 ? 0.48 : 0.30), Math.sin(a) * (i < 3 ? 0.30 : 0.16)]}
+          castShadow>
+          <sphereGeometry args={[0.132, 10, 8]} />
+          <meshStandardMaterial color={i < 2 ? "#47280c" : "#624016"} roughness={0.94} />
         </mesh>
       ))}
     </group>
@@ -2422,7 +2494,7 @@ function PalmTrees() {
   return (
     <group>
       {trees.map((t, i) => (
-        <PalmTree key={i} position={t.pos} leanX={t.lx} leanZ={t.lz} height={t.h} />
+        <PalmTree key={i} position={t.pos} leanX={t.lx} leanZ={t.lz} height={t.h} variant={i} />
       ))}
     </group>
   );
