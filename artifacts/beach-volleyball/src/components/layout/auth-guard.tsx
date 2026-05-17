@@ -33,6 +33,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Activity, Loader2, Play, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const TEAM_NAME_SUGGESTIONS = [
+  "Sunset Spikers",
+  "Tide Breakers",
+  "Sandy Aces",
+  "Wave Riders",
+  "Coral Crush",
+  "Shoreline Sirens",
+  "Dune Destroyers",
+  "Pacific Blaze",
+  "Golden Coast FC",
+  "Horizon Hitters",
+];
+
 const teamSchema = z.object({
   name: z.string().min(3, "Team name must be at least 3 characters"),
   locationId: z.coerce.number().min(1, "Select a home location"),
@@ -225,9 +238,26 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Team Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Tropical Spikes" {...field} data-testid="input-team-name" />
-                      </FormControl>
+                      <div className="space-y-2">
+                        <Select onValueChange={(val) => field.onChange(val)} data-testid="select-team-name-preset">
+                          <SelectTrigger className="text-muted-foreground">
+                            <SelectValue placeholder="Pick a name…" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TEAM_NAME_SUGGESTIONS.map((name) => (
+                              <SelectItem key={name} value={name}>{name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <div className="flex-1 h-px bg-border" />
+                          <span>or type your own</span>
+                          <div className="flex-1 h-px bg-border" />
+                        </div>
+                        <FormControl>
+                          <Input placeholder="e.g. Tropical Spikes" {...field} data-testid="input-team-name" />
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
