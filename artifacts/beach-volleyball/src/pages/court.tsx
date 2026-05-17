@@ -2712,57 +2712,6 @@ export default function ThreeDCourt() {
       {/* Score */}
       <ScoreBoard match={match} />
 
-      {/* Boost Panel — bottom-left */}
-      <div className="absolute bottom-20 left-4 flex flex-col gap-2">
-        {/* Attack Boost */}
-        <button
-          onClick={() => activateBoost("attack")}
-          disabled={atkDisplay.phase !== "ready"}
-          className={[
-            "flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold shadow-xl transition-all select-none",
-            atkDisplay.phase === "active"
-              ? "bg-red-500 border-red-300 text-white shadow-red-500/60 animate-pulse cursor-default"
-              : atkDisplay.phase === "cooldown"
-              ? "bg-gray-800/80 border-gray-600 text-gray-400 cursor-not-allowed backdrop-blur"
-              : "bg-red-600/90 border-red-400 text-white hover:bg-red-500 active:scale-95 cursor-pointer backdrop-blur",
-          ].join(" ")}
-        >
-          <Zap className="h-4 w-4 flex-shrink-0" />
-          <span>ATTACK</span>
-          {atkDisplay.phase === "active" && (
-            <span className="ml-1 text-xs opacity-90 tabular-nums">{atkDisplay.timer}s</span>
-          )}
-          {atkDisplay.phase === "cooldown" && (
-            <span className="ml-1 text-xs opacity-70 tabular-nums">{atkDisplay.timer}s</span>
-          )}
-        </button>
-        {/* Defense Boost */}
-        <button
-          onClick={() => activateBoost("defense")}
-          disabled={defDisplay.phase !== "ready"}
-          className={[
-            "flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold shadow-xl transition-all select-none",
-            defDisplay.phase === "active"
-              ? "bg-blue-500 border-blue-300 text-white shadow-blue-500/60 animate-pulse cursor-default"
-              : defDisplay.phase === "cooldown"
-              ? "bg-gray-800/80 border-gray-600 text-gray-400 cursor-not-allowed backdrop-blur"
-              : "bg-blue-600/90 border-blue-400 text-white hover:bg-blue-500 active:scale-95 cursor-pointer backdrop-blur",
-          ].join(" ")}
-        >
-          <Shield className="h-4 w-4 flex-shrink-0" />
-          <span>DEFENSE</span>
-          {defDisplay.phase === "active" && (
-            <span className="ml-1 text-xs opacity-90 tabular-nums">{defDisplay.timer}s</span>
-          )}
-          {defDisplay.phase === "cooldown" && (
-            <span className="ml-1 text-xs opacity-70 tabular-nums">{defDisplay.timer}s</span>
-          )}
-        </button>
-        <div className="text-center text-[10px] font-semibold text-white/50 tracking-widest uppercase">
-          Team Boost
-        </div>
-      </div>
-
       {/* Control bar bottom-center */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-3">
         <Button
@@ -2773,6 +2722,40 @@ export default function ThreeDCourt() {
         >
           {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
           {paused ? "Resume" : "Pause"}
+        </Button>
+        {/* Attack boost */}
+        <Button
+          size="sm"
+          disabled={atkDisplay.phase !== "ready"}
+          onClick={() => activateBoost("attack")}
+          className={[
+            "gap-1.5 h-9 border shadow-xl select-none transition-all",
+            atkDisplay.phase === "active"
+              ? "bg-red-500 border-red-300 text-white animate-pulse hover:bg-red-500"
+              : atkDisplay.phase === "cooldown"
+              ? "bg-gray-700/80 border-gray-500 text-gray-400"
+              : "bg-red-600/90 border-red-400 text-white hover:bg-red-500",
+          ].join(" ")}
+        >
+          <Zap className="h-3.5 w-3.5" />
+          {atkDisplay.phase === "ready" ? "Attack" : `${atkDisplay.timer}s`}
+        </Button>
+        {/* Defense boost */}
+        <Button
+          size="sm"
+          disabled={defDisplay.phase !== "ready"}
+          onClick={() => activateBoost("defense")}
+          className={[
+            "gap-1.5 h-9 border shadow-xl select-none transition-all",
+            defDisplay.phase === "active"
+              ? "bg-blue-500 border-blue-300 text-white animate-pulse hover:bg-blue-500"
+              : defDisplay.phase === "cooldown"
+              ? "bg-gray-700/80 border-gray-500 text-gray-400"
+              : "bg-blue-600/90 border-blue-400 text-white hover:bg-blue-500",
+          ].join(" ")}
+        >
+          <Shield className="h-3.5 w-3.5" />
+          {defDisplay.phase === "ready" ? "Defense" : `${defDisplay.timer}s`}
         </Button>
         <Button
           size="sm"
