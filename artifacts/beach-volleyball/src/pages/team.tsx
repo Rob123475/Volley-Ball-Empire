@@ -130,6 +130,7 @@ export default function TeamRoster() {
                 {player.position.replace(/_/g, " ")}
               </div>
               <div className="text-lg font-black leading-tight text-white drop-shadow">{player.name}</div>
+              <div className="text-xs text-white/70 mt-0.5">{player.nationality}</div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-black text-white drop-shadow">{rating}</div>

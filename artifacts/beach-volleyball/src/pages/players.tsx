@@ -133,7 +133,7 @@ export default function PlayerMarket() {
                       {player.position.replace(/_/g, " ").toUpperCase()}
                     </Badge>
                     <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
-                    <div className="text-xs text-white/70">{player.age} yrs • {player.height}cm</div>
+                    <div className="text-xs text-white/70">{player.nationality} • {player.age} yrs • {player.height}cm</div>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-black text-white drop-shadow">{overall}</div>
