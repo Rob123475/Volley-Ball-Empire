@@ -2513,13 +2513,15 @@ function useVolleyballPhysics(
     serveSide:       "home" as "home" | "away",
     isServeInFlight: true  as boolean,
     sidesFlipped:    false as boolean,           // toggled at end of each set
+    serveAttempt:    0 as number,               // 0 = first serve, 1 = second serve
   });
   const prevBallX = useRef(0);
 
-  const resetBall = useCallback(() => {
+  const resetBall = useCallback((secondServe = false) => {
     const b = ballRef.current;
     const r = rallyRef.current;
 
+    if (!secondServe) r.serveAttempt = 0;
     // serveSide is already set by the scoring logic before resetBall is called
     r.touches         = 0;
     r.toucherIdx      = -1;
@@ -2594,11 +2596,18 @@ function useVolleyballPhysics(
         // SERVICE FAULT — serve hit the net
         b.inPlay = false;
         r.isServeInFlight = false;
-        // Receiver wins the serve (side-out), no point scored
-        const newServer: "home" | "away" = r.serveSide === "home" ? "away" : "home";
-        r.serveSide = newServer;
-        onPointRef.current(newServer, false); // false = side-out, no point
-        setTimeout(resetBall, 1200);
+        if (r.serveAttempt < 1) {
+          // First serve fault → second serve, same server
+          r.serveAttempt = 1;
+          setTimeout(() => resetBall(true), 1400);
+        } else {
+          // Double fault → receiver gets point
+          r.serveAttempt = 0;
+          const receiver: "home" | "away" = r.serveSide === "home" ? "away" : "home";
+          r.serveSide = receiver;
+          onPointRef.current(receiver, true);
+          setTimeout(() => resetBall(false), 1600);
+        }
       } else {
         // Normal rally net touch — bounce back
         b.vel.x  = -b.vel.x * 0.55;
@@ -2618,24 +2627,33 @@ function useVolleyballPhysics(
       b.onGround = Math.abs(b.vel.y) < 0.6;
       if (b.inPlay) {
         b.inPlay = false;
-        // Determine who won the rally
         const outX = Math.abs(b.pos.x) > COURT_HALF_X;
         const outZ = Math.abs(b.pos.z) > COURT_HALF_Z;
-        const winner: "home" | "away" = (outX || outZ)
-          ? (b.lastHitter === "home" ? "away" : "home")
-          : (b.pos.x < 0 ? "away" : "home");
-        // Sideout scoring: point only if serving team won
-        const isPoint = winner === r.serveSide;
-        if (!isPoint) r.serveSide = winner; // side-out: winner now serves
-        onPointRef.current(winner, isPoint);
-        setTimeout(resetBall, 1500);
+        const isOut = outX || outZ;
+        // Serve that crossed the net but nobody received yet → service fault
+        const isUntouchedServe = !r.isServeInFlight && r.touches === 0 && isOut;
+        if (isUntouchedServe) {
+          if (r.serveAttempt < 1) {
+            r.serveAttempt = 1;
+            setTimeout(() => resetBall(true), 1400);
+          } else {
+            r.serveAttempt = 0;
+            const receiver: "home" | "away" = r.serveSide === "home" ? "away" : "home";
+            r.serveSide = receiver;
+            onPointRef.current(receiver, true);
+            setTimeout(() => resetBall(false), 1600);
+          }
+        } else {
+          // Normal rally: out = last hitter loses, in = side that didn't defend loses
+          const winner: "home" | "away" = isOut
+            ? (b.lastHitter === "home" ? "away" : "home")
+            : (b.pos.x < 0 ? "away" : "home");
+          const isPoint = winner === r.serveSide;
+          if (!isPoint) r.serveSide = winner;
+          onPointRef.current(winner, isPoint);
+          setTimeout(() => resetBall(false), 1500);
+        }
       }
-    }
-
-    // ── Soft side boundaries ──
-    if (Math.abs(b.pos.z) > 6.5) {
-      b.vel.z = -b.vel.z * 0.65;
-      b.pos.z = Math.sign(b.pos.z) * 6.5;
     }
 
     // ── Player AI — 3-touch rally system ──────────────────────────────────
@@ -2652,10 +2670,18 @@ function useVolleyballPhysics(
         const p = players[pi];
         const madeLastTouch = r.toucherIdx === pi && r.side === side;
 
+        // ── Out-of-bounds prediction ──
+        const landing = b.pos.y > BALL_RADIUS ? predictLanding(b) : null;
+        const ballWillLandOut = landing !== null && (
+          Math.abs(landing.x) > COURT_HALF_X || Math.abs(landing.z) > COURT_HALF_Z
+        );
+        // Let it go when: ball not yet in our possession AND it'll land out
+        const shouldLetGo = ballWillLandOut && !myPossession && r.touches === 0;
+
         // ── Targeting ──
         let targetX: number, targetZ: number;
 
-        if (ballOnMySide && b.inPlay) {
+        if (ballOnMySide && b.inPlay && !shouldLetGo) {
           const tFly  = estimateTimeToReach(b, PLAYER_REACH);
           const predX = Math.max(-COURT_HALF_X + 1, Math.min(COURT_HALF_X - 1, b.pos.x + b.vel.x * tFly));
           const predZ = Math.max(-COURT_HALF_Z + 0.5, Math.min(COURT_HALF_Z - 0.5, b.pos.z + b.vel.z * tFly));
@@ -2724,7 +2750,7 @@ function useVolleyballPhysics(
         const atkActive = side === "home" && !!boostRef?.current.attack;
         const inRange  = distXZ < (defBoost ? 4.5 : 1.5) && Math.abs(ballH - reachH) < (defBoost ? 4.5 : 1.9);
         const canHit   = ballOnMySide && inRange && !madeLastTouch && b.inPlay
-                         && p.diveT === 0 && p.jumpT === 0;
+                         && p.diveT === 0 && p.jumpT === 0 && !shouldLetGo;
 
         if (canHit) {
           const dirX    = side === "home" ? 1 : -1;
@@ -2821,6 +2847,16 @@ function useVolleyballPhysics(
   }, []);
 
   return { ballRef, homePlayers, awayPlayers, resetBall, swapCourts };
+}
+
+/** Predict where ball will hit y=0 (ignoring drag, ballistic approx) */
+function predictLanding(b: BallPhysics): { x: number; z: number } | null {
+  const g = Math.abs(GRAVITY);
+  const disc = b.vel.y * b.vel.y + 2 * g * b.pos.y;
+  if (disc < 0) return null;
+  const t = (b.vel.y + Math.sqrt(disc)) / g;
+  if (t <= 0) return null;
+  return { x: b.pos.x + b.vel.x * t, z: b.pos.z + b.vel.z * t };
 }
 
 function estimateTimeToReach(b: BallPhysics, targetHeight: number): number {
