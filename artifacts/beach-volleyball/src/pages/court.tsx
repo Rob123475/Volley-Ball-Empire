@@ -3983,8 +3983,7 @@ export default function ThreeDCourt() {
         shadows={{ type: THREE.VSMShadowMap }}
         gl={{
           antialias: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.96,
+          toneMapping: THREE.NoToneMapping,
           powerPreference: "high-performance",
           outputColorSpace: THREE.SRGBColorSpace,
         }}
