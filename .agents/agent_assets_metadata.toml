@@ -12,6 +12,12 @@ uri = "file://artifacts/beach-volleyball/public/prohydrate-sponsor.png"
 type = "image"
 title = "prohydrate water bottle"
 
+[[generated]]
+id = "eULj7eqp02-6vc3lFLMo3"
+uri = "file://artifacts/beach-volleyball/public/location-tahiti.png"
+type = "image"
+title = "bora bora tahiti beach"
+
 [[outputs]]
 id = "XCcLc6p_yRoa2T48ZEAei"
 uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
@@ -23,3 +29,9 @@ id = "jvbc-Gwax4ndGtEb7lMx0"
 uri = "file://artifacts/beach-volleyball/public/prohydrate-sponsor.png"
 type = "image"
 title = "ProHydrate Sports Drinks Sponsor"
+
+[[outputs]]
+id = "d9V11kEAqpn09_nQ2yaNo"
+uri = "file://artifacts/beach-volleyball/public/location-tahiti.png"
+type = "image"
+title = "Matira Beach, Bora Bora — Round 10"

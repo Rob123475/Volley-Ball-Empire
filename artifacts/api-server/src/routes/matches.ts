@@ -108,7 +108,7 @@ const FIXTURE_TEMPLATE = [
   { round: 7,  date: "2026-07-16", locId: 7,  locName: "Kata Beach, Thailand",           opponent: "Bali Tigers IDN",    prize: 14000 },
   { round: 8,  date: "2026-08-13", locId: 8,  locName: "Mykonos Super Paradise, Greece", opponent: "Island Aces THA",    prize: 16000 },
   { round: 9,  date: "2026-09-17", locId: 9,  locName: "Bali Kuta Beach, Indonesia",     opponent: "French Riviera FRA", prize: 18000 },
-  { round: 10, date: "2026-10-15", locId: 10, locName: "Nice Promenade, France",         opponent: "Storm Queens USA",   prize: 22000 },
+  { round: 10, date: "2026-10-15", locId: 10, locName: "Matira Beach, French Polynesia", opponent: "Storm Queens USA",   prize: 22000 },
   { round: 11, date: "2026-12-10", locId: 1,  locName: "Copacabana Beach, Brazil",       opponent: "World All-Stars",    prize: 50000 },
 ];
 

@@ -16,7 +16,7 @@ const TOUR_STOPS = [
   { round: 7,  locId: 7,  opponent: "Bali Tigers IDN",    prize: 14000, date: "Jul 16" },
   { round: 8,  locId: 8,  opponent: "Island Aces THA",    prize: 16000, date: "Aug 13" },
   { round: 9,  locId: 9,  opponent: "French Riviera FRA", prize: 18000, date: "Sep 17" },
-  { round: 10, locId: 10, opponent: "Storm Queens USA",   prize: 22000, date: "Oct 15" },
+  { round: 10, locId: 10, opponent: "Storm Queens USA",   prize: 22000, date: "Oct 15" }, // Matira Beach, Bora Bora
   { round: 11, locId: 1,  opponent: "World All-Stars",    prize: 50000, date: "Dec 10", isFinal: true },
 ];
 
