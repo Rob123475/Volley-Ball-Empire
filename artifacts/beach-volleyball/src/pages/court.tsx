@@ -3235,8 +3235,120 @@ function TVCrew() {
   const silver  = "#b8b8b8";
   const black   = "#111111";
 
+  const DECK_H  = 1.30;
+  const scaffoldSteel = "#8a9ba8";
+  const scaffoldDark  = "#4a5568";
+  const plankCol      = "#5c4033";
+
+  // Scaffold corner / mid post positions [x, z]
+  const posts: [number, number][] = [
+    [-2.2, -1.4], [-2.2,  0.7],
+    [-0.2, -1.4], [-0.2,  0.7],
+    [ 1.8, -1.4], [ 1.8,  0.7],
+  ];
+
   return (
     <group position={[-3.25, 0, -10]} rotation={[0, Math.atan2(3.25, 10), 0]}>
+
+      {/* ══ Scaffold platform ══════════════════════════════════════════════ */}
+      <group>
+        {/* Vertical posts */}
+        {posts.map(([px, pz], i) => (
+          <mesh key={i} position={[px, DECK_H / 2, pz]} castShadow>
+            <boxGeometry args={[0.08, DECK_H, 0.08]} />
+            <meshStandardMaterial color={scaffoldSteel} metalness={0.72} roughness={0.35} envMapIntensity={1.2} />
+          </mesh>
+        ))}
+
+        {/* Horizontal top beams — front (z=-1.4) and back (z=0.7) */}
+        {([-1.4, 0.7] as number[]).map((bz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H, bz]} castShadow>
+            <boxGeometry args={[4.06, 0.07, 0.07]} />
+            <meshStandardMaterial color={scaffoldSteel} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
+          </mesh>
+        ))}
+        {/* Horizontal top beams — left (x=-2.2) and right (x=1.8) and mid */}
+        {([-2.2, -0.2, 1.8] as number[]).map((bx, i) => (
+          <mesh key={i} position={[bx, DECK_H, -0.35]} castShadow>
+            <boxGeometry args={[0.07, 0.07, 2.16]} />
+            <meshStandardMaterial color={scaffoldSteel} metalness={0.72} roughness={0.32} envMapIntensity={1.2} />
+          </mesh>
+        ))}
+
+        {/* Mid-height bracing beams */}
+        {([-1.4, 0.7] as number[]).map((bz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H * 0.5, bz]}>
+            <boxGeometry args={[4.06, 0.055, 0.055]} />
+            <meshStandardMaterial color={scaffoldDark} metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+
+        {/* Cross-bracing diagonals on front and back faces */}
+        {[[-1.4, 1], [0.7, -1]] .map(([bz, dir], i) => (
+          <mesh key={i} position={[-0.2, DECK_H * 0.5, bz]}
+            rotation={[0, 0, Math.atan2(DECK_H, 2.0) * dir]}>
+            <boxGeometry args={[Math.sqrt(4 + DECK_H * DECK_H) + 0.1, 0.04, 0.04]} />
+            <meshStandardMaterial color={scaffoldDark} metalness={0.55} roughness={0.45} />
+          </mesh>
+        ))}
+
+        {/* Deck planks */}
+        {[-1.1, -0.7, -0.3, 0.1, 0.5].map((pz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H + 0.03, pz]} receiveShadow>
+            <boxGeometry args={[4.0, 0.05, 0.34]} />
+            <meshStandardMaterial color={i % 2 === 0 ? plankCol : "#6b4c38"} roughness={0.90} envMapIntensity={0.3} />
+          </mesh>
+        ))}
+
+        {/* Safety railing posts */}
+        {posts.map(([px, pz], i) => (
+          <mesh key={i} position={[px, DECK_H + 0.55, pz]}>
+            <boxGeometry args={[0.05, 1.12, 0.05]} />
+            <meshStandardMaterial color={scaffoldSteel} metalness={0.68} roughness={0.38} />
+          </mesh>
+        ))}
+        {/* Railing top rail — front and back */}
+        {([-1.4, 0.7] as number[]).map((rz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H + 1.08, rz]}>
+            <boxGeometry args={[4.06, 0.05, 0.05]} />
+            <meshStandardMaterial color={scaffoldSteel} metalness={0.68} roughness={0.35} />
+          </mesh>
+        ))}
+        {/* Railing mid rail */}
+        {([-1.4, 0.7] as number[]).map((rz, i) => (
+          <mesh key={i} position={[-0.2, DECK_H + 0.60, rz]}>
+            <boxGeometry args={[4.06, 0.04, 0.04]} />
+            <meshStandardMaterial color={scaffoldDark} metalness={0.6} roughness={0.4} />
+          </mesh>
+        ))}
+
+        {/* Access stairs — 3 steps on back face (z=0.7), going toward +z */}
+        {[0, 1, 2].map((s) => {
+          const sh = ((s + 1) / 3) * DECK_H;
+          const sz = 0.7 + (3 - s) * 0.46;
+          return (
+            <group key={s}>
+              <mesh position={[-0.2, sh - 0.065, sz]} castShadow>
+                <boxGeometry args={[1.0, 0.06, 0.42]} />
+                <meshStandardMaterial color={plankCol} roughness={0.88} />
+              </mesh>
+              {/* Step stringer */}
+              <mesh position={[-0.2, (sh - 0.065) / 2, sz]}>
+                <boxGeometry args={[0.06, sh - 0.065, 0.06]} />
+                <meshStandardMaterial color={scaffoldSteel} metalness={0.65} roughness={0.4} />
+              </mesh>
+            </group>
+          );
+        })}
+        {/* Stair handrail */}
+        <mesh position={[0.56, DECK_H * 0.7, 1.35]} rotation={[0.5, 0, 0]}>
+          <capsuleGeometry args={[0.018, 1.42, 4, 6]} />
+          <meshStandardMaterial color={scaffoldSteel} metalness={0.72} roughness={0.30} />
+        </mesh>
+      </group>
+
+      {/* ══ Crew — lifted onto the platform ══════════════════════════════════ */}
+      <group position={[0, DECK_H, 0]}>
 
       {/* ── Camera operator ── */}
       <group position={[0, 0, 0]}>
@@ -3517,6 +3629,8 @@ function TVCrew() {
           <meshStandardMaterial color="#222" metalness={0.5} roughness={0.5} />
         </mesh>
       </group>
+
+      </group>{/* end crew lift group */}
     </group>
   );
 }
@@ -3816,53 +3930,97 @@ function MerchStore({ position, rotation = [0, 0, 0] as [number,number,number] }
   );
 }
 
-// ── Standing Spectators — behind umbrellas and in front of stalls ─────────────
+// ── Standing Spectators — behind umbrellas, sidelines, and in front of stalls ──
 function StandingSpectators() {
-  // Umbrella positions (from BeachUmbrellas):
-  //  home-near [-9.5,0,-5.5]  home-far [-9.5,0,5.5]
-  //  away-near [ 9.5,0,-5.5]  away-far [ 9.5,0,5.5]
-  // "behind" = further from court in X — home: x<-9.5, away: x>9.5
-
   type Spec = { x: number; z: number; faceY: number; idx: number };
 
   const specs: Spec[] = [
-    // ── Behind home-near umbrella ([-9.5,0,-5.5]) ──
-    { x: -11.0, z: -5.2, faceY:  1.2,  idx: 200 },
-    { x: -12.0, z: -4.5, faceY:  1.0,  idx: 201 },
+    // ── Behind home-near umbrella ([-9.5,0,-5.5]) — 12 figures ──
+    { x: -11.0, z: -5.2, faceY:  1.20, idx: 200 },
+    { x: -12.0, z: -4.5, faceY:  1.00, idx: 201 },
     { x: -11.5, z: -6.3, faceY:  1.35, idx: 202 },
     { x: -13.0, z: -5.8, faceY:  1.15, idx: 203 },
+    { x: -11.8, z: -3.9, faceY:  1.05, idx: 230 },
+    { x: -13.2, z: -4.4, faceY:  1.10, idx: 231 },
+    { x: -13.8, z: -5.3, faceY:  1.20, idx: 232 },
+    { x: -14.2, z: -6.2, faceY:  1.28, idx: 233 },
+    { x: -13.0, z: -7.0, faceY:  1.38, idx: 234 },
+    { x: -11.8, z: -7.3, faceY:  1.44, idx: 235 },
+    { x: -10.8, z: -6.9, faceY:  1.22, idx: 236 },
+    { x: -10.4, z: -4.2, faceY:  1.06, idx: 237 },
 
-    // ── Behind home-far umbrella ([-9.5,0,5.5]) ──
-    { x: -11.0, z:  5.3, faceY:  1.9,  idx: 204 },
-    { x: -12.2, z:  4.6, faceY:  1.7,  idx: 205 },
-    { x: -11.6, z:  6.4, faceY:  2.0,  idx: 206 },
-    { x: -13.0, z:  5.9, faceY:  1.85, idx: 207 },
+    // ── Behind home-far umbrella ([-9.5,0,5.5]) — 12 figures ──
+    { x: -11.0, z:  5.3, faceY:  1.92, idx: 204 },
+    { x: -12.2, z:  4.6, faceY:  1.74, idx: 205 },
+    { x: -11.6, z:  6.4, faceY:  2.02, idx: 206 },
+    { x: -13.0, z:  5.9, faceY:  1.87, idx: 207 },
+    { x: -11.8, z:  3.9, faceY:  2.09, idx: 240 },
+    { x: -13.2, z:  4.4, faceY:  2.04, idx: 241 },
+    { x: -13.8, z:  5.3, faceY:  1.95, idx: 242 },
+    { x: -14.2, z:  6.2, faceY:  1.87, idx: 243 },
+    { x: -13.0, z:  7.0, faceY:  1.76, idx: 244 },
+    { x: -11.8, z:  7.3, faceY:  1.70, idx: 245 },
+    { x: -10.8, z:  6.9, faceY:  1.92, idx: 246 },
+    { x: -10.4, z:  4.2, faceY:  2.08, idx: 247 },
 
-    // ── Behind away-near umbrella ([9.5,0,-5.5]) ──
-    { x:  11.0, z: -5.2, faceY: -1.2,  idx: 208 },
-    { x:  12.0, z: -4.5, faceY: -1.0,  idx: 209 },
+    // ── Behind away-near umbrella ([9.5,0,-5.5]) — 12 figures ──
+    { x:  11.0, z: -5.2, faceY: -1.20, idx: 208 },
+    { x:  12.0, z: -4.5, faceY: -1.00, idx: 209 },
     { x:  11.5, z: -6.3, faceY: -1.35, idx: 210 },
     { x:  13.0, z: -5.8, faceY: -1.15, idx: 211 },
+    { x:  11.8, z: -3.9, faceY: -1.05, idx: 250 },
+    { x:  13.2, z: -4.4, faceY: -1.10, idx: 251 },
+    { x:  13.8, z: -5.3, faceY: -1.20, idx: 252 },
+    { x:  14.2, z: -6.2, faceY: -1.28, idx: 253 },
+    { x:  13.0, z: -7.0, faceY: -1.38, idx: 254 },
+    { x:  11.8, z: -7.3, faceY: -1.44, idx: 255 },
+    { x:  10.8, z: -6.9, faceY: -1.22, idx: 256 },
+    { x:  10.4, z: -4.2, faceY: -1.06, idx: 257 },
 
-    // ── Behind away-far umbrella ([9.5,0,5.5]) ──
-    { x:  11.0, z:  5.3, faceY: -1.9,  idx: 212 },
-    { x:  12.2, z:  4.6, faceY: -1.7,  idx: 213 },
-    { x:  11.6, z:  6.4, faceY: -2.0,  idx: 214 },
-    { x:  13.0, z:  5.9, faceY: -1.85, idx: 215 },
+    // ── Behind away-far umbrella ([9.5,0,5.5]) — 12 figures ──
+    { x:  11.0, z:  5.3, faceY: -1.92, idx: 212 },
+    { x:  12.2, z:  4.6, faceY: -1.74, idx: 213 },
+    { x:  11.6, z:  6.4, faceY: -2.02, idx: 214 },
+    { x:  13.0, z:  5.9, faceY: -1.87, idx: 215 },
+    { x:  11.8, z:  3.9, faceY: -2.09, idx: 260 },
+    { x:  13.2, z:  4.4, faceY: -2.04, idx: 261 },
+    { x:  13.8, z:  5.3, faceY: -1.95, idx: 262 },
+    { x:  14.2, z:  6.2, faceY: -1.87, idx: 263 },
+    { x:  13.0, z:  7.0, faceY: -1.76, idx: 264 },
+    { x:  11.8, z:  7.3, faceY: -1.70, idx: 265 },
+    { x:  10.8, z:  6.9, faceY: -1.92, idx: 266 },
+    { x:  10.4, z:  4.2, faceY: -2.08, idx: 267 },
 
-    // ── In front of food stall ([-7,0,-11], facing +Z = 0) ──
-    { x:  -8.0, z:  -9.0, faceY:  0.1,  idx: 220 },
-    { x:  -6.8, z:  -8.5, faceY: -0.1,  idx: 221 },
-    { x:  -7.5, z:  -9.6, faceY:  0.2,  idx: 222 },
+    // ── Along back sideline (z = +7 to +9, facing toward court at -Z) — 8 ──
+    { x:  -6.2, z:  7.6, faceY: 3.14, idx: 270 },
+    { x:  -3.8, z:  7.9, faceY: 3.10, idx: 271 },
+    { x:  -1.2, z:  7.6, faceY: 3.14, idx: 272 },
+    { x:   1.4, z:  8.0, faceY: 3.18, idx: 273 },
+    { x:   3.8, z:  7.7, faceY: 3.12, idx: 274 },
+    { x:   6.3, z:  7.9, faceY: 3.08, idx: 275 },
+    { x:  -4.8, z:  8.8, faceY: 3.14, idx: 276 },
+    { x:   2.6, z:  8.7, faceY: 3.16, idx: 277 },
 
-    // ── In front of drinks stall ([0.5,0,-11]) ──
+    // ── In front of food stall ([-7,0,-11]) — 5 ──
+    { x:  -8.0, z:  -9.0, faceY:  0.10, idx: 220 },
+    { x:  -6.8, z:  -8.5, faceY: -0.10, idx: 221 },
+    { x:  -7.5, z:  -9.6, faceY:  0.20, idx: 222 },
+    { x:  -5.2, z:  -8.8, faceY: -0.05, idx: 280 },
+    { x:  -9.4, z:  -8.9, faceY:  0.15, idx: 281 },
+
+    // ── In front of drinks stall ([0.5,0,-11]) — 5 ──
     { x:  -0.2, z:  -8.8, faceY:  0.15, idx: 223 },
     { x:   1.2, z:  -9.3, faceY: -0.15, idx: 224 },
     { x:   0.6, z:  -8.4, faceY:  0.05, idx: 225 },
+    { x:  -1.8, z:  -9.0, faceY:  0.10, idx: 282 },
+    { x:   2.5, z:  -8.6, faceY: -0.10, idx: 283 },
 
-    // ── In front of merch store ([8,0,-11]) ──
-    { x:   7.2, z:  -9.0, faceY:  0.1,  idx: 226 },
-    { x:   8.5, z:  -8.6, faceY: -0.2,  idx: 227 },
+    // ── In front of merch store ([8,0,-11]) — 5 ──
+    { x:   7.2, z:  -9.0, faceY:  0.10, idx: 226 },
+    { x:   8.5, z:  -8.6, faceY: -0.20, idx: 227 },
+    { x:   4.2, z:  -8.7, faceY:  0.12, idx: 284 },
+    { x:   5.8, z:  -9.2, faceY: -0.08, idx: 285 },
+    { x:   9.6, z:  -8.8, faceY:  0.18, idx: 286 },
   ];
 
   return (
