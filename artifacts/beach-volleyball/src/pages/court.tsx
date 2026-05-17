@@ -165,7 +165,13 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
 }
 
 // ── Articulated Player ───────────────────────────────────────────────────────
-type HairStyle = "ponytail" | "bun" | "braids" | "straight";
+type HairStyle =
+  | "ponytail" | "highPonytail" | "sidePonytail" | "lowPonytail"
+  | "bun" | "topKnot" | "lowBun" | "doubleBuns" | "messyBun" | "chignon"
+  | "braids" | "cornrows" | "frenchBraid" | "fishtail" | "twists"
+  | "straight" | "longStraight" | "bob" | "pixie" | "shaggy"
+  | "wavy" | "beachWaves" | "layered" | "curly" | "afro"
+  | "locs" | "halfUp" | "sideSwept" | "undercut";
 
 function PlayerHair({ hairColor: hc, hairStyle }: { hairColor: string; hairStyle: HairStyle }) {
   const scalp = (
@@ -174,108 +180,683 @@ function PlayerHair({ hairColor: hc, hairStyle }: { hairColor: string; hairStyle
       <meshStandardMaterial color={hc} roughness={0.92} side={THREE.BackSide} />
     </mesh>
   );
-
-  if (hairStyle === "bun") return (
-    <>
-      {scalp}
-      {/* Stub leading to bun */}
-      <mesh position={[0, 0.14, -0.19]} rotation={[0.50, 0, 0]} castShadow>
-        <capsuleGeometry args={[0.038, 0.12, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.88} />
-      </mesh>
-      {/* Bun sphere */}
-      <mesh position={[0, 0.22, -0.18]} castShadow>
-        <sphereGeometry args={[0.088, 14, 12]} />
-        <meshStandardMaterial color={hc} roughness={0.86} />
-      </mesh>
-      {/* Bun wrap ring */}
-      <mesh position={[0, 0.22, -0.18]} rotation={[0.50, 0, 0]}>
-        <torusGeometry args={[0.068, 0.016, 6, 18]} />
-        <meshStandardMaterial color={hc} roughness={0.80} />
-      </mesh>
-    </>
+  const elastic = (pos: [number, number, number], rot: [number, number, number], r = 0.034) => (
+    <mesh position={pos} rotation={rot}>
+      <torusGeometry args={[r, 0.008, 6, 14]} />
+      <meshStandardMaterial color={hc} roughness={0.70} />
+    </mesh>
   );
 
-  if (hairStyle === "braids") return (
-    <>
-      {scalp}
-      {/* Left braid — 3 tapering segments */}
-      <mesh position={[-0.12, 0.04, -0.16]} rotation={[0.58, -0.18, 0.06]} castShadow>
-        <capsuleGeometry args={[0.032, 0.28, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.92} />
-      </mesh>
-      <mesh position={[-0.165, -0.10, -0.28]} rotation={[0.68, -0.14, 0.05]} castShadow>
-        <capsuleGeometry args={[0.027, 0.26, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.92} />
-      </mesh>
-      <mesh position={[-0.195, -0.24, -0.38]} rotation={[0.72, -0.10, 0.04]} castShadow>
-        <capsuleGeometry args={[0.022, 0.22, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.92} />
-      </mesh>
-      {/* Right braid */}
-      <mesh position={[0.12, 0.04, -0.16]} rotation={[0.58, 0.18, -0.06]} castShadow>
-        <capsuleGeometry args={[0.032, 0.28, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.92} />
-      </mesh>
-      <mesh position={[0.165, -0.10, -0.28]} rotation={[0.68, 0.14, -0.05]} castShadow>
-        <capsuleGeometry args={[0.027, 0.26, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.92} />
-      </mesh>
-      <mesh position={[0.195, -0.24, -0.38]} rotation={[0.72, 0.10, -0.04]} castShadow>
-        <capsuleGeometry args={[0.022, 0.22, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.92} />
-      </mesh>
-    </>
-  );
+  switch (hairStyle) {
 
-  if (hairStyle === "straight") return (
-    <>
-      {scalp}
-      {/* Main curtain — back */}
-      <mesh position={[0, -0.05, -0.22]} rotation={[0.07, 0, 0]} castShadow>
-        <boxGeometry args={[0.40, 0.54, 0.055]} />
-        <meshStandardMaterial color={hc} roughness={0.88} />
-      </mesh>
-      {/* Left side panel */}
-      <mesh position={[-0.198, -0.03, -0.15]} rotation={[0.07, 0.20, 0]} castShadow>
-        <boxGeometry args={[0.086, 0.46, 0.050]} />
-        <meshStandardMaterial color={hc} roughness={0.88} />
-      </mesh>
-      {/* Right side panel */}
-      <mesh position={[0.198, -0.03, -0.15]} rotation={[0.07, -0.20, 0]} castShadow>
-        <boxGeometry args={[0.086, 0.46, 0.050]} />
-        <meshStandardMaterial color={hc} roughness={0.88} />
-      </mesh>
-      {/* Front curtain framing face */}
-      <mesh position={[-0.172, -0.05, 0.12]} rotation={[-0.05, 0.25, 0]} castShadow>
-        <boxGeometry args={[0.075, 0.38, 0.045]} />
-        <meshStandardMaterial color={hc} roughness={0.88} />
-      </mesh>
-      <mesh position={[0.172, -0.05, 0.12]} rotation={[-0.05, -0.25, 0]} castShadow>
-        <boxGeometry args={[0.075, 0.38, 0.045]} />
-        <meshStandardMaterial color={hc} roughness={0.88} />
-      </mesh>
-    </>
-  );
+    // 1 ── ponytail ── medium classic
+    case "ponytail": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.07, -0.21]} rotation={[0.50, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.058, 0.34, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        {elastic([0, 0.07, -0.24], [Math.PI / 2, 0, 0])}
+        <mesh position={[0.03, 0.03, -0.34]} rotation={[0.72, 0.06, 0]} castShadow>
+          <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[-0.03, 0.03, -0.34]} rotation={[0.72, -0.06, 0]} castShadow>
+          <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+      </>
+    );
 
-  // ── Default: ponytail ──
-  return (
-    <>
-      {scalp}
-      <mesh position={[0, 0.07, -0.21]} rotation={[0.50, 0, 0]} castShadow>
-        <capsuleGeometry args={[0.058, 0.34, 4, 8]} />
-        <meshStandardMaterial color={hc} roughness={0.90} />
-      </mesh>
-      <mesh position={[0.04, 0.03, -0.32]} rotation={[0.72, 0.08, 0]} castShadow>
-        <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.90} />
-      </mesh>
-      <mesh position={[-0.04, 0.03, -0.32]} rotation={[0.72, -0.08, 0]} castShadow>
-        <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
-        <meshStandardMaterial color={hc} roughness={0.90} />
-      </mesh>
-    </>
-  );
+    // 2 ── highPonytail ── gathered high, long flowing
+    case "highPonytail": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.20, -0.10]} rotation={[0.18, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.050, 0.52, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        {elastic([0, 0.20, -0.12], [Math.PI / 2, 0, 0], 0.030)}
+        <mesh position={[0.04, 0.12, -0.38]} rotation={[0.65, 0.08, 0]} castShadow>
+          <capsuleGeometry args={[0.020, 0.24, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.04, 0.12, -0.38]} rotation={[0.65, -0.08, 0]} castShadow>
+          <capsuleGeometry args={[0.020, 0.24, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.04, -0.52]} rotation={[0.78, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.016, 0.18, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+      </>
+    );
+
+    // 3 ── sidePonytail ── swept to the right
+    case "sidePonytail": return (
+      <>
+        {scalp}
+        <mesh position={[0.10, 0.04, -0.16]} rotation={[0.30, -0.45, 0.15]} castShadow>
+          <capsuleGeometry args={[0.055, 0.36, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        {elastic([0.22, 0.00, -0.18], [Math.PI / 2, 0, 0.8])}
+        <mesh position={[0.34, -0.06, -0.18]} rotation={[0.50, -0.60, 0.28]} castShadow>
+          <capsuleGeometry args={[0.022, 0.28, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[0.46, -0.13, -0.22]} rotation={[0.55, -0.55, 0.24]} castShadow>
+          <capsuleGeometry args={[0.018, 0.22, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+      </>
+    );
+
+    // 4 ── lowPonytail ── nape-level gather
+    case "lowPonytail": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.02, -0.22]} rotation={[0.08, 0, 0]} castShadow>
+          <boxGeometry args={[0.34, 0.22, 0.05]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        {elastic([0, -0.14, -0.24], [Math.PI / 2, 0, 0])}
+        <mesh position={[0, -0.24, -0.26]} rotation={[0.62, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.048, 0.30, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[0.03, -0.34, -0.37]} rotation={[0.72, 0.05, 0]} castShadow>
+          <capsuleGeometry args={[0.020, 0.22, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+      </>
+    );
+
+    // 5 ── bun ── classic wrapped bun
+    case "bun": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.14, -0.19]} rotation={[0.50, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.038, 0.12, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.22, -0.18]} castShadow>
+          <sphereGeometry args={[0.092, 14, 12]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[0, 0.22, -0.18]} rotation={[0.50, 0, 0]}>
+          <torusGeometry args={[0.072, 0.014, 6, 18]} />
+          <meshStandardMaterial color={hc} roughness={0.80} />
+        </mesh>
+      </>
+    );
+
+    // 6 ── topKnot ── very high, tight modern knot
+    case "topKnot": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.22, -0.06]} rotation={[0.0, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.030, 0.08, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.32, -0.04]} castShadow>
+          <sphereGeometry args={[0.068, 12, 10]} />
+          <meshStandardMaterial color={hc} roughness={0.84} />
+        </mesh>
+        <mesh position={[0, 0.32, -0.04]} rotation={[0, 0, 0]}>
+          <torusGeometry args={[0.052, 0.013, 6, 16]} />
+          <meshStandardMaterial color={hc} roughness={0.78} />
+        </mesh>
+        <mesh position={[0, 0.32, -0.04]} rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.038, 0.010, 6, 12]} />
+          <meshStandardMaterial color={hc} roughness={0.80} />
+        </mesh>
+      </>
+    );
+
+    // 7 ── lowBun ── nape bun, elegant
+    case "lowBun": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.01, -0.21]} rotation={[0.06, 0, 0]} castShadow>
+          <boxGeometry args={[0.32, 0.28, 0.05]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0, -0.22, -0.27]} castShadow>
+          <sphereGeometry args={[0.090, 14, 12]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[0, -0.22, -0.27]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.072, 0.012, 6, 16]} />
+          <meshStandardMaterial color={hc} roughness={0.78} />
+        </mesh>
+      </>
+    );
+
+    // 8 ── doubleBuns ── space buns
+    case "doubleBuns": return (
+      <>
+        {scalp}
+        {([-1, 1] as const).map((side, i) => (
+          <group key={i}>
+            <mesh position={[side * 0.15, 0.17, -0.10]} castShadow>
+              <sphereGeometry args={[0.078, 12, 10]} />
+              <meshStandardMaterial color={hc} roughness={0.86} />
+            </mesh>
+            <mesh position={[side * 0.15, 0.17, -0.10]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.060, 0.012, 6, 14]} />
+              <meshStandardMaterial color={hc} roughness={0.78} />
+            </mesh>
+          </group>
+        ))}
+      </>
+    );
+
+    // 9 ── messyBun ── voluminous, wispy strands
+    case "messyBun": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.19, -0.17]} castShadow>
+          <sphereGeometry args={[0.112, 14, 12]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        {elastic([0, 0.19, -0.17], [Math.PI / 2, 0, 0], 0.062)}
+        <mesh position={[0.09, 0.14, -0.25]} rotation={[0.60, 0.18, 0.12]} castShadow>
+          <capsuleGeometry args={[0.013, 0.16, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[-0.09, 0.16, -0.27]} rotation={[0.55, -0.20, -0.10]} castShadow>
+          <capsuleGeometry args={[0.011, 0.14, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[0, 0.27, -0.14]} rotation={[0.10, 0.15, 0.05]} castShadow>
+          <capsuleGeometry args={[0.010, 0.11, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+      </>
+    );
+
+    // 10 ── chignon ── smooth twist roll at nape
+    case "chignon": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.01, -0.21]} rotation={[0.06, 0, 0]} castShadow>
+          <boxGeometry args={[0.30, 0.26, 0.05]} />
+          <meshStandardMaterial color={hc} roughness={0.82} />
+        </mesh>
+        <mesh position={[0, -0.19, -0.27]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <torusGeometry args={[0.070, 0.046, 10, 20]} />
+          <meshStandardMaterial color={hc} roughness={0.78} />
+        </mesh>
+      </>
+    );
+
+    // 11 ── braids ── two box braids tapering down
+    case "braids": return (
+      <>
+        {scalp}
+        {([-1, 1] as const).map((side, i) => (
+          <group key={i}>
+            <mesh position={[side * 0.12, 0.04, -0.16]} rotation={[0.58, side * -0.18, side * 0.06]} castShadow>
+              <capsuleGeometry args={[0.032, 0.28, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.92} />
+            </mesh>
+            <mesh position={[side * 0.165, -0.10, -0.28]} rotation={[0.68, side * -0.14, side * 0.05]} castShadow>
+              <capsuleGeometry args={[0.027, 0.26, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.92} />
+            </mesh>
+            <mesh position={[side * 0.195, -0.24, -0.38]} rotation={[0.72, side * -0.10, side * 0.04]} castShadow>
+              <capsuleGeometry args={[0.022, 0.22, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.92} />
+            </mesh>
+            <mesh position={[side * 0.215, -0.36, -0.44]} rotation={[0.75, side * -0.08, side * 0.03]} castShadow>
+              <capsuleGeometry args={[0.018, 0.18, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.92} />
+            </mesh>
+          </group>
+        ))}
+      </>
+    );
+
+    // 12 ── cornrows ── tight parallel rows
+    case "cornrows": return (
+      <>
+        {scalp}
+        {([-0.14, -0.07, 0, 0.07, 0.14] as number[]).map((x, i) => (
+          <group key={i}>
+            <mesh position={[x, 0.09, -0.10]} rotation={[0.35, 0, 0]} castShadow>
+              <capsuleGeometry args={[0.018, 0.20, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.95} />
+            </mesh>
+            <mesh position={[x, 0.01, -0.24]} rotation={[0.55, 0, 0]} castShadow>
+              <capsuleGeometry args={[0.016, 0.18, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.95} />
+            </mesh>
+            <mesh position={[x, -0.11, -0.34]} rotation={[0.68, 0, 0]} castShadow>
+              <capsuleGeometry args={[0.014, 0.14, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.95} />
+            </mesh>
+          </group>
+        ))}
+      </>
+    );
+
+    // 13 ── frenchBraid ── single center french braid
+    case "frenchBraid": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.09, -0.13]} rotation={[0.40, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.060, 0.18, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[0, 0.01, -0.23]} rotation={[0.52, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.052, 0.16, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[0, -0.09, -0.32]} rotation={[0.62, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.045, 0.16, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[0, -0.19, -0.40]} rotation={[0.68, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.038, 0.14, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        {elastic([0, -0.26, -0.46], [Math.PI / 2, 0, 0], 0.028)}
+      </>
+    );
+
+    // 14 ── fishtail ── wide alternating-segment braid
+    case "fishtail": return (
+      <>
+        {scalp}
+        <mesh position={[0, 0.04, -0.20]} rotation={[0.10, 0, 0]} castShadow>
+          <boxGeometry args={[0.28, 0.12, 0.05]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        {([0, 1, 2, 3, 4] as number[]).map(j => (
+          <mesh key={j} position={[j % 2 === 0 ? 0.04 : -0.04, -0.04 - j * 0.12, -0.28 - j * 0.06]} rotation={[0.58, 0, 0]} castShadow>
+            <capsuleGeometry args={[Math.max(0.025, 0.043 - j * 0.003), 0.10, 4, 8]} />
+            <meshStandardMaterial color={hc} roughness={0.90} />
+          </mesh>
+        ))}
+        {elastic([0, -0.62, -0.56], [Math.PI / 2, 0, 0], 0.030)}
+      </>
+    );
+
+    // 15 ── twists ── two-strand twists each side
+    case "twists": return (
+      <>
+        {scalp}
+        {([-1, 1] as const).map((side, i) => (
+          <group key={i}>
+            {([0, 1, 2] as number[]).map(j => (
+              <mesh key={j} position={[side * (0.10 + j * 0.01), 0.04 - j * 0.16, -0.18 - j * 0.12]} rotation={[0.55 + j * 0.06, side * -0.12, side * 0.04]} castShadow>
+                <capsuleGeometry args={[Math.max(0.016, 0.026 - j * 0.004), 0.15, 4, 6]} />
+                <meshStandardMaterial color={hc} roughness={0.90} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+      </>
+    );
+
+    // 16 ── straight ── shoulder-length straight
+    case "straight": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.05, -0.22]} rotation={[0.07, 0, 0]} castShadow>
+          <boxGeometry args={[0.40, 0.54, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.198, -0.03, -0.15]} rotation={[0.07, 0.20, 0]} castShadow>
+          <boxGeometry args={[0.086, 0.46, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.198, -0.03, -0.15]} rotation={[0.07, -0.20, 0]} castShadow>
+          <boxGeometry args={[0.086, 0.46, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.172, -0.05, 0.12]} rotation={[-0.05, 0.25, 0]} castShadow>
+          <boxGeometry args={[0.075, 0.38, 0.045]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.172, -0.05, 0.12]} rotation={[-0.05, -0.25, 0]} castShadow>
+          <boxGeometry args={[0.075, 0.38, 0.045]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+      </>
+    );
+
+    // 17 ── longStraight ── very long past shoulders
+    case "longStraight": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.16, -0.22]} rotation={[0.06, 0, 0]} castShadow>
+          <boxGeometry args={[0.42, 0.78, 0.06]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.204, -0.12, -0.14]} rotation={[0.06, 0.22, 0]} castShadow>
+          <boxGeometry args={[0.090, 0.68, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.204, -0.12, -0.14]} rotation={[0.06, -0.22, 0]} castShadow>
+          <boxGeometry args={[0.090, 0.68, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.172, -0.05, 0.12]} rotation={[-0.05, 0.25, 0]} castShadow>
+          <boxGeometry args={[0.075, 0.44, 0.045]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.172, -0.05, 0.12]} rotation={[-0.05, -0.25, 0]} castShadow>
+          <boxGeometry args={[0.075, 0.44, 0.045]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+      </>
+    );
+
+    // 18 ── bob ── chin-length all-around bob
+    case "bob": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.04, -0.21]} rotation={[0.07, 0, 0]} castShadow>
+          <boxGeometry args={[0.42, 0.34, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[-0.202, -0.02, -0.14]} rotation={[0.06, 0.22, 0]} castShadow>
+          <boxGeometry args={[0.090, 0.30, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[0.202, -0.02, -0.14]} rotation={[0.06, -0.22, 0]} castShadow>
+          <boxGeometry args={[0.090, 0.30, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[-0.168, -0.02, 0.11]} rotation={[-0.05, 0.26, 0]} castShadow>
+          <boxGeometry args={[0.076, 0.28, 0.044]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[0.168, -0.02, 0.11]} rotation={[-0.05, -0.26, 0]} castShadow>
+          <boxGeometry args={[0.076, 0.28, 0.044]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+      </>
+    );
+
+    // 19 ── pixie ── very short, tight to head
+    case "pixie": return (
+      <>
+        <mesh position={[0, 0.06, -0.02]} rotation={[0.05, 0, 0]}>
+          <sphereGeometry args={[0.226, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.66]} />
+          <meshStandardMaterial color={hc} roughness={0.94} side={THREE.BackSide} />
+        </mesh>
+        <mesh position={[0, -0.04, -0.22]} rotation={[0.10, 0, 0]} castShadow>
+          <boxGeometry args={[0.34, 0.12, 0.04]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[-0.188, -0.01, -0.10]} rotation={[0.06, 0.18, 0]} castShadow>
+          <boxGeometry args={[0.070, 0.14, 0.038]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        <mesh position={[0.188, -0.01, -0.10]} rotation={[0.06, -0.18, 0]} castShadow>
+          <boxGeometry args={[0.070, 0.14, 0.038]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+      </>
+    );
+
+    // 20 ── shaggy ── messy layered tousled
+    case "shaggy": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.02, -0.20]} rotation={[0.08, 0, 0]} castShadow>
+          <boxGeometry args={[0.44, 0.42, 0.06]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[-0.20, -0.01, -0.13]} rotation={[0.08, 0.25, 0.05]} castShadow>
+          <boxGeometry args={[0.095, 0.36, 0.052]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[0.20, -0.01, -0.13]} rotation={[0.08, -0.25, -0.05]} castShadow>
+          <boxGeometry args={[0.095, 0.36, 0.052]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[0.12, -0.08, -0.28]} rotation={[0.62, 0.12, 0.06]} castShadow>
+          <capsuleGeometry args={[0.018, 0.18, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[-0.12, -0.06, -0.30]} rotation={[0.60, -0.14, -0.05]} castShadow>
+          <capsuleGeometry args={[0.018, 0.16, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+        <mesh position={[0, -0.11, -0.30]} rotation={[0.68, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.016, 0.14, 4, 6]} />
+          <meshStandardMaterial color={hc} roughness={0.92} />
+        </mesh>
+      </>
+    );
+
+    // 21 ── wavy ── medium natural waves
+    case "wavy": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.04, -0.22]} rotation={[0.08, 0, 0]} castShadow>
+          <boxGeometry args={[0.40, 0.46, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.14, -0.10, -0.26]} castShadow>
+          <sphereGeometry args={[0.058, 10, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.14, -0.17, -0.26]} castShadow>
+          <sphereGeometry args={[0.058, 10, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.10, -0.25, -0.28]} castShadow>
+          <sphereGeometry args={[0.050, 10, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.200, -0.04, -0.14]} rotation={[0.07, 0.20, 0]} castShadow>
+          <boxGeometry args={[0.086, 0.42, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.200, -0.04, -0.14]} rotation={[0.07, -0.20, 0]} castShadow>
+          <boxGeometry args={[0.086, 0.42, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+      </>
+    );
+
+    // 22 ── beachWaves ── loose voluminous sun-kissed waves
+    case "beachWaves": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.05, -0.22]} rotation={[0.08, 0, 0]} castShadow>
+          <boxGeometry args={[0.46, 0.50, 0.06]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        {([-0.18, 0, 0.18] as number[]).map((x, i) => (
+          <mesh key={i} position={[x, -0.12 - i * 0.04, -0.27]} castShadow>
+            <sphereGeometry args={[0.068, 10, 8]} />
+            <meshStandardMaterial color={hc} roughness={0.86} />
+          </mesh>
+        ))}
+        {([-0.13, 0.10] as number[]).map((x, i) => (
+          <mesh key={i} position={[x, -0.23, -0.30]} castShadow>
+            <sphereGeometry args={[0.060, 10, 8]} />
+            <meshStandardMaterial color={hc} roughness={0.86} />
+          </mesh>
+        ))}
+        <mesh position={[-0.208, -0.04, -0.14]} rotation={[0.07, 0.22, 0]} castShadow>
+          <boxGeometry args={[0.092, 0.48, 0.052]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.208, -0.04, -0.14]} rotation={[0.07, -0.22, 0]} castShadow>
+          <boxGeometry args={[0.092, 0.48, 0.052]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+      </>
+    );
+
+    // 23 ── layered ── stacked volume layers
+    case "layered": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.01, -0.21]} rotation={[0.07, 0, 0]} castShadow>
+          <boxGeometry args={[0.38, 0.22, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.87} />
+        </mesh>
+        <mesh position={[0, -0.13, -0.23]} rotation={[0.07, 0, 0]} castShadow>
+          <boxGeometry args={[0.44, 0.20, 0.058]} />
+          <meshStandardMaterial color={hc} roughness={0.87} />
+        </mesh>
+        <mesh position={[0, -0.24, -0.24]} rotation={[0.07, 0, 0]} castShadow>
+          <boxGeometry args={[0.48, 0.18, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.87} />
+        </mesh>
+        <mesh position={[-0.200, -0.06, -0.14]} rotation={[0.07, 0.20, 0]} castShadow>
+          <boxGeometry args={[0.086, 0.44, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.87} />
+        </mesh>
+        <mesh position={[0.200, -0.06, -0.14]} rotation={[0.07, -0.20, 0]} castShadow>
+          <boxGeometry args={[0.086, 0.44, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.87} />
+        </mesh>
+      </>
+    );
+
+    // 24 ── curly ── tight coily curl clusters
+    case "curly": return (
+      <>
+        <mesh position={[0, 0.07, -0.04]} rotation={[0.10, 0, 0]}>
+          <sphereGeometry args={[0.240, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.62]} />
+          <meshStandardMaterial color={hc} roughness={0.95} side={THREE.BackSide} />
+        </mesh>
+        {([
+          [-0.16, 0.04, -0.18], [0.16, 0.04, -0.18],
+          [-0.20, -0.02, -0.14], [0.20, -0.02, -0.14],
+          [0, 0.06, -0.22], [-0.10, -0.08, -0.22],
+          [0.10, -0.08, -0.22], [0, -0.15, -0.24],
+        ] as [number, number, number][]).map((pos, i) => (
+          <mesh key={i} position={pos} castShadow>
+            <sphereGeometry args={[0.048 - (i % 3) * 0.005, 8, 8]} />
+            <meshStandardMaterial color={hc} roughness={0.96} />
+          </mesh>
+        ))}
+      </>
+    );
+
+    // 25 ── afro ── large rounded natural volume
+    case "afro": return (
+      <>
+        <mesh position={[0, 0.09, -0.04]} castShadow>
+          <sphereGeometry args={[0.290, 18, 14]} />
+          <meshStandardMaterial color={hc} roughness={0.98} />
+        </mesh>
+        <mesh position={[-0.22, 0.04, -0.06]} castShadow>
+          <sphereGeometry args={[0.180, 14, 12]} />
+          <meshStandardMaterial color={hc} roughness={0.98} />
+        </mesh>
+        <mesh position={[0.22, 0.04, -0.06]} castShadow>
+          <sphereGeometry args={[0.180, 14, 12]} />
+          <meshStandardMaterial color={hc} roughness={0.98} />
+        </mesh>
+        <mesh position={[0, 0.04, -0.24]} castShadow>
+          <sphereGeometry args={[0.160, 12, 10]} />
+          <meshStandardMaterial color={hc} roughness={0.98} />
+        </mesh>
+      </>
+    );
+
+    // 26 ── locs ── five dreadlocks hanging down
+    case "locs": return (
+      <>
+        {scalp}
+        {([-0.16, -0.08, 0, 0.08, 0.16] as number[]).map((x, i) => (
+          <group key={i}>
+            <mesh position={[x, 0.04, -0.18]} rotation={[0.45 + (i % 2) * 0.08, x * 0.30, 0]} castShadow>
+              <capsuleGeometry args={[0.026, 0.28, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.96} />
+            </mesh>
+            <mesh position={[x * 1.05, -0.13, -0.30]} rotation={[0.60 + (i % 2) * 0.06, x * 0.20, 0]} castShadow>
+              <capsuleGeometry args={[0.024, 0.26, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.96} />
+            </mesh>
+            <mesh position={[x * 1.08, -0.29, -0.40]} rotation={[0.68, x * 0.15, 0]} castShadow>
+              <capsuleGeometry args={[0.022, 0.22, 4, 6]} />
+              <meshStandardMaterial color={hc} roughness={0.96} />
+            </mesh>
+          </group>
+        ))}
+      </>
+    );
+
+    // 27 ── halfUp ── half up mini-ponytail + half down straight
+    case "halfUp": return (
+      <>
+        {scalp}
+        <mesh position={[0, -0.08, -0.22]} rotation={[0.07, 0, 0]} castShadow>
+          <boxGeometry args={[0.42, 0.34, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.202, -0.06, -0.14]} rotation={[0.07, 0.22, 0]} castShadow>
+          <boxGeometry args={[0.088, 0.30, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0.202, -0.06, -0.14]} rotation={[0.07, -0.22, 0]} castShadow>
+          <boxGeometry args={[0.088, 0.30, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.12, -0.18]} rotation={[0.42, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.044, 0.22, 4, 8]} />
+          <meshStandardMaterial color={hc} roughness={0.90} />
+        </mesh>
+        {elastic([0, 0.12, -0.21], [Math.PI / 2, 0, 0], 0.032)}
+      </>
+    );
+
+    // 28 ── sideSwept ── all swept to the left
+    case "sideSwept": return (
+      <>
+        {scalp}
+        <mesh position={[-0.08, -0.04, -0.20]} rotation={[0.07, 0.18, 0]} castShadow>
+          <boxGeometry args={[0.46, 0.44, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.24, -0.04, -0.12]} rotation={[0.07, 0.30, 0]} castShadow>
+          <boxGeometry args={[0.088, 0.42, 0.050]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+        <mesh position={[-0.16, -0.05, 0.13]} rotation={[-0.06, 0.32, 0.08]} castShadow>
+          <boxGeometry args={[0.080, 0.40, 0.045]} />
+          <meshStandardMaterial color={hc} roughness={0.88} />
+        </mesh>
+      </>
+    );
+
+    // 29 ── undercut ── short sides, longer flowing top and back
+    case "undercut": return (
+      <>
+        <mesh position={[0, 0.07, -0.04]} rotation={[0.10, 0, 0]}>
+          <sphereGeometry args={[0.222, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.56]} />
+          <meshStandardMaterial color={hc} roughness={0.94} side={THREE.BackSide} />
+        </mesh>
+        <mesh position={[0, 0.06, -0.19]} rotation={[0.20, 0, 0]} castShadow>
+          <boxGeometry args={[0.30, 0.34, 0.055]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[-0.208, 0.01, -0.08]} rotation={[0.06, 0.16, 0]} castShadow>
+          <boxGeometry args={[0.070, 0.16, 0.040]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+        <mesh position={[0.208, 0.01, -0.08]} rotation={[0.06, -0.16, 0]} castShadow>
+          <boxGeometry args={[0.070, 0.16, 0.040]} />
+          <meshStandardMaterial color={hc} roughness={0.86} />
+        </mesh>
+      </>
+    );
+
+    default: return <>{scalp}</>;
+  }
 }
 
 function Player({
@@ -2752,12 +3333,12 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <BallShadowRing ballPos={ballRef.current.pos} />
 
       {/* Home players (blue) */}
-      <Player state={homePlayers.current[0]} teamColor="#0077B6" accentColor="#00b4d8" number="7"  side="home" hairColor="#d4a843" hairStyle="ponytail" />
-      <Player state={homePlayers.current[1]} teamColor="#0077B6" accentColor="#00b4d8" number="11" side="home" hairColor="#1a0800" hairStyle="bun" />
+      <Player state={homePlayers.current[0]} teamColor="#0077B6" accentColor="#00b4d8" number="7"  side="home" hairColor="#d4a843" hairStyle="beachWaves" />
+      <Player state={homePlayers.current[1]} teamColor="#0077B6" accentColor="#00b4d8" number="11" side="home" hairColor="#1a0800" hairStyle="afro" />
 
       {/* Away players (orange) */}
-      <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4"  side="away" hairColor="#8b3a1a" hairStyle="braids" />
-      <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="straight" />
+      <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4"  side="away" hairColor="#8b3a1a" hairStyle="frenchBraid" />
+      <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="highPonytail" />
 
       {/* Post-processing */}
       <EffectComposer multisampling={8}>
