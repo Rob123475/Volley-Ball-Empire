@@ -10,6 +10,7 @@ const router = Router();
 // Each string appears multiple times to weight probability.
 const LOCATION_WEATHER_POOLS: Record<number, string[]> = {
   1:  ["sunny","sunny","hot","hot","stormy","perfect","cloudy"],           // Copacabana – tropical
+  11: ["hot","hot","hot","sunny","sunny","windy","perfect"],               // Hurghada – Red Sea desert
   2:  ["sunny","sunny","windy","windy","cloudy","perfect","overcast"],     // Bondi – breezy southern
   3:  ["sunny","sunny","sunny","hot","perfect","cloudy","windy"],          // Waikiki – balmy trade-winds
   4:  ["sunny","hot","hot","stormy","cloudy","windy","overcast"],          // Clearwater – Florida heat/storms
@@ -99,7 +100,7 @@ const getTeamForUser = async (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const FIXTURE_TEMPLATE = [
-  { round: 1,  date: "2026-01-15", locId: 1,  locName: "Copacabana Beach, Brazil",      opponent: "Sand Queens AU",     prize: 5000  },
+  { round: 1,  date: "2026-01-15", locId: 11, locName: "Hurghada Beach, Egypt",          opponent: "Sand Queens AU",     prize: 5000  },
   { round: 2,  date: "2026-02-12", locId: 2,  locName: "Bondi Beach, Australia",         opponent: "Pacific Storm USA",  prize: 6000  },
   { round: 3,  date: "2026-03-19", locId: 3,  locName: "Waikiki Beach, Hawaii",          opponent: "Tropical Blaze CUB", prize: 7000  },
   { round: 4,  date: "2026-04-16", locId: 4,  locName: "Clearwater Beach, Florida",      opponent: "Rio Serpents BRA",   prize: 8500  },

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 // The 11-stop World Tour in order — locId maps to locations.id in the DB
 const TOUR_STOPS = [
-  { round: 1,  locId: 1,  opponent: "Sand Queens AU",     prize: 5000,  date: "Jan 15" },
+  { round: 1,  locId: 11, opponent: "Sand Queens AU",     prize: 5000,  date: "Jan 15" },
   { round: 2,  locId: 2,  opponent: "Pacific Storm USA",  prize: 6000,  date: "Feb 12" },
   { round: 3,  locId: 3,  opponent: "Tropical Blaze CUB", prize: 7000,  date: "Mar 19" },
   { round: 4,  locId: 4,  opponent: "Rio Serpents BRA",   prize: 8500,  date: "Apr 16" },

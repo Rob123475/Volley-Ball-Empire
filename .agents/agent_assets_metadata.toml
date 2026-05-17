@@ -18,6 +18,12 @@ uri = "file://artifacts/beach-volleyball/public/location-tahiti.png"
 type = "image"
 title = "bora bora tahiti beach"
 
+[[generated]]
+id = "d9EJ4LRbVv9UJcD2Nl5uo"
+uri = "file://artifacts/beach-volleyball/public/location-egypt.png"
+type = "image"
+title = "hurghada egypt red sea beach"
+
 [[outputs]]
 id = "XCcLc6p_yRoa2T48ZEAei"
 uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
@@ -35,3 +41,9 @@ id = "d9V11kEAqpn09_nQ2yaNo"
 uri = "file://artifacts/beach-volleyball/public/location-tahiti.png"
 type = "image"
 title = "Matira Beach, Bora Bora — Round 10"
+
+[[outputs]]
+id = "set9oN6g6ZAq5iZ2QATki"
+uri = "file://artifacts/beach-volleyball/public/location-egypt.png"
+type = "image"
+title = "Hurghada Beach, Egypt — Round 1"
