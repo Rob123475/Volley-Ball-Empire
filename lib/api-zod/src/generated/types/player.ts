@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { PlayerPosition } from './playerPosition';
+import type { PlayerSquadRole } from './playerSquadRole';
 
 export interface Player {
   id: number;
@@ -31,6 +32,8 @@ export interface Player {
   /** @nullable */
   outfitId: number | null;
   isActive: boolean;
+  /** Player's squad role: starter (match player), interchange (bench sub), or reserve. */
+  squadRole?: PlayerSquadRole;
   /** @nullable */
   imageUrl: string | null;
   /** @nullable */

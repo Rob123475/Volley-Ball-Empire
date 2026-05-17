@@ -62,6 +62,18 @@ export const PlayerPosition = {
   universal: 'universal',
 } as const;
 
+/**
+ * Player's squad role: starter (match player), interchange (bench sub), or reserve.
+ */
+export type PlayerSquadRole = typeof PlayerSquadRole[keyof typeof PlayerSquadRole];
+
+
+export const PlayerSquadRole = {
+  starter: 'starter',
+  interchange: 'interchange',
+  reserve: 'reserve',
+} as const;
+
 export interface Player {
   id: number;
   name: string;
@@ -86,6 +98,8 @@ export interface Player {
   /** @nullable */
   outfitId: number | null;
   isActive: boolean;
+  /** Player's squad role: starter (match player), interchange (bench sub), or reserve. */
+  squadRole?: PlayerSquadRole;
   /** @nullable */
   imageUrl: string | null;
   /** @nullable */
@@ -188,9 +202,27 @@ export interface StaffMember {
 
 export interface TeamRoster {
   team: Team;
+  starters: Player[];
+  interchanges: Player[];
+  reserves: Player[];
+  /** Legacy: starters + interchanges combined. */
   activePlayers: Player[];
+  /** Legacy: same as reserves. */
   benchPlayers: Player[];
   staff: StaffMember[];
+}
+
+export type PlayerRoleUpdateRole = typeof PlayerRoleUpdateRole[keyof typeof PlayerRoleUpdateRole];
+
+
+export const PlayerRoleUpdateRole = {
+  starter: 'starter',
+  interchange: 'interchange',
+  reserve: 'reserve',
+} as const;
+
+export interface PlayerRoleUpdate {
+  role: PlayerRoleUpdateRole;
 }
 
 export interface PlayerSwap {

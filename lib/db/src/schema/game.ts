@@ -82,6 +82,7 @@ export const playersTable = pgTable("players", {
   teamId: integer("team_id").references(() => teamsTable.id),
   outfitId: integer("outfit_id").references(() => outfitsTable.id),
   isActive: boolean("is_active").notNull().default(true),
+  squadRole: varchar("squad_role", { length: 20 }).notNull().default("reserve"),
   isInjured: boolean("is_injured").notNull().default(false),
   imageUrl: varchar("image_url", { length: 500 }),
   contractEndDate: varchar("contract_end_date", { length: 20 }),

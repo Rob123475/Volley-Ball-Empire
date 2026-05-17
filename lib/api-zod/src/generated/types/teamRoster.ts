@@ -11,7 +11,12 @@ import type { Team } from './team';
 
 export interface TeamRoster {
   team: Team;
+  starters: Player[];
+  interchanges: Player[];
+  reserves: Player[];
+  /** Legacy: starters + interchanges combined. */
   activePlayers: Player[];
+  /** Legacy: same as reserves. */
   benchPlayers: Player[];
   staff: StaffMember[];
 }

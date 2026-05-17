@@ -41,6 +41,7 @@ import type {
   OutfitAssignment,
   Player,
   PlayerInput,
+  PlayerRoleUpdate,
   PlayerSwap,
   PlayerUpdate,
   PromoDeal,
@@ -1559,6 +1560,78 @@ export const useSwapTeamPlayer = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getSwapTeamPlayerMutationOptions(options));
+    }
+
+export const getSetPlayerRoleUrl = (id: number,) => {
+
+
+
+
+  return `/api/team/roster/${id}/role`
+}
+
+/**
+ * @summary Set a player's squad role (starter / interchange / reserve)
+ */
+export const setPlayerRole = async (id: number,
+    playerRoleUpdate: PlayerRoleUpdate, options?: RequestInit): Promise<TeamRoster> => {
+
+  return customFetch<TeamRoster>(getSetPlayerRoleUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      playerRoleUpdate,)
+  }
+);}
+
+
+
+
+export const getSetPlayerRoleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setPlayerRole>>, TError,{id: number;data: BodyType<PlayerRoleUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setPlayerRole>>, TError,{id: number;data: BodyType<PlayerRoleUpdate>}, TContext> => {
+
+const mutationKey = ['setPlayerRole'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setPlayerRole>>, {id: number;data: BodyType<PlayerRoleUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  setPlayerRole(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetPlayerRoleMutationResult = NonNullable<Awaited<ReturnType<typeof setPlayerRole>>>
+    export type SetPlayerRoleMutationBody = BodyType<PlayerRoleUpdate>
+    export type SetPlayerRoleMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Set a player's squad role (starter / interchange / reserve)
+ */
+export const useSetPlayerRole = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setPlayerRole>>, TError,{id: number;data: BodyType<PlayerRoleUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setPlayerRole>>,
+        TError,
+        {id: number;data: BodyType<PlayerRoleUpdate>},
+        TContext
+      > => {
+      return useMutation(getSetPlayerRoleMutationOptions(options));
     }
 
 export const getListContractsUrl = () => {
