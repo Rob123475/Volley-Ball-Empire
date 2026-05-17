@@ -19,4 +19,5 @@ export interface Dashboard {
   recentResults: Match[];
   topPlayers: Player[];
   seasonStanding: DashboardSeasonStanding;
+  injuredCount: number;
 }

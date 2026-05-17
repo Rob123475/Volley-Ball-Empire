@@ -33,6 +33,7 @@ router.get("/dashboard", async (req, res) => {
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
   const topPlayers = players.sort((a, b) => (b.power + b.serve + b.defense) - (a.power + a.serve + a.defense))
     .slice(0, 5).map(p => ({ ...p, height: Number(p.height), salary: Number(p.salary) }));
+  const injuredCount = players.filter(p => p.isInjured).length;
 
   const allTeams = await db.select().from(teamsTable).orderBy(desc(teamsTable.wins)).limit(20);
   const myRank = allTeams.findIndex(t => t.id === team.id) + 1;
@@ -54,6 +55,7 @@ router.get("/dashboard", async (req, res) => {
     })),
     topPlayers,
     seasonStanding: myRank > 0 ? { rank: myRank, wins: team.wins, losses: team.losses, points: team.wins * 3 } : null,
+    injuredCount,
   });
 });
 

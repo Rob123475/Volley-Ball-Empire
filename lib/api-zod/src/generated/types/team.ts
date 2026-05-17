@@ -14,6 +14,7 @@ export interface Team {
   reputation: number;
   wins: number;
   losses: number;
+  titlesWon: number;
   /** @nullable */
   locationId: number | null;
   /** @nullable */

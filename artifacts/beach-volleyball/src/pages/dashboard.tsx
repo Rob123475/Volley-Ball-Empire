@@ -29,24 +29,52 @@ import {
   Pencil,
   Check,
   X,
-  KeyRound
+  KeyRound,
+  TrendingUp,
+  HeartPulse,
+  Star,
+  Swords,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 const weatherIcons: Record<string, string> = {
-  sunny: "☀️",
-  windy: "💨",
-  stormy: "⛈️",
-  hot: "🔥",
-  cloudy: "☁️",
-  overcast: "⛅",
-  perfect: "✨",
+  sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
 };
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
+}
+
+// ── Stat Pill ──────────────────────────────────────────────────────────────────
+function StatPill({
+  icon,
+  label,
+  value,
+  sub,
+  gradient,
+  iconBg,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  sub?: React.ReactNode;
+  gradient: string;
+  iconBg: string;
+}) {
+  return (
+    <div className={`flex items-center gap-4 rounded-2xl px-5 py-4 ${gradient} shadow-md`}>
+      <div className={`flex-shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${iconBg} shadow-inner`}>
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-0.5">{label}</div>
+        <div className="text-2xl font-black text-white leading-none truncate">{value}</div>
+        {sub && <div className="text-xs text-white/60 mt-0.5">{sub}</div>}
+      </div>
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -65,21 +93,23 @@ export default function Dashboard() {
 
   const seasonId = season?.id ?? 1;
   const { data: ladder } = useGetSeasonLadder(seasonId, {
-    query: { 
-      enabled: !!season,
-      queryKey: getGetSeasonLadderQueryKey(seasonId)
-    }
+    query: { enabled: !!season, queryKey: getGetSeasonLadderQueryKey(seasonId) }
   });
 
   const updateProfile = useUpdateProfile();
 
   if (dashLoading || seasonLoading) {
-    return <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
-    </div>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}
+        </div>
+      </div>
+    );
   }
 
-  const formatCurrency = (val: number | null | undefined) => 
+  const formatCurrency = (val: number | null | undefined) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val ?? 0);
 
   const team = dashboard?.team;
@@ -87,100 +117,145 @@ export default function Dashboard() {
   const monthlyNet = financeSummary?.monthlyNet ?? 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <p className="text-muted-foreground">Welcome back, Coach. Here's your team status.</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {/* Profile box */}
-        <ProfileCard
-          profile={profile}
-          loading={profileLoading}
-          onSave={(coachName, savePin) => {
-            updateProfile.mutate(
-              { data: { coachName, savePin } as any },
-              {
-                onSuccess: () => {
-                  queryClient.invalidateQueries({ queryKey: getGetProfileQueryKey() });
-                  toast({ title: "Profile saved!" });
-                },
-              }
-            );
-          }}
-          saving={updateProfile.isPending}
+      {/* ── Top pill row ── */}
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* W/L record */}
+        <StatPill
+          gradient="bg-gradient-to-br from-blue-600 to-blue-800"
+          iconBg="bg-blue-500/40"
+          icon={<Swords className="h-5 w-5 text-white" />}
+          label="Record"
+          value={<span>{team?.wins ?? 0}<span className="text-white/40 text-lg font-bold mx-1">-</span>{team?.losses ?? 0}</span>}
+          sub={`Rep: ${team?.reputation ?? 50}`}
         />
 
-        <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20" data-testid="card-team-overview">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Team Overview</CardTitle>
-            <Users className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold truncate" data-testid="text-team-name">{team?.name ?? "—"}</div>
-            <div className="flex items-center gap-2 mt-1 min-w-0">
-              <span className="text-sm text-green-600 font-bold flex-shrink-0" data-testid="text-wins">{team?.wins ?? 0}W</span>
-              <span className="text-sm text-red-600 font-bold flex-shrink-0" data-testid="text-losses">{team?.losses ?? 0}L</span>
-              <Badge variant="outline" className="flex-shrink-0 ml-auto text-primary border-primary/30 whitespace-nowrap">
-                Rep: {team?.reputation ?? 50}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Season rank */}
+        <StatPill
+          gradient="bg-gradient-to-br from-violet-600 to-purple-800"
+          iconBg="bg-violet-500/40"
+          icon={<Award className="h-5 w-5 text-white" />}
+          label="Season Rank"
+          value={dashboard?.seasonStanding ? `#${dashboard.seasonStanding.rank}` : "—"}
+          sub={`${dashboard?.seasonStanding?.points ?? 0} pts · ${season?.name ?? "Season 1"}`}
+        />
 
-        <Card className="bg-gradient-to-br from-secondary/10 to-transparent border-secondary/20" data-testid="card-budget">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Budget</CardTitle>
-            <DollarSign className="h-4 w-4 text-secondary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-balance">{formatCurrency(financeSummary?.balance)}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              {monthlyNet >= 0 ? (
-                <ArrowUpRight className="h-3 w-3 text-green-500" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-red-500" />
-              )}
-              {formatCurrency(Math.abs(monthlyNet))} net monthly
-            </p>
-          </CardContent>
-        </Card>
+        {/* Titles won */}
+        <StatPill
+          gradient="bg-gradient-to-br from-amber-500 to-orange-600"
+          iconBg="bg-amber-400/40"
+          icon={<Trophy className="h-5 w-5 text-white" />}
+          label="Titles Won"
+          value={team?.titlesWon ?? 0}
+          sub="Championship titles"
+        />
 
-        {dashboard?.nextMatch && (
-          <Card className="bg-gradient-to-br from-accent/10 to-transparent border-accent/20" data-testid="card-next-match">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Next Match</CardTitle>
-              <Calendar className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{weatherIcons[(dashboard.nextMatch as any).weather] || "☀️"}</span>
-                <div className="text-lg font-bold truncate">{(dashboard.nextMatch as any).locationName ?? "TBD"}</div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Prize: <span className="font-semibold text-foreground">{formatCurrency((dashboard.nextMatch as any).prizeAmount)}</span>
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20" data-testid="card-season-standing">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Season Standing</CardTitle>
-            <Award className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-rank">
-              {dashboard?.seasonStanding ? `Rank #${dashboard.seasonStanding.rank}` : "Unranked"}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {dashboard?.seasonStanding?.points ?? 0} Points • {season?.name ?? "Season 1"}
-            </p>
-          </CardContent>
-        </Card>
+        {/* Injuries */}
+        <StatPill
+          gradient={
+            (dashboard?.injuredCount ?? 0) > 0
+              ? "bg-gradient-to-br from-red-600 to-rose-800"
+              : "bg-gradient-to-br from-emerald-600 to-teal-700"
+          }
+          iconBg={
+            (dashboard?.injuredCount ?? 0) > 0 ? "bg-red-500/40" : "bg-emerald-400/40"
+          }
+          icon={<HeartPulse className="h-5 w-5 text-white" />}
+          label="Injuries"
+          value={dashboard?.injuredCount ?? 0}
+          sub={(dashboard?.injuredCount ?? 0) === 0 ? "All players fit" : "Player(s) injured"}
+        />
       </div>
 
+      {/* ── Second pill row ── */}
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Profile */}
+        <div className="sm:col-span-2 lg:col-span-1">
+          <ProfileCard
+            profile={profile}
+            loading={profileLoading}
+            onSave={(coachName, savePin) => {
+              updateProfile.mutate(
+                { data: { coachName, savePin } as any },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries({ queryKey: getGetProfileQueryKey() });
+                    toast({ title: "Profile saved!" });
+                  },
+                }
+              );
+            }}
+            saving={updateProfile.isPending}
+          />
+        </div>
+
+        {/* Budget */}
+        <StatPill
+          gradient="bg-gradient-to-br from-green-600 to-emerald-800"
+          iconBg="bg-green-400/40"
+          icon={<DollarSign className="h-5 w-5 text-white" />}
+          label="Budget"
+          value={formatCurrency(financeSummary?.balance)}
+          sub={
+            <span className="flex items-center gap-0.5">
+              {monthlyNet >= 0
+                ? <ArrowUpRight className="h-3 w-3 text-green-300 inline" />
+                : <ArrowDownRight className="h-3 w-3 text-red-300 inline" />
+              }
+              {formatCurrency(Math.abs(monthlyNet))} monthly
+            </span>
+          }
+        />
+
+        {/* Next match */}
+        {dashboard?.nextMatch ? (
+          <StatPill
+            gradient="bg-gradient-to-br from-sky-500 to-cyan-700"
+            iconBg="bg-sky-400/40"
+            icon={<Calendar className="h-5 w-5 text-white" />}
+            label="Next Match"
+            value={
+              <span className="flex items-center gap-2">
+                <span className="text-xl">{weatherIcons[(dashboard.nextMatch as any).weather] || "☀️"}</span>
+                <span className="text-lg font-bold truncate">{(dashboard.nextMatch as any).locationName ?? "TBD"}</span>
+              </span>
+            }
+            sub={`Prize: ${formatCurrency((dashboard.nextMatch as any).prizeAmount)}`}
+          />
+        ) : (
+          <StatPill
+            gradient="bg-gradient-to-br from-slate-600 to-slate-800"
+            iconBg="bg-slate-500/40"
+            icon={<Calendar className="h-5 w-5 text-white/50" />}
+            label="Next Match"
+            value={<span className="text-white/40 text-base">Not scheduled</span>}
+          />
+        )}
+
+        {/* Reputation pill */}
+        <StatPill
+          gradient="bg-gradient-to-br from-pink-600 to-fuchsia-800"
+          iconBg="bg-pink-400/40"
+          icon={<Star className="h-5 w-5 text-white" />}
+          label="Reputation"
+          value={team?.reputation ?? 50}
+          sub={
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+                <div className="h-full bg-white/70 rounded-full transition-all" style={{ width: `${team?.reputation ?? 50}%` }} />
+              </div>
+              <span className="text-[10px] text-white/50">/ 100</span>
+            </div>
+          }
+        />
+      </div>
+
+      {/* ── Players + Results ── */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
@@ -190,15 +265,25 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             {dashboard?.topPlayers.map((player) => {
               const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+              const isInjured = (player as any).isInjured;
               return (
                 <div key={player.id} className="flex items-center gap-4" data-testid={`row-player-${player.id}`}>
-                  <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
-                    {player.position.replace(/_/g, " ")}
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "flex-shrink-0",
+                      isInjured ? "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400" : "bg-secondary/20 text-secondary-foreground"
+                    )}
+                  >
+                    {isInjured ? "⚕ Injured" : player.position.replace(/_/g, " ")}
                   </Badge>
-                  <div className="flex-1 space-y-1">
+                  <div className="flex-1 space-y-1 min-w-0">
                     <p className="text-sm font-medium leading-none">{player.name}</p>
                     <div className="flex items-center gap-2">
-                      <Progress value={rating} className="h-1" />
+                      <Progress
+                        value={rating}
+                        className={cn("h-1.5", isInjured ? "[&>div]:bg-red-500" : "")}
+                      />
                       <span className="text-xs text-muted-foreground w-6" data-testid={`text-rating-${player.id}`}>{rating}</span>
                     </div>
                   </div>
@@ -229,7 +314,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-bold">{hs} – {as_}</span>
-                    <Badge className={isWin ? 'bg-green-500' : 'bg-red-500'}>
+                    <Badge className={isWin ? 'bg-green-500 hover:bg-green-500' : 'bg-red-500 hover:bg-red-500'}>
                       {isWin ? "WIN" : "LOSS"}
                     </Badge>
                   </div>
@@ -243,6 +328,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* ── Season Ladder ── */}
       {ladder && ladder.length > 0 && (
         <Card>
           <CardHeader>
@@ -263,8 +349,8 @@ export default function Dashboard() {
                 </thead>
                 <tbody>
                   {ladder.map((entry) => (
-                    <tr 
-                      key={entry.teamId} 
+                    <tr
+                      key={entry.teamId}
                       data-testid={`row-ladder-${entry.teamId}`}
                       className={cn(
                         "border-b transition-colors hover:bg-muted/50",
@@ -310,105 +396,77 @@ function ProfileCard({ profile, loading, onSave, saving }: {
   const startEditName = () => { setNameVal(coachName); setEditingName(true); };
   const startEditPin  = () => { setPinVal(savePin);    setEditingPin(true);  };
 
-  const commitName = () => {
-    onSave(nameVal.trim() || coachName, savePin);
-    setEditingName(false);
-  };
-  const commitPin = () => {
-    // Keep it to max 20 chars, strip spaces
+  const commitName = () => { onSave(nameVal.trim() || coachName, savePin); setEditingName(false); };
+  const commitPin  = () => {
     const cleaned = pinVal.replace(/\s/g, "").slice(0, 20);
     onSave(coachName, cleaned || savePin);
     setEditingPin(false);
   };
 
   return (
-    <Card className="bg-gradient-to-br from-muted/60 to-transparent border-border" data-testid="card-profile">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium">My Profile</CardTitle>
-        <User className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {loading ? (
-          <Skeleton className="h-16 w-full" />
-        ) : (
-          <>
-            {/* Avatar + name row */}
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-black text-sm flex-shrink-0">
-                {initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Coach Name</div>
-                {editingName ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      autoFocus
-                      value={nameVal}
-                      onChange={e => setNameVal(e.target.value)}
-                      onKeyDown={e => { if (e.key === "Enter") commitName(); if (e.key === "Escape") setEditingName(false); }}
-                      className="h-6 text-sm px-1 py-0"
-                      maxLength={40}
-                      data-testid="input-coach-name"
-                    />
-                    <button onClick={commitName} disabled={saving} className="text-green-600 hover:text-green-700"><Check className="h-3.5 w-3.5" /></button>
-                    <button onClick={() => setEditingName(false)} className="text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1 group/name">
-                    <span className="text-sm font-semibold truncate">{coachName || <span className="text-muted-foreground italic">Set name…</span>}</span>
-                    <button onClick={startEditName} className="opacity-0 group-hover/name:opacity-100 transition-opacity ml-1 text-muted-foreground hover:text-foreground">
-                      <Pencil className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
+    <div className="rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 shadow-md px-5 py-4 h-full flex flex-col justify-center" data-testid="card-profile">
+      {loading ? (
+        <Skeleton className="h-16 w-full bg-white/10" />
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-inner">
+              {initials}
             </div>
-
-            {/* Save PIN row */}
-            <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <KeyRound className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Save Password</div>
-                    {editingPin ? (
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <Input
-                          autoFocus
-                          value={pinVal}
-                          onChange={e => setPinVal(e.target.value)}
-                          onKeyDown={e => { if (e.key === "Enter") commitPin(); if (e.key === "Escape") setEditingPin(false); }}
-                          className="h-6 text-sm px-1 py-0 w-28 font-mono"
-                          maxLength={20}
-                          data-testid="input-save-pin"
-                        />
-                        <button onClick={commitPin} disabled={saving} className="text-green-600 hover:text-green-700"><Check className="h-3.5 w-3.5" /></button>
-                        <button onClick={() => setEditingPin(false)} className="text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 mt-0.5 group/pin">
-                        <span className="font-mono text-sm font-bold tracking-widest">
-                          {pinVisible ? savePin : "•".repeat(Math.min(savePin.length, 8))}
-                        </span>
-                        <button onClick={startEditPin} className="opacity-0 group-hover/pin:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
-                          <Pencil className="h-3 w-3" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-0.5">Coach</div>
+              {editingName ? (
+                <div className="flex items-center gap-1">
+                  <Input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") commitName(); if (e.key === "Escape") setEditingName(false); }}
+                    className="h-6 text-sm px-1 py-0 bg-white/10 border-white/20 text-white" maxLength={40} data-testid="input-coach-name" />
+                  <button onClick={commitName} disabled={saving} className="text-green-400 hover:text-green-300"><Check className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => setEditingName(false)} className="text-white/40 hover:text-white"><X className="h-3.5 w-3.5" /></button>
                 </div>
-                <button
-                  onClick={() => setPinVisible(v => !v)}
-                  className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                  data-testid="button-toggle-pin"
-                >
-                  {pinVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center gap-1 group/name">
+                  <span className="text-sm font-semibold truncate text-white">{coachName || <span className="text-white/30 italic text-xs">Set name…</span>}</span>
+                  <button onClick={startEditName} className="opacity-0 group-hover/name:opacity-100 transition-opacity ml-1 text-white/40 hover:text-white">
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <KeyRound className="h-3.5 w-3.5 text-white/40 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Password</div>
+                  {editingPin ? (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Input autoFocus value={pinVal} onChange={e => setPinVal(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") commitPin(); if (e.key === "Escape") setEditingPin(false); }}
+                        className="h-6 text-sm px-1 py-0 w-28 font-mono bg-white/10 border-white/20 text-white" maxLength={20} data-testid="input-save-pin" />
+                      <button onClick={commitPin} disabled={saving} className="text-green-400 hover:text-green-300"><Check className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => setEditingPin(false)} className="text-white/40 hover:text-white"><X className="h-3.5 w-3.5" /></button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 mt-0.5 group/pin">
+                      <span className="font-mono text-sm font-bold tracking-widest text-white">
+                        {pinVisible ? savePin : "•".repeat(Math.min(savePin.length, 8))}
+                      </span>
+                      <button onClick={startEditPin} className="opacity-0 group-hover/pin:opacity-100 transition-opacity text-white/40 hover:text-white">
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button onClick={() => setPinVisible(v => !v)} className="flex-shrink-0 text-white/40 hover:text-white transition-colors" data-testid="button-toggle-pin">
+                {pinVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

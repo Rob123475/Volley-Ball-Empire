@@ -1111,7 +1111,7 @@ components:
 
     Team:
       type: object
-      required: [id, userId, name, budget, reputation, wins, losses, locationId, createdAt]
+      required: [id, userId, name, budget, reputation, wins, losses, titlesWon, locationId, createdAt]
       properties:
         id:
           type: integer
@@ -1126,6 +1126,8 @@ components:
         wins:
           type: integer
         losses:
+          type: integer
+        titlesWon:
           type: integer
         locationId:
           type: ["integer", "null"]
@@ -1670,7 +1672,7 @@ components:
 
     Dashboard:
       type: object
-      required: [team, nextMatch, financeSummary, recentResults, topPlayers, seasonStanding]
+      required: [team, nextMatch, financeSummary, recentResults, topPlayers, seasonStanding, injuredCount]
       properties:
         team:
           $ref: "#/components/schemas/Team"
@@ -1698,3 +1700,5 @@ components:
             wins: { type: integer }
             losses: { type: integer }
             points: { type: integer }
+        injuredCount:
+          type: integer

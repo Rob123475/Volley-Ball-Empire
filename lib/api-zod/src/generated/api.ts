@@ -347,6 +347,7 @@ export const GetMyTeamResponse = zod.object({
   "reputation": zod.number(),
   "wins": zod.number(),
   "losses": zod.number(),
+  "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "createdAt": zod.string()
@@ -380,6 +381,7 @@ export const UpdateTeamResponse = zod.object({
   "reputation": zod.number(),
   "wins": zod.number(),
   "losses": zod.number(),
+  "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "createdAt": zod.string()
@@ -398,6 +400,7 @@ export const GetTeamRosterResponse = zod.object({
   "reputation": zod.number(),
   "wins": zod.number(),
   "losses": zod.number(),
+  "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "createdAt": zod.string()
@@ -480,6 +483,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "reputation": zod.number(),
   "wins": zod.number(),
   "losses": zod.number(),
+  "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "createdAt": zod.string()
@@ -1353,6 +1357,7 @@ export const GetDashboardResponse = zod.object({
   "reputation": zod.number(),
   "wins": zod.number(),
   "losses": zod.number(),
+  "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "createdAt": zod.string()
@@ -1414,7 +1419,8 @@ export const GetDashboardResponse = zod.object({
   "wins": zod.number().optional(),
   "losses": zod.number().optional(),
   "points": zod.number().optional()
-}).nullable()
+}).nullable(),
+  "injuredCount": zod.number()
 })
 
 

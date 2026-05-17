@@ -135,6 +135,7 @@ export interface Team {
   reputation: number;
   wins: number;
   losses: number;
+  titlesWon: number;
   /** @nullable */
   locationId: number | null;
   /** @nullable */
@@ -593,5 +594,6 @@ export interface Dashboard {
   recentResults: Match[];
   topPlayers: Player[];
   seasonStanding: DashboardSeasonStanding;
+  injuredCount: number;
 }
 
