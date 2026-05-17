@@ -2483,10 +2483,13 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
 function useVolleyballPhysics(
   paused: boolean,
   onPoint: (winner: "home" | "away", isPoint: boolean) => void,
-  boostRef?: { current: { attack: boolean; defense: boolean } }
+  boostRef?: { current: { attack: boolean; defense: boolean } },
+  onServeChange?: (side: "home" | "away", playerIdx: number) => void
 ) {
-  const onPointRef = useRef(onPoint);
-  useEffect(() => { onPointRef.current = onPoint; }, [onPoint]);
+  const onPointRef      = useRef(onPoint);
+  const onServeChangeRef = useRef(onServeChange);
+  useEffect(() => { onPointRef.current       = onPoint;      }, [onPoint]);
+  useEffect(() => { onServeChangeRef.current = onServeChange; }, [onServeChange]);
   const ballRef = useRef<BallPhysics>({
     pos: new THREE.Vector3(-5, 4, 0.5),
     vel: new THREE.Vector3(7, 5, 0.2),
@@ -2527,6 +2530,7 @@ function useVolleyballPhysics(
     if (!r.servePlayerIdx) r.servePlayerIdx = { home: 0, away: 0 };
     const srvIdx = r.servePlayerIdx[r.serveSide];
     r.servePlayerIdx[r.serveSide] = 1 - srvIdx;
+    onServeChangeRef.current?.(r.serveSide, srvIdx);
 
     // serveSide is already set by the scoring logic before resetBall is called
     r.touches         = 0;
@@ -3800,14 +3804,15 @@ function ManWithDog() {
 }
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
-function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
+function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeChange }: {
   paused: boolean;
   autoRotate: boolean;
   onPoint: (winner: "home" | "away", isPoint: boolean) => void;
   swapCourtsRef?: { current: () => void };
   boostRef?: { current: { attack: boolean; defense: boolean } };
+  onServeChange?: (side: "home" | "away", playerIdx: number) => void;
 }) {
-  const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint, boostRef);
+  const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint, boostRef, onServeChange);
   useEffect(() => { if (swapCourtsRef) swapCourtsRef.current = swapCourts; }, [swapCourts, swapCourtsRef]);
 
   const sandColor = "#e6cc80";
@@ -4016,6 +4021,10 @@ export default function ThreeDCourt() {
   );
 
   const activePlayers = roster?.activePlayers ?? [];
+  const [serveInfo, setServeInfo] = useState<{ side: "home" | "away"; playerIdx: number }>({ side: "home", playerIdx: 0 });
+  const onServeChange = useCallback((side: "home" | "away", playerIdx: number) => {
+    setServeInfo({ side, playerIdx });
+  }, []);
 
   return (
     <div className="h-[calc(100vh-11rem)] w-full rounded-3xl overflow-hidden relative border border-primary/20 shadow-2xl">
@@ -4031,7 +4040,7 @@ export default function ThreeDCourt() {
         }}
         dpr={[1, 2.5]}
       >
-        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} boostRef={boostRef} />
+        <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} boostRef={boostRef} onServeChange={onServeChange} />
       </Canvas>
 
       {/* Score */}
@@ -4131,26 +4140,41 @@ export default function ThreeDCourt() {
           </Card>
         )}
 
-        {activePlayers.length > 0 && (
-          <Card className="bg-background/80 backdrop-blur border-white/20 shadow-xl">
-            <CardHeader className="p-3 pb-1.5">
-              <CardTitle className="text-xs font-bold">ON COURT</CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 pt-0 space-y-1.5">
-              {activePlayers.slice(0, 4).map((p: { id: number; name: string; position: string }, i: number) => (
-                <div key={p.id} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${i < 2 ? "bg-[#0077B6]" : "bg-[#E76F51]"}`} />
+        {(() => {
+          const homeTeamName = roster?.team?.name ?? "Home";
+          const homePlayers  = activePlayers.slice(0, 2) as { id: number; name: string }[];
+          const awayTeamName = "Rivals";
+          const awayPlayerNames = ["Taylor", "Jordan"];
+          type TeamRowProps = { side: "home" | "away"; teamName: string; players: { id?: number; name: string }[] };
+          const TeamRows = ({ side, teamName, players }: TeamRowProps) => (
+            <div>
+              <div className={`text-[9px] font-bold uppercase tracking-widest mb-1 ${side === "home" ? "text-[#00b4d8]" : "text-[#f4a261]"}`}>
+                {teamName}
+              </div>
+              {players.map((p, idx) => {
+                const isServing = serveInfo.side === side && serveInfo.playerIdx === idx;
+                return (
+                  <div key={p.id ?? idx} className="flex items-center gap-1.5 text-xs py-0.5">
+                    {isServing
+                      ? <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 shadow-[0_0_4px_1px_rgba(239,68,68,0.8)]" />
+                      : <span className="w-2 h-2 rounded-full shrink-0" style={{ background: side === "home" ? "#0077B6" : "#E76F51" }} />
+                    }
                     <span className="font-medium truncate max-w-[110px]">{p.name}</span>
                   </div>
-                  <span className="text-muted-foreground text-[10px]">
-                    {p.position.replace(/_/g, " ").slice(0, 3).toUpperCase()}
-                  </span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+                );
+              })}
+            </div>
+          );
+          return (
+            <Card className="bg-background/80 backdrop-blur border-white/20 shadow-xl">
+              <CardContent className="p-3 space-y-2.5">
+                <TeamRows side="home" teamName={homeTeamName} players={homePlayers.length >= 2 ? homePlayers : [{ name: "Player 1" }, { name: "Player 2" }]} />
+                <div className="border-t border-white/10" />
+                <TeamRows side="away" teamName={awayTeamName} players={awayPlayerNames.map(n => ({ name: n }))} />
+              </CardContent>
+            </Card>
+          );
+        })()}
       </div>
     </div>
   );
