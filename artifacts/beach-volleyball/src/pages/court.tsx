@@ -1032,14 +1032,14 @@ function Player({
           </mesh>
         </group>
 
-        {/* Glutes — two rounded skin spheres at the back, sitting at top of legs */}
+        {/* Glutes — covered by bikini colour */}
         <mesh position={[-0.09, 0.74, -0.13]} scale={[0.92, 0.88, 0.72]} castShadow>
           <sphereGeometry args={[0.155, 16, 14]} />
-          <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.3} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.48} metalness={0.08} envMapIntensity={1.3} />
         </mesh>
         <mesh position={[ 0.09, 0.74, -0.13]} scale={[0.92, 0.88, 0.72]} castShadow>
           <sphereGeometry args={[0.155, 16, 14]} />
-          <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.3} />
+          <meshStandardMaterial color={bikiniColor} roughness={0.48} metalness={0.08} envMapIntensity={1.3} />
         </mesh>
 
         {/* Bikini bottoms — wraps around to cover glutes */}
