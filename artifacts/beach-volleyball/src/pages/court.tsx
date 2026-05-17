@@ -28,7 +28,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw, RefreshCw, Zap, Shield } from "lucide-react";
+import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw, RefreshCw, Zap, Shield, BookOpen, X } from "lucide-react";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const GRAVITY = -9.81;
@@ -5018,6 +5018,7 @@ export default function ThreeDCourt() {
   const [selectedLocId, setSelectedLocId] = useState<string>("");
   const [paused, setPaused] = useState(false);
   const [autoRotate, setAutoRotate] = useState(false);
+  const [showRules, setShowRules] = useState(false);
   const [key, setKey] = useState(0);
   const swapCourtsRef = useRef<() => void>(() => {});
 
@@ -5232,11 +5233,55 @@ export default function ThreeDCourt() {
         >
           <RotateCcw className="h-4 w-4" /> Reset
         </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="bg-background/80 backdrop-blur gap-2 h-9 border-white/20 shadow-xl"
+          onClick={() => setShowRules(r => !r)}
+        >
+          <BookOpen className="h-4 w-4" /> Rules
+        </Button>
         <div className="flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur rounded-full border border-white/20 shadow-xl text-xs font-bold text-primary">
           <Wind className="h-3.5 w-3.5 animate-pulse" />
           {selectedLocation ? `${selectedLocation.city} · ${selectedLocation.weatherPatterns}` : "LIVE MATCH VIEW"}
         </div>
       </div>
+
+      {/* In-game rules overlay */}
+      {showRules && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-black/90 border border-white/15 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-yellow-400" />
+                <span className="text-white font-black text-base uppercase tracking-widest">Game Rules</span>
+              </div>
+              <button
+                onClick={() => setShowRules(false)}
+                className="text-white/40 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+              {[
+                { h: "Scoring",     b: "Every rally awards a point — you don't need to be serving (rally-point system)." },
+                { h: "Sets",        b: "Sets 1 & 2: first to 21 points, win by 2. Set 3 (if needed): first to 15, win by 2." },
+                { h: "Match",       b: "Best of 3 sets. Win 2 sets to claim the match." },
+                { h: "Court Swap",  b: "Teams swap ends every 7 combined points in sets 1 & 2, and every 5 in set 3." },
+                { h: "Service",     b: "The team that wins a rally earns the right to serve next." },
+                { h: "Boosts",      b: "Attack & Defense boosts: 15 s active, 30 s cooldown. Use them on key rallies." },
+                { h: "Match Clock", b: "Two 3-minute halves. Clock pauses with the game. Score stands after Full Time." },
+              ].map((r) => (
+                <div key={r.h}>
+                  <div className="text-yellow-400 font-black text-xs uppercase tracking-widest mb-0.5">{r.h}</div>
+                  <div className="text-white/70 text-sm leading-relaxed">{r.b}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sidebar */}
       <div className="absolute top-16 left-5 w-64 space-y-3">
