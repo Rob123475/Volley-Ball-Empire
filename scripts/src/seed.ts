@@ -16,8 +16,20 @@ const getStaffImageUrl = (name: string) =>
 const getLocationImageUrl = (city: string) =>
   `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;
 
+// Map sponsor name keywords → Picsum photo seed that produces sport/brand imagery
+const sponsorKeyword = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes("sun") || n.includes("screen")) return "sunshine-beach";
+  if (n.includes("swim") || n.includes("coastal") || n.includes("wave")) return "ocean-wave";
+  if (n.includes("hydrate") || n.includes("drink")) return "sport-drink";
+  if (n.includes("jump") || n.includes("foot") || n.includes("air")) return "running-shoe";
+  if (n.includes("net") || n.includes("court") || n.includes("sand")) return "beach-volleyball";
+  if (n.includes("vita") || n.includes("boost") || n.includes("suppl")) return "fitness-nutrition";
+  if (n.includes("glow") || n.includes("beauty")) return "beauty-skin";
+  return "sport-brand";
+};
 const getSponsorImageUrl = (name: string) =>
-  `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(name)}`;
+  `https://picsum.photos/seed/${sponsorKeyword(name)}/600/300`;
 
 async function main() {
   const client = await pool.connect();

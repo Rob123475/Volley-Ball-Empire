@@ -26,16 +26,30 @@ import {
   Wallet, 
   ArrowUpRight, 
   ArrowDownRight,
-  Handshake,
+  Star,
+  Trophy,
   PieChart
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { useState } from "react";
+
+function formatCompact(val: number): string {
+  const abs = Math.abs(val);
+  const sign = val < 0 ? "-" : "";
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(0)}K`;
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+}
+
+const formatCurrency = (val: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
 export default function Finances() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
 
   const { data: summary, isLoading: summaryLoading } = useGetFinanceSummary({
     query: { queryKey: getGetFinanceSummaryQueryKey() }
@@ -49,12 +63,17 @@ export default function Finances() {
 
   const acceptDealMutation = useAcceptPromoDeal();
 
-  const handleAcceptDeal = (dealId: number) => {
+  const handleAcceptDeal = (dealId: number, isSeason = false) => {
     acceptDealMutation.mutate({ id: dealId }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListPromoDealsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
-        toast({ title: "Deal Accepted!", description: "Sponsorship funds have been secured." });
+        toast({
+          title: isSeason ? "Season Sponsor Activated!" : "Deal Accepted!",
+          description: isSeason
+            ? "Your season partner is locked in. Let's win together."
+            : "Sponsorship funds have been secured.",
+        });
       }
     });
   };
@@ -63,8 +82,12 @@ export default function Finances() {
     return <div className="space-y-8"><Skeleton className="h-32 w-full" /><Skeleton className="h-96 w-full" /></div>;
   }
 
-  const formatCurrency = (val: number) => 
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  // Top 3 by value → Season Sponsors; rest → regular deals
+  const sortedDeals = [...(deals ?? [])].sort((a, b) => b.amount - a.amount);
+  const seasonSponsors = sortedDeals.slice(0, 3);
+  const otherDeals = sortedDeals.slice(3);
+
+  const netPosition = (summary?.monthlyIncome || 0) - (summary?.monthlyExpenses || 0);
 
   return (
     <div className="space-y-8">
@@ -73,19 +96,86 @@ export default function Finances() {
         <p className="text-muted-foreground">Manage your team's budget, transactions, and sponsorships.</p>
       </div>
 
+      {/* KPI Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <KPICard title="Total Balance" value={formatCurrency(summary?.totalBalance || 0)} icon={Wallet} />
-        <KPICard title="Monthly Income" value={formatCurrency(summary?.monthlyIncome || 0)} icon={TrendingUp} color="text-green-500" />
-        <KPICard title="Monthly Expenses" value={formatCurrency(summary?.monthlyExpenses || 0)} icon={TrendingDown} color="text-red-500" />
-        <KPICard 
-          title="Net Position" 
-          value={formatCurrency((summary?.monthlyIncome || 0) - (summary?.monthlyExpenses || 0))} 
+        <KPICard title="Total Balance" value={formatCompact(summary?.totalBalance || 0)} icon={Wallet} />
+        <KPICard title="Monthly Income" value={formatCompact(summary?.monthlyIncome || 0)} icon={TrendingUp} color="text-green-500" />
+        <KPICard title="Monthly Expenses" value={formatCompact(summary?.monthlyExpenses || 0)} icon={TrendingDown} color="text-red-500" />
+        <KPICard
+          title="Net Position"
+          value={formatCompact(netPosition)}
           icon={PieChart}
-          color={(summary?.monthlyIncome || 0) - (summary?.monthlyExpenses || 0) >= 0 ? "text-green-500" : "text-red-500"}
+          color={netPosition >= 0 ? "text-green-500" : "text-red-500"}
         />
       </div>
 
+      {/* Season Sponsors */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="h-5 w-5 text-yellow-500" />
+          <h3 className="text-xl font-bold">Season Sponsors</h3>
+          <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Choose 1</Badge>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {seasonSponsors.map((deal) => {
+            const isSelected = selectedSponsorId === deal.id;
+            return (
+              <div
+                key={deal.id}
+                onClick={() => setSelectedSponsorId(deal.id)}
+                className={cn(
+                  "relative overflow-hidden rounded-xl border-2 cursor-pointer transition-all duration-200 group",
+                  isSelected
+                    ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                    : "border-border hover:border-primary/50"
+                )}
+              >
+                {/* Image banner */}
+                <div className="relative h-36 overflow-hidden">
+                  <img
+                    src={deal.imageUrl ?? undefined}
+                    alt={deal.sponsor}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 bg-primary rounded-full p-1">
+                      <Star className="h-4 w-4 text-white fill-white" />
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <div className="text-white font-bold text-base leading-tight drop-shadow">{deal.sponsor}</div>
+                    <div className="text-white/70 text-xs">Requires {deal.requirementWins} wins • Expires {format(new Date(deal.expiresAt), "MMM d")}</div>
+                  </div>
+                </div>
+
+                {/* Card footer */}
+                <div className="p-3 flex items-center justify-between bg-card">
+                  <div className="text-2xl font-black text-primary">{formatCompact(deal.amount)}</div>
+                  <Button
+                    size="sm"
+                    variant={isSelected ? "default" : "outline"}
+                    onClick={(e) => { e.stopPropagation(); handleAcceptDeal(deal.id, true); }}
+                    disabled={acceptDealMutation.isPending}
+                    data-testid={`button-accept-deal-${deal.id}`}
+                    className={isSelected ? "" : "opacity-0 group-hover:opacity-100 transition-opacity"}
+                  >
+                    {isSelected ? "Activate" : "Select"}
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {selectedSponsorId && (
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Click <span className="font-bold text-foreground">Activate</span> on your chosen sponsor to secure the deal.
+          </p>
+        )}
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Income & Expenses */}
         <Card>
           <CardHeader>
             <CardTitle>Income & Expenses</CardTitle>
@@ -112,36 +202,40 @@ export default function Finances() {
           </CardContent>
         </Card>
 
+        {/* Other Promo Deals */}
         <Card>
           <CardHeader>
-            <CardTitle>Available Promo Deals</CardTitle>
-            <CardDescription>Sponsorship opportunities based on your reputation.</CardDescription>
+            <CardTitle>Additional Promo Deals</CardTitle>
+            <CardDescription>Smaller sponsorship opportunities available to accept.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {deals?.map((deal) => (
-              <div key={deal.id} className="flex items-center justify-between p-4 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 transition-all group">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-primary/20 shadow-sm">
-                    <Handshake className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-lg">{deal.sponsor}</div>
-                    <div className="text-xs text-muted-foreground">Requires {deal.requirementWins} wins • Expires {format(new Date(deal.expiresAt), 'MMM d')}</div>
-                  </div>
+          <CardContent className="space-y-3">
+            {otherDeals.map((deal) => (
+              <div key={deal.id} className="flex items-center gap-3 p-3 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 transition-all group">
+                <div className="h-14 w-14 rounded-lg overflow-hidden flex-shrink-0 border border-primary/20">
+                  <img
+                    src={deal.imageUrl ?? undefined}
+                    alt={deal.sponsor}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="text-right flex flex-col items-end gap-2">
-                  <div className="text-xl font-black text-primary">{formatCurrency(deal.amount)}</div>
-                  <Button size="sm" onClick={() => handleAcceptDeal(deal.id)} disabled={acceptDealMutation.isPending} data-testid={`button-accept-deal-${deal.id}`}>
-                    Accept Deal
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm truncate">{deal.sponsor}</div>
+                  <div className="text-xs text-muted-foreground">{deal.requirementWins} wins req • Exp {format(new Date(deal.expiresAt), "MMM d")}</div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="font-black text-primary text-base">{formatCompact(deal.amount)}</div>
+                  <Button size="sm" className="h-7 text-xs mt-1" onClick={() => handleAcceptDeal(deal.id)} disabled={acceptDealMutation.isPending} data-testid={`button-accept-deal-${deal.id}`}>
+                    Accept
                   </Button>
                 </div>
               </div>
             ))}
-            {deals?.length === 0 && <p className="text-center text-muted-foreground py-8">No deals currently available.</p>}
+            {otherDeals.length === 0 && <p className="text-center text-muted-foreground py-6 text-sm">All available deals are featured above.</p>}
           </CardContent>
         </Card>
       </div>
 
+      {/* Transaction History */}
       <Card>
         <CardHeader>
           <CardTitle>Transaction History</CardTitle>
@@ -161,9 +255,9 @@ export default function Finances() {
             <TableBody>
               {transactions?.map((t) => (
                 <TableRow key={t.id}>
-                  <TableCell className="text-xs text-muted-foreground">{format(new Date(t.createdAt), 'MMM d, yyyy HH:mm')}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{format(new Date(t.createdAt), "MMM d, yyyy HH:mm")}</TableCell>
                   <TableCell>
-                    {t.type === 'income' ? (
+                    {t.type === "income" ? (
                       <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1"><ArrowUpRight className="h-3 w-3" /> INCOME</Badge>
                     ) : (
                       <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1"><ArrowDownRight className="h-3 w-3" /> EXPENSE</Badge>
@@ -171,8 +265,8 @@ export default function Finances() {
                   </TableCell>
                   <TableCell><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
                   <TableCell className="font-medium">{t.description}</TableCell>
-                  <TableCell className={cn("text-right font-bold", t.type === 'income' ? 'text-green-600' : 'text-red-600')}>
-                    {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                  <TableCell className={cn("text-right font-bold", t.type === "income" ? "text-green-600" : "text-red-600")}>
+                    {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -184,25 +278,26 @@ export default function Finances() {
   );
 }
 
-function KPICard({ title, value, icon: Icon, color = "text-primary" }: { title: string, value: string, icon: any, color?: string }) {
+function KPICard({ title, value, icon: Icon, color = "text-primary" }: {
+  title: string; value: string; icon: any; color?: string;
+}) {
   return (
     <Card className="hover-elevate transition-all">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className={cn("h-4 w-4", color)} />
+        <Icon className={cn("h-4 w-4 flex-shrink-0", color)} />
       </CardHeader>
       <CardContent>
-        <div className={cn("text-2xl font-bold", color)}>{value}</div>
+        <div className={cn("text-2xl font-bold truncate", color)}>{value}</div>
       </CardContent>
     </Card>
   );
 }
 
-function BreakdownRow({ label, amount, total, color }: { label: string, amount: number, total: number, color: string }) {
+function BreakdownRow({ label, amount, total, color }: {
+  label: string; amount: number; total: number; color: string;
+}) {
   const percentage = Math.round((amount / total) * 100) || 0;
-  const formatCurrency = (val: number) => 
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
-    
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-xs font-medium">
