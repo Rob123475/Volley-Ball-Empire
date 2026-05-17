@@ -1,10 +1,20 @@
 import { pool } from "@workspace/db";
 
-const getPlayerImageUrl = (name: string) =>
-  `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear`;
+// Deterministic hash → consistent photo per person across runs
+const nameHash = (s: string, mod: number) =>
+  Math.abs(s.split("").reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0)) % mod;
 
-const getStaffImageUrl = (name: string) =>
-  `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_coach")}`;
+// All players are women athletes — realistic portraits 0-99
+const getPlayerImageUrl = (name: string) =>
+  `https://randomuser.me/api/portraits/women/${nameHash(name, 100)}.jpg`;
+
+// Staff — mix men (even hash) and women (odd hash), realistic portraits
+const getStaffImageUrl = (name: string) => {
+  const h = nameHash(name, 200);
+  return h % 2 === 0
+    ? `https://randomuser.me/api/portraits/men/${nameHash(name, 100)}.jpg`
+    : `https://randomuser.me/api/portraits/women/${nameHash(name, 100)}.jpg`;
+};
 
 const getLocationImageUrl = (city: string) =>
   `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;
