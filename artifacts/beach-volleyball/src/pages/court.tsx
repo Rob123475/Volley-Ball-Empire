@@ -2810,12 +2810,15 @@ function useVolleyballPhysics(
 
     // High arc serve — guaranteed to clear the net regardless of drag
     const dirX    = -sideSign;
-    const targetZ = (Math.random() - 0.5) * 5;
+    // Serve target clamped well inside sidelines
+    const rawTargetZ = (Math.random() - 0.5) * 4.0;
+    const targetZ = Math.max(-COURT_HALF_Z + 1.5, Math.min(COURT_HALF_Z - 1.5, rawTargetZ));
     b.pos.set(server.pos.x, 2.2, server.pos.z);
+    const serveVelZ = Math.max(-2.5, Math.min(2.5, (targetZ - server.pos.z) * 0.65));
     b.vel.set(
-      dirX * (17.0 + Math.random() * 4.0),
-      9.0 + Math.random() * 1.5,
-      (targetZ - server.pos.z) * 0.80
+      dirX * (16.0 + Math.random() * 3.0),
+      9.5 + Math.random() * 1.0,
+      serveVelZ
     );
     b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
@@ -3006,6 +3009,11 @@ function useVolleyballPhysics(
           const dirX    = side === "home" ? 1 : -1;
           const partner = players[1 - pi];
 
+          // Helper: clamp ball Z velocity so it can't fly out the side lines
+          const clampVelZ = (max = 3.0) => {
+            b.vel.z = Math.max(-max, Math.min(max, b.vel.z));
+          };
+
           if (!myPossession || r.touches === 0) {
             // ── TOUCH 1: RECEIVE — dig/pass high to partner (same side) ──
             const toPartner = new THREE.Vector3(
@@ -3014,11 +3022,12 @@ function useVolleyballPhysics(
             const pd = Math.max(1, toPartner.length());
             toPartner.normalize();
             b.vel.set(
-              toPartner.x * Math.min(9.0, pd * 2.2),
-              6.0 + Math.random() * 1.5,
-              toPartner.z * Math.min(9.0, pd * 2.2)
+              toPartner.x * Math.min(7.0, pd * 1.8),
+              6.0 + Math.random() * 1.2,
+              toPartner.z * Math.min(7.0, pd * 1.8)
             );
-            b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
+            clampVelZ(2.5);  // keep dig inside court width
+            b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
 
             if (ballH < 1.15) {
               // Low ball — DIVE DIG
@@ -3035,16 +3044,18 @@ function useVolleyballPhysics(
           } else if (r.touches === 1) {
             // ── TOUCH 2: SET — high ball toward attack zone near net ──
             const attackX = side === "home" ? -2.0 : 2.0;
-            const attackZ = (Math.random() - 0.5) * 2.8;
+            // Bias attack Z toward centre of court to keep ball in play
+            const attackZ = (Math.random() - 0.5) * 2.0;
             const toAtk   = new THREE.Vector3(attackX - b.pos.x, 0, attackZ - b.pos.z);
             const ad      = Math.max(1, toAtk.length());
             toAtk.normalize();
             b.vel.set(
-              toAtk.x * Math.min(10.0, ad * 2.4),
-              7.0 + Math.random() * 1.2,
-              toAtk.z * Math.min(10.0, ad * 2.4)
+              toAtk.x * Math.min(8.0, ad * 2.0),
+              6.5 + Math.random() * 1.0,
+              toAtk.z * Math.min(8.0, ad * 2.0)
             );
-            b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
+            clampVelZ(2.5);  // keep set inside court
+            b.angVel.set((Math.random()-0.5)*3, (Math.random()-0.5)*3, (Math.random()-0.5)*3);
 
             p.hitType    = "set";
             p.hitT       = 0.01;
@@ -3053,14 +3064,17 @@ function useVolleyballPhysics(
 
           } else if (r.touches === 2) {
             // ── TOUCH 3: SPIKE — jump smash over net ──
-            const targetZspike = (Math.random() - 0.5) * 5.5;
-            const spikeSpeed   = (15.0 + Math.random() * 7.0) * (atkActive ? 2.0 : 1.0);
+            // Target stays well inside sidelines (±2 m from centre)
+            const targetZspike = (Math.random() - 0.5) * 4.0;
+            const clampedTargetZ = Math.max(-COURT_HALF_Z + 1.2, Math.min(COURT_HALF_Z - 1.2, targetZspike));
+            const spikeSpeed   = (14.0 + Math.random() * 6.0) * (atkActive ? 1.8 : 1.0);
             b.vel.set(
               dirX * spikeSpeed,
-              atkActive ? -(2.0 + Math.random() * 1.0) : 2.5 + Math.random() * 1.5,
-              (targetZspike - b.pos.z) * (atkActive ? 1.4 : 1.0)
+              atkActive ? -(1.8 + Math.random() * 0.8) : 2.2 + Math.random() * 1.2,
+              (clampedTargetZ - b.pos.z) * 0.85
             );
-            b.angVel.set((Math.random()-0.5)*14, (Math.random()-0.5)*10, (Math.random()-0.5)*14);
+            clampVelZ(3.5);  // hard cap — spike can't blow out the sides
+            b.angVel.set((Math.random()-0.5)*10, (Math.random()-0.5)*8, (Math.random()-0.5)*10);
 
             p.hitType    = "spike";
             p.jumpT      = 0.01;
