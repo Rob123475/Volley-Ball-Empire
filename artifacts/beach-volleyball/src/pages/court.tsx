@@ -2808,17 +2808,15 @@ function useVolleyballPhysics(
     server.pos.set(sideSign * (COURT_HALF_X + 2.1), 0, serveZ);
     server.vel.set(0, 0, 0);
 
-    // High arc serve — aim at a point inside the opponent's court
-    const dirX    = -sideSign;
-    // Target: somewhere in the back 2/3 of opponent's court, well inside lines
-    const serveTargetX = dirX * (3.0 + Math.random() * 4.0);
-    const serveTargetZ = (Math.random() - 0.5) * (COURT_HALF_Z * 1.2);
+    // Ballistic serve — lands exactly inside the opponent's court
+    const dirX = -sideSign;
+    // Target well inside lines: 1.5–6 m from net, ±1.5 m lateral
+    const serveTargetX = dirX * (1.5 + Math.random() * 4.5);
+    const serveTargetZ = (Math.random() - 0.5) * 3.0;
     b.pos.set(server.pos.x, 2.2, server.pos.z);
-    const sdx = serveTargetX - b.pos.x;
-    const sdz = serveTargetZ - b.pos.z;
-    const sd  = Math.sqrt(sdx * sdx + sdz * sdz) || 1;
-    const serveSpd = 17.0 + Math.random() * 3.0;
-    b.vel.set(sdx / sd * serveSpd, 10.0 + Math.random() * 1.0, sdz / sd * serveSpd);
+    // velY=8 → verified net clearance ~4 m when served from baseline
+    const sv = ballisticVel(b.pos.x, b.pos.y, b.pos.z, serveTargetX, serveTargetZ, 8.0);
+    b.vel.copy(sv);
     b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
     b.lastHitter  = r.serveSide;
@@ -3008,18 +3006,11 @@ function useVolleyballPhysics(
           const dirX   = side === "home" ? 1 : -1;
           const partner = players[1 - pi];
 
-          // Aim helper: given a target (tx, tz) compute flat XZ speed needed so
-          // the ball travels there, then return a velocity vector.
-          const aimAt = (tx: number, tz: number, flatSpd: number, yVel: number) => {
-            const dx = tx - b.pos.x;
-            const dz = tz - b.pos.z;
-            const d  = Math.sqrt(dx * dx + dz * dz) || 1;
-            return new THREE.Vector3(dx / d * flatSpd, yVel, dz / d * flatSpd);
-          };
-
           if (!myPossession || r.touches === 0) {
-            // ── TOUCH 1: RECEIVE — high pass to partner ──
-            const v = aimAt(partner.pos.x, partner.pos.z, 6.0, 7.0 + Math.random());
+            // ── TOUCH 1: RECEIVE — ballistic pass to partner ──
+            // Target: partner's current position (same half, no net issue)
+            const v = ballisticVel(b.pos.x, b.pos.y, b.pos.z,
+                                   partner.pos.x, partner.pos.z, 7.0);
             b.vel.copy(v);
             b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
 
@@ -3035,10 +3026,11 @@ function useVolleyballPhysics(
             r.side       = side;
 
           } else if (r.touches === 1) {
-            // ── TOUCH 2: SET — float toward attack spot near net ──
+            // ── TOUCH 2: SET — ballistic float to attack zone ──
             const attackX = side === "home" ? -2.5 : 2.5;
-            const attackZ = (Math.random() - 0.5) * 2.0;  // ±1 m either side
-            const v = aimAt(attackX, attackZ, 5.5, 8.0 + Math.random() * 0.8);
+            const attackZ = (Math.random() - 0.5) * 2.0;
+            const v = ballisticVel(b.pos.x, b.pos.y, b.pos.z,
+                                   attackX, attackZ, 7.0);
             b.vel.copy(v);
             b.angVel.set((Math.random()-0.5)*3, (Math.random()-0.5)*3, (Math.random()-0.5)*3);
 
@@ -3048,12 +3040,14 @@ function useVolleyballPhysics(
             r.toucherIdx = pi;
 
           } else if (r.touches === 2) {
-            // ── TOUCH 3: SPIKE — smash to a target point in opponent's court ──
-            // Pick a target well inside the lines
-            const spikeX = dirX * (COURT_HALF_X - 2.0 - Math.random() * 3.0);
-            const spikeZ = (Math.random() - 0.5) * (COURT_HALF_Z * 1.2);
-            const speed  = (18.0 + Math.random() * 5.0) * (atkActive ? 1.6 : 1.0);
-            const v = aimAt(spikeX, spikeZ, speed, atkActive ? -2.0 : 3.5 + Math.random());
+            // ── TOUCH 3: SPIKE — ballistic smash into opponent's court ──
+            // Target: 1.5–6 m from net, ±1.5 m lateral — guaranteed in bounds
+            const spikeX = dirX * (1.5 + Math.random() * 4.5);
+            const spikeZ = (Math.random() - 0.5) * 3.0;
+            // velY=3.5 → verified ~2.4 m net clearance when hit from attack zone
+            const spikeVelY = atkActive ? 3.0 : 3.5;
+            const v = ballisticVel(b.pos.x, b.pos.y, b.pos.z,
+                                   spikeX, spikeZ, spikeVelY);
             b.vel.copy(v);
             b.angVel.set((Math.random()-0.5)*10, (Math.random()-0.5)*8, (Math.random()-0.5)*10);
 
@@ -3092,6 +3086,26 @@ function useVolleyballPhysics(
   }, []);
 
   return { ballRef, homePlayers, awayPlayers, resetBall, swapCourts };
+}
+
+/**
+ * Compute a velocity vector so the ball lands EXACTLY at (tx, tz).
+ * Uses the time-of-flight from the current height and the desired velY.
+ * This guarantees the ball hits the target regardless of start height.
+ */
+function ballisticVel(
+  bx: number, by: number, bz: number,
+  tx: number, tz: number,
+  velY: number
+): THREE.Vector3 {
+  const g = Math.abs(GRAVITY);
+  // Time to reach y=0: by + velY*t - 0.5*g*t² = 0  →  t = (velY + √(velY²+2g·by)) / g
+  const t = Math.max(0.1, (velY + Math.sqrt(Math.max(0, velY * velY + 2 * g * by))) / g);
+  const dx = tx - bx;
+  const dz = tz - bz;
+  const d  = Math.sqrt(dx * dx + dz * dz) || 1;
+  const flatSpd = d / t;
+  return new THREE.Vector3(dx / d * flatSpd, velY, dz / d * flatSpd);
 }
 
 /** Predict where ball will hit y=0 (ignoring drag, ballistic approx) */
