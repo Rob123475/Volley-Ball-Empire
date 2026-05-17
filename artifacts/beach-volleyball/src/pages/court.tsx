@@ -133,31 +133,31 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
         <mesh castShadow receiveShadow>
           <sphereGeometry args={[BALL_RADIUS, 64, 64]} />
           <meshStandardMaterial
-            color="#f5f0e8"
-            roughness={0.15}
+            color="#f8f4ee"
+            roughness={0.08}
             metalness={0.0}
-            envMapIntensity={1.2}
+            envMapIntensity={3.2}
           />
         </mesh>
-        {/* Coloured panel 1 */}
+        {/* Coloured panel 1 — blue */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, 0, Math.PI * 0.7, 0, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#1d4ed8" roughness={0.15} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#1d4ed8" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
         </mesh>
-        {/* Coloured panel 2 */}
+        {/* Coloured panel 2 — red */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.8, Math.PI * 0.7, Math.PI * 0.5, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#dc2626" roughness={0.15} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#dc2626" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
         </mesh>
-        {/* Coloured panel 3 */}
+        {/* Coloured panel 3 — yellow */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.3, Math.PI * 0.6, Math.PI * 0.55, Math.PI * 0.45]} />
-          <meshStandardMaterial color="#fbbf24" roughness={0.15} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#fbbf24" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
         </mesh>
-        {/* Specular highlight sphere */}
+        {/* Specular gloss coat */}
         <mesh>
-          <sphereGeometry args={[BALL_RADIUS * 1.005, 32, 32]} />
-          <meshStandardMaterial transparent opacity={0.08} roughness={0} metalness={0.8} color="white" />
+          <sphereGeometry args={[BALL_RADIUS * 1.004, 32, 32]} />
+          <meshStandardMaterial transparent opacity={0.14} roughness={0} metalness={0.92} color="white" envMapIntensity={4.0} />
         </mesh>
       </group>
     </>
@@ -1253,15 +1253,16 @@ function BeachCourt({ sandColor }: { sandColor: string }) {
         <meshStandardMaterial
           map={sandTex}
           color={sandColor}
-          roughness={0.97}
+          roughness={0.96}
           metalness={0.0}
+          envMapIntensity={0.55}
         />
       </mesh>
 
       {/* Court sand slightly raised */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} receiveShadow>
         <planeGeometry args={[18, 9, 24, 12]} />
-        <meshStandardMaterial map={courtTex} color="#ddc888" roughness={0.94} />
+        <meshStandardMaterial map={courtTex} color="#ead494" roughness={0.93} envMapIntensity={0.60} />
       </mesh>
 
       {/* Court boundary lines */}
@@ -2256,24 +2257,36 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
 
   return (
     <>
-      {/* Main directional sun */}
+      {/* Main directional sun — warm golden hour */}
       <directionalLight
         ref={lightRef}
         position={sunPos}
-        intensity={intensity}
+        intensity={intensity * 1.2}
         castShadow
-        color="#fff9e6"
+        color="#ffeaaa"
+        shadow-mapSize-width={4096}
+        shadow-mapSize-height={4096}
+        shadow-bias={-0.0003}
+        shadow-normalBias={0.05}
+        shadow-camera-near={0.5}
+        shadow-camera-far={85}
+        shadow-camera-left={-24}
+        shadow-camera-right={24}
+        shadow-camera-top={24}
+        shadow-camera-bottom={-24}
       />
-      {/* Sky hemisphere: warm sky / cool ground bounce */}
-      <hemisphereLight args={["#6ea8d8", "#9c7d3a", 0.28]} />
-      {/* Soft fill from opposite side */}
+      {/* Sky hemisphere: rich azure sky / warm sand bounce */}
+      <hemisphereLight args={["#87ceeb", "#c8a86a", 0.44]} />
+      {/* Soft cool fill from opposite side */}
       <directionalLight
-        position={[-sunPos.x * 0.3, sunPos.y * 0.5, -sunPos.z * 0.3]}
-        intensity={intensity * 0.12}
-        color="#b0cfe8"
+        position={[-sunPos.x * 0.35, sunPos.y * 0.5, -sunPos.z * 0.35]}
+        intensity={intensity * 0.20}
+        color="#b8d8f8"
       />
-      {/* Rim light to make players pop */}
-      <directionalLight position={[0, 4, -18]} intensity={0.3} color="#ffe0a0" />
+      {/* Warm golden rim — makes players pop off background */}
+      <directionalLight position={[0, 6, -22]} intensity={0.65} color="#ffd070" />
+      {/* Subtle front fill — lifts face shadows */}
+      <directionalLight position={[0, 3, 20]} intensity={intensity * 0.10} color="#d0eaff" />
 
       {/* Sun sphere in sky */}
       <mesh position={sunPos.clone().multiplyScalar(0.9)}>
@@ -2644,7 +2657,7 @@ function estimateTimeToReach(b: BallPhysics, targetHeight: number): number {
 function PixelRatioSetter() {
   const { gl } = useThree();
   useEffect(() => {
-    gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    gl.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
   }, [gl]);
   return null;
 }
@@ -3261,7 +3274,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
   const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint, boostRef);
   useEffect(() => { if (swapCourtsRef) swapCourtsRef.current = swapCourts; }, [swapCourts, swapCourtsRef]);
 
-  const sandColor = "#dfc97a";
+  const sandColor = "#e6cc80";
 
   return (
     <>
@@ -3283,19 +3296,19 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       {/* Sky */}
       <Sky
         sunPosition={[80, 22, 50]}
-        turbidity={6}
-        rayleigh={1.2}
-        mieCoefficient={0.006}
-        mieDirectionalG={0.84}
-        inclination={0.495}
+        turbidity={2.8}
+        rayleigh={2.4}
+        mieCoefficient={0.003}
+        mieDirectionalG={0.94}
+        inclination={0.49}
         azimuth={0.25}
       />
 
       {/* Lighting */}
-      <SunLighting azimuth={135} elevation={42} intensity={2.6} />
+      <SunLighting azimuth={135} elevation={42} intensity={2.8} />
 
-      {/* Environment for reflections */}
-      <Environment preset="sunset" backgroundIntensity={0} />
+      {/* Environment — drives reflections on ball, skin, net */}
+      <Environment preset="sunset" backgroundIntensity={0} resolution={1024} />
 
       {/* Sparkles near water side (ambient atmosphere) */}
       <Sparkles count={60} scale={[30, 4, 30]} size={0.8} speed={0.1} opacity={0.18} color="#fff9c4" />
@@ -3340,11 +3353,16 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <Player state={awayPlayers.current[0]} teamColor="#E76F51" accentColor="#f4a261" number="4"  side="away" hairColor="#8b3a1a" hairStyle="frenchBraid" />
       <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="highPonytail" />
 
-      {/* Post-processing */}
+      {/* Post-processing — cinematic pipeline */}
       <EffectComposer multisampling={8}>
-        <Bloom intensity={0.55} luminanceThreshold={0.78} luminanceSmoothing={0.08} mipmapBlur />
+        <Bloom intensity={1.05} luminanceThreshold={0.58} luminanceSmoothing={0.12} mipmapBlur height={512} />
+        <DepthOfField focusDistance={0.016} focalLength={0.048} bokehScale={3.2} height={480} />
+        <ChromaticAberration offset={new THREE.Vector2(0.0005, 0.0005)} radialModulation modulationOffset={0.18} />
+        <HueSaturation saturation={0.14} />
+        <BrightnessContrast brightness={0.04} contrast={0.12} />
+        <Noise opacity={0.028} premultiply blendFunction={BlendFunction.ADD} />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-        <Vignette eskil={false} offset={0.1} darkness={0.35} />
+        <Vignette eskil={false} offset={0.06} darkness={0.52} />
       </EffectComposer>
     </>
   );
@@ -3460,14 +3478,15 @@ export default function ThreeDCourt() {
     <div className="h-[calc(100vh-11rem)] w-full rounded-3xl overflow-hidden relative border border-primary/20 shadow-2xl">
       <Canvas
         key={key}
-        shadows={{ type: THREE.PCFShadowMap }}
+        shadows={{ type: THREE.VSMShadowMap }}
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.76,
+          toneMappingExposure: 0.96,
           powerPreference: "high-performance",
+          outputColorSpace: THREE.SRGBColorSpace,
         }}
-        dpr={[1, 2]}
+        dpr={[1, 2.5]}
       >
         <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} boostRef={boostRef} />
       </Canvas>
