@@ -2691,11 +2691,14 @@ function useVolleyballPhysics(
         }
 
         // ── Sand-drag movement ──
+        const boostSpeed = side === "home" && (!!boostRef?.current.attack || !!boostRef?.current.defense)
+          ? PLAYER_SPEED * 2.2
+          : PLAYER_SPEED;
         const toT = new THREE.Vector3(targetX - p.pos.x, 0, targetZ - p.pos.z);
         const dist = toT.length();
         if (dist > 0.15) {
           toT.normalize();
-          p.vel.lerp(toT.multiplyScalar(PLAYER_SPEED), 12 * clampedDt);
+          p.vel.lerp(toT.multiplyScalar(boostSpeed), 16 * clampedDt);
           p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
         } else {
           p.vel.multiplyScalar(0.08);
@@ -2718,7 +2721,8 @@ function useVolleyballPhysics(
         const ballH    = b.pos.y;
         const reachH   = p.pos.y + 1.05;
         const defBoost = side === "home" && !!boostRef?.current.defense;
-        const inRange  = distXZ < (defBoost ? 2.2 : 1.5) && Math.abs(ballH - reachH) < (defBoost ? 2.6 : 1.9);
+        const atkActive = side === "home" && !!boostRef?.current.attack;
+        const inRange  = distXZ < (defBoost ? 4.5 : 1.5) && Math.abs(ballH - reachH) < (defBoost ? 4.5 : 1.9);
         const canHit   = ballOnMySide && inRange && !madeLastTouch && b.inPlay
                          && p.diveT === 0 && p.jumpT === 0;
 
@@ -2774,12 +2778,11 @@ function useVolleyballPhysics(
           } else if (r.touches === 2) {
             // ── TOUCH 3: SPIKE — jump smash over net ──
             const targetZspike = (Math.random() - 0.5) * 5.5;
-            const atkBoost     = side === "home" && !!boostRef?.current.attack;
-            const spikeSpeed   = (12.5 + Math.random() * 5) * (atkBoost ? 1.40 : 1.0);
+            const spikeSpeed   = (12.5 + Math.random() * 5) * (atkActive ? 2.5 : 1.0);
             b.vel.set(
               dirX * spikeSpeed,
-              2.2 + Math.random() * 1.2,
-              (targetZspike - b.pos.z) * 0.78
+              atkActive ? -(1.5 + Math.random() * 1.0) : 2.2 + Math.random() * 1.2,
+              (targetZspike - b.pos.z) * (atkActive ? 1.4 : 0.78)
             );
             b.angVel.set((Math.random()-0.5)*14, (Math.random()-0.5)*10, (Math.random()-0.5)*14);
 
