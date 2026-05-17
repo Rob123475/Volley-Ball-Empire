@@ -366,15 +366,6 @@ function Player({
           <sphereGeometry args={[0.108, 12, 10]} />
           <meshStandardMaterial color={bikiniColor} roughness={0.52} metalness={0.07} />
         </mesh>
-        {/* Band under bust */}
-        <mesh position={[0, 1.128, 0]}>
-          <cylinderGeometry args={[0.196, 0.192, 0.044, 14]} />
-          <meshStandardMaterial color={bikiniColor} roughness={0.52} metalness={0.07} />
-        </mesh>
-        <mesh position={[0, 1.107, 0]}>
-          <cylinderGeometry args={[0.200, 0.200, 0.018, 14]} />
-          <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
-        </mesh>
         {/* Halter neck ties */}
         <mesh position={[-0.060, 1.39, -0.018]} rotation={[0.28, 0.14, 0]}>
           <capsuleGeometry args={[0.011, 0.20, 4, 6]} />
