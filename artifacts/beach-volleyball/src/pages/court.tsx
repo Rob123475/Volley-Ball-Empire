@@ -885,10 +885,14 @@ function Player({
     const s = state;
     if (!groupRef.current) return;
 
-    groupRef.current.position.lerp(s.pos, 10 * dt);
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y, s.facingAngle, 13 * dt
-    );
+    groupRef.current.position.lerp(s.pos, 8 * dt);
+    // Shortest-arc lerp on Y rotation to prevent 360° spin-through
+    {
+      let diff = s.facingAngle - groupRef.current.rotation.y;
+      while (diff >  Math.PI) diff -= 2 * Math.PI;
+      while (diff < -Math.PI) diff += 2 * Math.PI;
+      groupRef.current.rotation.y += diff * Math.min(1, 9 * dt);
+    }
 
     const t   = s.hitT;
     const jt  = s.jumpT;
@@ -2961,34 +2965,34 @@ function useVolleyballPhysics(
           const predX = Math.max(-COURT_HALF_X + 1, Math.min(COURT_HALF_X - 1, b.pos.x + b.vel.x * tFly));
           const predZ = Math.max(-COURT_HALF_Z + 0.5, Math.min(COURT_HALF_Z - 0.5, b.pos.z + b.vel.z * tFly));
 
-          if (!myPossession || r.touches === 0) {
-            // Receive: non-last-toucher chases; other recovers
-            if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
-            else { targetX = side === "home" ? -6 : 6; targetZ = pi === 0 ? -2 : 2; }
-
-          } else if (r.touches === 1) {
-            // After dig: setter chases set target; digger recovers toward net
+          // ── Ball is on our side — play it ──
+          if (r.touches === 0) {
+            // Receive: one player chases, other holds wide ready position
             if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
             else {
-              // Digger runs into attack approach position
+              targetX = side === "home" ? -5.5 : 5.5;
+              targetZ = pi === 0 ? -2.5 : 2.5;
+            }
+          } else if (r.touches === 1) {
+            // After dig: setter chases; digger recovers
+            if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
+            else {
               targetX = side === "home" ? -2.2 : 2.2;
               targetZ = predZ * 0.5;
             }
-
           } else { // touches === 2 — attack approach
-            // Attacker (non-setter) closes on set ball
             if (!madeLastTouch) { targetX = predX; targetZ = predZ; }
             else {
-              // Setter steps off — near net, own side
+              // Setter steps off near net
               targetX = side === "home" ? -3.0 : 3.0;
               targetZ = pi === 0 ? 1.5 : -1.5;
             }
           }
         } else {
-          // Off-ball: return to base positions (wide beach-volleyball spread)
+          // ── Ball not on our side (or out of play) — hold defensive base ──
           const bx = side === "home" ? -1 : 1;
-          targetX = bx * (pi === 0 ? 3.8 : 6.6);
-          targetZ = pi === 0 ? -1.8 : 1.8;
+          targetX = bx * (pi === 0 ? 4.5 : 6.8);
+          targetZ = pi === 0 ? -2.0 : 2.0;
         }
 
         // ── Sand-drag movement ──
@@ -2997,12 +3001,21 @@ function useVolleyballPhysics(
           : PLAYER_SPEED;
         const toT = new THREE.Vector3(targetX - p.pos.x, 0, targetZ - p.pos.z);
         const dist = toT.length();
-        if (dist > 0.15) {
+        if (dist > 0.25) {
           toT.normalize();
-          p.vel.lerp(toT.multiplyScalar(boostSpeed), 12 * clampedDt);
-          p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
+          p.vel.lerp(toT.multiplyScalar(boostSpeed), 5 * clampedDt);
+          // Only update facing when actually moving — avoids spin when dist oscillates
+          const spd = p.vel.length();
+          if (spd > 0.5) {
+            const desired = Math.atan2(p.vel.x, p.vel.z);
+            // Shortest-arc lerp to avoid 360° spin-through
+            let diff = desired - p.facingAngle;
+            while (diff >  Math.PI) diff -= 2 * Math.PI;
+            while (diff < -Math.PI) diff += 2 * Math.PI;
+            p.facingAngle += diff * Math.min(1, 6 * clampedDt);
+          }
         } else {
-          p.vel.multiplyScalar(0.08);
+          p.vel.multiplyScalar(0.05);
         }
         p.pos.addScaledVector(p.vel, clampedDt);
 
@@ -4907,7 +4920,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
         maxDistance={45}
         target={[0, 1, 0]}
         enableDamping
-        dampingFactor={autoRotate ? 0.05 : 0.18}
+        dampingFactor={0.08}
         autoRotate={autoRotate}
         autoRotateSpeed={0.6}
       />
