@@ -111,7 +111,7 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
       const idx = (trailIdx.current - i - 1 + 8) % 8;
       m.position.copy(trailPositions.current[idx]);
       const alpha = (8 - i) / 8;
-      (m.material as THREE.MeshBasicMaterial).opacity = alpha * 0.18;
+      (m.material as THREE.MeshBasicMaterial).opacity = alpha * 0.35;
       const s = (1 - i / 8) * BALL_RADIUS * 1.6;
       m.scale.setScalar(s);
     });
@@ -123,36 +123,36 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
       {Array.from({ length: 8 }, (_, i) => (
         <mesh key={i} ref={(el) => { if (el) trailRef.current[i] = el; }}>
           <sphereGeometry args={[1, 8, 8]} />
-          <meshBasicMaterial color="#fbbf24" transparent opacity={0} depthWrite={false} />
+          <meshBasicMaterial color="#ffe000" transparent opacity={0} depthWrite={false} />
         </mesh>
       ))}
 
       {/* Ball */}
       <group ref={groupRef}>
-        {/* White base */}
+        {/* Vivid yellow base — high visibility */}
         <mesh castShadow receiveShadow>
           <sphereGeometry args={[BALL_RADIUS, 64, 64]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.08} metalness={0.0} envMapIntensity={3.2} />
+          <meshStandardMaterial color="#ffe000" roughness={0.1} metalness={0.0} emissive="#ffe000" emissiveIntensity={0.18} envMapIntensity={2.0} />
         </mesh>
-        {/* Pink panel 1 */}
+        {/* Blue panel 1 */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, 0, Math.PI * 0.7, 0, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#ff4d9e" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#0055ff" roughness={0.1} metalness={0.05} emissive="#0044cc" emissiveIntensity={0.12} envMapIntensity={2.0} side={THREE.FrontSide} />
         </mesh>
-        {/* Pink panel 2 */}
+        {/* Blue panel 2 */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.8, Math.PI * 0.7, Math.PI * 0.5, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#e91e8c" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#003dcc" roughness={0.1} metalness={0.05} emissive="#0033aa" emissiveIntensity={0.12} envMapIntensity={2.0} side={THREE.FrontSide} />
         </mesh>
-        {/* Pale pink panel 3 */}
+        {/* Cyan accent panel */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.3, Math.PI * 0.6, Math.PI * 0.55, Math.PI * 0.45]} />
-          <meshStandardMaterial color="#ffadd2" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#00aaff" roughness={0.1} metalness={0.05} emissive="#0088dd" emissiveIntensity={0.1} envMapIntensity={2.0} side={THREE.FrontSide} />
         </mesh>
-        {/* Specular gloss coat */}
+        {/* Gloss coat */}
         <mesh>
           <sphereGeometry args={[BALL_RADIUS * 1.004, 32, 32]} />
-          <meshStandardMaterial transparent opacity={0.14} roughness={0} metalness={0.92} color="white" envMapIntensity={4.0} />
+          <meshStandardMaterial transparent opacity={0.12} roughness={0} metalness={0.88} color="white" envMapIntensity={3.5} />
         </mesh>
       </group>
     </>
