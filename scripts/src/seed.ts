@@ -8,8 +8,10 @@ const nameHash = (s: string, mod: number) =>
 const getPlayerImageUrl = (name: string) =>
   `https://i.pravatar.cc/300?img=${nameHash(name, 70) + 1}`;
 
+// randomuser.me women's portrait library — 100 real professional photos, indices 0–99
+// Directly constructed URL guarantees gender-correct headshots every time.
 const getStaffImageUrl = (name: string) =>
-  `https://i.pravatar.cc/300?img=${nameHash(name + "_staff", 70) + 1}`;
+  `https://randomuser.me/api/portraits/women/${nameHash(name + "_staff", 100)}.jpg`;
 
 const getLocationImageUrl = (city: string) =>
   `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;
@@ -38,7 +40,9 @@ async function main() {
     const staff = await client.query("SELECT id, name FROM staff");
     console.log(`Updating ${staff.rows.length} staff...`);
     for (const s of staff.rows) {
-      await client.query("UPDATE staff SET image_url = $1 WHERE id = $2", [getStaffImageUrl(s.name), s.id]);
+      const imageUrl = getStaffImageUrl(s.name);
+      await client.query("UPDATE staff SET image_url = $1 WHERE id = $2", [imageUrl, s.id]);
+      console.log(`  ${s.name} → ${imageUrl}`);
     }
     console.log("Staff done.");
 
