@@ -37,8 +37,8 @@ const COURT_HALF_X = 8;   // FIVB: 16 m court length
 const COURT_HALF_Z = 4;   // FIVB: 8 m court width
 const BALL_RADIUS = 0.21;
 const RESTITUTION = 0.55;
-const DRAG = 0.998;
-const PLAYER_SPEED = 7.0;
+const DRAG = 0.996;
+const PLAYER_SPEED = 5.0;
 const HIT_RANGE = 1.4;
 const PLAYER_HEIGHT = 1.75;
 const PLAYER_REACH = PLAYER_HEIGHT + 0.5;
@@ -2813,9 +2813,9 @@ function useVolleyballPhysics(
     const targetZ = (Math.random() - 0.5) * 5;
     b.pos.set(server.pos.x, 2.2, server.pos.z);
     b.vel.set(
-      dirX * (22.0 + Math.random() * 4.0),
-      8.5 + Math.random() * 1.5,
-      (targetZ - server.pos.z) * 0.85
+      dirX * (17.0 + Math.random() * 4.0),
+      9.0 + Math.random() * 1.5,
+      (targetZ - server.pos.z) * 0.80
     );
     b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
@@ -2834,7 +2834,7 @@ function useVolleyballPhysics(
 
   useFrame((_, dt) => {
     if (paused) return;
-    const clampedDt = Math.min(dt, 0.033);
+    const clampedDt = Math.min(dt, 0.025);
     const b = ballRef.current;
     const r = rallyRef.current;
 
@@ -2974,7 +2974,7 @@ function useVolleyballPhysics(
         const dist = toT.length();
         if (dist > 0.15) {
           toT.normalize();
-          p.vel.lerp(toT.multiplyScalar(boostSpeed), 16 * clampedDt);
+          p.vel.lerp(toT.multiplyScalar(boostSpeed), 8 * clampedDt);
           p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
         } else {
           p.vel.multiplyScalar(0.08);
@@ -3014,9 +3014,9 @@ function useVolleyballPhysics(
             const pd = Math.max(1, toPartner.length());
             toPartner.normalize();
             b.vel.set(
-              toPartner.x * Math.min(12.0, pd * 2.8),
-              7.5 + Math.random() * 1.5,
-              toPartner.z * Math.min(12.0, pd * 2.8)
+              toPartner.x * Math.min(9.0, pd * 2.2),
+              6.0 + Math.random() * 1.5,
+              toPartner.z * Math.min(9.0, pd * 2.2)
             );
             b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
 
@@ -3040,9 +3040,9 @@ function useVolleyballPhysics(
             const ad      = Math.max(1, toAtk.length());
             toAtk.normalize();
             b.vel.set(
-              toAtk.x * Math.min(13.0, ad * 2.9),
-              8.0 + Math.random() * 1.5,
-              toAtk.z * Math.min(13.0, ad * 2.9)
+              toAtk.x * Math.min(10.0, ad * 2.4),
+              7.0 + Math.random() * 1.2,
+              toAtk.z * Math.min(10.0, ad * 2.4)
             );
             b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
 
@@ -3054,11 +3054,11 @@ function useVolleyballPhysics(
           } else if (r.touches === 2) {
             // ── TOUCH 3: SPIKE — jump smash over net ──
             const targetZspike = (Math.random() - 0.5) * 5.5;
-            const spikeSpeed   = (22.0 + Math.random() * 8.0) * (atkActive ? 2.5 : 1.0);
+            const spikeSpeed   = (15.0 + Math.random() * 7.0) * (atkActive ? 2.0 : 1.0);
             b.vel.set(
               dirX * spikeSpeed,
-              atkActive ? -(2.5 + Math.random() * 1.5) : 3.0 + Math.random() * 1.5,
-              (targetZspike - b.pos.z) * (atkActive ? 1.6 : 1.0)
+              atkActive ? -(2.0 + Math.random() * 1.0) : 2.5 + Math.random() * 1.5,
+              (targetZspike - b.pos.z) * (atkActive ? 1.4 : 1.0)
             );
             b.angVel.set((Math.random()-0.5)*14, (Math.random()-0.5)*10, (Math.random()-0.5)*14);
 
@@ -3151,34 +3151,67 @@ function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayer
   serveInfo: { side: "home" | "away"; playerIdx: number };
 }) {
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none select-none">
-      {/* Score: blue square – bold number – dash – bold number – red square */}
-      <div className="flex items-center gap-0 rounded-lg overflow-hidden shadow-lg">
-        {/* Blue (home) */}
-        <div className="bg-blue-600/40 backdrop-blur-sm px-4 py-2 flex items-center justify-center min-w-[52px]">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none select-none">
+      <div className="flex items-stretch gap-0 rounded-lg overflow-hidden shadow-lg">
+
+        {/* Home names — blue, muted */}
+        <div className="bg-blue-600/30 backdrop-blur-sm px-3 py-2 flex flex-col justify-center gap-0.5 min-w-[90px]">
+          {homePlayers.map((p, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                serveInfo.side === "home" && serveInfo.playerIdx === i
+                  ? "bg-white/90 shadow-[0_0_4px_2px_rgba(255,255,255,0.6)]"
+                  : "bg-white/20"
+              }`} />
+              <span className="text-[10px] font-semibold text-white/60 truncate max-w-[72px] leading-tight">
+                {p.name.split(" ")[0]}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Home score */}
+        <div className="bg-blue-600/40 backdrop-blur-sm px-4 py-2 flex items-center justify-center min-w-[48px]">
           <span className="text-3xl font-black tabular-nums leading-none text-white drop-shadow">
             {match.homeScore}
           </span>
         </div>
 
-        {/* Dash separator */}
+        {/* Dash */}
         <div className="bg-black/20 backdrop-blur-sm px-2 py-2 flex items-center">
-          <span className="text-xl font-black text-white/50 leading-none">–</span>
+          <span className="text-lg font-black text-white/40 leading-none">–</span>
         </div>
 
-        {/* Red (away) */}
-        <div className="bg-red-600/40 backdrop-blur-sm px-4 py-2 flex items-center justify-center min-w-[52px]">
+        {/* Away score */}
+        <div className="bg-red-600/40 backdrop-blur-sm px-4 py-2 flex items-center justify-center min-w-[48px]">
           <span className="text-3xl font-black tabular-nums leading-none text-white drop-shadow">
             {match.awayScore}
           </span>
         </div>
+
+        {/* Away names — red, muted */}
+        <div className="bg-red-600/30 backdrop-blur-sm px-3 py-2 flex flex-col justify-center gap-0.5 min-w-[90px] items-end">
+          {awayPlayers.map((p, i) => (
+            <div key={i} className="flex items-center gap-1.5 flex-row-reverse">
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                serveInfo.side === "away" && serveInfo.playerIdx === i
+                  ? "bg-white/90 shadow-[0_0_4px_2px_rgba(255,255,255,0.6)]"
+                  : "bg-white/20"
+              }`} />
+              <span className="text-[10px] font-semibold text-white/60 truncate max-w-[72px] leading-tight">
+                {p.name.split(" ")[0]}
+              </span>
+            </div>
+          ))}
+        </div>
+
       </div>
 
       {/* Match-over banner */}
       {match.matchOver && (
-        <div className={`text-xs font-black uppercase tracking-widest px-5 py-1 rounded-full text-white/90 ${
-          match.matchWinner === "home" ? "bg-blue-600/50" : "bg-red-600/50"
-        } backdrop-blur-sm`}>
+        <div className={`text-xs font-black uppercase tracking-widest px-5 py-1 rounded-full text-white/80 backdrop-blur-sm ${
+          match.matchWinner === "home" ? "bg-blue-600/40" : "bg-red-600/40"
+        }`}>
           {match.matchWinner === "home" ? homeTeamName : awayTeamName} wins!
         </div>
       )}
