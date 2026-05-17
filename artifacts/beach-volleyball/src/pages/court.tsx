@@ -4918,8 +4918,8 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
         minDistance={8}
         maxDistance={45}
         target={[0, 1, 0]}
-        enableDamping={autoRotate}
-        dampingFactor={0.08}
+        enableDamping
+        dampingFactor={autoRotate ? 0.05 : 0.18}
         autoRotate={autoRotate}
         autoRotateSpeed={0.6}
       />
