@@ -1,17 +1,64 @@
 import { pool } from "@workspace/db";
 
-// Deterministic hash → same photo every time for the same person
+// Deterministic hash → same photo every time for the same name string
 const nameHash = (s: string, mod: number) =>
   Math.abs(s.split("").reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0)) % mod;
 
-// randomuser.me women's portrait library — 100 real professional photos, indices 0–99
-const getPlayerImageUrl = (name: string) =>
-  `https://randomuser.me/api/portraits/women/${nameHash(name, 100)}.jpg`;
+// Curated pool of high-quality Unsplash female portrait photo IDs.
+// Served at 400×500 with face-detection crop → sharp, properly centred headshots.
+const PORTRAIT_IDS = [
+  "photo-1494790108377-be9c29b29330",
+  "photo-1438761681033-6461ffad8d80",
+  "photo-1544005313-94ddf0286df2",
+  "photo-1531746020798-e6953c6e8e04",
+  "photo-1529626455594-4ff0802cfb7e",
+  "photo-1524504388940-b1c1722653e1",
+  "photo-1506863530036-1efeddceb993",
+  "photo-1543610892-0b1f7e6d8ac1",
+  "photo-1541823709867-1b206113181a",
+  "photo-1488426862026-3ee34a7d66df",
+  "photo-1487412720507-e7ab37603c6f",
+  "photo-1467632499275-7a693a761056",
+  "photo-1452022449306-fa48ef26ef48",
+  "photo-1496360166961-10a51d5f367a",
+  "photo-1517841905240-472988babdf9",
+  "photo-1522075469751-3a6694fb2f61",
+  "photo-1524250502761-1ac6f2e30d43",
+  "photo-1526080652727-5b77f74eacd2",
+  "photo-1517365830460-955ce3be0547",
+  "photo-1535468850893-d6e543fbd082",
+  "photo-1529688530647-93a6e1916f5f",
+  "photo-1549065332-5bc35e8cda01",
+  "photo-1519699047748-de8e457a634e",
+  "photo-1508214751196-bcfd4ca60f91",
+  "photo-1502685104226-ee32379fefbe",
+  "photo-1520813792240-56fc4a3765a7",
+  "photo-1489424731084-a5d8b219a5bb",
+  "photo-1534528741775-53994a69daeb",
+  "photo-1508243771214-6d0bf9b1da86",
+  "photo-1513956589380-bad6acb9b9d4",
+  "photo-1531123897727-8f129e1688ce",
+  "photo-1573496359142-b8d87734a5a2",
+  "photo-1580489944761-15a19d654956",
+  "photo-1590086782957-93c06ef21604",
+  "photo-1536534382065-26e0f5a79dc3",
+  "photo-1578774296842-c45e472b3028",
+  "photo-1614023342667-6f060e9d1e04",
+  "photo-1607746882042-944635dfe10e",
+  "photo-1560087637-bf797bc7796a",
+  "photo-1583195764036-6dc248ac07d9",
+];
 
-// randomuser.me women's portrait library — 100 real professional photos, indices 0–99
-// Directly constructed URL guarantees gender-correct headshots every time.
+// Unsplash CDN: 400×500, face-crop, WebP, q=80 — sharp at any container size
+const unsplashPortrait = (id: string) =>
+  `https://images.unsplash.com/${id}?w=400&h=500&fit=crop&crop=faces&auto=format&q=80`;
+
+const getPlayerImageUrl = (name: string) =>
+  unsplashPortrait(PORTRAIT_IDS[nameHash(name, PORTRAIT_IDS.length)]);
+
+// Staff use a different offset so they don't repeat the same faces as players
 const getStaffImageUrl = (name: string) =>
-  `https://randomuser.me/api/portraits/women/${nameHash(name + "_staff", 100)}.jpg`;
+  unsplashPortrait(PORTRAIT_IDS[nameHash(name + "_s", PORTRAIT_IDS.length)]);
 
 const getLocationImageUrl = (city: string) =>
   `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;
