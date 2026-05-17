@@ -1852,13 +1852,15 @@ function SpectatorStand({
   position = [0, 0, 0] as [number, number, number],
   rotationY = 0,
   colorIdxOffset = 0,
+  seatsPerRow = 14,
 }: {
   position?: [number, number, number];
   rotationY?: number;
   colorIdxOffset?: number;
+  seatsPerRow?: number;
 }) {
   const ROWS = 4;
-  const SEATS_PER_ROW = 14;
+  const SEATS_PER_ROW = seatsPerRow;
   const ROW_DEPTH = 0.75;
   const ROW_RISE  = 0.55;
   const STAND_WIDTH = SEATS_PER_ROW * 0.85;
@@ -1987,8 +1989,8 @@ function SpectatorStand({
         <meshStandardMaterial color={steel} metalness={0.78} roughness={0.28} envMapIntensity={1.2} />
       </mesh>
       {/* Barrier uprights */}
-      {Array.from({ length: 7 }, (_, i) => (
-        <mesh key={i} position={[BASE_X + i * (STAND_WIDTH / 6) + 0.42, 0.78, BASE_Z - 0.36]}>
+      {Array.from({ length: Math.round(SEATS_PER_ROW / 2) + 1 }, (_, i) => (
+        <mesh key={i} position={[BASE_X + i * (STAND_WIDTH / Math.round(SEATS_PER_ROW / 2)) + 0.42, 0.78, BASE_Z - 0.36]}>
           <boxGeometry args={[0.05, 0.62, 0.05]} />
           <meshStandardMaterial color={steel} metalness={0.75} roughness={0.30} />
         </mesh>
@@ -3863,7 +3865,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <BeachUmbrellas />
       <SponsorBoards />
       <UmpireChair />
-      <SpectatorStand />
+      <SpectatorStand seatsPerRow={22} />
       {/* End stands at court baselines (x = ±9), facing inward */}
       <SpectatorStand position={[4.5, 0, 0]} rotationY={Math.PI / 2} colorIdxOffset={56} />
       <SpectatorStand position={[-4.5, 0, 0]} rotationY={-Math.PI / 2} colorIdxOffset={112} />
