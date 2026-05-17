@@ -1042,8 +1042,8 @@ function Player({
           <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.3} />
         </mesh>
 
-        {/* Bikini bottoms — flat band at top of legs */}
-        <mesh position={[0, 0.76, 0]} scale={[1.0, 0.13, 0.78]} castShadow>
+        {/* Bikini bottoms — wraps around to cover glutes */}
+        <mesh position={[0, 0.76, -0.04]} scale={[1.0, 0.14, 0.98]} castShadow>
           <sphereGeometry args={[0.292, 22, 16]} />
           <meshStandardMaterial color={bikiniColor} roughness={0.48} metalness={0.08} />
         </mesh>
