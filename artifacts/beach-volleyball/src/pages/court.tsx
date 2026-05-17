@@ -334,6 +334,16 @@ function Player({
           </mesh>
         </group>
 
+        {/* Glutes — two rounded skin spheres at the back */}
+        <mesh position={[-0.09, 0.96, -0.13]} scale={[0.92, 0.88, 0.72]} castShadow>
+          <sphereGeometry args={[0.155, 16, 14]} />
+          <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.3} />
+        </mesh>
+        <mesh position={[ 0.09, 0.96, -0.13]} scale={[0.92, 0.88, 0.72]} castShadow>
+          <sphereGeometry args={[0.155, 16, 14]} />
+          <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.3} />
+        </mesh>
+
         {/* Bikini bottoms — very flat band pressed tight against the hips */}
         <mesh position={[0, 0.875, 0]} scale={[1.0, 0.13, 0.78]} castShadow>
           <sphereGeometry args={[0.292, 22, 16]} />
