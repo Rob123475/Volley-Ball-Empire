@@ -3802,6 +3802,66 @@ function MerchStore({ position, rotation = [0, 0, 0] as [number,number,number] }
   );
 }
 
+// ── Standing Spectators — behind umbrellas and in front of stalls ─────────────
+function StandingSpectators() {
+  // Umbrella positions (from BeachUmbrellas):
+  //  home-near [-9.5,0,-5.5]  home-far [-9.5,0,5.5]
+  //  away-near [ 9.5,0,-5.5]  away-far [ 9.5,0,5.5]
+  // "behind" = further from court in X — home: x<-9.5, away: x>9.5
+
+  type Spec = { x: number; z: number; faceY: number; idx: number };
+
+  const specs: Spec[] = [
+    // ── Behind home-near umbrella ([-9.5,0,-5.5]) ──
+    { x: -11.0, z: -5.2, faceY:  1.2,  idx: 200 },
+    { x: -12.0, z: -4.5, faceY:  1.0,  idx: 201 },
+    { x: -11.5, z: -6.3, faceY:  1.35, idx: 202 },
+    { x: -13.0, z: -5.8, faceY:  1.15, idx: 203 },
+
+    // ── Behind home-far umbrella ([-9.5,0,5.5]) ──
+    { x: -11.0, z:  5.3, faceY:  1.9,  idx: 204 },
+    { x: -12.2, z:  4.6, faceY:  1.7,  idx: 205 },
+    { x: -11.6, z:  6.4, faceY:  2.0,  idx: 206 },
+    { x: -13.0, z:  5.9, faceY:  1.85, idx: 207 },
+
+    // ── Behind away-near umbrella ([9.5,0,-5.5]) ──
+    { x:  11.0, z: -5.2, faceY: -1.2,  idx: 208 },
+    { x:  12.0, z: -4.5, faceY: -1.0,  idx: 209 },
+    { x:  11.5, z: -6.3, faceY: -1.35, idx: 210 },
+    { x:  13.0, z: -5.8, faceY: -1.15, idx: 211 },
+
+    // ── Behind away-far umbrella ([9.5,0,5.5]) ──
+    { x:  11.0, z:  5.3, faceY: -1.9,  idx: 212 },
+    { x:  12.2, z:  4.6, faceY: -1.7,  idx: 213 },
+    { x:  11.6, z:  6.4, faceY: -2.0,  idx: 214 },
+    { x:  13.0, z:  5.9, faceY: -1.85, idx: 215 },
+
+    // ── In front of food stall ([-7,0,-11], facing +Z = 0) ──
+    { x:  -8.0, z:  -9.0, faceY:  0.1,  idx: 220 },
+    { x:  -6.8, z:  -8.5, faceY: -0.1,  idx: 221 },
+    { x:  -7.5, z:  -9.6, faceY:  0.2,  idx: 222 },
+
+    // ── In front of drinks stall ([0.5,0,-11]) ──
+    { x:  -0.2, z:  -8.8, faceY:  0.15, idx: 223 },
+    { x:   1.2, z:  -9.3, faceY: -0.15, idx: 224 },
+    { x:   0.6, z:  -8.4, faceY:  0.05, idx: 225 },
+
+    // ── In front of merch store ([8,0,-11]) ──
+    { x:   7.2, z:  -9.0, faceY:  0.1,  idx: 226 },
+    { x:   8.5, z:  -8.6, faceY: -0.2,  idx: 227 },
+  ];
+
+  return (
+    <group>
+      {specs.map((s) => (
+        <group key={s.idx} position={[s.x, 0, s.z]} rotation={[0, s.faceY, 0]}>
+          <SimpleSpectator position={[0, 0, 0]} colorIdx={s.idx} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
 // ── Umbrella Reserves (seated spectators) ─────────────────────────────────────
 function UmbrellaReserves({ position, faceY }: {
   position: [number, number, number];
@@ -4167,6 +4227,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
       {/* Reserves seated at blue umbrella [10.5,0,-6] and pink umbrella [10.5,0,6] */}
       <UmbrellaReserves position={[10.2, 0, -6.0]} faceY={Math.PI / 2} />
       <UmbrellaReserves position={[10.2, 0,  6.0]} faceY={Math.PI / 2} />
+      <StandingSpectators />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
