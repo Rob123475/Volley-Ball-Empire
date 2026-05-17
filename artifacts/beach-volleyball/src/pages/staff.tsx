@@ -103,7 +103,7 @@ export default function StaffManagement() {
               <img
                 src={member.imageUrl ?? undefined}
                 alt={member.name}
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-[center_20%]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
               <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
@@ -166,7 +166,7 @@ export default function StaffManagement() {
                     <img
                       src={member.imageUrl ?? undefined}
                       alt={member.name}
-                      className="w-full h-full object-cover object-top"
+                      className="w-full h-full object-cover object-[center_20%]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
                     <div className="absolute top-2 left-2">
