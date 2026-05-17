@@ -4327,11 +4327,47 @@ function MerchStore({ position, rotation = [0, 0, 0] as [number,number,number] }
 }
 
 // ── Standing Spectators — behind umbrellas, sidelines, and in front of stalls ──
+// ── Waving flag held by spectator ─────────────────────────────────────────────
+function WavingFlag({ color, phase }: { color: string; phase: number }) {
+  const flagRef = useRef<THREE.Group>(null!);
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    flagRef.current.rotation.y = Math.sin(t * 3.2 + phase) * 0.55;
+    flagRef.current.rotation.z = Math.sin(t * 1.9 + phase + 1.3) * 0.07;
+  });
+  return (
+    <group position={[0.26, 0, 0]}>
+      {/* Pole */}
+      <mesh position={[0, 0.72, 0]}>
+        <cylinderGeometry args={[0.010, 0.013, 1.44, 5]} />
+        <meshStandardMaterial color="#c0c0c0" metalness={0.65} roughness={0.38} />
+      </mesh>
+      {/* Flag — pivot at left edge, box offset right so x=0 is attachment */}
+      <group ref={flagRef} position={[0, 1.38, 0]}>
+        <mesh position={[0.19, 0, 0]}>
+          <boxGeometry args={[0.38, 0.24, 0.012]} />
+          <meshStandardMaterial color={color} roughness={0.78} side={THREE.DoubleSide} />
+        </mesh>
+        {/* White stripe near hoist for visibility */}
+        <mesh position={[0.03, 0, 0.007]}>
+          <boxGeometry args={[0.06, 0.24, 0.001]} />
+          <meshStandardMaterial color="#ffffff" roughness={0.9} transparent opacity={0.55} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 function StandingSpectators() {
   type Spec = { x: number; z: number; faceY: number; idx: number };
 
-  const specs: Spec[] = [
-    // ── Behind home-near umbrella ([-9.5,0,-5.5]) — 12 figures ──
+  // Deterministic hash → [0,1) for any integer seed (no Math.random)
+  const h  = (n: number) => ((n * 1664525 + 1013904223) >>> 0) / 4294967295;
+  const jt = (n: number, scale: number) => (h(n) - 0.5) * 2 * scale;
+
+  // ── Hand-placed — 78 figures ────────────────────────────────────────────────
+  const placed: Spec[] = [
+    // Behind home-near umbrella ([-9.5,0,-5.5]) — 12
     { x: -11.0, z: -5.2, faceY:  1.20, idx: 200 },
     { x: -12.0, z: -4.5, faceY:  1.00, idx: 201 },
     { x: -11.5, z: -6.3, faceY:  1.35, idx: 202 },
@@ -4344,8 +4380,7 @@ function StandingSpectators() {
     { x: -11.8, z: -7.3, faceY:  1.44, idx: 235 },
     { x: -10.8, z: -6.9, faceY:  1.22, idx: 236 },
     { x: -10.4, z: -4.2, faceY:  1.06, idx: 237 },
-
-    // ── Behind home-far umbrella ([-9.5,0,5.5]) — 12 figures ──
+    // Behind home-far umbrella ([-9.5,0,5.5]) — 12
     { x: -11.0, z:  5.3, faceY:  1.92, idx: 204 },
     { x: -12.2, z:  4.6, faceY:  1.74, idx: 205 },
     { x: -11.6, z:  6.4, faceY:  2.02, idx: 206 },
@@ -4358,8 +4393,7 @@ function StandingSpectators() {
     { x: -11.8, z:  7.3, faceY:  1.70, idx: 245 },
     { x: -10.8, z:  6.9, faceY:  1.92, idx: 246 },
     { x: -10.4, z:  4.2, faceY:  2.08, idx: 247 },
-
-    // ── Behind away-near umbrella ([9.5,0,-5.5]) — 12 figures ──
+    // Behind away-near umbrella ([9.5,0,-5.5]) — 12
     { x:  11.0, z: -5.2, faceY: -1.20, idx: 208 },
     { x:  12.0, z: -4.5, faceY: -1.00, idx: 209 },
     { x:  11.5, z: -6.3, faceY: -1.35, idx: 210 },
@@ -4372,8 +4406,7 @@ function StandingSpectators() {
     { x:  11.8, z: -7.3, faceY: -1.44, idx: 255 },
     { x:  10.8, z: -6.9, faceY: -1.22, idx: 256 },
     { x:  10.4, z: -4.2, faceY: -1.06, idx: 257 },
-
-    // ── Behind away-far umbrella ([9.5,0,5.5]) — 12 figures ──
+    // Behind away-far umbrella ([9.5,0,5.5]) — 12
     { x:  11.0, z:  5.3, faceY: -1.92, idx: 212 },
     { x:  12.2, z:  4.6, faceY: -1.74, idx: 213 },
     { x:  11.6, z:  6.4, faceY: -2.02, idx: 214 },
@@ -4386,8 +4419,7 @@ function StandingSpectators() {
     { x:  11.8, z:  7.3, faceY: -1.70, idx: 265 },
     { x:  10.8, z:  6.9, faceY: -1.92, idx: 266 },
     { x:  10.4, z:  4.2, faceY: -2.08, idx: 267 },
-
-    // ── Along back sideline (z = +7 to +9, facing toward court at -Z) — 8 ──
+    // Back sideline row (z=+7 to +9) — 8
     { x:  -6.2, z:  7.6, faceY: 3.14, idx: 270 },
     { x:  -3.8, z:  7.9, faceY: 3.10, idx: 271 },
     { x:  -1.2, z:  7.6, faceY: 3.14, idx: 272 },
@@ -4396,22 +4428,17 @@ function StandingSpectators() {
     { x:   6.3, z:  7.9, faceY: 3.08, idx: 275 },
     { x:  -4.8, z:  8.8, faceY: 3.14, idx: 276 },
     { x:   2.6, z:  8.7, faceY: 3.16, idx: 277 },
-
-    // ── In front of food stall ([-7,0,-11]) — 5 ──
+    // In front of stalls — 15
     { x:  -8.0, z:  -9.0, faceY:  0.10, idx: 220 },
     { x:  -6.8, z:  -8.5, faceY: -0.10, idx: 221 },
     { x:  -7.5, z:  -9.6, faceY:  0.20, idx: 222 },
     { x:  -5.2, z:  -8.8, faceY: -0.05, idx: 280 },
     { x:  -9.4, z:  -8.9, faceY:  0.15, idx: 281 },
-
-    // ── In front of drinks stall ([0.5,0,-11]) — 5 ──
     { x:  -0.2, z:  -8.8, faceY:  0.15, idx: 223 },
     { x:   1.2, z:  -9.3, faceY: -0.15, idx: 224 },
     { x:   0.6, z:  -8.4, faceY:  0.05, idx: 225 },
     { x:  -1.8, z:  -9.0, faceY:  0.10, idx: 282 },
     { x:   2.5, z:  -8.6, faceY: -0.10, idx: 283 },
-
-    // ── In front of merch store ([8,0,-11]) — 5 ──
     { x:   7.2, z:  -9.0, faceY:  0.10, idx: 226 },
     { x:   8.5, z:  -8.6, faceY: -0.20, idx: 227 },
     { x:   4.2, z:  -8.7, faceY:  0.12, idx: 284 },
@@ -4419,14 +4446,102 @@ function StandingSpectators() {
     { x:   9.6, z:  -8.8, faceY:  0.18, idx: 286 },
   ];
 
+  // ── Programmatically generated extra rows ────────────────────────────────────
+  const gen: Spec[] = [];
+  let gi = 500;
+
+  // Home end (x < −9.5, facing court ≈ +X = π/2): 6 rows
+  ([ [-10.5,  9, -4.5,  4.5],
+     [-12.0, 10, -5.0,  5.0],
+     [-13.5, 11, -5.5,  5.5],
+     [-15.0, 12, -6.0,  6.0],
+     [-16.5, 11, -5.5,  5.5],
+     [-18.0, 10, -5.0,  5.0],
+  ] as [number,number,number,number][]).forEach(([rx, cnt, z0, z1]) => {
+    for (let i = 0; i < cnt; i++) {
+      const rz = z0 + (i / (cnt - 1)) * (z1 - z0);
+      gen.push({ x: rx + jt(gi*3,0.28), z: rz + jt(gi*7,0.28),
+                 faceY: Math.PI/2 + jt(gi*11,0.22), idx: gi++ });
+    }
+  });
+
+  // Away end (x > 9.5, facing court ≈ −X = −π/2): 6 rows (mirror)
+  ([ [ 10.5,  9, -4.5,  4.5],
+     [ 12.0, 10, -5.0,  5.0],
+     [ 13.5, 11, -5.5,  5.5],
+     [ 15.0, 12, -6.0,  6.0],
+     [ 16.5, 11, -5.5,  5.5],
+     [ 18.0, 10, -5.0,  5.0],
+  ] as [number,number,number,number][]).forEach(([rx, cnt, z0, z1]) => {
+    for (let i = 0; i < cnt; i++) {
+      const rz = z0 + (i / (cnt - 1)) * (z1 - z0);
+      gen.push({ x: rx + jt(gi*3,0.28), z: rz + jt(gi*7,0.28),
+                 faceY: -Math.PI/2 + jt(gi*11,0.22), idx: gi++ });
+    }
+  });
+
+  // Far sideline (z > 7, facing toward court ≈ −Z = π): 5 rows
+  ([ [ 9.5, 12, -7.0, 7.0],
+     [11.5, 10, -6.0, 6.0],
+     [13.5,  8, -5.0, 5.0],
+     [15.5,  6, -4.0, 4.0],
+     [17.5,  4, -3.0, 3.0],
+  ] as [number,number,number,number][]).forEach(([rz, cnt, x0, x1]) => {
+    for (let i = 0; i < cnt; i++) {
+      const rx = x0 + (i / (cnt - 1)) * (x1 - x0);
+      gen.push({ x: rx + jt(gi*3,0.28), z: rz + jt(gi*7,0.30),
+                 faceY: Math.PI + jt(gi*11,0.14), idx: gi++ });
+    }
+  });
+
+  // Court-side home (x=−9 to −10.5, z=−5 to +5): 2 rows × 6
+  for (let i = 0; i < 12; i++) {
+    gen.push({ x: (i < 6 ? -9.2 : -10.6) + jt(gi*3,0.2),
+               z: -5 + (i % 6) * 2 + jt(gi*7,0.3),
+               faceY: Math.PI/2 + jt(gi*11,0.2), idx: gi++ });
+  }
+  // Court-side away (mirror): 2 rows × 6
+  for (let i = 0; i < 12; i++) {
+    gen.push({ x: (i < 6 ? 9.2 : 10.6) + jt(gi*3,0.2),
+               z: -5 + (i % 6) * 2 + jt(gi*7,0.3),
+               faceY: -Math.PI/2 + jt(gi*11,0.2), idx: gi++ });
+  }
+
+  // Near stall side (z=−7, facing +Z≈0): 8 figures
+  for (let i = 0; i < 8; i++) {
+    gen.push({ x: -5 + (i / 7) * 9 + jt(gi*3,0.3),
+               z: -7 + jt(gi*7,0.4),
+               faceY: jt(gi*11,0.25), idx: gi++ });
+  }
+
+  // Deep umbrella rows (3rd ring, x=±16, z=±5.5 centred): 4 groups × 10
+  ([ [-16.0, -5.5,  Math.PI/2],
+     [-16.0,  5.5,  Math.PI/2],
+     [ 16.0, -5.5, -Math.PI/2],
+     [ 16.0,  5.5, -Math.PI/2],
+  ] as [number,number,number][]).forEach(([rx, cz, fy]) => {
+    for (let i = 0; i < 10; i++) {
+      const rz = cz - 2 + (i / 9) * 4;
+      gen.push({ x: rx + jt(gi*3,0.30), z: rz + jt(gi*7,0.30),
+                 faceY: fy + jt(gi*11,0.20), idx: gi++ });
+    }
+  });
+
+  const allSpecs = [...placed, ...gen];
+
   return (
-    <group>
-      {specs.map((s) => (
-        <group key={s.idx} position={[s.x, 0, s.z]} rotation={[0, s.faceY, 0]}>
-          <SimpleSpectator position={[0, 0, 0]} colorIdx={s.idx} />
-        </group>
-      ))}
-    </group>
+    <>
+      {allSpecs.map((s) => {
+        const hasFlag   = s.idx % 10 < 4;
+        const flagColor = s.idx % 2 === 0 ? "#cc1100" : "#003db5";
+        return (
+          <group key={s.idx} position={[s.x, 0, s.z]} rotation={[0, s.faceY, 0]}>
+            <SimpleSpectator position={[0, 0, 0]} colorIdx={s.idx} />
+            {hasFlag && <WavingFlag color={flagColor} phase={(s.idx * 0.618) % (Math.PI * 2)} />}
+          </group>
+        );
+      })}
+    </>
   );
 }
 
