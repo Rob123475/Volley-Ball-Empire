@@ -33,8 +33,8 @@ import { CloudSun, MapPin, Wind, Play, Pause, RotateCcw, RefreshCw, Zap, Shield 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const GRAVITY = -9.81;
 const NET_HEIGHT = 2.24;
-const COURT_HALF_X = 9;
-const COURT_HALF_Z = 4.5;
+const COURT_HALF_X = 8;   // FIVB: 16 m court length
+const COURT_HALF_Z = 4;   // FIVB: 8 m court width
 const BALL_RADIUS = 0.21;
 const RESTITUTION = 0.55;
 const DRAG = 0.994;
@@ -1259,19 +1259,19 @@ function BeachCourt({ sandColor }: { sandColor: string }) {
         />
       </mesh>
 
-      {/* Court sand slightly raised */}
+      {/* Court sand slightly raised — FIVB 16m × 8m */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} receiveShadow>
-        <planeGeometry args={[18, 9, 24, 12]} />
+        <planeGeometry args={[16, 8, 24, 12]} />
         <meshStandardMaterial map={courtTex} color="#ead494" roughness={0.93} envMapIntensity={0.60} />
       </mesh>
 
       {/* Court boundary lines */}
       {[
-        { pos: [0, 0.02, 4.5] as [number, number, number], size: [18.2, 0.03, 0.07] as [number, number, number] },
-        { pos: [0, 0.02, -4.5] as [number, number, number], size: [18.2, 0.03, 0.07] as [number, number, number] },
-        { pos: [9, 0.02, 0] as [number, number, number], size: [0.07, 0.03, 9] as [number, number, number] },
-        { pos: [-9, 0.02, 0] as [number, number, number], size: [0.07, 0.03, 9] as [number, number, number] },
-        { pos: [0, 0.02, 0] as [number, number, number], size: [0.07, 0.03, 9] as [number, number, number] },
+        { pos: [0, 0.02, 4] as [number, number, number], size: [16.2, 0.03, 0.07] as [number, number, number] },
+        { pos: [0, 0.02, -4] as [number, number, number], size: [16.2, 0.03, 0.07] as [number, number, number] },
+        { pos: [8, 0.02, 0] as [number, number, number], size: [0.07, 0.03, 8] as [number, number, number] },
+        { pos: [-8, 0.02, 0] as [number, number, number], size: [0.07, 0.03, 8] as [number, number, number] },
+        { pos: [0, 0.02, 0] as [number, number, number], size: [0.07, 0.03, 8] as [number, number, number] },
       ].map((line, i) => (
         <mesh key={i} position={line.pos} castShadow receiveShadow>
           <boxGeometry args={line.size} />
@@ -2513,15 +2513,19 @@ function useVolleyballPhysics(
     serveSide:       "home" as "home" | "away",
     isServeInFlight: true  as boolean,
     sidesFlipped:    false as boolean,           // toggled at end of each set
-    serveAttempt:    0 as number,               // 0 = first serve, 1 = second serve
+    servePlayerIdx:  { home: 0, away: 0 } as { home: number; away: number }, // alternating servers
   });
   const prevBallX = useRef(0);
 
-  const resetBall = useCallback((secondServe = false) => {
+  const resetBall = useCallback(() => {
     const b = ballRef.current;
     const r = rallyRef.current;
 
-    if (!secondServe) r.serveAttempt = 0;
+    // Alternate serve within team (FIVB rule)
+    if (!r.servePlayerIdx) r.servePlayerIdx = { home: 0, away: 0 };
+    const srvIdx = r.servePlayerIdx[r.serveSide];
+    r.servePlayerIdx[r.serveSide] = 1 - srvIdx;
+
     // serveSide is already set by the scoring logic before resetBall is called
     r.touches         = 0;
     r.toucherIdx      = -1;
@@ -2529,7 +2533,7 @@ function useVolleyballPhysics(
     r.isServeInFlight = true;
 
     const srvPlayers = r.serveSide === "home" ? homePlayers.current : awayPlayers.current;
-    const server     = srvPlayers[0];
+    const server     = srvPlayers[srvIdx];
     // Account for court-side swaps: home normally on x<0, unless flipped
     const homeLeft = !r.sidesFlipped;
     const sideSign = r.serveSide === "home" ? (homeLeft ? -1 : 1) : (homeLeft ? 1 : -1);
@@ -2593,21 +2597,13 @@ function useVolleyballPhysics(
     // ── Net collision (includes service fault detection) ──
     if (Math.abs(b.pos.x) < 0.22 && b.pos.y < NET_HEIGHT + BALL_RADIUS && b.pos.y > 0.8) {
       if (r.isServeInFlight && b.inPlay) {
-        // SERVICE FAULT — serve hit the net
+        // SERVICE FAULT — serve in net → immediate point to receiver (FIVB: one serve only)
         b.inPlay = false;
         r.isServeInFlight = false;
-        if (r.serveAttempt < 1) {
-          // First serve fault → second serve, same server
-          r.serveAttempt = 1;
-          setTimeout(() => resetBall(true), 1400);
-        } else {
-          // Double fault → receiver gets point
-          r.serveAttempt = 0;
-          const receiver: "home" | "away" = r.serveSide === "home" ? "away" : "home";
-          r.serveSide = receiver;
-          onPointRef.current(receiver, true);
-          setTimeout(() => resetBall(false), 1600);
-        }
+        const receiver: "home" | "away" = r.serveSide === "home" ? "away" : "home";
+        r.serveSide = receiver;
+        onPointRef.current(receiver, true);
+        setTimeout(() => resetBall(), 1500);
       } else {
         // Normal rally net touch — bounce back
         b.vel.x  = -b.vel.x * 0.55;
@@ -2631,28 +2627,17 @@ function useVolleyballPhysics(
         const outZ = Math.abs(b.pos.z) > COURT_HALF_Z;
         const isOut = outX || outZ;
         // Serve that crossed the net but nobody received yet → service fault
+        // Serve landed out without being touched → service fault (FIVB: one serve only)
         const isUntouchedServe = !r.isServeInFlight && r.touches === 0 && isOut;
-        if (isUntouchedServe) {
-          if (r.serveAttempt < 1) {
-            r.serveAttempt = 1;
-            setTimeout(() => resetBall(true), 1400);
-          } else {
-            r.serveAttempt = 0;
-            const receiver: "home" | "away" = r.serveSide === "home" ? "away" : "home";
-            r.serveSide = receiver;
-            onPointRef.current(receiver, true);
-            setTimeout(() => resetBall(false), 1600);
-          }
-        } else {
-          // Normal rally: out = last hitter loses, in = side that didn't defend loses
-          const winner: "home" | "away" = isOut
-            ? (b.lastHitter === "home" ? "away" : "home")
-            : (b.pos.x < 0 ? "away" : "home");
-          const isPoint = winner === r.serveSide;
-          if (!isPoint) r.serveSide = winner;
-          onPointRef.current(winner, isPoint);
-          setTimeout(() => resetBall(false), 1500);
-        }
+        // Rally point: determine winner and award point
+        const winner: "home" | "away" = isUntouchedServe
+          ? (r.serveSide === "home" ? "away" : "home")  // serve fault → receiver wins
+          : isOut
+            ? (b.lastHitter === "home" ? "away" : "home")  // out of bounds → hitter loses
+            : (b.pos.x < 0 ? "away" : "home");             // landed in court
+        r.serveSide = winner; // winner always serves next (FIVB rally point)
+        onPointRef.current(winner, true);
+        setTimeout(() => resetBall(), 1500);
       }
     }
 
@@ -2907,7 +2892,7 @@ function ScoreBoard({ match }: { match: MatchState }) {
     <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none select-none">
       {/* Set indicator */}
       <div className="text-[10px] font-bold uppercase tracking-widest text-white/70 bg-black/50 backdrop-blur px-3 py-0.5 rounded-full">
-        Set {match.currentSet} · First to 11
+        Set {match.currentSet} · First to {match.currentSet >= 3 ? 15 : 21}
       </div>
 
       {/* Main scoreboard */}
@@ -3968,8 +3953,7 @@ export default function ThreeDCourt() {
     }, 1000);
   }, []);
 
-  const POINTS_TO_WIN = 7;
-  const SETS_TO_WIN   = 2;
+  const SETS_TO_WIN = 2;
 
   const [match, setMatch] = useState<MatchState>({
     homeScore: 0, awayScore: 0,
@@ -3977,26 +3961,25 @@ export default function ThreeDCourt() {
     currentSet: 1, matchOver: false, matchWinner: null,
   });
 
-  // Sideout scoring: only the serving team can score a point.
-  // If the receiving team wins the rally they win the serve (side-out), no point.
-  // Service faults also produce a side-out with no point.
-  const onPoint = useCallback((winner: "home" | "away", isPoint: boolean) => {
-    if (!isPoint) return; // side-out — serve changes (handled in physics), no score update
-
+  // FIVB rally-point scoring: every rally awards a point to the winner.
+  // Sets 1 & 2: first to 21 (win by 2). Set 3: first to 15 (win by 2).
+  // Court swap: every 7 combined points in sets 1 & 2, every 5 in set 3.
+  const onPoint = useCallback((winner: "home" | "away", _isPoint: boolean) => {
     setMatch(prev => {
       if (prev.matchOver) return prev;
 
       const homeScore = prev.homeScore + (winner === "home" ? 1 : 0);
       const awayScore = prev.awayScore + (winner === "away" ? 1 : 0);
+      const pointsToWin  = prev.currentSet >= 3 ? 15 : 21;
+      const swapInterval = prev.currentSet >= 3 ? 5  : 7;
 
-      // Set won: first to POINTS_TO_WIN, must lead by 2
-      const homeWonSet = homeScore >= POINTS_TO_WIN && homeScore - awayScore >= 2;
-      const awayWonSet = awayScore >= POINTS_TO_WIN && awayScore - homeScore >= 2;
+      // Set won: reach pointsToWin with ≥2-point lead
+      const homeWonSet = homeScore >= pointsToWin && homeScore - awayScore >= 2;
+      const awayWonSet = awayScore >= pointsToWin && awayScore - homeScore >= 2;
 
       if (homeWonSet || awayWonSet) {
         const homeSets = prev.homeSets + (homeWonSet ? 1 : 0);
         const awaySets = prev.awaySets + (awayWonSet ? 1 : 0);
-
         if (homeSets >= SETS_TO_WIN || awaySets >= SETS_TO_WIN) {
           return {
             homeScore, awayScore, homeSets, awaySets,
@@ -4005,13 +3988,20 @@ export default function ThreeDCourt() {
             matchWinner: homeSets >= SETS_TO_WIN ? "home" : "away",
           };
         }
-        // Swap court sides for the new set
+        // New set — swap court sides
         setTimeout(() => swapCourtsRef.current(), 0);
         return {
           homeScore: 0, awayScore: 0, homeSets, awaySets,
           currentSet: prev.currentSet + 1,
           matchOver: false, matchWinner: null,
         };
+      }
+
+      // In-set court swap every swapInterval combined points
+      const prevTotal = prev.homeScore + prev.awayScore;
+      const newTotal  = homeScore + awayScore;
+      if (newTotal > 0 && Math.floor(newTotal / swapInterval) > Math.floor(prevTotal / swapInterval)) {
+        setTimeout(() => swapCourtsRef.current(), 0);
       }
 
       return { ...prev, homeScore, awayScore };
