@@ -56,7 +56,7 @@ export default function PlayerDraft() {
           const avgRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
             <Card key={player.id} data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary hover:shadow-lg transition-all">
-              <div className="relative h-60 overflow-hidden">
+              <div className="relative h-72 overflow-hidden">
                 <img
                   src={player.imageUrl ?? undefined}
                   alt={player.name}

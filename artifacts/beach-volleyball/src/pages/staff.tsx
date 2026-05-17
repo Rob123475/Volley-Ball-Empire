@@ -99,7 +99,7 @@ export default function StaffManagement() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {myStaff?.map((member) => (
           <Card key={member.id} className="overflow-hidden" style={{ borderTop: `4px solid` }}>
-            <div className="relative h-52 overflow-hidden">
+            <div className="relative h-64 overflow-hidden">
               <img
                 src={member.imageUrl ?? undefined}
                 alt={member.name}
@@ -162,7 +162,7 @@ export default function StaffManagement() {
             {availableLoading ? <Skeleton className="h-48 w-full" /> : 
               availableStaff?.map((member) => (
                 <Card key={member.id} className="group overflow-hidden hover-elevate border-dashed">
-                  <div className="relative h-52 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden">
                     <img
                       src={member.imageUrl ?? undefined}
                       alt={member.name}

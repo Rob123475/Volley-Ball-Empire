@@ -117,7 +117,7 @@ export default function TeamRoster() {
     
     return (
       <Card data-testid={`card-player-${player.id}`} className="overflow-hidden group hover:shadow-md transition-all duration-300">
-        <div className="relative h-56 overflow-hidden">
+        <div className="relative h-72 overflow-hidden">
           <img
             src={player.imageUrl ?? undefined}
             alt={player.name}

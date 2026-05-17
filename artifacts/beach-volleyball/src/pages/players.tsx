@@ -120,7 +120,7 @@ export default function PlayerMarket() {
           const overall = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
             <Card key={player.id} className="overflow-hidden hover:shadow-lg transition-all group">
-              <div className="relative h-60 overflow-hidden">
+              <div className="relative h-72 overflow-hidden">
                 <img
                   src={player.imageUrl ?? undefined}
                   alt={player.name}
