@@ -1848,7 +1848,15 @@ function SimpleSpectator({ position, colorIdx }: { position: [number, number, nu
   );
 }
 
-function SpectatorStand() {
+function SpectatorStand({
+  position = [0, 0, 0] as [number, number, number],
+  rotationY = 0,
+  colorIdxOffset = 0,
+}: {
+  position?: [number, number, number];
+  rotationY?: number;
+  colorIdxOffset?: number;
+}) {
   const ROWS = 4;
   const SEATS_PER_ROW = 14;
   const ROW_DEPTH = 0.75;
@@ -1861,7 +1869,7 @@ function SpectatorStand() {
   const steel    = "#9a9a9a";
 
   return (
-    <group>
+    <group position={position} rotation={[0, rotationY, 0]}>
       {/* Concrete foundation slab */}
       <mesh position={[0, -0.28, BASE_Z + (ROWS * ROW_DEPTH) / 2]} receiveShadow castShadow>
         <boxGeometry args={[STAND_WIDTH + 1.4, 0.56, ROWS * ROW_DEPTH + 1.2]} />
@@ -1914,7 +1922,7 @@ function SpectatorStand() {
                 <SimpleSpectator
                   key={col}
                   position={[sx, yRow + 0.38, zRow + 0.28]}
-                  colorIdx={row * SEATS_PER_ROW + col}
+                  colorIdx={colorIdxOffset + row * SEATS_PER_ROW + col}
                 />
               );
             })}
@@ -3832,6 +3840,9 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <SponsorBoards />
       <UmpireChair />
       <SpectatorStand />
+      {/* End stands at court baselines (x = ±9), facing inward */}
+      <SpectatorStand position={[4.5, 0, 0]} rotationY={Math.PI / 2} colorIdxOffset={56} />
+      <SpectatorStand position={[-4.5, 0, 0]} rotationY={-Math.PI / 2} colorIdxOffset={112} />
       <Ocean />
       <Seagulls />
       <GroundSeagulls />
