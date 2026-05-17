@@ -2750,7 +2750,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9"  side="away" hairColor="#e2d9c8" hairStyle="straight" />
 
       {/* Post-processing */}
-      <EffectComposer multisampling={0}>
+      <EffectComposer multisampling={4}>
         {/* Punchy bloom on sun glints and highlights */}
         <Bloom intensity={0.80} luminanceThreshold={0.65} luminanceSmoothing={0.10} mipmapBlur />
         {/* Subtle lens fringing */}
@@ -2885,7 +2885,7 @@ export default function ThreeDCourt() {
           toneMappingExposure: 0.92,
           powerPreference: "high-performance",
         }}
-        dpr={[1, 2]}
+        dpr={[1.5, 2]}
       >
         <Scene paused={paused} autoRotate={autoRotate} onPoint={onPoint} swapCourtsRef={swapCourtsRef} boostRef={boostRef} />
       </Canvas>
