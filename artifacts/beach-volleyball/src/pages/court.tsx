@@ -10,8 +10,11 @@ import {
   Cloud,
   Clouds,
 } from "@react-three/drei";
-import { EffectComposer, Bloom, ToneMapping, Vignette } from "@react-three/postprocessing";
-import { ToneMappingMode } from "postprocessing";
+import {
+  EffectComposer, Bloom, ToneMapping, Vignette,
+  DepthOfField, ChromaticAberration, HueSaturation, BrightnessContrast, Noise,
+} from "@react-three/postprocessing";
+import { ToneMappingMode, BlendFunction } from "postprocessing";
 import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import * as THREE from "three";
 import { useListLocations, useGetTeamRoster } from "@workspace/api-client-react";
@@ -302,32 +305,32 @@ function Player({
         {/* Bare feet */}
         <mesh position={[-0.15, 0.055, 0.06]} rotation={[0.08, 0, 0]} castShadow>
           <boxGeometry args={[0.12, 0.065, 0.22]} />
-          <meshStandardMaterial color={skinColor} roughness={0.85} />
+          <meshStandardMaterial color={skinColor} roughness={0.72} metalness={0} envMapIntensity={1.1} />
         </mesh>
         <mesh position={[0.15, 0.055, 0.06]} rotation={[0.08, 0, 0]} castShadow>
           <boxGeometry args={[0.12, 0.065, 0.22]} />
-          <meshStandardMaterial color={skinColor} roughness={0.85} />
+          <meshStandardMaterial color={skinColor} roughness={0.72} metalness={0} envMapIntensity={1.1} />
         </mesh>
 
         {/* Legs — full skin (beach volleyball is bareleg) */}
         <group ref={legLRef} position={[-0.16, 0.68, 0]}>
           <mesh position={[0, -0.28, 0]} castShadow>
             <capsuleGeometry args={[0.105, 0.52, 4, 10]} />
-            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.4} />
           </mesh>
           <mesh position={[0, -0.68, 0.04]} castShadow>
             <capsuleGeometry args={[0.082, 0.35, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.56} metalness={0} envMapIntensity={1.3} />
           </mesh>
         </group>
         <group ref={legRRef} position={[0.16, 0.68, 0]}>
           <mesh position={[0, -0.28, 0]} castShadow>
             <capsuleGeometry args={[0.105, 0.52, 4, 10]} />
-            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.4} />
           </mesh>
           <mesh position={[0, -0.68, 0.04]} castShadow>
             <capsuleGeometry args={[0.082, 0.35, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.56} metalness={0} envMapIntensity={1.3} />
           </mesh>
         </group>
 
@@ -340,7 +343,7 @@ function Player({
         {/* Torso — narrow feminine waist */}
         <mesh ref={torsoRef} position={[0, 1.09, 0]} castShadow>
           <capsuleGeometry args={[0.20, 0.48, 4, 14]} />
-          <meshStandardMaterial color={skinColor} roughness={0.42} metalness={0.025} />
+          <meshStandardMaterial color={skinColor} roughness={0.55} metalness={0} envMapIntensity={1.5} />
         </mesh>
         {/* Subtle ab definition */}
         <mesh position={[0, 0.96, 0.245]}>
@@ -351,11 +354,11 @@ function Player({
         {/* Feminine bust — skin-toned curves */}
         <mesh position={[-0.08, 1.22, 0.17]} castShadow>
           <sphereGeometry args={[0.108, 12, 10]} />
-          <meshStandardMaterial color={skinColor} roughness={0.40} metalness={0.022} />
+          <meshStandardMaterial color={skinColor} roughness={0.50} metalness={0} envMapIntensity={1.5} />
         </mesh>
         <mesh position={[ 0.08, 1.22, 0.17]} castShadow>
           <sphereGeometry args={[0.108, 12, 10]} />
-          <meshStandardMaterial color={skinColor} roughness={0.40} metalness={0.022} />
+          <meshStandardMaterial color={skinColor} roughness={0.50} metalness={0} envMapIntensity={1.5} />
         </mesh>
         {/* Bikini top — shaped cups */}
         <mesh position={[-0.08, 1.22, 0.198]} scale={[1.10, 0.86, 0.56]} castShadow>
@@ -380,35 +383,35 @@ function Player({
         <group ref={armLRef} position={[-0.28, 1.26, 0]}>
           <mesh position={[0, -0.21, 0]} castShadow>
             <capsuleGeometry args={[0.092, 0.36, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.4} />
           </mesh>
           <mesh position={[0, -0.52, 0.04]} castShadow>
             <capsuleGeometry args={[0.078, 0.30, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.56} metalness={0} envMapIntensity={1.3} />
           </mesh>
         </group>
         <group ref={armRRef} position={[0.28, 1.26, 0]}>
           <mesh position={[0, -0.21, 0]} castShadow>
             <capsuleGeometry args={[0.092, 0.36, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.45} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.54} metalness={0} envMapIntensity={1.4} />
           </mesh>
           <mesh position={[0, -0.52, 0.04]} castShadow>
             <capsuleGeometry args={[0.078, 0.30, 4, 8]} />
-            <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.56} metalness={0} envMapIntensity={1.3} />
           </mesh>
         </group>
 
         {/* Neck */}
         <mesh position={[0, 1.51, 0]} castShadow>
           <capsuleGeometry args={[0.088, 0.12, 4, 8]} />
-          <meshStandardMaterial color={skinColor} roughness={0.48} metalness={0.02} />
+          <meshStandardMaterial color={skinColor} roughness={0.55} metalness={0} envMapIntensity={1.4} />
         </mesh>
 
         {/* Head */}
         <group ref={headRef} position={[0, 1.76, 0]}>
           <mesh castShadow>
             <sphereGeometry args={[0.215, 32, 32]} />
-            <meshStandardMaterial color={skinColor} roughness={0.42} metalness={0.02} />
+            <meshStandardMaterial color={skinColor} roughness={0.52} metalness={0} envMapIntensity={1.5} />
           </mesh>
           {/* Eye whites */}
           <mesh position={[-0.086, 0.042, 0.188]}>
@@ -1550,16 +1553,16 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
         castShadow
         color="#fff9e6"
       />
-      {/* Sky hemisphere: warm sky / cool ground bounce */}
-      <hemisphereLight args={["#6ea8d8", "#9c7d3a", 0.28]} />
-      {/* Soft fill from opposite side */}
+      {/* Sky hemisphere: deep blue sky / warm golden ground bounce */}
+      <hemisphereLight args={["#4a90d9", "#b8800a", 0.55]} />
+      {/* Cool blue fill from shadow side */}
       <directionalLight
         position={[-sunPos.x * 0.3, sunPos.y * 0.5, -sunPos.z * 0.3]}
-        intensity={intensity * 0.12}
-        color="#b0cfe8"
+        intensity={intensity * 0.18}
+        color="#9bbfe0"
       />
-      {/* Rim light to make players pop */}
-      <directionalLight position={[0, 4, -18]} intensity={0.3} color="#ffe0a0" />
+      {/* Warm rim light — players pop against background */}
+      <directionalLight position={[0, 5, -20]} intensity={0.55} color="#ffcc66" />
 
       {/* Sun sphere in sky */}
       <mesh position={sunPos.clone().multiplyScalar(0.9)}>
@@ -2627,15 +2630,21 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <Player state={awayPlayers.current[1]} teamColor="#E76F51" accentColor="#f4a261" number="9" side="away" />
 
       {/* Post-processing */}
-      <EffectComposer>
-        <Bloom
-          intensity={0.55}
-          luminanceThreshold={0.78}
-          luminanceSmoothing={0.08}
-          mipmapBlur
-        />
+      <EffectComposer multisampling={0}>
+        {/* Depth of field — focus on the court, soft bokeh beyond */}
+        <DepthOfField focusDistance={0.027} focalLength={0.038} bokehScale={2.4} height={720} />
+        {/* Punchy bloom on sun glints and highlights */}
+        <Bloom intensity={0.80} luminanceThreshold={0.65} luminanceSmoothing={0.10} mipmapBlur />
+        {/* Subtle lens fringing */}
+        <ChromaticAberration offset={new THREE.Vector2(0.00040, 0.00020)} />
+        {/* Warm colour grade — sun-drenched beach */}
+        <HueSaturation hue={0.015} saturation={0.28} />
+        <BrightnessContrast brightness={0.03} contrast={0.18} />
+        {/* Fine film grain */}
+        <Noise premultiply blendFunction={BlendFunction.ADD} />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-        <Vignette eskil={false} offset={0.1} darkness={0.35} />
+        {/* Deeper vignette for cinematic framing */}
+        <Vignette eskil={false} offset={0.14} darkness={0.70} />
       </EffectComposer>
     </>
   );
@@ -2751,11 +2760,11 @@ export default function ThreeDCourt() {
     <div className="h-[calc(100vh-11rem)] w-full rounded-3xl overflow-hidden relative border border-primary/20 shadow-2xl">
       <Canvas
         key={key}
-        shadows={{ type: THREE.PCFShadowMap }}
+        shadows={{ type: THREE.PCFSoftShadowMap }}
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.76,
+          toneMappingExposure: 0.92,
           powerPreference: "high-performance",
         }}
         dpr={[1, 2]}
