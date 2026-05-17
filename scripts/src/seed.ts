@@ -60,8 +60,25 @@ const getPlayerImageUrl = (name: string) =>
 const getStaffImageUrl = (name: string) =>
   unsplashPortrait(PORTRAIT_IDS[nameHash(name + "_s", PORTRAIT_IDS.length)]);
 
-const getLocationImageUrl = (city: string) =>
-  `https://picsum.photos/seed/${encodeURIComponent(city.toLowerCase())}/800/500`;
+// Curated Unsplash photo IDs matched to each host city — 1920×1080, 4K quality
+const LOCATION_PHOTOS: Record<string, string> = {
+  "Rio de Janeiro": "photo-1483729558449-99ef09a8c325", // Sugarloaf + Copacabana aerial
+  "Sydney":         "photo-1506973035872-a4ec16b8e8d9", // Opera House & harbour
+  "Honolulu":       "photo-1492447166138-50c3889fccb1", // Waikiki sunset
+  "Florida":        "photo-1535498730771-e735b998cd64", // Miami South Beach
+  "Varadero":       "photo-1519046904884-53103b34b206", // Caribbean turquoise water
+  "Phuket":         "photo-1552733407-5d5c46c3bb3b", // limestone bay / Phi Phi
+  "Mykonos":        "photo-1533105079780-92b9be482077", // white buildings & windmills
+  "Bali":           "photo-1537996194471-e657df975ab4", // Tegallalang rice terraces
+  "Nice":           "photo-1533664488202-6368aed4b0da", // Promenade des Anglais
+};
+
+const getLocationImageUrl = (city: string) => {
+  const id = LOCATION_PHOTOS[city];
+  if (id) return `https://images.unsplash.com/${id}?w=1920&h=1080&fit=crop&crop=center&auto=format&q=90`;
+  // Fallback for any unlisted city
+  return `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&h=1080&fit=crop&crop=center&auto=format&q=90`;
+};
 
 // Curated Unsplash photo IDs for sponsor cards (landscape 600×300, face-safe crop)
 // Uses images.unsplash.com (the live CDN) — source.unsplash.com is shut down.
