@@ -790,9 +790,9 @@ function CafeSet({ position }: { position: [number, number, number] }) {
 function BeachUmbrellas() {
   const spots: { pos: [number, number, number]; color: string; tilt: number }[] = [
     { pos: [-(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#e63946", tilt:  0.07 },
-    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#f72585", tilt: -0.06 },
-    { pos:  [(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#2a9d8f", tilt:  0.08 },
-    { pos:  [(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#e9c46a", tilt: -0.07 },
+    { pos: [-(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#22c55e", tilt: -0.06 },
+    { pos:  [(COURT_HALF_X + 1.5), 0, -(COURT_HALF_Z + 1.5)], color: "#0077b6", tilt:  0.08 },
+    { pos:  [(COURT_HALF_X + 1.5), 0,  (COURT_HALF_Z + 1.5)], color: "#f72585", tilt: -0.07 },
   ];
   return (
     <group>
@@ -2302,6 +2302,57 @@ function MerchStore({ position, rotation = [0, 0, 0] as [number,number,number] }
   );
 }
 
+// ── Umbrella Reserves (seated spectators) ─────────────────────────────────────
+function UmbrellaReserves({ position, faceY }: {
+  position: [number, number, number];
+  faceY: number;
+}) {
+  const skinTones  = ["#d4956a", "#c8895a", "#b07040"];
+  const shirtColors = ["#ff6b6b", "#4ecdc4", "#ffd166"];
+  return (
+    <group>
+      {([-0.5, 0, 0.5] as number[]).map((dz, i) => (
+        <group key={i} position={[position[0], 0, position[2] + dz]} rotation={[0, faceY, 0]}>
+          {/* Beach-chair seat */}
+          <mesh position={[0, 0.33, 0.08]} rotation={[-0.22, 0, 0]} castShadow>
+            <boxGeometry args={[0.34, 0.045, 0.48]} />
+            <meshStandardMaterial color="#c4a862" roughness={0.8} />
+          </mesh>
+          {/* Backrest */}
+          <mesh position={[0, 0.60, -0.16]} rotation={[0.30, 0, 0]} castShadow>
+            <boxGeometry args={[0.34, 0.50, 0.04]} />
+            <meshStandardMaterial color="#c4a862" roughness={0.8} />
+          </mesh>
+          {/* Lap / lower body */}
+          <mesh position={[0, 0.38, 0.14]} rotation={[-0.22, 0, 0]} castShadow>
+            <capsuleGeometry args={[0.12, 0.24, 4, 8]} />
+            <meshStandardMaterial color="#3366cc" roughness={0.8} />
+          </mesh>
+          {/* Lower legs */}
+          <mesh position={[-0.10, 0.18, 0.35]} rotation={[0.55, 0.04, 0]}>
+            <capsuleGeometry args={[0.055, 0.28, 4, 6]} />
+            <meshStandardMaterial color={skinTones[i]} roughness={0.6} />
+          </mesh>
+          <mesh position={[ 0.10, 0.18, 0.35]} rotation={[0.55, -0.04, 0]}>
+            <capsuleGeometry args={[0.055, 0.28, 4, 6]} />
+            <meshStandardMaterial color={skinTones[i]} roughness={0.6} />
+          </mesh>
+          {/* Torso leaning back */}
+          <mesh position={[0, 0.68, -0.06]} rotation={[0.22, 0, 0]} castShadow>
+            <capsuleGeometry args={[0.155, 0.28, 4, 10]} />
+            <meshStandardMaterial color={shirtColors[i]} roughness={0.65} />
+          </mesh>
+          {/* Head */}
+          <mesh position={[0, 1.01, -0.02]} castShadow>
+            <sphereGeometry args={[0.145, 12, 10]} />
+            <meshStandardMaterial color={skinTones[i]} roughness={0.55} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
 // ── Man Walking Dog ────────────────────────────────────────────────────────────
 function ManWithDog() {
   const groupRef   = useRef<THREE.Group>(null!);
@@ -2557,9 +2608,12 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <GroundSeagulls />
       <ManWithDog />
       <TVCrew />
-      <FoodStall position={[-7, 0, 7.8]} rotation={[0, 0, 0]} stallType="food" />
-      <FoodStall position={[0.5, 0, 7.8]} rotation={[0, 0, 0]} stallType="drinks" />
-      <MerchStore position={[8, 0, 7.8]} rotation={[0, 0, 0]} />
+      <FoodStall position={[-7, 0, -7.8]} rotation={[0, Math.PI, 0]} stallType="food" />
+      <FoodStall position={[0.5, 0, -7.8]} rotation={[0, Math.PI, 0]} stallType="drinks" />
+      <MerchStore position={[8, 0, -7.8]} rotation={[0, Math.PI, 0]} />
+      {/* Reserves seated at blue umbrella [10.5,0,-6] and pink umbrella [10.5,0,6] */}
+      <UmbrellaReserves position={[10.2, 0, -6.0]} faceY={Math.PI / 2} />
+      <UmbrellaReserves position={[10.2, 0,  6.0]} faceY={Math.PI / 2} />
 
       <Ball physRef={ballRef} />
       <BallShadowRing ballPos={ballRef.current.pos} />
