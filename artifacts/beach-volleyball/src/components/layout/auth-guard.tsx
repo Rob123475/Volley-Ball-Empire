@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Loader2 } from "lucide-react";
+import { Activity, Loader2, Play, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const teamSchema = z.object({
@@ -88,25 +88,99 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
+    const loginUrl = `/api/login?returnTo=${encodeURIComponent(window.location.origin + import.meta.env.BASE_URL)}`;
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4 text-center">
-        <div className="mb-8 flex flex-col items-center gap-4 animate-in zoom-in duration-500">
-          <Activity className="h-20 w-20 text-primary" />
-          <h1 className="text-5xl font-extrabold tracking-tight text-primary">
-            BEACH VOLLEY <span className="text-secondary">PRO</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-md">
-            Manage your all-women beach volleyball team to global glory in the ultimate sports simulation.
-          </p>
+      <div className="relative h-screen w-full overflow-hidden bg-black">
+        {/* Hero image */}
+        <img
+          src={`${import.meta.env.BASE_URL}title-hero.png`}
+          alt="Beach Volleyball Pro"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+
+        {/* Dark vignette overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40" />
+
+        {/* Top logo bar */}
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-6">
+          <div className="flex items-center gap-3">
+            <Activity className="h-7 w-7 text-secondary" />
+            <span className="text-white/80 font-bold text-sm uppercase tracking-widest">Beach Volley Pro</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur px-3 py-1.5 rounded-full border border-white/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-white/70 text-xs font-semibold uppercase tracking-wide">Season 2026</span>
+          </div>
         </div>
-        <Button 
-          size="lg" 
-          className="px-12 py-6 text-xl font-bold shadow-lg hover:shadow-xl transition-all"
-          onClick={() => window.location.href = `/api/login?returnTo=${window.location.origin}`}
-          data-testid="button-signin"
-        >
-          START YOUR CAREER
-        </Button>
+
+        {/* Main content — bottom-left anchor */}
+        <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 pb-16 md:pb-20">
+          <div className="max-w-2xl">
+            {/* Tag line */}
+            <div className="mb-3 inline-flex items-center gap-2 bg-secondary/90 backdrop-blur px-3 py-1 rounded-full">
+              <span className="text-white text-xs font-black uppercase tracking-widest">All-Women World Tour</span>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-6xl md:text-8xl font-black text-white leading-none tracking-tight drop-shadow-2xl">
+              BEACH
+              <br />
+              <span className="text-secondary drop-shadow-[0_0_30px_rgba(244,162,97,0.6)]">VOLLEY</span>
+              <br />
+              PRO
+            </h1>
+
+            <p className="mt-4 text-white/60 text-base md:text-lg max-w-md leading-relaxed">
+              Build your dream team. Conquer 11 cities across 9 countries.
+              Claim the world championship.
+            </p>
+
+            {/* Buttons */}
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Button
+                size="lg"
+                className="group relative overflow-hidden bg-secondary hover:bg-secondary/90 text-white font-black text-lg px-10 py-6 rounded-xl shadow-[0_0_30px_rgba(244,162,97,0.4)] hover:shadow-[0_0_40px_rgba(244,162,97,0.6)] transition-all"
+                onClick={() => window.location.href = loginUrl}
+                data-testid="button-signin"
+              >
+                <Play className="mr-2 h-5 w-5 fill-white" />
+                START NEW GAME
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+              </Button>
+
+              <Button
+                size="lg"
+                variant="outline"
+                className="group border-white/30 bg-white/10 backdrop-blur hover:bg-white/20 text-white font-bold text-lg px-10 py-6 rounded-xl transition-all"
+                onClick={() => window.location.href = loginUrl}
+                data-testid="button-continue"
+              >
+                CONTINUE
+                <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
+
+            {/* Footer hint */}
+            <p className="mt-6 text-white/30 text-xs">
+              Sign in with your Replit account to save your progress across sessions.
+            </p>
+          </div>
+        </div>
+
+        {/* Right side — decorative stat pills (visible on wider screens) */}
+        <div className="hidden lg:flex absolute right-12 top-1/2 -translate-y-1/2 flex-col gap-3">
+          {[
+            { label: "World Tour Stops", value: "11" },
+            { label: "Countries", value: "9" },
+            { label: "Grand Final Prize", value: "$50k" },
+          ].map((s) => (
+            <div key={s.label} className="bg-black/50 backdrop-blur border border-white/10 rounded-xl px-5 py-3 text-right">
+              <div className="text-white font-black text-2xl">{s.value}</div>
+              <div className="text-white/40 text-xs uppercase tracking-wider">{s.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

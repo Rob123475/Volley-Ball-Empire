@@ -30,6 +30,12 @@ uri = "file://artifacts/beach-volleyball/public/location-waikiki.png"
 type = "image"
 title = "waikiki beach hawaii diamond head"
 
+[[generated]]
+id = "DRXFRC-gr-l6yYiWQ4-v2"
+uri = "file://artifacts/beach-volleyball/public/title-hero.png"
+type = "image"
+title = "womens beach volleyball title hero"
+
 [[outputs]]
 id = "XCcLc6p_yRoa2T48ZEAei"
 uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
@@ -59,3 +65,9 @@ id = "7JQ_6vBQ2NQQGAqXNik_v"
 uri = "file://artifacts/beach-volleyball/public/location-waikiki.png"
 type = "image"
 title = "Waikiki Beach, Hawaii — Round 3"
+
+[[outputs]]
+id = "iq2ZsAT45HImKmnDgp9i-"
+uri = "file://artifacts/beach-volleyball/public/title-hero.png"
+type = "image"
+title = "Title Page Hero Image"
