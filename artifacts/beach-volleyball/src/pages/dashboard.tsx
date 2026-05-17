@@ -78,11 +78,11 @@ export default function Dashboard() {
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-team-name">{team?.name ?? "—"}</div>
-            <div className="flex gap-4 mt-1">
-              <span className="text-sm text-green-600 font-bold" data-testid="text-wins">{team?.wins ?? 0}W</span>
-              <span className="text-sm text-red-600 font-bold" data-testid="text-losses">{team?.losses ?? 0}L</span>
-              <Badge variant="outline" className="ml-auto text-primary border-primary/30">
+            <div className="text-2xl font-bold truncate" data-testid="text-team-name">{team?.name ?? "—"}</div>
+            <div className="flex items-center gap-2 mt-1 min-w-0">
+              <span className="text-sm text-green-600 font-bold flex-shrink-0" data-testid="text-wins">{team?.wins ?? 0}W</span>
+              <span className="text-sm text-red-600 font-bold flex-shrink-0" data-testid="text-losses">{team?.losses ?? 0}L</span>
+              <Badge variant="outline" className="flex-shrink-0 ml-auto text-primary border-primary/30 whitespace-nowrap">
                 Rep: {team?.reputation ?? 50}
               </Badge>
             </div>
