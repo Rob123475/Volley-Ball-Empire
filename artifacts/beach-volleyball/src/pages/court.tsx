@@ -5068,7 +5068,7 @@ export default function ThreeDCourt() {
     currentSet: 1, matchOver: false, matchWinner: null,
   });
 
-  const HALF_DURATION = 600; // 10 minutes per half
+  const HALF_DURATION = 180; // 3 minutes per half
   const [matchClock, setMatchClock] = useState(0);
   useEffect(() => {
     if (paused || match.matchOver) return;
