@@ -570,20 +570,30 @@ function Player({
           </mesh>
           {/* Hair */}
           <PlayerHair hairColor={hairColor ?? "#2c1200"} hairStyle={hairStyle ?? "ponytail"} />
-          {/* Sun visor — headband ring */}
-          <mesh position={[0, 0.09, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.228, 0.019, 8, 28]} />
-            <meshStandardMaterial color={bikiniColor} roughness={0.38} metalness={0.04} envMapIntensity={0.8} />
+          {/* Baseball cap — dome (upper hemisphere sitting just over the head) */}
+          <mesh position={[0, 0, 0]}>
+            <sphereGeometry args={[0.233, 22, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+            <meshStandardMaterial color={bikiniColor} roughness={0.40} metalness={0.06} envMapIntensity={0.9} />
           </mesh>
-          {/* Sun visor — brim (wide, slightly angled down) */}
-          <mesh position={[0, 0.085, 0.225]} rotation={[0.22, 0, 0]}>
-            <boxGeometry args={[0.42, 0.042, 0.20]} />
-            <meshStandardMaterial color={bikiniColor} roughness={0.38} metalness={0.04} envMapIntensity={0.8} />
+          {/* Cap sweatband ring — thin torus just below the dome */}
+          <mesh position={[0, 0.008, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.226, 0.012, 8, 28]} />
+            <meshStandardMaterial color={bikiniTrim} roughness={0.55} metalness={0.0} />
           </mesh>
-          {/* Brim underside — slightly darker */}
-          <mesh position={[0, 0.062, 0.228]} rotation={[0.22, 0, 0]}>
-            <boxGeometry args={[0.418, 0.004, 0.198]} />
-            <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
+          {/* Cap peak — shorter, structured baseball-cap brim */}
+          <mesh position={[0, 0.04, 0.22]} rotation={[0.20, 0, 0]}>
+            <boxGeometry args={[0.34, 0.028, 0.13]} />
+            <meshStandardMaterial color={bikiniColor} roughness={0.40} metalness={0.06} envMapIntensity={0.9} />
+          </mesh>
+          {/* Peak underside — slightly darker */}
+          <mesh position={[0, 0.023, 0.223]} rotation={[0.20, 0, 0]}>
+            <boxGeometry args={[0.338, 0.005, 0.128]} />
+            <meshStandardMaterial color={bikiniTrim} roughness={0.55} />
+          </mesh>
+          {/* Button on top of cap */}
+          <mesh position={[0, 0.232, 0]}>
+            <sphereGeometry args={[0.018, 8, 6]} />
+            <meshStandardMaterial color={bikiniTrim} roughness={0.50} metalness={0.05} />
           </mesh>
         </group>
       </group>
