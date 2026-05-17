@@ -123,36 +123,49 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
       {Array.from({ length: 8 }, (_, i) => (
         <mesh key={i} ref={(el) => { if (el) trailRef.current[i] = el; }}>
           <sphereGeometry args={[1, 8, 8]} />
-          <meshBasicMaterial color="#ffe000" transparent opacity={0} depthWrite={false} />
+          <meshBasicMaterial color="#cccccc" transparent opacity={0} depthWrite={false} />
         </mesh>
       ))}
 
-      {/* Ball */}
+      {/* Ball — classic black-and-white soccer ball */}
       <group ref={groupRef}>
-        {/* Vivid yellow base — high visibility */}
+        {/* White base */}
         <mesh castShadow receiveShadow>
           <sphereGeometry args={[BALL_RADIUS, 64, 64]} />
-          <meshStandardMaterial color="#ffe000" roughness={0.1} metalness={0.0} emissive="#ffe000" emissiveIntensity={0.18} envMapIntensity={2.0} />
+          <meshStandardMaterial color="#f2f2f2" roughness={0.22} metalness={0.0} envMapIntensity={1.6} />
         </mesh>
-        {/* Blue panel 1 */}
+        {/* Top pentagon cap */}
         <mesh castShadow>
-          <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, 0, Math.PI * 0.7, 0, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#0055ff" roughness={0.1} metalness={0.05} emissive="#0044cc" emissiveIntensity={0.12} envMapIntensity={2.0} side={THREE.FrontSide} />
+          <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32, 0, Math.PI * 2, 0, 0.64]} />
+          <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
         </mesh>
-        {/* Blue panel 2 */}
+        {/* Upper ring — 5 pentagon patches */}
+        {[0, 1, 2, 3, 4].map(i => (
+          <mesh key={`u${i}`} castShadow>
+            <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32,
+              i * Math.PI * 0.4 - 0.35, 0.70,
+              0.80, 0.50]} />
+            <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
+          </mesh>
+        ))}
+        {/* Lower ring — 5 pentagon patches (offset 36°) */}
+        {[0, 1, 2, 3, 4].map(i => (
+          <mesh key={`l${i}`} castShadow>
+            <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32,
+              i * Math.PI * 0.4 + Math.PI * 0.2 - 0.35, 0.70,
+              1.83, 0.50]} />
+            <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
+          </mesh>
+        ))}
+        {/* Bottom pentagon cap */}
         <mesh castShadow>
-          <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.8, Math.PI * 0.7, Math.PI * 0.5, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#003dcc" roughness={0.1} metalness={0.05} emissive="#0033aa" emissiveIntensity={0.12} envMapIntensity={2.0} side={THREE.FrontSide} />
-        </mesh>
-        {/* Cyan accent panel */}
-        <mesh castShadow>
-          <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.3, Math.PI * 0.6, Math.PI * 0.55, Math.PI * 0.45]} />
-          <meshStandardMaterial color="#00aaff" roughness={0.1} metalness={0.05} emissive="#0088dd" emissiveIntensity={0.1} envMapIntensity={2.0} side={THREE.FrontSide} />
+          <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32, 0, Math.PI * 2, Math.PI - 0.64, 0.64]} />
+          <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
         </mesh>
         {/* Gloss coat */}
         <mesh>
           <sphereGeometry args={[BALL_RADIUS * 1.004, 32, 32]} />
-          <meshStandardMaterial transparent opacity={0.12} roughness={0} metalness={0.88} color="white" envMapIntensity={3.5} />
+          <meshStandardMaterial transparent opacity={0.09} roughness={0} metalness={0.85} color="white" envMapIntensity={3.5} />
         </mesh>
       </group>
     </>
