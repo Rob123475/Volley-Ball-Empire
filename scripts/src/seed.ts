@@ -70,7 +70,7 @@ const STAFF_PHOTOS: Record<string, string> = {
   "Ana Kowalski":           u("photo-1494790108377-be9c29b29330"), // European woman portrait
   "Chef Amara Diop":        u("photo-1752836078823-984e836df103"), // woman by sea at twilight
   "Trainer Sofia Reyes":    u("photo-1526080652727-5b77f74eacd2"), // woman portrait
-  "Dr. Fatima Bello":       u("photo-1614023342667-6f060e9d1e04"), // Black woman portrait
+  "Dr. Fatima Bello":       u("photo-1772987292949-4b1bdc01a612"), // Black woman in glasses and white blazer
   "Trainer Camille Dubois": u("photo-1573496359142-b8d87734a5a2"), // European woman portrait
   "Scout Ingrid Olsen":     u("photo-1531123897727-8f129e1688ce"), // woman portrait
   "Scout Birgit Hansen":    u("photo-1518305860742-0d7119d4567f"), // woman in gray top portrait
