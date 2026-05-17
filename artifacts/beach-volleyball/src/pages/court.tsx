@@ -35,7 +35,7 @@ const GRAVITY = -9.81;
 const NET_HEIGHT = 2.24;
 const COURT_HALF_X = 8;   // FIVB: 16 m court length
 const COURT_HALF_Z = 4;   // FIVB: 8 m court width
-const BALL_RADIUS = 0.21;
+const BALL_RADIUS = 0.27;
 const RESTITUTION = 0.55;
 const DRAG = 0.996;
 const PLAYER_SPEED = 5.0;
@@ -127,45 +127,33 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
         </mesh>
       ))}
 
-      {/* Ball — classic black-and-white soccer ball */}
+      {/* Ball — beach volleyball (4 meshes, GPU-friendly) */}
       <group ref={groupRef}>
         {/* White base */}
         <mesh castShadow receiveShadow>
-          <sphereGeometry args={[BALL_RADIUS, 64, 64]} />
-          <meshStandardMaterial color="#f2f2f2" roughness={0.22} metalness={0.0} envMapIntensity={1.6} />
+          <sphereGeometry args={[BALL_RADIUS, 32, 32]} />
+          <meshStandardMaterial
+            color="#ffffff"
+            roughness={0.30}
+            metalness={0.0}
+            emissive="#ffffff"
+            emissiveIntensity={0.18}
+          />
         </mesh>
-        {/* Top pentagon cap */}
-        <mesh castShadow>
-          <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32, 0, Math.PI * 2, 0, 0.64]} />
-          <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
+        {/* Blue equatorial stripe */}
+        <mesh>
+          <torusGeometry args={[BALL_RADIUS * 0.97, BALL_RADIUS * 0.28, 12, 48]} />
+          <meshStandardMaterial color="#1565C0" roughness={0.35} />
         </mesh>
-        {/* Upper ring — 5 pentagon patches */}
-        {[0, 1, 2, 3, 4].map(i => (
-          <mesh key={`u${i}`} castShadow>
-            <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32,
-              i * Math.PI * 0.4 - 0.35, 0.70,
-              0.80, 0.50]} />
-            <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
-          </mesh>
-        ))}
-        {/* Lower ring — 5 pentagon patches (offset 36°) */}
-        {[0, 1, 2, 3, 4].map(i => (
-          <mesh key={`l${i}`} castShadow>
-            <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32,
-              i * Math.PI * 0.4 + Math.PI * 0.2 - 0.35, 0.70,
-              1.83, 0.50]} />
-            <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
-          </mesh>
-        ))}
-        {/* Bottom pentagon cap */}
-        <mesh castShadow>
-          <sphereGeometry args={[BALL_RADIUS + 0.001, 32, 32, 0, Math.PI * 2, Math.PI - 0.64, 0.64]} />
-          <meshStandardMaterial color="#111111" roughness={0.28} side={THREE.FrontSide} />
+        {/* Yellow diagonal stripe (tilted 70°) */}
+        <mesh rotation={[1.22, 0.4, 0]}>
+          <torusGeometry args={[BALL_RADIUS * 0.97, BALL_RADIUS * 0.22, 12, 48]} />
+          <meshStandardMaterial color="#F9A825" roughness={0.35} />
         </mesh>
         {/* Gloss coat */}
         <mesh>
-          <sphereGeometry args={[BALL_RADIUS * 1.004, 32, 32]} />
-          <meshStandardMaterial transparent opacity={0.09} roughness={0} metalness={0.85} color="white" envMapIntensity={3.5} />
+          <sphereGeometry args={[BALL_RADIUS * 1.003, 20, 20]} />
+          <meshStandardMaterial transparent opacity={0.10} roughness={0} metalness={0.90} color="white" />
         </mesh>
       </group>
     </>
