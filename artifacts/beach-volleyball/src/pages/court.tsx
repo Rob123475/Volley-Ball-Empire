@@ -3248,7 +3248,7 @@ function TVCrew() {
   ];
 
   return (
-    <group position={[-3.25, 0, -10]} rotation={[0, Math.atan2(3.25, 10), 0]}>
+    <group position={[-12.5, 0, -5.5]} rotation={[0, Math.atan2(12.5, 5.5), 0]}>
 
       {/* ══ Scaffold platform ══════════════════════════════════════════════ */}
       <group>
