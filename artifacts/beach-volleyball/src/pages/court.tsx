@@ -129,30 +129,25 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
 
       {/* Ball */}
       <group ref={groupRef}>
-        {/* White base panels */}
+        {/* White base */}
         <mesh castShadow receiveShadow>
           <sphereGeometry args={[BALL_RADIUS, 64, 64]} />
-          <meshStandardMaterial
-            color="#f8f4ee"
-            roughness={0.08}
-            metalness={0.0}
-            envMapIntensity={3.2}
-          />
+          <meshStandardMaterial color="#ffffff" roughness={0.08} metalness={0.0} envMapIntensity={3.2} />
         </mesh>
-        {/* Coloured panel 1 — blue */}
+        {/* Pink panel 1 */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, 0, Math.PI * 0.7, 0, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#1d4ed8" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#ff4d9e" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
         </mesh>
-        {/* Coloured panel 2 — red */}
+        {/* Pink panel 2 */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.8, Math.PI * 0.7, Math.PI * 0.5, Math.PI * 0.5]} />
-          <meshStandardMaterial color="#dc2626" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#e91e8c" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
         </mesh>
-        {/* Coloured panel 3 — yellow */}
+        {/* Pale pink panel 3 */}
         <mesh castShadow>
           <sphereGeometry args={[BALL_RADIUS + 0.001, 64, 64, Math.PI * 0.3, Math.PI * 0.6, Math.PI * 0.55, Math.PI * 0.45]} />
-          <meshStandardMaterial color="#fbbf24" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
+          <meshStandardMaterial color="#ffadd2" roughness={0.09} metalness={0.04} envMapIntensity={2.4} side={THREE.FrontSide} />
         </mesh>
         {/* Specular gloss coat */}
         <mesh>
@@ -1572,7 +1567,7 @@ function CafeSet({ position, colorIdx = 0 }: { position: [number, number, number
         <meshStandardMaterial color={cushion} roughness={0.80} envMapIntensity={0.5} />
       </mesh>
       {/* Seat cushion side welt */}
-      <mesh position={[0, 0.425, 0]}>
+      <mesh position={[0, 0.425, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.196, 0.016, 6, 24, Math.PI * 2]} />
         <meshStandardMaterial color="#d4c4a0" roughness={0.85} />
       </mesh>
@@ -1611,7 +1606,7 @@ function CafeSet({ position, colorIdx = 0 }: { position: [number, number, number
         <meshStandardMaterial color={teak} roughness={0.42} metalness={0.02} envMapIntensity={1.1} />
       </mesh>
       {/* Edge lip ring */}
-      <mesh position={[0, 0.752, 0]}>
+      <mesh position={[0, 0.752, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.492, 0.012, 6, 40]} />
         <meshStandardMaterial color={teakDrk} roughness={0.55} metalness={0.04} />
       </mesh>
@@ -2066,6 +2061,33 @@ function SpectatorStand({
           <meshStandardMaterial color={steel} metalness={0.75} roughness={0.30} />
         </mesh>
       ))}
+
+      {/* ── Floodlight rigs mounted under roof ── */}
+      {[-STAND_WIDTH * 0.38, -STAND_WIDTH * 0.13, STAND_WIDTH * 0.13, STAND_WIDTH * 0.38].map((cx, i) => {
+        const lightY = ROWS * ROW_RISE + 2.62;
+        const lightZ = BASE_Z + 0.4;
+        return (
+          <group key={i} position={[cx, lightY, lightZ]}>
+            {/* Housing body */}
+            <mesh castShadow>
+              <boxGeometry args={[0.30, 0.16, 0.26]} />
+              <meshStandardMaterial color="#2a2a2a" metalness={0.70} roughness={0.40} />
+            </mesh>
+            {/* Lamp face — warm emissive glow */}
+            <mesh position={[0, -0.09, 0]}>
+              <boxGeometry args={[0.22, 0.025, 0.20]} />
+              <meshStandardMaterial color="#ffe87a" emissive="#ffe87a" emissiveIntensity={3.0} roughness={0.15} />
+            </mesh>
+            {/* Mounting arm up to roof */}
+            <mesh position={[0, 0.18, 0]}>
+              <boxGeometry args={[0.06, 0.22, 0.06]} />
+              <meshStandardMaterial color={steel} metalness={0.72} roughness={0.35} />
+            </mesh>
+            {/* Point light */}
+            <pointLight color="#fff4d0" intensity={18} distance={26} decay={2} position={[0, -0.14, 0]} />
+          </group>
+        );
+      })}
     </group>
   );
 }
