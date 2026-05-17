@@ -3837,9 +3837,9 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef }: {
       <GroundSeagulls />
       <ManWithDog />
       <TVCrew />
-      <FoodStall position={[-7, 0, -7.8]} rotation={[0, Math.PI, 0]} stallType="food" />
-      <FoodStall position={[0.5, 0, -7.8]} rotation={[0, Math.PI, 0]} stallType="drinks" />
-      <MerchStore position={[8, 0, -7.8]} rotation={[0, Math.PI, 0]} />
+      <FoodStall position={[-7, 0, -11]} rotation={[0, Math.PI, 0]} stallType="food" />
+      <FoodStall position={[0.5, 0, -11]} rotation={[0, Math.PI, 0]} stallType="drinks" />
+      <MerchStore position={[8, 0, -11]} rotation={[0, Math.PI, 0]} />
       {/* Reserves seated at blue umbrella [10.5,0,-6] and pink umbrella [10.5,0,6] */}
       <UmbrellaReserves position={[10.2, 0, -6.0]} faceY={Math.PI / 2} />
       <UmbrellaReserves position={[10.2, 0,  6.0]} faceY={Math.PI / 2} />
