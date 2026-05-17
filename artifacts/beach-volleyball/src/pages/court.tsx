@@ -3210,7 +3210,7 @@ function TVCrew() {
   const black   = "#111111";
 
   return (
-    <group position={[-12.8, 0, 7.8]} rotation={[0, Math.atan2(12.8, -7.8), 0]}>
+    <group position={[-3.25, 0, -10]} rotation={[0, Math.atan2(3.25, 10), 0]}>
 
       {/* ── Camera operator ── */}
       <group position={[0, 0, 0]}>
