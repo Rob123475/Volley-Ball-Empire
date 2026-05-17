@@ -3790,7 +3790,7 @@ function CommentaryScaffold() {
   }
 
   return (
-    <group position={[12.5, 0, -5.5]} rotation={[0, Math.atan2(-12.5, 5.5), 0]}>
+    <group position={[13, 0, -9]} rotation={[0, Math.atan2(-13, 9), 0]}>
 
       {/* ══ Scaffold platform (identical geometry to TVCrew) ═════════════════ */}
       <group>
