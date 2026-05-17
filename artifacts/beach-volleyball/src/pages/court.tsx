@@ -3080,18 +3080,13 @@ function UmbrellaReserves({ position, faceY }: {
   );
 }
 
-// ── Man Walking Dog ────────────────────────────────────────────────────────────
+// ── Security Guard (patrols sideline) ──────────────────────────────────────────
 function ManWithDog() {
-  const groupRef   = useRef<THREE.Group>(null!);
-  const legLRef    = useRef<THREE.Group>(null!);
-  const legRRef    = useRef<THREE.Group>(null!);
-  const armLRef    = useRef<THREE.Group>(null!);
-  const dogRef     = useRef<THREE.Group>(null!);
-  const dogTailRef = useRef<THREE.Mesh>(null!);
-  const dogLeg0    = useRef<THREE.Mesh>(null!);
-  const dogLeg1    = useRef<THREE.Mesh>(null!);
-  const dogLeg2    = useRef<THREE.Mesh>(null!);
-  const dogLeg3    = useRef<THREE.Mesh>(null!);
+  const groupRef = useRef<THREE.Group>(null!);
+  const legLRef  = useRef<THREE.Group>(null!);
+  const legRRef  = useRef<THREE.Group>(null!);
+  const armLRef  = useRef<THREE.Group>(null!);
+  const armRRef  = useRef<THREE.Group>(null!);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -3107,159 +3102,140 @@ function ManWithDog() {
     if (legLRef.current) legLRef.current.rotation.x =  Math.sin(wc) * 0.42;
     if (legRRef.current) legRRef.current.rotation.x = -Math.sin(wc) * 0.42;
     if (armLRef.current) armLRef.current.rotation.x = -Math.sin(wc) * 0.26;
-
-    if (dogRef.current) {
-      dogRef.current.position.set(walkX + dir * 1.5, 0, 8.5);
-      dogRef.current.rotation.y = faceY;
-    }
-    const dt = t * 5.5;
-    if (dogLeg0.current) dogLeg0.current.rotation.x =  Math.sin(dt) * 0.50;
-    if (dogLeg1.current) dogLeg1.current.rotation.x = -Math.sin(dt) * 0.50;
-    if (dogLeg2.current) dogLeg2.current.rotation.x = -Math.sin(dt) * 0.50;
-    if (dogLeg3.current) dogLeg3.current.rotation.x =  Math.sin(dt) * 0.50;
-    if (dogTailRef.current) dogTailRef.current.rotation.z = Math.sin(t * 7) * 0.65 + 0.4;
+    if (armRRef.current) armRRef.current.rotation.x =  Math.sin(wc) * 0.26;
   });
 
-  const manSkin = "#c8895a";
-  const shirt   = "#f0f0f0";
-  const shorts  = "#3366cc";
-  const shoe    = "#222222";
-  const fur     = "#c8a070";
+  const skin    = "#b07848";
+  const uniform = "#1a2640";   // dark navy
+  const trouser = "#111c2e";   // darker navy trousers
+  const shoe    = "#1a1a1a";
+  const badge   = "#d4af37";   // gold badge
 
   return (
-    <>
-      {/* Man */}
-      <group ref={groupRef} position={[0, 0, 8.8]}>
-        <mesh position={[-0.15, 0.055, 0.09]} castShadow>
-          <boxGeometry args={[0.15, 0.07, 0.29]} />
-          <meshStandardMaterial color={shoe} roughness={0.9} />
+    <group ref={groupRef} position={[0, 0, 8.8]}>
+      {/* Shoes */}
+      <mesh position={[-0.15, 0.055, 0.09]} castShadow>
+        <boxGeometry args={[0.15, 0.07, 0.29]} />
+        <meshStandardMaterial color={shoe} roughness={0.8} />
+      </mesh>
+      <mesh position={[0.15, 0.055, 0.09]} castShadow>
+        <boxGeometry args={[0.15, 0.07, 0.29]} />
+        <meshStandardMaterial color={shoe} roughness={0.8} />
+      </mesh>
+
+      {/* Left leg */}
+      <group ref={legLRef} position={[-0.17, 0.74, 0]}>
+        <mesh position={[0, -0.29, 0]} castShadow>
+          <capsuleGeometry args={[0.10, 0.52, 4, 8]} />
+          <meshStandardMaterial color={trouser} roughness={0.75} />
         </mesh>
-        <mesh position={[0.15, 0.055, 0.09]} castShadow>
-          <boxGeometry args={[0.15, 0.07, 0.29]} />
-          <meshStandardMaterial color={shoe} roughness={0.9} />
-        </mesh>
-        <group ref={legLRef} position={[-0.17, 0.74, 0]}>
-          <mesh position={[0, -0.29, 0]} castShadow>
-            <capsuleGeometry args={[0.10, 0.52, 4, 8]} />
-            <meshStandardMaterial color={shorts} roughness={0.8} />
-          </mesh>
-          <mesh position={[0, -0.69, 0.03]} castShadow>
-            <capsuleGeometry args={[0.085, 0.34, 4, 8]} />
-            <meshStandardMaterial color={manSkin} roughness={0.6} />
-          </mesh>
-        </group>
-        <group ref={legRRef} position={[0.17, 0.74, 0]}>
-          <mesh position={[0, -0.29, 0]} castShadow>
-            <capsuleGeometry args={[0.10, 0.52, 4, 8]} />
-            <meshStandardMaterial color={shorts} roughness={0.8} />
-          </mesh>
-          <mesh position={[0, -0.69, 0.03]} castShadow>
-            <capsuleGeometry args={[0.085, 0.34, 4, 8]} />
-            <meshStandardMaterial color={manSkin} roughness={0.6} />
-          </mesh>
-        </group>
-        {/* Torso — broad male build */}
-        <mesh position={[0, 1.16, 0]} castShadow>
-          <capsuleGeometry args={[0.32, 0.50, 4, 12]} />
-          <meshStandardMaterial color={shirt} roughness={0.7} />
-        </mesh>
-        {/* Left arm (holds leash) */}
-        <group ref={armLRef} position={[-0.47, 1.34, 0]}>
-          <mesh position={[0, -0.22, 0]} castShadow>
-            <capsuleGeometry args={[0.095, 0.40, 4, 8]} />
-            <meshStandardMaterial color={shirt} roughness={0.7} />
-          </mesh>
-          <mesh position={[0, -0.54, 0.04]} castShadow>
-            <capsuleGeometry args={[0.08, 0.30, 4, 8]} />
-            <meshStandardMaterial color={manSkin} roughness={0.6} />
-          </mesh>
-        </group>
-        {/* Right arm (relaxed) */}
-        <mesh position={[0.47, 1.10, 0]} castShadow>
-          <capsuleGeometry args={[0.095, 0.40, 4, 8]} />
-          <meshStandardMaterial color={shirt} roughness={0.7} />
-        </mesh>
-        <mesh position={[0.47, 0.77, 0.04]} castShadow>
-          <capsuleGeometry args={[0.08, 0.30, 4, 8]} />
-          <meshStandardMaterial color={manSkin} roughness={0.6} />
-        </mesh>
-        {/* Neck */}
-        <mesh position={[0, 1.63, 0]} castShadow>
-          <capsuleGeometry args={[0.105, 0.12, 4, 8]} />
-          <meshStandardMaterial color={manSkin} roughness={0.6} />
-        </mesh>
-        {/* Head */}
-        <mesh position={[0, 1.90, 0]} castShadow>
-          <sphereGeometry args={[0.225, 20, 16]} />
-          <meshStandardMaterial color={manSkin} roughness={0.52} />
-        </mesh>
-        {/* Cap */}
-        <mesh position={[0, 2.06, 0]}>
-          <cylinderGeometry args={[0.215, 0.215, 0.10, 14]} />
-          <meshStandardMaterial color="#cc3322" roughness={0.65} />
-        </mesh>
-        <mesh position={[0, 2.01, 0.25]} rotation={[0.10, 0, 0]}>
-          <boxGeometry args={[0.38, 0.052, 0.20]} />
-          <meshStandardMaterial color="#cc3322" roughness={0.65} />
+        <mesh position={[0, -0.69, 0.03]} castShadow>
+          <capsuleGeometry args={[0.085, 0.34, 4, 8]} />
+          <meshStandardMaterial color={trouser} roughness={0.75} />
         </mesh>
       </group>
 
-      {/* Dog */}
-      <group ref={dogRef} position={[1.5, 0, 8.5]}>
-        <mesh position={[0, 0.30, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <capsuleGeometry args={[0.11, 0.30, 4, 8]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
+      {/* Right leg */}
+      <group ref={legRRef} position={[0.17, 0.74, 0]}>
+        <mesh position={[0, -0.29, 0]} castShadow>
+          <capsuleGeometry args={[0.10, 0.52, 4, 8]} />
+          <meshStandardMaterial color={trouser} roughness={0.75} />
         </mesh>
-        <mesh position={[0, 0.40, 0.30]} castShadow>
-          <sphereGeometry args={[0.11, 12, 10]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
-        </mesh>
-        <mesh position={[0, 0.36, 0.40]}>
-          <sphereGeometry args={[0.065, 8, 8]} />
-          <meshStandardMaterial color="#d4b078" roughness={0.88} />
-        </mesh>
-        <mesh position={[0, 0.38, 0.46]}>
-          <sphereGeometry args={[0.022, 6, 6]} />
-          <meshStandardMaterial color="#111" roughness={0.3} />
-        </mesh>
-        <mesh position={[-0.055, 0.43, 0.38]}>
-          <sphereGeometry args={[0.020, 6, 6]} />
-          <meshStandardMaterial color="#111" roughness={0.3} />
-        </mesh>
-        <mesh position={[0.055, 0.43, 0.38]}>
-          <sphereGeometry args={[0.020, 6, 6]} />
-          <meshStandardMaterial color="#111" roughness={0.3} />
-        </mesh>
-        <mesh position={[-0.10, 0.33, 0.22]} rotation={[0.15, 0, 0.28]} castShadow>
-          <capsuleGeometry args={[0.028, 0.11, 4, 6]} />
-          <meshStandardMaterial color="#b88a50" roughness={0.9} />
-        </mesh>
-        <mesh position={[0.10, 0.33, 0.22]} rotation={[0.15, 0, -0.28]} castShadow>
-          <capsuleGeometry args={[0.028, 0.11, 4, 6]} />
-          <meshStandardMaterial color="#b88a50" roughness={0.9} />
-        </mesh>
-        <mesh ref={dogTailRef} position={[0, 0.38, -0.25]} rotation={[-0.5, 0, 0.4]} castShadow>
-          <capsuleGeometry args={[0.025, 0.16, 4, 6]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
-        </mesh>
-        <mesh ref={dogLeg0} position={[-0.09, 0.10,  0.10]} castShadow>
-          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
-        </mesh>
-        <mesh ref={dogLeg1} position={[ 0.09, 0.10,  0.10]} castShadow>
-          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
-        </mesh>
-        <mesh ref={dogLeg2} position={[-0.09, 0.10, -0.10]} castShadow>
-          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
-        </mesh>
-        <mesh ref={dogLeg3} position={[ 0.09, 0.10, -0.10]} castShadow>
-          <capsuleGeometry args={[0.028, 0.20, 4, 6]} />
-          <meshStandardMaterial color={fur} roughness={0.85} />
+        <mesh position={[0, -0.69, 0.03]} castShadow>
+          <capsuleGeometry args={[0.085, 0.34, 4, 8]} />
+          <meshStandardMaterial color={trouser} roughness={0.75} />
         </mesh>
       </group>
-    </>
+
+      {/* Torso — uniform jacket */}
+      <mesh position={[0, 1.16, 0]} castShadow>
+        <capsuleGeometry args={[0.32, 0.50, 4, 12]} />
+        <meshStandardMaterial color={uniform} roughness={0.65} />
+      </mesh>
+      {/* Gold badge on chest */}
+      <mesh position={[-0.16, 1.28, 0.30]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[0.10, 0.075, 0.012]} />
+        <meshStandardMaterial color={badge} metalness={0.8} roughness={0.25} envMapIntensity={2.0} />
+      </mesh>
+      {/* Epaulette stripes — left shoulder */}
+      <mesh position={[-0.33, 1.46, 0]} rotation={[0, 0, 0.25]}>
+        <boxGeometry args={[0.12, 0.04, 0.09]} />
+        <meshStandardMaterial color={badge} metalness={0.7} roughness={0.3} />
+      </mesh>
+      {/* Epaulette stripes — right shoulder */}
+      <mesh position={[0.33, 1.46, 0]} rotation={[0, 0, -0.25]}>
+        <boxGeometry args={[0.12, 0.04, 0.09]} />
+        <meshStandardMaterial color={badge} metalness={0.7} roughness={0.3} />
+      </mesh>
+
+      {/* Left arm (swings) — holds walkie-talkie at end */}
+      <group ref={armLRef} position={[-0.47, 1.34, 0]}>
+        <mesh position={[0, -0.22, 0]} castShadow>
+          <capsuleGeometry args={[0.095, 0.40, 4, 8]} />
+          <meshStandardMaterial color={uniform} roughness={0.65} />
+        </mesh>
+        <mesh position={[0, -0.54, 0.04]} castShadow>
+          <capsuleGeometry args={[0.08, 0.30, 4, 8]} />
+          <meshStandardMaterial color={skin} roughness={0.6} />
+        </mesh>
+        {/* Walkie-talkie */}
+        <mesh position={[0, -0.76, 0.07]} castShadow>
+          <boxGeometry args={[0.068, 0.16, 0.042]} />
+          <meshStandardMaterial color="#2a2a2a" roughness={0.45} metalness={0.3} />
+        </mesh>
+        {/* Antenna */}
+        <mesh position={[0, -0.63, 0.09]}>
+          <cylinderGeometry args={[0.006, 0.006, 0.10, 6]} />
+          <meshStandardMaterial color="#111" roughness={0.4} metalness={0.5} />
+        </mesh>
+      </group>
+
+      {/* Right arm (swings naturally) */}
+      <group ref={armRRef} position={[0.47, 1.34, 0]}>
+        <mesh position={[0, -0.22, 0]} castShadow>
+          <capsuleGeometry args={[0.095, 0.40, 4, 8]} />
+          <meshStandardMaterial color={uniform} roughness={0.65} />
+        </mesh>
+        <mesh position={[0, -0.54, 0.04]} castShadow>
+          <capsuleGeometry args={[0.08, 0.30, 4, 8]} />
+          <meshStandardMaterial color={skin} roughness={0.6} />
+        </mesh>
+      </group>
+
+      {/* Neck */}
+      <mesh position={[0, 1.63, 0]} castShadow>
+        <capsuleGeometry args={[0.105, 0.12, 4, 8]} />
+        <meshStandardMaterial color={skin} roughness={0.6} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 1.90, 0]} castShadow>
+        <sphereGeometry args={[0.225, 20, 16]} />
+        <meshStandardMaterial color={skin} roughness={0.52} />
+      </mesh>
+      {/* Sunglasses — dark lenses */}
+      <mesh position={[-0.08, 1.91, 0.215]} rotation={[0.05, 0, 0]}>
+        <boxGeometry args={[0.10, 0.044, 0.01]} />
+        <meshStandardMaterial color="#111" roughness={0.1} metalness={0.6} />
+      </mesh>
+      <mesh position={[0.08, 1.91, 0.215]} rotation={[0.05, 0, 0]}>
+        <boxGeometry args={[0.10, 0.044, 0.01]} />
+        <meshStandardMaterial color="#111" roughness={0.1} metalness={0.6} />
+      </mesh>
+      {/* Security cap — navy with dark brim */}
+      <mesh position={[0, 2.07, 0]}>
+        <cylinderGeometry args={[0.22, 0.22, 0.11, 14]} />
+        <meshStandardMaterial color={uniform} roughness={0.6} />
+      </mesh>
+      <mesh position={[0, 2.04, 0.24]} rotation={[0.10, 0, 0]}>
+        <boxGeometry args={[0.40, 0.04, 0.18]} />
+        <meshStandardMaterial color="#0d1520" roughness={0.55} />
+      </mesh>
+      {/* Cap badge */}
+      <mesh position={[0, 2.10, 0.21]}>
+        <boxGeometry args={[0.075, 0.055, 0.01]} />
+        <meshStandardMaterial color={badge} metalness={0.85} roughness={0.2} envMapIntensity={2.0} />
+      </mesh>
+    </group>
   );
 }
 
