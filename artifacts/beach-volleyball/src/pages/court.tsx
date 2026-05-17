@@ -1483,11 +1483,80 @@ function BeachUmbrella({ position, color, tiltZ = 0 }: {
 }
 
 // ── Table & Chairs ────────────────────────────────────────────────────────────
-function CafeSet({ position }: { position: [number, number, number] }) {
+// Simple seated figure placed inside a chair group (chair faces local +z = toward table)
+function SeatedPersonBody({ skinTone, shirtColor, hairColor }: {
+  skinTone: string; shirtColor: string; hairColor: string;
+}) {
+  return (
+    <group>
+      {/* Torso */}
+      <mesh position={[0, 0.74, 0.01]} castShadow>
+        <boxGeometry args={[0.22, 0.32, 0.15]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.85} />
+      </mesh>
+      {/* Neck */}
+      <mesh position={[0, 0.96, 0.01]}>
+        <cylinderGeometry args={[0.048, 0.052, 0.10, 8]} />
+        <meshStandardMaterial color={skinTone} roughness={0.80} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 1.10, 0.01]} castShadow>
+        <sphereGeometry args={[0.105, 12, 10]} />
+        <meshStandardMaterial color={skinTone} roughness={0.80} />
+      </mesh>
+      {/* Hair (top cap) */}
+      <mesh position={[0, 1.16, -0.01]}>
+        <sphereGeometry args={[0.108, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.52]} />
+        <meshStandardMaterial color={hairColor} roughness={0.92} />
+      </mesh>
+      {/* Left arm resting on armrest */}
+      <mesh position={[-0.155, 0.67, 0.04]} rotation={[0.25, 0, -0.18]}>
+        <boxGeometry args={[0.055, 0.22, 0.055]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.85} />
+      </mesh>
+      {/* Right arm */}
+      <mesh position={[0.155, 0.67, 0.04]} rotation={[0.25, 0, 0.18]}>
+        <boxGeometry args={[0.055, 0.22, 0.055]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.85} />
+      </mesh>
+      {/* Left thigh — horizontal, extends +z toward table */}
+      <mesh position={[-0.07, 0.50, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.052, 0.046, 0.30, 8]} />
+        <meshStandardMaterial color={skinTone} roughness={0.85} />
+      </mesh>
+      {/* Right thigh */}
+      <mesh position={[0.07, 0.50, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.052, 0.046, 0.30, 8]} />
+        <meshStandardMaterial color={skinTone} roughness={0.85} />
+      </mesh>
+      {/* Left lower leg — hangs straight down from knee */}
+      <mesh position={[-0.07, 0.33, 0.30]}>
+        <cylinderGeometry args={[0.038, 0.033, 0.34, 8]} />
+        <meshStandardMaterial color={skinTone} roughness={0.85} />
+      </mesh>
+      {/* Right lower leg */}
+      <mesh position={[0.07, 0.33, 0.30]}>
+        <cylinderGeometry args={[0.038, 0.033, 0.34, 8]} />
+        <meshStandardMaterial color={skinTone} roughness={0.85} />
+      </mesh>
+    </group>
+  );
+}
+
+function CafeSet({ position, colorIdx = 0 }: { position: [number, number, number]; colorIdx?: number }) {
   const teak    = "#a0693a";
   const teakDrk = "#6b4220";
   const cushion = "#f0e2c8";
   const steel   = "#c0c0c0";
+
+  // Person palette: 4 tables × 2 seats each
+  const PEOPLE = [
+    [{ skin: "#d4956a", shirt: "#ff6b6b", hair: "#2c1810" }, { skin: "#c8895a", shirt: "#4ecdc4", hair: "#c8a86b" }],
+    [{ skin: "#b07040", shirt: "#ffd166", hair: "#1a0800" }, { skin: "#e8b896", shirt: "#06d6a0", hair: "#8b4513" }],
+    [{ skin: "#e0a87c", shirt: "#118ab2", hair: "#3d2b1f" }, { skin: "#c07850", shirt: "#ef476f", hair: "#d4a843" }],
+    [{ skin: "#b88060", shirt: "#a8dadc", hair: "#4a3728" }, { skin: "#d49870", shirt: "#e63946", hair: "#f4d03f" }],
+  ];
+  const people = PEOPLE[colorIdx % PEOPLE.length];
 
   const chairLeg = (lx: number, lz: number) => (
     <mesh position={[lx, 0.22, lz]} castShadow>
@@ -1495,7 +1564,7 @@ function CafeSet({ position }: { position: [number, number, number] }) {
       <meshStandardMaterial color={steel} metalness={0.85} roughness={0.20} envMapIntensity={1.6} />
     </mesh>
   );
-  const chair = (cx: number, cz: number, ry: number) => (
+  const chair = (cx: number, cz: number, ry: number, personIdx: number) => (
     <group position={[cx, 0, cz]} rotation={[0, ry, 0]}>
       {/* Seat cushion */}
       <mesh position={[0, 0.44, 0]} castShadow receiveShadow>
@@ -1530,6 +1599,8 @@ function CafeSet({ position }: { position: [number, number, number] }) {
       {chairLeg( 0.16, -0.16)}
       {chairLeg(-0.16,  0.16)}
       {chairLeg( 0.16,  0.16)}
+      {/* Seated person */}
+      <SeatedPersonBody skinTone={people[personIdx].skin} shirtColor={people[personIdx].shirt} hairColor={people[personIdx].hair} />
     </group>
   );
   return (
@@ -1578,8 +1649,8 @@ function CafeSet({ position }: { position: [number, number, number] }) {
         <boxGeometry args={[0.14, 0.003, 0.14]} />
         <meshStandardMaterial color="#fffdf5" roughness={0.95} />
       </mesh>
-      {chair( 0.76, 0,    -Math.PI / 2)}
-      {chair(-0.76, 0,     Math.PI / 2)}
+      {chair( 0.76, 0, -Math.PI / 2, 0)}
+      {chair(-0.76, 0,  Math.PI / 2, 1)}
     </group>
   );
 }
@@ -1597,7 +1668,7 @@ function BeachUmbrellas() {
         <group key={i}>
           <BeachUmbrella position={s.pos} color={s.color} tiltZ={s.tilt} />
           {/* Table sits slightly offset so it's under the shade */}
-          <CafeSet position={[s.pos[0] + (s.pos[0] < 0 ? 0.4 : -0.4), 0, s.pos[2]]} />
+          <CafeSet position={[s.pos[0] + (s.pos[0] < 0 ? 0.4 : -0.4), 0, s.pos[2]]} colorIdx={i} />
         </group>
       ))}
     </group>
@@ -2259,6 +2330,100 @@ function Seagulls() {
   return (
     <group>
       {GULL_CONFIGS.map((cfg, i) => <Seagull key={i} {...cfg} />)}
+    </group>
+  );
+}
+
+// ── Palm Trees ────────────────────────────────────────────────────────────────
+function PalmTree({ position, leanX = 0, leanZ = 0, height = 5.5 }: {
+  position: [number, number, number];
+  leanX?: number;
+  leanZ?: number;
+  height?: number;
+}) {
+  const trunkColor  = "#8B6914";
+  const frondColor  = "#4a7c3f";
+  const coconutClr  = "#5a3a1a";
+  const sections = 5;
+  const sectionH = height / sections;
+  return (
+    <group position={position} rotation={[leanX, 0, leanZ]}>
+      {/* Trunk — tapered, slightly wavy sections */}
+      {Array.from({ length: sections }, (_, i) => {
+        const y  = i * sectionH + sectionH / 2;
+        const r  = 0.13 - i * 0.018;
+        const ox = Math.sin(i * 0.55) * 0.06;
+        return (
+          <mesh key={i} position={[ox, y, 0]} castShadow>
+            <cylinderGeometry args={[r * 0.82, r, sectionH + 0.06, 8]} />
+            <meshStandardMaterial color={trunkColor} roughness={0.92} />
+          </mesh>
+        );
+      })}
+      {/* Fronds fanning from crown */}
+      {Array.from({ length: 8 }, (_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        return (
+          <group key={i} position={[0, height, 0]} rotation={[0, angle, 0]}>
+            <group rotation={[-0.58, 0, 0]}>
+              {/* Frond midrib */}
+              <mesh position={[0, 0, 0.9]}>
+                <boxGeometry args={[0.035, 0.035, 1.9]} />
+                <meshStandardMaterial color="#2d5a27" roughness={0.88} />
+              </mesh>
+              {/* Leaflets */}
+              {Array.from({ length: 7 }, (_, j) => {
+                const lz = 0.18 + j * 0.22;
+                return (
+                  <group key={j} position={[0, 0, lz]}>
+                    <mesh position={[-0.23, 0, 0]} rotation={[0, 0, 0.42]}>
+                      <boxGeometry args={[0.40, 0.018, 0.09]} />
+                      <meshStandardMaterial color={frondColor} roughness={0.80} side={THREE.DoubleSide} />
+                    </mesh>
+                    <mesh position={[0.23, 0, 0]} rotation={[0, 0, -0.42]}>
+                      <boxGeometry args={[0.40, 0.018, 0.09]} />
+                      <meshStandardMaterial color={frondColor} roughness={0.80} side={THREE.DoubleSide} />
+                    </mesh>
+                  </group>
+                );
+              })}
+            </group>
+          </group>
+        );
+      })}
+      {/* Coconuts */}
+      {([0, 2.1, 4.2] as number[]).map((a, i) => (
+        <mesh key={i} position={[Math.cos(a) * 0.24, height - 0.38, Math.sin(a) * 0.24]} castShadow>
+          <sphereGeometry args={[0.14, 10, 8]} />
+          <meshStandardMaterial color={coconutClr} roughness={0.92} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function PalmTrees() {
+  const trees: { pos: [number, number, number]; lx: number; lz: number; h: number }[] = [
+    { pos: [ 14.5,  0,  -2.5], lx:  0.08, lz: -0.12, h: 5.8 },
+    { pos: [ 15.2,  0,   5.5], lx: -0.05, lz: -0.14, h: 6.2 },
+    { pos: [ 13.5,  0,  10.5], lx:  0.10, lz: -0.08, h: 5.5 },
+    { pos: [-14.5,  0,  -4.0], lx:  0.06, lz:  0.13, h: 6.0 },
+    { pos: [-15.2,  0,   3.5], lx: -0.08, lz:  0.15, h: 5.7 },
+    { pos: [-13.5,  0,   9.0], lx:  0.12, lz:  0.09, h: 6.3 },
+    { pos: [  5.5,  0,  14.5], lx:  0.15, lz:  0.05, h: 5.6 },
+    { pos: [ -5.5,  0,  14.5], lx:  0.10, lz: -0.06, h: 6.1 },
+    { pos: [ -8.5,  0, -13.5], lx: -0.12, lz:  0.08, h: 5.9 },
+    { pos: [  8.0,  0, -13.0], lx: -0.08, lz: -0.10, h: 5.4 },
+    { pos: [ 12.5,  0, -11.5], lx:  0.07, lz: -0.13, h: 6.0 },
+    { pos: [-12.5,  0, -10.5], lx: -0.10, lz:  0.11, h: 5.8 },
+    { pos: [  2.0,  0,  16.5], lx:  0.09, lz:  0.04, h: 6.4 },
+    { pos: [-11.0,  0,  12.0], lx:  0.06, lz: -0.12, h: 5.5 },
+  ];
+  return (
+    <group>
+      {trees.map((t, i) => (
+        <PalmTree key={i} position={t.pos} leanX={t.lx} leanZ={t.lz} height={t.h} />
+      ))}
     </group>
   );
 }
@@ -3876,6 +4041,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
       <SpectatorStand position={[-4.5, 0, 0]} rotationY={-Math.PI / 2} colorIdxOffset={112} />
       <Ocean />
       <Seagulls />
+      <PalmTrees />
       <GroundSeagulls />
       <ManWithDog />
       <TVCrew />
