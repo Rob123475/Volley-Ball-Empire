@@ -127,8 +127,8 @@ export default function Dashboard() {
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {/* W/L record */}
         <StatPill
-          gradient="bg-gradient-to-br from-blue-600 to-blue-800"
-          iconBg="bg-blue-500/40"
+          gradient="bg-gradient-to-br from-blue-400 to-blue-600"
+          iconBg="bg-blue-300/40"
           icon={<Swords className="h-5 w-5 text-white" />}
           label="Record"
           value={<span>{team?.wins ?? 0}<span className="text-white/40 text-lg font-bold mx-1">-</span>{team?.losses ?? 0}</span>}
@@ -137,8 +137,8 @@ export default function Dashboard() {
 
         {/* Season rank */}
         <StatPill
-          gradient="bg-gradient-to-br from-violet-600 to-purple-800"
-          iconBg="bg-violet-500/40"
+          gradient="bg-gradient-to-br from-violet-400 to-purple-600"
+          iconBg="bg-violet-300/40"
           icon={<Award className="h-5 w-5 text-white" />}
           label="Season Rank"
           value={dashboard?.seasonStanding ? `#${dashboard.seasonStanding.rank}` : "—"}
@@ -147,8 +147,8 @@ export default function Dashboard() {
 
         {/* Titles won */}
         <StatPill
-          gradient="bg-gradient-to-br from-amber-500 to-orange-600"
-          iconBg="bg-amber-400/40"
+          gradient="bg-gradient-to-br from-amber-300 to-orange-400"
+          iconBg="bg-amber-200/40"
           icon={<Trophy className="h-5 w-5 text-white" />}
           label="Titles Won"
           value={team?.titlesWon ?? 0}
@@ -159,11 +159,11 @@ export default function Dashboard() {
         <StatPill
           gradient={
             (dashboard?.injuredCount ?? 0) > 0
-              ? "bg-gradient-to-br from-red-600 to-rose-800"
-              : "bg-gradient-to-br from-emerald-600 to-teal-700"
+              ? "bg-gradient-to-br from-red-400 to-rose-600"
+              : "bg-gradient-to-br from-emerald-400 to-teal-500"
           }
           iconBg={
-            (dashboard?.injuredCount ?? 0) > 0 ? "bg-red-500/40" : "bg-emerald-400/40"
+            (dashboard?.injuredCount ?? 0) > 0 ? "bg-red-300/40" : "bg-emerald-200/40"
           }
           icon={<HeartPulse className="h-5 w-5 text-white" />}
           label="Injuries"
@@ -196,8 +196,8 @@ export default function Dashboard() {
 
         {/* Budget */}
         <StatPill
-          gradient="bg-gradient-to-br from-green-600 to-emerald-800"
-          iconBg="bg-green-400/40"
+          gradient="bg-gradient-to-br from-green-400 to-emerald-600"
+          iconBg="bg-green-200/40"
           icon={<DollarSign className="h-5 w-5 text-white" />}
           label="Budget"
           value={formatCurrency(financeSummary?.balance)}
@@ -215,8 +215,8 @@ export default function Dashboard() {
         {/* Next match */}
         {dashboard?.nextMatch ? (
           <StatPill
-            gradient="bg-gradient-to-br from-sky-500 to-cyan-700"
-            iconBg="bg-sky-400/40"
+            gradient="bg-gradient-to-br from-sky-300 to-cyan-500"
+            iconBg="bg-sky-200/40"
             icon={<Calendar className="h-5 w-5 text-white" />}
             label="Next Match"
             value={
@@ -229,8 +229,8 @@ export default function Dashboard() {
           />
         ) : (
           <StatPill
-            gradient="bg-gradient-to-br from-slate-600 to-slate-800"
-            iconBg="bg-slate-500/40"
+            gradient="bg-gradient-to-br from-slate-400 to-slate-600"
+            iconBg="bg-slate-300/40"
             icon={<Calendar className="h-5 w-5 text-white/50" />}
             label="Next Match"
             value={<span className="text-white/40 text-base">Not scheduled</span>}
@@ -239,8 +239,8 @@ export default function Dashboard() {
 
         {/* Reputation pill */}
         <StatPill
-          gradient="bg-gradient-to-br from-pink-600 to-fuchsia-800"
-          iconBg="bg-pink-400/40"
+          gradient="bg-gradient-to-br from-pink-400 to-fuchsia-600"
+          iconBg="bg-pink-200/40"
           icon={<Star className="h-5 w-5 text-white" />}
           label="Reputation"
           value={team?.reputation ?? 50}
@@ -404,7 +404,7 @@ function ProfileCard({ profile, loading, onSave, saving }: {
   };
 
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 shadow-md px-5 py-4 h-full flex flex-col justify-center" data-testid="card-profile">
+    <div className="rounded-2xl bg-gradient-to-br from-slate-500 to-slate-700 shadow-md px-5 py-4 h-full flex flex-col justify-center" data-testid="card-profile">
       {loading ? (
         <Skeleton className="h-16 w-full bg-white/10" />
       ) : (
