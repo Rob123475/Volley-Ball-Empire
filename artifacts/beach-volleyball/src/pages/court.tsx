@@ -137,7 +137,7 @@ function Ball({ physRef }: { physRef: React.MutableRefObject<BallPhysics> }) {
             roughness={0.30}
             metalness={0.0}
             emissive="#ffffff"
-            emissiveIntensity={0.18}
+            emissiveIntensity={0.40}
           />
         </mesh>
         {/* Blue equatorial stripe */}
@@ -2746,7 +2746,7 @@ function SunLighting({ azimuth, elevation, intensity }: { azimuth: number; eleva
         shadow-camera-bottom={-24}
       />
       {/* Sky hemisphere: rich azure sky / warm sand bounce */}
-      <hemisphereLight args={["#87ceeb", "#c8a86a", 0.44]} />
+      <hemisphereLight args={["#6bb0d8", "#a08040", 0.32]} />
       {/* Soft cool fill from opposite side */}
       <directionalLight
         position={[-sunPos.x * 0.35, sunPos.y * 0.5, -sunPos.z * 0.35]}
@@ -4906,7 +4906,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
   const { ballRef, homePlayers, awayPlayers, swapCourts } = useVolleyballPhysics(paused, onPoint, boostRef, onServeChange);
   useEffect(() => { if (swapCourtsRef) swapCourtsRef.current = swapCourts; }, [swapCourts, swapCourtsRef]);
 
-  const sandColor = "#e6cc80";
+  const sandColor = "#b89a52";
 
   return (
     <>
@@ -4937,7 +4937,7 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
       />
 
       {/* Lighting */}
-      <SunLighting azimuth={135} elevation={42} intensity={2.8} />
+      <SunLighting azimuth={135} elevation={42} intensity={2.2} />
 
       {/* Environment — drives reflections on ball, skin, net */}
       <Environment preset="sunset" backgroundIntensity={0} resolution={1024} />
@@ -5000,13 +5000,13 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
 
       {/* Post-processing — cinematic pipeline */}
       <EffectComposer multisampling={8}>
-        <Bloom intensity={1.05} luminanceThreshold={0.58} luminanceSmoothing={0.12} mipmapBlur height={512} />
+        <Bloom intensity={0.45} luminanceThreshold={0.72} luminanceSmoothing={0.08} mipmapBlur height={512} />
         <DepthOfField focusDistance={0.016} focalLength={0.048} bokehScale={3.2} height={480} />
         <ChromaticAberration offset={new THREE.Vector2(0.0005, 0.0005)} radialModulation modulationOffset={0.18} />
-        <HueSaturation saturation={0.14} />
-        <BrightnessContrast brightness={0.04} contrast={0.12} />
-        <Noise opacity={0.028} premultiply blendFunction={BlendFunction.ADD} />
-        <Vignette eskil={false} offset={0.06} darkness={0.52} />
+        <HueSaturation saturation={0.06} />
+        <BrightnessContrast brightness={-0.06} contrast={0.22} />
+        <Noise opacity={0.030} premultiply blendFunction={BlendFunction.ADD} />
+        <Vignette eskil={false} offset={0.10} darkness={0.68} />
       </EffectComposer>
     </>
   );
@@ -5150,7 +5150,7 @@ export default function ThreeDCourt() {
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.0,
+          toneMappingExposure: 0.80,
           powerPreference: "high-performance",
           outputColorSpace: THREE.SRGBColorSpace,
         }}
