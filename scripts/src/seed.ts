@@ -4,9 +4,9 @@ import { pool } from "@workspace/db";
 const nameHash = (s: string, mod: number) =>
   Math.abs(s.split("").reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0)) % mod;
 
-// pravatar.cc — real stock-photo human faces at 300×300, indices 1-70
+// randomuser.me women's portrait library — 100 real professional photos, indices 0–99
 const getPlayerImageUrl = (name: string) =>
-  `https://i.pravatar.cc/300?img=${nameHash(name, 70) + 1}`;
+  `https://randomuser.me/api/portraits/women/${nameHash(name, 100)}.jpg`;
 
 // randomuser.me women's portrait library — 100 real professional photos, indices 0–99
 // Directly constructed URL guarantees gender-correct headshots every time.
