@@ -3154,14 +3154,20 @@ interface MatchState {
   matchWinner: "home" | "away" | null;
 }
 
-function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayers, serveInfo }: {
+function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayers, serveInfo, clockSecs, half, fullTime }: {
   match: MatchState;
   homeTeamName: string;
   awayTeamName: string;
   homePlayers: { name: string }[];
   awayPlayers: { name: string }[];
   serveInfo: { side: "home" | "away"; playerIdx: number };
+  clockSecs: number;
+  half: 1 | 2;
+  fullTime: boolean;
 }) {
+  const mm = Math.floor(clockSecs / 60).toString().padStart(2, "0");
+  const ss = (clockSecs % 60).toString().padStart(2, "0");
+
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none select-none">
       <div className="flex items-stretch gap-0 rounded-lg overflow-hidden shadow-lg">
@@ -3217,6 +3223,22 @@ function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayer
           ))}
         </div>
 
+      </div>
+
+      {/* Clock + half indicator */}
+      <div className="flex items-center gap-2">
+        <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full backdrop-blur-sm ${
+          fullTime
+            ? "bg-white/20 text-white/60"
+            : half === 1
+            ? "bg-blue-500/50 text-white"
+            : "bg-orange-500/50 text-white"
+        }`}>
+          {fullTime ? "FT" : half === 1 ? "1st Half" : "2nd Half"}
+        </span>
+        <span className="text-[15px] font-black tabular-nums text-white drop-shadow-lg bg-black/30 backdrop-blur-sm px-3 py-0.5 rounded-md tracking-tight">
+          {mm}:{ss}
+        </span>
       </div>
 
       {/* Match-over banner */}
@@ -5005,6 +5027,20 @@ export default function ThreeDCourt() {
     currentSet: 1, matchOver: false, matchWinner: null,
   });
 
+  const HALF_DURATION = 600; // 10 minutes per half
+  const [matchClock, setMatchClock] = useState(0);
+  useEffect(() => {
+    if (paused || match.matchOver) return;
+    const id = setInterval(() => setMatchClock(t => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [paused, match.matchOver]);
+  const clockHalf: 1 | 2 = matchClock < HALF_DURATION ? 1 : 2;
+  const clockSecs  = Math.min(
+    clockHalf === 1 ? matchClock : matchClock - HALF_DURATION,
+    HALF_DURATION,
+  );
+  const clockFull  = matchClock >= HALF_DURATION * 2;
+
   // FIVB rally-point scoring: every rally awards a point to the winner.
   // Sets 1 & 2: first to 21 (win by 2). Set 3: first to 15 (win by 2).
   // Court swap: every 7 combined points in sets 1 & 2, every 5 in set 3.
@@ -5088,6 +5124,9 @@ export default function ThreeDCourt() {
         homePlayers={activePlayers.length >= 2 ? activePlayers.slice(0, 2) : [{ name: "Player 1" }, { name: "Player 2" }]}
         awayPlayers={[{ name: "Taylor" }, { name: "Jordan" }]}
         serveInfo={serveInfo}
+        clockSecs={clockSecs}
+        half={clockHalf}
+        fullTime={clockFull}
       />
 
       {/* Control bar bottom-center */}
