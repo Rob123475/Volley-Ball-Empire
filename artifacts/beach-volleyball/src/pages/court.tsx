@@ -336,20 +336,6 @@ function Player({
           <sphereGeometry args={[0.292, 22, 16]} />
           <meshStandardMaterial color={bikiniColor} roughness={0.48} metalness={0.08} />
         </mesh>
-        {/* Waistband */}
-        <mesh position={[0, 0.920, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.283, 0.015, 8, 24]} />
-          <meshStandardMaterial color={bikiniTrim} roughness={0.44} metalness={0.12} />
-        </mesh>
-        {/* Side tie knots */}
-        <mesh position={[-0.283, 0.878, 0]} rotation={[0, 0, Math.PI * 0.12]} castShadow>
-          <capsuleGeometry args={[0.013, 0.046, 4, 6]} />
-          <meshStandardMaterial color={bikiniTrim} roughness={0.50} />
-        </mesh>
-        <mesh position={[ 0.283, 0.878, 0]} rotation={[0, 0, -Math.PI * 0.12]} castShadow>
-          <capsuleGeometry args={[0.013, 0.046, 4, 6]} />
-          <meshStandardMaterial color={bikiniTrim} roughness={0.50} />
-        </mesh>
 
         {/* Torso — narrow feminine waist */}
         <mesh ref={torsoRef} position={[0, 1.09, 0]} castShadow>
