@@ -38,7 +38,7 @@ const COURT_HALF_Z = 4.5;
 const BALL_RADIUS = 0.21;
 const RESTITUTION = 0.55;
 const DRAG = 0.994;
-const PLAYER_SPEED = 4.5;
+const PLAYER_SPEED = 7.0;
 const HIT_RANGE = 1.4;
 const PLAYER_HEIGHT = 1.75;
 const PLAYER_REACH = PLAYER_HEIGHT + 0.5;
@@ -2542,9 +2542,9 @@ function useVolleyballPhysics(
     const targetZ = (Math.random() - 0.5) * 5;
     b.pos.set(server.pos.x, 2.2, server.pos.z);
     b.vel.set(
-      dirX * (9.5 + Math.random() * 1.5),
-      9.5 + Math.random() * 1.0,
-      (targetZ - server.pos.z) * 0.40
+      dirX * (13.0 + Math.random() * 2.0),
+      7.0 + Math.random() * 1.0,
+      (targetZ - server.pos.z) * 0.55
     );
     b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
     b.bounceCount = 0;
@@ -2695,7 +2695,7 @@ function useVolleyballPhysics(
         const dist = toT.length();
         if (dist > 0.15) {
           toT.normalize();
-          p.vel.lerp(toT.multiplyScalar(PLAYER_SPEED), 7 * clampedDt);
+          p.vel.lerp(toT.multiplyScalar(PLAYER_SPEED), 12 * clampedDt);
           p.facingAngle = Math.atan2(p.vel.x, p.vel.z);
         } else {
           p.vel.multiplyScalar(0.08);
@@ -2734,9 +2734,9 @@ function useVolleyballPhysics(
             const pd = Math.max(1, toPartner.length());
             toPartner.normalize();
             b.vel.set(
-              toPartner.x * Math.min(4.5, pd * 1.3),
-              8.5 + Math.random() * 2,
-              toPartner.z * Math.min(4.5, pd * 1.3)
+              toPartner.x * Math.min(7.0, pd * 1.8),
+              6.0 + Math.random() * 1.0,
+              toPartner.z * Math.min(7.0, pd * 1.8)
             );
             b.angVel.set((Math.random()-0.5)*5, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
 
@@ -2760,9 +2760,9 @@ function useVolleyballPhysics(
             const ad      = Math.max(1, toAtk.length());
             toAtk.normalize();
             b.vel.set(
-              toAtk.x * Math.min(5.5, ad * 1.4),
-              9.5 + Math.random() * 2,
-              toAtk.z * Math.min(5.5, ad * 1.4)
+              toAtk.x * Math.min(8.0, ad * 1.9),
+              6.5 + Math.random() * 1.0,
+              toAtk.z * Math.min(8.0, ad * 1.9)
             );
             b.angVel.set((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
 
