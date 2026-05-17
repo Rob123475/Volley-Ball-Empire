@@ -3228,6 +3228,47 @@ function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayer
   );
 }
 
+// ── Reusable sponsor banner ────────────────────────────────────────────────────
+function SponsorBanner({
+  position = [0, 0, 0] as [number, number, number],
+  rotation = [0, 0, 0] as [number, number, number],
+  bgCol, accentCol, w = 0.85, h = 1.10,
+}: {
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  bgCol: string; accentCol: string; w?: number; h?: number;
+}) {
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Main panel */}
+      <mesh castShadow>
+        <boxGeometry args={[w, h, 0.022]} />
+        <meshStandardMaterial color={bgCol} roughness={0.85} />
+      </mesh>
+      {/* Header stripe */}
+      <mesh position={[0, h / 2 - 0.10, 0.013]}>
+        <boxGeometry args={[w - 0.02, 0.18, 0.003]} />
+        <meshStandardMaterial color={accentCol} emissive={accentCol} emissiveIntensity={0.4} roughness={0.7} />
+      </mesh>
+      {/* Central logo disc */}
+      <mesh position={[0, 0.04, 0.013]}>
+        <circleGeometry args={[h * 0.155, 14]} />
+        <meshStandardMaterial color={accentCol} emissive={accentCol} emissiveIntensity={0.3} roughness={0.65} />
+      </mesh>
+      {/* Bottom stripe */}
+      <mesh position={[0, -(h / 2 - 0.06), 0.013]}>
+        <boxGeometry args={[w - 0.02, 0.09, 0.003]} />
+        <meshStandardMaterial color={accentCol} roughness={0.80} />
+      </mesh>
+      {/* Mounting bar */}
+      <mesh position={[0, h / 2 + 0.022, 0]}>
+        <boxGeometry args={[w + 0.07, 0.04, 0.04]} />
+        <meshStandardMaterial color="#666" metalness={0.7} roughness={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
 // ── TV Crew + Broadcast Camera ────────────────────────────────────────────────
 function TVCrew() {
   const skin    = "#d4956a";
@@ -3345,6 +3386,11 @@ function TVCrew() {
           <capsuleGeometry args={[0.018, 1.42, 4, 6]} />
           <meshStandardMaterial color={scaffoldSteel} metalness={0.72} roughness={0.30} />
         </mesh>
+
+        {/* Sponsor banners — back face of scaffold (local +z = away from court) */}
+        <SponsorBanner position={[-1.40, DECK_H / 2, 0.75]} bgCol="#1a1a2e" accentCol="#f4631e" />
+        <SponsorBanner position={[-0.20, DECK_H / 2, 0.75]} bgCol="#0a2240" accentCol="#48cae4" />
+        <SponsorBanner position={[ 1.00, DECK_H / 2, 0.75]} bgCol="#0d2b1f" accentCol="#52b788" />
       </group>
 
       {/* ══ Crew — lifted onto the platform ══════════════════════════════════ */}
@@ -3869,6 +3915,11 @@ function CommentaryScaffold() {
           <capsuleGeometry args={[0.018, 1.42, 4, 6]} />
           <meshStandardMaterial color={steel} metalness={0.72} roughness={0.30} />
         </mesh>
+
+        {/* Sponsor banners — back face of scaffold (local +z = away from court) */}
+        <SponsorBanner position={[-1.40, DECK_H / 2, 0.75]} bgCol="#0d1b3e" accentCol="#e8c020" />
+        <SponsorBanner position={[-0.20, DECK_H / 2, 0.75]} bgCol="#2a0a1f" accentCol="#e91e8c" />
+        <SponsorBanner position={[ 1.00, DECK_H / 2, 0.75]} bgCol="#0a1a2e" accentCol="#90e0ef" />
       </group>
 
       {/* ══ Commentary team — on the deck ════════════════════════════════════ */}
@@ -4742,6 +4793,13 @@ function Scene({ paused, autoRotate, onPoint, swapCourtsRef, boostRef, onServeCh
       <FoodStall position={[-7, 0, -11]} rotation={[0, Math.PI, 0]} stallType="food" />
       <FoodStall position={[0.5, 0, -11]} rotation={[0, Math.PI, 0]} stallType="drinks" />
       <MerchStore position={[8, 0, -11]} rotation={[0, Math.PI, 0]} />
+      {/* Sponsor banners — back of each stall (rotation PI faces court, so back = world -z) */}
+      <SponsorBanner position={[-7.55, 1.05, -11.65]} rotation={[0, Math.PI, 0]} bgCol="#1a1a2e" accentCol="#f4631e" h={1.25} />
+      <SponsorBanner position={[-6.40, 1.05, -11.65]} rotation={[0, Math.PI, 0]} bgCol="#0a2240" accentCol="#48cae4" h={1.25} />
+      <SponsorBanner position={[-0.10, 1.05, -11.65]} rotation={[0, Math.PI, 0]} bgCol="#0d2b1f" accentCol="#52b788" h={1.25} />
+      <SponsorBanner position={[ 1.10, 1.05, -11.65]} rotation={[0, Math.PI, 0]} bgCol="#0d1b3e" accentCol="#e8c020" h={1.25} />
+      <SponsorBanner position={[ 6.65, 1.05, -11.65]} rotation={[0, Math.PI, 0]} bgCol="#2a0a1f" accentCol="#e91e8c" h={1.25} />
+      <SponsorBanner position={[ 9.35, 1.05, -11.65]} rotation={[0, Math.PI, 0]} bgCol="#0a1a2e" accentCol="#90e0ef" h={1.25} />
       {/* Reserves seated at blue umbrella [10.5,0,-6] and pink umbrella [10.5,0,6] */}
       <UmbrellaReserves position={[10.2, 0, -6.0]} faceY={Math.PI / 2} />
       <UmbrellaReserves position={[10.2, 0,  6.0]} faceY={Math.PI / 2} />
