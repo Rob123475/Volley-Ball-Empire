@@ -1,0 +1,13 @@
+uploads = []
+
+[[generated]]
+id = "5d1pjq3FvZ2VJtVjeRfZK"
+uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
+type = "image"
+title = "swimwear sponsor ad"
+
+[[outputs]]
+id = "XCcLc6p_yRoa2T48ZEAei"
+uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"
+type = "image"
+title = "Swimwear Sponsor Ad"
