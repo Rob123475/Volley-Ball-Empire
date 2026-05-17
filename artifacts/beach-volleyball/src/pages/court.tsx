@@ -3150,74 +3150,36 @@ function ScoreBoard({ match, homeTeamName, awayTeamName, homePlayers, awayPlayer
   awayPlayers: { name: string }[];
   serveInfo: { side: "home" | "away"; playerIdx: number };
 }) {
-  const setDots = (won: number) =>
-    [0, 1].map(i => (
-      <span key={i} className={`inline-block w-2 h-2 rounded-full border border-white/40 ${i < won ? "bg-white" : "bg-white/20"}`} />
-    ));
-
-  const PlayerList = ({ side, players }: { side: "home" | "away"; players: { name: string }[] }) => (
-    <div className="flex flex-col justify-center gap-1">
-      {players.map((p, idx) => {
-        const isServing = serveInfo.side === side && serveInfo.playerIdx === idx;
-        return (
-          <div key={idx} className={`flex items-center gap-1.5 text-xs font-semibold ${side === "home" ? "flex-row" : "flex-row-reverse"}`}>
-            {isServing
-              ? <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 shadow-[0_0_5px_2px_rgba(239,68,68,0.9)]" />
-              : <span className="w-1.5 h-1.5 rounded-full bg-white/50 shrink-0" />
-            }
-            <span className="truncate max-w-[100px] text-white">{p.name}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none select-none">
-      {/* Set indicator */}
-      <div className="text-[10px] font-bold uppercase tracking-widest text-white/70 bg-black/50 backdrop-blur px-3 py-0.5 rounded-full">
-        Set {match.currentSet} · First to {match.currentSet >= 3 ? 15 : 21}
-      </div>
-
-      {/* Unified scoreboard + team panels */}
-      <div className="flex items-stretch gap-0 rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-
-        {/* Home team names (blue left) */}
-        <div className="bg-[#005f8e]/90 backdrop-blur px-3 py-2 text-white border-r border-white/10 min-w-[110px]">
-          <div className="text-[8px] font-black uppercase tracking-widest text-white/60 mb-1.5">{homeTeamName}</div>
-          <PlayerList side="home" players={homePlayers} />
+      {/* Score: blue square – bold number – dash – bold number – red square */}
+      <div className="flex items-center gap-0 rounded-lg overflow-hidden shadow-lg">
+        {/* Blue (home) */}
+        <div className="bg-blue-600/40 backdrop-blur-sm px-4 py-2 flex items-center justify-center min-w-[52px]">
+          <span className="text-3xl font-black tabular-nums leading-none text-white drop-shadow">
+            {match.homeScore}
+          </span>
         </div>
 
-        {/* Home score */}
-        <div className="bg-[#0077B6]/90 backdrop-blur px-4 py-2.5 text-white min-w-[72px] text-center">
-          <div className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-0.5">HOME</div>
-          <div className="text-4xl font-black tabular-nums leading-none">{match.homeScore}</div>
-          <div className="flex justify-center gap-1 mt-1.5">{setDots(match.homeSets)}</div>
+        {/* Dash separator */}
+        <div className="bg-black/20 backdrop-blur-sm px-2 py-2 flex items-center">
+          <span className="text-xl font-black text-white/50 leading-none">–</span>
         </div>
 
-        {/* Divider */}
-        <div className="bg-black/70 backdrop-blur px-3 flex items-center text-white/40 text-xl font-black">:</div>
-
-        {/* Away score */}
-        <div className="bg-[#E76F51]/90 backdrop-blur px-4 py-2.5 text-white min-w-[72px] text-center">
-          <div className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-0.5">AWAY</div>
-          <div className="text-4xl font-black tabular-nums leading-none">{match.awayScore}</div>
-          <div className="flex justify-center gap-1 mt-1.5">{setDots(match.awaySets)}</div>
-        </div>
-
-        {/* Away team names (orange right) */}
-        <div className="bg-[#c45a38]/90 backdrop-blur px-3 py-2 text-white border-l border-white/10 min-w-[110px] text-right">
-          <div className="text-[8px] font-black uppercase tracking-widest text-white/60 mb-1.5">{awayTeamName}</div>
-          <PlayerList side="away" players={awayPlayers} />
+        {/* Red (away) */}
+        <div className="bg-red-600/40 backdrop-blur-sm px-4 py-2 flex items-center justify-center min-w-[52px]">
+          <span className="text-3xl font-black tabular-nums leading-none text-white drop-shadow">
+            {match.awayScore}
+          </span>
         </div>
       </div>
 
       {/* Match-over banner */}
       {match.matchOver && (
-        <div className={`text-sm font-black uppercase tracking-widest px-6 py-1.5 rounded-full shadow-lg text-white ${
-          match.matchWinner === "home" ? "bg-[#0077B6]" : "bg-[#E76F51]"
-        }`}>
-          {match.matchWinner === "home" ? homeTeamName : awayTeamName} wins the match!
+        <div className={`text-xs font-black uppercase tracking-widest px-5 py-1 rounded-full text-white/90 ${
+          match.matchWinner === "home" ? "bg-blue-600/50" : "bg-red-600/50"
+        } backdrop-blur-sm`}>
+          {match.matchWinner === "home" ? homeTeamName : awayTeamName} wins!
         </div>
       )}
     </div>
