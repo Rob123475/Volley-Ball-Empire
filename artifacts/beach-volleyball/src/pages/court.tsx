@@ -1422,16 +1422,16 @@ function BeachUmbrella({ position, color, tiltZ = 0 }: {
         <meshStandardMaterial color="#aaa" metalness={0.9} roughness={0.15} envMapIntensity={2.0} />
       </mesh>
 
-      {/* Canopy — alternating panels (coloured + cream) */}
-      {Array.from({ length: 16 }, (_, i) => (
-        <mesh key={i} position={[0, CANOPY_Y, 0]} rotation={[0, (i / 16) * Math.PI * 2, 0]} castShadow>
-          <coneGeometry args={[1.62, 0.80, 16, 1, true, (i / 16) * Math.PI * 2, Math.PI / 16]} />
-          <meshStandardMaterial
-            color={i % 2 === 0 ? color : stripeColor}
-            side={THREE.DoubleSide}
-            roughness={0.72}
-            envMapIntensity={0.6}
-          />
+      {/* Canopy — solid base cone in main colour */}
+      <mesh position={[0, CANOPY_Y, 0]} castShadow>
+        <coneGeometry args={[1.62, 0.80, 32, 1, true]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.72} envMapIntensity={0.6} />
+      </mesh>
+      {/* Stripe panels — rotation only, thetaStart always 0, every other panel cream */}
+      {Array.from({ length: 8 }, (_, i) => (
+        <mesh key={i} position={[0, CANOPY_Y, 0]} rotation={[0, (i / 8) * Math.PI * 2, 0]} castShadow>
+          <coneGeometry args={[1.63, 0.81, 32, 1, true, 0, Math.PI / 8]} />
+          <meshStandardMaterial color={stripeColor} side={THREE.FrontSide} roughness={0.70} envMapIntensity={0.6} />
         </mesh>
       ))}
       {/* Canopy underside — warm cream */}
