@@ -460,10 +460,20 @@ function Player({
             <capsuleGeometry args={[0.022, 0.20, 4, 6]} />
             <meshStandardMaterial color="#2c1200" roughness={0.95} />
           </mesh>
-          {/* Visor */}
-          <mesh position={[0, 0.11, 0.19]} rotation={[0.18, 0, 0]}>
-            <boxGeometry args={[0.34, 0.055, 0.15]} />
-            <meshStandardMaterial color={bikiniColor} roughness={0.4} />
+          {/* Sun visor — headband ring */}
+          <mesh position={[0, 0.09, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.228, 0.019, 8, 28]} />
+            <meshStandardMaterial color={bikiniColor} roughness={0.38} metalness={0.04} envMapIntensity={0.8} />
+          </mesh>
+          {/* Sun visor — brim (wide, slightly angled down) */}
+          <mesh position={[0, 0.085, 0.225]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.42, 0.042, 0.20]} />
+            <meshStandardMaterial color={bikiniColor} roughness={0.38} metalness={0.04} envMapIntensity={0.8} />
+          </mesh>
+          {/* Brim underside — slightly darker */}
+          <mesh position={[0, 0.062, 0.228]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.418, 0.004, 0.198]} />
+            <meshStandardMaterial color={bikiniTrim} roughness={0.5} />
           </mesh>
         </group>
       </group>
