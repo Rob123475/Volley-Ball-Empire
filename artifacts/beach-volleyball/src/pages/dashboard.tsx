@@ -12,6 +12,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -265,25 +266,15 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             {dashboard?.topPlayers.map((player) => {
               const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-              const isInjured = (player as any).isInjured;
               return (
-                <div key={player.id} className="flex items-center gap-4" data-testid={`row-player-${player.id}`}>
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      "flex-shrink-0",
-                      isInjured ? "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400" : "bg-secondary/20 text-secondary-foreground"
-                    )}
-                  >
-                    {isInjured ? "⚕ Injured" : player.position.replace(/_/g, " ")}
-                  </Badge>
+                <div key={player.id} className="flex items-center gap-3" data-testid={`row-player-${player.id}`}>
                   <div className="flex-1 space-y-1 min-w-0">
-                    <p className="text-sm font-medium leading-none">{player.name}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-medium leading-none">{player.name}</p>
+                      <PlayerStatusBadge player={player as any} size="xs" />
+                    </div>
                     <div className="flex items-center gap-2">
-                      <Progress
-                        value={rating}
-                        className={cn("h-1.5", isInjured ? "[&>div]:bg-red-500" : "")}
-                      />
+                      <Progress value={rating} className="h-1.5" />
                       <span className="text-xs text-muted-foreground w-6" data-testid={`text-rating-${player.id}`}>{rating}</span>
                     </div>
                   </div>

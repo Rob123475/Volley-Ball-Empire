@@ -12,6 +12,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -201,10 +202,7 @@ export default function Training() {
                     <SelectItem key={p.id} value={p.id.toString()}>
                       <div className="flex items-center gap-2">
                         <span>{p.name}</span>
-                        <span className={cn("text-[10px] font-bold", getFatigueColor(p.fatigue ?? 0))}>
-                          {p.fatigue ?? 0}% fatigue
-                        </span>
-                        {(p.fatigue ?? 0) >= 80 && <AlertTriangle className="h-3 w-3 text-red-500" />}
+                        <PlayerStatusBadge player={p as any} size="xs" />
                       </div>
                     </SelectItem>
                   ))}

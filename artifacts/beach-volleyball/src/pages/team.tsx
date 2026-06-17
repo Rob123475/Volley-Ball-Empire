@@ -9,6 +9,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -175,11 +176,7 @@ export default function TeamRoster() {
           >
             {cfg.label}
           </Badge>
-          {player.isInjured && (
-            <Badge variant="destructive" className="text-[10px] gap-1">
-              <AlertTriangle className="h-3 w-3" /> Injured
-            </Badge>
-          )}
+          <PlayerStatusBadge player={player} size="xs" />
         </div>
 
         <div className="relative h-64 overflow-hidden">

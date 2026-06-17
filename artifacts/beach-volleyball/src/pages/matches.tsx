@@ -20,6 +20,7 @@ import {
   Trophy, Calendar, MapPin, Loader2, Play, Users, CheckCircle2,
   Lock, Star, Swords, Flag
 } from "lucide-react";
+import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { useState } from "react";
 import {
   Dialog,
@@ -476,9 +477,9 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
                 }}
               >
                 <Checkbox checked={selected.includes(p.id)} />
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-primary">{p.position}</span>
+                <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                  <PlayerStatusBadge player={p} size="xs" />
                 </div>
               </div>
             ))}
@@ -584,9 +585,9 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
                   }}
                 >
                   <Checkbox checked={selected.includes(p.id)} />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-yellow-600">{p.position}</span>
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                    <PlayerStatusBadge player={p} size="xs" />
                   </div>
                 </div>
               ))}
@@ -651,9 +652,9 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
                   }}
                 >
                   <Checkbox checked={selected.includes(p.id)} />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-primary">{p.position}</span>
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                    <PlayerStatusBadge player={p} size="xs" />
                   </div>
                 </div>
               ))}
