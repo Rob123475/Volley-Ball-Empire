@@ -12,7 +12,8 @@ import {
   LogOut,
   ChevronRight,
   Menu,
-  Box
+  Box,
+  Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/training", label: "Training", icon: Activity },
   { href: "/contracts", label: "Contracts", icon: FileText },
   { href: "/staff", label: "Staff", icon: UserCog },
+  { href: "/medical", label: "Medical Centre", icon: Heart },
   { href: "/finances", label: "Finances", icon: DollarSign },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/locations", label: "World Tour", icon: MapPin },

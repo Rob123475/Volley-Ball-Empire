@@ -18,6 +18,7 @@ import StaffManagement from "@/pages/staff";
 import Finances from "@/pages/finances";
 import Leaderboard from "@/pages/leaderboard";
 import WorldTourLocations from "@/pages/locations";
+import MedicalCentre from "@/pages/medical";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -55,6 +56,7 @@ function Router() {
           <Route path="/training" component={Training} />
           <Route path="/contracts" component={Contracts} />
           <Route path="/staff" component={StaffManagement} />
+          <Route path="/medical" component={MedicalCentre} />
           <Route path="/finances" component={Finances} />
           <Route path="/leaderboard" component={Leaderboard} />
           <Route path="/locations" component={WorldTourLocations} />
