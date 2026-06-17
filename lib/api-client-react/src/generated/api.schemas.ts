@@ -63,6 +63,19 @@ export const PlayerPosition = {
 } as const;
 
 /**
+ * Current injury state of the player.
+ */
+export type PlayerInjuryStatus = typeof PlayerInjuryStatus[keyof typeof PlayerInjuryStatus];
+
+
+export const PlayerInjuryStatus = {
+  Healthy: 'Healthy',
+  Minor_Injury: 'Minor Injury',
+  Major_Injury: 'Major Injury',
+  Unavailable: 'Unavailable',
+} as const;
+
+/**
  * Player's squad role: starter (match player), interchange (bench sub), or reserve.
  */
 export type PlayerSquadRole = typeof PlayerSquadRole[keyof typeof PlayerSquadRole];
@@ -90,6 +103,20 @@ export interface Player {
   morale: number;
   /** Player fatigue level 0-100. High fatigue reduces performance. */
   fatigue: number;
+  /** Player fitness level 0-100. Drops with matches and training; recovers with rest. */
+  fitness: number;
+  /** Current injury state of the player. */
+  injuryStatus: PlayerInjuryStatus;
+  /** Number of weeks until the player recovers from injury. 0 when healthy. */
+  injuryWeeksRemaining: number;
+  /** Number of matches played back-to-back without rest. High values increase injury risk. */
+  consecutiveMatchesPlayed: number;
+  /**
+     * Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.
+     * @minimum 1
+     * @maximum 5
+     */
+  doctorQuality: number;
   /** Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons. */
   trainingPoints: number;
   salary: number;

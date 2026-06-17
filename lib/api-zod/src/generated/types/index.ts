@@ -37,6 +37,7 @@ export * from './matchWeather';
 export * from './outfit';
 export * from './outfitAssignment';
 export * from './player';
+export * from './playerInjuryStatus';
 export * from './playerInput';
 export * from './playerPosition';
 export * from './playerRoleUpdate';

@@ -5,6 +5,7 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { PlayerInjuryStatus } from './playerInjuryStatus';
 import type { PlayerPosition } from './playerPosition';
 import type { PlayerSquadRole } from './playerSquadRole';
 
@@ -24,6 +25,20 @@ export interface Player {
   morale: number;
   /** Player fatigue level 0-100. High fatigue reduces performance. */
   fatigue: number;
+  /** Player fitness level 0-100. Drops with matches and training; recovers with rest. */
+  fitness: number;
+  /** Current injury state of the player. */
+  injuryStatus: PlayerInjuryStatus;
+  /** Number of weeks until the player recovers from injury. 0 when healthy. */
+  injuryWeeksRemaining: number;
+  /** Number of matches played back-to-back without rest. High values increase injury risk. */
+  consecutiveMatchesPlayed: number;
+  /**
+     * Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.
+     * @minimum 1
+     * @maximum 5
+     */
+  doctorQuality: number;
   /** Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons. */
   trainingPoints: number;
   salary: number;

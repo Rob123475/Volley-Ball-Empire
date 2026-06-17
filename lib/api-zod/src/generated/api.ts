@@ -109,6 +109,10 @@ export const GetLocationResponse = zod.object({
 /**
  * @summary List all players for the user's team
  */
+export const listPlayersResponseDoctorQualityMax = 5;
+
+
+
 export const ListPlayersResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -124,6 +128,11 @@ export const ListPlayersResponseItem = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(listPlayersResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -159,6 +168,10 @@ export const CreatePlayerBody = zod.object({
 /**
  * @summary List players without a team (available to sign)
  */
+export const listFreeAgentsResponseDoctorQualityMax = 5;
+
+
+
 export const ListFreeAgentsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -174,6 +187,11 @@ export const ListFreeAgentsResponseItem = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(listFreeAgentsResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -194,6 +212,10 @@ export const GetPlayerParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const getPlayerResponseDoctorQualityMax = 5;
+
+
+
 export const GetPlayerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -209,6 +231,11 @@ export const GetPlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getPlayerResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -234,6 +261,10 @@ export const UpdatePlayerBody = zod.object({
   "morale": zod.number().optional()
 })
 
+export const updatePlayerResponseDoctorQualityMax = 5;
+
+
+
 export const UpdatePlayerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -249,6 +280,11 @@ export const UpdatePlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(updatePlayerResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -272,6 +308,10 @@ export const UpdatePlayerOutfitBody = zod.object({
   "outfitId": zod.number()
 })
 
+export const updatePlayerOutfitResponseDoctorQualityMax = 5;
+
+
+
 export const UpdatePlayerOutfitResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -287,6 +327,11 @@ export const UpdatePlayerOutfitResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(updatePlayerOutfitResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -306,6 +351,10 @@ export const ReleasePlayerParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const releasePlayerResponseDoctorQualityMax = 5;
+
+
+
 export const ReleasePlayerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -321,6 +370,11 @@ export const ReleasePlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(releasePlayerResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -403,6 +457,18 @@ export const UpdateTeamResponse = zod.object({
 /**
  * @summary Get team roster with player details
  */
+export const getTeamRosterResponseStartersItemDoctorQualityMax = 5;
+
+export const getTeamRosterResponseInterchangesItemDoctorQualityMax = 5;
+
+export const getTeamRosterResponseReservesItemDoctorQualityMax = 5;
+
+export const getTeamRosterResponseActivePlayersItemDoctorQualityMax = 5;
+
+export const getTeamRosterResponseBenchPlayersItemDoctorQualityMax = 5;
+
+
+
 export const GetTeamRosterResponse = zod.object({
   "team": zod.object({
   "id": zod.number(),
@@ -432,6 +498,11 @@ export const GetTeamRosterResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getTeamRosterResponseStartersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -457,6 +528,11 @@ export const GetTeamRosterResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getTeamRosterResponseInterchangesItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -482,6 +558,11 @@ export const GetTeamRosterResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getTeamRosterResponseReservesItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -507,6 +588,11 @@ export const GetTeamRosterResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getTeamRosterResponseActivePlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -532,6 +618,11 @@ export const GetTeamRosterResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getTeamRosterResponseBenchPlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -565,6 +656,18 @@ export const SwapTeamPlayerBody = zod.object({
   "playerOutId": zod.number()
 })
 
+export const swapTeamPlayerResponseStartersItemDoctorQualityMax = 5;
+
+export const swapTeamPlayerResponseInterchangesItemDoctorQualityMax = 5;
+
+export const swapTeamPlayerResponseReservesItemDoctorQualityMax = 5;
+
+export const swapTeamPlayerResponseActivePlayersItemDoctorQualityMax = 5;
+
+export const swapTeamPlayerResponseBenchPlayersItemDoctorQualityMax = 5;
+
+
+
 export const SwapTeamPlayerResponse = zod.object({
   "team": zod.object({
   "id": zod.number(),
@@ -594,6 +697,11 @@ export const SwapTeamPlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(swapTeamPlayerResponseStartersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -619,6 +727,11 @@ export const SwapTeamPlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(swapTeamPlayerResponseInterchangesItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -644,6 +757,11 @@ export const SwapTeamPlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(swapTeamPlayerResponseReservesItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -669,6 +787,11 @@ export const SwapTeamPlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(swapTeamPlayerResponseActivePlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -694,6 +817,11 @@ export const SwapTeamPlayerResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(swapTeamPlayerResponseBenchPlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -730,6 +858,18 @@ export const SetPlayerRoleBody = zod.object({
   "role": zod.enum(['starter', 'interchange', 'reserve'])
 })
 
+export const setPlayerRoleResponseStartersItemDoctorQualityMax = 5;
+
+export const setPlayerRoleResponseInterchangesItemDoctorQualityMax = 5;
+
+export const setPlayerRoleResponseReservesItemDoctorQualityMax = 5;
+
+export const setPlayerRoleResponseActivePlayersItemDoctorQualityMax = 5;
+
+export const setPlayerRoleResponseBenchPlayersItemDoctorQualityMax = 5;
+
+
+
 export const SetPlayerRoleResponse = zod.object({
   "team": zod.object({
   "id": zod.number(),
@@ -759,6 +899,11 @@ export const SetPlayerRoleResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(setPlayerRoleResponseStartersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -784,6 +929,11 @@ export const SetPlayerRoleResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(setPlayerRoleResponseInterchangesItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -809,6 +959,11 @@ export const SetPlayerRoleResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(setPlayerRoleResponseReservesItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -834,6 +989,11 @@ export const SetPlayerRoleResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(setPlayerRoleResponseActivePlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -859,6 +1019,11 @@ export const SetPlayerRoleResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(setPlayerRoleResponseBenchPlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -887,6 +1052,10 @@ export const SetPlayerRoleResponse = zod.object({
 /**
  * @summary List all active contracts for the user's team
  */
+export const listContractsResponsePlayerDoctorQualityMax = 5;
+
+
+
 export const ListContractsResponseItem = zod.object({
   "id": zod.number(),
   "playerId": zod.number(),
@@ -911,6 +1080,11 @@ export const ListContractsResponseItem = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(listContractsResponsePlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -944,6 +1118,10 @@ export const GetContractParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const getContractResponsePlayerDoctorQualityMax = 5;
+
+
+
 export const GetContractResponse = zod.object({
   "id": zod.number(),
   "playerId": zod.number(),
@@ -968,6 +1146,11 @@ export const GetContractResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getContractResponsePlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -988,6 +1171,10 @@ export const GetContractResponse = zod.object({
 export const TerminateContractParams = zod.object({
   "id": zod.coerce.number()
 })
+
+export const terminateContractResponsePlayerDoctorQualityMax = 5;
+
+
 
 export const TerminateContractResponse = zod.object({
   "id": zod.number(),
@@ -1013,6 +1200,11 @@ export const TerminateContractResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(terminateContractResponsePlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -1095,6 +1287,10 @@ export const FireStaffResponse = zod.object({
 /**
  * @summary List scheduled training sessions
  */
+export const listTrainingSessionsResponsePlayerDoctorQualityMax = 5;
+
+
+
 export const ListTrainingSessionsResponseItem = zod.object({
   "id": zod.number(),
   "teamId": zod.number(),
@@ -1120,6 +1316,11 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(listTrainingSessionsResponsePlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -1155,6 +1356,12 @@ export const CompleteTrainingParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const completeTrainingResponseSessionPlayerDoctorQualityMax = 5;
+
+export const completeTrainingResponseNewStatsDoctorQualityMax = 5;
+
+
+
 export const CompleteTrainingResponse = zod.object({
   "session": zod.object({
   "id": zod.number(),
@@ -1181,6 +1388,11 @@ export const CompleteTrainingResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(completeTrainingResponseSessionPlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -1216,6 +1428,11 @@ export const CompleteTrainingResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(completeTrainingResponseNewStatsDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -1244,6 +1461,10 @@ export const ScheduleTeamTrainingBody = zod.object({
 /**
  * @summary Get weekly training plan summary with morale and fitness
  */
+export const getTrainingPlanResponseScheduledSessionsItemPlayerDoctorQualityMax = 5;
+
+
+
 export const GetTrainingPlanResponse = zod.object({
   "weeklyLoad": zod.enum(['light', 'moderate', 'intense', 'peak']),
   "averageFitness": zod.number(),
@@ -1274,6 +1495,11 @@ export const GetTrainingPlanResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getTrainingPlanResponseScheduledSessionsItemPlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -1370,6 +1596,10 @@ export const SimulateMatchParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const simulateMatchResponseMvpDoctorQualityMax = 5;
+
+
+
 export const SimulateMatchResponse = zod.object({
   "match": zod.object({
   "id": zod.number(),
@@ -1413,6 +1643,11 @@ export const SimulateMatchResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(simulateMatchResponseMvpDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
@@ -1699,6 +1934,10 @@ export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem)
 /**
  * @summary Get dashboard summary (team stats, next match, finances, recent results)
  */
+export const getDashboardResponseTopPlayersItemDoctorQualityMax = 5;
+
+
+
 export const GetDashboardResponse = zod.object({
   "team": zod.object({
   "id": zod.number(),
@@ -1757,6 +1996,11 @@ export const GetDashboardResponse = zod.object({
   "stamina": zod.number(),
   "morale": zod.number(),
   "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(getDashboardResponseTopPlayersItemDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
   "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
   "salary": zod.number(),
   "teamId": zod.number().nullable(),
