@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { Match } from './match';
+import type { MatchResultPlayerEventsItem } from './matchResultPlayerEventsItem';
 import type { MatchResultWinner } from './matchResultWinner';
 import type { Player } from './player';
 
@@ -17,4 +18,6 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   mvp?: Player;
+  /** Injury and recovery events that occurred as a result of this match. */
+  playerEvents?: MatchResultPlayerEventsItem[];
 }

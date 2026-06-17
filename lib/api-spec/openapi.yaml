@@ -1518,6 +1518,24 @@ components:
           type: number
         mvp:
           $ref: "#/components/schemas/Player"
+        playerEvents:
+          type: array
+          description: Injury and recovery events that occurred as a result of this match.
+          items:
+            type: object
+            required: [playerId, playerName, event]
+            properties:
+              playerId:
+                type: integer
+              playerName:
+                type: string
+              event:
+                type: string
+                enum: [injury_new, injury_worsened, recovery_complete]
+              injuryStatus:
+                type: string
+              weeksOut:
+                type: integer
 
     LineupUpdate:
       type: object

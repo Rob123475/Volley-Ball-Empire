@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { trainingSessionsTable, playersTable, teamsTable } from "@workspace/db";
+import { trainingSessionsTable, playersTable, teamsTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 
 const router = Router();
@@ -15,6 +15,14 @@ const typeToStat: Record<string, string> = {
   strength: "power", agility: "speed", serving: "serve",
   blocking: "block", defense: "defense", teamplay: "stamina", recovery: "stamina",
 };
+
+const MEDICAL_ROLES = ["physio", "physiotherapist", "fitness_trainer"];
+
+async function getBestMedicalSkill(teamId: number): Promise<number> {
+  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
+  const medics = staff.filter(s => MEDICAL_ROLES.includes(s.role));
+  return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
+}
 
 // ── Training XP accumulation ──────────────────────────────────────────────────
 // Each session adds XP to the player's persistent trainingPoints bank.
@@ -40,7 +48,7 @@ const applyFatigueAndStats = async (playerId: number, type: string) => {
   const stat = typeToStat[type] || "stamina";
   const statGains: Record<string, number> = statGain > 0 ? { [stat]: statGain } : {};
 
-  const updates: Record<string, number> = { trainingPoints: newPoints };
+  const updates: Record<string, unknown> = { trainingPoints: newPoints };
 
   if (statGain > 0) {
     if (stat === "power")   updates.power   = Math.min(99, player.power   + statGain);
@@ -52,7 +60,23 @@ const applyFatigueAndStats = async (playerId: number, type: string) => {
   }
 
   if (type === "recovery") {
+    // Fatigue drops, fitness bounces back, consecutive streak resets
     updates.fatigue = Math.max(0, player.fatigue - 25);
+    updates.fitness = Math.min(100, ((player.fitness as number) ?? 100) + 12 + Math.floor(Math.random() * 9));
+    updates.consecutiveMatchesPlayed = 0;
+
+    // Tick injury weeks down (physio skill adds a chance of an extra week's healing)
+    const weeksLeft = (player.injuryWeeksRemaining as number) ?? 0;
+    if (weeksLeft > 0 && player.teamId) {
+      const physioSkill = await getBestMedicalSkill(player.teamId);
+      const extraTick   = Math.random() < physioSkill / 250 ? 1 : 0;
+      const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick);
+      updates.injuryWeeksRemaining = newWeeks;
+      if (newWeeks === 0) {
+        updates.injuryStatus = "Healthy";
+        updates.isInjured    = false;
+      }
+    }
   } else {
     updates.fatigue = Math.min(100, player.fatigue + 18);
   }

@@ -1657,7 +1657,14 @@ export const SimulateMatchResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "createdAt": zod.string()
-}).optional()
+}).optional(),
+  "playerEvents": zod.array(zod.object({
+  "playerId": zod.number(),
+  "playerName": zod.string(),
+  "event": zod.enum(['injury_new', 'injury_worsened', 'recovery_complete']),
+  "injuryStatus": zod.string().optional(),
+  "weeksOut": zod.number().optional()
+})).optional().describe('Injury and recovery events that occurred as a result of this match.')
 })
 
 

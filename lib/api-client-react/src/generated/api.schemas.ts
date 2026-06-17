@@ -468,6 +468,23 @@ export const MatchResultWinner = {
   draw: 'draw',
 } as const;
 
+export type MatchResultPlayerEventsItemEvent = typeof MatchResultPlayerEventsItemEvent[keyof typeof MatchResultPlayerEventsItemEvent];
+
+
+export const MatchResultPlayerEventsItemEvent = {
+  injury_new: 'injury_new',
+  injury_worsened: 'injury_worsened',
+  recovery_complete: 'recovery_complete',
+} as const;
+
+export type MatchResultPlayerEventsItem = {
+  playerId: number;
+  playerName: string;
+  event: MatchResultPlayerEventsItemEvent;
+  injuryStatus?: string;
+  weeksOut?: number;
+};
+
 export interface MatchResult {
   match: Match;
   highlights: string[];
@@ -476,6 +493,8 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   mvp?: Player;
+  /** Injury and recovery events that occurred as a result of this match. */
+  playerEvents?: MatchResultPlayerEventsItem[];
 }
 
 export interface LineupUpdate {

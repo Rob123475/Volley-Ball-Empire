@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
 
 const router = Router();
@@ -95,6 +95,132 @@ const serializeMatch = (m: any) => ({
   lineup:     Array.isArray(m.lineup)     ? m.lineup     : [],
   highlights: Array.isArray(m.highlights) ? m.highlights : [],
 });
+
+// ── Post-match health mechanics ────────────────────────────────────────────────
+
+const MEDICAL_ROLES = ["physio", "physiotherapist", "fitness_trainer"];
+
+async function getBestMedicalSkill(teamId: number): Promise<number> {
+  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
+  const medics = staff.filter(s => MEDICAL_ROLES.includes(s.role));
+  return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
+}
+
+/** Returns probability (0–0.60) of a player getting injured this match. */
+function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, injuryStatus: string): number {
+  let risk = 0.05;
+
+  // Fatigue makes the body fragile
+  if      (fatigue > 85) risk += 0.12;
+  else if (fatigue > 70) risk += 0.06;
+  else if (fatigue > 55) risk += 0.02;
+
+  // Low stamina = poor physical resilience
+  risk += ((100 - stamina) / 100) * 0.08;
+
+  // Back-to-back matches wear the body down
+  if      (consecutive >= 4) risk += 0.05;
+  else if (consecutive >= 2) risk += 0.02;
+
+  // Already hurt and still playing — 2.5× multiplier
+  if (injuryStatus !== "Healthy") risk *= 2.5;
+
+  return Math.min(risk, 0.60);
+}
+
+/** Rolls the severity of a new injury (or worsening). */
+function rollInjurySeverity(currentStatus: string): { status: string; weeks: number } {
+  const roll = Math.random();
+  if (currentStatus !== "Healthy") {
+    // Playing through injury — high chance of making it much worse
+    if (roll < 0.30) return { status: "Major Injury", weeks: 6  };
+    if (roll < 0.70) return { status: "Unavailable",  weeks: 10 };
+    return                  { status: "Unavailable",  weeks: 14 };
+  }
+  if (roll < 0.60) return   { status: "Minor Injury", weeks: 2  };
+  if (roll < 0.90) return   { status: "Major Injury", weeks: 6  };
+  return                    { status: "Unavailable",  weeks: 12 };
+}
+
+type PlayerEvent = {
+  playerId: number;
+  playerName: string;
+  event: "injury_new" | "injury_worsened" | "recovery_complete";
+  injuryStatus?: string;
+  weeksOut?: number;
+};
+
+/**
+ * Applies post-match health effects to every player on the team:
+ *  - Active players:  fatigue ↑, fitness ↓, injury risk roll, consecutive streak ↑
+ *  - Bench/reserve:   fatigue ↓, fitness ↑, consecutive resets, injury weeks tick down
+ * Returns events (new injuries, worsenings, recoveries) for the UI to surface.
+ */
+async function applyPostMatchEffects(teamId: number, weather: string): Promise<PlayerEvent[]> {
+  const [players, physioSkill] = await Promise.all([
+    db.select().from(playersTable).where(eq(playersTable.teamId, teamId)),
+    getBestMedicalSkill(teamId),
+  ]);
+
+  const events: PlayerEvent[] = [];
+  const isHot = weather === "hot";
+
+  for (const player of players) {
+    const updates: Record<string, unknown> = {};
+    const prevStatus  = (player.injuryStatus  as string)  ?? "Healthy";
+    const curFatigue  = player.fatigue  ?? 0;
+    const curFitness  = (player.fitness  as number) ?? 100;
+    const consecutive = (player.consecutiveMatchesPlayed as number) ?? 0;
+
+    if (player.isActive) {
+      // ── Played this match ──────────────────────────────────────────────────
+      const fatigueCost = 15 + Math.floor(Math.random() * 11) + (isHot ? 8 : 0);
+      updates.fatigue  = Math.min(100, curFatigue + fatigueCost);
+      updates.fitness  = Math.max(0, curFitness - 3 - Math.floor(Math.random() * 6));
+      updates.consecutiveMatchesPlayed = consecutive + 1;
+
+      // Injury risk roll — higher fatigue, lower stamina, and playing hurt all raise it
+      const risk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus);
+      if (Math.random() < risk) {
+        const inj = rollInjurySeverity(prevStatus);
+        updates.injuryStatus        = inj.status;
+        updates.injuryWeeksRemaining = inj.weeks;
+        updates.isInjured           = true;
+        events.push({
+          playerId:    player.id,
+          playerName:  player.name,
+          event:       prevStatus !== "Healthy" ? "injury_worsened" : "injury_new",
+          injuryStatus: inj.status,
+          weeksOut:    inj.weeks,
+        });
+      }
+    } else {
+      // ── Resting this match ────────────────────────────────────────────────
+      updates.fatigue  = Math.max(0, curFatigue - 8 - Math.floor(Math.random() * 7));
+      updates.fitness  = Math.min(100, curFitness + 3 + Math.floor(Math.random() * 4));
+      updates.consecutiveMatchesPlayed = 0;
+
+      // Injury recovery tick — physio skill adds a chance of an extra week's recovery
+      const weeksLeft = (player.injuryWeeksRemaining as number) ?? 0;
+      if (weeksLeft > 0) {
+        const extraTick   = Math.random() < physioSkill / 250 ? 1 : 0;
+        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick);
+        updates.injuryWeeksRemaining = newWeeks;
+        if (newWeeks === 0) {
+          updates.injuryStatus = "Healthy";
+          updates.isInjured    = false;
+          events.push({ playerId: player.id, playerName: player.name, event: "recovery_complete" });
+        }
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await db.update(playersTable).set(updates).where(eq(playersTable.id, player.id));
+    }
+  }
+
+  return events;
+}
 
 const getTeamForUser = async (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
@@ -286,6 +412,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.update(teamsTable).set({ losses: team.losses + 1 }).where(eq(teamsTable.id, team.id));
   }
 
+  const playerEvents = await applyPostMatchEffects(team.id, match.weather);
+
   res.json({
     match: serializeMatch(updatedMatch),
     highlights,
@@ -296,6 +424,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     mvp: mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
     isFinal,
     weatherImpact: windPenalty > 0.1 || heatPenalty > 0 ? match.weather : null,
+    playerEvents,
   });
 });
 

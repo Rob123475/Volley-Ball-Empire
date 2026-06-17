@@ -31,6 +31,8 @@ export * from './location';
 export * from './match';
 export * from './matchInput';
 export * from './matchResult';
+export * from './matchResultPlayerEventsItem';
+export * from './matchResultPlayerEventsItemEvent';
 export * from './matchResultWinner';
 export * from './matchStatus';
 export * from './matchWeather';
