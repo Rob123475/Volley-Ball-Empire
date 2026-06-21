@@ -48,6 +48,7 @@ import type {
   PlayerSwap,
   PlayerUpdate,
   PromoDeal,
+  ScoutingResult,
   Season,
   SeasonInput,
   StaffInput,
@@ -1119,6 +1120,76 @@ export const useReleasePlayer = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getReleasePlayerMutationOptions(options));
+    }
+
+export const getScoutPlayerUrl = (id: number,) => {
+
+
+
+
+  return `/api/players/${id}/scout`
+}
+
+/**
+ * @summary Have your scout assess a player's hidden potential
+ */
+export const scoutPlayer = async (id: number, options?: RequestInit): Promise<ScoutingResult> => {
+
+  return customFetch<ScoutingResult>(getScoutPlayerUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getScoutPlayerMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scoutPlayer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof scoutPlayer>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['scoutPlayer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof scoutPlayer>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  scoutPlayer(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ScoutPlayerMutationResult = NonNullable<Awaited<ReturnType<typeof scoutPlayer>>>
+
+    export type ScoutPlayerMutationError = ErrorType<void>
+
+    /**
+ * @summary Have your scout assess a player's hidden potential
+ */
+export const useScoutPlayer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scoutPlayer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof scoutPlayer>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getScoutPlayerMutationOptions(options));
     }
 
 export const getListOutfitsUrl = () => {

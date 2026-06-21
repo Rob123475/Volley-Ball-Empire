@@ -94,6 +94,8 @@ export const playersTable = pgTable("players", {
   contractEndDate: varchar("contract_end_date", { length: 20 }),
   isDraftPlayer: boolean("is_draft_player").notNull().default(false),
   askingPrice: numeric("asking_price", { precision: 10, scale: 2 }),
+  potential: varchar("potential", { length: 20 }).notNull().default("Average"),
+  scoutedPotential: varchar("scouted_potential", { length: 20 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

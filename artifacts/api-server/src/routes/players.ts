@@ -1,20 +1,64 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { playersTable, teamsTable } from "@workspace/db";
+import { playersTable, teamsTable, staffTable } from "@workspace/db";
 import { eq, isNull } from "drizzle-orm";
 
 const router = Router();
 
-const serializePlayer = (p: any) => ({
-  ...p,
-  height: Number(p.height),
-  salary: Number(p.salary),
-  askingPrice: p.askingPrice ? Number(p.askingPrice) : null,
-});
-
-const getTeamForUser = async (userId: string) => {
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
+// Strips the true `potential` before sending to client — always hidden
+const serializePlayer = (p: any) => {
+  const { potential: _hidden, ...rest } = p;
+  return {
+    ...rest,
+    height:      Number(rest.height),
+    salary:      Number(rest.salary),
+    askingPrice: rest.askingPrice ? Number(rest.askingPrice) : null,
+  };
 };
+
+const getTeamForUser = async (userId: string) =>
+  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
+
+// ── Potential helpers ─────────────────────────────────────────────────────────
+
+const POTENTIAL_TIERS = ["Low", "Average", "High", "Elite", "Generational"] as const;
+
+function assignPotential(): string {
+  const rand = Math.random();
+  if (rand < 0.15) return "Low";
+  if (rand < 0.50) return "Average";
+  if (rand < 0.80) return "High";
+  if (rand < 0.95) return "Elite";
+  return "Generational";
+}
+
+function computeScoutedPotential(
+  truePotential: string,
+  scoutRating: number,
+): { scoutedPotential: string; confidence: "uncertain" | "likely" | "confident" } {
+  const trueIdx = POTENTIAL_TIERS.indexOf(truePotential as any);
+  const idx = trueIdx < 0 ? 2 : trueIdx;
+
+  // accuracy: 0 at rating 30, 1.0 at rating 99
+  const accuracy = Math.max(0, Math.min(1, (scoutRating - 30) / 69));
+  const rand = Math.random();
+
+  let offset = 0;
+  if (rand > accuracy) {
+    const direction = Math.random() < 0.55 ? -1 : 1;
+    const magnitude = scoutRating < 50 && Math.random() < 0.4 ? 2 : 1;
+    offset = direction * magnitude;
+  }
+
+  const revealedIdx = Math.max(0, Math.min(4, idx + offset));
+  const confidence: "uncertain" | "likely" | "confident" =
+    scoutRating < 50 ? "uncertain" :
+    scoutRating < 75 ? "likely"    : "confident";
+
+  return { scoutedPotential: POTENTIAL_TIERS[revealedIdx], confidence };
+}
+
+// ── Routes ────────────────────────────────────────────────────────────────────
 
 router.get("/players", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -28,17 +72,20 @@ router.post("/players", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const { name, nationality, age, height, position, speed, power, defense, serve, block, stamina, salary } = req.body;
   const [player] = await db.insert(playersTable).values({
-    name, nationality, age: Number(age), height: String(height),
-    position, speed: Number(speed), power: Number(power),
-    defense: Number(defense), serve: Number(serve), block: Number(block),
-    stamina: Number(stamina), salary: String(salary),
+    name, nationality,
+    age: Number(age), height: String(height),
+    position,
+    speed: Number(speed), power: Number(power),
+    defense: Number(defense), serve: Number(serve),
+    block: Number(block), stamina: Number(stamina),
+    salary: String(salary),
+    potential: assignPotential(),
   }).returning();
   res.status(201).json(serializePlayer(player));
 });
 
 router.get("/players/free-agents", async (req, res) => {
-  const freeAgents = await db.select().from(playersTable)
-    .where(isNull(playersTable.teamId));
+  const freeAgents = await db.select().from(playersTable).where(isNull(playersTable.teamId));
   res.json(freeAgents.filter(p => !p.isDraftPlayer).map(serializePlayer));
 });
 
@@ -54,9 +101,9 @@ router.patch("/players/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const { name, isActive, morale } = req.body;
   const updates: any = {};
-  if (name !== undefined) updates.name = name;
+  if (name     !== undefined) updates.name     = name;
   if (isActive !== undefined) updates.isActive = isActive;
-  if (morale !== undefined) updates.morale = morale;
+  if (morale   !== undefined) updates.morale   = morale;
   const [player] = await db.update(playersTable).set(updates).where(eq(playersTable.id, id)).returning();
   res.json(serializePlayer(player));
 });
@@ -74,6 +121,41 @@ router.post("/players/:id/release", async (req, res) => {
   const id = parseInt(req.params.id);
   const [player] = await db.update(playersTable).set({ teamId: null, contractEndDate: null }).where(eq(playersTable.id, id)).returning();
   res.json(serializePlayer(player));
+});
+
+router.post("/players/:id/scout", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const playerId = parseInt(req.params.id);
+  const player   = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
+
+  const team = await getTeamForUser(req.user.id);
+  if (!team)  { res.status(404).json({ error: "No team found" }); return; }
+
+  const allStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const scouts   = allStaff.filter(s => s.role === "scout");
+
+  if (scouts.length === 0) {
+    res.status(400).json({ error: "No scout on staff. Hire a scout to assess player potential." });
+    return;
+  }
+
+  const bestScout = scouts.reduce((a, b) => a.overallRating > b.overallRating ? a : b);
+  const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, bestScout.overallRating);
+
+  const [updated] = await db.update(playersTable)
+    .set({ scoutedPotential })
+    .where(eq(playersTable.id, playerId))
+    .returning();
+
+  res.json({
+    player:          serializePlayer(updated),
+    scoutedPotential,
+    confidence,
+    scoutName:   bestScout.name,
+    scoutRating: bestScout.overallRating,
+  });
 });
 
 export default router;

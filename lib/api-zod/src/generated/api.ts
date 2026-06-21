@@ -141,6 +141,7 @@ export const ListPlayersResponseItem = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })
 export const ListPlayersResponse = zod.array(ListPlayersResponseItem)
@@ -200,6 +201,7 @@ export const ListFreeAgentsResponseItem = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })
 export const ListFreeAgentsResponse = zod.array(ListFreeAgentsResponseItem)
@@ -244,6 +246,7 @@ export const GetPlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })
 
@@ -293,6 +296,7 @@ export const UpdatePlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })
 
@@ -340,6 +344,7 @@ export const UpdatePlayerOutfitResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })
 
@@ -383,7 +388,58 @@ export const ReleasePlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Have your scout assess a player's hidden potential
+ */
+export const ScoutPlayerParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const scoutPlayerResponsePlayerDoctorQualityMax = 5;
+
+
+
+export const ScoutPlayerResponse = zod.object({
+  "player": zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "height": zod.number(),
+  "position": zod.enum(['setter', 'libero', 'outside_hitter', 'middle_blocker', 'opposite', 'universal']),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "morale": zod.number(),
+  "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(scoutPlayerResponsePlayerDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
+  "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
+  "salary": zod.number(),
+  "teamId": zod.number().nullable(),
+  "outfitId": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
+  "imageUrl": zod.string().nullable(),
+  "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "createdAt": zod.string()
+}),
+  "scoutedPotential": zod.enum(['Low', 'Average', 'High', 'Elite', 'Generational']),
+  "confidence": zod.enum(['uncertain', 'likely', 'confident']).describe('How reliable the assessment is, based on scout skill.'),
+  "scoutName": zod.string(),
+  "scoutRating": zod.number()
 })
 
 
@@ -515,6 +571,7 @@ export const GetTeamRosterResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -545,6 +602,7 @@ export const GetTeamRosterResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -575,6 +633,7 @@ export const GetTeamRosterResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -605,6 +664,7 @@ export const GetTeamRosterResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -635,6 +695,7 @@ export const GetTeamRosterResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -720,6 +781,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -750,6 +812,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -780,6 +843,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -810,6 +874,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -840,6 +905,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -928,6 +994,7 @@ export const SetPlayerRoleResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -958,6 +1025,7 @@ export const SetPlayerRoleResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -988,6 +1056,7 @@ export const SetPlayerRoleResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -1018,6 +1087,7 @@ export const SetPlayerRoleResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -1048,6 +1118,7 @@ export const SetPlayerRoleResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -1114,6 +1185,7 @@ export const ListContractsResponseItem = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -1180,6 +1252,7 @@ export const GetContractResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -1234,6 +1307,7 @@ export const TerminateContractResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -1365,6 +1439,7 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -1454,6 +1529,7 @@ export const CompleteTrainingResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -1511,6 +1587,7 @@ export const CompleteTrainingResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }),
   "xpGained": zod.number().optional(),
@@ -1587,6 +1664,7 @@ export const GetTrainingPlanResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -1752,6 +1830,7 @@ export const SimulateMatchResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 }).optional(),
   "playerEvents": zod.array(zod.object({
@@ -2113,6 +2192,7 @@ export const GetDashboardResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
   "createdAt": zod.string()
 })),
   "seasonStanding": zod.object({

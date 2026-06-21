@@ -1,11 +1,12 @@
 import { 
   useListFreeAgents, 
   useSignContract, 
+  useScoutPlayer,
   getListFreeAgentsQueryKey,
   getListContractsQueryKey
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -17,7 +18,9 @@ import {
   Shield,
   Target,
   Activity,
-  Star
+  Star,
+  Search,
+  HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -34,6 +37,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format, addMonths } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const POSITIONS = ["ALL", "setter", "defender", "blocker", "opposite", "server", "universal"] as const;
 const POSITION_LABELS: Record<string, string> = {
@@ -46,6 +50,60 @@ const POSITION_LABELS: Record<string, string> = {
   universal: "UNI",
 };
 
+// ── Potential display helpers ─────────────────────────────────────────────────
+
+type PotentialTier = "Low" | "Average" | "High" | "Elite" | "Generational";
+
+const POTENTIAL_CONFIG: Record<PotentialTier, {
+  label: string;
+  emoji: string;
+  badgeClass: string;
+  description: string;
+}> = {
+  Low:          { label: "Low",          emoji: "◇", badgeClass: "bg-zinc-500/15 text-zinc-500 border-zinc-400/30",          description: "Limited development ceiling" },
+  Average:      { label: "Average",      emoji: "◈", badgeClass: "bg-sky-500/15 text-sky-600 border-sky-400/30",             description: "Solid but unremarkable ceiling" },
+  High:         { label: "High",         emoji: "◆", badgeClass: "bg-green-500/15 text-green-600 border-green-500/30",       description: "Strong long-term development" },
+  Elite:        { label: "Elite",        emoji: "★", badgeClass: "bg-purple-500/15 text-purple-600 border-purple-400/30",    description: "Exceptional development ceiling" },
+  Generational: { label: "Generational", emoji: "✦", badgeClass: "bg-amber-400/20 text-amber-600 border-amber-400/40",      description: "Once-in-a-generation talent" },
+};
+
+const CONFIDENCE_LABEL: Record<string, string> = {
+  uncertain: "Uncertain",
+  likely:    "Likely",
+  confident: "Confident",
+};
+
+function PotentialBadge({
+  potential,
+  confidence,
+  size = "sm",
+}: {
+  potential: string;
+  confidence?: string;
+  size?: "xs" | "sm";
+}) {
+  const cfg = POTENTIAL_CONFIG[potential as PotentialTier];
+  if (!cfg) return null;
+  return (
+    <div className="flex items-center gap-1">
+      <span className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2 font-semibold",
+        size === "xs" ? "text-[9px] py-0.5" : "text-[10px] py-0.5",
+        cfg.badgeClass,
+      )}>
+        {cfg.emoji} {cfg.label}
+      </span>
+      {confidence && confidence !== "confident" && (
+        <span className="text-[9px] text-muted-foreground italic">
+          ({CONFIDENCE_LABEL[confidence] ?? confidence})
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 export default function PlayerMarket() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -55,7 +113,8 @@ export default function PlayerMarket() {
     query: { queryKey: getListFreeAgentsQueryKey() }
   });
 
-  const signMutation = useSignContract();
+  const signMutation  = useSignContract();
+  const scoutMutation = useScoutPlayer();
 
   if (isLoading) {
     return <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -81,6 +140,27 @@ export default function PlayerMarket() {
         queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
         toast({ title: "Contract Signed!", description: "Welcome to the team!" });
       }
+    });
+  };
+
+  const handleScout = (playerId: number) => {
+    scoutMutation.mutate({ id: playerId }, {
+      onSuccess: (result) => {
+        queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
+        const cfg = POTENTIAL_CONFIG[result.scoutedPotential as PotentialTier];
+        const confidenceText = CONFIDENCE_LABEL[result.confidence] ?? result.confidence;
+        toast({
+          title: `Scout Report`,
+          description: `${result.scoutName} rates this player as ${cfg?.label ?? result.scoutedPotential} potential. (${confidenceText} assessment)`,
+        });
+      },
+      onError: (err: any) => {
+        toast({
+          title: "No Scout Available",
+          description: err?.response?.data?.error ?? "Hire a scout to assess player potential.",
+          variant: "destructive",
+        });
+      },
     });
   };
 
@@ -118,6 +198,9 @@ export default function PlayerMarket() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredPlayers?.map((player) => {
           const overall = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+          const isScouted = !!player.scoutedPotential;
+          const isScoutingThis = scoutMutation.isPending && scoutMutation.variables?.id === player.id;
+
           return (
             <Card key={player.id} className="overflow-hidden hover:shadow-lg transition-all group">
               <div className="relative h-72 overflow-hidden">
@@ -127,6 +210,21 @@ export default function PlayerMarket() {
                   className="w-full h-full object-cover object-[center_20%]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                {/* Potential badge — top-right overlay */}
+                <div className="absolute top-2 right-2">
+                  {isScouted ? (
+                    <PotentialBadge
+                      potential={player.scoutedPotential!}
+                      size="xs"
+                    />
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] text-white/60">
+                      <HelpCircle className="h-2.5 w-2.5" /> Unknown
+                    </span>
+                  )}
+                </div>
+
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
                   <div>
                     <Badge className="bg-primary text-white border-0 text-[10px] mb-1">
@@ -158,6 +256,34 @@ export default function PlayerMarket() {
                     Morale: {player.morale ?? 80}%
                   </span>
                   <span className="text-muted-foreground">{player.nationality}</span>
+                </div>
+
+                {/* Potential row */}
+                <div className="flex items-center justify-between border-t border-border pt-2">
+                  <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    {isScouted ? (
+                      <>
+                        <span className="font-medium text-foreground">Potential</span>
+                        <PotentialBadge
+                          potential={player.scoutedPotential!}
+                          size="xs"
+                        />
+                      </>
+                    ) : (
+                      <span className="italic">Potential not assessed</span>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[10px] gap-1"
+                    onClick={() => handleScout(player.id)}
+                    disabled={isScoutingThis}
+                    data-testid={`button-scout-${player.id}`}
+                  >
+                    <Search className="h-3 w-3" />
+                    {isScoutingThis ? "Scouting…" : "Scout"}
+                  </Button>
                 </div>
 
                 <div className="flex items-center justify-between text-xs border-t border-border pt-2">

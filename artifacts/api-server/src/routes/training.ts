@@ -146,6 +146,16 @@ function computeCoachEffect(coach: StaffMember, programName: string, playerAge?:
 
 // ── Training XP + stat update ─────────────────────────────────────────────────
 
+// ── Potential multipliers (uses true `potential` from DB, never sent to client) ──
+
+const POTENTIAL_MULTIPLIERS: Record<string, number> = {
+  "Generational": 1.30,
+  "Elite":        1.15,
+  "High":         1.00,
+  "Average":      0.90,
+  "Low":          0.80,
+};
+
 const POINTS_PER_SESSION_MIN = 25;
 const POINTS_PER_SESSION_MAX = 35;
 const PRIMARY_THRESHOLD   = 100;
@@ -178,8 +188,9 @@ const applyFatigueAndStats = async (
   const philosophyMultiplier = teamPhilosophy
     ? (PHILOSOPHY_BONUSES[teamPhilosophy]?.[programName] ?? 1.0)
     : 1.0;
+  const potentialMultiplier = POTENTIAL_MULTIPLIERS[(player.potential as string) ?? "Average"] ?? 1.0;
 
-  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier;
+  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier * potentialMultiplier;
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = player.trainingPoints;
@@ -256,6 +267,7 @@ const applyFatigueAndStats = async (
     coachEffect,
     ageModifier,
     philosophyMultiplier,
+    potentialMultiplier,
     programName,
   };
 };
@@ -351,6 +363,7 @@ router.post("/training/:id/complete", async (req, res) => {
       ageModifier,
       philosophyMultiplier,
       programName,
+      potentialMultiplier: result.potentialMultiplier,
     });
     return;
   }

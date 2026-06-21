@@ -87,6 +87,21 @@ export const PlayerSquadRole = {
   reserve: 'reserve',
 } as const;
 
+/**
+ * Scout's assessment of player potential. Null if the player has not been scouted yet.
+ * @nullable
+ */
+export type PlayerScoutedPotential = typeof PlayerScoutedPotential[keyof typeof PlayerScoutedPotential] | null;
+
+
+export const PlayerScoutedPotential = {
+  Low: 'Low',
+  Average: 'Average',
+  High: 'High',
+  Elite: 'Elite',
+  Generational: 'Generational',
+} as const;
+
 export interface Player {
   id: number;
   name: string;
@@ -131,6 +146,11 @@ export interface Player {
   imageUrl: string | null;
   /** @nullable */
   contractEndDate?: string | null;
+  /**
+     * Scout's assessment of player potential. Null if the player has not been scouted yet.
+     * @nullable
+     */
+  scoutedPotential?: PlayerScoutedPotential;
   createdAt: string;
 }
 
@@ -766,6 +786,38 @@ export interface OlympicSelectionInput {
   country: string;
   flag: string;
   squad: OlympicPlayer[];
+}
+
+export type ScoutingResultScoutedPotential = typeof ScoutingResultScoutedPotential[keyof typeof ScoutingResultScoutedPotential];
+
+
+export const ScoutingResultScoutedPotential = {
+  Low: 'Low',
+  Average: 'Average',
+  High: 'High',
+  Elite: 'Elite',
+  Generational: 'Generational',
+} as const;
+
+/**
+ * How reliable the assessment is, based on scout skill.
+ */
+export type ScoutingResultConfidence = typeof ScoutingResultConfidence[keyof typeof ScoutingResultConfidence];
+
+
+export const ScoutingResultConfidence = {
+  uncertain: 'uncertain',
+  likely: 'likely',
+  confident: 'confident',
+} as const;
+
+export interface ScoutingResult {
+  player: Player;
+  scoutedPotential: ScoutingResultScoutedPotential;
+  /** How reliable the assessment is, based on scout skill. */
+  confidence: ScoutingResultConfidence;
+  scoutName: string;
+  scoutRating: number;
 }
 
 export interface LeaderboardEntry {

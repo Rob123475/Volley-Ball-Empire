@@ -7,6 +7,7 @@
  */
 import type { PlayerInjuryStatus } from './playerInjuryStatus';
 import type { PlayerPosition } from './playerPosition';
+import type { PlayerScoutedPotential } from './playerScoutedPotential';
 import type { PlayerSquadRole } from './playerSquadRole';
 
 export interface Player {
@@ -53,5 +54,10 @@ export interface Player {
   imageUrl: string | null;
   /** @nullable */
   contractEndDate?: string | null;
+  /**
+     * Scout's assessment of player potential. Null if the player has not been scouted yet.
+     * @nullable
+     */
+  scoutedPotential?: PlayerScoutedPotential;
   createdAt: string;
 }

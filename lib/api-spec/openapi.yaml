@@ -283,6 +283,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/Player"
 
+  /players/{id}/scout:
+    post:
+      operationId: scoutPlayer
+      tags: [players]
+      summary: Have your scout assess a player's hidden potential
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Scouting report with assessed potential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoutingResult"
+        "400":
+          description: No scout on staff
+
   /outfits:
     get:
       operationId: listOutfits
@@ -1165,6 +1186,10 @@ components:
           type: ["string", "null"]
         contractEndDate:
           type: ["string", "null"]
+        scoutedPotential:
+          type: ["string", "null"]
+          enum: ["Low", "Average", "High", "Elite", "Generational", null]
+          description: "Scout's assessment of player potential. Null if the player has not been scouted yet."
         createdAt:
           type: string
 
@@ -1921,6 +1946,24 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OlympicPlayer"
+
+    ScoutingResult:
+      type: object
+      required: [player, scoutedPotential, confidence, scoutName, scoutRating]
+      properties:
+        player:
+          $ref: "#/components/schemas/Player"
+        scoutedPotential:
+          type: string
+          enum: [Low, Average, High, Elite, Generational]
+        confidence:
+          type: string
+          enum: [uncertain, likely, confident]
+          description: How reliable the assessment is, based on scout skill.
+        scoutName:
+          type: string
+        scoutRating:
+          type: integer
 
     LeaderboardEntry:
       type: object
