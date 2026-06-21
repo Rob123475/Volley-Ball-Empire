@@ -416,6 +416,7 @@ export const GetMyTeamResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "createdAt": zod.string()
 })
 
@@ -436,7 +437,8 @@ export const CreateTeamBody = zod.object({
 export const UpdateTeamBody = zod.object({
   "name": zod.string().optional(),
   "locationId": zod.number().optional(),
-  "logoColor": zod.string().optional()
+  "logoColor": zod.string().optional(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish()
 })
 
 export const UpdateTeamResponse = zod.object({
@@ -450,6 +452,7 @@ export const UpdateTeamResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "createdAt": zod.string()
 })
 
@@ -481,6 +484,7 @@ export const GetTeamRosterResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "createdAt": zod.string()
 }),
   "starters": zod.array(zod.object({
@@ -685,6 +689,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "createdAt": zod.string()
 }),
   "starters": zod.array(zod.object({
@@ -892,6 +897,7 @@ export const SetPlayerRoleResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "createdAt": zod.string()
 }),
   "starters": zod.array(zod.object({
@@ -1325,7 +1331,7 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "id": zod.number(),
   "teamId": zod.number(),
   "playerId": zod.number(),
-  "type": zod.enum(['strength', 'agility', 'serving', 'blocking', 'defense', 'teamplay', 'recovery']),
+  "type": zod.enum(['Power Camp', 'Agility Camp', 'Serving Academy', 'Defensive Systems', 'Conditioning', 'Recovery Program']),
   "focus": zod.string(),
   "durationHours": zod.number(),
   "scheduledAt": zod.string(),
@@ -1361,6 +1367,23 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "contractEndDate": zod.string().nullish(),
   "createdAt": zod.string()
 }).optional(),
+  "coach": zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'physio', 'nutritionist', 'scout', 'manager', 'physiotherapist', 'strength_coach']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99).'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "createdAt": zod.string()
+}).optional(),
   "createdAt": zod.string().optional()
 })
 export const ListTrainingSessionsResponse = zod.array(ListTrainingSessionsResponseItem)
@@ -1371,8 +1394,8 @@ export const ListTrainingSessionsResponse = zod.array(ListTrainingSessionsRespon
  */
 export const ScheduleTrainingBody = zod.object({
   "playerId": zod.number(),
-  "type": zod.string(),
-  "focus": zod.string(),
+  "type": zod.enum(['Power Camp', 'Agility Camp', 'Serving Academy', 'Defensive Systems', 'Conditioning', 'Recovery Program']),
+  "focus": zod.string().optional(),
   "durationHours": zod.number(),
   "scheduledAt": zod.string(),
   "coachId": zod.number().nullish()
@@ -1397,7 +1420,7 @@ export const CompleteTrainingResponse = zod.object({
   "id": zod.number(),
   "teamId": zod.number(),
   "playerId": zod.number(),
-  "type": zod.enum(['strength', 'agility', 'serving', 'blocking', 'defense', 'teamplay', 'recovery']),
+  "type": zod.enum(['Power Camp', 'Agility Camp', 'Serving Academy', 'Defensive Systems', 'Conditioning', 'Recovery Program']),
   "focus": zod.string(),
   "durationHours": zod.number(),
   "scheduledAt": zod.string(),
@@ -1431,6 +1454,23 @@ export const CompleteTrainingResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "createdAt": zod.string()
+}).optional(),
+  "coach": zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'physio', 'nutritionist', 'scout', 'manager', 'physiotherapist', 'strength_coach']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99).'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string().optional()
@@ -1472,7 +1512,16 @@ export const CompleteTrainingResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "createdAt": zod.string()
-})
+}),
+  "xpGained": zod.number().optional(),
+  "baseXp": zod.number().optional(),
+  "xpToNextStat": zod.number().optional(),
+  "ageModifier": zod.number().optional(),
+  "philosophyMultiplier": zod.number().optional(),
+  "programName": zod.string().optional(),
+  "coachEffect": zod.object({
+
+}).passthrough().nullish()
 })
 
 
@@ -1480,7 +1529,7 @@ export const CompleteTrainingResponse = zod.object({
  * @summary Schedule a training session for the entire active roster
  */
 export const ScheduleTeamTrainingBody = zod.object({
-  "type": zod.enum(['strength', 'agility', 'serving', 'blocking', 'defense', 'teamplay', 'recovery']),
+  "type": zod.enum(['Power Camp', 'Agility Camp', 'Serving Academy', 'Defensive Systems', 'Conditioning', 'Recovery Program']),
   "focus": zod.string().optional(),
   "durationHours": zod.number(),
   "scheduledAt": zod.string(),
@@ -1504,7 +1553,7 @@ export const GetTrainingPlanResponse = zod.object({
   "id": zod.number(),
   "teamId": zod.number(),
   "playerId": zod.number(),
-  "type": zod.enum(['strength', 'agility', 'serving', 'blocking', 'defense', 'teamplay', 'recovery']),
+  "type": zod.enum(['Power Camp', 'Agility Camp', 'Serving Academy', 'Defensive Systems', 'Conditioning', 'Recovery Program']),
   "focus": zod.string(),
   "durationHours": zod.number(),
   "scheduledAt": zod.string(),
@@ -1538,6 +1587,23 @@ export const GetTrainingPlanResponse = zod.object({
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
+  "createdAt": zod.string()
+}).optional(),
+  "coach": zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'physio', 'nutritionist', 'scout', 'manager', 'physiotherapist', 'strength_coach']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99).'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string().optional()
@@ -1987,6 +2053,7 @@ export const GetDashboardResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "createdAt": zod.string()
 }),
   "nextMatch": zod.object({

@@ -44,6 +44,7 @@ export const teamsTable = pgTable("teams", {
   titlesWon: integer("titles_won").notNull().default(0),
   locationId: integer("location_id").references(() => locationsTable.id),
   logoColor: varchar("logo_color", { length: 20 }),
+  trainingPhilosophy: varchar("training_philosophy", { length: 30 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

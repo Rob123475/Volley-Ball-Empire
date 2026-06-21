@@ -1257,6 +1257,10 @@ components:
           type: ["integer", "null"]
         logoColor:
           type: ["string", "null"]
+        trainingPhilosophy:
+          type: ["string", "null"]
+          enum: ["Power Volleyball", "Fast Volleyball", "Defensive Volleyball", null]
+          description: "Team-wide training philosophy; provides small XP bonuses to related programs."
         createdAt:
           type: string
 
@@ -1280,6 +1284,9 @@ components:
           type: integer
         logoColor:
           type: string
+        trainingPhilosophy:
+          type: ["string", "null"]
+          enum: ["Power Volleyball", "Fast Volleyball", "Defensive Volleyball", null]
 
     TeamRoster:
       type: object
@@ -1431,7 +1438,7 @@ components:
           type: integer
         type:
           type: string
-          enum: [strength, agility, serving, blocking, defense, teamplay, recovery]
+          enum: ["Power Camp", "Agility Camp", "Serving Academy", "Defensive Systems", "Conditioning", "Recovery Program"]
         focus:
           type: string
         durationHours:
@@ -1445,17 +1452,20 @@ components:
           type: ["integer", "null"]
         player:
           $ref: "#/components/schemas/Player"
+        coach:
+          $ref: "#/components/schemas/StaffMember"
         createdAt:
           type: string
 
     TrainingInput:
       type: object
-      required: [playerId, type, focus, durationHours, scheduledAt]
+      required: [playerId, type, durationHours, scheduledAt]
       properties:
         playerId:
           type: integer
         type:
           type: string
+          enum: ["Power Camp", "Agility Camp", "Serving Academy", "Defensive Systems", "Conditioning", "Recovery Program"]
         focus:
           type: string
         durationHours:
@@ -1482,6 +1492,21 @@ components:
             stamina: { type: integer }
         newStats:
           $ref: "#/components/schemas/Player"
+        xpGained:
+          type: integer
+        baseXp:
+          type: integer
+        xpToNextStat:
+          type: integer
+        ageModifier:
+          type: number
+        philosophyMultiplier:
+          type: number
+        programName:
+          type: string
+        coachEffect:
+          type: object
+          nullable: true
 
     TeamTrainingInput:
       type: object
@@ -1489,7 +1514,7 @@ components:
       properties:
         type:
           type: string
-          enum: [strength, agility, serving, blocking, defense, teamplay, recovery]
+          enum: ["Power Camp", "Agility Camp", "Serving Academy", "Defensive Systems", "Conditioning", "Recovery Program"]
         focus:
           type: string
         durationHours:

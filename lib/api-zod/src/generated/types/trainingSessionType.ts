@@ -10,11 +10,10 @@ export type TrainingSessionType = typeof TrainingSessionType[keyof typeof Traini
 
 
 export const TrainingSessionType = {
-  strength: 'strength',
-  agility: 'agility',
-  serving: 'serving',
-  blocking: 'blocking',
-  defense: 'defense',
-  teamplay: 'teamplay',
-  recovery: 'recovery',
+  Power_Camp: 'Power Camp',
+  Agility_Camp: 'Agility Camp',
+  Serving_Academy: 'Serving Academy',
+  Defensive_Systems: 'Defensive Systems',
+  Conditioning: 'Conditioning',
+  Recovery_Program: 'Recovery Program',
 } as const;

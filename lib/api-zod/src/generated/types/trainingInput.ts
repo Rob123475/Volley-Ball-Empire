@@ -5,11 +5,12 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { TrainingInputType } from './trainingInputType';
 
 export interface TrainingInput {
   playerId: number;
-  type: string;
-  focus: string;
+  type: TrainingInputType;
+  focus?: string;
   durationHours: number;
   scheduledAt: string;
   /** @nullable */

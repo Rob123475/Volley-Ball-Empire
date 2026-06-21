@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { Player } from './player';
+import type { TrainingResultCoachEffect } from './trainingResultCoachEffect';
 import type { TrainingResultStatGains } from './trainingResultStatGains';
 import type { TrainingSession } from './trainingSession';
 
@@ -13,4 +14,11 @@ export interface TrainingResult {
   session: TrainingSession;
   statGains: TrainingResultStatGains;
   newStats: Player;
+  xpGained?: number;
+  baseXp?: number;
+  xpToNextStat?: number;
+  ageModifier?: number;
+  philosophyMultiplier?: number;
+  programName?: string;
+  coachEffect?: TrainingResultCoachEffect;
 }

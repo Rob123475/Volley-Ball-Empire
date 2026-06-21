@@ -170,6 +170,19 @@ export interface Outfit {
   imageUrl: string | null;
 }
 
+/**
+ * Team-wide training philosophy; provides small XP bonuses to related programs.
+ * @nullable
+ */
+export type TeamTrainingPhilosophy = typeof TeamTrainingPhilosophy[keyof typeof TeamTrainingPhilosophy] | null;
+
+
+export const TeamTrainingPhilosophy = {
+  Power_Volleyball: 'Power Volleyball',
+  Fast_Volleyball: 'Fast Volleyball',
+  Defensive_Volleyball: 'Defensive Volleyball',
+} as const;
+
 export interface Team {
   id: number;
   userId: string;
@@ -183,6 +196,11 @@ export interface Team {
   locationId: number | null;
   /** @nullable */
   logoColor?: string | null;
+  /**
+     * Team-wide training philosophy; provides small XP bonuses to related programs.
+     * @nullable
+     */
+  trainingPhilosophy?: TeamTrainingPhilosophy;
   createdAt: string;
 }
 
@@ -192,10 +210,24 @@ export interface TeamInput {
   logoColor?: string;
 }
 
+/**
+ * @nullable
+ */
+export type TeamUpdateTrainingPhilosophy = typeof TeamUpdateTrainingPhilosophy[keyof typeof TeamUpdateTrainingPhilosophy] | null;
+
+
+export const TeamUpdateTrainingPhilosophy = {
+  Power_Volleyball: 'Power Volleyball',
+  Fast_Volleyball: 'Fast Volleyball',
+  Defensive_Volleyball: 'Defensive Volleyball',
+} as const;
+
 export interface TeamUpdate {
   name?: string;
   locationId?: number;
   logoColor?: string;
+  /** @nullable */
+  trainingPhilosophy?: TeamUpdateTrainingPhilosophy;
 }
 
 export type StaffMemberRole = typeof StaffMemberRole[keyof typeof StaffMemberRole];
@@ -333,13 +365,12 @@ export type TrainingSessionType = typeof TrainingSessionType[keyof typeof Traini
 
 
 export const TrainingSessionType = {
-  strength: 'strength',
-  agility: 'agility',
-  serving: 'serving',
-  blocking: 'blocking',
-  defense: 'defense',
-  teamplay: 'teamplay',
-  recovery: 'recovery',
+  Power_Camp: 'Power Camp',
+  Agility_Camp: 'Agility Camp',
+  Serving_Academy: 'Serving Academy',
+  Defensive_Systems: 'Defensive Systems',
+  Conditioning: 'Conditioning',
+  Recovery_Program: 'Recovery Program',
 } as const;
 
 export type TrainingSessionStatus = typeof TrainingSessionStatus[keyof typeof TrainingSessionStatus];
@@ -363,13 +394,26 @@ export interface TrainingSession {
   /** @nullable */
   coachId: number | null;
   player?: Player;
+  coach?: StaffMember;
   createdAt?: string;
 }
 
+export type TrainingInputType = typeof TrainingInputType[keyof typeof TrainingInputType];
+
+
+export const TrainingInputType = {
+  Power_Camp: 'Power Camp',
+  Agility_Camp: 'Agility Camp',
+  Serving_Academy: 'Serving Academy',
+  Defensive_Systems: 'Defensive Systems',
+  Conditioning: 'Conditioning',
+  Recovery_Program: 'Recovery Program',
+} as const;
+
 export interface TrainingInput {
   playerId: number;
-  type: string;
-  focus: string;
+  type: TrainingInputType;
+  focus?: string;
   durationHours: number;
   scheduledAt: string;
   /** @nullable */
@@ -385,23 +429,31 @@ export type TrainingResultStatGains = {
   stamina?: number;
 };
 
+export type TrainingResultCoachEffect = { [key: string]: unknown } | null;
+
 export interface TrainingResult {
   session: TrainingSession;
   statGains: TrainingResultStatGains;
   newStats: Player;
+  xpGained?: number;
+  baseXp?: number;
+  xpToNextStat?: number;
+  ageModifier?: number;
+  philosophyMultiplier?: number;
+  programName?: string;
+  coachEffect?: TrainingResultCoachEffect;
 }
 
 export type TeamTrainingInputType = typeof TeamTrainingInputType[keyof typeof TeamTrainingInputType];
 
 
 export const TeamTrainingInputType = {
-  strength: 'strength',
-  agility: 'agility',
-  serving: 'serving',
-  blocking: 'blocking',
-  defense: 'defense',
-  teamplay: 'teamplay',
-  recovery: 'recovery',
+  Power_Camp: 'Power Camp',
+  Agility_Camp: 'Agility Camp',
+  Serving_Academy: 'Serving Academy',
+  Defensive_Systems: 'Defensive Systems',
+  Conditioning: 'Conditioning',
+  Recovery_Program: 'Recovery Program',
 } as const;
 
 export interface TeamTrainingInput {

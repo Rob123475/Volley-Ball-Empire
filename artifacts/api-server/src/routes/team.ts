@@ -57,11 +57,12 @@ router.patch("/team", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
-  const { name, locationId, logoColor } = req.body;
+  const { name, locationId, logoColor, trainingPhilosophy } = req.body;
   const updates: any = {};
   if (name !== undefined) updates.name = name;
   if (locationId !== undefined) updates.locationId = Number(locationId);
   if (logoColor !== undefined) updates.logoColor = logoColor;
+  if (trainingPhilosophy !== undefined) updates.trainingPhilosophy = trainingPhilosophy;
   const [updated] = await db.update(teamsTable).set(updates).where(eq(teamsTable.id, team.id)).returning();
   res.json(serializeTeam(updated));
 });

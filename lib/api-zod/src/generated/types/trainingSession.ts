@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { Player } from './player';
+import type { StaffMember } from './staffMember';
 import type { TrainingSessionStatus } from './trainingSessionStatus';
 import type { TrainingSessionType } from './trainingSessionType';
 
@@ -21,5 +22,6 @@ export interface TrainingSession {
   /** @nullable */
   coachId: number | null;
   player?: Player;
+  coach?: StaffMember;
   createdAt?: string;
 }

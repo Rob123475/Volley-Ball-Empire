@@ -5,9 +5,12 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { TeamUpdateTrainingPhilosophy } from './teamUpdateTrainingPhilosophy';
 
 export interface TeamUpdate {
   name?: string;
   locationId?: number;
   logoColor?: string;
+  /** @nullable */
+  trainingPhilosophy?: TeamUpdateTrainingPhilosophy;
 }

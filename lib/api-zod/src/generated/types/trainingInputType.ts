@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type TeamTrainingInputType = typeof TeamTrainingInputType[keyof typeof TeamTrainingInputType];
+export type TrainingInputType = typeof TrainingInputType[keyof typeof TrainingInputType];
 
 
-export const TeamTrainingInputType = {
+export const TrainingInputType = {
   Power_Camp: 'Power Camp',
   Agility_Camp: 'Agility Camp',
   Serving_Academy: 'Serving Academy',
