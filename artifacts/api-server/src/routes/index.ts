@@ -15,6 +15,7 @@ import financesRouter from "./finances";
 import draftRouter from "./draft";
 import leaderboardRouter from "./leaderboard";
 import dashboardRouter from "./dashboard";
+import olympicsRouter from "./olympics";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(financesRouter);
 router.use(draftRouter);
 router.use(leaderboardRouter);
 router.use(dashboardRouter);
+router.use(olympicsRouter);
 
 export default router;

@@ -2028,3 +2028,93 @@ export const GetDashboardResponse = zod.object({
 })
 
 
+/**
+ * @summary List eligible Olympic countries with their squads
+ */
+export const ListOlympicCountriesResponseItem = zod.object({
+  "country": zod.string(),
+  "flag": zod.string(),
+  "playerCount": zod.number(),
+  "squad": zod.array(zod.object({
+  "id": zod.number().nullish(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "isReserve": zod.boolean(),
+  "imageUrl": zod.string().nullish()
+}))
+})
+export const ListOlympicCountriesResponse = zod.array(ListOlympicCountriesResponseItem)
+
+
+/**
+ * @summary Get the current user's Olympic country selection
+ */
+export const GetOlympicSelectionResponse = zod.object({
+  "country": zod.string(),
+  "flag": zod.string(),
+  "squad": zod.array(zod.object({
+  "id": zod.number().nullish(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "isReserve": zod.boolean(),
+  "imageUrl": zod.string().nullish()
+}))
+})
+
+
+/**
+ * @summary Save the user's Olympic country selection
+ */
+export const SaveOlympicSelectionBody = zod.object({
+  "country": zod.string(),
+  "flag": zod.string(),
+  "squad": zod.array(zod.object({
+  "id": zod.number().nullish(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "isReserve": zod.boolean(),
+  "imageUrl": zod.string().nullish()
+}))
+})
+
+export const SaveOlympicSelectionResponse = zod.object({
+  "country": zod.string(),
+  "flag": zod.string(),
+  "squad": zod.array(zod.object({
+  "id": zod.number().nullish(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "isReserve": zod.boolean(),
+  "imageUrl": zod.string().nullish()
+}))
+})
+
+

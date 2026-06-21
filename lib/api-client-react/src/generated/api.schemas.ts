@@ -641,6 +641,42 @@ export interface DraftPickInput {
   draftPlayerId: number;
 }
 
+export interface OlympicPlayer {
+  /** @nullable */
+  id?: number | null;
+  name: string;
+  nationality: string;
+  age: number;
+  speed: number;
+  power: number;
+  defense: number;
+  serve: number;
+  block: number;
+  stamina: number;
+  isReserve: boolean;
+  /** @nullable */
+  imageUrl?: string | null;
+}
+
+export interface OlympicCountry {
+  country: string;
+  flag: string;
+  playerCount: number;
+  squad: OlympicPlayer[];
+}
+
+export interface OlympicSelection {
+  country: string;
+  flag: string;
+  squad: OlympicPlayer[];
+}
+
+export interface OlympicSelectionInput {
+  country: string;
+  flag: string;
+  squad: OlympicPlayer[];
+}
+
 export interface LeaderboardEntry {
   rank: number;
   teamId: number;

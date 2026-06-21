@@ -37,6 +37,9 @@ import type {
   Match,
   MatchInput,
   MatchResult,
+  OlympicCountry,
+  OlympicSelection,
+  OlympicSelectionInput,
   Outfit,
   OutfitAssignment,
   Player,
@@ -4009,4 +4012,229 @@ export function useGetDashboard<TData = Awaited<ReturnType<typeof getDashboard>>
 
 
 
+
+export const getListOlympicCountriesUrl = () => {
+
+
+
+
+  return `/api/olympics/countries`
+}
+
+/**
+ * @summary List eligible Olympic countries with their squads
+ */
+export const listOlympicCountries = async ( options?: RequestInit): Promise<OlympicCountry[]> => {
+
+  return customFetch<OlympicCountry[]>(getListOlympicCountriesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListOlympicCountriesQueryKey = () => {
+    return [
+    `/api/olympics/countries`
+    ] as const;
+    }
+
+
+export const getListOlympicCountriesQueryOptions = <TData = Awaited<ReturnType<typeof listOlympicCountries>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listOlympicCountries>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListOlympicCountriesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listOlympicCountries>>> = ({ signal }) => listOlympicCountries({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listOlympicCountries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListOlympicCountriesQueryResult = NonNullable<Awaited<ReturnType<typeof listOlympicCountries>>>
+export type ListOlympicCountriesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List eligible Olympic countries with their squads
+ */
+
+export function useListOlympicCountries<TData = Awaited<ReturnType<typeof listOlympicCountries>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listOlympicCountries>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListOlympicCountriesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetOlympicSelectionUrl = () => {
+
+
+
+
+  return `/api/olympics/selection`
+}
+
+/**
+ * @summary Get the current user's Olympic country selection
+ */
+export const getOlympicSelection = async ( options?: RequestInit): Promise<OlympicSelection> => {
+
+  return customFetch<OlympicSelection>(getGetOlympicSelectionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOlympicSelectionQueryKey = () => {
+    return [
+    `/api/olympics/selection`
+    ] as const;
+    }
+
+
+export const getGetOlympicSelectionQueryOptions = <TData = Awaited<ReturnType<typeof getOlympicSelection>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOlympicSelection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOlympicSelectionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOlympicSelection>>> = ({ signal }) => getOlympicSelection({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOlympicSelection>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOlympicSelectionQueryResult = NonNullable<Awaited<ReturnType<typeof getOlympicSelection>>>
+export type GetOlympicSelectionQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the current user's Olympic country selection
+ */
+
+export function useGetOlympicSelection<TData = Awaited<ReturnType<typeof getOlympicSelection>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOlympicSelection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetOlympicSelectionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSaveOlympicSelectionUrl = () => {
+
+
+
+
+  return `/api/olympics/selection`
+}
+
+/**
+ * @summary Save the user's Olympic country selection
+ */
+export const saveOlympicSelection = async (olympicSelectionInput: OlympicSelectionInput, options?: RequestInit): Promise<OlympicSelection> => {
+
+  return customFetch<OlympicSelection>(getSaveOlympicSelectionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      olympicSelectionInput,)
+  }
+);}
+
+
+
+
+export const getSaveOlympicSelectionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveOlympicSelection>>, TError,{data: BodyType<OlympicSelectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveOlympicSelection>>, TError,{data: BodyType<OlympicSelectionInput>}, TContext> => {
+
+const mutationKey = ['saveOlympicSelection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveOlympicSelection>>, {data: BodyType<OlympicSelectionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveOlympicSelection(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveOlympicSelectionMutationResult = NonNullable<Awaited<ReturnType<typeof saveOlympicSelection>>>
+    export type SaveOlympicSelectionMutationBody = BodyType<OlympicSelectionInput>
+    export type SaveOlympicSelectionMutationError = ErrorType<void>
+
+    /**
+ * @summary Save the user's Olympic country selection
+ */
+export const useSaveOlympicSelection = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveOlympicSelection>>, TError,{data: BodyType<OlympicSelectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveOlympicSelection>>,
+        TError,
+        {data: BodyType<OlympicSelectionInput>},
+        TContext
+      > => {
+      return useMutation(getSaveOlympicSelectionMutationOptions(options));
+    }
 

@@ -35,6 +35,8 @@ tags:
     description: Game locations
   - name: leaderboard
     description: Leaderboard
+  - name: olympics
+    description: Olympic Games management
 
 paths:
   /healthz:
@@ -938,6 +940,61 @@ paths:
               schema:
                 $ref: "#/components/schemas/Dashboard"
 
+  /olympics/countries:
+    get:
+      operationId: listOlympicCountries
+      tags: [olympics]
+      summary: List eligible Olympic countries with their squads
+      responses:
+        "200":
+          description: List of eligible countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OlympicCountry"
+        "401":
+          description: Unauthorized
+
+  /olympics/selection:
+    get:
+      operationId: getOlympicSelection
+      tags: [olympics]
+      summary: Get the current user's Olympic country selection
+      responses:
+        "200":
+          description: Current selection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OlympicSelection"
+        "401":
+          description: Unauthorized
+        "404":
+          description: No selection made yet
+    post:
+      operationId: saveOlympicSelection
+      tags: [olympics]
+      summary: Save the user's Olympic country selection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OlympicSelectionInput"
+      responses:
+        "200":
+          description: Selection saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OlympicSelection"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+
 components:
   schemas:
     HealthStatus:
@@ -1736,6 +1793,76 @@ components:
       properties:
         draftPlayerId:
           type: integer
+
+    OlympicPlayer:
+      type: object
+      required: [name, nationality, age, speed, power, defense, serve, block, stamina, isReserve]
+      properties:
+        id:
+          type: ["integer", "null"]
+        name:
+          type: string
+        nationality:
+          type: string
+        age:
+          type: integer
+        speed:
+          type: integer
+        power:
+          type: integer
+        defense:
+          type: integer
+        serve:
+          type: integer
+        block:
+          type: integer
+        stamina:
+          type: integer
+        isReserve:
+          type: boolean
+        imageUrl:
+          type: ["string", "null"]
+
+    OlympicCountry:
+      type: object
+      required: [country, flag, playerCount, squad]
+      properties:
+        country:
+          type: string
+        flag:
+          type: string
+        playerCount:
+          type: integer
+        squad:
+          type: array
+          items:
+            $ref: "#/components/schemas/OlympicPlayer"
+
+    OlympicSelection:
+      type: object
+      required: [country, flag, squad]
+      properties:
+        country:
+          type: string
+        flag:
+          type: string
+        squad:
+          type: array
+          items:
+            $ref: "#/components/schemas/OlympicPlayer"
+
+    OlympicSelectionInput:
+      type: object
+      required: [country, flag, squad]
+      properties:
+        country:
+          type: string
+        flag:
+          type: string
+        squad:
+          type: array
+          items:
+            $ref: "#/components/schemas/OlympicPlayer"
 
     LeaderboardEntry:
       type: object

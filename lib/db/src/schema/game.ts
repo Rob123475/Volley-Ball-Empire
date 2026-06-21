@@ -214,3 +214,30 @@ export const promoDealsTable = pgTable("promo_deals", {
 });
 
 export type PromoDeal = typeof promoDealsTable.$inferSelect;
+
+export type OlympicPlayerData = {
+  id: number | null;
+  name: string;
+  nationality: string;
+  age: number;
+  speed: number;
+  power: number;
+  defense: number;
+  serve: number;
+  block: number;
+  stamina: number;
+  isReserve: boolean;
+  imageUrl?: string | null;
+};
+
+export const olympicSelectionsTable = pgTable("olympic_selections", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().unique().references(() => usersTable.id),
+  selectedCountry: varchar("selected_country", { length: 100 }).notNull(),
+  selectedFlag: varchar("selected_flag", { length: 20 }).notNull(),
+  squad: json("squad").$type<OlympicPlayerData[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+});
+
+export type OlympicSelection = typeof olympicSelectionsTable.$inferSelect;
