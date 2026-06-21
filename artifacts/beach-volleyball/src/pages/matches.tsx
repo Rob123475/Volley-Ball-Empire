@@ -480,7 +480,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
           <div className="text-sm font-bold flex items-center gap-2">
             <Users className="h-4 w-4" /> Select Lineup ({selected.length}/{match.teamSize ?? 2})
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {activePlayers.map((p: any) => (
               <div
                 key={p.id}
@@ -593,7 +593,7 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
             <div className="text-sm font-bold flex items-center gap-2">
               <Star className="h-4 w-4 text-yellow-500" /> Select Championship Lineup ({selected.length}/{match.teamSize ?? 2})
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {activePlayers.map((p: any) => (
                 <div
                   key={p.id}
@@ -659,7 +659,7 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
 
           <div className="space-y-3">
             <div className="text-sm font-bold flex items-center gap-2"><Users className="h-4 w-4" /> Select Lineup ({selected.length}/{match.teamSize})</div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {activePlayers.map((p: any) => (
                 <div
                   key={p.id}
