@@ -121,7 +121,7 @@ export default function Dashboard() {
     <div className="space-y-7">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">Welcome back, Coach. Here's your team status.</p>
+        <p className="text-muted-foreground">Club Manager · Here's your team status.</p>
       </div>
 
       {/* ── Top pill row ── */}

@@ -267,7 +267,7 @@ export default function WorldTourLocations() {
         <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="mb-3"><OlympicRings /></div>
-            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-1">Beach Volley Pro</div>
+            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-1">National Team Coach</div>
             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
               Beach Volleyball<br />Olympics
             </h1>
