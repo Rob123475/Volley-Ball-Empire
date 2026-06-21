@@ -50,10 +50,11 @@ const weatherIcons: Record<string, string> = {
 };
 
 const tierColors: Record<string, string> = {
-  Bronze: "text-amber-700  border-amber-400  bg-amber-50  dark:text-amber-400  dark:border-amber-700  dark:bg-amber-950/30",
-  Silver: "text-slate-600  border-slate-400  bg-slate-50  dark:text-slate-300  dark:border-slate-600  dark:bg-slate-900/30",
-  Gold:   "text-yellow-600 border-yellow-400 bg-yellow-50 dark:text-yellow-400 dark:border-yellow-600 dark:bg-yellow-950/30",
-  Elite:  "text-purple-700 border-purple-400 bg-purple-50 dark:text-purple-400 dark:border-purple-700 dark:bg-purple-950/30",
+  Bronze:             "text-amber-700  border-amber-400  bg-amber-50  dark:text-amber-400  dark:border-amber-700  dark:bg-amber-950/30",
+  Silver:             "text-slate-600  border-slate-400  bg-slate-50  dark:text-slate-300  dark:border-slate-600  dark:bg-slate-900/30",
+  Gold:               "text-yellow-600 border-yellow-400 bg-yellow-50 dark:text-yellow-400 dark:border-yellow-600 dark:bg-yellow-950/30",
+  Elite:              "text-purple-700 border-purple-400 bg-purple-50 dark:text-purple-400 dark:border-purple-700 dark:bg-purple-950/30",
+  "Continental Final":"text-emerald-700 border-emerald-400 bg-emerald-50 dark:text-emerald-400 dark:border-emerald-700 dark:bg-emerald-950/30",
 };
 
 function cn(...inputs: (string | undefined | null | false)[]) {
@@ -225,7 +226,7 @@ export default function Matches() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
-                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 17} played
+                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 67} played
                   </div>
                   <div className="text-sm font-bold text-primary">
                     {fixture?.filter(m => m.status === "completed" && (m.homeScore ?? 0) > (m.awayScore ?? 0)).length ?? 0}W –{" "}
@@ -234,39 +235,64 @@ export default function Matches() {
                 </div>
               </div>
 
-              {fixture?.map((match) => {
-                const isFinal = match.tier === "Grand Final" || match.round === 61;
+              {fixture?.map((match, idx) => {
+                const prevMatch = idx > 0 ? fixture[idx - 1] : null;
+                const isFinal = match.tier === "Grand Final";
+                const isContFinal = match.tier === "Continental Final";
                 const isCompleted = match.status === "completed";
                 const isNext = match.id === nextFixtureMatchId && !isFinal;
                 const isNextFinal = match.id === nextFixtureMatchId && isFinal;
                 const homeWon = (match.homeScore ?? 0) > (match.awayScore ?? 0);
 
-                if (isFinal) {
-                  return (
-                    <FinalCard
-                      key={match.id}
-                      match={match}
-                      isCompleted={isCompleted}
-                      isPlayable={!!isNextFinal}
-                      homeWon={homeWon}
-                      onSimulate={(ids) => handleSimulate(match.id, ids)}
-                      isSimulating={simulateMutation.isPending || lineupMutation.isPending}
-                      activePlayers={activePlayers}
-                    />
-                  );
-                }
+                // Section headers: new continent tour start, continental final, grand final
+                const showTourHeader = !prevMatch || (
+                  match.continent !== prevMatch.continent && !isContFinal && !isFinal
+                );
+                const showContFinalHeader = isContFinal;
 
                 return (
-                  <FixtureRoundCard
-                    key={match.id}
-                    match={match}
-                    isCompleted={isCompleted}
-                    isNext={isNext}
-                    homeWon={homeWon}
-                    onSimulate={(ids) => handleSimulate(match.id, ids)}
-                    isSimulating={simulateMutation.isPending || lineupMutation.isPending}
-                    activePlayers={activePlayers}
-                  />
+                  <div key={match.id}>
+                    {showTourHeader && !isFinal && (
+                      <div className="flex items-center gap-3 mt-6 mb-2 first:mt-0">
+                        <div className="h-px flex-1 bg-border" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2">
+                          🏖 {match.continent} Tour
+                        </span>
+                        <div className="h-px flex-1 bg-border" />
+                      </div>
+                    )}
+                    {showContFinalHeader && (
+                      <div className="flex items-center gap-3 mt-4 mb-2">
+                        <div className="h-px flex-1 bg-emerald-500/40" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 px-2">
+                          🏆 {match.continent} Continental Final
+                        </span>
+                        <div className="h-px flex-1 bg-emerald-500/40" />
+                      </div>
+                    )}
+
+                    {isFinal ? (
+                      <FinalCard
+                        match={match}
+                        isCompleted={isCompleted}
+                        isPlayable={!!isNextFinal}
+                        homeWon={homeWon}
+                        onSimulate={(ids) => handleSimulate(match.id, ids)}
+                        isSimulating={simulateMutation.isPending || lineupMutation.isPending}
+                        activePlayers={activePlayers}
+                      />
+                    ) : (
+                      <FixtureRoundCard
+                        match={match}
+                        isCompleted={isCompleted}
+                        isNext={isNext}
+                        homeWon={homeWon}
+                        onSimulate={(ids) => handleSimulate(match.id, ids)}
+                        isSimulating={simulateMutation.isPending || lineupMutation.isPending}
+                        activePlayers={activePlayers}
+                      />
+                    )}
+                  </div>
                 );
               })}
 
@@ -608,7 +634,7 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
                 >
                   <Checkbox checked={selected.includes(p.id)} />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                    <span className="text-xs font-medium truncate">{p.name}</span>
                     <PlayerStatusBadge player={p} size="xs" />
                   </div>
                 </div>
@@ -675,7 +701,7 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
                 >
                   <Checkbox checked={selected.includes(p.id)} />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                    <span className="text-xs font-medium truncate">{p.name}</span>
                     <PlayerStatusBadge player={p} size="xs" />
                   </div>
                 </div>

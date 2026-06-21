@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
-import { WORLD_TOUR, WORLD_TOUR_FINAL_ROUND } from "../data/worldTour";
+import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 
 const router = Router();
@@ -227,52 +227,11 @@ async function applyPostMatchEffects(teamId: number, weather: string): Promise<P
 const getTeamForUser = async (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
-// ── Season fixture generator ──────────────────────────────────────────────────
-// Picks 10–16 events from the 60-location world tour with at least one per
-// continent, sorts by date, and appends the Grand Final as the last round.
-const CONTINENTS = [
-  "North America",
-  "South America",
-  "Europe",
-  "Africa & Middle East",
-  "Asia",
-  "Australia & Pacific",
-] as const;
-
-function shuffle<T>(arr: T[]): T[] {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
+// ── Season fixture (fixed 67-round continental tour structure) ────────────────
+// Returns all non-Grand-Final events in the fixed continental tour order.
+// The Grand Final (round 67) is handled separately with a random host location.
 function generateSeasonFixture(): WorldTourEvent[] {
-  const grandFinal = WORLD_TOUR.find(e => e.tier === "Grand Final")!;
-  const regularEvents = WORLD_TOUR.filter(e => e.tier !== "Grand Final");
-
-  const byContinent: Record<string, WorldTourEvent[]> = {};
-  for (const e of regularEvents) {
-    (byContinent[e.continent] ??= []).push(e);
-  }
-
-  const selected = new Set<WorldTourEvent>();
-
-  for (const continent of CONTINENTS) {
-    const pool = byContinent[continent] ?? [];
-    if (pool.length > 0) {
-      selected.add(pool[Math.floor(Math.random() * pool.length)]);
-    }
-  }
-
-  const remaining = shuffle(regularEvents.filter(e => !selected.has(e)));
-  const extraCount = 4 + Math.floor(Math.random() * 7);
-  remaining.slice(0, extraCount).forEach(e => selected.add(e));
-
-  const sorted = [...selected].sort((a, b) => a.date.localeCompare(b.date));
-  const fixture = sorted.map((e, i) => ({ ...e, round: i + 1 }));
-  fixture.push({ ...grandFinal, round: fixture.length + 1 });
-  return fixture;
+  return WORLD_TOUR.filter(e => e.tier !== "Grand Final");
 }
 
 router.get("/matches", async (req, res) => {
@@ -318,7 +277,7 @@ router.get("/matches/upcoming", async (req, res) => {
   res.json(matches.filter(m => m.status === "scheduled").map(serializeMatch));
 });
 
-// Full season fixture — generates a randomised 10–16 event schedule on first call
+// Full season fixture — fixed 67-event continental tour schedule
 router.get("/matches/fixture", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getTeamForUser(req.user.id);
@@ -328,46 +287,29 @@ router.get("/matches/fixture", async (req, res) => {
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
     .orderBy(matchesTable.round);
 
-  if (existing.length > 0) {
-    // Backfill: fix Grand Final (round 61) rows that may have stale values:
-    //   - tier="Elite" (old format) instead of "Grand Final"
-    //   - prizeAmount != 500000 (old value was 100000)
-    //   - locationName without the " • " separator (old format was plain "Beach, City")
-    const grandFinal = existing.find(m => m.round === 61);
-    if (grandFinal) {
-      const needsTierFix = grandFinal.tier !== "Grand Final";
-      const needsPrizeFix = parseFloat(grandFinal.prizeAmount ?? "0") !== 500000;
-      const needsLocationFix = !!(grandFinal.locationName && !grandFinal.locationName.includes(" • "));
-
-      if (needsTierFix || needsPrizeFix || needsLocationFix) {
-        let locationName = grandFinal.locationName;
-        if (needsLocationFix) {
-          const [loc] = await db.select().from(locationsTable).where(eq(locationsTable.id, grandFinal.locationId));
-          if (loc) {
-            locationName = `${loc.name} • ${loc.country}`;
-          }
-        }
-        await db.update(matchesTable)
-          .set({ tier: "Grand Final", prizeAmount: "500000", locationName: locationName ?? grandFinal.locationName })
-          .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1), eq(matchesTable.round, 61)));
-      }
-    }
+  // If the fixture exists but lacks Continental Finals it is the old structure — regenerate.
+  const hasNewStructure = existing.some(m => m.tier === "Continental Final");
+  if (existing.length > 0 && !hasNewStructure) {
+    await db.delete(matchesTable)
+      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)));
+    existing.length = 0;
   }
 
   if (existing.length === 0) {
-    const seasonFixture = generateSeasonFixture();
+    const regularEvents = generateSeasonFixture();
+    const grandFinal = WORLD_TOUR.find(e => e.tier === "Grand Final")!;
     const finalLocIds = Object.keys(LOCATION_WEATHER_POOLS).map(Number);
-    for (const f of seasonFixture) {
+    const finalLocId = finalLocIds[Math.floor(Math.random() * finalLocIds.length)];
+    const [finalLoc] = await db.select().from(locationsTable).where(eq(locationsTable.id, finalLocId));
+
+    for (const f of [...regularEvents, grandFinal]) {
       let locId = f.locId;
       let locationName = f.locName;
       let prizeAmount = String(f.prize);
 
-      if (f.round === WORLD_TOUR_FINAL_ROUND) {
-        locId = finalLocIds[Math.floor(Math.random() * finalLocIds.length)];
-        const [loc] = await db.select().from(locationsTable).where(eq(locationsTable.id, locId));
-        if (loc) {
-          locationName = `${loc.name} • ${loc.country}`;
-        }
+      if (f.tier === "Grand Final") {
+        locId = finalLocId;
+        locationName = finalLoc ? `${finalLoc.name} • ${finalLoc.country}` : f.locName;
         prizeAmount = "500000";
       }
 
@@ -428,7 +370,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const heatPenalty = match.weather === "hot" ? 0.08 : 0;
   const weatherFactor = 1 - windPenalty - heatPenalty;
 
-  const isFinal  = match.tier === "Grand Final" || match.round === 61;
+  const isFinal  = match.tier === "Grand Final";
   const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > 70 ? 2 : 1);
   const awayScore = Math.floor(Math.random() * 3) + 1;
   const homeWon   = homeScore > awayScore;

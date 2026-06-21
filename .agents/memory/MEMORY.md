@@ -1,0 +1,2 @@
+- [Season fixture structure](season-fixture-structure.md) — 67-round fixed continental tour order; detect old fixtures by absence of tier="Continental Final" and regenerate.
+- [isFinal detection](ifinal-detection.md) — rely on tier="Grand Final" only; round===61 fallback is stale (round 61 is now a regular SA event).
