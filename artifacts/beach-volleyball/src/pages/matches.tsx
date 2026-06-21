@@ -235,7 +235,7 @@ export default function Matches() {
               </div>
 
               {fixture?.map((match) => {
-                const isFinal = match.tier === "Grand Final";
+                const isFinal = match.tier === "Grand Final" || match.round === 61;
                 const isCompleted = match.status === "completed";
                 const isNext = match.id === nextFixtureMatchId && !isFinal;
                 const isNextFinal = match.id === nextFixtureMatchId && isFinal;

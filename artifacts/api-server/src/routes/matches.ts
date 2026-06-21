@@ -328,6 +328,18 @@ router.get("/matches/fixture", async (req, res) => {
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
     .orderBy(matchesTable.round);
 
+  if (existing.length > 0) {
+    // Backfill: fixtures created before the generator used tier="Elite" for the
+    // Grand Final (round 61). Normalize those rows to tier="Grand Final" so the
+    // new detection works for all existing users.
+    const legacyFinal = existing.find(m => m.round === 61 && m.tier === "Elite");
+    if (legacyFinal) {
+      await db.update(matchesTable)
+        .set({ tier: "Grand Final" })
+        .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1), eq(matchesTable.round, 61)));
+    }
+  }
+
   if (existing.length === 0) {
     const seasonFixture = generateSeasonFixture();
     for (const f of seasonFixture) {
@@ -388,7 +400,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const heatPenalty = match.weather === "hot" ? 0.08 : 0;
   const weatherFactor = 1 - windPenalty - heatPenalty;
 
-  const isFinal  = match.tier === "Grand Final";
+  const isFinal  = match.tier === "Grand Final" || match.round === 61;
   const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > 70 ? 2 : 1);
   const awayScore = Math.floor(Math.random() * 3) + 1;
   const homeWon   = homeScore > awayScore;
