@@ -49,6 +49,13 @@ const weatherIcons: Record<string, string> = {
   cloudy: "☁️", overcast: "⛅", perfect: "✨",
 };
 
+const tierColors: Record<string, string> = {
+  Bronze: "text-amber-700  border-amber-400  bg-amber-50  dark:text-amber-400  dark:border-amber-700  dark:bg-amber-950/30",
+  Silver: "text-slate-600  border-slate-400  bg-slate-50  dark:text-slate-300  dark:border-slate-600  dark:bg-slate-900/30",
+  Gold:   "text-yellow-600 border-yellow-400 bg-yellow-50 dark:text-yellow-400 dark:border-yellow-600 dark:bg-yellow-950/30",
+  Elite:  "text-purple-700 border-purple-400 bg-purple-50 dark:text-purple-400 dark:border-purple-700 dark:bg-purple-950/30",
+};
+
 function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
 }
@@ -213,12 +220,12 @@ export default function Matches() {
               {/* Season banner */}
               <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/5 to-transparent border border-primary/20 mb-6">
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-primary/60">2026 Season</div>
-                  <div className="text-xl font-black">World Beach Pro Series</div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-primary/60">2026 World Tour</div>
+                  <div className="text-xl font-black">Beach Volley World Tour</div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
-                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 11} played
+                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 61} played
                   </div>
                   <div className="text-sm font-bold text-primary">
                     {fixture?.filter(m => m.status === "completed" && (m.homeScore ?? 0) > (m.awayScore ?? 0)).length ?? 0}W –{" "}
@@ -228,7 +235,7 @@ export default function Matches() {
               </div>
 
               {fixture?.map((match) => {
-                const isFinal = match.round === 11;
+                const isFinal = match.round === 61;
                 const isCompleted = match.status === "completed";
                 const isNext = match.id === nextFixtureMatchId && !isFinal;
                 const isNextFinal = match.id === nextFixtureMatchId && isFinal;
@@ -432,10 +439,20 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-muted-foreground">{date}</span>
             <span className="text-xs">{weatherIcons[match.weather] ?? "☀️"}</span>
+            {match.continent && (
+              <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wide">{match.continent}</span>
+            )}
           </div>
           <div className="font-bold truncate">{match.locationName ?? "TBD"}</div>
-          <div className="text-xs text-muted-foreground flex items-center gap-1">
-            <Swords className="h-3 w-3" /> vs <span className="font-medium">{match.awayTeamName ?? "Opponent"}</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              <Swords className="h-3 w-3" /> vs <span className="font-medium">{match.awayTeamName ?? "Opponent"}</span>
+            </div>
+            {match.tier && (
+              <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-bold border", tierColors[match.tier as keyof typeof tierColors] ?? "")}>
+                {match.tier}
+              </Badge>
+            )}
           </div>
         </div>
 

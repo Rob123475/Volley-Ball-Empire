@@ -179,6 +179,8 @@ export const matchesTable = pgTable("matches", {
   scheduledAt: varchar("scheduled_at", { length: 30 }),
   lineup: json("lineup").$type<number[]>(),
   highlights: json("highlights").$type<string[]>(),
+  continent: varchar("continent", { length: 100 }),
+  tier: varchar("tier", { length: 20 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

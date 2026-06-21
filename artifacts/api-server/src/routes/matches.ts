@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
+import { WORLD_TOUR, WORLD_TOUR_FINAL_ROUND } from "../data/worldTour";
 
 const router = Router();
 
@@ -225,19 +226,8 @@ async function applyPostMatchEffects(teamId: number, weather: string): Promise<P
 const getTeamForUser = async (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
-const FIXTURE_TEMPLATE = [
-  { round: 1,  date: "2026-01-15", locId: 11, locName: "Hurghada Beach, Egypt",          opponent: "Sand Queens AU",     prize: 5000  },
-  { round: 2,  date: "2026-02-12", locId: 2,  locName: "Bondi Beach, Australia",         opponent: "Pacific Storm USA",  prize: 6000  },
-  { round: 3,  date: "2026-03-19", locId: 3,  locName: "Waikiki Beach, Hawaii",          opponent: "Tropical Blaze CUB", prize: 7000  },
-  { round: 4,  date: "2026-04-16", locId: 4,  locName: "Clearwater Beach, Florida",      opponent: "Rio Serpents BRA",   prize: 8500  },
-  { round: 5,  date: "2026-05-21", locId: 5,  locName: "Playa Varadero, Cuba",           opponent: "Sydney Sharks AU",   prize: 10000 },
-  { round: 6,  date: "2026-06-18", locId: 6,  locName: "Ipanema Beach, Brazil",          opponent: "Greek Fire GRE",     prize: 12000 },
-  { round: 7,  date: "2026-07-16", locId: 7,  locName: "Kata Beach, Thailand",           opponent: "Bali Tigers IDN",    prize: 14000 },
-  { round: 8,  date: "2026-08-13", locId: 8,  locName: "Mykonos Super Paradise, Greece", opponent: "Island Aces THA",    prize: 16000 },
-  { round: 9,  date: "2026-09-17", locId: 9,  locName: "Bali Kuta Beach, Indonesia",     opponent: "French Riviera FRA", prize: 18000 },
-  { round: 10, date: "2026-10-15", locId: 10, locName: "Matira Beach, French Polynesia", opponent: "Storm Queens USA",   prize: 22000 },
-  { round: 11, date: "2026-12-10", locId: 1,  locName: "Copacabana Beach, Brazil",       opponent: "World All-Stars",    prize: 50000 },
-];
+// World Tour fixture is imported from the data file
+const FIXTURE_TEMPLATE = WORLD_TOUR;
 
 router.get("/matches", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -282,7 +272,7 @@ router.get("/matches/upcoming", async (req, res) => {
   res.json(matches.filter(m => m.status === "scheduled").map(serializeMatch));
 });
 
-// Full season fixture — auto-generates the 11-match schedule on first call
+// Full season fixture — auto-generates the World Tour schedule on first call
 router.get("/matches/fixture", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getTeamForUser(req.user.id);
@@ -313,6 +303,8 @@ router.get("/matches/fixture", async (req, res) => {
       scheduledAt: `${f.date}T14:00:00.000Z`,
       prizeAmount: String(f.prize),
       status:      "scheduled",
+      continent:   f.continent,
+      tier:        f.tier,
     });
   }
 
@@ -350,7 +342,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const heatPenalty = match.weather === "hot" ? 0.08 : 0;
   const weatherFactor = 1 - windPenalty - heatPenalty;
 
-  const isFinal  = match.round === 11;
+  const isFinal  = match.round === WORLD_TOUR_FINAL_ROUND;
   const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > 70 ? 2 : 1);
   const awayScore = Math.floor(Math.random() * 3) + 1;
   const homeWon   = homeScore > awayScore;
