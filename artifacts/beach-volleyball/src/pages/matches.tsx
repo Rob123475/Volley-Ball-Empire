@@ -528,6 +528,10 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
   const [selected, setSelected] = useState<number[]>([]);
   const [expanded, setExpanded] = useState(false);
   const date = match.scheduledAt ? new Date(match.scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "10 Dec 2026";
+  const year = match.scheduledAt ? new Date(match.scheduledAt).getFullYear() : 2026;
+  const locationParts = (match.locationName ?? "Copacabana Beach • Brazil").split(" • ");
+  const hostBeach = locationParts[0] ?? "Copacabana Beach";
+  const hostCountry = locationParts[1] ?? "Brazil";
 
   return (
     <div className={cn(
@@ -542,12 +546,12 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
         <div className="flex items-center gap-3">
           <Trophy className="h-8 w-8 text-yellow-900" />
           <div>
-            <div className="text-xs font-bold text-yellow-900/70 uppercase tracking-widest">2026 World Beach Pro Series</div>
-            <div className="text-xl font-black text-yellow-900">GRAND FINAL</div>
+            <div className="text-xs font-bold text-yellow-900/70 uppercase tracking-widest">World Beach Pro Series Grand Final</div>
+            <div className="text-xl font-black text-yellow-900">{year}</div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-black text-yellow-900">{formatCurrency(match.prizeAmount ?? 50000)}</div>
+          <div className="text-2xl font-black text-yellow-900">{formatCurrency(match.prizeAmount ?? 500000)}</div>
           <div className="text-xs text-yellow-900/70">Championship Prize</div>
         </div>
       </div>
@@ -558,8 +562,9 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground">{date} • {weatherIcons[match.weather] ?? "☀️"}</div>
             <div className="font-bold flex items-center gap-1">
-              <Flag className="h-4 w-4 text-yellow-500" /> {match.locationName ?? "Copacabana Beach, Brazil"}
+              <Flag className="h-4 w-4 text-yellow-500" /> {hostBeach}
             </div>
+            <div className="text-sm text-muted-foreground">{hostCountry}</div>
             <div className="text-sm text-muted-foreground flex items-center gap-1">
               <Swords className="h-3.5 w-3.5" /> vs <span className="font-bold text-foreground ml-1">{match.awayTeamName ?? "World All-Stars"}</span>
             </div>
@@ -576,7 +581,7 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
               <Badge className="bg-yellow-500 text-yellow-900 text-sm px-3 animate-pulse">READY TO PLAY</Badge>
             ) : (
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Lock className="h-4 w-4" /> <span className="text-sm">Locked</span>
+                <Lock className="h-4 w-4" /> <span className="text-sm">Locked until qualification</span>
               </div>
             )}
           </div>

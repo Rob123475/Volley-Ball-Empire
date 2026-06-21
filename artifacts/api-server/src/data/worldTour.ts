@@ -454,9 +454,9 @@ export const WORLD_TOUR: WorldTourEvent[] = [
   {
     round: 61, continent: "South America",        country: "Brazil",
     city: "Rio de Janeiro",   beachName: "Copacabana Beach",
-    displayName: "World Tour Grand Final",   date: "2026-12-10",
+    displayName: "World Beach Pro Series Grand Final",   date: "2026-12-10",
     locId: 1,  locName: "Copacabana Beach, Rio de Janeiro",
-    opponent: "World All-Stars",     prize: 100000, tier: "Grand Final",
+    opponent: "World All-Stars",     prize: 500000, tier: "Grand Final",
   },
 ];
 

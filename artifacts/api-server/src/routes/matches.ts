@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
-import { WORLD_TOUR } from "../data/worldTour";
+import { WORLD_TOUR, WORLD_TOUR_FINAL_ROUND } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 
 const router = Router();
@@ -342,13 +342,27 @@ router.get("/matches/fixture", async (req, res) => {
 
   if (existing.length === 0) {
     const seasonFixture = generateSeasonFixture();
+    const finalLocIds = Object.keys(LOCATION_WEATHER_POOLS).map(Number);
     for (const f of seasonFixture) {
-      const { weather, windSpeed, temperature } = generateWeather(f.locId);
+      let locId = f.locId;
+      let locationName = f.locName;
+      let prizeAmount = String(f.prize);
+
+      if (f.round === WORLD_TOUR_FINAL_ROUND) {
+        locId = finalLocIds[Math.floor(Math.random() * finalLocIds.length)];
+        const [loc] = await db.select().from(locationsTable).where(eq(locationsTable.id, locId));
+        if (loc) {
+          locationName = `${loc.name} • ${loc.country}`;
+        }
+        prizeAmount = "500000";
+      }
+
+      const { weather, windSpeed, temperature } = generateWeather(locId);
       await db.insert(matchesTable).values({
         homeTeamId:   team.id,
         awayTeamId:   team.id,
-        locationId:   f.locId,
-        locationName: f.locName,
+        locationId:   locId,
+        locationName,
         homeTeamName: team.name,
         awayTeamName: f.opponent,
         weather,
@@ -358,7 +372,7 @@ router.get("/matches/fixture", async (req, res) => {
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount: String(f.prize),
+        prizeAmount,
         status:      "scheduled",
         continent:   f.continent,
         tier:        f.tier,
