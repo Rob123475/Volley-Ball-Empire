@@ -1,22 +1,28 @@
 import {
-  useListMatches, getListMatchesQueryKey,
   useListOlympicCountries, getListOlympicCountriesQueryKey,
   useGetOlympicSelection, getGetOlympicSelectionQueryKey,
   useSaveOlympicSelection,
+  useClearOlympicSelection,
+  useGetCurrentSeason, getGetCurrentSeasonQueryKey,
 } from "@workspace/api-client-react";
 import type { OlympicPlayer } from "@workspace/api-client-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lock, CheckCircle2, ChevronRight } from "lucide-react";
+import { Lock, CheckCircle2, ChevronRight, Timer, Globe, Medal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-// ── Olympics constants ─────────────────────────────────────────────────────
-const CURRENT_YEAR = 2026;
+// ── Olympic constants ─────────────────────────────────────────────────────
 const OLYMPICS_BASE_YEAR = 2024;
-const OLYMPICS_CYCLE = 4;
+const OLYMPICS_CYCLE     = 4;
+// Window opens this many seasons BEFORE the Olympics year
+const WINDOW_OPENS_SEASONS_BEFORE = 1;
+// Fallback year used only while season data is loading
+const CURRENT_YEAR_FALLBACK = 2026;
+
+type OlympicPhase = "pre_window" | "window_open" | "olympic_active" | "concluded";
 
 function getNextOlympicsYear(fromYear: number): number {
   let y = OLYMPICS_BASE_YEAR;
@@ -24,8 +30,12 @@ function getNextOlympicsYear(fromYear: number): number {
   return y;
 }
 
-const NEXT_OLYMPICS_YEAR = getNextOlympicsYear(CURRENT_YEAR);
-const SEASONS_UNTIL_OLYMPICS = NEXT_OLYMPICS_YEAR - CURRENT_YEAR;
+function getOlympicPhase(currentYear: number, nextOlympicsYear: number): OlympicPhase {
+  if (currentYear > nextOlympicsYear)  return "concluded";
+  if (currentYear === nextOlympicsYear) return "olympic_active";
+  if (currentYear >= nextOlympicsYear - WINDOW_OPENS_SEASONS_BEFORE) return "window_open";
+  return "pre_window";
+}
 
 const OLYMPICS_HOSTS: Record<number, { city: string; flag: string; country: string }> = {
   2024: { city: "Paris",       flag: "🇫🇷", country: "France"    },
@@ -35,31 +45,12 @@ const OLYMPICS_HOSTS: Record<number, { city: string; flag: string; country: stri
 };
 
 const STAGES = [
-  { id: "group",  label: "Group Stage",        sublabel: "12 teams · 3 groups of 4",              medal: null,     },
-  { id: "qf",     label: "Quarter Finals",     sublabel: "Top 2 from each group + 2 best 3rd",    medal: null,     },
-  { id: "sf",     label: "Semi Finals",        sublabel: "4 teams compete for finals spots",       medal: null,     },
-  { id: "bronze", label: "Bronze Medal Match", sublabel: "Semi-final losers compete for 🥉",       medal: "bronze", },
-  { id: "gold",   label: "Gold Medal Match",   sublabel: "Champions crowned on the sand",          medal: "gold",   },
+  { id: "group",  label: "Group Stage",        sublabel: "12 teams · 3 groups of 4",            medal: null     },
+  { id: "qf",     label: "Quarter Finals",     sublabel: "Top 2 from each group + 2 best 3rd",  medal: null     },
+  { id: "sf",     label: "Semi Finals",        sublabel: "4 teams compete for finals spots",     medal: null     },
+  { id: "bronze", label: "Bronze Medal Match", sublabel: "Semi-final losers compete for 🥉",     medal: "bronze" },
+  { id: "gold",   label: "Gold Medal Match",   sublabel: "Champions crowned on the sand",        medal: "gold"   },
 ];
-
-function qualPointsForWin(prizeAmount: number | null | undefined): number {
-  const p = prizeAmount ?? 0;
-  if (p >= 500_000) return 200;
-  if (p >= 80_000)  return 120;
-  if (p >= 50_000)  return 80;
-  if (p >= 20_000)  return 40;
-  if (p >= 10_000)  return 20;
-  return 10;
-}
-
-const QUAL_POINTS_LEGEND = [
-  { label: "Bronze",            pts: 10  },
-  { label: "Silver",            pts: 20  },
-  { label: "Gold",              pts: 40  },
-  { label: "Elite",             pts: 80  },
-  { label: "Continental Final", pts: 120 },
-];
-const QUAL_TARGET = 400;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function avgRating(p: OlympicPlayer) {
@@ -166,7 +157,7 @@ function CountryCard({
           <div>
             <p className="font-black text-sm">{country}</p>
             <div className="flex items-center gap-1 mt-0.5">
-              <Badge variant="outline" className="text-[9px] h-4 px-1.5">{playerCount} pro player{playerCount !== 1 ? "s" : ""}</Badge>
+              <Badge variant="outline" className="text-[9px] h-4 px-1.5">{playerCount} active player{playerCount !== 1 ? "s" : ""}</Badge>
               {reserveCount > 0 && (
                 <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/30 text-[9px] h-4 px-1.5">+{reserveCount} reserve</Badge>
               )}
@@ -177,32 +168,28 @@ function CountryCard({
       <div className="space-y-1">
         {squad.map((p, i) => (
           <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold flex-shrink-0">{i + 1}</span>
-            <span className={cn("truncate", p.isReserve && "italic text-amber-600")}>{p.name}{p.isReserve ? " (Reserve)" : ""}</span>
-            <span className="ml-auto font-bold text-foreground flex-shrink-0">OVR {avgRating(p)}</span>
+            <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", p.isReserve ? "bg-amber-400" : "bg-primary")} />
+            <span className="truncate font-medium text-foreground">{p.name}</span>
+            <span className="ml-auto flex-shrink-0 font-bold text-primary">OVR {avgRating(p)}</span>
           </div>
         ))}
       </div>
-      <Button
-        size="sm"
-        className="w-full mt-1"
-        onClick={onSelect}
-        disabled={saving}
-      >
-        {saving ? "Saving…" : `Represent ${flag} ${country}`}
-        <ChevronRight className="h-3.5 w-3.5 ml-1" />
+      <Button size="sm" className="w-full mt-1" onClick={onSelect} disabled={saving}>
+        <ChevronRight className="h-4 w-4 mr-1" />
+        Coach {country}
       </Button>
     </div>
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────
+// ── Main page ─────────────────────────────────────────────────────────────
 export default function WorldTourLocations() {
   const queryClient = useQueryClient();
   const [isChanging, setIsChanging] = useState(false);
+  const autoClearFired = useRef(false);
 
-  const { data: matches, isLoading: matchLoading } = useListMatches({
-    query: { queryKey: getListMatchesQueryKey() },
+  const { data: season, isLoading: seasonLoading } = useGetCurrentSeason({
+    query: { queryKey: getGetCurrentSeasonQueryKey() },
   });
   const { data: countries, isLoading: countriesLoading } = useListOlympicCountries({
     query: { queryKey: getListOlympicCountriesQueryKey() },
@@ -212,14 +199,36 @@ export default function WorldTourLocations() {
     isLoading: selectionLoading,
     isError: noSelection,
   } = useGetOlympicSelection({
-    query: {
-      queryKey: getGetOlympicSelectionQueryKey(),
-      retry: false,
-    },
+    query: { queryKey: getGetOlympicSelectionQueryKey(), retry: false },
   });
-  const saveMutation = useSaveOlympicSelection();
+  const saveMutation  = useSaveOlympicSelection();
+  const clearMutation = useClearOlympicSelection();
 
-  const isLoading = matchLoading || countriesLoading || selectionLoading;
+  // ── Derived values ────────────────────────────────────────────────────
+  const currentYear      = season?.year ?? CURRENT_YEAR_FALLBACK;
+  const nextOlympicsYear = getNextOlympicsYear(currentYear);
+  const phase            = getOlympicPhase(currentYear, nextOlympicsYear);
+  const windowOpensYear  = nextOlympicsYear - WINDOW_OPENS_SEASONS_BEFORE;
+  const seasonsUntilWindow  = Math.max(0, windowOpensYear - currentYear);
+  const seasonsUntilOlympics = nextOlympicsYear - currentYear;
+  const nextHost         = OLYMPICS_HOSTS[nextOlympicsYear] ?? { city: "TBD", flag: "🌍", country: "TBD" };
+  const hasSelection     = !!selection && !noSelection;
+  const showSelectionUI  = !hasSelection || isChanging;
+
+  // ── Auto-clear wildcard players when Olympics conclude ─────────────────
+  // Olympic Wildcard players exist only in olympic_selections.squad (id: null).
+  // They are never in playersTable, contracts, draft, or rosters.
+  // Deleting the selection row permanently removes them.
+  useEffect(() => {
+    if (phase === "concluded" && hasSelection && !autoClearFired.current && !clearMutation.isPending) {
+      autoClearFired.current = true;
+      clearMutation.mutate(undefined, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetOlympicSelectionQueryKey() });
+        },
+      });
+    }
+  }, [phase, hasSelection]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectCountry = (country: string, flag: string, squad: OlympicPlayer[]) => {
     saveMutation.mutate(
@@ -233,16 +242,7 @@ export default function WorldTourLocations() {
     );
   };
 
-  const hasSelection = !!selection && !noSelection;
-  const showSelectionUI = !hasSelection || isChanging;
-
-  // Qualification points from wins
-  const completed = (matches ?? []).filter((m) => m.status === "completed");
-  const wins = completed.filter((m) => (m.homeScore ?? 0) > (m.awayScore ?? 0));
-  const qualPoints = wins.reduce((acc, m) => acc + qualPointsForWin(m.prizeAmount), 0);
-  const qualPct = Math.min(Math.round((qualPoints / QUAL_TARGET) * 100), 100);
-
-  const nextHost = OLYMPICS_HOSTS[NEXT_OLYMPICS_YEAR];
+  const isLoading = seasonLoading || countriesLoading || selectionLoading;
 
   if (isLoading) {
     return (
@@ -255,6 +255,30 @@ export default function WorldTourLocations() {
       </div>
     );
   }
+
+  // ── Hero badge per phase ─────────────────────────────────────────────
+  const heroBadge = (() => {
+    if (phase === "concluded")     return <Badge className="bg-slate-500/20 text-slate-300 border-slate-500/30 text-xs px-3 py-1 font-bold">✓ CONCLUDED</Badge>;
+    if (phase === "olympic_active") return <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 text-xs px-3 py-1 font-bold">🏆 OLYMPICS {nextOlympicsYear}</Badge>;
+    if (hasSelection && !isChanging) return (
+      <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs px-3 py-1 font-bold gap-1.5">
+        <CheckCircle2 className="h-3 w-3" />
+        {selection!.flag} {selection!.country} Selected
+      </Badge>
+    );
+    if (phase === "window_open")   return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-xs px-3 py-1 font-bold">🏅 SELECTION WINDOW OPEN</Badge>;
+    return (
+      <Badge className="bg-slate-500/20 text-slate-300 border-slate-500/40 text-xs px-3 py-1 font-bold gap-1.5">
+        <Lock className="h-3 w-3" /> WINDOW OPENS {windowOpensYear}
+      </Badge>
+    );
+  })();
+
+  const heroSub = (() => {
+    if (phase === "concluded")      return `Season concluded · Next cycle begins ${nextOlympicsYear + 1}`;
+    if (phase === "olympic_active") return `${nextHost.flag} ${nextHost.city} ${nextOlympicsYear} · Olympics are here!`;
+    return `${nextHost.flag} ${nextHost.city} ${nextOlympicsYear} · ${seasonsUntilOlympics} season${seasonsUntilOlympics !== 1 ? "s" : ""} away`;
+  })();
 
   return (
     <div className="space-y-10">
@@ -271,142 +295,187 @@ export default function WorldTourLocations() {
             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
               Beach Volleyball<br />Olympics
             </h1>
-            <p className="text-white/50 text-sm mt-2">
-              {nextHost.flag} {nextHost.city} {NEXT_OLYMPICS_YEAR} · {SEASONS_UNTIL_OLYMPICS} seasons away
-            </p>
+            <p className="text-white/50 text-sm mt-2">{heroSub}</p>
           </div>
           <div className="flex flex-col items-start md:items-end gap-2">
-            {hasSelection && !isChanging ? (
-              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs px-3 py-1 font-bold gap-1.5">
-                <CheckCircle2 className="h-3 w-3" />
-                {selection.flag} {selection.country} Selected
-              </Badge>
-            ) : (
-              <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-xs px-3 py-1 font-bold">
-                🏅 QUALIFYING PERIOD OPEN
-              </Badge>
+            {heroBadge}
+            {phase === "pre_window" && (
+              <p className="text-white/30 text-xs">Eligibility scans active players by nationality</p>
             )}
-            <p className="text-white/40 text-xs">Seasons 2026–2027 count</p>
+            {(phase === "window_open" || phase === "olympic_active") && (
+              <p className="text-white/40 text-xs">Eligibility based on active player pool · not win/loss</p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ── Olympic Nation selection / display ──────────────────────── */}
-      {showSelectionUI ? (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-black uppercase tracking-wide">
-                {hasSelection ? "Choose a Different Nation" : "Choose Your Olympic Nation"}
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Nations with enough eligible women players to form a 3-player squad
-              </p>
-            </div>
-            {hasSelection && (
-              <Button variant="outline" size="sm" onClick={() => setIsChanging(false)}>
-                Cancel
-              </Button>
-            )}
-          </div>
+      {/* ── Key stats ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="Next Olympics" value={String(nextOlympicsYear)} sub={`${nextHost.flag} ${nextHost.city}`} accent />
+        {phase === "pre_window" ? (
+          <>
+            <StatCard label="Window Opens" value={String(windowOpensYear)} sub={`${seasonsUntilWindow} season${seasonsUntilWindow !== 1 ? "s" : ""} away`} />
+            <StatCard label="Eligible Nations" value={String(countries?.length ?? 0)} sub="based on current rosters" />
+            <StatCard label="Selection" value="Locked" sub={`Opens season ${windowOpensYear}`} />
+          </>
+        ) : phase === "window_open" ? (
+          <>
+            <StatCard label="Window Open" value={`S${currentYear}`} sub="Select your nation" />
+            <StatCard label="Eligible Nations" value={String(countries?.length ?? 0)} sub="active player pool" accent={!!countries?.length} />
+            <StatCard label="Your Selection" value={hasSelection ? selection!.flag : "—"} sub={hasSelection ? selection!.country : "None chosen"} />
+          </>
+        ) : phase === "olympic_active" ? (
+          <>
+            <StatCard label="Olympics Season" value={String(nextOlympicsYear)} sub="Tournament active" accent />
+            <StatCard label="Eligible Nations" value={String(countries?.length ?? 0)} sub="competing nations" />
+            <StatCard label="Your Nation" value={hasSelection ? selection!.flag : "—"} sub={hasSelection ? selection!.country : "Not entered"} />
+          </>
+        ) : (
+          <>
+            <StatCard label="Next Cycle" value={String(getNextOlympicsYear(currentYear))} sub="Next Olympics" />
+            <StatCard label="Window Opens" value={String(getNextOlympicsYear(currentYear) - WINDOW_OPENS_SEASONS_BEFORE)} sub="eligibility season" />
+            <StatCard label="Status" value="Reset" sub="New cycle begins" />
+          </>
+        )}
+      </div>
 
-          {(!countries || countries.length === 0) ? (
-            <div className="rounded-xl border border-border bg-muted/20 p-8 text-center">
-              <p className="text-muted-foreground text-sm">No eligible countries found. Add players to the database first.</p>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {countries.map((c) => (
-                <CountryCard
-                  key={c.country}
-                  country={c.country}
-                  flag={c.flag}
-                  playerCount={c.playerCount}
-                  squad={c.squad}
-                  onSelect={() => handleSelectCountry(c.country, c.flag, c.squad)}
-                  saving={saveMutation.isPending}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        /* ── Selected country + squad ─────────────────────────────── */
+      {/* ── Phase: PRE_WINDOW — eligibility window closed ─────────────── */}
+      {phase === "pre_window" && (
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          <div className="px-5 py-4 bg-gradient-to-r from-blue-600/10 to-primary/5 border-b border-border flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl">{selection!.flag}</span>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your Olympic Nation</p>
-                <p className="font-black text-lg">{selection!.country}</p>
-              </div>
+          <div className="px-6 py-10 text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+              <Timer className="h-8 w-8 text-muted-foreground" />
             </div>
-            <Button variant="outline" size="sm" onClick={() => setIsChanging(true)}>
-              Change Nation
-            </Button>
-          </div>
-
-          <div className="p-5 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Olympic Squad</p>
-            <div className="grid gap-3 md:grid-cols-3">
-              {(selection!.squad ?? []).map((player, i) => (
-                <PlayerSquadCard key={i} player={player} />
-              ))}
-            </div>
-            {(selection!.squad ?? []).some((p) => p.isReserve) && (
-              <p className="text-[10px] text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
-                ⚡ Your squad includes an Olympic Reserve player — an athlete on the fringe of the pro tour.
-                Reserve players are only available for the Olympics and do not join your regular club.
+            <div>
+              <h2 className="text-xl font-black">Eligibility Window Not Yet Open</h2>
+              <p className="text-muted-foreground text-sm mt-1.5 max-w-md mx-auto">
+                {seasonsUntilWindow === 1
+                  ? "The eligibility window opens next season."
+                  : `The eligibility window opens in ${seasonsUntilWindow} seasons.`}
+                {" "}Active players are scanned by nationality — countries with 2+ players become eligible.
               </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/20 p-5 max-w-lg mx-auto text-left space-y-3">
+              <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">How eligibility works</p>
+              <div className="space-y-2">
+                {[
+                  { icon: "🏅", label: "≥ 3 active players",  desc: "Country qualifies · top 3 form the squad" },
+                  { icon: "⚡", label: "Exactly 2 players",   desc: "Qualifies + 1 Olympic Reserve wildcard added" },
+                  { icon: "🔒", label: "Fewer than 2 players", desc: "Country cannot enter the Olympics" },
+                ].map((r) => (
+                  <div key={r.label} className="flex items-start gap-3">
+                    <span className="text-lg flex-shrink-0">{r.icon}</span>
+                    <div>
+                      <p className="text-sm font-bold">{r.label}</p>
+                      <p className="text-xs text-muted-foreground">{r.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground pt-1 border-t border-border">
+                Eligibility is based on active player pool only — not win/loss record.
+                Countries may appear or disappear as talent develops over multiple seasons.
+                Olympic Reserve (Wildcard) players exist only during the eligibility window and Olympic competition.
+              </p>
+            </div>
+
+            {countries && countries.length > 0 && (
+              <div className="pt-2">
+                <p className="text-xs text-muted-foreground mb-3">
+                  Current roster snapshot — {countries.length} nation{countries.length !== 1 ? "s" : ""} would be eligible today
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
+                  {countries.map((c) => (
+                    <div key={c.country} className="flex items-center gap-1.5 rounded-full bg-muted/40 border border-border px-3 py-1 text-xs">
+                      <span>{c.flag}</span>
+                      <span className="font-medium">{c.country}</span>
+                      <Badge variant="outline" className="text-[9px] h-4 px-1 ml-0.5">{c.playerCount}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
       )}
 
-      {/* ── Key stats ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Next Olympics" value={String(NEXT_OLYMPICS_YEAR)} sub={`${nextHost.flag} ${nextHost.city}, ${nextHost.country}`} accent />
-        <StatCard label="Seasons Remaining" value={String(SEASONS_UNTIL_OLYMPICS)} sub="to qualify" />
-        <StatCard label="Qual. Points" value={String(qualPoints)} sub={`of ${QUAL_TARGET} target`} accent={qualPoints >= QUAL_TARGET} />
-        <StatCard label="Season Wins" value={String(wins.length)} sub={`from ${completed.length} played`} />
-      </div>
-
-      {/* ── Qualification progress ────────────────────────────────────── */}
-      <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-black uppercase tracking-wide">Olympic Qualification</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Accumulate points across 2026 & 2027 World Tour seasons</p>
+      {/* ── Phase: WINDOW_OPEN — nation selection ─────────────────────── */}
+      {phase === "window_open" && (
+        showSelectionUI ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-black uppercase tracking-wide">
+                  {hasSelection ? "Choose a Different Nation" : "Choose Your Olympic Nation"}
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Nations with enough active players to form a 3-player squad · Eligibility based on player pool
+                </p>
+              </div>
+              {hasSelection && (
+                <Button variant="outline" size="sm" onClick={() => setIsChanging(false)}>Cancel</Button>
+              )}
+            </div>
+            {(!countries || countries.length === 0) ? (
+              <div className="rounded-xl border border-border bg-muted/20 p-8 text-center">
+                <Globe className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">No eligible countries found.</p>
+                <p className="text-xs text-muted-foreground mt-1">Countries need at least 2 active players in the player pool.</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {countries.map((c) => (
+                  <CountryCard
+                    key={c.country}
+                    country={c.country}
+                    flag={c.flag}
+                    playerCount={c.playerCount}
+                    squad={c.squad}
+                    onSelect={() => handleSelectCountry(c.country, c.flag, c.squad)}
+                    saving={saveMutation.isPending}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          {qualPoints >= QUAL_TARGET ? (
-            <Badge className="bg-emerald-500 text-white gap-1 px-3"><CheckCircle2 className="h-3 w-3" /> QUALIFIED</Badge>
-          ) : (
-            <Badge variant="outline" className="text-muted-foreground gap-1 px-3"><Lock className="h-3 w-3" /> In Progress</Badge>
+        ) : (
+          /* ── Selected country + squad ─────────────────────────────── */
+          <SelectedSquadCard
+            selection={selection!}
+            onChangeClick={() => setIsChanging(true)}
+            allowChange
+          />
+        )
+      )}
+
+      {/* ── Phase: OLYMPIC_ACTIVE — squad locked in ───────────────────── */}
+      {phase === "olympic_active" && hasSelection && (
+        <SelectedSquadCard selection={selection!} allowChange={false} />
+      )}
+      {phase === "olympic_active" && !hasSelection && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-6 text-center">
+          <p className="font-bold text-amber-600">No nation selected</p>
+          <p className="text-xs text-muted-foreground mt-1">You did not select an Olympic nation during the eligibility window.</p>
+        </div>
+      )}
+
+      {/* ── Phase: CONCLUDED ──────────────────────────────────────────── */}
+      {phase === "concluded" && (
+        <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-4">
+          <div className="text-4xl">🏅</div>
+          <div>
+            <h2 className="text-xl font-black">Olympic Season Concluded</h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              The {nextOlympicsYear} Olympics are complete. Olympic Reserve (Wildcard) players have been removed.
+              The next eligibility window opens in season {getNextOlympicsYear(currentYear) - WINDOW_OPENS_SEASONS_BEFORE}.
+            </p>
+          </div>
+          {clearMutation.isPending && (
+            <p className="text-xs text-muted-foreground animate-pulse">Clearing Olympic squad data…</p>
           )}
         </div>
-        <div>
-          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-            <span>{qualPoints} pts earned</span>
-            <span>{QUAL_TARGET} pts needed</span>
-          </div>
-          <div className="h-3 rounded-full bg-muted overflow-hidden">
-            <div
-              className={cn("h-full rounded-full transition-all duration-700", qualPct >= 100 ? "bg-emerald-500" : "bg-gradient-to-r from-blue-500 to-blue-400")}
-              style={{ width: `${qualPct}%` }}
-            />
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-1.5">{qualPct}% of qualification target</p>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 pt-1">
-          {QUAL_POINTS_LEGEND.map(({ label, pts }) => (
-            <div key={label} className="rounded-lg bg-muted/40 p-2 text-center">
-              <p className="text-[10px] text-muted-foreground">{label}</p>
-              <p className="text-sm font-black text-primary">+{pts}</p>
-              <p className="text-[9px] text-muted-foreground">pts/win</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* ── Tournament format ────────────────────────────────────────── */}
       <div className="space-y-3">
@@ -433,7 +502,10 @@ export default function WorldTourLocations() {
                 <p className="text-xs text-muted-foreground">{stage.sublabel}</p>
               </div>
               <Badge variant="outline" className="text-[10px] text-muted-foreground gap-1 flex-shrink-0">
-                <Lock className="h-2.5 w-2.5" /> {NEXT_OLYMPICS_YEAR}
+                {phase === "olympic_active"
+                  ? <><Medal className="h-2.5 w-2.5" /> LIVE</>
+                  : <><Lock className="h-2.5 w-2.5" /> {nextOlympicsYear}</>
+                }
               </Badge>
             </div>
           ))}
@@ -441,19 +513,21 @@ export default function WorldTourLocations() {
       </div>
 
       {/* ── Medal cabinet ─────────────────────────────────────────────── */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">Medal Cabinet</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <MedalBadge type="gold" />
-          <MedalBadge type="silver" />
-          <MedalBadge type="bronze" />
+      {phase !== "pre_window" && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">Medal Cabinet</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <MedalBadge type="gold" />
+            <MedalBadge type="silver" />
+            <MedalBadge type="bronze" />
+          </div>
+          <p className="text-center text-xs text-muted-foreground pt-1">
+            No Olympic medals yet · {phase === "olympic_active" ? "Tournament underway" : `Qualify for ${nextOlympicsYear} to compete`}
+          </p>
         </div>
-        <p className="text-center text-xs text-muted-foreground pt-1">
-          No Olympic medals yet · Qualify for {NEXT_OLYMPICS_YEAR} to compete
-        </p>
-      </div>
+      )}
 
-      {/* ── Past Olympics ─────────────────────────────────────────────── */}
+      {/* ── Olympic History ────────────────────────────────────────────── */}
       <div className="space-y-3">
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">Olympic History</h2>
         <div className="rounded-xl border border-border bg-card p-4">
@@ -471,6 +545,54 @@ export default function WorldTourLocations() {
         </div>
       </div>
 
+    </div>
+  );
+}
+
+// ── Sub-component: selected squad card ───────────────────────────────────
+function SelectedSquadCard({
+  selection,
+  onChangeClick,
+  allowChange,
+}: {
+  selection: { flag: string; country: string; squad: OlympicPlayer[] };
+  onChangeClick?: () => void;
+  allowChange: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="px-5 py-4 bg-gradient-to-r from-blue-600/10 to-primary/5 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-4xl">{selection.flag}</span>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your Olympic Nation</p>
+            <p className="font-black text-lg">{selection.country}</p>
+          </div>
+        </div>
+        {allowChange && onChangeClick && (
+          <Button variant="outline" size="sm" onClick={onChangeClick}>Change Nation</Button>
+        )}
+        {!allowChange && (
+          <Badge className="bg-yellow-500/20 text-yellow-600 border-yellow-500/30 text-xs gap-1">
+            <Lock className="h-3 w-3" /> Locked In
+          </Badge>
+        )}
+      </div>
+      <div className="p-5 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Olympic Squad</p>
+        <div className="grid gap-3 md:grid-cols-3">
+          {(selection.squad ?? []).map((player, i) => (
+            <PlayerSquadCard key={i} player={player} />
+          ))}
+        </div>
+        {(selection.squad ?? []).some((p) => p.isReserve) && (
+          <p className="text-[10px] text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+            ⚡ Your squad includes an Olympic Reserve player — an athlete on the fringe of the pro tour.
+            Reserve players exist only during the Olympics and are automatically removed afterwards.
+            They do not join your regular club or appear in transfers, drafts, or contracts.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
