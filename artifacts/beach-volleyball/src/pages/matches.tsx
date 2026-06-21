@@ -494,8 +494,8 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
                 }}
               >
                 <Checkbox checked={selected.includes(p.id)} />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-medium truncate w-20">{p.name}</span>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-xs font-medium truncate">{p.name}</span>
                   <PlayerStatusBadge player={p} size="xs" />
                 </div>
               </div>
@@ -686,15 +686,15 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
             </div>
           </div>
         </div>
-        <div className="bg-muted/30 p-6 flex items-center justify-center border-l">
+        <div className="bg-muted/30 p-4 flex items-center justify-center border-l">
           <Button
-            size="lg"
-            className="h-16 px-12 gap-3 text-lg font-black shadow-lg"
+            size="default"
+            className="h-10 px-6 gap-2 text-sm font-black shadow-lg"
             disabled={selected.length !== match.teamSize || isSimulating}
             onClick={() => onSimulate(selected)}
             data-testid={`button-simulate-${match.id}`}
           >
-            {isSimulating ? <Loader2 className="h-6 w-6 animate-spin" /> : <><Play className="h-6 w-6 fill-current" /> SIMULATE!</>}
+            {isSimulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Play className="h-4 w-4 fill-current" /> SIMULATE!</>}
           </Button>
         </div>
       </div>
