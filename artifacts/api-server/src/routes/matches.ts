@@ -329,14 +329,28 @@ router.get("/matches/fixture", async (req, res) => {
     .orderBy(matchesTable.round);
 
   if (existing.length > 0) {
-    // Backfill: fixtures created before the generator used tier="Elite" for the
-    // Grand Final (round 61). Normalize those rows to tier="Grand Final" so the
-    // new detection works for all existing users.
-    const legacyFinal = existing.find(m => m.round === 61 && m.tier === "Elite");
-    if (legacyFinal) {
-      await db.update(matchesTable)
-        .set({ tier: "Grand Final" })
-        .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1), eq(matchesTable.round, 61)));
+    // Backfill: fix Grand Final (round 61) rows that may have stale values:
+    //   - tier="Elite" (old format) instead of "Grand Final"
+    //   - prizeAmount != 500000 (old value was 100000)
+    //   - locationName without the " • " separator (old format was plain "Beach, City")
+    const grandFinal = existing.find(m => m.round === 61);
+    if (grandFinal) {
+      const needsTierFix = grandFinal.tier !== "Grand Final";
+      const needsPrizeFix = parseFloat(grandFinal.prizeAmount ?? "0") !== 500000;
+      const needsLocationFix = !!(grandFinal.locationName && !grandFinal.locationName.includes(" • "));
+
+      if (needsTierFix || needsPrizeFix || needsLocationFix) {
+        let locationName = grandFinal.locationName;
+        if (needsLocationFix) {
+          const [loc] = await db.select().from(locationsTable).where(eq(locationsTable.id, grandFinal.locationId));
+          if (loc) {
+            locationName = `${loc.name} • ${loc.country}`;
+          }
+        }
+        await db.update(matchesTable)
+          .set({ tier: "Grand Final", prizeAmount: "500000", locationName: locationName ?? grandFinal.locationName })
+          .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1), eq(matchesTable.round, 61)));
+      }
     }
   }
 
