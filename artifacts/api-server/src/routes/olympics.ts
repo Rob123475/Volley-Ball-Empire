@@ -2,7 +2,21 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { playersTable, olympicSelectionsTable } from "@workspace/db";
 import type { OlympicPlayerData } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+// ── Wildcard player lifecycle ──────────────────────────────────────────────
+// Wildcard players (id: null, isReserve: true) exist ONLY as JSON inside the
+// olympic_selections.squad column. They are NEVER written to:
+//   - playersTable      (player market, club rosters)
+//   - contractsTable    (all contracts reference playersTable.id via FK)
+//   - draftTable        (isDraftPlayer flag lives on playersTable rows only)
+//   - teamsTable        (teamId is a playersTable foreign key)
+//
+// The entire lifecycle is:
+//   1. Generated in-memory by generateReserve() during GET /olympics/countries
+//   2. Saved as JSON when user POSTs a selection
+//   3. Permanently destroyed when DELETE /olympics/selection is called
+//      (e.g. after the Olympic tournament concludes)
+// ──────────────────────────────────────────────────────────────────────────
+import { eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -188,6 +202,25 @@ router.post("/olympics/selection", async (req, res) => {
   }
 
   res.json({ country, flag, squad });
+});
+
+// DELETE /olympics/selection
+// Called when the Olympic tournament concludes.
+// Permanently removes the row — wildcard players vanish with it.
+// Real players in the squad are unaffected (they remain in playersTable).
+router.delete("/olympics/selection", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const existing = await db.query.olympicSelectionsTable.findFirst({
+    where: eq(olympicSelectionsTable.userId, req.user.id),
+  });
+
+  if (!existing) { res.status(404).json({ error: "No selection to clear" }); return; }
+
+  await db.delete(olympicSelectionsTable)
+    .where(eq(olympicSelectionsTable.userId, req.user.id));
+
+  res.status(204).send();
 });
 
 export default router;

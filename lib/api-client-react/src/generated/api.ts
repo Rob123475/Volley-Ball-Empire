@@ -4238,3 +4238,75 @@ export const useSaveOlympicSelection = <TError = ErrorType<void>,
       return useMutation(getSaveOlympicSelectionMutationOptions(options));
     }
 
+export const getClearOlympicSelectionUrl = () => {
+
+
+
+
+  return `/api/olympics/selection`
+}
+
+/**
+ * Called when the Olympic tournament concludes. Deletes the entire olympic_selections row for the user. Wildcard players (id: null) exist only inside this row's squad JSON and are permanently removed with it. They are never written to playersTable, contractsTable, draftTable, or any club roster.
+
+ * @summary Clear the user's Olympic selection and remove all wildcard players
+ */
+export const clearOlympicSelection = async ( options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getClearOlympicSelectionUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getClearOlympicSelectionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearOlympicSelection>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof clearOlympicSelection>>, TError,void, TContext> => {
+
+const mutationKey = ['clearOlympicSelection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof clearOlympicSelection>>, void> = () => {
+
+
+          return  clearOlympicSelection(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ClearOlympicSelectionMutationResult = NonNullable<Awaited<ReturnType<typeof clearOlympicSelection>>>
+
+    export type ClearOlympicSelectionMutationError = ErrorType<void>
+
+    /**
+ * @summary Clear the user's Olympic selection and remove all wildcard players
+ */
+export const useClearOlympicSelection = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearOlympicSelection>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof clearOlympicSelection>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getClearOlympicSelectionMutationOptions(options));
+    }
+

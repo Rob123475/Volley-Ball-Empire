@@ -994,6 +994,23 @@ paths:
           description: Invalid input
         "401":
           description: Unauthorized
+    delete:
+      operationId: clearOlympicSelection
+      tags: [olympics]
+      summary: Clear the user's Olympic selection and remove all wildcard players
+      description: >
+        Called when the Olympic tournament concludes. Deletes the entire
+        olympic_selections row for the user. Wildcard players (id: null) exist
+        only inside this row's squad JSON and are permanently removed with it.
+        They are never written to playersTable, contractsTable, draftTable, or
+        any club roster.
+      responses:
+        "204":
+          description: Selection cleared
+        "401":
+          description: Unauthorized
+        "404":
+          description: No selection to clear
 
 components:
   schemas:
