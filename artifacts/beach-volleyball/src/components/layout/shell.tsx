@@ -8,7 +8,7 @@ import {
   FileText, 
   UserCog, 
   DollarSign, 
-  MapPin, 
+  Medal,
   LogOut,
   ChevronRight,
   Menu,
@@ -35,7 +35,7 @@ const navItems = [
   { href: "/medical", label: "Medical Centre", icon: Heart },
   { href: "/finances", label: "Finances", icon: DollarSign },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
-  { href: "/locations", label: "World Tour", icon: MapPin },
+  { href: "/locations", label: "Olympics", icon: Medal },
 ];
 
 export function Sidebar() {

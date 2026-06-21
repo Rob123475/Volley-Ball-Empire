@@ -1,306 +1,385 @@
-import { useListLocations, getListLocationsQueryKey, useListMatches, getListMatchesQueryKey } from "@workspace/api-client-react";
+import { useListMatches, getListMatchesQueryKey } from "@workspace/api-client-react";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Wind, CloudSun, Trophy, CheckCircle2, Lock, ChevronRight, Star, Flag } from "lucide-react";
+import { Trophy, Medal, Flag, Lock, Star, CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-// The 11-stop World Tour in order — locId maps to locations.id in the DB
-const TOUR_STOPS = [
-  { round: 1,  locId: 11, opponent: "Sand Queens AU",     prize: 5000,  date: "Jan 15" },
-  { round: 2,  locId: 2,  opponent: "Pacific Storm USA",  prize: 6000,  date: "Feb 12" },
-  { round: 3,  locId: 3,  opponent: "Tropical Blaze CUB", prize: 7000,  date: "Mar 19" },
-  { round: 4,  locId: 4,  opponent: "Rio Serpents BRA",   prize: 8500,  date: "Apr 16" },
-  { round: 5,  locId: 5,  opponent: "Sydney Sharks AU",   prize: 10000, date: "May 21" },
-  { round: 6,  locId: 6,  opponent: "Greek Fire GRE",     prize: 12000, date: "Jun 18" },
-  { round: 7,  locId: 7,  opponent: "Bali Tigers IDN",    prize: 14000, date: "Jul 16" },
-  { round: 8,  locId: 8,  opponent: "Island Aces THA",    prize: 16000, date: "Aug 13" },
-  { round: 9,  locId: 9,  opponent: "French Riviera FRA", prize: 18000, date: "Sep 17" },
-  { round: 10, locId: 10, opponent: "Storm Queens USA",   prize: 22000, date: "Oct 15" }, // Matira Beach, Bora Bora
-  { round: 11, locId: 1,  opponent: "World All-Stars",    prize: 50000, date: "Dec 10", isFinal: true },
+// ── Olympics constants ─────────────────────────────────────────────────────
+const CURRENT_YEAR = 2026;
+const OLYMPICS_BASE_YEAR = 2024;
+const OLYMPICS_CYCLE = 4;
+
+function getNextOlympicsYear(fromYear: number): number {
+  let y = OLYMPICS_BASE_YEAR;
+  while (y <= fromYear) y += OLYMPICS_CYCLE;
+  return y;
+}
+
+const NEXT_OLYMPICS_YEAR = getNextOlympicsYear(CURRENT_YEAR); // 2028
+const SEASONS_UNTIL_OLYMPICS = NEXT_OLYMPICS_YEAR - CURRENT_YEAR; // 2
+
+const OLYMPICS_HOSTS: Record<number, { city: string; flag: string; country: string }> = {
+  2024: { city: "Paris",        flag: "🇫🇷", country: "France" },
+  2028: { city: "Los Angeles",  flag: "🇺🇸", country: "USA" },
+  2032: { city: "Brisbane",     flag: "🇦🇺", country: "Australia" },
+  2036: { city: "TBD",          flag: "🌍", country: "TBD" },
+};
+
+// ── Olympic nations (beach volleyball) ────────────────────────────────────
+const OLYMPIC_NATIONS = [
+  { flag: "🇧🇷", country: "Brazil",      players: "Silva / Agatha",         group: "A", seed: 1  },
+  { flag: "🇺🇸", country: "USA",         players: "Ross / Walsh",            group: "A", seed: 2  },
+  { flag: "🇦🇺", country: "Australia",   players: "Artacho / Clancy",        group: "B", seed: 3  },
+  { flag: "🇩🇪", country: "Germany",     players: "Ludwig / Kozuch",         group: "B", seed: 4  },
+  { flag: "🇳🇱", country: "Netherlands", players: "van Iersel / Ypma",       group: "C", seed: 5  },
+  { flag: "🇨🇳", country: "China",       players: "Wang / Xia",              group: "C", seed: 6  },
+  { flag: "🇨🇦", country: "Canada",      players: "Wilkerson / Pavan",       group: "A", seed: 7  },
+  { flag: "🇨🇭", country: "Switzerland", players: "Heidrich / Vergé-Dépré",  group: "B", seed: 8  },
+  { flag: "🇯🇵", country: "Japan",       players: "Ishijima / Murakami",     group: "C", seed: 9  },
+  { flag: "🇪🇸", country: "Spain",       players: "Liliana / Elsa",          group: "A", seed: 10 },
+  { flag: "🇳🇴", country: "Norway",      players: "Ingrid / Sanne",          group: "B", seed: 11 },
+  { flag: "🇮🇹", country: "Italy",       players: "Gottardi / Menegatti",    group: "C", seed: 12 },
 ];
 
-function formatPrize(n: number) {
-  return n >= 1000 ? `$${(n / 1000).toFixed(0)}k` : `$${n}`;
+const GROUPS = ["A", "B", "C"] as const;
+
+// ── Tournament stages ──────────────────────────────────────────────────────
+const STAGES = [
+  {
+    id: "group",  label: "Group Stage",        sublabel: "12 teams · 3 groups of 4",
+    medal: null,  emoji: "🏐",
+  },
+  {
+    id: "qf",     label: "Quarter Finals",     sublabel: "Top 2 from each group + 2 best 3rd",
+    medal: null,  emoji: "⚔️",
+  },
+  {
+    id: "sf",     label: "Semi Finals",        sublabel: "4 teams compete for finals spots",
+    medal: null,  emoji: "🔥",
+  },
+  {
+    id: "bronze", label: "Bronze Medal Match", sublabel: "Semi-final losers compete for 🥉",
+    medal: "bronze", emoji: "🥉",
+  },
+  {
+    id: "gold",   label: "Gold Medal Match",   sublabel: "Champions crowned on the sand",
+    medal: "gold",   emoji: "🥇",
+  },
+];
+
+// ── Qualification points per win (derived from prize amount) ──────────────
+function qualPointsForWin(prizeAmount: number | null | undefined): number {
+  const p = prizeAmount ?? 0;
+  if (p >= 500_000) return 200; // Grand Final
+  if (p >= 80_000)  return 120; // Continental Final
+  if (p >= 50_000)  return 80;  // Elite
+  if (p >= 20_000)  return 40;  // Gold
+  if (p >= 10_000)  return 20;  // Silver
+  return 10;                    // Bronze
 }
 
-function cn(...args: (string | false | null | undefined)[]) {
-  return args.filter(Boolean).join(" ");
+const QUAL_POINTS_LEGEND = [
+  { label: "Bronze",            pts: 10  },
+  { label: "Silver",            pts: 20  },
+  { label: "Gold",              pts: 40  },
+  { label: "Elite",             pts: 80  },
+  { label: "Continental Final", pts: 120 },
+];
+const QUAL_TARGET = 400; // points needed over qualifying seasons
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function OlympicRings() {
+  const rings = [
+    { color: "#0085C7", x: 0   },
+    { color: "#F4C300", x: 28  },
+    { color: "#000000", x: 56  },
+    { color: "#009F6B", x: 84  },
+    { color: "#DF0024", x: 112 },
+  ];
+  return (
+    <svg viewBox="0 0 152 60" className="h-8 w-auto opacity-80" aria-label="Olympic rings">
+      {rings.map((r, i) => (
+        <circle
+          key={i}
+          cx={r.x + 20}
+          cy={i % 2 === 0 ? 20 : 40}
+          r={18}
+          fill="none"
+          stroke={r.color}
+          strokeWidth="5"
+        />
+      ))}
+    </svg>
+  );
 }
 
+function MedalBadge({ type }: { type: "gold" | "silver" | "bronze" }) {
+  const cfg = {
+    gold:   { bg: "bg-yellow-400/20 border-yellow-400/50", text: "text-yellow-600 dark:text-yellow-400", label: "GOLD",   emoji: "🥇" },
+    silver: { bg: "bg-slate-300/20 border-slate-400/40",   text: "text-slate-600  dark:text-slate-400",  label: "SILVER", emoji: "🥈" },
+    bronze: { bg: "bg-amber-700/15 border-amber-600/30",   text: "text-amber-700  dark:text-amber-500",  label: "BRONZE", emoji: "🥉" },
+  }[type];
+  return (
+    <div className={cn("flex flex-col items-center justify-center rounded-2xl border-2 py-6 px-4", cfg.bg)}>
+      <span className="text-5xl mb-2">{cfg.emoji}</span>
+      <span className={cn("text-xs font-black uppercase tracking-widest", cfg.text)}>{cfg.label}</span>
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
+  return (
+    <div className={cn(
+      "rounded-xl border p-4 text-center",
+      accent ? "bg-primary/5 border-primary/30" : "bg-muted/30 border-border"
+    )}>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className={cn("text-2xl font-black mt-1", accent && "text-primary")}>{value}</p>
+      {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
+    </div>
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────
 export default function WorldTourLocations() {
-  const { data: locations, isLoading: locsLoading } = useListLocations({
-    query: { queryKey: getListLocationsQueryKey() },
-  });
-  const { data: matches, isLoading: matchLoading } = useListMatches({
+  const { data: matches, isLoading } = useListMatches({
     query: { queryKey: getListMatchesQueryKey() },
   });
-
-  const isLoading = locsLoading || matchLoading;
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-24 w-full rounded-2xl" />
-        <div className="space-y-4">
-          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
+        <Skeleton className="h-48 w-full rounded-2xl" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
         </div>
+        <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
     );
   }
 
-  // Build a map: round → match status
-  const matchByRound = Object.fromEntries(
-    (matches ?? []).map((m) => [m.round, m])
-  );
+  const completed = (matches ?? []).filter(m => m.status === "completed");
+  const wins = completed.filter(m => (m.homeScore ?? 0) > (m.awayScore ?? 0));
 
-  // Completed rounds
-  const completedRounds = new Set(
-    (matches ?? []).filter((m) => m.status === "completed").map((m) => m.round)
-  );
+  // Calculate qualification points from wins by prize amount
+  const qualPoints = wins.reduce((acc, m) => acc + qualPointsForWin(m.prizeAmount), 0);
+  const qualPct = Math.min(Math.round((qualPoints / QUAL_TARGET) * 100), 100);
 
-  // Current round = lowest scheduled round
-  const currentRound = (matches ?? [])
-    .filter((m) => m.status === "scheduled")
-    .sort((a, b) => (a.round ?? 0) - (b.round ?? 0))[0]?.round ?? null;
-
-  // Build a map: locId → location record
-  const locById: Record<number, any> = Object.fromEntries(
-    (locations ?? []).map((l) => [l.id, l])
-  );
+  const nextHost = OLYMPICS_HOSTS[NEXT_OLYMPICS_YEAR];
+  const isQualifyingSeason = true; // seasons 2026 & 2027 are qualifying seasons
 
   return (
     <div className="space-y-10">
 
-      {/* ── Page header ─────────────────────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-sky-900 px-6 py-8 shadow-xl">
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}
+      {/* ── Hero banner ─────────────────────────────────────────────────── */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 px-6 py-8 shadow-xl">
+        {/* Sand texture overlay */}
+        <div className="absolute inset-0 opacity-5"
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1.5'/%3E%3Ccircle cx='23' cy='23' r='1.5'/%3E%3C/g%3E%3C/svg%3E\")" }}
         />
-        <div className="relative flex items-end justify-between">
+        <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <MapPin className="h-4 w-4 text-secondary" />
-              <span className="text-secondary text-xs font-bold uppercase tracking-widest">Beach Volley Pro</span>
+            <div className="mb-3">
+              <OlympicRings />
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-white">World Tour 2026</h1>
-            <p className="text-white/60 text-sm mt-1">11 stops across 9 countries · Grand Final in Rio</p>
+            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-1">Beach Volley Pro</div>
+            <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
+              Beach Volleyball<br />Olympics
+            </h1>
+            <p className="text-white/50 text-sm mt-2">
+              {nextHost.flag} {nextHost.city} {NEXT_OLYMPICS_YEAR} · {SEASONS_UNTIL_OLYMPICS} seasons away
+            </p>
           </div>
-          <div className="hidden md:flex flex-col items-end gap-1">
-            <span className="text-white/50 text-xs uppercase tracking-wider">Progress</span>
-            <span className="text-white font-black text-2xl">{completedRounds.size}<span className="text-white/40 font-normal text-base"> / 11</span></span>
+          <div className="flex flex-col items-start md:items-end gap-2">
+            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-xs px-3 py-1 font-bold">
+              🏅 QUALIFYING PERIOD OPEN
+            </Badge>
+            <p className="text-white/40 text-xs">Seasons 2026–2027 count</p>
           </div>
-        </div>
-        {/* progress bar */}
-        <div className="relative mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-secondary to-amber-300 transition-all duration-700"
-            style={{ width: `${(completedRounds.size / 11) * 100}%` }}
-          />
         </div>
       </div>
 
-      {/* ── Journey map ─────────────────────────────────────────────── */}
-      <div className="space-y-2">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">Tour Journey</h2>
-
-        <div className="relative">
-          {TOUR_STOPS.map((stop, idx) => {
-            const loc = locById[stop.locId];
-            const isDone    = completedRounds.has(stop.round);
-            const isCurrent = stop.round === currentRound;
-            const isLocked  = !isDone && !isCurrent;
-            const match     = matchByRound[stop.round];
-            const homeScore = match?.homeScore;
-            const awayScore = match?.awayScore;
-            const won       = isDone && (homeScore ?? 0) > (awayScore ?? 0);
-
-            return (
-              <div key={stop.round} className="relative">
-                {/* connector line down to next stop */}
-                {idx < TOUR_STOPS.length - 1 && (
-                  <div className={cn(
-                    "absolute left-[28px] top-[72px] w-0.5 h-8 z-0",
-                    isDone ? "bg-emerald-500" : isCurrent ? "bg-secondary" : "bg-border"
-                  )} />
-                )}
-
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className={cn(
-                      "relative flex items-center gap-4 p-3 rounded-2xl border transition-all cursor-pointer hover:shadow-md group",
-                      isDone && won  && "bg-emerald-500/5 border-emerald-500/30 hover:border-emerald-500/60",
-                      isDone && !won && "bg-rose-500/5 border-rose-500/20 hover:border-rose-500/40",
-                      isCurrent      && "bg-secondary/10 border-secondary/40 hover:border-secondary shadow-[0_0_16px_rgba(244,162,97,0.15)]",
-                      isLocked       && "bg-card border-border/50 opacity-60 hover:opacity-80"
-                    )}>
-
-                      {/* Round badge / status icon */}
-                      <div className={cn(
-                        "relative flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-xl font-black text-lg z-10",
-                        stop.isFinal   && "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg",
-                        !stop.isFinal && isDone && won  && "bg-emerald-500 text-white",
-                        !stop.isFinal && isDone && !won && "bg-rose-500 text-white",
-                        isCurrent      && !stop.isFinal && "bg-secondary text-white animate-pulse",
-                        isLocked       && !stop.isFinal && "bg-muted text-muted-foreground"
-                      )}>
-                        {stop.isFinal ? (
-                          <Trophy className="h-6 w-6" />
-                        ) : isDone ? (
-                          <CheckCircle2 className="h-6 w-6" />
-                        ) : isLocked ? (
-                          <Lock className="h-5 w-5" />
-                        ) : (
-                          <span>{stop.round}</span>
-                        )}
-                      </div>
-
-                      {/* Location photo thumbnail */}
-                      {loc?.imageUrl && (
-                        <div className={cn(
-                          "flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden",
-                          isLocked && "grayscale"
-                        )}>
-                          <img
-                            src={loc.imageUrl}
-                            alt={loc.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                      )}
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={cn(
-                            "font-black text-base truncate",
-                            stop.isFinal && "text-amber-500",
-                            isCurrent && !stop.isFinal && "text-secondary"
-                          )}>
-                            {stop.isFinal ? "🏆 GRAND FINAL — " : ""}{loc?.name ?? `Stop ${stop.round}`}
-                          </span>
-                          {isCurrent && <Badge className="bg-secondary text-white text-[10px] h-4 px-1.5 animate-pulse">NEXT UP</Badge>}
-                          {stop.isFinal && <Badge className="bg-amber-400/20 text-amber-600 border-amber-400/30 text-[10px] h-4">CHAMPIONSHIP</Badge>}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                          {loc?.country} · {stop.date} · vs {stop.opponent}
-                        </div>
-                      </div>
-
-                      {/* Right: score or prize */}
-                      <div className="flex-shrink-0 text-right">
-                        {isDone ? (
-                          <div className={cn("font-black text-lg", won ? "text-emerald-500" : "text-rose-500")}>
-                            {homeScore}–{awayScore}
-                            <div className="text-[10px] font-normal text-muted-foreground">{won ? "WIN" : "LOSS"}</div>
-                          </div>
-                        ) : (
-                          <div className={cn("font-bold text-sm", stop.isFinal ? "text-amber-500" : "text-muted-foreground")}>
-                            {formatPrize(stop.prize)}
-                            <div className="text-[10px] font-normal text-muted-foreground">prize</div>
-                          </div>
-                        )}
-                      </div>
-
-                      <ChevronRight className="flex-shrink-0 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                  </DialogTrigger>
-
-                  {/* Location detail dialog */}
-                  <DialogContent className="max-w-2xl p-0 overflow-hidden">
-                    {loc?.imageUrl && (
-                      <div className="relative h-52 overflow-hidden">
-                        <img src={loc.imageUrl} alt={loc.name} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                        <div className="absolute bottom-0 left-0 p-5">
-                          <p className="text-white/70 text-xs font-bold uppercase tracking-widest">{loc.country} · Round {stop.round}</p>
-                          <h2 className="text-white font-black text-2xl">{stop.isFinal ? "🏆 Grand Final — " : ""}{loc.name}</h2>
-                        </div>
-                        {isDone && (
-                          <div className={cn(
-                            "absolute top-4 right-4 px-3 py-1.5 rounded-full font-black text-sm",
-                            won ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
-                          )}>
-                            {won ? `WON ${homeScore}–${awayScore}` : `LOST ${homeScore}–${awayScore}`}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-5 space-y-4">
-                      <div className="grid grid-cols-3 gap-3">
-                        <StatBox label="Date" value={stop.date} />
-                        <StatBox label="Opponent" value={stop.opponent} small />
-                        <StatBox label="Prize" value={formatPrize(stop.prize)} highlight={stop.isFinal} />
-                      </div>
-                      {loc?.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">{loc.description}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {loc?.weatherPattern && (
-                          <Badge variant="secondary" className="gap-1">
-                            <CloudSun className="h-3 w-3" />{loc.weatherPattern}
-                          </Badge>
-                        )}
-                        {loc?.courtType && (
-                          <Badge variant="secondary" className="gap-1">
-                            <Wind className="h-3 w-3" />{loc.courtType}
-                          </Badge>
-                        )}
-                        {stop.isFinal && (
-                          <Badge className="bg-amber-400/20 text-amber-600 border-amber-400/30 gap-1">
-                            <Star className="h-3 w-3 fill-current" />Championship Stage
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            );
-          })}
-        </div>
+      {/* ── Key stats ───────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          label="Next Olympics"
+          value={String(NEXT_OLYMPICS_YEAR)}
+          sub={`${nextHost.flag} ${nextHost.city}, ${nextHost.country}`}
+          accent
+        />
+        <StatCard
+          label="Seasons Remaining"
+          value={String(SEASONS_UNTIL_OLYMPICS)}
+          sub="to qualify"
+        />
+        <StatCard
+          label="Qual. Points"
+          value={String(qualPoints)}
+          sub={`of ${QUAL_TARGET} target`}
+          accent={qualPoints >= QUAL_TARGET}
+        />
+        <StatCard
+          label="Season Wins"
+          value={String(wins.length)}
+          sub={`from ${completed.length} played`}
+        />
       </div>
 
-      {/* ── Location photo gallery ──────────────────────────────────── */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">All Venues</h2>
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {(locations ?? []).map((loc) => (
-            <div key={loc.id} className="group relative rounded-xl overflow-hidden aspect-[4/3] shadow-md cursor-pointer">
-              <img
-                src={loc.imageUrl}
-                alt={loc.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="text-white font-black text-sm leading-tight">{loc.name}</p>
-                <p className="text-white/60 text-[10px] uppercase tracking-wide">{loc.country}</p>
-              </div>
-              {/* completed overlay */}
-              {[...completedRounds].some(r => TOUR_STOPS.find(s => s.round === r && s.locId === loc.id)) && (
-                <div className="absolute top-2 right-2">
-                  <div className="bg-emerald-500 rounded-full p-1">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-white" />
-                  </div>
-                </div>
+      {/* ── Qualification progress ───────────────────────────────────────── */}
+      <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-black uppercase tracking-wide">Olympic Qualification</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Accumulate points across 2026 & 2027 World Tour seasons
+            </p>
+          </div>
+          {qualPoints >= QUAL_TARGET ? (
+            <Badge className="bg-emerald-500 text-white gap-1 px-3"><CheckCircle2 className="h-3 w-3" /> QUALIFIED</Badge>
+          ) : (
+            <Badge variant="outline" className="text-muted-foreground gap-1 px-3"><Lock className="h-3 w-3" /> In Progress</Badge>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        <div>
+          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+            <span>{qualPoints} pts earned</span>
+            <span>{QUAL_TARGET} pts needed</span>
+          </div>
+          <div className="h-3 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-700",
+                qualPct >= 100 ? "bg-emerald-500" : "bg-gradient-to-r from-blue-500 to-blue-400"
               )}
+              style={{ width: `${qualPct}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1.5">{qualPct}% of qualification target</p>
+        </div>
+
+        {/* Points legend */}
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 pt-1">
+          {QUAL_POINTS_LEGEND.map(({ label, pts }) => (
+            <div key={label} className="rounded-lg bg-muted/40 p-2 text-center">
+              <p className="text-[10px] text-muted-foreground">{label}</p>
+              <p className="text-sm font-black text-primary">+{pts}</p>
+              <p className="text-[9px] text-muted-foreground">pts/win</p>
             </div>
           ))}
         </div>
       </div>
 
-    </div>
-  );
-}
+      {/* ── Tournament format ────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
+          Tournament Format
+        </h2>
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          {STAGES.map((stage, idx) => (
+            <div key={stage.id} className={cn(
+              "flex items-center gap-4 px-5 py-4 border-b last:border-b-0 border-border",
+              stage.medal === "gold"   && "bg-yellow-400/5",
+              stage.medal === "bronze" && "bg-amber-700/5",
+            )}>
+              {/* Stage number */}
+              <div className={cn(
+                "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-black",
+                stage.medal === "gold"   ? "bg-yellow-400 text-yellow-900" :
+                stage.medal === "bronze" ? "bg-amber-600 text-white" :
+                "bg-muted text-muted-foreground"
+              )}>
+                {idx + 1}
+              </div>
 
-function StatBox({ label, value, small, highlight }: { label: string; value: string; small?: boolean; highlight?: boolean }) {
-  return (
-    <div className="rounded-xl bg-muted/40 border border-border p-3 text-center">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className={cn("font-black mt-0.5 leading-tight", small ? "text-xs" : "text-base", highlight && "text-amber-500")}>
-        {value}
-      </p>
+              {/* Info */}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm">{stage.label}</span>
+                  {stage.medal === "gold"   && <span className="text-base">🥇</span>}
+                  {stage.medal === "bronze" && <span className="text-base">🥉</span>}
+                </div>
+                <p className="text-xs text-muted-foreground">{stage.sublabel}</p>
+              </div>
+
+              {/* Locked badge */}
+              <Badge variant="outline" className="text-[10px] text-muted-foreground gap-1 flex-shrink-0">
+                <Lock className="h-2.5 w-2.5" /> {NEXT_OLYMPICS_YEAR}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Medal cabinet ───────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
+          Medal Cabinet
+        </h2>
+        <div className="grid grid-cols-3 gap-4">
+          <MedalBadge type="gold" />
+          <MedalBadge type="silver" />
+          <MedalBadge type="bronze" />
+        </div>
+        <p className="text-center text-xs text-muted-foreground pt-1">
+          No Olympic medals yet · Qualify for {NEXT_OLYMPICS_YEAR} to compete
+        </p>
+      </div>
+
+      {/* ── Participating nations ────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
+          {NEXT_OLYMPICS_YEAR} Olympic Field · Group Draw
+        </h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {GROUPS.map(group => (
+            <div key={group} className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted/40 border-b border-border">
+                <span className="text-xs font-black uppercase tracking-widest">Group {group}</span>
+              </div>
+              <div className="divide-y divide-border">
+                {OLYMPIC_NATIONS.filter(n => n.group === group).map(nation => (
+                  <div key={nation.country} className="flex items-center gap-3 px-4 py-3">
+                    <span className="text-2xl flex-shrink-0">{nation.flag}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm">{nation.country}</p>
+                      <p className="text-xs text-muted-foreground truncate">{nation.players}</p>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground font-bold">#{nation.seed}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center pt-1">
+          Draw shown for {NEXT_OLYMPICS_YEAR} · Subject to qualification results
+        </p>
+      </div>
+
+      {/* ── Past Olympics ────────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
+          Olympic History
+        </h2>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/30">
+            <span className="text-3xl">🇫🇷</span>
+            <div className="flex-1">
+              <p className="font-black text-sm">Paris 2024</p>
+              <p className="text-xs text-muted-foreground">Beach Volleyball completed · 24 nations competed</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-bold text-muted-foreground">YOUR RESULT</p>
+              <Badge variant="outline" className="text-[10px] gap-1 mt-1">
+                <Lock className="h-2.5 w-2.5" /> Pre-career
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
