@@ -1,4 +1,4 @@
-export type Tier = "Bronze" | "Silver" | "Gold" | "Elite";
+export type Tier = "Bronze" | "Silver" | "Gold" | "Elite" | "Grand Final";
 
 export interface WorldTourEvent {
   round:      number;
@@ -456,7 +456,7 @@ export const WORLD_TOUR: WorldTourEvent[] = [
     city: "Rio de Janeiro",   beachName: "Copacabana Beach",
     displayName: "World Tour Grand Final",   date: "2026-12-10",
     locId: 1,  locName: "Copacabana Beach, Rio de Janeiro",
-    opponent: "World All-Stars",     prize: 100000, tier: "Elite",
+    opponent: "World All-Stars",     prize: 100000, tier: "Grand Final",
   },
 ];
 

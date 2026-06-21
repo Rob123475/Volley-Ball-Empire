@@ -225,7 +225,7 @@ export default function Matches() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
-                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 61} played
+                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 17} played
                   </div>
                   <div className="text-sm font-bold text-primary">
                     {fixture?.filter(m => m.status === "completed" && (m.homeScore ?? 0) > (m.awayScore ?? 0)).length ?? 0}W –{" "}
@@ -235,7 +235,7 @@ export default function Matches() {
               </div>
 
               {fixture?.map((match) => {
-                const isFinal = match.round === 61;
+                const isFinal = match.tier === "Grand Final";
                 const isCompleted = match.status === "completed";
                 const isNext = match.id === nextFixtureMatchId && !isFinal;
                 const isNextFinal = match.id === nextFixtureMatchId && isFinal;
