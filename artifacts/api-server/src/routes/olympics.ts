@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { playersTable, olympicSelectionsTable } from "@workspace/db";
 import type { OlympicPlayerData } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 const router = Router();
 
@@ -84,7 +84,8 @@ function generateReserve(nationality: string, existingPlayers: typeof playersTab
 router.get("/olympics/countries", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const allPlayers = await db.select().from(playersTable);
+  const allPlayers = await db.select().from(playersTable)
+    .where(eq(playersTable.isActive, true));
 
   const byNationality = new Map<string, typeof allPlayers>();
   for (const p of allPlayers) {
