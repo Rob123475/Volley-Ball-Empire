@@ -412,10 +412,18 @@ export default function Training() {
                         {(session as any).player?.name ?? `Player #${session.playerId}`}
                         <Badge variant="outline" className="text-[9px] h-4 uppercase">{session.type}</Badge>
                       </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-3">
+                      <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap">
                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {session.durationHours}h</span>
                         <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(session.scheduledAt).toLocaleDateString()}</span>
-                        {session.coachId && <span className="flex items-center gap-1"><User className="h-3 w-3" /> Coached</span>}
+                        {session.coachId && (session as any).coach && (
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <User className="h-3 w-3" />
+                            {(session as any).coach.name}
+                            {(session as any).coach.coachSpeciality && (session as any).coach.coachSpeciality !== "General" && (
+                              <span className="text-muted-foreground font-normal">· {(session as any).coach.coachSpeciality}</span>
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

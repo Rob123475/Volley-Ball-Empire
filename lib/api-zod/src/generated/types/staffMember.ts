@@ -5,6 +5,8 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { StaffMemberCoachSpeciality } from './staffMemberCoachSpeciality';
+import type { StaffMemberPersonality } from './staffMemberPersonality';
 import type { StaffMemberRole } from './staffMemberRole';
 
 export interface StaffMember {
@@ -14,6 +16,15 @@ export interface StaffMember {
   specialty: string;
   salary: number;
   skillLevel: number;
+  age: number;
+  /** Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99). */
+  overallRating: number;
+  /** Contract duration in months. */
+  contractLength: number;
+  /** Determines which stats get a training bonus. */
+  coachSpeciality: StaffMemberCoachSpeciality;
+  /** Affects XP multiplier and morale/fatigue side-effects. */
+  personality: StaffMemberPersonality;
   /** @nullable */
   teamId: number | null;
   /** @nullable */

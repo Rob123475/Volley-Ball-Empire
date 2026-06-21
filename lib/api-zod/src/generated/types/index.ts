@@ -57,6 +57,8 @@ export * from './seasonInput';
 export * from './seasonStatus';
 export * from './staffInput';
 export * from './staffMember';
+export * from './staffMemberCoachSpeciality';
+export * from './staffMemberPersonality';
 export * from './staffMemberRole';
 export * from './team';
 export * from './teamInput';

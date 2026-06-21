@@ -1372,7 +1372,7 @@ components:
 
     StaffMember:
       type: object
-      required: [id, name, role, specialty, salary, skillLevel, teamId, createdAt]
+      required: [id, name, role, specialty, salary, skillLevel, age, overallRating, contractLength, coachSpeciality, personality, teamId, createdAt]
       properties:
         id:
           type: integer
@@ -1380,13 +1380,29 @@ components:
           type: string
         role:
           type: string
-          enum: [head_coach, assistant_coach, fitness_trainer, physio, nutritionist, scout, manager]
+          enum: [head_coach, assistant_coach, fitness_trainer, physio, nutritionist, scout, manager, physiotherapist, strength_coach]
         specialty:
           type: string
         salary:
           type: number
         skillLevel:
           type: integer
+        age:
+          type: integer
+        overallRating:
+          type: integer
+          description: "Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99)."
+        contractLength:
+          type: integer
+          description: "Contract duration in months."
+        coachSpeciality:
+          type: string
+          enum: [Technical, Athletic, Defensive, Conditioning, "Youth Development", General]
+          description: "Determines which stats get a training bonus."
+        personality:
+          type: string
+          enum: [Motivator, Demanding, "Player Friendly", Disciplinarian]
+          description: "Affects XP multiplier and morale/fatigue side-effects."
         teamId:
           type: ["integer", "null"]
         nationality:

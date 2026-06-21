@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable } from "@workspace/db";
+import type { StaffMember } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 
 const router = Router();
@@ -24,19 +25,102 @@ async function getBestMedicalSkill(teamId: number): Promise<number> {
   return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
 }
 
+// ── Coach effect calculation ───────────────────────────────────────────────
+// Exported so the training complete route can include it in the response.
+
+export type CoachEffect = {
+  coachName: string;
+  coachSpeciality: string;
+  personality: string;
+  overallRating: number;
+  specialityMultiplier: number;  // boost applied to XP for this session type
+  personalityMultiplier: number; // XP scale factor from personality
+  ratingMultiplier: number;      // scale factor from overall rating
+  totalMultiplier: number;       // product of all three
+  moraleEffect: number;          // +/- applied to player morale after session
+  extraFatigueRecovery: number;  // extra fatigue reduction (recovery sessions only)
+};
+
+/** Maps training type to the specialities that give it a bonus and by how much */
+const SPECIALITY_BONUSES: Record<string, { speciality: string; multiplier: number }[]> = {
+  serving:  [{ speciality: "Technical",         multiplier: 1.10 }],
+  blocking: [{ speciality: "Technical",         multiplier: 1.10 }],
+  strength: [{ speciality: "Athletic",          multiplier: 1.10 }],
+  agility:  [{ speciality: "Athletic",          multiplier: 1.10 }],
+  defense:  [{ speciality: "Defensive",         multiplier: 1.10 }],
+  recovery: [{ speciality: "Conditioning",      multiplier: 1.15 }],
+  teamplay: [{ speciality: "Youth Development", multiplier: 1.00 }], // handled per player age
+};
+
+const PERSONALITY_CONFIG: Record<string, { xpMultiplier: number; moraleEffect: number; extraFatigueRecovery: number }> = {
+  "Motivator":       { xpMultiplier: 1.05, moraleEffect:  2, extraFatigueRecovery: 0  },
+  "Demanding":       { xpMultiplier: 1.15, moraleEffect: -2, extraFatigueRecovery: 0  },
+  "Player Friendly": { xpMultiplier: 0.90, moraleEffect:  3, extraFatigueRecovery: 0  },
+  "Disciplinarian":  { xpMultiplier: 1.00, moraleEffect: -1, extraFatigueRecovery: 8  },
+};
+
+function computeCoachEffect(coach: StaffMember, sessionType: string, playerAge?: number): CoachEffect {
+  // Rating multiplier: 1.0 at rating 75; ±0.01 per point above/below
+  const ratingMultiplier = Math.round((1 + (coach.overallRating - 75) / 100) * 100) / 100;
+
+  // Speciality multiplier
+  const bonusEntry = (SPECIALITY_BONUSES[sessionType] ?? []).find(b => b.speciality === coach.coachSpeciality);
+  let specialityMultiplier = bonusEntry ? bonusEntry.multiplier : 1.0;
+
+  // Youth Development special case: +20% XP for players under 21
+  if (coach.coachSpeciality === "Youth Development" && playerAge !== undefined && playerAge < 21) {
+    specialityMultiplier = 1.20;
+  }
+
+  // Personality multiplier
+  const personalityConf = PERSONALITY_CONFIG[coach.personality] ?? PERSONALITY_CONFIG["Motivator"];
+
+  const totalMultiplier = Math.round(specialityMultiplier * personalityConf.xpMultiplier * ratingMultiplier * 100) / 100;
+
+  return {
+    coachName: coach.name,
+    coachSpeciality: coach.coachSpeciality,
+    personality: coach.personality,
+    overallRating: coach.overallRating,
+    specialityMultiplier,
+    personalityMultiplier: personalityConf.xpMultiplier,
+    ratingMultiplier,
+    totalMultiplier,
+    moraleEffect: personalityConf.moraleEffect,
+    extraFatigueRecovery: personalityConf.extraFatigueRecovery,
+  };
+}
+
 // ── Training XP accumulation ──────────────────────────────────────────────────
 // Each session adds XP to the player's persistent trainingPoints bank.
 // Every 100 points crossed = +1 to the targeted stat.
 // Points never reset between seasons — they carry over until retirement/draft exit.
+// Coach bonuses: speciality × personality × rating multipliers scale XP.
 const POINTS_PER_SESSION_MIN = 25;
 const POINTS_PER_SESSION_MAX = 35;
 const POINTS_THRESHOLD = 100;
 
-const applyFatigueAndStats = async (playerId: number, type: string) => {
+const applyFatigueAndStats = async (
+  playerId: number,
+  type: string,
+  coach?: StaffMember | null,
+) => {
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
   if (!player) return null;
 
-  const sessionXp = Math.floor(Math.random() * (POINTS_PER_SESSION_MAX - POINTS_PER_SESSION_MIN + 1)) + POINTS_PER_SESSION_MIN;
+  // Base XP for this session
+  const baseXp = Math.floor(Math.random() * (POINTS_PER_SESSION_MAX - POINTS_PER_SESSION_MIN + 1)) + POINTS_PER_SESSION_MIN;
+
+  // Apply coach multiplier (default 1.0 if no coach)
+  let coachEffect: CoachEffect | null = null;
+  let xpMultiplier = 1.0;
+
+  if (coach) {
+    coachEffect = computeCoachEffect(coach, type, player.age);
+    xpMultiplier = coachEffect.totalMultiplier;
+  }
+
+  const sessionXp = Math.round(baseXp * xpMultiplier);
   const prevPoints = player.trainingPoints;
   const newPoints  = prevPoints + sessionXp;
 
@@ -59,10 +143,17 @@ const applyFatigueAndStats = async (playerId: number, type: string) => {
     if (stat === "stamina") updates.stamina = Math.min(99, player.stamina + statGain);
   }
 
+  // Apply coach morale / fatigue effects
+  if (coachEffect) {
+    if (coachEffect.moraleEffect !== 0) {
+      updates.morale = Math.min(100, Math.max(0, player.morale + coachEffect.moraleEffect));
+    }
+  }
+
   if (type === "recovery") {
-    // Fatigue drops, fitness bounces back, consecutive streak resets
-    updates.fatigue = Math.max(0, player.fatigue - 25);
-    updates.fitness = Math.min(100, ((player.fitness as number) ?? 100) + 12 + Math.floor(Math.random() * 9));
+    const baseRecovery = 25 + (coachEffect?.extraFatigueRecovery ?? 0);
+    updates.fatigue  = Math.max(0, player.fatigue - baseRecovery);
+    updates.fitness  = Math.min(100, ((player.fitness as number) ?? 100) + 12 + Math.floor(Math.random() * 9));
     updates.consecutiveMatchesPlayed = 0;
 
     // Tick injury weeks down (physio skill adds a chance of an extra week's healing)
@@ -86,9 +177,11 @@ const applyFatigueAndStats = async (playerId: number, type: string) => {
     newPlayer: serializePlayer(newPlayer),
     statGains,
     xpGained: sessionXp,
+    baseXp,
     totalXp: newPoints,
     nextThreshold: (newMilestone + 1) * POINTS_THRESHOLD,
     xpToNextStat: (newMilestone + 1) * POINTS_THRESHOLD - newPoints,
+    coachEffect,
   };
 };
 
@@ -100,7 +193,12 @@ router.get("/training", async (req, res) => {
     .where(eq(trainingSessionsTable.teamId, team.id));
   const withPlayers = await Promise.all(sessions.map(async (s) => {
     const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, s.playerId) });
-    return { ...serializeSession(s), player: player ? serializePlayer(player) : null };
+    const coach  = s.coachId ? await db.query.staffTable.findFirst({ where: eq(staffTable.id, s.coachId) }) : null;
+    return {
+      ...serializeSession(s),
+      player: player ? serializePlayer(player) : null,
+      coach: coach ?? null,
+    };
   }));
   res.json(withPlayers);
 });
@@ -157,20 +255,27 @@ router.post("/training/:id/complete", async (req, res) => {
   const [updatedSession] = await db.update(trainingSessionsTable).set({ status: "completed" })
     .where(eq(trainingSessionsTable.id, id)).returning();
 
-  const result = await applyFatigueAndStats(session.playerId, session.type);
+  // Look up the assigned coach to apply coaching bonuses
+  const coach = session.coachId
+    ? await db.query.staffTable.findFirst({ where: eq(staffTable.id, session.coachId) })
+    : null;
+
+  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null);
   if (result) {
-    const { newPlayer, statGains, xpGained, totalXp, xpToNextStat } = result;
+    const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect } = result;
     res.json({
       session: { ...serializeSession(updatedSession), player: newPlayer },
       statGains,
       newStats: newPlayer,
       xpGained,
+      baseXp,
       totalXp,
       xpToNextStat,
+      coachEffect,
     });
     return;
   }
-  res.json({ session: serializeSession(updatedSession), statGains: {}, newStats: null });
+  res.json({ session: serializeSession(updatedSession), statGains: {}, newStats: null, coachEffect: null });
 });
 
 router.get("/training/plan", async (req, res) => {

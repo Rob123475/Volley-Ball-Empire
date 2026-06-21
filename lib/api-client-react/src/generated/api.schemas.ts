@@ -209,6 +209,36 @@ export const StaffMemberRole = {
   nutritionist: 'nutritionist',
   scout: 'scout',
   manager: 'manager',
+  physiotherapist: 'physiotherapist',
+  strength_coach: 'strength_coach',
+} as const;
+
+/**
+ * Determines which stats get a training bonus.
+ */
+export type StaffMemberCoachSpeciality = typeof StaffMemberCoachSpeciality[keyof typeof StaffMemberCoachSpeciality];
+
+
+export const StaffMemberCoachSpeciality = {
+  Technical: 'Technical',
+  Athletic: 'Athletic',
+  Defensive: 'Defensive',
+  Conditioning: 'Conditioning',
+  Youth_Development: 'Youth Development',
+  General: 'General',
+} as const;
+
+/**
+ * Affects XP multiplier and morale/fatigue side-effects.
+ */
+export type StaffMemberPersonality = typeof StaffMemberPersonality[keyof typeof StaffMemberPersonality];
+
+
+export const StaffMemberPersonality = {
+  Motivator: 'Motivator',
+  Demanding: 'Demanding',
+  Player_Friendly: 'Player Friendly',
+  Disciplinarian: 'Disciplinarian',
 } as const;
 
 export interface StaffMember {
@@ -218,6 +248,15 @@ export interface StaffMember {
   specialty: string;
   salary: number;
   skillLevel: number;
+  age: number;
+  /** Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99). */
+  overallRating: number;
+  /** Contract duration in months. */
+  contractLength: number;
+  /** Determines which stats get a training bonus. */
+  coachSpeciality: StaffMemberCoachSpeciality;
+  /** Affects XP multiplier and morale/fatigue side-effects. */
+  personality: StaffMemberPersonality;
   /** @nullable */
   teamId: number | null;
   /** @nullable */

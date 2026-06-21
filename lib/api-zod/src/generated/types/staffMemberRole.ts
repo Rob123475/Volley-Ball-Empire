@@ -17,4 +17,6 @@ export const StaffMemberRole = {
   nutritionist: 'nutritionist',
   scout: 'scout',
   manager: 'manager',
+  physiotherapist: 'physiotherapist',
+  strength_coach: 'strength_coach',
 } as const;

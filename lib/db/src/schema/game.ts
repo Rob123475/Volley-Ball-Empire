@@ -124,6 +124,12 @@ export const staffTable = pgTable("staff", {
   nationality: varchar("nationality", { length: 50 }),
   imageUrl: varchar("image_url", { length: 500 }),
   isAvailable: boolean("is_available").notNull().default(true),
+  // ── New coaching attributes ──────────────────────────────────────────
+  age: integer("age").notNull().default(35),
+  overallRating: integer("overall_rating").notNull().default(70),
+  contractLength: integer("contract_length").notNull().default(12),
+  coachSpeciality: varchar("coach_speciality", { length: 50 }).notNull().default("General"),
+  personality: varchar("personality", { length: 50 }).notNull().default("Motivator"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
