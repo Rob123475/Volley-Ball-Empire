@@ -1414,7 +1414,7 @@ components:
 
     Team:
       type: object
-      required: [id, userId, name, budget, reputation, wins, losses, titlesWon, locationId, createdAt]
+      required: [id, userId, name, budget, reputation, wins, losses, titlesWon, locationId, createdAt, managerRepPoints, winStreak]
       properties:
         id:
           type: integer
@@ -1440,6 +1440,12 @@ components:
           type: ["string", "null"]
           enum: ["Power Volleyball", "Fast Volleyball", "Defensive Volleyball", null]
           description: "Team-wide training philosophy; provides small XP bonuses to related programs."
+        managerRepPoints:
+          type: integer
+          description: "Manager reputation XP — used to derive level (1–5) and progress to next level"
+        winStreak:
+          type: integer
+          description: "Current consecutive-win streak"
         createdAt:
           type: string
 

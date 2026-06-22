@@ -77,7 +77,10 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
     return;
   }
 
-  await db.update(teamsTable).set({ budget: String(budget - cost) }).where(eq(teamsTable.id, team.id));
+  await db.update(teamsTable).set({
+    budget:           String(budget - cost),
+    managerRepPoints: (team.managerRepPoints ?? 0) + 5,
+  }).where(eq(teamsTable.id, team.id));
 
   const [upgraded] = await db
     .update(facilitiesTable)

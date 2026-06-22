@@ -25,5 +25,9 @@ export interface Team {
      * @nullable
      */
   trainingPhilosophy?: TeamTrainingPhilosophy;
+  /** Manager reputation XP — used to derive level (1–5) and progress to next level */
+  managerRepPoints: number;
+  /** Current consecutive-win streak */
+  winStreak: number;
   createdAt: string;
 }

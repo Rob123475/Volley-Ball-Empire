@@ -1,4 +1,4 @@
-import { useGetTrophyCabinet, getGetTrophyCabinetQueryKey, useGetHallOfFame } from "@workspace/api-client-react";
+import { useGetTrophyCabinet, getGetTrophyCabinetQueryKey, useGetHallOfFame, useGetMyTeam } from "@workspace/api-client-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -207,6 +207,7 @@ export default function TrophyCabinet() {
     query: { queryKey: getGetTrophyCabinetQueryKey() },
   });
   const { data: hofPlayers, isLoading: hofLoading } = useGetHallOfFame();
+  const { data: team } = useGetMyTeam();
 
   if (isLoading) {
     return (
@@ -262,12 +263,13 @@ export default function TrophyCabinet() {
 
       {/* ── Tabs ── */}
       <Tabs defaultValue="honours">
-        <TabsList className="w-full md:w-auto">
+        <TabsList className="w-full md:w-auto flex-wrap">
           <TabsTrigger value="honours"  className="gap-1.5"><Trophy className="h-3.5 w-3.5" /> Club Honours</TabsTrigger>
           <TabsTrigger value="olympics" className="gap-1.5"><Medal  className="h-3.5 w-3.5" /> Olympic Medals</TabsTrigger>
           <TabsTrigger value="achievements" className="gap-1.5"><Award className="h-3.5 w-3.5" /> Achievements</TabsTrigger>
           <TabsTrigger value="records"  className="gap-1.5"><Star   className="h-3.5 w-3.5" /> Records</TabsTrigger>
           <TabsTrigger value="hall-of-fame" className="gap-1.5"><Crown className="h-3.5 w-3.5" /> Hall of Fame</TabsTrigger>
+          <TabsTrigger value="manager"  className="gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Manager</TabsTrigger>
         </TabsList>
 
         {/* ── Club Honours ── */}
@@ -523,6 +525,156 @@ export default function TrophyCabinet() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* ── Manager Reputation ── */}
+        <TabsContent value="manager" className="mt-6">
+          {(() => {
+            const REP_LEVELS = [
+              { level: 1, name: "Local Coach",       min: 0,    next: 100,  colour: "text-zinc-400",   ring: "border-zinc-500",     bg: "bg-zinc-500",     desc: "Just getting started. Players and staff take a chance on you." },
+              { level: 2, name: "Regional Coach",    min: 100,  next: 300,  colour: "text-green-400",  ring: "border-green-500",    bg: "bg-green-500",    desc: "Your results are turning heads. Better signings become possible." },
+              { level: 3, name: "National Coach",    min: 300,  next: 700,  colour: "text-blue-400",   ring: "border-blue-500",     bg: "bg-blue-500",     desc: "Respected on the national circuit. Top staff want to work with you." },
+              { level: 4, name: "World Class Coach", min: 700,  next: 1500, colour: "text-purple-400", ring: "border-purple-500",   bg: "bg-purple-500",   desc: "Elite players seek you out. Premium sponsors come calling." },
+              { level: 5, name: "Legend",            min: 1500, next: null, colour: "text-yellow-400", ring: "border-yellow-400",   bg: "bg-yellow-400",   desc: "The pinnacle. Unlocks the best national team offers and sponsorships." },
+            ];
+            const EARN_WAYS = [
+              { icon: "🏆", label: "Tournament win",       pts: "+10"  },
+              { icon: "🌍", label: "Continental title",    pts: "+25"  },
+              { icon: "🎖️", label: "Grand Final title",   pts: "+50"  },
+              { icon: "🔥", label: "Win streak (3+)",      pts: "+5/win" },
+              { icon: "🏗️", label: "Facility upgrade",    pts: "+5"   },
+              { icon: "🌱", label: "Develop young player (≤22)", pts: "+5"   },
+            ];
+            const EFFECTS = [
+              { level: 1, text: "Baseline — players and staff judge you on results alone" },
+              { level: 2, text: "Better free-agent players more likely to sign" },
+              { level: 3, text: "Top-tier staff more likely to accept offers" },
+              { level: 4, text: "Premium sponsorship deals become available" },
+              { level: 5, text: "Best national team offers unlock" },
+            ];
+
+            const pts    = team?.managerRepPoints ?? 0;
+            const streak = team?.winStreak ?? 0;
+            const lvl    = REP_LEVELS.slice().reverse().find(l => pts >= l.min) ?? REP_LEVELS[0]!;
+            const pct    = lvl.next === null ? 100 : Math.round(((pts - lvl.min) / (lvl.next - lvl.min)) * 100);
+            const ptsToNext = lvl.next !== null ? lvl.next - pts : 0;
+
+            return (
+              <div className="grid gap-6 md:grid-cols-2">
+
+                {/* ── Current level card ── */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" /> Manager Reputation
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    {/* Level badge */}
+                    <div className="flex items-center gap-4">
+                      <div className={`h-16 w-16 rounded-full flex items-center justify-center border-4 shadow-md ${lvl.ring} ${lvl.bg}/20`}>
+                        <span className={`text-2xl font-black ${lvl.colour}`}>{lvl.level}</span>
+                      </div>
+                      <div>
+                        <p className={`text-lg font-bold ${lvl.colour}`}>{lvl.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{pts.toLocaleString()} reputation points</p>
+                        {streak >= 3 && (
+                          <p className="text-xs text-amber-400 mt-0.5">🔥 {streak}-win streak active</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Progress to next level */}
+                    {lvl.next !== null ? (
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>Progress to {REP_LEVELS[lvl.level]?.name}</span>
+                          <span>{pct}%</span>
+                        </div>
+                        <Progress value={pct} className="h-2" />
+                        <p className="text-xs text-muted-foreground">{ptsToNext.toLocaleString()} pts to next level</p>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-yellow-400/30 bg-yellow-400/5 px-3 py-2 text-xs text-yellow-400">
+                        ✦ Maximum level reached — you are a Legend
+                      </div>
+                    )}
+
+                    {/* Level milestones */}
+                    <div className="space-y-2 pt-1">
+                      {REP_LEVELS.map(l => {
+                        const unlocked = pts >= l.min;
+                        const current  = l.level === lvl.level;
+                        return (
+                          <div key={l.level} className={`flex items-center gap-2 text-xs ${unlocked ? l.colour : "text-muted-foreground/40"}`}>
+                            <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${unlocked ? `${l.bg}/20 border ${l.ring}` : "bg-muted/20 border border-border"}`}>
+                              {l.level}
+                            </div>
+                            <span className={current ? "font-semibold" : ""}>{l.name}</span>
+                            {current && <Badge variant="outline" className="ml-auto text-[9px] py-0">Current</Badge>}
+                            {!unlocked && <span className="ml-auto text-[10px]">{l.min.toLocaleString()} pts</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* ── Right column ── */}
+                <div className="space-y-6">
+                  {/* How to earn rep */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-primary" /> How to Earn Reputation
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {EARN_WAYS.map(w => (
+                          <div key={w.label} className="flex items-center justify-between text-sm">
+                            <span className="flex items-center gap-2">
+                              <span>{w.icon}</span>
+                              <span className="text-muted-foreground">{w.label}</span>
+                            </span>
+                            <Badge variant="outline" className="text-xs text-green-400 border-green-500/30 bg-green-500/5">
+                              {w.pts}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Rep effects */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-primary" /> Level Effects
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {EFFECTS.map(e => {
+                          const unlocked = pts >= (REP_LEVELS[e.level - 1]?.min ?? 0);
+                          const l        = REP_LEVELS[e.level - 1]!;
+                          return (
+                            <div key={e.level} className={`flex items-start gap-2 text-xs ${unlocked ? "" : "opacity-40"}`}>
+                              <div className={`h-4 w-4 rounded-full shrink-0 flex items-center justify-center text-[9px] font-bold mt-0.5 ${l.bg}/20 border ${l.ring}`}>
+                                {e.level}
+                              </div>
+                              <span className="text-muted-foreground">{e.text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+              </div>
+            );
+          })()}
         </TabsContent>
       </Tabs>
     </div>

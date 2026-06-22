@@ -238,22 +238,42 @@ export default function Dashboard() {
           />
         )}
 
-        {/* Reputation pill */}
-        <StatPill
-          gradient="bg-gradient-to-br from-pink-400 to-fuchsia-600"
-          iconBg="bg-pink-200/40"
-          icon={<Star className="h-5 w-5 text-white" />}
-          label="Reputation"
-          value={team?.reputation ?? 50}
-          sub={
-            <div className="flex items-center gap-2 mt-1">
-              <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
-                <div className="h-full bg-white/70 rounded-full transition-all" style={{ width: `${team?.reputation ?? 50}%` }} />
-              </div>
-              <span className="text-[10px] text-white/50">/ 100</span>
-            </div>
-          }
-        />
+        {/* Manager Reputation pill */}
+        {(() => {
+          const REP_LEVELS = [
+            { level: 1, name: "Local Coach",       min: 0,    next: 100  },
+            { level: 2, name: "Regional Coach",    min: 100,  next: 300  },
+            { level: 3, name: "National Coach",    min: 300,  next: 700  },
+            { level: 4, name: "World Class Coach", min: 700,  next: 1500 },
+            { level: 5, name: "Legend",            min: 1500, next: null },
+          ];
+          const pts = team?.managerRepPoints ?? 0;
+          const lvl = REP_LEVELS.slice().reverse().find(l => pts >= l.min) ?? REP_LEVELS[0]!;
+          const pct = lvl.next === null ? 100 : Math.round(((pts - lvl.min) / (lvl.next - lvl.min)) * 100);
+          const streak = team?.winStreak ?? 0;
+          return (
+            <StatPill
+              gradient="bg-gradient-to-br from-pink-400 to-fuchsia-600"
+              iconBg="bg-pink-200/40"
+              icon={<Star className="h-5 w-5 text-white" />}
+              label="Manager Rep"
+              value={<span className="text-sm font-bold leading-tight">{lvl.name}</span>}
+              sub={
+                <div className="space-y-1 mt-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+                      <div className="h-full bg-white/70 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-[10px] text-white/60">{pts}{lvl.next !== null ? `/${lvl.next}` : ""}</span>
+                  </div>
+                  {streak >= 3 && (
+                    <span className="text-[10px] text-white/70">🔥 {streak}-win streak</span>
+                  )}
+                </div>
+              }
+            />
+          );
+        })()}
       </div>
 
       {/* ── Players + Results ── */}

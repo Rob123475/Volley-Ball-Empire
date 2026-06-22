@@ -366,6 +366,12 @@ router.post("/training/:id/complete", async (req, res) => {
   const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel);
   if (result) {
     const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect, ageModifier, philosophyMultiplier, programName } = result;
+    // Young player development bonus — award manager rep when a player aged ≤22 gains a stat
+    if (Object.keys(statGains).length > 0 && (newPlayer.age ?? 99) <= 22 && team) {
+      await db.update(teamsTable)
+        .set({ managerRepPoints: (team.managerRepPoints ?? 0) + 5 })
+        .where(eq(teamsTable.id, team.id));
+    }
     res.json({
       session: { ...serializeSession(updatedSession), player: newPlayer },
       statGains,

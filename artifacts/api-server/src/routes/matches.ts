@@ -442,9 +442,17 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   if (homeWon) {
     const isChampionship = isFinal && homeWon;
+    const isContFinal    = match.tier === "Continental Final";
+    const newStreak      = (team.winStreak ?? 0) + 1;
+    // Rep gain: +10 every win, +15 for Continental Final, +40 for Grand Final, +5 if on a 3+ streak
+    const tierRepBonus   = isFinal ? 40 : isContFinal ? 15 : 0;
+    const streakRepBonus = newStreak >= 3 ? 5 : 0;
+    const repGain        = 10 + tierRepBonus + streakRepBonus;
     await db.update(teamsTable).set({
-      wins:      team.wins + 1,
-      budget:    String(Number(team.budget) + prizeEarned),
+      wins:             team.wins + 1,
+      budget:           String(Number(team.budget) + prizeEarned),
+      winStreak:        newStreak,
+      managerRepPoints: (team.managerRepPoints ?? 0) + repGain,
       ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
     }).where(eq(teamsTable.id, team.id));
     const today = new Date().toISOString().split("T")[0];
@@ -457,7 +465,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
       date:        today,
     });
   } else {
-    await db.update(teamsTable).set({ losses: team.losses + 1 }).where(eq(teamsTable.id, team.id));
+    await db.update(teamsTable).set({
+      losses:    team.losses + 1,
+      winStreak: 0,
+    }).where(eq(teamsTable.id, team.id));
   }
 
   const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp);

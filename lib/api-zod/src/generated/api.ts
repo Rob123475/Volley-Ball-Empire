@@ -517,6 +517,8 @@ export const GetMyTeamResponse = zod.object({
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
+  "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
+  "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 })
 
@@ -553,6 +555,8 @@ export const UpdateTeamResponse = zod.object({
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
+  "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
+  "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 })
 
@@ -585,6 +589,8 @@ export const GetTeamRosterResponse = zod.object({
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
+  "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
+  "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
   "starters": zod.array(zod.object({
@@ -795,6 +801,8 @@ export const SwapTeamPlayerResponse = zod.object({
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
+  "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
+  "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
   "starters": zod.array(zod.object({
@@ -1008,6 +1016,8 @@ export const SetPlayerRoleResponse = zod.object({
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
+  "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
+  "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
   "starters": zod.array(zod.object({
@@ -2200,6 +2210,8 @@ export const GetDashboardResponse = zod.object({
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
+  "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
+  "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
   "nextMatch": zod.object({
