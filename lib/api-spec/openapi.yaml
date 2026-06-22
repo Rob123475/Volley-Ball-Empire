@@ -1370,6 +1370,71 @@ paths:
         "401":
           description: Unauthorized
 
+  /youth-scouting/prospects:
+    get:
+      operationId: getYouthProspects
+      tags: [youth-scouting]
+      summary: List pending scouted prospects
+      responses:
+        "200":
+          description: Array of pending prospects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YouthProspect"
+        "401":
+          description: Unauthorized
+
+  /youth-scouting/prospects/{id}/sign:
+    post:
+      operationId: signYouthProspect
+      tags: [youth-scouting]
+      summary: Reserve a scouted prospect for signing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Prospect reserved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YouthProspect"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Prospect not found
+        "422":
+          description: Prospect no longer available
+
+  /youth-scouting/prospects/{id}/ignore:
+    post:
+      operationId: ignoreYouthProspect
+      tags: [youth-scouting]
+      summary: Dismiss a scouted prospect
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Prospect dismissed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YouthProspect"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Prospect not found
+
 components:
   schemas:
     HealthStatus:
@@ -2814,6 +2879,30 @@ components:
       properties:
         continent:
           type: string
+
+    YouthProspect:
+      type: object
+      required: [id, name, age, continent, currentRating, potentialStars, speciality, signingCost, status]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        age:
+          type: integer
+        continent:
+          type: string
+        currentRating:
+          type: integer
+        potentialStars:
+          type: string
+        speciality:
+          type: string
+        signingCost:
+          type: integer
+        status:
+          type: string
+          enum: [pending, reserved, ignored]
 
     YouthScoutingMission:
       type: object

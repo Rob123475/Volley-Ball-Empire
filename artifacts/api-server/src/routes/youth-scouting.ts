@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { teamsTable, financeTransactionsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { teamsTable, financeTransactionsTable, youthProspectsTable } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
+import { generateScoutingProspects } from "../utils/prospect-generator";
 
 const router = Router();
 
@@ -32,6 +33,20 @@ const serializeMission = (team: any) => ({
     : null,
   scoutingCost: SCOUTING_COST,
 });
+
+const serializeProspect = (p: any) => ({
+  id:            p.id,
+  name:          p.name,
+  age:           p.age,
+  continent:     p.continent,
+  currentRating: p.currentRating,
+  potentialStars: p.potentialStars,
+  speciality:    p.speciality,
+  signingCost:   p.signingCost,
+  status:        p.status,
+});
+
+// ── Mission endpoints ──────────────────────────────────────────────────────
 
 router.get("/youth-scouting", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -94,6 +109,87 @@ router.post("/youth-scouting/cancel", async (req, res) => {
     youthScoutingWeeksRemaining: 0,
   }).where(eq(teamsTable.id, team.id)).returning();
 
+  res.json(serializeMission(updated));
+});
+
+// ── Prospect endpoints ─────────────────────────────────────────────────────
+
+router.get("/youth-scouting/prospects", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const prospects = await db.select().from(youthProspectsTable).where(
+    and(eq(youthProspectsTable.teamId, team.id), eq(youthProspectsTable.status, "pending")),
+  );
+
+  res.json(prospects.map(serializeProspect));
+});
+
+router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const prospectId = parseInt(req.params.id);
+  const prospect = await db.query.youthProspectsTable.findFirst({
+    where: and(eq(youthProspectsTable.id, prospectId), eq(youthProspectsTable.teamId, team.id)),
+  });
+
+  if (!prospect) { res.status(404).json({ error: "Prospect not found" }); return; }
+  if (prospect.status !== "pending") {
+    res.status(422).json({ error: "Prospect is no longer available." });
+    return;
+  }
+
+  const [updated] = await db.update(youthProspectsTable)
+    .set({ status: "reserved" })
+    .where(eq(youthProspectsTable.id, prospectId))
+    .returning();
+
+  res.json(serializeProspect(updated));
+});
+
+router.post("/youth-scouting/prospects/:id/ignore", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const prospectId = parseInt(req.params.id);
+  const prospect = await db.query.youthProspectsTable.findFirst({
+    where: and(eq(youthProspectsTable.id, prospectId), eq(youthProspectsTable.teamId, team.id)),
+  });
+
+  if (!prospect) { res.status(404).json({ error: "Prospect not found" }); return; }
+
+  const [updated] = await db.update(youthProspectsTable)
+    .set({ status: "ignored" })
+    .where(eq(youthProspectsTable.id, prospectId))
+    .returning();
+
+  res.json(serializeProspect(updated));
+});
+
+// ── Dev helper — force-complete a mission (for testing) ───────────────────
+
+router.post("/youth-scouting/dev-complete", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  if (team.youthScoutingStatus !== "active") {
+    res.status(422).json({ error: "No active mission to complete." });
+    return;
+  }
+
+  await db.update(teamsTable).set({
+    youthScoutingStatus:         "complete",
+    youthScoutingWeeksRemaining: 0,
+  }).where(eq(teamsTable.id, team.id));
+
+  await generateScoutingProspects(team.id, team.youthScoutingContinent!);
+
+  const updated = await getTeamForUser(req.user.id);
   res.json(serializeMission(updated));
 });
 

@@ -80,6 +80,7 @@ import type {
   WageBill,
   WellbeingResult,
   WellbeingStatus,
+  YouthProspect,
   YouthScoutingMission
 } from './api.schemas';
 
@@ -5818,5 +5819,222 @@ export const useCancelYouthScouting = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getCancelYouthScoutingMutationOptions(options));
+    }
+
+export const getGetYouthProspectsUrl = () => {
+
+
+
+
+  return `/api/youth-scouting/prospects`
+}
+
+/**
+ * @summary List pending scouted prospects
+ */
+export const getYouthProspects = async ( options?: RequestInit): Promise<YouthProspect[]> => {
+
+  return customFetch<YouthProspect[]>(getGetYouthProspectsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetYouthProspectsQueryKey = () => {
+    return [
+    `/api/youth-scouting/prospects`
+    ] as const;
+    }
+
+
+export const getGetYouthProspectsQueryOptions = <TData = Awaited<ReturnType<typeof getYouthProspects>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthProspects>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetYouthProspectsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getYouthProspects>>> = ({ signal }) => getYouthProspects({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getYouthProspects>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetYouthProspectsQueryResult = NonNullable<Awaited<ReturnType<typeof getYouthProspects>>>
+export type GetYouthProspectsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List pending scouted prospects
+ */
+
+export function useGetYouthProspects<TData = Awaited<ReturnType<typeof getYouthProspects>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthProspects>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetYouthProspectsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSignYouthProspectUrl = (id: number,) => {
+
+
+
+
+  return `/api/youth-scouting/prospects/${id}/sign`
+}
+
+/**
+ * @summary Reserve a scouted prospect for signing
+ */
+export const signYouthProspect = async (id: number, options?: RequestInit): Promise<YouthProspect> => {
+
+  return customFetch<YouthProspect>(getSignYouthProspectUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getSignYouthProspectMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['signYouthProspect'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof signYouthProspect>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  signYouthProspect(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SignYouthProspectMutationResult = NonNullable<Awaited<ReturnType<typeof signYouthProspect>>>
+
+    export type SignYouthProspectMutationError = ErrorType<void>
+
+    /**
+ * @summary Reserve a scouted prospect for signing
+ */
+export const useSignYouthProspect = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof signYouthProspect>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getSignYouthProspectMutationOptions(options));
+    }
+
+export const getIgnoreYouthProspectUrl = (id: number,) => {
+
+
+
+
+  return `/api/youth-scouting/prospects/${id}/ignore`
+}
+
+/**
+ * @summary Dismiss a scouted prospect
+ */
+export const ignoreYouthProspect = async (id: number, options?: RequestInit): Promise<YouthProspect> => {
+
+  return customFetch<YouthProspect>(getIgnoreYouthProspectUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getIgnoreYouthProspectMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof ignoreYouthProspect>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof ignoreYouthProspect>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['ignoreYouthProspect'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof ignoreYouthProspect>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  ignoreYouthProspect(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IgnoreYouthProspectMutationResult = NonNullable<Awaited<ReturnType<typeof ignoreYouthProspect>>>
+
+    export type IgnoreYouthProspectMutationError = ErrorType<void>
+
+    /**
+ * @summary Dismiss a scouted prospect
+ */
+export const useIgnoreYouthProspect = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof ignoreYouthProspect>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof ignoreYouthProspect>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getIgnoreYouthProspectMutationOptions(options));
     }
 

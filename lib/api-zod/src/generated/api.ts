@@ -2705,3 +2705,60 @@ export const CancelYouthScoutingResponse = zod.object({
 })
 
 
+/**
+ * @summary List pending scouted prospects
+ */
+export const GetYouthProspectsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "age": zod.number(),
+  "continent": zod.string(),
+  "currentRating": zod.number(),
+  "potentialStars": zod.string(),
+  "speciality": zod.string(),
+  "signingCost": zod.number(),
+  "status": zod.enum(['pending', 'reserved', 'ignored'])
+})
+export const GetYouthProspectsResponse = zod.array(GetYouthProspectsResponseItem)
+
+
+/**
+ * @summary Reserve a scouted prospect for signing
+ */
+export const SignYouthProspectParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SignYouthProspectResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "age": zod.number(),
+  "continent": zod.string(),
+  "currentRating": zod.number(),
+  "potentialStars": zod.string(),
+  "speciality": zod.string(),
+  "signingCost": zod.number(),
+  "status": zod.enum(['pending', 'reserved', 'ignored'])
+})
+
+
+/**
+ * @summary Dismiss a scouted prospect
+ */
+export const IgnoreYouthProspectParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const IgnoreYouthProspectResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "age": zod.number(),
+  "continent": zod.string(),
+  "currentRating": zod.number(),
+  "potentialStars": zod.string(),
+  "speciality": zod.string(),
+  "signingCost": zod.number(),
+  "status": zod.enum(['pending', 'reserved', 'ignored'])
+})
+
+

@@ -330,3 +330,19 @@ export const seasonInjuryStatsTable = pgTable("season_injury_stats", {
 });
 
 export type SeasonInjuryStat = typeof seasonInjuryStatsTable.$inferSelect;
+
+export const youthProspectsTable = pgTable("youth_prospects", {
+  id:            serial("id").primaryKey(),
+  teamId:        integer("team_id").notNull().references(() => teamsTable.id),
+  name:          varchar("name", { length: 100 }).notNull(),
+  age:           integer("age").notNull(),
+  continent:     varchar("continent", { length: 50 }).notNull(),
+  currentRating: integer("current_rating").notNull(),
+  potentialStars: varchar("potential_stars", { length: 30 }).notNull(),
+  speciality:    varchar("speciality", { length: 50 }).notNull(),
+  signingCost:   integer("signing_cost").notNull(),
+  status:        varchar("status", { length: 20 }).notNull().default("pending"),
+  createdAt:     timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type YouthProspect = typeof youthProspectsTable.$inferSelect;

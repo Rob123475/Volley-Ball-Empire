@@ -5,6 +5,10 @@ import {
   useStartYouthScouting,
   useCancelYouthScouting,
   getGetYouthScoutingQueryKey,
+  useGetYouthProspects,
+  useSignYouthProspect,
+  useIgnoreYouthProspect,
+  getGetYouthProspectsQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +26,12 @@ import {
   CircleDashed,
   XCircle,
   DollarSign,
+  UserPlus,
+  Ban,
+  Zap,
+  Shield,
+  Wind,
+  Trophy,
 } from "lucide-react";
 
 // ── Continent data ─────────────────────────────────────────────────────────
@@ -129,13 +139,44 @@ export default function YouthAcademy() {
     query: { queryKey: getGetYouthScoutingQueryKey() },
   });
 
-  const startMutation  = useStartYouthScouting();
-  const cancelMutation = useCancelYouthScouting();
+  const startMutation   = useStartYouthScouting();
+  const cancelMutation  = useCancelYouthScouting();
+  const signMutation    = useSignYouthProspect();
+  const ignoreMutation  = useIgnoreYouthProspect();
+
+  const { data: prospects = [] } = useGetYouthProspects({
+    query: { queryKey: getGetYouthProspectsQueryKey() },
+  });
 
   const [selected, setSelected] = useState<string | null>(null);
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: getGetYouthScoutingQueryKey() });
+
+  const invalidateProspects = () =>
+    queryClient.invalidateQueries({ queryKey: getGetYouthProspectsQueryKey() });
+
+  const handleSign = (id: number, name: string) => {
+    signMutation.mutate({ id }, {
+      onSuccess: () => {
+        invalidateProspects();
+        toast({ title: "Prospect Reserved", description: `${name} has been set aside for signing.` });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? "Could not reserve prospect.";
+        toast({ title: "Error", description: msg, variant: "destructive" });
+      },
+    });
+  };
+
+  const handleIgnore = (id: number, name: string) => {
+    ignoreMutation.mutate({ id }, {
+      onSuccess: () => {
+        invalidateProspects();
+        toast({ title: "Prospect Dismissed", description: `${name} has been passed over.` });
+      },
+    });
+  };
 
   const handleStart = () => {
     if (!selected) return;
@@ -177,12 +218,14 @@ export default function YouthAcademy() {
 
   const status        = mission?.status ?? "idle";
   const isActive      = status === "active";
+  const isComplete    = status === "complete";
   const continent     = mission?.continent ?? null;
   const weeksLeft     = mission?.weeksRemaining ?? 0;
   const talentLevel   = mission?.expectedTalentLevel ?? null;
   const activeCont    = CONTINENTS.find(c => c.name === continent);
   const scoutingCost  = mission?.scoutingCost ?? 15_000;
   const costFormatted = `$${scoutingCost.toLocaleString()}`;
+  const pendingProspects = prospects.filter((p) => p.status === "pending");
 
   return (
     <div className="space-y-10">
@@ -309,6 +352,116 @@ export default function YouthAcademy() {
           </div>
         </div>
       </section>
+
+      {/* ── Scout Report — prospects panel ─────────────────────── */}
+      {isComplete && pendingProspects.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-blue-500" />
+            <h3 className="text-xl font-bold">Scout Report — {continent}</h3>
+            <Badge variant="secondary" className="text-xs ml-1">
+              {pendingProspects.length} prospect{pendingProspects.length !== 1 ? "s" : ""}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground -mt-2">
+            Your scouts found {pendingProspects.length} promising players. Sign to reserve them or ignore to pass.
+          </p>
+
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {pendingProspects.map((p) => {
+              const potColor =
+                p.potentialStars === "Generational" ? "text-purple-600 border-purple-400 bg-purple-50 dark:bg-purple-950/30" :
+                p.potentialStars === "Elite"         ? "text-blue-600 border-blue-400 bg-blue-50 dark:bg-blue-950/30" :
+                p.potentialStars === "High"          ? "text-emerald-600 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30" :
+                                                       "text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30";
+              const potStars =
+                p.potentialStars === "Generational" ? 5 :
+                p.potentialStars === "Elite"         ? 4 :
+                p.potentialStars === "High"          ? 3 : 2;
+
+              const specialityIcon =
+                p.speciality === "Power"       ? <Zap    className="h-3 w-3" /> :
+                p.speciality === "Defense"     ? <Shield className="h-3 w-3" /> :
+                p.speciality === "Serve"       ? <Wind   className="h-3 w-3" /> :
+                p.speciality === "Block"       ? <Shield className="h-3 w-3" /> :
+                p.speciality === "All-Rounder" ? <Trophy className="h-3 w-3" /> :
+                                                 <Zap    className="h-3 w-3" />;
+
+              return (
+                <div
+                  key={p.id}
+                  className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 shadow-sm"
+                >
+                  {/* Name + Age */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-bold text-sm leading-tight">{p.name}</p>
+                      <p className="text-xs text-muted-foreground">Age {p.age} · {p.continent}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Rating</div>
+                    </div>
+                  </div>
+
+                  {/* Potential + Speciality */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="outline" className={cn("text-[10px] font-bold border gap-1", potColor)}>
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={cn(
+                              "h-2 w-2",
+                              i < potStars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/25",
+                            )}
+                          />
+                        ))}
+                      </div>
+                      {p.potentialStars}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] font-medium gap-1 text-muted-foreground">
+                      {specialityIcon}
+                      {p.speciality}
+                    </Badge>
+                  </div>
+
+                  {/* Signing cost */}
+                  <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">
+                    <DollarSign className="h-3.5 w-3.5" />
+                    {p.signingCost.toLocaleString()} signing fee
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-1 border-t border-border mt-auto">
+                    <Button
+                      size="sm"
+                      className="flex-1 gap-1 text-xs h-8"
+                      onClick={() => handleSign(p.id, p.name)}
+                      disabled={signMutation.isPending || ignoreMutation.isPending}
+                      data-testid={`button-sign-prospect-${p.id}`}
+                    >
+                      <UserPlus className="h-3.5 w-3.5" />
+                      Sign Prospect
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-xs h-8 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      onClick={() => handleIgnore(p.id, p.name)}
+                      disabled={signMutation.isPending || ignoreMutation.isPending}
+                      data-testid={`button-ignore-prospect-${p.id}`}
+                    >
+                      <Ban className="h-3.5 w-3.5" />
+                      Ignore
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── Continent Selector ───────────────────────────────────── */}
       {!isActive && (

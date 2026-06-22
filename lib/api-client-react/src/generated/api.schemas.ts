@@ -1069,6 +1069,27 @@ export interface StartYouthScoutingInput {
   continent: string;
 }
 
+export type YouthProspectStatus = typeof YouthProspectStatus[keyof typeof YouthProspectStatus];
+
+
+export const YouthProspectStatus = {
+  pending: 'pending',
+  reserved: 'reserved',
+  ignored: 'ignored',
+} as const;
+
+export interface YouthProspect {
+  id: number;
+  name: string;
+  age: number;
+  continent: string;
+  currentRating: number;
+  potentialStars: string;
+  speciality: string;
+  signingCost: number;
+  status: YouthProspectStatus;
+}
+
 export type YouthScoutingMissionStatus = typeof YouthScoutingMissionStatus[keyof typeof YouthScoutingMissionStatus];
 
 

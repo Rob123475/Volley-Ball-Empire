@@ -113,5 +113,7 @@ export * from './wageBillPlayer';
 export * from './wellbeingEffect';
 export * from './wellbeingResult';
 export * from './wellbeingStatus';
+export * from './youthProspect';
+export * from './youthProspectStatus';
 export * from './youthScoutingMission';
 export * from './youthScoutingMissionStatus';

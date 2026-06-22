@@ -4,6 +4,7 @@ import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locat
 import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
+import { generateScoutingProspects } from "../utils/prospect-generator";
 
 const router = Router();
 
@@ -549,6 +550,22 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.update(wellbeingEffectsTable)
       .set({ matchesRemaining: Math.max(0, effect.matchesRemaining - 1) })
       .where(eq(wellbeingEffectsTable.id, effect.id));
+  }
+
+  // Advance youth scouting mission by one week
+  if (team.youthScoutingStatus === "active" && (team.youthScoutingWeeksRemaining ?? 0) > 0) {
+    const newWeeks = (team.youthScoutingWeeksRemaining ?? 0) - 1;
+    if (newWeeks === 0) {
+      await db.update(teamsTable).set({
+        youthScoutingStatus:         "complete",
+        youthScoutingWeeksRemaining: 0,
+      }).where(eq(teamsTable.id, team.id));
+      await generateScoutingProspects(team.id, team.youthScoutingContinent!);
+    } else {
+      await db.update(teamsTable)
+        .set({ youthScoutingWeeksRemaining: newWeeks })
+        .where(eq(teamsTable.id, team.id));
+    }
   }
 
   res.json({
