@@ -5,7 +5,8 @@ import {
   useAcceptPromoDeal,
   getGetFinanceSummaryQueryKey,
   getListFinancesQueryKey,
-  getListPromoDealsQueryKey
+  getListPromoDealsQueryKey,
+  type FinanceSummary,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -28,7 +29,9 @@ import {
   ArrowDownRight,
   Star,
   Trophy,
-  PieChart
+  PieChart,
+  CalendarDays,
+  ChevronRight,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -108,6 +111,9 @@ export default function Finances() {
           color={netPosition >= 0 ? "text-green-500" : "text-red-500"}
         />
       </div>
+
+      {/* Cashflow Forecast */}
+      <CashflowForecastCard summary={summary} isLoading={summaryLoading} />
 
       {/* Season Sponsors */}
       <div>
@@ -275,6 +281,189 @@ export default function Finances() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+/* ── Cashflow Forecast Card ──────────────────────────────────── */
+
+function CashflowForecastCard({
+  summary,
+  isLoading,
+}: {
+  summary: FinanceSummary | undefined;
+  isLoading: boolean;
+}) {
+  const currentBalance    = summary?.totalBalance    ?? 0;
+  const expectedIncome    = summary?.monthlyIncome   ?? 0;
+  const expectedExpenses  = summary?.monthlyExpenses ?? 0;
+  const projectedBalance  = currentBalance + expectedIncome - expectedExpenses;
+  const net               = expectedIncome - expectedExpenses;
+  const isPositive        = net >= 0;
+
+  return (
+    <Card className="border-primary/20 bg-primary/5">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-5 w-5 text-primary" />
+            <CardTitle className="text-base">Cashflow Forecast</CardTitle>
+          </div>
+          <span className="text-xs text-muted-foreground">Based on this month's activity</span>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <>
+            {/* Four stat blocks */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {/* Current Balance */}
+              <div className="rounded-lg border bg-card p-3 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Wallet className="h-3.5 w-3.5" />
+                  Current Balance
+                </div>
+                <p className="text-lg font-bold text-primary truncate">
+                  {formatCompact(currentBalance)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">Available now</p>
+              </div>
+
+              {/* Expected Income */}
+              <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400">
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  Expected Income
+                </div>
+                <p className="text-lg font-bold text-green-600 truncate">
+                  +{formatCompact(expectedIncome)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">Next 30 days</p>
+              </div>
+
+              {/* Expected Expenses */}
+              <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-red-700 dark:text-red-400">
+                  <TrendingDown className="h-3.5 w-3.5" />
+                  Expected Expenses
+                </div>
+                <p className="text-lg font-bold text-red-600 truncate">
+                  -{formatCompact(expectedExpenses)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">Next 30 days</p>
+              </div>
+
+              {/* Projected Balance */}
+              <div className={cn(
+                "rounded-lg border p-3 space-y-1",
+                isPositive
+                  ? "border-blue-500/20 bg-blue-500/5"
+                  : "border-orange-500/20 bg-orange-500/5"
+              )}>
+                <div className={cn(
+                  "flex items-center gap-1.5 text-xs",
+                  isPositive ? "text-blue-700 dark:text-blue-400" : "text-orange-700 dark:text-orange-400"
+                )}>
+                  <DollarSign className="h-3.5 w-3.5" />
+                  Projected Balance
+                </div>
+                <p className={cn(
+                  "text-lg font-bold truncate",
+                  isPositive ? "text-blue-600" : "text-orange-600"
+                )}>
+                  {formatCompact(projectedBalance)}
+                </p>
+                <p className={cn(
+                  "text-[10px] font-medium flex items-center gap-0.5",
+                  isPositive ? "text-green-600" : "text-red-600"
+                )}>
+                  {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                  {isPositive ? "+" : ""}{formatCompact(net)} net
+                </p>
+              </div>
+            </div>
+
+            {/* Income vs Expense bar */}
+            {(expectedIncome > 0 || expectedExpenses > 0) && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-green-500 inline-block" />
+                    Income
+                  </span>
+                  <span className="font-medium">vs</span>
+                  <span className="flex items-center gap-1">
+                    Expenses
+                    <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
+                  </span>
+                </div>
+                <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted gap-0.5">
+                  {(() => {
+                    const total = expectedIncome + expectedExpenses;
+                    const incomePct = total > 0 ? (expectedIncome / total) * 100 : 50;
+                    const expensePct = 100 - incomePct;
+                    return (
+                      <>
+                        <div className="h-full rounded-l-full bg-green-500 transition-all" style={{ width: `${incomePct}%` }} />
+                        <div className="h-full rounded-r-full bg-red-500 transition-all"   style={{ width: `${expensePct}%` }} />
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* Breakdown detail rows */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 pt-1">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Income sources</p>
+                    {[
+                      { label: "Prize Money",   value: summary?.incomeSources.prizeMoney   ?? 0 },
+                      { label: "Sponsorships",  value: summary?.incomeSources.sponsorships ?? 0 },
+                      { label: "Promo Deals",   value: summary?.incomeSources.promoDeals   ?? 0 },
+                    ].filter(r => r.value > 0).map(row => (
+                      <div key={row.label} className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                          <ChevronRight className="h-3 w-3 text-green-500" />{row.label}
+                        </span>
+                        <span className="font-semibold text-green-600">{formatCompact(row.value)}</span>
+                      </div>
+                    ))}
+                    {expectedIncome === 0 && (
+                      <p className="text-xs text-muted-foreground italic">No income this month</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Expense breakdown</p>
+                    {[
+                      { label: "Player Salaries", value: summary?.expenseBreakdown.playerSalaries ?? 0 },
+                      { label: "Staff",            value: summary?.expenseBreakdown.staffSalaries  ?? 0 },
+                      { label: "Training",         value: summary?.expenseBreakdown.trainingCosts  ?? 0 },
+                      { label: "Other",            value: summary?.expenseBreakdown.other          ?? 0 },
+                    ].filter(r => r.value > 0).map(row => (
+                      <div key={row.label} className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                          <ChevronRight className="h-3 w-3 text-red-500" />{row.label}
+                        </span>
+                        <span className="font-semibold text-red-600">{formatCompact(row.value)}</span>
+                      </div>
+                    ))}
+                    {expectedExpenses === 0 && (
+                      <p className="text-xs text-muted-foreground italic">No expenses this month</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
