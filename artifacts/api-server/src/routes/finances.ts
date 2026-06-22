@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { financeTransactionsTable, promoDealsTable, teamsTable } from "@workspace/db";
+import { financeTransactionsTable, matchesTable, promoDealsTable, teamsTable } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 
 const router = Router();
@@ -73,6 +73,44 @@ router.get("/finances/summary", async (req, res) => {
     },
     recentTransactions: txs.slice(0, 10).map(serializeTx),
   });
+});
+
+const TIER_TO_CATEGORY: Record<string, string> = {
+  Bronze:             "World Tour",
+  Silver:             "World Tour",
+  Gold:               "World Tour",
+  Elite:              "World Tour",
+  "Continental Final": "Continental Tour",
+  "Grand Final":       "World Championship",
+  Olympics:            "Olympics",
+};
+const CATEGORY_ORDER = ["Local Tour", "Continental Tour", "World Tour", "World Championship", "Olympics"];
+
+router.get("/finances/prize-money", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.json({ total: 0, breakdown: [] }); return; }
+
+  const completedMatches = await db.select().from(matchesTable)
+    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "completed")));
+
+  const wonMatches = completedMatches.filter(
+    m => (m.homeScore ?? 0) > (m.awayScore ?? 0) && m.prizeAmount && Number(m.prizeAmount) > 0
+  );
+
+  const grouped: Record<string, { amount: number; count: number }> = {};
+  for (const m of wonMatches) {
+    const cat = m.tier ? (TIER_TO_CATEGORY[m.tier] ?? "Local Tour") : "Local Tour";
+    if (!grouped[cat]) grouped[cat] = { amount: 0, count: 0 };
+    grouped[cat].amount += Number(m.prizeAmount);
+    grouped[cat].count  += 1;
+  }
+
+  const breakdown = CATEGORY_ORDER
+    .filter(cat => grouped[cat])
+    .map(cat => ({ category: cat, amount: grouped[cat].amount, matches: grouped[cat].count }));
+
+  res.json({ total: breakdown.reduce((s, b) => s + b.amount, 0), breakdown });
 });
 
 router.get("/finances/sponsor-progress", async (req, res) => {

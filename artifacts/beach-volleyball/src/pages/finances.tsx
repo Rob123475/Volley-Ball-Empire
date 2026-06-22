@@ -4,12 +4,14 @@ import {
   useListPromoDeals, 
   useAcceptPromoDeal,
   useGetSponsorProgress,
+  useGetPrizeMoneySummary,
   getGetFinanceSummaryQueryKey,
   getListFinancesQueryKey,
   getListPromoDealsQueryKey,
   getGetSponsorProgressQueryKey,
   type FinanceSummary,
   type SponsorProgress,
+  type PrizeMoneySummary,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -32,6 +34,7 @@ import {
   ArrowDownRight,
   Star,
   Trophy,
+  Medal,
   PieChart,
   CalendarDays,
   ChevronRight,
@@ -69,6 +72,7 @@ export default function Finances() {
   const { data: sponsorProgress, isLoading: progressLoading } = useGetSponsorProgress({
     query: { queryKey: getGetSponsorProgressQueryKey() }
   });
+  const { data: prizeMoneyData, isLoading: prizeMoneyLoading } = useGetPrizeMoneySummary();
 
   const acceptDealMutation = useAcceptPromoDeal();
 
@@ -121,6 +125,9 @@ export default function Finances() {
 
       {/* Cashflow Forecast */}
       <CashflowForecastCard summary={summary} isLoading={summaryLoading} />
+
+      {/* Prize Money Tracker */}
+      <PrizeMoneyTrackerCard data={prizeMoneyData} isLoading={prizeMoneyLoading} />
 
       {/* Sponsor Progress */}
       <SponsorProgressCard deals={sponsorProgress ?? []} isLoading={progressLoading} />
@@ -471,6 +478,88 @@ function CashflowForecastCard({
               </div>
             )}
           </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Prize Money Tracker Card ───────────────────────────────── */
+
+const TOUR_COLORS: Record<string, string> = {
+  "Local Tour":        "bg-slate-400",
+  "Continental Tour":  "bg-blue-500",
+  "World Tour":        "bg-violet-500",
+  "World Championship":"bg-yellow-500",
+  "Olympics":          "bg-rose-500",
+};
+
+function PrizeMoneyTrackerCard({
+  data,
+  isLoading,
+}: {
+  data: PrizeMoneySummary | undefined;
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Medal className="h-4 w-4 text-yellow-500" />
+            Prize Money Tracker
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-8 w-full" />)}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const isEmpty = !data || data.breakdown.length === 0;
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Medal className="h-4 w-4 text-yellow-500" />
+          Prize Money Tracker
+        </CardTitle>
+        <CardDescription>Season prize money earned by tour</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isEmpty ? (
+          <p className="text-sm text-muted-foreground italic">No prize money earned yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {data.breakdown.map(row => {
+              const pct = data.total > 0 ? Math.round((row.amount / data.total) * 100) : 0;
+              const barColor = TOUR_COLORS[row.category] ?? "bg-primary";
+              return (
+                <div key={row.category} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className={cn("inline-block h-2 w-2 rounded-full shrink-0", barColor)} />
+                      <span className="font-medium">{row.category}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({row.matches} {row.matches === 1 ? "win" : "wins"})
+                      </span>
+                    </div>
+                    <span className="font-semibold tabular-nums">{formatCurrency(row.amount)}</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div className={cn("h-full rounded-full", barColor)} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="mt-4 pt-3 border-t flex items-center justify-between">
+              <span className="text-sm font-semibold text-muted-foreground">Total Season Prize Money</span>
+              <span className="text-lg font-bold text-green-600">{formatCurrency(data.total)}</span>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

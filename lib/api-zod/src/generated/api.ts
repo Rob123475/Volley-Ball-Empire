@@ -2085,6 +2085,19 @@ export const GetFinanceSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get season prize money earned grouped by tour category
+ */
+export const GetPrizeMoneySummaryResponse = zod.object({
+  "total": zod.number(),
+  "breakdown": zod.array(zod.object({
+  "category": zod.string(),
+  "amount": zod.number(),
+  "matches": zod.number()
+}))
+})
+
+
+/**
  * @summary Get accepted sponsor deals with current win progress
  */
 export const GetSponsorProgressResponseItem = zod.object({

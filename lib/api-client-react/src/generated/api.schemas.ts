@@ -721,6 +721,17 @@ export interface FinanceSummary {
   recentTransactions: FinanceTransaction[];
 }
 
+export interface PrizeMoneyCategory {
+  category: string;
+  amount: number;
+  matches: number;
+}
+
+export interface PrizeMoneySummary {
+  total: number;
+  breakdown: PrizeMoneyCategory[];
+}
+
 export interface SponsorProgress {
   id: number;
   sponsor: string;

@@ -64,6 +64,8 @@ export * from './playerSwap';
 export * from './playerUpdate';
 export * from './playerWorkload';
 export * from './playerWorkloadStatus';
+export * from './prizeMoneyCategory';
+export * from './prizeMoneySummary';
 export * from './promoDeal';
 export * from './runCampInput';
 export * from './scoutingResult';

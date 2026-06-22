@@ -51,6 +51,7 @@ import type {
   PlayerSwap,
   PlayerUpdate,
   PlayerWorkload,
+  PrizeMoneySummary,
   PromoDeal,
   RunCampInput,
   ScoutingResult,
@@ -3703,6 +3704,83 @@ export function useGetFinanceSummary<TData = Awaited<ReturnType<typeof getFinanc
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetFinanceSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetPrizeMoneySummaryUrl = () => {
+
+
+
+
+  return `/api/finances/prize-money`
+}
+
+/**
+ * @summary Get season prize money earned grouped by tour category
+ */
+export const getPrizeMoneySummary = async ( options?: RequestInit): Promise<PrizeMoneySummary> => {
+
+  return customFetch<PrizeMoneySummary>(getGetPrizeMoneySummaryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPrizeMoneySummaryQueryKey = () => {
+    return [
+    `/api/finances/prize-money`
+    ] as const;
+    }
+
+
+export const getGetPrizeMoneySummaryQueryOptions = <TData = Awaited<ReturnType<typeof getPrizeMoneySummary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrizeMoneySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPrizeMoneySummaryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrizeMoneySummary>>> = ({ signal }) => getPrizeMoneySummary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrizeMoneySummary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPrizeMoneySummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getPrizeMoneySummary>>>
+export type GetPrizeMoneySummaryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get season prize money earned grouped by tour category
+ */
+
+export function useGetPrizeMoneySummary<TData = Awaited<ReturnType<typeof getPrizeMoneySummary>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrizeMoneySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPrizeMoneySummaryQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
