@@ -153,6 +153,13 @@ export default function TeamRoster() {
   };
 
   const handleRoleChange = (playerId: number, role: Role) => {
+    // Youth under-18 guard (defense-in-depth; buttons are also disabled)
+    const movingPlayer = allPlayers.find((p: any) => p.id === playerId);
+    if (movingPlayer && movingPlayer.age >= 14 && movingPlayer.age <= 17 && (role === "starter" || role === "interchange")) {
+      toast({ title: "Too Young to Promote", description: "Youth players under 18 cannot join the senior squad.", variant: "destructive" });
+      return;
+    }
+
     const limitWarnings: Record<Role, string | null> = {
       starter:     starters.length     >= 2 && !starters.find(p => p.id === playerId)     ? "Only 2 match player slots. Move another player first." : null,
       interchange: interchanges.length >= 3 && !interchanges.find(p => p.id === playerId)  ? "Only 3 interchange slots. Move another player first." : null,
@@ -165,6 +172,10 @@ export default function TeamRoster() {
       onSuccess: () => {
         invalidate();
         toast({ title: "Squad Updated", description: `Player moved to ${ROLE_CONFIG[role].label}.` });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? "Could not update squad role.";
+        toast({ title: "Squad Update Failed", description: msg, variant: "destructive" });
       },
     });
   };
@@ -252,21 +263,36 @@ export default function TeamRoster() {
           {/* ── Role swap buttons ─────────────────────────────────── */}
           <div className="pt-1 border-t border-border space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Move to</p>
+            {role === "reserve" && player.age >= 14 && player.age <= 17 && (
+              <p className="text-[10px] text-amber-600 font-semibold">
+                Under 18 — eligible for promotion at age 18.
+              </p>
+            )}
+            {role === "reserve" && player.age === 18 && (
+              <p className="text-[10px] text-emerald-600 font-semibold">
+                Age 18 — promotion eligible.
+              </p>
+            )}
             <div className="flex gap-1 flex-wrap">
               {(["starter", "interchange", "reserve"] as Role[]).filter(r => r !== role).map(r => {
                 const c = ROLE_CONFIG[r];
                 const isFull =
                   r === "starter"     && starters.length     >= 2 && !starters.find((p: any)     => p.id === player.id) ||
                   r === "interchange" && interchanges.length >= 3 && !interchanges.find((p: any)  => p.id === player.id);
+                const isYouthLocked =
+                  role === "reserve" &&
+                  player.age >= 14 && player.age <= 17 &&
+                  (r === "starter" || r === "interchange");
                 return (
                   <Button
                     key={r}
                     variant="outline"
                     size="sm"
-                    disabled={isFull || roleMutation.isPending}
+                    disabled={isFull || isYouthLocked || roleMutation.isPending}
+                    title={isYouthLocked ? "Under 18 – cannot join the senior squad yet" : undefined}
                     className={cn(
                       "flex-1 text-xs gap-1 font-semibold border-2",
-                      isFull ? "opacity-40" : cn(c.color, c.border, "hover:" + c.bg)
+                      isFull || isYouthLocked ? "opacity-40" : cn(c.color, c.border, "hover:" + c.bg)
                     )}
                     onClick={() => handleRoleChange(player.id, r)}
                     data-testid={`role-btn-${player.id}-${r}`}
