@@ -305,6 +305,9 @@ export default function MedicalCentre() {
         )}
       </section>
 
+      {/* ── Recovery Forecast ─────────────────────────────────── */}
+      <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={bestSkill} />
+
       {/* ── Squad Fitness Overview ─────────────────────────────── */}
       <section className="space-y-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -401,6 +404,115 @@ export default function MedicalCentre() {
           </Card>
         )}
       </section>
+    </div>
+  );
+}
+
+/* ── Recovery Forecast ───────────────────────────────────────── */
+
+type InjuredPlayer = {
+  id: number;
+  name: string;
+  injuryStatus: unknown;
+  injuryWeeksRemaining: unknown;
+};
+
+function RecoveryForecastPanel({
+  injuredPlayers,
+  bestSkill,
+}: {
+  injuredPlayers: InjuredPlayer[];
+  bestSkill: number;
+}) {
+  if (injuredPlayers.length === 0) {
+    return (
+      <section className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Clock className="h-5 w-5 text-primary" /> Recovery Forecast
+        </h3>
+        <Card className="border-green-500/30 bg-green-500/5">
+          <CardContent className="flex items-center gap-3 py-5">
+            <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+            <p className="text-sm text-green-700 dark:text-green-400 font-medium">No active recoveries.</p>
+          </CardContent>
+        </Card>
+      </section>
+    );
+  }
+
+  const playersWithDays = injuredPlayers.map((p) => {
+    const status = p.injuryStatus as string;
+    const weeksLeft =
+      (p.injuryWeeksRemaining as number) > 0
+        ? (p.injuryWeeksRemaining as number)
+        : recoveryWeeks(status, bestSkill);
+    return { ...p, daysLeft: weeksLeft * 7 };
+  });
+
+  const recoveredIn7  = playersWithDays.filter((p) => p.daysLeft <= 7).length;
+  const recoveredIn30 = playersWithDays.filter((p) => p.daysLeft <= 30).length;
+  const longest = playersWithDays.reduce((a, b) => (b.daysLeft > a.daysLeft ? b : a));
+
+  return (
+    <section className="space-y-4">
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <Clock className="h-5 w-5 text-primary" /> Recovery Forecast
+      </h3>
+      <Card>
+        <CardContent className="p-5 space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <ForecastStat
+              label="Players recovering"
+              value={injuredPlayers.length}
+              valueClass="text-orange-600"
+            />
+            <ForecastStat
+              label="Expected recovered in 7 days"
+              value={recoveredIn7}
+              valueClass={recoveredIn7 > 0 ? "text-green-600" : "text-muted-foreground"}
+            />
+            <ForecastStat
+              label="Expected recovered in 30 days"
+              value={recoveredIn30}
+              valueClass={recoveredIn30 > 0 ? "text-green-600" : "text-muted-foreground"}
+            />
+          </div>
+
+          <div className="border-t pt-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              Longest current injury
+            </p>
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />
+              <div>
+                <p className="font-semibold text-sm">{longest.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {longest.daysLeft === 0
+                    ? "Ready next week"
+                    : `${longest.daysLeft} day${longest.daysLeft !== 1 ? "s" : ""} remaining`}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
+  );
+}
+
+function ForecastStat({
+  label,
+  value,
+  valueClass,
+}: {
+  label: string;
+  value: number;
+  valueClass?: string;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-[11px] text-muted-foreground leading-snug">{label}</p>
+      <p className={`text-2xl font-bold ${valueClass ?? ""}`}>{value}</p>
     </div>
   );
 }
