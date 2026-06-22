@@ -399,10 +399,10 @@ export default function TeamRoster() {
         <Users className={cn("h-8 w-8 mx-auto mb-2 opacity-30", cfg.color)} />
         <p className="text-muted-foreground text-sm">
           {role === "starter"
-            ? "No match players set. Promote players from Interchange or Reserves."
+            ? "No match players set. Promote players from Interchange or Youths."
             : role === "interchange"
-            ? "No interchange players. Add from Reserves for mid-match cover."
-            : "No reserve players."}
+            ? "No interchange players. Add from Youths for mid-match cover."
+            : "No youth players."}
         </p>
       </Card>
     );
@@ -414,7 +414,7 @@ export default function TeamRoster() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight text-primary">Team Roster</h2>
         <p className="text-muted-foreground">
-          Manage match players, interchange, and reserves. All swaps work live — even during a match.
+          Manage match players, interchange, and youths. All swaps work live — even during a match.
         </p>
       </div>
 
@@ -430,7 +430,7 @@ export default function TeamRoster() {
         </div>
         <div className={cn("rounded-xl border-2 p-4 text-center", ROLE_CONFIG.reserve.border, ROLE_CONFIG.reserve.bg)}>
           <div className={cn("text-3xl font-black", ROLE_CONFIG.reserve.color)}>{reserves.length}</div>
-          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-0.5">Reserves</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-0.5">Youths</div>
         </div>
       </div>
 
@@ -464,10 +464,10 @@ export default function TeamRoster() {
         </div>
       </section>
 
-      {/* ── Reserves ─────────────────────────────────────────────── */}
+      {/* ── Youths ───────────────────────────────────────────────── */}
       <section className="space-y-4 pb-8">
         <SectionHeader
-          title="Reserves"
+          title="Youths"
           subtitle="All remaining signed players. Promote to Interchange or Match Player at any time."
           icon={Shield}
           count={reserves.length}
