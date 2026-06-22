@@ -48,6 +48,9 @@ export const teamsTable = pgTable("teams", {
   managerRepPoints: integer("manager_rep_points").notNull().default(0),
   winStreak: integer("win_streak").notNull().default(0),
   sponsorReputation: integer("sponsor_reputation").notNull().default(50),
+  youthScoutingContinent: varchar("youth_scouting_continent", { length: 50 }),
+  youthScoutingStatus: varchar("youth_scouting_status", { length: 20 }).notNull().default("idle"),
+  youthScoutingWeeksRemaining: integer("youth_scouting_weeks_remaining").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

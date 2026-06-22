@@ -63,6 +63,7 @@ import type {
   StaffInput,
   StaffMember,
   StaffWageBill,
+  StartYouthScoutingInput,
   Team,
   TeamInput,
   TeamRoster,
@@ -78,7 +79,8 @@ import type {
   UserProfileUpdate,
   WageBill,
   WellbeingResult,
-  WellbeingStatus
+  WellbeingStatus,
+  YouthScoutingMission
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -5598,5 +5600,223 @@ export const useRunWellbeingCamp = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getRunWellbeingCampMutationOptions(options));
+    }
+
+export const getGetYouthScoutingUrl = () => {
+
+
+
+
+  return `/api/youth-scouting`
+}
+
+/**
+ * @summary Get current youth scouting mission status
+ */
+export const getYouthScouting = async ( options?: RequestInit): Promise<YouthScoutingMission> => {
+
+  return customFetch<YouthScoutingMission>(getGetYouthScoutingUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetYouthScoutingQueryKey = () => {
+    return [
+    `/api/youth-scouting`
+    ] as const;
+    }
+
+
+export const getGetYouthScoutingQueryOptions = <TData = Awaited<ReturnType<typeof getYouthScouting>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthScouting>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetYouthScoutingQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getYouthScouting>>> = ({ signal }) => getYouthScouting({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getYouthScouting>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetYouthScoutingQueryResult = NonNullable<Awaited<ReturnType<typeof getYouthScouting>>>
+export type GetYouthScoutingQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current youth scouting mission status
+ */
+
+export function useGetYouthScouting<TData = Awaited<ReturnType<typeof getYouthScouting>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthScouting>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetYouthScoutingQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getStartYouthScoutingUrl = () => {
+
+
+
+
+  return `/api/youth-scouting/start`
+}
+
+/**
+ * @summary Start a youth scouting mission
+ */
+export const startYouthScouting = async (startYouthScoutingInput: StartYouthScoutingInput, options?: RequestInit): Promise<YouthScoutingMission> => {
+
+  return customFetch<YouthScoutingMission>(getStartYouthScoutingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      startYouthScoutingInput,)
+  }
+);}
+
+
+
+
+export const getStartYouthScoutingMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startYouthScouting>>, TError,{data: BodyType<StartYouthScoutingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startYouthScouting>>, TError,{data: BodyType<StartYouthScoutingInput>}, TContext> => {
+
+const mutationKey = ['startYouthScouting'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startYouthScouting>>, {data: BodyType<StartYouthScoutingInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  startYouthScouting(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartYouthScoutingMutationResult = NonNullable<Awaited<ReturnType<typeof startYouthScouting>>>
+    export type StartYouthScoutingMutationBody = BodyType<StartYouthScoutingInput>
+    export type StartYouthScoutingMutationError = ErrorType<void>
+
+    /**
+ * @summary Start a youth scouting mission
+ */
+export const useStartYouthScouting = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startYouthScouting>>, TError,{data: BodyType<StartYouthScoutingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startYouthScouting>>,
+        TError,
+        {data: BodyType<StartYouthScoutingInput>},
+        TContext
+      > => {
+      return useMutation(getStartYouthScoutingMutationOptions(options));
+    }
+
+export const getCancelYouthScoutingUrl = () => {
+
+
+
+
+  return `/api/youth-scouting/cancel`
+}
+
+/**
+ * @summary Cancel the current scouting mission
+ */
+export const cancelYouthScouting = async ( options?: RequestInit): Promise<YouthScoutingMission> => {
+
+  return customFetch<YouthScoutingMission>(getCancelYouthScoutingUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCancelYouthScoutingMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelYouthScouting>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancelYouthScouting>>, TError,void, TContext> => {
+
+const mutationKey = ['cancelYouthScouting'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelYouthScouting>>, void> = () => {
+
+
+          return  cancelYouthScouting(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CancelYouthScoutingMutationResult = NonNullable<Awaited<ReturnType<typeof cancelYouthScouting>>>
+
+    export type CancelYouthScoutingMutationError = ErrorType<void>
+
+    /**
+ * @summary Cancel the current scouting mission
+ */
+export const useCancelYouthScouting = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelYouthScouting>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof cancelYouthScouting>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCancelYouthScoutingMutationOptions(options));
     }
 

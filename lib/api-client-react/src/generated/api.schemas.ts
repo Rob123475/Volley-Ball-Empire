@@ -1065,6 +1065,26 @@ export interface SeasonInjuryStats {
   currentInjuryCount: number;
 }
 
+export interface StartYouthScoutingInput {
+  continent: string;
+}
+
+export type YouthScoutingMissionStatus = typeof YouthScoutingMissionStatus[keyof typeof YouthScoutingMissionStatus];
+
+
+export const YouthScoutingMissionStatus = {
+  idle: 'idle',
+  active: 'active',
+  complete: 'complete',
+} as const;
+
+export interface YouthScoutingMission {
+  status: YouthScoutingMissionStatus;
+  continent?: string | null;
+  weeksRemaining: number;
+  expectedTalentLevel?: string | null;
+}
+
 export type DashboardNextMatch = { [key: string]: unknown } | null;
 
 export type DashboardFinanceSummary = {

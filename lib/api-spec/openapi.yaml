@@ -9,6 +9,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: youth-scouting
+    description: Youth Academy scouting missions
   - name: auth
     description: Authentication
   - name: players
@@ -1308,6 +1310,63 @@ paths:
                 $ref: "#/components/schemas/WellbeingResult"
         "400":
           description: Invalid camp type or insufficient funds
+        "401":
+          description: Unauthorized
+
+  /youth-scouting:
+    get:
+      operationId: getYouthScouting
+      tags: [youth-scouting]
+      summary: Get current youth scouting mission status
+      responses:
+        "200":
+          description: Current scouting mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YouthScoutingMission"
+        "401":
+          description: Unauthorized
+        "404":
+          description: No team found
+
+  /youth-scouting/start:
+    post:
+      operationId: startYouthScouting
+      tags: [youth-scouting]
+      summary: Start a youth scouting mission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartYouthScoutingInput"
+      responses:
+        "201":
+          description: Mission started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YouthScoutingMission"
+        "400":
+          description: Invalid continent
+        "401":
+          description: Unauthorized
+        "422":
+          description: Mission already in progress
+
+  /youth-scouting/cancel:
+    post:
+      operationId: cancelYouthScouting
+      tags: [youth-scouting]
+      summary: Cancel the current scouting mission
+      responses:
+        "200":
+          description: Mission cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YouthScoutingMission"
         "401":
           description: Unauthorized
 
@@ -2748,6 +2807,29 @@ components:
           type: string
         currentInjuryCount:
           type: integer
+
+    StartYouthScoutingInput:
+      type: object
+      required: [continent]
+      properties:
+        continent:
+          type: string
+
+    YouthScoutingMission:
+      type: object
+      required: [status, weeksRemaining]
+      properties:
+        status:
+          type: string
+          enum: [idle, active, complete]
+        continent:
+          type: string
+          nullable: true
+        weeksRemaining:
+          type: integer
+        expectedTalentLevel:
+          type: string
+          nullable: true
 
     Dashboard:
       type: object

@@ -2673,3 +2673,33 @@ export const RunWellbeingCampResponse = zod.object({
 })
 
 
+/**
+ * @summary Get current youth scouting mission status
+ */
+export const GetYouthScoutingResponse = zod.object({
+  "status": zod.enum(['idle', 'active', 'complete']),
+  "continent": zod.string().nullish(),
+  "weeksRemaining": zod.number(),
+  "expectedTalentLevel": zod.string().nullish()
+})
+
+
+/**
+ * @summary Start a youth scouting mission
+ */
+export const StartYouthScoutingBody = zod.object({
+  "continent": zod.string()
+})
+
+
+/**
+ * @summary Cancel the current scouting mission
+ */
+export const CancelYouthScoutingResponse = zod.object({
+  "status": zod.enum(['idle', 'active', 'complete']),
+  "continent": zod.string().nullish(),
+  "weeksRemaining": zod.number(),
+  "expectedTalentLevel": zod.string().nullish()
+})
+
+
