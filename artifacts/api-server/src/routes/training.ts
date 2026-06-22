@@ -167,6 +167,8 @@ const applyFatigueAndStats = async (
   coach?: StaffMember | null,
   teamPhilosophy?: string | null,
   facilityMultiplier = 1.0,
+  psychLevel = 1,
+  medCentreLevel = 1,
 ) => {
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
   if (!player) return null;
@@ -223,8 +225,10 @@ const applyFatigueAndStats = async (
   if (program.primaryStat   && primaryGain   > 0) applyStatGain(program.primaryStat,   primaryGain);
   if (program.secondaryStat && secondaryGain > 0) applyStatGain(program.secondaryStat, secondaryGain);
 
-  // Morale (program + coach)
-  const totalMorale = program.moraleBonus + (coachEffect?.moraleEffect ?? 0);
+  // Morale (program + coach + Psychology Centre)
+  // Psychology Centre: +0 bonus at L1, +2 extra morale per session at L10
+  const psychMoraleBonus = Math.round((psychLevel - 1) * (2 / 9));
+  const totalMorale = program.moraleBonus + (coachEffect?.moraleEffect ?? 0) + psychMoraleBonus;
   if (totalMorale !== 0) {
     updates.morale = Math.min(100, Math.max(0, player.morale + totalMorale));
   }
@@ -241,7 +245,9 @@ const applyFatigueAndStats = async (
       if (weeksLeft > 0 && player.teamId) {
         const physioSkill = await getBestMedicalSkill(player.teamId);
         const extraTick   = Math.random() < physioSkill / 250 ? 1 : 0;
-        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick);
+        // Medical Centre: +0 at L1, −1 extra week per Recovery session at L10
+        const facilityReduction = (medCentreLevel - 1) * (1.0 / 9);
+        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick - facilityReduction);
         updates.injuryWeeksRemaining = newWeeks;
         if (newWeeks === 0) { updates.injuryStatus = "Healthy"; updates.isInjured = false; }
       }
@@ -349,15 +355,15 @@ router.post("/training/:id/complete", async (req, res) => {
   const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, session.teamId) });
   const teamPhilosophy = team?.trainingPhilosophy ?? null;
 
-  // Training Complex facility bonus (+0% at L1, +20% at L10)
-  const trainingFacility = await db.query.facilitiesTable.findFirst({
-    where: and(eq(facilitiesTable.teamId, session.teamId), eq(facilitiesTable.type, "training_complex")),
-  });
-  const facilityMultiplier = trainingFacility
-    ? 1 + (trainingFacility.level - 1) * (0.20 / 9)
-    : 1.0;
+  // Load all facility levels for training bonuses
+  const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, session.teamId));
+  const facilityLevels = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
 
-  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier);
+  const facilityMultiplier = 1 + ((facilityLevels.training_complex  ?? 1) - 1) * (0.20 / 9);
+  const psychLevel         = facilityLevels.psychology_centre ?? 1;
+  const medCentreLevel     = facilityLevels.medical_centre    ?? 1;
+
+  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel);
   if (result) {
     const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect, ageModifier, philosophyMultiplier, programName } = result;
     res.json({

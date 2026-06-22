@@ -937,6 +937,23 @@ paths:
                 items:
                   $ref: "#/components/schemas/DraftPlayer"
 
+  /draft/generate-class:
+    post:
+      operationId: generateDraftClass
+      tags: [draft]
+      summary: Generate a new draft class (quality influenced by Youth Academy level)
+      responses:
+        "200":
+          description: New draft class
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DraftPlayer"
+        "401":
+          description: Unauthorized
+
   /draft/pick:
     post:
       operationId: draftPick

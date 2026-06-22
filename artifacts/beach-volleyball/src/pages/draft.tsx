@@ -1,6 +1,7 @@
 import { 
   useGetDraftPool, 
-  useDraftPick, 
+  useDraftPick,
+  useGenerateDraftClass,
   getGetDraftPoolQueryKey,
   getGetTeamRosterQueryKey
 } from "@workspace/api-client-react";
@@ -8,11 +9,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Box, Zap, Shield, Target, Wind, Activity, Star } from "lucide-react";
+import { Box, Zap, Shield, Target, Wind, Activity, Star, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 
 export default function PlayerDraft() {
   const queryClient = useQueryClient();
@@ -21,7 +23,8 @@ export default function PlayerDraft() {
     query: { queryKey: getGetDraftPoolQueryKey() }
   });
 
-  const draftMutation = useDraftPick();
+  const draftMutation    = useDraftPick();
+  const generateMutation = useGenerateDraftClass();
 
   if (isLoading) {
     return <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -39,17 +42,51 @@ export default function PlayerDraft() {
     });
   };
 
+  const handleGenerate = () => {
+    generateMutation.mutate(undefined, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetDraftPoolQueryKey() });
+        toast({ title: "New Draft Class Generated!", description: "8 fresh prospects are ready — quality influenced by your Youth Academy." });
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Could not generate a new class.", variant: "destructive" });
+      }
+    });
+  };
+
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3">
-          <Box className="h-8 w-8 text-secondary" />
-          Rookie Draft Pool
-        </h2>
-        <p className="text-muted-foreground">
-          Young stars aged 20 and under. All rookies receive a 6-month contract on signing.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3">
+            <Box className="h-8 w-8 text-secondary" />
+            Rookie Draft Pool
+          </h2>
+          <p className="text-muted-foreground">
+            Young stars aged 20 and under. All rookies receive a 6-month contract on signing.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          className="shrink-0 gap-2"
+          onClick={handleGenerate}
+          disabled={generateMutation.isPending}
+          data-testid="button-generate-draft-class"
+        >
+          <RefreshCw className={`h-4 w-4 ${generateMutation.isPending ? "animate-spin" : ""}`} />
+          {generateMutation.isPending ? "Generating…" : "Generate New Class"}
+        </Button>
       </div>
+
+      <FacilityBonusBanner
+        facilityType="youth_academy"
+        facilityName="Youth Academy"
+        getBonusText={(level) => {
+          const elitePct = Math.round((0.12 + (level - 1) * (0.13 / 9)) * 100);
+          const genPct   = Math.round((0.03 + (level - 1) * (0.09 / 9)) * 100);
+          return `${elitePct}% Elite + ${genPct}% Generational prospect chance on Generate`;
+        }}
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {pool?.map((player) => {

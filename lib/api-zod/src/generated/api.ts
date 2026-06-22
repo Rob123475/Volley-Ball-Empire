@@ -2133,6 +2133,29 @@ export const GetDraftPoolResponse = zod.array(GetDraftPoolResponseItem)
 
 
 /**
+ * @summary Generate a new draft class (quality influenced by Youth Academy level)
+ */
+export const GenerateDraftClassResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "height": zod.number(),
+  "position": zod.string(),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "askingPrice": zod.number(),
+  "available": zod.boolean(),
+  "imageUrl": zod.string().nullish()
+})
+export const GenerateDraftClassResponse = zod.array(GenerateDraftClassResponseItem)
+
+
+/**
  * @summary Draft a player from the pool
  */
 export const DraftPickBody = zod.object({

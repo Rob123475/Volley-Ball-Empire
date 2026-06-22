@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "wouter";
+import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 
 const MEDICAL_ROLES = ["physio", "physiotherapist", "fitness_trainer"];
 
@@ -128,6 +129,15 @@ export default function MedicalCentre() {
           Monitor player health, manage injuries, and track recovery progress.
         </p>
       </div>
+
+      <FacilityBonusBanner
+        facilityType="medical_centre"
+        facilityName="Medical Centre"
+        getBonusText={(level) => {
+          const pct = Math.round((level - 1) * (100 / 9));
+          return `~${pct}% faster injury recovery — applies to match rest and Recovery training`;
+        }}
+      />
 
       {/* ── Medical Staff ─────────────────────────────────────── */}
       <section className="space-y-4">

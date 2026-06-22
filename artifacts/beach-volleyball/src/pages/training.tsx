@@ -59,6 +59,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 
 // ── Training Programs data ────────────────────────────────────────────────────
 
@@ -735,6 +736,12 @@ export default function Training() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <FacilityBonusBanner
+        facilityType="training_complex"
+        facilityName="Training Complex"
+        getBonusText={(level) => `+${Math.round((level - 1) * (20 / 9))}% XP gain on all training sessions`}
+      />
 
       {/* Philosophy + Plan row */}
       <div className="grid gap-4 md:grid-cols-2">

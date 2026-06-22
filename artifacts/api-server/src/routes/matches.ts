@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -109,7 +109,7 @@ async function getBestMedicalSkill(teamId: number): Promise<number> {
 }
 
 /** Returns probability (0–0.60) of a player getting injured this match. */
-function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, injuryStatus: string): number {
+function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, injuryStatus: string, sportsLabLevel = 1): number {
   let risk = 0.05;
 
   // Fatigue makes the body fragile
@@ -127,7 +127,9 @@ function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, i
   // Already hurt and still playing — 2.5× multiplier
   if (injuryStatus !== "Healthy") risk *= 2.5;
 
-  return Math.min(risk, 0.60);
+  // Sports Science Lab: reduces injury risk (0% at L1, −25% at L10)
+  const labFactor = 1 - (sportsLabLevel - 1) * (0.25 / 9);
+  return Math.min(risk * labFactor, 0.60);
 }
 
 /** Rolls the severity of a new injury (or worsening). */
@@ -158,11 +160,14 @@ type PlayerEvent = {
  *  - Bench/reserve:   fatigue ↓, fitness ↑, consecutive resets, injury weeks tick down
  * Returns events (new injuries, worsenings, recoveries) for the UI to surface.
  */
-async function applyPostMatchEffects(teamId: number, weather: string): Promise<PlayerEvent[]> {
+async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}): Promise<PlayerEvent[]> {
   const [players, physioSkill] = await Promise.all([
     db.select().from(playersTable).where(eq(playersTable.teamId, teamId)),
     getBestMedicalSkill(teamId),
   ]);
+
+  const medCentreLevel  = facilityLevels.medical_centre     ?? 1;
+  const sportsLabLevel  = facilityLevels.sports_science_lab ?? 1;
 
   const events: PlayerEvent[] = [];
   const isHot = weather === "hot";
@@ -182,7 +187,7 @@ async function applyPostMatchEffects(teamId: number, weather: string): Promise<P
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
       // Injury risk roll — higher fatigue, lower stamina, and playing hurt all raise it
-      const risk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus);
+      const risk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus, sportsLabLevel);
       if (Math.random() < risk) {
         const inj = rollInjurySeverity(prevStatus);
         updates.injuryStatus        = inj.status;
@@ -202,11 +207,13 @@ async function applyPostMatchEffects(teamId: number, weather: string): Promise<P
       updates.fitness  = Math.min(100, curFitness + 3 + Math.floor(Math.random() * 4));
       updates.consecutiveMatchesPlayed = 0;
 
-      // Injury recovery tick — physio skill adds a chance of an extra week's recovery
+      // Injury recovery tick — physio skill + Medical Centre both speed recovery
       const weeksLeft = (player.injuryWeeksRemaining as number) ?? 0;
       if (weeksLeft > 0) {
-        const extraTick   = Math.random() < physioSkill / 250 ? 1 : 0;
-        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick);
+        const extraTick        = Math.random() < physioSkill / 250 ? 1 : 0;
+        // Medical Centre: +0 at L1, −1 extra week per tick at L10
+        const facilityReduction = (medCentreLevel - 1) * (1.0 / 9);
+        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick - facilityReduction);
         updates.injuryWeeksRemaining = newWeeks;
         if (newWeeks === 0) {
           updates.injuryStatus = "Healthy";
@@ -359,6 +366,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
+  // Load all facility levels for match bonuses
+  const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id));
+  const facilityLevels: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
+
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
   const activePlayers = players.filter(p => p.isActive);
   const avgStat = activePlayers.length > 0
@@ -370,8 +381,14 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const heatPenalty = match.weather === "hot" ? 0.08 : 0;
   const weatherFactor = 1 - windPenalty - heatPenalty;
 
-  const isFinal  = match.tier === "Grand Final";
-  const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > 70 ? 2 : 1);
+  const isFinal       = match.tier === "Grand Final";
+  const isHighPressure = isFinal || match.tier === "Continental Final";
+
+  // Psychology Centre: lowers stat threshold in finals/high-pressure matches (70→61, L1→L10)
+  const psychLevel    = facilityLevels.psychology_centre ?? 1;
+  const statThreshold = isHighPressure ? Math.max(61, 70 - (psychLevel - 1)) : 70;
+
+  const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
   const awayScore = Math.floor(Math.random() * 3) + 1;
   const homeWon   = homeScore > awayScore;
 
@@ -432,7 +449,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.update(teamsTable).set({ losses: team.losses + 1 }).where(eq(teamsTable.id, team.id));
   }
 
-  const playerEvents = await applyPostMatchEffects(team.id, match.weather);
+  const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels);
 
   res.json({
     match: serializeMatch(updatedMatch),

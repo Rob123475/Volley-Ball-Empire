@@ -9,6 +9,7 @@ import type { OlympicPlayer } from "@workspace/api-client-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Lock, CheckCircle2, ChevronRight, Timer, Globe, Medal } from "lucide-react";
+import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
@@ -308,6 +309,12 @@ export default function WorldTourLocations() {
           </div>
         </div>
       </div>
+
+      <FacilityBonusBanner
+        facilityType="olympic_performance_centre"
+        facilityName="Olympic Performance Centre"
+        getBonusText={(level) => `+${Math.round((level - 1) * (20 / 9))}% national squad preparation bonus`}
+      />
 
       {/* ── Key stats ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

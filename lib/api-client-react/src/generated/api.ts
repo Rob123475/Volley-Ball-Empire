@@ -3932,6 +3932,76 @@ export function useGetDraftPool<TData = Awaited<ReturnType<typeof getDraftPool>>
 
 
 
+export const getGenerateDraftClassUrl = () => {
+
+
+
+
+  return `/api/draft/generate-class`
+}
+
+/**
+ * @summary Generate a new draft class (quality influenced by Youth Academy level)
+ */
+export const generateDraftClass = async ( options?: RequestInit): Promise<DraftPlayer[]> => {
+
+  return customFetch<DraftPlayer[]>(getGenerateDraftClassUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getGenerateDraftClassMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDraftClass>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateDraftClass>>, TError,void, TContext> => {
+
+const mutationKey = ['generateDraftClass'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDraftClass>>, void> = () => {
+
+
+          return  generateDraftClass(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateDraftClassMutationResult = NonNullable<Awaited<ReturnType<typeof generateDraftClass>>>
+
+    export type GenerateDraftClassMutationError = ErrorType<void>
+
+    /**
+ * @summary Generate a new draft class (quality influenced by Youth Academy level)
+ */
+export const useGenerateDraftClass = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDraftClass>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateDraftClass>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getGenerateDraftClassMutationOptions(options));
+    }
+
 export const getDraftPickUrl = () => {
 
 
