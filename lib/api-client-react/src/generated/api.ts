@@ -74,6 +74,7 @@ import type {
   UserProfile,
   UserProfileInput,
   UserProfileUpdate,
+  WageBill,
   WellbeingResult,
   WellbeingStatus
 } from './api.schemas';
@@ -3704,6 +3705,83 @@ export function useGetFinanceSummary<TData = Awaited<ReturnType<typeof getFinanc
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetFinanceSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetWageBillUrl = () => {
+
+
+
+
+  return `/api/finances/wage-bill`
+}
+
+/**
+ * @summary Get weekly and monthly player wage totals with per-player breakdown
+ */
+export const getWageBill = async ( options?: RequestInit): Promise<WageBill> => {
+
+  return customFetch<WageBill>(getGetWageBillUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWageBillQueryKey = () => {
+    return [
+    `/api/finances/wage-bill`
+    ] as const;
+    }
+
+
+export const getGetWageBillQueryOptions = <TData = Awaited<ReturnType<typeof getWageBill>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWageBill>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWageBillQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWageBill>>> = ({ signal }) => getWageBill({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWageBill>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWageBillQueryResult = NonNullable<Awaited<ReturnType<typeof getWageBill>>>
+export type GetWageBillQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get weekly and monthly player wage totals with per-player breakdown
+ */
+
+export function useGetWageBill<TData = Awaited<ReturnType<typeof getWageBill>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWageBill>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWageBillQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

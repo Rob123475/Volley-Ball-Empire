@@ -721,6 +721,20 @@ export interface FinanceSummary {
   recentTransactions: FinanceTransaction[];
 }
 
+export interface WageBillPlayer {
+  id: number;
+  name: string;
+  tier: string;
+  weeklySalary: number;
+}
+
+export interface WageBill {
+  weeklyWages: number;
+  monthlyWages: number;
+  playerCount: number;
+  players: WageBillPlayer[];
+}
+
 export interface PrizeMoneyCategory {
   category: string;
   amount: number;

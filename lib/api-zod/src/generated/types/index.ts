@@ -104,6 +104,8 @@ export * from './trophyRecord';
 export * from './userProfile';
 export * from './userProfileInput';
 export * from './userProfileUpdate';
+export * from './wageBill';
+export * from './wageBillPlayer';
 export * from './wellbeingEffect';
 export * from './wellbeingResult';
 export * from './wellbeingStatus';

@@ -5,6 +5,7 @@ import {
   useAcceptPromoDeal,
   useGetSponsorProgress,
   useGetPrizeMoneySummary,
+  useGetWageBill,
   getGetFinanceSummaryQueryKey,
   getListFinancesQueryKey,
   getListPromoDealsQueryKey,
@@ -12,6 +13,7 @@ import {
   type FinanceSummary,
   type SponsorProgress,
   type PrizeMoneySummary,
+  type WageBill,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -73,6 +75,7 @@ export default function Finances() {
     query: { queryKey: getGetSponsorProgressQueryKey() }
   });
   const { data: prizeMoneyData, isLoading: prizeMoneyLoading } = useGetPrizeMoneySummary();
+  const { data: wageBill, isLoading: wageBillLoading } = useGetWageBill();
 
   const acceptDealMutation = useAcceptPromoDeal();
 
@@ -125,6 +128,9 @@ export default function Finances() {
 
       {/* Financial Health Rating */}
       <FinancialHealthRatingCard summary={summary} isLoading={summaryLoading} />
+
+      {/* Player Wage Bill */}
+      <PlayerWageBillCard data={wageBill} isLoading={wageBillLoading} />
 
       {/* Cashflow Forecast */}
       <CashflowForecastCard summary={summary} isLoading={summaryLoading} />
@@ -481,6 +487,119 @@ function CashflowForecastCard({
               </div>
             )}
           </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Player Wage Bill Card ──────────────────────────────────── */
+
+const TIER_BADGE_STYLES: Record<string, string> = {
+  "Elite Player":    "bg-violet-500/10 text-violet-700 border-violet-500/20",
+  "Star Player":     "bg-yellow-500/10 text-yellow-700 border-yellow-500/20",
+  "Regular Player":  "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  "Developing Player": "bg-slate-500/10 text-slate-600 border-slate-400/20",
+  "Rookie":          "bg-muted text-muted-foreground border-border",
+};
+
+function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; isLoading: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <DollarSign className="h-4 w-4 text-red-500" />
+            Player Wages
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-4 w-2/3" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const weeklyWages  = data?.weeklyWages  ?? 0;
+  const monthlyWages = data?.monthlyWages ?? 0;
+  const players      = data?.players      ?? [];
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <DollarSign className="h-4 w-4 text-red-500" />
+            Player Wages
+          </CardTitle>
+          <Badge variant="outline" className="text-xs">{players.length} players</Badge>
+        </div>
+        <CardDescription>Live wage bill based on player ratings</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Totals */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg bg-muted/50 p-3">
+            <div className="text-xs text-muted-foreground mb-1">Weekly Wages</div>
+            <div className="text-xl font-bold text-red-600">{formatCurrency(weeklyWages)}</div>
+          </div>
+          <div className="rounded-lg bg-muted/50 p-3">
+            <div className="text-xs text-muted-foreground mb-1">Monthly Wages</div>
+            <div className="text-xl font-bold text-red-600">{formatCurrency(monthlyWages)}</div>
+          </div>
+        </div>
+
+        {/* Expand toggle */}
+        {players.length > 0 && (
+          <button
+            onClick={() => setExpanded(e => !e)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
+          >
+            <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")} />
+            {expanded ? "Hide" : "Show"} per-player breakdown
+          </button>
+        )}
+
+        {expanded && players.length > 0 && (
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/40">
+                  <th className="text-left px-3 py-2 font-medium text-muted-foreground">Player</th>
+                  <th className="text-left px-3 py-2 font-medium text-muted-foreground hidden sm:table-cell">Tier</th>
+                  <th className="text-right px-3 py-2 font-medium text-muted-foreground">Weekly</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...players]
+                  .sort((a, b) => b.weeklySalary - a.weeklySalary)
+                  .map((p, i) => (
+                    <tr key={p.id} className={cn("border-b last:border-0", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
+                      <td className="px-3 py-2 font-medium">{p.name}</td>
+                      <td className="px-3 py-2 hidden sm:table-cell">
+                        <Badge className={cn("text-xs border", TIER_BADGE_STYLES[p.tier] ?? "bg-muted")}>{p.tier}</Badge>
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-red-600 font-medium">
+                        {formatCurrency(p.weeklySalary)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t bg-muted/40">
+                  <td className="px-3 py-2 font-semibold" colSpan={2}>Total</td>
+                  <td className="px-3 py-2 text-right font-bold text-red-600 tabular-nums">{formatCurrency(weeklyWages)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+
+        {players.length === 0 && (
+          <p className="text-sm text-muted-foreground italic">No players on the roster yet.</p>
         )}
       </CardContent>
     </Card>

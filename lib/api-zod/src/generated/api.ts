@@ -2085,6 +2085,22 @@ export const GetFinanceSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get weekly and monthly player wage totals with per-player breakdown
+ */
+export const GetWageBillResponse = zod.object({
+  "weeklyWages": zod.number(),
+  "monthlyWages": zod.number(),
+  "playerCount": zod.number(),
+  "players": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "tier": zod.string(),
+  "weeklySalary": zod.number()
+}))
+})
+
+
+/**
  * @summary Get season prize money earned grouped by tour category
  */
 export const GetPrizeMoneySummaryResponse = zod.object({
