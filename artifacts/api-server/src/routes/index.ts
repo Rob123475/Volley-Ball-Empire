@@ -16,6 +16,7 @@ import draftRouter from "./draft";
 import leaderboardRouter from "./leaderboard";
 import dashboardRouter from "./dashboard";
 import olympicsRouter from "./olympics";
+import trophiesRouter from "./trophies";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use(draftRouter);
 router.use(leaderboardRouter);
 router.use(dashboardRouter);
 router.use(olympicsRouter);
+router.use(trophiesRouter);
 
 export default router;

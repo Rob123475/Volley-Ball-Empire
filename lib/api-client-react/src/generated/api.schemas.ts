@@ -820,6 +820,78 @@ export interface ScoutingResult {
   scoutRating: number;
 }
 
+export interface TrophyRecord {
+  id: number;
+  type: string;
+  name: string;
+  season?: number | null;
+  year?: number | null;
+  continent?: string | null;
+  locationName?: string | null;
+  notes?: string | null;
+}
+
+export type ClubHonoursContinentalFinalsByContinent = {[key: string]: number};
+
+export interface ClubHonours {
+  worldChampionships: TrophyRecord[];
+  continentalChampionships: TrophyRecord[];
+  continentalFinalsByContinent: ClubHonoursContinentalFinalsByContinent;
+  grandFinals: TrophyRecord[];
+  runnerUps: TrophyRecord[];
+  bronzes: TrophyRecord[];
+}
+
+export type OlympicMedalRecordHostsItem = {
+  year: number;
+  location: string;
+};
+
+export interface OlympicMedalRecord {
+  gold: number;
+  silver: number;
+  bronze: number;
+  appearances: number;
+  hosts: OlympicMedalRecordHostsItem[];
+}
+
+export type AchievementTier = typeof AchievementTier[keyof typeof AchievementTier];
+
+
+export const AchievementTier = {
+  bronze: 'bronze',
+  silver: 'silver',
+  gold: 'gold',
+  platinum: 'platinum',
+} as const;
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  tier: AchievementTier;
+  unlocked: boolean;
+  progress: number;
+  target: number;
+}
+
+export interface ManagerRecords {
+  mostTitles: number;
+  mostWins: number;
+  bestWinStreak: number;
+  mostPrizeMoney: string;
+  seasonsManaged: number;
+  olympicMedals: number;
+}
+
+export interface TrophyCabinet {
+  honours: ClubHonours;
+  olympicMedals: OlympicMedalRecord;
+  achievements: Achievement[];
+  records: ManagerRecords;
+}
+
 export interface LeaderboardEntry {
   rank: number;
   teamId: number;

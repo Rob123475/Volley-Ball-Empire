@@ -250,3 +250,18 @@ export const olympicSelectionsTable = pgTable("olympic_selections", {
 });
 
 export type OlympicSelection = typeof olympicSelectionsTable.$inferSelect;
+
+export const trophiesTable = pgTable("trophies", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").notNull().references(() => teamsTable.id),
+  type: varchar("type", { length: 50 }).notNull(),
+  name: varchar("name", { length: 200 }).notNull(),
+  season: integer("season"),
+  year: integer("year"),
+  continent: varchar("continent", { length: 100 }),
+  locationName: varchar("location_name", { length: 200 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type TrophyRecord = typeof trophiesTable.$inferSelect;

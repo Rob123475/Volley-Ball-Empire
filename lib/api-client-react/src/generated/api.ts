@@ -62,6 +62,7 @@ import type {
   TrainingPlan,
   TrainingResult,
   TrainingSession,
+  TrophyCabinet,
   UserProfile,
   UserProfileInput,
   UserProfileUpdate
@@ -4380,4 +4381,81 @@ export const useClearOlympicSelection = <TError = ErrorType<void>,
       > => {
       return useMutation(getClearOlympicSelectionMutationOptions(options));
     }
+
+export const getGetTrophyCabinetUrl = () => {
+
+
+
+
+  return `/api/trophies/cabinet`
+}
+
+/**
+ * @summary Get the manager's full trophy cabinet and career achievements
+ */
+export const getTrophyCabinet = async ( options?: RequestInit): Promise<TrophyCabinet> => {
+
+  return customFetch<TrophyCabinet>(getGetTrophyCabinetUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTrophyCabinetQueryKey = () => {
+    return [
+    `/api/trophies/cabinet`
+    ] as const;
+    }
+
+
+export const getGetTrophyCabinetQueryOptions = <TData = Awaited<ReturnType<typeof getTrophyCabinet>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTrophyCabinet>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTrophyCabinetQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTrophyCabinet>>> = ({ signal }) => getTrophyCabinet({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTrophyCabinet>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTrophyCabinetQueryResult = NonNullable<Awaited<ReturnType<typeof getTrophyCabinet>>>
+export type GetTrophyCabinetQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the manager's full trophy cabinet and career achievements
+ */
+
+export function useGetTrophyCabinet<TData = Awaited<ReturnType<typeof getTrophyCabinet>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTrophyCabinet>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTrophyCabinetQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

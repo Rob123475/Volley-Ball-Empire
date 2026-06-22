@@ -2295,3 +2295,91 @@ export const SaveOlympicSelectionResponse = zod.object({
 })
 
 
+/**
+ * @summary Get the manager's full trophy cabinet and career achievements
+ */
+export const GetTrophyCabinetResponse = zod.object({
+  "honours": zod.object({
+  "worldChampionships": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "name": zod.string(),
+  "season": zod.number().nullish(),
+  "year": zod.number().nullish(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish(),
+  "notes": zod.string().nullish()
+})),
+  "continentalChampionships": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "name": zod.string(),
+  "season": zod.number().nullish(),
+  "year": zod.number().nullish(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish(),
+  "notes": zod.string().nullish()
+})),
+  "continentalFinalsByContinent": zod.record(zod.string(), zod.number()),
+  "grandFinals": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "name": zod.string(),
+  "season": zod.number().nullish(),
+  "year": zod.number().nullish(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish(),
+  "notes": zod.string().nullish()
+})),
+  "runnerUps": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "name": zod.string(),
+  "season": zod.number().nullish(),
+  "year": zod.number().nullish(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish(),
+  "notes": zod.string().nullish()
+})),
+  "bronzes": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "name": zod.string(),
+  "season": zod.number().nullish(),
+  "year": zod.number().nullish(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish(),
+  "notes": zod.string().nullish()
+}))
+}),
+  "olympicMedals": zod.object({
+  "gold": zod.number(),
+  "silver": zod.number(),
+  "bronze": zod.number(),
+  "appearances": zod.number(),
+  "hosts": zod.array(zod.object({
+  "year": zod.number(),
+  "location": zod.string()
+}))
+}),
+  "achievements": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "icon": zod.string(),
+  "tier": zod.enum(['bronze', 'silver', 'gold', 'platinum']),
+  "unlocked": zod.boolean(),
+  "progress": zod.number(),
+  "target": zod.number()
+})),
+  "records": zod.object({
+  "mostTitles": zod.number(),
+  "mostWins": zod.number(),
+  "bestWinStreak": zod.number(),
+  "mostPrizeMoney": zod.string(),
+  "seasonsManaged": zod.number(),
+  "olympicMedals": zod.number()
+})
+})
+
+

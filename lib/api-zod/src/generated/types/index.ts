@@ -6,7 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './achievement';
+export * from './achievementTier';
 export * from './authUser';
+export * from './clubHonours';
+export * from './clubHonoursContinentalFinalsByContinent';
 export * from './contract';
 export * from './contractInput';
 export * from './contractStatus';
@@ -28,6 +32,7 @@ export * from './ladderEntry';
 export * from './leaderboardEntry';
 export * from './lineupUpdate';
 export * from './location';
+export * from './managerRecords';
 export * from './match';
 export * from './matchInput';
 export * from './matchResult';
@@ -37,6 +42,8 @@ export * from './matchResultWinner';
 export * from './matchStatus';
 export * from './matchWeather';
 export * from './olympicCountry';
+export * from './olympicMedalRecord';
+export * from './olympicMedalRecordHostsItem';
 export * from './olympicPlayer';
 export * from './olympicSelection';
 export * from './olympicSelectionInput';
@@ -82,6 +89,8 @@ export * from './trainingResultStatGains';
 export * from './trainingSession';
 export * from './trainingSessionStatus';
 export * from './trainingSessionType';
+export * from './trophyCabinet';
+export * from './trophyRecord';
 export * from './userProfile';
 export * from './userProfileInput';
 export * from './userProfileUpdate';

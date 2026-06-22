@@ -1033,6 +1033,23 @@ paths:
         "404":
           description: No selection to clear
 
+  /trophies/cabinet:
+    get:
+      operationId: getTrophyCabinet
+      tags: [trophies]
+      summary: Get the manager's full trophy cabinet and career achievements
+      responses:
+        "200":
+          description: Trophy cabinet data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrophyCabinet"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Team not found
+
 components:
   schemas:
     HealthStatus:
@@ -1964,6 +1981,176 @@ components:
           type: string
         scoutRating:
           type: integer
+
+    TrophyRecord:
+      type: object
+      required:
+        - id
+        - type
+        - name
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        name:
+          type: string
+        season:
+          type: integer
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        continent:
+          type: string
+          nullable: true
+        locationName:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    ClubHonours:
+      type: object
+      required:
+        - worldChampionships
+        - continentalChampionships
+        - continentalFinalsByContinent
+        - grandFinals
+        - runnerUps
+        - bronzes
+      properties:
+        worldChampionships:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrophyRecord"
+        continentalChampionships:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrophyRecord"
+        continentalFinalsByContinent:
+          type: object
+          additionalProperties:
+            type: integer
+        grandFinals:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrophyRecord"
+        runnerUps:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrophyRecord"
+        bronzes:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrophyRecord"
+
+    OlympicMedalRecord:
+      type: object
+      required:
+        - gold
+        - silver
+        - bronze
+        - appearances
+        - hosts
+      properties:
+        gold:
+          type: integer
+        silver:
+          type: integer
+        bronze:
+          type: integer
+        appearances:
+          type: integer
+        hosts:
+          type: array
+          items:
+            type: object
+            required:
+              - year
+              - location
+            properties:
+              year:
+                type: integer
+              location:
+                type: string
+
+    Achievement:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - icon
+        - tier
+        - unlocked
+        - progress
+        - target
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        tier:
+          type: string
+          enum:
+            - bronze
+            - silver
+            - gold
+            - platinum
+        unlocked:
+          type: boolean
+        progress:
+          type: integer
+        target:
+          type: integer
+
+    ManagerRecords:
+      type: object
+      required:
+        - mostTitles
+        - mostWins
+        - bestWinStreak
+        - mostPrizeMoney
+        - seasonsManaged
+        - olympicMedals
+      properties:
+        mostTitles:
+          type: integer
+        mostWins:
+          type: integer
+        bestWinStreak:
+          type: integer
+        mostPrizeMoney:
+          type: string
+        seasonsManaged:
+          type: integer
+        olympicMedals:
+          type: integer
+
+    TrophyCabinet:
+      type: object
+      required:
+        - honours
+        - olympicMedals
+        - achievements
+        - records
+      properties:
+        honours:
+          $ref: "#/components/schemas/ClubHonours"
+        olympicMedals:
+          $ref: "#/components/schemas/OlympicMedalRecord"
+        achievements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Achievement"
+        records:
+          $ref: "#/components/schemas/ManagerRecords"
 
     LeaderboardEntry:
       type: object
