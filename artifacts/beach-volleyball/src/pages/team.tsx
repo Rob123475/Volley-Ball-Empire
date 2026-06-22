@@ -145,6 +145,7 @@ export default function TeamRoster() {
   const retireMutation  = useRetirePlayer();
   const outfitMutation  = useUpdatePlayerOutfit();
   const roleMutation    = useSetPlayerRole();
+  const focusMutation   = useSetPlayerTrainingFocus();
 
   if (isLoading) {
     return (
@@ -227,8 +228,6 @@ export default function TeamRoster() {
     Athleticism: "text-green-600 bg-green-50 dark:bg-green-950/40",
     Leadership:  "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/40",
   };
-
-  const focusMutation = useSetPlayerTrainingFocus();
 
   const setFocus = (playerId: number, focus: string) => {
     focusMutation.mutate(
