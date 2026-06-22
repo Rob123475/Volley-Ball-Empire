@@ -113,14 +113,14 @@ export default function Finances() {
   const netPosition = (summary?.monthlyIncome || 0) - (summary?.monthlyExpenses || 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 md:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-primary">Financial Office</h2>
-        <p className="text-muted-foreground">Manage your team's budget, transactions, and sponsorships.</p>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">Financial Office</h2>
+        <p className="text-muted-foreground text-sm">Manage your team's budget, transactions, and sponsorships.</p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
         <KPICard title="Total Balance" value={formatCompact(summary?.totalBalance || 0)} icon={Wallet} />
         <KPICard title="Monthly Income" value={formatCompact(summary?.monthlyIncome || 0)} icon={TrendingUp} color="text-green-500" />
         <KPICard title="Monthly Expenses" value={formatCompact(summary?.monthlyExpenses || 0)} icon={TrendingDown} color="text-red-500" />
@@ -155,12 +155,12 @@ export default function Finances() {
 
       {/* Season Sponsors */}
       <div>
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-3">
           <Trophy className="h-5 w-5 text-yellow-500" />
-          <h3 className="text-xl font-bold">Season Sponsors</h3>
+          <h3 className="text-lg md:text-xl font-bold">Season Sponsors</h3>
           <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Choose 1</Badge>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {seasonSponsors.map((deal) => {
             const isSelected = selectedSponsorId === deal.id;
             return (
@@ -175,7 +175,7 @@ export default function Finances() {
                 )}
               >
                 {/* Image banner */}
-                <div className="relative h-36 overflow-hidden">
+                <div className="relative h-28 sm:h-36 overflow-hidden">
                   <img
                     src={deal.imageUrl ?? undefined}
                     alt={deal.sponsor}
@@ -202,7 +202,7 @@ export default function Finances() {
                     onClick={(e) => { e.stopPropagation(); handleAcceptDeal(deal.id, true); }}
                     disabled={acceptDealMutation.isPending}
                     data-testid={`button-accept-deal-${deal.id}`}
-                    className={isSelected ? "" : "opacity-0 group-hover:opacity-100 transition-opacity"}
+                    className={isSelected ? "" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity"}
                   >
                     {isSelected ? "Activate" : "Select"}
                   </Button>
@@ -218,14 +218,14 @@ export default function Finances() {
         )}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-3 md:gap-6 lg:grid-cols-2">
         {/* Income & Expenses */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle>Income & Expenses</CardTitle>
             <CardDescription>Visual breakdown of your cashflow.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <div className="space-y-4">
               <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Income Sources</h4>
               {(() => {
@@ -302,20 +302,21 @@ export default function Finances() {
 
       {/* Transaction History */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle>Transaction History</CardTitle>
           <CardDescription>Complete log of your team's financial movements.</CardDescription>
         </CardHeader>
         <CardContent className={transactions && transactions.length > 0 ? "p-0" : "p-6"}>
           {transactions && transactions.length > 0 ? (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
+                  <TableHead className="whitespace-nowrap">Date</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Category</TableHead>
+                  <TableHead className="hidden sm:table-cell">Category</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -329,15 +330,16 @@ export default function Finances() {
                         <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1"><ArrowDownRight className="h-3 w-3" /> EXPENSE</Badge>
                       )}
                     </TableCell>
-                    <TableCell><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
-                    <TableCell className="font-medium">{t.description}</TableCell>
-                    <TableCell className={cn("text-right font-bold", t.type === "income" ? "text-green-600" : "text-red-600")}>
+                    <TableCell className="hidden sm:table-cell"><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
+                    <TableCell className="font-medium max-w-[140px] truncate">{t.description}</TableCell>
+                    <TableCell className={cn("text-right font-bold whitespace-nowrap tabular-nums", t.type === "income" ? "text-green-600" : "text-red-600")}>
                       {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground italic">No transactions recorded yet.</p>
           )}
@@ -581,11 +583,11 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-muted/50 p-3">
             <div className="text-xs text-muted-foreground mb-1">Weekly Wages</div>
-            <div className="text-xl font-bold text-red-600">{formatCurrency(weeklyWages)}</div>
+            <div className="text-base sm:text-xl font-bold text-red-600 truncate">{formatCurrency(weeklyWages)}</div>
           </div>
           <div className="rounded-lg bg-muted/50 p-3">
             <div className="text-xs text-muted-foreground mb-1">Monthly Wages</div>
-            <div className="text-xl font-bold text-red-600">{formatCurrency(monthlyWages)}</div>
+            <div className="text-base sm:text-xl font-bold text-red-600 truncate">{formatCurrency(monthlyWages)}</div>
           </div>
         </div>
 
@@ -811,11 +813,11 @@ function StaffWageBillCard({ data, isLoading }: { data: StaffWageBill | undefine
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-muted/50 p-3">
                 <div className="text-xs text-muted-foreground mb-1">Weekly Wages</div>
-                <div className="text-xl font-bold text-orange-600">{formatCurrency(weeklyWages)}</div>
+                <div className="text-base sm:text-xl font-bold text-orange-600 truncate">{formatCurrency(weeklyWages)}</div>
               </div>
               <div className="rounded-lg bg-muted/50 p-3">
                 <div className="text-xs text-muted-foreground mb-1">Monthly Wages</div>
-                <div className="text-xl font-bold text-orange-600">{formatCurrency(monthlyWages)}</div>
+                <div className="text-base sm:text-xl font-bold text-orange-600 truncate">{formatCurrency(monthlyWages)}</div>
               </div>
             </div>
 
