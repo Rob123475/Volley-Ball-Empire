@@ -177,14 +177,16 @@ export default function MedicalCentre() {
           <StaffSlot
             member={physio}
             roleLabel="Physiotherapist"
-            emptyDescription="No physiotherapist hired. Injured players recover slower without one."
+            statLabel="Recovery Bonus"
             accentFrom="from-green-700/80"
+            totalPlayers={allPlayers.length}
           />
           <StaffSlot
             member={fitnessTrainer}
             roleLabel="Fitness Trainer"
-            emptyDescription="No fitness trainer hired. Player fitness declines faster without one."
+            statLabel="Fatigue Reduction"
             accentFrom="from-blue-700/80"
+            totalPlayers={allPlayers.length}
           />
         </div>
 
@@ -1076,13 +1078,15 @@ function Stat({
 function StaffSlot({
   member,
   roleLabel,
-  emptyDescription,
+  statLabel,
   accentFrom,
+  totalPlayers,
 }: {
   member: StaffRow | undefined;
   roleLabel: string;
-  emptyDescription: string;
+  statLabel: string;
   accentFrom: string;
+  totalPlayers: number;
 }) {
   if (!member) {
     return (
@@ -1090,8 +1094,8 @@ function StaffSlot({
         <CardContent className="flex flex-col items-center justify-center py-10 gap-3 text-center">
           <UserCog className="h-10 w-10 text-muted-foreground/40" />
           <div>
-            <p className="font-semibold text-muted-foreground">{roleLabel} — Not Hired</p>
-            <p className="text-sm text-muted-foreground/70 max-w-xs mt-1">{emptyDescription}</p>
+            <p className="font-semibold text-muted-foreground">{roleLabel}</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">Not currently employed</p>
           </div>
           <Link href="/staff">
             <Button variant="outline" size="sm" className="gap-1.5 mt-1">
@@ -1130,22 +1134,20 @@ function StaffSlot({
           <p className="text-xs text-white/70">{member.specialty}</p>
         </div>
       </div>
-      <CardContent className="p-4 space-y-3">
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs font-medium">
-            <span>Skill Level</span>
-            <span>{member.skillLevel}%</span>
+      <CardContent className="p-5">
+        <div className="grid grid-cols-3 divide-x text-center">
+          <div className="flex flex-col items-center gap-0.5 pr-3">
+            <span className="text-2xl font-bold">{member.skillLevel}</span>
+            <span className="text-xs text-muted-foreground">Level</span>
           </div>
-          <MiniProgress value={member.skillLevel} colorClass="bg-primary" />
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-1.5 text-green-600 font-semibold">
-            <Clock className="h-4 w-4" />
-            <span>Cuts recovery by {bonus}%</span>
+          <div className="flex flex-col items-center gap-0.5 px-3">
+            <span className="text-2xl font-bold text-green-600">{bonus}%</span>
+            <span className="text-xs text-muted-foreground text-center leading-tight">{statLabel}</span>
           </div>
-          <span className="text-muted-foreground text-xs">
-            ${Number(member.salary).toLocaleString()}/mo
-          </span>
+          <div className="flex flex-col items-center gap-0.5 pl-3">
+            <span className="text-2xl font-bold">{totalPlayers}</span>
+            <span className="text-xs text-muted-foreground">Players Assigned</span>
+          </div>
         </div>
       </CardContent>
     </Card>
