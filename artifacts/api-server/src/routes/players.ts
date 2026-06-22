@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { playersTable, teamsTable, staffTable, trophiesTable } from "@workspace/db";
+import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable } from "@workspace/db";
 import { eq, isNull, and } from "drizzle-orm";
 
 const router = Router();
@@ -120,7 +120,25 @@ router.patch("/players/:id/outfit", async (req, res) => {
 router.post("/players/:id/release", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
+
+  // Fetch before clearing so we can capture teamId and age for the transaction log
+  const before = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+
   const [player] = await db.update(playersTable).set({ teamId: null, contractEndDate: null }).where(eq(playersTable.id, id)).returning();
+
+  // Record a Youth Academy release transaction so it appears in Transaction History
+  if (before?.teamId && before.age >= 14 && before.age <= 18) {
+    const today = new Date().toISOString().split("T")[0];
+    await db.insert(financeTransactionsTable).values({
+      teamId:      before.teamId,
+      type:        "expense",
+      amount:      "0",
+      description: `${before.name} released from Youth Academy`,
+      category:    "other",
+      date:        today,
+    });
+  }
+
   res.json(serializePlayer(player));
 });
 

@@ -356,7 +356,11 @@ export default function TeamRoster() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Release {player.name}?</AlertDialogTitle>
-                  <AlertDialogDescription>This will terminate their contract immediately.</AlertDialogDescription>
+                  <AlertDialogDescription>
+                    {role === "reserve"
+                      ? "Are you sure you want to release this player? They will be removed from the Youth Academy and free one slot. No transfer fee is received."
+                      : "This will terminate their contract immediately."}
+                  </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
