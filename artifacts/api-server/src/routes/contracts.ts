@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte, lte } from "drizzle-orm";
 
 const router = Router();
 
@@ -34,6 +34,23 @@ router.post("/contracts", async (req, res) => {
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { playerId, salary, endDate, bonusPerWin } = req.body;
+
+  // Youth academy capacity check (max 6 players aged 14–18)
+  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, Number(playerId)) });
+  if (player && player.age >= 14 && player.age <= 18) {
+    const existingYouths = await db.select()
+      .from(playersTable)
+      .where(and(
+        eq(playersTable.teamId, team.id),
+        gte(playersTable.age, 14),
+        lte(playersTable.age, 18),
+        eq(playersTable.isRetired, false),
+      ));
+    if (existingYouths.length >= 6) {
+      res.status(422).json({ error: "Youth Academy is full (6/6). Promote, draft, sell, or release a youth player before signing another." });
+      return;
+    }
+  }
 
   const today = new Date().toISOString().split("T")[0];
   const maxEnd = new Date();

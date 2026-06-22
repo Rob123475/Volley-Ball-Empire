@@ -90,6 +90,15 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     return;
   }
 
+  // Youth players (age 14–18) may not be promoted to starter or interchange
+  if (role === "starter" || role === "interchange") {
+    const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+    if (player && player.age >= 14 && player.age <= 18) {
+      res.status(422).json({ error: "Youth players (age 14–18) cannot occupy Match Player or Interchange slots." });
+      return;
+    }
+  }
+
   // Derive isActive from role for backward-compat with match simulation
   const isActive = role !== "reserve";
 

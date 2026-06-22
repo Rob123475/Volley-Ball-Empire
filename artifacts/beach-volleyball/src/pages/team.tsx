@@ -124,6 +124,11 @@ export default function TeamRoster() {
   const reserves     = roster?.reserves     ?? [];
   const allPlayers   = [...starters, ...interchanges, ...reserves];
 
+  const YOUTH_MAX    = 6;
+  const youthPlayers = reserves.filter((p: any) => p.age >= 14 && p.age <= 18);
+  const youthCount   = youthPlayers.length;
+  const youthFull    = youthCount >= YOUTH_MAX;
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
 
   const handleRelease = (playerId: number) => {
@@ -468,11 +473,47 @@ export default function TeamRoster() {
       <section className="space-y-4 pb-8">
         <SectionHeader
           title="Youths"
-          subtitle="All remaining signed players. Promote to Interchange or Match Player at any time."
+          subtitle="All remaining signed players. Youth Academy holds up to 6 players aged 14–18."
           icon={Shield}
           count={reserves.length}
           role="reserve"
         />
+
+        {/* Youth Academy capacity banner */}
+        <div className={cn(
+          "rounded-xl border-2 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2",
+          youthFull
+            ? "border-red-500/40 bg-red-500/5"
+            : "border-yellow-500/30 bg-yellow-500/5"
+        )}>
+          <div className="flex items-center gap-2">
+            <span className={cn("text-sm font-semibold", youthFull ? "text-red-600" : "text-yellow-700 dark:text-yellow-400")}>
+              Youth Academy Capacity:
+            </span>
+            <span className={cn("text-sm font-black tabular-nums", youthFull ? "text-red-600" : "text-yellow-700 dark:text-yellow-400")}>
+              {youthCount} / {YOUTH_MAX}
+            </span>
+            <div className="flex gap-0.5 ml-1">
+              {Array.from({ length: YOUTH_MAX }).map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    i < youthCount
+                      ? youthFull ? "bg-red-500" : "bg-yellow-500"
+                      : "bg-muted-foreground/20"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+          {youthFull && (
+            <p className="text-xs text-red-600 font-medium">
+              Youth Academy Full — Promote, Draft, Sell, or Release a player before signing another prospect.
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {reserves.map((p: any) => <PlayerCard key={p.id} player={p} role="reserve" />)}
           {reserves.length === 0 && <EmptySection role="reserve" />}
