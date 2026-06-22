@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -472,6 +472,44 @@ router.post("/matches/:id/simulate", async (req, res) => {
   }
 
   const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp);
+
+  // Record new injuries into season injury stats
+  const newInjuryEvents = playerEvents.filter(e => e.event === "injury_new");
+  if (newInjuryEvents.length > 0) {
+    const totalAdd       = newInjuryEvents.length;
+    const daysLostAdd    = newInjuryEvents.reduce((sum, e) => sum + (e.weeksOut ?? 2) * 7, 0);
+    const minorAdd       = newInjuryEvents.filter(e => e.injuryStatus === "Minor Injury").length;
+    const majorAdd       = newInjuryEvents.filter(e => e.injuryStatus === "Major Injury").length;
+    const unavailAdd     = newInjuryEvents.filter(e => e.injuryStatus === "Unavailable").length;
+
+    const [existing] = await db.select()
+      .from(seasonInjuryStatsTable)
+      .where(and(
+        eq(seasonInjuryStatsTable.teamId, team.id),
+        eq(seasonInjuryStatsTable.seasonId, match.season),
+      ))
+      .limit(1);
+
+    if (existing) {
+      await db.update(seasonInjuryStatsTable).set({
+        totalInjuries:       existing.totalInjuries       + totalAdd,
+        daysLost:            existing.daysLost            + daysLostAdd,
+        minorInjuries:       existing.minorInjuries       + minorAdd,
+        majorInjuries:       existing.majorInjuries       + majorAdd,
+        unavailableInjuries: existing.unavailableInjuries + unavailAdd,
+      }).where(eq(seasonInjuryStatsTable.id, existing.id));
+    } else {
+      await db.insert(seasonInjuryStatsTable).values({
+        teamId:              team.id,
+        seasonId:            match.season,
+        totalInjuries:       totalAdd,
+        daysLost:            daysLostAdd,
+        minorInjuries:       minorAdd,
+        majorInjuries:       majorAdd,
+        unavailableInjuries: unavailAdd,
+      });
+    }
+  }
 
   // Decrement wellbeing effect match counters
   for (const effect of wellbeingEffects) {

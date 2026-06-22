@@ -67,6 +67,7 @@ export * from './scoutingResult';
 export * from './scoutingResultConfidence';
 export * from './scoutingResultScoutedPotential';
 export * from './season';
+export * from './seasonInjuryStats';
 export * from './seasonInput';
 export * from './seasonStatus';
 export * from './staffInput';

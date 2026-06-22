@@ -299,3 +299,17 @@ export const wellbeingEffectsTable = pgTable("wellbeing_effects", {
 });
 
 export type WellbeingEffect = typeof wellbeingEffectsTable.$inferSelect;
+
+export const seasonInjuryStatsTable = pgTable("season_injury_stats", {
+  id:                  serial("id").primaryKey(),
+  teamId:              integer("team_id").notNull().references(() => teamsTable.id),
+  seasonId:            integer("season_id").notNull(),
+  totalInjuries:       integer("total_injuries").notNull().default(0),
+  daysLost:            integer("days_lost").notNull().default(0),
+  minorInjuries:       integer("minor_injuries").notNull().default(0),
+  majorInjuries:       integer("major_injuries").notNull().default(0),
+  unavailableInjuries: integer("unavailable_injuries").notNull().default(0),
+  updatedAt:           timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+});
+
+export type SeasonInjuryStat = typeof seasonInjuryStatsTable.$inferSelect;

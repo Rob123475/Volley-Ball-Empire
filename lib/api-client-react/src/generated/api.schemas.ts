@@ -955,6 +955,18 @@ export interface LeaderboardEntry {
   reputation: number;
 }
 
+export interface SeasonInjuryStats {
+  seasonId: number;
+  totalInjuries: number;
+  daysLost: number;
+  minorInjuries: number;
+  majorInjuries: number;
+  unavailableInjuries: number;
+  avgRecoveryDays: number;
+  mostCommon: string;
+  currentInjuryCount: number;
+}
+
 export type DashboardNextMatch = { [key: string]: unknown } | null;
 
 export type DashboardFinanceSummary = {

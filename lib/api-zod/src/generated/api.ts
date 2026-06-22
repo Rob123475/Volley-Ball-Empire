@@ -2513,6 +2513,22 @@ export const GetTrophyCabinetResponse = zod.object({
 
 
 /**
+ * @summary Get season injury statistics for the current team
+ */
+export const GetSeasonInjuryStatsResponse = zod.object({
+  "seasonId": zod.number(),
+  "totalInjuries": zod.number(),
+  "daysLost": zod.number(),
+  "minorInjuries": zod.number(),
+  "majorInjuries": zod.number(),
+  "unavailableInjuries": zod.number(),
+  "avgRecoveryDays": zod.number(),
+  "mostCommon": zod.string(),
+  "currentInjuryCount": zod.number()
+})
+
+
+/**
  * @summary Get active wellbeing effects and team budget
  */
 export const GetWellbeingStatusResponse = zod.object({

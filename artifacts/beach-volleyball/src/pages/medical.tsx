@@ -4,6 +4,7 @@ import {
   useGetFacilities,
   getGetFacilitiesQueryKey,
   useUpgradeFacility,
+  useGetSeasonInjuryStats,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,7 @@ import {
   UserCog,
   Link as LinkIcon,
   ArrowUp,
+  BarChart2,
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -310,6 +312,9 @@ export default function MedicalCentre() {
 
       {/* ── Recovery Forecast ─────────────────────────────────── */}
       <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={bestSkill} />
+
+      {/* ── Season Injury Statistics ───────────────────────────── */}
+      <SeasonInjuryStatsCard />
 
       {/* ── Squad Fitness Overview ─────────────────────────────── */}
       <section className="space-y-4">
@@ -611,6 +616,104 @@ function ForecastStat({
       <p className="text-[11px] text-muted-foreground leading-snug">{label}</p>
       <p className={`text-2xl font-bold ${valueClass ?? ""}`}>{value}</p>
     </div>
+  );
+}
+
+/* ── Season Injury Statistics Card ──────────────────────────── */
+
+function SeasonInjuryStatsCard() {
+  const { data: stats, isLoading } = useGetSeasonInjuryStats();
+
+  const mostCommonColor: Record<string, string> = {
+    "Minor Injury": "text-yellow-600",
+    "Major Injury": "text-orange-600",
+    "Unavailable":  "text-red-600",
+    "None":         "text-muted-foreground",
+  };
+
+  return (
+    <section className="space-y-4">
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <BarChart2 className="h-5 w-5 text-primary" /> Season Injury Statistics
+      </h3>
+
+      <Card>
+        <CardContent className="p-6">
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {/* Total Injuries */}
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
+                <span className="text-2xl font-bold text-primary">
+                  {stats?.totalInjuries ?? 0}
+                </span>
+                <span className="mt-1 text-xs text-muted-foreground leading-tight">
+                  Total Injuries
+                </span>
+              </div>
+
+              {/* Days Lost */}
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
+                <span className="text-2xl font-bold text-orange-500">
+                  {stats?.daysLost ?? 0}
+                </span>
+                <span className="mt-1 text-xs text-muted-foreground leading-tight">
+                  Days Lost
+                </span>
+              </div>
+
+              {/* Average Recovery Time */}
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
+                <span className="text-2xl font-bold text-blue-500">
+                  {stats?.avgRecoveryDays ?? 0}
+                  <span className="text-sm font-normal text-muted-foreground ml-0.5">d</span>
+                </span>
+                <span className="mt-1 text-xs text-muted-foreground leading-tight">
+                  Avg Recovery
+                </span>
+              </div>
+
+              {/* Most Common Injury */}
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
+                <span className={`text-sm font-bold leading-tight ${mostCommonColor[stats?.mostCommon ?? "None"] ?? "text-muted-foreground"}`}>
+                  {stats?.mostCommon ?? "None"}
+                </span>
+                <span className="mt-1 text-xs text-muted-foreground leading-tight">
+                  Most Common
+                </span>
+              </div>
+
+              {/* Current Injury Count */}
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
+                <span className={`text-2xl font-bold ${(stats?.currentInjuryCount ?? 0) > 0 ? "text-red-500" : "text-green-500"}`}>
+                  {stats?.currentInjuryCount ?? 0}
+                </span>
+                <span className="mt-1 text-xs text-muted-foreground leading-tight">
+                  Currently Injured
+                </span>
+              </div>
+            </div>
+          )}
+
+          {!isLoading && (stats?.totalInjuries ?? 0) === 0 && (
+            <p className="mt-4 text-center text-sm text-muted-foreground">
+              No injuries recorded this season. Play matches to accumulate stats.
+            </p>
+          )}
+
+          {!isLoading && (
+            <p className="mt-4 text-xs text-muted-foreground text-right">
+              Season {stats?.seasonId ?? 1} · Resets at the start of a new season
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 

@@ -53,6 +53,7 @@ import type {
   RunCampInput,
   ScoutingResult,
   Season,
+  SeasonInjuryStats,
   SeasonInput,
   StaffInput,
   StaffMember,
@@ -4816,6 +4817,83 @@ export function useGetTrophyCabinet<TData = Awaited<ReturnType<typeof getTrophyC
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetTrophyCabinetQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSeasonInjuryStatsUrl = () => {
+
+
+
+
+  return `/api/medical/injury-stats`
+}
+
+/**
+ * @summary Get season injury statistics for the current team
+ */
+export const getSeasonInjuryStats = async ( options?: RequestInit): Promise<SeasonInjuryStats> => {
+
+  return customFetch<SeasonInjuryStats>(getGetSeasonInjuryStatsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSeasonInjuryStatsQueryKey = () => {
+    return [
+    `/api/medical/injury-stats`
+    ] as const;
+    }
+
+
+export const getGetSeasonInjuryStatsQueryOptions = <TData = Awaited<ReturnType<typeof getSeasonInjuryStats>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeasonInjuryStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSeasonInjuryStatsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeasonInjuryStats>>> = ({ signal }) => getSeasonInjuryStats({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeasonInjuryStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSeasonInjuryStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getSeasonInjuryStats>>>
+export type GetSeasonInjuryStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get season injury statistics for the current team
+ */
+
+export function useGetSeasonInjuryStats<TData = Awaited<ReturnType<typeof getSeasonInjuryStats>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeasonInjuryStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSeasonInjuryStatsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

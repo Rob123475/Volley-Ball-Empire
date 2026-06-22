@@ -37,6 +37,8 @@ tags:
     description: Leaderboard
   - name: olympics
     description: Olympic Games management
+  - name: medical
+    description: Medical Centre and injury statistics
 
 paths:
   /healthz:
@@ -1148,6 +1150,23 @@ paths:
           description: Unauthorized
         "404":
           description: Team not found
+
+  /medical/injury-stats:
+    get:
+      operationId: getSeasonInjuryStats
+      tags: [medical]
+      summary: Get season injury statistics for the current team
+      responses:
+        "200":
+          description: Season injury statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeasonInjuryStats"
+        "401":
+          description: Unauthorized
+        "404":
+          description: No team found
 
   /wellbeing/status:
     get:
@@ -2437,6 +2456,29 @@ components:
         earnings:
           type: number
         reputation:
+          type: integer
+
+    SeasonInjuryStats:
+      type: object
+      required: [seasonId, totalInjuries, daysLost, minorInjuries, majorInjuries, unavailableInjuries, avgRecoveryDays, mostCommon, currentInjuryCount]
+      properties:
+        seasonId:
+          type: integer
+        totalInjuries:
+          type: integer
+        daysLost:
+          type: integer
+        minorInjuries:
+          type: integer
+        majorInjuries:
+          type: integer
+        unavailableInjuries:
+          type: integer
+        avgRecoveryDays:
+          type: integer
+        mostCommon:
+          type: string
+        currentInjuryCount:
           type: integer
 
     Dashboard:
