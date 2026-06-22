@@ -308,41 +308,74 @@ export default function TeamRoster() {
             <StatBar label="Block"   value={player.block}   icon={Shield} />
           </div>
 
-          {/* ── Youth profile (reserve only) ──────────────────────── */}
+          {/* ── Youth Development Profile (age 14–18 reserve) ─────── */}
           {role === "reserve" && player.age >= 14 && player.age <= 18 && (() => {
-            const youthRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-            const potential   = player.scoutedPotential ?? player.potential;
-            const stars       = getPotentialStars(potential);
-            const speciality  = getSpeciality(player);
-            const focus       = player.trainingFocus as string | null | undefined;
-            const focusXp     = player.focusXp ?? 0;
+            const youthRating   = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+            const potential     = player.scoutedPotential ?? player.potential;
+            const stars         = getPotentialStars(potential);
+            const speciality    = getSpeciality(player);
+            const focus         = player.trainingFocus as string | null | undefined;
+            const focusXp       = player.focusXp ?? 0;
             const focusProgress = focusXp % 100;
+            const confidence    = player.morale ?? 80;
+            const devPoints     = player.trainingPoints ?? 0;
+            const devLevel      = Math.floor(devPoints / 100);
+            const devProgress   = devPoints % 100;
+
+            const confColor =
+              confidence >= 80 ? "text-emerald-600" :
+              confidence >= 55 ? "text-amber-500"   : "text-red-500";
+            const confBarColor =
+              confidence >= 80 ? "bg-emerald-500" :
+              confidence >= 55 ? "bg-amber-400"   : "bg-red-400";
+
             return (
-              <div className="pt-2 border-t border-border space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Profile</p>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-                    <div className="text-lg font-black text-foreground">{youthRating}</div>
-                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Rating</div>
+              <div className="pt-2 border-t border-border space-y-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Development</p>
+
+                {/* Row 1: Rating | Potential | Speciality */}
+                <div className="grid grid-cols-3 gap-1.5 text-center">
+                  <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
+                    <div className="text-lg font-black text-foreground leading-none">{youthRating}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Rating</div>
                   </div>
-                  <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-                    <div className="flex justify-center gap-0.5">
+                  <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
+                    <div className="flex justify-center gap-0.5 mt-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={cn("h-3 w-3", i < stars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/30")}
-                        />
+                        <Star key={i} className={cn("h-2.5 w-2.5", i < stars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/30")} />
                       ))}
                     </div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Potential</div>
                   </div>
-                  <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-                    <div className="text-[11px] font-black text-foreground leading-tight">{speciality}</div>
+                  <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
+                    <div className="text-[10px] font-black text-foreground leading-tight">{speciality}</div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Speciality</div>
                   </div>
                 </div>
 
-                {/* ── Training Focus ─────────────────────────────────── */}
+                {/* Row 2: Confidence | Dev Level */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="rounded-lg bg-muted/50 px-2 py-1.5 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Confidence</span>
+                      <span className={cn("text-[10px] font-black", confColor)}>{confidence}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <div className={cn("h-full rounded-full transition-all", confBarColor)} style={{ width: `${confidence}%` }} />
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 px-2 py-1.5 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Dev Progress</span>
+                      <span className="text-[10px] font-black text-primary">Lv.{devLevel}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all bg-primary/70" style={{ width: `${devProgress}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Training Focus selector + XP bar */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Training Focus</p>
@@ -370,7 +403,7 @@ export default function TeamRoster() {
                   {focus && focus !== "Leadership" && (
                     <div className="space-y-0.5">
                       <div className="flex justify-between text-[9px] text-muted-foreground font-medium">
-                        <span>Focus XP</span>
+                        <span>Focus XP → next +1 {focus === "Attack" ? "Power" : focus === "Defence" ? "Defense" : focus === "Serving" ? "Serve" : focus === "Blocking" ? "Block" : "Speed"}</span>
                         <span>{focusProgress} / 100</span>
                       </div>
                       <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">

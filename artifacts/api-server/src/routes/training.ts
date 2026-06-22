@@ -193,7 +193,13 @@ const applyFatigueAndStats = async (
     : 1.0;
   const potentialMultiplier = POTENTIAL_MULTIPLIERS[(player.potential as string) ?? "Average"] ?? 1.0;
 
-  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier;
+  // Youth Academy bonus: players aged 14–18 develop 20% faster than the standard
+  // age modifier already gives them. This stacks with getAgeModifier (1.25×) for a
+  // combined 1.50× rate. After senior promotion (age 19+) the bonus drops away —
+  // senior development rates are completely unchanged.
+  const youthAcademyMultiplier = (player.age >= 14 && player.age <= 18) ? 1.20 : 1.0;
+
+  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier * youthAcademyMultiplier;
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = player.trainingPoints;
