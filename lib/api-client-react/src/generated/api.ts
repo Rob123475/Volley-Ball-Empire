@@ -26,6 +26,7 @@ import type {
   Dashboard,
   DraftPickInput,
   DraftPlayer,
+  Facility,
   FinanceSummary,
   FinanceTransaction,
   FinanceTransactionInput,
@@ -4451,6 +4452,153 @@ export const useClearOlympicSelection = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getClearOlympicSelectionMutationOptions(options));
+    }
+
+export const getGetFacilitiesUrl = () => {
+
+
+
+
+  return `/api/facilities`
+}
+
+/**
+ * @summary Get all facilities for the team (auto-created at level 1 if missing)
+ */
+export const getFacilities = async ( options?: RequestInit): Promise<Facility[]> => {
+
+  return customFetch<Facility[]>(getGetFacilitiesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetFacilitiesQueryKey = () => {
+    return [
+    `/api/facilities`
+    ] as const;
+    }
+
+
+export const getGetFacilitiesQueryOptions = <TData = Awaited<ReturnType<typeof getFacilities>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFacilities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetFacilitiesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFacilities>>> = ({ signal }) => getFacilities({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFacilities>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetFacilitiesQueryResult = NonNullable<Awaited<ReturnType<typeof getFacilities>>>
+export type GetFacilitiesQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get all facilities for the team (auto-created at level 1 if missing)
+ */
+
+export function useGetFacilities<TData = Awaited<ReturnType<typeof getFacilities>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFacilities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetFacilitiesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpgradeFacilityUrl = (type: string,) => {
+
+
+
+
+  return `/api/facilities/${type}/upgrade`
+}
+
+/**
+ * @summary Upgrade a facility to the next level
+ */
+export const upgradeFacility = async (type: string, options?: RequestInit): Promise<Facility> => {
+
+  return customFetch<Facility>(getUpgradeFacilityUrl(type),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getUpgradeFacilityMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upgradeFacility>>, TError,{type: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upgradeFacility>>, TError,{type: string}, TContext> => {
+
+const mutationKey = ['upgradeFacility'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upgradeFacility>>, {type: string}> = (props) => {
+          const {type} = props ?? {};
+
+          return  upgradeFacility(type,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpgradeFacilityMutationResult = NonNullable<Awaited<ReturnType<typeof upgradeFacility>>>
+
+    export type UpgradeFacilityMutationError = ErrorType<void>
+
+    /**
+ * @summary Upgrade a facility to the next level
+ */
+export const useUpgradeFacility = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upgradeFacility>>, TError,{type: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upgradeFacility>>,
+        TError,
+        {type: string},
+        TContext
+      > => {
+      return useMutation(getUpgradeFacilityMutationOptions(options));
     }
 
 export const getGetHallOfFameUrl = () => {

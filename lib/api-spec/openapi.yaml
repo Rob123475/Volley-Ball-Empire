@@ -1056,6 +1056,48 @@ paths:
         "404":
           description: No selection to clear
 
+  /facilities:
+    get:
+      operationId: getFacilities
+      tags: [facilities]
+      summary: Get all facilities for the team (auto-created at level 1 if missing)
+      responses:
+        "200":
+          description: List of facilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Facility"
+        "401":
+          description: Unauthorized
+
+  /facilities/{type}/upgrade:
+    post:
+      operationId: upgradeFacility
+      tags: [facilities]
+      summary: Upgrade a facility to the next level
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upgraded facility
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facility"
+        "400":
+          description: Already at max level or insufficient budget
+        "401":
+          description: Unauthorized
+        "404":
+          description: Facility not found
+
   /trophies/hall-of-fame:
     get:
       operationId: getHallOfFame
@@ -2191,6 +2233,23 @@ components:
             $ref: "#/components/schemas/Achievement"
         records:
           $ref: "#/components/schemas/ManagerRecords"
+
+    Facility:
+      type: object
+      required:
+        - id
+        - teamId
+        - type
+        - level
+      properties:
+        id:
+          type: integer
+        teamId:
+          type: integer
+        type:
+          type: string
+        level:
+          type: integer
 
     HallOfFameEntry:
       type: object

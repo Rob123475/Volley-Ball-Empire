@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { trainingSessionsTable, playersTable, teamsTable, staffTable } from "@workspace/db";
+import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 
@@ -166,6 +166,7 @@ const applyFatigueAndStats = async (
   programType: string,
   coach?: StaffMember | null,
   teamPhilosophy?: string | null,
+  facilityMultiplier = 1.0,
 ) => {
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
   if (!player) return null;
@@ -190,7 +191,7 @@ const applyFatigueAndStats = async (
     : 1.0;
   const potentialMultiplier = POTENTIAL_MULTIPLIERS[(player.potential as string) ?? "Average"] ?? 1.0;
 
-  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier * potentialMultiplier;
+  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier;
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = player.trainingPoints;
@@ -348,7 +349,15 @@ router.post("/training/:id/complete", async (req, res) => {
   const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, session.teamId) });
   const teamPhilosophy = team?.trainingPhilosophy ?? null;
 
-  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy);
+  // Training Complex facility bonus (+0% at L1, +20% at L10)
+  const trainingFacility = await db.query.facilitiesTable.findFirst({
+    where: and(eq(facilitiesTable.teamId, session.teamId), eq(facilitiesTable.type, "training_complex")),
+  });
+  const facilityMultiplier = trainingFacility
+    ? 1 + (trainingFacility.level - 1) * (0.20 / 9)
+    : 1.0;
+
+  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier);
   if (result) {
     const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect, ageModifier, philosophyMultiplier, programName } = result;
     res.json({

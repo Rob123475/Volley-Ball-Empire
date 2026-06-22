@@ -17,6 +17,7 @@ import leaderboardRouter from "./leaderboard";
 import dashboardRouter from "./dashboard";
 import olympicsRouter from "./olympics";
 import trophiesRouter from "./trophies";
+import facilitiesRouter from "./facilities";
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use(leaderboardRouter);
 router.use(dashboardRouter);
 router.use(olympicsRouter);
 router.use(trophiesRouter);
+router.use(facilitiesRouter);
 
 export default router;

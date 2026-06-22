@@ -20,6 +20,7 @@ export * from './dashboardNextMatch';
 export * from './dashboardSeasonStanding';
 export * from './draftPickInput';
 export * from './draftPlayer';
+export * from './facility';
 export * from './financeSummary';
 export * from './financeSummaryExpenseBreakdown';
 export * from './financeSummaryIncomeSources';

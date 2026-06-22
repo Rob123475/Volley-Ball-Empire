@@ -892,6 +892,13 @@ export interface TrophyCabinet {
   records: ManagerRecords;
 }
 
+export interface Facility {
+  id: number;
+  teamId: number;
+  type: string;
+  level: number;
+}
+
 export interface HallOfFameEntry {
   id: number;
   name: string;

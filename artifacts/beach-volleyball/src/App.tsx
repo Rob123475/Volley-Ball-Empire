@@ -20,6 +20,7 @@ import Leaderboard from "@/pages/leaderboard";
 import WorldTourLocations from "@/pages/locations";
 import MedicalCentre from "@/pages/medical";
 import TrophyCabinet from "@/pages/trophy-cabinet";
+import Facilities from "@/pages/facilities";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ function Router() {
           <Route path="/leaderboard" component={Leaderboard} />
           <Route path="/locations" component={WorldTourLocations} />
           <Route path="/trophy-cabinet" component={TrophyCabinet} />
+          <Route path="/facilities" component={Facilities} />
           <Route component={NotFound} />
         </Switch>
       </Shell>

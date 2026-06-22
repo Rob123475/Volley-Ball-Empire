@@ -2340,6 +2340,33 @@ export const SaveOlympicSelectionResponse = zod.object({
 
 
 /**
+ * @summary Get all facilities for the team (auto-created at level 1 if missing)
+ */
+export const GetFacilitiesResponseItem = zod.object({
+  "id": zod.number(),
+  "teamId": zod.number(),
+  "type": zod.string(),
+  "level": zod.number()
+})
+export const GetFacilitiesResponse = zod.array(GetFacilitiesResponseItem)
+
+
+/**
+ * @summary Upgrade a facility to the next level
+ */
+export const UpgradeFacilityParams = zod.object({
+  "type": zod.coerce.string()
+})
+
+export const UpgradeFacilityResponse = zod.object({
+  "id": zod.number(),
+  "teamId": zod.number(),
+  "type": zod.string(),
+  "level": zod.number()
+})
+
+
+/**
  * @summary Get all retired players in the Hall of Fame
  */
 export const GetHallOfFameResponseItem = zod.object({
