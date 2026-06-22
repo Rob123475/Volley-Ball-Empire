@@ -310,6 +310,37 @@ paths:
         "404":
           description: Player not found
 
+  /players/{id}/training-focus:
+    patch:
+      operationId: setPlayerTrainingFocus
+      tags: [players]
+      summary: Set or clear a youth player's training focus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetTrainingFocusBody"
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        "400":
+          description: Not a youth player (must be age 14–18)
+        "403":
+          description: Not your player
+        "404":
+          description: Player not found
+
   /players/{id}/scout:
     post:
       operationId: scoutPlayer
@@ -1592,6 +1623,13 @@ components:
           type: ["string", "null"]
           enum: ["Low", "Average", "High", "Elite", "Generational", null]
           description: "Scout's assessment of player potential. Null if the player has not been scouted yet."
+        trainingFocus:
+          type: ["string", "null"]
+          enum: ["Attack", "Defence", "Serving", "Blocking", "Athleticism", "Leadership", null]
+          description: "Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set."
+        focusXp:
+          type: integer
+          description: "Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat."
         createdAt:
           type: string
 
@@ -1753,6 +1791,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StaffMember"
+
+    SetTrainingFocusBody:
+      type: object
+      required: [focus]
+      properties:
+        focus:
+          type: string
+          description: "Training focus to assign. One of: Attack, Defence, Serving, Blocking, Athleticism, Leadership. Send empty string to clear."
 
     PlayerRoleUpdate:
       type: object

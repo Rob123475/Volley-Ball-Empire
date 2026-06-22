@@ -9,6 +9,7 @@ import type { PlayerInjuryStatus } from './playerInjuryStatus';
 import type { PlayerPosition } from './playerPosition';
 import type { PlayerScoutedPotential } from './playerScoutedPotential';
 import type { PlayerSquadRole } from './playerSquadRole';
+import type { PlayerTrainingFocus } from './playerTrainingFocus';
 
 export interface Player {
   id: number;
@@ -59,5 +60,12 @@ export interface Player {
      * @nullable
      */
   scoutedPotential?: PlayerScoutedPotential;
+  /**
+     * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
+     * @nullable
+     */
+  trainingFocus?: PlayerTrainingFocus;
+  /** Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat. */
+  focusXp?: number;
   createdAt: string;
 }

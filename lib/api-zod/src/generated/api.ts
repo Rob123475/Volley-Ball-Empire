@@ -142,6 +142,8 @@ export const ListPlayersResponseItem = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 export const ListPlayersResponse = zod.array(ListPlayersResponseItem)
@@ -202,6 +204,8 @@ export const ListFreeAgentsResponseItem = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 export const ListFreeAgentsResponse = zod.array(ListFreeAgentsResponseItem)
@@ -247,6 +251,8 @@ export const GetPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 
@@ -297,6 +303,8 @@ export const UpdatePlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 
@@ -345,6 +353,8 @@ export const UpdatePlayerOutfitResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 
@@ -389,6 +399,8 @@ export const ReleasePlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 
@@ -433,6 +445,58 @@ export const RetirePlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Set or clear a youth player's training focus
+ */
+export const SetPlayerTrainingFocusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SetPlayerTrainingFocusBody = zod.object({
+  "focus": zod.string().describe('Training focus to assign. One of: Attack, Defence, Serving, Blocking, Athleticism, Leadership. Send empty string to clear.')
+})
+
+export const setPlayerTrainingFocusResponseDoctorQualityMax = 5;
+
+
+
+export const SetPlayerTrainingFocusResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "height": zod.number(),
+  "position": zod.enum(['setter', 'libero', 'outside_hitter', 'middle_blocker', 'opposite', 'universal']),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "morale": zod.number(),
+  "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(setPlayerTrainingFocusResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
+  "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
+  "salary": zod.number(),
+  "teamId": zod.number().nullable(),
+  "outfitId": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
+  "imageUrl": zod.string().nullable(),
+  "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })
 
@@ -478,6 +542,8 @@ export const ScoutPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }),
   "scoutedPotential": zod.enum(['Low', 'Average', 'High', 'Elite', 'Generational']),
@@ -622,6 +688,8 @@ export const GetTeamRosterResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -653,6 +721,8 @@ export const GetTeamRosterResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -684,6 +754,8 @@ export const GetTeamRosterResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -715,6 +787,8 @@ export const GetTeamRosterResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -746,6 +820,8 @@ export const GetTeamRosterResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -834,6 +910,8 @@ export const SwapTeamPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -865,6 +943,8 @@ export const SwapTeamPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -896,6 +976,8 @@ export const SwapTeamPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -927,6 +1009,8 @@ export const SwapTeamPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -958,6 +1042,8 @@ export const SwapTeamPlayerResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -1049,6 +1135,8 @@ export const SetPlayerRoleResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -1080,6 +1168,8 @@ export const SetPlayerRoleResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -1111,6 +1201,8 @@ export const SetPlayerRoleResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -1142,6 +1234,8 @@ export const SetPlayerRoleResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -1173,6 +1267,8 @@ export const SetPlayerRoleResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -1240,6 +1336,8 @@ export const ListContractsResponseItem = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -1307,6 +1405,8 @@ export const GetContractResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -1362,6 +1462,8 @@ export const TerminateContractResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -1494,6 +1596,8 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -1584,6 +1688,8 @@ export const CompleteTrainingResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -1642,6 +1748,8 @@ export const CompleteTrainingResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }),
   "xpGained": zod.number().optional(),
@@ -1719,6 +1827,8 @@ export const GetTrainingPlanResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -1885,6 +1995,8 @@ export const SimulateMatchResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 }).optional(),
   "playerEvents": zod.array(zod.object({
@@ -2352,6 +2464,8 @@ export const GetDashboardResponse = zod.object({
   "imageUrl": zod.string().nullable(),
   "contractEndDate": zod.string().nullish(),
   "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
+  "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "createdAt": zod.string()
 })),
   "seasonStanding": zod.object({

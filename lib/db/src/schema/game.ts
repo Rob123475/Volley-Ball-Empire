@@ -102,6 +102,8 @@ export const playersTable = pgTable("players", {
   askingPrice: numeric("asking_price", { precision: 10, scale: 2 }),
   potential: varchar("potential", { length: 20 }).notNull().default("Average"),
   scoutedPotential: varchar("scouted_potential", { length: 20 }),
+  trainingFocus: varchar("training_focus", { length: 30 }),
+  focusXp: integer("focus_xp").notNull().default(0),
   isRetired: boolean("is_retired").notNull().default(false),
   retiredSeasonYear: integer("retired_season_year"),
   careerSeasons: integer("career_seasons"),

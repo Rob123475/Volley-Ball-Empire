@@ -5,6 +5,7 @@ import {
   useReleasePlayer,
   useRetirePlayer,
   useSetPlayerRole,
+  useSetPlayerTrainingFocus,
   getGetTeamRosterQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -37,6 +38,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -209,6 +217,31 @@ export default function TeamRoster() {
     });
   };
 
+  const TRAINING_FOCUSES = ["Attack", "Defence", "Serving", "Blocking", "Athleticism", "Leadership"] as const;
+  const FOCUS_COLORS: Record<string, string> = {
+    Attack:      "text-red-600 bg-red-50 dark:bg-red-950/40",
+    Defence:     "text-blue-600 bg-blue-50 dark:bg-blue-950/40",
+    Serving:     "text-orange-600 bg-orange-50 dark:bg-orange-950/40",
+    Blocking:    "text-purple-600 bg-purple-50 dark:bg-purple-950/40",
+    Athleticism: "text-green-600 bg-green-50 dark:bg-green-950/40",
+    Leadership:  "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/40",
+  };
+
+  const focusMutation = useSetPlayerTrainingFocus();
+
+  const setFocus = (playerId: number, focus: string) => {
+    focusMutation.mutate(
+      { id: playerId, data: { focus } },
+      {
+        onSuccess: () => invalidate(),
+        onError: (err: any) => {
+          const msg = err?.response?.data?.error ?? "Could not update focus.";
+          toast({ title: "Error", description: msg, variant: "destructive" });
+        },
+      }
+    );
+  };
+
   const PlayerCard = ({ player, role }: { player: any; role: Role }) => {
     const rating  = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
     const fatigue = player.fatigue ?? 0;
@@ -276,17 +309,20 @@ export default function TeamRoster() {
           </div>
 
           {/* ── Youth profile (reserve only) ──────────────────────── */}
-          {role === "reserve" && (() => {
-            const rating      = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+          {role === "reserve" && player.age >= 14 && player.age <= 18 && (() => {
+            const youthRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
             const potential   = player.scoutedPotential ?? player.potential;
             const stars       = getPotentialStars(potential);
             const speciality  = getSpeciality(player);
+            const focus       = player.trainingFocus as string | null | undefined;
+            const focusXp     = player.focusXp ?? 0;
+            const focusProgress = focusXp % 100;
             return (
               <div className="pt-2 border-t border-border space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Profile</p>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-                    <div className="text-lg font-black text-foreground">{rating}</div>
+                    <div className="text-lg font-black text-foreground">{youthRating}</div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Rating</div>
                   </div>
                   <div className="rounded-lg bg-muted/50 px-2 py-1.5">
@@ -304,6 +340,47 @@ export default function TeamRoster() {
                     <div className="text-[11px] font-black text-foreground leading-tight">{speciality}</div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Speciality</div>
                   </div>
+                </div>
+
+                {/* ── Training Focus ─────────────────────────────────── */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Training Focus</p>
+                    {focus && (
+                      <span className={cn("text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded", FOCUS_COLORS[focus])}>
+                        {focus}
+                      </span>
+                    )}
+                  </div>
+                  <Select
+                    value={focus ?? "none"}
+                    onValueChange={(val) => setFocus(player.id, val === "none" ? "" : val)}
+                    disabled={focusMutation.isPending}
+                  >
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue placeholder="No focus set" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className="text-xs text-muted-foreground">No focus</SelectItem>
+                      {TRAINING_FOCUSES.map((f) => (
+                        <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {focus && focus !== "Leadership" && (
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[9px] text-muted-foreground font-medium">
+                        <span>Focus XP</span>
+                        <span>{focusProgress} / 100</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={cn("h-full rounded-full transition-all", FOCUS_COLORS[focus]?.split(" ")[0]?.replace("text-", "bg-") ?? "bg-primary")}
+                          style={{ width: `${focusProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

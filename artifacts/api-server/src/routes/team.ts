@@ -111,6 +111,35 @@ router.patch("/team/roster/:id/role", async (req, res) => {
   res.json(buildRosterResponse(team, players, staff));
 });
 
+// ── Youth training focus ──────────────────────────────────────────────────────
+
+const VALID_FOCUSES = ["Attack", "Defence", "Serving", "Blocking", "Athleticism", "Leadership"];
+
+router.patch("/players/:id/training-focus", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const playerId = Number(req.params.id);
+  const { focus } = req.body as { focus: string };
+
+  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
+  if (player.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
+  if (player.age < 14 || player.age > 18) {
+    res.status(400).json({ error: "Training focus can only be set for youth players aged 14–18." });
+    return;
+  }
+
+  const newFocus = focus && VALID_FOCUSES.includes(focus) ? focus : null;
+  const [updated] = await db.update(playersTable)
+    .set({ trainingFocus: newFocus })
+    .where(eq(playersTable.id, playerId))
+    .returning();
+
+  res.json({ ...updated, height: Number(updated.height), salary: Number(updated.salary) });
+});
+
 // ── Legacy swap endpoint (kept for any remaining callers) ───────────────────
 router.post("/team/swap-player", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

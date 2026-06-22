@@ -102,6 +102,22 @@ export const PlayerScoutedPotential = {
   Generational: 'Generational',
 } as const;
 
+/**
+ * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
+ * @nullable
+ */
+export type PlayerTrainingFocus = typeof PlayerTrainingFocus[keyof typeof PlayerTrainingFocus] | null;
+
+
+export const PlayerTrainingFocus = {
+  Attack: 'Attack',
+  Defence: 'Defence',
+  Serving: 'Serving',
+  Blocking: 'Blocking',
+  Athleticism: 'Athleticism',
+  Leadership: 'Leadership',
+} as const;
+
 export interface Player {
   id: number;
   name: string;
@@ -151,6 +167,13 @@ export interface Player {
      * @nullable
      */
   scoutedPotential?: PlayerScoutedPotential;
+  /**
+     * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
+     * @nullable
+     */
+  trainingFocus?: PlayerTrainingFocus;
+  /** Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat. */
+  focusXp?: number;
   createdAt: string;
 }
 
@@ -332,6 +355,11 @@ export interface TeamRoster {
   /** Legacy: same as reserves. */
   benchPlayers: Player[];
   staff: StaffMember[];
+}
+
+export interface SetTrainingFocusBody {
+  /** Training focus to assign. One of: Attack, Defence, Serving, Blocking, Athleticism, Leadership. Send empty string to clear. */
+  focus: string;
 }
 
 export type PlayerRoleUpdateRole = typeof PlayerRoleUpdateRole[keyof typeof PlayerRoleUpdateRole];

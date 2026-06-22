@@ -58,6 +58,7 @@ import type {
   Season,
   SeasonInjuryStats,
   SeasonInput,
+  SetTrainingFocusBody,
   SponsorProgress,
   SponsorReputation,
   StaffInput,
@@ -1207,6 +1208,78 @@ export const useRetirePlayer = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getRetirePlayerMutationOptions(options));
+    }
+
+export const getSetPlayerTrainingFocusUrl = (id: number,) => {
+
+
+
+
+  return `/api/players/${id}/training-focus`
+}
+
+/**
+ * @summary Set or clear a youth player's training focus
+ */
+export const setPlayerTrainingFocus = async (id: number,
+    setTrainingFocusBody: SetTrainingFocusBody, options?: RequestInit): Promise<Player> => {
+
+  return customFetch<Player>(getSetPlayerTrainingFocusUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      setTrainingFocusBody,)
+  }
+);}
+
+
+
+
+export const getSetPlayerTrainingFocusMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setPlayerTrainingFocus>>, TError,{id: number;data: BodyType<SetTrainingFocusBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setPlayerTrainingFocus>>, TError,{id: number;data: BodyType<SetTrainingFocusBody>}, TContext> => {
+
+const mutationKey = ['setPlayerTrainingFocus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setPlayerTrainingFocus>>, {id: number;data: BodyType<SetTrainingFocusBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  setPlayerTrainingFocus(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetPlayerTrainingFocusMutationResult = NonNullable<Awaited<ReturnType<typeof setPlayerTrainingFocus>>>
+    export type SetPlayerTrainingFocusMutationBody = BodyType<SetTrainingFocusBody>
+    export type SetPlayerTrainingFocusMutationError = ErrorType<void>
+
+    /**
+ * @summary Set or clear a youth player's training focus
+ */
+export const useSetPlayerTrainingFocus = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setPlayerTrainingFocus>>, TError,{id: number;data: BodyType<SetTrainingFocusBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setPlayerTrainingFocus>>,
+        TError,
+        {id: number;data: BodyType<SetTrainingFocusBody>},
+        TContext
+      > => {
+      return useMutation(getSetPlayerTrainingFocusMutationOptions(options));
     }
 
 export const getScoutPlayerUrl = (id: number,) => {

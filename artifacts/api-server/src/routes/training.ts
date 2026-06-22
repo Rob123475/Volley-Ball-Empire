@@ -225,6 +225,44 @@ const applyFatigueAndStats = async (
   if (program.primaryStat   && primaryGain   > 0) applyStatGain(program.primaryStat,   primaryGain);
   if (program.secondaryStat && secondaryGain > 0) applyStatGain(program.secondaryStat, secondaryGain);
 
+  // ── Youth training focus boost (age 14–18 only; never affects senior players) ──
+  // Each session accumulates 15–20 focusXp independent of the training programme.
+  // Every 100 focusXp → +1 to the focus stat (Leadership gets +3 morale instead).
+  const FOCUS_STAT_MAP: Record<string, string> = {
+    Attack:      "power",
+    Defence:     "defense",
+    Serving:     "serve",
+    Blocking:    "block",
+    Athleticism: "speed",
+  };
+  const FOCUS_XP_PER_SESSION_MIN = 15;
+  const FOCUS_XP_PER_SESSION_MAX = 20;
+  const FOCUS_XP_THRESHOLD = 100;
+
+  if (player.age >= 14 && player.age <= 18 && player.trainingFocus) {
+    const focusXpGain = Math.floor(
+      Math.random() * (FOCUS_XP_PER_SESSION_MAX - FOCUS_XP_PER_SESSION_MIN + 1)
+    ) + FOCUS_XP_PER_SESSION_MIN;
+
+    if (player.trainingFocus === "Leadership") {
+      // Leadership: +3 morale per session
+      const curMorale = (updates.morale as number | undefined) ?? player.morale;
+      updates.morale = Math.min(100, curMorale + 3);
+    } else {
+      const focusStat = FOCUS_STAT_MAP[player.trainingFocus];
+      if (focusStat) {
+        const prevFocusXp = player.focusXp ?? 0;
+        const newFocusXp  = prevFocusXp + focusXpGain;
+        const focusGain   = Math.floor(newFocusXp / FOCUS_XP_THRESHOLD) - Math.floor(prevFocusXp / FOCUS_XP_THRESHOLD);
+        updates.focusXp   = newFocusXp;
+        if (focusGain > 0) {
+          const curStat = (updates[focusStat] as number | undefined) ?? (player[focusStat as keyof typeof player] as number);
+          updates[focusStat] = Math.min(99, curStat + focusGain);
+        }
+      }
+    }
+  }
+
   // Morale (program + coach + Psychology Centre)
   // Psychology Centre: +0 bonus at L1, +2 extra morale per session at L10
   const psychMoraleBonus = Math.round((psychLevel - 1) * (2 / 9));
