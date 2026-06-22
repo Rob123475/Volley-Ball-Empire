@@ -305,6 +305,9 @@ export default function MedicalCentre() {
         )}
       </section>
 
+      {/* ── Treatment Queue ───────────────────────────────────── */}
+      <TreatmentQueue injuredPlayers={injuredPlayers} bestSkill={bestSkill} />
+
       {/* ── Recovery Forecast ─────────────────────────────────── */}
       <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={bestSkill} />
 
@@ -405,6 +408,100 @@ export default function MedicalCentre() {
         )}
       </section>
     </div>
+  );
+}
+
+/* ── Treatment Queue ─────────────────────────────────────────── */
+
+function TreatmentQueue({
+  injuredPlayers,
+  bestSkill,
+}: {
+  injuredPlayers: InjuredPlayer[];
+  bestSkill: number;
+}) {
+  const queue = injuredPlayers
+    .map((p) => {
+      const status = p.injuryStatus as string;
+      const baseWeeks = INJURY_BASE_WEEKS[status] ?? 0;
+      const weeksLeft =
+        (p.injuryWeeksRemaining as number) > 0
+          ? (p.injuryWeeksRemaining as number)
+          : recoveryWeeks(status, bestSkill);
+      const daysLeft = weeksLeft * 7;
+      const totalDays = baseWeeks * 7;
+      const progress = totalDays > 0
+        ? Math.round(Math.max(0, Math.min(100, ((totalDays - daysLeft) / totalDays) * 100)))
+        : 0;
+      return { ...p, status, daysLeft, progress };
+    })
+    .sort((a, b) => a.daysLeft - b.daysLeft);
+
+  return (
+    <section className="space-y-4">
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <Stethoscope className="h-5 w-5 text-primary" /> Treatment Queue
+      </h3>
+
+      {queue.length === 0 ? (
+        <Card>
+          <CardContent className="flex items-center gap-3 py-5">
+            <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+            <p className="text-sm text-muted-foreground">No players currently receiving treatment.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {queue.map((player, idx) => {
+                const colors = INJURY_COLORS[player.status] ?? INJURY_COLORS["Minor Injury"];
+                const Icon = INJURY_ICONS[player.status] ?? AlertTriangle;
+                const barColor =
+                  player.progress >= 75 ? "bg-green-500" :
+                  player.progress >= 40 ? "bg-yellow-500" : "bg-orange-500";
+
+                return (
+                  <div key={player.id} className="flex items-center gap-4 px-4 py-3">
+                    {/* Rank */}
+                    <span className="text-xs font-bold text-muted-foreground/50 w-4 shrink-0 text-right">
+                      {idx + 1}
+                    </span>
+
+                    {/* Name + injury type */}
+                    <div className="min-w-0 w-40 shrink-0">
+                      <p className="font-semibold text-sm truncate">{player.name}</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Icon className={`h-3 w-3 shrink-0 ${colors.text}`} />
+                        <span className={`text-[11px] ${colors.text}`}>{player.status}</span>
+                      </div>
+                    </div>
+
+                    {/* Progress bar + days */}
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-muted-foreground">
+                          {player.daysLeft === 0
+                            ? "Ready next week"
+                            : `${player.daysLeft} day${player.daysLeft !== 1 ? "s" : ""} remaining`}
+                        </span>
+                        <span className="font-semibold text-muted-foreground">{player.progress}%</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-primary/15 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${barColor}`}
+                          style={{ width: `${player.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </section>
   );
 }
 
