@@ -87,7 +87,9 @@ router.post("/players", async (req, res) => {
 router.get("/players/free-agents", async (req, res) => {
   const freeAgents = await db.select().from(playersTable)
     .where(and(isNull(playersTable.teamId), eq(playersTable.isRetired, false)));
-  res.json(freeAgents.filter(p => !p.isDraftPlayer).map(serializePlayer));
+  // Exclude draft players and any player still holding a development rights marker
+  // (academy players should never appear as free agents — they must go through proper channels)
+  res.json(freeAgents.filter(p => !p.isDraftPlayer && p.academyContractYears == null).map(serializePlayer));
 });
 
 router.get("/players/:id", async (req, res) => {

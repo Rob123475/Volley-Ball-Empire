@@ -87,9 +87,25 @@ router.get("/contracts/:id", async (req, res) => {
 router.delete("/contracts/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
-  const [contract] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
+
+  // Resolve the player before mutating anything
+  const contract = await db.query.contractsTable.findFirst({ where: eq(contractsTable.id, id) });
+  if (!contract) { res.status(404).json({ error: "Contract not found" }); return; }
+
+  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, contract.playerId) });
+
+  // Development Rights Protection: academy players cannot have their contract terminated directly.
+  // They may only leave via Promotion, Sale, Draft Entry, or Release.
+  if (player?.academyContractYears != null) {
+    res.status(403).json({
+      error: "Development Rights Protection: this player is under an academy contract and cannot be approached or released via contract termination. Use Promotion, Sale, Draft Entry, or Release instead.",
+    });
+    return;
+  }
+
+  const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
   await db.update(playersTable).set({ teamId: null, contractEndDate: null }).where(eq(playersTable.id, contract.playerId));
-  res.json(serializeContract(contract));
+  res.json(serializeContract(terminated));
 });
 
 export default router;

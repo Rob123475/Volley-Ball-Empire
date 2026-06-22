@@ -30,6 +30,7 @@ import {
   ChevronUp,
   ChevronDown,
   Award,
+  Lock,
 } from "lucide-react";
 import {
   Dialog,
@@ -357,13 +358,19 @@ export default function TeamRoster() {
                   </div>
                 </div>
 
-                {/* Academy Contract */}
-                <div className="rounded-lg bg-primary/8 border border-primary/20 px-3 py-2 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Academy Contract</span>
+                {/* Academy Contract + Development Rights */}
+                <div className="rounded-lg bg-primary/8 border border-primary/20 px-3 py-2 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Academy Contract</span>
+                    </div>
+                    <span className="text-[11px] font-black text-primary">{contractDisplay} Years Remaining</span>
                   </div>
-                  <span className="text-[11px] font-black text-primary">{contractDisplay} Years Remaining</span>
+                  <div className="flex items-center gap-1.5 text-[9px] font-semibold text-muted-foreground">
+                    <Lock className="h-2.5 w-2.5 shrink-0 text-amber-500" />
+                    <span>Development Rights Protected — may only leave via Promotion, Sale, Draft, or Release</span>
+                  </div>
                 </div>
 
                 {/* Row 2: Speciality | Confidence | Dev Level */}
