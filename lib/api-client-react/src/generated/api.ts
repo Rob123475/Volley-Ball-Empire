@@ -49,6 +49,7 @@ import type {
   PlayerRoleUpdate,
   PlayerSwap,
   PlayerUpdate,
+  PlayerWorkload,
   PromoDeal,
   RunCampInput,
   ScoutingResult,
@@ -4817,6 +4818,83 @@ export function useGetTrophyCabinet<TData = Awaited<ReturnType<typeof getTrophyC
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetTrophyCabinetQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetPlayerWorkloadsUrl = () => {
+
+
+
+
+  return `/api/medical/workload`
+}
+
+/**
+ * @summary Get workload status for all players (last 14 days)
+ */
+export const getPlayerWorkloads = async ( options?: RequestInit): Promise<PlayerWorkload[]> => {
+
+  return customFetch<PlayerWorkload[]>(getGetPlayerWorkloadsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPlayerWorkloadsQueryKey = () => {
+    return [
+    `/api/medical/workload`
+    ] as const;
+    }
+
+
+export const getGetPlayerWorkloadsQueryOptions = <TData = Awaited<ReturnType<typeof getPlayerWorkloads>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPlayerWorkloads>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPlayerWorkloadsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPlayerWorkloads>>> = ({ signal }) => getPlayerWorkloads({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPlayerWorkloads>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPlayerWorkloadsQueryResult = NonNullable<Awaited<ReturnType<typeof getPlayerWorkloads>>>
+export type GetPlayerWorkloadsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get workload status for all players (last 14 days)
+ */
+
+export function useGetPlayerWorkloads<TData = Awaited<ReturnType<typeof getPlayerWorkloads>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPlayerWorkloads>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPlayerWorkloadsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

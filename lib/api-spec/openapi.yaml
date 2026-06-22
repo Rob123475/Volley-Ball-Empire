@@ -1151,6 +1151,25 @@ paths:
         "404":
           description: Team not found
 
+  /medical/workload:
+    get:
+      operationId: getPlayerWorkloads
+      tags: [medical]
+      summary: Get workload status for all players (last 14 days)
+      responses:
+        "200":
+          description: Per-player workload data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerWorkload"
+        "401":
+          description: Unauthorized
+        "404":
+          description: No team found
+
   /medical/injury-stats:
     get:
       operationId: getSeasonInjuryStats
@@ -2457,6 +2476,29 @@ components:
           type: number
         reputation:
           type: integer
+
+    PlayerWorkload:
+      type: object
+      required: [id, name, position, squadRole, matchesPlayed, trainingSessions, status]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: string
+        squadRole:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        matchesPlayed:
+          type: integer
+        trainingSessions:
+          type: integer
+        status:
+          type: string
+          enum: [Fresh, "Heavy Load", Overworked]
 
     SeasonInjuryStats:
       type: object

@@ -955,6 +955,26 @@ export interface LeaderboardEntry {
   reputation: number;
 }
 
+export type PlayerWorkloadStatus = typeof PlayerWorkloadStatus[keyof typeof PlayerWorkloadStatus];
+
+
+export const PlayerWorkloadStatus = {
+  Fresh: 'Fresh',
+  Heavy_Load: 'Heavy Load',
+  Overworked: 'Overworked',
+} as const;
+
+export interface PlayerWorkload {
+  id: number;
+  name: string;
+  position: string;
+  squadRole: string;
+  imageUrl?: string | null;
+  matchesPlayed: number;
+  trainingSessions: number;
+  status: PlayerWorkloadStatus;
+}
+
 export interface SeasonInjuryStats {
   seasonId: number;
   totalInjuries: number;

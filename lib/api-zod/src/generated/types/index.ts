@@ -61,6 +61,8 @@ export * from './playerScoutedPotential';
 export * from './playerSquadRole';
 export * from './playerSwap';
 export * from './playerUpdate';
+export * from './playerWorkload';
+export * from './playerWorkloadStatus';
 export * from './promoDeal';
 export * from './runCampInput';
 export * from './scoutingResult';

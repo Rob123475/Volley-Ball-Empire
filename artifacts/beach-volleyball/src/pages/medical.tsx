@@ -5,6 +5,7 @@ import {
   getGetFacilitiesQueryKey,
   useUpgradeFacility,
   useGetSeasonInjuryStats,
+  useGetPlayerWorkloads,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import {
   Link as LinkIcon,
   ArrowUp,
   BarChart2,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -315,6 +317,9 @@ export default function MedicalCentre() {
 
       {/* ── Season Injury Statistics ───────────────────────────── */}
       <SeasonInjuryStatsCard />
+
+      {/* ── Workload Monitoring ────────────────────────────────── */}
+      <WorkloadMonitoringCard />
 
       {/* ── Squad Fitness Overview ─────────────────────────────── */}
       <section className="space-y-4">
@@ -616,6 +621,132 @@ function ForecastStat({
       <p className="text-[11px] text-muted-foreground leading-snug">{label}</p>
       <p className={`text-2xl font-bold ${valueClass ?? ""}`}>{value}</p>
     </div>
+  );
+}
+
+/* ── Workload Monitoring Card ────────────────────────────────── */
+
+const WORKLOAD_CONFIG = {
+  Fresh:        { dot: "bg-green-500",  text: "text-green-600",  badge: "border-green-500/40 text-green-600",  label: "Fresh"       },
+  "Heavy Load": { dot: "bg-yellow-500", text: "text-yellow-600", badge: "border-yellow-500/40 text-yellow-600", label: "Heavy Load"  },
+  Overworked:   { dot: "bg-red-500",    text: "text-red-600",    badge: "border-red-500/40 text-red-600",      label: "Overworked"  },
+} as const;
+
+function WorkloadMonitoringCard() {
+  const { data: workloads, isLoading } = useGetPlayerWorkloads();
+
+  const sorted = [...(workloads ?? [])].sort((a, b) => {
+    const order = { Overworked: 0, "Heavy Load": 1, Fresh: 2 };
+    return (order[a.status as keyof typeof order] ?? 2) - (order[b.status as keyof typeof order] ?? 2);
+  });
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Activity className="h-5 w-5 text-primary" /> Workload Monitoring
+        </h3>
+        <span className="text-xs text-muted-foreground">Last 14 days · Monitoring only</span>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="p-6 space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : sorted.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No players found in your squad.
+            </div>
+          ) : (
+            <div className="divide-y">
+              {/* Header row */}
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <span>Player</span>
+                <span className="text-center w-20">Matches</span>
+                <span className="text-center w-24">Training</span>
+                <span className="text-center w-24">Status</span>
+              </div>
+
+              {sorted.map(player => {
+                const cfg = WORKLOAD_CONFIG[player.status as keyof typeof WORKLOAD_CONFIG] ?? WORKLOAD_CONFIG.Fresh;
+                return (
+                  <div
+                    key={player.id}
+                    className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-5 py-3 hover:bg-muted/30 transition-colors"
+                  >
+                    {/* Player info */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      {player.imageUrl ? (
+                        <img
+                          src={player.imageUrl}
+                          alt={player.name}
+                          className="h-8 w-8 rounded-full object-cover object-[center_15%] shrink-0"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted shrink-0 flex items-center justify-center">
+                          <span className="text-xs font-bold text-muted-foreground">
+                            {player.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-medium truncate text-sm">{player.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize truncate">
+                          {player.position.replace(/_/g, " ")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Matches */}
+                    <div className="w-20 text-center">
+                      <span className="text-sm font-semibold">{player.matchesPlayed}</span>
+                      <p className="text-[10px] text-muted-foreground">matches</p>
+                    </div>
+
+                    {/* Training */}
+                    <div className="w-24 text-center">
+                      <span className="text-sm font-semibold">{player.trainingSessions}</span>
+                      <p className="text-[10px] text-muted-foreground">sessions</p>
+                    </div>
+
+                    {/* Status badge */}
+                    <div className="w-24 flex justify-center">
+                      <Badge
+                        variant="outline"
+                        className={`gap-1.5 text-xs ${cfg.badge}`}
+                      >
+                        <span className={`h-2 w-2 rounded-full shrink-0 ${cfg.dot}`} />
+                        {cfg.label}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground px-1">
+        <span className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-green-500" />
+          Fresh — &lt;2 matches &amp; &lt;3 training
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-yellow-500" />
+          Heavy Load — 2–3 matches or 3–5 training
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-red-500" />
+          Overworked — 4+ matches or 6+ training
+        </span>
+      </div>
+    </section>
   );
 }
 
