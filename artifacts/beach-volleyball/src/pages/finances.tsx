@@ -6,6 +6,7 @@ import {
   useGetSponsorProgress,
   useGetPrizeMoneySummary,
   useGetWageBill,
+  useGetStaffWageBill,
   getGetFinanceSummaryQueryKey,
   getListFinancesQueryKey,
   getListPromoDealsQueryKey,
@@ -14,6 +15,7 @@ import {
   type SponsorProgress,
   type PrizeMoneySummary,
   type WageBill,
+  type StaffWageBill,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -76,6 +78,7 @@ export default function Finances() {
   });
   const { data: prizeMoneyData, isLoading: prizeMoneyLoading } = useGetPrizeMoneySummary();
   const { data: wageBill, isLoading: wageBillLoading } = useGetWageBill();
+  const { data: staffWageBill, isLoading: staffWageBillLoading } = useGetStaffWageBill();
 
   const acceptDealMutation = useAcceptPromoDeal();
 
@@ -131,6 +134,9 @@ export default function Finances() {
 
       {/* Player Wage Bill */}
       <PlayerWageBillCard data={wageBill} isLoading={wageBillLoading} />
+
+      {/* Staff Wage Bill */}
+      <StaffWageBillCard data={staffWageBill} isLoading={staffWageBillLoading} />
 
       {/* Cashflow Forecast */}
       <CashflowForecastCard summary={summary} isLoading={summaryLoading} />
@@ -600,6 +606,121 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
 
         {players.length === 0 && (
           <p className="text-sm text-muted-foreground italic">No players on the roster yet.</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Staff Wage Bill Card ───────────────────────────────────── */
+
+const ROLE_ICON: Record<string, string> = {
+  Coach:           "🧠",
+  "Fitness Trainer": "💪",
+  Physiotherapist: "🩺",
+  Scout:           "🔭",
+  Doctor:          "👩‍⚕️",
+  Psychologist:    "🧘",
+};
+
+function StaffWageBillCard({ data, isLoading }: { data: StaffWageBill | undefined; isLoading: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Star className="h-4 w-4 text-orange-500" />
+            Staff Wages
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-4 w-2/3" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const weeklyWages  = data?.weeklyWages  ?? 0;
+  const monthlyWages = data?.monthlyWages ?? 0;
+  const members      = data?.staff        ?? [];
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Star className="h-4 w-4 text-orange-500" />
+            Staff Wages
+          </CardTitle>
+          <Badge variant="outline" className="text-xs">{members.length} staff</Badge>
+        </div>
+        <CardDescription>Weekly salaries for all hired staff members</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {members.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">No staff wages currently active.</p>
+        ) : (
+          <>
+            {/* Totals */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-xs text-muted-foreground mb-1">Weekly Wages</div>
+                <div className="text-xl font-bold text-orange-600">{formatCurrency(weeklyWages)}</div>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-xs text-muted-foreground mb-1">Monthly Wages</div>
+                <div className="text-xl font-bold text-orange-600">{formatCurrency(monthlyWages)}</div>
+              </div>
+            </div>
+
+            {/* Expand toggle */}
+            <button
+              onClick={() => setExpanded(e => !e)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
+            >
+              <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")} />
+              {expanded ? "Hide" : "Show"} per-staff breakdown
+            </button>
+
+            {expanded && (
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/40">
+                      <th className="text-left px-3 py-2 font-medium text-muted-foreground">Staff Member</th>
+                      <th className="text-left px-3 py-2 font-medium text-muted-foreground hidden sm:table-cell">Role</th>
+                      <th className="text-right px-3 py-2 font-medium text-muted-foreground">Weekly</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...members]
+                      .sort((a, b) => b.weeklySalary - a.weeklySalary)
+                      .map((s, i) => (
+                        <tr key={s.id} className={cn("border-b last:border-0", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
+                          <td className="px-3 py-2 font-medium">
+                            <span className="mr-1.5">{ROLE_ICON[s.role] ?? "👤"}</span>
+                            {s.name}
+                          </td>
+                          <td className="px-3 py-2 text-muted-foreground hidden sm:table-cell">{s.role}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-orange-600 font-medium">
+                            {formatCurrency(s.weeklySalary)}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t bg-muted/40">
+                      <td className="px-3 py-2 font-semibold" colSpan={2}>Total</td>
+                      <td className="px-3 py-2 text-right font-bold text-orange-600 tabular-nums">{formatCurrency(weeklyWages)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

@@ -890,6 +890,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/FinanceSummary"
 
+  /finances/staff-wage-bill:
+    get:
+      operationId: getStaffWageBill
+      tags: [finances]
+      summary: Get weekly and monthly staff wage totals with per-staff breakdown
+      responses:
+        "200":
+          description: Staff wage bill summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffWageBill"
+
   /finances/wage-bill:
     get:
       operationId: getWageBill
@@ -2071,6 +2084,34 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FinanceTransaction"
+
+    StaffWageBillMember:
+      type: object
+      required: [id, name, role, weeklySalary]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+        weeklySalary:
+          type: number
+
+    StaffWageBill:
+      type: object
+      required: [weeklyWages, monthlyWages, staffCount, staff]
+      properties:
+        weeklyWages:
+          type: number
+        monthlyWages:
+          type: number
+        staffCount:
+          type: integer
+        staff:
+          type: array
+          items:
+            $ref: "#/components/schemas/StaffWageBillMember"
 
     WageBillPlayer:
       type: object

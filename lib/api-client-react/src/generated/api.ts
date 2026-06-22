@@ -61,6 +61,7 @@ import type {
   SponsorProgress,
   StaffInput,
   StaffMember,
+  StaffWageBill,
   Team,
   TeamInput,
   TeamRoster,
@@ -3705,6 +3706,83 @@ export function useGetFinanceSummary<TData = Awaited<ReturnType<typeof getFinanc
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetFinanceSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetStaffWageBillUrl = () => {
+
+
+
+
+  return `/api/finances/staff-wage-bill`
+}
+
+/**
+ * @summary Get weekly and monthly staff wage totals with per-staff breakdown
+ */
+export const getStaffWageBill = async ( options?: RequestInit): Promise<StaffWageBill> => {
+
+  return customFetch<StaffWageBill>(getGetStaffWageBillUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStaffWageBillQueryKey = () => {
+    return [
+    `/api/finances/staff-wage-bill`
+    ] as const;
+    }
+
+
+export const getGetStaffWageBillQueryOptions = <TData = Awaited<ReturnType<typeof getStaffWageBill>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStaffWageBill>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStaffWageBillQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStaffWageBill>>> = ({ signal }) => getStaffWageBill({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStaffWageBill>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStaffWageBillQueryResult = NonNullable<Awaited<ReturnType<typeof getStaffWageBill>>>
+export type GetStaffWageBillQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get weekly and monthly staff wage totals with per-staff breakdown
+ */
+
+export function useGetStaffWageBill<TData = Awaited<ReturnType<typeof getStaffWageBill>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStaffWageBill>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStaffWageBillQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

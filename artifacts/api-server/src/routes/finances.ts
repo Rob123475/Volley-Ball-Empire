@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, teamsTable } from "@workspace/db";
+import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 
 /* ── Player salary helpers ──────────────────────────────────── */
@@ -24,6 +24,19 @@ function getPlayerTier(overallRating: number): PlayerTier {
 }
 
 const WEEKS_PER_MONTH = 52 / 12;
+
+async function computeStaffWageBill(teamId: number) {
+  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
+  const roster = staff.map(s => ({
+    id:           s.id,
+    name:         s.name,
+    role:         s.role,
+    weeklySalary: Number(s.salary),
+  }));
+  const weeklyWages  = roster.reduce((sum, s) => sum + s.weeklySalary, 0);
+  const monthlyWages = Math.round(weeklyWages * WEEKS_PER_MONTH);
+  return { weeklyWages, monthlyWages, staffCount: roster.length, staff: roster };
+}
 
 async function computeWageBill(teamId: number) {
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, teamId));
@@ -88,15 +101,19 @@ router.get("/finances/summary", async (req, res) => {
   const monthIncome = income.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
   const monthExpenses = expenses.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
 
-  const wageBill = await computeWageBill(team.id);
+  const [wageBill, staffWageBill] = await Promise.all([
+    computeWageBill(team.id),
+    computeStaffWageBill(team.id),
+  ]);
   const txPlayerSalaries = expenses.filter(t => t.category === "player_salary").reduce((acc, t) => acc + Number(t.amount), 0);
+  const txStaffSalaries  = expenses.filter(t => t.category === "staff_salary").reduce((acc, t) => acc + Number(t.amount), 0);
 
   res.json({
     totalBalance: Number(team.budget),
     totalIncome,
     totalExpenses,
     monthlyIncome: monthIncome,
-    monthlyExpenses: monthExpenses + wageBill.monthlyWages,
+    monthlyExpenses: monthExpenses + wageBill.monthlyWages + staffWageBill.monthlyWages,
     incomeSources: {
       prizeMoney: income.filter(t => t.category === "prize_money").reduce((acc, t) => acc + Number(t.amount), 0),
       sponsorships: income.filter(t => t.category === "sponsorship").reduce((acc, t) => acc + Number(t.amount), 0),
@@ -104,7 +121,7 @@ router.get("/finances/summary", async (req, res) => {
     },
     expenseBreakdown: {
       playerSalaries: txPlayerSalaries + wageBill.monthlyWages,
-      staffSalaries: expenses.filter(t => t.category === "staff_salary").reduce((acc, t) => acc + Number(t.amount), 0),
+      staffSalaries: txStaffSalaries + staffWageBill.monthlyWages,
       trainingCosts: expenses.filter(t => t.category === "training_cost").reduce((acc, t) => acc + Number(t.amount), 0),
       other: expenses.filter(t => !["player_salary","staff_salary","training_cost"].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),
     },
@@ -117,6 +134,13 @@ router.get("/finances/wage-bill", async (req, res) => {
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.json({ weeklyWages: 0, monthlyWages: 0, playerCount: 0, players: [] }); return; }
   res.json(await computeWageBill(team.id));
+});
+
+router.get("/finances/staff-wage-bill", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.json({ weeklyWages: 0, monthlyWages: 0, staffCount: 0, staff: [] }); return; }
+  res.json(await computeStaffWageBill(team.id));
 });
 
 const TIER_TO_CATEGORY: Record<string, string> = {

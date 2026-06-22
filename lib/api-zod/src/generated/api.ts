@@ -2085,6 +2085,22 @@ export const GetFinanceSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get weekly and monthly staff wage totals with per-staff breakdown
+ */
+export const GetStaffWageBillResponse = zod.object({
+  "weeklyWages": zod.number(),
+  "monthlyWages": zod.number(),
+  "staffCount": zod.number(),
+  "staff": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.string(),
+  "weeklySalary": zod.number()
+}))
+})
+
+
+/**
  * @summary Get weekly and monthly player wage totals with per-player breakdown
  */
 export const GetWageBillResponse = zod.object({

@@ -81,6 +81,8 @@ export * from './staffMember';
 export * from './staffMemberCoachSpeciality';
 export * from './staffMemberPersonality';
 export * from './staffMemberRole';
+export * from './staffWageBill';
+export * from './staffWageBillMember';
 export * from './team';
 export * from './teamInput';
 export * from './teamRoster';
