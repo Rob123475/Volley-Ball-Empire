@@ -23,7 +23,6 @@ import {
   Crown,
   Star,
   Flame,
-  BarChart2,
   Monitor,
   Swords,
 } from "lucide-react";
@@ -99,10 +98,9 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Competition",
     icon: Trophy,
     items: [
-      { href: "/matches",     label: "Matches",    icon: Swords   },
-      { href: "/locations",   label: "World Tour", icon: Globe    },
-      { href: "/locations",   label: "Olympics",   icon: Medal,     neverActive: true },
-      { href: "/leaderboard", label: "Leaderboard",icon: BarChart2 },
+      { href: "/matches",   label: "Matches",    icon: Swords },
+      { href: "/locations", label: "World Tour", icon: Globe  },
+      { href: "/locations", label: "Olympics",   icon: Medal,   neverActive: true },
     ],
   },
   {
