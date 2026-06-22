@@ -2880,6 +2880,53 @@ export const GetYouthLeagueResultsResponse = zod.array(GetYouthLeagueResultsResp
 
 
 /**
+ * @summary Get the Youth Development League ladder for the current season
+ */
+export const GetYouthLadderResponseItem = zod.object({
+  "id": zod.number(),
+  "teamId": zod.number(),
+  "season": zod.number(),
+  "competitorName": zod.string(),
+  "isPlayer": zod.boolean(),
+  "wins": zod.number(),
+  "losses": zod.number(),
+  "points": zod.number(),
+  "createdAt": zod.string().optional()
+})
+export const GetYouthLadderResponse = zod.array(GetYouthLadderResponseItem)
+
+
+/**
+ * @summary Get top youth players (ages 14-18) ordered by rating
+ */
+export const GetYouthStarsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "age": zod.number(),
+  "rating": zod.number(),
+  "potential": zod.string(),
+  "speciality": zod.string(),
+  "nationality": zod.string()
+})
+export const GetYouthStarsResponse = zod.array(GetYouthStarsResponseItem)
+
+
+/**
+ * @summary Get Youth Championship trophy history
+ */
+export const GetYouthChampionshipResponseItem = zod.object({
+  "id": zod.number(),
+  "teamId": zod.number(),
+  "season": zod.number(),
+  "year": zod.number().nullish(),
+  "winningTeamName": zod.string(),
+  "isPlayerWin": zod.boolean(),
+  "createdAt": zod.string().optional()
+})
+export const GetYouthChampionshipResponse = zod.array(GetYouthChampionshipResponseItem)
+
+
+/**
  * @summary Get current youth scouting mission status
  */
 export const GetYouthScoutingResponse = zod.object({

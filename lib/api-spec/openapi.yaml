@@ -1397,6 +1397,57 @@ paths:
         "401":
           description: Unauthorized
 
+  /youth-league/ladder:
+    get:
+      operationId: getYouthLadder
+      tags: [youth-scouting]
+      summary: Get the Youth Development League ladder for the current season
+      responses:
+        "200":
+          description: Ladder standings sorted by points descending
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YouthLadderEntry"
+        "401":
+          description: Unauthorized
+
+  /youth-league/stars:
+    get:
+      operationId: getYouthStars
+      tags: [youth-scouting]
+      summary: Get top youth players (ages 14-18) ordered by rating
+      responses:
+        "200":
+          description: Top youth players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YouthStar"
+        "401":
+          description: Unauthorized
+
+  /youth-league/championship:
+    get:
+      operationId: getYouthChampionship
+      tags: [youth-scouting]
+      summary: Get Youth Championship trophy history
+      responses:
+        "200":
+          description: Youth championship trophy history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YouthChampionshipTrophy"
+        "401":
+          description: Unauthorized
+
   /youth-scouting:
     get:
       operationId: getYouthScouting
@@ -2974,6 +3025,68 @@ components:
           type: string
         currentInjuryCount:
           type: integer
+
+    YouthLadderEntry:
+      type: object
+      required: [id, teamId, season, competitorName, isPlayer, wins, losses, points]
+      properties:
+        id:
+          type: integer
+        teamId:
+          type: integer
+        season:
+          type: integer
+        competitorName:
+          type: string
+        isPlayer:
+          type: boolean
+        wins:
+          type: integer
+        losses:
+          type: integer
+        points:
+          type: integer
+        createdAt:
+          type: string
+
+    YouthStar:
+      type: object
+      required: [id, name, age, rating, potential, speciality, nationality]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        age:
+          type: integer
+        rating:
+          type: integer
+        potential:
+          type: string
+        speciality:
+          type: string
+        nationality:
+          type: string
+
+    YouthChampionshipTrophy:
+      type: object
+      required: [id, teamId, season, winningTeamName, isPlayerWin]
+      properties:
+        id:
+          type: integer
+        teamId:
+          type: integer
+        season:
+          type: integer
+        year:
+          type: integer
+          nullable: true
+        winningTeamName:
+          type: string
+        isPlayerWin:
+          type: boolean
+        createdAt:
+          type: string
 
     YouthLeagueResult:
       type: object

@@ -1098,6 +1098,38 @@ export interface SeasonInjuryStats {
   currentInjuryCount: number;
 }
 
+export interface YouthLadderEntry {
+  id: number;
+  teamId: number;
+  season: number;
+  competitorName: string;
+  isPlayer: boolean;
+  wins: number;
+  losses: number;
+  points: number;
+  createdAt?: string;
+}
+
+export interface YouthStar {
+  id: number;
+  name: string;
+  age: number;
+  rating: number;
+  potential: string;
+  speciality: string;
+  nationality: string;
+}
+
+export interface YouthChampionshipTrophy {
+  id: number;
+  teamId: number;
+  season: number;
+  year?: number | null;
+  winningTeamName: string;
+  isPlayerWin: boolean;
+  createdAt?: string;
+}
+
 export type YouthLeagueResultResult = typeof YouthLeagueResultResult[keyof typeof YouthLeagueResultResult];
 
 

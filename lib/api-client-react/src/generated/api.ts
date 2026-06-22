@@ -83,9 +83,12 @@ import type {
   WageBill,
   WellbeingResult,
   WellbeingStatus,
+  YouthChampionshipTrophy,
+  YouthLadderEntry,
   YouthLeagueResult,
   YouthProspect,
-  YouthScoutingMission
+  YouthScoutingMission,
+  YouthStar
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -5898,6 +5901,237 @@ export function useGetYouthLeagueResults<TData = Awaited<ReturnType<typeof getYo
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetYouthLeagueResultsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetYouthLadderUrl = () => {
+
+
+
+
+  return `/api/youth-league/ladder`
+}
+
+/**
+ * @summary Get the Youth Development League ladder for the current season
+ */
+export const getYouthLadder = async ( options?: RequestInit): Promise<YouthLadderEntry[]> => {
+
+  return customFetch<YouthLadderEntry[]>(getGetYouthLadderUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetYouthLadderQueryKey = () => {
+    return [
+    `/api/youth-league/ladder`
+    ] as const;
+    }
+
+
+export const getGetYouthLadderQueryOptions = <TData = Awaited<ReturnType<typeof getYouthLadder>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthLadder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetYouthLadderQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getYouthLadder>>> = ({ signal }) => getYouthLadder({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getYouthLadder>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetYouthLadderQueryResult = NonNullable<Awaited<ReturnType<typeof getYouthLadder>>>
+export type GetYouthLadderQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the Youth Development League ladder for the current season
+ */
+
+export function useGetYouthLadder<TData = Awaited<ReturnType<typeof getYouthLadder>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthLadder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetYouthLadderQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetYouthStarsUrl = () => {
+
+
+
+
+  return `/api/youth-league/stars`
+}
+
+/**
+ * @summary Get top youth players (ages 14-18) ordered by rating
+ */
+export const getYouthStars = async ( options?: RequestInit): Promise<YouthStar[]> => {
+
+  return customFetch<YouthStar[]>(getGetYouthStarsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetYouthStarsQueryKey = () => {
+    return [
+    `/api/youth-league/stars`
+    ] as const;
+    }
+
+
+export const getGetYouthStarsQueryOptions = <TData = Awaited<ReturnType<typeof getYouthStars>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthStars>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetYouthStarsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getYouthStars>>> = ({ signal }) => getYouthStars({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getYouthStars>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetYouthStarsQueryResult = NonNullable<Awaited<ReturnType<typeof getYouthStars>>>
+export type GetYouthStarsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get top youth players (ages 14-18) ordered by rating
+ */
+
+export function useGetYouthStars<TData = Awaited<ReturnType<typeof getYouthStars>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthStars>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetYouthStarsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetYouthChampionshipUrl = () => {
+
+
+
+
+  return `/api/youth-league/championship`
+}
+
+/**
+ * @summary Get Youth Championship trophy history
+ */
+export const getYouthChampionship = async ( options?: RequestInit): Promise<YouthChampionshipTrophy[]> => {
+
+  return customFetch<YouthChampionshipTrophy[]>(getGetYouthChampionshipUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetYouthChampionshipQueryKey = () => {
+    return [
+    `/api/youth-league/championship`
+    ] as const;
+    }
+
+
+export const getGetYouthChampionshipQueryOptions = <TData = Awaited<ReturnType<typeof getYouthChampionship>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthChampionship>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetYouthChampionshipQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getYouthChampionship>>> = ({ signal }) => getYouthChampionship({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getYouthChampionship>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetYouthChampionshipQueryResult = NonNullable<Awaited<ReturnType<typeof getYouthChampionship>>>
+export type GetYouthChampionshipQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get Youth Championship trophy history
+ */
+
+export function useGetYouthChampionship<TData = Awaited<ReturnType<typeof getYouthChampionship>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getYouthChampionship>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetYouthChampionshipQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

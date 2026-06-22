@@ -395,3 +395,29 @@ export const youthProspectsTable = pgTable("youth_prospects", {
 });
 
 export type YouthProspect = typeof youthProspectsTable.$inferSelect;
+
+export const youthLadderTable = pgTable("youth_ladder", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").notNull().references(() => teamsTable.id),
+  season: integer("season").notNull().default(1),
+  competitorName: varchar("competitor_name", { length: 100 }).notNull(),
+  isPlayer: boolean("is_player").notNull().default(false),
+  wins: integer("wins").notNull().default(0),
+  losses: integer("losses").notNull().default(0),
+  points: integer("points").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type YouthLadderEntry = typeof youthLadderTable.$inferSelect;
+
+export const youthChampionshipTrophiesTable = pgTable("youth_championship_trophies", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").notNull().references(() => teamsTable.id),
+  season: integer("season").notNull(),
+  year: integer("year"),
+  winningTeamName: varchar("winning_team_name", { length: 100 }).notNull(),
+  isPlayerWin: boolean("is_player_win").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type YouthChampionshipTrophy = typeof youthChampionshipTrophiesTable.$inferSelect;

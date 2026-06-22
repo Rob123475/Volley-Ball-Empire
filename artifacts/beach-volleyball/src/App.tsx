@@ -24,6 +24,7 @@ import Facilities from "@/pages/facilities";
 import Wellbeing from "@/pages/wellbeing";
 import YouthAcademy from "@/pages/youth-academy";
 import Achievements from "@/pages/achievements";
+import YouthResults from "@/pages/youth-results";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -69,6 +70,7 @@ function Router() {
           <Route path="/facilities" component={Facilities} />
           <Route path="/wellbeing" component={Wellbeing} />
           <Route path="/youth-academy" component={YouthAcademy} />
+          <Route path="/youth-results" component={YouthResults} />
           <Route path="/achievements" component={Achievements} />
           <Route component={NotFound} />
         </Switch>

@@ -102,9 +102,9 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Competition",
     icon: Trophy,
     items: [
-      { href: "/matches",   label: "Matches",    icon: Swords },
-      { href: "/locations", label: "World Tour", icon: Globe  },
-      { href: "/locations", label: "Olympics",   icon: Medal,   neverActive: true },
+      { href: "/youth-results", label: "Youth Results", icon: Star    },
+      { href: "/matches",       label: "World Tour",    icon: Globe   },
+      { href: "/locations",     label: "Olympics",      icon: Medal   },
     ],
   },
   {
