@@ -240,12 +240,23 @@ export default function Finances() {
             </div>
             <div className="space-y-4">
               <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Expense Breakdown</h4>
-              <div className="space-y-2">
-                <BreakdownRow label="Player Salaries" amount={summary?.expenseBreakdown.playerSalaries || 0} total={summary?.monthlyExpenses || 1} color="bg-red-500" />
-                <BreakdownRow label="Staff" amount={summary?.expenseBreakdown.staffSalaries || 0} total={summary?.monthlyExpenses || 1} color="bg-orange-500" />
-                <BreakdownRow label="Training" amount={summary?.expenseBreakdown.trainingCosts || 0} total={summary?.monthlyExpenses || 1} color="bg-purple-500" />
-                <BreakdownRow label="Other" amount={summary?.expenseBreakdown.other || 0} total={summary?.monthlyExpenses || 1} color="bg-gray-500" />
-              </div>
+              {(() => {
+                const playerSalaries = summary?.expenseBreakdown?.playerSalaries || 0;
+                const staffSalaries  = summary?.expenseBreakdown?.staffSalaries  || 0;
+                const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
+                const other          = summary?.expenseBreakdown?.other          || 0;
+                const hasExpenses    = playerSalaries + staffSalaries + trainingCosts + other > 0;
+                return hasExpenses ? (
+                  <div className="space-y-2">
+                    <BreakdownRow label="Player Salaries" amount={playerSalaries} total={summary?.monthlyExpenses || 1} color="bg-red-500" />
+                    <BreakdownRow label="Staff" amount={staffSalaries} total={summary?.monthlyExpenses || 1} color="bg-orange-500" />
+                    <BreakdownRow label="Training" amount={trainingCosts} total={summary?.monthlyExpenses || 1} color="bg-purple-500" />
+                    <BreakdownRow label="Other" amount={other} total={summary?.monthlyExpenses || 1} color="bg-gray-500" />
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">No expenses recorded yet.</p>
+                );
+              })()}
             </div>
           </CardContent>
         </Card>
