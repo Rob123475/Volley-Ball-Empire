@@ -64,6 +64,35 @@ const ROLE_CONFIG: Record<Role, { label: string; color: string; bg: string; bord
 const getFatigueColor = (f: number) => f < 30 ? "bg-green-500" : f < 60 ? "bg-yellow-500" : "bg-red-500";
 const getFatigueLabel = (f: number) => f < 30 ? "Fresh" : f < 60 ? "Moderate" : f < 80 ? "Tired" : "Exhausted";
 
+const POTENTIAL_STARS: Record<string, number> = {
+  Low: 1, Average: 2, High: 3, Elite: 4, Generational: 5,
+};
+
+function getPotentialStars(potential: string | null | undefined): number {
+  return POTENTIAL_STARS[potential ?? ""] ?? 0;
+}
+
+function getSpeciality(p: any): string {
+  if (p.position?.toLowerCase().includes("set")) return "Setter";
+  const stats: Record<string, number> = {
+    serve: p.serve ?? 0,
+    block: p.block ?? 0,
+    defense: p.defense ?? 0,
+    power: p.power ?? 0,
+    speed: p.speed ?? 0,
+  };
+  const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+  const [topKey, topVal] = sorted[0];
+  const secondVal = sorted[1][1];
+  if ((p.morale ?? 0) >= 90 && (p.morale ?? 0) > topVal) return "Leader";
+  if (topVal - secondVal < 5) return "All-Rounder";
+  const map: Record<string, string> = {
+    serve: "Server", block: "Blocker", defense: "Defender",
+    power: "Attacker", speed: "Attacker",
+  };
+  return map[topKey] ?? "All-Rounder";
+}
+
 function StatBar({ label, value, icon: Icon }: { label: string; value: number; icon: any }) {
   return (
     <div className="space-y-0.5">
@@ -245,6 +274,40 @@ export default function TeamRoster() {
             <StatBar label="Serve"   value={player.serve}   icon={Target} />
             <StatBar label="Block"   value={player.block}   icon={Shield} />
           </div>
+
+          {/* ── Youth profile (reserve only) ──────────────────────── */}
+          {role === "reserve" && (() => {
+            const rating      = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+            const potential   = player.scoutedPotential ?? player.potential;
+            const stars       = getPotentialStars(potential);
+            const speciality  = getSpeciality(player);
+            return (
+              <div className="pt-2 border-t border-border space-y-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Profile</p>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+                    <div className="text-lg font-black text-foreground">{rating}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Rating</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+                    <div className="flex justify-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={cn("h-3 w-3", i < stars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/30")}
+                        />
+                      ))}
+                    </div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Potential</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+                    <div className="text-[11px] font-black text-foreground leading-tight">{speciality}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Speciality</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="space-y-1 pt-1 border-t border-border">
             <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
