@@ -1344,6 +1344,23 @@ paths:
         "401":
           description: Unauthorized
 
+  /youth-league/results:
+    get:
+      operationId: getYouthLeagueResults
+      tags: [youth-scouting]
+      summary: Get recent Youth Development League results for the team's youth players
+      responses:
+        "200":
+          description: Youth league results grouped by week
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YouthLeagueResult"
+        "401":
+          description: Unauthorized
+
   /youth-scouting:
     get:
       operationId: getYouthScouting
@@ -2918,6 +2935,36 @@ components:
           type: string
         currentInjuryCount:
           type: integer
+
+    YouthLeagueResult:
+      type: object
+      required: [id, teamId, playerId, playerName, weekNumber, result, oppositionName, xpGained, devPointsGained, moraleChange, playerRatingAtTime, createdAt]
+      properties:
+        id:
+          type: integer
+        teamId:
+          type: integer
+        playerId:
+          type: integer
+        playerName:
+          type: string
+        weekNumber:
+          type: integer
+        result:
+          type: string
+          enum: [win, loss, draw]
+        oppositionName:
+          type: string
+        xpGained:
+          type: integer
+        devPointsGained:
+          type: integer
+        moraleChange:
+          type: integer
+        playerRatingAtTime:
+          type: integer
+        createdAt:
+          type: string
 
     StartYouthScoutingInput:
       type: object

@@ -10,6 +10,7 @@ import {
   useIgnoreYouthProspect,
   getGetYouthProspectsQueryKey,
   getGetTeamRosterQueryKey,
+  useGetYouthLeagueResults,
 } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,10 @@ import {
   Shield,
   Wind,
   Trophy,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Activity,
 } from "lucide-react";
 
 // ── Continent data ─────────────────────────────────────────────────────────
@@ -148,6 +153,8 @@ export default function YouthAcademy() {
   const { data: prospects = [] } = useGetYouthProspects({
     query: { queryKey: getGetYouthProspectsQueryKey() },
   });
+
+  const { data: leagueResults = [] } = useGetYouthLeagueResults();
 
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -557,6 +564,107 @@ export default function YouthAcademy() {
           )}
         </section>
       )}
+
+      {/* ── Youth Development League ──────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Activity className="h-5 w-5 text-primary" />
+          <h3 className="text-xl font-bold">Development League</h3>
+          <Badge variant="secondary" className="text-xs ml-1">Auto-simulated</Badge>
+        </div>
+        <p className="text-sm text-muted-foreground -mt-2">
+          Every signed youth player competes in the Development League each week — no management required.
+          Matches award experience, development points, and build confidence.
+        </p>
+
+        {leagueResults.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-muted/20 p-8 text-center">
+            <Activity className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-muted-foreground">No matches yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Simulate a senior match to kick off the first Development League week.
+            </p>
+          </div>
+        ) : (() => {
+          const weekNumbers = [...new Set(leagueResults.map(r => r.weekNumber))].sort((a, b) => b - a).slice(0, 3);
+          return (
+            <div className="space-y-5">
+              {weekNumbers.map(week => {
+                const weekRows = leagueResults.filter(r => r.weekNumber === week);
+                const wins   = weekRows.filter(r => r.result === "win").length;
+                const losses = weekRows.filter(r => r.result === "loss").length;
+                const draws  = weekRows.filter(r => r.result === "draw").length;
+                return (
+                  <div key={week} className="rounded-xl border border-border bg-card overflow-hidden">
+                    {/* Week header */}
+                    <div className="flex items-center justify-between px-4 py-2.5 bg-muted/40 border-b border-border">
+                      <span className="text-sm font-bold">Week {week}</span>
+                      <div className="flex items-center gap-2 text-xs font-semibold">
+                        <span className="text-emerald-600">{wins}W</span>
+                        <span className="text-muted-foreground">{draws}D</span>
+                        <span className="text-red-500">{losses}L</span>
+                      </div>
+                    </div>
+
+                    {/* Player rows */}
+                    <div className="divide-y divide-border">
+                      {weekRows.map(row => {
+                        const isWin  = row.result === "win";
+                        const isDraw = row.result === "draw";
+                        const ResultIcon = isWin ? TrendingUp : isDraw ? Minus : TrendingDown;
+                        const resultColor = isWin
+                          ? "text-emerald-600"
+                          : isDraw
+                          ? "text-amber-500"
+                          : "text-red-500";
+                        const resultBg = isWin
+                          ? "bg-emerald-50 dark:bg-emerald-950/20"
+                          : isDraw
+                          ? "bg-amber-50 dark:bg-amber-950/20"
+                          : "bg-red-50 dark:bg-red-950/20";
+
+                        return (
+                          <div key={row.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                            {/* Result badge */}
+                            <div className={cn("flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-black uppercase tracking-wide min-w-[52px] justify-center", resultColor, resultBg)}>
+                              <ResultIcon className="h-3 w-3" />
+                              {row.result}
+                            </div>
+
+                            {/* Player + opposition */}
+                            <div className="flex-1 min-w-0">
+                              <span className="font-semibold truncate block leading-tight">{row.playerName}</span>
+                              <span className="text-[11px] text-muted-foreground">vs {row.oppositionName}</span>
+                            </div>
+
+                            {/* Gains */}
+                            <div className="flex items-center gap-3 shrink-0 text-xs text-muted-foreground">
+                              <div className="text-center">
+                                <div className="font-bold text-foreground">+{row.xpGained}</div>
+                                <div className="text-[9px] uppercase tracking-wider">XP</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-bold text-foreground">+{row.devPointsGained}</div>
+                                <div className="text-[9px] uppercase tracking-wider">Dev</div>
+                              </div>
+                              <div className="text-center">
+                                <div className={cn("font-bold", row.moraleChange > 0 ? "text-emerald-600" : row.moraleChange < 0 ? "text-red-500" : "text-foreground")}>
+                                  {row.moraleChange > 0 ? "+" : ""}{row.moraleChange}
+                                </div>
+                                <div className="text-[9px] uppercase tracking-wider">Morale</div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </section>
     </div>
   );
 }

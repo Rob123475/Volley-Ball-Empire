@@ -1093,6 +1093,30 @@ export interface SeasonInjuryStats {
   currentInjuryCount: number;
 }
 
+export type YouthLeagueResultResult = typeof YouthLeagueResultResult[keyof typeof YouthLeagueResultResult];
+
+
+export const YouthLeagueResultResult = {
+  win: 'win',
+  loss: 'loss',
+  draw: 'draw',
+} as const;
+
+export interface YouthLeagueResult {
+  id: number;
+  teamId: number;
+  playerId: number;
+  playerName: string;
+  weekNumber: number;
+  result: YouthLeagueResultResult;
+  oppositionName: string;
+  xpGained: number;
+  devPointsGained: number;
+  moraleChange: number;
+  playerRatingAtTime: number;
+  createdAt: string;
+}
+
 export interface StartYouthScoutingInput {
   continent: string;
 }

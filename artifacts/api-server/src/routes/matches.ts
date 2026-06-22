@@ -5,6 +5,7 @@ import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
+import { simulateYouthLeague } from "./youth-league";
 
 const router = Router();
 
@@ -551,6 +552,9 @@ router.post("/matches/:id/simulate", async (req, res) => {
       .set({ matchesRemaining: Math.max(0, effect.matchesRemaining - 1) })
       .where(eq(wellbeingEffectsTable.id, effect.id));
   }
+
+  // Simulate Youth Development League for all signed youth players (fire-and-forget)
+  simulateYouthLeague(team.id).catch(() => {});
 
   // Advance youth scouting mission by one week
   if (team.youthScoutingStatus === "active" && (team.youthScoutingWeeksRemaining ?? 0) > 0) {

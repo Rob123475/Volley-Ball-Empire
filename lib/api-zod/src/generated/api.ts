@@ -2788,6 +2788,26 @@ export const RunWellbeingCampResponse = zod.object({
 
 
 /**
+ * @summary Get recent Youth Development League results for the team's youth players
+ */
+export const GetYouthLeagueResultsResponseItem = zod.object({
+  "id": zod.number(),
+  "teamId": zod.number(),
+  "playerId": zod.number(),
+  "playerName": zod.string(),
+  "weekNumber": zod.number(),
+  "result": zod.enum(['win', 'loss', 'draw']),
+  "oppositionName": zod.string(),
+  "xpGained": zod.number(),
+  "devPointsGained": zod.number(),
+  "moraleChange": zod.number(),
+  "playerRatingAtTime": zod.number(),
+  "createdAt": zod.string()
+})
+export const GetYouthLeagueResultsResponse = zod.array(GetYouthLeagueResultsResponseItem)
+
+
+/**
  * @summary Get current youth scouting mission status
  */
 export const GetYouthScoutingResponse = zod.object({

@@ -157,6 +157,23 @@ export const staffTable = pgTable("staff", {
 
 export type StaffMember = typeof staffTable.$inferSelect;
 
+export const youthLeagueResultsTable = pgTable("youth_league_results", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").notNull().references(() => teamsTable.id),
+  playerId: integer("player_id").notNull().references(() => playersTable.id),
+  playerName: varchar("player_name", { length: 100 }).notNull(),
+  weekNumber: integer("week_number").notNull(),
+  result: varchar("result", { length: 10 }).notNull(),
+  oppositionName: varchar("opposition_name", { length: 100 }).notNull(),
+  xpGained: integer("xp_gained").notNull().default(0),
+  devPointsGained: integer("dev_points_gained").notNull().default(0),
+  moraleChange: integer("morale_change").notNull().default(0),
+  playerRatingAtTime: integer("player_rating_at_time").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type YouthLeagueResult = typeof youthLeagueResultsTable.$inferSelect;
+
 export const trainingSessionsTable = pgTable("training_sessions", {
   id: serial("id").primaryKey(),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
