@@ -130,6 +130,9 @@ export default function MedicalCentre() {
         </p>
       </div>
 
+      {/* ── Squad Health Summary ── */}
+      <SquadHealthSummary players={allPlayers} />
+
       <FacilityBonusBanner
         facilityType="medical_centre"
         facilityName="Medical Centre"
@@ -366,6 +369,99 @@ export default function MedicalCentre() {
           </Card>
         )}
       </section>
+    </div>
+  );
+}
+
+/* ── Squad Health Summary ────────────────────────────────────── */
+
+type Player = { fitness: unknown; fatigue: unknown; injuryStatus: unknown };
+
+const CONDITION_LEVELS = [
+  { label: "Excellent", min: 90, ring: "border-green-500/40",  bg: "bg-green-500/8",  badge: "bg-green-500/15 text-green-600 border-green-500/30"  },
+  { label: "Good",      min: 75, ring: "border-yellow-500/40", bg: "bg-yellow-500/8", badge: "bg-yellow-500/15 text-yellow-600 border-yellow-500/30" },
+  { label: "Fair",      min: 60, ring: "border-orange-500/40", bg: "bg-orange-500/8", badge: "bg-orange-500/15 text-orange-600 border-orange-500/30" },
+  { label: "Poor",      min: 0,  ring: "border-red-500/40",    bg: "bg-red-500/8",    badge: "bg-red-500/15 text-red-600 border-red-500/30"          },
+] as const;
+
+function getCondition(avgFitness: number) {
+  return CONDITION_LEVELS.find(c => avgFitness >= c.min) ?? CONDITION_LEVELS[3];
+}
+
+function SquadHealthSummary({ players }: { players: Player[] }) {
+  if (players.length === 0) return null;
+
+  const healthy  = players.filter(p => (p.injuryStatus as string) === "Healthy").length;
+  const injured  = players.length - healthy;
+  const avgFit   = Math.round(players.reduce((s, p) => s + (p.fitness as number), 0) / players.length);
+  const avgFatigue = Math.round(players.reduce((s, p) => s + (p.fatigue as number), 0) / players.length);
+  const condition = getCondition(avgFit);
+
+  return (
+    <Card className={`border ${condition.ring} ${condition.bg}`}>
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <h3 className="text-base font-semibold flex items-center gap-2">
+            <Heart className="h-4 w-4 text-primary" />
+            Squad Health Status
+          </h3>
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-0.5 text-xs font-semibold ${condition.badge}`}>
+            {condition.label}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <HealthStat
+            label="Healthy Players"
+            value={`${healthy}`}
+            sub={`of ${players.length}`}
+            valueClass="text-green-600"
+          />
+          <HealthStat
+            label="Injured Players"
+            value={`${injured}`}
+            sub={`of ${players.length}`}
+            valueClass={injured > 0 ? "text-red-600" : "text-muted-foreground"}
+          />
+          <HealthStat
+            label="Avg Fitness"
+            value={`${avgFit}%`}
+            valueClass={avgFit >= 75 ? "text-green-600" : avgFit >= 55 ? "text-yellow-600" : "text-red-600"}
+            bar={{ value: avgFit, colorClass: avgFit >= 75 ? "bg-green-500" : avgFit >= 55 ? "bg-yellow-500" : "bg-red-500" }}
+          />
+          <HealthStat
+            label="Avg Fatigue"
+            value={`${avgFatigue}%`}
+            valueClass={avgFatigue <= 35 ? "text-green-600" : avgFatigue <= 65 ? "text-yellow-600" : "text-red-600"}
+            bar={{ value: avgFatigue, colorClass: avgFatigue <= 35 ? "bg-green-500" : avgFatigue <= 65 ? "bg-yellow-500" : "bg-red-500" }}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HealthStat({
+  label,
+  value,
+  sub,
+  valueClass,
+  bar,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  valueClass?: string;
+  bar?: { value: number; colorClass: string };
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">{label}</p>
+      <div className="flex items-baseline gap-1.5">
+        <span className={`text-xl font-bold ${valueClass ?? ""}`}>{value}</span>
+        {sub && <span className="text-xs text-muted-foreground">{sub}</span>}
+      </div>
+      {bar && <MiniProgress value={bar.value} colorClass={bar.colorClass} />}
     </div>
   );
 }
