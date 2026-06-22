@@ -96,6 +96,17 @@ export const playersTable = pgTable("players", {
   askingPrice: numeric("asking_price", { precision: 10, scale: 2 }),
   potential: varchar("potential", { length: 20 }).notNull().default("Average"),
   scoutedPotential: varchar("scouted_potential", { length: 20 }),
+  isRetired: boolean("is_retired").notNull().default(false),
+  retiredSeasonYear: integer("retired_season_year"),
+  careerSeasons: integer("career_seasons"),
+  careerWins: integer("career_wins"),
+  careerTitles: integer("career_titles"),
+  continentalTitles: integer("continental_titles"),
+  worldTitles: integer("world_titles"),
+  olympicMedalsCount: integer("olympic_medals_count"),
+  peakOverallRating: integer("peak_overall_rating"),
+  yearsActive: varchar("years_active", { length: 20 }),
+  legendScore: integer("legend_score"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -892,6 +892,24 @@ export interface TrophyCabinet {
   records: ManagerRecords;
 }
 
+export interface HallOfFameEntry {
+  id: number;
+  name: string;
+  nationality: string;
+  position: string;
+  imageUrl?: string | null;
+  peakOverallRating: number;
+  careerSeasons: number;
+  careerWins: number;
+  careerTitles: number;
+  continentalTitles: number;
+  worldTitles: number;
+  olympicMedalsCount: number;
+  retiredSeasonYear?: number | null;
+  yearsActive?: string | null;
+  legendScore: number;
+}
+
 export interface LeaderboardEntry {
   rank: number;
   teamId: number;

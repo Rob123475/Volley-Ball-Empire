@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 const router = Router();
 
@@ -71,7 +71,7 @@ router.get("/team/roster", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   res.json(buildRosterResponse(team, players, staff));
 });
@@ -97,7 +97,7 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     .set({ squadRole: role, isActive })
     .where(eq(playersTable.id, playerId));
 
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   res.json(buildRosterResponse(team, players, staff));
 });
@@ -112,7 +112,7 @@ router.post("/team/swap-player", async (req, res) => {
   await db.update(playersTable).set({ isActive: true,  squadRole: "starter" }).where(eq(playersTable.id, Number(playerInId)));
   await db.update(playersTable).set({ isActive: false, squadRole: "reserve"  }).where(eq(playersTable.id, Number(playerOutId)));
 
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   res.json(buildRosterResponse(team, players, staff));
 });

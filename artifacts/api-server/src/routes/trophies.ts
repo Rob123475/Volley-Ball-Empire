@@ -9,7 +9,7 @@ import {
   financeTransactionsTable,
   trophiesTable,
 } from "@workspace/db";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and } from "drizzle-orm";
 
 const router = Router();
 
@@ -315,6 +315,39 @@ router.get("/trophies/cabinet", async (req, res) => {
       olympicMedals: olympicMedalCount,
     },
   });
+});
+
+router.get("/trophies/hall-of-fame", async (req, res) => {
+  if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+
+  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.userId, req.user.id));
+  if (!team) return res.status(404).json({ error: "Team not found" });
+
+  const retired = await db
+    .select()
+    .from(playersTable)
+    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, true)))
+    .orderBy(desc(playersTable.legendScore));
+
+  return res.json(
+    retired.map((p) => ({
+      id: p.id,
+      name: p.name,
+      nationality: p.nationality,
+      position: p.position,
+      imageUrl: p.imageUrl ?? null,
+      peakOverallRating: p.peakOverallRating ?? 0,
+      careerSeasons: p.careerSeasons ?? 1,
+      careerWins: p.careerWins ?? 0,
+      careerTitles: p.careerTitles ?? 0,
+      continentalTitles: p.continentalTitles ?? 0,
+      worldTitles: p.worldTitles ?? 0,
+      olympicMedalsCount: p.olympicMedalsCount ?? 0,
+      retiredSeasonYear: p.retiredSeasonYear ?? null,
+      yearsActive: p.yearsActive ?? null,
+      legendScore: p.legendScore ?? 0,
+    })),
+  );
 });
 
 export default router;

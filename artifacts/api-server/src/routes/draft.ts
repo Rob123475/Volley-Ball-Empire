@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable } from "@workspace/db";
-import { eq, isNull, and, lte } from "drizzle-orm";
+import { eq, isNull, and, lte, ne } from "drizzle-orm";
 
 const router = Router();
 
@@ -18,7 +18,7 @@ const getTeamForUser = async (userId: string) => {
 
 router.get("/draft", async (req, res) => {
   const draftPlayers = await db.select().from(playersTable)
-    .where(and(eq(playersTable.isDraftPlayer, true), lte(playersTable.age, 20)));
+    .where(and(eq(playersTable.isDraftPlayer, true), lte(playersTable.age, 20), eq(playersTable.isRetired, false)));
   res.json(draftPlayers.filter(p => !p.teamId).map(p => ({
     ...serializePlayer(p),
     available: !p.teamId,

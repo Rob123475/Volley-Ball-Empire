@@ -29,6 +29,7 @@ import type {
   FinanceSummary,
   FinanceTransaction,
   FinanceTransactionInput,
+  HallOfFameEntry,
   HealthStatus,
   LadderEntry,
   LeaderboardEntry,
@@ -1121,6 +1122,76 @@ export const useReleasePlayer = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getReleasePlayerMutationOptions(options));
+    }
+
+export const getRetirePlayerUrl = (id: number,) => {
+
+
+
+
+  return `/api/players/${id}/retire`
+}
+
+/**
+ * @summary Retire a player and add them to the Hall of Fame
+ */
+export const retirePlayer = async (id: number, options?: RequestInit): Promise<Player> => {
+
+  return customFetch<Player>(getRetirePlayerUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRetirePlayerMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retirePlayer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof retirePlayer>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['retirePlayer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retirePlayer>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  retirePlayer(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RetirePlayerMutationResult = NonNullable<Awaited<ReturnType<typeof retirePlayer>>>
+
+    export type RetirePlayerMutationError = ErrorType<void>
+
+    /**
+ * @summary Retire a player and add them to the Hall of Fame
+ */
+export const useRetirePlayer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retirePlayer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof retirePlayer>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRetirePlayerMutationOptions(options));
     }
 
 export const getScoutPlayerUrl = (id: number,) => {
@@ -4381,6 +4452,83 @@ export const useClearOlympicSelection = <TError = ErrorType<void>,
       > => {
       return useMutation(getClearOlympicSelectionMutationOptions(options));
     }
+
+export const getGetHallOfFameUrl = () => {
+
+
+
+
+  return `/api/trophies/hall-of-fame`
+}
+
+/**
+ * @summary Get all retired players in the Hall of Fame
+ */
+export const getHallOfFame = async ( options?: RequestInit): Promise<HallOfFameEntry[]> => {
+
+  return customFetch<HallOfFameEntry[]>(getGetHallOfFameUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHallOfFameQueryKey = () => {
+    return [
+    `/api/trophies/hall-of-fame`
+    ] as const;
+    }
+
+
+export const getGetHallOfFameQueryOptions = <TData = Awaited<ReturnType<typeof getHallOfFame>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHallOfFameQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHallOfFame>>> = ({ signal }) => getHallOfFame({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHallOfFame>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHallOfFameQueryResult = NonNullable<Awaited<ReturnType<typeof getHallOfFame>>>
+export type GetHallOfFameQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get all retired players in the Hall of Fame
+ */
+
+export function useGetHallOfFame<TData = Awaited<ReturnType<typeof getHallOfFame>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHallOfFameQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetTrophyCabinetUrl = () => {
 

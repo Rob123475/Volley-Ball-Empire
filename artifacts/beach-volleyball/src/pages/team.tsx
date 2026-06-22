@@ -3,6 +3,7 @@ import {
   useListOutfits,
   useUpdatePlayerOutfit,
   useReleasePlayer,
+  useRetirePlayer,
   useSetPlayerRole,
   getGetTeamRosterQueryKey,
 } from "@workspace/api-client-react";
@@ -27,6 +28,7 @@ import {
   ChevronsDown,
   ChevronUp,
   ChevronDown,
+  Award,
 } from "lucide-react";
 import {
   Dialog,
@@ -102,6 +104,7 @@ export default function TeamRoster() {
   const { data: roster, isLoading } = useGetTeamRoster({ query: { queryKey: getGetTeamRosterQueryKey() } });
   const { data: outfits } = useListOutfits();
   const releaseMutation = useReleasePlayer();
+  const retireMutation  = useRetirePlayer();
   const outfitMutation  = useUpdatePlayerOutfit();
   const roleMutation    = useSetPlayerRole();
 
@@ -126,6 +129,15 @@ export default function TeamRoster() {
   const handleRelease = (playerId: number) => {
     releaseMutation.mutate({ id: playerId }, {
       onSuccess: () => { invalidate(); toast({ title: "Player Released", description: "Contract terminated." }); },
+    });
+  };
+
+  const handleRetire = (playerId: number, playerName: string) => {
+    retireMutation.mutate({ id: playerId }, {
+      onSuccess: () => {
+        invalidate();
+        toast({ title: `${playerName} has retired`, description: "They have been inducted into the Hall of Fame." });
+      },
     });
   };
 
@@ -293,6 +305,37 @@ export default function TeamRoster() {
                 </div>
               </DialogContent>
             </Dialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-xs"
+                  data-testid={`button-retire-${player.id}`}
+                  title="Retire player"
+                >
+                  <Award className="h-3 w-3" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Retire {player.name}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {player.name} will be inducted into the Hall of Fame. This cannot be undone — they will no longer appear on the roster, market, or draft.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => handleRetire(player.id, player.name)}
+                    className="bg-amber-600 text-white hover:bg-amber-700"
+                  >
+                    Retire & Induct
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>

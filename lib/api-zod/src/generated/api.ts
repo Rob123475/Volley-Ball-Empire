@@ -394,6 +394,50 @@ export const ReleasePlayerResponse = zod.object({
 
 
 /**
+ * @summary Retire a player and add them to the Hall of Fame
+ */
+export const RetirePlayerParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const retirePlayerResponseDoctorQualityMax = 5;
+
+
+
+export const RetirePlayerResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "age": zod.number(),
+  "height": zod.number(),
+  "position": zod.enum(['setter', 'libero', 'outside_hitter', 'middle_blocker', 'opposite', 'universal']),
+  "speed": zod.number(),
+  "power": zod.number(),
+  "defense": zod.number(),
+  "serve": zod.number(),
+  "block": zod.number(),
+  "stamina": zod.number(),
+  "morale": zod.number(),
+  "fatigue": zod.number().describe('Player fatigue level 0-100. High fatigue reduces performance.'),
+  "fitness": zod.number().describe('Player fitness level 0-100. Drops with matches and training; recovers with rest.'),
+  "injuryStatus": zod.enum(['Healthy', 'Minor Injury', 'Major Injury', 'Unavailable']).describe('Current injury state of the player.'),
+  "injuryWeeksRemaining": zod.number().describe('Number of weeks until the player recovers from injury. 0 when healthy.'),
+  "consecutiveMatchesPlayed": zod.number().describe('Number of matches played back-to-back without rest. High values increase injury risk.'),
+  "doctorQuality": zod.number().min(1).max(retirePlayerResponseDoctorQualityMax).describe('Quality of medical care assigned to this player (1 = basic, 5 = elite). Affects recovery speed.'),
+  "trainingPoints": zod.number().describe('Accumulated training XP. Every 100 points converts to +1 in the trained stat. Never resets between seasons.'),
+  "salary": zod.number(),
+  "teamId": zod.number().nullable(),
+  "outfitId": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Player\'s squad role: starter (match player), interchange (bench sub), or reserve.'),
+  "imageUrl": zod.string().nullable(),
+  "contractEndDate": zod.string().nullish(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish().describe('Scout\'s assessment of player potential. Null if the player has not been scouted yet.'),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Have your scout assess a player's hidden potential
  */
 export const ScoutPlayerParams = zod.object({
@@ -2293,6 +2337,29 @@ export const SaveOlympicSelectionResponse = zod.object({
   "imageUrl": zod.string().nullish()
 }))
 })
+
+
+/**
+ * @summary Get all retired players in the Hall of Fame
+ */
+export const GetHallOfFameResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "nationality": zod.string(),
+  "position": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "peakOverallRating": zod.number(),
+  "careerSeasons": zod.number(),
+  "careerWins": zod.number(),
+  "careerTitles": zod.number(),
+  "continentalTitles": zod.number(),
+  "worldTitles": zod.number(),
+  "olympicMedalsCount": zod.number(),
+  "retiredSeasonYear": zod.number().nullish(),
+  "yearsActive": zod.string().nullish(),
+  "legendScore": zod.number()
+})
+export const GetHallOfFameResponse = zod.array(GetHallOfFameResponseItem)
 
 
 /**

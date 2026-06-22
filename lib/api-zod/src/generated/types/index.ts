@@ -27,6 +27,7 @@ export * from './financeTransaction';
 export * from './financeTransactionCategory';
 export * from './financeTransactionInput';
 export * from './financeTransactionType';
+export * from './hallOfFameEntry';
 export * from './healthStatus';
 export * from './ladderEntry';
 export * from './leaderboardEntry';

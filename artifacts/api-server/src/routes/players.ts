@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { playersTable, teamsTable, staffTable } from "@workspace/db";
-import { eq, isNull } from "drizzle-orm";
+import { playersTable, teamsTable, staffTable, trophiesTable } from "@workspace/db";
+import { eq, isNull, and } from "drizzle-orm";
 
 const router = Router();
 
@@ -85,7 +85,8 @@ router.post("/players", async (req, res) => {
 });
 
 router.get("/players/free-agents", async (req, res) => {
-  const freeAgents = await db.select().from(playersTable).where(isNull(playersTable.teamId));
+  const freeAgents = await db.select().from(playersTable)
+    .where(and(isNull(playersTable.teamId), eq(playersTable.isRetired, false)));
   res.json(freeAgents.filter(p => !p.isDraftPlayer).map(serializePlayer));
 });
 
@@ -121,6 +122,51 @@ router.post("/players/:id/release", async (req, res) => {
   const id = parseInt(req.params.id);
   const [player] = await db.update(playersTable).set({ teamId: null, contractEndDate: null }).where(eq(playersTable.id, id)).returning();
   res.json(serializePlayer(player));
+});
+
+router.post("/players/:id/retire", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id);
+
+  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
+
+  const team = await getTeamForUser(req.user.id);
+  if (!team || player.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
+
+  const peakOverallRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+
+  const trophies = await db.select().from(trophiesTable).where(eq(trophiesTable.teamId, team.id));
+  const careerTitles      = trophies.filter(t => ["world_championship", "continental_championship", "grand_final"].includes(t.type)).length;
+  const continentalTitles = trophies.filter(t => t.type === "continental_championship").length;
+  const worldTitles       = trophies.filter(t => t.type === "world_championship").length;
+  const olympicMedalsCount = trophies.filter(t => ["olympic_gold", "olympic_silver", "olympic_bronze"].includes(t.type)).length;
+
+  const legendScore =
+    worldTitles * 20 +
+    olympicMedalsCount * 15 +
+    continentalTitles * 10 +
+    careerTitles * 5 +
+    Math.max(0, peakOverallRating - 70) * 2;
+
+  const retiredSeasonYear = new Date().getFullYear();
+
+  const [retired] = await db.update(playersTable).set({
+    isRetired: true,
+    isActive: false,
+    contractEndDate: null,
+    peakOverallRating,
+    careerWins: team.wins,
+    careerTitles,
+    continentalTitles,
+    worldTitles,
+    olympicMedalsCount,
+    legendScore,
+    retiredSeasonYear,
+    careerSeasons: 1,
+  }).where(eq(playersTable.id, id)).returning();
+
+  res.json(serializePlayer(retired));
 });
 
 router.post("/players/:id/scout", async (req, res) => {
