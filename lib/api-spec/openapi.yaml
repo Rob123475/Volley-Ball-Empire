@@ -890,6 +890,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/FinanceSummary"
 
+  /finances/sponsor-reputation:
+    get:
+      operationId: getSponsorReputation
+      tags: [finances]
+      summary: Get team sponsor reputation score and rating label
+      responses:
+        "200":
+          description: Sponsor reputation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SponsorReputation"
+
   /finances/staff-wage-bill:
     get:
       operationId: getStaffWageBill
@@ -2112,6 +2125,21 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StaffWageBillMember"
+
+    SponsorReputation:
+      type: object
+      required: [score, label, stars]
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        label:
+          type: string
+        stars:
+          type: integer
+          minimum: 1
+          maximum: 5
 
     WageBillPlayer:
       type: object

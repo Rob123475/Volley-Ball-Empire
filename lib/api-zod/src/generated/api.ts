@@ -2085,6 +2085,23 @@ export const GetFinanceSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get team sponsor reputation score and rating label
+ */
+export const getSponsorReputationResponseScoreMin = 0;
+export const getSponsorReputationResponseScoreMax = 100;
+
+export const getSponsorReputationResponseStarsMax = 5;
+
+
+
+export const GetSponsorReputationResponse = zod.object({
+  "score": zod.number().min(getSponsorReputationResponseScoreMin).max(getSponsorReputationResponseScoreMax),
+  "label": zod.string(),
+  "stars": zod.number().min(1).max(getSponsorReputationResponseStarsMax)
+})
+
+
+/**
  * @summary Get weekly and monthly staff wage totals with per-staff breakdown
  */
 export const GetStaffWageBillResponse = zod.object({

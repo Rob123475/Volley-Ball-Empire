@@ -7,6 +7,7 @@ import {
   useGetPrizeMoneySummary,
   useGetWageBill,
   useGetStaffWageBill,
+  useGetSponsorReputation,
   getGetFinanceSummaryQueryKey,
   getListFinancesQueryKey,
   getListPromoDealsQueryKey,
@@ -16,6 +17,7 @@ import {
   type PrizeMoneySummary,
   type WageBill,
   type StaffWageBill,
+  type SponsorReputation,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -79,6 +81,7 @@ export default function Finances() {
   const { data: prizeMoneyData, isLoading: prizeMoneyLoading } = useGetPrizeMoneySummary();
   const { data: wageBill, isLoading: wageBillLoading } = useGetWageBill();
   const { data: staffWageBill, isLoading: staffWageBillLoading } = useGetStaffWageBill();
+  const { data: sponsorRep, isLoading: sponsorRepLoading } = useGetSponsorReputation();
 
   const acceptDealMutation = useAcceptPromoDeal();
 
@@ -146,6 +149,9 @@ export default function Finances() {
 
       {/* Sponsor Progress */}
       <SponsorProgressCard deals={sponsorProgress ?? []} isLoading={progressLoading} />
+
+      {/* Sponsor Reputation */}
+      <SponsorReputationCard data={sponsorRep} isLoading={sponsorRepLoading} />
 
       {/* Season Sponsors */}
       <div>
@@ -647,6 +653,118 @@ const ROLE_ICON: Record<string, string> = {
   Doctor:          "👩‍⚕️",
   Psychologist:    "🧘",
 };
+
+/* ── Sponsor Reputation Card ──────────────────────────────────── */
+
+const STAR_TIERS: { min: number; max: number; label: string; stars: number; color: string; bg: string }[] = [
+  { min:  0, max: 20, label: "Poor",       stars: 1, color: "text-red-500",    bg: "border-red-500/30"    },
+  { min: 21, max: 40, label: "Developing", stars: 2, color: "text-orange-500", bg: "border-orange-500/30" },
+  { min: 41, max: 60, label: "Reliable",   stars: 3, color: "text-yellow-500", bg: "border-yellow-500/30" },
+  { min: 61, max: 80, label: "Attractive", stars: 4, color: "text-blue-500",   bg: "border-blue-500/30"   },
+  { min: 81, max:100, label: "Elite",      stars: 5, color: "text-purple-500", bg: "border-purple-500/30" },
+];
+
+function getTier(score: number) {
+  return STAR_TIERS.find(t => score >= t.min && score <= t.max) ?? STAR_TIERS[2];
+}
+
+function SponsorReputationCard({ data, isLoading }: { data: SponsorReputation | undefined; isLoading: boolean }) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Star className="h-4 w-4 text-yellow-500" />
+            Sponsor Reputation
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-4 w-24" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const score = data?.score ?? 50;
+  const tier  = getTier(score);
+
+  return (
+    <Card className={cn("border-2", tier.bg)}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Star className="h-4 w-4 text-yellow-500" />
+            Sponsor Reputation
+          </CardTitle>
+          <Badge variant="secondary" className={cn("text-xs font-bold uppercase", tier.color)}>
+            {tier.label}
+          </Badge>
+        </div>
+        <CardDescription>How attractive your team is to potential sponsors.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Score + stars */}
+        <div className="flex items-end justify-between">
+          <div>
+            <span className="text-4xl font-black">{score}</span>
+            <span className="text-lg text-muted-foreground font-medium"> / 100</span>
+          </div>
+          <div className="flex gap-0.5 pb-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={cn("h-6 w-6", i < tier.stars ? cn(tier.color, "fill-current") : "text-muted-foreground/30")}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn("h-full rounded-full transition-all", tier.color.replace("text-", "bg-"))}
+              style={{ width: `${score}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] text-muted-foreground">
+            <span>Poor</span>
+            <span>Developing</span>
+            <span>Reliable</span>
+            <span>Attractive</span>
+            <span>Elite</span>
+          </div>
+        </div>
+
+        {/* Tier table */}
+        <div className="rounded-lg border bg-muted/30 overflow-hidden">
+          {STAR_TIERS.map(t => (
+            <div
+              key={t.label}
+              className={cn(
+                "flex items-center justify-between px-3 py-1.5 text-xs border-b last:border-b-0",
+                t.label === tier.label ? "bg-accent font-semibold" : "text-muted-foreground"
+              )}
+            >
+              <span className="flex items-center gap-1.5">
+                <span>{Array.from({ length: t.stars }).map(() => "⭐").join("")}</span>
+                <span>{t.label}</span>
+              </span>
+              <span className="tabular-nums">{t.min}–{t.max}</span>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-[11px] text-muted-foreground">
+          Win matches and complete sponsor goals to grow your reputation.
+          {score < 100 && ` Next tier at ${STAR_TIERS.find(t => t.min > score)?.min ?? 100}.`}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 function StaffWageBillCard({ data, isLoading }: { data: StaffWageBill | undefined; isLoading: boolean }) {
   const [expanded, setExpanded] = useState(false);

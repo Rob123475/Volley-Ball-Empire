@@ -76,6 +76,7 @@ export * from './seasonInjuryStats';
 export * from './seasonInput';
 export * from './seasonStatus';
 export * from './sponsorProgress';
+export * from './sponsorReputation';
 export * from './staffInput';
 export * from './staffMember';
 export * from './staffMemberCoachSpeciality';

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -448,11 +448,27 @@ router.post("/matches/:id/simulate", async (req, res) => {
     const tierRepBonus   = isFinal ? 40 : isContFinal ? 15 : 0;
     const streakRepBonus = newStreak >= 3 ? 5 : 0;
     const repGain        = 10 + tierRepBonus + streakRepBonus;
+
+    // Sponsor reputation gain: +1 base, +3 Continental Final, +5 Grand Final
+    const newWins        = team.wins + 1;
+    const sponsorTierBonus = isFinal ? 5 : isContFinal ? 3 : 0;
+
+    // Check if any accepted promo deal just completed with this win (+5 per deal)
+    const acceptedDeals = await db.select()
+      .from(promoDealsTable)
+      .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.isAccepted, true)));
+    const newlyCompleted = acceptedDeals.filter(d => d.requirementWins === newWins).length;
+    const sponsorDealBonus = newlyCompleted * 5;
+
+    const sponsorRepGain = 1 + sponsorTierBonus + sponsorDealBonus;
+    const newSponsorRep  = Math.min(100, (team.sponsorReputation ?? 50) + sponsorRepGain);
+
     await db.update(teamsTable).set({
-      wins:             team.wins + 1,
-      budget:           String(Number(team.budget) + prizeEarned),
-      winStreak:        newStreak,
-      managerRepPoints: (team.managerRepPoints ?? 0) + repGain,
+      wins:              newWins,
+      budget:            String(Number(team.budget) + prizeEarned),
+      winStreak:         newStreak,
+      managerRepPoints:  (team.managerRepPoints ?? 0) + repGain,
+      sponsorReputation: newSponsorRep,
       ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
     }).where(eq(teamsTable.id, team.id));
     const today = new Date().toISOString().split("T")[0];
@@ -465,9 +481,12 @@ router.post("/matches/:id/simulate", async (req, res) => {
       date:        today,
     });
   } else {
+    // Sponsor reputation: -1 per loss, clamped at 0
+    const newSponsorRep = Math.max(0, (team.sponsorReputation ?? 50) - 1);
     await db.update(teamsTable).set({
-      losses:    team.losses + 1,
-      winStreak: 0,
+      losses:            team.losses + 1,
+      winStreak:         0,
+      sponsorReputation: newSponsorRep,
     }).where(eq(teamsTable.id, team.id));
   }
 

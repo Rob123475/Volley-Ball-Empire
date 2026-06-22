@@ -47,6 +47,7 @@ export const teamsTable = pgTable("teams", {
   trainingPhilosophy: varchar("training_philosophy", { length: 30 }),
   managerRepPoints: integer("manager_rep_points").notNull().default(0),
   winStreak: integer("win_streak").notNull().default(0),
+  sponsorReputation: integer("sponsor_reputation").notNull().default(50),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

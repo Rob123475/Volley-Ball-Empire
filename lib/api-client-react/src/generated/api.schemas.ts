@@ -735,6 +735,20 @@ export interface StaffWageBill {
   staff: StaffWageBillMember[];
 }
 
+export interface SponsorReputation {
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  score: number;
+  label: string;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  stars: number;
+}
+
 export interface WageBillPlayer {
   id: number;
   name: string;

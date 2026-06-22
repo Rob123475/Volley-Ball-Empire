@@ -59,6 +59,7 @@ import type {
   SeasonInjuryStats,
   SeasonInput,
   SponsorProgress,
+  SponsorReputation,
   StaffInput,
   StaffMember,
   StaffWageBill,
@@ -3706,6 +3707,83 @@ export function useGetFinanceSummary<TData = Awaited<ReturnType<typeof getFinanc
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetFinanceSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSponsorReputationUrl = () => {
+
+
+
+
+  return `/api/finances/sponsor-reputation`
+}
+
+/**
+ * @summary Get team sponsor reputation score and rating label
+ */
+export const getSponsorReputation = async ( options?: RequestInit): Promise<SponsorReputation> => {
+
+  return customFetch<SponsorReputation>(getGetSponsorReputationUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSponsorReputationQueryKey = () => {
+    return [
+    `/api/finances/sponsor-reputation`
+    ] as const;
+    }
+
+
+export const getGetSponsorReputationQueryOptions = <TData = Awaited<ReturnType<typeof getSponsorReputation>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSponsorReputation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSponsorReputationQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSponsorReputation>>> = ({ signal }) => getSponsorReputation({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSponsorReputation>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSponsorReputationQueryResult = NonNullable<Awaited<ReturnType<typeof getSponsorReputation>>>
+export type GetSponsorReputationQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get team sponsor reputation score and rating label
+ */
+
+export function useGetSponsorReputation<TData = Awaited<ReturnType<typeof getSponsorReputation>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSponsorReputation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSponsorReputationQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

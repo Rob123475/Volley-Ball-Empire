@@ -3,6 +3,16 @@ import { db } from "@workspace/db";
 import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 
+/* ── Sponsor reputation helper ──────────────────────────────── */
+
+function scoreSponsorReputation(score: number): { label: string; stars: number } {
+  if (score <= 20) return { label: "Poor",       stars: 1 };
+  if (score <= 40) return { label: "Developing", stars: 2 };
+  if (score <= 60) return { label: "Reliable",   stars: 3 };
+  if (score <= 80) return { label: "Attractive", stars: 4 };
+  return               { label: "Elite",       stars: 5 };
+}
+
 /* ── Player salary helpers ──────────────────────────────────── */
 
 type PlayerTier = "Rookie" | "Developing Player" | "Regular Player" | "Star Player" | "Elite Player";
@@ -134,6 +144,14 @@ router.get("/finances/wage-bill", async (req, res) => {
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.json({ weeklyWages: 0, monthlyWages: 0, playerCount: 0, players: [] }); return; }
   res.json(await computeWageBill(team.id));
+});
+
+router.get("/finances/sponsor-reputation", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  const score = team ? Math.min(100, Math.max(0, team.sponsorReputation ?? 50)) : 50;
+  const { label, stars } = scoreSponsorReputation(score);
+  res.json({ score, label, stars });
 });
 
 router.get("/finances/staff-wage-bill", async (req, res) => {
