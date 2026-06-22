@@ -721,6 +721,20 @@ export interface FinanceSummary {
   recentTransactions: FinanceTransaction[];
 }
 
+export interface SponsorProgress {
+  id: number;
+  sponsor: string;
+  description: string;
+  amount: number;
+  requirementWins: number;
+  expiresAt: string;
+  /** @nullable */
+  imageUrl: string | null;
+  currentWins: number;
+  progressPct: number;
+  isComplete: boolean;
+}
+
 export interface PromoDeal {
   id: number;
   sponsor: string;

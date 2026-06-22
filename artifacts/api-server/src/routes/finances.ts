@@ -75,6 +75,32 @@ router.get("/finances/summary", async (req, res) => {
   });
 });
 
+router.get("/finances/sponsor-progress", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.json([]); return; }
+
+  const deals = await db.select().from(promoDealsTable)
+    .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.isAccepted, true)));
+
+  const currentWins = team.wins;
+
+  res.json(deals.map(d => ({
+    id: d.id,
+    sponsor: d.sponsor,
+    description: d.description,
+    amount: Number(d.amount),
+    requirementWins: d.requirementWins,
+    expiresAt: d.expiresAt,
+    imageUrl: d.imageUrl,
+    currentWins,
+    progressPct: d.requirementWins > 0
+      ? Math.min(100, Math.round((currentWins / d.requirementWins) * 100))
+      : 100,
+    isComplete: currentWins >= d.requirementWins,
+  })));
+});
+
 router.get("/finances/promo-deals", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getTeamForUser(req.user.id);

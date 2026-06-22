@@ -9,7 +9,8 @@ import {
   getListMatchesQueryKey,
   getListUpcomingMatchesQueryKey,
   getGetDashboardQueryKey,
-  getGetMyTeamQueryKey
+  getGetMyTeamQueryKey,
+  getGetSponsorProgressQueryKey,
 } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -134,6 +135,7 @@ export default function Matches() {
             queryClient.invalidateQueries({ queryKey: getListMatchesQueryKey() });
             queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
             queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getGetSponsorProgressQueryKey() });
             refetchFixture();
           }
         });

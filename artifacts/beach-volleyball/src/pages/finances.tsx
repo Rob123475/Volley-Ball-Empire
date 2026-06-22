@@ -3,10 +3,13 @@ import {
   useListFinances, 
   useListPromoDeals, 
   useAcceptPromoDeal,
+  useGetSponsorProgress,
   getGetFinanceSummaryQueryKey,
   getListFinancesQueryKey,
   getListPromoDealsQueryKey,
+  getGetSponsorProgressQueryKey,
   type FinanceSummary,
+  type SponsorProgress,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -63,6 +66,9 @@ export default function Finances() {
   const { data: deals, isLoading: dealsLoading } = useListPromoDeals({
     query: { queryKey: getListPromoDealsQueryKey() }
   });
+  const { data: sponsorProgress, isLoading: progressLoading } = useGetSponsorProgress({
+    query: { queryKey: getGetSponsorProgressQueryKey() }
+  });
 
   const acceptDealMutation = useAcceptPromoDeal();
 
@@ -71,6 +77,7 @@ export default function Finances() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListPromoDealsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetSponsorProgressQueryKey() });
         toast({
           title: isSeason ? "Season Sponsor Activated!" : "Deal Accepted!",
           description: isSeason
@@ -114,6 +121,9 @@ export default function Finances() {
 
       {/* Cashflow Forecast */}
       <CashflowForecastCard summary={summary} isLoading={summaryLoading} />
+
+      {/* Sponsor Progress */}
+      <SponsorProgressCard deals={sponsorProgress ?? []} isLoading={progressLoading} />
 
       {/* Season Sponsors */}
       <div>
@@ -462,6 +472,117 @@ function CashflowForecastCard({
             )}
           </>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Sponsor Progress Card ──────────────────────────────────── */
+
+function SponsorProgressCard({
+  deals,
+  isLoading,
+}: {
+  deals: SponsorProgress[];
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Trophy className="h-4 w-4 text-yellow-500" />
+            Sponsor Progress
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[1, 2].map(i => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-2 w-full" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (deals.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Trophy className="h-4 w-4 text-yellow-500" />
+            Sponsor Progress
+          </CardTitle>
+          <CardDescription>Track win targets for your active sponsorship deals</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground italic">No active sponsor deals yet — accept a deal to start tracking progress.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Trophy className="h-4 w-4 text-yellow-500" />
+          Sponsor Progress
+        </CardTitle>
+        <CardDescription>Win targets for your active sponsorship deals</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {deals.map(deal => (
+          <div key={deal.id} className="space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-sm truncate">{deal.sponsor}</span>
+                  {deal.isComplete ? (
+                    <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs shrink-0">
+                      ✓ Target Reached
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      In Progress
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{deal.description}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-sm font-bold text-green-600">{formatCompact(deal.amount)}</div>
+                <div className="text-xs text-muted-foreground">reward</div>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>
+                  {deal.currentWins} / {deal.requirementWins} wins
+                </span>
+                <span>{deal.progressPct}%</span>
+              </div>
+              <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    deal.isComplete ? "bg-green-500" : "bg-yellow-500"
+                  )}
+                  style={{ width: `${deal.progressPct}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Expires {deal.expiresAt}</span>
+                {!deal.isComplete && (
+                  <span>{deal.requirementWins - deal.currentWins} wins to go</span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );

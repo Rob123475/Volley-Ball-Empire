@@ -890,6 +890,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/FinanceSummary"
 
+  /finances/sponsor-progress:
+    get:
+      operationId: getSponsorProgress
+      tags: [finances]
+      summary: Get accepted sponsor deals with current win progress
+      responses:
+        "200":
+          description: Sponsor progress list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SponsorProgress"
+
   /finances/promo-deals:
     get:
       operationId: listPromoDeals
@@ -2030,6 +2045,31 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FinanceTransaction"
+
+    SponsorProgress:
+      type: object
+      required: [id, sponsor, description, amount, requirementWins, expiresAt, imageUrl, currentWins, progressPct, isComplete]
+      properties:
+        id:
+          type: integer
+        sponsor:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        requirementWins:
+          type: integer
+        expiresAt:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        currentWins:
+          type: integer
+        progressPct:
+          type: integer
+        isComplete:
+          type: boolean
 
     PromoDeal:
       type: object

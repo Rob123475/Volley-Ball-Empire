@@ -2085,6 +2085,24 @@ export const GetFinanceSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get accepted sponsor deals with current win progress
+ */
+export const GetSponsorProgressResponseItem = zod.object({
+  "id": zod.number(),
+  "sponsor": zod.string(),
+  "description": zod.string(),
+  "amount": zod.number(),
+  "requirementWins": zod.number(),
+  "expiresAt": zod.string(),
+  "imageUrl": zod.string().nullable(),
+  "currentWins": zod.number(),
+  "progressPct": zod.number(),
+  "isComplete": zod.boolean()
+})
+export const GetSponsorProgressResponse = zod.array(GetSponsorProgressResponseItem)
+
+
+/**
  * @summary List available sponsorship and promo deals
  */
 export const ListPromoDealsResponseItem = zod.object({

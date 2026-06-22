@@ -57,6 +57,7 @@ import type {
   Season,
   SeasonInjuryStats,
   SeasonInput,
+  SponsorProgress,
   StaffInput,
   StaffMember,
   Team,
@@ -3702,6 +3703,83 @@ export function useGetFinanceSummary<TData = Awaited<ReturnType<typeof getFinanc
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetFinanceSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSponsorProgressUrl = () => {
+
+
+
+
+  return `/api/finances/sponsor-progress`
+}
+
+/**
+ * @summary Get accepted sponsor deals with current win progress
+ */
+export const getSponsorProgress = async ( options?: RequestInit): Promise<SponsorProgress[]> => {
+
+  return customFetch<SponsorProgress[]>(getGetSponsorProgressUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSponsorProgressQueryKey = () => {
+    return [
+    `/api/finances/sponsor-progress`
+    ] as const;
+    }
+
+
+export const getGetSponsorProgressQueryOptions = <TData = Awaited<ReturnType<typeof getSponsorProgress>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSponsorProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSponsorProgressQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSponsorProgress>>> = ({ signal }) => getSponsorProgress({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSponsorProgress>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSponsorProgressQueryResult = NonNullable<Awaited<ReturnType<typeof getSponsorProgress>>>
+export type GetSponsorProgressQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get accepted sponsor deals with current win progress
+ */
+
+export function useGetSponsorProgress<TData = Awaited<ReturnType<typeof getSponsorProgress>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSponsorProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSponsorProgressQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
