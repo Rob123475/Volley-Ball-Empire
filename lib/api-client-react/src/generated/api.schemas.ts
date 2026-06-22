@@ -899,6 +899,28 @@ export interface Facility {
   level: number;
 }
 
+export interface RunCampInput {
+  campType: string;
+}
+
+export interface WellbeingEffect {
+  id: number;
+  effectType: string;
+  matchesRemaining: number;
+  createdAt: string;
+}
+
+export interface WellbeingStatus {
+  teamBudget: number;
+  activeEffects: WellbeingEffect[];
+}
+
+export interface WellbeingResult {
+  message: string;
+  updatedPlayers: number;
+  activeEffects: WellbeingEffect[];
+}
+
 export interface HallOfFameEntry {
   id: number;
   name: string;

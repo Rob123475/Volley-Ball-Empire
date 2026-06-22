@@ -1149,6 +1149,44 @@ paths:
         "404":
           description: Team not found
 
+  /wellbeing/status:
+    get:
+      operationId: getWellbeingStatus
+      tags: [wellbeing]
+      summary: Get active wellbeing effects and team budget
+      responses:
+        "200":
+          description: Wellbeing status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellbeingStatus"
+        "401":
+          description: Unauthorized
+
+  /wellbeing/run:
+    post:
+      operationId: runWellbeingCamp
+      tags: [wellbeing]
+      summary: Run a wellbeing camp for the team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunCampInput"
+      responses:
+        "200":
+          description: Camp completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellbeingResult"
+        "400":
+          description: Invalid camp type or insufficient funds
+        "401":
+          description: Unauthorized
+
 components:
   schemas:
     HealthStatus:
@@ -2267,6 +2305,60 @@ components:
           type: string
         level:
           type: integer
+
+    RunCampInput:
+      type: object
+      required:
+        - campType
+      properties:
+        campType:
+          type: string
+
+    WellbeingEffect:
+      type: object
+      required:
+        - id
+        - effectType
+        - matchesRemaining
+        - createdAt
+      properties:
+        id:
+          type: integer
+        effectType:
+          type: string
+        matchesRemaining:
+          type: integer
+        createdAt:
+          type: string
+
+    WellbeingStatus:
+      type: object
+      required:
+        - teamBudget
+        - activeEffects
+      properties:
+        teamBudget:
+          type: number
+        activeEffects:
+          type: array
+          items:
+            $ref: "#/components/schemas/WellbeingEffect"
+
+    WellbeingResult:
+      type: object
+      required:
+        - message
+        - updatedPlayers
+        - activeEffects
+      properties:
+        message:
+          type: string
+        updatedPlayers:
+          type: integer
+        activeEffects:
+          type: array
+          items:
+            $ref: "#/components/schemas/WellbeingEffect"
 
     HallOfFameEntry:
       type: object

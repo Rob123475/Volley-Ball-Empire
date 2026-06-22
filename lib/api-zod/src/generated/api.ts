@@ -2500,3 +2500,36 @@ export const GetTrophyCabinetResponse = zod.object({
 })
 
 
+/**
+ * @summary Get active wellbeing effects and team budget
+ */
+export const GetWellbeingStatusResponse = zod.object({
+  "teamBudget": zod.number(),
+  "activeEffects": zod.array(zod.object({
+  "id": zod.number(),
+  "effectType": zod.string(),
+  "matchesRemaining": zod.number(),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
+ * @summary Run a wellbeing camp for the team
+ */
+export const RunWellbeingCampBody = zod.object({
+  "campType": zod.string()
+})
+
+export const RunWellbeingCampResponse = zod.object({
+  "message": zod.string(),
+  "updatedPlayers": zod.number(),
+  "activeEffects": zod.array(zod.object({
+  "id": zod.number(),
+  "effectType": zod.string(),
+  "matchesRemaining": zod.number(),
+  "createdAt": zod.string()
+}))
+})
+
+

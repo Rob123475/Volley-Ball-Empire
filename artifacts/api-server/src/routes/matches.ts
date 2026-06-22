@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -109,7 +109,7 @@ async function getBestMedicalSkill(teamId: number): Promise<number> {
 }
 
 /** Returns probability (0–0.60) of a player getting injured this match. */
-function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, injuryStatus: string, sportsLabLevel = 1): number {
+function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, injuryStatus: string, sportsLabLevel = 1, hasRecoveryCamp = false): number {
   let risk = 0.05;
 
   // Fatigue makes the body fragile
@@ -128,8 +128,10 @@ function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, i
   if (injuryStatus !== "Healthy") risk *= 2.5;
 
   // Sports Science Lab: reduces injury risk (0% at L1, −25% at L10)
-  const labFactor = 1 - (sportsLabLevel - 1) * (0.25 / 9);
-  return Math.min(risk * labFactor, 0.60);
+  const labFactor  = 1 - (sportsLabLevel - 1) * (0.25 / 9);
+  // Recovery Retreat camp: additional −15% while active
+  const campFactor = hasRecoveryCamp ? 0.85 : 1.0;
+  return Math.min(risk * labFactor * campFactor, 0.60);
 }
 
 /** Rolls the severity of a new injury (or worsening). */
@@ -160,7 +162,7 @@ type PlayerEvent = {
  *  - Bench/reserve:   fatigue ↓, fitness ↑, consecutive resets, injury weeks tick down
  * Returns events (new injuries, worsenings, recoveries) for the UI to surface.
  */
-async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}): Promise<PlayerEvent[]> {
+async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false): Promise<PlayerEvent[]> {
   const [players, physioSkill] = await Promise.all([
     db.select().from(playersTable).where(eq(playersTable.teamId, teamId)),
     getBestMedicalSkill(teamId),
@@ -187,7 +189,7 @@ async function applyPostMatchEffects(teamId: number, weather: string, facilityLe
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
       // Injury risk roll — higher fatigue, lower stamina, and playing hurt all raise it
-      const risk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus, sportsLabLevel);
+      const risk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus, sportsLabLevel, hasRecoveryCamp);
       if (Math.random() < risk) {
         const inj = rollInjurySeverity(prevStatus);
         updates.injuryStatus        = inj.status;
@@ -366,9 +368,16 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const team = await getTeamForUser(req.user.id);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  // Load all facility levels for match bonuses
-  const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id));
+  // Load all facility levels and active wellbeing effects for match bonuses
+  const [facilityRows, wellbeingEffects] = await Promise.all([
+    db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),
+    db.select().from(wellbeingEffectsTable).where(
+      and(eq(wellbeingEffectsTable.teamId, team.id), gt(wellbeingEffectsTable.matchesRemaining, 0))
+    ),
+  ]);
   const facilityLevels: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
+  const hasPsychCamp    = wellbeingEffects.some(e => e.effectType === "psych_camp");
+  const hasRecoveryCamp = wellbeingEffects.some(e => e.effectType === "recovery_camp");
 
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
   const activePlayers = players.filter(p => p.isActive);
@@ -384,9 +393,11 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const isFinal       = match.tier === "Grand Final";
   const isHighPressure = isFinal || match.tier === "Continental Final";
 
-  // Psychology Centre: lowers stat threshold in finals/high-pressure matches (70→61, L1→L10)
-  const psychLevel    = facilityLevels.psychology_centre ?? 1;
-  const statThreshold = isHighPressure ? Math.max(61, 70 - (psychLevel - 1)) : 70;
+  // Psychology Centre: lowers stat threshold in finals (70→61, L1→L10)
+  // Sports Psychology Camp: additional −3 while active
+  const psychLevel         = facilityLevels.psychology_centre ?? 1;
+  const psychBonusFromCamp = hasPsychCamp ? 3 : 0;
+  const statThreshold = isHighPressure ? Math.max(58, 70 - (psychLevel - 1) - psychBonusFromCamp) : 70;
 
   const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
   const awayScore = Math.floor(Math.random() * 3) + 1;
@@ -449,7 +460,14 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.update(teamsTable).set({ losses: team.losses + 1 }).where(eq(teamsTable.id, team.id));
   }
 
-  const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels);
+  const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp);
+
+  // Decrement wellbeing effect match counters
+  for (const effect of wellbeingEffects) {
+    await db.update(wellbeingEffectsTable)
+      .set({ matchesRemaining: Math.max(0, effect.matchesRemaining - 1) })
+      .where(eq(wellbeingEffectsTable.id, effect.id));
+  }
 
   res.json({
     match: serializeMatch(updatedMatch),

@@ -17,6 +17,7 @@ import {
   Briefcase,
   Award,
   Building2,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ const clubManagerItems = [
   { href: "/leaderboard",     label: "Leaderboard",     icon: Trophy  },
   { href: "/trophy-cabinet",  label: "Trophy Cabinet",  icon: Award      },
   { href: "/facilities",      label: "Facilities",       icon: Building2  },
+  { href: "/wellbeing",       label: "Wellbeing Camps",  icon: Sparkles   },
 ];
 
 const nationalCoachItems = [

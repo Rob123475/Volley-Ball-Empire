@@ -287,3 +287,13 @@ export const trophiesTable = pgTable("trophies", {
 });
 
 export type TrophyRecord = typeof trophiesTable.$inferSelect;
+
+export const wellbeingEffectsTable = pgTable("wellbeing_effects", {
+  id:               serial("id").primaryKey(),
+  teamId:           integer("team_id").notNull().references(() => teamsTable.id),
+  effectType:       varchar("effect_type", { length: 50 }).notNull(),
+  matchesRemaining: integer("matches_remaining").notNull().default(8),
+  createdAt:        timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type WellbeingEffect = typeof wellbeingEffectsTable.$inferSelect;

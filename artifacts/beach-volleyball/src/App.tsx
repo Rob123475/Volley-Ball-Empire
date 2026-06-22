@@ -21,6 +21,7 @@ import WorldTourLocations from "@/pages/locations";
 import MedicalCentre from "@/pages/medical";
 import TrophyCabinet from "@/pages/trophy-cabinet";
 import Facilities from "@/pages/facilities";
+import Wellbeing from "@/pages/wellbeing";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -64,6 +65,7 @@ function Router() {
           <Route path="/locations" component={WorldTourLocations} />
           <Route path="/trophy-cabinet" component={TrophyCabinet} />
           <Route path="/facilities" component={Facilities} />
+          <Route path="/wellbeing" component={Wellbeing} />
           <Route component={NotFound} />
         </Switch>
       </Shell>

@@ -50,6 +50,7 @@ import type {
   PlayerSwap,
   PlayerUpdate,
   PromoDeal,
+  RunCampInput,
   ScoutingResult,
   Season,
   SeasonInput,
@@ -67,7 +68,9 @@ import type {
   TrophyCabinet,
   UserProfile,
   UserProfileInput,
-  UserProfileUpdate
+  UserProfileUpdate,
+  WellbeingResult,
+  WellbeingStatus
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -4824,4 +4827,152 @@ export function useGetTrophyCabinet<TData = Awaited<ReturnType<typeof getTrophyC
 
 
 
+
+export const getGetWellbeingStatusUrl = () => {
+
+
+
+
+  return `/api/wellbeing/status`
+}
+
+/**
+ * @summary Get active wellbeing effects and team budget
+ */
+export const getWellbeingStatus = async ( options?: RequestInit): Promise<WellbeingStatus> => {
+
+  return customFetch<WellbeingStatus>(getGetWellbeingStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWellbeingStatusQueryKey = () => {
+    return [
+    `/api/wellbeing/status`
+    ] as const;
+    }
+
+
+export const getGetWellbeingStatusQueryOptions = <TData = Awaited<ReturnType<typeof getWellbeingStatus>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWellbeingStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWellbeingStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWellbeingStatus>>> = ({ signal }) => getWellbeingStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWellbeingStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWellbeingStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getWellbeingStatus>>>
+export type GetWellbeingStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get active wellbeing effects and team budget
+ */
+
+export function useGetWellbeingStatus<TData = Awaited<ReturnType<typeof getWellbeingStatus>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWellbeingStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWellbeingStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getRunWellbeingCampUrl = () => {
+
+
+
+
+  return `/api/wellbeing/run`
+}
+
+/**
+ * @summary Run a wellbeing camp for the team
+ */
+export const runWellbeingCamp = async (runCampInput: RunCampInput, options?: RequestInit): Promise<WellbeingResult> => {
+
+  return customFetch<WellbeingResult>(getRunWellbeingCampUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      runCampInput,)
+  }
+);}
+
+
+
+
+export const getRunWellbeingCampMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runWellbeingCamp>>, TError,{data: BodyType<RunCampInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runWellbeingCamp>>, TError,{data: BodyType<RunCampInput>}, TContext> => {
+
+const mutationKey = ['runWellbeingCamp'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runWellbeingCamp>>, {data: BodyType<RunCampInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  runWellbeingCamp(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RunWellbeingCampMutationResult = NonNullable<Awaited<ReturnType<typeof runWellbeingCamp>>>
+    export type RunWellbeingCampMutationBody = BodyType<RunCampInput>
+    export type RunWellbeingCampMutationError = ErrorType<void>
+
+    /**
+ * @summary Run a wellbeing camp for the team
+ */
+export const useRunWellbeingCamp = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runWellbeingCamp>>, TError,{data: BodyType<RunCampInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof runWellbeingCamp>>,
+        TError,
+        {data: BodyType<RunCampInput>},
+        TContext
+      > => {
+      return useMutation(getRunWellbeingCampMutationOptions(options));
+    }
 
