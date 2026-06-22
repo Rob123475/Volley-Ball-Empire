@@ -300,6 +300,19 @@ export const wellbeingEffectsTable = pgTable("wellbeing_effects", {
 
 export type WellbeingEffect = typeof wellbeingEffectsTable.$inferSelect;
 
+export const injuryHistoryTable = pgTable("injury_history", {
+  id:          serial("id").primaryKey(),
+  teamId:      integer("team_id").notNull().references(() => teamsTable.id),
+  seasonId:    integer("season_id").notNull(),
+  playerId:    integer("player_id").notNull().references(() => playersTable.id),
+  playerName:  varchar("player_name", { length: 100 }).notNull(),
+  injuryType:  varchar("injury_type", { length: 30 }).notNull(),
+  daysMissed:  integer("days_missed").notNull(),
+  dateInjured: timestamp("date_injured", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type InjuryHistoryEntry = typeof injuryHistoryTable.$inferSelect;
+
 export const seasonInjuryStatsTable = pgTable("season_injury_stats", {
   id:                  serial("id").primaryKey(),
   teamId:              integer("team_id").notNull().references(() => teamsTable.id),

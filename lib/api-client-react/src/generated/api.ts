@@ -32,6 +32,7 @@ import type {
   FinanceTransactionInput,
   HallOfFameEntry,
   HealthStatus,
+  InjuryHistoryEntry,
   LadderEntry,
   LeaderboardEntry,
   LineupUpdate,
@@ -4818,6 +4819,83 @@ export function useGetTrophyCabinet<TData = Awaited<ReturnType<typeof getTrophyC
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetTrophyCabinetQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetInjuryHistoryUrl = () => {
+
+
+
+
+  return `/api/medical/injury-history`
+}
+
+/**
+ * @summary Get season injury history for the current team (newest first)
+ */
+export const getInjuryHistory = async ( options?: RequestInit): Promise<InjuryHistoryEntry[]> => {
+
+  return customFetch<InjuryHistoryEntry[]>(getGetInjuryHistoryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInjuryHistoryQueryKey = () => {
+    return [
+    `/api/medical/injury-history`
+    ] as const;
+    }
+
+
+export const getGetInjuryHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getInjuryHistory>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInjuryHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInjuryHistoryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInjuryHistory>>> = ({ signal }) => getInjuryHistory({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInjuryHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetInjuryHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getInjuryHistory>>>
+export type GetInjuryHistoryQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get season injury history for the current team (newest first)
+ */
+
+export function useGetInjuryHistory<TData = Awaited<ReturnType<typeof getInjuryHistory>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInjuryHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetInjuryHistoryQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -6,7 +6,9 @@ import {
   useUpgradeFacility,
   useGetSeasonInjuryStats,
   useGetPlayerWorkloads,
+  useGetInjuryHistory,
 } from "@workspace/api-client-react";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +29,8 @@ import {
   ArrowUp,
   BarChart2,
   Activity,
+  History,
+  ChevronDown,
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -316,6 +320,9 @@ export default function MedicalCentre() {
 
       {/* ── Recovery Forecast ─────────────────────────────────── */}
       <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={bestSkill} />
+
+      {/* ── Injury History ────────────────────────────────────── */}
+      <InjuryHistorySection />
 
       {/* ── Season Injury Statistics ───────────────────────────── */}
       <SeasonInjuryStatsCard />
@@ -623,6 +630,110 @@ function ForecastStat({
       <p className="text-[11px] text-muted-foreground leading-snug">{label}</p>
       <p className={`text-2xl font-bold ${valueClass ?? ""}`}>{value}</p>
     </div>
+  );
+}
+
+/* ── Injury History Section ──────────────────────────────────── */
+
+const INJURY_TYPE_COLORS: Record<string, string> = {
+  "Minor Injury": "border-yellow-500/40 text-yellow-600",
+  "Major Injury": "border-orange-500/40 text-orange-600",
+  "Unavailable":  "border-red-500/40 text-red-600",
+};
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    day: "numeric", month: "short", year: "numeric",
+  });
+}
+
+function InjuryHistorySection() {
+  const [open, setOpen] = useState(false);
+  const { data: history, isLoading } = useGetInjuryHistory();
+
+  const count = history?.length ?? 0;
+
+  return (
+    <section className="space-y-3">
+      {/* Collapsible trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between rounded-lg border bg-card px-5 py-3.5 hover:bg-muted/40 transition-colors"
+      >
+        <span className="flex items-center gap-2 text-base font-semibold">
+          <History className="h-5 w-5 text-primary" />
+          Injury History
+          {count > 0 && (
+            <Badge variant="secondary" className="ml-1 text-xs">{count}</Badge>
+          )}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Collapsible body */}
+      {open && (
+        <Card>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="p-6 space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                ))}
+              </div>
+            ) : count === 0 ? (
+              <div className="flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground">
+                <History className="h-8 w-8 text-muted-foreground/30" />
+                <p>No injuries recorded this season.</p>
+                <p className="text-xs">Records are created automatically when a player is injured during a match.</p>
+              </div>
+            ) : (
+              <div className="divide-y">
+                {/* Header */}
+                <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  <span>Player</span>
+                  <span className="w-28">Injury</span>
+                  <span className="w-28">Date Injured</span>
+                  <span className="w-20 text-right">Days Missed</span>
+                </div>
+
+                {history!.map(entry => (
+                  <div
+                    key={entry.id}
+                    className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-5 py-3 hover:bg-muted/30 transition-colors"
+                  >
+                    {/* Player name */}
+                    <p className="font-medium text-sm truncate">{entry.playerName}</p>
+
+                    {/* Injury type */}
+                    <div className="w-28">
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${INJURY_TYPE_COLORS[entry.injuryType] ?? "border-muted text-muted-foreground"}`}
+                      >
+                        {entry.injuryType}
+                      </Badge>
+                    </div>
+
+                    {/* Date */}
+                    <span className="w-28 text-sm text-muted-foreground whitespace-nowrap">
+                      {formatDate(entry.dateInjured as string)}
+                    </span>
+
+                    {/* Days missed */}
+                    <span className="w-20 text-right text-sm font-semibold">
+                      {entry.daysMissed}d
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </section>
   );
 }
 

@@ -1,9 +1,37 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { teamsTable, playersTable, seasonInjuryStatsTable, matchesTable, trainingSessionsTable } from "@workspace/db";
+import { teamsTable, playersTable, seasonInjuryStatsTable, injuryHistoryTable, matchesTable, trainingSessionsTable } from "@workspace/db";
 import { eq, and, desc, gte } from "drizzle-orm";
 
 const router = Router();
+
+router.get("/medical/injury-history", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, req.user.id) });
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const lastMatch = await db.select({ season: matchesTable.season })
+    .from(matchesTable)
+    .where(eq(matchesTable.homeTeamId, team.id))
+    .orderBy(desc(matchesTable.createdAt))
+    .limit(1);
+
+  const currentSeason = lastMatch[0]?.season ?? 1;
+
+  const history = await db.select()
+    .from(injuryHistoryTable)
+    .where(and(
+      eq(injuryHistoryTable.teamId, team.id),
+      eq(injuryHistoryTable.seasonId, currentSeason),
+    ))
+    .orderBy(desc(injuryHistoryTable.dateInjured));
+
+  res.json(history.map(h => ({
+    ...h,
+    dateInjured: h.dateInjured.toISOString(),
+  })));
+});
 
 router.get("/medical/workload", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

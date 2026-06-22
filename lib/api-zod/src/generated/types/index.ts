@@ -30,6 +30,7 @@ export * from './financeTransactionInput';
 export * from './financeTransactionType';
 export * from './hallOfFameEntry';
 export * from './healthStatus';
+export * from './injuryHistoryEntry';
 export * from './ladderEntry';
 export * from './leaderboardEntry';
 export * from './lineupUpdate';

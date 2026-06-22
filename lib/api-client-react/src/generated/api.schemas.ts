@@ -955,6 +955,17 @@ export interface LeaderboardEntry {
   reputation: number;
 }
 
+export interface InjuryHistoryEntry {
+  id: number;
+  teamId: number;
+  seasonId: number;
+  playerId: number;
+  playerName: string;
+  injuryType: string;
+  daysMissed: number;
+  dateInjured: string;
+}
+
 export type PlayerWorkloadStatus = typeof PlayerWorkloadStatus[keyof typeof PlayerWorkloadStatus];
 
 

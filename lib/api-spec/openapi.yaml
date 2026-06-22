@@ -1151,6 +1151,25 @@ paths:
         "404":
           description: Team not found
 
+  /medical/injury-history:
+    get:
+      operationId: getInjuryHistory
+      tags: [medical]
+      summary: Get season injury history for the current team (newest first)
+      responses:
+        "200":
+          description: List of injury history entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InjuryHistoryEntry"
+        "401":
+          description: Unauthorized
+        "404":
+          description: No team found
+
   /medical/workload:
     get:
       operationId: getPlayerWorkloads
@@ -2476,6 +2495,28 @@ components:
           type: number
         reputation:
           type: integer
+
+    InjuryHistoryEntry:
+      type: object
+      required: [id, teamId, seasonId, playerId, playerName, injuryType, daysMissed, dateInjured]
+      properties:
+        id:
+          type: integer
+        teamId:
+          type: integer
+        seasonId:
+          type: integer
+        playerId:
+          type: integer
+        playerName:
+          type: string
+        injuryType:
+          type: string
+        daysMissed:
+          type: integer
+        dateInjured:
+          type: string
+          format: date-time
 
     PlayerWorkload:
       type: object

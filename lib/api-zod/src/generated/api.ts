@@ -2513,6 +2513,22 @@ export const GetTrophyCabinetResponse = zod.object({
 
 
 /**
+ * @summary Get season injury history for the current team (newest first)
+ */
+export const GetInjuryHistoryResponseItem = zod.object({
+  "id": zod.number(),
+  "teamId": zod.number(),
+  "seasonId": zod.number(),
+  "playerId": zod.number(),
+  "playerName": zod.string(),
+  "injuryType": zod.string(),
+  "daysMissed": zod.number(),
+  "dateInjured": zod.coerce.date()
+})
+export const GetInjuryHistoryResponse = zod.array(GetInjuryHistoryResponseItem)
+
+
+/**
  * @summary Get workload status for all players (last 14 days)
  */
 export const GetPlayerWorkloadsResponseItem = zod.object({

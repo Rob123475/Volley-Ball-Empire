@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable } from "@workspace/db";
 import { eq, desc, gt, and } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -509,6 +509,20 @@ router.post("/matches/:id/simulate", async (req, res) => {
         unavailableInjuries: unavailAdd,
       });
     }
+
+    // Record individual injury history entries
+    const now = new Date();
+    await db.insert(injuryHistoryTable).values(
+      newInjuryEvents.map(e => ({
+        teamId:      team.id,
+        seasonId:    match.season,
+        playerId:    e.playerId,
+        playerName:  e.playerName,
+        injuryType:  e.injuryStatus ?? "Unknown",
+        daysMissed:  (e.weeksOut ?? 2) * 7,
+        dateInjured: now,
+      }))
+    );
   }
 
   // Decrement wellbeing effect match counters
