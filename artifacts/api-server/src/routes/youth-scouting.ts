@@ -1,7 +1,13 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { teamsTable, financeTransactionsTable, youthProspectsTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import {
+  teamsTable,
+  financeTransactionsTable,
+  youthProspectsTable,
+  playersTable,
+  contractsTable,
+} from "@workspace/db";
+import { eq, and, gte, lte } from "drizzle-orm";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 
 const router = Router();
@@ -20,6 +26,46 @@ const TALENT_LEVEL: Record<Continent, string> = {
 
 const SCOUTING_WEEKS = 4;
 export const SCOUTING_COST = 15_000;
+
+// ── Nationality pools by continent ────────────────────────────────────────
+
+const NATIONALITIES: Record<string, string[]> = {
+  Europe:          ["Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands", "Poland", "Denmark"],
+  Africa:          ["Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco"],
+  "North America": ["USA", "Canada", "USA", "USA"],
+  "South America": ["Brazil", "Colombia", "Argentina", "Brazil", "Brazil", "Chile"],
+  Asia:            ["Japan", "South Korea", "China", "India", "Thailand"],
+  Oceania:         ["Australia", "New Zealand", "Australia", "Australia"],
+};
+
+// ── Speciality → primary stat boost ─────────────────────────────────────
+
+const SPECIALITY_STAT: Record<string, keyof typeof BASE_STATS> = {
+  Power:   "power",
+  Defense: "defense",
+  Serve:   "serve",
+  Speed:   "speed",
+  Block:   "block",
+};
+// (referenced below; define dummy for TS)
+const BASE_STATS = { speed: 0, power: 0, defense: 0, serve: 0, block: 0, stamina: 0 };
+
+function buildStats(currentRating: number, speciality: string): typeof BASE_STATS {
+  const rand = (base: number) => Math.max(30, Math.min(99, base + Math.floor(Math.random() * 11) - 5));
+  const stats: typeof BASE_STATS = {
+    speed:   rand(currentRating),
+    power:   rand(currentRating),
+    defense: rand(currentRating),
+    serve:   rand(currentRating),
+    block:   rand(currentRating),
+    stamina: rand(currentRating),
+  };
+  const primary = SPECIALITY_STAT[speciality];
+  if (primary) stats[primary] = Math.min(99, stats[primary] + 8);
+  return stats;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
 
 const getTeamForUser = (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
@@ -135,15 +181,107 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   const prospect = await db.query.youthProspectsTable.findFirst({
     where: and(eq(youthProspectsTable.id, prospectId), eq(youthProspectsTable.teamId, team.id)),
   });
-
   if (!prospect) { res.status(404).json({ error: "Prospect not found" }); return; }
   if (prospect.status !== "pending") {
     res.status(422).json({ error: "Prospect is no longer available." });
     return;
   }
 
+  // Budget check
+  const budget = Number(team.budget ?? 0);
+  if (budget < prospect.signingCost) {
+    res.status(422).json({
+      error: `Insufficient funds. Signing ${prospect.name} costs $${prospect.signingCost.toLocaleString()}.`,
+    });
+    return;
+  }
+
+  // Youth Academy capacity check (max 6 players age 14–18)
+  const youthPlayers = await db.select()
+    .from(playersTable)
+    .where(
+      and(
+        eq(playersTable.teamId, team.id),
+        gte(playersTable.age, 14),
+        lte(playersTable.age, 18),
+        eq(playersTable.isRetired, false),
+      ),
+    );
+  if (youthPlayers.length >= 6) {
+    res.status(422).json({
+      error: "Youth Academy is full (6/6). Release a youth player before signing a new one.",
+    });
+    return;
+  }
+
+  // Build player stats from prospect rating + speciality
+  const stats = buildStats(prospect.currentRating, prospect.speciality);
+
+  // Pick nationality from continent pool
+  const natPool    = NATIONALITIES[prospect.continent] ?? ["USA"];
+  const nationality = natPool[Math.floor(Math.random() * natPool.length)]!;
+
+  // Position: Setters favour serve/defense; Spikers favour power/speed/block
+  const position = ["Serve", "Defense"].includes(prospect.speciality) ? "Setter" : "Spiker";
+
+  // Youth salary: $1,500–$2,500/week
+  const salary = String(1500 + Math.floor(Math.random() * 1001));
+
+  const today = new Date().toISOString().split("T")[0]!;
+  const contractEnd = new Date();
+  contractEnd.setFullYear(contractEnd.getFullYear() + 3);
+  const endDate = contractEnd.toISOString().split("T")[0]!;
+
+  // Insert the player into the youth squad (reserve role, not active)
+  const [newPlayer] = await db.insert(playersTable).values({
+    name:          prospect.name,
+    nationality,
+    age:           prospect.age,
+    height:        String(Number((1.60 + Math.random() * 0.18).toFixed(1))),
+    position,
+    teamId:        team.id,
+    isActive:      false,
+    squadRole:     "reserve",
+    isDraftPlayer: false,
+    isRetired:     false,
+    injuryStatus:  "Healthy",
+    potential:     prospect.potentialStars,
+    salary,
+    morale:        75 + Math.floor(Math.random() * 16),
+    fatigue:       0,
+    fitness:       100,
+    ...stats,
+    imageUrl: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(prospect.name + "_youth")}&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear`,
+  }).returning();
+
+  // Contract (3-year youth deal)
+  await db.insert(contractsTable).values({
+    playerId:    newPlayer.id,
+    teamId:      team.id,
+    salary,
+    startDate:   today,
+    endDate,
+    bonusPerWin: "250",
+  });
+
+  // Deduct signing fee
+  await db.update(teamsTable)
+    .set({ budget: String(budget - prospect.signingCost) })
+    .where(eq(teamsTable.id, team.id));
+
+  // Finance transaction
+  await db.insert(financeTransactionsTable).values({
+    teamId:      team.id,
+    type:        "expense",
+    amount:      String(-prospect.signingCost),
+    description: `Youth signing — ${prospect.name}`,
+    category:    "youth_academy",
+    date:        today,
+  });
+
+  // Mark prospect as signed → removes from pending list
   const [updated] = await db.update(youthProspectsTable)
-    .set({ status: "reserved" })
+    .set({ status: "signed" })
     .where(eq(youthProspectsTable.id, prospectId))
     .returning();
 
@@ -159,7 +297,6 @@ router.post("/youth-scouting/prospects/:id/ignore", async (req, res) => {
   const prospect = await db.query.youthProspectsTable.findFirst({
     where: and(eq(youthProspectsTable.id, prospectId), eq(youthProspectsTable.teamId, team.id)),
   });
-
   if (!prospect) { res.status(404).json({ error: "Prospect not found" }); return; }
 
   const [updated] = await db.update(youthProspectsTable)

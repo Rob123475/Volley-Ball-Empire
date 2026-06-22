@@ -9,6 +9,7 @@ import {
   useSignYouthProspect,
   useIgnoreYouthProspect,
   getGetYouthProspectsQueryKey,
+  getGetTeamRosterQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -160,11 +161,12 @@ export default function YouthAcademy() {
     signMutation.mutate({ id }, {
       onSuccess: () => {
         invalidateProspects();
-        toast({ title: "Prospect Reserved", description: `${name} has been set aside for signing.` });
+        queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
+        toast({ title: "Youth Signed!", description: `${name} has joined the Youth Academy.` });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not reserve prospect.";
-        toast({ title: "Error", description: msg, variant: "destructive" });
+        const msg = err?.response?.data?.error ?? "Could not sign prospect.";
+        toast({ title: "Signing Failed", description: msg, variant: "destructive" });
       },
     });
   };
