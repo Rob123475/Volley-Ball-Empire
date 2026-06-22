@@ -222,11 +222,21 @@ export default function Finances() {
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Income Sources</h4>
-              <div className="space-y-2">
-                <BreakdownRow label="Prize Money" amount={summary?.incomeSources.prizeMoney || 0} total={summary?.monthlyIncome || 1} color="bg-green-500" />
-                <BreakdownRow label="Sponsorships" amount={summary?.incomeSources.sponsorships || 0} total={summary?.monthlyIncome || 1} color="bg-blue-500" />
-                <BreakdownRow label="Promo Deals" amount={summary?.incomeSources.promoDeals || 0} total={summary?.monthlyIncome || 1} color="bg-gray-500" />
-              </div>
+              {(() => {
+                const prizeMoney   = summary?.incomeSources?.prizeMoney   || 0;
+                const sponsorships = summary?.incomeSources?.sponsorships || 0;
+                const promoDeals   = summary?.incomeSources?.promoDeals   || 0;
+                const hasIncome    = prizeMoney + sponsorships + promoDeals > 0;
+                return hasIncome ? (
+                  <div className="space-y-2">
+                    <BreakdownRow label="Prize Money" amount={prizeMoney} total={summary?.monthlyIncome || 1} color="bg-green-500" />
+                    <BreakdownRow label="Sponsorships" amount={sponsorships} total={summary?.monthlyIncome || 1} color="bg-blue-500" />
+                    <BreakdownRow label="Promo Deals" amount={promoDeals} total={summary?.monthlyIncome || 1} color="bg-gray-500" />
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">No income recorded yet.</p>
+                );
+              })()}
             </div>
             <div className="space-y-4">
               <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Expense Breakdown</h4>
