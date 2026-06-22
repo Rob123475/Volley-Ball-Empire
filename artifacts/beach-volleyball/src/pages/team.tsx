@@ -600,11 +600,9 @@ export default function TeamRoster() {
               ))}
             </div>
           </div>
-          {youthFull && (
-            <p className="text-xs text-red-600 font-medium">
-              Youth Academy Full — Promote, Draft, Sell, or Release a player before signing another prospect.
-            </p>
-          )}
+          <p className={cn("text-xs font-medium", youthFull ? "text-red-600" : "text-yellow-700 dark:text-yellow-400")}>
+            {youthFull ? "Youth Academy Full." : "Spaces available for scouting and signing."}
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
