@@ -1,12 +1,17 @@
 import {
   useGetTeamRoster,
   getGetTeamRosterQueryKey,
+  useGetFacilities,
+  getGetFacilitiesQueryKey,
+  useUpgradeFacility,
 } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Heart,
   Stethoscope,
@@ -17,6 +22,7 @@ import {
   Shield,
   UserCog,
   Link as LinkIcon,
+  ArrowUp,
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -141,6 +147,9 @@ export default function MedicalCentre() {
           Monitor player health, manage injuries, and track recovery progress.
         </p>
       </div>
+
+      {/* ── Medical Centre Facility Card ── */}
+      <MedicalCentreFacilityCard />
 
       {/* ── Squad Health Summary ── */}
       <SquadHealthSummary players={allPlayers} />
@@ -393,6 +402,116 @@ export default function MedicalCentre() {
         )}
       </section>
     </div>
+  );
+}
+
+/* ── Medical Centre Facility Card ───────────────────────────── */
+
+const MC_MAX_LEVEL = 10;
+
+function MedicalCentreFacilityCard() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { data: facilities, isLoading } = useGetFacilities({
+    query: { queryKey: getGetFacilitiesQueryKey() },
+  });
+  const upgradeMutation = useUpgradeFacility();
+
+  const facility = facilities?.find((f) => f.type === "medical_centre");
+  const level = facility?.level ?? 1;
+  const isMax = level >= MC_MAX_LEVEL;
+
+  const recoveryBonus = (level - 1) * 5;
+  const injuryReduction = (level - 1) * 2;
+
+  const handleUpgrade = () => {
+    upgradeMutation.mutate(
+      { type: "medical_centre" },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetFacilitiesQueryKey() });
+          toast({ title: `Medical Centre upgraded to Level ${level + 1}` });
+        },
+        onError: (err: any) => {
+          toast({
+            title: "Upgrade failed",
+            description: err?.message ?? "Insufficient funds or max level reached.",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
+
+  if (isLoading) return <Skeleton className="h-32 w-full" />;
+
+  return (
+    <Card className="border-rose-500/30 bg-rose-500/5">
+      <CardContent className="p-5">
+        {/* Header row */}
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Heart className="h-5 w-5 text-rose-500 shrink-0" />
+            <span className="font-semibold text-base">Medical Centre</span>
+          </div>
+          <Badge
+            variant="outline"
+            className={isMax
+              ? "border-rose-500/40 text-rose-600 bg-rose-500/10"
+              : "border-rose-500/30 text-rose-600"}
+          >
+            {isMax ? "MAX" : `Level ${level} / ${MC_MAX_LEVEL}`}
+          </Badge>
+        </div>
+
+        {/* Level progress bar */}
+        <div className="mb-4">
+          <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
+            <span>Level progress</span>
+            <span>{level} / {MC_MAX_LEVEL}</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-rose-500/15 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-rose-500 transition-all"
+              style={{ width: `${(level / MC_MAX_LEVEL) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Bonuses + Upgrade button */}
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              Current Bonuses
+            </p>
+            <div className="flex items-center gap-2 text-sm">
+              <Zap className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+              <span className="text-muted-foreground">Recovery Speed</span>
+              <span className={`font-bold ml-1 ${recoveryBonus > 0 ? "text-green-600" : "text-muted-foreground/60"}`}>
+                {recoveryBonus > 0 ? `+${recoveryBonus}%` : "—"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Shield className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+              <span className="text-muted-foreground">Injury Prevention</span>
+              <span className={`font-bold ml-1 ${injuryReduction > 0 ? "text-green-600" : "text-muted-foreground/60"}`}>
+                {injuryReduction > 0 ? `-${injuryReduction}%` : "—"}
+              </span>
+            </div>
+          </div>
+
+          <Button
+            size="sm"
+            disabled={isMax || upgradeMutation.isPending}
+            onClick={handleUpgrade}
+            className="gap-1.5 shrink-0"
+          >
+            <ArrowUp className="h-3.5 w-3.5" />
+            {isMax ? "Max Level" : `Upgrade to Level ${level + 1}`}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
