@@ -123,6 +123,9 @@ export default function Finances() {
         />
       </div>
 
+      {/* Financial Health Rating */}
+      <FinancialHealthRatingCard summary={summary} isLoading={summaryLoading} />
+
       {/* Cashflow Forecast */}
       <CashflowForecastCard summary={summary} isLoading={summaryLoading} />
 
@@ -479,6 +482,125 @@ function CashflowForecastCard({
             )}
           </>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Financial Health Rating Card ──────────────────────────── */
+
+type HealthRating = "Excellent" | "Stable" | "Warning" | "Critical";
+
+function computeHealthRating(balance: number, netPosition: number): {
+  rating: HealthRating;
+  emoji: string;
+  explanation: string;
+} {
+  const lowBalance   = balance < 100_000;
+  const veryLow      = balance < 25_000;
+  const negativeNet  = netPosition < 0;
+
+  if (veryLow && negativeNet) {
+    return {
+      rating: "Critical",
+      emoji: "🔴",
+      explanation: "Your balance is critically low and monthly expenses are exceeding income — act now.",
+    };
+  }
+  if (lowBalance || negativeNet) {
+    if (lowBalance && negativeNet) {
+      return {
+        rating: "Warning",
+        emoji: "🟠",
+        explanation: "Low balance combined with negative cash flow is putting your finances under pressure.",
+      };
+    }
+    if (lowBalance) {
+      return {
+        rating: "Warning",
+        emoji: "🟠",
+        explanation: "Your balance is running low — consider securing new sponsorship or reducing expenses.",
+      };
+    }
+    return {
+      rating: "Warning",
+      emoji: "🟠",
+      explanation: "Monthly expenses are exceeding income — review your spending to restore a positive cash flow.",
+    };
+  }
+  if (balance >= 250_000 && netPosition > 0) {
+    return {
+      rating: "Excellent",
+      emoji: "🟢",
+      explanation: "Your finances are in great shape — strong balance with positive monthly cash flow.",
+    };
+  }
+  return {
+    rating: "Stable",
+    emoji: "🟡",
+    explanation: "Your team is financially healthy with a solid balance and sustainable cash flow.",
+  };
+}
+
+const RATING_STYLES: Record<HealthRating, { border: string; badge: string; label: string }> = {
+  Excellent: { border: "border-green-500/30",  badge: "bg-green-500/10 text-green-700 border-green-500/20",  label: "text-green-700"  },
+  Stable:    { border: "border-yellow-400/30", badge: "bg-yellow-400/10 text-yellow-700 border-yellow-400/20", label: "text-yellow-700" },
+  Warning:   { border: "border-orange-400/30", badge: "bg-orange-400/10 text-orange-700 border-orange-400/20", label: "text-orange-700" },
+  Critical:  { border: "border-red-500/30",    badge: "bg-red-500/10 text-red-700 border-red-500/20",          label: "text-red-700"   },
+};
+
+function FinancialHealthRatingCard({
+  summary,
+  isLoading,
+}: {
+  summary: FinanceSummary | undefined;
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const balance     = summary?.totalBalance    ?? 0;
+  const income      = summary?.monthlyIncome   ?? 0;
+  const expenses    = summary?.monthlyExpenses ?? 0;
+  const netPosition = income - expenses;
+
+  const { rating, emoji, explanation } = computeHealthRating(balance, netPosition);
+  const styles = RATING_STYLES[rating];
+
+  return (
+    <Card className={cn("border-2", styles.border)}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl" role="img" aria-label={rating}>{emoji}</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Financial Health</span>
+                <Badge className={cn("text-xs font-semibold border", styles.badge)}>{rating}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mt-0.5">{explanation}</p>
+            </div>
+          </div>
+          <div className="flex gap-4 shrink-0 text-right">
+            <div>
+              <div className="text-xs text-muted-foreground">Balance</div>
+              <div className="text-sm font-semibold">{formatCompact(balance)}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Net / month</div>
+              <div className={cn("text-sm font-semibold", netPosition >= 0 ? "text-green-600" : "text-red-600")}>
+                {netPosition >= 0 ? "+" : ""}{formatCompact(netPosition)}
+              </div>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
