@@ -124,7 +124,7 @@ router.post("/players/:id/release", async (req, res) => {
   // Fetch before clearing so we can capture teamId and age for the transaction log
   const before = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
 
-  const [player] = await db.update(playersTable).set({ teamId: null, contractEndDate: null }).where(eq(playersTable.id, id)).returning();
+  const [player] = await db.update(playersTable).set({ teamId: null, contractEndDate: null, academyContractYears: null }).where(eq(playersTable.id, id)).returning();
 
   // Record a Youth Academy release transaction so it appears in Transaction History
   if (before?.teamId && before.age >= 14 && before.age <= 18) {

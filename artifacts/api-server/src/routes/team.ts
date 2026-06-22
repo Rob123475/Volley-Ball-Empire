@@ -102,8 +102,19 @@ router.patch("/team/roster/:id/role", async (req, res) => {
   // Derive isActive from role for backward-compat with match simulation
   const isActive = role !== "reserve";
 
+  // When an 18-year-old youth player is promoted, their academy contract ends
+  const promotedPlayer = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  const endsAcademyContract =
+    (role === "starter" || role === "interchange") &&
+    promotedPlayer?.age === 18 &&
+    promotedPlayer?.academyContractYears != null;
+
   await db.update(playersTable)
-    .set({ squadRole: role, isActive })
+    .set({
+      squadRole: role,
+      isActive,
+      ...(endsAcademyContract ? { academyContractYears: null } : {}),
+    })
     .where(eq(playersTable.id, playerId));
 
   const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));

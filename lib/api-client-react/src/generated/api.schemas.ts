@@ -174,6 +174,11 @@ export interface Player {
   trainingFocus?: PlayerTrainingFocus;
   /** Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat. */
   focusXp?: number;
+  /**
+     * Years remaining on the player's academy contract. Null for senior players. Decrements by 1/52 each match week.
+     * @nullable
+     */
+  academyContractYears?: number | null;
   createdAt: string;
 }
 

@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable } from "@workspace/db";
-import { eq, desc, gt, and } from "drizzle-orm";
+import { eq, desc, gt, and, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
-import { simulateYouthLeague } from "./youth-league";
+import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
 
 const router = Router();
 
@@ -551,6 +551,23 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.update(wellbeingEffectsTable)
       .set({ matchesRemaining: Math.max(0, effect.matchesRemaining - 1) })
       .where(eq(wellbeingEffectsTable.id, effect.id));
+  }
+
+  // Tick academy contracts (decrement years, charge weekly wages)
+  const academyWages = await tickAcademyContracts(team.id);
+  if (academyWages.totalWeeklyWages > 0) {
+    const wageDate = new Date().toISOString().split("T")[0];
+    await db.update(teamsTable)
+      .set({ budget: sql`${teamsTable.budget} - ${academyWages.totalWeeklyWages}` })
+      .where(eq(teamsTable.id, team.id));
+    await db.insert(financeTransactionsTable).values({
+      teamId:      team.id,
+      type:        "expense",
+      amount:      String(academyWages.totalWeeklyWages),
+      description: `Youth Academy wages — ${academyWages.playerCount} player${academyWages.playerCount !== 1 ? "s" : ""}`,
+      category:    "player_salary",
+      date:        wageDate,
+    });
   }
 
   // Simulate Youth Development League for all signed youth players (fire-and-forget)

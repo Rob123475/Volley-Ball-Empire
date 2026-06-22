@@ -224,8 +224,11 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   // Position: Setters favour serve/defense; Spikers favour power/speed/block
   const position = ["Serve", "Defense"].includes(prospect.speciality) ? "Setter" : "Spiker";
 
-  // Youth salary: $1,500–$2,500/week
-  const salary = String(1500 + Math.floor(Math.random() * 1001));
+  // Youth salary: based on potential stars per academy contract rules
+  const YOUTH_WEEKLY_WAGE: Record<string, number> = {
+    Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
+  };
+  const salary = String(YOUTH_WEEKLY_WAGE[prospect.potentialStars] ?? 75);
 
   const today = new Date().toISOString().split("T")[0]!;
   const contractEnd = new Date();
@@ -247,6 +250,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     injuryStatus:  "Healthy",
     potential:     prospect.potentialStars,
     salary,
+    academyContractYears: "2.00",
     morale:        75 + Math.floor(Math.random() * 16),
     fatigue:       0,
     fitness:       100,

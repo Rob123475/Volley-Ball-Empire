@@ -44,6 +44,49 @@ const FOCUS_STAT_MAP: Record<string, string> = {
   Athleticism: "speed",
 };
 
+// ── tickAcademyContracts — called from match simulate tick ────────────────────
+
+const YOUTH_WEEKLY_WAGE_MAP: Record<string, number> = {
+  Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
+};
+
+export async function tickAcademyContracts(teamId: number): Promise<{ totalWeeklyWages: number; playerCount: number }> {
+  const youthPlayers = await db.select()
+    .from(playersTable)
+    .where(
+      and(
+        eq(playersTable.teamId, teamId),
+        gte(playersTable.age, 14),
+        lte(playersTable.age, 18),
+        eq(playersTable.isRetired, false),
+      )
+    );
+
+  if (youthPlayers.length === 0) return { totalWeeklyWages: 0, playerCount: 0 };
+
+  let totalWeeklyWages = 0;
+
+  for (const player of youthPlayers) {
+    // Auto-init: assign 2-year academy contract to existing youth players that predate this feature
+    const currentYears = player.academyContractYears != null
+      ? Number(player.academyContractYears)
+      : 2.0;
+
+    // Decrement by 1 week (1/52 year), floor at 0
+    const newYears = Math.max(0, currentYears - 1 / 52);
+
+    await db.update(playersTable)
+      .set({ academyContractYears: newYears.toFixed(2) })
+      .where(eq(playersTable.id, player.id));
+
+    totalWeeklyWages += YOUTH_WEEKLY_WAGE_MAP[player.potential] ?? 75;
+  }
+
+  return { totalWeeklyWages, playerCount: youthPlayers.length };
+}
+
+// ── simulateYouthLeague — called from match simulate tick ─────────────────────
+
 export async function simulateYouthLeague(teamId: number): Promise<void> {
   const youthPlayers = await db.select()
     .from(playersTable)

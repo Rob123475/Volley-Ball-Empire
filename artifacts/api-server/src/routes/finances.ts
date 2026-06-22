@@ -50,11 +50,31 @@ async function computeStaffWageBill(teamId: number) {
 
 async function computeWageBill(teamId: number) {
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, teamId));
-  const roster = players.map(p => {
+  // Exclude youth academy players (age 14–18, reserve role) — they have a separate wage system
+  const seniorPlayers = players.filter(p => !(p.age >= 14 && p.age <= 18 && p.squadRole === "reserve"));
+  const roster = seniorPlayers.map(p => {
     const tier       = getPlayerTier(p.overallRating);
     const weeklySalary = WEEKLY_SALARY[tier];
     return { id: p.id, name: p.name, tier, weeklySalary };
   });
+  const weeklyWages  = roster.reduce((s, p) => s + p.weeklySalary, 0);
+  const monthlyWages = Math.round(weeklyWages * WEEKS_PER_MONTH);
+  return { weeklyWages, monthlyWages, playerCount: roster.length, players: roster };
+}
+
+const YOUTH_WEEKLY_WAGE: Record<string, number> = {
+  Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
+};
+
+async function computeYouthWageBill(teamId: number) {
+  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, teamId));
+  const youthPlayers = players.filter(p => p.age >= 14 && p.age <= 18 && p.squadRole === "reserve" && !p.isRetired);
+  const roster = youthPlayers.map(p => ({
+    id:           p.id,
+    name:         p.name,
+    potential:    p.potential,
+    weeklySalary: YOUTH_WEEKLY_WAGE[p.potential] ?? 75,
+  }));
   const weeklyWages  = roster.reduce((s, p) => s + p.weeklySalary, 0);
   const monthlyWages = Math.round(weeklyWages * WEEKS_PER_MONTH);
   return { weeklyWages, monthlyWages, playerCount: roster.length, players: roster };
@@ -111,9 +131,10 @@ router.get("/finances/summary", async (req, res) => {
   const monthIncome = income.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
   const monthExpenses = expenses.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
 
-  const [wageBill, staffWageBill] = await Promise.all([
+  const [wageBill, staffWageBill, youthWageBill] = await Promise.all([
     computeWageBill(team.id),
     computeStaffWageBill(team.id),
+    computeYouthWageBill(team.id),
   ]);
   const txPlayerSalaries = expenses.filter(t => t.category === "player_salary").reduce((acc, t) => acc + Number(t.amount), 0);
   const txStaffSalaries  = expenses.filter(t => t.category === "staff_salary").reduce((acc, t) => acc + Number(t.amount), 0);
@@ -123,14 +144,14 @@ router.get("/finances/summary", async (req, res) => {
     totalIncome,
     totalExpenses,
     monthlyIncome: monthIncome,
-    monthlyExpenses: monthExpenses + wageBill.monthlyWages + staffWageBill.monthlyWages,
+    monthlyExpenses: monthExpenses + wageBill.monthlyWages + staffWageBill.monthlyWages + youthWageBill.monthlyWages,
     incomeSources: {
       prizeMoney: income.filter(t => t.category === "prize_money").reduce((acc, t) => acc + Number(t.amount), 0),
       sponsorships: income.filter(t => t.category === "sponsorship").reduce((acc, t) => acc + Number(t.amount), 0),
       promoDeals: income.filter(t => t.category === "promo_deal").reduce((acc, t) => acc + Number(t.amount), 0),
     },
     expenseBreakdown: {
-      playerSalaries: txPlayerSalaries + wageBill.monthlyWages,
+      playerSalaries: txPlayerSalaries + wageBill.monthlyWages + youthWageBill.monthlyWages,
       staffSalaries: txStaffSalaries + staffWageBill.monthlyWages,
       trainingCosts: expenses.filter(t => t.category === "training_cost").reduce((acc, t) => acc + Number(t.amount), 0),
       other: expenses.filter(t => !["player_salary","staff_salary","training_cost"].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),

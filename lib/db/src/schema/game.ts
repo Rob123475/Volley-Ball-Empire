@@ -104,6 +104,7 @@ export const playersTable = pgTable("players", {
   scoutedPotential: varchar("scouted_potential", { length: 20 }),
   trainingFocus: varchar("training_focus", { length: 30 }),
   focusXp: integer("focus_xp").notNull().default(0),
+  academyContractYears: numeric("academy_contract_years", { precision: 5, scale: 2 }),
   isRetired: boolean("is_retired").notNull().default(false),
   retiredSeasonYear: integer("retired_season_year"),
   careerSeasons: integer("career_seasons"),

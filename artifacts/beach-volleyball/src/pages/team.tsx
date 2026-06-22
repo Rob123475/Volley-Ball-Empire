@@ -321,6 +321,10 @@ export default function TeamRoster() {
             const devPoints     = player.trainingPoints ?? 0;
             const devLevel      = Math.floor(devPoints / 100);
             const devProgress   = devPoints % 100;
+            const contractYears = player.academyContractYears != null
+              ? Number(player.academyContractYears)
+              : 2.0;
+            const contractDisplay = contractYears.toFixed(1);
 
             const confColor =
               confidence >= 80 ? "text-emerald-600" :
@@ -333,8 +337,12 @@ export default function TeamRoster() {
               <div className="pt-2 border-t border-border space-y-2.5">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Development</p>
 
-                {/* Row 1: Rating | Potential | Speciality */}
+                {/* Row 1: Age | Rating | Potential */}
                 <div className="grid grid-cols-3 gap-1.5 text-center">
+                  <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
+                    <div className="text-lg font-black text-foreground leading-none">{player.age}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Age</div>
+                  </div>
                   <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
                     <div className="text-lg font-black text-foreground leading-none">{youthRating}</div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Rating</div>
@@ -347,13 +355,34 @@ export default function TeamRoster() {
                     </div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Potential</div>
                   </div>
+                </div>
+
+                {/* Academy Contract */}
+                <div className="rounded-lg bg-primary/8 border border-primary/20 px-3 py-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Academy Contract</span>
+                  </div>
+                  <span className="text-[11px] font-black text-primary">{contractDisplay} Years Remaining</span>
+                </div>
+
+                {/* Row 2: Speciality | Confidence | Dev Level */}
+                <div className="grid grid-cols-3 gap-1.5 text-center">
                   <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
                     <div className="text-[10px] font-black text-foreground leading-tight">{speciality}</div>
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Speciality</div>
                   </div>
+                  <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
+                    <div className={cn("text-[11px] font-black leading-none mt-0.5", confColor)}>{confidence}%</div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Confidence</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 px-1.5 py-1.5">
+                    <div className="text-[11px] font-black text-primary leading-none mt-0.5">Lv.{devLevel}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">Dev Level</div>
+                  </div>
                 </div>
 
-                {/* Row 2: Confidence | Dev Level */}
+                {/* Row 3 (slim): Confidence bar + Dev progress bar */}
                 <div className="grid grid-cols-2 gap-1.5">
                   <div className="rounded-lg bg-muted/50 px-2 py-1.5 space-y-1">
                     <div className="flex items-center justify-between">
