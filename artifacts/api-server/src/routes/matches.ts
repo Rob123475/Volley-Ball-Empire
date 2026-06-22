@@ -6,6 +6,7 @@ import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
+import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 
 const router = Router();
 
@@ -568,6 +569,41 @@ router.post("/matches/:id/simulate", async (req, res) => {
       category:    "player_salary",
       date:        wageDate,
     });
+  }
+
+  // Update career stats and check achievements (non-critical — never breaks match sim)
+  try {
+    const isContFinalWin = match.tier === "Continental Final" && homeWon;
+    const isChampionshipWin = isFinal && homeWon;
+    const freshTeam = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, team.id) });
+    const freshBudget = Number(freshTeam?.budget ?? team.budget);
+    await updateCareerStats(team.id, (s) => {
+      const u = { ...s };
+      if (homeWon) u.matchesWon = s.matchesWon + 1;
+      else u.currentSeasonLosses = s.currentSeasonLosses + 1;
+      if (match.continent && !s.continentsVisited.includes(match.continent)) {
+        u.continentsVisited = [...s.continentsVisited, match.continent];
+      }
+      if (isContFinalWin) u.continentalTitles = s.continentalTitles + 1;
+      if (isChampionshipWin) {
+        u.championshipsWon = s.championshipsWon + 1;
+        u.seasonsCompleted = s.seasonsCompleted + 1;
+        if (s.currentSeasonLosses === 0) u.perfectSeasons = s.perfectSeasons + 1;
+        if (freshBudget > 0) u.debtFreeSeasons = s.debtFreeSeasons + 1;
+        u.currentSeasonLosses = 0;
+        if (team.locationId !== null && team.locationId === s.currentLocationId) {
+          u.seasonsInCurrentLocation = s.seasonsInCurrentLocation + 1;
+        } else {
+          u.seasonsInCurrentLocation = 1;
+          u.currentLocationId = team.locationId ?? null;
+        }
+      }
+      if (freshBudget > s.highestBalanceReached) u.highestBalanceReached = freshBudget;
+      return u;
+    });
+    await checkAchievements(team.id, match.season);
+  } catch {
+    // achievements are non-critical; never let them break match simulation
   }
 
   // Simulate Youth Development League for all signed youth players (fire-and-forget)

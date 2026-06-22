@@ -7,8 +7,12 @@
  */
 
 export * from './achievement';
+export * from './achievementStatus';
+export * from './achievementStatusCategory';
+export * from './achievementStatusProgress';
 export * from './achievementTier';
 export * from './authUser';
+export * from './careerStats';
 export * from './clubHonours';
 export * from './clubHonoursContinentalFinalsByContinent';
 export * from './contract';

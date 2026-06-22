@@ -2629,6 +2629,45 @@ export const UpgradeFacilityResponse = zod.object({
 
 
 /**
+ * @summary Get all achievements with unlock status and progress for the current team
+ */
+export const GetAchievementsResponseItem = zod.object({
+  "key": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "category": zod.enum(['career', 'finance', 'youth', 'competition', 'legacy']),
+  "unlocked": zod.boolean(),
+  "unlockedAt": zod.string().nullish(),
+  "seasonUnlocked": zod.number().nullish(),
+  "progress": zod.object({
+  "current": zod.number(),
+  "target": zod.number()
+})
+})
+export const GetAchievementsResponse = zod.array(GetAchievementsResponseItem)
+
+
+/**
+ * @summary Get raw career stats for the current team
+ */
+export const GetCareerStatsResponse = zod.object({
+  "matchesWon": zod.number().optional(),
+  "championshipsWon": zod.number().optional(),
+  "highestBalanceReached": zod.number().optional(),
+  "seasonsCompleted": zod.number().optional(),
+  "seasonsInCurrentLocation": zod.number().optional(),
+  "continentsVisited": zod.array(zod.string()).optional(),
+  "youthSigned": zod.number().optional(),
+  "youthPromoted": zod.number().optional(),
+  "playersDevelopedToFiveStar": zod.number().optional(),
+  "continentalTitles": zod.number().optional(),
+  "olympicGolds": zod.number().optional(),
+  "perfectSeasons": zod.number().optional(),
+  "debtFreeSeasons": zod.number().optional()
+})
+
+
+/**
  * @summary Get all retired players in the Hall of Fame
  */
 export const GetHallOfFameResponseItem = zod.object({

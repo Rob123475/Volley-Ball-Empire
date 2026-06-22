@@ -20,7 +20,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AchievementStatus,
   AuthUser,
+  CareerStats,
   Contract,
   ContractInput,
   Dashboard,
@@ -5143,6 +5145,160 @@ export const useUpgradeFacility = <TError = ErrorType<void>,
       > => {
       return useMutation(getUpgradeFacilityMutationOptions(options));
     }
+
+export const getGetAchievementsUrl = () => {
+
+
+
+
+  return `/api/achievements`
+}
+
+/**
+ * @summary Get all achievements with unlock status and progress for the current team
+ */
+export const getAchievements = async ( options?: RequestInit): Promise<AchievementStatus[]> => {
+
+  return customFetch<AchievementStatus[]>(getGetAchievementsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAchievementsQueryKey = () => {
+    return [
+    `/api/achievements`
+    ] as const;
+    }
+
+
+export const getGetAchievementsQueryOptions = <TData = Awaited<ReturnType<typeof getAchievements>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAchievements>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAchievementsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAchievements>>> = ({ signal }) => getAchievements({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAchievements>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAchievementsQueryResult = NonNullable<Awaited<ReturnType<typeof getAchievements>>>
+export type GetAchievementsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get all achievements with unlock status and progress for the current team
+ */
+
+export function useGetAchievements<TData = Awaited<ReturnType<typeof getAchievements>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAchievements>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAchievementsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetCareerStatsUrl = () => {
+
+
+
+
+  return `/api/achievements/career-stats`
+}
+
+/**
+ * @summary Get raw career stats for the current team
+ */
+export const getCareerStats = async ( options?: RequestInit): Promise<CareerStats> => {
+
+  return customFetch<CareerStats>(getGetCareerStatsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCareerStatsQueryKey = () => {
+    return [
+    `/api/achievements/career-stats`
+    ] as const;
+    }
+
+
+export const getGetCareerStatsQueryOptions = <TData = Awaited<ReturnType<typeof getCareerStats>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCareerStatsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCareerStats>>> = ({ signal }) => getCareerStats({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCareerStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCareerStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getCareerStats>>>
+export type GetCareerStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get raw career stats for the current team
+ */
+
+export function useGetCareerStats<TData = Awaited<ReturnType<typeof getCareerStats>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCareerStatsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetHallOfFameUrl = () => {
 

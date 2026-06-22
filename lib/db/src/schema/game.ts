@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, integer, numeric, boolean, timestamp, text, json } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, integer, numeric, boolean, timestamp, text, json, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./auth";
@@ -33,6 +33,24 @@ export const outfitsTable = pgTable("outfits", {
 
 export type Outfit = typeof outfitsTable.$inferSelect;
 
+export type CareerStats = {
+  matchesWon: number;
+  championshipsWon: number;
+  highestBalanceReached: number;
+  seasonsCompleted: number;
+  seasonsInCurrentLocation: number;
+  currentLocationId: number | null;
+  continentsVisited: string[];
+  youthSigned: number;
+  youthPromoted: number;
+  playersDevelopedToFiveStar: number;
+  continentalTitles: number;
+  olympicGolds: number;
+  perfectSeasons: number;
+  debtFreeSeasons: number;
+  currentSeasonLosses: number;
+};
+
 export const teamsTable = pgTable("teams", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => usersTable.id),
@@ -51,11 +69,22 @@ export const teamsTable = pgTable("teams", {
   youthScoutingContinent: varchar("youth_scouting_continent", { length: 50 }),
   youthScoutingStatus: varchar("youth_scouting_status", { length: 20 }).notNull().default("idle"),
   youthScoutingWeeksRemaining: integer("youth_scouting_weeks_remaining").notNull().default(0),
+  careerStats: jsonb("career_stats").$type<CareerStats>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type Team = typeof teamsTable.$inferSelect;
 export const insertTeamSchema = createInsertSchema(teamsTable).omit({ id: true, createdAt: true });
+
+export const achievementsTable = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").notNull().references(() => teamsTable.id),
+  achievementKey: varchar("achievement_key", { length: 100 }).notNull(),
+  unlockedAt: timestamp("unlocked_at", { withTimezone: true }).notNull().defaultNow(),
+  seasonUnlocked: integer("season_unlocked"),
+});
+
+export type AchievementRecord = typeof achievementsTable.$inferSelect;
 
 export const userProfilesTable = pgTable("user_profiles", {
   id: serial("id").primaryKey(),

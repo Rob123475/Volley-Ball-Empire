@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { eq, and, gte, lte } from "drizzle-orm";
 import { generateScoutingProspects } from "../utils/prospect-generator";
+import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 
 const router = Router();
 
@@ -288,6 +289,14 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     .set({ status: "signed" })
     .where(eq(youthProspectsTable.id, prospectId))
     .returning();
+
+  // Update career stats and check achievements
+  try {
+    await updateCareerStats(team.id, (s) => ({ ...s, youthSigned: s.youthSigned + 1 }));
+    await checkAchievements(team.id);
+  } catch {
+    // non-critical
+  }
 
   res.json(serializeProspect(updated));
 });

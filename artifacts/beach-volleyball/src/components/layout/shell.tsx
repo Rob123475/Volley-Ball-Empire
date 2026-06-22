@@ -33,10 +33,13 @@ import {
   getGetCurrentAuthUserQueryKey,
   useGetOlympicSelection,
   getGetOlympicSelectionQueryKey,
+  useGetAchievements,
+  getGetAchievementsQueryKey,
 } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/hooks/use-toast";
 
 // ── Nav data ─────────────────────────────────────────────────────────────────
 
@@ -120,8 +123,8 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Award,
     items: [
       { href: "/trophy-cabinet", label: "Trophy Cabinet", icon: Trophy                   },
+      { href: "/achievements",   label: "Achievements",   icon: Star                     },
       { href: "/trophy-cabinet", label: "Hall of Fame",   icon: Crown, neverActive: true },
-      { href: "/trophy-cabinet", label: "Achievements",   icon: Star,  neverActive: true },
       { href: "/trophy-cabinet", label: "Records",        icon: Flame, neverActive: true },
     ],
   },
@@ -360,9 +363,49 @@ export function Sidebar() {
   );
 }
 
+function AchievementWatcher() {
+  const { toast } = useToast();
+  const { data: achievements } = useGetAchievements({
+    query: {
+      queryKey: getGetAchievementsQueryKey(),
+      refetchInterval: false,
+    },
+  });
+
+  const seenRef = useRef<Set<string> | null>(null);
+
+  useEffect(() => {
+    if (!achievements) return;
+    const currentUnlocked = new Set(
+      achievements.filter((a) => a.unlocked).map((a) => a.key),
+    );
+    if (seenRef.current === null) {
+      seenRef.current = currentUnlocked;
+      return;
+    }
+    const newlyUnlocked = [...currentUnlocked].filter(
+      (k) => !seenRef.current!.has(k),
+    );
+    for (const key of newlyUnlocked) {
+      const def = achievements.find((a) => a.key === key);
+      if (def) {
+        toast({
+          title: "🏆 Achievement Unlocked!",
+          description: `${def.name} — ${def.description}`,
+          duration: 5000,
+        });
+      }
+    }
+    seenRef.current = currentUnlocked;
+  }, [achievements, toast]);
+
+  return null;
+}
+
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
+      <AchievementWatcher />
       <Sidebar />
       <main className="flex-1 p-4 lg:p-8 overflow-y-auto min-w-0">
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">

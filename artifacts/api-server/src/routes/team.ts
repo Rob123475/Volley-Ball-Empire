@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
+import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 
 const router = Router();
 
@@ -109,6 +110,10 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     promotedPlayer?.age === 18 &&
     promotedPlayer?.academyContractYears != null;
 
+  const isYouthPromotion =
+    (role === "starter" || role === "interchange") &&
+    promotedPlayer?.academyContractYears != null;
+
   await db.update(playersTable)
     .set({
       squadRole: role,
@@ -116,6 +121,16 @@ router.patch("/team/roster/:id/role", async (req, res) => {
       ...(endsAcademyContract ? { academyContractYears: null } : {}),
     })
     .where(eq(playersTable.id, playerId));
+
+  // Track youth promotions for achievements
+  if (isYouthPromotion) {
+    try {
+      await updateCareerStats(team.id, (s) => ({ ...s, youthPromoted: s.youthPromoted + 1 }));
+      await checkAchievements(team.id);
+    } catch {
+      // non-critical
+    }
+  }
 
   const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));

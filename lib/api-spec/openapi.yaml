@@ -1217,6 +1217,42 @@ paths:
         "404":
           description: Facility not found
 
+  /achievements:
+    get:
+      operationId: getAchievements
+      tags: [achievements]
+      summary: Get all achievements with unlock status and progress for the current team
+      responses:
+        "200":
+          description: Achievement list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AchievementStatus"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Team not found
+
+  /achievements/career-stats:
+    get:
+      operationId: getCareerStats
+      tags: [achievements]
+      summary: Get raw career stats for the current team
+      responses:
+        "200":
+          description: Career stats object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerStats"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Team not found
+
   /trophies/hall-of-fame:
     get:
       operationId: getHallOfFame
@@ -3050,4 +3086,74 @@ components:
             losses: { type: integer }
             points: { type: integer }
         injuredCount:
+          type: integer
+
+    AchievementStatus:
+      type: object
+      required:
+        - key
+        - name
+        - description
+        - category
+        - unlocked
+        - progress
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [career, finance, youth, competition, legacy]
+        unlocked:
+          type: boolean
+        unlockedAt:
+          type: string
+          nullable: true
+        seasonUnlocked:
+          type: integer
+          nullable: true
+        progress:
+          type: object
+          required:
+            - current
+            - target
+          properties:
+            current:
+              type: number
+            target:
+              type: number
+
+    CareerStats:
+      type: object
+      properties:
+        matchesWon:
+          type: integer
+        championshipsWon:
+          type: integer
+        highestBalanceReached:
+          type: number
+        seasonsCompleted:
+          type: integer
+        seasonsInCurrentLocation:
+          type: integer
+        continentsVisited:
+          type: array
+          items:
+            type: string
+        youthSigned:
+          type: integer
+        youthPromoted:
+          type: integer
+        playersDevelopedToFiveStar:
+          type: integer
+        continentalTitles:
+          type: integer
+        olympicGolds:
+          type: integer
+        perfectSeasons:
+          type: integer
+        debtFreeSeasons:
           type: integer

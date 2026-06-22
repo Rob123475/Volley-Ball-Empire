@@ -23,6 +23,7 @@ import TrophyCabinet from "@/pages/trophy-cabinet";
 import Facilities from "@/pages/facilities";
 import Wellbeing from "@/pages/wellbeing";
 import YouthAcademy from "@/pages/youth-academy";
+import Achievements from "@/pages/achievements";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -68,6 +69,7 @@ function Router() {
           <Route path="/facilities" component={Facilities} />
           <Route path="/wellbeing" component={Wellbeing} />
           <Route path="/youth-academy" component={YouthAcademy} />
+          <Route path="/achievements" component={Achievements} />
           <Route component={NotFound} />
         </Switch>
       </Shell>

@@ -1189,3 +1189,46 @@ export interface Dashboard {
   injuredCount: number;
 }
 
+export type AchievementStatusCategory = typeof AchievementStatusCategory[keyof typeof AchievementStatusCategory];
+
+
+export const AchievementStatusCategory = {
+  career: 'career',
+  finance: 'finance',
+  youth: 'youth',
+  competition: 'competition',
+  legacy: 'legacy',
+} as const;
+
+export type AchievementStatusProgress = {
+  current: number;
+  target: number;
+};
+
+export interface AchievementStatus {
+  key: string;
+  name: string;
+  description: string;
+  category: AchievementStatusCategory;
+  unlocked: boolean;
+  unlockedAt?: string | null;
+  seasonUnlocked?: number | null;
+  progress: AchievementStatusProgress;
+}
+
+export interface CareerStats {
+  matchesWon?: number;
+  championshipsWon?: number;
+  highestBalanceReached?: number;
+  seasonsCompleted?: number;
+  seasonsInCurrentLocation?: number;
+  continentsVisited?: string[];
+  youthSigned?: number;
+  youthPromoted?: number;
+  playersDevelopedToFiveStar?: number;
+  continentalTitles?: number;
+  olympicGolds?: number;
+  perfectSeasons?: number;
+  debtFreeSeasons?: number;
+}
+
