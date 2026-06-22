@@ -487,6 +487,7 @@ function TrainingForm({
   const isPending = isTeam ? scheduleTeamMutation.isPending : scheduleMutation.isPending;
 
   return (
+    <Form {...form}>
     <form onSubmit={form.handleSubmit(isTeam ? handleTeam : handleIndividual)} className="space-y-4">
       {/* Player selector (individual only) */}
       {!isTeam && (
@@ -586,6 +587,7 @@ function TrainingForm({
         {isPending ? "Scheduling…" : isTeam ? "Schedule for Entire Team" : "Confirm Session"}
       </Button>
     </form>
+    </Form>
   );
 }
 
@@ -724,14 +726,10 @@ export default function Training() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="individual">
-                <Form {...({ control: {} } as any)}>
-                  <TrainingForm scope="individual" players={players} staff={staff} philosophy={philosophy} onDone={() => setDialogOpen(false)} />
-                </Form>
+                <TrainingForm scope="individual" players={players} staff={staff} philosophy={philosophy} onDone={() => setDialogOpen(false)} />
               </TabsContent>
               <TabsContent value="team">
-                <Form {...({ control: {} } as any)}>
-                  <TrainingForm scope="team" players={players} staff={staff} philosophy={philosophy} onDone={() => setDialogOpen(false)} />
-                </Form>
+                <TrainingForm scope="team" players={players} staff={staff} philosophy={philosophy} onDone={() => setDialogOpen(false)} />
               </TabsContent>
             </Tabs>
           </DialogContent>
