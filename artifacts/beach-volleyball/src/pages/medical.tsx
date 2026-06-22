@@ -74,6 +74,18 @@ function fitnessColor(v: number) {
 function fatigueColor(v: number) {
   return v <= 30 ? "bg-green-500" : v <= 60 ? "bg-yellow-500" : "bg-red-500";
 }
+function calcInjuryRisk(fitness: number, fatigue: number): number {
+  return Math.min(95, Math.round(1 + fatigue / 2 + (100 - fitness) / 4));
+}
+const RISK_LEVELS = [
+  { max: 10,  label: "Low",      dot: "bg-green-500",  text: "text-green-600"  },
+  { max: 25,  label: "Moderate", dot: "bg-yellow-500", text: "text-yellow-600" },
+  { max: 50,  label: "High",     dot: "bg-orange-500", text: "text-orange-600" },
+  { max: 100, label: "Severe",   dot: "bg-red-500",    text: "text-red-600"    },
+];
+function getRiskLevel(risk: number) {
+  return RISK_LEVELS.find(r => risk <= r.max) ?? RISK_LEVELS[3];
+}
 
 type StaffRow = {
   id: number;
@@ -303,6 +315,8 @@ export default function MedicalCentre() {
                   const fitness = player.fitness as number;
                   const fatigue = player.fatigue as number;
                   const docQ = player.doctorQuality as number;
+                  const risk = calcInjuryRisk(fitness, fatigue);
+                  const riskLevel = getRiskLevel(risk);
 
                   return (
                     <div
@@ -348,6 +362,15 @@ export default function MedicalCentre() {
                           </div>
                           <MiniProgress value={fatigue} colorClass={fatigueColor(fatigue)} />
                         </div>
+                      </div>
+
+                      <div className="shrink-0 w-24 hidden md:block">
+                        <p className="text-[10px] text-muted-foreground mb-1">Injury Risk</p>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${riskLevel.dot}`} />
+                          <span className={`text-xs font-semibold ${riskLevel.text}`}>{risk}%</span>
+                        </div>
+                        <p className={`text-[10px] mt-0.5 ${riskLevel.text}`}>{riskLevel.label}</p>
                       </div>
 
                       <div className="shrink-0 text-right hidden sm:block pl-2">
