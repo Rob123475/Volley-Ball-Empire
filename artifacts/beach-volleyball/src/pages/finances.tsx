@@ -300,37 +300,41 @@ export default function Finances() {
           <CardTitle>Transaction History</CardTitle>
           <CardDescription>Complete log of your team's financial movements.</CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions?.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell className="text-xs text-muted-foreground">{format(new Date(t.createdAt), "MMM d, yyyy HH:mm")}</TableCell>
-                  <TableCell>
-                    {t.type === "income" ? (
-                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1"><ArrowUpRight className="h-3 w-3" /> INCOME</Badge>
-                    ) : (
-                      <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1"><ArrowDownRight className="h-3 w-3" /> EXPENSE</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
-                  <TableCell className="font-medium">{t.description}</TableCell>
-                  <TableCell className={cn("text-right font-bold", t.type === "income" ? "text-green-600" : "text-red-600")}>
-                    {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
-                  </TableCell>
+        <CardContent className={transactions && transactions.length > 0 ? "p-0" : "p-6"}>
+          {transactions && transactions.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {transactions.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{format(new Date(t.createdAt), "MMM d, yyyy")}</TableCell>
+                    <TableCell>
+                      {t.type === "income" ? (
+                        <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1"><ArrowUpRight className="h-3 w-3" /> INCOME</Badge>
+                      ) : (
+                        <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1"><ArrowDownRight className="h-3 w-3" /> EXPENSE</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
+                    <TableCell className="font-medium">{t.description}</TableCell>
+                    <TableCell className={cn("text-right font-bold", t.type === "income" ? "text-green-600" : "text-red-600")}>
+                      {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">No transactions recorded yet.</p>
+          )}
         </CardContent>
       </Card>
     </div>
