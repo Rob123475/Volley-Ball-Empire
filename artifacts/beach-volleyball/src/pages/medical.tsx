@@ -145,13 +145,13 @@ export default function MedicalCentre() {
   const injuredPlayers = allPlayers.filter((p) => (p.injuryStatus as string) !== "Healthy");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
-          <Heart className="h-8 w-8" /> Medical Centre
+        <h2 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
+          <Heart className="h-6 w-6" /> Medical Centre
         </h2>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-0.5 text-sm">
           Monitor player health, manage injuries, and track recovery progress.
         </p>
       </div>
@@ -172,12 +172,12 @@ export default function MedicalCentre() {
       />
 
       {/* ── Medical Staff ─────────────────────────────────────── */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Stethoscope className="h-5 w-5 text-primary" /> Medical Staff
         </h3>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <StaffSlot
             member={physio}
             roleLabel="Physiotherapist"
@@ -216,7 +216,7 @@ export default function MedicalCentre() {
       </section>
 
       {/* ── Injury Report ─────────────────────────────────────── */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-primary" /> Injury Report
         </h3>
@@ -234,7 +234,7 @@ export default function MedicalCentre() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             {injuredPlayers.map((player) => {
               const status = (player.injuryStatus as string) ?? "Healthy";
               const colors = INJURY_COLORS[status] ?? INJURY_COLORS["Minor Injury"];
@@ -251,7 +251,7 @@ export default function MedicalCentre() {
                   <CardContent className="p-0">
                     <div className="flex">
                       {player.imageUrl && (
-                        <div className="w-24 h-28 shrink-0 overflow-hidden">
+                        <div className="w-20 h-24 shrink-0 overflow-hidden">
                           <img
                             src={player.imageUrl}
                             alt={player.name}
@@ -259,11 +259,11 @@ export default function MedicalCentre() {
                           />
                         </div>
                       )}
-                      <div className="flex-1 p-4 space-y-2 min-w-0">
+                      <div className="flex-1 p-3 space-y-1.5 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="font-bold leading-tight truncate">{player.name}</p>
-                            <p className="text-xs text-muted-foreground capitalize">
+                            <p className="font-bold text-sm leading-tight truncate">{player.name}</p>
+                            <p className="text-[11px] text-muted-foreground capitalize">
                               {player.position.replace(/_/g, " ")}
                             </p>
                           </div>
@@ -276,32 +276,27 @@ export default function MedicalCentre() {
                           </Badge>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                          <span className={`font-bold ${colors.text}`}>
+                        <div className="flex items-center gap-1 text-xs">
+                          <Clock className="h-3 w-3 text-muted-foreground shrink-0" />
+                          <span className={`font-semibold ${colors.text}`}>
                             {weeksLeft === 0
                               ? "Ready next week"
-                              : `${weeksLeft} week${weeksLeft !== 1 ? "s" : ""} to recover`}
+                              : `${weeksLeft}w to recover`}
                           </span>
+                          {medicalStaff.length > 0 && saved > 0 && (
+                            <span className="text-muted-foreground">
+                              · saved <span className="font-semibold text-green-600">{saved}w</span>
+                            </span>
+                          )}
                         </div>
 
-                        {medicalStaff.length > 0 && saved > 0 && (
-                          <p className="text-[11px] text-muted-foreground">
-                            Medical staff saved{" "}
-                            <span className="font-semibold text-green-600">
-                              {saved} week{saved !== 1 ? "s" : ""}
-                            </span>{" "}
-                            vs. no treatment
-                          </p>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <p className="text-[10px] text-muted-foreground mb-1">Fitness</p>
+                            <p className="text-[10px] text-muted-foreground mb-0.5">Fitness</p>
                             <MiniProgress value={player.fitness as number} colorClass={fitnessColor(player.fitness as number)} />
                           </div>
                           <div>
-                            <p className="text-[10px] text-muted-foreground mb-1">Fatigue</p>
+                            <p className="text-[10px] text-muted-foreground mb-0.5">Fatigue</p>
                             <MiniProgress value={player.fatigue as number} colorClass={fatigueColor(player.fatigue as number)} />
                           </div>
                         </div>
@@ -331,7 +326,7 @@ export default function MedicalCentre() {
       <WorkloadMonitoringCard />
 
       {/* ── Squad Fitness Overview ─────────────────────────────── */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Zap className="h-5 w-5 text-primary" /> Squad Fitness Overview
         </h3>
@@ -348,74 +343,63 @@ export default function MedicalCentre() {
                   const Icon = INJURY_ICONS[status] ?? CheckCircle2;
                   const fitness = player.fitness as number;
                   const fatigue = player.fatigue as number;
-                  const docQ = player.doctorQuality as number;
                   const risk = calcInjuryRisk(fitness, fatigue);
                   const riskLevel = getRiskLevel(risk);
 
                   return (
                     <div
                       key={player.id}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors"
                     >
+                      {/* Avatar */}
                       {player.imageUrl ? (
                         <img
                           src={player.imageUrl}
                           alt={player.name}
-                          className="w-9 h-9 rounded-full object-cover object-[center_10%] shrink-0 border border-border"
+                          className="w-8 h-8 rounded-full object-cover object-[center_10%] shrink-0 border border-border"
                         />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
                           {player.name[0]}
                         </div>
                       )}
 
-                      <div className="min-w-0 w-32 shrink-0">
-                        <p className="font-medium text-sm truncate">{player.name}</p>
-                        <p className="text-[11px] text-muted-foreground capitalize">
-                          {player.position.replace(/_/g, " ")}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-1 shrink-0 w-28">
-                        <Icon className={`h-3 w-3 ${colors.text} shrink-0`} />
-                        <span className={`text-xs font-medium ${colors.text} truncate`}>{status}</span>
-                      </div>
-
-                      <div className="flex-1 grid grid-cols-2 gap-4 min-w-0">
-                        <div>
-                          <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                            <span>Fitness</span>
-                            <span className="font-semibold">{fitness}</span>
+                      {/* Name / status / bars stacked */}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        {/* Top row: name + status + risk */}
+                        <div className="flex items-center gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate leading-tight">{player.name}</p>
+                            <p className="text-[11px] text-muted-foreground capitalize leading-tight">
+                              {player.position.replace(/_/g, " ")}
+                            </p>
                           </div>
-                          <MiniProgress value={fitness} colorClass={fitnessColor(fitness)} />
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                            <span>Fatigue</span>
-                            <span className="font-semibold">{fatigue}</span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Icon className={`h-3 w-3 ${colors.text} shrink-0`} />
+                            <span className={`text-xs font-medium ${colors.text} whitespace-nowrap`}>{status}</span>
                           </div>
-                          <MiniProgress value={fatigue} colorClass={fatigueColor(fatigue)} />
+                          <div className="hidden sm:flex items-center gap-1 shrink-0">
+                            <span className={`h-2 w-2 rounded-full shrink-0 ${riskLevel.dot}`} />
+                            <span className={`text-xs font-semibold ${riskLevel.text}`}>{risk}%</span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="shrink-0 w-24 hidden md:block">
-                        <p className="text-[10px] text-muted-foreground mb-1">Injury Risk</p>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${riskLevel.dot}`} />
-                          <span className={`text-xs font-semibold ${riskLevel.text}`}>{risk}%</span>
-                        </div>
-                        <p className={`text-[10px] mt-0.5 ${riskLevel.text}`}>{riskLevel.label}</p>
-                      </div>
-
-                      <div className="shrink-0 text-right hidden sm:block pl-2">
-                        <p className="text-[10px] text-muted-foreground mb-1">Doctor</p>
-                        <div className="flex gap-0.5 justify-end">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-2 rounded-sm ${i < docQ ? "bg-primary" : "bg-muted"}`}
-                            />
-                          ))}
+                        {/* Bottom row: fitness + fatigue bars */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
+                              <span>Fitness</span>
+                              <span className="font-semibold">{fitness}</span>
+                            </div>
+                            <MiniProgress value={fitness} colorClass={fitnessColor(fitness)} />
+                          </div>
+                          <div>
+                            <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
+                              <span>Fatigue</span>
+                              <span className="font-semibold">{fatigue}</span>
+                            </div>
+                            <MiniProgress value={fatigue} colorClass={fatigueColor(fatigue)} />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -457,14 +441,14 @@ function TreatmentQueue({
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <Stethoscope className="h-5 w-5 text-primary" /> Treatment Queue
       </h3>
 
       {queue.length === 0 ? (
         <Card>
-          <CardContent className="flex items-center gap-3 py-5">
+          <CardContent className="flex items-center gap-3 py-4">
             <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
             <p className="text-sm text-muted-foreground">No players currently receiving treatment.</p>
           </CardContent>
@@ -481,14 +465,14 @@ function TreatmentQueue({
                   player.progress >= 40 ? "bg-yellow-500" : "bg-orange-500";
 
                 return (
-                  <div key={player.id} className="flex items-center gap-4 px-4 py-3">
+                  <div key={player.id} className="flex items-center gap-3 px-4 py-2.5">
                     {/* Rank */}
                     <span className="text-xs font-bold text-muted-foreground/50 w-4 shrink-0 text-right">
                       {idx + 1}
                     </span>
 
                     {/* Name + injury type */}
-                    <div className="min-w-0 w-40 shrink-0">
+                    <div className="min-w-0 w-32 shrink-0">
                       <p className="font-semibold text-sm truncate">{player.name}</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <Icon className={`h-3 w-3 shrink-0 ${colors.text}`} />
@@ -497,16 +481,16 @@ function TreatmentQueue({
                     </div>
 
                     {/* Progress bar + days */}
-                    <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex justify-between text-[11px]">
                         <span className="text-muted-foreground">
                           {player.daysLeft === 0
                             ? "Ready next week"
-                            : `${player.daysLeft} day${player.daysLeft !== 1 ? "s" : ""} remaining`}
+                            : `${player.daysLeft}d remaining`}
                         </span>
                         <span className="font-semibold text-muted-foreground">{player.progress}%</span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-primary/15 overflow-hidden">
+                      <div className="h-1.5 w-full rounded-full bg-primary/15 overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${barColor}`}
                           style={{ width: `${player.progress}%` }}
@@ -542,12 +526,12 @@ function RecoveryForecastPanel({
 }) {
   if (injuredPlayers.length === 0) {
     return (
-      <section className="space-y-4">
+      <section className="space-y-3">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" /> Recovery Forecast
         </h3>
         <Card className="border-green-500/30 bg-green-500/5">
-          <CardContent className="flex items-center gap-3 py-5">
+          <CardContent className="flex items-center gap-3 py-4">
             <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
             <p className="text-sm text-green-700 dark:text-green-400 font-medium">No active recoveries.</p>
           </CardContent>
@@ -570,13 +554,13 @@ function RecoveryForecastPanel({
   const longest = playersWithDays.reduce((a, b) => (b.daysLeft > a.daysLeft ? b : a));
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <Clock className="h-5 w-5 text-primary" /> Recovery Forecast
       </h3>
       <Card>
-        <CardContent className="p-5 space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <CardContent className="p-4 space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <ForecastStat
               label="Players recovering"
               value={injuredPlayers.length}
@@ -594,18 +578,18 @@ function RecoveryForecastPanel({
             />
           </div>
 
-          <div className="border-t pt-4">
+          <div className="border-t pt-3">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
               Longest current injury
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />
               <div>
                 <p className="font-semibold text-sm">{longest.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {longest.daysLeft === 0
                     ? "Ready next week"
-                    : `${longest.daysLeft} day${longest.daysLeft !== 1 ? "s" : ""} remaining`}
+                    : `${longest.daysLeft}d remaining`}
                 </p>
               </div>
             </div>
@@ -692,23 +676,23 @@ function InjuryHistorySection() {
             ) : (
               <div className="divide-y">
                 {/* Header */}
-                <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-3 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   <span>Player</span>
-                  <span className="w-28">Injury</span>
-                  <span className="w-28">Date Injured</span>
-                  <span className="w-20 text-right">Days Missed</span>
+                  <span className="w-24">Injury</span>
+                  <span className="w-24 hidden sm:block">Date Injured</span>
+                  <span className="w-14 text-right">Missed</span>
                 </div>
 
                 {history!.map(entry => (
                   <div
                     key={entry.id}
-                    className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-5 py-3 hover:bg-muted/30 transition-colors"
+                    className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-3 items-center px-4 py-2.5 hover:bg-muted/30 transition-colors"
                   >
                     {/* Player name */}
                     <p className="font-medium text-sm truncate">{entry.playerName}</p>
 
                     {/* Injury type */}
-                    <div className="w-28">
+                    <div className="w-24">
                       <Badge
                         variant="outline"
                         className={`text-xs ${INJURY_TYPE_COLORS[entry.injuryType] ?? "border-muted text-muted-foreground"}`}
@@ -717,13 +701,13 @@ function InjuryHistorySection() {
                       </Badge>
                     </div>
 
-                    {/* Date */}
-                    <span className="w-28 text-sm text-muted-foreground whitespace-nowrap">
+                    {/* Date — hidden on mobile */}
+                    <span className="w-24 text-sm text-muted-foreground whitespace-nowrap hidden sm:block">
                       {formatDate(entry.dateInjured as string)}
                     </span>
 
                     {/* Days missed */}
-                    <span className="w-20 text-right text-sm font-semibold">
+                    <span className="w-14 text-right text-sm font-semibold">
                       {entry.daysMissed}d
                     </span>
                   </div>
@@ -754,8 +738,8 @@ function WorkloadMonitoringCard() {
   });
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
+    <section className="space-y-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Activity className="h-5 w-5 text-primary" /> Workload Monitoring
         </h3>
@@ -765,23 +749,23 @@ function WorkloadMonitoringCard() {
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="p-6 space-y-3">
+            <div className="p-4 space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                <Skeleton key={i} className="h-9 w-full rounded-lg" />
               ))}
             </div>
           ) : sorted.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
+            <div className="p-6 text-center text-sm text-muted-foreground">
               No players found in your squad.
             </div>
           ) : (
             <div className="divide-y">
               {/* Header row */}
-              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-3 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 <span>Player</span>
-                <span className="text-center w-20">Matches</span>
-                <span className="text-center w-24">Training</span>
-                <span className="text-center w-24">Status</span>
+                <span className="text-center w-16">Matches</span>
+                <span className="text-center w-20 hidden sm:block">Training</span>
+                <span className="text-center w-20">Status</span>
               </div>
 
               {sorted.map(player => {
@@ -789,18 +773,18 @@ function WorkloadMonitoringCard() {
                 return (
                   <div
                     key={player.id}
-                    className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-5 py-3 hover:bg-muted/30 transition-colors"
+                    className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-3 items-center px-4 py-2.5 hover:bg-muted/30 transition-colors"
                   >
                     {/* Player info */}
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       {player.imageUrl ? (
                         <img
                           src={player.imageUrl}
                           alt={player.name}
-                          className="h-8 w-8 rounded-full object-cover object-[center_15%] shrink-0"
+                          className="h-7 w-7 rounded-full object-cover object-[center_15%] shrink-0"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-muted shrink-0 flex items-center justify-center">
+                        <div className="h-7 w-7 rounded-full bg-muted shrink-0 flex items-center justify-center">
                           <span className="text-xs font-bold text-muted-foreground">
                             {player.name.charAt(0)}
                           </span>
@@ -808,31 +792,28 @@ function WorkloadMonitoringCard() {
                       )}
                       <div className="min-w-0">
                         <p className="font-medium truncate text-sm">{player.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize truncate">
+                        <p className="text-[11px] text-muted-foreground capitalize truncate">
                           {player.position.replace(/_/g, " ")}
                         </p>
                       </div>
                     </div>
 
                     {/* Matches */}
-                    <div className="w-20 text-center">
+                    <div className="w-16 text-center">
                       <span className="text-sm font-semibold">{player.matchesPlayed}</span>
                       <p className="text-[10px] text-muted-foreground">matches</p>
                     </div>
 
-                    {/* Training */}
-                    <div className="w-24 text-center">
+                    {/* Training — hidden on mobile */}
+                    <div className="w-20 text-center hidden sm:block">
                       <span className="text-sm font-semibold">{player.trainingSessions}</span>
                       <p className="text-[10px] text-muted-foreground">sessions</p>
                     </div>
 
                     {/* Status badge */}
-                    <div className="w-24 flex justify-center">
-                      <Badge
-                        variant="outline"
-                        className={`gap-1.5 text-xs ${cfg.badge}`}
-                      >
-                        <span className={`h-2 w-2 rounded-full shrink-0 ${cfg.dot}`} />
+                    <div className="w-20 flex justify-center">
+                      <Badge variant="outline" className={`gap-1 text-xs ${cfg.badge}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${cfg.dot}`} />
                         {cfg.label}
                       </Badge>
                     </div>
@@ -845,19 +826,10 @@ function WorkloadMonitoringCard() {
       </Card>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground px-1">
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
-          Fresh — &lt;2 matches &amp; &lt;3 training
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-yellow-500" />
-          Heavy Load — 2–3 matches or 3–5 training
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-red-500" />
-          Overworked — 4+ matches or 6+ training
-        </span>
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground px-1">
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-green-500" />Fresh — &lt;2 matches &amp; &lt;3 sessions</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-yellow-500" />Heavy Load — 2–3 matches or 3–5 sessions</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-500" />Overworked — 4+ matches or 6+ sessions</span>
       </div>
     </section>
   );
@@ -876,82 +848,59 @@ function SeasonInjuryStatsCard() {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <BarChart2 className="h-5 w-5 text-primary" /> Season Injury Statistics
       </h3>
 
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           {isLoading ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 rounded-lg" />
+                <Skeleton key={i} className="h-14 rounded-lg" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              {/* Total Injuries */}
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
-                <span className="text-2xl font-bold text-primary">
-                  {stats?.totalInjuries ?? 0}
-                </span>
-                <span className="mt-1 text-xs text-muted-foreground leading-tight">
-                  Total Injuries
-                </span>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-3 text-center">
+                <span className="text-xl font-bold text-primary">{stats?.totalInjuries ?? 0}</span>
+                <span className="mt-0.5 text-xs text-muted-foreground leading-tight">Total Injuries</span>
               </div>
-
-              {/* Days Lost */}
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
-                <span className="text-2xl font-bold text-orange-500">
-                  {stats?.daysLost ?? 0}
-                </span>
-                <span className="mt-1 text-xs text-muted-foreground leading-tight">
-                  Days Lost
-                </span>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-3 text-center">
+                <span className="text-xl font-bold text-orange-500">{stats?.daysLost ?? 0}</span>
+                <span className="mt-0.5 text-xs text-muted-foreground leading-tight">Days Lost</span>
               </div>
-
-              {/* Average Recovery Time */}
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
-                <span className="text-2xl font-bold text-blue-500">
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-3 text-center">
+                <span className="text-xl font-bold text-blue-500">
                   {stats?.avgRecoveryDays ?? 0}
                   <span className="text-sm font-normal text-muted-foreground ml-0.5">d</span>
                 </span>
-                <span className="mt-1 text-xs text-muted-foreground leading-tight">
-                  Avg Recovery
-                </span>
+                <span className="mt-0.5 text-xs text-muted-foreground leading-tight">Avg Recovery</span>
               </div>
-
-              {/* Most Common Injury */}
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
-                <span className={`text-sm font-bold leading-tight ${mostCommonColor[stats?.mostCommon ?? "None"] ?? "text-muted-foreground"}`}>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-3 text-center">
+                <span className={`text-sm font-bold leading-snug ${mostCommonColor[stats?.mostCommon ?? "None"] ?? "text-muted-foreground"}`}>
                   {stats?.mostCommon ?? "None"}
                 </span>
-                <span className="mt-1 text-xs text-muted-foreground leading-tight">
-                  Most Common
-                </span>
+                <span className="mt-0.5 text-xs text-muted-foreground leading-tight">Most Common</span>
               </div>
-
-              {/* Current Injury Count */}
-              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-4 text-center">
-                <span className={`text-2xl font-bold ${(stats?.currentInjuryCount ?? 0) > 0 ? "text-red-500" : "text-green-500"}`}>
+              <div className="flex flex-col items-center justify-center rounded-lg border bg-primary/5 p-3 text-center">
+                <span className={`text-xl font-bold ${(stats?.currentInjuryCount ?? 0) > 0 ? "text-red-500" : "text-green-500"}`}>
                   {stats?.currentInjuryCount ?? 0}
                 </span>
-                <span className="mt-1 text-xs text-muted-foreground leading-tight">
-                  Currently Injured
-                </span>
+                <span className="mt-0.5 text-xs text-muted-foreground leading-tight">Currently Injured</span>
               </div>
             </div>
           )}
 
           {!isLoading && (stats?.totalInjuries ?? 0) === 0 && (
-            <p className="mt-4 text-center text-sm text-muted-foreground">
+            <p className="mt-3 text-center text-sm text-muted-foreground">
               No injuries recorded this season. Play matches to accumulate stats.
             </p>
           )}
 
           {!isLoading && (
-            <p className="mt-4 text-xs text-muted-foreground text-right">
+            <p className="mt-3 text-xs text-muted-foreground text-right">
               Season {stats?.seasonId ?? 1} · Resets at the start of a new season
             </p>
           )}
@@ -1003,9 +952,9 @@ function MedicalCentreFacilityCard() {
 
   return (
     <Card className="border-rose-500/30 bg-rose-500/5">
-      <CardContent className="p-5">
+      <CardContent className="p-4">
         {/* Header row */}
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-rose-500 shrink-0" />
             <span className="font-semibold text-base">Medical Centre</span>
@@ -1021,12 +970,12 @@ function MedicalCentreFacilityCard() {
         </div>
 
         {/* Level progress bar */}
-        <div className="mb-4">
-          <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
+        <div className="mb-3">
+          <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
             <span>Level progress</span>
             <span>{level} / {MC_MAX_LEVEL}</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-rose-500/15 overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-rose-500/15 overflow-hidden">
             <div
               className="h-full rounded-full bg-rose-500 transition-all"
               style={{ width: `${(level / MC_MAX_LEVEL) * 100}%` }}
@@ -1035,7 +984,7 @@ function MedicalCentreFacilityCard() {
         </div>
 
         {/* Bonuses + Upgrade button */}
-        <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="space-y-1.5">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
               Current Bonuses
@@ -1097,8 +1046,8 @@ function SquadHealthSummary({ players }: { players: Player[] }) {
 
   return (
     <Card className={`border ${condition.ring} ${condition.bg}`}>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
           <h3 className="text-base font-semibold flex items-center gap-2">
             <Heart className="h-4 w-4 text-primary" />
             Squad Health Status
@@ -1108,7 +1057,7 @@ function SquadHealthSummary({ players }: { players: Player[] }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <HealthStat
             label="Healthy Players"
             value={`${healthy}`}
@@ -1202,14 +1151,14 @@ function StaffSlot({
   if (!member) {
     return (
       <Card className="border-dashed border-2 bg-muted/20">
-        <CardContent className="flex flex-col items-center justify-center py-10 gap-3 text-center">
-          <UserCog className="h-10 w-10 text-muted-foreground/40" />
+        <CardContent className="flex flex-col items-center justify-center py-7 gap-2.5 text-center">
+          <UserCog className="h-9 w-9 text-muted-foreground/40" />
           <div>
             <p className="font-semibold text-muted-foreground">{roleLabel}</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">Not currently employed</p>
+            <p className="text-sm text-muted-foreground/70 mt-0.5">Not currently employed</p>
           </div>
           <Link href="/staff">
-            <Button variant="outline" size="sm" className="gap-1.5 mt-1">
+            <Button variant="outline" size="sm" className="gap-1.5">
               <LinkIcon className="h-3.5 w-3.5" /> Hire on Staff page
             </Button>
           </Link>
@@ -1222,7 +1171,7 @@ function StaffSlot({
 
   return (
     <Card className="overflow-hidden">
-      <div className="relative h-48">
+      <div className="relative h-40">
         {member.imageUrl ? (
           <img
             src={member.imageUrl}
@@ -1231,7 +1180,7 @@ function StaffSlot({
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">
-            <Stethoscope className="h-16 w-16 text-muted-foreground/30" />
+            <Stethoscope className="h-14 w-14 text-muted-foreground/30" />
           </div>
         )}
         <div className={`absolute inset-0 bg-gradient-to-t ${accentFrom} to-transparent`} />
@@ -1245,19 +1194,19 @@ function StaffSlot({
           <p className="text-xs text-white/70">{member.specialty}</p>
         </div>
       </div>
-      <CardContent className="p-5">
+      <CardContent className="p-4">
         <div className="grid grid-cols-3 divide-x text-center">
           <div className="flex flex-col items-center gap-0.5 pr-3">
-            <span className="text-2xl font-bold">{member.skillLevel}</span>
+            <span className="text-xl font-bold">{member.skillLevel}</span>
             <span className="text-xs text-muted-foreground">Level</span>
           </div>
           <div className="flex flex-col items-center gap-0.5 px-3">
-            <span className="text-2xl font-bold text-green-600">{bonus}%</span>
+            <span className="text-xl font-bold text-green-600">{bonus}%</span>
             <span className="text-xs text-muted-foreground text-center leading-tight">{statLabel}</span>
           </div>
           <div className="flex flex-col items-center gap-0.5 pl-3">
-            <span className="text-2xl font-bold">{totalPlayers}</span>
-            <span className="text-xs text-muted-foreground">Players Assigned</span>
+            <span className="text-xl font-bold">{totalPlayers}</span>
+            <span className="text-xs text-muted-foreground">Assigned</span>
           </div>
         </div>
       </CardContent>
