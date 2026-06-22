@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { teamsTable } from "@workspace/db";
+import { teamsTable, financeTransactionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 const router = Router();
@@ -18,17 +18,19 @@ const TALENT_LEVEL: Record<Continent, string> = {
 };
 
 const SCOUTING_WEEKS = 4;
+export const SCOUTING_COST = 15_000;
 
-const getTeamForUser = async (userId: string) =>
+const getTeamForUser = (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const serializeMission = (team: any) => ({
-  status:               team.youthScoutingStatus   ?? "idle",
-  continent:            team.youthScoutingContinent ?? null,
-  weeksRemaining:       team.youthScoutingWeeksRemaining ?? 0,
-  expectedTalentLevel:  team.youthScoutingContinent
+  status:              team.youthScoutingStatus    ?? "idle",
+  continent:           team.youthScoutingContinent  ?? null,
+  weeksRemaining:      team.youthScoutingWeeksRemaining ?? 0,
+  expectedTalentLevel: team.youthScoutingContinent
     ? (TALENT_LEVEL[team.youthScoutingContinent as Continent] ?? "Unknown")
     : null,
+  scoutingCost: SCOUTING_COST,
 });
 
 router.get("/youth-scouting", async (req, res) => {
@@ -54,11 +56,29 @@ router.post("/youth-scouting/start", async (req, res) => {
     return;
   }
 
+  const budget = Number(team.budget ?? 0);
+  if (budget < SCOUTING_COST) {
+    res.status(422).json({ error: `Insufficient funds. Scouting costs $${SCOUTING_COST.toLocaleString()}.` });
+    return;
+  }
+
+  const today = new Date().toISOString().split("T")[0]!;
+
   const [updated] = await db.update(teamsTable).set({
-    youthScoutingContinent:       continent,
-    youthScoutingStatus:          "active",
-    youthScoutingWeeksRemaining:  SCOUTING_WEEKS,
+    youthScoutingContinent:      continent,
+    youthScoutingStatus:         "active",
+    youthScoutingWeeksRemaining: SCOUTING_WEEKS,
+    budget:                      String(budget - SCOUTING_COST),
   }).where(eq(teamsTable.id, team.id)).returning();
+
+  await db.insert(financeTransactionsTable).values({
+    teamId:      team.id,
+    type:        "expense",
+    amount:      String(-SCOUTING_COST),
+    description: `Youth scouting — ${continent}`,
+    category:    "youth_academy",
+    date:        today,
+  });
 
   res.status(201).json(serializeMission(updated));
 });
@@ -69,9 +89,9 @@ router.post("/youth-scouting/cancel", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const [updated] = await db.update(teamsTable).set({
-    youthScoutingStatus:          "idle",
-    youthScoutingContinent:       null,
-    youthScoutingWeeksRemaining:  0,
+    youthScoutingStatus:         "idle",
+    youthScoutingContinent:      null,
+    youthScoutingWeeksRemaining: 0,
   }).where(eq(teamsTable.id, team.id)).returning();
 
   res.json(serializeMission(updated));

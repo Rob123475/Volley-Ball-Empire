@@ -1083,6 +1083,8 @@ export interface YouthScoutingMission {
   continent?: string | null;
   weeksRemaining: number;
   expectedTalentLevel?: string | null;
+  /** Fixed cost in dollars to send scouts on a mission */
+  scoutingCost: number;
 }
 
 export type DashboardNextMatch = { [key: string]: unknown } | null;

@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   CircleDashed,
   XCircle,
+  DollarSign,
 } from "lucide-react";
 
 // ── Continent data ─────────────────────────────────────────────────────────
@@ -180,6 +181,8 @@ export default function YouthAcademy() {
   const weeksLeft     = mission?.weeksRemaining ?? 0;
   const talentLevel   = mission?.expectedTalentLevel ?? null;
   const activeCont    = CONTINENTS.find(c => c.name === continent);
+  const scoutingCost  = mission?.scoutingCost ?? 15_000;
+  const costFormatted = `$${scoutingCost.toLocaleString()}`;
 
   return (
     <div className="space-y-10">
@@ -314,9 +317,15 @@ export default function YouthAcademy() {
             <Globe className="h-5 w-5 text-primary" />
             <h3 className="text-xl font-bold">Select Scout Destination</h3>
           </div>
-          <p className="text-sm text-muted-foreground -mt-2">
-            Choose a continent to deploy your scouts. The mission takes 4 weeks.
-          </p>
+          <div className="flex items-center gap-3 -mt-2 flex-wrap">
+            <p className="text-sm text-muted-foreground">
+              Choose a continent to deploy your scouts. The mission takes 4 weeks.
+            </p>
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-full px-2.5 py-0.5 shrink-0">
+              <DollarSign className="h-3 w-3" />
+              {costFormatted} per mission
+            </span>
+          </div>
 
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {CONTINENTS.map((c) => {
@@ -387,6 +396,7 @@ export default function YouthAcademy() {
               >
                 <Radar className="h-4 w-4" />
                 Deploy Scouts to {selected}
+                <span className="ml-1 opacity-75 text-xs font-normal">· {costFormatted}</span>
               </Button>
             </div>
           )}

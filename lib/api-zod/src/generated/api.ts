@@ -2680,7 +2680,8 @@ export const GetYouthScoutingResponse = zod.object({
   "status": zod.enum(['idle', 'active', 'complete']),
   "continent": zod.string().nullish(),
   "weeksRemaining": zod.number(),
-  "expectedTalentLevel": zod.string().nullish()
+  "expectedTalentLevel": zod.string().nullish(),
+  "scoutingCost": zod.number().describe('Fixed cost in dollars to send scouts on a mission')
 })
 
 
@@ -2699,7 +2700,8 @@ export const CancelYouthScoutingResponse = zod.object({
   "status": zod.enum(['idle', 'active', 'complete']),
   "continent": zod.string().nullish(),
   "weeksRemaining": zod.number(),
-  "expectedTalentLevel": zod.string().nullish()
+  "expectedTalentLevel": zod.string().nullish(),
+  "scoutingCost": zod.number().describe('Fixed cost in dollars to send scouts on a mission')
 })
 
 

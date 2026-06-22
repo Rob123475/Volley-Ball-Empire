@@ -2817,7 +2817,7 @@ components:
 
     YouthScoutingMission:
       type: object
-      required: [status, weeksRemaining]
+      required: [status, weeksRemaining, scoutingCost]
       properties:
         status:
           type: string
@@ -2830,6 +2830,9 @@ components:
         expectedTalentLevel:
           type: string
           nullable: true
+        scoutingCost:
+          type: integer
+          description: Fixed cost in dollars to send scouts on a mission
 
     Dashboard:
       type: object
