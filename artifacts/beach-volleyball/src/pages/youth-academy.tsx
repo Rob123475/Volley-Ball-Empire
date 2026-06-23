@@ -38,7 +38,35 @@ import {
   TrendingDown,
   Minus,
   Activity,
+  Sparkles,
 } from "lucide-react";
+
+const ELITE_EVENT_CONFIG: Record<string, {
+  cardClass:   string;
+  bannerClass: string;
+  icon:        React.ReactNode;
+}> = {
+  "Generational Talent": {
+    cardClass:   "border-purple-500/60 shadow-purple-500/15 shadow-lg",
+    bannerClass: "bg-purple-500/10 border-purple-500/30 text-purple-300",
+    icon:        <Sparkles className="h-3 w-3 text-purple-400" />,
+  },
+  "Olympic Wonderkid": {
+    cardClass:   "border-amber-400/60 shadow-amber-400/15 shadow-lg",
+    bannerClass: "bg-amber-500/10 border-amber-500/30 text-amber-300",
+    icon:        <Trophy className="h-3 w-3 text-amber-400" />,
+  },
+  "Physical Freak": {
+    cardClass:   "border-orange-500/60 shadow-orange-500/15 shadow-lg",
+    bannerClass: "bg-orange-500/10 border-orange-500/30 text-orange-300",
+    icon:        <Zap className="h-3 w-3 text-orange-400" />,
+  },
+  "Local Hero": {
+    cardClass:   "border-emerald-500/60 shadow-emerald-500/15 shadow-lg",
+    bannerClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
+    icon:        <Star className="h-3 w-3 text-emerald-400" />,
+  },
+};
 
 // ── Continent data ─────────────────────────────────────────────────────────
 
@@ -407,11 +435,28 @@ export default function YouthAcademy() {
                 p.speciality === "All-Rounder" ? <Trophy className="h-3 w-3" /> :
                                                  <Zap    className="h-3 w-3" />;
 
+              const eliteEvent = p.eliteEventType ?? null;
+              const eliteCfg   = eliteEvent ? (ELITE_EVENT_CONFIG[eliteEvent] ?? null) : null;
+
               return (
                 <div
                   key={p.id}
-                  className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 shadow-sm"
+                  className={cn(
+                    "rounded-xl border bg-card p-4 flex flex-col gap-3",
+                    eliteCfg ? eliteCfg.cardClass : "border-border shadow-sm",
+                  )}
                 >
+                  {/* Elite event banner */}
+                  {eliteCfg && eliteEvent && (
+                    <div className={cn(
+                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border",
+                      eliteCfg.bannerClass,
+                    )}>
+                      {eliteCfg.icon}
+                      <span className="text-[11px] font-black uppercase tracking-wide">{eliteEvent}</span>
+                    </div>
+                  )}
+
                   {/* Name + Age */}
                   <div className="flex items-start justify-between gap-2">
                     <div>

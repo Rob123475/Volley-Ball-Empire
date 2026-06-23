@@ -132,6 +132,7 @@ export const playersTable = pgTable("players", {
   potential: varchar("potential", { length: 20 }).notNull().default("Average"),
   scoutedPotential: varchar("scouted_potential", { length: 20 }),
   discoveredBy:    varchar("discovered_by", { length: 200 }),
+  eliteEventType:  varchar("elite_event_type", { length: 50 }),
   trainingFocus: varchar("training_focus", { length: 30 }),
   focusXp: integer("focus_xp").notNull().default(0),
   academyContractYears: numeric("academy_contract_years", { precision: 5, scale: 2 }),
@@ -399,6 +400,7 @@ export const youthProspectsTable = pgTable("youth_prospects", {
   discoveredBy:         varchar("discovered_by", { length: 200 }),
   scoutedPotentialLabel: varchar("scouted_potential_label", { length: 30 }),
   continentalMissionId:  integer("continental_mission_id"),
+  eliteEventType:        varchar("elite_event_type", { length: 50 }),
   createdAt:            timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

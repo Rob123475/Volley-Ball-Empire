@@ -84,7 +84,80 @@ const TRUE_POTENTIAL_INDEX: Record<string, number> = {
 const SCOUTED_LABELS = ["Very Low", "Low", "Moderate", "High", "Elite"] as const;
 type ScoutedLabel = typeof SCOUTED_LABELS[number];
 
-function getScoutedPotential(truePotential: string, scoutingRating: number): ScoutedLabel {
+// ── Elite event types ─────────────────────────────────────────────────────────
+
+type EliteEventType =
+  | "Generational Talent"
+  | "Olympic Wonderkid"
+  | "Physical Freak"
+  | "Local Hero";
+
+function rollEliteEvent(): EliteEventType | null {
+  const r = Math.random() * 100;
+  if (r < 1)  return "Generational Talent";
+  if (r < 3)  return "Olympic Wonderkid";
+  if (r < 6)  return "Physical Freak";
+  if (r < 10) return "Local Hero";
+  return null;
+}
+
+function applyEliteBoosts(
+  event: EliteEventType,
+  base: { currentRating: number; potentialStars: string; age: number; signingCost: number; speciality: string },
+): { currentRating: number; potentialStars: string; age: number; signingCost: number; speciality: string } {
+  switch (event) {
+    case "Generational Talent":
+      return {
+        ...base,
+        age:            rand(14, 16),
+        currentRating:  Math.min(99, base.currentRating + rand(18, 28)),
+        potentialStars: "Generational",
+        signingCost:    Math.round(base.signingCost * (2.0 + Math.random())),
+      };
+    case "Olympic Wonderkid":
+      return {
+        ...base,
+        age:            rand(14, 16),
+        currentRating:  Math.min(99, base.currentRating + rand(12, 20)),
+        potentialStars: Math.random() < 0.55 ? "Generational" : "Elite",
+        signingCost:    Math.round(base.signingCost * (1.6 + Math.random() * 0.7)),
+      };
+    case "Physical Freak":
+      return {
+        ...base,
+        age:            rand(15, 17),
+        currentRating:  Math.min(99, base.currentRating + rand(8, 15)),
+        potentialStars: Math.random() < 0.4 ? "Elite" : "High",
+        speciality:     Math.random() < 0.5 ? "Power" : "Speed",
+        signingCost:    Math.round(base.signingCost * (1.4 + Math.random() * 0.5)),
+      };
+    case "Local Hero":
+      return {
+        ...base,
+        age:            rand(15, 18),
+        currentRating:  Math.min(99, base.currentRating + rand(6, 13)),
+        potentialStars: Math.random() < 0.35 ? "Elite" : "High",
+        signingCost:    Math.round(base.signingCost * 0.8),
+      };
+  }
+}
+
+// ── Scouted potential with elite event awareness ───────────────────────────────
+
+function getScoutedPotential(
+  truePotential: string,
+  scoutingRating: number,
+  eliteEvent: EliteEventType | null,
+): ScoutedLabel {
+  // Generational Talent is so obvious even poor scouts recognise it
+  if (eliteEvent === "Generational Talent") return "Elite";
+  // Olympic Wonderkid: at most 1 level off even for weak scouts
+  if (eliteEvent === "Olympic Wonderkid") {
+    const baseIdx = TRUE_POTENTIAL_INDEX[truePotential] ?? 4;
+    const error = scoutingRating >= 51 ? 0 : (Math.random() < 0.5 ? 0 : -1);
+    return SCOUTED_LABELS[Math.max(0, Math.min(4, baseIdx + error))]!;
+  }
+
   const baseIdx = TRUE_POTENTIAL_INDEX[truePotential] ?? 2;
   let error = 0;
   const roll = Math.random();
@@ -187,15 +260,29 @@ export async function generateContinentalProspects(params: {
     : `Discovered in ${region}`;
 
   for (let i = 0; i < count; i++) {
-    const name          = pickName(region, used);
+    const name        = pickName(region, used);
     used.add(name);
-    const age           = rand(14, 18);
-    const nationality   = pickNationality(region);
-    const speciality    = pickSpeciality(region);
-    const truePotential = cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!;
-    const scoutedLabel  = getScoutedPotential(truePotential, scoutingRating);
-    const currentRating = Math.min(99, Math.max(40, rand(cfg.ratingMin, cfg.ratingMax) + ratingBonus));
-    const signingCost   = Math.max(3000, Math.min(35000, rand(cfg.costMin, cfg.costMax)));
+    const nationality = pickNationality(region);
+
+    // Base stats
+    let age           = rand(14, 18);
+    let speciality    = pickSpeciality(region);
+    let truePotential = cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!;
+    let currentRating = Math.min(99, Math.max(40, rand(cfg.ratingMin, cfg.ratingMax) + ratingBonus));
+    let signingCost   = Math.max(3000, Math.min(35000, rand(cfg.costMin, cfg.costMax)));
+
+    // Roll for rare elite event
+    const eliteEvent = rollEliteEvent();
+    if (eliteEvent) {
+      const boosted = applyEliteBoosts(eliteEvent, { currentRating, potentialStars: truePotential, age, signingCost, speciality });
+      age           = boosted.age;
+      speciality    = boosted.speciality;
+      truePotential = boosted.potentialStars;
+      currentRating = boosted.currentRating;
+      signingCost   = Math.min(80000, boosted.signingCost);
+    }
+
+    const scoutedLabel = getScoutedPotential(truePotential, scoutingRating, eliteEvent);
 
     const reportText = generateScoutingReport({
       name,
@@ -204,22 +291,24 @@ export async function generateContinentalProspects(params: {
       speciality,
       region,
       scoutedPotential: scoutedLabel,
+      eliteEventType:   eliteEvent,
     });
 
     await db.insert(youthProspectsTable).values({
       teamId,
       name,
       age,
-      continent:            region,
+      continent:             region,
       currentRating,
-      potentialStars:       truePotential,
+      potentialStars:        truePotential,
       speciality,
       signingCost,
-      status:               "pending",
-      scoutingReportText:   reportText,
+      status:                "pending",
+      scoutingReportText:    reportText,
       discoveredBy,
       scoutedPotentialLabel: scoutedLabel,
-      continentalMissionId: missionId,
+      continentalMissionId:  missionId,
+      eliteEventType:        eliteEvent ?? undefined,
     });
   }
 

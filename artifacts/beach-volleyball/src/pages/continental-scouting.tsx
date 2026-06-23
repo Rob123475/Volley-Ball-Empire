@@ -71,6 +71,33 @@ const REGION_GRADIENTS: Record<string, string> = {
   "Oceania":       "from-cyan-950/60 to-sky-950/60 border-cyan-700/30",
 };
 
+const ELITE_EVENT_CONFIG: Record<string, {
+  cardClass:   string;
+  bannerClass: string;
+  icon:        React.ReactNode;
+}> = {
+  "Generational Talent": {
+    cardClass:   "border-purple-500/60 shadow-purple-500/15 shadow-lg",
+    bannerClass: "bg-purple-500/10 border-purple-500/30 text-purple-300",
+    icon:        <Sparkles className="h-3 w-3 text-purple-400" />,
+  },
+  "Olympic Wonderkid": {
+    cardClass:   "border-amber-400/60 shadow-amber-400/15 shadow-lg",
+    bannerClass: "bg-amber-500/10 border-amber-500/30 text-amber-300",
+    icon:        <Trophy className="h-3 w-3 text-amber-400" />,
+  },
+  "Physical Freak": {
+    cardClass:   "border-orange-500/60 shadow-orange-500/15 shadow-lg",
+    bannerClass: "bg-orange-500/10 border-orange-500/30 text-orange-300",
+    icon:        <Zap className="h-3 w-3 text-orange-400" />,
+  },
+  "Local Hero": {
+    cardClass:   "border-emerald-500/60 shadow-emerald-500/15 shadow-lg",
+    bannerClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
+    icon:        <Star className="h-3 w-3 text-emerald-400" />,
+  },
+};
+
 const REGION_ACCENT: Record<string, string> = {
   "Europe":        "text-blue-400",
   "Asia":          "text-emerald-400",
@@ -144,10 +171,26 @@ function ProspectCard({
   onIgnore: (id: number, name: string) => void;
   isMutating: boolean;
 }) {
-  const potCfg = POTENTIAL_CONFIG[prospect.scoutedPotentialLabel ?? ""] ?? null;
+  const potCfg     = POTENTIAL_CONFIG[prospect.scoutedPotentialLabel ?? ""] ?? null;
+  const eliteEvent = prospect.eliteEventType ?? null;
+  const eliteCfg   = eliteEvent ? (ELITE_EVENT_CONFIG[eliteEvent] ?? null) : null;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 shadow-sm">
+    <div className={cn(
+      "rounded-xl border bg-card p-4 flex flex-col gap-3",
+      eliteCfg ? eliteCfg.cardClass : "border-border shadow-sm",
+    )}>
+      {/* Elite event banner */}
+      {eliteCfg && eliteEvent && (
+        <div className={cn(
+          "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border -mx-0 -mt-0",
+          eliteCfg.bannerClass,
+        )}>
+          {eliteCfg.icon}
+          <span className="text-[11px] font-black uppercase tracking-wide">{eliteEvent}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">

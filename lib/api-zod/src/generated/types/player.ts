@@ -5,6 +5,7 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { PlayerEliteEventType } from './playerEliteEventType';
 import type { PlayerInjuryStatus } from './playerInjuryStatus';
 import type { PlayerPosition } from './playerPosition';
 import type { PlayerScoutedPotential } from './playerScoutedPotential';
@@ -65,6 +66,11 @@ export interface Player {
      * @nullable
      */
   discoveredBy?: string | null;
+  /**
+     * Rare elite scouting event classification, if applicable.
+     * @nullable
+     */
+  eliteEventType?: PlayerEliteEventType;
   /**
      * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
      * @nullable

@@ -86,8 +86,39 @@ const AGE_ADJECTIVES: Partial<Record<number, string>> = {
   18: "mature for her age",
 };
 
+// ── Elite event reports ───────────────────────────────────────────────────────
+
+const ELITE_EVENT_REPORTS: Record<string, string[]> = {
+  "Generational Talent": [
+    "EXCEPTIONAL FIND. This is a once-in-a-generation discovery. The physical metrics, decision-making under pressure, and raw athletic ceiling are all dramatically beyond her age group. Technical staff reviewed the footage three times before filing this report. Scouts encounter a player like this once in a career. Sign immediately — there will be competition.",
+    "PRIORITY SIGNING. Rarely does a report leave this office with such unambiguous language, but the situation demands it: this player is a generational find. Every measurable indicator points to a ceiling that rivals the current top of the World Tour. She is younger than her peers and already superior. Delay is not an option.",
+    "HISTORIC PROSPECT. In twenty years of scouting, I have filed this classification twice. She moves differently. She reads the game differently. Her technical foundations at this age are not merely impressive — they are unprecedented in my experience. Whatever the cost, this player must be signed.",
+  ],
+  "Olympic Wonderkid": [
+    "STANDOUT PROSPECT. Everything needed to compete at Olympic level is present. The athleticism, the competitive composure, the technical foundation — all elite for her age. International scouts from multiple national programs have already been spotted watching her practice sessions. The window to secure this player is narrow.",
+    "OLYMPIC CALIBRE. This player carries herself like a veteran despite being a teenager. The court awareness and shot selection under pressure are the kind that can't be coached — they have to be innate. With proper development, an Olympic podium is a realistic ceiling. She will not be available for long.",
+    "FUTURE OLYMPIAN. The physical projections alone make this a compelling case, but it is the competitive mentality that elevates her above her peers. She does not wilt under pressure — she accelerates. National programme scouts are already circling. Priority signing recommended.",
+  ],
+  "Physical Freak": [
+    "ATHLETIC OUTLIER. The physical profile on this player is unlike anything documented in this region in years. The combination of explosive power, top-end speed, and natural athleticism creates a developmental ceiling that is genuinely difficult to cap. The raw material is extraordinary — with coaching investment, this could become an elite performer.",
+    "PHYSICAL SPECIMEN. Standard rating scales don't capture what I saw in person. The sheer athleticism — the vertical, the acceleration, the power-to-weight ratio — puts her in a category outside her peers. She is unpolished technically, but the physical gifts are so pronounced that development risk is low. Back this one.",
+    "EXCEPTIONAL ATHLETE. Her physical tools belong at a higher level than her current rating suggests. The body is built for beach volleyball: the wingspan, the explosiveness off the sand, the stamina in long rallies. Technical work will come with coaching. The physical ceiling is already set — and it is very high.",
+  ],
+  "Local Hero": [
+    "LOCAL LEGEND. Already a revered figure in local beach volleyball despite her youth. Community-supported and widely celebrated, she brings genuine technical ability alongside rare crowd-drawing appeal. Her grounded mentality, burning desire to represent her nation, and local knowledge of the conditions make her a unique signing proposition.",
+    "COMMUNITY ICON. The reception at the local tournament was telling — she is already beloved. But the emotional story is backed by genuine talent. Her court sense is sharpened by years of competing in these specific conditions, giving her an edge that stadium players rarely carry. She brings the crowd and brings results.",
+    "HOMETOWN HERO. There is something different about a player who has grown up under local expectation and thrived. The competitive pressure she has already faced — playing for her community every time she steps on the sand — has forged a mentality that coaching rarely produces. High ceiling, ready-made character.",
+  ],
+};
+
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]!;
+}
+
+export function generateEliteEventReport(eliteEventType: string): string {
+  const pool = ELITE_EVENT_REPORTS[eliteEventType];
+  if (!pool) return "";
+  return pick(pool);
 }
 
 export function generateScoutingReport(params: {
@@ -97,8 +128,14 @@ export function generateScoutingReport(params: {
   speciality: string;
   region: string;
   scoutedPotential: string;
+  eliteEventType?: string | null;
 }): string {
-  const { age, nationality, speciality, region, scoutedPotential } = params;
+  const { age, nationality, speciality, region, scoutedPotential, eliteEventType } = params;
+
+  // Elite events get their own dedicated report
+  if (eliteEventType) {
+    return generateEliteEventReport(eliteEventType);
+  }
 
   const regionKey = region.toLowerCase();
   const descriptors = CONTINENT_DESCRIPTORS[regionKey] ?? CONTINENT_DESCRIPTORS["north_america"]!;

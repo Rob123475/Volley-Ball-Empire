@@ -1901,6 +1901,10 @@ components:
         discoveredBy:
           type: ["string", "null"]
           description: "Scouting source, e.g. 'Discovered in South America by Scout Birgit Hansen'"
+        eliteEventType:
+          type: ["string", "null"]
+          enum: ["Generational Talent", "Olympic Wonderkid", "Physical Freak", "Local Hero", null]
+          description: "Rare elite scouting event classification, if applicable."
         trainingFocus:
           type: ["string", "null"]
           enum: ["Attack", "Defence", "Serving", "Blocking", "Athleticism", "Leadership", null]
@@ -3435,6 +3439,10 @@ components:
         continentalMissionId:
           type: ["integer", "null"]
           description: "ID of the continental mission that found this prospect."
+        eliteEventType:
+          type: ["string", "null"]
+          enum: ["Generational Talent", "Olympic Wonderkid", "Physical Freak", "Local Hero", null]
+          description: "Rare elite scouting event classification, if applicable."
 
     YouthScoutingMission:
       type: object

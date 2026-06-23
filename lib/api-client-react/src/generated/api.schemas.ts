@@ -103,6 +103,20 @@ export const PlayerScoutedPotential = {
 } as const;
 
 /**
+ * Rare elite scouting event classification, if applicable.
+ * @nullable
+ */
+export type PlayerEliteEventType = typeof PlayerEliteEventType[keyof typeof PlayerEliteEventType] | null;
+
+
+export const PlayerEliteEventType = {
+  Generational_Talent: 'Generational Talent',
+  Olympic_Wonderkid: 'Olympic Wonderkid',
+  Physical_Freak: 'Physical Freak',
+  Local_Hero: 'Local Hero',
+} as const;
+
+/**
  * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
  * @nullable
  */
@@ -172,6 +186,11 @@ export interface Player {
      * @nullable
      */
   discoveredBy?: string | null;
+  /**
+     * Rare elite scouting event classification, if applicable.
+     * @nullable
+     */
+  eliteEventType?: PlayerEliteEventType;
   /**
      * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
      * @nullable
@@ -1254,6 +1273,20 @@ export const YouthProspectScoutedPotentialLabel = {
   Elite: 'Elite',
 } as const;
 
+/**
+ * Rare elite scouting event classification, if applicable.
+ * @nullable
+ */
+export type YouthProspectEliteEventType = typeof YouthProspectEliteEventType[keyof typeof YouthProspectEliteEventType] | null;
+
+
+export const YouthProspectEliteEventType = {
+  Generational_Talent: 'Generational Talent',
+  Olympic_Wonderkid: 'Olympic Wonderkid',
+  Physical_Freak: 'Physical Freak',
+  Local_Hero: 'Local Hero',
+} as const;
+
 export interface YouthProspect {
   id: number;
   name: string;
@@ -1284,6 +1317,11 @@ export interface YouthProspect {
      * @nullable
      */
   continentalMissionId?: number | null;
+  /**
+     * Rare elite scouting event classification, if applicable.
+     * @nullable
+     */
+  eliteEventType?: YouthProspectEliteEventType;
 }
 
 export interface CollectMissionResult {

@@ -5,6 +5,7 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { YouthProspectEliteEventType } from './youthProspectEliteEventType';
 import type { YouthProspectScoutedPotentialLabel } from './youthProspectScoutedPotentialLabel';
 import type { YouthProspectStatus } from './youthProspectStatus';
 
@@ -38,4 +39,9 @@ export interface YouthProspect {
      * @nullable
      */
   continentalMissionId?: number | null;
+  /**
+     * Rare elite scouting event classification, if applicable.
+     * @nullable
+     */
+  eliteEventType?: YouthProspectEliteEventType;
 }

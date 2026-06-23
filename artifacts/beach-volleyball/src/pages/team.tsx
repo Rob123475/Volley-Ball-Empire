@@ -31,7 +31,31 @@ import {
   ChevronDown,
   Award,
   Lock,
+  Sparkles,
+  Trophy,
 } from "lucide-react";
+
+const ELITE_EVENT_CONFIG: Record<string, {
+  bannerClass: string;
+  icon:        React.ReactNode;
+}> = {
+  "Generational Talent": {
+    bannerClass: "bg-purple-500/10 border-purple-500/30 text-purple-300",
+    icon:        <Sparkles className="h-3 w-3 text-purple-400" />,
+  },
+  "Olympic Wonderkid": {
+    bannerClass: "bg-amber-500/10 border-amber-500/30 text-amber-300",
+    icon:        <Trophy className="h-3 w-3 text-amber-400" />,
+  },
+  "Physical Freak": {
+    bannerClass: "bg-orange-500/10 border-orange-500/30 text-orange-300",
+    icon:        <Zap className="h-3 w-3 text-orange-400" />,
+  },
+  "Local Hero": {
+    bannerClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
+    icon:        <Star className="h-3 w-3 text-emerald-400" />,
+  },
+};
 import {
   Dialog,
   DialogContent,
@@ -343,9 +367,23 @@ export default function TeamRoster() {
               confidence >= 80 ? "bg-emerald-500" :
               confidence >= 55 ? "bg-amber-400"   : "bg-red-400";
 
+            const eliteEvent = player.eliteEventType as string | null | undefined;
+            const eliteCfg   = eliteEvent ? (ELITE_EVENT_CONFIG[eliteEvent] ?? null) : null;
+
             return (
               <div className="pt-2 border-t border-border space-y-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Development</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Youth Development</p>
+                  {eliteCfg && eliteEvent && (
+                    <div className={cn(
+                      "flex items-center gap-1 rounded-md px-2 py-0.5 border text-[10px] font-black uppercase tracking-wide",
+                      eliteCfg.bannerClass,
+                    )}>
+                      {eliteCfg.icon}
+                      <span>{eliteEvent}</span>
+                    </div>
+                  )}
+                </div>
 
                 {/* Row 1: Age | Rating | Potential */}
                 <div className="grid grid-cols-3 gap-1.5 text-center">
