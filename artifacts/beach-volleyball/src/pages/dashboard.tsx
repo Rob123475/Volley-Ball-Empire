@@ -1,6 +1,6 @@
-import { 
-  useGetDashboard, 
-  useGetCurrentSeason, 
+import {
+  useGetDashboard,
+  useGetCurrentSeason,
   useGetSeasonLadder,
   useGetProfile,
   useUpdateProfile,
@@ -18,26 +18,30 @@ import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Trophy, 
-  DollarSign, 
-  Users, 
-  Calendar, 
+import {
+  Trophy,
+  DollarSign,
+  Calendar,
   Award,
   ArrowUpRight,
   ArrowDownRight,
-  User,
   Eye,
   EyeOff,
   Pencil,
   Check,
   X,
   KeyRound,
-  TrendingUp,
-  HeartPulse,
   Star,
-  Swords,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  HeartPulse,
+  Flame,
+  MapPin,
+  ChevronRight,
   Building2,
+  Shield,
+  Swords,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
@@ -51,53 +55,101 @@ function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
-// ── Stat Pill ──────────────────────────────────────────────────────────────────
-function StatPill({
-  icon,
+const REP_LEVELS = [
+  { name: "Local Coach",       min: 0,    next: 100,  colour: "text-slate-300"  },
+  { name: "Regional Coach",    min: 100,  next: 300,  colour: "text-blue-300"   },
+  { name: "National Coach",    min: 300,  next: 700,  colour: "text-violet-300" },
+  { name: "World Class Coach", min: 700,  next: 1500, colour: "text-amber-300"  },
+  { name: "Legend",            min: 1500, next: null, colour: "text-yellow-300" },
+];
+
+function getRepLevel(pts: number) {
+  return REP_LEVELS.slice().reverse().find(l => pts >= l.min) ?? REP_LEVELS[0]!;
+}
+
+// ── Hero stat tile ─────────────────────────────────────────────────────────────
+function HeroStat({
   label,
   value,
   sub,
-  gradient,
-  iconBg,
+  icon,
+  accent,
 }: {
-  icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   sub?: React.ReactNode;
-  gradient: string;
-  iconBg: string;
+  icon?: React.ReactNode;
+  accent?: string;
 }) {
   return (
-    <div className={`flex items-center gap-4 rounded-2xl px-5 py-4 ${gradient} shadow-md`}>
-      <div className={`flex-shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${iconBg} shadow-inner`}>
+    <div className="flex flex-col gap-1 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
         {icon}
+        {label}
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-0.5">{label}</div>
-        <div className="text-2xl font-black text-white leading-none truncate">{value}</div>
-        {sub && <div className="text-xs text-white/60 mt-0.5">{sub}</div>}
-      </div>
+      <div className={cn("text-xl font-black text-white leading-none", accent)}>{value}</div>
+      {sub && <div className="text-[11px] text-white/50 mt-0.5 leading-tight">{sub}</div>}
     </div>
   );
 }
 
+// ── Decorative beach court SVG overlay ────────────────────────────────────────
+function BeachCourtDecor() {
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none"
+      viewBox="0 0 800 400"
+      preserveAspectRatio="xMidYMid slice"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Court outline */}
+      <rect x="80" y="60" width="640" height="280" rx="4" fill="none" stroke="white" strokeWidth="3" />
+      {/* Centre net */}
+      <line x1="400" y1="60" x2="400" y2="340" stroke="white" strokeWidth="3" />
+      {/* Net posts */}
+      <line x1="400" y1="40" x2="400" y2="60" stroke="white" strokeWidth="5" />
+      {/* Court service lines */}
+      <line x1="80" y1="200" x2="740" y2="200" stroke="white" strokeWidth="1.5" strokeDasharray="8 6" />
+      <line x1="240" y1="60" x2="240" y2="340" stroke="white" strokeWidth="1" strokeDasharray="6 5" />
+      <line x1="560" y1="60" x2="560" y2="340" stroke="white" strokeWidth="1" strokeDasharray="6 5" />
+      {/* Volleyball */}
+      <circle cx="620" cy="120" r="28" fill="none" stroke="white" strokeWidth="2" />
+      <path d="M594 108 Q620 92 646 108" fill="none" stroke="white" strokeWidth="1.5" />
+      <path d="M594 132 Q620 148 646 132" fill="none" stroke="white" strokeWidth="1.5" />
+      <line x1="620" y1="92" x2="620" y2="148" stroke="white" strokeWidth="1.5" />
+      {/* Sand texture dots */}
+      {[...Array(40)].map((_, i) => (
+        <circle
+          key={i}
+          cx={100 + (i % 10) * 65}
+          cy={300 + Math.floor(i / 10) * 12}
+          r="1.5"
+          fill="white"
+          opacity="0.6"
+        />
+      ))}
+    </svg>
+  );
+}
+
+// ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
-    query: { queryKey: getGetDashboardQueryKey() }
+    query: { queryKey: getGetDashboardQueryKey() },
   });
   const { data: season, isLoading: seasonLoading } = useGetCurrentSeason({
-    query: { queryKey: getGetCurrentSeasonQueryKey() }
+    query: { queryKey: getGetCurrentSeasonQueryKey() },
   });
   const { data: profile, isLoading: profileLoading } = useGetProfile({
-    query: { queryKey: getGetProfileQueryKey() }
+    query: { queryKey: getGetProfileQueryKey() },
   });
 
   const seasonId = season?.id ?? 1;
   const { data: ladder } = useGetSeasonLadder(seasonId, {
-    query: { enabled: !!season, queryKey: getGetSeasonLadderQueryKey(seasonId) }
+    query: { enabled: !!season, queryKey: getGetSeasonLadderQueryKey(seasonId) },
   });
 
   const updateProfile = useUpdateProfile();
@@ -107,233 +159,275 @@ export default function Dashboard() {
 
   if (dashLoading || seasonLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-48" />
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}
+      <div className="space-y-5">
+        <Skeleton className="h-[340px] w-full rounded-2xl" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Skeleton className="lg:col-span-4 h-64 w-full" />
+          <Skeleton className="lg:col-span-3 h-64 w-full" />
         </div>
       </div>
     );
   }
 
   const formatCurrency = (val: number | null | undefined) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val ?? 0);
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val ?? 0);
 
-  const team = dashboard?.team;
-  const financeSummary = dashboard?.financeSummary;
-  const monthlyNet = financeSummary?.monthlyNet ?? 0;
+  const team        = dashboard?.team;
+  const finance     = dashboard?.financeSummary;
+  const monthlyNet  = finance?.monthlyNet ?? 0;
+  const wins        = team?.wins  ?? 0;
+  const losses      = team?.losses ?? 0;
+  const streak      = team?.winStreak ?? 0;
+  const rank        = dashboard?.seasonStanding?.rank ?? null;
+  const rankPts     = dashboard?.seasonStanding?.points ?? 0;
+  const repPts      = team?.managerRepPoints ?? 0;
+  const repLvl      = getRepLevel(repPts);
+  const repPct      = repLvl.next === null ? 100 : Math.round(((repPts - repLvl.min) / (repLvl.next - repLvl.min)) * 100);
+  const coachName   = (profile as any)?.coachName ?? "";
+  const initials    = (team?.name ?? "C").split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+
+  const avgMorale   = dashboard?.topPlayers && dashboard.topPlayers.length > 0
+    ? Math.round(dashboard.topPlayers.reduce((s, p) => s + (p.morale ?? 75), 0) / dashboard.topPlayers.length)
+    : 0;
+  const moraleColour = avgMorale >= 80 ? "text-emerald-300" : avgMorale >= 60 ? "text-yellow-300" : "text-red-300";
+
+  // World ranking trend from win/loss ratio
+  const totalGames  = wins + losses;
+  const winRate     = totalGames > 0 ? wins / totalGames : 0.5;
+  const rankTrend   = streak >= 3 ? "hot" : winRate > 0.6 ? "up" : winRate < 0.4 ? "down" : "neutral";
+
+  // Rating gradient
+  const totalRating = clubRating?.totalRating ?? 0;
+  const heroGradient =
+    totalRating >= 80 ? "from-amber-900 via-slate-900 to-blue-950" :
+    totalRating >= 65 ? "from-violet-950 via-slate-900 to-blue-950" :
+    totalRating >= 50 ? "from-blue-950 via-slate-900 to-teal-950"  :
+                        "from-slate-900 via-slate-900 to-slate-950";
+
+  const ratingAccent =
+    totalRating >= 80 ? "text-amber-300" :
+    totalRating >= 65 ? "text-violet-300" :
+    totalRating >= 50 ? "text-blue-300"   :
+                        "text-slate-300";
+
+  const ratingBarColour =
+    totalRating >= 80 ? "bg-amber-400"  :
+    totalRating >= 65 ? "bg-violet-400" :
+    totalRating >= 50 ? "bg-blue-400"   :
+                        "bg-slate-400";
+
+  const ratingBorder =
+    totalRating >= 80 ? "border-amber-500/30"  :
+    totalRating >= 65 ? "border-violet-500/30" :
+    totalRating >= 50 ? "border-blue-500/30"   :
+                        "border-slate-500/30";
+
+  const nextMatch = dashboard?.nextMatch as any;
 
   return (
-    <div className="space-y-7">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">Club Manager · Here's your team status.</p>
-      </div>
+    <div className="space-y-5">
 
-      {/* ── Top pill row ── */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {/* W/L record */}
-        <StatPill
-          gradient="bg-gradient-to-br from-blue-400 to-blue-600"
-          iconBg="bg-blue-300/40"
-          icon={<Swords className="h-5 w-5 text-white" />}
-          label="Record"
-          value={<span>{team?.wins ?? 0}<span className="text-white/40 text-lg font-bold mx-1">-</span>{team?.losses ?? 0}</span>}
-          sub={`Rep: ${team?.reputation ?? 50}`}
-        />
+      {/* ══════════════════════════════════════════════════════════════
+          HERO SECTION
+      ══════════════════════════════════════════════════════════════ */}
+      <div className={cn("relative overflow-hidden rounded-2xl bg-gradient-to-br shadow-2xl border border-white/5", heroGradient)}>
+        <BeachCourtDecor />
 
-        {/* Season rank */}
-        <StatPill
-          gradient="bg-gradient-to-br from-violet-400 to-purple-600"
-          iconBg="bg-violet-300/40"
-          icon={<Award className="h-5 w-5 text-white" />}
-          label="Season Rank"
-          value={dashboard?.seasonStanding ? `#${dashboard.seasonStanding.rank}` : "—"}
-          sub={`${dashboard?.seasonStanding?.points ?? 0} pts · ${season?.name ?? "Season 1"}`}
-        />
+        {/* Subtle vignette overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
 
-        {/* Titles won */}
-        <StatPill
-          gradient="bg-gradient-to-br from-amber-300 to-orange-400"
-          iconBg="bg-amber-200/40"
-          icon={<Trophy className="h-5 w-5 text-white" />}
-          label="Titles Won"
-          value={team?.titlesWon ?? 0}
-          sub="Championship titles"
-        />
+        <div className="relative z-10 p-6 md:p-8 flex flex-col gap-7">
 
-        {/* Injuries */}
-        <StatPill
-          gradient={
-            (dashboard?.injuredCount ?? 0) > 0
-              ? "bg-gradient-to-br from-red-400 to-rose-600"
-              : "bg-gradient-to-br from-emerald-400 to-teal-500"
-          }
-          iconBg={
-            (dashboard?.injuredCount ?? 0) > 0 ? "bg-red-300/40" : "bg-emerald-200/40"
-          }
-          icon={<HeartPulse className="h-5 w-5 text-white" />}
-          label="Injuries"
-          value={dashboard?.injuredCount ?? 0}
-          sub={(dashboard?.injuredCount ?? 0) === 0 ? "All players fit" : "Player(s) injured"}
-        />
-      </div>
+          {/* ── Top: Identity + Club Rating ── */}
+          <div className="flex flex-col lg:flex-row gap-6 justify-between">
 
-      {/* ── Second pill row ── */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Profile */}
-        <div className="sm:col-span-2 lg:col-span-1">
-          <ProfileCard
-            profile={profile}
-            loading={profileLoading}
-            onSave={(coachName, savePin) => {
-              updateProfile.mutate(
-                { data: { coachName, savePin } as any },
-                {
-                  onSuccess: () => {
-                    queryClient.invalidateQueries({ queryKey: getGetProfileQueryKey() });
-                    toast({ title: "Profile saved!" });
-                  },
-                }
-              );
-            }}
-            saving={updateProfile.isPending}
-          />
-        </div>
+            {/* Club Identity */}
+            <div className="flex items-start gap-5 flex-1 min-w-0">
+              {/* Logo */}
+              <div className={cn(
+                "shrink-0 h-20 w-20 rounded-2xl flex items-center justify-center border-2 shadow-xl bg-white/10 backdrop-blur-sm",
+                ratingBorder
+              )}>
+                <span className={cn("text-3xl font-black", ratingAccent)}>{initials}</span>
+              </div>
 
-        {/* Budget */}
-        <StatPill
-          gradient="bg-gradient-to-br from-green-400 to-emerald-600"
-          iconBg="bg-green-200/40"
-          icon={<DollarSign className="h-5 w-5 text-white" />}
-          label="Budget"
-          value={formatCurrency(financeSummary?.balance)}
-          sub={
-            <span className="flex items-center gap-0.5">
-              {monthlyNet >= 0
-                ? <ArrowUpRight className="h-3 w-3 text-green-300 inline" />
-                : <ArrowDownRight className="h-3 w-3 text-red-300 inline" />
-              }
-              {formatCurrency(Math.abs(monthlyNet))} monthly
-            </span>
-          }
-        />
+              <div className="min-w-0 flex-1">
+                {/* Club name */}
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-0.5">Club</div>
+                <h1 className="text-3xl md:text-4xl font-black text-white leading-none truncate">
+                  {team?.name ?? "My Club"}
+                </h1>
 
-        {/* Next match */}
-        {dashboard?.nextMatch ? (
-          <StatPill
-            gradient="bg-gradient-to-br from-sky-300 to-cyan-500"
-            iconBg="bg-sky-200/40"
-            icon={<Calendar className="h-5 w-5 text-white" />}
-            label="Next Match"
-            value={
-              <span className="flex items-center gap-2">
-                <span className="text-xl">{weatherIcons[(dashboard.nextMatch as any).weather] || "☀️"}</span>
-                <span className="text-lg font-bold truncate">{(dashboard.nextMatch as any).locationName ?? "TBD"}</span>
-              </span>
-            }
-            sub={`Prize: ${formatCurrency((dashboard.nextMatch as any).prizeAmount)}`}
-          />
-        ) : (
-          <StatPill
-            gradient="bg-gradient-to-br from-slate-400 to-slate-600"
-            iconBg="bg-slate-300/40"
-            icon={<Calendar className="h-5 w-5 text-white/50" />}
-            label="Next Match"
-            value={<span className="text-white/40 text-base">Not scheduled</span>}
-          />
-        )}
-
-        {/* Manager Reputation pill */}
-        {(() => {
-          const REP_LEVELS = [
-            { level: 1, name: "Local Coach",       min: 0,    next: 100  },
-            { level: 2, name: "Regional Coach",    min: 100,  next: 300  },
-            { level: 3, name: "National Coach",    min: 300,  next: 700  },
-            { level: 4, name: "World Class Coach", min: 700,  next: 1500 },
-            { level: 5, name: "Legend",            min: 1500, next: null },
-          ];
-          const pts = team?.managerRepPoints ?? 0;
-          const lvl = REP_LEVELS.slice().reverse().find(l => pts >= l.min) ?? REP_LEVELS[0]!;
-          const pct = lvl.next === null ? 100 : Math.round(((pts - lvl.min) / (lvl.next - lvl.min)) * 100);
-          const streak = team?.winStreak ?? 0;
-          return (
-            <StatPill
-              gradient="bg-gradient-to-br from-pink-400 to-fuchsia-600"
-              iconBg="bg-pink-200/40"
-              icon={<Star className="h-5 w-5 text-white" />}
-              label="Manager Rep"
-              value={<span className="text-sm font-bold leading-tight">{lvl.name}</span>}
-              sub={
-                <div className="space-y-1 mt-1">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
-                      <div className="h-full bg-white/70 rounded-full transition-all" style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className="text-[10px] text-white/60">{pts}{lvl.next !== null ? `/${lvl.next}` : ""}</span>
+                {/* Manager row */}
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
+                    <Star className="h-3 w-3 text-white/60" />
+                    <span className="text-xs font-semibold text-white/80">
+                      {coachName || "Set coach name"}
+                    </span>
                   </div>
+                  <div className={cn("flex items-center gap-1 text-xs font-bold", repLvl.colour)}>
+                    <Award className="h-3 w-3" />
+                    {repLvl.name}
+                  </div>
+                </div>
+
+                {/* Rep progress */}
+                <div className="flex items-center gap-2 mt-2 max-w-[280px]">
+                  <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className={cn("h-full rounded-full transition-all", ratingBarColour.replace("bg-", "bg-").replace("400", "400").replace("bg-amber-400", "bg-amber-400").replace("bg-violet-400", "bg-violet-400").replace("bg-blue-400", "bg-blue-400").replace("bg-slate-400", "bg-white/50"))}
+                      style={{ width: `${repPct}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-white/40 shrink-0">
+                    {repPts}{repLvl.next !== null ? `/${repLvl.next} rep` : " rep (max)"}
+                  </span>
+                </div>
+
+                {/* Season badge */}
+                <div className="flex items-center gap-1.5 mt-2">
+                  <Badge variant="outline" className="text-[10px] border-white/20 text-white/50 font-semibold">
+                    {season?.name ?? "Season 1"}
+                  </Badge>
                   {streak >= 3 && (
-                    <span className="text-[10px] text-white/70">🔥 {streak}-win streak</span>
+                    <Badge className="text-[10px] bg-orange-500/20 text-orange-300 border-orange-500/30 font-bold gap-1">
+                      <Flame className="h-2.5 w-2.5" /> {streak}-Win Streak
+                    </Badge>
                   )}
                 </div>
-              }
-            />
-          );
-        })()}
-      </div>
+              </div>
+            </div>
 
-      {/* ── Club Rating ── */}
-      {clubRating && (() => {
-        const total = clubRating.totalRating;
-        const gradient =
-          total >= 80 ? "from-yellow-400 to-orange-500" :
-          total >= 65 ? "from-violet-500 to-purple-600" :
-          total >= 50 ? "from-blue-500 to-indigo-600" :
-          total >= 35 ? "from-teal-400 to-emerald-500" :
-                        "from-slate-400 to-slate-600";
-        const bd = clubRating.breakdown;
-        const items: { key: keyof typeof bd; label: string }[] = [
-          { key: "players",     label: "Players"    },
-          { key: "staff",       label: "Staff"      },
-          { key: "medical",     label: "Medical"    },
-          { key: "facilities",  label: "Facilities" },
-          { key: "youthAcademy",label: "Youth"      },
-        ];
-        return (
-          <div className={cn("rounded-2xl bg-gradient-to-br p-5 text-white shadow-md", gradient)} data-testid="card-club-rating">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1 flex items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5" /> Club Rating
+            {/* Club Rating Panel */}
+            {clubRating && (
+              <div className={cn("shrink-0 bg-white/8 backdrop-blur-sm rounded-2xl p-5 border min-w-[220px] max-w-[280px] w-full lg:w-auto", ratingBorder)}
+                style={{ background: "rgba(255,255,255,0.06)" }}>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-3 flex items-center gap-1.5">
+                  <Building2 className="h-3 w-3" /> Club Rating
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black">{total}</span>
-                  <span className="text-lg font-bold text-white/80">— {clubRating.label}</span>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className={cn("text-5xl font-black leading-none", ratingAccent)}>{totalRating}</span>
+                  <span className="text-sm text-white/50 font-semibold">/100</span>
+                </div>
+                <div className="text-sm font-bold text-white/70 mb-4">{clubRating.label}</div>
+
+                {/* Component breakdown */}
+                <div className="space-y-2">
+                  {(["players", "staff", "medical", "facilities", "youthAcademy"] as const).map((key) => {
+                    const comp = clubRating.breakdown[key];
+                    const labels: Record<string, string> = {
+                      players: "Players", staff: "Staff", medical: "Medical",
+                      facilities: "Facilities", youthAcademy: "Youth",
+                    };
+                    return (
+                      <div key={key} className="flex items-center gap-2">
+                        <div className="text-[10px] text-white/40 w-[58px] font-semibold shrink-0">{labels[key]}</div>
+                        <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full transition-all", ratingBarColour)}
+                            style={{ width: `${comp.score}%` }}
+                          />
+                        </div>
+                        <div className="text-[10px] text-white/50 w-5 text-right font-bold shrink-0">{comp.score}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <Trophy className="h-10 w-10 text-white/20 shrink-0" />
-            </div>
-            <div className="mt-4 grid grid-cols-5 gap-2">
-              {items.map(({ key, label }) => {
-                const comp = bd[key];
-                return (
-                  <div key={key} className="bg-white/10 rounded-xl p-2 text-center backdrop-blur-sm">
-                    <div className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-1">{label}</div>
-                    <div className="text-base font-black leading-none">{comp.score}</div>
-                    <div className="mt-1.5 h-1 rounded-full bg-white/20 overflow-hidden">
-                      <div className="h-full bg-white/60 rounded-full transition-all" style={{ width: `${comp.score}%` }} />
-                    </div>
-                    <div className="text-[9px] text-white/40 mt-1">{comp.weight}%</div>
-                  </div>
-                );
-              })}
-            </div>
+            )}
           </div>
-        );
-      })()}
 
-      {/* ── Players + Results ── */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+          {/* ── Bottom: Stats Strip ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+
+            {/* World Rank */}
+            <HeroStat
+              label="World Rank"
+              icon={<Award className="h-2.5 w-2.5" />}
+              value={rank !== null ? `#${rank}` : "—"}
+              sub={
+                <span className="flex items-center gap-1">
+                  {rankTrend === "hot"     && <><Flame className="h-3 w-3 text-orange-400" /><span className="text-orange-300">On Fire</span></>}
+                  {rankTrend === "up"      && <><TrendingUp className="h-3 w-3 text-emerald-400" /><span className="text-emerald-300">Rising</span></>}
+                  {rankTrend === "down"    && <><TrendingDown className="h-3 w-3 text-red-400" /><span className="text-red-300">Falling</span></>}
+                  {rankTrend === "neutral" && <><Minus className="h-3 w-3 text-white/30" /><span>Steady</span></>}
+                </span>
+              }
+            />
+
+            {/* Season Record */}
+            <HeroStat
+              label="Season Record"
+              icon={<Swords className="h-2.5 w-2.5" />}
+              value={<span>{wins}<span className="text-white/30 text-base mx-1">—</span>{losses}</span>}
+              sub={`${rankPts} season pts`}
+            />
+
+            {/* Budget */}
+            <HeroStat
+              label="Budget"
+              icon={<DollarSign className="h-2.5 w-2.5" />}
+              value={formatCurrency(finance?.balance)}
+              sub={
+                <span className="flex items-center gap-0.5">
+                  {monthlyNet >= 0
+                    ? <ArrowUpRight className="h-3 w-3 text-emerald-400" />
+                    : <ArrowDownRight className="h-3 w-3 text-red-400" />}
+                  {formatCurrency(Math.abs(monthlyNet))} / mo
+                </span>
+              }
+            />
+
+            {/* Team Morale */}
+            <HeroStat
+              label="Team Morale"
+              icon={<HeartPulse className="h-2.5 w-2.5" />}
+              value={<span className={moraleColour}>{avgMorale > 0 ? `${avgMorale}%` : "—"}</span>}
+              sub={
+                avgMorale > 0 ? (
+                  <div className="w-full h-1 rounded-full bg-white/10 overflow-hidden mt-1">
+                    <div
+                      className={cn("h-full rounded-full", avgMorale >= 80 ? "bg-emerald-400" : avgMorale >= 60 ? "bg-yellow-400" : "bg-red-400")}
+                      style={{ width: `${avgMorale}%` }}
+                    />
+                  </div>
+                ) : undefined
+              }
+            />
+
+            {/* Injuries */}
+            <HeroStat
+              label="Fitness"
+              icon={<Shield className="h-2.5 w-2.5" />}
+              value={
+                (dashboard?.injuredCount ?? 0) === 0
+                  ? <span className="text-emerald-300">All Fit</span>
+                  : <span className="text-red-300">{dashboard?.injuredCount} Injured</span>
+              }
+              sub={(dashboard?.injuredCount ?? 0) === 0 ? "Squad fully available" : "Check medical centre"}
+            />
+
+            {/* Next Match */}
+            <HeroStat
+              label="Next Match"
+              icon={<Calendar className="h-2.5 w-2.5" />}
+              value={
+                nextMatch
+                  ? <span className="text-base">{weatherIcons[nextMatch.weather] ?? "☀️"} {nextMatch.locationName ?? "TBD"}</span>
+                  : <span className="text-white/30 text-base">No match</span>
+              }
+              sub={nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule a match"}
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          PLAYERS + RESULTS
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle>Top Players</CardTitle>
@@ -354,6 +448,10 @@ export default function Dashboard() {
                       <span className="text-xs text-muted-foreground w-6" data-testid={`text-rating-${player.id}`}>{rating}</span>
                     </div>
                   </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className="text-xs font-bold text-muted-foreground">OVR {rating}</span>
+                    <span className="text-[10px] text-muted-foreground/60">{player.nationality}</span>
+                  </div>
                 </div>
               );
             })}
@@ -368,20 +466,23 @@ export default function Dashboard() {
             <CardTitle>Recent Results</CardTitle>
             <CardDescription>Your last appearances.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {dashboard?.recentResults.map((match) => {
               const hs = match.homeScore ?? 0;
               const as_ = match.awayScore ?? 0;
               const isWin = hs > as_;
               return (
-                <div key={match.id} data-testid={`row-match-${match.id}`} className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{match.awayTeamName ?? "Opponent"}</span>
-                    <span className="text-xs text-muted-foreground">{match.locationName ?? "Beach"}</span>
+                <div key={match.id} data-testid={`row-match-${match.id}`}
+                  className="flex items-center justify-between border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-medium truncate">{match.awayTeamName ?? "Opponent"}</span>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-2.5 w-2.5" />{match.locationName ?? "Beach"}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold">{hs} – {as_}</span>
-                    <Badge className={isWin ? 'bg-green-500 hover:bg-green-500' : 'bg-red-500 hover:bg-red-500'}>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-sm font-bold tabular-nums">{hs} – {as_}</span>
+                    <Badge className={isWin ? "bg-emerald-500 hover:bg-emerald-500 text-white" : "bg-red-500 hover:bg-red-500 text-white"}>
                       {isWin ? "WIN" : "LOSS"}
                     </Badge>
                   </div>
@@ -395,54 +496,91 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* ── Season Ladder ── */}
+      {/* ══════════════════════════════════════════════════════════════
+          SEASON LADDER
+      ══════════════════════════════════════════════════════════════ */}
       {ladder && ladder.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Season Ladder</CardTitle>
-            <CardDescription>{season?.name} - World Rankings</CardDescription>
+            <CardDescription>{season?.name} — World Rankings</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="relative w-full overflow-auto">
               <table className="w-full caption-bottom text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="h-10 px-2 text-left font-medium text-muted-foreground">Rank</th>
-                    <th className="h-10 px-2 text-left font-medium text-muted-foreground">Team</th>
-                    <th className="h-10 px-2 text-left font-medium text-muted-foreground">Wins</th>
-                    <th className="h-10 px-2 text-left font-medium text-muted-foreground">Losses</th>
-                    <th className="h-10 px-2 text-right font-medium text-muted-foreground">Points</th>
+                    <th className="h-9 px-2 text-left font-medium text-muted-foreground w-12">Rank</th>
+                    <th className="h-9 px-2 text-left font-medium text-muted-foreground">Team</th>
+                    <th className="h-9 px-2 text-center font-medium text-muted-foreground w-16">W</th>
+                    <th className="h-9 px-2 text-center font-medium text-muted-foreground w-16">L</th>
+                    <th className="h-9 px-2 text-right font-medium text-muted-foreground w-20">Points</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ladder.map((entry) => (
-                    <tr
-                      key={entry.teamId}
-                      data-testid={`row-ladder-${entry.teamId}`}
-                      className={cn(
-                        "border-b transition-colors hover:bg-muted/50",
-                        entry.teamName === team?.name ? "bg-primary/5 border-l-4 border-l-primary" : undefined
-                      )}
-                    >
-                      <td className="p-2 font-medium">#{entry.rank}</td>
-                      <td className="p-2">{entry.teamName}</td>
-                      <td className="p-2 text-green-600 font-semibold">{entry.wins}</td>
-                      <td className="p-2 text-red-600 font-semibold">{entry.losses}</td>
-                      <td className="p-2 text-right font-bold">{entry.points}</td>
-                    </tr>
-                  ))}
+                  {ladder.map((entry) => {
+                    const isMyTeam = entry.teamName === team?.name;
+                    return (
+                      <tr
+                        key={entry.teamId}
+                        data-testid={`row-ladder-${entry.teamId}`}
+                        className={cn(
+                          "border-b transition-colors hover:bg-muted/50",
+                          isMyTeam && "bg-primary/5 border-l-4 border-l-primary font-semibold"
+                        )}
+                      >
+                        <td className="p-2 font-bold">
+                          {entry.rank <= 3
+                            ? <span className={cn("text-base", entry.rank === 1 ? "text-yellow-500" : entry.rank === 2 ? "text-slate-400" : "text-amber-600")}>
+                                {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}
+                              </span>
+                            : `#${entry.rank}`}
+                        </td>
+                        <td className="p-2">{entry.teamName}{isMyTeam && <Badge variant="outline" className="ml-2 text-[10px]">You</Badge>}</td>
+                        <td className="p-2 text-center text-emerald-600 font-semibold">{entry.wins}</td>
+                        <td className="p-2 text-center text-red-500 font-semibold">{entry.losses}</td>
+                        <td className="p-2 text-right font-bold">{entry.points}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          PROFILE — Manager Settings
+      ══════════════════════════════════════════════════════════════ */}
+      <ProfileCard
+        profile={profile}
+        loading={profileLoading}
+        onSave={(coachName, savePin) => {
+          updateProfile.mutate(
+            { data: { coachName, savePin } as any },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: getGetProfileQueryKey() });
+                toast({ title: "Profile saved!" });
+              },
+            }
+          );
+        }}
+        saving={updateProfile.isPending}
+      />
+
     </div>
   );
 }
 
-// ── Profile card ──────────────────────────────────────────────────────────────
-function ProfileCard({ profile, loading, onSave, saving }: {
+// ── Profile card ───────────────────────────────────────────────────────────────
+function ProfileCard({
+  profile,
+  loading,
+  onSave,
+  saving,
+}: {
   profile: any;
   loading: boolean;
   onSave: (coachName: string, savePin: string) => void;
@@ -455,85 +593,104 @@ function ProfileCard({ profile, loading, onSave, saving }: {
   const [pinVisible, setPinVisible]   = useState(false);
 
   const coachName = (profile as any)?.coachName ?? "";
-  const savePin   = (profile as any)?.savePin   ?? "——————";
-  const initials  = coachName
-    ? coachName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
-    : (profile?.teamName?.[0] ?? "C").toUpperCase();
+  const savePin   = (profile as any)?.savePin   ?? "——";
 
   const startEditName = () => { setNameVal(coachName); setEditingName(true); };
   const startEditPin  = () => { setPinVal(savePin);    setEditingPin(true);  };
-
-  const commitName = () => { onSave(nameVal.trim() || coachName, savePin); setEditingName(false); };
-  const commitPin  = () => {
+  const commitName    = () => { onSave(nameVal.trim() || coachName, savePin); setEditingName(false); };
+  const commitPin     = () => {
     const cleaned = pinVal.replace(/\s/g, "").slice(0, 20);
     onSave(coachName, cleaned || savePin);
     setEditingPin(false);
   };
 
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-slate-500 to-slate-700 shadow-md px-5 py-4 h-full flex flex-col justify-center" data-testid="card-profile">
-      {loading ? (
-        <Skeleton className="h-16 w-full bg-white/10" />
-      ) : (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-inner">
-              {initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-0.5">Coach</div>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Star className="h-4 w-4 text-muted-foreground" /> Manager Profile
+        </CardTitle>
+        <CardDescription>Your coach identity and save password.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Coach Name */}
+            <div className="flex-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 space-y-1">
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Coach Name</div>
               {editingName ? (
-                <div className="flex items-center gap-1">
-                  <Input autoFocus value={nameVal} onChange={e => setNameVal(e.target.value)}
+                <div className="flex items-center gap-2">
+                  <Input
+                    autoFocus value={nameVal}
+                    onChange={e => setNameVal(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") commitName(); if (e.key === "Escape") setEditingName(false); }}
-                    className="h-6 text-sm px-1 py-0 bg-white/10 border-white/20 text-white" maxLength={40} data-testid="input-coach-name" />
-                  <button onClick={commitName} disabled={saving} className="text-green-400 hover:text-green-300"><Check className="h-3.5 w-3.5" /></button>
-                  <button onClick={() => setEditingName(false)} className="text-white/40 hover:text-white"><X className="h-3.5 w-3.5" /></button>
+                    className="h-7 text-sm px-2" maxLength={40}
+                    data-testid="input-coach-name"
+                  />
+                  <button onClick={commitName} disabled={saving} className="text-emerald-600 hover:text-emerald-500">
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => setEditingName(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-1 group/name">
-                  <span className="text-sm font-semibold truncate text-white">{coachName || <span className="text-white/30 italic text-xs">Set name…</span>}</span>
-                  <button onClick={startEditName} className="opacity-0 group-hover/name:opacity-100 transition-opacity ml-1 text-white/40 hover:text-white">
-                    <Pencil className="h-3 w-3" />
+                <div className="flex items-center gap-2 group">
+                  <span className="text-sm font-semibold">{coachName || <span className="text-muted-foreground italic">Not set</span>}</span>
+                  <button onClick={startEditName}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Save PIN */}
+            <div className="flex-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                  <KeyRound className="h-3 w-3" /> Save Password
+                </div>
+                <button
+                  onClick={() => setPinVisible(v => !v)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  data-testid="button-toggle-pin">
+                  {pinVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                </button>
+              </div>
+              {editingPin ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    autoFocus value={pinVal}
+                    onChange={e => setPinVal(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") commitPin(); if (e.key === "Escape") setEditingPin(false); }}
+                    className="h-7 text-sm px-2 font-mono w-32" maxLength={20}
+                    data-testid="input-save-pin"
+                  />
+                  <button onClick={commitPin} disabled={saving} className="text-emerald-600 hover:text-emerald-500">
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => setEditingPin(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 group">
+                  <span className="font-mono text-sm font-bold tracking-widest">
+                    {pinVisible ? savePin : "•".repeat(Math.min(savePin.length, 8))}
+                  </span>
+                  <button onClick={startEditPin}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
+                    <Pencil className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
             </div>
           </div>
-
-          <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <KeyRound className="h-3.5 w-3.5 text-white/40 flex-shrink-0" />
-                <div className="min-w-0">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Password</div>
-                  {editingPin ? (
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <Input autoFocus value={pinVal} onChange={e => setPinVal(e.target.value)}
-                        onKeyDown={e => { if (e.key === "Enter") commitPin(); if (e.key === "Escape") setEditingPin(false); }}
-                        className="h-6 text-sm px-1 py-0 w-28 font-mono bg-white/10 border-white/20 text-white" maxLength={20} data-testid="input-save-pin" />
-                      <button onClick={commitPin} disabled={saving} className="text-green-400 hover:text-green-300"><Check className="h-3.5 w-3.5" /></button>
-                      <button onClick={() => setEditingPin(false)} className="text-white/40 hover:text-white"><X className="h-3.5 w-3.5" /></button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 mt-0.5 group/pin">
-                      <span className="font-mono text-sm font-bold tracking-widest text-white">
-                        {pinVisible ? savePin : "•".repeat(Math.min(savePin.length, 8))}
-                      </span>
-                      <button onClick={startEditPin} className="opacity-0 group-hover/pin:opacity-100 transition-opacity text-white/40 hover:text-white">
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <button onClick={() => setPinVisible(v => !v)} className="flex-shrink-0 text-white/40 hover:text-white transition-colors" data-testid="button-toggle-pin">
-                {pinVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
