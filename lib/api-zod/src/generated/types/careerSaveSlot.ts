@@ -11,6 +11,7 @@ export interface CareerSaveSlot {
   slotNumber: number;
   managerName: string;
   clubName: string;
+  originalClubName?: string | null;
   season: string;
   worldRanking?: number | null;
   budget?: string | null;

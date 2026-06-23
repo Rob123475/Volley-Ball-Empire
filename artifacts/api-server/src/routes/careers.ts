@@ -17,15 +17,16 @@ router.get("/careers", async (req, res) => {
 
   res.json({
     saves: saves.map(s => ({
-      id:           s.id,
-      slotNumber:   s.slotNumber,
-      managerName:  s.managerName,
-      clubName:     s.clubName,
-      season:       s.season,
-      worldRanking: s.worldRanking,
-      budget:       s.budget,
-      lastPlayedAt: s.lastPlayedAt.toISOString(),
-      createdAt:    s.createdAt.toISOString(),
+      id:               s.id,
+      slotNumber:       s.slotNumber,
+      managerName:      s.managerName,
+      clubName:         s.clubName,
+      originalClubName: s.originalClubName ?? null,
+      season:           s.season,
+      worldRanking:     s.worldRanking,
+      budget:           s.budget,
+      lastPlayedAt:     s.lastPlayedAt.toISOString(),
+      createdAt:        s.createdAt.toISOString(),
     })),
   });
 });
@@ -34,13 +35,14 @@ router.get("/careers", async (req, res) => {
 router.post("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { slotNumber, managerName, clubName, season, worldRanking, budget } = req.body as {
-    slotNumber:   number;
-    managerName:  string;
-    clubName:     string;
-    season?:      string;
-    worldRanking?: number | null;
-    budget?:      string | null;
+  const { slotNumber, managerName, clubName, originalClubName, season, worldRanking, budget } = req.body as {
+    slotNumber:        number;
+    managerName:       string;
+    clubName:          string;
+    originalClubName?: string | null;
+    season?:           string;
+    worldRanking?:     number | null;
+    budget?:           string | null;
   };
 
   if (
@@ -64,27 +66,29 @@ router.post("/careers", async (req, res) => {
   const [inserted] = await db
     .insert(careerSavesTable)
     .values({
-      userId:       req.user.id,
+      userId:           req.user.id,
       slotNumber,
-      managerName:  managerName.trim(),
-      clubName:     clubName.trim(),
-      season:       season ?? "Season 1",
-      worldRanking: worldRanking ?? null,
-      budget:       budget ?? null,
-      lastPlayedAt: new Date(),
+      managerName:      managerName.trim(),
+      clubName:         clubName.trim(),
+      originalClubName: originalClubName?.trim() ?? null,
+      season:           season ?? "Season 1",
+      worldRanking:     worldRanking ?? null,
+      budget:           budget ?? null,
+      lastPlayedAt:     new Date(),
     })
     .returning();
 
   res.json({
-    id:           inserted.id,
-    slotNumber:   inserted.slotNumber,
-    managerName:  inserted.managerName,
-    clubName:     inserted.clubName,
-    season:       inserted.season,
-    worldRanking: inserted.worldRanking,
-    budget:       inserted.budget,
-    lastPlayedAt: inserted.lastPlayedAt.toISOString(),
-    createdAt:    inserted.createdAt.toISOString(),
+    id:               inserted.id,
+    slotNumber:       inserted.slotNumber,
+    managerName:      inserted.managerName,
+    clubName:         inserted.clubName,
+    originalClubName: inserted.originalClubName ?? null,
+    season:           inserted.season,
+    worldRanking:     inserted.worldRanking,
+    budget:           inserted.budget,
+    lastPlayedAt:     inserted.lastPlayedAt.toISOString(),
+    createdAt:        inserted.createdAt.toISOString(),
   });
 });
 

@@ -204,19 +204,26 @@ function ContinentGroup({
   );
 }
 
-// ── New Career Modal (2-step) ─────────────────────────────────────────────────
+// ── New Career Modal (3-step) ─────────────────────────────────────────────────
 
 interface NewCareerModalProps {
   slotNumber: number;
   onClose: () => void;
-  onSave: (data: { slotNumber: number; managerName: string; clubName: string; budget: string }) => void;
+  onSave: (data: {
+    slotNumber:       number;
+    managerName:      string;
+    clubName:         string;
+    originalClubName: string;
+    budget:           string;
+  }) => void;
   isSaving: boolean;
 }
 
 function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModalProps) {
-  const [step, setStep]               = useState<1 | 2>(1);
-  const [managerName, setManagerName] = useState("");
-  const [selectedClub, setSelectedClub] = useState<ClubTemplate | null>(null);
+  const [step, setStep]                   = useState<1 | 2 | 3>(1);
+  const [managerName, setManagerName]     = useState("");
+  const [selectedClub, setSelectedClub]   = useState<ClubTemplate | null>(null);
+  const [customClubName, setCustomClubName] = useState("");
 
   const { data: templatesData, isLoading: loadingClubs } = useListClubTemplates({
     query: { queryKey: getListClubTemplatesQueryKey() },
@@ -232,8 +239,25 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     return map;
   }, [templatesData]);
 
-  const canProceed = managerName.trim().length > 0;
-  const canSave    = canProceed && selectedClub !== null;
+  // Pre-fill club name when club is selected and we advance to step 3
+  const goToStep3 = () => {
+    if (!customClubName && selectedClub) setCustomClubName(selectedClub.name);
+    else if (selectedClub && customClubName === "") setCustomClubName(selectedClub.name);
+    setStep(3);
+  };
+
+  const canProceedStep1  = managerName.trim().length > 0;
+  const canProceedStep2  = selectedClub !== null;
+  const displayClubName  = customClubName.trim() || selectedClub?.name || "";
+  const canSave          = canProceedStep1 && canProceedStep2 && displayClubName.length > 0;
+
+  const isCustomised     = selectedClub !== null && customClubName.trim() !== "" && customClubName.trim() !== selectedClub.name;
+
+  const STEP_LABELS: Record<number, string> = {
+    1: "Step 1 of 3 — Your manager name",
+    2: "Step 2 of 3 — Select your club",
+    3: "Step 3 of 3 — Name your club",
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -248,36 +272,40 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
               </div>
               <div>
                 <h2 className="text-base font-black text-white">New Career — Slot {slotNumber}</h2>
-                <p className="text-[11px] text-white/45 mt-0.5">
-                  {step === 1 ? "Step 1 of 2 — Your manager name" : "Step 2 of 2 — Select your club"}
-                </p>
+                <p className="text-[11px] text-white/45 mt-0.5">{STEP_LABELS[step]}</p>
               </div>
             </div>
             {/* Step dots */}
             <div className="flex items-center gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-violet-500" />
-              <div className={cn("h-2 w-2 rounded-full transition-all", step === 2 ? "bg-violet-500" : "bg-white/15")} />
+              {[1, 2, 3].map(s => (
+                <div key={s} className={cn("h-2 w-2 rounded-full transition-all", step >= s ? "bg-violet-500" : "bg-white/15")} />
+              ))}
             </div>
           </div>
 
-          {/* Step 2 summary pill */}
-          {step === 2 && (
-            <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-3 py-2">
-              <User className="h-3.5 w-3.5 text-white/35 shrink-0" />
-              <span className="text-sm font-bold text-white truncate">{managerName}</span>
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="ml-auto text-[10px] font-bold text-violet-400 hover:text-violet-300"
-              >
-                Edit
-              </button>
+          {/* Context pills for steps 2 and 3 */}
+          {step >= 2 && (
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-3 py-1.5">
+                <User className="h-3 w-3 text-white/35 shrink-0" />
+                <span className="text-xs font-bold text-white/80">{managerName}</span>
+                <button type="button" onClick={() => setStep(1)} className="text-[10px] font-bold text-violet-400 hover:text-violet-300 ml-1">Edit</button>
+              </div>
+              {step === 3 && selectedClub && (
+                <div className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-3 py-1.5 min-w-0">
+                  <Trophy className="h-3 w-3 text-amber-400/70 shrink-0" />
+                  <span className="text-xs font-bold text-white/80 truncate">{selectedClub.name}</span>
+                  <button type="button" onClick={() => setStep(2)} className="text-[10px] font-bold text-violet-400 hover:text-violet-300 ml-1">Edit</button>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Body — scrollable */}
         <div className="flex-1 overflow-y-auto">
+
+          {/* ── Step 1: Manager Name ── */}
           {step === 1 && (
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
@@ -286,7 +314,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   autoFocus
                   value={managerName}
                   onChange={e => setManagerName(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && canProceed && setStep(2)}
+                  onKeyDown={e => e.key === "Enter" && canProceedStep1 && setStep(2)}
                   placeholder="e.g. Sarah Mitchell"
                   maxLength={100}
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
@@ -298,6 +326,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
             </div>
           )}
 
+          {/* ── Step 2: Club Selection ── */}
           {step === 2 && (
             <div className="p-4 space-y-2.5">
               {loadingClubs ? (
@@ -327,7 +356,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                           continent={continent}
                           clubs={clubs}
                           selectedId={selectedClub?.id ?? null}
-                          onSelect={setSelectedClub}
+                          onSelect={c => { setSelectedClub(c); setCustomClubName(c.name); }}
                           defaultOpen={isSelectedContinent}
                         />
                       );
@@ -337,27 +366,89 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
               )}
             </div>
           )}
+
+          {/* ── Step 3: Club Name ── */}
+          {step === 3 && selectedClub && (
+            <div className="p-6 space-y-5">
+
+              {/* Selected club summary */}
+              <div className="rounded-xl border border-white/8 bg-white/4 px-4 py-3 flex items-center gap-3">
+                <div className="text-2xl leading-none">{CONTINENT_META[selectedClub.continent]?.emoji ?? "🏐"}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-black text-white truncate">{selectedClub.name}</div>
+                  <div className="text-[11px] text-white/40">{selectedClub.continent} · Rating {selectedClub.rating} · Rep {selectedClub.reputation}</div>
+                </div>
+                <div className="text-sm font-black text-emerald-400">{formatBudget(selectedClub.startingBudget)}</div>
+              </div>
+
+              {/* Custom name input */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Club Name</label>
+                <input
+                  autoFocus
+                  value={customClubName}
+                  onChange={e => setCustomClubName(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && canSave && !isSaving && selectedClub && onSave({
+                    slotNumber,
+                    managerName:      managerName.trim(),
+                    clubName:         customClubName.trim() || selectedClub.name,
+                    originalClubName: selectedClub.name,
+                    budget:           selectedClub.startingBudget,
+                  })}
+                  placeholder={selectedClub.name}
+                  maxLength={100}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                />
+              </div>
+
+              {/* Keep / customise toggle hint */}
+              <div className="space-y-2">
+                {isCustomised ? (
+                  <div className="rounded-xl border border-violet-500/20 bg-violet-500/8 px-4 py-3 space-y-1">
+                    <div className="text-[11px] font-bold text-violet-300">Custom name set</div>
+                    <div className="text-xs text-white/40">
+                      Your club will be known as <span className="font-black text-white">{customClubName.trim()}</span>.
+                      The original name <span className="font-semibold text-white/60">{selectedClub.name}</span> is stored for reference.
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCustomClubName(selectedClub.name)}
+                      className="text-[11px] font-bold text-violet-400 hover:text-violet-300 mt-1"
+                    >
+                      ← Keep original name
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-white/8 bg-white/3 px-4 py-3">
+                    <div className="text-xs text-white/40">
+                      You can rename your club to anything you like — e.g. <span className="font-semibold text-white/60">Rob's AI's</span>.
+                      Leave unchanged to keep the original name.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-white/8 flex gap-3 shrink-0">
-          {step === 1 ? (
+          {step === 1 && (
             <>
-              <button
-                onClick={onClose}
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
-              >
+              <button onClick={onClose} className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all">
                 Cancel
               </button>
               <button
                 onClick={() => setStep(2)}
-                disabled={!canProceed}
+                disabled={!canProceedStep1}
                 className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 Choose Club <ChevronRight className="h-4 w-4" />
               </button>
             </>
-          ) : (
+          )}
+
+          {step === 2 && (
             <>
               <button
                 onClick={() => setStep(1)}
@@ -367,11 +458,31 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
+                onClick={goToStep3}
+                disabled={!canProceedStep2}
+                className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                Name Your Club <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <button
+                onClick={() => setStep(2)}
+                disabled={isSaving}
+                className="flex-shrink-0 flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back
+              </button>
+              <button
                 onClick={() => selectedClub && onSave({
                   slotNumber,
-                  managerName: managerName.trim(),
-                  clubName:    selectedClub.name,
-                  budget:      selectedClub.startingBudget,
+                  managerName:      managerName.trim(),
+                  clubName:         customClubName.trim() || selectedClub.name,
+                  originalClubName: selectedClub.name,
+                  budget:           selectedClub.startingBudget,
                 })}
                 disabled={!canSave || isSaving}
                 className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -471,6 +582,12 @@ function FilledSlotCard({ save, onLoad, onDelete }: FilledCardProps) {
             <Trophy className="h-3.5 w-3.5 text-amber-400/70 shrink-0" />
             <span className="text-sm font-semibold text-white/70 truncate">{save.clubName}</span>
           </div>
+          {/* Show original name when the club has been renamed */}
+          {save.originalClubName && save.originalClubName !== save.clubName && (
+            <div className="flex items-center gap-1.5 pl-0.5">
+              <span className="text-[10px] text-white/30 italic">formerly {save.originalClubName}</span>
+            </div>
+          )}
         </div>
 
         {/* Stats grid */}
@@ -584,9 +701,15 @@ export default function CareerManagement() {
     (data?.saves ?? []).map(s => [s.slotNumber, s]),
   );
 
-  const handleCreate = (body: { slotNumber: number; managerName: string; clubName: string; budget: string }) => {
+  const handleCreate = (body: {
+    slotNumber:       number;
+    managerName:      string;
+    clubName:         string;
+    originalClubName: string;
+    budget:           string;
+  }) => {
     upsertMutation.mutate(
-      { data: { slotNumber: body.slotNumber, managerName: body.managerName, clubName: body.clubName, budget: body.budget } },
+      { data: { slotNumber: body.slotNumber, managerName: body.managerName, clubName: body.clubName, originalClubName: body.originalClubName, budget: body.budget } },
       {
         onSuccess: () => {
           void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });

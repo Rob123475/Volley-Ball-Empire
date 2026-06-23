@@ -3309,6 +3309,9 @@ components:
           type: string
         clubName:
           type: string
+        originalClubName:
+          type: string
+          nullable: true
         season:
           type: string
         worldRanking:
@@ -3341,6 +3344,9 @@ components:
           type: string
         clubName:
           type: string
+        originalClubName:
+          type: string
+          nullable: true
         season:
           type: string
         worldRanking:
