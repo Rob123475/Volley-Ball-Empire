@@ -29,6 +29,7 @@ import YouthResults from "@/pages/youth-results";
 import ContinentalScouting from "@/pages/continental-scouting";
 import MedicalMarket from "@/pages/medical-market";
 import CareerManagement from "@/pages/career-management";
+import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -54,36 +55,41 @@ queryClient.getQueryCache().subscribe((event) => {
 
 function Router() {
   return (
-    <AuthGuard>
-      <Shell>
-        <Switch>
-          <Route path="/" component={Dashboard} />
-          <Route path="/team" component={TeamRoster} />
-          <Route path="/players" component={PlayerMarket} />
-          <Route path="/draft" component={PlayerDraft} />
-          <Route path="/matches" component={Matches} />
-          <Route path="/court" component={ThreeDCourt} />
-          <Route path="/training" component={Training} />
-          <Route path="/contracts" component={Contracts} />
-          <Route path="/staff" component={StaffManagement} />
-          <Route path="/staff-market" component={StaffMarket} />
-          <Route path="/medical" component={MedicalCentre} />
-          <Route path="/finances" component={Finances} />
-          <Route path="/leaderboard" component={Leaderboard} />
-          <Route path="/locations" component={WorldTourLocations} />
-          <Route path="/trophy-cabinet" component={TrophyCabinet} />
-          <Route path="/facilities" component={Facilities} />
-          <Route path="/wellbeing" component={Wellbeing} />
-          <Route path="/youth-academy" component={YouthAcademy} />
-          <Route path="/youth-results" component={YouthResults} />
-          <Route path="/continental-scouting" component={ContinentalScouting} />
-          <Route path="/achievements" component={Achievements} />
-          <Route path="/medical-market" component={MedicalMarket} />
-          <Route path="/career" component={CareerManagement} />
-          <Route component={NotFound} />
-        </Switch>
-      </Shell>
-    </AuthGuard>
+    <Switch>
+      <Route path="/dev/generation-test" component={DevGenerationTest} />
+      <Route>
+        <AuthGuard>
+          <Shell>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/team" component={TeamRoster} />
+              <Route path="/players" component={PlayerMarket} />
+              <Route path="/draft" component={PlayerDraft} />
+              <Route path="/matches" component={Matches} />
+              <Route path="/court" component={ThreeDCourt} />
+              <Route path="/training" component={Training} />
+              <Route path="/contracts" component={Contracts} />
+              <Route path="/staff" component={StaffManagement} />
+              <Route path="/staff-market" component={StaffMarket} />
+              <Route path="/medical" component={MedicalCentre} />
+              <Route path="/finances" component={Finances} />
+              <Route path="/leaderboard" component={Leaderboard} />
+              <Route path="/locations" component={WorldTourLocations} />
+              <Route path="/trophy-cabinet" component={TrophyCabinet} />
+              <Route path="/facilities" component={Facilities} />
+              <Route path="/wellbeing" component={Wellbeing} />
+              <Route path="/youth-academy" component={YouthAcademy} />
+              <Route path="/youth-results" component={YouthResults} />
+              <Route path="/continental-scouting" component={ContinentalScouting} />
+              <Route path="/achievements" component={Achievements} />
+              <Route path="/medical-market" component={MedicalMarket} />
+              <Route path="/career" component={CareerManagement} />
+              <Route component={NotFound} />
+            </Switch>
+          </Shell>
+        </AuthGuard>
+      </Route>
+    </Switch>
   );
 }
 
