@@ -6,12 +6,14 @@ import {
   useUpdateProfile,
   useGetClubRating,
   useGetAttentionItems,
+  useGetFacilities,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
   getGetProfileQueryKey,
   getGetClubRatingQueryKey,
   getGetAttentionItemsQueryKey,
+  getGetFacilitiesQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -44,6 +46,17 @@ import {
   Building2,
   Shield,
   Swords,
+  Dumbbell,
+  Heart,
+  FlameKindling,
+  Salad,
+  Users,
+  Search,
+  Beaker,
+  Umbrella,
+  ExternalLink,
+  ChevronUp,
+  Zap,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
@@ -162,6 +175,9 @@ export default function Dashboard() {
   });
   const { data: attention } = useGetAttentionItems({
     query: { queryKey: getGetAttentionItemsQueryKey() },
+  });
+  const { data: facilitiesData } = useGetFacilities({
+    query: { queryKey: getGetFacilitiesQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -437,6 +453,16 @@ export default function Dashboard() {
       <AttentionPanel items={attention?.items ?? []} />
 
       {/* ══════════════════════════════════════════════════════════════
+          FACILITIES SNAPSHOT
+      ══════════════════════════════════════════════════════════════ */}
+      {facilitiesData && (
+        <FacilitiesSnapshot
+          facilities={facilitiesData.map(f => ({ type: f.type, level: f.level }))}
+          budget={finance?.balance ?? 0}
+        />
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
           PLAYERS + RESULTS
       ══════════════════════════════════════════════════════════════ */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
@@ -583,6 +609,187 @@ export default function Dashboard() {
       />
 
     </div>
+  );
+}
+
+// ── Facilities Snapshot ────────────────────────────────────────────────────────
+const MAX_FAC_LEVEL = 10;
+
+type FacSnap = {
+  key: string;
+  name: string;
+  Icon: React.ComponentType<{ className?: string }>;
+  colour: string;         // tailwind colour name
+  bar: string;            // bg-* for progress bar
+  iconBg: string;         // bg-*/10 pill
+  iconText: string;       // text-* for icon
+  benefitAt: (l: number) => string;
+};
+
+const FAC_SNAPS: FacSnap[] = [
+  {
+    key: "training_complex", name: "Training Centre", Icon: Dumbbell, colour: "blue",
+    bar: "bg-blue-500", iconBg: "bg-blue-500/15", iconText: "text-blue-500",
+    benefitAt: (l) => l === 1 ? "Base training XP" : `+${Math.round((l - 1) * (20 / 9))}% training XP`,
+  },
+  {
+    key: "medical_centre", name: "Medical Centre", Icon: Heart, colour: "rose",
+    bar: "bg-rose-500", iconBg: "bg-rose-500/15", iconText: "text-rose-500",
+    benefitAt: (l) => l === 1 ? "Base recovery speed" : `+${Math.round((l - 1) * (25 / 9))}% recovery speed`,
+  },
+  {
+    key: "gymnasium", name: "Gymnasium", Icon: FlameKindling, colour: "orange",
+    bar: "bg-orange-500", iconBg: "bg-orange-500/15", iconText: "text-orange-500",
+    benefitAt: (l) => l === 1 ? "Base strength training" : `+${Math.round((l - 1) * (15 / 9))}% power dev.`,
+  },
+  {
+    key: "nutrition_centre", name: "Nutrition Centre", Icon: Salad, colour: "lime",
+    bar: "bg-lime-500", iconBg: "bg-lime-500/15", iconText: "text-lime-500",
+    benefitAt: (l) => l === 1 ? "Base nutrition support" : `−${Math.round((l - 1) * (3 / 9))} fatigue/session`,
+  },
+  {
+    key: "youth_academy", name: "Youth Academy", Icon: Users, colour: "amber",
+    bar: "bg-amber-500", iconBg: "bg-amber-500/15", iconText: "text-amber-500",
+    benefitAt: (l) => {
+      const labels = ["Basic prospects","Slightly improved","Improved quality","Better High potential",
+        "Good High potential","Higher Elite chance","Regular Elite","Strong Elite","Elite & Generational","Maximum"];
+      return labels[l - 1] ?? labels[0]!;
+    },
+  },
+  {
+    key: "scouting_department", name: "Scouting Dept", Icon: Search, colour: "indigo",
+    bar: "bg-indigo-500", iconBg: "bg-indigo-500/15", iconText: "text-indigo-500",
+    benefitAt: (l) => l === 1 ? "Basic scouting" : `+${Math.round((l - 1) * (30 / 9))}% effectiveness`,
+  },
+  {
+    key: "sports_science_lab", name: "Performance Centre", Icon: Beaker, colour: "teal",
+    bar: "bg-teal-500", iconBg: "bg-teal-500/15", iconText: "text-teal-500",
+    benefitAt: (l) => l === 1 ? "Base injury prevention" : `−${Math.round((l - 1) * (20 / 9))}% injury risk`,
+  },
+  {
+    key: "commercial_department", name: "Commercial Dept", Icon: TrendingUp, colour: "violet",
+    bar: "bg-violet-500", iconBg: "bg-violet-500/15", iconText: "text-violet-500",
+    benefitAt: (l) => l === 1 ? "Base commercial" : `+${Math.round((l - 1) * (30 / 9))}% sponsorship`,
+  },
+  {
+    key: "beach_resort", name: "Beach Resort", Icon: Umbrella, colour: "cyan",
+    bar: "bg-cyan-500", iconBg: "bg-cyan-500/15", iconText: "text-cyan-500",
+    benefitAt: (l) => l === 1 ? "Base morale boost" : `+${Math.round((l - 1) * (8 / 9))} morale/camp`,
+  },
+];
+
+function FacilitiesSnapshot({
+  facilities,
+  budget,
+}: {
+  facilities: { type: string; level: number }[];
+  budget: number;
+}) {
+  const [, navigate] = useLocation();
+  if (!facilities || facilities.length === 0) return null;
+
+  const byType = Object.fromEntries(facilities.map(f => [f.type, f.level]));
+
+  return (
+    <Card className="border-border/60">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              Facilities
+            </CardTitle>
+          </div>
+          <button
+            onClick={() => navigate("/facilities")}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            Manage <ExternalLink className="h-3 w-3" />
+          </button>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-9 gap-2">
+          {FAC_SNAPS.map((fac) => {
+            const level = byType[fac.key] ?? 1;
+            const pct = (level / MAX_FAC_LEVEL) * 100;
+            const upgradeCost = level * 20_000;
+            const canUpgrade = level < MAX_FAC_LEVEL && budget >= upgradeCost;
+            const isMax = level >= MAX_FAC_LEVEL;
+
+            return (
+              <button
+                key={fac.key}
+                onClick={() => navigate("/facilities")}
+                className={cn(
+                  "group relative flex flex-col items-center text-center rounded-xl border p-3 transition-all hover:shadow-md",
+                  canUpgrade
+                    ? "border-amber-400/60 bg-amber-50/50 dark:bg-amber-950/10 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                    : isMax
+                    ? "border-yellow-400/40 bg-yellow-50/30 dark:bg-yellow-950/10 hover:border-yellow-400/60"
+                    : "border-border/60 bg-card hover:border-border hover:bg-muted/30"
+                )}
+              >
+                {/* Upgrade badge */}
+                {canUpgrade && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 shadow-sm">
+                    <ChevronUp className="h-2.5 w-2.5 text-white" strokeWidth={3} />
+                  </span>
+                )}
+                {isMax && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-400 shadow-sm">
+                    <Star className="h-2.5 w-2.5 text-white fill-white" strokeWidth={0} />
+                  </span>
+                )}
+
+                {/* Icon */}
+                <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center mb-2 transition-transform group-hover:scale-110", fac.iconBg)}>
+                  <fac.Icon className={cn("h-4.5 w-4.5", fac.iconText)} />
+                </div>
+
+                {/* Name */}
+                <div className="text-[10px] font-bold text-foreground leading-tight mb-2 min-h-[2.4em] flex items-center justify-center">
+                  {fac.name}
+                </div>
+
+                {/* Level */}
+                <div className="w-full mb-1.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] text-muted-foreground font-semibold">Lv {level}</span>
+                    <span className="text-[10px] text-muted-foreground/60">{MAX_FAC_LEVEL}</span>
+                  </div>
+                  {/* Segmented level bar */}
+                  <div className="flex gap-px h-1.5 w-full">
+                    {Array.from({ length: MAX_FAC_LEVEL }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "flex-1 rounded-sm transition-all",
+                          i < level ? fac.bar : "bg-muted/50"
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bonus */}
+                <div className="text-[9px] text-muted-foreground leading-tight line-clamp-2 min-h-[2em]">
+                  {fac.benefitAt(level)}
+                </div>
+
+                {/* Upgrade cost hint */}
+                {canUpgrade && (
+                  <div className="mt-1.5 text-[9px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-0.5">
+                    <Zap className="h-2.5 w-2.5" />
+                    ${(upgradeCost / 1000).toFixed(0)}k
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
