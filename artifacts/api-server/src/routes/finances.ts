@@ -262,17 +262,26 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   const deal = await db.query.promoDealsTable.findFirst({ where: eq(promoDealsTable.id, id) });
   if (!deal) { res.status(404).json({ error: "Deal not found" }); return; }
 
+  const teamStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const promoMgr = teamStaff.find(s => s.role === "promotions_manager");
+  const promoBonus = promoMgr
+    ? 1.0 + Math.max(0, promoMgr.skillLevel - 50) * (0.18 / 45)
+    : 1.0;
+  const finalAmount = Math.round(Number(deal.amount) * promoBonus);
+
   await db.update(promoDealsTable).set({ isAccepted: true, teamId: team.id }).where(eq(promoDealsTable.id, id));
   const today = new Date().toISOString().split("T")[0];
   const [tx] = await db.insert(financeTransactionsTable).values({
     teamId: team.id,
     type: "income",
-    amount: deal.amount,
-    description: `Promo deal: ${deal.sponsor}`,
+    amount: String(finalAmount),
+    description: promoMgr
+      ? `Promo deal: ${deal.sponsor} (+${Math.round((promoBonus - 1) * 100)}% Promotions Manager bonus)`
+      : `Promo deal: ${deal.sponsor}`,
     category: "promo_deal",
     date: today,
   }).returning();
-  await db.update(teamsTable).set({ budget: String(Number(team.budget) + Number(deal.amount)) }).where(eq(teamsTable.id, team.id));
+  await db.update(teamsTable).set({ budget: String(Number(team.budget) + finalAmount) }).where(eq(teamsTable.id, team.id));
 
   res.json(serializeTx(tx));
 });

@@ -12,7 +12,7 @@ const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: 
 const getTeamForUser = async (userId: string) =>
   db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
-const MEDICAL_ROLES = ["physio", "physiotherapist", "fitness_trainer"];
+const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
 
 async function getBestMedicalSkill(teamId: number): Promise<number> {
   const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
@@ -169,6 +169,8 @@ const applyFatigueAndStats = async (
   facilityMultiplier = 1.0,
   psychLevel = 1,
   medCentreLevel = 1,
+  newRoleXpBonus = 1.0,
+  newRoleFatigueReduction = 0,
 ) => {
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
   if (!player) return null;
@@ -199,7 +201,7 @@ const applyFatigueAndStats = async (
   // senior development rates are completely unchanged.
   const youthAcademyMultiplier = (player.age >= 14 && player.age <= 18) ? 1.20 : 1.0;
 
-  const totalMultiplier = program.xpModifier * coachXpMultiplier * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier * youthAcademyMultiplier;
+  const totalMultiplier = program.xpModifier * coachXpMultiplier * newRoleXpBonus * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier * youthAcademyMultiplier;
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = player.trainingPoints;
@@ -297,7 +299,7 @@ const applyFatigueAndStats = async (
       }
     }
   } else {
-    updates.fatigue = Math.min(100, player.fatigue + program.fatigueEffect);
+    updates.fatigue = Math.min(100, player.fatigue + Math.max(0, program.fatigueEffect - newRoleFatigueReduction));
     if (program.fitnessBonus > 0) {
       updates.fitness = Math.min(100, ((player.fitness as number) ?? 100) + program.fitnessBonus);
     }
@@ -407,7 +409,16 @@ router.post("/training/:id/complete", async (req, res) => {
   const psychLevel         = facilityLevels.psychology_centre ?? 1;
   const medCentreLevel     = facilityLevels.medical_centre    ?? 1;
 
-  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel);
+  const teamStaffAll = await db.select().from(staffTable).where(eq(staffTable.teamId, session.teamId));
+  const headCoachStaff = teamStaffAll.find(s => s.role === "head_coach");
+  const assistantCoachStaff = teamStaffAll.find(s => s.role === "assistant_coach");
+  const fitnessTrainerStaff = teamStaffAll.find(s => s.role === "fitness_trainer");
+  const hcBonus  = headCoachStaff      ? 1.0 + Math.max(0, headCoachStaff.skillLevel      - 50) * (0.15 / 45) : 1.0;
+  const acBonus  = assistantCoachStaff ? 1.0 + Math.max(0, assistantCoachStaff.skillLevel  - 50) * (0.08 / 45) : 1.0;
+  const newRoleXpBonus = hcBonus * acBonus;
+  const newRoleFatigueReduction = fitnessTrainerStaff ? Math.max(0, fitnessTrainerStaff.skillLevel - 50) * (5 / 45) : 0;
+
+  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel, newRoleXpBonus, newRoleFatigueReduction);
   if (result) {
     const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect, ageModifier, philosophyMultiplier, programName } = result;
     // Young player development bonus — award manager rep when a player aged ≤22 gains a stat

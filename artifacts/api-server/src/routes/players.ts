@@ -200,10 +200,12 @@ router.post("/players/:id/scout", async (req, res) => {
   if (!team)  { res.status(404).json({ error: "No team found" }); return; }
 
   const allStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
-  const scouts   = allStaff.filter(s => s.role === "scout");
+  const scouts   = allStaff.filter(s =>
+    ["head_coach", "assistant_coach", "scout"].includes(s.role)
+  );
 
   if (scouts.length === 0) {
-    res.status(400).json({ error: "No scout on staff. Hire a scout to assess player potential." });
+    res.status(400).json({ error: "No Head Coach or Assistant Coach on staff. Hire one to assess player potential." });
     return;
   }
 

@@ -32,6 +32,7 @@ import type {
   FinanceSummary,
   FinanceTransaction,
   FinanceTransactionInput,
+  GetStaffMarketParams,
   HallOfFameEntry,
   HealthStatus,
   InjuryHistoryEntry,
@@ -2394,6 +2395,90 @@ export function useListAvailableStaff<TData = Awaited<ReturnType<typeof listAvai
 
 
 
+export const getGetStaffMarketUrl = (params?: GetStaffMarketParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/staff/market?${stringifiedParams}` : `/api/staff/market`
+}
+
+/**
+ * @summary Browse staff available on the market with optional filters
+ */
+export const getStaffMarket = async (params?: GetStaffMarketParams, options?: RequestInit): Promise<StaffMember[]> => {
+
+  return customFetch<StaffMember[]>(getGetStaffMarketUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStaffMarketQueryKey = (params?: GetStaffMarketParams,) => {
+    return [
+    `/api/staff/market`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetStaffMarketQueryOptions = <TData = Awaited<ReturnType<typeof getStaffMarket>>, TError = ErrorType<unknown>>(params?: GetStaffMarketParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStaffMarket>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStaffMarketQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStaffMarket>>> = ({ signal }) => getStaffMarket(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStaffMarket>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStaffMarketQueryResult = NonNullable<Awaited<ReturnType<typeof getStaffMarket>>>
+export type GetStaffMarketQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Browse staff available on the market with optional filters
+ */
+
+export function useGetStaffMarket<TData = Awaited<ReturnType<typeof getStaffMarket>>, TError = ErrorType<unknown>>(
+ params?: GetStaffMarketParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStaffMarket>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStaffMarketQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getFireStaffUrl = (id: number,) => {
 
 
@@ -2462,6 +2547,76 @@ export const useFireStaff = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getFireStaffMutationOptions(options));
+    }
+
+export const getScoutStaffUrl = (id: number,) => {
+
+
+
+
+  return `/api/staff/${id}/scout`
+}
+
+/**
+ * @summary Reveal a staff member's OVR and attributes using a scout
+ */
+export const scoutStaff = async (id: number, options?: RequestInit): Promise<StaffMember> => {
+
+  return customFetch<StaffMember>(getScoutStaffUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getScoutStaffMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scoutStaff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof scoutStaff>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['scoutStaff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof scoutStaff>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  scoutStaff(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ScoutStaffMutationResult = NonNullable<Awaited<ReturnType<typeof scoutStaff>>>
+
+    export type ScoutStaffMutationError = ErrorType<void>
+
+    /**
+ * @summary Reveal a staff member's OVR and attributes using a scout
+ */
+export const useScoutStaff = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scoutStaff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof scoutStaff>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getScoutStaffMutationOptions(options));
     }
 
 export const getListTrainingSessionsUrl = () => {

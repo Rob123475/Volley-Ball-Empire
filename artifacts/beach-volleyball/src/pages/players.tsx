@@ -39,16 +39,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format, addMonths } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const POSITIONS = ["ALL", "setter", "defender", "blocker", "opposite", "server", "universal"] as const;
+const POSITIONS = ["ALL", "setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
 const POSITION_LABELS: Record<string, string> = {
-  ALL: "All",
-  setter: "S",
-  defender: "D",
-  blocker: "B",
-  opposite: "OPP",
-  server: "SV",
-  universal: "UNI",
+  ALL:        "All",
+  setter:     "Setter",
+  spiker:     "Spiker",
+  defender:   "Defender",
+  blocker:    "Blocker",
+  server:     "Server",
+  all_rounder:"All-Rounder",
 };
+
+function normalizePosition(pos: string): string {
+  const map: Record<string, string> = {
+    opposite:     "spiker",
+    universal:    "all_rounder",
+    libero:       "defender",
+    outside_hitter: "spiker",
+    middle_blocker: "blocker",
+    Setter: "setter",
+    Spiker: "spiker",
+    Defender: "defender",
+    Blocker: "blocker",
+    Server: "server",
+  };
+  return map[pos] ?? pos;
+}
 
 // ── Potential display helpers ─────────────────────────────────────────────────
 
@@ -123,7 +139,7 @@ export default function PlayerMarket() {
   }
 
   const filteredPlayers = players
-    ?.filter(p => filter === "ALL" || p.position === filter)
+    ?.filter(p => filter === "ALL" || normalizePosition(p.position) === filter)
     ?.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleSign = (playerId: number, values: any) => {
@@ -228,7 +244,7 @@ export default function PlayerMarket() {
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
                   <div>
                     <Badge className="bg-primary text-white border-0 text-[10px] mb-1">
-                      {player.position.replace(/_/g, " ").toUpperCase()}
+                      {POSITION_LABELS[normalizePosition(player.position)] ?? player.position.replace(/_/g, " ").toUpperCase()}
                     </Badge>
                     <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
                     <div className="text-xs text-white/70">{player.nationality} • {player.age} yrs • {player.height}cm</div>

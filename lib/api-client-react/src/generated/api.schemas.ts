@@ -55,11 +55,11 @@ export type PlayerPosition = typeof PlayerPosition[keyof typeof PlayerPosition];
 
 export const PlayerPosition = {
   setter: 'setter',
-  libero: 'libero',
-  outside_hitter: 'outside_hitter',
-  middle_blocker: 'middle_blocker',
-  opposite: 'opposite',
-  universal: 'universal',
+  spiker: 'spiker',
+  defender: 'defender',
+  blocker: 'blocker',
+  server: 'server',
+  all_rounder: 'all_rounder',
 } as const;
 
 /**
@@ -289,12 +289,9 @@ export const StaffMemberRole = {
   head_coach: 'head_coach',
   assistant_coach: 'assistant_coach',
   fitness_trainer: 'fitness_trainer',
-  physio: 'physio',
-  nutritionist: 'nutritionist',
-  scout: 'scout',
-  manager: 'manager',
-  physiotherapist: 'physiotherapist',
-  strength_coach: 'strength_coach',
+  strength_conditioner: 'strength_conditioner',
+  massage_therapist: 'massage_therapist',
+  promotions_manager: 'promotions_manager',
 } as const;
 
 /**
@@ -325,6 +322,11 @@ export const StaffMemberPersonality = {
   Disciplinarian: 'Disciplinarian',
 } as const;
 
+/**
+ * 3 role-specific attributes (name → value 1–99).
+ */
+export type StaffMemberAttributes = {[key: string]: number};
+
 export interface StaffMember {
   id: number;
   name: string;
@@ -333,7 +335,7 @@ export interface StaffMember {
   salary: number;
   skillLevel: number;
   age: number;
-  /** Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99). */
+  /** Staff quality rating 50–99. */
   overallRating: number;
   /** Contract duration in months. */
   contractLength: number;
@@ -341,6 +343,12 @@ export interface StaffMember {
   coachSpeciality: StaffMemberCoachSpeciality;
   /** Affects XP multiplier and morale/fatigue side-effects. */
   personality: StaffMemberPersonality;
+  /** 3 role-specific attributes (name → value 1–99). */
+  attributes: StaffMemberAttributes;
+  /** Unique special trait for this staff member. */
+  specialTrait: string;
+  /** Whether OVR has been revealed by a scout. */
+  isScoutRevealed: boolean;
   /** @nullable */
   teamId: number | null;
   /** @nullable */
@@ -416,6 +424,11 @@ export interface ContractInput {
 
 export interface StaffInput {
   staffId: number;
+}
+
+export interface StaffMarketFilters {
+  role?: string;
+  search?: string;
 }
 
 export type TrainingSessionType = typeof TrainingSessionType[keyof typeof TrainingSessionType];
@@ -1263,4 +1276,9 @@ export interface CareerStats {
   perfectSeasons?: number;
   debtFreeSeasons?: number;
 }
+
+export type GetStaffMarketParams = {
+role?: string;
+search?: string;
+};
 

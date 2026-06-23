@@ -11,9 +11,9 @@ export type PlayerPosition = typeof PlayerPosition[keyof typeof PlayerPosition];
 
 export const PlayerPosition = {
   setter: 'setter',
-  libero: 'libero',
-  outside_hitter: 'outside_hitter',
-  middle_blocker: 'middle_blocker',
-  opposite: 'opposite',
-  universal: 'universal',
+  spiker: 'spiker',
+  defender: 'defender',
+  blocker: 'blocker',
+  server: 'server',
+  all_rounder: 'all_rounder',
 } as const;

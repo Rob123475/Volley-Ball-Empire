@@ -70,6 +70,16 @@ const ROLE_CONFIG: Record<Role, { label: string; color: string; bg: string; bord
   reserve:     { label: "Reserve",         color: "text-slate-600",   bg: "bg-slate-50 dark:bg-slate-950/30",   border: "border-slate-300",   maxSlots: Infinity },
 };
 
+const formatPosition = (pos: string | null | undefined): string => {
+  if (!pos) return "—";
+  const map: Record<string, string> = {
+    setter: "Setter", spiker: "Spiker", defender: "Defender",
+    blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+    opposite: "Spiker", universal: "All-Rounder",
+  };
+  return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+};
+
 const getFatigueColor = (f: number) => f < 30 ? "bg-green-500" : f < 60 ? "bg-yellow-500" : "bg-red-500";
 const getFatigueLabel = (f: number) => f < 30 ? "Fresh" : f < 60 ? "Moderate" : f < 80 ? "Tired" : "Exhausted";
 
@@ -279,7 +289,7 @@ export default function TeamRoster() {
           <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
             <div>
               <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-0.5">
-                {player.position.replace(/_/g, " ")}
+                {formatPosition(player.position)}
               </div>
               <div className="text-lg font-black leading-tight text-white drop-shadow">{player.name}</div>
               <div className="text-xs text-white/70 mt-0.5">{player.nationality}</div>

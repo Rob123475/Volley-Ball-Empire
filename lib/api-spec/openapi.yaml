@@ -598,6 +598,30 @@ paths:
                 items:
                   $ref: "#/components/schemas/StaffMember"
 
+  /staff/market:
+    get:
+      operationId: getStaffMarket
+      tags: [staff]
+      summary: Browse staff available on the market with optional filters
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Staff market list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+
   /staff/{id}:
     delete:
       operationId: fireStaff
@@ -616,6 +640,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/StaffMember"
+
+  /staff/{id}/scout:
+    post:
+      operationId: scoutStaff
+      tags: [staff]
+      summary: Reveal a staff member's OVR and attributes using a scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Staff OVR revealed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "400":
+          description: No scout available or already revealed
 
   /training:
     get:
@@ -1668,7 +1713,7 @@ components:
           type: number
         position:
           type: string
-          enum: [setter, libero, outside_hitter, middle_blocker, opposite, universal]
+          enum: [setter, spiker, defender, blocker, server, all_rounder]
         speed:
           type: integer
         power:
@@ -1965,7 +2010,7 @@ components:
 
     StaffMember:
       type: object
-      required: [id, name, role, specialty, salary, skillLevel, age, overallRating, contractLength, coachSpeciality, personality, teamId, createdAt]
+      required: [id, name, role, specialty, salary, skillLevel, age, overallRating, contractLength, coachSpeciality, personality, attributes, specialTrait, isScoutRevealed, teamId, createdAt]
       properties:
         id:
           type: integer
@@ -1973,7 +2018,7 @@ components:
           type: string
         role:
           type: string
-          enum: [head_coach, assistant_coach, fitness_trainer, physio, nutritionist, scout, manager, physiotherapist, strength_coach]
+          enum: [head_coach, assistant_coach, fitness_trainer, strength_conditioner, massage_therapist, promotions_manager]
         specialty:
           type: string
         salary:
@@ -1984,7 +2029,7 @@ components:
           type: integer
         overallRating:
           type: integer
-          description: "Coach quality rating 50–99. Scales training XP gains from ×0.75 (rating 50) to ×1.24 (rating 99)."
+          description: "Staff quality rating 50–99."
         contractLength:
           type: integer
           description: "Contract duration in months."
@@ -1996,6 +2041,17 @@ components:
           type: string
           enum: [Motivator, Demanding, "Player Friendly", Disciplinarian]
           description: "Affects XP multiplier and morale/fatigue side-effects."
+        attributes:
+          type: object
+          additionalProperties:
+            type: integer
+          description: "3 role-specific attributes (name → value 1–99)."
+        specialTrait:
+          type: string
+          description: "Unique special trait for this staff member."
+        isScoutRevealed:
+          type: boolean
+          description: "Whether OVR has been revealed by a scout."
         teamId:
           type: ["integer", "null"]
         nationality:
@@ -2011,6 +2067,14 @@ components:
       properties:
         staffId:
           type: integer
+
+    StaffMarketFilters:
+      type: object
+      properties:
+        role:
+          type: string
+        search:
+          type: string
 
     TrainingSession:
       type: object

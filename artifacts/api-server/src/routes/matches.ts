@@ -103,7 +103,7 @@ const serializeMatch = (m: any) => ({
 
 // ── Post-match health mechanics ────────────────────────────────────────────────
 
-const MEDICAL_ROLES = ["physio", "physiotherapist", "fitness_trainer"];
+const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
 
 async function getBestMedicalSkill(teamId: number): Promise<number> {
   const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));

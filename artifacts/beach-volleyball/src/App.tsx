@@ -15,6 +15,7 @@ import ThreeDCourt from "@/pages/court";
 import Training from "@/pages/training";
 import Contracts from "@/pages/contracts";
 import StaffManagement from "@/pages/staff";
+import StaffMarket from "@/pages/staff-market";
 import Finances from "@/pages/finances";
 import Leaderboard from "@/pages/leaderboard";
 import WorldTourLocations from "@/pages/locations";
@@ -62,6 +63,7 @@ function Router() {
           <Route path="/training" component={Training} />
           <Route path="/contracts" component={Contracts} />
           <Route path="/staff" component={StaffManagement} />
+          <Route path="/staff-market" component={StaffMarket} />
           <Route path="/medical" component={MedicalCentre} />
           <Route path="/finances" component={Finances} />
           <Route path="/leaderboard" component={Leaderboard} />

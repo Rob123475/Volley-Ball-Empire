@@ -104,7 +104,7 @@ export default function PlayerDraft() {
                   <div>
                     <div className="flex gap-1 mb-1">
                       <Badge className="bg-secondary text-secondary-foreground text-[10px]">
-                        {player.position.replace(/_/g, " ").toUpperCase()}
+                        {formatPosition(player.position).toUpperCase()}
                       </Badge>
                       <Badge className="bg-green-600 text-white border-0 text-[10px]">
                         AGE {player.age}
@@ -163,6 +163,16 @@ export default function PlayerDraft() {
     </div>
   );
 }
+
+const formatPosition = (pos: string | null | undefined): string => {
+  if (!pos) return "—";
+  const map: Record<string, string> = {
+    setter: "Setter", spiker: "Spiker", defender: "Defender",
+    blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+    opposite: "Spiker", universal: "All-Rounder",
+  };
+  return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+};
 
 function StatBar({ label, value, icon: Icon, color }: { label: string, value: number, icon: any, color: string }) {
   return (

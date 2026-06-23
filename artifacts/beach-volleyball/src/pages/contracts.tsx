@@ -31,6 +31,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, AlertCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
+const formatPosition = (pos: string | null | undefined): string => {
+  if (!pos) return "—";
+  const map: Record<string, string> = {
+    setter: "Setter", spiker: "Spiker", defender: "Defender",
+    blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+    opposite: "Spiker", universal: "All-Rounder",
+  };
+  return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+};
+
 export default function Contracts() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -94,7 +104,7 @@ export default function Contracts() {
                 return (
                   <TableRow key={c.id}>
                     <TableCell className="font-medium">{c.player?.name ?? `Player #${c.playerId}`}</TableCell>
-                    <TableCell><Badge variant="secondary">{c.player?.position ?? "—"}</Badge></TableCell>
+                    <TableCell><Badge variant="secondary">{formatPosition(c.player?.position)}</Badge></TableCell>
                     <TableCell>{formatCurrency(c.salary)}</TableCell>
                     <TableCell>{formatCurrency(c.bonusPerWin)}</TableCell>
                     <TableCell>{format(new Date(c.startDate), 'MMM d, yyyy')}</TableCell>

@@ -13,10 +13,7 @@ export const StaffMemberRole = {
   head_coach: 'head_coach',
   assistant_coach: 'assistant_coach',
   fitness_trainer: 'fitness_trainer',
-  physio: 'physio',
-  nutritionist: 'nutritionist',
-  scout: 'scout',
-  manager: 'manager',
-  physiotherapist: 'physiotherapist',
-  strength_coach: 'strength_coach',
+  strength_conditioner: 'strength_conditioner',
+  massage_therapist: 'massage_therapist',
+  promotions_manager: 'promotions_manager',
 } as const;

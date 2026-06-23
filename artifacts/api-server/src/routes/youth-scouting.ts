@@ -223,7 +223,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   const nationality = natPool[Math.floor(Math.random() * natPool.length)]!;
 
   // Position: Setters favour serve/defense; Spikers favour power/speed/block
-  const position = ["Serve", "Defense"].includes(prospect.speciality) ? "Setter" : "Spiker";
+  const position = ["Serve", "Defense"].includes(prospect.speciality) ? "setter" : "spiker";
 
   // Youth salary: based on potential stars per academy contract rules
   const YOUTH_WEEKLY_WAGE: Record<string, number> = {

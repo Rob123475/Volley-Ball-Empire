@@ -59,6 +59,16 @@ const INJURY_ICONS: Record<string, LucideIcon> = {
   Unavailable: Shield,
 };
 
+const formatPosition = (pos: string | null | undefined): string => {
+  if (!pos) return "—";
+  const map: Record<string, string> = {
+    setter: "Setter", spiker: "Spiker", defender: "Defender",
+    blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+    opposite: "Spiker", universal: "All-Rounder",
+  };
+  return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+};
+
 function recoveryWeeks(injuryStatus: string, medicalSkill: number): number {
   const base = INJURY_BASE_WEEKS[injuryStatus] ?? 0;
   if (base === 0) return 0;
@@ -263,8 +273,8 @@ export default function MedicalCentre() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <p className="font-bold text-sm leading-tight truncate">{player.name}</p>
-                            <p className="text-[11px] text-muted-foreground capitalize">
-                              {player.position.replace(/_/g, " ")}
+                            <p className="text-[11px] text-muted-foreground">
+                              {formatPosition(player.position)}
                             </p>
                           </div>
                           <Badge
@@ -370,8 +380,8 @@ export default function MedicalCentre() {
                         <div className="flex items-center gap-2">
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-sm truncate leading-tight">{player.name}</p>
-                            <p className="text-[11px] text-muted-foreground capitalize leading-tight">
-                              {player.position.replace(/_/g, " ")}
+                            <p className="text-[11px] text-muted-foreground leading-tight">
+                              {formatPosition(player.position)}
                             </p>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
@@ -792,8 +802,8 @@ function WorkloadMonitoringCard() {
                       )}
                       <div className="min-w-0">
                         <p className="font-medium truncate text-sm">{player.name}</p>
-                        <p className="text-[11px] text-muted-foreground capitalize truncate">
-                          {player.position.replace(/_/g, " ")}
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {formatPosition(player.position)}
                         </p>
                       </div>
                     </div>
