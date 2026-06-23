@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import {
   useListCareerSaves,
   getListCareerSavesQueryKey,
   useUpsertCareerSave,
   useDeleteCareerSave,
+  useLoadCareerSave,
   useListClubTemplates,
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
@@ -691,8 +693,10 @@ export default function CareerManagement() {
     query: { queryKey: getListCareerSavesQueryKey() },
   });
 
+  const [, navigate]   = useLocation();
   const upsertMutation = useUpsertCareerSave();
   const deleteMutation = useDeleteCareerSave();
+  const loadMutation   = useLoadCareerSave();
 
   const [newSlot,    setNewSlot]    = useState<number | null>(null);
   const [deleteSlot, setDeleteSlot] = useState<SaveSlot | null>(null);
@@ -740,7 +744,18 @@ export default function CareerManagement() {
   };
 
   const handleLoad = (save: SaveSlot) => {
-    toast({ title: `Loading career`, description: `${save.managerName} — ${save.clubName}` });
+    loadMutation.mutate(
+      { id: save.id },
+      {
+        onSuccess: () => {
+          void queryClient.invalidateQueries();
+          navigate("/");
+        },
+        onError: () => {
+          toast({ title: "Failed to load career", variant: "destructive" });
+        },
+      },
+    );
   };
 
   return (

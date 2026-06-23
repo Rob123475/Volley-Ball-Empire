@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -39,7 +40,7 @@ const FACILITY_LABELS: Record<string, string> = {
 router.get("/attention-items", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, req.user.id) });
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const budget = Number(team.budget);

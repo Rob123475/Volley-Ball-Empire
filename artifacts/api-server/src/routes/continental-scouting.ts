@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -75,8 +76,6 @@ const MISSION_COSTS: Record<number, number> = { 1: 20000, 3: 45000, 6: 75000 };
 
 const MISSION_DURATIONS_DAYS: Record<number, number> = { 1: 1, 3: 3, 6: 7 };
 
-const getTeamForUser = (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 // ── Helper: auto-complete missions whose endDate has passed ───────────────
 
@@ -106,7 +105,7 @@ async function autoCompleteMissions(teamId: number): Promise<void> {
 
 router.get("/continental-scouting/regions", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   await autoCompleteMissions(team.id);
@@ -156,7 +155,7 @@ router.get("/continental-scouting/regions", async (req, res) => {
 
 router.post("/continental-scouting/start", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const { region, durationMonths, staffId } = req.body as {
@@ -241,7 +240,7 @@ router.post("/continental-scouting/start", async (req, res) => {
 
 router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const missionId = parseInt(req.params.id);
@@ -338,7 +337,7 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
 
 router.post("/continental-scouting/missions/:id/cancel", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const missionId = parseInt(req.params.id);
@@ -373,7 +372,7 @@ router.post("/continental-scouting/missions/:id/cancel", async (req, res) => {
 
 router.get("/continental-scouting/prospects", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const prospects = await db
@@ -411,7 +410,7 @@ router.get("/continental-scouting/prospects", async (req, res) => {
 
 router.post("/continental-scouting/missions/:id/dev-complete", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const missionId = parseInt(req.params.id);

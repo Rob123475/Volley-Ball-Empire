@@ -8,6 +8,7 @@
 
 export interface CareerSaveSlot {
   id: number;
+  teamId?: number | null;
   slotNumber: number;
   managerName: string;
   clubName: string;

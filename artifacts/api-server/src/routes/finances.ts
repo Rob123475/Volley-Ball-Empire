@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
@@ -85,13 +86,10 @@ const router = Router();
 const serializeTx = (t: any) => ({ ...t, amount: Number(t.amount) });
 const serializeDeal = (d: any) => ({ ...d, amount: Number(d.amount) });
 
-const getTeamForUser = async (userId: string) => {
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
-};
 
 router.get("/finances", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const txs = await db.select().from(financeTransactionsTable)
     .where(eq(financeTransactionsTable.teamId, team.id))
@@ -101,7 +99,7 @@ router.get("/finances", async (req, res) => {
 
 router.post("/finances", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { type, amount, description, category, date } = req.body;
   const [tx] = await db.insert(financeTransactionsTable).values({
@@ -112,7 +110,7 @@ router.post("/finances", async (req, res) => {
 
 router.get("/finances/summary", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) {
     res.json({ totalBalance: 0, totalIncome: 0, totalExpenses: 0, monthlyIncome: 0, monthlyExpenses: 0, incomeSources: { prizeMoney: 0, sponsorships: 0, promoDeals: 0 }, expenseBreakdown: { playerSalaries: 0, staffSalaries: 0, trainingCosts: 0, other: 0 }, recentTransactions: [] });
     return;
@@ -162,14 +160,14 @@ router.get("/finances/summary", async (req, res) => {
 
 router.get("/finances/wage-bill", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json({ weeklyWages: 0, monthlyWages: 0, playerCount: 0, players: [] }); return; }
   res.json(await computeWageBill(team.id));
 });
 
 router.get("/finances/sponsor-reputation", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   const score = team ? Math.min(100, Math.max(0, team.sponsorReputation ?? 50)) : 50;
   const { label, stars } = scoreSponsorReputation(score);
   res.json({ score, label, stars });
@@ -177,7 +175,7 @@ router.get("/finances/sponsor-reputation", async (req, res) => {
 
 router.get("/finances/staff-wage-bill", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json({ weeklyWages: 0, monthlyWages: 0, staffCount: 0, staff: [] }); return; }
   res.json(await computeStaffWageBill(team.id));
 });
@@ -195,7 +193,7 @@ const CATEGORY_ORDER = ["Local Tour", "Continental Tour", "World Tour", "World C
 
 router.get("/finances/prize-money", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json({ total: 0, breakdown: [] }); return; }
 
   const completedMatches = await db.select().from(matchesTable)
@@ -222,7 +220,7 @@ router.get("/finances/prize-money", async (req, res) => {
 
 router.get("/finances/sponsor-progress", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const deals = await db.select().from(promoDealsTable)
@@ -248,7 +246,7 @@ router.get("/finances/sponsor-progress", async (req, res) => {
 
 router.get("/finances/promo-deals", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   const deals = await db.select().from(promoDealsTable)
     .where(and(eq(promoDealsTable.isGlobal, true), eq(promoDealsTable.isAccepted, false)));
   res.json(deals.map(serializeDeal));
@@ -256,7 +254,7 @@ router.get("/finances/promo-deals", async (req, res) => {
 
 router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const id = parseInt(req.params.id);
   const deal = await db.query.promoDealsTable.findFirst({ where: eq(promoDealsTable.id, id) });

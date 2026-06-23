@@ -463,6 +463,7 @@ export type ClubTemplate = typeof clubTemplatesTable.$inferSelect;
 export const careerSavesTable = pgTable("career_saves", {
   id:           serial("id").primaryKey(),
   userId:       varchar("user_id").notNull().references(() => usersTable.id),
+  teamId:       integer("team_id").references(() => teamsTable.id),
   slotNumber:   integer("slot_number").notNull(),
   managerName:      varchar("manager_name",       { length: 100 }).notNull(),
   clubName:         varchar("club_name",          { length: 100 }).notNull(),

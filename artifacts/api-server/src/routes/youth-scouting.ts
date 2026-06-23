@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -68,8 +69,6 @@ function buildStats(currentRating: number, speciality: string): typeof BASE_STAT
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
-const getTeamForUser = (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const serializeMission = (team: any) => ({
   status:              team.youthScoutingStatus    ?? "idle",
@@ -97,14 +96,14 @@ const serializeProspect = (p: any) => ({
 
 router.get("/youth-scouting", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   res.json(serializeMission(team));
 });
 
 router.post("/youth-scouting/start", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   if (team.youthScoutingStatus === "active") {
@@ -147,7 +146,7 @@ router.post("/youth-scouting/start", async (req, res) => {
 
 router.post("/youth-scouting/cancel", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const [updated] = await db.update(teamsTable).set({
@@ -163,7 +162,7 @@ router.post("/youth-scouting/cancel", async (req, res) => {
 
 router.get("/youth-scouting/prospects", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const prospects = await db.select().from(youthProspectsTable).where(
@@ -175,7 +174,7 @@ router.get("/youth-scouting/prospects", async (req, res) => {
 
 router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const prospectId = parseInt(req.params.id);
@@ -305,7 +304,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
 
 router.post("/youth-scouting/prospects/:id/ignore", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const prospectId = parseInt(req.params.id);
@@ -326,7 +325,7 @@ router.post("/youth-scouting/prospects/:id/ignore", async (req, res) => {
 
 router.post("/youth-scouting/dev-complete", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   if (team.youthScoutingStatus !== "active") {
@@ -341,7 +340,7 @@ router.post("/youth-scouting/dev-complete", async (req, res) => {
 
   await generateScoutingProspects(team.id, team.youthScoutingContinent!);
 
-  const updated = await getTeamForUser(req.user.id);
+  const updated = await getActiveTeam(req);
   res.json(serializeMission(updated));
 });
 

@@ -1,17 +1,15 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { teamsTable, matchesTable, playersTable, financeTransactionsTable, seasonsTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 
 const router = Router();
 
-const getTeamForUser = async (userId: string) => {
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
-};
 
 router.get("/dashboard", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const recentMatches = await db.select().from(matchesTable)

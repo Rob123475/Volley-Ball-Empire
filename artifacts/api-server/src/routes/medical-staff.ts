@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable } from "@workspace/db";
 import { eq, isNull, count } from "drizzle-orm";
@@ -23,8 +24,6 @@ const serializeStaff = (s: any) => ({
   isScoutRevealed: s.isScoutRevealed ?? false,
 });
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 async function backfillMedicalAttributes(staffList: any[]): Promise<void> {
   const empty = staffList.filter(s => !s.attributes || Object.keys(s.attributes).length === 0);
@@ -38,7 +37,7 @@ async function backfillMedicalAttributes(staffList: any[]): Promise<void> {
 
 router.get("/medical-staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
@@ -55,7 +54,7 @@ router.get("/medical-staff", async (req, res) => {
 
 router.post("/medical-staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const allStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));

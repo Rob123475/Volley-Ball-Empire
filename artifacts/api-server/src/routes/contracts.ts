@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable } from "@workspace/db";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -11,13 +12,10 @@ const serializeContract = (c: any) => ({
   bonusPerWin: Number(c.bonusPerWin),
 });
 
-const getTeamForUser = async (userId: string) => {
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
-};
 
 router.get("/contracts", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const contracts = await db.select().from(contractsTable).where(
     and(eq(contractsTable.teamId, team.id), eq(contractsTable.status, "active"))
@@ -31,7 +29,7 @@ router.get("/contracts", async (req, res) => {
 
 router.post("/contracts", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { playerId, salary, endDate, bonusPerWin } = req.body;
 

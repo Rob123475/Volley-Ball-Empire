@@ -1089,6 +1089,7 @@ export interface ClubTemplateList {
 
 export interface CareerSaveSlot {
   id: number;
+  teamId?: number | null;
   slotNumber: number;
   managerName: string;
   clubName: string;
@@ -1599,6 +1600,12 @@ export interface AttentionItemsResponse {
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;
+};
+
+export type LoadCareerSave200 = {
+  ok: boolean;
+  careerSaveId: number;
+  teamId: number;
 };
 
 export type DeleteCareerSave200 = {

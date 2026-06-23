@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable } from "@workspace/db";
 import { eq, isNull, and, ilike, count } from "drizzle-orm";
@@ -14,8 +15,6 @@ const serializeStaff = (s: any) => ({
   isScoutRevealed: s.isScoutRevealed ?? false,
 });
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const MAX_STAFF = 4;
 
@@ -31,7 +30,7 @@ async function backfillStaffAttributes(staffList: any[]): Promise<void> {
 
 router.get("/staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   await backfillStaffAttributes(staff);
@@ -45,7 +44,7 @@ router.get("/staff", async (req, res) => {
 
 router.post("/staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const [{ staffCount }] = await db
@@ -118,7 +117,7 @@ router.delete("/staff/:id", async (req, res) => {
 router.post("/staff/:id/scout", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, id) });

@@ -58,6 +58,7 @@ export * from './injuryHistoryEntry';
 export * from './ladderEntry';
 export * from './leaderboardEntry';
 export * from './lineupUpdate';
+export * from './loadCareerSave200';
 export * from './location';
 export * from './managerRecords';
 export * from './match';

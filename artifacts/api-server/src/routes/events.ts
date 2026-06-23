@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -61,7 +62,7 @@ router.get("/events/upcoming", async (req, res) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
   const userId = req.user.id;
 
-  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.userId, userId));
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
   type EventItem = {

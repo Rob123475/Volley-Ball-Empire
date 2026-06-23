@@ -50,6 +50,7 @@ import type {
   LadderEntry,
   LeaderboardEntry,
   LineupUpdate,
+  LoadCareerSave200,
   Location,
   Match,
   MatchInput,
@@ -5022,6 +5023,76 @@ export const useUpsertCareerSave = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getUpsertCareerSaveMutationOptions(options));
+    }
+
+export const getLoadCareerSaveUrl = (id: number,) => {
+
+
+
+
+  return `/api/careers/${id}/load`
+}
+
+/**
+ * @summary Activate a career save slot (sets active team context for the session)
+ */
+export const loadCareerSave = async (id: number, options?: RequestInit): Promise<LoadCareerSave200> => {
+
+  return customFetch<LoadCareerSave200>(getLoadCareerSaveUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getLoadCareerSaveMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loadCareerSave>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loadCareerSave>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['loadCareerSave'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loadCareerSave>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  loadCareerSave(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoadCareerSaveMutationResult = NonNullable<Awaited<ReturnType<typeof loadCareerSave>>>
+
+    export type LoadCareerSaveMutationError = ErrorType<void>
+
+    /**
+ * @summary Activate a career save slot (sets active team context for the session)
+ */
+export const useLoadCareerSave = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loadCareerSave>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof loadCareerSave>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getLoadCareerSaveMutationOptions(options));
     }
 
 export const getDeleteCareerSaveUrl = (id: number,) => {

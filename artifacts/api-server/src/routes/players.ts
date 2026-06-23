@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable } from "@workspace/db";
 import { eq, isNull, and } from "drizzle-orm";
@@ -16,8 +17,6 @@ const serializePlayer = (p: any) => {
   };
 };
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 // ── Potential helpers ─────────────────────────────────────────────────────────
 
@@ -62,7 +61,7 @@ function computeScoutedPotential(
 
 router.get("/players", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
   res.json(players.map(serializePlayer));
@@ -151,7 +150,7 @@ router.post("/players/:id/retire", async (req, res) => {
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
 
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team || player.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
 
   const peakOverallRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
@@ -196,7 +195,7 @@ router.post("/players/:id/scout", async (req, res) => {
   const player   = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
 
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team)  { res.status(404).json({ error: "No team found" }); return; }
 
   const allStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));

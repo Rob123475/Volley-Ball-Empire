@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { facilitiesTable, teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -39,8 +40,6 @@ function upgradeCost(currentLevel: number): number {
   return currentLevel * 20000;
 }
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 async function ensureFacilities(teamId: number) {
   const existing = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, teamId));
@@ -58,7 +57,7 @@ async function ensureFacilities(teamId: number) {
 
 router.get("/facilities", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const facilities = await ensureFacilities(team.id);
   res.json(facilities);
@@ -73,7 +72,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
     return;
   }
 
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   await ensureFacilities(team.id);
@@ -113,7 +112,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
 router.get("/club-rating", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const [facilities, allPlayers, allStaff] = await Promise.all([

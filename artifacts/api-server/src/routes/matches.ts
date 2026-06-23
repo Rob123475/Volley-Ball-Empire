@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable } from "@workspace/db";
 import { eq, desc, gt, and, sql } from "drizzle-orm";
@@ -236,8 +237,6 @@ async function applyPostMatchEffects(teamId: number, weather: string, facilityLe
   return events;
 }
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 // ── Season fixture (fixed 67-round continental tour structure) ────────────────
 // Returns all non-Grand-Final events in the fixed continental tour order.
@@ -248,7 +247,7 @@ function generateSeasonFixture(): WorldTourEvent[] {
 
 router.get("/matches", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const matches = await db.select().from(matchesTable)
     .where(eq(matchesTable.homeTeamId, team.id))
@@ -258,7 +257,7 @@ router.get("/matches", async (req, res) => {
 
 router.post("/matches", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { awayTeamId, locationId, season, round, teamSize, scheduledAt, prizeAmount } = req.body;
   const { weather, windSpeed, temperature } = generateWeather(Number(locationId));
@@ -281,7 +280,7 @@ router.post("/matches", async (req, res) => {
 
 router.get("/matches/upcoming", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const matches = await db.select().from(matchesTable)
     .where(eq(matchesTable.homeTeamId, team.id))
@@ -292,7 +291,7 @@ router.get("/matches/upcoming", async (req, res) => {
 // Full season fixture — fixed 67-event continental tour schedule
 router.get("/matches/fixture", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const existing = await db.select().from(matchesTable)
@@ -368,7 +367,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const match = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
   if (!match) { res.status(404).json({ error: "Match not found" }); return; }
 
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   // Load all facility levels and active wellbeing effects for match bonuses

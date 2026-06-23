@@ -1,12 +1,11 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, facilitiesTable, wellbeingEffectsTable, financeTransactionsTable } from "@workspace/db";
 import { eq, and, gt } from "drizzle-orm";
 
 const router = Router();
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 type CampDef = {
   name: string;
@@ -36,7 +35,7 @@ const serializeEffect = (e: { id: number; effectType: string; matchesRemaining: 
 
 router.get("/wellbeing/status", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const activeEffects = await db.select().from(wellbeingEffectsTable).where(
@@ -51,7 +50,7 @@ router.get("/wellbeing/status", async (req, res) => {
 
 router.post("/wellbeing/run", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const { campType } = req.body as { campType: string };

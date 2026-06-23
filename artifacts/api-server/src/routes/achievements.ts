@@ -1,18 +1,17 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, teamsTable, achievementsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "../utils/achievement-definitions";
 import { getCareerStats } from "../utils/check-achievements";
 
-const getTeamForUser = (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const router = Router();
 
 router.get("/achievements", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const unlocked = await db
@@ -44,9 +43,7 @@ router.get("/achievements", async (req, res) => {
 router.get("/achievements/career-stats", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const team = await db.query.teamsTable.findFirst({
-    where: eq(teamsTable.userId, req.user.id),
-  });
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   res.json(getCareerStats(team.careerStats));

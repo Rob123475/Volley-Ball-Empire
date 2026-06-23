@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
@@ -9,8 +10,6 @@ const router = Router();
 const serializeSession = (s: any) => ({ ...s, durationHours: Number(s.durationHours) });
 const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
 
@@ -329,7 +328,7 @@ const applyFatigueAndStats = async (
 
 router.get("/training", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
   const sessions = await db.select().from(trainingSessionsTable)
     .where(eq(trainingSessionsTable.teamId, team.id));
@@ -343,7 +342,7 @@ router.get("/training", async (req, res) => {
 
 router.post("/training", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { playerId, type, focus, durationHours, scheduledAt, coachId } = req.body;
   const programName = resolveProgram(type);
@@ -361,7 +360,7 @@ router.post("/training", async (req, res) => {
 
 router.post("/training/team", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { type, focus, durationHours, scheduledAt, coachId } = req.body;
   const programName = resolveProgram(type);
@@ -453,7 +452,7 @@ router.post("/training/:id/complete", async (req, res) => {
 
 router.get("/training/plan", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json({ weeklyLoad: "light", averageFitness: 80, averageMorale: 80, scheduledSessions: [], completedThisWeek: 0 }); return; }
 
   const sessions = await db.select().from(trainingSessionsTable).where(eq(trainingSessionsTable.teamId, team.id));

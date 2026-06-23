@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   youthLeagueResultsTable,
@@ -11,14 +12,12 @@ import { teamsTable } from "@workspace/db";
 
 const router = Router();
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 // ── GET /youth-league/results ─────────────────────────────────────────────────
 
 router.get("/youth-league/results", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const results = await db.select()
@@ -34,7 +33,7 @@ router.get("/youth-league/results", async (req, res) => {
 
 router.get("/youth-league/ladder", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const ladder = await db.select()
@@ -56,7 +55,7 @@ router.get("/youth-league/ladder", async (req, res) => {
 
 router.get("/youth-league/stars", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const youthPlayers = await db.select()
@@ -91,7 +90,7 @@ router.get("/youth-league/stars", async (req, res) => {
 
 router.get("/youth-league/championship", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
   const trophies = await db.select()

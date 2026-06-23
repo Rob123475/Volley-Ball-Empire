@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -17,7 +18,7 @@ router.get("/trophies/cabinet", async (req, res) => {
   if (!req.user) return res.status(401).json({ error: "Unauthorized" });
   const userId = req.user.id;
 
-  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.userId, userId));
+  const team = await getActiveTeam(req);
   if (!team) return res.status(404).json({ error: "Team not found" });
 
   const trophies = await db
@@ -320,7 +321,7 @@ router.get("/trophies/cabinet", async (req, res) => {
 router.get("/trophies/hall-of-fame", async (req, res) => {
   if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
-  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.userId, req.user.id));
+  const team = await getActiveTeam(req);
   if (!team) return res.status(404).json({ error: "Team not found" });
 
   const retired = await db

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable, facilitiesTable } from "@workspace/db";
 import { eq, isNull, and, lte, ne } from "drizzle-orm";
@@ -12,9 +13,6 @@ const serializePlayer = (p: any) => ({
   askingPrice: p.askingPrice ? Number(p.askingPrice) : null,
 });
 
-const getTeamForUser = async (userId: string) => {
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
-};
 
 // ── Youth generation helpers ───────────────────────────────────────────────
 
@@ -58,7 +56,7 @@ function rollPotential(academyLevel: number): string {
 
 router.post("/draft/generate-class", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   // Youth Academy level influences potential distribution
@@ -127,7 +125,7 @@ router.get("/draft", async (req, res) => {
 
 router.post("/draft/pick", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { draftPlayerId } = req.body;
 

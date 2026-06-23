@@ -2596,6 +2596,7 @@ export const ListClubTemplatesResponse = zod.object({
 export const ListCareerSavesResponse = zod.object({
   "saves": zod.array(zod.object({
   "id": zod.number(),
+  "teamId": zod.number().nullish(),
   "slotNumber": zod.number(),
   "managerName": zod.string(),
   "clubName": zod.string(),
@@ -2624,6 +2625,7 @@ export const UpsertCareerSaveBody = zod.object({
 
 export const UpsertCareerSaveResponse = zod.object({
   "id": zod.number(),
+  "teamId": zod.number().nullish(),
   "slotNumber": zod.number(),
   "managerName": zod.string(),
   "clubName": zod.string(),
@@ -2633,6 +2635,20 @@ export const UpsertCareerSaveResponse = zod.object({
   "budget": zod.string().nullish(),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Activate a career save slot (sets active team context for the session)
+ */
+export const LoadCareerSaveParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const LoadCareerSaveResponse = zod.object({
+  "ok": zod.boolean(),
+  "careerSaveId": zod.number(),
+  "teamId": zod.number()
 })
 
 

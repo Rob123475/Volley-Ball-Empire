@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -15,8 +16,6 @@ const serializePlayer = (p: any) => ({
   squadRole: p.squadRole ?? "reserve",
 });
 
-const getTeamForUser = async (userId: string) =>
-  db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, userId) });
 
 const buildRosterResponse = (team: any, players: any[], staff: any[]) => {
   const sp = players.map(serializePlayer);
@@ -37,7 +36,7 @@ const buildRosterResponse = (team: any, players: any[], staff: any[]) => {
 
 router.get("/team", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   res.json(serializeTeam(team));
 });
@@ -56,7 +55,7 @@ router.post("/team", async (req, res) => {
 
 router.patch("/team", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const { name, locationId, logoColor, trainingPhilosophy } = req.body;
   const updates: any = {};
@@ -70,7 +69,7 @@ router.patch("/team", async (req, res) => {
 
 router.get("/team/roster", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
@@ -80,7 +79,7 @@ router.get("/team/roster", async (req, res) => {
 // ── Set a player's squad role ───────────────────────────────────────────────
 router.patch("/team/roster/:id/role", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const playerId = Number(req.params.id);
@@ -143,7 +142,7 @@ const VALID_FOCUSES = ["Attack", "Defence", "Serving", "Blocking", "Athleticism"
 
 router.patch("/players/:id/training-focus", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const playerId = Number(req.params.id);
@@ -174,7 +173,7 @@ const playerOvr = (p: { power: number; speed: number; defense: number; serve: nu
 
 router.get("/team/strength", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const allPlayers = await db
@@ -222,7 +221,7 @@ router.get("/team/strength", async (req, res) => {
 // ── Legacy swap endpoint (kept for any remaining callers) ───────────────────
 router.post("/team/swap-player", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getTeamForUser(req.user.id);
+  const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const { playerInId, playerOutId } = req.body;

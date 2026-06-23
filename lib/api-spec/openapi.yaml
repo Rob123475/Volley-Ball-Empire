@@ -1186,6 +1186,37 @@ paths:
         "401":
           description: Unauthorized
 
+  /careers/{id}/load:
+    post:
+      operationId: loadCareerSave
+      tags: [careers]
+      summary: Activate a career save slot (sets active team context for the session)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Career loaded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, careerSaveId, teamId]
+                properties:
+                  ok:
+                    type: boolean
+                  careerSaveId:
+                    type: integer
+                  teamId:
+                    type: integer
+        "401":
+          description: Unauthorized
+        "404":
+          description: Career save not found
+
   /careers/{id}:
     delete:
       operationId: deleteCareerSave
@@ -3303,6 +3334,9 @@ components:
       properties:
         id:
           type: integer
+        teamId:
+          type: integer
+          nullable: true
         slotNumber:
           type: integer
         managerName:
