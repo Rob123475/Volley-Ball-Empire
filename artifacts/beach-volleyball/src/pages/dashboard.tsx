@@ -8,6 +8,7 @@ import {
   useGetAttentionItems,
   useGetFacilities,
   useGetTrophyCabinet,
+  useGetTeamStrength,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
@@ -16,6 +17,7 @@ import {
   getGetAttentionItemsQueryKey,
   getGetFacilitiesQueryKey,
   getGetTrophyCabinetQueryKey,
+  getGetTeamStrengthQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -183,6 +185,9 @@ export default function Dashboard() {
   });
   const { data: cabinet } = useGetTrophyCabinet({
     query: { queryKey: getGetTrophyCabinetQueryKey() },
+  });
+  const { data: teamStrength } = useGetTeamStrength({
+    query: { queryKey: getGetTeamStrengthQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -471,6 +476,11 @@ export default function Dashboard() {
           TROPHY CABINET PREVIEW
       ══════════════════════════════════════════════════════════════ */}
       {cabinet && <TrophyCabinetPreview cabinet={cabinet} />}
+
+      {/* ══════════════════════════════════════════════════════════════
+          TEAM STRENGTH OVERVIEW
+      ══════════════════════════════════════════════════════════════ */}
+      {teamStrength && <TeamStrengthOverview strength={teamStrength} />}
 
       {/* ══════════════════════════════════════════════════════════════
           PLAYERS + RESULTS
@@ -803,6 +813,172 @@ function TrophyCabinetPreview({ cabinet }: { cabinet: import("@workspace/api-cli
           </div>
 
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Team Strength Overview ─────────────────────────────────────────────────────
+const POSITION_META: Record<string, { label: string; emoji: string; accent: string; bar: string; desc: string }> = {
+  setter:      { label: "Setter",      emoji: "🏐", accent: "text-sky-400",    bar: "bg-sky-500",    desc: "Serve · Speed · Defense" },
+  spiker:      { label: "Spiker",      emoji: "⚡", accent: "text-rose-400",   bar: "bg-rose-500",   desc: "Power · Speed · Block"   },
+  defender:    { label: "Defender",    emoji: "🛡️",  accent: "text-emerald-400",bar: "bg-emerald-500",desc: "Defense · Speed"          },
+  blocker:     { label: "Blocker",     emoji: "🧱", accent: "text-amber-400",  bar: "bg-amber-500",  desc: "Block · Power"           },
+  server:      { label: "Server",      emoji: "🎯", accent: "text-violet-400", bar: "bg-violet-500", desc: "Serve · Power"           },
+  all_rounder: { label: "All-Rounder",emoji: "⭐",  accent: "text-yellow-400", bar: "bg-yellow-500", desc: "Balanced all stats"      },
+};
+
+const POSITION_ORDER = ["setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+
+function ratingLabel(r: number) {
+  if (r === 0)  return { text: "No Players", color: "text-white/30" };
+  if (r >= 90)  return { text: "World Class", color: "text-yellow-400" };
+  if (r >= 80)  return { text: "Elite",       color: "text-green-400"  };
+  if (r >= 70)  return { text: "Strong",      color: "text-sky-400"    };
+  if (r >= 60)  return { text: "Average",     color: "text-white/60"   };
+  if (r >= 50)  return { text: "Weak",        color: "text-orange-400" };
+  return               { text: "Critical",    color: "text-red-400"    };
+}
+
+function TeamStrengthOverview({ strength }: { strength: import("@workspace/api-client-react").TeamStrength }) {
+  const [, navigate] = useLocation();
+  const positions = strength.positions as Record<string, { rating: number; playerCount: number; topPlayer: string | null }>;
+
+  const overall = strength.overallRating;
+  const { text: overallLabel, color: overallColor } = ratingLabel(overall);
+
+  const maxRating = Math.max(...POSITION_ORDER.map(p => positions[p]?.rating ?? 0), 1);
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(56,189,248,0.07),_transparent_55%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(244,63,94,0.06),_transparent_55%)] pointer-events-none" />
+
+      <div className="relative z-10 p-5 md:p-6 space-y-5">
+
+        {/* Header row */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-sky-400/15 border border-sky-400/30 flex items-center justify-center text-xl">
+              📊
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white leading-none">Team Strength</h3>
+              <div className="text-[11px] text-white/50 mt-0.5">
+                {strength.totalActivePlayers} active player{strength.totalActivePlayers !== 1 ? "s" : ""}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate("/players")}
+            className="flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors bg-sky-400/10 hover:bg-sky-400/20 border border-sky-400/20 rounded-lg px-3 py-1.5"
+          >
+            <Users className="h-3.5 w-3.5" />
+            Manage Squad
+          </button>
+        </div>
+
+        {/* Overall rating hero */}
+        <div className="flex items-center gap-4 bg-white/5 rounded-xl px-4 py-3 border border-white/8">
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Overall Team Rating</div>
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-sky-500 via-emerald-500 to-yellow-500 transition-all"
+                style={{ width: `${overall}%` }}
+              />
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-3xl font-black text-white leading-none">{overall}</div>
+            <div className={cn("text-[10px] font-bold mt-0.5", overallColor)}>{overallLabel}</div>
+          </div>
+        </div>
+
+        {/* Strongest / Weakest callouts */}
+        {(strength.strongestPosition || strength.weakestPosition) && (
+          <div className="grid grid-cols-2 gap-2">
+            {strength.strongestPosition && (
+              <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+                <span className="text-base">{POSITION_META[strength.strongestPosition]?.emoji ?? "⭐"}</span>
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Strongest</div>
+                  <div className="text-xs font-bold text-white">{POSITION_META[strength.strongestPosition]?.label}</div>
+                </div>
+                <div className="ml-auto text-sm font-black text-emerald-400">{positions[strength.strongestPosition]?.rating}</div>
+              </div>
+            )}
+            {strength.weakestPosition && (
+              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                <span className={cn("text-base", positions[strength.weakestPosition]?.playerCount === 0 && "grayscale opacity-40")}>
+                  {POSITION_META[strength.weakestPosition]?.emoji ?? "⚠️"}
+                </span>
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-widest text-red-400">Weakest</div>
+                  <div className="text-xs font-bold text-white">{POSITION_META[strength.weakestPosition]?.label}</div>
+                </div>
+                <div className="ml-auto text-sm font-black text-red-400">
+                  {positions[strength.weakestPosition]?.playerCount === 0 ? "—" : positions[strength.weakestPosition]?.rating}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Per-position bars */}
+        <div className="space-y-2.5">
+          <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Position Breakdown</div>
+          {POSITION_ORDER.map(pos => {
+            const meta  = POSITION_META[pos];
+            const data  = positions[pos] ?? { rating: 0, playerCount: 0, topPlayer: null };
+            const pct   = maxRating > 0 ? (data.rating / maxRating) * 100 : 0;
+            const rl    = ratingLabel(data.rating);
+            const isStrongest = strength.strongestPosition === pos;
+            const isWeakest   = strength.weakestPosition === pos && data.playerCount > 0;
+
+            return (
+              <div key={pos} className={cn(
+                "grid items-center gap-2 rounded-lg px-3 py-2 transition-colors",
+                "grid-cols-[1.5rem_5rem_1fr_2.5rem]",
+                isStrongest && "bg-emerald-500/8 border border-emerald-500/15",
+                isWeakest   && "bg-red-500/8 border border-red-500/15",
+                !isStrongest && !isWeakest && "bg-white/4 border border-transparent",
+              )}>
+                {/* Emoji */}
+                <span className={cn("text-base leading-none", data.playerCount === 0 && "grayscale opacity-30")}>
+                  {meta.emoji}
+                </span>
+
+                {/* Label + top player */}
+                <div className="min-w-0">
+                  <div className={cn("text-[11px] font-bold leading-none", data.playerCount > 0 ? meta.accent : "text-white/30")}>
+                    {meta.label}
+                  </div>
+                  <div className="text-[9px] text-white/30 truncate mt-0.5">
+                    {data.topPlayer ?? (data.playerCount === 0 ? "No players" : "")}
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className={cn("h-full rounded-full transition-all", data.playerCount > 0 ? meta.bar : "bg-white/5")}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+
+                {/* Rating + label */}
+                <div className="text-right">
+                  <div className={cn("text-sm font-black leading-none", data.playerCount > 0 ? meta.accent : "text-white/20")}>
+                    {data.playerCount > 0 ? data.rating : "—"}
+                  </div>
+                  <div className={cn("text-[8px] font-semibold leading-none mt-0.5", rl.color)}>{rl.text}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
       </div>
     </div>
   );

@@ -79,6 +79,7 @@ import type {
   Team,
   TeamInput,
   TeamRoster,
+  TeamStrength,
   TeamTrainingInput,
   TeamUpdate,
   TrainingInput,
@@ -1882,6 +1883,83 @@ export const useSetPlayerRole = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getSetPlayerRoleMutationOptions(options));
     }
+
+export const getGetTeamStrengthUrl = () => {
+
+
+
+
+  return `/api/team/strength`
+}
+
+/**
+ * @summary Get team strength overview grouped by player position
+ */
+export const getTeamStrength = async ( options?: RequestInit): Promise<TeamStrength> => {
+
+  return customFetch<TeamStrength>(getGetTeamStrengthUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTeamStrengthQueryKey = () => {
+    return [
+    `/api/team/strength`
+    ] as const;
+    }
+
+
+export const getGetTeamStrengthQueryOptions = <TData = Awaited<ReturnType<typeof getTeamStrength>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTeamStrength>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTeamStrengthQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTeamStrength>>> = ({ signal }) => getTeamStrength({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTeamStrength>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTeamStrengthQueryResult = NonNullable<Awaited<ReturnType<typeof getTeamStrength>>>
+export type GetTeamStrengthQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get team strength overview grouped by player position
+ */
+
+export function useGetTeamStrength<TData = Awaited<ReturnType<typeof getTeamStrength>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTeamStrength>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTeamStrengthQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListContractsUrl = () => {
 

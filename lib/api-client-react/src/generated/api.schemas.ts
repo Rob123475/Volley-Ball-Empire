@@ -1028,6 +1028,22 @@ export interface ManagerRecords {
   olympicMedals: number;
 }
 
+export interface PositionStrength {
+  rating: number;
+  playerCount: number;
+  topPlayer: string | null;
+}
+
+export type TeamStrengthPositions = {[key: string]: PositionStrength};
+
+export interface TeamStrength {
+  overallRating: number;
+  totalActivePlayers: number;
+  strongestPosition: string | null;
+  weakestPosition: string | null;
+  positions: TeamStrengthPositions;
+}
+
 export interface TrophyCabinet {
   honours: ClubHonours;
   olympicMedals: OlympicMedalRecord;

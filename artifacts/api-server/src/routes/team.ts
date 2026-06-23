@@ -166,6 +166,59 @@ router.patch("/players/:id/training-focus", async (req, res) => {
   res.json({ ...updated, height: Number(updated.height), salary: Number(updated.salary) });
 });
 
+// ── Team Strength Overview ───────────────────────────────────────────────────
+const POSITIONS = ["setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+
+const playerOvr = (p: { power: number; speed: number; defense: number; serve: number; block: number }) =>
+  Math.round((p.power + p.speed + p.defense + p.serve + p.block) / 5);
+
+router.get("/team/strength", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const allPlayers = await db
+    .select()
+    .from(playersTable)
+    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
+
+  const activePlayers = allPlayers.filter(p => p.squadRole === "starter" || p.squadRole === "interchange");
+  const evalPlayers   = activePlayers.length > 0 ? activePlayers : allPlayers;
+
+  const positions: Record<string, { rating: number; playerCount: number; topPlayer: string | null }> = {};
+
+  for (const pos of POSITIONS) {
+    const group = evalPlayers.filter(p => p.position === pos);
+    if (group.length === 0) {
+      positions[pos] = { rating: 0, playerCount: 0, topPlayer: null };
+    } else {
+      const sorted = [...group].sort((a, b) => playerOvr(b) - playerOvr(a));
+      const avgRating = Math.round(group.reduce((sum, p) => sum + playerOvr(p), 0) / group.length);
+      positions[pos] = { rating: avgRating, playerCount: group.length, topPlayer: sorted[0].name };
+    }
+  }
+
+  const ratedPositions = POSITIONS.filter(p => positions[p].playerCount > 0);
+  const strongestPosition = ratedPositions.length > 0
+    ? ratedPositions.reduce((a, b) => positions[a].rating >= positions[b].rating ? a : b)
+    : null;
+  const weakestPosition = ratedPositions.length > 0
+    ? ratedPositions.reduce((a, b) => positions[a].rating <= positions[b].rating ? a : b)
+    : null;
+
+  const overallRating = evalPlayers.length > 0
+    ? Math.round(evalPlayers.reduce((sum, p) => sum + playerOvr(p), 0) / evalPlayers.length)
+    : 0;
+
+  res.json({
+    overallRating,
+    totalActivePlayers: activePlayers.length,
+    strongestPosition,
+    weakestPosition,
+    positions,
+  });
+});
+
 // ── Legacy swap endpoint (kept for any remaining callers) ───────────────────
 router.post("/team/swap-player", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

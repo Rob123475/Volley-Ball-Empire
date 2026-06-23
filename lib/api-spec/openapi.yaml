@@ -483,6 +483,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/TeamRoster"
 
+  /team/strength:
+    get:
+      operationId: getTeamStrength
+      tags: [teams]
+      summary: Get team strength overview grouped by player position
+      responses:
+        "200":
+          description: Team strength ratings per position
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamStrength"
+        "401":
+          description: Unauthorized
+
   /contracts:
     get:
       operationId: listContracts
@@ -3117,6 +3132,37 @@ components:
           type: integer
         olympicMedals:
           type: integer
+
+    PositionStrength:
+      type: object
+      required: [rating, playerCount, topPlayer]
+      properties:
+        rating:
+          type: integer
+        playerCount:
+          type: integer
+        topPlayer:
+          type: string
+          nullable: true
+
+    TeamStrength:
+      type: object
+      required: [overallRating, totalActivePlayers, strongestPosition, weakestPosition, positions]
+      properties:
+        overallRating:
+          type: integer
+        totalActivePlayers:
+          type: integer
+        strongestPosition:
+          type: string
+          nullable: true
+        weakestPosition:
+          type: string
+          nullable: true
+        positions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/PositionStrength"
 
     TrophyCabinet:
       type: object

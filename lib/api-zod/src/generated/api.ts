@@ -1376,6 +1376,22 @@ export const SetPlayerRoleResponse = zod.object({
 
 
 /**
+ * @summary Get team strength overview grouped by player position
+ */
+export const GetTeamStrengthResponse = zod.object({
+  "overallRating": zod.number(),
+  "totalActivePlayers": zod.number(),
+  "strongestPosition": zod.string().nullable(),
+  "weakestPosition": zod.string().nullable(),
+  "positions": zod.record(zod.string(), zod.object({
+  "rating": zod.number(),
+  "playerCount": zod.number(),
+  "topPlayer": zod.string().nullable()
+}))
+})
+
+
+/**
  * @summary List all active contracts for the user's team
  */
 export const listContractsResponsePlayerDoctorQualityMax = 5;
