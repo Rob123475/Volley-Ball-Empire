@@ -1438,6 +1438,29 @@ export interface CareerStats {
   debtFreeSeasons?: number;
 }
 
+export type AttentionItemPriority = typeof AttentionItemPriority[keyof typeof AttentionItemPriority];
+
+
+export const AttentionItemPriority = {
+  red: 'red',
+  orange: 'orange',
+  blue: 'blue',
+} as const;
+
+export interface AttentionItem {
+  id: string;
+  priority: AttentionItemPriority;
+  category: string;
+  title: string;
+  description: string;
+  navigateTo: string;
+}
+
+export interface AttentionItemsResponse {
+  items: AttentionItem[];
+  total: number;
+}
+
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;

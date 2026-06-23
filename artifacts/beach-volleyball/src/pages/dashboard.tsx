@@ -5,11 +5,13 @@ import {
   useGetProfile,
   useUpdateProfile,
   useGetClubRating,
+  useGetAttentionItems,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
   getGetProfileQueryKey,
   getGetClubRatingQueryKey,
+  getGetAttentionItemsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -46,6 +48,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
+import type { AttentionItem } from "@workspace/api-client-react";
 
 const weatherIcons: Record<string, string> = {
   sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
@@ -155,6 +159,9 @@ export default function Dashboard() {
   const updateProfile = useUpdateProfile();
   const { data: clubRating } = useGetClubRating({
     query: { queryKey: getGetClubRatingQueryKey() },
+  });
+  const { data: attention } = useGetAttentionItems({
+    query: { queryKey: getGetAttentionItemsQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -425,6 +432,11 @@ export default function Dashboard() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════
+          ATTENTION REQUIRED
+      ══════════════════════════════════════════════════════════════ */}
+      <AttentionPanel items={attention?.items ?? []} />
+
+      {/* ══════════════════════════════════════════════════════════════
           PLAYERS + RESULTS
       ══════════════════════════════════════════════════════════════ */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
@@ -571,6 +583,94 @@ export default function Dashboard() {
       />
 
     </div>
+  );
+}
+
+// ── Attention Required panel ───────────────────────────────────────────────────
+const PRIORITY_META = {
+  red:    { dot: "bg-red-500",    border: "border-l-red-500",    badge: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",    label: "Urgent"      },
+  orange: { dot: "bg-orange-400", border: "border-l-orange-400", badge: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300", label: "Important" },
+  blue:   { dot: "bg-blue-400",   border: "border-l-blue-400",   badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",   label: "Info"        },
+};
+
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  Medical:        <HeartPulse className="h-3.5 w-3.5" />,
+  Contract:       <KeyRound className="h-3.5 w-3.5" />,
+  Finances:       <DollarSign className="h-3.5 w-3.5" />,
+  Morale:         <Star className="h-3.5 w-3.5" />,
+  "Youth Academy":<Trophy className="h-3.5 w-3.5" />,
+  Scouting:       <MapPin className="h-3.5 w-3.5" />,
+  Facilities:     <Building2 className="h-3.5 w-3.5" />,
+};
+
+function AttentionPanel({ items }: { items: AttentionItem[] }) {
+  const [, navigate] = useLocation();
+  if (items.length === 0) return null;
+
+  const urgentCount  = items.filter(i => i.priority === "red").length;
+  const importantCount = items.filter(i => i.priority === "orange").length;
+
+  return (
+    <Card className="border-border/60">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base">Attention Required</CardTitle>
+            <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs font-bold">
+              {items.length}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            {urgentCount > 0 && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400">
+                <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
+                {urgentCount} urgent
+              </span>
+            )}
+            {importantCount > 0 && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
+                <span className="h-2 w-2 rounded-full bg-orange-400 inline-block" />
+                {importantCount} important
+              </span>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((item) => {
+            const meta = PRIORITY_META[item.priority as "red" | "orange" | "blue"];
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.navigateTo)}
+                className={cn(
+                  "text-left w-full rounded-lg border border-border/60 border-l-4 bg-card px-3 py-2.5 hover:bg-muted/50 transition-colors group",
+                  meta.border
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <span className="text-muted-foreground shrink-0">
+                      {CATEGORY_ICONS[item.category] ?? <Shield className="h-3.5 w-3.5" />}
+                    </span>
+                    <span className="text-xs font-bold text-foreground leading-tight truncate">{item.title}</span>
+                  </div>
+                  <span className={cn("shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full", meta.badge)}>
+                    {meta.label}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1 leading-snug line-clamp-2">{item.description}</p>
+                <div className="flex items-center gap-1 mt-1.5 text-[10px] text-muted-foreground/60 group-hover:text-primary transition-colors">
+                  <ChevronRight className="h-3 w-3" />
+                  Go to {item.category}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

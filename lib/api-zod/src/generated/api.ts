@@ -2793,6 +2793,22 @@ export const UpgradeFacilityResponse = zod.object({
 
 
 /**
+ * @summary Get attention-required items for the manager dashboard
+ */
+export const GetAttentionItemsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "priority": zod.enum(['red', 'orange', 'blue']),
+  "category": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "navigateTo": zod.string()
+})),
+  "total": zod.number()
+})
+
+
+/**
  * @summary Get the club overall rating with weighted breakdown
  */
 export const GetClubRatingResponse = zod.object({

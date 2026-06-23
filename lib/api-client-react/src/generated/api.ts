@@ -21,6 +21,7 @@ import type {
 
 import type {
   AchievementStatus,
+  AttentionItemsResponse,
   AuthUser,
   CareerStats,
   ClubRating,
@@ -5310,6 +5311,83 @@ export const useUpgradeFacility = <TError = ErrorType<void>,
       > => {
       return useMutation(getUpgradeFacilityMutationOptions(options));
     }
+
+export const getGetAttentionItemsUrl = () => {
+
+
+
+
+  return `/api/attention-items`
+}
+
+/**
+ * @summary Get attention-required items for the manager dashboard
+ */
+export const getAttentionItems = async ( options?: RequestInit): Promise<AttentionItemsResponse> => {
+
+  return customFetch<AttentionItemsResponse>(getGetAttentionItemsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAttentionItemsQueryKey = () => {
+    return [
+    `/api/attention-items`
+    ] as const;
+    }
+
+
+export const getGetAttentionItemsQueryOptions = <TData = Awaited<ReturnType<typeof getAttentionItems>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAttentionItems>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAttentionItemsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAttentionItems>>> = ({ signal }) => getAttentionItems({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAttentionItems>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAttentionItemsQueryResult = NonNullable<Awaited<ReturnType<typeof getAttentionItems>>>
+export type GetAttentionItemsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get attention-required items for the manager dashboard
+ */
+
+export function useGetAttentionItems<TData = Awaited<ReturnType<typeof getAttentionItems>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAttentionItems>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAttentionItemsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetClubRatingUrl = () => {
 

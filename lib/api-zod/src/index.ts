@@ -1,4 +1,7 @@
 export * from "./generated/api";
+export type * from "./generated/types/attentionItem";
+export type * from "./generated/types/attentionItemPriority";
+export type * from "./generated/types/attentionItemsResponse";
 export type * from "./generated/types/achievementStatusCategory";
 export type * from "./generated/types/achievementStatusProgress";
 export type * from "./generated/types/achievementStatus";

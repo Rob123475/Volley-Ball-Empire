@@ -1262,6 +1262,23 @@ paths:
         "404":
           description: Facility not found
 
+  /attention-items:
+    get:
+      operationId: getAttentionItems
+      tags: [dashboard]
+      summary: Get attention-required items for the manager dashboard
+      responses:
+        "200":
+          description: Attention items list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttentionItemsResponse"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Team not found
+
   /club-rating:
     get:
       operationId: getClubRating
@@ -3706,4 +3723,33 @@ components:
         perfectSeasons:
           type: integer
         debtFreeSeasons:
+          type: integer
+
+    AttentionItem:
+      type: object
+      required: [id, priority, category, title, description, navigateTo]
+      properties:
+        id:
+          type: string
+        priority:
+          type: string
+          enum: [red, orange, blue]
+        category:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        navigateTo:
+          type: string
+
+    AttentionItemsResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttentionItem"
+        total:
           type: integer
