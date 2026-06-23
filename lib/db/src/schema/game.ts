@@ -423,3 +423,19 @@ export const youthChampionshipTrophiesTable = pgTable("youth_championship_trophi
 });
 
 export type YouthChampionshipTrophy = typeof youthChampionshipTrophiesTable.$inferSelect;
+
+export const continentalScoutingMissionsTable = pgTable("continental_scouting_missions", {
+  id:              serial("id").primaryKey(),
+  teamId:          integer("team_id").notNull().references(() => teamsTable.id),
+  region:          varchar("region", { length: 30 }).notNull(),
+  status:          varchar("status", { length: 20 }).notNull().default("active"),
+  durationMonths:  integer("duration_months").notNull().default(1),
+  startDate:       timestamp("start_date", { withTimezone: true }).notNull().defaultNow(),
+  endDate:         timestamp("end_date", { withTimezone: true }).notNull(),
+  assignedStaffId: integer("assigned_staff_id").references(() => staffTable.id),
+  prospectsFound:  integer("prospects_found").notNull().default(0),
+  cost:            numeric("cost", { precision: 10, scale: 2 }).notNull().default("0"),
+  createdAt:       timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ContinentalScoutingMission = typeof continentalScoutingMissionsTable.$inferSelect;
