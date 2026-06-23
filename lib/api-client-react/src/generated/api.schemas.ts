@@ -1028,6 +1028,44 @@ export interface ManagerRecords {
   olympicMedals: number;
 }
 
+export type UpcomingEventType = typeof UpcomingEventType[keyof typeof UpcomingEventType];
+
+
+export const UpcomingEventType = {
+  match: 'match',
+  season_end: 'season_end',
+  scouting_return: 'scouting_return',
+  olympic: 'olympic',
+  youth_league: 'youth_league',
+  facility_action: 'facility_action',
+} as const;
+
+export type UpcomingEventUrgency = typeof UpcomingEventUrgency[keyof typeof UpcomingEventUrgency];
+
+
+export const UpcomingEventUrgency = {
+  critical: 'critical',
+  soon: 'soon',
+  upcoming: 'upcoming',
+  planning: 'planning',
+} as const;
+
+export interface UpcomingEvent {
+  id: string;
+  type: UpcomingEventType;
+  title: string;
+  subtitle: string;
+  location?: string | null;
+  daysRemaining?: number | null;
+  prizeMoney?: string | null;
+  urgency: UpcomingEventUrgency;
+  detail?: string | null;
+}
+
+export interface UpcomingEventsFeed {
+  items: UpcomingEvent[];
+}
+
 export type WorldTourNewsItemType = typeof WorldTourNewsItemType[keyof typeof WorldTourNewsItemType];
 
 

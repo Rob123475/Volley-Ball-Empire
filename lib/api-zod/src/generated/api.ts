@@ -2576,6 +2576,24 @@ export const DraftPickBody = zod.object({
 
 
 /**
+ * @summary Get upcoming events and fixtures for the manager's planning view
+ */
+export const GetUpcomingEventsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.enum(['match', 'season_end', 'scouting_return', 'olympic', 'youth_league', 'facility_action']),
+  "title": zod.string(),
+  "subtitle": zod.string(),
+  "location": zod.string().nullish(),
+  "daysRemaining": zod.number().nullish(),
+  "prizeMoney": zod.string().nullish(),
+  "urgency": zod.enum(['critical', 'soon', 'upcoming', 'planning']),
+  "detail": zod.string().nullish()
+}))
+})
+
+
+/**
  * @summary Get the latest World Tour news stories
  */
 export const GetWorldTourNewsResponse = zod.object({

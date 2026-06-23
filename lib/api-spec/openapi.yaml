@@ -1135,6 +1135,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/Player"
 
+  /events/upcoming:
+    get:
+      operationId: getUpcomingEvents
+      tags: [events]
+      summary: Get upcoming events and fixtures for the manager's planning view
+      responses:
+        "200":
+          description: Upcoming events list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpcomingEventsFeed"
+        "401":
+          description: Unauthorized
+
   /news/world-tour:
     get:
       operationId: getWorldTourNews
@@ -3147,6 +3162,44 @@ components:
           type: integer
         olympicMedals:
           type: integer
+
+    UpcomingEvent:
+      type: object
+      required: [id, type, title, subtitle, urgency]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [match, season_end, scouting_return, olympic, youth_league, facility_action]
+        title:
+          type: string
+        subtitle:
+          type: string
+        location:
+          type: string
+          nullable: true
+        daysRemaining:
+          type: integer
+          nullable: true
+        prizeMoney:
+          type: string
+          nullable: true
+        urgency:
+          type: string
+          enum: [critical, soon, upcoming, planning]
+        detail:
+          type: string
+          nullable: true
+
+    UpcomingEventsFeed:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingEvent"
 
     WorldTourNewsItem:
       type: object

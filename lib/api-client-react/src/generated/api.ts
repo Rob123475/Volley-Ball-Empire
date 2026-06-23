@@ -87,6 +87,7 @@ import type {
   TrainingResult,
   TrainingSession,
   TrophyCabinet,
+  UpcomingEventsFeed,
   UserProfile,
   UserProfileInput,
   UserProfileUpdate,
@@ -4792,6 +4793,83 @@ export const useDraftPick = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getDraftPickMutationOptions(options));
     }
+
+export const getGetUpcomingEventsUrl = () => {
+
+
+
+
+  return `/api/events/upcoming`
+}
+
+/**
+ * @summary Get upcoming events and fixtures for the manager's planning view
+ */
+export const getUpcomingEvents = async ( options?: RequestInit): Promise<UpcomingEventsFeed> => {
+
+  return customFetch<UpcomingEventsFeed>(getGetUpcomingEventsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUpcomingEventsQueryKey = () => {
+    return [
+    `/api/events/upcoming`
+    ] as const;
+    }
+
+
+export const getGetUpcomingEventsQueryOptions = <TData = Awaited<ReturnType<typeof getUpcomingEvents>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUpcomingEvents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUpcomingEventsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUpcomingEvents>>> = ({ signal }) => getUpcomingEvents({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUpcomingEvents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUpcomingEventsQueryResult = NonNullable<Awaited<ReturnType<typeof getUpcomingEvents>>>
+export type GetUpcomingEventsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get upcoming events and fixtures for the manager's planning view
+ */
+
+export function useGetUpcomingEvents<TData = Awaited<ReturnType<typeof getUpcomingEvents>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUpcomingEvents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUpcomingEventsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetWorldTourNewsUrl = () => {
 

@@ -10,6 +10,7 @@ import {
   useGetTrophyCabinet,
   useGetTeamStrength,
   useGetWorldTourNews,
+  useGetUpcomingEvents,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
@@ -20,6 +21,7 @@ import {
   getGetTrophyCabinetQueryKey,
   getGetTeamStrengthQueryKey,
   getGetWorldTourNewsQueryKey,
+  getGetUpcomingEventsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -193,6 +195,9 @@ export default function Dashboard() {
   });
   const { data: worldNews } = useGetWorldTourNews({
     query: { queryKey: getGetWorldTourNewsQueryKey() },
+  });
+  const { data: upcomingEvents } = useGetUpcomingEvents({
+    query: { queryKey: getGetUpcomingEventsQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -481,6 +486,11 @@ export default function Dashboard() {
           TROPHY CABINET PREVIEW
       ══════════════════════════════════════════════════════════════ */}
       {cabinet && <TrophyCabinetPreview cabinet={cabinet} />}
+
+      {/* ══════════════════════════════════════════════════════════════
+          UPCOMING EVENTS
+      ══════════════════════════════════════════════════════════════ */}
+      {upcomingEvents && <UpcomingEventsWidget items={upcomingEvents.items} />}
 
       {/* ══════════════════════════════════════════════════════════════
           WORLD TOUR NEWS FEED
@@ -823,6 +833,171 @@ function TrophyCabinetPreview({ cabinet }: { cabinet: import("@workspace/api-cli
           </div>
 
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Upcoming Events ────────────────────────────────────────────────────────────
+
+type UpcomingEventItem = import("@workspace/api-client-react").UpcomingEvent;
+
+const EVENT_META: Record<string, { icon: string; label: string; color: string; bg: string; border: string; barColor: string }> = {
+  match:           { icon: "🏐", label: "Match",    color: "text-sky-300",     bg: "bg-sky-500/10",     border: "border-sky-500/25",     barColor: "bg-sky-500"     },
+  season_end:      { icon: "📅", label: "Season",   color: "text-violet-300",  bg: "bg-violet-500/10",  border: "border-violet-500/25",  barColor: "bg-violet-500"  },
+  scouting_return: { icon: "🔭", label: "Scouting", color: "text-amber-300",   bg: "bg-amber-500/10",   border: "border-amber-500/25",   barColor: "bg-amber-500"   },
+  olympic:         { icon: "🏅", label: "Olympic",  color: "text-yellow-300",  bg: "bg-yellow-500/10",  border: "border-yellow-500/25",  barColor: "bg-yellow-500"  },
+  youth_league:    { icon: "⭐", label: "Youth",    color: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-500/25", barColor: "bg-emerald-500" },
+  facility_action: { icon: "🏗️",  label: "Facility", color: "text-rose-300",   bg: "bg-rose-500/10",    border: "border-rose-500/25",    barColor: "bg-rose-500"    },
+};
+
+const URGENCY_CONFIG: Record<string, { label: string; dot: string; pill: string }> = {
+  critical: { label: "Today",    dot: "bg-red-500 animate-pulse",   pill: "bg-red-500/20 text-red-300 border-red-500/30"     },
+  soon:     { label: "Soon",     dot: "bg-orange-400",              pill: "bg-orange-400/15 text-orange-300 border-orange-400/25" },
+  upcoming: { label: "Upcoming", dot: "bg-sky-400",                 pill: "bg-sky-400/15 text-sky-300 border-sky-400/25"       },
+  planning: { label: "Planning", dot: "bg-white/25",                pill: "bg-white/8 text-white/40 border-white/15"           },
+};
+
+function countdownLabel(days: number | null): string {
+  if (days === null)   return "No date set";
+  if (days <= 0)       return "Today";
+  if (days === 1)      return "Tomorrow";
+  if (days <= 7)       return `${days} days`;
+  if (days <= 30)      return `${days} days`;
+  const weeks = Math.round(days / 7);
+  return `${weeks} week${weeks !== 1 ? "s" : ""}`;
+}
+
+function UpcomingEventsWidget({ items }: { items: UpcomingEventItem[] }) {
+  const [, navigate] = useLocation();
+
+  // Split into two sections: time-bound (has daysRemaining) and planning items
+  const timeBound = items.filter(e => e.daysRemaining !== null || e.urgency === "critical" || e.urgency === "soon");
+  const planning  = items.filter(e => e.daysRemaining === null && e.urgency !== "critical" && e.urgency !== "soon");
+
+  const renderCard = (evt: UpcomingEventItem) => {
+    const meta    = EVENT_META[evt.type]    ?? EVENT_META.match;
+    const urg     = URGENCY_CONFIG[evt.urgency] ?? URGENCY_CONFIG.planning;
+    const hasDays = evt.daysRemaining !== null;
+    const nav     = evt.type === "match"           ? "/matches"
+                  : evt.type === "scouting_return" ? "/continental-scouting"
+                  : evt.type === "olympic"         ? "/olympics"
+                  : evt.type === "youth_league"    ? "/youth-league"
+                  : evt.type === "facility_action" ? "/facilities"
+                  : null;
+
+    return (
+      <div
+        key={evt.id}
+        onClick={() => nav && navigate(nav)}
+        className={cn(
+          "rounded-xl border p-3.5 flex gap-3 items-start transition-all",
+          meta.bg, meta.border,
+          nav && "cursor-pointer hover:brightness-110",
+        )}
+      >
+        {/* Icon circle */}
+        <div className={cn(
+          "h-9 w-9 rounded-lg flex items-center justify-center text-lg shrink-0 border",
+          meta.bg, meta.border,
+        )}>
+          {meta.icon}
+        </div>
+
+        <div className="flex-1 min-w-0 space-y-1">
+          {/* Top row: title + urgency pill */}
+          <div className="flex items-start justify-between gap-2 flex-wrap">
+            <div className="text-sm font-bold text-white leading-tight">{evt.title}</div>
+            <span className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black border shrink-0",
+              urg.pill,
+            )}>
+              <span className={cn("inline-block h-1.5 w-1.5 rounded-full", urg.dot)} />
+              {urg.label}
+            </span>
+          </div>
+
+          {/* Subtitle */}
+          <div className="text-[11px] text-white/50">{evt.subtitle}</div>
+
+          {/* Location + prize row */}
+          {(evt.location || evt.prizeMoney) && (
+            <div className="flex items-center gap-3 text-[10px] text-white/40 font-semibold">
+              {evt.location && <span>📍 {evt.location}</span>}
+              {evt.prizeMoney && <span className="text-emerald-400">💰 {evt.prizeMoney}</span>}
+            </div>
+          )}
+
+          {/* Countdown bar (only when days known) */}
+          {hasDays && (
+            <div className="flex items-center gap-2 pt-0.5">
+              <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all", meta.barColor)}
+                  style={{
+                    width: `${Math.max(4, Math.min(100, 100 - ((evt.daysRemaining ?? 0) / 90) * 100))}%`,
+                  }}
+                />
+              </div>
+              <div className={cn("text-[10px] font-black shrink-0 tabular-nums", meta.color)}>
+                {countdownLabel(evt.daysRemaining ?? null)}
+              </div>
+            </div>
+          )}
+
+          {/* Detail */}
+          {evt.detail && (
+            <div className="text-[10px] text-white/35 leading-relaxed pt-0.5">{evt.detail}</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/80 shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.07),_transparent_55%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(16,185,129,0.05),_transparent_55%)] pointer-events-none" />
+
+      <div className="relative z-10 p-5 md:p-6 space-y-5">
+
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-violet-400/15 border border-violet-400/30 flex items-center justify-center text-xl">
+            📆
+          </div>
+          <div>
+            <h3 className="text-base font-black text-white leading-none">Upcoming Events</h3>
+            <div className="text-[11px] text-white/50 mt-0.5">{items.length} events on your calendar</div>
+          </div>
+        </div>
+
+        {/* Time-bound events */}
+        {timeBound.length > 0 && (
+          <div className="space-y-2.5">
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/35">Scheduled</div>
+            <div className="space-y-2">{timeBound.map(renderCard)}</div>
+          </div>
+        )}
+
+        {/* Divider */}
+        {timeBound.length > 0 && planning.length > 0 && (
+          <div className="border-t border-white/8" />
+        )}
+
+        {/* Planning items */}
+        {planning.length > 0 && (
+          <div className="space-y-2.5">
+            <div className="text-[10px] font-black uppercase tracking-widest text-white/35">Planning</div>
+            <div className="space-y-2">{planning.map(renderCard)}</div>
+          </div>
+        )}
+
+        {items.length === 0 && (
+          <div className="text-center py-6 text-white/30 text-sm">
+            No upcoming events — play your next match to generate fixtures.
+          </div>
+        )}
       </div>
     </div>
   );

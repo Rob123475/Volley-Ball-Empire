@@ -27,6 +27,7 @@ import continentalScoutingRouter from "./continental-scouting";
 import medicalStaffRouter from "./medical-staff";
 import attentionRouter from "./attention";
 import newsRouter from "./news";
+import eventsRouter from "./events";
 
 const router: IRouter = Router();
 
@@ -58,5 +59,6 @@ router.use(continentalScoutingRouter);
 router.use(medicalStaffRouter);
 router.use(attentionRouter);
 router.use(newsRouter);
+router.use(eventsRouter);
 
 export default router;
