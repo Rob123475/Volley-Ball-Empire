@@ -41,6 +41,7 @@ export * from './dashboardSeasonStanding';
 export * from './deleteCareerSave200';
 export * from './draftPickInput';
 export * from './draftPlayer';
+export * from './endCareer200';
 export * from './facility';
 export * from './financeSummary';
 export * from './financeSummaryExpenseBreakdown';

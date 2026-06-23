@@ -1186,6 +1186,25 @@ paths:
         "401":
           description: Unauthorized
 
+  /careers/end:
+    post:
+      operationId: endCareer
+      tags: [careers]
+      summary: End the active career (clears session context without deleting the save)
+      responses:
+        "200":
+          description: Career ended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+        "401":
+          description: Unauthorized
+
   /careers/{id}/load:
     post:
       operationId: loadCareerSave
@@ -3367,6 +3386,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CareerSaveSlot"
+        activeCareerSaveId:
+          type: integer
+          nullable: true
 
     UpsertCareerSaveBody:
       type: object

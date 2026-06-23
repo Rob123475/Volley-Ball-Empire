@@ -2606,7 +2606,8 @@ export const ListCareerSavesResponse = zod.object({
   "budget": zod.string().nullish(),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
-}))
+})),
+  "activeCareerSaveId": zod.number().nullish()
 })
 
 
@@ -2635,6 +2636,14 @@ export const UpsertCareerSaveResponse = zod.object({
   "budget": zod.string().nullish(),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
+})
+
+
+/**
+ * @summary End the active career (clears session context without deleting the save)
+ */
+export const EndCareerResponse = zod.object({
+  "ok": zod.boolean()
 })
 
 

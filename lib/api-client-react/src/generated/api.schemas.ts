@@ -1103,6 +1103,7 @@ export interface CareerSaveSlot {
 
 export interface CareerSaveList {
   saves: CareerSaveSlot[];
+  activeCareerSaveId?: number | null;
 }
 
 export interface UpsertCareerSaveBody {
@@ -1600,6 +1601,10 @@ export interface AttentionItemsResponse {
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;
+};
+
+export type EndCareer200 = {
+  ok: boolean;
 };
 
 export type LoadCareerSave200 = {

@@ -9,4 +9,5 @@ import type { CareerSaveSlot } from './careerSaveSlot';
 
 export interface CareerSaveList {
   saves: CareerSaveSlot[];
+  activeCareerSaveId?: number | null;
 }

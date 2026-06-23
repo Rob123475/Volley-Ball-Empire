@@ -37,6 +37,7 @@ import type {
   DeleteCareerSave200,
   DraftPickInput,
   DraftPlayer,
+  EndCareer200,
   Facility,
   FinanceSummary,
   FinanceTransaction,
@@ -5023,6 +5024,76 @@ export const useUpsertCareerSave = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getUpsertCareerSaveMutationOptions(options));
+    }
+
+export const getEndCareerUrl = () => {
+
+
+
+
+  return `/api/careers/end`
+}
+
+/**
+ * @summary End the active career (clears session context without deleting the save)
+ */
+export const endCareer = async ( options?: RequestInit): Promise<EndCareer200> => {
+
+  return customFetch<EndCareer200>(getEndCareerUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getEndCareerMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof endCareer>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof endCareer>>, TError,void, TContext> => {
+
+const mutationKey = ['endCareer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof endCareer>>, void> = () => {
+
+
+          return  endCareer(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EndCareerMutationResult = NonNullable<Awaited<ReturnType<typeof endCareer>>>
+
+    export type EndCareerMutationError = ErrorType<void>
+
+    /**
+ * @summary End the active career (clears session context without deleting the save)
+ */
+export const useEndCareer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof endCareer>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof endCareer>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getEndCareerMutationOptions(options));
     }
 
 export const getLoadCareerSaveUrl = (id: number,) => {

@@ -6,6 +6,7 @@ import {
   useUpsertCareerSave,
   useDeleteCareerSave,
   useLoadCareerSave,
+  useEndCareer,
   useListClubTemplates,
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
@@ -29,6 +30,8 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  XCircle,
+  Zap,
 } from "lucide-react";
 
 type SaveSlot      = import("@workspace/api-client-react").CareerSaveSlot;
@@ -519,7 +522,7 @@ function DeleteConfirmModal({ save, onClose, onConfirm, isDeleting }: DeleteConf
               <AlertTriangle className="h-5 w-5 text-red-400" />
             </div>
             <div>
-              <h2 className="text-base font-black text-white">Delete Career?</h2>
+              <h2 className="text-base font-black text-white">Delete this save slot permanently?</h2>
               <p className="text-[11px] text-white/45 mt-0.5">This cannot be undone</p>
             </div>
           </div>
@@ -530,7 +533,7 @@ function DeleteConfirmModal({ save, onClose, onConfirm, isDeleting }: DeleteConf
           </div>
 
           <p className="text-sm text-white/50">
-            All progress in Slot {save.slotNumber} will be permanently deleted.
+            All data in Slot {save.slotNumber} will be removed. Other save slots are not affected.
           </p>
 
           <div className="flex gap-3">
@@ -547,7 +550,82 @@ function DeleteConfirmModal({ save, onClose, onConfirm, isDeleting }: DeleteConf
               className="flex-1 rounded-xl bg-red-600 hover:bg-red-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2"
             >
               {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              {isDeleting ? "Deleting…" : "Delete"}
+              {isDeleting ? "Deleting…" : "Delete Slot"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── End Career Modal ──────────────────────────────────────────────────────────
+
+interface EndCareerProps {
+  save: SaveSlot;
+  onClose: () => void;
+  onConfirm: () => void;
+  isEnding: boolean;
+}
+
+const END_CAREER_PHRASE = "END CAREER";
+
+function EndCareerModal({ save, onClose, onConfirm, isEnding }: EndCareerProps) {
+  const [typed, setTyped] = useState("");
+  const confirmed = typed.trim() === END_CAREER_PHRASE;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="w-full max-w-sm rounded-2xl border border-orange-500/20 bg-slate-900 shadow-2xl overflow-hidden">
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center">
+              <XCircle className="h-5 w-5 text-orange-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white">End this career?</h2>
+              <p className="text-[11px] text-white/45 mt-0.5">This cannot be undone</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+            <div className="text-sm font-bold text-white">{save.managerName}</div>
+            <div className="text-xs text-white/45 mt-0.5">{save.clubName} · {save.season}</div>
+          </div>
+
+          <p className="text-sm text-white/50">
+            Are you sure you want to end this career? This cannot be undone. Other save slots are not affected.
+          </p>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+              Type <span className="text-orange-400">{END_CAREER_PHRASE}</span> to confirm
+            </label>
+            <input
+              autoFocus
+              value={typed}
+              onChange={e => setTyped(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && confirmed && !isEnding && onConfirm()}
+              placeholder={END_CAREER_PHRASE}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/30 transition-all font-mono tracking-wider"
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              disabled={isEnding}
+              className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={!confirmed || isEnding}
+              className="flex-1 rounded-xl bg-orange-600 hover:bg-orange-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isEnding ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+              {isEnding ? "Ending…" : "End Career"}
             </button>
           </div>
         </div>
@@ -560,17 +638,32 @@ function DeleteConfirmModal({ save, onClose, onConfirm, isDeleting }: DeleteConf
 
 interface FilledCardProps {
   save: SaveSlot;
+  isActive: boolean;
   onLoad: () => void;
   onDelete: () => void;
+  onEndCareer: () => void;
 }
 
-function FilledSlotCard({ save, onLoad, onDelete }: FilledCardProps) {
+function FilledSlotCard({ save, isActive, onLoad, onDelete, onEndCareer }: FilledCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/80 to-slate-900 shadow-lg group hover:border-white/20 transition-all">
+    <div className={cn(
+      "relative overflow-hidden rounded-2xl border bg-gradient-to-br shadow-lg group transition-all",
+      isActive
+        ? "border-emerald-500/40 from-emerald-950/60 to-slate-900 hover:border-emerald-500/60"
+        : "border-white/10 from-slate-800/80 to-slate-900 hover:border-white/20",
+    )}>
 
-      {/* Slot badge */}
-      <div className="absolute top-3.5 right-3.5 h-6 w-6 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-[10px] font-black text-violet-400">
-        {save.slotNumber}
+      {/* Slot badge + Active indicator */}
+      <div className="absolute top-3.5 right-3.5 flex items-center gap-1.5">
+        {isActive && (
+          <div className="flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5">
+            <Zap className="h-2.5 w-2.5 text-emerald-400" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Active</span>
+          </div>
+        )}
+        <div className="h-6 w-6 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-[10px] font-black text-violet-400">
+          {save.slotNumber}
+        </div>
       </div>
 
       <div className="p-5 space-y-4">
@@ -632,20 +725,31 @@ function FilledSlotCard({ save, onLoad, onDelete }: FilledCardProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 pt-1">
-          <button
-            onClick={onLoad}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all"
-          >
-            <Play className="h-4 w-4" />
-            Load Career
-          </button>
+        <div className="space-y-2 pt-1">
+          {isActive ? (
+            <button
+              onClick={onEndCareer}
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 py-2.5 text-sm font-black text-orange-400 transition-all"
+            >
+              <XCircle className="h-4 w-4" />
+              End Career
+            </button>
+          ) : (
+            <button
+              onClick={onLoad}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all"
+            >
+              <Play className="h-4 w-4" />
+              Load Career
+            </button>
+          )}
           <button
             onClick={onDelete}
-            className="h-10 w-10 flex items-center justify-center rounded-xl border border-red-500/25 bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
-            title="Delete career"
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/8 hover:bg-red-500/15 py-2 text-xs font-bold text-red-400/70 hover:text-red-400 transition-all"
+            title="Delete save slot"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete Save Slot
           </button>
         </div>
       </div>
@@ -697,9 +801,13 @@ export default function CareerManagement() {
   const upsertMutation = useUpsertCareerSave();
   const deleteMutation = useDeleteCareerSave();
   const loadMutation   = useLoadCareerSave();
+  const endMutation    = useEndCareer();
 
-  const [newSlot,    setNewSlot]    = useState<number | null>(null);
-  const [deleteSlot, setDeleteSlot] = useState<SaveSlot | null>(null);
+  const [newSlot,       setNewSlot]       = useState<number | null>(null);
+  const [deleteSlot,    setDeleteSlot]    = useState<SaveSlot | null>(null);
+  const [endCareerSave, setEndCareerSave] = useState<SaveSlot | null>(null);
+
+  const activeCareerSaveId = data?.activeCareerSaveId ?? null;
 
   const savesBySlot = new Map<number, SaveSlot>(
     (data?.saves ?? []).map(s => [s.slotNumber, s]),
@@ -758,6 +866,20 @@ export default function CareerManagement() {
     );
   };
 
+  const handleEndCareer = (save: SaveSlot) => {
+    endMutation.mutate(undefined, {
+      onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
+        void queryClient.invalidateQueries();
+        setEndCareerSave(null);
+        toast({ title: "Career ended", description: `${save.managerName}'s career has been ended` });
+      },
+      onError: () => {
+        toast({ title: "Failed to end career", variant: "destructive" });
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-5 md:p-8 space-y-8">
 
@@ -797,8 +919,10 @@ export default function CareerManagement() {
               <FilledSlotCard
                 key={slot}
                 save={save}
+                isActive={save.id === activeCareerSaveId}
                 onLoad={() => handleLoad(save)}
                 onDelete={() => setDeleteSlot(save)}
+                onEndCareer={() => setEndCareerSave(save)}
               />
             ) : (
               <EmptySlotCard
@@ -827,6 +951,15 @@ export default function CareerManagement() {
           onClose={() => setDeleteSlot(null)}
           onConfirm={() => handleDelete(deleteSlot)}
           isDeleting={deleteMutation.isPending}
+        />
+      )}
+
+      {endCareerSave !== null && (
+        <EndCareerModal
+          save={endCareerSave}
+          onClose={() => setEndCareerSave(null)}
+          onConfirm={() => handleEndCareer(endCareerSave)}
+          isEnding={endMutation.isPending}
         />
       )}
     </div>

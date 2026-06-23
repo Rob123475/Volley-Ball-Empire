@@ -16,6 +16,10 @@ router.get("/careers", async (req, res) => {
     .where(eq(careerSavesTable.userId, req.user.id))
     .orderBy(careerSavesTable.slotNumber);
 
+  // Resolve which save (if any) is currently active in this session
+  const activeTeamId = req.activeTeamId ?? null;
+  const activeSave   = activeTeamId ? saves.find(s => s.teamId === activeTeamId) : null;
+
   res.json({
     saves: saves.map(s => ({
       id:               s.id,
@@ -30,6 +34,7 @@ router.get("/careers", async (req, res) => {
       lastPlayedAt:     s.lastPlayedAt.toISOString(),
       createdAt:        s.createdAt.toISOString(),
     })),
+    activeCareerSaveId: activeSave?.id ?? null,
   });
 });
 
@@ -98,7 +103,7 @@ router.post("/careers", async (req, res) => {
     })
     .returning();
 
-  // Automatically activate this career in the session
+  // Automatically activate this new career in the session
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
@@ -120,6 +125,22 @@ router.post("/careers", async (req, res) => {
   });
 });
 
+// POST /careers/end — clear active career from session (does NOT delete the save)
+router.post("/careers/end", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const sid = getSessionId(req);
+  if (sid) {
+    const session = await getSession(sid);
+    if (session) {
+      const { activeTeamId: _, ...rest } = session;
+      await updateSession(sid, rest);
+    }
+  }
+
+  res.json({ ok: true });
+});
+
 // POST /careers/:id/load — activate a career save for this session
 router.post("/careers/:id/load", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -135,7 +156,7 @@ router.post("/careers/:id/load", async (req, res) => {
       eq(careerSavesTable.userId, req.user.id),
     ));
 
-  if (!save) { res.status(404).json({ error: "Not found" }); return; }
+  if (!save)        { res.status(404).json({ error: "Not found" }); return; }
   if (!save.teamId) { res.status(400).json({ error: "Career has no team" }); return; }
 
   // Update session with the active team
