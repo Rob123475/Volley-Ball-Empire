@@ -85,6 +85,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/youth-academy",  label: "Youth Academy",   icon: Star     },
       { href: "/training",       label: "Training",         icon: Activity },
       { href: "/medical",        label: "Medical Centre",   icon: Heart    },
+      { href: "/medical-market", label: "Medical Market",   icon: Heart    },
       { href: "/contracts",      label: "Contracts",        icon: FileText },
     ],
   },

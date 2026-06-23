@@ -1,2 +1,1 @@
-- [Season fixture structure](season-fixture-structure.md) — 67-round fixed continental tour order; detect old fixtures by absence of tier="Continental Final" and regenerate.
-- [isFinal detection](ifinal-detection.md) — rely on tier="Grand Final" only; round===61 fallback is stale (round 61 is now a regular SA event).
+- [api-zod barrel collision](api-zod-barrel.md) — Orval generates both a Zod const and a TS type with the same name for request-body schemas; fix by explicit per-file `export type *` in index.ts, excluding conflicting files.

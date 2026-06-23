@@ -1332,6 +1332,95 @@ paths:
         "404":
           description: Team not found
 
+  /medical-staff:
+    get:
+      operationId: listMedicalStaff
+      tags: [medical]
+      summary: List the user's hired medical staff
+      responses:
+        "200":
+          description: Medical staff list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: hireMedicalStaff
+      tags: [medical]
+      summary: Hire a medical staff member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [staffId]
+              properties:
+                staffId:
+                  type: integer
+      responses:
+        "201":
+          description: Hired medical staff member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "400":
+          description: Staff full or already hired
+        "401":
+          description: Unauthorized
+
+  /medical-staff/market:
+    get:
+      operationId: getMedicalStaffMarket
+      tags: [medical]
+      summary: Browse medical staff available on the market
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+          description: Filter by medical role
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by name, specialty, nationality, or trait
+      responses:
+        "200":
+          description: Medical staff market list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+
+  /medical-staff/{id}:
+    delete:
+      operationId: fireMedicalStaff
+      tags: [medical]
+      summary: Release a medical staff member
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Released medical staff member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "401":
+          description: Unauthorized
+
   /medical/injury-history:
     get:
       operationId: getInjuryHistory

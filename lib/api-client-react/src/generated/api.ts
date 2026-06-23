@@ -35,9 +35,11 @@ import type {
   FinanceSummary,
   FinanceTransaction,
   FinanceTransactionInput,
+  GetMedicalStaffMarketParams,
   GetStaffMarketParams,
   HallOfFameEntry,
   HealthStatus,
+  HireMedicalStaffBody,
   InjuryHistoryEntry,
   LadderEntry,
   LeaderboardEntry,
@@ -5615,6 +5617,308 @@ export function useGetTrophyCabinet<TData = Awaited<ReturnType<typeof getTrophyC
 
 
 
+
+export const getListMedicalStaffUrl = () => {
+
+
+
+
+  return `/api/medical-staff`
+}
+
+/**
+ * @summary List the user's hired medical staff
+ */
+export const listMedicalStaff = async ( options?: RequestInit): Promise<StaffMember[]> => {
+
+  return customFetch<StaffMember[]>(getListMedicalStaffUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMedicalStaffQueryKey = () => {
+    return [
+    `/api/medical-staff`
+    ] as const;
+    }
+
+
+export const getListMedicalStaffQueryOptions = <TData = Awaited<ReturnType<typeof listMedicalStaff>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMedicalStaff>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMedicalStaffQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMedicalStaff>>> = ({ signal }) => listMedicalStaff({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMedicalStaff>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMedicalStaffQueryResult = NonNullable<Awaited<ReturnType<typeof listMedicalStaff>>>
+export type ListMedicalStaffQueryError = ErrorType<void>
+
+
+/**
+ * @summary List the user's hired medical staff
+ */
+
+export function useListMedicalStaff<TData = Awaited<ReturnType<typeof listMedicalStaff>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMedicalStaff>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMedicalStaffQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getHireMedicalStaffUrl = () => {
+
+
+
+
+  return `/api/medical-staff`
+}
+
+/**
+ * @summary Hire a medical staff member
+ */
+export const hireMedicalStaff = async (hireMedicalStaffBody: HireMedicalStaffBody, options?: RequestInit): Promise<StaffMember> => {
+
+  return customFetch<StaffMember>(getHireMedicalStaffUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      hireMedicalStaffBody,)
+  }
+);}
+
+
+
+
+export const getHireMedicalStaffMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof hireMedicalStaff>>, TError,{data: BodyType<HireMedicalStaffBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof hireMedicalStaff>>, TError,{data: BodyType<HireMedicalStaffBody>}, TContext> => {
+
+const mutationKey = ['hireMedicalStaff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof hireMedicalStaff>>, {data: BodyType<HireMedicalStaffBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  hireMedicalStaff(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HireMedicalStaffMutationResult = NonNullable<Awaited<ReturnType<typeof hireMedicalStaff>>>
+    export type HireMedicalStaffMutationBody = BodyType<HireMedicalStaffBody>
+    export type HireMedicalStaffMutationError = ErrorType<void>
+
+    /**
+ * @summary Hire a medical staff member
+ */
+export const useHireMedicalStaff = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof hireMedicalStaff>>, TError,{data: BodyType<HireMedicalStaffBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof hireMedicalStaff>>,
+        TError,
+        {data: BodyType<HireMedicalStaffBody>},
+        TContext
+      > => {
+      return useMutation(getHireMedicalStaffMutationOptions(options));
+    }
+
+export const getGetMedicalStaffMarketUrl = (params?: GetMedicalStaffMarketParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/medical-staff/market?${stringifiedParams}` : `/api/medical-staff/market`
+}
+
+/**
+ * @summary Browse medical staff available on the market
+ */
+export const getMedicalStaffMarket = async (params?: GetMedicalStaffMarketParams, options?: RequestInit): Promise<StaffMember[]> => {
+
+  return customFetch<StaffMember[]>(getGetMedicalStaffMarketUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMedicalStaffMarketQueryKey = (params?: GetMedicalStaffMarketParams,) => {
+    return [
+    `/api/medical-staff/market`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMedicalStaffMarketQueryOptions = <TData = Awaited<ReturnType<typeof getMedicalStaffMarket>>, TError = ErrorType<unknown>>(params?: GetMedicalStaffMarketParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMedicalStaffMarket>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMedicalStaffMarketQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMedicalStaffMarket>>> = ({ signal }) => getMedicalStaffMarket(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMedicalStaffMarket>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMedicalStaffMarketQueryResult = NonNullable<Awaited<ReturnType<typeof getMedicalStaffMarket>>>
+export type GetMedicalStaffMarketQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Browse medical staff available on the market
+ */
+
+export function useGetMedicalStaffMarket<TData = Awaited<ReturnType<typeof getMedicalStaffMarket>>, TError = ErrorType<unknown>>(
+ params?: GetMedicalStaffMarketParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMedicalStaffMarket>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMedicalStaffMarketQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getFireMedicalStaffUrl = (id: number,) => {
+
+
+
+
+  return `/api/medical-staff/${id}`
+}
+
+/**
+ * @summary Release a medical staff member
+ */
+export const fireMedicalStaff = async (id: number, options?: RequestInit): Promise<StaffMember> => {
+
+  return customFetch<StaffMember>(getFireMedicalStaffUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getFireMedicalStaffMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fireMedicalStaff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof fireMedicalStaff>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['fireMedicalStaff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof fireMedicalStaff>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  fireMedicalStaff(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FireMedicalStaffMutationResult = NonNullable<Awaited<ReturnType<typeof fireMedicalStaff>>>
+
+    export type FireMedicalStaffMutationError = ErrorType<void>
+
+    /**
+ * @summary Release a medical staff member
+ */
+export const useFireMedicalStaff = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof fireMedicalStaff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof fireMedicalStaff>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getFireMedicalStaffMutationOptions(options));
+    }
 
 export const getGetInjuryHistoryUrl = () => {
 

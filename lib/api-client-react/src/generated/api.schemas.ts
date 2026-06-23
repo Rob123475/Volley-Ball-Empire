@@ -1422,3 +1422,18 @@ role?: string;
 search?: string;
 };
 
+export type HireMedicalStaffBody = {
+  staffId: number;
+};
+
+export type GetMedicalStaffMarketParams = {
+/**
+ * Filter by medical role
+ */
+role?: string;
+/**
+ * Search by name, specialty, nationality, or trait
+ */
+search?: string;
+};
+

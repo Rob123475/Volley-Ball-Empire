@@ -24,6 +24,7 @@ import youthScoutingRouter from "./youth-scouting";
 import youthLeagueRouter from "./youth-league";
 import achievementsRouter from "./achievements";
 import continentalScoutingRouter from "./continental-scouting";
+import medicalStaffRouter from "./medical-staff";
 
 const router: IRouter = Router();
 
@@ -52,5 +53,6 @@ router.use(youthScoutingRouter);
 router.use(youthLeagueRouter);
 router.use(achievementsRouter);
 router.use(continentalScoutingRouter);
+router.use(medicalStaffRouter);
 
 export default router;

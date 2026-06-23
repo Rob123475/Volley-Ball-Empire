@@ -2943,6 +2943,103 @@ export const GetTrophyCabinetResponse = zod.object({
 
 
 /**
+ * @summary List the user's hired medical staff
+ */
+export const ListMedicalStaffResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Staff quality rating 50–99.'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
+  "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
+  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListMedicalStaffResponse = zod.array(ListMedicalStaffResponseItem)
+
+
+/**
+ * @summary Hire a medical staff member
+ */
+export const HireMedicalStaffBody = zod.object({
+  "staffId": zod.number()
+})
+
+
+/**
+ * @summary Browse medical staff available on the market
+ */
+export const GetMedicalStaffMarketQueryParams = zod.object({
+  "role": zod.coerce.string().optional().describe('Filter by medical role'),
+  "search": zod.coerce.string().optional().describe('Search by name, specialty, nationality, or trait')
+})
+
+export const GetMedicalStaffMarketResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Staff quality rating 50–99.'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
+  "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
+  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const GetMedicalStaffMarketResponse = zod.array(GetMedicalStaffMarketResponseItem)
+
+
+/**
+ * @summary Release a medical staff member
+ */
+export const FireMedicalStaffParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const FireMedicalStaffResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Staff quality rating 50–99.'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
+  "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
+  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Get season injury history for the current team (newest first)
  */
 export const GetInjuryHistoryResponseItem = zod.object({
