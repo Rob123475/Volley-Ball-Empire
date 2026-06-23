@@ -7,6 +7,7 @@ import {
   useGetClubRating,
   useGetAttentionItems,
   useGetFacilities,
+  useGetTrophyCabinet,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
@@ -14,6 +15,7 @@ import {
   getGetClubRatingQueryKey,
   getGetAttentionItemsQueryKey,
   getGetFacilitiesQueryKey,
+  getGetTrophyCabinetQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -178,6 +180,9 @@ export default function Dashboard() {
   });
   const { data: facilitiesData } = useGetFacilities({
     query: { queryKey: getGetFacilitiesQueryKey() },
+  });
+  const { data: cabinet } = useGetTrophyCabinet({
+    query: { queryKey: getGetTrophyCabinetQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -463,6 +468,11 @@ export default function Dashboard() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════
+          TROPHY CABINET PREVIEW
+      ══════════════════════════════════════════════════════════════ */}
+      {cabinet && <TrophyCabinetPreview cabinet={cabinet} />}
+
+      {/* ══════════════════════════════════════════════════════════════
           PLAYERS + RESULTS
       ══════════════════════════════════════════════════════════════ */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
@@ -608,6 +618,192 @@ export default function Dashboard() {
         saving={updateProfile.isPending}
       />
 
+    </div>
+  );
+}
+
+// ── Trophy Cabinet Preview ─────────────────────────────────────────────────────
+type TierKey = "bronze" | "silver" | "gold" | "platinum";
+
+const TIER_META: Record<TierKey, { label: string; emoji: string; bg: string; text: string; border: string }> = {
+  bronze:   { label: "Bronze",   emoji: "🥉", bg: "bg-amber-800/20",   text: "text-amber-700 dark:text-amber-400",   border: "border-amber-700/30"   },
+  silver:   { label: "Silver",   emoji: "🥈", bg: "bg-slate-400/20",   text: "text-slate-600 dark:text-slate-300",   border: "border-slate-400/40"   },
+  gold:     { label: "Gold",     emoji: "🥇", bg: "bg-yellow-400/20",  text: "text-yellow-700 dark:text-yellow-400", border: "border-yellow-500/40"  },
+  platinum: { label: "Platinum", emoji: "💎", bg: "bg-cyan-400/15",    text: "text-cyan-700 dark:text-cyan-300",     border: "border-cyan-400/40"    },
+};
+
+type TrophyTile = {
+  emoji: string;
+  label: string;
+  count: number;
+  accent: string;
+  glow: string;
+};
+
+function TrophyCabinetPreview({ cabinet }: { cabinet: import("@workspace/api-client-react").TrophyCabinet }) {
+  const [, navigate] = useLocation();
+  const h = cabinet.honours;
+  const o = cabinet.olympicMedals;
+  const r = cabinet.records;
+
+  const tiles: TrophyTile[] = [
+    { emoji: "🏆", label: "World Tour Titles",        count: h.worldChampionships.length,      accent: "text-yellow-500",  glow: "shadow-yellow-500/20" },
+    { emoji: "🌍", label: "Continental Championships",count: h.continentalChampionships.length, accent: "text-violet-400",  glow: "shadow-violet-500/20" },
+    { emoji: "🏅", label: "Grand Finals",             count: h.grandFinals.length,              accent: "text-blue-400",    glow: "shadow-blue-500/20"   },
+    { emoji: "🥇", label: "Olympic Gold",             count: o.gold,                            accent: "text-yellow-400",  glow: "shadow-yellow-400/20" },
+    { emoji: "🥈", label: "Olympic Silver",           count: o.silver,                          accent: "text-slate-300",   glow: "shadow-slate-400/20"  },
+    { emoji: "🥉", label: "Olympic Bronze",           count: o.bronze,                          accent: "text-amber-600",   glow: "shadow-amber-500/20"  },
+  ];
+
+  const totalTrophies = h.worldChampionships.length + h.continentalChampionships.length +
+    h.grandFinals.length + o.gold + o.silver + o.bronze + h.runnerUps.length + h.bronzes.length;
+
+  const achs = cabinet.achievements;
+  const unlockedCount = achs.filter(a => a.unlocked).length;
+  const achPct = achs.length > 0 ? Math.round((unlockedCount / achs.length) * 100) : 0;
+
+  const tierCounts = (["bronze", "silver", "gold", "platinum"] as TierKey[]).map(tier => ({
+    tier,
+    unlocked: achs.filter(a => a.tier === tier && a.unlocked).length,
+    total:    achs.filter(a => a.tier === tier).length,
+  }));
+
+  const formatMoney = (s: string | number) => {
+    const n = typeof s === "string" ? parseFloat(s) : s;
+    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000)     return `$${(n / 1_000).toFixed(0)}K`;
+    return `$${n}`;
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-yellow-500/20 bg-gradient-to-br from-slate-900 via-slate-900 to-yellow-950/30 shadow-xl">
+      {/* Background shimmer */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(234,179,8,0.08),_transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(139,92,246,0.06),_transparent_60%)] pointer-events-none" />
+
+      <div className="relative z-10 p-5 md:p-6 space-y-5">
+
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-yellow-400/15 border border-yellow-400/30 flex items-center justify-center text-xl">
+              🏆
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white leading-none">Trophy Cabinet</h3>
+              <div className="text-[11px] text-white/50 mt-0.5">
+                {totalTrophies} total trophy{totalTrophies !== 1 ? "ies" : "y"} earned
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate("/trophy-cabinet")}
+            className="flex items-center gap-1.5 text-xs font-semibold text-yellow-400 hover:text-yellow-300 transition-colors bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 rounded-lg px-3 py-1.5"
+          >
+            <Trophy className="h-3.5 w-3.5" />
+            View Full Cabinet
+          </button>
+        </div>
+
+        {/* Trophy Tiles */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {tiles.map((t) => (
+            <div
+              key={t.label}
+              className={cn(
+                "flex flex-col items-center text-center rounded-xl bg-white/5 border border-white/8 px-2 py-3 gap-1 transition-all",
+                t.count > 0 && `shadow-lg ${t.glow}`
+              )}
+            >
+              <span className={cn("text-2xl leading-none", t.count === 0 && "grayscale opacity-30")}>
+                {t.emoji}
+              </span>
+              <span className={cn("text-xl font-black leading-none mt-1", t.count > 0 ? t.accent : "text-white/20")}>
+                {t.count}
+              </span>
+              <span className="text-[9px] text-white/40 leading-tight text-center mt-0.5 font-semibold">
+                {t.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-white/8" />
+
+        {/* Achievement Progress + Records row */}
+        <div className="grid md:grid-cols-2 gap-4">
+
+          {/* Achievements */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/50">Achievements</span>
+              <span className="text-[11px] font-bold text-white/60">{unlockedCount} / {achs.length}</span>
+            </div>
+
+            {/* Tier pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {tierCounts.map(({ tier, unlocked, total }) => {
+                const meta = TIER_META[tier];
+                return (
+                  <span
+                    key={tier}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border",
+                      unlocked > 0 ? cn(meta.bg, meta.text, meta.border) : "bg-white/5 text-white/25 border-white/10"
+                    )}
+                  >
+                    {meta.emoji} {unlocked}/{total}
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* Progress bar */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-white/40">Hall of Fame Progress</span>
+                <span className="text-[10px] font-bold text-yellow-400">{achPct}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-amber-400 transition-all"
+                  style={{ width: `${achPct}%` }}
+                />
+              </div>
+              <div className="text-[10px] text-white/30">
+                {achPct >= 100 ? "🌟 Legend status achieved!" :
+                 achPct >= 75 ? "Elite manager — Legend within reach" :
+                 achPct >= 50 ? "Experienced manager — keep building" :
+                 achPct >= 25 ? "Rising coach — more trophies needed" :
+                                "Career just beginning — win your first titles"}
+              </div>
+            </div>
+          </div>
+
+          {/* Manager Records */}
+          <div className="space-y-3">
+            <span className="text-[11px] font-black uppercase tracking-widest text-white/50">Manager Records</span>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { icon: "🔥", label: "Best Streak",    value: `${r.bestWinStreak}W` },
+                { icon: "🎯", label: "Most Wins",      value: `${r.mostWins}` },
+                { icon: "📅", label: "Seasons",        value: `${r.seasonsManaged}` },
+                { icon: "💰", label: "Most Earnings",  value: formatMoney(r.mostPrizeMoney) },
+              ].map(({ icon, label, value }) => (
+                <div key={label} className="flex items-center gap-2 bg-white/5 rounded-lg px-2.5 py-2">
+                  <span className="text-base leading-none">{icon}</span>
+                  <div>
+                    <div className="text-[9px] text-white/40 font-semibold uppercase tracking-wider">{label}</div>
+                    <div className="text-sm font-black text-white leading-none">{value}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
