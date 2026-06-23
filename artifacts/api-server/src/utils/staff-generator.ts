@@ -58,6 +58,15 @@ const ROLE_RATING_RANGES: Record<StaffRole, [number, number]> = {
   promotions_manager:   [50, 88],
 };
 
+const ROLE_SCOUTING_RANGES: Record<StaffRole, [number, number]> = {
+  head_coach:           [40, 80],
+  assistant_coach:      [55, 95],
+  fitness_trainer:      [25, 60],
+  strength_conditioner: [20, 55],
+  massage_therapist:    [20, 50],
+  promotions_manager:   [28, 62],
+};
+
 const FEMALE_STAFF_NAMES = [
   "Sarah Johnson", "Michelle Rodriguez", "Jennifer Williams", "Karen Thompson", "Lisa Anderson",
   "Patricia Martinez", "Sandra Taylor", "Christine Wilson", "Dorothy Moore", "Ruth Jackson",
@@ -96,6 +105,8 @@ export function generateStaffMember(role: StaffRole) {
   }
 
   const specialTrait = pick(ROLE_TRAITS[role]);
+  const [sqMin, sqMax] = ROLE_SCOUTING_RANGES[role];
+  const scoutingRating = rand(sqMin, sqMax);
 
   return {
     name,
@@ -114,6 +125,7 @@ export function generateStaffMember(role: StaffRole) {
     attributes,
     specialTrait,
     isScoutRevealed: false,
+    scoutingRating,
   };
 }
 

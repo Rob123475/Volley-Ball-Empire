@@ -28,6 +28,7 @@ import {
   Heart,
   BadgeDollarSign,
   ChevronDown,
+  Radar,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -184,6 +185,23 @@ function StaffMarketCard({
             <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{member.specialTrait}</span>
           </div>
         )}
+
+        {/* Scouting Rating */}
+        {member.scoutingRating != null && (() => {
+          const r = member.scoutingRating as number;
+          const { label, color } = r >= 86 ? { label: "Elite Scout",  color: "text-amber-400"  } :
+                                   r >= 71 ? { label: "Great Scout",  color: "text-orange-400" } :
+                                   r >= 51 ? { label: "Good Scout",   color: "text-blue-400"   } :
+                                   r >= 31 ? { label: "Fair Scout",   color: "text-slate-400"  } :
+                                             { label: "Poor Scout",   color: "text-red-400"    };
+          return (
+            <div className="flex items-center gap-1.5 text-xs">
+              <Radar className="h-3 w-3 text-muted-foreground shrink-0" />
+              <span className="text-muted-foreground">Scouting:</span>
+              <span className={cn("font-semibold", color)}>{label} ({r})</span>
+            </div>
+          );
+        })()}
 
         {/* Attributes */}
         {attrs.length > 0 && (

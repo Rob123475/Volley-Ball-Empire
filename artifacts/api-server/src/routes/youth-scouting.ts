@@ -255,6 +255,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     morale:        75 + Math.floor(Math.random() * 16),
     fatigue:       0,
     fitness:       100,
+    discoveredBy:  prospect.discoveredBy ?? undefined,
     ...stats,
     imageUrl: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(prospect.name + "_youth")}&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear`,
   }).returning();

@@ -61,6 +61,11 @@ export interface Player {
      */
   scoutedPotential?: PlayerScoutedPotential;
   /**
+     * Scouting source, e.g. 'Discovered in South America by Scout Birgit Hansen'
+     * @nullable
+     */
+  discoveredBy?: string | null;
+  /**
      * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
      * @nullable
      */

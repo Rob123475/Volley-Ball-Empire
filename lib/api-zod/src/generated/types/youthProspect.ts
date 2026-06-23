@@ -5,6 +5,7 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { YouthProspectScoutedPotentialLabel } from './youthProspectScoutedPotentialLabel';
 import type { YouthProspectStatus } from './youthProspectStatus';
 
 export interface YouthProspect {
@@ -17,4 +18,24 @@ export interface YouthProspect {
   speciality: string;
   signingCost: number;
   status: YouthProspectStatus;
+  /**
+     * Scout's written narrative assessment.
+     * @nullable
+     */
+  scoutingReportText?: string | null;
+  /**
+     * Discovery attribution text.
+     * @nullable
+     */
+  discoveredBy?: string | null;
+  /**
+     * Scout's assessed potential label (may be inaccurate for poor scouts).
+     * @nullable
+     */
+  scoutedPotentialLabel?: YouthProspectScoutedPotentialLabel;
+  /**
+     * ID of the continental mission that found this prospect.
+     * @nullable
+     */
+  continentalMissionId?: number | null;
 }

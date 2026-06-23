@@ -1615,6 +1615,132 @@ paths:
         "404":
           description: Prospect not found
 
+  /continental-scouting/regions:
+    get:
+      operationId: getContinentalRegions
+      tags: [continental-scouting]
+      summary: Get all scouting regions with current mission status
+      responses:
+        "200":
+          description: Array of 6 regions with optional active mission
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContinentalRegion"
+        "401":
+          description: Unauthorized
+
+  /continental-scouting/start:
+    post:
+      operationId: startContinentalScouting
+      tags: [continental-scouting]
+      summary: Start a continental scouting mission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartContinentalScoutingInput"
+      responses:
+        "201":
+          description: Mission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContinentalScoutingMission"
+        "400":
+          description: Invalid region or duration
+        "401":
+          description: Unauthorized
+        "422":
+          description: Mission already active or insufficient funds
+
+  /continental-scouting/missions/{id}/collect:
+    post:
+      operationId: collectContinentalMission
+      tags: [continental-scouting]
+      summary: Collect prospects from a completed mission
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Prospects collected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectMissionResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Mission not found
+        "422":
+          description: Mission not ready to collect
+
+  /continental-scouting/missions/{id}/cancel:
+    post:
+      operationId: cancelContinentalMission
+      tags: [continental-scouting]
+      summary: Cancel an active continental scouting mission
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mission cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContinentalScoutingMission"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Mission not found
+        "422":
+          description: Not an active mission
+
+  /continental-scouting/missions/{id}/dev-complete:
+    post:
+      operationId: devCompleteContinentalMission
+      tags: [continental-scouting]
+      summary: Force-complete a mission for testing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mission force-completed
+        "401":
+          description: Unauthorized
+
+  /continental-scouting/prospects:
+    get:
+      operationId: getContinentalProspects
+      tags: [continental-scouting]
+      summary: Get pending prospects from continental missions
+      responses:
+        "200":
+          description: Array of continental prospects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/YouthProspect"
+        "401":
+          description: Unauthorized
+
 components:
   schemas:
     HealthStatus:
@@ -1772,6 +1898,9 @@ components:
           type: ["string", "null"]
           enum: ["Low", "Average", "High", "Elite", "Generational", null]
           description: "Scout's assessment of player potential. Null if the player has not been scouted yet."
+        discoveredBy:
+          type: ["string", "null"]
+          description: "Scouting source, e.g. 'Discovered in South America by Scout Birgit Hansen'"
         trainingFocus:
           type: ["string", "null"]
           enum: ["Attack", "Defence", "Serving", "Blocking", "Athleticism", "Leadership", null]
@@ -2010,7 +2139,7 @@ components:
 
     StaffMember:
       type: object
-      required: [id, name, role, specialty, salary, skillLevel, age, overallRating, contractLength, coachSpeciality, personality, attributes, specialTrait, isScoutRevealed, teamId, createdAt]
+      required: [id, name, role, specialty, salary, skillLevel, age, overallRating, contractLength, coachSpeciality, personality, attributes, specialTrait, isScoutRevealed, scoutingRating, teamId, createdAt]
       properties:
         id:
           type: integer
@@ -2052,6 +2181,9 @@ components:
         isScoutRevealed:
           type: boolean
           description: "Whether OVR has been revealed by a scout."
+        scoutingRating:
+          type: integer
+          description: "Scouting effectiveness rating 1–100."
         teamId:
           type: ["integer", "null"]
         nationality:
@@ -3189,6 +3321,84 @@ components:
         continent:
           type: string
 
+    ContinentalScoutingMission:
+      type: object
+      required: [id, status, durationMonths, startDate, endDate, cost, prospectsFound]
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, collected, cancelled]
+        durationMonths:
+          type: integer
+        startDate:
+          type: string
+        endDate:
+          type: string
+        assignedStaffId:
+          type: ["integer", "null"]
+        cost:
+          type: number
+        prospectsFound:
+          type: integer
+
+    ContinentalRegion:
+      type: object
+      required: [id, name, emoji, specialties, description, talentLevel, talentColor, costs]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        emoji:
+          type: string
+        specialties:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        talentLevel:
+          type: string
+        talentColor:
+          type: string
+        costs:
+          type: object
+          additionalProperties:
+            type: integer
+        activeMission:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/ContinentalScoutingMission"
+
+    StartContinentalScoutingInput:
+      type: object
+      required: [region, durationMonths]
+      properties:
+        region:
+          type: string
+        durationMonths:
+          type: integer
+          enum: [1, 3, 6]
+        staffId:
+          type: ["integer", "null"]
+
+    CollectMissionResult:
+      type: object
+      required: [prospectsFound, scoutingRating, prospects]
+      properties:
+        prospectsFound:
+          type: integer
+        scoutName:
+          type: ["string", "null"]
+        scoutingRating:
+          type: integer
+        prospects:
+          type: array
+          items:
+            $ref: "#/components/schemas/YouthProspect"
+
     YouthProspect:
       type: object
       required: [id, name, age, continent, currentRating, potentialStars, speciality, signingCost, status]
@@ -3211,7 +3421,20 @@ components:
           type: integer
         status:
           type: string
-          enum: [pending, reserved, ignored]
+          enum: [pending, signed, ignored]
+        scoutingReportText:
+          type: ["string", "null"]
+          description: "Scout's written narrative assessment."
+        discoveredBy:
+          type: ["string", "null"]
+          description: "Discovery attribution text."
+        scoutedPotentialLabel:
+          type: ["string", "null"]
+          enum: ["Very Low", "Low", "Moderate", "High", "Elite", null]
+          description: "Scout's assessed potential label (may be inaccurate for poor scouts)."
+        continentalMissionId:
+          type: ["integer", "null"]
+          description: "ID of the continental mission that found this prospect."
 
     YouthScoutingMission:
       type: object

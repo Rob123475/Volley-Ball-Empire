@@ -11,6 +11,6 @@ export type YouthProspectStatus = typeof YouthProspectStatus[keyof typeof YouthP
 
 export const YouthProspectStatus = {
   pending: 'pending',
-  reserved: 'reserved',
+  signed: 'signed',
   ignored: 'ignored',
 } as const;

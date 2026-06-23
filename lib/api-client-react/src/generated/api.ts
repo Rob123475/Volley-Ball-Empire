@@ -23,6 +23,9 @@ import type {
   AchievementStatus,
   AuthUser,
   CareerStats,
+  CollectMissionResult,
+  ContinentalRegion,
+  ContinentalScoutingMission,
   Contract,
   ContractInput,
   Dashboard,
@@ -67,6 +70,7 @@ import type {
   StaffInput,
   StaffMember,
   StaffWageBill,
+  StartContinentalScoutingInput,
   StartYouthScoutingInput,
   Team,
   TeamInput,
@@ -6733,4 +6737,439 @@ export const useIgnoreYouthProspect = <TError = ErrorType<void>,
       > => {
       return useMutation(getIgnoreYouthProspectMutationOptions(options));
     }
+
+export const getGetContinentalRegionsUrl = () => {
+
+
+
+
+  return `/api/continental-scouting/regions`
+}
+
+/**
+ * @summary Get all scouting regions with current mission status
+ */
+export const getContinentalRegions = async ( options?: RequestInit): Promise<ContinentalRegion[]> => {
+
+  return customFetch<ContinentalRegion[]>(getGetContinentalRegionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetContinentalRegionsQueryKey = () => {
+    return [
+    `/api/continental-scouting/regions`
+    ] as const;
+    }
+
+
+export const getGetContinentalRegionsQueryOptions = <TData = Awaited<ReturnType<typeof getContinentalRegions>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContinentalRegions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetContinentalRegionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getContinentalRegions>>> = ({ signal }) => getContinentalRegions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getContinentalRegions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetContinentalRegionsQueryResult = NonNullable<Awaited<ReturnType<typeof getContinentalRegions>>>
+export type GetContinentalRegionsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get all scouting regions with current mission status
+ */
+
+export function useGetContinentalRegions<TData = Awaited<ReturnType<typeof getContinentalRegions>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContinentalRegions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetContinentalRegionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getStartContinentalScoutingUrl = () => {
+
+
+
+
+  return `/api/continental-scouting/start`
+}
+
+/**
+ * @summary Start a continental scouting mission
+ */
+export const startContinentalScouting = async (startContinentalScoutingInput: StartContinentalScoutingInput, options?: RequestInit): Promise<ContinentalScoutingMission> => {
+
+  return customFetch<ContinentalScoutingMission>(getStartContinentalScoutingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      startContinentalScoutingInput,)
+  }
+);}
+
+
+
+
+export const getStartContinentalScoutingMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startContinentalScouting>>, TError,{data: BodyType<StartContinentalScoutingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startContinentalScouting>>, TError,{data: BodyType<StartContinentalScoutingInput>}, TContext> => {
+
+const mutationKey = ['startContinentalScouting'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startContinentalScouting>>, {data: BodyType<StartContinentalScoutingInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  startContinentalScouting(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartContinentalScoutingMutationResult = NonNullable<Awaited<ReturnType<typeof startContinentalScouting>>>
+    export type StartContinentalScoutingMutationBody = BodyType<StartContinentalScoutingInput>
+    export type StartContinentalScoutingMutationError = ErrorType<void>
+
+    /**
+ * @summary Start a continental scouting mission
+ */
+export const useStartContinentalScouting = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startContinentalScouting>>, TError,{data: BodyType<StartContinentalScoutingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startContinentalScouting>>,
+        TError,
+        {data: BodyType<StartContinentalScoutingInput>},
+        TContext
+      > => {
+      return useMutation(getStartContinentalScoutingMutationOptions(options));
+    }
+
+export const getCollectContinentalMissionUrl = (id: number,) => {
+
+
+
+
+  return `/api/continental-scouting/missions/${id}/collect`
+}
+
+/**
+ * @summary Collect prospects from a completed mission
+ */
+export const collectContinentalMission = async (id: number, options?: RequestInit): Promise<CollectMissionResult> => {
+
+  return customFetch<CollectMissionResult>(getCollectContinentalMissionUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCollectContinentalMissionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof collectContinentalMission>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof collectContinentalMission>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['collectContinentalMission'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof collectContinentalMission>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  collectContinentalMission(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CollectContinentalMissionMutationResult = NonNullable<Awaited<ReturnType<typeof collectContinentalMission>>>
+
+    export type CollectContinentalMissionMutationError = ErrorType<void>
+
+    /**
+ * @summary Collect prospects from a completed mission
+ */
+export const useCollectContinentalMission = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof collectContinentalMission>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof collectContinentalMission>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getCollectContinentalMissionMutationOptions(options));
+    }
+
+export const getCancelContinentalMissionUrl = (id: number,) => {
+
+
+
+
+  return `/api/continental-scouting/missions/${id}/cancel`
+}
+
+/**
+ * @summary Cancel an active continental scouting mission
+ */
+export const cancelContinentalMission = async (id: number, options?: RequestInit): Promise<ContinentalScoutingMission> => {
+
+  return customFetch<ContinentalScoutingMission>(getCancelContinentalMissionUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCancelContinentalMissionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelContinentalMission>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancelContinentalMission>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['cancelContinentalMission'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelContinentalMission>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  cancelContinentalMission(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CancelContinentalMissionMutationResult = NonNullable<Awaited<ReturnType<typeof cancelContinentalMission>>>
+
+    export type CancelContinentalMissionMutationError = ErrorType<void>
+
+    /**
+ * @summary Cancel an active continental scouting mission
+ */
+export const useCancelContinentalMission = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelContinentalMission>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof cancelContinentalMission>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getCancelContinentalMissionMutationOptions(options));
+    }
+
+export const getDevCompleteContinentalMissionUrl = (id: number,) => {
+
+
+
+
+  return `/api/continental-scouting/missions/${id}/dev-complete`
+}
+
+/**
+ * @summary Force-complete a mission for testing
+ */
+export const devCompleteContinentalMission = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDevCompleteContinentalMissionUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getDevCompleteContinentalMissionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof devCompleteContinentalMission>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof devCompleteContinentalMission>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['devCompleteContinentalMission'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof devCompleteContinentalMission>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  devCompleteContinentalMission(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DevCompleteContinentalMissionMutationResult = NonNullable<Awaited<ReturnType<typeof devCompleteContinentalMission>>>
+
+    export type DevCompleteContinentalMissionMutationError = ErrorType<void>
+
+    /**
+ * @summary Force-complete a mission for testing
+ */
+export const useDevCompleteContinentalMission = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof devCompleteContinentalMission>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof devCompleteContinentalMission>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDevCompleteContinentalMissionMutationOptions(options));
+    }
+
+export const getGetContinentalProspectsUrl = () => {
+
+
+
+
+  return `/api/continental-scouting/prospects`
+}
+
+/**
+ * @summary Get pending prospects from continental missions
+ */
+export const getContinentalProspects = async ( options?: RequestInit): Promise<YouthProspect[]> => {
+
+  return customFetch<YouthProspect[]>(getGetContinentalProspectsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetContinentalProspectsQueryKey = () => {
+    return [
+    `/api/continental-scouting/prospects`
+    ] as const;
+    }
+
+
+export const getGetContinentalProspectsQueryOptions = <TData = Awaited<ReturnType<typeof getContinentalProspects>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContinentalProspects>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetContinentalProspectsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getContinentalProspects>>> = ({ signal }) => getContinentalProspects({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getContinentalProspects>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetContinentalProspectsQueryResult = NonNullable<Awaited<ReturnType<typeof getContinentalProspects>>>
+export type GetContinentalProspectsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get pending prospects from continental missions
+ */
+
+export function useGetContinentalProspects<TData = Awaited<ReturnType<typeof getContinentalProspects>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContinentalProspects>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetContinentalProspectsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

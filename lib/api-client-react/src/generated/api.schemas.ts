@@ -168,6 +168,11 @@ export interface Player {
      */
   scoutedPotential?: PlayerScoutedPotential;
   /**
+     * Scouting source, e.g. 'Discovered in South America by Scout Birgit Hansen'
+     * @nullable
+     */
+  discoveredBy?: string | null;
+  /**
      * Youth player's assigned training focus. Only applies to players aged 14–18. Null if no focus is set.
      * @nullable
      */
@@ -349,6 +354,8 @@ export interface StaffMember {
   specialTrait: string;
   /** Whether OVR has been revealed by a scout. */
   isScoutRevealed: boolean;
+  /** Scouting effectiveness rating 1–100. */
+  scoutingRating: number;
   /** @nullable */
   teamId: number | null;
   /** @nullable */
@@ -1171,13 +1178,80 @@ export interface StartYouthScoutingInput {
   continent: string;
 }
 
+export type ContinentalScoutingMissionStatus = typeof ContinentalScoutingMissionStatus[keyof typeof ContinentalScoutingMissionStatus];
+
+
+export const ContinentalScoutingMissionStatus = {
+  active: 'active',
+  completed: 'completed',
+  collected: 'collected',
+  cancelled: 'cancelled',
+} as const;
+
+export interface ContinentalScoutingMission {
+  id: number;
+  status: ContinentalScoutingMissionStatus;
+  durationMonths: number;
+  startDate: string;
+  endDate: string;
+  /** @nullable */
+  assignedStaffId?: number | null;
+  cost: number;
+  prospectsFound: number;
+}
+
+export type ContinentalRegionCosts = {[key: string]: number};
+
+export interface ContinentalRegion {
+  id: string;
+  name: string;
+  emoji: string;
+  specialties: string[];
+  description: string;
+  talentLevel: string;
+  talentColor: string;
+  costs: ContinentalRegionCosts;
+  activeMission?: ContinentalScoutingMission | null;
+}
+
+export type StartContinentalScoutingInputDurationMonths = typeof StartContinentalScoutingInputDurationMonths[keyof typeof StartContinentalScoutingInputDurationMonths];
+
+
+export const StartContinentalScoutingInputDurationMonths = {
+  NUMBER_1: 1,
+  NUMBER_3: 3,
+  NUMBER_6: 6,
+} as const;
+
+export interface StartContinentalScoutingInput {
+  region: string;
+  durationMonths: StartContinentalScoutingInputDurationMonths;
+  /** @nullable */
+  staffId?: number | null;
+}
+
 export type YouthProspectStatus = typeof YouthProspectStatus[keyof typeof YouthProspectStatus];
 
 
 export const YouthProspectStatus = {
   pending: 'pending',
-  reserved: 'reserved',
+  signed: 'signed',
   ignored: 'ignored',
+} as const;
+
+/**
+ * Scout's assessed potential label (may be inaccurate for poor scouts).
+ * @nullable
+ */
+export type YouthProspectScoutedPotentialLabel = typeof YouthProspectScoutedPotentialLabel[keyof typeof YouthProspectScoutedPotentialLabel] | null;
+
+
+export const YouthProspectScoutedPotentialLabel = {
+  Very_Low: 'Very Low',
+  Low: 'Low',
+  Moderate: 'Moderate',
+  High: 'High',
+  Elite: 'Elite',
 } as const;
 
 export interface YouthProspect {
@@ -1190,6 +1264,34 @@ export interface YouthProspect {
   speciality: string;
   signingCost: number;
   status: YouthProspectStatus;
+  /**
+     * Scout's written narrative assessment.
+     * @nullable
+     */
+  scoutingReportText?: string | null;
+  /**
+     * Discovery attribution text.
+     * @nullable
+     */
+  discoveredBy?: string | null;
+  /**
+     * Scout's assessed potential label (may be inaccurate for poor scouts).
+     * @nullable
+     */
+  scoutedPotentialLabel?: YouthProspectScoutedPotentialLabel;
+  /**
+     * ID of the continental mission that found this prospect.
+     * @nullable
+     */
+  continentalMissionId?: number | null;
+}
+
+export interface CollectMissionResult {
+  prospectsFound: number;
+  /** @nullable */
+  scoutName?: string | null;
+  scoutingRating: number;
+  prospects: YouthProspect[];
 }
 
 export type YouthScoutingMissionStatus = typeof YouthScoutingMissionStatus[keyof typeof YouthScoutingMissionStatus];

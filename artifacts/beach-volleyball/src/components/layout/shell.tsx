@@ -25,6 +25,7 @@ import {
   Flame,
   Monitor,
   Swords,
+  Radar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -92,10 +93,11 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Recruitment",
     icon: UserPlus,
     items: [
-      { href: "/players",      label: "Player Market", icon: UserPlus },
-      { href: "/draft",        label: "Player Draft",  icon: Box      },
-      { href: "/staff",        label: "My Staff",      icon: UserCog  },
-      { href: "/staff-market", label: "Staff Market",  icon: UserCog  },
+      { href: "/players",               label: "Player Market",       icon: UserPlus },
+      { href: "/draft",                 label: "Player Draft",        icon: Box      },
+      { href: "/staff",                 label: "My Staff",            icon: UserCog  },
+      { href: "/staff-market",          label: "Staff Market",        icon: UserCog  },
+      { href: "/continental-scouting",  label: "Continental Scouting", icon: Radar   },
     ],
   },
   {

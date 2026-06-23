@@ -1,5 +1,6 @@
 import { db } from "@workspace/db";
 import { youthProspectsTable } from "@workspace/db";
+import { generateScoutingReport } from "./scouting-report-generator";
 
 const NAMES_BY_CONTINENT: Record<string, string[]> = {
   Europe: [
@@ -35,7 +36,25 @@ const NAMES_BY_CONTINENT: Record<string, string[]> = {
   ],
 };
 
+const NATIONALITIES: Record<string, string[]> = {
+  Europe:          ["Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands", "Poland", "Denmark"],
+  Africa:          ["Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco"],
+  "North America": ["USA", "Canada", "USA", "USA"],
+  "South America": ["Brazil", "Colombia", "Argentina", "Brazil", "Brazil", "Chile"],
+  Asia:            ["Japan", "South Korea", "China", "India", "Thailand"],
+  Oceania:         ["Australia", "New Zealand", "Australia", "Australia"],
+};
+
 const SPECIALITIES = ["Power", "Defense", "Serve", "Speed", "Block", "All-Rounder"] as const;
+
+const REGION_SPECIALITIES: Record<string, string[]> = {
+  Europe:          ["All-Rounder", "Defense", "Serve", "Speed"],
+  Asia:            ["Serve", "Defense", "Speed", "All-Rounder"],
+  Africa:          ["Block", "Power", "Speed", "Power"],
+  "North America": ["All-Rounder", "Power", "Block", "Speed"],
+  "South America": ["Defense", "Power", "Speed", "All-Rounder"],
+  Oceania:         ["Speed", "Defense", "All-Rounder", "Serve"],
+};
 
 const TALENT_CONFIG: Record<string, {
   ratingMin: number;
@@ -53,10 +72,49 @@ const CONTINENT_TALENT: Record<string, string> = {
   Europe:          "Elite",
   Africa:          "High",
   "North America": "High",
-  "South America": "High",
-  Asia:            "Average",
+  "South America": "Elite",
+  Asia:            "High",
   Oceania:         "Average",
 };
+
+const TRUE_POTENTIAL_INDEX: Record<string, number> = {
+  Low: 0, Average: 2, High: 3, Elite: 4, Generational: 4,
+};
+
+const SCOUTED_LABELS = ["Very Low", "Low", "Moderate", "High", "Elite"] as const;
+type ScoutedLabel = typeof SCOUTED_LABELS[number];
+
+function getScoutedPotential(truePotential: string, scoutingRating: number): ScoutedLabel {
+  const baseIdx = TRUE_POTENTIAL_INDEX[truePotential] ?? 2;
+  let error = 0;
+  const roll = Math.random();
+  if      (scoutingRating >= 86) { error = 0; }
+  else if (scoutingRating >= 71) { error = roll < 0.90 ? 0 : roll < 0.95 ? -1 : 1; }
+  else if (scoutingRating >= 51) { error = roll < 0.50 ? 0 : roll < 0.75 ? -1 : 1; }
+  else if (scoutingRating >= 31) {
+    if      (roll < 0.30) error = 0;
+    else if (roll < 0.60) error = -1;
+    else if (roll < 0.80) error = 1;
+    else if (roll < 0.90) error = -2;
+    else                  error = 2;
+  } else { error = Math.floor(Math.random() * 5) - 2; }
+  return SCOUTED_LABELS[Math.max(0, Math.min(4, baseIdx + error))]!;
+}
+
+function getProspectCount(scoutingRating: number, durationMonths: number): number {
+  let base = scoutingRating >= 86 ? 4 : scoutingRating >= 71 ? 3 : scoutingRating >= 51 ? 3 : scoutingRating >= 31 ? 2 : 1;
+  const durationBonus = durationMonths >= 6 ? 2 : durationMonths >= 3 ? 1 : 0;
+  const luck = Math.random() < 0.35 ? 1 : 0;
+  return Math.min(5, base + durationBonus + luck);
+}
+
+function getRatingBonus(scoutingRating: number): number {
+  if (scoutingRating >= 86) return 8;
+  if (scoutingRating >= 71) return 5;
+  if (scoutingRating >= 51) return 3;
+  if (scoutingRating >= 31) return 0;
+  return -5;
+}
 
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -70,6 +128,18 @@ function pickName(continent: string, used: Set<string>): string {
   }
   return pool[0]!;
 }
+
+function pickNationality(continent: string): string {
+  const pool = NATIONALITIES[continent] ?? ["USA"];
+  return pool[Math.floor(Math.random() * pool.length)]!;
+}
+
+function pickSpeciality(continent: string): string {
+  const pool = REGION_SPECIALITIES[continent] ?? Array.from(SPECIALITIES);
+  return pool[Math.floor(Math.random() * pool.length)]!;
+}
+
+// ── Legacy: used by old youth-scouting system ─────────────────────────────
 
 export async function generateScoutingProspects(teamId: number, continent: string): Promise<void> {
   const talentKey = CONTINENT_TALENT[continent] ?? "Average";
@@ -92,4 +162,66 @@ export async function generateScoutingProspects(teamId: number, continent: strin
       status:        "pending",
     });
   }
+}
+
+// ── Continental scouting: scout quality–aware generation ──────────────────
+
+export async function generateContinentalProspects(params: {
+  teamId: number;
+  region: string;
+  missionId: number;
+  scoutingRating: number;
+  scoutName: string | null;
+  durationMonths: number;
+}): Promise<number> {
+  const { teamId, region, missionId, scoutingRating, scoutName, durationMonths } = params;
+
+  const talentKey   = CONTINENT_TALENT[region] ?? "Average";
+  const cfg         = TALENT_CONFIG[talentKey]!;
+  const ratingBonus = getRatingBonus(scoutingRating);
+  const count       = getProspectCount(scoutingRating, durationMonths);
+  const used        = new Set<string>();
+
+  const discoveredBy = scoutName
+    ? `Discovered in ${region} by Scout ${scoutName} (Rating: ${scoutingRating})`
+    : `Discovered in ${region}`;
+
+  for (let i = 0; i < count; i++) {
+    const name          = pickName(region, used);
+    used.add(name);
+    const age           = rand(14, 18);
+    const nationality   = pickNationality(region);
+    const speciality    = pickSpeciality(region);
+    const truePotential = cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!;
+    const scoutedLabel  = getScoutedPotential(truePotential, scoutingRating);
+    const currentRating = Math.min(99, Math.max(40, rand(cfg.ratingMin, cfg.ratingMax) + ratingBonus));
+    const signingCost   = Math.max(3000, Math.min(35000, rand(cfg.costMin, cfg.costMax)));
+
+    const reportText = generateScoutingReport({
+      name,
+      age,
+      nationality,
+      speciality,
+      region,
+      scoutedPotential: scoutedLabel,
+    });
+
+    await db.insert(youthProspectsTable).values({
+      teamId,
+      name,
+      age,
+      continent:            region,
+      currentRating,
+      potentialStars:       truePotential,
+      speciality,
+      signingCost,
+      status:               "pending",
+      scoutingReportText:   reportText,
+      discoveredBy,
+      scoutedPotentialLabel: scoutedLabel,
+      continentalMissionId: missionId,
+    });
+  }
+
+  return count;
 }

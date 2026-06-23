@@ -32,6 +32,8 @@ export interface StaffMember {
   specialTrait: string;
   /** Whether OVR has been revealed by a scout. */
   isScoutRevealed: boolean;
+  /** Scouting effectiveness rating 1–100. */
+  scoutingRating: number;
   /** @nullable */
   teamId: number | null;
   /** @nullable */

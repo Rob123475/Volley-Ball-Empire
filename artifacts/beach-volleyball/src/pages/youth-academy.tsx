@@ -378,15 +378,26 @@ export default function YouthAcademy() {
 
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {pendingProspects.map((p) => {
-              const potColor =
-                p.potentialStars === "Generational" ? "text-purple-600 border-purple-400 bg-purple-50 dark:bg-purple-950/30" :
-                p.potentialStars === "Elite"         ? "text-blue-600 border-blue-400 bg-blue-50 dark:bg-blue-950/30" :
-                p.potentialStars === "High"          ? "text-emerald-600 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30" :
-                                                       "text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30";
-              const potStars =
-                p.potentialStars === "Generational" ? 5 :
-                p.potentialStars === "Elite"         ? 4 :
-                p.potentialStars === "High"          ? 3 : 2;
+              const isContinental = p.scoutedPotentialLabel != null;
+              const potDisplayLabel = p.scoutedPotentialLabel ?? p.potentialStars;
+              const potColor = (() => {
+                const lbl = potDisplayLabel;
+                if (lbl === "Generational") return "text-purple-600 border-purple-400 bg-purple-50 dark:bg-purple-950/30";
+                if (lbl === "Elite")        return "text-blue-600 border-blue-400 bg-blue-50 dark:bg-blue-950/30";
+                if (lbl === "High")         return "text-emerald-600 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30";
+                if (lbl === "Moderate")     return "text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30";
+                if (lbl === "Low")          return "text-gray-500 border-gray-400 bg-gray-50 dark:bg-gray-900/30";
+                return "text-gray-400 border-gray-400/50 bg-gray-50 dark:bg-gray-900/20";
+              })();
+              const potStars = (() => {
+                const lbl = potDisplayLabel;
+                if (lbl === "Generational") return 5;
+                if (lbl === "Elite")        return isContinental ? 5 : 4;
+                if (lbl === "High")         return isContinental ? 4 : 3;
+                if (lbl === "Moderate" || lbl === "Average") return 3;
+                if (lbl === "Low")          return 2;
+                return 1;
+              })();
 
               const specialityIcon =
                 p.speciality === "Power"       ? <Zap    className="h-3 w-3" /> :
@@ -427,13 +438,30 @@ export default function YouthAcademy() {
                           />
                         ))}
                       </div>
-                      {p.potentialStars}
+                      {potDisplayLabel}
+                      {isContinental && <span className="opacity-60 font-normal"> (scout)</span>}
                     </Badge>
                     <Badge variant="outline" className="text-[10px] font-medium gap-1 text-muted-foreground">
                       {specialityIcon}
                       {p.speciality}
                     </Badge>
                   </div>
+
+                  {/* Continental discovery attribution */}
+                  {p.discoveredBy && (
+                    <p className="text-[10px] text-muted-foreground/70 italic leading-tight -mt-1">
+                      {p.discoveredBy}
+                    </p>
+                  )}
+
+                  {/* Scout report snippet */}
+                  {p.scoutingReportText && (
+                    <div className="rounded-md bg-muted/20 border border-border/40 px-2.5 py-2">
+                      <p className="text-[10px] text-muted-foreground leading-relaxed italic line-clamp-3">
+                        "{p.scoutingReportText}"
+                      </p>
+                    </div>
+                  )}
 
                   {/* Signing cost */}
                   <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">

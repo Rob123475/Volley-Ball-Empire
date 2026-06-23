@@ -131,6 +131,7 @@ export const playersTable = pgTable("players", {
   askingPrice: numeric("asking_price", { precision: 10, scale: 2 }),
   potential: varchar("potential", { length: 20 }).notNull().default("Average"),
   scoutedPotential: varchar("scouted_potential", { length: 20 }),
+  discoveredBy:    varchar("discovered_by", { length: 200 }),
   trainingFocus: varchar("training_focus", { length: 30 }),
   focusXp: integer("focus_xp").notNull().default(0),
   academyContractYears: numeric("academy_contract_years", { precision: 5, scale: 2 }),
@@ -184,6 +185,7 @@ export const staffTable = pgTable("staff", {
   attributes: jsonb("attributes").$type<Record<string, number>>().notNull().default({}),
   specialTrait: varchar("special_trait", { length: 100 }).notNull().default(""),
   isScoutRevealed: boolean("is_scout_revealed").notNull().default(false),
+  scoutingRating:  integer("scouting_rating").notNull().default(50),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -392,8 +394,12 @@ export const youthProspectsTable = pgTable("youth_prospects", {
   potentialStars: varchar("potential_stars", { length: 30 }).notNull(),
   speciality:    varchar("speciality", { length: 50 }).notNull(),
   signingCost:   integer("signing_cost").notNull(),
-  status:        varchar("status", { length: 20 }).notNull().default("pending"),
-  createdAt:     timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  status:               varchar("status", { length: 20 }).notNull().default("pending"),
+  scoutingReportText:   text("scouting_report_text"),
+  discoveredBy:         varchar("discovered_by", { length: 200 }),
+  scoutedPotentialLabel: varchar("scouted_potential_label", { length: 30 }),
+  continentalMissionId:  integer("continental_mission_id"),
+  createdAt:            timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type YouthProspect = typeof youthProspectsTable.$inferSelect;
