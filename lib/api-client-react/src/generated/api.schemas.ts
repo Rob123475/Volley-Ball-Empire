@@ -1101,6 +1101,19 @@ export interface CareerSaveSlot {
   createdAt: string;
 }
 
+export interface CareerSummary {
+  managerName: string;
+  clubName: string;
+  season: string;
+  worldRanking?: number | null;
+  worldTitles: number;
+  olympicMedals: number;
+  achievementsCompleted: number;
+  totalAchievements?: number;
+  totalWins: number;
+  totalLosses: number;
+}
+
 export interface CareerSaveList {
   saves: CareerSaveSlot[];
   activeCareerSaveId?: number | null;

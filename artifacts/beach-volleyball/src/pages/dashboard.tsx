@@ -65,7 +65,9 @@ import {
   ExternalLink,
   ChevronUp,
   Zap,
+  Settings,
 } from "lucide-react";
+import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -161,6 +163,7 @@ function BeachCourtDecor() {
 export default function Dashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [showCareerOptions, setShowCareerOptions] = useState(false);
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
     query: { queryKey: getGetDashboardQueryKey() },
@@ -268,6 +271,7 @@ export default function Dashboard() {
   const nextMatch = dashboard?.nextMatch as any;
 
   return (
+    <>
     <div className="space-y-5">
 
       {/* ══════════════════════════════════════════════════════════════
@@ -278,6 +282,15 @@ export default function Dashboard() {
 
         {/* Subtle vignette overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+
+        {/* Career Options button */}
+        <button
+          onClick={() => setShowCareerOptions(true)}
+          className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/25 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[11px] font-bold text-white/55 hover:text-white/90 transition-all"
+        >
+          <Settings className="h-3 w-3" />
+          Career Options
+        </button>
 
         <div className="relative z-10 p-6 md:p-8 flex flex-col gap-7">
 
@@ -649,6 +662,12 @@ export default function Dashboard() {
       />
 
     </div>
+
+    <CareerOptionsMenu
+      isOpen={showCareerOptions}
+      onClose={() => setShowCareerOptions(false)}
+    />
+    </>
   );
 }
 

@@ -26,6 +26,7 @@ import type {
   CareerSaveList,
   CareerSaveSlot,
   CareerStats,
+  CareerSummary,
   ClubRating,
   ClubTemplateList,
   CollectMissionResult,
@@ -5026,6 +5027,83 @@ export const useUpsertCareerSave = <TError = ErrorType<void>,
       return useMutation(getUpsertCareerSaveMutationOptions(options));
     }
 
+export const getGetCareerSummaryUrl = () => {
+
+
+
+
+  return `/api/careers/summary`
+}
+
+/**
+ * @summary Get end-career summary for the active career (stats for the retirement modal)
+ */
+export const getCareerSummary = async ( options?: RequestInit): Promise<CareerSummary> => {
+
+  return customFetch<CareerSummary>(getGetCareerSummaryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCareerSummaryQueryKey = () => {
+    return [
+    `/api/careers/summary`
+    ] as const;
+    }
+
+
+export const getGetCareerSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getCareerSummary>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCareerSummaryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCareerSummary>>> = ({ signal }) => getCareerSummary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCareerSummary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCareerSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getCareerSummary>>>
+export type GetCareerSummaryQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get end-career summary for the active career (stats for the retirement modal)
+ */
+
+export function useGetCareerSummary<TData = Awaited<ReturnType<typeof getCareerSummary>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCareerSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getEndCareerUrl = () => {
 
 
@@ -5035,7 +5113,7 @@ export const getEndCareerUrl = () => {
 }
 
 /**
- * @summary End the active career (clears session context without deleting the save)
+ * @summary Retire the active career, save to Hall of Fame, and clear session context
  */
 export const endCareer = async ( options?: RequestInit): Promise<EndCareer200> => {
 
@@ -5083,7 +5161,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type EndCareerMutationError = ErrorType<void>
 
     /**
- * @summary End the active career (clears session context without deleting the save)
+ * @summary Retire the active career, save to Hall of Fame, and clear session context
  */
 export const useEndCareer = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof endCareer>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}

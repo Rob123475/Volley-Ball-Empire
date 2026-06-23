@@ -6,10 +6,10 @@ import {
   useUpsertCareerSave,
   useDeleteCareerSave,
   useLoadCareerSave,
-  useEndCareer,
   useListClubTemplates,
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
+import { EndCareerModal } from "@/components/career/EndCareerModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -559,81 +559,6 @@ function DeleteConfirmModal({ save, onClose, onConfirm, isDeleting }: DeleteConf
   );
 }
 
-// ── End Career Modal ──────────────────────────────────────────────────────────
-
-interface EndCareerProps {
-  save: SaveSlot;
-  onClose: () => void;
-  onConfirm: () => void;
-  isEnding: boolean;
-}
-
-const END_CAREER_PHRASE = "END CAREER";
-
-function EndCareerModal({ save, onClose, onConfirm, isEnding }: EndCareerProps) {
-  const [typed, setTyped] = useState("");
-  const confirmed = typed.trim() === END_CAREER_PHRASE;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-sm rounded-2xl border border-orange-500/20 bg-slate-900 shadow-2xl overflow-hidden">
-        <div className="p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center">
-              <XCircle className="h-5 w-5 text-orange-400" />
-            </div>
-            <div>
-              <h2 className="text-base font-black text-white">End this career?</h2>
-              <p className="text-[11px] text-white/45 mt-0.5">This cannot be undone</p>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-white/8 bg-white/4 px-4 py-3">
-            <div className="text-sm font-bold text-white">{save.managerName}</div>
-            <div className="text-xs text-white/45 mt-0.5">{save.clubName} · {save.season}</div>
-          </div>
-
-          <p className="text-sm text-white/50">
-            Are you sure you want to end this career? This cannot be undone. Other save slots are not affected.
-          </p>
-
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">
-              Type <span className="text-orange-400">{END_CAREER_PHRASE}</span> to confirm
-            </label>
-            <input
-              autoFocus
-              value={typed}
-              onChange={e => setTyped(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && confirmed && !isEnding && onConfirm()}
-              placeholder={END_CAREER_PHRASE}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/30 transition-all font-mono tracking-wider"
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              disabled={isEnding}
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onConfirm}
-              disabled={!confirmed || isEnding}
-              className="flex-1 rounded-xl bg-orange-600 hover:bg-orange-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isEnding ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-              {isEnding ? "Ending…" : "End Career"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Filled Slot Card ──────────────────────────────────────────────────────────
 
 interface FilledCardProps {
@@ -801,11 +726,10 @@ export default function CareerManagement() {
   const upsertMutation = useUpsertCareerSave();
   const deleteMutation = useDeleteCareerSave();
   const loadMutation   = useLoadCareerSave();
-  const endMutation    = useEndCareer();
 
   const [newSlot,       setNewSlot]       = useState<number | null>(null);
   const [deleteSlot,    setDeleteSlot]    = useState<SaveSlot | null>(null);
-  const [endCareerSave, setEndCareerSave] = useState<SaveSlot | null>(null);
+  const [showEndCareer, setShowEndCareer] = useState(false);
 
   const activeCareerSaveId = data?.activeCareerSaveId ?? null;
 
@@ -866,20 +790,6 @@ export default function CareerManagement() {
     );
   };
 
-  const handleEndCareer = (save: SaveSlot) => {
-    endMutation.mutate(undefined, {
-      onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
-        void queryClient.invalidateQueries();
-        setEndCareerSave(null);
-        toast({ title: "Career ended", description: `${save.managerName}'s career has been ended` });
-      },
-      onError: () => {
-        toast({ title: "Failed to end career", variant: "destructive" });
-      },
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-5 md:p-8 space-y-8">
 
@@ -922,7 +832,7 @@ export default function CareerManagement() {
                 isActive={save.id === activeCareerSaveId}
                 onLoad={() => handleLoad(save)}
                 onDelete={() => setDeleteSlot(save)}
-                onEndCareer={() => setEndCareerSave(save)}
+                onEndCareer={() => setShowEndCareer(true)}
               />
             ) : (
               <EmptySlotCard
@@ -954,12 +864,14 @@ export default function CareerManagement() {
         />
       )}
 
-      {endCareerSave !== null && (
+      {showEndCareer && (
         <EndCareerModal
-          save={endCareerSave}
-          onClose={() => setEndCareerSave(null)}
-          onConfirm={() => handleEndCareer(endCareerSave)}
-          isEnding={endMutation.isPending}
+          onClose={() => setShowEndCareer(false)}
+          onSuccess={() => {
+            setShowEndCareer(false);
+            void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
+            toast({ title: "Career ended", description: "Your career has been saved to the Hall of Fame" });
+          }}
         />
       )}
     </div>

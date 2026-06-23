@@ -2640,7 +2640,24 @@ export const UpsertCareerSaveResponse = zod.object({
 
 
 /**
- * @summary End the active career (clears session context without deleting the save)
+ * @summary Get end-career summary for the active career (stats for the retirement modal)
+ */
+export const GetCareerSummaryResponse = zod.object({
+  "managerName": zod.string(),
+  "clubName": zod.string(),
+  "season": zod.string(),
+  "worldRanking": zod.number().nullish(),
+  "worldTitles": zod.number(),
+  "olympicMedals": zod.number(),
+  "achievementsCompleted": zod.number(),
+  "totalAchievements": zod.number().optional(),
+  "totalWins": zod.number(),
+  "totalLosses": zod.number()
+})
+
+
+/**
+ * @summary Retire the active career, save to Hall of Fame, and clear session context
  */
 export const EndCareerResponse = zod.object({
   "ok": zod.boolean()

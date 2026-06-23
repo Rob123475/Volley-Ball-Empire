@@ -1,10 +1,44 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { careerSavesTable, teamsTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { careerSavesTable, teamsTable, trophiesTable, achievementsTable, hallOfFameTable } from "@workspace/db";
+import { eq, and, inArray } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 
 const router = Router();
+
+// ── Helper: compute career summary from active team ────────────────────────────
+
+async function buildCareerSummary(teamId: number, userId: string) {
+  const [save] = await db
+    .select()
+    .from(careerSavesTable)
+    .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, userId)));
+
+  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.id, teamId));
+
+  const trophies = await db.select().from(trophiesTable).where(eq(trophiesTable.teamId, teamId));
+  const unlocked = await db.select().from(achievementsTable).where(eq(achievementsTable.teamId, teamId));
+
+  const worldTitles  = trophies.filter(t => t.type === "world_championship").length;
+  const olympicMedals = trophies.filter(t => ["olympic_gold", "olympic_silver", "olympic_bronze"].includes(t.type)).length;
+
+  // Total achievements is computed from the trophies route logic — approximate with unlocked DB rows
+  // The trophies route defines ~25 achievements; we track unlocked ones in achievementsTable
+  const TOTAL_ACHIEVEMENTS = 25;
+
+  return {
+    managerName:          save?.managerName ?? "Unknown",
+    clubName:             save?.clubName    ?? "Unknown",
+    season:               save?.season      ?? "Season 1",
+    worldRanking:         save?.worldRanking ?? null,
+    worldTitles,
+    olympicMedals,
+    achievementsCompleted: unlocked.length,
+    totalAchievements:    TOTAL_ACHIEVEMENTS,
+    totalWins:            team?.wins   ?? 0,
+    totalLosses:          team?.losses ?? 0,
+  };
+}
 
 // GET /careers — list save slots for current user
 router.get("/careers", async (req, res) => {
@@ -16,7 +50,6 @@ router.get("/careers", async (req, res) => {
     .where(eq(careerSavesTable.userId, req.user.id))
     .orderBy(careerSavesTable.slotNumber);
 
-  // Resolve which save (if any) is currently active in this session
   const activeTeamId = req.activeTeamId ?? null;
   const activeSave   = activeTeamId ? saves.find(s => s.teamId === activeTeamId) : null;
 
@@ -36,6 +69,16 @@ router.get("/careers", async (req, res) => {
     })),
     activeCareerSaveId: activeSave?.id ?? null,
   });
+});
+
+// GET /careers/summary — end-career stats for the active career
+router.get("/careers/summary", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const teamId = req.activeTeamId;
+  if (!teamId)   { res.status(404).json({ error: "No active career" }); return; }
+
+  const summary = await buildCareerSummary(teamId, req.user.id);
+  res.json(summary);
 });
 
 // POST /careers — create or overwrite a slot
@@ -60,7 +103,6 @@ router.post("/careers", async (req, res) => {
     res.status(400).json({ error: "Invalid body" }); return;
   }
 
-  // Delete any existing save (and its team) in this slot for this user first
   const [existing] = await db
     .select()
     .from(careerSavesTable)
@@ -76,7 +118,6 @@ router.post("/careers", async (req, res) => {
     }
   }
 
-  // Create a fresh team for this career
   const [newTeam] = await db
     .insert(teamsTable)
     .values({
@@ -103,7 +144,6 @@ router.post("/careers", async (req, res) => {
     })
     .returning();
 
-  // Automatically activate this new career in the session
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
@@ -125,10 +165,30 @@ router.post("/careers", async (req, res) => {
   });
 });
 
-// POST /careers/end — clear active career from session (does NOT delete the save)
+// POST /careers/end — retire career, archive to Hall of Fame, clear session
 router.post("/careers/end", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
+  const teamId = req.activeTeamId;
+
+  if (teamId) {
+    // Build summary and save to Hall of Fame before clearing
+    const summary = await buildCareerSummary(teamId, req.user.id);
+    await db.insert(hallOfFameTable).values({
+      userId:               req.user.id,
+      managerName:          summary.managerName,
+      clubName:             summary.clubName,
+      season:               summary.season,
+      worldRanking:         summary.worldRanking ?? null,
+      worldTitles:          summary.worldTitles,
+      olympicMedals:        summary.olympicMedals,
+      achievementsCompleted: summary.achievementsCompleted,
+      totalWins:            summary.totalWins,
+      totalLosses:          summary.totalLosses,
+    });
+  }
+
+  // Clear active career from session
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
@@ -159,14 +219,12 @@ router.post("/careers/:id/load", async (req, res) => {
   if (!save)        { res.status(404).json({ error: "Not found" }); return; }
   if (!save.teamId) { res.status(400).json({ error: "Career has no team" }); return; }
 
-  // Update session with the active team
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
     if (session) await updateSession(sid, { ...session, activeTeamId: save.teamId });
   }
 
-  // Update lastPlayedAt
   await db
     .update(careerSavesTable)
     .set({ lastPlayedAt: new Date() })
@@ -194,12 +252,10 @@ router.delete("/careers/:id", async (req, res) => {
 
   await db.delete(careerSavesTable).where(eq(careerSavesTable.id, id));
 
-  // Delete the associated team (cascades to all game data)
   if (save.teamId) {
     await db.delete(teamsTable).where(eq(teamsTable.id, save.teamId));
   }
 
-  // If this was the active career, clear it from session
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);

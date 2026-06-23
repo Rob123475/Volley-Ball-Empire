@@ -18,6 +18,7 @@ export * from './authUser';
 export * from './careerSaveList';
 export * from './careerSaveSlot';
 export * from './careerStats';
+export * from './careerSummary';
 export * from './clubHonours';
 export * from './clubHonoursContinentalFinalsByContinent';
 export * from './clubRating';

@@ -477,3 +477,20 @@ export const careerSavesTable = pgTable("career_saves", {
 
 export type CareerSave    = typeof careerSavesTable.$inferSelect;
 export type InsertCareerSave = typeof careerSavesTable.$inferInsert;
+
+export const hallOfFameTable = pgTable("hall_of_fame", {
+  id:                   serial("id").primaryKey(),
+  userId:               varchar("user_id").notNull().references(() => usersTable.id),
+  managerName:          varchar("manager_name",  { length: 100 }).notNull(),
+  clubName:             varchar("club_name",     { length: 100 }).notNull(),
+  season:               varchar("season",        { length: 50  }).notNull(),
+  worldRanking:         integer("world_ranking"),
+  worldTitles:          integer("world_titles").notNull().default(0),
+  olympicMedals:        integer("olympic_medals").notNull().default(0),
+  achievementsCompleted: integer("achievements_completed").notNull().default(0),
+  totalWins:            integer("total_wins").notNull().default(0),
+  totalLosses:          integer("total_losses").notNull().default(0),
+  retiredAt:            timestamp("retired_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type HallOfFameRecord = typeof hallOfFameTable.$inferSelect;
