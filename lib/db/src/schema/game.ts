@@ -447,3 +447,19 @@ export const continentalScoutingMissionsTable = pgTable("continental_scouting_mi
 });
 
 export type ContinentalScoutingMission = typeof continentalScoutingMissionsTable.$inferSelect;
+
+export const careerSavesTable = pgTable("career_saves", {
+  id:           serial("id").primaryKey(),
+  userId:       varchar("user_id").notNull().references(() => usersTable.id),
+  slotNumber:   integer("slot_number").notNull(),
+  managerName:  varchar("manager_name", { length: 100 }).notNull(),
+  clubName:     varchar("club_name",    { length: 100 }).notNull(),
+  season:       varchar("season",       { length: 50  }).notNull().default("Season 1"),
+  worldRanking: integer("world_ranking"),
+  budget:       numeric("budget", { precision: 14, scale: 2 }),
+  lastPlayedAt: timestamp("last_played_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:    timestamp("created_at",     { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type CareerSave    = typeof careerSavesTable.$inferSelect;
+export type InsertCareerSave = typeof careerSavesTable.$inferInsert;

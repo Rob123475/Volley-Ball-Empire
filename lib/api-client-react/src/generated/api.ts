@@ -23,6 +23,8 @@ import type {
   AchievementStatus,
   AttentionItemsResponse,
   AuthUser,
+  CareerSaveList,
+  CareerSaveSlot,
   CareerStats,
   ClubRating,
   CollectMissionResult,
@@ -31,6 +33,7 @@ import type {
   Contract,
   ContractInput,
   Dashboard,
+  DeleteCareerSave200,
   DraftPickInput,
   DraftPlayer,
   Facility,
@@ -88,6 +91,7 @@ import type {
   TrainingSession,
   TrophyCabinet,
   UpcomingEventsFeed,
+  UpsertCareerSaveBody,
   UserProfile,
   UserProfileInput,
   UserProfileUpdate,
@@ -4792,6 +4796,224 @@ export const useDraftPick = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDraftPickMutationOptions(options));
+    }
+
+export const getListCareerSavesUrl = () => {
+
+
+
+
+  return `/api/careers`
+}
+
+/**
+ * @summary List all career save slots for the current user
+ */
+export const listCareerSaves = async ( options?: RequestInit): Promise<CareerSaveList> => {
+
+  return customFetch<CareerSaveList>(getListCareerSavesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCareerSavesQueryKey = () => {
+    return [
+    `/api/careers`
+    ] as const;
+    }
+
+
+export const getListCareerSavesQueryOptions = <TData = Awaited<ReturnType<typeof listCareerSaves>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCareerSaves>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCareerSavesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCareerSaves>>> = ({ signal }) => listCareerSaves({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCareerSaves>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCareerSavesQueryResult = NonNullable<Awaited<ReturnType<typeof listCareerSaves>>>
+export type ListCareerSavesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all career save slots for the current user
+ */
+
+export function useListCareerSaves<TData = Awaited<ReturnType<typeof listCareerSaves>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCareerSaves>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCareerSavesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpsertCareerSaveUrl = () => {
+
+
+
+
+  return `/api/careers`
+}
+
+/**
+ * @summary Create or update a career save slot (1–3)
+ */
+export const upsertCareerSave = async (upsertCareerSaveBody: UpsertCareerSaveBody, options?: RequestInit): Promise<CareerSaveSlot> => {
+
+  return customFetch<CareerSaveSlot>(getUpsertCareerSaveUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      upsertCareerSaveBody,)
+  }
+);}
+
+
+
+
+export const getUpsertCareerSaveMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCareerSave>>, TError,{data: BodyType<UpsertCareerSaveBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upsertCareerSave>>, TError,{data: BodyType<UpsertCareerSaveBody>}, TContext> => {
+
+const mutationKey = ['upsertCareerSave'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertCareerSave>>, {data: BodyType<UpsertCareerSaveBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  upsertCareerSave(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertCareerSaveMutationResult = NonNullable<Awaited<ReturnType<typeof upsertCareerSave>>>
+    export type UpsertCareerSaveMutationBody = BodyType<UpsertCareerSaveBody>
+    export type UpsertCareerSaveMutationError = ErrorType<void>
+
+    /**
+ * @summary Create or update a career save slot (1–3)
+ */
+export const useUpsertCareerSave = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCareerSave>>, TError,{data: BodyType<UpsertCareerSaveBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertCareerSave>>,
+        TError,
+        {data: BodyType<UpsertCareerSaveBody>},
+        TContext
+      > => {
+      return useMutation(getUpsertCareerSaveMutationOptions(options));
+    }
+
+export const getDeleteCareerSaveUrl = (id: number,) => {
+
+
+
+
+  return `/api/careers/${id}`
+}
+
+/**
+ * @summary Delete a career save slot by ID
+ */
+export const deleteCareerSave = async (id: number, options?: RequestInit): Promise<DeleteCareerSave200> => {
+
+  return customFetch<DeleteCareerSave200>(getDeleteCareerSaveUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteCareerSaveMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCareerSave>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCareerSave>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteCareerSave'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCareerSave>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteCareerSave(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCareerSaveMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCareerSave>>>
+
+    export type DeleteCareerSaveMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete a career save slot by ID
+ */
+export const useDeleteCareerSave = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCareerSave>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCareerSave>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteCareerSaveMutationOptions(options));
     }
 
 export const getGetUpcomingEventsUrl = () => {

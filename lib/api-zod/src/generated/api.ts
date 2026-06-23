@@ -2576,6 +2576,61 @@ export const DraftPickBody = zod.object({
 
 
 /**
+ * @summary List all career save slots for the current user
+ */
+export const ListCareerSavesResponse = zod.object({
+  "saves": zod.array(zod.object({
+  "id": zod.number(),
+  "slotNumber": zod.number(),
+  "managerName": zod.string(),
+  "clubName": zod.string(),
+  "season": zod.string(),
+  "worldRanking": zod.number().nullish(),
+  "budget": zod.string().nullish(),
+  "lastPlayedAt": zod.string(),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
+ * @summary Create or update a career save slot (1–3)
+ */
+export const UpsertCareerSaveBody = zod.object({
+  "slotNumber": zod.number(),
+  "managerName": zod.string(),
+  "clubName": zod.string(),
+  "season": zod.string().optional(),
+  "worldRanking": zod.number().nullish(),
+  "budget": zod.string().nullish()
+})
+
+export const UpsertCareerSaveResponse = zod.object({
+  "id": zod.number(),
+  "slotNumber": zod.number(),
+  "managerName": zod.string(),
+  "clubName": zod.string(),
+  "season": zod.string(),
+  "worldRanking": zod.number().nullish(),
+  "budget": zod.string().nullish(),
+  "lastPlayedAt": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a career save slot by ID
+ */
+export const DeleteCareerSaveParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCareerSaveResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
  * @summary Get upcoming events and fixtures for the manager's planning view
  */
 export const GetUpcomingEventsResponse = zod.object({

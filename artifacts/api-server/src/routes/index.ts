@@ -28,6 +28,7 @@ import medicalStaffRouter from "./medical-staff";
 import attentionRouter from "./attention";
 import newsRouter from "./news";
 import eventsRouter from "./events";
+import careersRouter from "./careers";
 
 const router: IRouter = Router();
 
@@ -60,5 +61,6 @@ router.use(medicalStaffRouter);
 router.use(attentionRouter);
 router.use(newsRouter);
 router.use(eventsRouter);
+router.use(careersRouter);
 
 export default router;

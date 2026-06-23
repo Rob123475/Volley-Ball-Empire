@@ -28,6 +28,7 @@ import Achievements from "@/pages/achievements";
 import YouthResults from "@/pages/youth-results";
 import ContinentalScouting from "@/pages/continental-scouting";
 import MedicalMarket from "@/pages/medical-market";
+import CareerManagement from "@/pages/career-management";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -78,6 +79,7 @@ function Router() {
           <Route path="/continental-scouting" component={ContinentalScouting} />
           <Route path="/achievements" component={Achievements} />
           <Route path="/medical-market" component={MedicalMarket} />
+          <Route path="/career" component={CareerManagement} />
           <Route component={NotFound} />
         </Switch>
       </Shell>

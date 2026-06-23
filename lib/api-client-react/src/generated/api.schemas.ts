@@ -1062,6 +1062,31 @@ export interface UpcomingEvent {
   detail?: string | null;
 }
 
+export interface CareerSaveSlot {
+  id: number;
+  slotNumber: number;
+  managerName: string;
+  clubName: string;
+  season: string;
+  worldRanking?: number | null;
+  budget?: string | null;
+  lastPlayedAt: string;
+  createdAt: string;
+}
+
+export interface CareerSaveList {
+  saves: CareerSaveSlot[];
+}
+
+export interface UpsertCareerSaveBody {
+  slotNumber: number;
+  managerName: string;
+  clubName: string;
+  season?: string;
+  worldRanking?: number | null;
+  budget?: string | null;
+}
+
 export interface UpcomingEventsFeed {
   items: UpcomingEvent[];
 }
@@ -1547,6 +1572,10 @@ export interface AttentionItemsResponse {
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;
+};
+
+export type DeleteCareerSave200 = {
+  ok: boolean;
 };
 
 export type HireMedicalStaffBody = {

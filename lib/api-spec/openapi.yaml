@@ -1135,6 +1135,69 @@ paths:
               schema:
                 $ref: "#/components/schemas/Player"
 
+  /careers:
+    get:
+      operationId: listCareerSaves
+      tags: [careers]
+      summary: List all career save slots for the current user
+      responses:
+        "200":
+          description: Career save slots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerSaveList"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: upsertCareerSave
+      tags: [careers]
+      summary: Create or update a career save slot (1–3)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertCareerSaveBody"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerSaveSlot"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+
+  /careers/{id}:
+    delete:
+      operationId: deleteCareerSave
+      tags: [careers]
+      summary: Delete a career save slot by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
   /events/upcoming:
     get:
       operationId: getUpcomingEvents
@@ -3189,6 +3252,59 @@ components:
           type: string
           enum: [critical, soon, upcoming, planning]
         detail:
+          type: string
+          nullable: true
+
+    CareerSaveSlot:
+      type: object
+      required: [id, slotNumber, managerName, clubName, season, lastPlayedAt, createdAt]
+      properties:
+        id:
+          type: integer
+        slotNumber:
+          type: integer
+        managerName:
+          type: string
+        clubName:
+          type: string
+        season:
+          type: string
+        worldRanking:
+          type: integer
+          nullable: true
+        budget:
+          type: string
+          nullable: true
+        lastPlayedAt:
+          type: string
+        createdAt:
+          type: string
+
+    CareerSaveList:
+      type: object
+      required: [saves]
+      properties:
+        saves:
+          type: array
+          items:
+            $ref: "#/components/schemas/CareerSaveSlot"
+
+    UpsertCareerSaveBody:
+      type: object
+      required: [slotNumber, managerName, clubName]
+      properties:
+        slotNumber:
+          type: integer
+        managerName:
+          type: string
+        clubName:
+          type: string
+        season:
+          type: string
+        worldRanking:
+          type: integer
+          nullable: true
+        budget:
           type: string
           nullable: true
 

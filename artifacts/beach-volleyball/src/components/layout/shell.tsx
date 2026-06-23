@@ -26,6 +26,7 @@ import {
   Monitor,
   Swords,
   Radar,
+  FolderOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -138,6 +139,14 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Monitor,
     items: [
       { href: "/court", label: "3D Court", icon: Monitor },
+    ],
+  },
+  {
+    id: "career",
+    label: "Career",
+    icon: FolderOpen,
+    items: [
+      { href: "/career", label: "Save Slots", icon: FolderOpen },
     ],
   },
 ];
