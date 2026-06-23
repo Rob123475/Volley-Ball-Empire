@@ -23,6 +23,7 @@ import type {
   AchievementStatus,
   AuthUser,
   CareerStats,
+  ClubRating,
   CollectMissionResult,
   ContinentalRegion,
   ContinentalScoutingMission,
@@ -5309,6 +5310,83 @@ export const useUpgradeFacility = <TError = ErrorType<void>,
       > => {
       return useMutation(getUpgradeFacilityMutationOptions(options));
     }
+
+export const getGetClubRatingUrl = () => {
+
+
+
+
+  return `/api/club-rating`
+}
+
+/**
+ * @summary Get the club overall rating with weighted breakdown
+ */
+export const getClubRating = async ( options?: RequestInit): Promise<ClubRating> => {
+
+  return customFetch<ClubRating>(getGetClubRatingUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetClubRatingQueryKey = () => {
+    return [
+    `/api/club-rating`
+    ] as const;
+    }
+
+
+export const getGetClubRatingQueryOptions = <TData = Awaited<ReturnType<typeof getClubRating>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getClubRating>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetClubRatingQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getClubRating>>> = ({ signal }) => getClubRating({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getClubRating>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetClubRatingQueryResult = NonNullable<Awaited<ReturnType<typeof getClubRating>>>
+export type GetClubRatingQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the club overall rating with weighted breakdown
+ */
+
+export function useGetClubRating<TData = Awaited<ReturnType<typeof getClubRating>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getClubRating>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetClubRatingQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetAchievementsUrl = () => {
 

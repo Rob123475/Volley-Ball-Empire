@@ -69,10 +69,12 @@ router.post("/wellbeing/run", async (req, res) => {
   // Load facility levels for bonuses
   const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id));
   const fl: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
-  const psychLevel    = fl.psychology_centre  ?? 1;
-  const trainingLevel = fl.training_complex   ?? 1;
-  const medLevel      = fl.medical_centre     ?? 1;
-  const labLevel      = fl.sports_science_lab ?? 1;
+  const psychLevel       = fl.psychology_centre  ?? 1;
+  const trainingLevel    = fl.training_complex   ?? 1;
+  const medLevel         = fl.medical_centre     ?? 1;
+  const labLevel         = fl.sports_science_lab ?? 1;
+  const nutritionLevel   = fl.nutrition_centre   ?? 1;
+  const beachResortLevel = fl.beach_resort       ?? 1;
 
   let moraleBonus     = camp.morale         ?? 0;
   let fatigueChange   = camp.fatigue        ?? 0;
@@ -98,6 +100,12 @@ router.post("/wellbeing/run", async (req, res) => {
     fatigueChange -= Math.round((labLevel  - 1) * (5 / 9));
     duration      += Math.round((medLevel  - 1) * (2 / 9));
   }
+  // Nutrition Centre: extra fatigue reduction from Recovery Retreat (+0→−5 at L10)
+  if (campType === "recovery_retreat") {
+    fatigueChange -= Math.round((nutritionLevel - 1) * (5 / 9));
+  }
+  // Beach Resort: extra morale bonus from all camps (+0→+8 at L10)
+  moraleBonus += Math.round((beachResortLevel - 1) * (8 / 9));
 
   // Apply stat changes to all active players
   const activePlayers = await db.select().from(playersTable).where(

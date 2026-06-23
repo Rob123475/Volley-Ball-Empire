@@ -1,1 +1,3 @@
 - [api-zod barrel collision](api-zod-barrel.md) — Orval generates both a Zod const and a TS type with the same name for request-body schemas; fix by explicit per-file `export type *` in index.ts, excluding conflicting files.
+- [Facility types](facility-types.md) — 9 displayed types + 2 legacy; all must stay in FACILITY_TYPES array for backward compat; new types added: gymnasium, nutrition_centre, scouting_department, commercial_department, beach_resort.
+- [Club Rating endpoint](club-rating-endpoint.md) — GET /club-rating on facilities router; weights: players 30%, staff 15%, medical 15%, facilities 25%, youth 15%; label scale from "Startup Club" to "World Class Club".

@@ -1,17 +1,36 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { facilitiesTable, teamsTable } from "@workspace/db";
+import { facilitiesTable, teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 
 const router = Router();
 
+const MEDICAL_ROLES = ["team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_chemist"];
+
 const FACILITY_TYPES = [
   "training_complex",
   "medical_centre",
-  "sports_science_lab",
-  "psychology_centre",
+  "gymnasium",
+  "nutrition_centre",
   "youth_academy",
+  "scouting_department",
+  "sports_science_lab",
+  "commercial_department",
+  "beach_resort",
+  "psychology_centre",
   "olympic_performance_centre",
+] as const;
+
+const MAIN_FACILITY_TYPES = [
+  "training_complex",
+  "medical_centre",
+  "gymnasium",
+  "nutrition_centre",
+  "youth_academy",
+  "scouting_department",
+  "sports_science_lab",
+  "commercial_department",
+  "beach_resort",
 ] as const;
 
 const MAX_LEVEL = 10;
@@ -89,6 +108,75 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
     .returning();
 
   res.json(upgraded);
+});
+
+router.get("/club-rating", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const team = await getTeamForUser(req.user.id);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const [facilities, allPlayers, allStaff] = await Promise.all([
+    ensureFacilities(team.id),
+    db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true))),
+    db.select().from(staffTable).where(eq(staffTable.teamId, team.id)),
+  ]);
+
+  const facilityMap = Object.fromEntries(facilities.map(f => [f.type, f.level]));
+
+  const coachingStaff = allStaff.filter(s => !MEDICAL_ROLES.includes(s.role));
+  const medicalStaff  = allStaff.filter(s => MEDICAL_ROLES.includes(s.role));
+
+  const playerScore = allPlayers.length > 0
+    ? Math.round(allPlayers.reduce((sum, p) => {
+        const ovr = Math.round((p.speed + p.power + p.defense + p.serve + p.block) / 5);
+        return sum + ovr;
+      }, 0) / allPlayers.length)
+    : 0;
+
+  const staffScore = coachingStaff.length > 0
+    ? Math.round(coachingStaff.reduce((s, m) => s + (m.overallRating ?? 70), 0) / coachingStaff.length)
+    : 0;
+
+  const medicalScore = medicalStaff.length > 0
+    ? Math.round(medicalStaff.reduce((s, m) => s + (m.overallRating ?? 70), 0) / medicalStaff.length)
+    : 0;
+
+  const mainLevels = MAIN_FACILITY_TYPES.map(t => facilityMap[t] ?? 1);
+  const facilityScore = Math.round(mainLevels.reduce((s, l) => s + l, 0) / mainLevels.length / 10 * 100);
+
+  const youthLevel = facilityMap["youth_academy"] ?? 1;
+  const youthScore = Math.round(youthLevel / 10 * 100);
+
+  const weights = { players: 30, staff: 15, medical: 15, facilities: 25, youthAcademy: 15 };
+  const totalRating = Math.round(
+    (playerScore  * weights.players    / 100) +
+    (staffScore   * weights.staff      / 100) +
+    (medicalScore * weights.medical    / 100) +
+    (facilityScore * weights.facilities / 100) +
+    (youthScore   * weights.youthAcademy / 100)
+  );
+
+  const label =
+    totalRating >= 90 ? "World Class Club" :
+    totalRating >= 80 ? "Elite Club" :
+    totalRating >= 70 ? "Professional Club" :
+    totalRating >= 60 ? "Established Club" :
+    totalRating >= 50 ? "Developing Club" :
+    totalRating >= 35 ? "Amateur Club" :
+                        "Startup Club";
+
+  res.json({
+    totalRating,
+    label,
+    breakdown: {
+      players:     { score: playerScore,   weight: weights.players,     contribution: Math.round(playerScore  * weights.players    / 100), detail: `Avg OVR ${playerScore} across ${allPlayers.length} player${allPlayers.length !== 1 ? "s" : ""}` },
+      staff:       { score: staffScore,    weight: weights.staff,       contribution: Math.round(staffScore   * weights.staff      / 100), detail: coachingStaff.length > 0 ? `Avg OVR ${staffScore} across ${coachingStaff.length} coach${coachingStaff.length !== 1 ? "es" : ""}` : "No coaching staff hired" },
+      medical:     { score: medicalScore,  weight: weights.medical,     contribution: Math.round(medicalScore * weights.medical    / 100), detail: medicalStaff.length > 0 ? `Avg OVR ${medicalScore} across ${medicalStaff.length} medical staff` : "No medical staff hired" },
+      facilities:  { score: facilityScore, weight: weights.facilities,  contribution: Math.round(facilityScore * weights.facilities / 100), detail: `Avg level ${(mainLevels.reduce((s, l) => s + l, 0) / mainLevels.length).toFixed(1)}/10 across 9 facilities` },
+      youthAcademy:{ score: youthScore,    weight: weights.youthAcademy,contribution: Math.round(youthScore   * weights.youthAcademy / 100), detail: `Youth Academy Level ${youthLevel}/10` },
+    },
+  });
 });
 
 export default router;

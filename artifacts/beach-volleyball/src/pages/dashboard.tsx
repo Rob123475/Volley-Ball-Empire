@@ -4,10 +4,12 @@ import {
   useGetSeasonLadder,
   useGetProfile,
   useUpdateProfile,
+  useGetClubRating,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
-  getGetProfileQueryKey
+  getGetProfileQueryKey,
+  getGetClubRatingQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -35,6 +37,7 @@ import {
   HeartPulse,
   Star,
   Swords,
+  Building2,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
@@ -98,6 +101,9 @@ export default function Dashboard() {
   });
 
   const updateProfile = useUpdateProfile();
+  const { data: clubRating } = useGetClubRating({
+    query: { queryKey: getGetClubRatingQueryKey() },
+  });
 
   if (dashLoading || seasonLoading) {
     return (
@@ -275,6 +281,56 @@ export default function Dashboard() {
           );
         })()}
       </div>
+
+      {/* ── Club Rating ── */}
+      {clubRating && (() => {
+        const total = clubRating.totalRating;
+        const gradient =
+          total >= 80 ? "from-yellow-400 to-orange-500" :
+          total >= 65 ? "from-violet-500 to-purple-600" :
+          total >= 50 ? "from-blue-500 to-indigo-600" :
+          total >= 35 ? "from-teal-400 to-emerald-500" :
+                        "from-slate-400 to-slate-600";
+        const bd = clubRating.breakdown;
+        const items: { key: keyof typeof bd; label: string }[] = [
+          { key: "players",     label: "Players"    },
+          { key: "staff",       label: "Staff"      },
+          { key: "medical",     label: "Medical"    },
+          { key: "facilities",  label: "Facilities" },
+          { key: "youthAcademy",label: "Youth"      },
+        ];
+        return (
+          <div className={cn("rounded-2xl bg-gradient-to-br p-5 text-white shadow-md", gradient)} data-testid="card-club-rating">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1 flex items-center gap-1.5">
+                  <Building2 className="h-3.5 w-3.5" /> Club Rating
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-black">{total}</span>
+                  <span className="text-lg font-bold text-white/80">— {clubRating.label}</span>
+                </div>
+              </div>
+              <Trophy className="h-10 w-10 text-white/20 shrink-0" />
+            </div>
+            <div className="mt-4 grid grid-cols-5 gap-2">
+              {items.map(({ key, label }) => {
+                const comp = bd[key];
+                return (
+                  <div key={key} className="bg-white/10 rounded-xl p-2 text-center backdrop-blur-sm">
+                    <div className="text-[9px] font-black uppercase tracking-widest text-white/60 mb-1">{label}</div>
+                    <div className="text-base font-black leading-none">{comp.score}</div>
+                    <div className="mt-1.5 h-1 rounded-full bg-white/20 overflow-hidden">
+                      <div className="h-full bg-white/60 rounded-full transition-all" style={{ width: `${comp.score}%` }} />
+                    </div>
+                    <div className="text-[9px] text-white/40 mt-1">{comp.weight}%</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Players + Results ── */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">

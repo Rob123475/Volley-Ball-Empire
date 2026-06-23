@@ -2793,6 +2793,47 @@ export const UpgradeFacilityResponse = zod.object({
 
 
 /**
+ * @summary Get the club overall rating with weighted breakdown
+ */
+export const GetClubRatingResponse = zod.object({
+  "totalRating": zod.number(),
+  "label": zod.string(),
+  "breakdown": zod.object({
+  "players": zod.object({
+  "score": zod.number(),
+  "weight": zod.number(),
+  "contribution": zod.number(),
+  "detail": zod.string()
+}),
+  "staff": zod.object({
+  "score": zod.number(),
+  "weight": zod.number(),
+  "contribution": zod.number(),
+  "detail": zod.string()
+}),
+  "medical": zod.object({
+  "score": zod.number(),
+  "weight": zod.number(),
+  "contribution": zod.number(),
+  "detail": zod.string()
+}),
+  "facilities": zod.object({
+  "score": zod.number(),
+  "weight": zod.number(),
+  "contribution": zod.number(),
+  "detail": zod.string()
+}),
+  "youthAcademy": zod.object({
+  "score": zod.number(),
+  "weight": zod.number(),
+  "contribution": zod.number(),
+  "detail": zod.string()
+})
+})
+})
+
+
+/**
  * @summary Get all achievements with unlock status and progress for the current team
  */
 export const GetAchievementsResponseItem = zod.object({

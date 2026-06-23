@@ -405,9 +405,12 @@ router.post("/training/:id/complete", async (req, res) => {
   const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, session.teamId));
   const facilityLevels = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
 
-  const facilityMultiplier = 1 + ((facilityLevels.training_complex  ?? 1) - 1) * (0.20 / 9);
-  const psychLevel         = facilityLevels.psychology_centre ?? 1;
-  const medCentreLevel     = facilityLevels.medical_centre    ?? 1;
+  const trainingComplexMult = 1 + ((facilityLevels.training_complex ?? 1) - 1) * (0.20 / 9);
+  const gymnasiumBoost      = ((facilityLevels.gymnasium ?? 1) - 1) * (0.15 / 9);
+  const facilityMultiplier  = trainingComplexMult * (1 + gymnasiumBoost);
+  const psychLevel          = facilityLevels.psychology_centre ?? 1;
+  const medCentreLevel      = facilityLevels.medical_centre    ?? 1;
+  const nutritionLevel      = facilityLevels.nutrition_centre  ?? 1;
 
   const teamStaffAll = await db.select().from(staffTable).where(eq(staffTable.teamId, session.teamId));
   const headCoachStaff = teamStaffAll.find(s => s.role === "head_coach");
@@ -416,7 +419,9 @@ router.post("/training/:id/complete", async (req, res) => {
   const hcBonus  = headCoachStaff      ? 1.0 + Math.max(0, headCoachStaff.skillLevel      - 50) * (0.15 / 45) : 1.0;
   const acBonus  = assistantCoachStaff ? 1.0 + Math.max(0, assistantCoachStaff.skillLevel  - 50) * (0.08 / 45) : 1.0;
   const newRoleXpBonus = hcBonus * acBonus;
-  const newRoleFatigueReduction = fitnessTrainerStaff ? Math.max(0, fitnessTrainerStaff.skillLevel - 50) * (5 / 45) : 0;
+  const fitnessTrainerFatigueRed = fitnessTrainerStaff ? Math.max(0, fitnessTrainerStaff.skillLevel - 50) * (5 / 45) : 0;
+  const nutritionFatigueRed      = ((nutritionLevel - 1) * (3 / 9));
+  const newRoleFatigueReduction  = fitnessTrainerFatigueRed + nutritionFatigueRed;
 
   const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel, newRoleXpBonus, newRoleFatigueReduction);
   if (result) {

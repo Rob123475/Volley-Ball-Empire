@@ -1042,6 +1042,27 @@ export interface Facility {
   level: number;
 }
 
+export interface ClubRatingComponent {
+  score: number;
+  weight: number;
+  contribution: number;
+  detail: string;
+}
+
+export type ClubRatingBreakdown = {
+  players: ClubRatingComponent;
+  staff: ClubRatingComponent;
+  medical: ClubRatingComponent;
+  facilities: ClubRatingComponent;
+  youthAcademy: ClubRatingComponent;
+};
+
+export interface ClubRating {
+  totalRating: number;
+  label: string;
+  breakdown: ClubRatingBreakdown;
+}
+
 export interface RunCampInput {
   campType: string;
 }

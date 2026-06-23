@@ -1262,6 +1262,23 @@ paths:
         "404":
           description: Facility not found
 
+  /club-rating:
+    get:
+      operationId: getClubRating
+      tags: [facilities]
+      summary: Get the club overall rating with weighted breakdown
+      responses:
+        "200":
+          description: Club rating breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClubRating"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Team not found
+
   /achievements:
     get:
       operationId: getAchievements
@@ -3119,6 +3136,42 @@ components:
           type: string
         level:
           type: integer
+
+    ClubRatingComponent:
+      type: object
+      required: [score, weight, contribution, detail]
+      properties:
+        score:
+          type: integer
+        weight:
+          type: integer
+        contribution:
+          type: integer
+        detail:
+          type: string
+
+    ClubRating:
+      type: object
+      required: [totalRating, label, breakdown]
+      properties:
+        totalRating:
+          type: integer
+        label:
+          type: string
+        breakdown:
+          type: object
+          required: [players, staff, medical, facilities, youthAcademy]
+          properties:
+            players:
+              $ref: "#/components/schemas/ClubRatingComponent"
+            staff:
+              $ref: "#/components/schemas/ClubRatingComponent"
+            medical:
+              $ref: "#/components/schemas/ClubRatingComponent"
+            facilities:
+              $ref: "#/components/schemas/ClubRatingComponent"
+            youthAcademy:
+              $ref: "#/components/schemas/ClubRatingComponent"
 
     RunCampInput:
       type: object
