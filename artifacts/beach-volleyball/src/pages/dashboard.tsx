@@ -3,7 +3,6 @@ import {
   useGetCurrentSeason,
   useGetSeasonLadder,
   useGetProfile,
-  useUpdateProfile,
   useGetClubRating,
   useGetAttentionItems,
   useGetFacilities,
@@ -23,13 +22,11 @@ import {
   getGetWorldTourNewsQueryKey,
   getGetUpcomingEventsQueryKey,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Trophy,
   DollarSign,
@@ -37,11 +34,6 @@ import {
   Award,
   ArrowUpRight,
   ArrowDownRight,
-  Eye,
-  EyeOff,
-  Pencil,
-  Check,
-  X,
   KeyRound,
   Star,
   TrendingUp,
@@ -70,7 +62,6 @@ import {
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import type { AttentionItem } from "@workspace/api-client-react";
 
@@ -161,8 +152,6 @@ function BeachCourtDecor() {
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
   const [showCareerOptions, setShowCareerOptions] = useState(false);
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
@@ -171,7 +160,7 @@ export default function Dashboard() {
   const { data: season, isLoading: seasonLoading } = useGetCurrentSeason({
     query: { queryKey: getGetCurrentSeasonQueryKey() },
   });
-  const { data: profile, isLoading: profileLoading } = useGetProfile({
+  const { data: profile } = useGetProfile({
     query: { queryKey: getGetProfileQueryKey() },
   });
 
@@ -179,8 +168,6 @@ export default function Dashboard() {
   const { data: ladder } = useGetSeasonLadder(seasonId, {
     query: { enabled: !!season, queryKey: getGetSeasonLadderQueryKey(seasonId) },
   });
-
-  const updateProfile = useUpdateProfile();
   const { data: clubRating } = useGetClubRating({
     query: { queryKey: getGetClubRatingQueryKey() },
   });
@@ -282,15 +269,6 @@ export default function Dashboard() {
 
         {/* Subtle vignette overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
-
-        {/* Career Options button */}
-        <button
-          onClick={() => setShowCareerOptions(true)}
-          className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/25 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[11px] font-bold text-white/55 hover:text-white/90 transition-all"
-        >
-          <Settings className="h-3 w-3" />
-          Career Options
-        </button>
 
         <div className="relative z-10 p-6 md:p-8 flex flex-col gap-7">
 
@@ -477,6 +455,17 @@ export default function Dashboard() {
             />
           </div>
 
+          {/* ── Career Options ── */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowCareerOptions(true)}
+              className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/25 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[11px] font-bold text-white/55 hover:text-white/90 transition-all"
+            >
+              <Settings className="h-3 w-3" />
+              Career Options
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -641,25 +630,6 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* ══════════════════════════════════════════════════════════════
-          PROFILE — Manager Settings
-      ══════════════════════════════════════════════════════════════ */}
-      <ProfileCard
-        profile={profile}
-        loading={profileLoading}
-        onSave={(coachName, savePin) => {
-          updateProfile.mutate(
-            { data: { coachName, savePin } as any },
-            {
-              onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: getGetProfileQueryKey() });
-                toast({ title: "Profile saved!" });
-              },
-            }
-          );
-        }}
-        saving={updateProfile.isPending}
-      />
 
     </div>
 
@@ -898,11 +868,19 @@ function UpcomingEventsWidget({ items }: { items: UpcomingEventItem[] }) {
     const meta    = EVENT_META[evt.type]    ?? EVENT_META.match;
     const urg     = URGENCY_CONFIG[evt.urgency] ?? URGENCY_CONFIG.planning;
     const hasDays = evt.daysRemaining !== null;
+    const facilityNav = (t: string): string => {
+      const low = t.toLowerCase();
+      if (low.includes("training"))  return "/training";
+      if (low.includes("medical"))   return "/medical";
+      if (low.includes("scouting"))  return "/continental-scouting";
+      if (low.includes("youth"))     return "/youth-academy";
+      return "/facilities";
+    };
     const nav     = evt.type === "match"           ? "/matches"
                   : evt.type === "scouting_return" ? "/continental-scouting"
-                  : evt.type === "olympic"         ? "/olympics"
-                  : evt.type === "youth_league"    ? "/youth-league"
-                  : evt.type === "facility_action" ? "/facilities"
+                  : evt.type === "olympic"         ? "/locations"
+                  : evt.type === "youth_league"    ? "/youth-academy"
+                  : evt.type === "facility_action" ? facilityNav(evt.title)
                   : null;
 
     return (
@@ -1318,6 +1296,7 @@ const MAX_FAC_LEVEL = 10;
 type FacSnap = {
   key: string;
   name: string;
+  navigateTo: string;
   Icon: React.ComponentType<{ className?: string }>;
   colour: string;         // tailwind colour name
   bar: string;            // bg-* for progress bar
@@ -1328,27 +1307,32 @@ type FacSnap = {
 
 const FAC_SNAPS: FacSnap[] = [
   {
-    key: "training_complex", name: "Training Centre", Icon: Dumbbell, colour: "blue",
+    key: "training_complex", name: "Training Centre", navigateTo: "/training",
+    Icon: Dumbbell, colour: "blue",
     bar: "bg-blue-500", iconBg: "bg-blue-500/15", iconText: "text-blue-500",
     benefitAt: (l) => l === 1 ? "Base training XP" : `+${Math.round((l - 1) * (20 / 9))}% training XP`,
   },
   {
-    key: "medical_centre", name: "Medical Centre", Icon: Heart, colour: "rose",
+    key: "medical_centre", name: "Medical Centre", navigateTo: "/medical",
+    Icon: Heart, colour: "rose",
     bar: "bg-rose-500", iconBg: "bg-rose-500/15", iconText: "text-rose-500",
     benefitAt: (l) => l === 1 ? "Base recovery speed" : `+${Math.round((l - 1) * (25 / 9))}% recovery speed`,
   },
   {
-    key: "gymnasium", name: "Gymnasium", Icon: FlameKindling, colour: "orange",
+    key: "gymnasium", name: "Gymnasium", navigateTo: "/facilities",
+    Icon: FlameKindling, colour: "orange",
     bar: "bg-orange-500", iconBg: "bg-orange-500/15", iconText: "text-orange-500",
     benefitAt: (l) => l === 1 ? "Base strength training" : `+${Math.round((l - 1) * (15 / 9))}% power dev.`,
   },
   {
-    key: "nutrition_centre", name: "Nutrition Centre", Icon: Salad, colour: "lime",
+    key: "nutrition_centre", name: "Nutrition Centre", navigateTo: "/facilities",
+    Icon: Salad, colour: "lime",
     bar: "bg-lime-500", iconBg: "bg-lime-500/15", iconText: "text-lime-500",
     benefitAt: (l) => l === 1 ? "Base nutrition support" : `−${Math.round((l - 1) * (3 / 9))} fatigue/session`,
   },
   {
-    key: "youth_academy", name: "Youth Academy", Icon: Users, colour: "amber",
+    key: "youth_academy", name: "Youth Academy", navigateTo: "/youth-academy",
+    Icon: Users, colour: "amber",
     bar: "bg-amber-500", iconBg: "bg-amber-500/15", iconText: "text-amber-500",
     benefitAt: (l) => {
       const labels = ["Basic prospects","Slightly improved","Improved quality","Better High potential",
@@ -1357,22 +1341,26 @@ const FAC_SNAPS: FacSnap[] = [
     },
   },
   {
-    key: "scouting_department", name: "Scouting Dept", Icon: Search, colour: "indigo",
+    key: "scouting_department", name: "Scouting Dept", navigateTo: "/continental-scouting",
+    Icon: Search, colour: "indigo",
     bar: "bg-indigo-500", iconBg: "bg-indigo-500/15", iconText: "text-indigo-500",
     benefitAt: (l) => l === 1 ? "Basic scouting" : `+${Math.round((l - 1) * (30 / 9))}% effectiveness`,
   },
   {
-    key: "sports_science_lab", name: "Performance Centre", Icon: Beaker, colour: "teal",
+    key: "sports_science_lab", name: "Performance Centre", navigateTo: "/facilities",
+    Icon: Beaker, colour: "teal",
     bar: "bg-teal-500", iconBg: "bg-teal-500/15", iconText: "text-teal-500",
     benefitAt: (l) => l === 1 ? "Base injury prevention" : `−${Math.round((l - 1) * (20 / 9))}% injury risk`,
   },
   {
-    key: "commercial_department", name: "Commercial Dept", Icon: TrendingUp, colour: "violet",
+    key: "commercial_department", name: "Commercial Dept", navigateTo: "/facilities",
+    Icon: TrendingUp, colour: "violet",
     bar: "bg-violet-500", iconBg: "bg-violet-500/15", iconText: "text-violet-500",
     benefitAt: (l) => l === 1 ? "Base commercial" : `+${Math.round((l - 1) * (30 / 9))}% sponsorship`,
   },
   {
-    key: "beach_resort", name: "Beach Resort", Icon: Umbrella, colour: "cyan",
+    key: "beach_resort", name: "Beach Resort", navigateTo: "/facilities",
+    Icon: Umbrella, colour: "cyan",
     bar: "bg-cyan-500", iconBg: "bg-cyan-500/15", iconText: "text-cyan-500",
     benefitAt: (l) => l === 1 ? "Base morale boost" : `+${Math.round((l - 1) * (8 / 9))} morale/camp`,
   },
@@ -1420,7 +1408,7 @@ function FacilitiesSnapshot({
             return (
               <button
                 key={fac.key}
-                onClick={() => navigate("/facilities")}
+                onClick={() => navigate(fac.navigateTo)}
                 className={cn(
                   "group relative flex flex-col items-center text-center rounded-xl border p-3 transition-all hover:shadow-md",
                   canUpgrade
@@ -1581,123 +1569,3 @@ function AttentionPanel({ items }: { items: AttentionItem[] }) {
   );
 }
 
-// ── Profile card ───────────────────────────────────────────────────────────────
-function ProfileCard({
-  profile,
-  loading,
-  onSave,
-  saving,
-}: {
-  profile: any;
-  loading: boolean;
-  onSave: (coachName: string, savePin: string) => void;
-  saving: boolean;
-}) {
-  const [editingName, setEditingName] = useState(false);
-  const [editingPin, setEditingPin]   = useState(false);
-  const [nameVal, setNameVal]         = useState("");
-  const [pinVal, setPinVal]           = useState("");
-  const [pinVisible, setPinVisible]   = useState(false);
-
-  const coachName = (profile as any)?.coachName ?? "";
-  const savePin   = (profile as any)?.savePin   ?? "——";
-
-  const startEditName = () => { setNameVal(coachName); setEditingName(true); };
-  const startEditPin  = () => { setPinVal(savePin);    setEditingPin(true);  };
-  const commitName    = () => { onSave(nameVal.trim() || coachName, savePin); setEditingName(false); };
-  const commitPin     = () => {
-    const cleaned = pinVal.replace(/\s/g, "").slice(0, 20);
-    onSave(coachName, cleaned || savePin);
-    setEditingPin(false);
-  };
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Star className="h-4 w-4 text-muted-foreground" /> Manager Profile
-        </CardTitle>
-        <CardDescription>Your coach identity and save password.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <Skeleton className="h-12 w-full" />
-        ) : (
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Coach Name */}
-            <div className="flex-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 space-y-1">
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Coach Name</div>
-              {editingName ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    autoFocus value={nameVal}
-                    onChange={e => setNameVal(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") commitName(); if (e.key === "Escape") setEditingName(false); }}
-                    className="h-7 text-sm px-2" maxLength={40}
-                    data-testid="input-coach-name"
-                  />
-                  <button onClick={commitName} disabled={saving} className="text-emerald-600 hover:text-emerald-500">
-                    <Check className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => setEditingName(false)} className="text-muted-foreground hover:text-foreground">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 group">
-                  <span className="text-sm font-semibold">{coachName || <span className="text-muted-foreground italic">Not set</span>}</span>
-                  <button onClick={startEditName}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Save PIN */}
-            <div className="flex-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-                  <KeyRound className="h-3 w-3" /> Save Password
-                </div>
-                <button
-                  onClick={() => setPinVisible(v => !v)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  data-testid="button-toggle-pin">
-                  {pinVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                </button>
-              </div>
-              {editingPin ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    autoFocus value={pinVal}
-                    onChange={e => setPinVal(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") commitPin(); if (e.key === "Escape") setEditingPin(false); }}
-                    className="h-7 text-sm px-2 font-mono w-32" maxLength={20}
-                    data-testid="input-save-pin"
-                  />
-                  <button onClick={commitPin} disabled={saving} className="text-emerald-600 hover:text-emerald-500">
-                    <Check className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => setEditingPin(false)} className="text-muted-foreground hover:text-foreground">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 group">
-                  <span className="font-mono text-sm font-bold tracking-widest">
-                    {pinVisible ? savePin : "•".repeat(Math.min(savePin.length, 8))}
-                  </span>
-                  <button onClick={startEditPin}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}

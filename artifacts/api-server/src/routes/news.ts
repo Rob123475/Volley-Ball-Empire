@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { teamsTable, playersTable, staffTable, trophiesTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { teamsTable, playersTable, staffTable, trophiesTable, matchesTable } from "@workspace/db";
+import { eq, desc, and, or } from "drizzle-orm";
 
 const router = Router();
 
@@ -360,6 +360,41 @@ router.get("/news/world-tour", async (req, res) => {
         detail: `${staff.name} joins the ${team.name} backroom team as ${staff.role.replace(/_/g, " ")}, bringing their expertise to the programme.`,
         nation: team.name, flag: "🏐",
         publishedAt: staff.createdAt.toISOString(),
+        isUserTeam: true,
+      });
+    }
+
+    // Real event: recent completed match results
+    const recentMatches = await db
+      .select()
+      .from(matchesTable)
+      .where(
+        and(
+          or(
+            eq(matchesTable.homeTeamId, team.id),
+            eq(matchesTable.awayTeamId, team.id),
+          ),
+          eq(matchesTable.status, "completed"),
+        ),
+      )
+      .orderBy(desc(matchesTable.createdAt))
+      .limit(2);
+
+    for (const match of recentMatches) {
+      const isHome  = match.homeTeamId === team.id;
+      const opponent = isHome ? (match.awayTeamName ?? "Opponent") : (match.homeTeamName ?? "Opponent");
+      const myScore  = isHome ? match.homeScore  : match.awayScore;
+      const oppScore = isHome ? match.awayScore  : match.homeScore;
+      const won = (myScore ?? 0) > (oppScore ?? 0);
+      userItems.push({
+        id: `user_match_${match.id}`,
+        type: won ? "tournament" : "record",
+        headline: won
+          ? `${team.name} defeat ${opponent} ${myScore}–${oppScore}`
+          : `${team.name} fall to ${opponent} ${myScore}–${oppScore}`,
+        detail: `Round ${match.round}${match.locationName ? ` · ${match.locationName}` : ""}. ${won ? "A solid result that keeps the season on track." : "The team will look to bounce back in the next fixture."}`,
+        nation: team.name, flag: "🏐",
+        publishedAt: match.createdAt.toISOString(),
         isUserTeam: true,
       });
     }
