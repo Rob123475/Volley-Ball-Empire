@@ -2576,6 +2576,21 @@ export const DraftPickBody = zod.object({
 
 
 /**
+ * @summary List all selectable club templates grouped by continent
+ */
+export const ListClubTemplatesResponse = zod.object({
+  "clubs": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "continent": zod.enum(['Europe', 'Asia', 'Africa', 'North America', 'South America', 'Oceania']),
+  "rating": zod.number(),
+  "startingBudget": zod.string(),
+  "reputation": zod.number()
+}))
+})
+
+
+/**
  * @summary List all career save slots for the current user
  */
 export const ListCareerSavesResponse = zod.object({

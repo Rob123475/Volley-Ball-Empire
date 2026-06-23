@@ -1135,6 +1135,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/Player"
 
+  /club-templates:
+    get:
+      operationId: listClubTemplates
+      tags: [careers]
+      summary: List all selectable club templates grouped by continent
+      responses:
+        "200":
+          description: Club templates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClubTemplateList"
+        "401":
+          description: Unauthorized
+
   /careers:
     get:
       operationId: listCareerSaves
@@ -3254,6 +3269,33 @@ components:
         detail:
           type: string
           nullable: true
+
+    ClubTemplate:
+      type: object
+      required: [id, name, continent, rating, startingBudget, reputation]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        continent:
+          type: string
+          enum: [Europe, Asia, Africa, North America, South America, Oceania]
+        rating:
+          type: integer
+        startingBudget:
+          type: string
+        reputation:
+          type: integer
+
+    ClubTemplateList:
+      type: object
+      required: [clubs]
+      properties:
+        clubs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClubTemplate"
 
     CareerSaveSlot:
       type: object

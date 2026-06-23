@@ -27,6 +27,7 @@ import type {
   CareerSaveSlot,
   CareerStats,
   ClubRating,
+  ClubTemplateList,
   CollectMissionResult,
   ContinentalRegion,
   ContinentalScoutingMission,
@@ -4797,6 +4798,83 @@ export const useDraftPick = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getDraftPickMutationOptions(options));
     }
+
+export const getListClubTemplatesUrl = () => {
+
+
+
+
+  return `/api/club-templates`
+}
+
+/**
+ * @summary List all selectable club templates grouped by continent
+ */
+export const listClubTemplates = async ( options?: RequestInit): Promise<ClubTemplateList> => {
+
+  return customFetch<ClubTemplateList>(getListClubTemplatesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListClubTemplatesQueryKey = () => {
+    return [
+    `/api/club-templates`
+    ] as const;
+    }
+
+
+export const getListClubTemplatesQueryOptions = <TData = Awaited<ReturnType<typeof listClubTemplates>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listClubTemplates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListClubTemplatesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listClubTemplates>>> = ({ signal }) => listClubTemplates({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listClubTemplates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListClubTemplatesQueryResult = NonNullable<Awaited<ReturnType<typeof listClubTemplates>>>
+export type ListClubTemplatesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all selectable club templates grouped by continent
+ */
+
+export function useListClubTemplates<TData = Awaited<ReturnType<typeof listClubTemplates>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listClubTemplates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListClubTemplatesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListCareerSavesUrl = () => {
 

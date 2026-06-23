@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useListCareerSaves,
   getListCareerSavesQueryKey,
   useUpsertCareerSave,
   useDeleteCareerSave,
+  useListClubTemplates,
+  getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -20,9 +22,15 @@ import {
   User,
   Loader2,
   AlertTriangle,
+  ArrowLeft,
+  Star,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
-type SaveSlot = import("@workspace/api-client-react").CareerSaveSlot;
+type SaveSlot      = import("@workspace/api-client-react").CareerSaveSlot;
+type ClubTemplate  = import("@workspace/api-client-react").ClubTemplate;
 
 const SLOT_NUMBERS = [1, 2, 3] as const;
 
@@ -47,80 +55,332 @@ function formatDate(iso: string): string {
   }
 }
 
-// ── New Career Modal ──────────────────────────────────────────────────────────
+// ── Continent config ─────────────────────────────────────────────────────────
+
+const CONTINENT_META: Record<string, { emoji: string; color: string; bg: string; border: string; ring: string }> = {
+  "Europe":        { emoji: "🌍", color: "text-blue-300",    bg: "bg-blue-500/10",    border: "border-blue-500/25",    ring: "ring-blue-500/50"    },
+  "Asia":          { emoji: "🌏", color: "text-amber-300",   bg: "bg-amber-500/10",   border: "border-amber-500/25",   ring: "ring-amber-500/50"   },
+  "Africa":        { emoji: "🌍", color: "text-orange-300",  bg: "bg-orange-500/10",  border: "border-orange-500/25",  ring: "ring-orange-500/50"  },
+  "North America": { emoji: "🌎", color: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-500/25", ring: "ring-emerald-500/50" },
+  "South America": { emoji: "🌎", color: "text-green-300",   bg: "bg-green-500/10",   border: "border-green-500/25",   ring: "ring-green-500/50"   },
+  "Oceania":       { emoji: "🌊", color: "text-cyan-300",    bg: "bg-cyan-500/10",    border: "border-cyan-500/25",    ring: "ring-cyan-500/50"    },
+};
+
+const CONTINENT_ORDER = ["Europe", "Asia", "Africa", "North America", "South America", "Oceania"];
+
+// ── Rating bar ────────────────────────────────────────────────────────────────
+
+function RatingBar({ value, color }: { value: number; color: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className={cn("h-full rounded-full", color)}
+          style={{ width: `${value}%` }}
+        />
+      </div>
+      <span className="text-[10px] font-black tabular-nums text-white/60 w-6 text-right">{value}</span>
+    </div>
+  );
+}
+
+// ── Club card ─────────────────────────────────────────────────────────────────
+
+function ClubCard({
+  club,
+  selected,
+  onSelect,
+}: {
+  club: ClubTemplate;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const meta = CONTINENT_META[club.continent] ?? CONTINENT_META["Europe"];
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "w-full text-left rounded-xl border p-3.5 transition-all focus:outline-none",
+        selected
+          ? `${meta.bg} ${meta.border} ring-2 ${meta.ring}`
+          : "border-white/8 bg-white/3 hover:bg-white/6 hover:border-white/15",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            {selected && <CheckCircle2 className={cn("h-3.5 w-3.5 shrink-0", meta.color)} />}
+            <span className="text-sm font-black text-white leading-tight truncate">{club.name}</span>
+          </div>
+
+          {/* Stats */}
+          <div className="mt-2 space-y-1.5">
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-widest text-white/30 mb-0.5">Rating</div>
+              <RatingBar value={club.rating} color={selected ? meta.color.replace("text-", "bg-") : "bg-white/40"} />
+            </div>
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-widest text-white/30 mb-0.5">Reputation</div>
+              <RatingBar value={club.reputation} color={selected ? meta.color.replace("text-", "bg-") : "bg-white/30"} />
+            </div>
+          </div>
+        </div>
+
+        {/* Budget badge */}
+        <div className={cn(
+          "shrink-0 rounded-lg px-2 py-1 text-center border",
+          selected ? `${meta.bg} ${meta.border}` : "bg-white/5 border-white/10",
+        )}>
+          <div className="text-[9px] font-bold uppercase tracking-wide text-white/35">Budget</div>
+          <div className={cn("text-xs font-black", selected ? "text-emerald-400" : "text-white/60")}>
+            {formatBudget(club.startingBudget)}
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// ── Continent group ────────────────────────────────────────────────────────────
+
+function ContinentGroup({
+  continent,
+  clubs,
+  selectedId,
+  onSelect,
+  defaultOpen,
+}: {
+  continent: string;
+  clubs: ClubTemplate[];
+  selectedId: number | null;
+  onSelect: (c: ClubTemplate) => void;
+  defaultOpen: boolean;
+}) {
+  const meta = CONTINENT_META[continent] ?? CONTINENT_META["Europe"];
+  const [open, setOpen] = useState(defaultOpen);
+  const hasSelection = clubs.some(c => c.id === selectedId);
+
+  return (
+    <div className="rounded-xl border border-white/8 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className={cn(
+          "w-full flex items-center justify-between px-4 py-3 transition-all",
+          open ? "bg-white/6" : "bg-white/3 hover:bg-white/5",
+        )}
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="text-lg leading-none">{meta.emoji}</span>
+          <span className={cn("text-sm font-black", meta.color)}>{continent}</span>
+          <span className="text-[10px] text-white/30 font-semibold">{clubs.length} clubs</span>
+          {hasSelection && (
+            <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black border", meta.bg, meta.border, meta.color)}>
+              <CheckCircle2 className="h-2.5 w-2.5" /> Selected
+            </span>
+          )}
+        </div>
+        {open
+          ? <ChevronDown className="h-4 w-4 text-white/30" />
+          : <ChevronRight className="h-4 w-4 text-white/30" />
+        }
+      </button>
+
+      {open && (
+        <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 border-t border-white/6">
+          {clubs.map(c => (
+            <ClubCard
+              key={c.id}
+              club={c}
+              selected={c.id === selectedId}
+              onSelect={() => onSelect(c)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── New Career Modal (2-step) ─────────────────────────────────────────────────
 
 interface NewCareerModalProps {
   slotNumber: number;
   onClose: () => void;
-  onSave: (data: { slotNumber: number; managerName: string; clubName: string }) => void;
+  onSave: (data: { slotNumber: number; managerName: string; clubName: string; budget: string }) => void;
   isSaving: boolean;
 }
 
 function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModalProps) {
+  const [step, setStep]               = useState<1 | 2>(1);
   const [managerName, setManagerName] = useState("");
-  const [clubName, setClubName]       = useState("");
+  const [selectedClub, setSelectedClub] = useState<ClubTemplate | null>(null);
 
-  const valid = managerName.trim().length > 0 && clubName.trim().length > 0;
+  const { data: templatesData, isLoading: loadingClubs } = useListClubTemplates({
+    query: { queryKey: getListClubTemplatesQueryKey() },
+  });
+
+  const grouped = useMemo(() => {
+    const clubs = templatesData?.clubs ?? [];
+    const map = new Map<string, ClubTemplate[]>();
+    for (const c of clubs) {
+      if (!map.has(c.continent)) map.set(c.continent, []);
+      map.get(c.continent)!.push(c);
+    }
+    return map;
+  }, [templatesData]);
+
+  const canProceed = managerName.trim().length > 0;
+  const canSave    = canProceed && selectedClub !== null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 shadow-2xl overflow-hidden">
+      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-slate-900 shadow-2xl flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-white/8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-              <Save className="h-5 w-5 text-violet-400" />
+        <div className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+                <Save className="h-5 w-5 text-violet-400" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-white">New Career — Slot {slotNumber}</h2>
+                <p className="text-[11px] text-white/45 mt-0.5">
+                  {step === 1 ? "Step 1 of 2 — Your manager name" : "Step 2 of 2 — Select your club"}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base font-black text-white">New Career — Slot {slotNumber}</h2>
-              <p className="text-[11px] text-white/45 mt-0.5">Set your manager name and club to begin</p>
+            {/* Step dots */}
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-violet-500" />
+              <div className={cn("h-2 w-2 rounded-full transition-all", step === 2 ? "bg-violet-500" : "bg-white/15")} />
             </div>
           </div>
+
+          {/* Step 2 summary pill */}
+          {step === 2 && (
+            <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-3 py-2">
+              <User className="h-3.5 w-3.5 text-white/35 shrink-0" />
+              <span className="text-sm font-bold text-white truncate">{managerName}</span>
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="ml-auto text-[10px] font-bold text-violet-400 hover:text-violet-300"
+              >
+                Edit
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Manager Name</label>
-            <input
-              autoFocus
-              value={managerName}
-              onChange={e => setManagerName(e.target.value)}
-              placeholder="e.g. Sarah Mitchell"
-              maxLength={100}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Club Name</label>
-            <input
-              value={clubName}
-              onChange={e => setClubName(e.target.value)}
-              placeholder="e.g. Pacific Waves BC"
-              maxLength={100}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
-            />
-          </div>
+        {/* Body — scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          {step === 1 && (
+            <div className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Manager Name</label>
+                <input
+                  autoFocus
+                  value={managerName}
+                  onChange={e => setManagerName(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && canProceed && setStep(2)}
+                  placeholder="e.g. Sarah Mitchell"
+                  maxLength={100}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                />
+              </div>
+              <p className="text-xs text-white/35">
+                This is the name that will appear on your manager profile throughout the game.
+              </p>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="p-4 space-y-2.5">
+              {loadingClubs ? (
+                <div className="flex items-center justify-center py-16 gap-3 text-white/40">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm">Loading clubs…</span>
+                </div>
+              ) : (
+                <>
+                  {selectedClub && (
+                    <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-3 flex items-center gap-3 mb-1">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-black text-white truncate">{selectedClub.name}</div>
+                        <div className="text-[11px] text-white/45">{selectedClub.continent} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    {CONTINENT_ORDER.map(continent => {
+                      const clubs = grouped.get(continent);
+                      if (!clubs || clubs.length === 0) return null;
+                      const isSelectedContinent = selectedClub?.continent === continent;
+                      return (
+                        <ContinentGroup
+                          key={continent}
+                          continent={continent}
+                          clubs={clubs}
+                          selectedId={selectedClub?.id ?? null}
+                          onSelect={setSelectedClub}
+                          defaultOpen={isSelectedContinent}
+                        />
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6 flex gap-3">
-          <button
-            onClick={onClose}
-            disabled={isSaving}
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all disabled:opacity-40"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => onSave({ slotNumber, managerName: managerName.trim(), clubName: clubName.trim() })}
-            disabled={!valid || isSaving}
-            className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-            {isSaving ? "Creating…" : "Start Career"}
-          </button>
+        <div className="px-6 py-4 border-t border-white/8 flex gap-3 shrink-0">
+          {step === 1 ? (
+            <>
+              <button
+                onClick={onClose}
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setStep(2)}
+                disabled={!canProceed}
+                className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                Choose Club <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setStep(1)}
+                disabled={isSaving}
+                className="flex-shrink-0 flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back
+              </button>
+              <button
+                onClick={() => selectedClub && onSave({
+                  slotNumber,
+                  managerName: managerName.trim(),
+                  clubName:    selectedClub.name,
+                  budget:      selectedClub.startingBudget,
+                })}
+                disabled={!canSave || isSaving}
+                className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                {isSaving ? "Creating…" : "Start Career"}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -324,14 +584,14 @@ export default function CareerManagement() {
     (data?.saves ?? []).map(s => [s.slotNumber, s]),
   );
 
-  const handleCreate = (body: { slotNumber: number; managerName: string; clubName: string }) => {
+  const handleCreate = (body: { slotNumber: number; managerName: string; clubName: string; budget: string }) => {
     upsertMutation.mutate(
-      { data: body },
+      { data: { slotNumber: body.slotNumber, managerName: body.managerName, clubName: body.clubName, budget: body.budget } },
       {
         onSuccess: () => {
           void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
           setNewSlot(null);
-          toast({ title: "Career created", description: `${body.managerName} — Slot ${body.slotNumber}` });
+          toast({ title: "Career created", description: `${body.managerName} at ${body.clubName}` });
         },
         onError: () => {
           toast({ title: "Failed to create career", variant: "destructive" });

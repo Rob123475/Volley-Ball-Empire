@@ -29,6 +29,7 @@ import attentionRouter from "./attention";
 import newsRouter from "./news";
 import eventsRouter from "./events";
 import careersRouter from "./careers";
+import clubTemplatesRouter from "./club-templates";
 
 const router: IRouter = Router();
 
@@ -62,5 +63,6 @@ router.use(attentionRouter);
 router.use(newsRouter);
 router.use(eventsRouter);
 router.use(careersRouter);
+router.use(clubTemplatesRouter);
 
 export default router;

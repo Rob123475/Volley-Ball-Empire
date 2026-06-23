@@ -448,6 +448,18 @@ export const continentalScoutingMissionsTable = pgTable("continental_scouting_mi
 
 export type ContinentalScoutingMission = typeof continentalScoutingMissionsTable.$inferSelect;
 
+export const clubTemplatesTable = pgTable("club_templates", {
+  id:             serial("id").primaryKey(),
+  name:           varchar("name",      { length: 100 }).notNull(),
+  continent:      varchar("continent", { length: 50  }).notNull(),
+  rating:         integer("rating").notNull().default(50),
+  startingBudget: numeric("starting_budget", { precision: 14, scale: 2 }).notNull().default("500000"),
+  reputation:     integer("reputation").notNull().default(50),
+  createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ClubTemplate = typeof clubTemplatesTable.$inferSelect;
+
 export const careerSavesTable = pgTable("career_saves", {
   id:           serial("id").primaryKey(),
   userId:       varchar("user_id").notNull().references(() => usersTable.id),

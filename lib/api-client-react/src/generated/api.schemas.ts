@@ -1062,6 +1062,31 @@ export interface UpcomingEvent {
   detail?: string | null;
 }
 
+export type ClubTemplateContinent = typeof ClubTemplateContinent[keyof typeof ClubTemplateContinent];
+
+
+export const ClubTemplateContinent = {
+  Europe: 'Europe',
+  Asia: 'Asia',
+  Africa: 'Africa',
+  North_America: 'North America',
+  South_America: 'South America',
+  Oceania: 'Oceania',
+} as const;
+
+export interface ClubTemplate {
+  id: number;
+  name: string;
+  continent: ClubTemplateContinent;
+  rating: number;
+  startingBudget: string;
+  reputation: number;
+}
+
+export interface ClubTemplateList {
+  clubs: ClubTemplate[];
+}
+
 export interface CareerSaveSlot {
   id: number;
   slotNumber: number;
