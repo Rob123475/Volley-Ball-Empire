@@ -1135,6 +1135,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/Player"
 
+  /news/world-tour:
+    get:
+      operationId: getWorldTourNews
+      tags: [news]
+      summary: Get the latest World Tour news stories
+      responses:
+        "200":
+          description: Latest news stories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorldTourNewsFeed"
+        "401":
+          description: Unauthorized
+
   /leaderboard:
     get:
       operationId: getLeaderboard
@@ -3132,6 +3147,37 @@ components:
           type: integer
         olympicMedals:
           type: integer
+
+    WorldTourNewsItem:
+      type: object
+      required: [id, type, headline, detail, nation, flag, publishedAt, isUserTeam]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [tournament, transfer, staff_signing, youth, injury, olympic, facility, record]
+        headline:
+          type: string
+        detail:
+          type: string
+        nation:
+          type: string
+        flag:
+          type: string
+        publishedAt:
+          type: string
+        isUserTeam:
+          type: boolean
+
+    WorldTourNewsFeed:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorldTourNewsItem"
 
     PositionStrength:
       type: object

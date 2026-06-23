@@ -93,6 +93,7 @@ import type {
   WageBill,
   WellbeingResult,
   WellbeingStatus,
+  WorldTourNewsFeed,
   YouthChampionshipTrophy,
   YouthLadderEntry,
   YouthLeagueResult,
@@ -4791,6 +4792,83 @@ export const useDraftPick = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getDraftPickMutationOptions(options));
     }
+
+export const getGetWorldTourNewsUrl = () => {
+
+
+
+
+  return `/api/news/world-tour`
+}
+
+/**
+ * @summary Get the latest World Tour news stories
+ */
+export const getWorldTourNews = async ( options?: RequestInit): Promise<WorldTourNewsFeed> => {
+
+  return customFetch<WorldTourNewsFeed>(getGetWorldTourNewsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWorldTourNewsQueryKey = () => {
+    return [
+    `/api/news/world-tour`
+    ] as const;
+    }
+
+
+export const getGetWorldTourNewsQueryOptions = <TData = Awaited<ReturnType<typeof getWorldTourNews>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWorldTourNews>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWorldTourNewsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWorldTourNews>>> = ({ signal }) => getWorldTourNews({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWorldTourNews>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWorldTourNewsQueryResult = NonNullable<Awaited<ReturnType<typeof getWorldTourNews>>>
+export type GetWorldTourNewsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the latest World Tour news stories
+ */
+
+export function useGetWorldTourNews<TData = Awaited<ReturnType<typeof getWorldTourNews>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWorldTourNews>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWorldTourNewsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetLeaderboardUrl = () => {
 

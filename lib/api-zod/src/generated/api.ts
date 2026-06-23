@@ -2576,6 +2576,23 @@ export const DraftPickBody = zod.object({
 
 
 /**
+ * @summary Get the latest World Tour news stories
+ */
+export const GetWorldTourNewsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.enum(['tournament', 'transfer', 'staff_signing', 'youth', 'injury', 'olympic', 'facility', 'record']),
+  "headline": zod.string(),
+  "detail": zod.string(),
+  "nation": zod.string(),
+  "flag": zod.string(),
+  "publishedAt": zod.string(),
+  "isUserTeam": zod.boolean()
+}))
+})
+
+
+/**
  * @summary Get global leaderboard across all users/teams
  */
 export const GetLeaderboardResponseItem = zod.object({

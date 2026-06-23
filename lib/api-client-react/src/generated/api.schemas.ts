@@ -1028,6 +1028,35 @@ export interface ManagerRecords {
   olympicMedals: number;
 }
 
+export type WorldTourNewsItemType = typeof WorldTourNewsItemType[keyof typeof WorldTourNewsItemType];
+
+
+export const WorldTourNewsItemType = {
+  tournament: 'tournament',
+  transfer: 'transfer',
+  staff_signing: 'staff_signing',
+  youth: 'youth',
+  injury: 'injury',
+  olympic: 'olympic',
+  facility: 'facility',
+  record: 'record',
+} as const;
+
+export interface WorldTourNewsItem {
+  id: string;
+  type: WorldTourNewsItemType;
+  headline: string;
+  detail: string;
+  nation: string;
+  flag: string;
+  publishedAt: string;
+  isUserTeam: boolean;
+}
+
+export interface WorldTourNewsFeed {
+  items: WorldTourNewsItem[];
+}
+
 export interface PositionStrength {
   rating: number;
   playerCount: number;

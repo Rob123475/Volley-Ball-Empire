@@ -9,6 +9,7 @@ import {
   useGetFacilities,
   useGetTrophyCabinet,
   useGetTeamStrength,
+  useGetWorldTourNews,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
@@ -18,6 +19,7 @@ import {
   getGetFacilitiesQueryKey,
   getGetTrophyCabinetQueryKey,
   getGetTeamStrengthQueryKey,
+  getGetWorldTourNewsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -188,6 +190,9 @@ export default function Dashboard() {
   });
   const { data: teamStrength } = useGetTeamStrength({
     query: { queryKey: getGetTeamStrengthQueryKey() },
+  });
+  const { data: worldNews } = useGetWorldTourNews({
+    query: { queryKey: getGetWorldTourNewsQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -476,6 +481,11 @@ export default function Dashboard() {
           TROPHY CABINET PREVIEW
       ══════════════════════════════════════════════════════════════ */}
       {cabinet && <TrophyCabinetPreview cabinet={cabinet} />}
+
+      {/* ══════════════════════════════════════════════════════════════
+          WORLD TOUR NEWS FEED
+      ══════════════════════════════════════════════════════════════ */}
+      {worldNews && <WorldTourNewsFeed items={worldNews.items} />}
 
       {/* ══════════════════════════════════════════════════════════════
           TEAM STRENGTH OVERVIEW
@@ -812,6 +822,130 @@ function TrophyCabinetPreview({ cabinet }: { cabinet: import("@workspace/api-cli
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── World Tour News Feed ───────────────────────────────────────────────────────
+
+const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot: string }> = {
+  tournament:   { icon: "🏆", label: "Tournament",   pill: "bg-yellow-400/15 text-yellow-300 border-yellow-400/25",  dot: "bg-yellow-400"  },
+  transfer:     { icon: "🔄", label: "Transfer",     pill: "bg-sky-400/15 text-sky-300 border-sky-400/25",           dot: "bg-sky-400"     },
+  staff_signing:{ icon: "📋", label: "Signing",      pill: "bg-violet-400/15 text-violet-300 border-violet-400/25",  dot: "bg-violet-400"  },
+  youth:        { icon: "⭐", label: "Youth",        pill: "bg-emerald-400/15 text-emerald-300 border-emerald-400/25",dot: "bg-emerald-400" },
+  injury:       { icon: "🩹", label: "Injury",       pill: "bg-red-400/15 text-red-300 border-red-400/25",           dot: "bg-red-400"     },
+  olympic:      { icon: "🥇", label: "Olympic",      pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",     dot: "bg-amber-400"   },
+  facility:     { icon: "🏗️",  label: "Facility",    pill: "bg-slate-400/15 text-slate-300 border-slate-400/25",     dot: "bg-slate-400"   },
+  record:       { icon: "📈", label: "Record",       pill: "bg-pink-400/15 text-pink-300 border-pink-400/25",        dot: "bg-pink-400"    },
+};
+
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins  = Math.floor(diff / 60_000);
+  const hours = Math.floor(diff / 3_600_000);
+  const days  = Math.floor(diff / 86_400_000);
+  if (mins  < 60)  return `${mins}m ago`;
+  if (hours < 24)  return `${hours}h ago`;
+  return `${days}d ago`;
+}
+
+function WorldTourNewsFeed({ items }: { items: import("@workspace/api-client-react").WorldTourNewsItem[] }) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/80 shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.07),_transparent_55%)] pointer-events-none" />
+
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-white/8">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-indigo-400/15 border border-indigo-400/30 flex items-center justify-center text-xl">
+              🌍
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white leading-none">World Tour News</h3>
+              <div className="text-[11px] text-white/50 mt-0.5">Live circuit updates</div>
+            </div>
+          </div>
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            LIVE
+          </div>
+        </div>
+
+        {/* News list */}
+        <div className="divide-y divide-white/5">
+          {items.slice(0, 10).map((item) => {
+            const meta = NEWS_META[item.type] ?? NEWS_META.record;
+            const isOpen = expanded === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setExpanded(isOpen ? null : item.id)}
+                className={cn(
+                  "w-full text-left px-5 py-3.5 transition-colors",
+                  item.isUserTeam
+                    ? "bg-yellow-400/5 hover:bg-yellow-400/10"
+                    : "hover:bg-white/4",
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  {/* Colour dot */}
+                  <div className={cn("mt-1.5 h-2 w-2 rounded-full shrink-0", meta.dot)} />
+
+                  <div className="flex-1 min-w-0">
+                    {/* Top row */}
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <span className={cn(
+                        "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
+                        meta.pill
+                      )}>
+                        {meta.icon} {meta.label}
+                      </span>
+                      <span className="text-[10px] text-white/30 font-semibold">{item.flag} {item.nation}</span>
+                      {item.isUserTeam && (
+                        <span className="text-[9px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-full px-1.5 py-0.5">
+                          YOUR TEAM
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Headline */}
+                    <div className={cn(
+                      "text-sm font-bold leading-snug",
+                      item.isUserTeam ? "text-yellow-100" : "text-white/90"
+                    )}>
+                      {item.headline}
+                    </div>
+
+                    {/* Detail (expandable) */}
+                    {isOpen && (
+                      <div className="mt-1.5 text-[11px] text-white/55 leading-relaxed">
+                        {item.detail}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Time */}
+                  <div className="text-[10px] text-white/30 shrink-0 mt-0.5 font-semibold">
+                    {timeAgo(item.publishedAt)}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-white/8 text-[10px] text-white/25 font-semibold">
+          Tap any story to expand · World Tour stories refresh daily
         </div>
       </div>
     </div>

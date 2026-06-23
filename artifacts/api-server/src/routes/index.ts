@@ -26,6 +26,7 @@ import achievementsRouter from "./achievements";
 import continentalScoutingRouter from "./continental-scouting";
 import medicalStaffRouter from "./medical-staff";
 import attentionRouter from "./attention";
+import newsRouter from "./news";
 
 const router: IRouter = Router();
 
@@ -56,5 +57,6 @@ router.use(achievementsRouter);
 router.use(continentalScoutingRouter);
 router.use(medicalStaffRouter);
 router.use(attentionRouter);
+router.use(newsRouter);
 
 export default router;
