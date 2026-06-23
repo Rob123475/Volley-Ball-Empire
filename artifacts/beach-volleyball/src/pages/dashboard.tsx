@@ -58,6 +58,9 @@ import {
   ChevronUp,
   Zap,
   Settings,
+  Save,
+  FolderOpen,
+  Home,
 } from "lucide-react";
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -455,19 +458,48 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* ── Career Options ── */}
-          <div className="flex justify-end">
-            <button
-              onClick={() => setShowCareerOptions(true)}
-              className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/25 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[11px] font-bold text-white/55 hover:text-white/90 transition-all"
-            >
-              <Settings className="h-3 w-3" />
-              Career Options
-            </button>
-          </div>
 
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          CAREER OPTIONS
+      ══════════════════════════════════════════════════════════════ */}
+      <Card className="border-white/8 bg-slate-900/60 backdrop-blur-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Settings className="h-4 w-4 text-white/50" />
+                Career Options
+              </CardTitle>
+              <CardDescription className="text-xs mt-0.5">Save, load or manage your active career</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { label: "Save Career",            desc: "Auto-saves after every action", icon: Save,       colour: "text-emerald-400", bg: "hover:bg-emerald-500/10 hover:border-emerald-500/30" },
+              { label: "Load Different Career",   desc: "Switch to another save slot",  icon: FolderOpen,  colour: "text-sky-400",     bg: "hover:bg-sky-500/10 hover:border-sky-500/30" },
+              { label: "Return to Main Menu",     desc: "Go to career selection",       icon: Home,        colour: "text-violet-400",  bg: "hover:bg-violet-500/10 hover:border-violet-500/30" },
+              { label: "Game Settings",           desc: "Audio, display & preferences", icon: Settings,    colour: "text-white/50",    bg: "hover:bg-white/5 hover:border-white/15" },
+            ].map(({ label, desc, icon: Icon, colour, bg }) => (
+              <button
+                key={label}
+                onClick={() => setShowCareerOptions(true)}
+                className={`flex flex-col items-start gap-2 rounded-xl border border-white/8 bg-white/3 p-3.5 text-left transition-all ${bg}`}
+              >
+                <Icon className={`h-4 w-4 ${colour}`} />
+                <div>
+                  <div className="text-xs font-semibold text-white/80 leading-none">{label}</div>
+                  <div className="text-[10px] text-white/35 mt-0.5">{desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ══════════════════════════════════════════════════════════════
           ATTENTION REQUIRED
