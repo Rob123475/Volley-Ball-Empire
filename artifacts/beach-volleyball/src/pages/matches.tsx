@@ -22,6 +22,7 @@ import {
   Lock, Star, Swords, Flag
 } from "lucide-react";
 import { PlayerStatusBadge } from "@/components/player-status-badge";
+import { MatchActionButtons } from "@/components/match/MatchActionButtons";
 import { useState } from "react";
 import {
   Dialog,
@@ -540,8 +541,15 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
         </div>
       )}
       {isNext && !expanded && (
-        <div className="px-4 pb-3 text-xs text-primary cursor-pointer hover:underline" onClick={() => setExpanded(true)}>
-          ▸ Click to select lineup & play
+        <div className="px-4 pb-3">
+          <MatchActionButtons
+            activePlayers={activePlayers}
+            teamSize={match.teamSize ?? 2}
+            matchLabel={`Round ${match.round} vs ${match.awayTeamName ?? "Opponent"}`}
+            onSimulate={onSimulate}
+            isSimulating={isSimulating}
+            onWatchMatch={() => setExpanded(true)}
+          />
         </div>
       )}
     </div>
@@ -615,8 +623,22 @@ function FinalCard({ match, isCompleted, isPlayable, homeWon, onSimulate, isSimu
           </div>
         </div>
 
-        {/* Lineup for final */}
-        {isPlayable && (
+        {/* Action buttons for final */}
+        {isPlayable && !expanded && (
+          <div className="mt-4 border-t border-yellow-500/20 pt-3">
+            <MatchActionButtons
+              activePlayers={activePlayers}
+              teamSize={match.teamSize ?? 2}
+              matchLabel="Grand Final"
+              onSimulate={onSimulate}
+              isSimulating={isSimulating}
+              onWatchMatch={() => setExpanded(true)}
+            />
+          </div>
+        )}
+
+        {/* Lineup for final — shown after "Watch Match" is selected */}
+        {isPlayable && expanded && (
           <div className="mt-4 space-y-3 border-t border-yellow-500/20 pt-3">
             <div className="text-sm font-bold flex items-center gap-2">
               <Star className="h-4 w-4 text-yellow-500" /> Select Championship Lineup ({selected.length}/{match.teamSize ?? 2})
@@ -664,11 +686,13 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
   match: any; onSimulate: (ids: number[]) => void; isSimulating: boolean; activePlayers: any[];
 }) {
   const [selected, setSelected] = useState<number[]>([]);
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <Card data-testid={`card-match-${match.id}`} className="overflow-hidden hover-elevate group">
       <div className="flex flex-col md:flex-row">
         <div className="p-6 flex-1 space-y-4">
+          {/* Match info — always visible */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{weatherIcons[match.weather]}</span>
@@ -685,45 +709,60 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="text-sm font-bold flex items-center gap-2"><Users className="h-4 w-4" /> Select Lineup ({selected.length}/{match.teamSize})</div>
-            <div className="grid grid-cols-3 gap-2">
-              {activePlayers.map((p: any) => (
-                <div
-                  key={p.id}
-                  data-testid={`player-select-${p.id}`}
-                  className={cn(
-                    "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
-                    selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted"
-                  )}
-                  onClick={() => {
-                    if (selected.includes(p.id)) setSelected(selected.filter(id => id !== p.id));
-                    else if (selected.length < match.teamSize) setSelected([...selected, p.id]);
-                  }}
-                >
-                  <Checkbox checked={selected.includes(p.id)} />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-medium truncate">{p.name}</span>
-                    <PlayerStatusBadge player={p} size="xs" />
+          {/* Lineup selector — shown after "Watch Match" is selected */}
+          {expanded && (
+            <div className="space-y-3">
+              <div className="text-sm font-bold flex items-center gap-2"><Users className="h-4 w-4" /> Select Lineup ({selected.length}/{match.teamSize})</div>
+              <div className="grid grid-cols-3 gap-2">
+                {activePlayers.map((p: any) => (
+                  <div
+                    key={p.id}
+                    data-testid={`player-select-${p.id}`}
+                    className={cn(
+                      "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
+                      selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                    )}
+                    onClick={() => {
+                      if (selected.includes(p.id)) setSelected(selected.filter(id => id !== p.id));
+                      else if (selected.length < match.teamSize) setSelected([...selected, p.id]);
+                    }}
+                  >
+                    <Checkbox checked={selected.includes(p.id)} />
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-medium truncate">{p.name}</span>
+                      <PlayerStatusBadge player={p} size="xs" />
+                    </div>
                   </div>
-                </div>
-              ))}
-              {activePlayers.length === 0 && (
-                <p className="col-span-4 text-xs text-muted-foreground">No active players on roster.</p>
-              )}
+                ))}
+                {activePlayers.length === 0 && (
+                  <p className="col-span-4 text-xs text-muted-foreground">No active players on roster.</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-        <div className="bg-muted/30 p-4 flex items-center justify-center border-l">
-          <Button
-            size="default"
-            className="h-10 px-6 gap-2 text-sm font-black shadow-lg"
-            disabled={selected.length !== match.teamSize || isSimulating}
-            onClick={() => onSimulate(selected)}
-            data-testid={`button-simulate-${match.id}`}
-          >
-            {isSimulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Play className="h-4 w-4 fill-current" /> SIMULATE!</>}
-          </Button>
+
+        <div className="bg-muted/30 p-4 flex items-center justify-center border-l min-w-[160px]">
+          {!expanded ? (
+            <MatchActionButtons
+              activePlayers={activePlayers}
+              teamSize={match.teamSize}
+              matchLabel={match.locationName ?? "Scheduled Match"}
+              onSimulate={onSimulate}
+              isSimulating={isSimulating}
+              onWatchMatch={() => setExpanded(true)}
+            />
+          ) : (
+            <Button
+              size="default"
+              className="h-10 px-6 gap-2 text-sm font-black shadow-lg"
+              disabled={selected.length !== match.teamSize || isSimulating}
+              onClick={() => onSimulate(selected)}
+              data-testid={`button-simulate-${match.id}`}
+            >
+              {isSimulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Play className="h-4 w-4 fill-current" /> SIMULATE!</>}
+            </Button>
+          )}
         </div>
       </div>
     </Card>
