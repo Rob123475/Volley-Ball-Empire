@@ -265,92 +265,149 @@ export default function Dashboard() {
     <div className="space-y-5">
 
       {/* ══════════════════════════════════════════════════════════════
-          HERO SECTION
+          CLUB HERO BANNER
       ══════════════════════════════════════════════════════════════ */}
-      <div className={cn("relative overflow-hidden rounded-2xl bg-gradient-to-br shadow-2xl border border-white/5", heroGradient)}>
+      <div
+        className="relative overflow-hidden rounded-2xl shadow-2xl"
+        style={{
+          backgroundColor: "#0a0f1e",
+          backgroundImage: [
+            "linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.35) 38%, rgba(0,0,0,0.82) 100%)",
+            "url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1600&q=80&auto=format&fit=crop')",
+          ].join(", "),
+          backgroundSize: "cover",
+          backgroundPosition: "center 30%",
+        }}
+      >
+        {/* Subtle court lines as texture */}
         <BeachCourtDecor />
 
-        {/* Subtle vignette overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+        {/* Accent glow from rating colour */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              totalRating >= 80 ? "radial-gradient(ellipse 70% 40% at 50% 100%, rgba(245,158,11,0.18) 0%, transparent 70%)" :
+              totalRating >= 65 ? "radial-gradient(ellipse 70% 40% at 50% 100%, rgba(167,139,250,0.18) 0%, transparent 70%)" :
+              totalRating >= 50 ? "radial-gradient(ellipse 70% 40% at 50% 100%, rgba(96,165,250,0.18) 0%, transparent 70%)" :
+                                  "radial-gradient(ellipse 70% 40% at 50% 100%, rgba(100,116,139,0.12) 0%, transparent 70%)",
+          }}
+        />
 
-        <div className="relative z-10 p-6 md:p-8 flex flex-col gap-7">
+        <div className="relative z-10 flex flex-col">
 
-          {/* ── Top: Identity + Club Rating ── */}
-          <div className="flex flex-col lg:flex-row gap-6 justify-between">
+          {/* ── Top ribbon: Season · branding · streak ── */}
+          <div className="flex items-center gap-3 px-6 md:px-8 pt-5 pb-0 flex-wrap">
+            <div className="flex items-center gap-2 bg-white/8 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+              <Calendar className="h-3 w-3 text-white/50" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/70">{season?.name ?? "Season 1"}</span>
+            </div>
+            <div className="h-3 w-px bg-white/15" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/25">Beach Volley Pro</span>
+            <div className="flex-1" />
+            {streak >= 3 && (
+              <Badge className="text-[11px] bg-orange-500/20 text-orange-300 border border-orange-500/40 font-black gap-1.5 px-3 py-1 animate-pulse">
+                <Flame className="h-3.5 w-3.5" /> {streak}-MATCH STREAK
+              </Badge>
+            )}
+          </div>
+
+          {/* ── Main: Club identity (left) + Rating panel (right) ── */}
+          <div className="flex flex-col lg:flex-row gap-6 px-6 md:px-8 pt-7 pb-5 justify-between">
 
             {/* Club Identity */}
             <div className="flex items-start gap-5 flex-1 min-w-0">
-              {/* Logo */}
-              <div className={cn(
-                "shrink-0 h-20 w-20 rounded-2xl flex items-center justify-center border-2 shadow-xl bg-white/10 backdrop-blur-sm",
-                ratingBorder
-              )}>
-                <span className={cn("text-3xl font-black", ratingAccent)}>{initials}</span>
+
+              {/* Shield emblem */}
+              <div className="shrink-0 relative flex items-center justify-center w-[88px] h-[100px]">
+                <svg width="88" height="100" viewBox="0 0 88 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl absolute inset-0">
+                  <path
+                    d="M44 3L83 17V47C83 68 66 87 44 97C22 87 5 68 5 47V17L44 3Z"
+                    fill="rgba(0,0,0,0.55)"
+                    stroke={
+                      totalRating >= 80 ? "#f59e0b" :
+                      totalRating >= 65 ? "#a78bfa" :
+                      totalRating >= 50 ? "#60a5fa" :
+                                          "rgba(255,255,255,0.18)"
+                    }
+                    strokeWidth="2.5"
+                  />
+                  {/* Inner shield highlight */}
+                  <path
+                    d="M44 10L77 21V47C77 64 63 81 44 90C25 81 11 64 11 47V21L44 10Z"
+                    fill="rgba(255,255,255,0.04)"
+                    stroke="rgba(255,255,255,0.07)"
+                    strokeWidth="1"
+                  />
+                </svg>
+                <span className={cn("relative z-10 text-2xl font-black tracking-tight drop-shadow-lg", ratingAccent)}>
+                  {initials}
+                </span>
               </div>
 
-              <div className="min-w-0 flex-1">
-                {/* Club name */}
-                <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-0.5">Club</div>
-                <h1 className="text-3xl md:text-4xl font-black text-white leading-none truncate">
+              <div className="min-w-0 flex-1 pt-1">
+                {/* Eyebrow */}
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35 mb-1">
+                  Women's Beach Volleyball Club
+                </div>
+
+                {/* Club name — headline */}
+                <h1 className="text-4xl md:text-5xl font-black text-white leading-none truncate mb-4 drop-shadow-lg">
                   {team?.name ?? "My Club"}
                 </h1>
 
                 {/* Manager row */}
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1">
-                    <Star className="h-3 w-3 text-white/60" />
-                    <span className="text-xs font-semibold text-white/80">
-                      {coachName || "Set coach name"}
-                    </span>
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 border border-white/10">
+                    <Users className="h-3 w-3 text-white/50" />
+                    <span className="text-xs font-bold text-white/80">{coachName || "Set coach name"}</span>
                   </div>
-                  <div className={cn("flex items-center gap-1 text-xs font-bold", repLvl.colour)}>
-                    <Award className="h-3 w-3" />
+                  <div className={cn("flex items-center gap-1.5 text-sm font-black", repLvl.colour)}>
+                    <Award className="h-3.5 w-3.5" />
                     {repLvl.name}
                   </div>
                 </div>
 
-                {/* Rep progress */}
-                <div className="flex items-center gap-2 mt-2 max-w-[280px]">
-                  <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                {/* Rep XP bar */}
+                <div className="flex items-center gap-3 max-w-[300px] mb-3">
+                  <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <div
-                      className={cn("h-full rounded-full transition-all", ratingBarColour.replace("bg-", "bg-").replace("400", "400").replace("bg-amber-400", "bg-amber-400").replace("bg-violet-400", "bg-violet-400").replace("bg-blue-400", "bg-blue-400").replace("bg-slate-400", "bg-white/50"))}
+                      className={cn("h-full rounded-full transition-all", ratingBarColour)}
                       style={{ width: `${repPct}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-white/40 shrink-0">
-                    {repPts}{repLvl.next !== null ? `/${repLvl.next} rep` : " rep (max)"}
+                  <span className="text-[11px] text-white/40 shrink-0 font-semibold tabular-nums">
+                    {repPts.toLocaleString()}{repLvl.next !== null ? ` / ${repLvl.next}` : " (max)"} rep
                   </span>
                 </div>
 
-                {/* Season badge */}
-                <div className="flex items-center gap-1.5 mt-2">
-                  <Badge variant="outline" className="text-[10px] border-white/20 text-white/50 font-semibold">
+                {/* Season + streak pills */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="text-[11px] border-white/20 text-white/55 font-bold bg-white/5">
                     {season?.name ?? "Season 1"}
                   </Badge>
-                  {streak >= 3 && (
-                    <Badge className="text-[10px] bg-orange-500/20 text-orange-300 border-orange-500/30 font-bold gap-1">
-                      <Flame className="h-2.5 w-2.5" /> {streak}-Win Streak
-                    </Badge>
-                  )}
+                  <Badge variant="outline" className="text-[11px] border-white/20 text-white/55 font-bold bg-white/5">
+                    {new Date().getFullYear()}
+                  </Badge>
                 </div>
               </div>
             </div>
 
             {/* Club Rating Panel */}
             {clubRating && (
-              <div className={cn("shrink-0 bg-white/8 backdrop-blur-sm rounded-2xl p-5 border min-w-[220px] max-w-[280px] w-full lg:w-auto", ratingBorder)}
-                style={{ background: "rgba(255,255,255,0.06)" }}>
-                <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-3 flex items-center gap-1.5">
+              <div
+                className={cn("shrink-0 rounded-2xl p-5 border backdrop-blur-md min-w-[220px] max-w-[260px] w-full lg:w-auto self-start", ratingBorder)}
+                style={{ background: "rgba(0,0,0,0.50)" }}
+              >
+                <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 flex items-center gap-1.5">
                   <Building2 className="h-3 w-3" /> Club Rating
                 </div>
-                <div className="flex items-baseline gap-2 mb-1">
+                <div className="flex items-baseline gap-2 mb-0.5">
                   <span className={cn("text-5xl font-black leading-none", ratingAccent)}>{totalRating}</span>
-                  <span className="text-sm text-white/50 font-semibold">/100</span>
+                  <span className="text-sm text-white/35 font-semibold">/100</span>
                 </div>
-                <div className="text-sm font-bold text-white/70 mb-4">{clubRating.label}</div>
-
-                {/* Component breakdown */}
-                <div className="space-y-2">
+                <div className="text-sm font-bold text-white/55 mb-4">{clubRating.label}</div>
+                <div className="space-y-1.5">
                   {(["players", "staff", "medical", "facilities", "youthAcademy"] as const).map((key) => {
                     const comp = clubRating.breakdown[key];
                     const labels: Record<string, string> = {
@@ -359,12 +416,9 @@ export default function Dashboard() {
                     };
                     return (
                       <div key={key} className="flex items-center gap-2">
-                        <div className="text-[10px] text-white/40 w-[58px] font-semibold shrink-0">{labels[key]}</div>
+                        <div className="text-[10px] text-white/35 w-[60px] font-semibold shrink-0">{labels[key]}</div>
                         <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
-                          <div
-                            className={cn("h-full rounded-full transition-all", ratingBarColour)}
-                            style={{ width: `${comp.score}%` }}
-                          />
+                          <div className={cn("h-full rounded-full transition-all", ratingBarColour)} style={{ width: `${comp.score}%` }} />
                         </div>
                         <div className="text-[10px] text-white/50 w-5 text-right font-bold shrink-0">{comp.score}</div>
                       </div>
@@ -375,90 +429,100 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* ── Bottom: Stats Strip ── */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {/* ── Bottom: KPI stats strip ── */}
+          <div className="px-6 md:px-8 pb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
 
-            {/* World Rank */}
-            <HeroStat
-              label="World Rank"
-              icon={<Award className="h-2.5 w-2.5" />}
-              value={rank !== null ? `#${rank}` : "—"}
-              sub={
-                <span className="flex items-center gap-1">
-                  {rankTrend === "hot"     && <><Flame className="h-3 w-3 text-orange-400" /><span className="text-orange-300">On Fire</span></>}
-                  {rankTrend === "up"      && <><TrendingUp className="h-3 w-3 text-emerald-400" /><span className="text-emerald-300">Rising</span></>}
-                  {rankTrend === "down"    && <><TrendingDown className="h-3 w-3 text-red-400" /><span className="text-red-300">Falling</span></>}
-                  {rankTrend === "neutral" && <><Minus className="h-3 w-3 text-white/30" /><span>Steady</span></>}
-                </span>
-              }
-            />
+            {/* World Ranking */}
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-3.5 border border-white/10 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
+                <Award className="h-2.5 w-2.5" /> World Rank
+              </div>
+              <div className="text-2xl font-black text-white leading-none mt-0.5">
+                {rank !== null ? `#${rank}` : "—"}
+              </div>
+              <div className="text-[11px] flex items-center gap-1 mt-1 font-bold">
+                {rankTrend === "hot"     && <><Flame className="h-3.5 w-3.5 text-orange-400" /><span className="text-orange-300">On Fire</span></>}
+                {rankTrend === "up"      && <><TrendingUp className="h-3.5 w-3.5 text-emerald-400" /><span className="text-emerald-300">Rising</span></>}
+                {rankTrend === "down"    && <><TrendingDown className="h-3.5 w-3.5 text-red-400" /><span className="text-red-300">Falling</span></>}
+                {rankTrend === "neutral" && <><Minus className="h-3.5 w-3.5 text-white/30" /><span className="text-white/40">Steady</span></>}
+              </div>
+            </div>
 
             {/* Season Record */}
-            <HeroStat
-              label="Season Record"
-              icon={<Swords className="h-2.5 w-2.5" />}
-              value={<span>{wins}<span className="text-white/30 text-base mx-1">—</span>{losses}</span>}
-              sub={`${rankPts} season pts`}
-            />
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-3.5 border border-white/10 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
+                <Swords className="h-2.5 w-2.5" /> Season Record
+              </div>
+              <div className="text-2xl font-black leading-none mt-0.5">
+                <span className="text-emerald-300">{wins}</span>
+                <span className="text-white/25 mx-1.5">—</span>
+                <span className="text-red-300">{losses}</span>
+              </div>
+              <div className="text-[11px] text-white/40 mt-1 font-semibold">{rankPts} season pts</div>
+            </div>
 
             {/* Budget */}
-            <HeroStat
-              label="Budget"
-              icon={<DollarSign className="h-2.5 w-2.5" />}
-              value={formatCurrency(finance?.balance)}
-              sub={
-                <span className="flex items-center gap-0.5">
-                  {monthlyNet >= 0
-                    ? <ArrowUpRight className="h-3 w-3 text-emerald-400" />
-                    : <ArrowDownRight className="h-3 w-3 text-red-400" />}
-                  {formatCurrency(Math.abs(monthlyNet))} / mo
-                </span>
-              }
-            />
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-3.5 border border-white/10 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
+                <DollarSign className="h-2.5 w-2.5" /> Budget
+              </div>
+              <div className="text-xl font-black text-white leading-none mt-0.5 truncate">{formatCurrency(finance?.balance)}</div>
+              <div className="text-[11px] flex items-center gap-0.5 mt-1 font-bold">
+                {monthlyNet >= 0
+                  ? <><ArrowUpRight className="h-3.5 w-3.5 text-emerald-400" /><span className="text-emerald-300">{formatCurrency(Math.abs(monthlyNet))}/mo</span></>
+                  : <><ArrowDownRight className="h-3.5 w-3.5 text-red-400" /><span className="text-red-300">{formatCurrency(Math.abs(monthlyNet))}/mo</span></>}
+              </div>
+            </div>
 
             {/* Team Morale */}
-            <HeroStat
-              label="Team Morale"
-              icon={<HeartPulse className="h-2.5 w-2.5" />}
-              value={<span className={moraleColour}>{avgMorale > 0 ? `${avgMorale}%` : "—"}</span>}
-              sub={
-                avgMorale > 0 ? (
-                  <div className="w-full h-1 rounded-full bg-white/10 overflow-hidden mt-1">
-                    <div
-                      className={cn("h-full rounded-full", avgMorale >= 80 ? "bg-emerald-400" : avgMorale >= 60 ? "bg-yellow-400" : "bg-red-400")}
-                      style={{ width: `${avgMorale}%` }}
-                    />
-                  </div>
-                ) : undefined
-              }
-            />
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-3.5 border border-white/10 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
+                <HeartPulse className="h-2.5 w-2.5" /> Team Morale
+              </div>
+              <div className={cn("text-2xl font-black leading-none mt-0.5", moraleColour)}>
+                {avgMorale > 0 ? `${avgMorale}%` : "—"}
+              </div>
+              {avgMorale > 0 ? (
+                <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mt-1.5">
+                  <div
+                    className={cn("h-full rounded-full transition-all", avgMorale >= 80 ? "bg-emerald-400" : avgMorale >= 60 ? "bg-yellow-400" : "bg-red-400")}
+                    style={{ width: `${avgMorale}%` }}
+                  />
+                </div>
+              ) : <div className="mt-1 text-[11px] text-white/30 font-semibold">No players yet</div>}
+            </div>
 
-            {/* Injuries */}
-            <HeroStat
-              label="Fitness"
-              icon={<Shield className="h-2.5 w-2.5" />}
-              value={
-                (dashboard?.injuredCount ?? 0) === 0
+            {/* Fitness */}
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-3.5 border border-white/10 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
+                <Shield className="h-2.5 w-2.5" /> Fitness
+              </div>
+              <div className="text-xl font-black leading-none mt-0.5">
+                {(dashboard?.injuredCount ?? 0) === 0
                   ? <span className="text-emerald-300">All Fit</span>
-                  : <span className="text-red-300">{dashboard?.injuredCount} Injured</span>
-              }
-              sub={(dashboard?.injuredCount ?? 0) === 0 ? "Squad fully available" : "Check medical centre"}
-            />
+                  : <span className="text-red-300">{dashboard?.injuredCount} Injured</span>}
+              </div>
+              <div className="text-[11px] text-white/40 mt-1 font-semibold">
+                {(dashboard?.injuredCount ?? 0) === 0 ? "Squad available" : "Check medical"}
+              </div>
+            </div>
 
             {/* Next Match */}
-            <HeroStat
-              label="Next Match"
-              icon={<Calendar className="h-2.5 w-2.5" />}
-              value={
-                nextMatch
-                  ? <span className="text-base">{weatherIcons[nextMatch.weather] ?? "☀️"} {nextMatch.locationName ?? "TBD"}</span>
-                  : <span className="text-white/30 text-base">No match</span>
-              }
-              sub={nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule a match"}
-            />
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-3.5 border border-white/10 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
+                <Calendar className="h-2.5 w-2.5" /> Next Match
+              </div>
+              <div className="text-sm font-black text-white leading-snug mt-0.5 truncate">
+                {nextMatch
+                  ? <>{weatherIcons[nextMatch.weather] ?? "☀️"} {nextMatch.locationName ?? "TBD"}</>
+                  : <span className="text-white/30">No match</span>}
+              </div>
+              <div className="text-[11px] text-white/40 mt-1 font-semibold">
+                {nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule one"}
+              </div>
+            </div>
+
           </div>
-
-
         </div>
       </div>
 
