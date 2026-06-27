@@ -2583,9 +2583,12 @@ export const ListClubTemplatesResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "continent": zod.enum(['Europe', 'Asia', 'Africa', 'North America', 'South America', 'Oceania']),
+  "town": zod.string(),
   "rating": zod.number(),
   "startingBudget": zod.string(),
-  "reputation": zod.number()
+  "reputation": zod.number(),
+  "primaryColor": zod.string(),
+  "secondaryColor": zod.string()
 }))
 })
 
@@ -2621,7 +2624,10 @@ export const UpsertCareerSaveBody = zod.object({
   "originalClubName": zod.string().nullish(),
   "season": zod.string().optional(),
   "worldRanking": zod.number().nullish(),
-  "budget": zod.string().nullish()
+  "budget": zod.string().nullish(),
+  "locationId": zod.number().nullish(),
+  "primaryColor": zod.string().nullish(),
+  "secondaryColor": zod.string().nullish()
 })
 
 export const UpsertCareerSaveResponse = zod.object({

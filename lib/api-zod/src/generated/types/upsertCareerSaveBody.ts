@@ -14,4 +14,7 @@ export interface UpsertCareerSaveBody {
   season?: string;
   worldRanking?: number | null;
   budget?: string | null;
+  locationId?: number | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
 }

@@ -1,50 +1,13 @@
 import { useState } from "react";
 import { 
   useGetCurrentAuthUser, 
-  useGetMyTeam, 
-  useCreateTeam, 
-  useListLocations,
-  useCreateProfile,
+  useGetMyTeam,
   getGetMyTeamQueryKey,
-  getGetCurrentAuthUserQueryKey,
-  getGetProfileQueryKey
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Loader2, Play, ChevronRight, BookOpen, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { ClubSelectionScreen } from "@/components/club-selection-screen";
 
-const TEAM_NAME_SUGGESTIONS = [
-  "Sunset Spikers", "Tide Breakers", "Sandy Aces", "Wave Riders", "Coral Crush",
-  "Shoreline Sirens", "Dune Destroyers", "Pacific Blaze", "Golden Coast FC", "Horizon Hitters",
-];
-
-const teamSchema = z.object({
-  name: z.string().min(3, "Team name must be at least 3 characters"),
-  locationId: z.coerce.number().min(1, "Select a home location"),
-});
-
-type TeamFormValues = { name: string; locationId: string };
 
 const RULES = [
   { heading: "Scoring",     body: "Every rally awards a point to the winner — you don't need to be serving." },
@@ -86,34 +49,16 @@ function RulesPanel({ onClose }: { onClose: () => void }) {
 }
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
   // Title screen: shown on every fresh session until dismissed
   const [showTitle, setShowTitle] = useState(
     () => sessionStorage.getItem("bvp-title-dismissed") !== "1"
   );
   const [showRules, setShowRules] = useState(false);
 
-  // All hooks called unconditionally at top level
-  const { data: user, isLoading: authLoading } = useGetCurrentAuthUser({
-    query: { queryKey: getGetCurrentAuthUserQueryKey() }
-  });
+  const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
 
-  const { data: team, isLoading: teamLoading, isError: noTeam } = useGetMyTeam({
+  const { data: team, isLoading: teamLoading, isError: noTeam, refetch: refetchTeam } = useGetMyTeam({
     query: { enabled: !!user, queryKey: getGetMyTeamQueryKey(), retry: false }
-  });
-
-  const { data: locations } = useListLocations({
-    query: { enabled: !!user && (noTeam || !team), queryKey: ["locations"] }
-  });
-
-  const createTeamMutation  = useCreateTeam();
-  const createProfileMutation = useCreateProfile();
-
-  const form = useForm<TeamFormValues>({
-    resolver: zodResolver(teamSchema),
-    defaultValues: { name: "", locationId: "" },
   });
 
   const hasTeam   = !!user && !!team && !noTeam;
@@ -265,103 +210,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  // ── First-time user — create team ───────────────────────────────────────────
+  // ── First-time user — pick a club ───────────────────────────────────────────
   if (needsTeam) {
-    const onSubmit = (values: TeamFormValues) => {
-      const data = { name: values.name, locationId: parseInt(values.locationId, 10) };
-      createTeamMutation.mutate({ data }, {
-        onSuccess: (newTeam) => {
-          createProfileMutation.mutate({ data: { teamName: newTeam.name } }, {
-            onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
-              queryClient.invalidateQueries({ queryKey: getGetProfileQueryKey() });
-              toast({ title: "Team Created!", description: `Welcome to the pro league, ${newTeam.name}!` });
-            }
-          });
-        }
-      });
-    };
-
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md border-primary/20 shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-primary">Establish Your Team</CardTitle>
-            <CardDescription>Every legend starts somewhere. Give your team a name and a home.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Team Name</FormLabel>
-                      <div className="space-y-2">
-                        <Select onValueChange={(val) => field.onChange(val)} data-testid="select-team-name-preset">
-                          <SelectTrigger className="text-muted-foreground">
-                            <SelectValue placeholder="Pick a name…" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {TEAM_NAME_SUGGESTIONS.map((name) => (
-                              <SelectItem key={name} value={name}>{name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <div className="flex-1 h-px bg-border" />
-                          <span>or type your own</span>
-                          <div className="flex-1 h-px bg-border" />
-                        </div>
-                        <FormControl>
-                          <Input placeholder="e.g. Tropical Spikes" {...field} data-testid="input-team-name" />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="locationId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Home Location</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-home-location">
-                            <SelectValue placeholder="Select a home beach" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {locations?.map((loc) => (
-                            <SelectItem key={loc.id} value={loc.id.toString()}>
-                              {loc.city}, {loc.country}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={createTeamMutation.isPending || createProfileMutation.isPending}
-                  data-testid="button-create-team"
-                >
-                  {(createTeamMutation.isPending || createProfileMutation.isPending)
-                    ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    : "Create Team"}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ClubSelectionScreen onComplete={() => refetchTeam()} />;
   }
 
   return <>{children}</>;

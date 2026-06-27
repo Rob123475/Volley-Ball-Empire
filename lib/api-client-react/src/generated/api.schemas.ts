@@ -1078,9 +1078,12 @@ export interface ClubTemplate {
   id: number;
   name: string;
   continent: ClubTemplateContinent;
+  town: string;
   rating: number;
   startingBudget: string;
   reputation: number;
+  primaryColor: string;
+  secondaryColor: string;
 }
 
 export interface ClubTemplateList {
@@ -1127,6 +1130,9 @@ export interface UpsertCareerSaveBody {
   season?: string;
   worldRanking?: number | null;
   budget?: string | null;
+  locationId?: number | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
 }
 
 export interface UpcomingEventsFeed {

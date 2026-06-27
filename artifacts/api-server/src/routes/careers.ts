@@ -85,7 +85,7 @@ router.get("/careers/summary", async (req, res) => {
 router.post("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { slotNumber, managerName, clubName, originalClubName, season, worldRanking, budget } = req.body as {
+  const { slotNumber, managerName, clubName, originalClubName, season, worldRanking, budget, locationId, primaryColor, secondaryColor } = req.body as {
     slotNumber:        number;
     managerName:       string;
     clubName:          string;
@@ -93,6 +93,9 @@ router.post("/careers", async (req, res) => {
     season?:           string;
     worldRanking?:     number | null;
     budget?:           string | null;
+    locationId?:       number | null;
+    primaryColor?:     string | null;
+    secondaryColor?:   string | null;
   };
 
   if (
@@ -121,10 +124,13 @@ router.post("/careers", async (req, res) => {
   const [newTeam] = await db
     .insert(teamsTable)
     .values({
-      userId:     req.user.id,
-      name:       clubName.trim(),
-      budget:     budget ?? "500000",
-      reputation: 50,
+      userId:             req.user.id,
+      name:               clubName.trim(),
+      budget:             budget ?? "500000",
+      reputation:         50,
+      ...(locationId   ? { locationId }                   : {}),
+      ...(primaryColor ? { logoColor: primaryColor }      : {}),
+      ...(secondaryColor ? { secondaryLogoColor: secondaryColor } : {}),
     })
     .returning();
 

@@ -47,8 +47,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const weatherIcons: Record<string, string> = {
-  sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥",
-  cloudy: "☁️", overcast: "⛅", perfect: "✨",
+  sunny:        "☀️",
+  clear:        "🌤️",
+  windy:        "💨",
+  stormy:       "⛈️",
+  rain:         "🌧️",
+  hot:          "🔥",
+  extreme_heat: "🌡️",
+  cloudy:       "☁️",
+  overcast:     "⛅",
+  perfect:      "✨",
+};
+
+const weatherSeverity: Record<string, { label: string; cls: string }> = {
+  perfect:      { label: "Perfect",      cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
+  clear:        { label: "Clear",        cls: "bg-sky-500/15 text-sky-400 border-sky-500/30" },
+  sunny:        { label: "Sunny",        cls: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30" },
+  cloudy:       { label: "Cloudy",       cls: "bg-slate-500/15 text-slate-400 border-slate-500/30" },
+  overcast:     { label: "Overcast",     cls: "bg-slate-500/15 text-slate-300 border-slate-500/30" },
+  hot:          { label: "Hot",          cls: "bg-orange-500/15 text-orange-400 border-orange-500/30" },
+  windy:        { label: "Windy",        cls: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
+  rain:         { label: "Rain",         cls: "bg-blue-600/15 text-blue-300 border-blue-600/30" },
+  stormy:       { label: "Storm",        cls: "bg-purple-500/15 text-purple-400 border-purple-500/30" },
+  extreme_heat: { label: "Extreme Heat", cls: "bg-red-500/15 text-red-400 border-red-500/30" },
 };
 
 const tierColors: Record<string, string> = {
@@ -388,6 +409,30 @@ export default function Matches() {
                   <div className="text-6xl font-black text-secondary">{simulationResult.awayScore}</div>
                 </div>
               </div>
+
+              {/* Weather conditions strip */}
+              {simulationResult.weather && (
+                <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-muted/30 px-4 py-2.5">
+                  <span className="text-2xl">{weatherIcons[simulationResult.weather] ?? "☀️"}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold capitalize">{simulationResult.locationName ?? "Match"}</span>
+                      {weatherSeverity[simulationResult.weather] && (
+                        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${weatherSeverity[simulationResult.weather].cls}`}>
+                          {weatherSeverity[simulationResult.weather].label}
+                        </span>
+                      )}
+                    </div>
+                    {(simulationResult.windSpeed || simulationResult.temperature) && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {simulationResult.temperature && `${simulationResult.temperature}°C`}
+                        {simulationResult.temperature && simulationResult.windSpeed && " · "}
+                        {simulationResult.windSpeed && `Wind ${simulationResult.windSpeed} km/h`}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="bg-primary/5 rounded-xl p-6 border border-primary/10">
                 <h4 className="font-bold mb-4 flex items-center gap-2 text-primary">

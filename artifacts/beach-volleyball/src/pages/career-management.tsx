@@ -220,6 +220,8 @@ interface NewCareerModalProps {
     clubName:         string;
     originalClubName: string;
     budget:           string;
+    primaryColor?:    string;
+    secondaryColor?:  string;
   }) => void;
   isSaving: boolean;
 }
@@ -488,6 +490,8 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   clubName:         customClubName.trim() || selectedClub.name,
                   originalClubName: selectedClub.name,
                   budget:           selectedClub.startingBudget,
+                  primaryColor:     selectedClub.primaryColor,
+                  secondaryColor:   selectedClub.secondaryColor,
                 })}
                 disabled={!canSave || isSaving}
                 className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -743,9 +747,11 @@ export default function CareerManagement() {
     clubName:         string;
     originalClubName: string;
     budget:           string;
+    primaryColor?:    string;
+    secondaryColor?:  string;
   }) => {
     upsertMutation.mutate(
-      { data: { slotNumber: body.slotNumber, managerName: body.managerName, clubName: body.clubName, originalClubName: body.originalClubName, budget: body.budget } },
+      { data: { slotNumber: body.slotNumber, managerName: body.managerName, clubName: body.clubName, originalClubName: body.originalClubName, budget: body.budget, primaryColor: body.primaryColor, secondaryColor: body.secondaryColor } },
       {
         onSuccess: () => {
           void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });

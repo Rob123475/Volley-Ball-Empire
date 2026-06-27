@@ -3339,7 +3339,7 @@ components:
 
     ClubTemplate:
       type: object
-      required: [id, name, continent, rating, startingBudget, reputation]
+      required: [id, name, continent, town, rating, startingBudget, reputation, primaryColor, secondaryColor]
       properties:
         id:
           type: integer
@@ -3348,12 +3348,18 @@ components:
         continent:
           type: string
           enum: [Europe, Asia, Africa, North America, South America, Oceania]
+        town:
+          type: string
         rating:
           type: integer
         startingBudget:
           type: string
         reputation:
           type: integer
+        primaryColor:
+          type: string
+        secondaryColor:
+          type: string
 
     ClubTemplateList:
       type: object
@@ -3452,6 +3458,15 @@ components:
           type: integer
           nullable: true
         budget:
+          type: string
+          nullable: true
+        locationId:
+          type: integer
+          nullable: true
+        primaryColor:
+          type: string
+          nullable: true
+        secondaryColor:
           type: string
           nullable: true
 

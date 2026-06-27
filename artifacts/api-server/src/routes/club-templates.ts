@@ -19,9 +19,12 @@ router.get("/club-templates", async (req, res) => {
       id:             c.id,
       name:           c.name,
       continent:      c.continent,
+      town:           c.town,
       rating:         c.rating,
       startingBudget: c.startingBudget,
       reputation:     c.reputation,
+      primaryColor:   c.primaryColor,
+      secondaryColor: c.secondaryColor,
     })),
   });
 });

@@ -14,22 +14,23 @@ const router = Router();
 // ── Weather system ────────────────────────────────────────────────────────────
 // Location pools: biased toward the typical climate of each real-world venue.
 // Each string appears multiple times to weight probability.
+// Types: clear, sunny, windy, rain, hot, extreme_heat, stormy, perfect, cloudy, overcast
 const LOCATION_WEATHER_POOLS: Record<number, string[]> = {
-  1:  ["sunny","sunny","hot","hot","stormy","perfect","cloudy"],           // Copacabana – tropical
-  11: ["hot","hot","hot","sunny","sunny","windy","perfect"],               // Hurghada – Red Sea desert
-  2:  ["sunny","sunny","windy","windy","cloudy","perfect","overcast"],     // Bondi – breezy southern
-  3:  ["sunny","sunny","sunny","hot","perfect","cloudy","windy"],          // Waikiki – balmy trade-winds
-  4:  ["sunny","hot","hot","stormy","cloudy","windy","overcast"],          // Clearwater – Florida heat/storms
-  5:  ["hot","hot","sunny","stormy","cloudy","sunny","overcast"],          // Varadero – Caribbean
-  6:  ["sunny","hot","hot","perfect","stormy","cloudy","sunny"],           // Ipanema – tropical
-  7:  ["hot","hot","stormy","stormy","cloudy","sunny","overcast"],         // Kata Beach – Southeast Asia
-  8:  ["sunny","sunny","windy","windy","perfect","cloudy","hot"],          // Mykonos – Mediterranean meltemi
-  9:  ["hot","sunny","stormy","cloudy","sunny","overcast","perfect"],      // Bali – tropical
-  10: ["cloudy","cloudy","windy","overcast","perfect","sunny","stormy"],   // Nice – Mediterranean, variable
+  1:  ["sunny","sunny","hot","hot","rain","stormy","perfect","cloudy"],           // Copacabana – tropical
+  11: ["hot","hot","extreme_heat","hot","sunny","sunny","windy","perfect"],       // Hurghada – Red Sea desert
+  2:  ["sunny","sunny","windy","windy","cloudy","perfect","overcast","clear"],    // Bondi – breezy southern
+  3:  ["sunny","sunny","sunny","hot","perfect","cloudy","windy","clear"],         // Waikiki – balmy trade-winds
+  4:  ["sunny","hot","hot","stormy","rain","cloudy","windy","overcast"],          // Clearwater – Florida heat/storms
+  5:  ["hot","hot","sunny","stormy","rain","cloudy","sunny","overcast"],          // Varadero – Caribbean
+  6:  ["sunny","hot","hot","perfect","rain","stormy","cloudy","sunny"],           // Ipanema – tropical
+  7:  ["hot","hot","stormy","rain","rain","cloudy","sunny","overcast"],           // Kata Beach – Southeast Asia
+  8:  ["sunny","sunny","windy","windy","perfect","cloudy","hot","clear"],         // Mykonos – Mediterranean meltemi
+  9:  ["hot","sunny","stormy","rain","cloudy","sunny","overcast","perfect"],      // Bali – tropical
+  10: ["cloudy","cloudy","windy","overcast","perfect","sunny","stormy","rain"],   // Nice – Mediterranean, variable
 };
 
 // Fallback for unknown location ids
-const DEFAULT_POOL = ["sunny","cloudy","windy","hot","overcast","stormy","perfect"];
+const DEFAULT_POOL = ["sunny","clear","cloudy","windy","hot","overcast","stormy","perfect","rain"];
 
 type WeatherResult = { weather: string; windSpeed: string; temperature: string };
 
@@ -48,13 +49,25 @@ function generateWeather(locId?: number | null): WeatherResult {
       wind = 20 + Math.random() * 24;   // 20–44 km/h
       temp = 16 + Math.random() * 16;   // 16–32°C
       break;
+    case "rain":
+      wind = 8 + Math.random() * 20;    // 8–28 km/h — moderate wind with rain
+      temp = 14 + Math.random() * 12;   // 14–26°C — cooler in rain
+      break;
     case "hot":
       wind = Math.random() * 9;         // 0–9 km/h — still & sweltering
       temp = 34 + Math.random() * 13;   // 34–47°C
       break;
+    case "extreme_heat":
+      wind = Math.random() * 6;         // 0–6 km/h — barely any breeze
+      temp = 44 + Math.random() * 10;   // 44–54°C — dangerously hot
+      break;
     case "perfect":
       wind = 6 + Math.random() * 10;    // 6–16 km/h — pleasant sea breeze
       temp = 22 + Math.random() * 9;    // 22–31°C
+      break;
+    case "clear":
+      wind = 2 + Math.random() * 10;    // 2–12 km/h — calm & bright
+      temp = 22 + Math.random() * 12;   // 22–34°C
       break;
     case "overcast":
       wind = 10 + Math.random() * 18;   // 10–28 km/h
@@ -71,18 +84,15 @@ function generateWeather(locId?: number | null): WeatherResult {
       break;
   }
 
-  // 10% chance of extreme conditions (heatwave spike, gale burst, cold snap)
-  if (Math.random() < 0.10) {
+  // 8% chance of extreme conditions (heatwave spike, gale burst, cold snap)
+  if (Math.random() < 0.08) {
     const roll = Math.random();
     if (roll < 0.4) {
-      // Heatwave
-      temp  = Math.min(temp + 6 + Math.random() * 6, 52);
+      temp  = Math.min(temp + 6 + Math.random() * 6, 54);  // Heatwave
     } else if (roll < 0.75) {
-      // Gale
-      wind  = Math.min(wind * 1.8 + Math.random() * 10, 65);
+      wind  = Math.min(wind * 1.8 + Math.random() * 10, 65); // Gale
     } else {
-      // Cold snap
-      temp  = Math.max(temp - 8 - Math.random() * 6, 8);
+      temp  = Math.max(temp - 8 - Math.random() * 6, 8);   // Cold snap
     }
   }
 
@@ -91,6 +101,134 @@ function generateWeather(locId?: number | null): WeatherResult {
     windSpeed:   wind.toFixed(1),
     temperature: temp.toFixed(1),
   };
+}
+
+// ── Weather effect modifiers ──────────────────────────────────────────────────
+// Returns a structured set of multipliers/addends for simulation and post-match.
+export type WeatherEffects = {
+  /** Performance penalty applied to avgStat (0 = none, 0.3 = 30% disadvantage) */
+  performancePenalty: number;
+  /** Extra fatigue added on top of the base 15–25 fatigue cost */
+  extraFatigue: number;
+  /** Multiplier on base injury risk (1.0 = unchanged) */
+  injuryRiskMultiplier: number;
+  /** Penalty to serve accuracy — reduces effective serve stat by this fraction */
+  serveAccuracyPenalty: number;
+  /** Modifier to home/away score randomness (+N means scores can vary more) */
+  rallyRandomness: number;
+  /** Label describing conditions for the UI */
+  label: string;
+  /** Severity: 'favorable' | 'neutral' | 'moderate' | 'harsh' | 'extreme' */
+  severity: "favorable" | "neutral" | "moderate" | "harsh" | "extreme";
+};
+
+export function getWeatherEffects(weather: string, windSpeed: number, temperature: number): WeatherEffects {
+  // Base wind penalty — scales with actual wind speed
+  const windPenalty = Math.min(windSpeed / 50, 0.30);
+
+  switch (weather) {
+    case "extreme_heat":
+      return {
+        performancePenalty:   0.14 + windPenalty,
+        extraFatigue:         18,
+        injuryRiskMultiplier: 1.6,
+        serveAccuracyPenalty: 0.10,
+        rallyRandomness:      1,
+        label:                `Extreme Heat ${temperature.toFixed(0)}°C`,
+        severity:             "extreme",
+      };
+    case "stormy":
+      return {
+        performancePenalty:   windPenalty + 0.06,
+        extraFatigue:         10,
+        injuryRiskMultiplier: 1.4,
+        serveAccuracyPenalty: windPenalty * 0.8,
+        rallyRandomness:      2,
+        label:                `Storm ${windSpeed.toFixed(0)} km/h`,
+        severity:             windPenalty > 0.2 ? "extreme" : "harsh",
+      };
+    case "rain":
+      return {
+        performancePenalty:   0.08 + windPenalty * 0.5,
+        extraFatigue:         6,
+        injuryRiskMultiplier: 1.25,
+        serveAccuracyPenalty: 0.08,
+        rallyRandomness:      2,
+        label:                `Rain ${temperature.toFixed(0)}°C`,
+        severity:             "harsh",
+      };
+    case "hot":
+      return {
+        performancePenalty:   0.08 + windPenalty,
+        extraFatigue:         8,
+        injuryRiskMultiplier: 1.2,
+        serveAccuracyPenalty: 0.04,
+        rallyRandomness:      1,
+        label:                `Hot ${temperature.toFixed(0)}°C`,
+        severity:             "moderate",
+      };
+    case "windy":
+      return {
+        performancePenalty:   windPenalty,
+        extraFatigue:         4,
+        injuryRiskMultiplier: 1.1,
+        serveAccuracyPenalty: windPenalty * 0.6,
+        rallyRandomness:      1,
+        label:                `Windy ${windSpeed.toFixed(0)} km/h`,
+        severity:             windPenalty > 0.2 ? "harsh" : "moderate",
+      };
+    case "overcast":
+      return {
+        performancePenalty:   windPenalty * 0.5,
+        extraFatigue:         2,
+        injuryRiskMultiplier: 1.0,
+        serveAccuracyPenalty: 0,
+        rallyRandomness:      0,
+        label:                `Overcast ${temperature.toFixed(0)}°C`,
+        severity:             "neutral",
+      };
+    case "cloudy":
+      return {
+        performancePenalty:   windPenalty * 0.4,
+        extraFatigue:         1,
+        injuryRiskMultiplier: 1.0,
+        serveAccuracyPenalty: 0,
+        rallyRandomness:      0,
+        label:                `Cloudy ${temperature.toFixed(0)}°C`,
+        severity:             "neutral",
+      };
+    case "perfect":
+      return {
+        performancePenalty:   0,
+        extraFatigue:         -2,  // slight recovery bonus
+        injuryRiskMultiplier: 0.9,
+        serveAccuracyPenalty: 0,
+        rallyRandomness:      -1,  // more consistent rallies
+        label:                `Perfect ${temperature.toFixed(0)}°C`,
+        severity:             "favorable",
+      };
+    case "clear":
+      return {
+        performancePenalty:   0,
+        extraFatigue:         0,
+        injuryRiskMultiplier: 0.95,
+        serveAccuracyPenalty: 0,
+        rallyRandomness:      0,
+        label:                `Clear ${temperature.toFixed(0)}°C`,
+        severity:             "neutral",
+      };
+    case "sunny":
+    default:
+      return {
+        performancePenalty:   windPenalty * 0.3,
+        extraFatigue:         3,
+        injuryRiskMultiplier: 1.0,
+        serveAccuracyPenalty: 0,
+        rallyRandomness:      0,
+        label:                `Sunny ${temperature.toFixed(0)}°C`,
+        severity:             "neutral",
+      };
+  }
 }
 
 const serializeMatch = (m: any) => ({
@@ -166,7 +304,7 @@ type PlayerEvent = {
  *  - Bench/reserve:   fatigue ↓, fitness ↑, consecutive resets, injury weeks tick down
  * Returns events (new injuries, worsenings, recoveries) for the UI to surface.
  */
-async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false): Promise<PlayerEvent[]> {
+async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false, windSpeed = 0, temperature = 25): Promise<PlayerEvent[]> {
   const [players, physioSkill] = await Promise.all([
     db.select().from(playersTable).where(eq(playersTable.teamId, teamId)),
     getBestMedicalSkill(teamId),
@@ -176,7 +314,7 @@ async function applyPostMatchEffects(teamId: number, weather: string, facilityLe
   const sportsLabLevel  = facilityLevels.sports_science_lab ?? 1;
 
   const events: PlayerEvent[] = [];
-  const isHot = weather === "hot";
+  const wx = getWeatherEffects(weather, windSpeed, temperature);
 
   for (const player of players) {
     const updates: Record<string, unknown> = {};
@@ -187,13 +325,14 @@ async function applyPostMatchEffects(teamId: number, weather: string, facilityLe
 
     if (player.isActive) {
       // ── Played this match ──────────────────────────────────────────────────
-      const fatigueCost = 15 + Math.floor(Math.random() * 11) + (isHot ? 8 : 0);
+      const fatigueCost = 15 + Math.floor(Math.random() * 11) + Math.max(0, wx.extraFatigue);
       updates.fatigue  = Math.min(100, curFatigue + fatigueCost);
       updates.fitness  = Math.max(0, curFitness - 3 - Math.floor(Math.random() * 6));
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
-      // Injury risk roll — higher fatigue, lower stamina, and playing hurt all raise it
-      const risk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus, sportsLabLevel, hasRecoveryCamp);
+      // Injury risk roll — weather, fatigue, stamina, and injury status all affect risk
+      const baseRisk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus, sportsLabLevel, hasRecoveryCamp);
+      const risk = Math.min(baseRisk * wx.injuryRiskMultiplier, 0.70);
       if (Math.random() < risk) {
         const inj = rollInjurySeverity(prevStatus);
         updates.injuryStatus        = inj.status;
@@ -388,9 +527,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
     : 65;
 
   // Weather impact on match difficulty
-  const windPenalty = Math.min(Number(match.windSpeed ?? 0) / 50, 0.3); // up to 30% disadvantage in gales
-  const heatPenalty = match.weather === "hot" ? 0.08 : 0;
-  const weatherFactor = 1 - windPenalty - heatPenalty;
+  const matchWindSpeed = Number(match.windSpeed ?? 0);
+  const matchTemp      = Number(match.temperature ?? 25);
+  const wx = getWeatherEffects(match.weather, matchWindSpeed, matchTemp);
+  const weatherFactor = 1 - wx.performancePenalty;
 
   const isFinal       = match.tier === "Grand Final";
   const isHighPressure = isFinal || match.tier === "Continental Final";
@@ -401,16 +541,21 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const psychBonusFromCamp = hasPsychCamp ? 3 : 0;
   const statThreshold = isHighPressure ? Math.max(58, 70 - (psychLevel - 1) - psychBonusFromCamp) : 70;
 
-  const homeScore = Math.floor(Math.random() * 3) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
-  const awayScore = Math.floor(Math.random() * 3) + 1;
+  // Rally randomness: harsh weather = more chaos, perfect = consistent play
+  const baseRoll = Math.max(2, 3 + wx.rallyRandomness);
+  const homeScore = Math.floor(Math.random() * baseRoll) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
+  const awayScore = Math.floor(Math.random() * baseRoll) + 1;
   const homeWon   = homeScore > awayScore;
 
   const weatherHighlights: Record<string, string> = {
-    stormy:   "Players battle through gusting winds and dramatic conditions!",
-    windy:    "A powerful gust deflects the serve at a crucial moment!",
-    hot:      "The searing heat takes its toll — fatigue is a real factor today!",
-    overcast: "Cool overcast conditions let both teams play at full intensity.",
-    perfect:  "Perfect beach volleyball weather produces spectacular play!",
+    stormy:       "Players battle through gusting winds and dramatic conditions!",
+    windy:        "A powerful gust deflects the serve at a crucial moment!",
+    rain:         "The rain-soaked sand makes every dive a heart-stopping moment!",
+    hot:          "The searing heat takes its toll — fatigue is a real factor today!",
+    extreme_heat: "Brutal heat pushes both teams to their absolute limits!",
+    overcast:     "Cool overcast conditions let both teams play at full intensity.",
+    perfect:      "Perfect beach volleyball weather produces spectacular play!",
+    clear:        "Crystal-clear skies and calm winds — ideal conditions!",
   };
 
   const highlightTemplates = [
@@ -492,7 +637,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     }).where(eq(teamsTable.id, team.id));
   }
 
-  const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp);
+  const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
 
   // Record new injuries into season injury stats
   const newInjuryEvents = playerEvents.filter(e => e.event === "injury_new");
@@ -625,15 +770,19 @@ router.post("/matches/:id/simulate", async (req, res) => {
   }
 
   res.json({
-    match: serializeMatch(updatedMatch),
+    match:        serializeMatch(updatedMatch),
     highlights,
     homeScore,
     awayScore,
-    winner:      homeWon ? "home" : "away",
+    winner:       homeWon ? "home" : "away",
     prizeEarned,
-    mvp: mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
+    mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
     isFinal,
-    weatherImpact: windPenalty > 0.1 || heatPenalty > 0 ? match.weather : null,
+    weather:      match.weather,
+    windSpeed:    matchWindSpeed,
+    temperature:  matchTemp,
+    locationName: match.locationName,
+    weatherImpact: wx.performancePenalty > 0.05 ? match.weather : null,
     playerEvents,
   });
 });

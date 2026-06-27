@@ -11,7 +11,10 @@ export interface ClubTemplate {
   id: number;
   name: string;
   continent: ClubTemplateContinent;
+  town: string;
   rating: number;
   startingBudget: string;
   reputation: number;
+  primaryColor: string;
+  secondaryColor: string;
 }

@@ -62,6 +62,7 @@ export const teamsTable = pgTable("teams", {
   titlesWon: integer("titles_won").notNull().default(0),
   locationId: integer("location_id").references(() => locationsTable.id),
   logoColor: varchar("logo_color", { length: 20 }),
+  secondaryLogoColor: varchar("secondary_logo_color", { length: 20 }),
   trainingPhilosophy: varchar("training_philosophy", { length: 30 }),
   managerRepPoints: integer("manager_rep_points").notNull().default(0),
   winStreak: integer("win_streak").notNull().default(0),
@@ -452,9 +453,12 @@ export const clubTemplatesTable = pgTable("club_templates", {
   id:             serial("id").primaryKey(),
   name:           varchar("name",      { length: 100 }).notNull(),
   continent:      varchar("continent", { length: 50  }).notNull(),
+  town:           varchar("town",      { length: 100 }).notNull().default("Unknown"),
   rating:         integer("rating").notNull().default(50),
   startingBudget: numeric("starting_budget", { precision: 14, scale: 2 }).notNull().default("500000"),
   reputation:     integer("reputation").notNull().default(50),
+  primaryColor:   varchar("primary_color",   { length: 20 }).notNull().default("#E05A00"),
+  secondaryColor: varchar("secondary_color", { length: 20 }).notNull().default("#FFFFFF"),
   createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
