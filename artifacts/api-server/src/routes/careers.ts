@@ -51,22 +51,37 @@ async function buildCareerSummary(teamId: number, userId: string) {
 router.get("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const saves = await db
-    .select()
+  const rows = await db
+    .select({
+      id:                careerSavesTable.id,
+      teamId:            careerSavesTable.teamId,
+      slotNumber:        careerSavesTable.slotNumber,
+      managerName:       careerSavesTable.managerName,
+      clubName:          careerSavesTable.clubName,
+      originalClubName:  careerSavesTable.originalClubName,
+      season:            careerSavesTable.season,
+      worldRanking:      careerSavesTable.worldRanking,
+      budget:            careerSavesTable.budget,
+      managerReputation: careerSavesTable.managerReputation,
+      lastPlayedAt:      careerSavesTable.lastPlayedAt,
+      createdAt:         careerSavesTable.createdAt,
+      primaryColor:      teamsTable.logoColor,
+      secondaryColor:    teamsTable.secondaryLogoColor,
+    })
     .from(careerSavesTable)
+    .leftJoin(teamsTable, eq(teamsTable.id, careerSavesTable.teamId))
     .where(eq(careerSavesTable.userId, req.user.id))
     .orderBy(careerSavesTable.slotNumber);
 
-  const activeTeamId      = req.activeTeamId ?? null;
+  const activeTeamId       = req.activeTeamId ?? null;
   const activeCareerSaveId = req.activeCareerSaveId ?? null;
 
-  // Prefer session-tracked career save id; fall back to matching by activeTeamId
   const activeSave = activeCareerSaveId
-    ? saves.find(s => s.id === activeCareerSaveId)
-    : activeTeamId ? saves.find(s => s.teamId === activeTeamId) : null;
+    ? rows.find(s => s.id === activeCareerSaveId)
+    : activeTeamId ? rows.find(s => s.teamId === activeTeamId) : null;
 
   res.json({
-    saves: saves.map(s => ({
+    saves: rows.map(s => ({
       id:                s.id,
       teamId:            s.teamId ?? null,
       slotNumber:        s.slotNumber,
@@ -77,6 +92,8 @@ router.get("/careers", async (req, res) => {
       worldRanking:      s.worldRanking,
       budget:            s.budget,
       managerReputation: s.managerReputation ?? 50,
+      primaryColor:      s.primaryColor ?? null,
+      secondaryColor:    s.secondaryColor ?? null,
       lastPlayedAt:      s.lastPlayedAt.toISOString(),
       createdAt:         s.createdAt.toISOString(),
     })),

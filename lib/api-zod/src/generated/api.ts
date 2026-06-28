@@ -2636,6 +2636,8 @@ export const ListCareerSavesResponse = zod.object({
   "worldRanking": zod.number().nullish(),
   "budget": zod.string().nullish(),
   "managerReputation": zod.number(),
+  "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
+  "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
 })),
@@ -2670,6 +2672,8 @@ export const UpsertCareerSaveResponse = zod.object({
   "worldRanking": zod.number().nullish(),
   "budget": zod.string().nullish(),
   "managerReputation": zod.number(),
+  "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
+  "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
 })

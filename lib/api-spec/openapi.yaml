@@ -3610,6 +3610,14 @@ components:
           nullable: true
         managerReputation:
           type: integer
+        primaryColor:
+          type: string
+          nullable: true
+          description: "Club primary colour (from team logo colour)"
+        secondaryColor:
+          type: string
+          nullable: true
+          description: "Club secondary colour (from team secondary logo colour)"
         lastPlayedAt:
           type: string
         createdAt:

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
+import { ClubCrest } from "@/components/club-crest";
 import {
   useListCareerSaves,
   getListCareerSavesQueryKey,
@@ -597,21 +598,29 @@ function FilledSlotCard({ save, isActive, onLoad, onDelete, onEndCareer }: Fille
 
       <div className="p-5 space-y-4">
         {/* Manager + club */}
-        <div className="space-y-1 pr-8">
-          <div className="flex items-center gap-2">
-            <User className="h-3.5 w-3.5 text-white/35 shrink-0" />
-            <span className="text-base font-black text-white leading-tight truncate">{save.managerName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Trophy className="h-3.5 w-3.5 text-amber-400/70 shrink-0" />
-            <span className="text-sm font-semibold text-white/70 truncate">{save.clubName}</span>
-          </div>
-          {/* Show original name when the club has been renamed */}
-          {save.originalClubName && save.originalClubName !== save.clubName && (
-            <div className="flex items-center gap-1.5 pl-0.5">
-              <span className="text-[10px] text-white/30 italic">formerly {save.originalClubName}</span>
+        <div className="flex items-start gap-3 pr-8">
+          <ClubCrest
+            name={save.originalClubName ?? save.clubName}
+            primaryColor={save.primaryColor}
+            size={48}
+            className="shrink-0 mt-0.5 drop-shadow-lg"
+          />
+          <div className="space-y-1 min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <User className="h-3.5 w-3.5 text-white/35 shrink-0" />
+              <span className="text-base font-black text-white leading-tight truncate">{save.managerName}</span>
             </div>
-          )}
+            <div className="flex items-center gap-2">
+              <Trophy className="h-3.5 w-3.5 text-amber-400/70 shrink-0" />
+              <span className="text-sm font-semibold text-white/70 truncate">{save.clubName}</span>
+            </div>
+            {/* Show original name when the club has been renamed */}
+            {save.originalClubName && save.originalClubName !== save.clubName && (
+              <div className="flex items-center gap-1.5 pl-0.5">
+                <span className="text-[10px] text-white/30 italic">formerly {save.originalClubName}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Stats grid */}

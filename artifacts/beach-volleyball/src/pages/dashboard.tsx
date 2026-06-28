@@ -1,3 +1,4 @@
+import { ClubCrest } from "@/components/club-crest";
 import {
   useGetDashboard,
   useGetCurrentSeason,
@@ -329,31 +330,35 @@ export default function Dashboard() {
             {/* Club Identity */}
             <div className="flex items-start gap-5 flex-1 min-w-0">
 
-              {/* Shield emblem */}
-              <div className="shrink-0 relative flex items-center justify-center w-[88px] h-[100px]">
-                <svg width="88" height="100" viewBox="0 0 88 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl absolute inset-0">
+              {/* Shield emblem — club crest + rating ring overlay */}
+              <div className="shrink-0 relative w-[88px] h-[100px]">
+                <ClubCrest
+                  name={team?.name ?? ""}
+                  primaryColor={team?.logoColor}
+                  size={88}
+                  className="drop-shadow-2xl"
+                />
+                {/* Rating-tier border overlay */}
+                <svg
+                  width="88"
+                  height="100"
+                  viewBox="0 0 88 100"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="absolute inset-0 pointer-events-none"
+                >
                   <path
-                    d="M44 3L83 17V47C83 68 66 87 44 97C22 87 5 68 5 47V17L44 3Z"
-                    fill="rgba(0,0,0,0.55)"
+                    d="M44 4L82 17V47C82 68 65 87 44 97C23 87 6 68 6 47V17Z"
+                    fill="none"
                     stroke={
                       totalRating >= 80 ? "#f59e0b" :
                       totalRating >= 65 ? "#a78bfa" :
                       totalRating >= 50 ? "#60a5fa" :
-                                          "rgba(255,255,255,0.18)"
+                                          "rgba(255,255,255,0.22)"
                     }
                     strokeWidth="2.5"
                   />
-                  {/* Inner shield highlight */}
-                  <path
-                    d="M44 10L77 21V47C77 64 63 81 44 90C25 81 11 64 11 47V21L44 10Z"
-                    fill="rgba(255,255,255,0.04)"
-                    stroke="rgba(255,255,255,0.07)"
-                    strokeWidth="1"
-                  />
                 </svg>
-                <span className={cn("relative z-10 text-2xl font-black tracking-tight drop-shadow-lg", ratingAccent)}>
-                  {initials}
-                </span>
               </div>
 
               <div className="min-w-0 flex-1 pt-1">

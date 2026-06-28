@@ -1130,6 +1130,10 @@ export interface CareerSaveSlot {
   worldRanking?: number | null;
   budget?: string | null;
   managerReputation: number;
+  /** Club primary colour (from team logo colour) */
+  primaryColor?: string | null;
+  /** Club secondary colour (from team secondary logo colour) */
+  secondaryColor?: string | null;
   lastPlayedAt: string;
   createdAt: string;
 }

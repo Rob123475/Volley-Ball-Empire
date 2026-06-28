@@ -8,6 +8,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Search, ArrowLeft, ChevronRight, Play, Star, Globe, Paintbrush, CheckCircle2 } from "lucide-react";
+import { ClubCrest } from "@/components/club-crest";
 
 type ClubTemplate = import("@workspace/api-client-react").ClubTemplate;
 
@@ -253,11 +254,14 @@ export function ClubSelectionScreen({ onComplete }: Props) {
                             onClick={() => { setSelectedClub(club); setCustomName(club.name); }}
                             className={`w-full rounded-xl border px-4 py-3 flex items-center gap-3 text-left transition-all ${isSelected ? "border-violet-500/60 bg-violet-500/10" : "border-white/8 bg-white/3 hover:bg-white/6 hover:border-white/15"}`}
                           >
-                            {/* Color swatch */}
-                            <div className="flex gap-0.5 shrink-0">
-                              <div className="w-4 h-8 rounded-l-md" style={{ backgroundColor: club.primaryColor }} />
-                              <div className="w-4 h-8 rounded-r-md" style={{ backgroundColor: club.secondaryColor }} />
-                            </div>
+                            {/* Club crest */}
+                            <ClubCrest
+                              name={club.name}
+                              primaryColor={club.primaryColor}
+                              secondaryColor={club.secondaryColor}
+                              size={36}
+                              className="shrink-0"
+                            />
                             <div className="flex-1 min-w-0">
                               <div className="font-bold text-sm text-white truncate">{club.name}</div>
                               <div className="text-[11px] text-white/40">{club.town} · {club.continent}</div>

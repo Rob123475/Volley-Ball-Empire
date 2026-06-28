@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { ClubCrest } from "@/components/club-crest";
 import {
   useGetPoachingOffers,
   useAcceptPoachingOffer,
@@ -79,15 +80,13 @@ function OfferCard({ offer, onDone }: { offer: PoachingOffer; onDone: () => void
 
       {/* ── Header ── */}
       <div className="flex items-start gap-3 px-5 pt-4 pb-3">
-        {/* Club logo dot */}
-        <div
-          className="shrink-0 mt-0.5 w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg"
-          style={{ backgroundColor: offer.logoColor + "33", border: `1.5px solid ${offer.logoColor}66` }}
-        >
-          <span style={{ color: offer.logoColor }} className="text-lg">
-            {offer.clubName.split(" ").map(w => w[0]).join("").slice(0, 2)}
-          </span>
-        </div>
+        {/* Club crest */}
+        <ClubCrest
+          name={offer.clubName}
+          primaryColor={offer.logoColor}
+          size={40}
+          className="shrink-0 mt-0.5 drop-shadow-lg"
+        />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
