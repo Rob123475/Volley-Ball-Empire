@@ -7,8 +7,6 @@ import {
   useGetClubRating,
   useGetAttentionItems,
   useGetFacilities,
-  useGetTrophyCabinet,
-  useGetTeamStrength,
   useGetWorldTourNews,
   useGetUpcomingEvents,
   useGetAiManagerFeed,
@@ -19,8 +17,6 @@ import {
   getGetClubRatingQueryKey,
   getGetAttentionItemsQueryKey,
   getGetFacilitiesQueryKey,
-  getGetTrophyCabinetQueryKey,
-  getGetTeamStrengthQueryKey,
   getGetWorldTourNewsQueryKey,
   getGetUpcomingEventsQueryKey,
   getGetAiManagerFeedQueryKey,
@@ -46,6 +42,7 @@ import {
   Flame,
   MapPin,
   ChevronRight,
+  ChevronDown,
   Building2,
   Shield,
   Swords,
@@ -157,9 +154,50 @@ function BeachCourtDecor() {
   );
 }
 
+// ── Collapsible Panel ──────────────────────────────────────────────────────────
+
+function CollapsiblePanel({
+  open,
+  onToggle,
+  title,
+  icon,
+  summary,
+  children,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  title: string;
+  icon: React.ReactNode;
+  summary: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="h-7 w-7 rounded-lg bg-white/8 flex items-center justify-center shrink-0">
+            {icon}
+          </div>
+          <span className="text-sm font-bold text-white">{title}</span>
+          <span className="text-xs text-white/35 font-medium">· {summary}</span>
+        </div>
+        <ChevronDown className={cn("h-4 w-4 text-white/40 transition-transform duration-200 shrink-0", open && "rotate-180")} />
+      </button>
+      {open && <div className="mt-2">{children}</div>}
+    </div>
+  );
+}
+
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [showCareerOptions, setShowCareerOptions] = useState(false);
+  const [facilitiesOpen,   setFacilitiesOpen]   = useState(false);
+  const [upcomingOpen,     setUpcomingOpen]     = useState(false);
+  const [worldNewsOpen,    setWorldNewsOpen]    = useState(false);
+  const [managerMovesOpen, setManagerMovesOpen] = useState(false);
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
     query: { queryKey: getGetDashboardQueryKey() },
@@ -184,12 +222,7 @@ export default function Dashboard() {
   const { data: facilitiesData } = useGetFacilities({
     query: { queryKey: getGetFacilitiesQueryKey() },
   });
-  const { data: cabinet } = useGetTrophyCabinet({
-    query: { queryKey: getGetTrophyCabinetQueryKey() },
-  });
-  const { data: teamStrength } = useGetTeamStrength({
-    query: { queryKey: getGetTeamStrengthQueryKey() },
-  });
+
   const { data: worldNews } = useGetWorldTourNews({
     query: { queryKey: getGetWorldTourNewsQueryKey() },
   });
@@ -270,11 +303,6 @@ export default function Dashboard() {
   return (
     <>
     <div className="space-y-5">
-
-      {/* ══════════════════════════════════════════════════════════════
-          POACHING INBOX
-      ══════════════════════════════════════════════════════════════ */}
-      <PoachingInbox />
 
       {/* ══════════════════════════════════════════════════════════════
           CLUB HERO BANNER
@@ -543,157 +571,46 @@ export default function Dashboard() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════
-          CAREER OPTIONS
-      ══════════════════════════════════════════════════════════════ */}
-      <Card className="border-white/8 bg-slate-900/60 backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Settings className="h-4 w-4 text-white/50" />
-                Career Options
-              </CardTitle>
-              <CardDescription className="text-xs mt-0.5">Save, load or manage your active career</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {[
-              { label: "Save Career",            desc: "Auto-saves after every action", icon: Save,       colour: "text-emerald-400", bg: "hover:bg-emerald-500/10 hover:border-emerald-500/30" },
-              { label: "Load Different Career",   desc: "Switch to another save slot",  icon: FolderOpen,  colour: "text-sky-400",     bg: "hover:bg-sky-500/10 hover:border-sky-500/30" },
-              { label: "Return to Main Menu",     desc: "Go to career selection",       icon: Home,        colour: "text-violet-400",  bg: "hover:bg-violet-500/10 hover:border-violet-500/30" },
-              { label: "Game Settings",           desc: "Audio, display & preferences", icon: Settings,    colour: "text-white/50",    bg: "hover:bg-white/5 hover:border-white/15" },
-            ].map(({ label, desc, icon: Icon, colour, bg }) => (
-              <button
-                key={label}
-                onClick={() => setShowCareerOptions(true)}
-                className={`flex flex-col items-start gap-2 rounded-xl border border-white/8 bg-white/3 p-3.5 text-left transition-all ${bg}`}
-              >
-                <Icon className={`h-4 w-4 ${colour}`} />
-                <div>
-                  <div className="text-xs font-semibold text-white/80 leading-none">{label}</div>
-                  <div className="text-[10px] text-white/35 mt-0.5">{desc}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ══════════════════════════════════════════════════════════════
           ATTENTION REQUIRED
       ══════════════════════════════════════════════════════════════ */}
       <AttentionPanel items={attention?.items ?? []} />
 
       {/* ══════════════════════════════════════════════════════════════
-          FACILITIES SNAPSHOT
+          RECENT RESULTS
       ══════════════════════════════════════════════════════════════ */}
-      {facilitiesData && (
-        <FacilitiesSnapshot
-          facilities={facilitiesData.map(f => ({ type: f.type, level: f.level }))}
-          budget={finance?.balance ?? 0}
-        />
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════
-          TROPHY CABINET PREVIEW
-      ══════════════════════════════════════════════════════════════ */}
-      {cabinet && <TrophyCabinetPreview cabinet={cabinet} />}
-
-      {/* ══════════════════════════════════════════════════════════════
-          UPCOMING EVENTS
-      ══════════════════════════════════════════════════════════════ */}
-      {upcomingEvents && <UpcomingEventsWidget items={upcomingEvents.items} />}
-
-      {/* ══════════════════════════════════════════════════════════════
-          WORLD TOUR NEWS FEED
-      ══════════════════════════════════════════════════════════════ */}
-      {worldNews && <WorldTourNewsFeed items={worldNews.items} />}
-
-      {/* ══════════════════════════════════════════════════════════════
-          AI MANAGER MOVEMENTS
-      ══════════════════════════════════════════════════════════════ */}
-      {aiManagerFeed && aiManagerFeed.events.length > 0 && (
-        <ManagerMovementsFeed events={aiManagerFeed.events} />
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════
-          TEAM STRENGTH OVERVIEW
-      ══════════════════════════════════════════════════════════════ */}
-      {teamStrength && <TeamStrengthOverview strength={teamStrength} />}
-
-      {/* ══════════════════════════════════════════════════════════════
-          PLAYERS + RESULTS
-      ══════════════════════════════════════════════════════════════ */}
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Top Players</CardTitle>
-            <CardDescription>Performance leaders in your squad.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {dashboard?.topPlayers.map((player) => {
-              const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-              return (
-                <div key={player.id} className="flex items-center gap-3" data-testid={`row-player-${player.id}`}>
-                  <div className="flex-1 space-y-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-medium leading-none">{player.name}</p>
-                      <PlayerStatusBadge player={player as any} size="xs" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Progress value={rating} className="h-1.5" />
-                      <span className="text-xs text-muted-foreground w-6" data-testid={`text-rating-${player.id}`}>{rating}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs font-bold text-muted-foreground">OVR {rating}</span>
-                    <span className="text-[10px] text-muted-foreground/60">{player.nationality}</span>
-                  </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Results</CardTitle>
+          <CardDescription>Your last appearances.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {dashboard?.recentResults.map((match) => {
+            const hs = match.homeScore ?? 0;
+            const as_ = match.awayScore ?? 0;
+            const isWin = hs > as_;
+            return (
+              <div key={match.id} data-testid={`row-match-${match.id}`}
+                className="flex items-center justify-between border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium truncate">{match.awayTeamName ?? "Opponent"}</span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-2.5 w-2.5" />{match.locationName ?? "Beach"}
+                  </span>
                 </div>
-              );
-            })}
-            {(!dashboard?.topPlayers || dashboard.topPlayers.length === 0) && (
-              <p className="text-sm text-muted-foreground text-center py-4">No players in your squad yet.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Results</CardTitle>
-            <CardDescription>Your last appearances.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {dashboard?.recentResults.map((match) => {
-              const hs = match.homeScore ?? 0;
-              const as_ = match.awayScore ?? 0;
-              const isWin = hs > as_;
-              return (
-                <div key={match.id} data-testid={`row-match-${match.id}`}
-                  className="flex items-center justify-between border-b border-border/50 pb-3 last:border-0 last:pb-0">
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-medium truncate">{match.awayTeamName ?? "Opponent"}</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-2.5 w-2.5" />{match.locationName ?? "Beach"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm font-bold tabular-nums">{hs} – {as_}</span>
-                    <Badge className={isWin ? "bg-emerald-500 hover:bg-emerald-500 text-white" : "bg-red-500 hover:bg-red-500 text-white"}>
-                      {isWin ? "WIN" : "LOSS"}
-                    </Badge>
-                  </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-sm font-bold tabular-nums">{hs} – {as_}</span>
+                  <Badge className={isWin ? "bg-emerald-500 hover:bg-emerald-500 text-white" : "bg-red-500 hover:bg-red-500 text-white"}>
+                    {isWin ? "WIN" : "LOSS"}
+                  </Badge>
                 </div>
-              );
-            })}
-            {(!dashboard?.recentResults || dashboard.recentResults.length === 0) && (
-              <p className="text-sm text-muted-foreground text-center py-4">No matches played yet.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            );
+          })}
+          {(!dashboard?.recentResults || dashboard.recentResults.length === 0) && (
+            <p className="text-sm text-muted-foreground text-center py-4">No matches played yet.</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* ══════════════════════════════════════════════════════════════
           SEASON LADDER
@@ -749,6 +666,112 @@ export default function Dashboard() {
         </Card>
       )}
 
+      {/* ══════════════════════════════════════════════════════════════
+          COLLAPSIBLE: FACILITIES
+      ══════════════════════════════════════════════════════════════ */}
+      {facilitiesData && (
+        <CollapsiblePanel
+          open={facilitiesOpen}
+          onToggle={() => setFacilitiesOpen(v => !v)}
+          title="Facilities"
+          icon={<Building2 className="h-4 w-4 text-white/50" />}
+          summary={`${facilitiesData.length} facilities`}
+        >
+          <FacilitiesSnapshot
+            facilities={facilitiesData.map(f => ({ type: f.type, level: f.level }))}
+            budget={finance?.balance ?? 0}
+          />
+        </CollapsiblePanel>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          COLLAPSIBLE: UPCOMING EVENTS
+      ══════════════════════════════════════════════════════════════ */}
+      {upcomingEvents && (
+        <CollapsiblePanel
+          open={upcomingOpen}
+          onToggle={() => setUpcomingOpen(v => !v)}
+          title="Upcoming Events"
+          icon={<Calendar className="h-4 w-4 text-white/50" />}
+          summary={`${upcomingEvents.items.length} event${upcomingEvents.items.length !== 1 ? "s" : ""}`}
+        >
+          <UpcomingEventsWidget items={upcomingEvents.items} />
+        </CollapsiblePanel>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          COLLAPSIBLE: WORLD TOUR NEWS
+      ══════════════════════════════════════════════════════════════ */}
+      {worldNews && (
+        <CollapsiblePanel
+          open={worldNewsOpen}
+          onToggle={() => setWorldNewsOpen(v => !v)}
+          title="World Tour News"
+          icon={<Star className="h-4 w-4 text-white/50" />}
+          summary={`${worldNews.items.length} stor${worldNews.items.length !== 1 ? "ies" : "y"}`}
+        >
+          <WorldTourNewsFeed items={worldNews.items} />
+        </CollapsiblePanel>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          COLLAPSIBLE: MANAGER MOVEMENTS
+      ══════════════════════════════════════════════════════════════ */}
+      {aiManagerFeed && aiManagerFeed.events.length > 0 && (
+        <CollapsiblePanel
+          open={managerMovesOpen}
+          onToggle={() => setManagerMovesOpen(v => !v)}
+          title="Manager Movements"
+          icon={<Users className="h-4 w-4 text-white/50" />}
+          summary={`${aiManagerFeed.events.length} movement${aiManagerFeed.events.length !== 1 ? "s" : ""}`}
+        >
+          <ManagerMovementsFeed events={aiManagerFeed.events} />
+        </CollapsiblePanel>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          POACHING APPROACH
+      ══════════════════════════════════════════════════════════════ */}
+      <PoachingInbox />
+
+      {/* ══════════════════════════════════════════════════════════════
+          CAREER OPTIONS
+      ══════════════════════════════════════════════════════════════ */}
+      <Card className="border-white/8 bg-slate-900/60 backdrop-blur-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Settings className="h-4 w-4 text-white/50" />
+                Career Options
+              </CardTitle>
+              <CardDescription className="text-xs mt-0.5">Save, load or manage your active career</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { label: "Save Career",           desc: "Auto-saves after every action", icon: Save,      colour: "text-emerald-400", bg: "hover:bg-emerald-500/10 hover:border-emerald-500/30" },
+              { label: "Load Different Career",  desc: "Switch to another save slot",  icon: FolderOpen, colour: "text-sky-400",     bg: "hover:bg-sky-500/10 hover:border-sky-500/30" },
+              { label: "Return to Main Menu",    desc: "Go to career selection",       icon: Home,       colour: "text-violet-400",  bg: "hover:bg-violet-500/10 hover:border-violet-500/30" },
+              { label: "Game Settings",          desc: "Audio, display & preferences", icon: Settings,   colour: "text-white/50",    bg: "hover:bg-white/5 hover:border-white/15" },
+            ].map(({ label, desc, icon: Icon, colour, bg }) => (
+              <button
+                key={label}
+                onClick={() => setShowCareerOptions(true)}
+                className={`flex flex-col items-start gap-2 rounded-xl border border-white/8 bg-white/3 p-3.5 text-left transition-all ${bg}`}
+              >
+                <Icon className={`h-4 w-4 ${colour}`} />
+                <div>
+                  <div className="text-xs font-semibold text-white/80 leading-none">{label}</div>
+                  <div className="text-[10px] text-white/35 mt-0.5">{desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
     </div>
 

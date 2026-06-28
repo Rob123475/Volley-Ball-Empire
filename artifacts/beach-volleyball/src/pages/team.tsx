@@ -1,5 +1,6 @@
 import {
   useGetTeamRoster,
+  useGetTeamStrength,
   useListOutfits,
   useUpdatePlayerOutfit,
   useReleasePlayer,
@@ -7,9 +8,10 @@ import {
   useSetPlayerRole,
   useSetPlayerTrainingFocus,
   getGetTeamRosterQueryKey,
+  getGetTeamStrengthQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { Button } from "@/components/ui/button";
@@ -175,6 +177,7 @@ export default function TeamRoster() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { data: roster, isLoading } = useGetTeamRoster({ query: { queryKey: getGetTeamRosterQueryKey() } });
+  const { data: teamStrength } = useGetTeamStrength({ query: { queryKey: getGetTeamStrengthQueryKey() } });
   const { data: outfits } = useListOutfits();
   const releaseMutation = useReleasePlayer();
   const retireMutation  = useRetirePlayer();
@@ -197,6 +200,14 @@ export default function TeamRoster() {
   const interchanges = roster?.interchanges  ?? [];
   const reserves     = roster?.reserves     ?? [];
   const allPlayers   = [...starters, ...interchanges, ...reserves];
+
+  const topPlayers = [...allPlayers]
+    .sort((a: any, b: any) => {
+      const ra = Math.round(((a.power ?? 0) + (a.speed ?? 0) + (a.defense ?? 0) + (a.serve ?? 0) + (a.block ?? 0)) / 5);
+      const rb = Math.round(((b.power ?? 0) + (b.speed ?? 0) + (b.defense ?? 0) + (b.serve ?? 0) + (b.block ?? 0)) / 5);
+      return rb - ra;
+    })
+    .slice(0, 5);
 
   const YOUTH_MAX    = 6;
   const youthPlayers = reserves.filter((p: any) => p.age >= 14 && p.age <= 18);
@@ -713,6 +724,102 @@ export default function TeamRoster() {
           Manage match players, interchange, and youths. All swaps work live — even during a match.
         </p>
       </div>
+
+      {/* ── Team Strength + Top Players ─────────────────────────── */}
+      {(teamStrength || allPlayers.length > 0) && (
+        <div className="grid gap-5 md:grid-cols-2">
+
+          {/* Team Strength */}
+          {teamStrength && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  📊 Team Strength
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Overall rating */}
+                <div className="flex items-center gap-4 bg-white/5 rounded-xl px-4 py-3 border border-white/8">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5">Overall Rating</div>
+                    <Progress value={teamStrength.overallRating} className="h-2" />
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="text-3xl font-black text-white leading-none">{teamStrength.overallRating}</div>
+                    <div className={cn("text-[10px] font-bold mt-0.5",
+                      teamStrength.overallRating >= 90 ? "text-yellow-400" :
+                      teamStrength.overallRating >= 80 ? "text-green-400" :
+                      teamStrength.overallRating >= 70 ? "text-sky-400" :
+                      teamStrength.overallRating >= 60 ? "text-white/60" :
+                      teamStrength.overallRating >= 50 ? "text-orange-400" : "text-red-400"
+                    )}>
+                      {teamStrength.overallRating >= 90 ? "World Class" :
+                       teamStrength.overallRating >= 80 ? "Elite" :
+                       teamStrength.overallRating >= 70 ? "Strong" :
+                       teamStrength.overallRating >= 60 ? "Average" :
+                       teamStrength.overallRating >= 50 ? "Weak" : "Critical"}
+                    </div>
+                  </div>
+                </div>
+                {/* Strongest / Weakest */}
+                <div className="grid grid-cols-2 gap-2">
+                  {teamStrength.strongestPosition && (
+                    <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+                      <div className="text-[9px] font-black uppercase tracking-widest text-emerald-400 mb-0.5">Strongest</div>
+                      <div className="text-xs font-bold text-white capitalize">
+                        {(teamStrength.strongestPosition as string).replace(/_/g, " ")}
+                      </div>
+                    </div>
+                  )}
+                  {teamStrength.weakestPosition && (
+                    <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+                      <div className="text-[9px] font-black uppercase tracking-widest text-red-400 mb-0.5">Weakest</div>
+                      <div className="text-xs font-bold text-white capitalize">
+                        {(teamStrength.weakestPosition as string).replace(/_/g, " ")}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="text-[11px] text-white/35 font-medium">
+                  {teamStrength.totalActivePlayers} active player{teamStrength.totalActivePlayers !== 1 ? "s" : ""}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Top Players */}
+          {allPlayers.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  ⭐ Top Players
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {topPlayers.map((p: any, i: number) => {
+                  const rating = Math.round(((p.power ?? 0) + (p.speed ?? 0) + (p.defense ?? 0) + (p.serve ?? 0) + (p.block ?? 0)) / 5);
+                  return (
+                    <div key={p.id} className="flex items-center gap-3" data-testid={`row-top-player-${p.id}`}>
+                      <span className="text-xs font-black text-white/25 w-4 shrink-0">#{i + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold text-white/90 truncate">{p.name}</span>
+                          <PlayerStatusBadge player={p} size="xs" />
+                        </div>
+                        <Progress value={rating} className="h-1.5" />
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-black text-white/70">{rating}</div>
+                        <div className="text-[10px] text-white/30 capitalize">{formatPosition(p.position)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* Squad summary strip */}
       <div className="grid gap-3 grid-cols-3">
