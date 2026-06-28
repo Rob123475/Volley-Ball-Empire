@@ -18,8 +18,12 @@ import {
   Medal,
   Star,
   Percent,
+  Sunset,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { RetireModal } from "@/components/career/RetireModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -163,6 +167,9 @@ function HighlightRow({
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ManagerProfile() {
+  const [showRetire, setShowRetire] = useState(false);
+  const [, navigate] = useLocation();
+
   const { data: summary, isLoading: summaryLoading } = useGetCareerSummary({
     query: { queryKey: getGetCareerSummaryQueryKey() },
   });
@@ -219,6 +226,7 @@ export default function ManagerProfile() {
       : `${seasonsManaged} season${seasonsManaged === 1 ? "" : "s"}`;
 
   return (
+    <>
     <div className="space-y-6">
 
       {/* ── Page heading ── */}
@@ -252,13 +260,22 @@ export default function ManagerProfile() {
           </div>
         </div>
 
-        {/* World rank badge (only when set) */}
-        {worldRanking != null && (
-          <div className="text-center px-5 py-3 rounded-xl bg-amber-500/8 border border-amber-500/20 shrink-0">
-            <p className="text-[9px] text-white/40 uppercase tracking-widest font-semibold">World Rank</p>
-            <p className="text-2xl font-black text-amber-400 tabular-nums">#{worldRanking}</p>
-          </div>
-        )}
+        {/* Right column: rank + retire */}
+        <div className="flex flex-col items-end gap-3 shrink-0">
+          {worldRanking != null && (
+            <div className="text-center px-5 py-3 rounded-xl bg-amber-500/8 border border-amber-500/20">
+              <p className="text-[9px] text-white/40 uppercase tracking-widest font-semibold">World Rank</p>
+              <p className="text-2xl font-black text-amber-400 tabular-nums">#{worldRanking}</p>
+            </div>
+          )}
+          <button
+            onClick={() => setShowRetire(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-500/25 bg-orange-500/8 text-[11px] font-bold text-orange-300/80 hover:bg-orange-500/15 hover:text-orange-300 transition-colors"
+          >
+            <Sunset className="h-3.5 w-3.5" />
+            Retire
+          </button>
+        </div>
       </div>
 
       {/* ── Identity strip ── */}
@@ -361,5 +378,17 @@ export default function ManagerProfile() {
       </div>
 
     </div>
+
+    {/* ── Retire modal ── */}
+    {showRetire && (
+      <RetireModal
+        onClose={() => setShowRetire(false)}
+        onRetired={() => {
+          setShowRetire(false);
+          navigate("/career");
+        }}
+      />
+    )}
+    </>
   );
 }

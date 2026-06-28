@@ -197,6 +197,23 @@ router.post("/careers/end", async (req, res) => {
       totalWins:            summary.totalWins,
       totalLosses:          summary.totalLosses,
     });
+
+    // Find the active career save to write a retirement history entry
+    const [activeSave] = await db
+      .select()
+      .from(careerSavesTable)
+      .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, req.user.id)));
+
+    if (activeSave) {
+      await db.insert(careerHistoryEntriesTable).values({
+        userId:       req.user.id,
+        careerSaveId: activeSave.id,
+        type:         "retirement",
+        clubName:     summary.clubName,
+        season:       summary.season,
+        description:  `${summary.managerName} retired after a career spanning ${summary.totalWins + summary.totalLosses} matches, ${summary.worldTitles} title${summary.worldTitles !== 1 ? "s" : ""}, and ${summary.olympicMedals} Olympic medal${summary.olympicMedals !== 1 ? "s" : ""}.`,
+      });
+    }
   }
 
   // Clear active career from session
