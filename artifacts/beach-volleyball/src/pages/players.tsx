@@ -219,11 +219,12 @@ export default function PlayerMarket() {
 
           return (
             <Card key={player.id} className="overflow-hidden hover:shadow-lg transition-all group">
-              <div className="relative h-72 overflow-hidden">
+              <div className="relative h-72 overflow-hidden bg-slate-800">
                 <img
                   src={player.imageUrl ?? undefined}
                   alt={player.name}
-                  className="w-full h-full object-cover object-[center_20%]"
+                  className="w-full h-full object-cover object-top"
+                  onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
