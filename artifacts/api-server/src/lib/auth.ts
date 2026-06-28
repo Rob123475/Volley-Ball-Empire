@@ -15,6 +15,7 @@ export interface SessionData {
   refresh_token?: string;
   expires_at?: number;
   activeTeamId?: number;
+  activeCareerSaveId?: number;
 }
 
 let oidcConfig: client.Configuration | null = null;

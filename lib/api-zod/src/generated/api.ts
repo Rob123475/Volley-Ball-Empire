@@ -2635,6 +2635,7 @@ export const ListCareerSavesResponse = zod.object({
   "season": zod.string(),
   "worldRanking": zod.number().nullish(),
   "budget": zod.string().nullish(),
+  "managerReputation": zod.number(),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
 })),
@@ -2668,6 +2669,7 @@ export const UpsertCareerSaveResponse = zod.object({
   "season": zod.string(),
   "worldRanking": zod.number().nullish(),
   "budget": zod.string().nullish(),
+  "managerReputation": zod.number(),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
 })
@@ -2686,7 +2688,8 @@ export const GetCareerSummaryResponse = zod.object({
   "achievementsCompleted": zod.number(),
   "totalAchievements": zod.number().optional(),
   "totalWins": zod.number(),
-  "totalLosses": zod.number()
+  "totalLosses": zod.number(),
+  "managerReputation": zod.number()
 })
 
 
@@ -2755,6 +2758,32 @@ export const BreakContractResponse = zod.object({
   "feePaid": zod.number(),
   "newBudget": zod.string(),
   "clubName": zod.string()
+})
+
+
+/**
+ * @summary Apply for a job from the job market — checks manager reputation and hires if qualified
+ */
+export const ApplyJobBody = zod.object({
+  "clubName": zod.string(),
+  "continent": zod.string(),
+  "country": zod.string(),
+  "city": zod.string(),
+  "competition": zod.string(),
+  "salary": zod.number(),
+  "transferBudget": zod.number(),
+  "clubReputation": zod.number(),
+  "requiredReputation": zod.number(),
+  "logoColor": zod.string()
+})
+
+export const ApplyJobResponse = zod.object({
+  "accepted": zod.boolean(),
+  "required": zod.number().optional(),
+  "current": zod.number().optional(),
+  "teamId": zod.number().nullish(),
+  "clubName": zod.string().optional(),
+  "season": zod.string().optional()
 })
 
 

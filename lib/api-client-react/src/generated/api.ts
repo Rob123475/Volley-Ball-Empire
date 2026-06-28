@@ -21,6 +21,8 @@ import type {
 
 import type {
   AchievementStatus,
+  ApplyJobRequest,
+  ApplyJobResult,
   AttentionItemsResponse,
   AuthUser,
   BoardConfidence,
@@ -5610,6 +5612,77 @@ export const useBreakContract = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getBreakContractMutationOptions(options));
+    }
+
+export const getApplyJobUrl = () => {
+
+
+
+
+  return `/api/careers/apply-job`
+}
+
+/**
+ * @summary Apply for a job from the job market — checks manager reputation and hires if qualified
+ */
+export const applyJob = async (applyJobRequest: ApplyJobRequest, options?: RequestInit): Promise<ApplyJobResult> => {
+
+  return customFetch<ApplyJobResult>(getApplyJobUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      applyJobRequest,)
+  }
+);}
+
+
+
+
+export const getApplyJobMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof applyJob>>, TError,{data: BodyType<ApplyJobRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof applyJob>>, TError,{data: BodyType<ApplyJobRequest>}, TContext> => {
+
+const mutationKey = ['applyJob'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof applyJob>>, {data: BodyType<ApplyJobRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  applyJob(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApplyJobMutationResult = NonNullable<Awaited<ReturnType<typeof applyJob>>>
+    export type ApplyJobMutationBody = BodyType<ApplyJobRequest>
+    export type ApplyJobMutationError = ErrorType<void>
+
+    /**
+ * @summary Apply for a job from the job market — checks manager reputation and hires if qualified
+ */
+export const useApplyJob = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof applyJob>>, TError,{data: BodyType<ApplyJobRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof applyJob>>,
+        TError,
+        {data: BodyType<ApplyJobRequest>},
+        TContext
+      > => {
+      return useMutation(getApplyJobMutationOptions(options));
     }
 
 export const getGetUpcomingEventsUrl = () => {

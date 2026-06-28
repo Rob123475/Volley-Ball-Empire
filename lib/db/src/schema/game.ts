@@ -492,6 +492,7 @@ export const careerSavesTable = pgTable("career_saves", {
   season:       varchar("season",       { length: 50  }).notNull().default("Season 1"),
   worldRanking: integer("world_ranking"),
   budget:       numeric("budget", { precision: 14, scale: 2 }),
+  managerReputation: integer("manager_reputation").notNull().default(50),
   lastPlayedAt: timestamp("last_played_at", { withTimezone: true }).notNull().defaultNow(),
   createdAt:    timestamp("created_at",     { withTimezone: true }).notNull().defaultNow(),
 });

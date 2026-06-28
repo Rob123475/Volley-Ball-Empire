@@ -19,6 +19,7 @@ declare global {
 
       user?: User | undefined;
       activeTeamId?: number;
+      activeCareerSaveId?: number;
     }
 
     export interface AuthedRequest {
@@ -84,6 +85,7 @@ export async function authMiddleware(
   }
 
   req.user = refreshed.user;
-  if (refreshed.activeTeamId) req.activeTeamId = refreshed.activeTeamId;
+  if (refreshed.activeTeamId)       req.activeTeamId       = refreshed.activeTeamId;
+  if (refreshed.activeCareerSaveId) req.activeCareerSaveId = refreshed.activeCareerSaveId;
   next();
 }

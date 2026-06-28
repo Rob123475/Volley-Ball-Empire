@@ -1350,6 +1350,29 @@ paths:
         "404":
           description: Career save or team not found
 
+  /careers/apply-job:
+    post:
+      operationId: applyJob
+      tags: [careers]
+      summary: Apply for a job from the job market — checks manager reputation and hires if qualified
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplyJobRequest"
+      responses:
+        "200":
+          description: Application result (accepted or rejected based on reputation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplyJobResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Career save not found
+
   /events/upcoming:
     get:
       operationId: getUpcomingEvents
@@ -3483,7 +3506,7 @@ components:
 
     CareerSaveSlot:
       type: object
-      required: [id, slotNumber, managerName, clubName, season, lastPlayedAt, createdAt]
+      required: [id, slotNumber, managerName, clubName, season, lastPlayedAt, createdAt, managerReputation]
       properties:
         id:
           type: integer
@@ -3507,6 +3530,8 @@ components:
         budget:
           type: string
           nullable: true
+        managerReputation:
+          type: integer
         lastPlayedAt:
           type: string
         createdAt:
@@ -3514,7 +3539,7 @@ components:
 
     CareerSummary:
       type: object
-      required: [managerName, clubName, season, worldTitles, olympicMedals, achievementsCompleted, totalWins, totalLosses]
+      required: [managerName, clubName, season, worldTitles, olympicMedals, achievementsCompleted, totalWins, totalLosses, managerReputation]
       properties:
         managerName:
           type: string
@@ -3536,6 +3561,8 @@ components:
         totalWins:
           type: integer
         totalLosses:
+          type: integer
+        managerReputation:
           type: integer
 
     CareerSaveList:
@@ -4307,6 +4334,49 @@ components:
         occurredAt:
           type: string
           format: date-time
+
+    ApplyJobRequest:
+      type: object
+      required: [clubName, continent, country, city, competition, salary, transferBudget, clubReputation, requiredReputation, logoColor]
+      properties:
+        clubName:
+          type: string
+        continent:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        competition:
+          type: string
+        salary:
+          type: number
+        transferBudget:
+          type: number
+        clubReputation:
+          type: integer
+        requiredReputation:
+          type: integer
+        logoColor:
+          type: string
+
+    ApplyJobResult:
+      type: object
+      required: [accepted]
+      properties:
+        accepted:
+          type: boolean
+        required:
+          type: integer
+        current:
+          type: integer
+        teamId:
+          type: integer
+          nullable: true
+        clubName:
+          type: string
+        season:
+          type: string
 
     ResignResult:
       type: object

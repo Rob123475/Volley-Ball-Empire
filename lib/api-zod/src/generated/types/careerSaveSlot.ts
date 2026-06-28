@@ -16,6 +16,7 @@ export interface CareerSaveSlot {
   season: string;
   worldRanking?: number | null;
   budget?: string | null;
+  managerReputation: number;
   lastPlayedAt: string;
   createdAt: string;
 }

@@ -11,6 +11,8 @@ export * from './achievementStatus';
 export * from './achievementStatusCategory';
 export * from './achievementStatusProgress';
 export * from './achievementTier';
+export * from './applyJobRequest';
+export * from './applyJobResult';
 export * from './attentionItem';
 export * from './attentionItemPriority';
 export * from './attentionItemsResponse';

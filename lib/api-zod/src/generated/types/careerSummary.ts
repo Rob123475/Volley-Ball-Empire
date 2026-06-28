@@ -17,4 +17,5 @@ export interface CareerSummary {
   totalAchievements?: number;
   totalWins: number;
   totalLosses: number;
+  managerReputation: number;
 }

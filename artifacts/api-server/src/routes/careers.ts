@@ -22,8 +22,6 @@ async function buildCareerSummary(teamId: number, userId: string) {
   const worldTitles  = trophies.filter(t => t.type === "world_championship").length;
   const olympicMedals = trophies.filter(t => ["olympic_gold", "olympic_silver", "olympic_bronze"].includes(t.type)).length;
 
-  // Total achievements is computed from the trophies route logic — approximate with unlocked DB rows
-  // The trophies route defines ~25 achievements; we track unlocked ones in achievementsTable
   const TOTAL_ACHIEVEMENTS = 25;
 
   return {
@@ -37,6 +35,7 @@ async function buildCareerSummary(teamId: number, userId: string) {
     totalAchievements:    TOTAL_ACHIEVEMENTS,
     totalWins:            team?.wins   ?? 0,
     totalLosses:          team?.losses ?? 0,
+    managerReputation:    save?.managerReputation ?? 50,
   };
 }
 
@@ -50,22 +49,28 @@ router.get("/careers", async (req, res) => {
     .where(eq(careerSavesTable.userId, req.user.id))
     .orderBy(careerSavesTable.slotNumber);
 
-  const activeTeamId = req.activeTeamId ?? null;
-  const activeSave   = activeTeamId ? saves.find(s => s.teamId === activeTeamId) : null;
+  const activeTeamId      = req.activeTeamId ?? null;
+  const activeCareerSaveId = req.activeCareerSaveId ?? null;
+
+  // Prefer session-tracked career save id; fall back to matching by activeTeamId
+  const activeSave = activeCareerSaveId
+    ? saves.find(s => s.id === activeCareerSaveId)
+    : activeTeamId ? saves.find(s => s.teamId === activeTeamId) : null;
 
   res.json({
     saves: saves.map(s => ({
-      id:               s.id,
-      teamId:           s.teamId ?? null,
-      slotNumber:       s.slotNumber,
-      managerName:      s.managerName,
-      clubName:         s.clubName,
-      originalClubName: s.originalClubName ?? null,
-      season:           s.season,
-      worldRanking:     s.worldRanking,
-      budget:           s.budget,
-      lastPlayedAt:     s.lastPlayedAt.toISOString(),
-      createdAt:        s.createdAt.toISOString(),
+      id:                s.id,
+      teamId:            s.teamId ?? null,
+      slotNumber:        s.slotNumber,
+      managerName:       s.managerName,
+      clubName:          s.clubName,
+      originalClubName:  s.originalClubName ?? null,
+      season:            s.season,
+      worldRanking:      s.worldRanking,
+      budget:            s.budget,
+      managerReputation: s.managerReputation ?? 50,
+      lastPlayedAt:      s.lastPlayedAt.toISOString(),
+      createdAt:         s.createdAt.toISOString(),
     })),
     activeCareerSaveId: activeSave?.id ?? null,
   });
@@ -228,7 +233,7 @@ router.post("/careers/:id/load", async (req, res) => {
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
-    if (session) await updateSession(sid, { ...session, activeTeamId: save.teamId });
+    if (session) await updateSession(sid, { ...session, activeTeamId: save.teamId, activeCareerSaveId: save.id });
   }
 
   await db
@@ -277,6 +282,119 @@ router.delete("/careers/:id", async (req, res) => {
 // ── Shared constant: release clause (matches frontend placeholder) ─────────────
 
 const BREAK_CONTRACT_FEE = 25_000;
+
+// ── POST /careers/apply-job — apply for a job market position ─────────────────
+
+router.post("/careers/apply-job", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const {
+    clubName, continent, country, city, competition,
+    salary, transferBudget, clubReputation, requiredReputation, logoColor,
+  } = req.body as {
+    clubName:           string;
+    continent:          string;
+    country:            string;
+    city:               string;
+    competition:        string;
+    salary:             number;
+    transferBudget:     number;
+    clubReputation:     number;
+    requiredReputation: number;
+    logoColor:          string;
+  };
+
+  if (!clubName || typeof requiredReputation !== "number") {
+    res.status(400).json({ error: "Invalid body" }); return;
+  }
+
+  // Find the active career save: prefer session-tracked id, fall back to most recent
+  const sid     = getSessionId(req);
+  const session = sid ? await getSession(sid) : null;
+
+  let save: typeof careerSavesTable.$inferSelect | undefined;
+
+  if (session?.activeCareerSaveId) {
+    const [found] = await db
+      .select()
+      .from(careerSavesTable)
+      .where(and(
+        eq(careerSavesTable.id,     session.activeCareerSaveId),
+        eq(careerSavesTable.userId, req.user.id),
+      ));
+    save = found;
+  }
+
+  if (!save) {
+    const saves = await db
+      .select()
+      .from(careerSavesTable)
+      .where(eq(careerSavesTable.userId, req.user.id))
+      .orderBy(desc(careerSavesTable.lastPlayedAt));
+    save = saves[0];
+  }
+
+  if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
+
+  const currentReputation = save.managerReputation ?? 50;
+
+  // Reputation check
+  if (currentReputation < requiredReputation) {
+    res.json({ accepted: false, required: requiredReputation, current: currentReputation });
+    return;
+  }
+
+  // ── Accept: create a new team record for this club ────────────────────────
+  const [newTeam] = await db
+    .insert(teamsTable)
+    .values({
+      userId:     req.user.id,
+      name:       clubName.trim(),
+      budget:     transferBudget.toFixed(2),
+      reputation: clubReputation,
+      logoColor:  logoColor ?? null,
+    })
+    .returning();
+
+  // Link career save to new team, update club name and manager reputation
+  await db
+    .update(careerSavesTable)
+    .set({
+      teamId:            newTeam.id,
+      clubName:          clubName.trim(),
+      managerReputation: clubReputation,
+      lastPlayedAt:      new Date(),
+    })
+    .where(eq(careerSavesTable.id, save.id));
+
+  // Career history: "Joined [club]"
+  await db.insert(careerHistoryEntriesTable).values({
+    userId:       req.user.id,
+    careerSaveId: save.id,
+    type:         "appointment",
+    clubName:     clubName.trim(),
+    season:       save.season,
+    description:  `Joined ${clubName.trim()} as head coach`,
+  });
+
+  // Activate the new team in session
+  if (sid && session) {
+    await updateSession(sid, {
+      ...session,
+      activeTeamId:       newTeam.id,
+      activeCareerSaveId: save.id,
+    });
+  }
+
+  res.json({
+    accepted:  true,
+    teamId:    newTeam.id,
+    clubName:  clubName.trim(),
+    season:    save.season,
+    current:   currentReputation,
+    required:  requiredReputation,
+  });
+});
 
 // ── GET /careers/history — career history entries for this user ────────────────
 

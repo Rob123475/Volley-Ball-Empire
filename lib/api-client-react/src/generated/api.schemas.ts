@@ -1129,6 +1129,7 @@ export interface CareerSaveSlot {
   season: string;
   worldRanking?: number | null;
   budget?: string | null;
+  managerReputation: number;
   lastPlayedAt: string;
   createdAt: string;
 }
@@ -1144,6 +1145,7 @@ export interface CareerSummary {
   totalAchievements?: number;
   totalWins: number;
   totalLosses: number;
+  managerReputation: number;
 }
 
 export interface CareerSaveList {
@@ -1663,6 +1665,28 @@ export interface CareerHistoryEntry {
   season?: string | null;
   description: string;
   occurredAt: string;
+}
+
+export interface ApplyJobRequest {
+  clubName: string;
+  continent: string;
+  country: string;
+  city: string;
+  competition: string;
+  salary: number;
+  transferBudget: number;
+  clubReputation: number;
+  requiredReputation: number;
+  logoColor: string;
+}
+
+export interface ApplyJobResult {
+  accepted: boolean;
+  required?: number;
+  current?: number;
+  teamId?: number | null;
+  clubName?: string;
+  season?: string;
 }
 
 export interface ResignResult {
