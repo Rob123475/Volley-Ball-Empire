@@ -8,6 +8,7 @@ import {
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
+import { StaffPortrait } from "@/components/ui/staff-portrait";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,10 +158,12 @@ function StaffMarketCard({
       isOwned ? "ring-2 ring-primary/40" : "hover:shadow-xl hover:border-border/80"
     )}>
       <div className="relative h-52 overflow-hidden">
-        <img
-          src={member.imageUrl ?? undefined}
-          alt={member.name}
-          className="w-full h-full object-cover object-[center_15%] group-hover:scale-105 transition-transform duration-500"
+        <StaffPortrait
+          name={member.name}
+          imageUrl={member.imageUrl}
+          role={member.role}
+          heightClass="h-52"
+          className="group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
 

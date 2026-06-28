@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { AvatarPortrait } from "@/components/player-portrait";
 import {
   Globe,
   MapPin,
@@ -314,14 +315,24 @@ export default function YouthAcademy() {
                       </div>
                     )}
 
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-bold text-sm leading-tight">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">Age {p.age} · {p.continent}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Rating</div>
+                    <div className="flex items-start gap-3">
+                      <AvatarPortrait
+                        name={p.name}
+                        imageUrl={(p as any).imageUrl}
+                        continent={p.continent}
+                        playerType="youth"
+                        size={44}
+                        className="mt-0.5 shrink-0"
+                      />
+                      <div className="flex items-start justify-between gap-2 flex-1 min-w-0">
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm leading-tight truncate">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">Age {p.age} · {p.continent}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Rating</div>
+                        </div>
                       </div>
                     </div>
 

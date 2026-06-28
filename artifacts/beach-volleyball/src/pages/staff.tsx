@@ -7,6 +7,7 @@ import {
   getGetStaffMarketQueryKey,
   getGetMyTeamQueryKey,
 } from "@workspace/api-client-react";
+import { StaffPortrait } from "@/components/ui/staff-portrait";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -158,10 +159,11 @@ function StaffCard({
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all border-border">
       <div className="relative h-56 overflow-hidden">
-        <img
-          src={member.imageUrl ?? undefined}
-          alt={member.name}
-          className="w-full h-full object-cover object-[center_15%]"
+        <StaffPortrait
+          name={member.name}
+          imageUrl={member.imageUrl}
+          role={member.role}
+          heightClass="h-56"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
 

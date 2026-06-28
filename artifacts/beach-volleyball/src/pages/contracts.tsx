@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AvatarPortrait } from "@/components/player-portrait";
 import { FileText, AlertCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -103,7 +104,18 @@ export default function Contracts() {
                 const daysLeft = Math.ceil((new Date(c.endDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
                 return (
                   <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.player?.name ?? `Player #${c.playerId}`}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2.5">
+                        <AvatarPortrait
+                          name={c.player?.name ?? `Player #${c.playerId}`}
+                          imageUrl={c.player?.imageUrl}
+                          nationality={c.player?.nationality}
+                          playerType="senior"
+                          size={32}
+                        />
+                        <span>{c.player?.name ?? `Player #${c.playerId}`}</span>
+                      </div>
+                    </TableCell>
                     <TableCell><Badge variant="secondary">{formatPosition(c.player?.position)}</Badge></TableCell>
                     <TableCell>{formatCurrency(c.salary)}</TableCell>
                     <TableCell>{formatCurrency(c.bonusPerWin)}</TableCell>
