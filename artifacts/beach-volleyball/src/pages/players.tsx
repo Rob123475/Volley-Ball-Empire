@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PlayerPortrait } from "@/components/player-portrait";
 import { format, addMonths } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -249,11 +250,14 @@ export default function PlayerMarket() {
           return (
             <Card key={player.id} className="overflow-hidden hover:shadow-lg transition-all group">
               <div className="relative h-72 overflow-hidden bg-slate-800">
-                <img
-                  src={player.imageUrl ?? undefined}
-                  alt={player.name}
-                  className="w-full h-full object-cover object-top"
-                  onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                <PlayerPortrait
+                  name={player.name}
+                  imageUrl={player.imageUrl}
+                  continent={(player as any).continent}
+                  nationality={player.nationality}
+                  playerType={(player as any).playerType}
+                  heightClass="h-72"
+                  objectPosition="object-top"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 

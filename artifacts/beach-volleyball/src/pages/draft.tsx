@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
+import { PlayerPortrait } from "@/components/player-portrait";
 
 export default function PlayerDraft() {
   const queryClient = useQueryClient();
@@ -93,11 +94,15 @@ export default function PlayerDraft() {
           const avgRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
             <Card key={player.id} data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary hover:shadow-lg transition-all">
-              <div className="relative h-72 overflow-hidden">
-                <img
-                  src={player.imageUrl ?? undefined}
-                  alt={player.name}
-                  className="w-full h-full object-cover object-[center_20%]"
+              <div className="relative h-72 overflow-hidden bg-slate-800">
+                <PlayerPortrait
+                  name={player.name}
+                  imageUrl={player.imageUrl}
+                  continent={(player as any).continent}
+                  nationality={player.nationality}
+                  playerType={(player as any).playerType}
+                  heightClass="h-72"
+                  objectPosition="object-[center_20%]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">

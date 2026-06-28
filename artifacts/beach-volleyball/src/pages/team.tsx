@@ -84,6 +84,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PlayerPortrait } from "@/components/player-portrait";
 import { cn } from "@/lib/utils";
 
 type Role = "starter" | "interchange" | "reserve";
@@ -304,11 +305,14 @@ export default function TeamRoster() {
         </div>
 
         <div className="relative h-64 overflow-hidden bg-slate-800">
-          <img
-            src={player.imageUrl ?? undefined}
-            alt={player.name}
-            className="w-full h-full object-cover object-top"
-            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+          <PlayerPortrait
+            name={player.name}
+            imageUrl={player.imageUrl}
+            continent={(player as any).continent}
+            nationality={player.nationality}
+            playerType={(player as any).playerType}
+            heightClass="h-64"
+            objectPosition="object-top"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">

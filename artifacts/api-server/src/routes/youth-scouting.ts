@@ -236,6 +236,17 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   const endDate = contractEnd.toISOString().split("T")[0]!;
 
   // Insert the player into the youth squad (reserve role, not active)
+  // Portrait URL — deterministic from name + continent
+  const CONTINENT_SLUG: Record<string, string> = {
+    Africa: "africa", Asia: "asia", Europe: "europe",
+    "North America": "northam", "South America": "southam", Oceania: "oceania",
+  };
+  function nameHash(n: string): number {
+    let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % 10;
+  }
+  const cSlug = CONTINENT_SLUG[prospect.continent] ?? "europe";
+  const portraitUrl = `/players/y-${cSlug}-${String(nameHash(prospect.name) + 1).padStart(2, "0")}.png`;
+
   const [newPlayer] = await db.insert(playersTable).values({
     name:          prospect.name,
     nationality,
@@ -243,6 +254,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     height:        String(Number((1.60 + Math.random() * 0.18).toFixed(1))),
     position,
     teamId:        team.id,
+    continent:     prospect.continent,
     isActive:      false,
     squadRole:     "reserve",
     isDraftPlayer: false,
@@ -257,7 +269,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     discoveredBy:   prospect.discoveredBy   ?? undefined,
     eliteEventType: prospect.eliteEventType ?? undefined,
     ...stats,
-    imageUrl: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(prospect.name + "_youth")}&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear`,
+    imageUrl: portraitUrl,
   }).returning();
 
   // Contract (3-year youth deal)
