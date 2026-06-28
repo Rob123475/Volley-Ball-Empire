@@ -25,6 +25,7 @@ import {
   Monitor,
   Radar,
   FolderOpen,
+  BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -115,6 +116,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Club",
     icon: Building2,
     items: [
+      { href: "/league-ladders", label: "League Ladders",  icon: BarChart2              },
       { href: "/finances",       label: "Finances",        icon: DollarSign             },
       { href: "/facilities",     label: "Facilities",      icon: Building2              },
       { href: "/wellbeing",      label: "Wellbeing Camps", icon: Sparkles               },

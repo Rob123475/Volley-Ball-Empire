@@ -33,6 +33,7 @@ import ManagerProfile from "@/pages/profile";
 import ManagerContract from "@/pages/manager-contract";
 import JobMarket from "@/pages/job-market";
 import CareerHistory from "@/pages/career-history";
+import LeagueLadders from "@/pages/league-ladders";
 import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound from "@/pages/not-found";
 
@@ -92,6 +93,7 @@ function Router() {
               <Route path="/manager-contract" component={ManagerContract} />
               <Route path="/job-market" component={JobMarket} />
               <Route path="/career-history" component={CareerHistory} />
+              <Route path="/league-ladders" component={LeagueLadders} />
               <Route component={NotFound} />
             </Switch>
           </Shell>

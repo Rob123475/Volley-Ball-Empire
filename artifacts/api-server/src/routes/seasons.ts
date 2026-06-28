@@ -34,7 +34,7 @@ router.get("/seasons/current", async (req, res) => {
 
 router.get("/seasons/:id/ladder", async (req, res) => {
   const seasonId = parseInt(req.params.id);
-  const teams = await db.select().from(teamsTable).limit(20);
+  const teams = await db.select().from(teamsTable);
   const ladder = teams.map((team, idx) => ({
     rank: idx + 1,
     teamId: team.id,
