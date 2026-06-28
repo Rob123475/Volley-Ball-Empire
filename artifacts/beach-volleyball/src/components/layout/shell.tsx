@@ -97,7 +97,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/draft",                 label: "Player Draft",        icon: Box      },
       { href: "/staff",                 label: "My Staff",            icon: UserCog  },
       { href: "/staff-market",          label: "Staff Market",        icon: UserCog  },
-      { href: "/continental-scouting",  label: "Continental Scouting", icon: Radar   },
+      { href: "/continental-scouting",  label: "Scouting",             icon: Radar   },
     ],
   },
   {

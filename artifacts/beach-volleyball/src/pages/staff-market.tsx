@@ -122,6 +122,8 @@ function AttributeBar({ name, value, revealed }: { name: string; value: number; 
   );
 }
 
+const STAFF_SCOUT_COST = 1_000;
+
 function StaffMarketCard({
   member,
   isOwned,
@@ -130,6 +132,7 @@ function StaffMarketCard({
   isHiring,
   isScouting,
   canHire,
+  hasCoach,
 }: {
   member: any;
   isOwned: boolean;
@@ -138,6 +141,7 @@ function StaffMarketCard({
   isHiring: boolean;
   isScouting: boolean;
   canHire: boolean;
+  hasCoach: boolean;
 }) {
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
   const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
@@ -228,16 +232,58 @@ function StaffMarketCard({
         {!isOwned && (
           <div className="flex gap-2">
             {!revealed && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 text-xs shrink-0"
-                onClick={() => onScout(member.id)}
-                disabled={isScouting}
-              >
-                <Eye className="h-3.5 w-3.5" />
-                {isScouting ? "Scouting…" : "Scout"}
-              </Button>
+              hasCoach ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs shrink-0"
+                      disabled={isScouting}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      {isScouting ? "Scouting…" : "Scout"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Scout {member.name}?</AlertDialogTitle>
+                      <AlertDialogDescription asChild>
+                        <div className="space-y-3 text-sm text-muted-foreground">
+                          <p>Scouting will reveal this staff member's true OVR, role-specific attributes, personality, speciality, and salary confidence.</p>
+                          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-foreground">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Scout cost</span>
+                              <span className="font-bold text-amber-400">${STAFF_SCOUT_COST.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Reveal time</span>
+                              <span className="font-semibold text-green-400">Instant</span>
+                            </div>
+                          </div>
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => onScout(member.id)}>
+                        Scout Staff
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 text-xs shrink-0 opacity-50 cursor-not-allowed"
+                  disabled
+                  title="Hire a Head Coach or Assistant Coach to scout staff."
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  Scout
+                </Button>
+              )
             )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -296,7 +342,8 @@ export default function StaffMarket() {
   const scoutMutation = useScoutStaff();
 
   const myStaffIds = new Set(myStaff.map(s => s.id));
-  const canHire = myStaff.length < MAX_STAFF;
+  const canHire  = myStaff.length < MAX_STAFF;
+  const hasCoach = myStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach");
 
   const handleHire = (staffId: number) => {
     hireMutation.mutate({ data: { staffId } }, {
@@ -344,12 +391,20 @@ export default function StaffMarket() {
             </span>
           </p>
         </div>
-        <Link href="/staff">
-          <Button variant="outline" className="gap-2 shrink-0">
-            <SlidersHorizontal className="h-4 w-4" />
-            Manage My Staff
-          </Button>
-        </Link>
+        <div className="flex gap-2 shrink-0">
+          <Link href="/continental-scouting">
+            <Button variant="outline" className="gap-2">
+              <Radar className="h-4 w-4" />
+              Open Scouting Centre
+            </Button>
+          </Link>
+          <Link href="/staff">
+            <Button variant="outline" className="gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Manage My Staff
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -379,12 +434,21 @@ export default function StaffMarket() {
       </div>
 
       {/* Scout hint */}
-      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-2.5 border border-border/40">
-        <Eye className="h-3.5 w-3.5 shrink-0" />
-        <span>
-          <strong className="text-foreground">Hidden OVR:</strong> Use the Scout button to reveal a staff member's true rating and attributes. Requires a Head Coach or Assistant Coach on your staff.
-        </span>
-      </div>
+      {hasCoach ? (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-2.5 border border-border/40">
+          <Eye className="h-3.5 w-3.5 shrink-0" />
+          <span>
+            <strong className="text-foreground">Hidden OVR:</strong> Scout staff to reveal their true rating, attributes, personality, and salary confidence. Cost: <span className="font-semibold text-foreground">$1,000</span> per scout.
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 text-xs text-amber-500 bg-amber-500/10 rounded-lg px-4 py-2.5 border border-amber-500/30">
+          <Eye className="h-3.5 w-3.5 shrink-0" />
+          <span>
+            <strong className="text-amber-400">Scouting locked:</strong> Hire a Head Coach or Assistant Coach to unlock staff scouting.
+          </span>
+        </div>
+      )}
 
       {/* Grid */}
       {isLoading ? (
@@ -409,6 +473,7 @@ export default function StaffMarket() {
               isHiring={hireMutation.isPending && (hireMutation.variables as any)?.data?.staffId === member.id}
               isScouting={scoutMutation.isPending && (scoutMutation.variables as any)?.id === member.id}
               canHire={canHire}
+              hasCoach={hasCoach}
             />
           ))}
         </div>

@@ -114,6 +114,8 @@ router.delete("/staff/:id", async (req, res) => {
   res.json(serializeStaff(updated));
 });
 
+const STAFF_SCOUT_COST = 1_000;
+
 router.post("/staff/:id/scout", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
@@ -125,13 +127,22 @@ router.post("/staff/:id/scout", async (req, res) => {
   if (member.isScoutRevealed) { res.status(400).json({ error: "Already revealed" }); return; }
 
   const teamStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
-  const headCoach = teamStaff.find(s => s.role === "head_coach");
-  const assistantCoach = teamStaff.find(s => s.role === "assistant_coach");
+  const hasCoach = teamStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach");
 
-  if (!headCoach && !assistantCoach) {
+  if (!hasCoach) {
     res.status(400).json({ error: "You need a Head Coach or Assistant Coach to scout staff." });
     return;
   }
+
+  const currentBudget = Number(team.budget ?? 0);
+  if (currentBudget < STAFF_SCOUT_COST) {
+    res.status(400).json({ error: `Not enough funds. Staff scouting costs $${STAFF_SCOUT_COST.toLocaleString()}.` });
+    return;
+  }
+
+  await db.update(teamsTable)
+    .set({ budget: String(currentBudget - STAFF_SCOUT_COST) })
+    .where(eq(teamsTable.id, team.id));
 
   const [updated] = await db.update(staffTable)
     .set({ isScoutRevealed: true })
