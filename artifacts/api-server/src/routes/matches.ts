@@ -1,13 +1,14 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
 import { eq, desc, gt, and, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
+import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 
 const router = Router();
 
@@ -775,6 +776,57 @@ router.post("/matches/:id/simulate", async (req, res) => {
     }
   }
 
+  // ── End-of-season board review: fire manager if confidence < 5 ────────────
+  let fired = false;
+  let dismissalClubName: string | null = null;
+
+  if (isFinal && req.user?.id) {
+    const isContFinalCheck = match.tier === "Continental Final"; // false for Grand Final
+    const confWinDeltaCheck = (isFinal && !isContFinalCheck) ? 8 : isContFinalCheck ? 5 : 3;
+    const updatedConfidence = homeWon
+      ? Math.min(100, (team.boardConfidence ?? 60) + confWinDeltaCheck)
+      : Math.max(0,   (team.boardConfidence ?? 60) - 5);
+
+    if (updatedConfidence < 5) {
+      const [save] = await db
+        .select()
+        .from(careerSavesTable)
+        .where(and(
+          eq(careerSavesTable.teamId,  team.id),
+          eq(careerSavesTable.userId,  req.user.id),
+        ));
+
+      if (save) {
+        dismissalClubName = save.clubName;
+
+        await db.insert(careerHistoryEntriesTable).values({
+          userId:       req.user.id,
+          careerSaveId: save.id,
+          type:         "dismissal",
+          clubName:     save.clubName,
+          season:       save.season,
+          description:  `Fired by ${save.clubName} following the end-of-season board review`,
+        });
+
+        await db
+          .update(careerSavesTable)
+          .set({ teamId: null, lastPlayedAt: new Date() })
+          .where(eq(careerSavesTable.id, save.id));
+
+        const sid = getSessionId(req);
+        if (sid) {
+          const session = await getSession(sid);
+          if (session) {
+            const { activeTeamId: _, ...rest } = session;
+            await updateSession(sid, rest);
+          }
+        }
+
+        fired = true;
+      }
+    }
+  }
+
   res.json({
     match:        serializeMatch(updatedMatch),
     highlights,
@@ -784,6 +836,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     prizeEarned,
     mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
     isFinal,
+    fired,
+    dismissalClubName,
     weather:      match.weather,
     windSpeed:    matchWindSpeed,
     temperature:  matchTemp,

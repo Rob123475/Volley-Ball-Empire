@@ -13,13 +13,14 @@ import {
   getGetSponsorProgressQueryKey,
 } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Trophy, Calendar, MapPin, Loader2, Play, Users, CheckCircle2,
-  Lock, Star, Swords, Flag
+  Lock, Star, Swords, Flag, AlertOctagon
 } from "lucide-react";
 import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { MatchActionButtons } from "@/components/match/MatchActionButtons";
@@ -92,6 +93,7 @@ function formatCurrency(val: number) {
 export default function Matches() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [simulationResult, setSimulationResult] = useState<any>(null);
   const [scheduleForm, setScheduleForm] = useState({ locationId: "", teamSize: "2", prizeAmount: "5000" });
 
@@ -390,7 +392,13 @@ export default function Matches() {
 
       {/* Simulation result dialog */}
       {simulationResult && (
-        <Dialog open={!!simulationResult} onOpenChange={() => setSimulationResult(null)}>
+        <Dialog open={!!simulationResult} onOpenChange={() => {
+          if (simulationResult?.fired) {
+            queryClient.clear();
+            navigate("/career");
+          }
+          setSimulationResult(null);
+        }}>
           <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle className="text-3xl font-black text-center mb-4">
@@ -467,9 +475,49 @@ export default function Matches() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* ── Dismissal notice (only when fired after Grand Final) ── */}
+              {simulationResult.fired && (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/8 p-5 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 shrink-0 rounded-xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center mt-0.5">
+                      <AlertOctagon className="h-5 w-5 text-rose-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-rose-300 uppercase tracking-wide">
+                        You have been dismissed
+                      </p>
+                      <p className="text-sm text-rose-300/70 mt-1 leading-relaxed">
+                        Following the end-of-season board review,{" "}
+                        <span className="font-bold text-rose-200">
+                          {simulationResult.dismissalClubName ?? "the club"}
+                        </span>{" "}
+                        has decided to terminate your contract. Board confidence fell below the minimum threshold.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-rose-500/15 bg-rose-500/5 px-4 py-3 text-xs text-rose-300/60 leading-relaxed">
+                    Your career history has been updated. The club and your squad remain intact.
+                    You are now unemployed — return to your career saves to start fresh or wait for the Job Market.
+                  </div>
+                </div>
+              )}
             </div>
             <DialogFooter>
-              <Button onClick={() => setSimulationResult(null)} className="w-full">Return to Office</Button>
+              {simulationResult.fired ? (
+                <Button
+                  onClick={() => {
+                    queryClient.clear();
+                    setSimulationResult(null);
+                    navigate("/career");
+                  }}
+                  className="w-full bg-rose-600 hover:bg-rose-500 text-white border border-rose-500"
+                >
+                  Return to Career Saves
+                </Button>
+              ) : (
+                <Button onClick={() => setSimulationResult(null)} className="w-full">Return to Office</Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

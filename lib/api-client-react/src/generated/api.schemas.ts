@@ -679,6 +679,11 @@ export interface MatchResult {
   awayScore: number;
   winner: MatchResultWinner;
   prizeEarned: number;
+  isFinal: boolean;
+  /** True if the manager was dismissed after this Grand Final due to low board confidence */
+  fired: boolean;
+  /** The club name that dismissed the manager (only set when fired is true) */
+  dismissalClubName?: string | null;
   mvp?: Player;
   /** Injury and recovery events that occurred as a result of this match. */
   playerEvents?: MatchResultPlayerEventsItem[];

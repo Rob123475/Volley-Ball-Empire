@@ -2173,6 +2173,9 @@ export const SimulateMatchResponse = zod.object({
   "awayScore": zod.number(),
   "winner": zod.enum(['home', 'away', 'draw']),
   "prizeEarned": zod.number(),
+  "isFinal": zod.boolean(),
+  "fired": zod.boolean().describe('True if the manager was dismissed after this Grand Final due to low board confidence'),
+  "dismissalClubName": zod.string().nullish().describe('The club name that dismissed the manager (only set when fired is true)'),
   "mvp": zod.object({
   "id": zod.number(),
   "name": zod.string(),

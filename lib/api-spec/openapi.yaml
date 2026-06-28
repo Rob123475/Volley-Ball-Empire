@@ -2783,7 +2783,7 @@ components:
 
     MatchResult:
       type: object
-      required: [match, highlights, homeScore, awayScore, winner, prizeEarned]
+      required: [match, highlights, homeScore, awayScore, winner, prizeEarned, isFinal, fired]
       properties:
         match:
           $ref: "#/components/schemas/Match"
@@ -2800,6 +2800,15 @@ components:
           enum: [home, away, draw]
         prizeEarned:
           type: number
+        isFinal:
+          type: boolean
+        fired:
+          type: boolean
+          description: True if the manager was dismissed after this Grand Final due to low board confidence
+        dismissalClubName:
+          type: string
+          nullable: true
+          description: The club name that dismissed the manager (only set when fired is true)
         mvp:
           $ref: "#/components/schemas/Player"
         playerEvents:
