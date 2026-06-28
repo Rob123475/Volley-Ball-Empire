@@ -33,6 +33,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const MAX_LEVEL = 10;
 
@@ -225,6 +226,26 @@ export default function FacilitiesPage() {
   });
   const upgradeMutation = useUpgradeFacility();
 
+  const [highlightedType, setHighlightedType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!facilities || facilities.length === 0) return;
+    const hash = window.location.hash;
+    if (!hash) return;
+    const elementId = hash.slice(1);
+    const timer = setTimeout(() => {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const headerOffset = 80;
+      const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top, behavior: "smooth" });
+      const facType = elementId.replace("facility-", "");
+      setHighlightedType(facType);
+      setTimeout(() => setHighlightedType(null), 1800);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [facilities]);
+
   const budget = Number(team?.budget ?? 0);
 
   const invalidate = () => {
@@ -352,7 +373,16 @@ export default function FacilitiesPage() {
           const rl = ratingLabel(fRating);
 
           return (
-            <Card key={type} className={cn("border-2 transition-all duration-200 hover:shadow-md flex flex-col", cfg.border, cfg.bg)}>
+            <Card
+              key={type}
+              id={`facility-${type}`}
+              className={cn(
+                "border-2 transition-all duration-300 hover:shadow-md flex flex-col",
+                cfg.border,
+                cfg.bg,
+                highlightedType === type && "ring-2 ring-offset-2 ring-primary shadow-lg shadow-primary/30 scale-[1.01]",
+              )}
+            >
               {/* Header */}
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">

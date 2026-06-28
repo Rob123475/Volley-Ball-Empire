@@ -1449,31 +1449,31 @@ type FacSnap = {
 
 const FAC_SNAPS: FacSnap[] = [
   {
-    key: "training_complex", name: "Training Centre", navigateTo: "/training",
+    key: "training_complex", name: "Training Centre", navigateTo: "/facilities#facility-training_complex",
     Icon: Dumbbell, colour: "blue",
     bar: "bg-blue-500", iconBg: "bg-blue-500/15", iconText: "text-blue-500",
     benefitAt: (l) => l === 1 ? "Base training XP" : `+${Math.round((l - 1) * (20 / 9))}% training XP`,
   },
   {
-    key: "medical_centre", name: "Medical Centre", navigateTo: "/medical",
+    key: "medical_centre", name: "Medical Centre", navigateTo: "/facilities#facility-medical_centre",
     Icon: Heart, colour: "rose",
     bar: "bg-rose-500", iconBg: "bg-rose-500/15", iconText: "text-rose-500",
     benefitAt: (l) => l === 1 ? "Base recovery speed" : `+${Math.round((l - 1) * (25 / 9))}% recovery speed`,
   },
   {
-    key: "gymnasium", name: "Gymnasium", navigateTo: "/facilities",
+    key: "gymnasium", name: "Gymnasium", navigateTo: "/facilities#facility-gymnasium",
     Icon: FlameKindling, colour: "orange",
     bar: "bg-orange-500", iconBg: "bg-orange-500/15", iconText: "text-orange-500",
     benefitAt: (l) => l === 1 ? "Base strength training" : `+${Math.round((l - 1) * (15 / 9))}% power dev.`,
   },
   {
-    key: "nutrition_centre", name: "Nutrition Centre", navigateTo: "/facilities",
+    key: "nutrition_centre", name: "Nutrition Centre", navigateTo: "/facilities#facility-nutrition_centre",
     Icon: Salad, colour: "lime",
     bar: "bg-lime-500", iconBg: "bg-lime-500/15", iconText: "text-lime-500",
     benefitAt: (l) => l === 1 ? "Base nutrition support" : `−${Math.round((l - 1) * (3 / 9))} fatigue/session`,
   },
   {
-    key: "youth_academy", name: "Youth Academy", navigateTo: "/youth-academy",
+    key: "youth_academy", name: "Youth Academy", navigateTo: "/facilities#facility-youth_academy",
     Icon: Users, colour: "amber",
     bar: "bg-amber-500", iconBg: "bg-amber-500/15", iconText: "text-amber-500",
     benefitAt: (l) => {
@@ -1483,25 +1483,25 @@ const FAC_SNAPS: FacSnap[] = [
     },
   },
   {
-    key: "scouting_department", name: "Scouting Dept", navigateTo: "/continental-scouting",
+    key: "scouting_department", name: "Scouting Dept", navigateTo: "/facilities#facility-scouting_department",
     Icon: Search, colour: "indigo",
     bar: "bg-indigo-500", iconBg: "bg-indigo-500/15", iconText: "text-indigo-500",
     benefitAt: (l) => l === 1 ? "Basic scouting" : `+${Math.round((l - 1) * (30 / 9))}% effectiveness`,
   },
   {
-    key: "sports_science_lab", name: "Performance Centre", navigateTo: "/facilities",
+    key: "sports_science_lab", name: "Performance Centre", navigateTo: "/facilities#facility-sports_science_lab",
     Icon: Beaker, colour: "teal",
     bar: "bg-teal-500", iconBg: "bg-teal-500/15", iconText: "text-teal-500",
     benefitAt: (l) => l === 1 ? "Base injury prevention" : `−${Math.round((l - 1) * (20 / 9))}% injury risk`,
   },
   {
-    key: "commercial_department", name: "Commercial Dept", navigateTo: "/facilities",
+    key: "commercial_department", name: "Commercial Dept", navigateTo: "/facilities#facility-commercial_department",
     Icon: TrendingUp, colour: "violet",
     bar: "bg-violet-500", iconBg: "bg-violet-500/15", iconText: "text-violet-500",
     benefitAt: (l) => l === 1 ? "Base commercial" : `+${Math.round((l - 1) * (30 / 9))}% sponsorship`,
   },
   {
-    key: "beach_resort", name: "Beach Resort", navigateTo: "/facilities",
+    key: "beach_resort", name: "Beach Resort", navigateTo: "/facilities#facility-beach_resort",
     Icon: Umbrella, colour: "cyan",
     bar: "bg-cyan-500", iconBg: "bg-cyan-500/15", iconText: "text-cyan-500",
     benefitAt: (l) => l === 1 ? "Base morale boost" : `+${Math.round((l - 1) * (8 / 9))} morale/camp`,
