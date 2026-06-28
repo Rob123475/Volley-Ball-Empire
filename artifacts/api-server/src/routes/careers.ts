@@ -183,7 +183,7 @@ router.post("/careers", async (req, res) => {
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
-    if (session) await updateSession(sid, { ...session, activeTeamId: newTeam.id });
+    if (session) await updateSession(sid, { ...session, activeTeamId: newTeam.id, activeCareerSaveId: inserted.id });
   }
 
   res.json({

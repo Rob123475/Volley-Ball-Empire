@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { teamsTable, matchesTable, playersTable, financeTransactionsTable, seasonsTable } from "@workspace/db";
+import { teamsTable, matchesTable, playersTable, financeTransactionsTable, seasonsTable, careerSavesTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 
 const router = Router();
@@ -36,8 +36,13 @@ router.get("/dashboard", async (req, res) => {
   const allTeams = await db.select().from(teamsTable).orderBy(desc(teamsTable.wins)).limit(20);
   const myRank = allTeams.findIndex(t => t.id === team.id) + 1;
 
+  const careerSave = await db.query.careerSavesTable.findFirst({
+    where: eq(careerSavesTable.teamId, team.id),
+  });
+
   res.json({
     team: { ...team, budget: Number(team.budget) },
+    managerName: careerSave?.managerName ?? null,
     nextMatch: nextMatch ? {
       ...nextMatch,
       prizeAmount: nextMatch.prizeAmount ? Number(nextMatch.prizeAmount) : null,

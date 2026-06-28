@@ -259,7 +259,7 @@ export default function Dashboard() {
   const repPts      = team?.managerRepPoints ?? 0;
   const repLvl      = getRepLevel(repPts);
   const repPct      = repLvl.next === null ? 100 : Math.round(((repPts - repLvl.min) / (repLvl.next - repLvl.min)) * 100);
-  const coachName   = (profile as any)?.coachName ?? "";
+  const managerName = (dashboard as any)?.managerName ?? "";
   const initials    = (team?.name ?? "C").split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
 
   const avgMorale   = dashboard?.topPlayers && dashboard.topPlayers.length > 0
@@ -404,7 +404,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 border border-white/10">
                     <Users className="h-3 w-3 text-white/50" />
-                    <span className="text-xs font-bold text-white/80">{coachName || "Set coach name"}</span>
+                    <span className="text-xs font-bold text-white/80">{managerName || "Unnamed Manager"}</span>
                   </div>
                   <div className={cn("flex items-center gap-1.5 text-sm font-black", repLvl.colour)}>
                     <Award className="h-3.5 w-3.5" />
