@@ -1,18 +1,17 @@
-import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  useGetYouthScouting,
-  useStartYouthScouting,
-  useCancelYouthScouting,
-  getGetYouthScoutingQueryKey,
+  useGetContinentalRegions,
+  useGetContinentalProspects,
   useGetYouthProspects,
   useSignYouthProspect,
   useIgnoreYouthProspect,
+  getGetContinentalRegionsQueryKey,
+  getGetContinentalProspectsQueryKey,
   getGetYouthProspectsQueryKey,
   getGetTeamRosterQueryKey,
   useGetYouthLeagueResults,
 } from "@workspace/api-client-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +25,6 @@ import {
   Radar,
   CheckCircle2,
   CircleDashed,
-  XCircle,
   DollarSign,
   UserPlus,
   Ban,
@@ -39,7 +37,11 @@ import {
   Minus,
   Activity,
   Sparkles,
+  ExternalLink,
+  AlertCircle,
 } from "lucide-react";
+
+// ── Elite event config ─────────────────────────────────────────────────────
 
 const ELITE_EVENT_CONFIG: Record<string, {
   cardClass:   string;
@@ -68,135 +70,57 @@ const ELITE_EVENT_CONFIG: Record<string, {
   },
 };
 
-// ── Continent data ─────────────────────────────────────────────────────────
-
-type Continent = {
-  name: string;
-  emoji: string;
-  talentLevel: string;
-  talentStars: number;
-  description: string;
-  color: string;
-  border: string;
-  bg: string;
+const POTENTIAL_COLOR: Record<string, string> = {
+  Generational: "text-purple-600 border-purple-400 bg-purple-50 dark:bg-purple-950/30",
+  Elite:        "text-blue-600 border-blue-400 bg-blue-50 dark:bg-blue-950/30",
+  High:         "text-emerald-600 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30",
+  Moderate:     "text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30",
+  Average:      "text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30",
+  Low:          "text-gray-500 border-gray-400 bg-gray-50 dark:bg-gray-900/30",
 };
 
-const CONTINENTS: Continent[] = [
-  {
-    name: "Europe",
-    emoji: "🌍",
-    talentLevel: "Elite",
-    talentStars: 4,
-    description: "Deep volleyball tradition and elite academies.",
-    color: "text-blue-700 dark:text-blue-400",
-    border: "border-blue-400",
-    bg: "bg-blue-50 dark:bg-blue-950/30",
-  },
-  {
-    name: "South America",
-    emoji: "🌎",
-    talentLevel: "High",
-    talentStars: 3,
-    description: "Explosive athletes raised on beach culture.",
-    color: "text-green-700 dark:text-green-400",
-    border: "border-green-400",
-    bg: "bg-green-50 dark:bg-green-950/30",
-  },
-  {
-    name: "North America",
-    emoji: "🌎",
-    talentLevel: "High",
-    talentStars: 3,
-    description: "College pipeline producing versatile players.",
-    color: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-400",
-    bg: "bg-amber-50 dark:bg-amber-950/30",
-  },
-  {
-    name: "Africa",
-    emoji: "🌍",
-    talentLevel: "High",
-    talentStars: 3,
-    description: "Raw athleticism and emerging talent hubs.",
-    color: "text-orange-700 dark:text-orange-400",
-    border: "border-orange-400",
-    bg: "bg-orange-50 dark:bg-orange-950/30",
-  },
-  {
-    name: "Asia",
-    emoji: "🌏",
-    talentLevel: "Average",
-    talentStars: 2,
-    description: "Growing programmes with disciplined prospects.",
-    color: "text-rose-700 dark:text-rose-400",
-    border: "border-rose-400",
-    bg: "bg-rose-50 dark:bg-rose-950/30",
-  },
-  {
-    name: "Oceania",
-    emoji: "🌏",
-    talentLevel: "Average",
-    talentStars: 2,
-    description: "Small pool but consistent beach volleyball culture.",
-    color: "text-teal-700 dark:text-teal-400",
-    border: "border-teal-400",
-    bg: "bg-teal-50 dark:bg-teal-950/30",
-  },
-];
-
-const TALENT_COLOR: Record<string, string> = {
-  Elite:   "text-blue-600",
-  High:    "text-emerald-600",
-  Average: "text-amber-600",
+const REGION_ACCENT: Record<string, string> = {
+  "Europe":        "text-blue-400",
+  "Asia":          "text-emerald-400",
+  "Africa":        "text-orange-400",
+  "North America": "text-violet-400",
+  "South America": "text-yellow-400",
+  "Oceania":       "text-cyan-400",
 };
 
-// ── Status helpers ─────────────────────────────────────────────────────────
-
-function StatusIcon({ status }: { status: string }) {
-  if (status === "active")   return <Radar    className="h-5 w-5 text-emerald-500 animate-pulse" />;
-  if (status === "complete") return <CheckCircle2 className="h-5 w-5 text-blue-500" />;
-  return <CircleDashed className="h-5 w-5 text-muted-foreground" />;
-}
-
-function statusLabel(status: string) {
-  if (status === "active")   return "Scouting in Progress";
-  if (status === "complete") return "Report Ready";
-  return "No Active Mission";
-}
+const REGION_EMOJI: Record<string, string> = {
+  "Europe": "🌍", "Asia": "🌏", "Africa": "🌍",
+  "North America": "🌎", "South America": "🌎", "Oceania": "🌏",
+};
 
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export default function YouthAcademy() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { data: mission, isLoading } = useGetYouthScouting({
-    query: { queryKey: getGetYouthScoutingQueryKey() },
-  });
+  const [, navigate] = useLocation();
+  const { toast }   = useToast();
+  const qc          = useQueryClient();
 
-  const startMutation   = useStartYouthScouting();
-  const cancelMutation  = useCancelYouthScouting();
-  const signMutation    = useSignYouthProspect();
-  const ignoreMutation  = useIgnoreYouthProspect();
-
-  const { data: prospects = [] } = useGetYouthProspects({
+  const { data: regions,   isLoading: regionsLoading }   = useGetContinentalRegions();
+  const { data: contProspects = [], isLoading: contLoading } = useGetContinentalProspects();
+  const { data: allProspects  = [], isLoading: allLoading  } = useGetYouthProspects({
     query: { queryKey: getGetYouthProspectsQueryKey() },
   });
-
   const { data: leagueResults = [] } = useGetYouthLeagueResults();
 
-  const [selected, setSelected] = useState<string | null>(null);
+  const signMutation   = useSignYouthProspect();
+  const ignoreMutation = useIgnoreYouthProspect();
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: getGetYouthScoutingQueryKey() });
-
-  const invalidateProspects = () =>
-    queryClient.invalidateQueries({ queryKey: getGetYouthProspectsQueryKey() });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: getGetContinentalRegionsQueryKey() });
+    qc.invalidateQueries({ queryKey: getGetContinentalProspectsQueryKey() });
+    qc.invalidateQueries({ queryKey: getGetYouthProspectsQueryKey() });
+    qc.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
+  };
 
   const handleSign = (id: number, name: string) => {
     signMutation.mutate({ id }, {
       onSuccess: () => {
-        invalidateProspects();
-        queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
+        invalidate();
         toast({ title: "Youth Signed!", description: `${name} has joined the Youth Academy.` });
       },
       onError: (err: any) => {
@@ -209,430 +133,253 @@ export default function YouthAcademy() {
   const handleIgnore = (id: number, name: string) => {
     ignoreMutation.mutate({ id }, {
       onSuccess: () => {
-        invalidateProspects();
+        invalidate();
         toast({ title: "Prospect Dismissed", description: `${name} has been passed over.` });
       },
     });
   };
 
-  const handleStart = () => {
-    if (!selected) return;
-    startMutation.mutate(
-      { data: { continent: selected } },
-      {
-        onSuccess: () => {
-          invalidate();
-          setSelected(null);
-          toast({ title: "Scouts Deployed", description: `Scouting mission to ${selected} has begun.` });
-        },
-        onError: (err: any) => {
-          const msg = err?.response?.data?.error ?? "Could not start scouting mission.";
-          toast({ title: "Mission Failed", description: msg, variant: "destructive" });
-        },
-      },
-    );
-  };
+  // Active / completed missions from continental scouting
+  const activeMissions   = regions?.filter((r) => r.activeMission?.status === "active")   ?? [];
+  const completedMissions = regions?.filter((r) => r.activeMission?.status === "completed") ?? [];
 
-  const handleCancel = () => {
-    cancelMutation.mutate(undefined, {
-      onSuccess: () => {
-        invalidate();
-        toast({ title: "Mission Cancelled", description: "Scouts recalled." });
-      },
-    });
-  };
+  // Pending prospects: prefer continental data (richer), fallback to all
+  const pendingProspects = contLoading ? allProspects.filter(p => p.status === "pending") : contProspects;
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <Skeleton className="h-10 w-48" />
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
-          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-36 w-full" />)}
-        </div>
-      </div>
-    );
-  }
-
-  const status        = mission?.status ?? "idle";
-  const isActive      = status === "active";
-  const isComplete    = status === "complete";
-  const continent     = mission?.continent ?? null;
-  const weeksLeft     = mission?.weeksRemaining ?? 0;
-  const talentLevel   = mission?.expectedTalentLevel ?? null;
-  const activeCont    = CONTINENTS.find(c => c.name === continent);
-  const scoutingCost  = mission?.scoutingCost ?? 15_000;
-  const costFormatted = `$${scoutingCost.toLocaleString()}`;
-  const pendingProspects = prospects.filter((p) => p.status === "pending");
+  const isMutating = signMutation.isPending || ignoreMutation.isPending;
 
   return (
     <div className="space-y-10">
 
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight text-primary">Youth Academy</h2>
-        <p className="text-muted-foreground mt-1">
-          Develop the next generation. Scout globally and build your Youth Academy roster.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-primary">Youth Academy</h2>
+          <p className="text-muted-foreground mt-1">
+            Develop the next generation. Scouts are deployed via Continental Scouting.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate("/continental-scouting")}
+          className="gap-2 shrink-0"
+        >
+          <Globe className="h-4 w-4" />
+          Open Continental Scouting
+          <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+        </Button>
       </div>
 
-      {/* ── Mission Status panel ────────────────────────────────── */}
+      {/* ── Active Missions ─────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Radar className="h-5 w-5 text-primary" />
-          <h3 className="text-xl font-bold">Scouting Mission</h3>
-        </div>
-
-        <div className={cn(
-          "rounded-xl border-2 p-5",
-          isActive
-            ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
-            : "border-border bg-muted/30",
-        )}>
-          {/* Status row */}
-          <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
-            <div className="flex items-center gap-2">
-              <StatusIcon status={status} />
-              <span className={cn(
-                "text-sm font-bold",
-                isActive ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground",
-              )}>
-                {statusLabel(status)}
-              </span>
-            </div>
-            {isActive && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs gap-1 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                onClick={handleCancel}
-                disabled={cancelMutation.isPending}
-              >
-                <XCircle className="h-3 w-3" />
-                Recall Scouts
-              </Button>
-            )}
-          </div>
-
-          {/* Four info tiles */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {/* Scout Status */}
-            <div className="rounded-lg bg-background border border-border p-3 text-center">
-              <div className={cn("text-sm font-black", isActive ? "text-emerald-600" : "text-muted-foreground")}>
-                {isActive ? "Active" : "Idle"}
-              </div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">
-                Scout Status
-              </div>
-            </div>
-
-            {/* Selected Continent */}
-            <div className="rounded-lg bg-background border border-border p-3 text-center">
-              <div className="flex items-center justify-center gap-1">
-                <MapPin className="h-3 w-3 text-muted-foreground" />
-                <span className={cn(
-                  "text-sm font-black",
-                  activeCont ? activeCont.color : "text-muted-foreground",
-                )}>
-                  {continent ?? "—"}
-                </span>
-              </div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">
-                Destination
-              </div>
-            </div>
-
-            {/* Weeks Remaining */}
-            <div className="rounded-lg bg-background border border-border p-3 text-center">
-              <div className="flex items-center justify-center gap-1">
-                <Clock className="h-3 w-3 text-muted-foreground" />
-                <span className={cn(
-                  "text-sm font-black",
-                  isActive ? "text-foreground" : "text-muted-foreground",
-                )}>
-                  {isActive ? `${weeksLeft} wk${weeksLeft !== 1 ? "s" : ""}` : "—"}
-                </span>
-              </div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">
-                Weeks Remaining
-              </div>
-            </div>
-
-            {/* Expected Talent Level */}
-            <div className="rounded-lg bg-background border border-border p-3 text-center">
-              {talentLevel ? (
-                <>
-                  <div className={cn("text-sm font-black", TALENT_COLOR[talentLevel] ?? "text-foreground")}>
-                    {talentLevel}
-                  </div>
-                  <div className="flex justify-center gap-0.5 mt-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => {
-                      const stars = activeCont?.talentStars ?? 0;
-                      return (
-                        <Star
-                          key={i}
-                          className={cn(
-                            "h-2.5 w-2.5",
-                            i < stars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/30",
-                          )}
-                        />
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <div className="text-sm font-black text-muted-foreground">—</div>
-              )}
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mt-0.5">
-                Expected Talent
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Scout Report — prospects panel ─────────────────────── */}
-      {isComplete && pendingProspects.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-blue-500" />
-            <h3 className="text-xl font-bold">Scout Report — {continent}</h3>
-            <Badge variant="secondary" className="text-xs ml-1">
-              {pendingProspects.length} prospect{pendingProspects.length !== 1 ? "s" : ""}
+          <h3 className="text-xl font-bold">Active Scouting Missions</h3>
+          {activeMissions.length > 0 && (
+            <Badge variant="secondary" className="text-xs">
+              {activeMissions.length} in progress
             </Badge>
+          )}
+        </div>
+
+        {regionsLoading ? (
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
           </div>
-          <p className="text-sm text-muted-foreground -mt-2">
-            Your scouts found {pendingProspects.length} promising players. Sign to reserve them or ignore to pass.
-          </p>
-
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {pendingProspects.map((p) => {
-              const isContinental = p.scoutedPotentialLabel != null;
-              const potDisplayLabel = p.scoutedPotentialLabel ?? p.potentialStars;
-              const potColor = (() => {
-                const lbl = potDisplayLabel;
-                if (lbl === "Generational") return "text-purple-600 border-purple-400 bg-purple-50 dark:bg-purple-950/30";
-                if (lbl === "Elite")        return "text-blue-600 border-blue-400 bg-blue-50 dark:bg-blue-950/30";
-                if (lbl === "High")         return "text-emerald-600 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30";
-                if (lbl === "Moderate")     return "text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30";
-                if (lbl === "Low")          return "text-gray-500 border-gray-400 bg-gray-50 dark:bg-gray-900/30";
-                return "text-gray-400 border-gray-400/50 bg-gray-50 dark:bg-gray-900/20";
-              })();
-              const potStars = (() => {
-                const lbl = potDisplayLabel;
-                if (lbl === "Generational") return 5;
-                if (lbl === "Elite")        return isContinental ? 5 : 4;
-                if (lbl === "High")         return isContinental ? 4 : 3;
-                if (lbl === "Moderate" || lbl === "Average") return 3;
-                if (lbl === "Low")          return 2;
-                return 1;
-              })();
-
-              const specialityIcon =
-                p.speciality === "Power"       ? <Zap    className="h-3 w-3" /> :
-                p.speciality === "Defense"     ? <Shield className="h-3 w-3" /> :
-                p.speciality === "Serve"       ? <Wind   className="h-3 w-3" /> :
-                p.speciality === "Block"       ? <Shield className="h-3 w-3" /> :
-                p.speciality === "All-Rounder" ? <Trophy className="h-3 w-3" /> :
-                                                 <Zap    className="h-3 w-3" />;
-
-              const eliteEvent = p.eliteEventType ?? null;
-              const eliteCfg   = eliteEvent ? (ELITE_EVENT_CONFIG[eliteEvent] ?? null) : null;
-
+        ) : activeMissions.length === 0 && completedMissions.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-muted/10 p-8 text-center">
+            <Radar className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-sm font-medium text-muted-foreground">No scouts deployed</p>
+            <p className="text-xs text-muted-foreground/60 mt-1 mb-4">
+              Deploy scouts to find talent from Europe, South America, Africa and beyond.
+            </p>
+            <Button size="sm" onClick={() => navigate("/continental-scouting")} className="gap-1.5">
+              <Globe className="h-3.5 w-3.5" />
+              Open Continental Scouting
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Active missions */}
+            {activeMissions.map((r) => {
+              const m = r.activeMission!;
+              const accent = REGION_ACCENT[r.id] ?? "text-primary";
+              const emoji  = REGION_EMOJI[r.id]  ?? "🌍";
               return (
-                <div
-                  key={p.id}
-                  className={cn(
-                    "rounded-xl border bg-card p-4 flex flex-col gap-3",
-                    eliteCfg ? eliteCfg.cardClass : "border-border shadow-sm",
-                  )}
-                >
-                  {/* Elite event banner */}
-                  {eliteCfg && eliteEvent && (
-                    <div className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border",
-                      eliteCfg.bannerClass,
-                    )}>
-                      {eliteCfg.icon}
-                      <span className="text-[11px] font-black uppercase tracking-wide">{eliteEvent}</span>
-                    </div>
-                  )}
-
-                  {/* Name + Age */}
-                  <div className="flex items-start justify-between gap-2">
+                <div key={r.id} className="rounded-xl border border-emerald-500/30 bg-emerald-950/15 p-4 flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <Radar className="h-4 w-4 text-emerald-400 animate-pulse" />
                     <div>
-                      <p className="font-bold text-sm leading-tight">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">Age {p.age} · {p.continent}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
-                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Rating</div>
-                    </div>
-                  </div>
-
-                  {/* Potential + Speciality */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline" className={cn("text-[10px] font-bold border gap-1", potColor)}>
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={cn(
-                              "h-2 w-2",
-                              i < potStars ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/25",
-                            )}
-                          />
-                        ))}
+                      <div className="flex items-center gap-1.5">
+                        <span>{emoji}</span>
+                        <span className={cn("font-bold text-sm", accent)}>{r.name}</span>
+                        <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-500/10">
+                          Scouting
+                        </Badge>
                       </div>
-                      {potDisplayLabel}
-                      {isContinental && <span className="opacity-60 font-normal"> (scout)</span>}
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px] font-medium gap-1 text-muted-foreground">
-                      {specialityIcon}
-                      {p.speciality}
-                    </Badge>
-                  </div>
-
-                  {/* Continental discovery attribution */}
-                  {p.discoveredBy && (
-                    <p className="text-[10px] text-muted-foreground/70 italic leading-tight -mt-1">
-                      {p.discoveredBy}
-                    </p>
-                  )}
-
-                  {/* Scout report snippet */}
-                  {p.scoutingReportText && (
-                    <div className="rounded-md bg-muted/20 border border-border/40 px-2.5 py-2">
-                      <p className="text-[10px] text-muted-foreground leading-relaxed italic line-clamp-3">
-                        "{p.scoutingReportText}"
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {m.durationMonths}-month mission · {r.talentLevel} talent region
                       </p>
                     </div>
-                  )}
-
-                  {/* Signing cost */}
-                  <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">
-                    <DollarSign className="h-3.5 w-3.5" />
-                    {p.signingCost.toLocaleString()} signing fee
                   </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-1 border-t border-border mt-auto">
-                    <Button
-                      size="sm"
-                      className="flex-1 gap-1 text-xs h-8"
-                      onClick={() => handleSign(p.id, p.name)}
-                      disabled={signMutation.isPending || ignoreMutation.isPending}
-                      data-testid={`button-sign-prospect-${p.id}`}
-                    >
-                      <UserPlus className="h-3.5 w-3.5" />
-                      Sign Prospect
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1 text-xs h-8 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                      onClick={() => handleIgnore(p.id, p.name)}
-                      disabled={signMutation.isPending || ignoreMutation.isPending}
-                      data-testid={`button-ignore-prospect-${p.id}`}
-                    >
-                      <Ban className="h-3.5 w-3.5" />
-                      Ignore
-                    </Button>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>Advance seasons to complete</span>
                   </div>
                 </div>
               );
             })}
-          </div>
-        </section>
-      )}
 
-      {/* ── Continent Selector ───────────────────────────────────── */}
-      {!isActive && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-primary" />
-            <h3 className="text-xl font-bold">Select Scout Destination</h3>
-          </div>
-          <div className="flex items-center gap-3 -mt-2 flex-wrap">
-            <p className="text-sm text-muted-foreground">
-              Choose a continent to deploy your scouts. The mission takes 4 weeks.
-            </p>
-            <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-full px-2.5 py-0.5 shrink-0">
-              <DollarSign className="h-3 w-3" />
-              {costFormatted} per mission
-            </span>
-          </div>
-
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {CONTINENTS.map((c) => {
-              const isSelected = selected === c.name;
+            {/* Completed missions awaiting collection */}
+            {completedMissions.map((r) => {
+              const m = r.activeMission!;
+              const accent = REGION_ACCENT[r.id] ?? "text-primary";
+              const emoji  = REGION_EMOJI[r.id]  ?? "🌍";
               return (
-                <button
-                  key={c.name}
-                  onClick={() => setSelected(isSelected ? null : c.name)}
-                  className={cn(
-                    "rounded-xl border-2 p-4 text-left transition-all duration-150 hover:shadow-md w-full",
-                    isSelected
-                      ? cn("shadow-md", c.border, c.bg)
-                      : "border-border bg-card hover:border-muted-foreground/30",
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{c.emoji}</span>
-                      <div>
-                        <p className={cn("font-bold text-sm", isSelected ? c.color : "text-foreground")}>
-                          {c.name}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{c.description}</p>
+                <div key={r.id} className="rounded-xl border border-amber-500/30 bg-amber-950/15 p-4 flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-4 w-4 text-amber-400" />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span>{emoji}</span>
+                        <span className={cn("font-bold text-sm", accent)}>{r.name}</span>
+                        <Badge className="text-[10px] bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                          Report Ready
+                        </Badge>
                       </div>
-                    </div>
-                    {isSelected && (
-                      <CheckCircle2 className={cn("h-4 w-4 shrink-0 mt-0.5", c.color)} />
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-[10px] font-bold border",
-                        isSelected ? cn(c.color, c.border) : "text-muted-foreground",
-                      )}
-                    >
-                      {c.talentLevel} Talent
-                    </Badge>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={cn(
-                            "h-3 w-3",
-                            i < c.talentStars
-                              ? "text-yellow-500 fill-yellow-500"
-                              : "text-muted-foreground/25",
-                          )}
-                        />
-                      ))}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {m.prospectsFound} prospect{m.prospectsFound !== 1 ? "s" : ""} found — collect in Continental Scouting
+                      </p>
                     </div>
                   </div>
-                </button>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/continental-scouting")} className="gap-1.5 text-xs border-amber-500/40 text-amber-400 hover:bg-amber-950/30 shrink-0">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Collect Prospects
+                  </Button>
+                </div>
               );
             })}
           </div>
+        )}
+      </section>
 
-          {/* Deploy button */}
-          {selected && (
-            <div className="flex justify-end pt-2">
-              <Button
-                onClick={handleStart}
-                disabled={startMutation.isPending}
-                className="gap-2"
-                data-testid="button-start-scouting"
-              >
-                <Radar className="h-4 w-4" />
-                Deploy Scouts to {selected}
-                <span className="ml-1 opacity-75 text-xs font-normal">· {costFormatted}</span>
-              </Button>
+      {/* ── Discovered Prospects ─────────────────────────────────── */}
+      {(allLoading || pendingProspects.length > 0) && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-blue-500" />
+            <h3 className="text-xl font-bold">Scouting Reports</h3>
+            {!allLoading && (
+              <Badge variant="secondary" className="text-xs ml-1">
+                {pendingProspects.length} prospect{pendingProspects.length !== 1 ? "s" : ""}
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground -mt-2">
+            Sign prospects to reserve them for your Academy, or dismiss them to pass.
+          </p>
+
+          {allLoading ? (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-xl" />)}
+            </div>
+          ) : (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {pendingProspects.map((p) => {
+                const potLabel  = (p as any).scoutedPotentialLabel ?? (p as any).potentialStars ?? "Unknown";
+                const potColor  = POTENTIAL_COLOR[potLabel] ?? "text-gray-400 border-gray-400/50 bg-gray-50 dark:bg-gray-900/20";
+                const eliteEvent = (p as any).eliteEventType ?? null;
+                const eliteCfg   = eliteEvent ? (ELITE_EVENT_CONFIG[eliteEvent] ?? null) : null;
+
+                const specialityIcon =
+                  p.speciality === "Power"       ? <Zap    className="h-3 w-3" /> :
+                  p.speciality === "Defense"     ? <Shield className="h-3 w-3" /> :
+                  p.speciality === "Serve"       ? <Wind   className="h-3 w-3" /> :
+                  p.speciality === "Block"       ? <Shield className="h-3 w-3" /> :
+                  p.speciality === "All-Rounder" ? <Trophy className="h-3 w-3" /> :
+                                                   <Zap    className="h-3 w-3" />;
+
+                return (
+                  <div
+                    key={p.id}
+                    className={cn(
+                      "rounded-xl border bg-card p-4 flex flex-col gap-3",
+                      eliteCfg ? eliteCfg.cardClass : "border-border shadow-sm",
+                    )}
+                  >
+                    {eliteCfg && eliteEvent && (
+                      <div className={cn("flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border", eliteCfg.bannerClass)}>
+                        {eliteCfg.icon}
+                        <span className="text-[11px] font-black uppercase tracking-wide">{eliteEvent}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-bold text-sm leading-tight">{p.name}</p>
+                        <p className="text-xs text-muted-foreground">Age {p.age} · {p.continent}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Rating</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className={cn("text-[10px] font-bold border", potColor)}>
+                        {potLabel}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px] font-medium gap-1 text-muted-foreground">
+                        {specialityIcon}
+                        {p.speciality}
+                      </Badge>
+                    </div>
+
+                    {(p as any).discoveredBy && (
+                      <p className="text-[10px] text-muted-foreground/70 italic leading-tight -mt-1">
+                        {(p as any).discoveredBy}
+                      </p>
+                    )}
+
+                    {(p as any).scoutingReportText && (
+                      <div className="rounded-md bg-muted/20 border border-border/40 px-2.5 py-2">
+                        <p className="text-[10px] text-muted-foreground leading-relaxed italic line-clamp-3">
+                          "{(p as any).scoutingReportText}"
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-1 text-sm font-semibold text-amber-600">
+                      <DollarSign className="h-3.5 w-3.5" />
+                      {p.signingCost.toLocaleString()} signing fee
+                    </div>
+
+                    <div className="flex gap-2 pt-1 border-t border-border mt-auto">
+                      <Button
+                        size="sm"
+                        className="flex-1 gap-1 text-xs h-8"
+                        onClick={() => handleSign(p.id, p.name)}
+                        disabled={isMutating}
+                        data-testid={`button-sign-prospect-${p.id}`}
+                      >
+                        <UserPlus className="h-3.5 w-3.5" />
+                        Sign Prospect
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1 text-xs h-8 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        onClick={() => handleIgnore(p.id, p.name)}
+                        disabled={isMutating}
+                        data-testid={`button-ignore-prospect-${p.id}`}
+                      >
+                        <Ban className="h-3.5 w-3.5" />
+                        Ignore
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
@@ -664,12 +411,11 @@ export default function YouthAcademy() {
             <div className="space-y-5">
               {weekNumbers.map(week => {
                 const weekRows = leagueResults.filter(r => r.weekNumber === week);
-                const wins   = weekRows.filter(r => r.result === "win").length;
-                const losses = weekRows.filter(r => r.result === "loss").length;
-                const draws  = weekRows.filter(r => r.result === "draw").length;
+                const wins     = weekRows.filter(r => r.result === "win").length;
+                const losses   = weekRows.filter(r => r.result === "loss").length;
+                const draws    = weekRows.filter(r => r.result === "draw").length;
                 return (
                   <div key={week} className="rounded-xl border border-border bg-card overflow-hidden">
-                    {/* Week header */}
                     <div className="flex items-center justify-between px-4 py-2.5 bg-muted/40 border-b border-border">
                       <span className="text-sm font-bold">Week {week}</span>
                       <div className="flex items-center gap-2 text-xs font-semibold">
@@ -678,39 +424,27 @@ export default function YouthAcademy() {
                         <span className="text-red-500">{losses}L</span>
                       </div>
                     </div>
-
-                    {/* Player rows */}
                     <div className="divide-y divide-border">
                       {weekRows.map(row => {
                         const isWin  = row.result === "win";
                         const isDraw = row.result === "draw";
                         const ResultIcon = isWin ? TrendingUp : isDraw ? Minus : TrendingDown;
-                        const resultColor = isWin
-                          ? "text-emerald-600"
-                          : isDraw
-                          ? "text-amber-500"
-                          : "text-red-500";
-                        const resultBg = isWin
+                        const resultColor = isWin ? "text-emerald-600" : isDraw ? "text-amber-500" : "text-red-500";
+                        const resultBg    = isWin
                           ? "bg-emerald-50 dark:bg-emerald-950/20"
                           : isDraw
                           ? "bg-amber-50 dark:bg-amber-950/20"
                           : "bg-red-50 dark:bg-red-950/20";
-
                         return (
                           <div key={row.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
-                            {/* Result badge */}
                             <div className={cn("flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-black uppercase tracking-wide min-w-[52px] justify-center", resultColor, resultBg)}>
                               <ResultIcon className="h-3 w-3" />
                               {row.result}
                             </div>
-
-                            {/* Player + opposition */}
                             <div className="flex-1 min-w-0">
                               <span className="font-semibold truncate block leading-tight">{row.playerName}</span>
                               <span className="text-[11px] text-muted-foreground">vs {row.oppositionName}</span>
                             </div>
-
-                            {/* Gains */}
                             <div className="flex items-center gap-3 shrink-0 text-xs text-muted-foreground">
                               <div className="text-center">
                                 <div className="font-bold text-foreground">+{row.xpGained}</div>

@@ -74,12 +74,14 @@ const REGIONS = [
 
 const MISSION_COSTS: Record<number, number> = { 1: 20000, 3: 45000, 6: 75000 };
 
-const MISSION_DURATIONS_DAYS: Record<number, number> = { 1: 1, 3: 3, 6: 7 };
+// Real-time days per in-game month. Keeping these short so gameplay stays
+// responsive; the display always shows game months, never real-day counts.
+const MISSION_DURATIONS_DAYS: Record<number, number> = { 1: 3, 3: 7, 6: 14 };
 
 
 // ── Helper: auto-complete missions whose endDate has passed ───────────────
 
-async function autoCompleteMissions(teamId: number): Promise<void> {
+export async function autoCompleteContinentalMissions(teamId: number): Promise<void> {
   const now = new Date();
   const active = await db
     .select()
@@ -108,7 +110,7 @@ router.get("/continental-scouting/regions", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
-  await autoCompleteMissions(team.id);
+  await autoCompleteContinentalMissions(team.id);
 
   const activeMissions = await db
     .select()
@@ -173,7 +175,7 @@ router.post("/continental-scouting/start", async (req, res) => {
     return;
   }
 
-  await autoCompleteMissions(team.id);
+  await autoCompleteContinentalMissions(team.id);
 
   const existing = await db
     .select()

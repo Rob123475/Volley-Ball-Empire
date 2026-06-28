@@ -108,9 +108,9 @@ const REGION_ACCENT: Record<string, string> = {
 };
 
 const DURATION_OPTIONS = [
-  { months: 1, label: "1 Month",   cost: 20000, gameDays: "1 day"  },
-  { months: 3, label: "3 Months",  cost: 45000, gameDays: "3 days" },
-  { months: 6, label: "6 Months",  cost: 75000, gameDays: "7 days" },
+  { months: 1, label: "1 Month",  cost: 20000, hint: "Quick scan — fewer prospects"   },
+  { months: 3, label: "3 Months", cost: 45000, hint: "Thorough search"                },
+  { months: 6, label: "6 Months", cost: 75000, hint: "Deep dive — most prospects"     },
 ] as const;
 
 const POTENTIAL_CONFIG: Record<string, { stars: number; className: string }> = {
@@ -123,17 +123,8 @@ const POTENTIAL_CONFIG: Record<string, { stars: number; className: string }> = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function getTimeRemaining(endDate: string): string {
-  const diff = new Date(endDate).getTime() - Date.now();
-  if (diff <= 0) return "Complete";
-  const totalMins = Math.floor(diff / 60000);
-  const hours = Math.floor(totalMins / 60);
-  const mins = totalMins % 60;
-  if (hours >= 24) {
-    const days = Math.floor(hours / 24);
-    return `${days}d ${hours % 24}h remaining`;
-  }
-  return `${hours}h ${mins}m remaining`;
+function getMissionLabel(durationMonths: number): string {
+  return `${durationMonths}-month mission`;
 }
 
 function getMissionProgress(startDate: string, endDate: string): number {
@@ -367,7 +358,7 @@ function RegionCard({
                 <CircleDashed className="h-3 w-3 text-blue-400 animate-spin" style={{ animationDuration: "3s" }} />
                 <span className="text-blue-400 font-medium">Scouting…</span>
               </div>
-              <span>{getTimeRemaining(mission.endDate)}</span>
+              <span className="font-medium">{getMissionLabel(mission.durationMonths)}</span>
             </div>
             <Progress value={progress} className="h-1.5" />
             <div className="flex gap-2">
@@ -668,7 +659,6 @@ export default function ContinentalScouting() {
                   >
                     <div className="text-xs font-bold">{opt.label}</div>
                     <div className="text-[11px] mt-0.5 font-semibold">${(opt.cost / 1000).toFixed(0)}k</div>
-                    <div className="text-[10px] opacity-60">{opt.gameDays}</div>
                   </button>
                 ))}
               </div>
@@ -721,7 +711,7 @@ export default function ContinentalScouting() {
               </div>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4" />
-                <span>returns in {selectedDurationOpt.gameDays}</span>
+                <span>{selDuration}-month mission</span>
               </div>
             </div>
           </div>

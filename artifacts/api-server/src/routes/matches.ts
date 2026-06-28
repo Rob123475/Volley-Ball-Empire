@@ -7,6 +7,7 @@ import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
+import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 
@@ -775,6 +776,9 @@ router.post("/matches/:id/simulate", async (req, res) => {
         .where(eq(teamsTable.id, team.id));
     }
   }
+
+  // Auto-complete any continental scouting missions whose time has elapsed
+  autoCompleteContinentalMissions(team.id).catch(() => {});
 
   // ── End-of-season board review: fire manager if confidence < 5 ────────────
   let fired = false;
