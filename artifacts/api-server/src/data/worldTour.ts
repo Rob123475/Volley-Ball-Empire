@@ -1,4 +1,4 @@
-export type Tier = "Bronze" | "Silver" | "Gold" | "Elite" | "Continental Final" | "Grand Final";
+export type Tier = "Bronze" | "Silver" | "Gold" | "Elite" | "Continental Final" | "World Semi Final" | "All-Star Match" | "World Final";
 
 export interface WorldTourEvent {
   round:       number;
@@ -502,15 +502,38 @@ export const WORLD_TOUR: WorldTourEvent[] = [
     opponent: "South American All-Stars",  prize: 80000,  tier: "Continental Final",
   },
 
-  // ── World Grand Final  (Round 67) ─────────────────────────────────────────
+  // ── World Beach Pro Series Finals  (Rounds 67–70) ─────────────────────────
   // Location is randomised each season in the fixture route.
+  // awayTeamName / homeTeamName for these are resolved at fixture-fetch time
+  // once all 6 continental finals are complete.
   {
     round: 67,  continent: "World",  country: "Brazil",
     city: "Rio de Janeiro",  beachName: "Copacabana Beach",
-    displayName: "World Beach Pro Series Grand Final",  date: "2026-12-10",
+    displayName: "World Finals — Semi Final 1",  date: "2026-11-21",
     locId: 1,  locName: "Copacabana Beach, Rio de Janeiro",
-    opponent: "World All-Stars",  prize: 500000,  tier: "Grand Final",
+    opponent: "TBD",  prize: 150000,  tier: "World Semi Final",
+  },
+  {
+    round: 68,  continent: "World",  country: "Brazil",
+    city: "Rio de Janeiro",  beachName: "Copacabana Beach",
+    displayName: "World Finals — Semi Final 2",  date: "2026-11-22",
+    locId: 1,  locName: "Copacabana Beach, Rio de Janeiro",
+    opponent: "TBD",  prize: 150000,  tier: "World Semi Final",
+  },
+  {
+    round: 69,  continent: "World",  country: "Brazil",
+    city: "Rio de Janeiro",  beachName: "Copacabana Beach",
+    displayName: "World Finals — All-Star Match",  date: "2026-11-27",
+    locId: 1,  locName: "Copacabana Beach, Rio de Janeiro",
+    opponent: "Americas / Africa All-Stars",  prize: 0,  tier: "All-Star Match",
+  },
+  {
+    round: 70,  continent: "World",  country: "Brazil",
+    city: "Rio de Janeiro",  beachName: "Copacabana Beach",
+    displayName: "World Beach Pro Series Championship Final",  date: "2026-12-10",
+    locId: 1,  locName: "Copacabana Beach, Rio de Janeiro",
+    opponent: "TBD",  prize: 500000,  tier: "World Final",
   },
 ];
 
-export const WORLD_TOUR_FINAL_ROUND = 67;
+export const WORLD_TOUR_FINAL_ROUND = 70;

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
-import { eq, desc, gt, and, sql } from "drizzle-orm";
+import { eq, desc, gt, gte, and, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
@@ -379,11 +379,47 @@ async function applyPostMatchEffects(teamId: number, weather: string, facilityLe
 }
 
 
-// ── Season fixture (fixed 67-round continental tour structure) ────────────────
-// Returns all non-Grand-Final events in the fixed continental tour order.
-// The Grand Final (round 67) is handled separately with a random host location.
+// ── Season fixture (fixed 70-round structure) ─────────────────────────────────
+// Returns all non-finals events (rounds 1–66: regular + continental finals).
+// The 4-match World Finals (rounds 67–70) are handled separately.
+const FINALS_TIERS = new Set(["World Semi Final", "All-Star Match", "World Final"]);
+
 function generateSeasonFixture(): WorldTourEvent[] {
-  return WORLD_TOUR.filter(e => e.tier !== "Grand Final");
+  return WORLD_TOUR.filter(e => !FINALS_TIERS.has(e.tier));
+}
+
+// ── World Finals rival team names (fallback when DB has no other teams) ────────
+const WORLD_FINALS_RIVALS = [
+  "Rio Diamonds FC", "Seoul Aces Elite", "Berlin Beach Masters",
+  "Lagos Surf Queens", "Cape Town Eagles", "Manila Bay Stars",
+  "Athens Olympians", "Dubai Desert Elite", "Sydney Thunderbirds",
+];
+
+async function getWorldFinalsSeedings(userTeamId: number, userTeamName: string): Promise<string[]> {
+  const others = await db
+    .select({ id: teamsTable.id, name: teamsTable.name, wins: teamsTable.wins })
+    .from(teamsTable)
+    .where(eq(teamsTable.id, userTeamId))
+    .limit(1);
+
+  const allTeams = await db
+    .select({ id: teamsTable.id, name: teamsTable.name, wins: teamsTable.wins })
+    .from(teamsTable)
+    .orderBy(desc(teamsTable.wins));
+
+  const rivalTeams = allTeams.filter(t => t.id !== userTeamId).slice(0, 3);
+  const rivals: string[] = rivalTeams.map(t => t.name);
+  while (rivals.length < 3) {
+    const idx = (userTeamId * 17 + rivals.length * 31) % WORLD_FINALS_RIVALS.length;
+    rivals.push(WORLD_FINALS_RIVALS[idx] ?? "World Select");
+  }
+  const userWins = others[0]?.wins ?? 0;
+  const rival0Wins = rivalTeams[0]?.wins ?? 0;
+
+  if (userWins >= rival0Wins) {
+    return [userTeamName, rivals[0]!, rivals[1]!, rivals[2]!];
+  }
+  return [rivals[0]!, userTeamName, rivals[1]!, rivals[2]!];
 }
 
 router.get("/matches", async (req, res) => {
@@ -429,48 +465,54 @@ router.get("/matches/upcoming", async (req, res) => {
   res.json(matches.filter(m => m.status === "scheduled").map(serializeMatch));
 });
 
-// Full season fixture — fixed 67-event continental tour schedule
+// Full season fixture — fixed 70-event schedule (66 regular/cont + 4 world finals)
 router.get("/matches/fixture", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
-  const existing = await db.select().from(matchesTable)
+  let existing = await db.select().from(matchesTable)
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
     .orderBy(matchesTable.round);
 
-  // If the fixture exists but lacks Continental Finals it is the old structure — regenerate.
-  const hasNewStructure = existing.some(m => m.tier === "Continental Final");
-  if (existing.length > 0 && !hasNewStructure) {
+  // Migration 1: old structure without Continental Finals — full regenerate.
+  const hasContFinals = existing.some(m => m.tier === "Continental Final");
+  if (existing.length > 0 && !hasContFinals) {
     await db.delete(matchesTable)
       .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)));
-    existing.length = 0;
+    existing = [];
+  }
+
+  // Migration 2: has Continental Finals but uses old single Grand Final — remove it and
+  // re-add as the 4-match World Finals (rounds 67–70).
+  const hasWorldFinals = existing.some(m => FINALS_TIERS.has(m.tier ?? ""));
+  if (existing.length > 0 && !hasWorldFinals) {
+    await db.delete(matchesTable).where(
+      and(
+        eq(matchesTable.homeTeamId, team.id),
+        eq(matchesTable.season, 1),
+        gte(matchesTable.round, 67),
+      )
+    );
+    existing = existing.filter(m => (m.round ?? 0) < 67);
   }
 
   if (existing.length === 0) {
+    // Full fresh fixture: 66 regular/continental events + 4 World Finals
     const regularEvents = generateSeasonFixture();
-    const grandFinal = WORLD_TOUR.find(e => e.tier === "Grand Final")!;
+    const worldFinalsEvents = WORLD_TOUR.filter(e => FINALS_TIERS.has(e.tier));
     const finalLocIds = Object.keys(LOCATION_WEATHER_POOLS).map(Number);
     const finalLocId = finalLocIds[Math.floor(Math.random() * finalLocIds.length)];
     const [finalLoc] = await db.select().from(locationsTable).where(eq(locationsTable.id, finalLocId));
+    const finalsLocationName = finalLoc ? `${finalLoc.name} • ${finalLoc.country}` : "Copacabana Beach • Brazil";
 
-    for (const f of [...regularEvents, grandFinal]) {
-      let locId = f.locId;
-      let locationName = f.locName;
-      let prizeAmount = String(f.prize);
-
-      if (f.tier === "Grand Final") {
-        locId = finalLocId;
-        locationName = finalLoc ? `${finalLoc.name} • ${finalLoc.country}` : f.locName;
-        prizeAmount = "500000";
-      }
-
-      const { weather, windSpeed, temperature } = generateWeather(locId);
+    for (const f of regularEvents) {
+      const { weather, windSpeed, temperature } = generateWeather(f.locId);
       await db.insert(matchesTable).values({
         homeTeamId:   team.id,
         awayTeamId:   team.id,
-        locationId:   locId,
-        locationName,
+        locationId:   f.locId,
+        locationName: f.locName,
         homeTeamName: team.name,
         awayTeamName: f.opponent,
         weather,
@@ -480,19 +522,127 @@ router.get("/matches/fixture", async (req, res) => {
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount,
+        prizeAmount:  String(f.prize),
         status:      "scheduled",
         continent:   f.continent,
         tier:        f.tier,
       });
     }
+
+    for (const f of worldFinalsEvents) {
+      const { weather, windSpeed, temperature } = generateWeather(finalLocId);
+      const isAllStar = f.tier === "All-Star Match";
+      await db.insert(matchesTable).values({
+        homeTeamId:   team.id,
+        awayTeamId:   team.id,
+        locationId:   finalLocId,
+        locationName: finalsLocationName,
+        homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
+        awayTeamName: f.opponent,
+        weather,
+        windSpeed,
+        temperature,
+        season:      1,
+        round:       f.round,
+        teamSize:    2,
+        scheduledAt: `${f.date}T14:00:00.000Z`,
+        prizeAmount:  String(f.prize),
+        status:      "scheduled",
+        continent:   f.continent,
+        tier:        f.tier,
+      });
+    }
+
+    existing = await db.select().from(matchesTable)
+      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
+      .orderBy(matchesTable.round);
+  } else if (!hasWorldFinals) {
+    // Only add the 4 World Finals matches (migration 2 path)
+    const worldFinalsEvents = WORLD_TOUR.filter(e => FINALS_TIERS.has(e.tier));
+    const finalLocIds = Object.keys(LOCATION_WEATHER_POOLS).map(Number);
+    const finalLocId = finalLocIds[Math.floor(Math.random() * finalLocIds.length)];
+    const [finalLoc] = await db.select().from(locationsTable).where(eq(locationsTable.id, finalLocId));
+    const finalsLocationName = finalLoc ? `${finalLoc.name} • ${finalLoc.country}` : "Copacabana Beach • Brazil";
+
+    for (const f of worldFinalsEvents) {
+      const { weather, windSpeed, temperature } = generateWeather(finalLocId);
+      const isAllStar = f.tier === "All-Star Match";
+      await db.insert(matchesTable).values({
+        homeTeamId:   team.id,
+        awayTeamId:   team.id,
+        locationId:   finalLocId,
+        locationName: finalsLocationName,
+        homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
+        awayTeamName: f.opponent,
+        weather,
+        windSpeed,
+        temperature,
+        season:      1,
+        round:       f.round,
+        teamSize:    2,
+        scheduledAt: `${f.date}T14:00:00.000Z`,
+        prizeAmount:  String(f.prize),
+        status:      "scheduled",
+        continent:   f.continent,
+        tier:        f.tier,
+      });
+    }
+
+    existing = await db.select().from(matchesTable)
+      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
+      .orderBy(matchesTable.round);
   }
 
-  const all = await db.select().from(matchesTable)
-    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
-    .orderBy(matchesTable.round);
+  // ── Lazy seeding resolution ────────────────────────────────────────────────
+  // Once all 6 continental finals are completed, resolve the top-4 team seedings
+  // and populate awayTeamName on SF1, SF2, and the World Final.
+  const contFinals = existing.filter(m => m.tier === "Continental Final");
+  const allContFinalsComplete = contFinals.length === 6 && contFinals.every(m => m.status === "completed");
 
-  res.json(all.map(serializeMatch));
+  if (allContFinalsComplete) {
+    const sf1 = existing.find(m => m.tier === "World Semi Final" && m.round === 67);
+    const sf2 = existing.find(m => m.tier === "World Semi Final" && m.round === 68);
+    const wf  = existing.find(m => m.tier === "World Final");
+
+    // Populate SF seedings if not yet resolved
+    if (sf1 && sf1.awayTeamName === "TBD") {
+      const seeds = await getWorldFinalsSeedings(team.id, team.name);
+      // seeds = [rank1, rank2, rank3, rank4]
+      // SF1: player (rank1 or 2) vs their paired seed
+      // SF2: the other pair
+      const playerIdx = seeds.indexOf(team.name);
+      const sf1Home = team.name;
+      const sf1Away = playerIdx === 0 ? seeds[1]! : seeds[0]!;
+      const sf2Home = playerIdx === 0 ? seeds[2]! : seeds[2]!;
+      const sf2Away = playerIdx === 0 ? seeds[3]! : seeds[3]!;
+
+      await db.update(matchesTable)
+        .set({ awayTeamName: sf1Away })
+        .where(eq(matchesTable.id, sf1.id));
+      sf1.awayTeamName = sf1Away;
+
+      if (sf2) {
+        await db.update(matchesTable)
+          .set({ homeTeamName: sf2Home, awayTeamName: sf2Away })
+          .where(eq(matchesTable.id, sf2.id));
+        sf2.homeTeamName = sf2Home;
+        sf2.awayTeamName = sf2Away;
+      }
+    }
+
+    // Populate World Final opponent from SF2 result
+    if (wf && wf.awayTeamName === "TBD" && sf2 && sf2.status === "completed") {
+      const sf2Winner = (sf2.homeScore ?? 0) > (sf2.awayScore ?? 0)
+        ? (sf2.homeTeamName ?? "SF2 Winner")
+        : (sf2.awayTeamName ?? "SF2 Winner");
+      await db.update(matchesTable)
+        .set({ awayTeamName: sf2Winner })
+        .where(eq(matchesTable.id, wf.id));
+      wf.awayTeamName = sf2Winner;
+    }
+  }
+
+  res.json(existing.map(serializeMatch));
 });
 
 router.get("/matches/:id", async (req, res) => {
@@ -534,8 +684,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const wx = getWeatherEffects(match.weather, matchWindSpeed, matchTemp);
   const weatherFactor = 1 - wx.performancePenalty;
 
-  const isFinal       = match.tier === "Grand Final";
-  const isHighPressure = isFinal || match.tier === "Continental Final";
+  const isFinal        = match.tier === "World Final";
+  const isAllStar      = match.tier === "All-Star Match";
+  const isWorldSemiFinal = match.tier === "World Semi Final";
+  const isHighPressure = isFinal || isWorldSemiFinal || match.tier === "Continental Final";
 
   // Psychology Centre: lowers stat threshold in finals (70→61, L1→L10)
   // Sports Psychology Camp: additional −3 while active
@@ -569,8 +721,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     "The team battles back from match point!",
     "A pinpoint drop shot catches everyone off guard!",
     weatherHighlights[match.weather] ?? "The crowd erupts — what a match!",
-    isFinal ? "The crowd erupts as the championship is decided!" : "The home crowd goes wild!",
-    isFinal ? "History is made on the sands!" : "A defining moment in the season!",
+    isFinal ? "The crowd erupts as the championship is decided!" : isWorldSemiFinal ? "A place in the Final is on the line!" : "The home crowd goes wild!",
+    isFinal ? "History is made on the sands!" : isWorldSemiFinal ? "One step from the World Final!" : isAllStar ? "The All-Star crowd is electric!" : "A defining moment in the season!",
   ];
   const highlights = Array.from({ length: 4 }, () =>
     highlightTemplates[Math.floor(Math.random() * highlightTemplates.length)]
@@ -580,7 +732,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     ? activePlayers.reduce((best, p) => (p.power + p.serve) > (best.power + best.serve) ? p : best, activePlayers[0])
     : null;
 
-  const prizeEarned = homeWon ? Number(match.prizeAmount || 5000) : 0;
+  // All-Star match is an exhibition: prize is always 0 for standings purposes.
+  const prizeEarned = (homeWon && !isAllStar) ? Number(match.prizeAmount || 5000) : 0;
 
   const [updatedMatch] = await db.update(matchesTable).set({
     homeScore,
@@ -589,18 +742,43 @@ router.post("/matches/:id/simulate", async (req, res) => {
     highlights,
   }).where(eq(matchesTable.id, id)).returning();
 
+  // All-Star exhibition: no standings updates (wins/losses/prize/board confidence unchanged).
+  if (isAllStar) {
+    const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
+    res.json({
+      match:        serializeMatch(updatedMatch),
+      highlights,
+      homeScore,
+      awayScore,
+      winner:       homeWon ? "home" : "away",
+      prizeEarned:  0,
+      mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
+      isFinal:      false,
+      fired:        false,
+      dismissalClubName: null,
+      weather:      match.weather,
+      windSpeed:    matchWindSpeed,
+      temperature:  matchTemp,
+      locationName: match.locationName,
+      weatherImpact: wx.performancePenalty > 0.05 ? match.weather : null,
+      playerEvents,
+      isAllStar:    true,
+    });
+    return;
+  }
+
   if (homeWon) {
     const isChampionship = isFinal && homeWon;
     const isContFinal    = match.tier === "Continental Final";
     const newStreak      = (team.winStreak ?? 0) + 1;
-    // Rep gain: +10 every win, +15 for Continental Final, +40 for Grand Final, +5 if on a 3+ streak
-    const tierRepBonus   = isFinal ? 40 : isContFinal ? 15 : 0;
+    // Rep gain: +10 every win, +15 for Continental Final, +15 for Semi Final, +40 for World Final, +5 if on a 3+ streak
+    const tierRepBonus   = isFinal ? 40 : isWorldSemiFinal ? 15 : isContFinal ? 15 : 0;
     const streakRepBonus = newStreak >= 3 ? 5 : 0;
     const repGain        = 10 + tierRepBonus + streakRepBonus;
 
-    // Sponsor reputation gain: +1 base, +3 Continental Final, +5 Grand Final
+    // Sponsor reputation gain: +1 base, +3 Continental Final / Semi Final, +5 World Final
     const newWins        = team.wins + 1;
-    const sponsorTierBonus = isFinal ? 5 : isContFinal ? 3 : 0;
+    const sponsorTierBonus = isFinal ? 5 : (isWorldSemiFinal || isContFinal) ? 3 : 0;
 
     // Check if any accepted promo deal just completed with this win (+5 per deal)
     const acceptedDeals = await db.select()
@@ -612,9 +790,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     const sponsorRepGain = 1 + sponsorTierBonus + sponsorDealBonus;
     const newSponsorRep  = Math.min(100, (team.sponsorReputation ?? 50) + sponsorRepGain);
 
-    // Board confidence: +3 normal, +5 continental final, +8 grand final
-    const isGrandFinal     = isFinal && !isContFinal;
-    const confWinDelta     = isGrandFinal ? 8 : isContFinal ? 5 : 3;
+    // Board confidence: +3 normal, +5 cont/semi final, +8 world final
+    const confWinDelta     = isFinal ? 8 : (isContFinal || isWorldSemiFinal) ? 5 : 3;
 
     await db.update(teamsTable).set({
       wins:              newWins,
@@ -630,7 +807,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
       teamId:      team.id,
       type:        "income",
       amount:      String(prizeEarned),
-      description: `Prize money: ${isFinal ? "GRAND FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
+      description: `Prize money: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
       category:    "prize_money",
       date:        today,
     });
@@ -781,12 +958,12 @@ router.post("/matches/:id/simulate", async (req, res) => {
   autoCompleteContinentalMissions(team.id).catch(() => {});
 
   // ── End-of-season board review: fire manager if confidence < 5 ────────────
+  // Only triggered after the World Championship Final (the season-ending match).
   let fired = false;
   let dismissalClubName: string | null = null;
 
   if (isFinal && req.user?.id) {
-    const isContFinalCheck = match.tier === "Continental Final"; // false for Grand Final
-    const confWinDeltaCheck = (isFinal && !isContFinalCheck) ? 8 : isContFinalCheck ? 5 : 3;
+    const confWinDeltaCheck = 8;
     const updatedConfidence = homeWon
       ? Math.min(100, (team.boardConfidence ?? 60) + confWinDeltaCheck)
       : Math.max(0,   (team.boardConfidence ?? 60) - 5);
