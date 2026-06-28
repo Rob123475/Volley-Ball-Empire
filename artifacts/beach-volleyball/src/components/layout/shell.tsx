@@ -16,7 +16,6 @@ import {
   Box,
   Heart,
   Briefcase,
-  Award,
   Building2,
   Sparkles,
   Globe,
@@ -24,7 +23,6 @@ import {
   Star,
   Flame,
   Monitor,
-  Swords,
   Radar,
   FolderOpen,
 } from "lucide-react";
@@ -117,20 +115,11 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Club",
     icon: Building2,
     items: [
-      { href: "/finances",   label: "Finances",        icon: DollarSign },
-      { href: "/facilities", label: "Facilities",      icon: Building2  },
-      { href: "/wellbeing",  label: "Wellbeing Camps", icon: Sparkles   },
-    ],
-  },
-  {
-    id: "legacy",
-    label: "Legacy",
-    icon: Award,
-    items: [
-      { href: "/trophy-cabinet", label: "Trophy Cabinet", icon: Trophy                   },
-      { href: "/achievements",   label: "Achievements",   icon: Star                     },
-      { href: "/trophy-cabinet", label: "Hall of Fame",   icon: Crown, neverActive: true },
-      { href: "/trophy-cabinet", label: "Records",        icon: Flame, neverActive: true },
+      { href: "/finances",       label: "Finances",        icon: DollarSign             },
+      { href: "/facilities",     label: "Facilities",      icon: Building2              },
+      { href: "/wellbeing",      label: "Wellbeing Camps", icon: Sparkles               },
+      { href: "/trophy-cabinet", label: "Trophy Cabinet",  icon: Trophy                 },
+      { href: "/trophy-cabinet", label: "Hall of Fame",    icon: Crown, neverActive: true },
     ],
   },
   {
@@ -146,7 +135,9 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Career",
     icon: FolderOpen,
     items: [
-      { href: "/career", label: "Save Slots", icon: FolderOpen },
+      { href: "/career",       label: "Save Slots",  icon: FolderOpen },
+      { href: "/achievements", label: "Achievements", icon: Star       },
+      { href: "/trophy-cabinet", label: "Records",   icon: Flame, neverActive: true },
     ],
   },
 ];
