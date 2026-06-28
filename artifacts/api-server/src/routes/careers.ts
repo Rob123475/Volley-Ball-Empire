@@ -8,24 +8,8 @@ import {
   hallOfFameTable,
   careerHistoryEntriesTable,
   poachingOffersTable,
-  playersTable,
-  contractsTable,
-  staffTable,
-  trainingSessionsTable,
-  youthLeagueResultsTable,
-  injuryHistoryTable,
-  matchesTable,
-  financeTransactionsTable,
-  facilitiesTable,
-  wellbeingEffectsTable,
-  seasonInjuryStatsTable,
-  youthProspectsTable,
-  youthLadderTable,
-  youthChampionshipTrophiesTable,
-  continentalScoutingMissionsTable,
-  promoDealsTable,
 } from "@workspace/db";
-import { eq, and, desc, or } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 
 const router = Router();
@@ -286,6 +270,8 @@ router.post("/careers/:id/load", async (req, res) => {
 });
 
 // DELETE /careers/:id
+// Deletes only save-slot-owned data. Teams, players, and all other world
+// data are global and must NOT be deleted.
 router.delete("/careers/:id", async (req, res) => {
   if (!req.user?.id) {
     res.status(401).json({ error: "Unauthorized: no authenticated user" });
@@ -311,86 +297,24 @@ router.delete("/careers/:id", async (req, res) => {
     return;
   }
 
+  req.log.info({ saveId: id, userId: req.user.id, slotNumber: save.slotNumber }, "DELETE /careers/:id — starting");
+
   try {
     await db.transaction(async (tx) => {
-      // ── 1. Delete careerSaveId-linked records first (FK constraints) ──────────
+      // Step 1: poaching_offers — NOT NULL FK to career_saves, must go first
+      req.log.info({ saveId: id }, "step 1: deleting poaching_offers");
       await tx.delete(poachingOffersTable)
         .where(eq(poachingOffersTable.careerSaveId, id));
 
+      // Step 2: career_history_entries — nullable FK to career_saves
+      req.log.info({ saveId: id }, "step 2: deleting career_history_entries");
       await tx.delete(careerHistoryEntriesTable)
         .where(eq(careerHistoryEntriesTable.careerSaveId, id));
 
-      // ── 2. Delete all team-owned data (if this save had a team) ───────────────
-      if (save.teamId) {
-        const tid = save.teamId;
-
-        // Player-child tables must go before players (FK from playerId)
-        await tx.delete(trainingSessionsTable)
-          .where(eq(trainingSessionsTable.teamId, tid));
-        await tx.delete(youthLeagueResultsTable)
-          .where(eq(youthLeagueResultsTable.teamId, tid));
-        await tx.delete(injuryHistoryTable)
-          .where(eq(injuryHistoryTable.teamId, tid));
-        await tx.delete(contractsTable)
-          .where(eq(contractsTable.teamId, tid));
-
-        // Match records that involve this team
-        await tx.delete(matchesTable)
-          .where(or(
-            eq(matchesTable.homeTeamId, tid),
-            eq(matchesTable.awayTeamId, tid),
-          ));
-
-        // Remaining team-owned tables
-        await tx.delete(financeTransactionsTable)
-          .where(eq(financeTransactionsTable.teamId, tid));
-        await tx.delete(achievementsTable)
-          .where(eq(achievementsTable.teamId, tid));
-        await tx.delete(facilitiesTable)
-          .where(eq(facilitiesTable.teamId, tid));
-        await tx.delete(trophiesTable)
-          .where(eq(trophiesTable.teamId, tid));
-        await tx.delete(wellbeingEffectsTable)
-          .where(eq(wellbeingEffectsTable.teamId, tid));
-        await tx.delete(seasonInjuryStatsTable)
-          .where(eq(seasonInjuryStatsTable.teamId, tid));
-        await tx.delete(youthProspectsTable)
-          .where(eq(youthProspectsTable.teamId, tid));
-        await tx.delete(youthLadderTable)
-          .where(eq(youthLadderTable.teamId, tid));
-        await tx.delete(youthChampionshipTrophiesTable)
-          .where(eq(youthChampionshipTrophiesTable.teamId, tid));
-        await tx.delete(continentalScoutingMissionsTable)
-          .where(eq(continentalScoutingMissionsTable.teamId, tid));
-
-        // Promo deals: delete team-specific ones, release global ones back to pool
-        await tx.delete(promoDealsTable)
-          .where(and(
-            eq(promoDealsTable.teamId, tid),
-            eq(promoDealsTable.isGlobal, false),
-          ));
-        await tx.update(promoDealsTable)
-          .set({ teamId: null })
-          .where(and(
-            eq(promoDealsTable.teamId, tid),
-            eq(promoDealsTable.isGlobal, true),
-          ));
-
-        // Release contracted staff back to free-agent pool (do not delete)
-        await tx.update(staffTable)
-          .set({ teamId: null })
-          .where(eq(staffTable.teamId, tid));
-
-        // Delete squad players (they are save-specific, not global)
-        await tx.delete(playersTable)
-          .where(eq(playersTable.teamId, tid));
-
-        // Finally delete the team itself
-        await tx.delete(teamsTable)
-          .where(eq(teamsTable.id, tid));
-      }
-
-      // ── 3. Delete the career save row ─────────────────────────────────────────
+      // Step 3: career_saves row itself
+      // Teams, players, facilities, matches, finances, etc. are GLOBAL world data
+      // and must not be touched. Only the career save row is deleted.
+      req.log.info({ saveId: id }, "step 3: deleting career_saves row");
       await tx.delete(careerSavesTable)
         .where(eq(careerSavesTable.id, id));
     });
@@ -401,7 +325,9 @@ router.delete("/careers/:id", async (req, res) => {
     return;
   }
 
-  // ── 4. Clear session if this was the active save ───────────────────────────
+  req.log.info({ saveId: id }, "DELETE /careers/:id — success");
+
+  // Step 4: clear session if this save's team was the active one
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
