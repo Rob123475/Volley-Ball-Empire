@@ -619,3 +619,26 @@ export const aiManagerEventsTable = pgTable("ai_manager_events", {
 
 export type AiManager      = typeof aiManagersTable.$inferSelect;
 export type AiManagerEvent = typeof aiManagerEventsTable.$inferSelect;
+
+// Unity Game API — per-player match stats submitted by the Unity client
+export const unityMatchStatsTable = pgTable("unity_match_stats", {
+  id:            serial("id").primaryKey(),
+  matchId:       integer("match_id").notNull(),
+  teamId:        integer("team_id").notNull().references(() => teamsTable.id),
+  playerId:      integer("player_id").notNull().references(() => playersTable.id),
+  points:        integer("points").notNull().default(0),
+  errors:        integer("errors").notNull().default(0),
+  aces:          integer("aces").notNull().default(0),
+  kills:         integer("kills").notNull().default(0),
+  blocks:        integer("blocks").notNull().default(0),
+  digs:          integer("digs").notNull().default(0),
+  servesIn:      integer("serves_in").notNull().default(0),
+  servesTotal:   integer("serves_total").notNull().default(0),
+  attacksIn:     integer("attacks_in").notNull().default(0),
+  attacksTotal:  integer("attacks_total").notNull().default(0),
+  minutesPlayed: integer("minutes_played").notNull().default(0),
+  createdAt:     timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type UnityMatchStats       = typeof unityMatchStatsTable.$inferSelect;
+export type InsertUnityMatchStats = typeof unityMatchStatsTable.$inferInsert;

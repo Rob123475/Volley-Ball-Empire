@@ -34,6 +34,7 @@ import clubTemplatesRouter from "./club-templates";
 import poachingRouter from "./poaching";
 import aiManagersRouter from "./ai-managers";
 import historyRouter from "./history";
+import gameApiRouter from "./game-api";
 import devRouter from "./dev";
 
 const router: IRouter = Router();
@@ -73,6 +74,7 @@ router.use(clubTemplatesRouter);
 router.use(poachingRouter);
 router.use(aiManagersRouter);
 router.use(historyRouter);
+router.use(gameApiRouter);
 router.use(devRouter);
 
 export default router;
