@@ -619,56 +619,86 @@ export default function Dashboard() {
       {/* ══════════════════════════════════════════════════════════════
           SEASON LADDER
       ══════════════════════════════════════════════════════════════ */}
-      {ladder && ladder.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Season Ladder</CardTitle>
-            <CardDescription>{season?.name} — World Rankings</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="relative w-full overflow-auto">
-              <table className="w-full caption-bottom text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="h-9 px-2 text-left font-medium text-muted-foreground w-12">Rank</th>
-                    <th className="h-9 px-2 text-left font-medium text-muted-foreground">Team</th>
-                    <th className="h-9 px-2 text-center font-medium text-muted-foreground w-16">W</th>
-                    <th className="h-9 px-2 text-center font-medium text-muted-foreground w-16">L</th>
-                    <th className="h-9 px-2 text-right font-medium text-muted-foreground w-20">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ladder.map((entry) => {
-                    const isMyTeam = entry.teamName === team?.name;
-                    return (
-                      <tr
-                        key={entry.teamId}
-                        data-testid={`row-ladder-${entry.teamId}`}
-                        className={cn(
-                          "border-b transition-colors hover:bg-muted/50",
-                          isMyTeam && "bg-primary/5 border-l-4 border-l-primary font-semibold"
-                        )}
-                      >
-                        <td className="p-2 font-bold">
-                          {entry.rank <= 3
-                            ? <span className={cn("text-base", entry.rank === 1 ? "text-yellow-500" : entry.rank === 2 ? "text-slate-400" : "text-amber-600")}>
-                                {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}
-                              </span>
-                            : `#${entry.rank}`}
-                        </td>
-                        <td className="p-2">{entry.teamName}{isMyTeam && <Badge variant="outline" className="ml-2 text-[10px]">You</Badge>}</td>
-                        <td className="p-2 text-center text-emerald-600 font-semibold">{entry.wins}</td>
-                        <td className="p-2 text-center text-red-500 font-semibold">{entry.losses}</td>
-                        <td className="p-2 text-right font-bold">{entry.points}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {ladder && ladder.length > 0 && (() => {
+        // Sort: points desc → match diff desc → set diff desc
+        const sorted = [...ladder].sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points;
+          const aMd = (a.wins ?? 0) - (a.losses ?? 0);
+          const bMd = (b.wins ?? 0) - (b.losses ?? 0);
+          if (bMd !== aMd) return bMd - aMd;
+          return 0;
+        }).map((e, i) => ({ ...e, rank: i + 1 }));
+
+        const top4 = sorted.slice(0, 4);
+        const myEntry = sorted.find(e => e.teamName === team?.name);
+        const myRank = myEntry?.rank ?? null;
+        const inTop4 = myRank != null && myRank <= 4;
+
+        const rankCell = (rank: number) => {
+          if (rank === 1) return <span className="text-base text-yellow-500">🥇</span>;
+          if (rank === 2) return <span className="text-base text-slate-400">🥈</span>;
+          if (rank === 3) return <span className="text-base text-amber-600">🥉</span>;
+          return <span className="font-bold text-muted-foreground">#{rank}</span>;
+        };
+
+        const LadderRow = ({ entry, isMe }: { entry: typeof sorted[0]; isMe: boolean }) => (
+          <tr
+            data-testid={`row-ladder-${entry.teamId}`}
+            className={cn(
+              "border-b transition-colors hover:bg-muted/50",
+              isMe && "bg-primary/5 border-l-4 border-l-primary font-semibold"
+            )}
+          >
+            <td className="p-2">{rankCell(entry.rank)}</td>
+            <td className="p-2">
+              {entry.teamName}
+              {isMe && <Badge variant="outline" className="ml-2 text-[10px]">You</Badge>}
+            </td>
+            <td className="p-2 text-center text-emerald-600 font-semibold">{entry.wins}</td>
+            <td className="p-2 text-center text-red-500 font-semibold">{entry.losses}</td>
+            <td className="p-2 text-right font-bold">{entry.points}</td>
+          </tr>
+        );
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Season Ladder</CardTitle>
+              <CardDescription>{season?.name} — World Rankings</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="h-9 px-2 text-left font-medium text-muted-foreground w-12">Rank</th>
+                      <th className="h-9 px-2 text-left font-medium text-muted-foreground">Team</th>
+                      <th className="h-9 px-2 text-center font-medium text-muted-foreground w-12">W</th>
+                      <th className="h-9 px-2 text-center font-medium text-muted-foreground w-12">L</th>
+                      <th className="h-9 px-2 text-right font-medium text-muted-foreground w-16">Pts</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {top4.map(e => (
+                      <LadderRow key={e.teamId} entry={e} isMe={e.teamName === team?.name} />
+                    ))}
+                    {!inTop4 && myEntry && (
+                      <>
+                        <tr>
+                          <td colSpan={5} className="px-2 py-1">
+                            <div className="border-t border-dashed border-muted-foreground/30" />
+                          </td>
+                        </tr>
+                        <LadderRow entry={myEntry} isMe />
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* ══════════════════════════════════════════════════════════════
           COLLAPSIBLE: FACILITIES
