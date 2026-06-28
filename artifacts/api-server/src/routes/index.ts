@@ -31,6 +31,7 @@ import eventsRouter from "./events";
 import careersRouter from "./careers";
 import boardConfidenceRouter from "./board-confidence";
 import clubTemplatesRouter from "./club-templates";
+import poachingRouter from "./poaching";
 import devRouter from "./dev";
 
 const router: IRouter = Router();
@@ -67,6 +68,7 @@ router.use(eventsRouter);
 router.use(careersRouter);
 router.use(boardConfidenceRouter);
 router.use(clubTemplatesRouter);
+router.use(poachingRouter);
 router.use(devRouter);
 
 export default router;

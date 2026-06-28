@@ -516,3 +516,23 @@ export const hallOfFameTable = pgTable("hall_of_fame", {
 });
 
 export type HallOfFameRecord = typeof hallOfFameTable.$inferSelect;
+
+export const poachingOffersTable = pgTable("poaching_offers", {
+  id:                serial("id").primaryKey(),
+  userId:            varchar("user_id").notNull().references(() => usersTable.id),
+  careerSaveId:      integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  clubName:          varchar("club_name",          { length: 100 }).notNull(),
+  continent:         varchar("continent",          { length: 50  }).notNull(),
+  country:           varchar("country",            { length: 100 }).notNull(),
+  logoColor:         varchar("logo_color",         { length: 20  }).notNull(),
+  salary:            integer("salary").notNull(),
+  contractLength:    integer("contract_length").notNull(),
+  transferBudget:    numeric("transfer_budget",    { precision: 14, scale: 2 }).notNull(),
+  seasonExpectation: varchar("season_expectation", { length: 100 }).notNull(),
+  clubReputation:    integer("club_reputation").notNull(),
+  status:            varchar("status", { length: 20 }).notNull().default("pending"),
+  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type PoachingOffer       = typeof poachingOffersTable.$inferSelect;
+export type InsertPoachingOffer = typeof poachingOffersTable.$inferInsert;

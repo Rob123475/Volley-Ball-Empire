@@ -1373,6 +1373,71 @@ paths:
         "404":
           description: Career save not found
 
+  /poaching/offers:
+    get:
+      operationId: getPoachingOffers
+      tags: [poaching]
+      summary: Get pending poaching offers for the current career save (auto-generates if eligible)
+      responses:
+        "200":
+          description: List of pending poaching offers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoachingOffersResponse"
+        "401":
+          description: Unauthorized
+
+  /poaching/offers/{id}/decline:
+    post:
+      operationId: declinePoachingOffer
+      tags: [poaching]
+      summary: Decline a poaching offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Offer declined
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+        "401":
+          description: Unauthorized
+        "404":
+          description: Offer not found
+
+  /poaching/offers/{id}/accept:
+    post:
+      operationId: acceptPoachingOffer
+      tags: [poaching]
+      summary: Accept a poaching offer and move to the new club
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Offer accepted — manager moved to new club
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptPoachingResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Offer not found
+
   /events/upcoming:
     get:
       operationId: getUpcomingEvents
@@ -4398,4 +4463,57 @@ components:
         newBudget:
           type: string
         clubName:
+          type: string
+
+    PoachingOffer:
+      type: object
+      required: [id, clubName, continent, country, logoColor, salary, contractLength, transferBudget, seasonExpectation, clubReputation, status, createdAt]
+      properties:
+        id:
+          type: integer
+        clubName:
+          type: string
+        continent:
+          type: string
+        country:
+          type: string
+        logoColor:
+          type: string
+        salary:
+          type: integer
+        contractLength:
+          type: integer
+        transferBudget:
+          type: string
+        seasonExpectation:
+          type: string
+        clubReputation:
+          type: integer
+        status:
+          type: string
+          enum: [pending, accepted, declined]
+        createdAt:
+          type: string
+          format: date-time
+
+    PoachingOffersResponse:
+      type: object
+      required: [offers]
+      properties:
+        offers:
+          type: array
+          items:
+            $ref: "#/components/schemas/PoachingOffer"
+
+    AcceptPoachingResult:
+      type: object
+      required: [ok, clubName, teamId, season]
+      properties:
+        ok:
+          type: boolean
+        clubName:
+          type: string
+        teamId:
+          type: integer
+        season:
           type: string

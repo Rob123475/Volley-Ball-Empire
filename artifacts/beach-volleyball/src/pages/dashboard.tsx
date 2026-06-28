@@ -63,6 +63,7 @@ import {
   Home,
 } from "lucide-react";
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
+import { PoachingInbox } from "@/components/career/PoachingInbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useLocation } from "wouter";
@@ -263,6 +264,11 @@ export default function Dashboard() {
   return (
     <>
     <div className="space-y-5">
+
+      {/* ══════════════════════════════════════════════════════════════
+          POACHING INBOX
+      ══════════════════════════════════════════════════════════════ */}
+      <PoachingInbox />
 
       {/* ══════════════════════════════════════════════════════════════
           CLUB HERO BANNER

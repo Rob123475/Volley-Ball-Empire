@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AcceptPoachingResult,
   AchievementStatus,
   ApplyJobRequest,
   ApplyJobResult,
@@ -40,6 +41,7 @@ import type {
   Contract,
   ContractInput,
   Dashboard,
+  DeclinePoachingOffer200,
   DeleteCareerSave200,
   DraftPickInput,
   DraftPlayer,
@@ -73,6 +75,7 @@ import type {
   PlayerSwap,
   PlayerUpdate,
   PlayerWorkload,
+  PoachingOffersResponse,
   PrizeMoneySummary,
   PromoDeal,
   ResignResult,
@@ -5683,6 +5686,223 @@ export const useApplyJob = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getApplyJobMutationOptions(options));
+    }
+
+export const getGetPoachingOffersUrl = () => {
+
+
+
+
+  return `/api/poaching/offers`
+}
+
+/**
+ * @summary Get pending poaching offers for the current career save (auto-generates if eligible)
+ */
+export const getPoachingOffers = async ( options?: RequestInit): Promise<PoachingOffersResponse> => {
+
+  return customFetch<PoachingOffersResponse>(getGetPoachingOffersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPoachingOffersQueryKey = () => {
+    return [
+    `/api/poaching/offers`
+    ] as const;
+    }
+
+
+export const getGetPoachingOffersQueryOptions = <TData = Awaited<ReturnType<typeof getPoachingOffers>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPoachingOffers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPoachingOffersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPoachingOffers>>> = ({ signal }) => getPoachingOffers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPoachingOffers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPoachingOffersQueryResult = NonNullable<Awaited<ReturnType<typeof getPoachingOffers>>>
+export type GetPoachingOffersQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get pending poaching offers for the current career save (auto-generates if eligible)
+ */
+
+export function useGetPoachingOffers<TData = Awaited<ReturnType<typeof getPoachingOffers>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPoachingOffers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPoachingOffersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getDeclinePoachingOfferUrl = (id: number,) => {
+
+
+
+
+  return `/api/poaching/offers/${id}/decline`
+}
+
+/**
+ * @summary Decline a poaching offer
+ */
+export const declinePoachingOffer = async (id: number, options?: RequestInit): Promise<DeclinePoachingOffer200> => {
+
+  return customFetch<DeclinePoachingOffer200>(getDeclinePoachingOfferUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getDeclinePoachingOfferMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof declinePoachingOffer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof declinePoachingOffer>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['declinePoachingOffer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof declinePoachingOffer>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  declinePoachingOffer(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeclinePoachingOfferMutationResult = NonNullable<Awaited<ReturnType<typeof declinePoachingOffer>>>
+
+    export type DeclinePoachingOfferMutationError = ErrorType<void>
+
+    /**
+ * @summary Decline a poaching offer
+ */
+export const useDeclinePoachingOffer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof declinePoachingOffer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof declinePoachingOffer>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeclinePoachingOfferMutationOptions(options));
+    }
+
+export const getAcceptPoachingOfferUrl = (id: number,) => {
+
+
+
+
+  return `/api/poaching/offers/${id}/accept`
+}
+
+/**
+ * @summary Accept a poaching offer and move to the new club
+ */
+export const acceptPoachingOffer = async (id: number, options?: RequestInit): Promise<AcceptPoachingResult> => {
+
+  return customFetch<AcceptPoachingResult>(getAcceptPoachingOfferUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getAcceptPoachingOfferMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof acceptPoachingOffer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof acceptPoachingOffer>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['acceptPoachingOffer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof acceptPoachingOffer>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  acceptPoachingOffer(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AcceptPoachingOfferMutationResult = NonNullable<Awaited<ReturnType<typeof acceptPoachingOffer>>>
+
+    export type AcceptPoachingOfferMutationError = ErrorType<void>
+
+    /**
+ * @summary Accept a poaching offer and move to the new club
+ */
+export const useAcceptPoachingOffer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof acceptPoachingOffer>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof acceptPoachingOffer>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getAcceptPoachingOfferMutationOptions(options));
     }
 
 export const getGetUpcomingEventsUrl = () => {

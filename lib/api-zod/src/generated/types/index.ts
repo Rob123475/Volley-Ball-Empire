@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './acceptPoachingResult';
 export * from './achievement';
 export * from './achievementStatus';
 export * from './achievementStatusCategory';
@@ -46,6 +47,7 @@ export * from './dashboard';
 export * from './dashboardFinanceSummary';
 export * from './dashboardNextMatch';
 export * from './dashboardSeasonStanding';
+export * from './declinePoachingOffer200';
 export * from './deleteCareerSave200';
 export * from './draftPickInput';
 export * from './draftPlayer';
@@ -100,6 +102,9 @@ export * from './playerTrainingFocus';
 export * from './playerUpdate';
 export * from './playerWorkload';
 export * from './playerWorkloadStatus';
+export * from './poachingOffer';
+export * from './poachingOffersResponse';
+export * from './poachingOfferStatus';
 export * from './positionStrength';
 export * from './prizeMoneyCategory';
 export * from './prizeMoneySummary';

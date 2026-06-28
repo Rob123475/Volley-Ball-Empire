@@ -2788,6 +2788,54 @@ export const ApplyJobResponse = zod.object({
 
 
 /**
+ * @summary Get pending poaching offers for the current career save (auto-generates if eligible)
+ */
+export const GetPoachingOffersResponse = zod.object({
+  "offers": zod.array(zod.object({
+  "id": zod.number(),
+  "clubName": zod.string(),
+  "continent": zod.string(),
+  "country": zod.string(),
+  "logoColor": zod.string(),
+  "salary": zod.number(),
+  "contractLength": zod.number(),
+  "transferBudget": zod.string(),
+  "seasonExpectation": zod.string(),
+  "clubReputation": zod.number(),
+  "status": zod.enum(['pending', 'accepted', 'declined']),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+/**
+ * @summary Decline a poaching offer
+ */
+export const DeclinePoachingOfferParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeclinePoachingOfferResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Accept a poaching offer and move to the new club
+ */
+export const AcceptPoachingOfferParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AcceptPoachingOfferResponse = zod.object({
+  "ok": zod.boolean(),
+  "clubName": zod.string(),
+  "teamId": zod.number(),
+  "season": zod.string()
+})
+
+
+/**
  * @summary Get upcoming events and fixtures for the manager's planning view
  */
 export const GetUpcomingEventsResponse = zod.object({

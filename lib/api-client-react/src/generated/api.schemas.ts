@@ -1701,6 +1701,41 @@ export interface BreakContractResult {
   clubName: string;
 }
 
+export type PoachingOfferStatus = typeof PoachingOfferStatus[keyof typeof PoachingOfferStatus];
+
+
+export const PoachingOfferStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  declined: 'declined',
+} as const;
+
+export interface PoachingOffer {
+  id: number;
+  clubName: string;
+  continent: string;
+  country: string;
+  logoColor: string;
+  salary: number;
+  contractLength: number;
+  transferBudget: string;
+  seasonExpectation: string;
+  clubReputation: number;
+  status: PoachingOfferStatus;
+  createdAt: string;
+}
+
+export interface PoachingOffersResponse {
+  offers: PoachingOffer[];
+}
+
+export interface AcceptPoachingResult {
+  ok: boolean;
+  clubName: string;
+  teamId: number;
+  season: string;
+}
+
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;
@@ -1717,6 +1752,10 @@ export type LoadCareerSave200 = {
 };
 
 export type DeleteCareerSave200 = {
+  ok: boolean;
+};
+
+export type DeclinePoachingOffer200 = {
   ok: boolean;
 };
 
