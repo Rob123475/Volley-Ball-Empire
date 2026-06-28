@@ -29,6 +29,10 @@ import YouthResults from "@/pages/youth-results";
 import ContinentalScouting from "@/pages/continental-scouting";
 import MedicalMarket from "@/pages/medical-market";
 import CareerManagement from "@/pages/career-management";
+import ManagerProfile from "@/pages/profile";
+import ManagerContract from "@/pages/manager-contract";
+import JobMarket from "@/pages/job-market";
+import CareerHistory from "@/pages/career-history";
 import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound from "@/pages/not-found";
 
@@ -84,6 +88,10 @@ function Router() {
               <Route path="/achievements" component={Achievements} />
               <Route path="/medical-market" component={MedicalMarket} />
               <Route path="/career" component={CareerManagement} />
+              <Route path="/profile" component={ManagerProfile} />
+              <Route path="/manager-contract" component={ManagerContract} />
+              <Route path="/job-market" component={JobMarket} />
+              <Route path="/career-history" component={CareerHistory} />
               <Route component={NotFound} />
             </Switch>
           </Shell>

@@ -135,9 +135,12 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Career",
     icon: FolderOpen,
     items: [
-      { href: "/career",       label: "Save Slots",  icon: FolderOpen },
-      { href: "/achievements", label: "Achievements", icon: Star       },
-      { href: "/trophy-cabinet", label: "Records",   icon: Flame, neverActive: true },
+      { href: "/profile",          label: "Manager Profile", icon: UserCog  },
+      { href: "/manager-contract", label: "Contract",        icon: FileText },
+      { href: "/job-market",       label: "Job Market",      icon: Briefcase },
+      { href: "/career-history",   label: "Career History",  icon: Activity  },
+      { href: "/achievements",     label: "Achievements",    icon: Star      },
+      { href: "/trophy-cabinet",   label: "Manager Records", icon: Flame, neverActive: true },
     ],
   },
 ];
