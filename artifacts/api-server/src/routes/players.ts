@@ -86,9 +86,66 @@ router.post("/players", async (req, res) => {
 router.get("/players/free-agents", async (req, res) => {
   const freeAgents = await db.select().from(playersTable)
     .where(and(isNull(playersTable.teamId), eq(playersTable.isRetired, false)));
-  // Exclude draft players and any player still holding a development rights marker
-  // (academy players should never appear as free agents — they must go through proper channels)
-  res.json(freeAgents.filter(p => !p.isDraftPlayer && p.academyContractYears == null).map(serializePlayer));
+  // Senior free agents only — youth players have their own pool endpoint
+  res.json(
+    freeAgents
+      .filter(p => !p.isDraftPlayer && p.academyContractYears == null && p.playerType === "senior")
+      .map(serializePlayer)
+  );
+});
+
+// Youth free agent pool — only youth players not on any team
+router.get("/players/youth-pool", async (req, res) => {
+  const { continent } = req.query;
+  const youth = await db.select().from(playersTable)
+    .where(and(isNull(playersTable.teamId), eq(playersTable.isRetired, false)));
+  let result = youth.filter(p => p.playerType === "youth" && p.academyContractYears == null);
+  if (continent && typeof continent === "string") {
+    result = result.filter(p => p.continent === continent);
+  }
+  res.json(result.map(serializePlayer));
+});
+
+// Validation endpoint — checks all 120-player rules
+router.get("/players/validation", async (req, res) => {
+  const all = await db.select().from(playersTable).where(eq(playersTable.isRetired, false));
+
+  const seniors = all.filter(p => p.playerType === "senior");
+  const youth   = all.filter(p => p.playerType === "youth");
+
+  const CONTINENTS = ["Africa", "Asia", "Europe", "North America", "South America", "Oceania"];
+
+  const seniorByCont = Object.fromEntries(
+    CONTINENTS.map(c => [c, seniors.filter(p => p.continent === c).length])
+  );
+  const youthByCont = Object.fromEntries(
+    CONTINENTS.map(c => [c, youth.filter(p => p.continent === c).length])
+  );
+
+  const ageViolations = all.filter(p =>
+    (p.playerType === "senior" && (p.age < 18 || p.age > 40)) ||
+    (p.playerType === "youth"  && (p.age < 14 || p.age > 18))
+  ).map(p => ({ id: p.id, name: p.name, age: p.age, playerType: p.playerType }));
+
+  const errors: string[] = [];
+  if (seniors.length !== 60) errors.push(`Senior count is ${seniors.length}, expected 60`);
+  if (youth.length   !== 60) errors.push(`Youth count is ${youth.length}, expected 60`);
+  CONTINENTS.forEach(c => {
+    if (seniorByCont[c] !== 10) errors.push(`Senior ${c}: ${seniorByCont[c]} (expected 10)`);
+    if (youthByCont[c]  !== 10) errors.push(`Youth ${c}: ${youthByCont[c]} (expected 10)`);
+  });
+  if (ageViolations.length > 0) errors.push(`${ageViolations.length} age violation(s)`);
+
+  res.json({
+    valid: errors.length === 0,
+    totalPlayers: all.length,
+    seniorCount:  seniors.length,
+    youthCount:   youth.length,
+    seniorByCont,
+    youthByCont,
+    ageViolations,
+    errors,
+  });
 });
 
 router.get("/players/:id", async (req, res) => {

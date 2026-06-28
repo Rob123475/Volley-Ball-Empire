@@ -127,6 +127,8 @@ export const playersTable = pgTable("players", {
   doctorQuality: integer("doctor_quality").notNull().default(3),
   isInjured: boolean("is_injured").notNull().default(false),
   imageUrl: varchar("image_url", { length: 500 }),
+  continent: varchar("continent", { length: 30 }),
+  playerType: varchar("player_type", { length: 20 }).notNull().default("senior"),
   contractEndDate: varchar("contract_end_date", { length: 20 }),
   isDraftPlayer: boolean("is_draft_player").notNull().default(false),
   askingPrice: numeric("asking_price", { precision: 10, scale: 2 }),

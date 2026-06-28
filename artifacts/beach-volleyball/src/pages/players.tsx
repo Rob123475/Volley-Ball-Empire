@@ -21,6 +21,7 @@ import {
   Star,
   Search,
   HelpCircle,
+  Globe,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -38,6 +39,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format, addMonths } from "date-fns";
 import { cn } from "@/lib/utils";
+
+const CONTINENTS = ["ALL", "Africa", "Asia", "Europe", "North America", "South America", "Oceania"] as const;
+type ContinentFilter = typeof CONTINENTS[number];
+
+const CONTINENT_FLAG: Record<string, string> = {
+  Africa: "🌍", Asia: "🌏", Europe: "🇪🇺", "North America": "🌎", "South America": "🌎", Oceania: "🌊",
+};
 
 const POSITIONS = ["ALL", "setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
 const POSITION_LABELS: Record<string, string> = {
@@ -124,6 +132,7 @@ export default function PlayerMarket() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [filter, setFilter] = useState<string>("ALL");
+  const [continent, setContinent] = useState<ContinentFilter>("ALL");
   const [search, setSearch] = useState("");
   const { data: players, isLoading } = useListFreeAgents({
     query: { queryKey: getListFreeAgentsQueryKey() }
@@ -140,6 +149,7 @@ export default function PlayerMarket() {
 
   const filteredPlayers = players
     ?.filter(p => filter === "ALL" || normalizePosition(p.position) === filter)
+    ?.filter(p => continent === "ALL" || (p as any).continent === continent)
     ?.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleSign = (playerId: number, values: any) => {
@@ -184,8 +194,11 @@ export default function PlayerMarket() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-primary">Free Agent Market</h2>
-          <p className="text-muted-foreground">Scout and sign the best talent to improve your roster.</p>
+          <h2 className="text-3xl font-bold tracking-tight text-primary">Senior Free Agents</h2>
+          <p className="text-muted-foreground">
+            Scout and sign elite talent from all 6 continents.
+            {players && <span className="ml-2 text-xs font-semibold text-muted-foreground/70">{filteredPlayers?.length ?? 0} of {players.length} shown</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Input
@@ -197,6 +210,22 @@ export default function PlayerMarket() {
         </div>
       </div>
 
+      {/* Continent filter */}
+      <div className="flex gap-2 flex-wrap items-center">
+        <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+        {CONTINENTS.map((c) => (
+          <Button
+            key={c}
+            variant={continent === c ? "default" : "outline"}
+            size="sm"
+            onClick={() => setContinent(c)}
+          >
+            {c === "ALL" ? "All Continents" : `${CONTINENT_FLAG[c]} ${c}`}
+          </Button>
+        ))}
+      </div>
+
+      {/* Position filter */}
       <div className="flex gap-2 flex-wrap">
         {POSITIONS.map((pos) => (
           <Button
@@ -249,6 +278,9 @@ export default function PlayerMarket() {
                     </Badge>
                     <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
                     <div className="text-xs text-white/70">{player.nationality} • {player.age} yrs • {player.height}cm</div>
+                    {(player as any).continent && (
+                      <div className="text-[10px] text-white/50 mt-0.5">{CONTINENT_FLAG[(player as any).continent]} {(player as any).continent}</div>
+                    )}
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-black text-white drop-shadow">{overall}</div>
