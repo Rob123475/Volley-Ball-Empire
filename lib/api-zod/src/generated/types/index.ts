@@ -12,6 +12,8 @@ export * from './achievementStatus';
 export * from './achievementStatusCategory';
 export * from './achievementStatusProgress';
 export * from './achievementTier';
+export * from './aiManagerEvent';
+export * from './aiManagerFeedResponse';
 export * from './applyJobRequest';
 export * from './applyJobResult';
 export * from './attentionItem';

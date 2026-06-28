@@ -2788,6 +2788,22 @@ export const ApplyJobResponse = zod.object({
 
 
 /**
+ * @summary Get recent AI manager movement events (auto-ticks world simulation if cooldown elapsed)
+ */
+export const GetAiManagerFeedResponse = zod.object({
+  "events": zod.array(zod.object({
+  "id": zod.number(),
+  "managerName": zod.string(),
+  "eventType": zod.string(),
+  "fromClub": zod.string().nullish(),
+  "toClub": zod.string().nullish(),
+  "description": zod.string(),
+  "occurredAt": zod.coerce.date()
+}))
+})
+
+
+/**
  * @summary Get pending poaching offers for the current career save (auto-generates if eligible)
  */
 export const GetPoachingOffersResponse = zod.object({

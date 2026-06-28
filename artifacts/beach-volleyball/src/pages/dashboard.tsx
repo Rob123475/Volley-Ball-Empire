@@ -10,6 +10,7 @@ import {
   useGetTeamStrength,
   useGetWorldTourNews,
   useGetUpcomingEvents,
+  useGetAiManagerFeed,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
@@ -21,6 +22,7 @@ import {
   getGetTeamStrengthQueryKey,
   getGetWorldTourNewsQueryKey,
   getGetUpcomingEventsQueryKey,
+  getGetAiManagerFeedQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -192,6 +194,9 @@ export default function Dashboard() {
   });
   const { data: upcomingEvents } = useGetUpcomingEvents({
     query: { queryKey: getGetUpcomingEventsQueryKey() },
+  });
+  const { data: aiManagerFeed } = useGetAiManagerFeed({
+    query: { queryKey: getGetAiManagerFeedQueryKey() },
   });
 
   if (dashLoading || seasonLoading) {
@@ -600,6 +605,13 @@ export default function Dashboard() {
           WORLD TOUR NEWS FEED
       ══════════════════════════════════════════════════════════════ */}
       {worldNews && <WorldTourNewsFeed items={worldNews.items} />}
+
+      {/* ══════════════════════════════════════════════════════════════
+          AI MANAGER MOVEMENTS
+      ══════════════════════════════════════════════════════════════ */}
+      {aiManagerFeed && aiManagerFeed.events.length > 0 && (
+        <ManagerMovementsFeed events={aiManagerFeed.events} />
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           TEAM STRENGTH OVERVIEW
@@ -1668,6 +1680,71 @@ function AttentionPanel({ items }: { items: AttentionItem[] }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// ── AI Manager Movements Feed ─────────────────────────────────────────────────
+
+type AiEvent = import("@workspace/api-client-react").AiManagerEvent;
+
+const AI_EVENT_META: Record<string, { dot: string; pill: string; icon: string; label: string }> = {
+  hired:    { dot: "bg-emerald-400", pill: "bg-emerald-400/10 text-emerald-400 border-emerald-400/30", icon: "📋", label: "APPOINTED" },
+  fired:    { dot: "bg-red-400",     pill: "bg-red-400/10     text-red-400     border-red-400/30",     icon: "🔴", label: "SACKED"     },
+  retired:  { dot: "bg-amber-400",   pill: "bg-amber-400/10   text-amber-400   border-amber-400/30",   icon: "🌅", label: "RETIRED"    },
+  promoted: { dot: "bg-violet-400",  pill: "bg-violet-400/10  text-violet-400  border-violet-400/30",  icon: "⬆️", label: "PROMOTED"   },
+  moved:    { dot: "bg-sky-400",     pill: "bg-sky-400/10     text-sky-400     border-sky-400/30",     icon: "🔄", label: "TRANSFER"   },
+};
+const AI_EVENT_FALLBACK = AI_EVENT_META.hired!;
+
+function ManagerMovementsFeed({ events }: { events: AiEvent[] }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/80 shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.06),_transparent_55%)] pointer-events-none" />
+
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-white/8">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-violet-400/15 border border-violet-400/30 flex items-center justify-center text-xl">
+              🧑‍💼
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white leading-none">Manager Movements</h3>
+              <div className="text-[11px] text-white/50 mt-0.5">World coaching carousel</div>
+            </div>
+          </div>
+          <div className="text-[10px] font-bold text-violet-400 bg-violet-400/10 border border-violet-400/20 rounded-full px-2.5 py-1">
+            WORLD
+          </div>
+        </div>
+
+        {/* Events list */}
+        <div className="divide-y divide-white/5">
+          {events.slice(0, 8).map((ev) => {
+            const meta = AI_EVENT_META[ev.eventType] ?? AI_EVENT_FALLBACK;
+            return (
+              <div key={ev.id} className="flex items-start gap-3 px-5 py-3.5">
+                <div className={cn("mt-2 h-2 w-2 rounded-full shrink-0", meta.dot)} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <span className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
+                      meta.pill
+                    )}>
+                      {meta.icon} {meta.label}
+                    </span>
+                    {ev.toClub && (
+                      <span className="text-[10px] text-white/40 font-semibold">{ev.toClub}</span>
+                    )}
+                  </div>
+                  <div className="text-sm text-white/85 leading-snug">{ev.description}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -1736,6 +1736,20 @@ export interface AcceptPoachingResult {
   season: string;
 }
 
+export interface AiManagerEvent {
+  id: number;
+  managerName: string;
+  eventType: string;
+  fromClub?: string | null;
+  toClub?: string | null;
+  description: string;
+  occurredAt: string;
+}
+
+export interface AiManagerFeedResponse {
+  events: AiManagerEvent[];
+}
+
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;

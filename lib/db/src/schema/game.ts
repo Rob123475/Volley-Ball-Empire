@@ -536,3 +536,29 @@ export const poachingOffersTable = pgTable("poaching_offers", {
 
 export type PoachingOffer       = typeof poachingOffersTable.$inferSelect;
 export type InsertPoachingOffer = typeof poachingOffersTable.$inferInsert;
+
+// ── AI Manager World Simulation ───────────────────────────────────────────────
+
+export const aiManagersTable = pgTable("ai_managers", {
+  id:                    serial("id").primaryKey(),
+  name:                  varchar("name",         { length: 100 }).notNull(),
+  reputation:            integer("reputation").notNull().default(50),
+  currentClub:           varchar("current_club", { length: 100 }),
+  currentClubReputation: integer("current_club_reputation"),
+  status:                varchar("status", { length: 20 }).notNull().default("active"),
+  hiredAt:               timestamp("hired_at",   { withTimezone: true }),
+  createdAt:             timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const aiManagerEventsTable = pgTable("ai_manager_events", {
+  id:          serial("id").primaryKey(),
+  managerName: varchar("manager_name", { length: 100 }).notNull(),
+  eventType:   varchar("event_type",   { length: 30  }).notNull(),
+  fromClub:    varchar("from_club",    { length: 100 }),
+  toClub:      varchar("to_club",      { length: 100 }),
+  description: text("description").notNull(),
+  occurredAt:  timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type AiManager      = typeof aiManagersTable.$inferSelect;
+export type AiManagerEvent = typeof aiManagerEventsTable.$inferSelect;

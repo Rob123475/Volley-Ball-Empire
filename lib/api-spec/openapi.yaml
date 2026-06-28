@@ -1373,6 +1373,19 @@ paths:
         "404":
           description: Career save not found
 
+  /ai-managers/feed:
+    get:
+      operationId: getAiManagerFeed
+      tags: [ai-managers]
+      summary: Get recent AI manager movement events (auto-ticks world simulation if cooldown elapsed)
+      responses:
+        "200":
+          description: Recent manager movement events
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiManagerFeedResponse"
+
   /poaching/offers:
     get:
       operationId: getPoachingOffers
@@ -4517,3 +4530,34 @@ components:
           type: integer
         season:
           type: string
+
+    AiManagerEvent:
+      type: object
+      required: [id, managerName, eventType, description, occurredAt]
+      properties:
+        id:
+          type: integer
+        managerName:
+          type: string
+        eventType:
+          type: string
+        fromClub:
+          type: string
+          nullable: true
+        toClub:
+          type: string
+          nullable: true
+        description:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+
+    AiManagerFeedResponse:
+      type: object
+      required: [events]
+      properties:
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiManagerEvent"

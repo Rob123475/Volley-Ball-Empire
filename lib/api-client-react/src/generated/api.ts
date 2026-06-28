@@ -22,6 +22,7 @@ import type {
 import type {
   AcceptPoachingResult,
   AchievementStatus,
+  AiManagerFeedResponse,
   ApplyJobRequest,
   ApplyJobResult,
   AttentionItemsResponse,
@@ -5687,6 +5688,83 @@ export const useApplyJob = <TError = ErrorType<void>,
       > => {
       return useMutation(getApplyJobMutationOptions(options));
     }
+
+export const getGetAiManagerFeedUrl = () => {
+
+
+
+
+  return `/api/ai-managers/feed`
+}
+
+/**
+ * @summary Get recent AI manager movement events (auto-ticks world simulation if cooldown elapsed)
+ */
+export const getAiManagerFeed = async ( options?: RequestInit): Promise<AiManagerFeedResponse> => {
+
+  return customFetch<AiManagerFeedResponse>(getGetAiManagerFeedUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAiManagerFeedQueryKey = () => {
+    return [
+    `/api/ai-managers/feed`
+    ] as const;
+    }
+
+
+export const getGetAiManagerFeedQueryOptions = <TData = Awaited<ReturnType<typeof getAiManagerFeed>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiManagerFeed>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAiManagerFeedQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAiManagerFeed>>> = ({ signal }) => getAiManagerFeed({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAiManagerFeed>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAiManagerFeedQueryResult = NonNullable<Awaited<ReturnType<typeof getAiManagerFeed>>>
+export type GetAiManagerFeedQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get recent AI manager movement events (auto-ticks world simulation if cooldown elapsed)
+ */
+
+export function useGetAiManagerFeed<TData = Awaited<ReturnType<typeof getAiManagerFeed>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiManagerFeed>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAiManagerFeedQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetPoachingOffersUrl = () => {
 
