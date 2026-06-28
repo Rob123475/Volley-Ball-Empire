@@ -5,10 +5,9 @@
  * Each imageKey maps to a URL, type, role/continent, and style metadata.
  *
  * Priority chain used by the portrait components:
- *   1. Explicit imageUrl stored on the DB record
- *   2. imageKey → URL from this registry
- *   3. Deterministic /players/{prefix}-{continent}-{index}.png (players only)
- *   4. Initials avatar fallback — never a blank box
+ *   1. Explicit imageUrl stored on the DB record (non-legacy path)
+ *   2. /images/players/{seniors|youth}/{name-slug}.png — per-player individual file
+ *   3. Initials avatar fallback — never a blank box (on 404 or missing imageUrl)
  *
  * Adding real portraits:
  *   Drop PNGs/JPGs into the appropriate public/images/ subfolder, then update
@@ -47,12 +46,6 @@ export type ImageEntry = PlayerImageEntry | StaffImageEntry;
 
 // ── URL builders ──────────────────────────────────────────────────────────────
 
-const DICEBEAR_SENIOR = (seed: string) =>
-  `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc`;
-
-const DICEBEAR_YOUTH = (seed: string) =>
-  `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc`;
-
 const DICEBEAR_STAFF = (seed: string) =>
   `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(seed)}_staff&backgroundColor=b6e3f4,ffd5dc,d1d4f9`;
 
@@ -85,22 +78,21 @@ function buildPlayerRegistry(): Record<string, PlayerImageEntry> {
     for (let i = 1; i <= 10; i++) {
       const idx = String(i).padStart(2, "0");
 
-      // Senior
+      // Senior — individual portrait file convention: /images/players/seniors/{imageKey}.png
       const sk = `ps_${slug}_${idx}`;
       out[sk] = {
         imageKey:  sk,
-        // Use existing local asset — falls back to DiceBear if file absent
-        imageUrl:  `/players/s-${slug}-${idx}.png`,
+        imageUrl:  `/images/players/seniors/${sk}.png`,
         type:      "senior",
         continent: CONTINENT_LABEL[slug] ?? slug,
         style:     "realistic",
       };
 
-      // Youth (illustrated/cartoon)
+      // Youth — individual portrait file convention: /images/players/youth/{imageKey}.png
       const yk = `py_${slug}_${idx}`;
       out[yk] = {
         imageKey:  yk,
-        imageUrl:  `/players/y-${slug}-${idx}.png`,
+        imageUrl:  `/images/players/youth/${yk}.png`,
         type:      "youth",
         continent: CONTINENT_LABEL[slug] ?? slug,
         style:     "cartoon",

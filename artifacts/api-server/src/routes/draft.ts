@@ -13,44 +13,6 @@ const serializePlayer = (p: any) => ({
   askingPrice: p.askingPrice ? Number(p.askingPrice) : null,
 });
 
-// ── Portrait URL helpers ────────────────────────────────────────────────────
-
-const NATIONALITY_CONTINENT: Record<string, string> = {
-  Japan: "Asia", "South Korea": "Asia", China: "Asia", India: "Asia",
-  Thailand: "Asia", Indonesia: "Asia", Philippines: "Asia", Vietnam: "Asia",
-  Germany: "Europe", France: "Europe", Italy: "Europe", Spain: "Europe",
-  Norway: "Europe", Sweden: "Europe", Denmark: "Europe", Netherlands: "Europe",
-  Switzerland: "Europe", Poland: "Europe", Greece: "Europe", Portugal: "Europe",
-  Austria: "Europe", Belgium: "Europe", Russia: "Europe",
-  USA: "North America", Canada: "North America", Mexico: "North America",
-  Brazil: "South America", Argentina: "South America", Colombia: "South America",
-  Chile: "South America", Peru: "South America", Venezuela: "South America",
-  Ecuador: "South America", Uruguay: "South America",
-  Nigeria: "Africa", Ghana: "Africa", Kenya: "Africa", Egypt: "Africa",
-  "South Africa": "Africa", Ethiopia: "Africa", Senegal: "Africa",
-  Tanzania: "Africa", Cameroon: "Africa", Morocco: "Africa",
-  Australia: "Oceania", "New Zealand": "Oceania", Fiji: "Oceania",
-};
-
-const CONTINENT_SLUG: Record<string, string> = {
-  Africa: "africa", Asia: "asia", Europe: "europe",
-  "North America": "northam", "South America": "southam", Oceania: "oceania",
-};
-
-function nameHash(name: string): number {
-  let h = 0;
-  for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return h % 10;
-}
-
-function getPortraitUrl(name: string, continent: string | null | undefined, playerType: string, nationality?: string): string {
-  const resolved = continent ?? (nationality ? NATIONALITY_CONTINENT[nationality] : null) ?? "Europe";
-  const slug     = CONTINENT_SLUG[resolved] ?? "europe";
-  const prefix   = playerType === "youth" ? "y" : "s";
-  return `/players/${prefix}-${slug}-${String(nameHash(name) + 1).padStart(2, "0")}.png`;
-}
-
-
 // ── Youth generation helpers ───────────────────────────────────────────────
 
 const YOUTH_NAMES = [
@@ -142,7 +104,7 @@ router.post("/draft/generate-class", async (req, res) => {
       isActive:  false,
       isRetired: false,
       injuryStatus: "Healthy",
-      imageUrl: getPortraitUrl(name, null, "youth", nationality),
+      imageUrl: null,
     }).returning();
 
     newPlayers.push({ ...serializePlayer(player), available: true });

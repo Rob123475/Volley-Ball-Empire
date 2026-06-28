@@ -51,7 +51,10 @@ function nameHash(name: string): number {
   return h % 10;
 }
 
-/** Build a `/players/…` URL from player identity data */
+/**
+ * @deprecated Old contact-sheet pool paths — kept only for reference.
+ * Components no longer call this; individual portrait files are used instead.
+ */
 export function getPortraitUrl(
   name: string,
   continent: string | null | undefined,
@@ -66,6 +69,30 @@ export function getPortraitUrl(
   const prefix = playerType === "youth" ? "y" : "s";
   const index  = nameHash(name) + 1;
   return `/players/${prefix}-${slug}-${String(index).padStart(2, "0")}.png`;
+}
+
+/** Regex that matches the legacy contact-sheet pool paths — no longer used */
+const LEGACY_POOL_PATH = /^\/players\//;
+
+/** Filename-safe slug derived from a player's display name */
+function nameSlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+/**
+ * Resolve the best portrait src for a player.
+ * - Explicit imageUrl (non-legacy) wins.
+ * - Otherwise attempts the per-player file in public/images/players/{folder}/.
+ * - On 404 the component's onError handler shows initials — never a blank box.
+ */
+export function resolvePortraitSrc(
+  imageUrl:   string | null | undefined,
+  name:       string,
+  playerType: string | null | undefined,
+): string {
+  if (imageUrl && !LEGACY_POOL_PATH.test(imageUrl)) return imageUrl;
+  const folder = playerType === "youth" ? "youth" : "seniors";
+  return `/images/players/${folder}/${nameSlug(name)}.png`;
 }
 
 // ── Continent placeholder colours ─────────────────────────────────────────────
@@ -120,9 +147,9 @@ export function PlayerPortrait({
   const colors = CONTINENT_COLORS[resolved] ?? DEFAULT_COLOR;
   const ini    = initials(name);
 
-  const src = imageUrl ?? getPortraitUrl(name, continent, playerType, nationality);
+  const src = resolvePortraitSrc(imageUrl, name, playerType);
 
-  if (failed || !src) {
+  if (failed) {
     // Styled initials placeholder — never shows a blank box
     return (
       <div
@@ -185,11 +212,11 @@ export function AvatarPortrait({
     "Europe";
   const colors = CONTINENT_COLORS[resolved] ?? DEFAULT_COLOR;
   const ini    = initials(name);
-  const src    = imageUrl ?? getPortraitUrl(name, continent, playerType, nationality);
+  const src    = resolvePortraitSrc(imageUrl, name, playerType);
 
   const style: React.CSSProperties = { width: size, height: size, minWidth: size };
 
-  if (failed || !src) {
+  if (failed) {
     return (
       <div
         className={`rounded-full shrink-0 flex items-center justify-center font-black select-none ${className}`}
