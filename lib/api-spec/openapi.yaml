@@ -938,6 +938,100 @@ paths:
                 items:
                   $ref: "#/components/schemas/LadderEntry"
 
+  /history/seasons:
+    get:
+      operationId: listHistorySeasons
+      tags: [history]
+      summary: List all seasons (completed and active) for history archive
+      responses:
+        "200":
+          description: Season list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistorySeason"
+
+  /history/seasons/{year}/standings:
+    get:
+      operationId: getHistoryStandings
+      tags: [history]
+      summary: Get final senior and youth standings for a completed season year
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Final standings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryStandingsResponse"
+
+  /history/seasons/{year}/summary:
+    get:
+      operationId: getHistorySeasonSummary
+      tags: [history]
+      summary: Get trophies and result summary for a completed season year
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Season summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistorySeasonSummaryResponse"
+
+  /history/records:
+    get:
+      operationId: getHistoryRecords
+      tags: [history]
+      summary: Get all-time career records and statistics
+      responses:
+        "200":
+          description: Career records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryRecordsResponse"
+
+  /history/manager-seasons:
+    get:
+      operationId: getHistoryManagerSeasons
+      tags: [history]
+      summary: Get per-season manager career summary
+      responses:
+        "200":
+          description: Manager season history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryManagerSeasonRow"
+
+  /history/hall-of-fame:
+    get:
+      operationId: getHistoryHallOfFame
+      tags: [history]
+      summary: Get hall of fame inductees (players, clubs, manager record)
+      responses:
+        "200":
+          description: Hall of fame
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryHofResponse"
+
   /finances:
     get:
       operationId: listFinances
@@ -4606,3 +4700,216 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AiManagerEvent"
+
+    HistorySeason:
+      type: object
+      required: [id, year, name, status]
+      properties:
+        id:
+          type: integer
+        year:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+
+    HistoryStandingRow:
+      type: object
+      required: [rank, competitorName, isPlayer, wins, losses, points, setDiff]
+      properties:
+        rank:
+          type: integer
+        competitorName:
+          type: string
+        isPlayer:
+          type: boolean
+        wins:
+          type: integer
+        losses:
+          type: integer
+        points:
+          type: integer
+        setDiff:
+          type: integer
+
+    HistoryYouthRow:
+      type: object
+      required: [rank, teamName, isPlayer, wins, losses, points]
+      properties:
+        rank:
+          type: integer
+        teamName:
+          type: string
+        isPlayer:
+          type: boolean
+        wins:
+          type: integer
+        losses:
+          type: integer
+        points:
+          type: integer
+
+    HistoryStandingsResponse:
+      type: object
+      required: [seniors, youth, hasSnapshot]
+      properties:
+        seniors:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryStandingRow"
+        youth:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryYouthRow"
+        hasSnapshot:
+          type: boolean
+
+    HistoryTrophyEntry:
+      type: object
+      required: [type, name]
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        continent:
+          type: string
+          nullable: true
+        locationName:
+          type: string
+          nullable: true
+
+    HistorySeasonSummaryResponse:
+      type: object
+      required: [year, trophies, worldResult, continentalResult, youthResult, wins, losses, leaguePosition]
+      properties:
+        year:
+          type: integer
+        trophies:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryTrophyEntry"
+        worldResult:
+          type: string
+          nullable: true
+        continentalResult:
+          type: string
+          nullable: true
+        youthResult:
+          type: string
+          nullable: true
+        wins:
+          type: integer
+        losses:
+          type: integer
+        leaguePosition:
+          type: integer
+          nullable: true
+        budgetSnapshot:
+          type: number
+          nullable: true
+
+    HistoryRecordsResponse:
+      type: object
+      required: [worldChampionships, continentalTitles, olympicGolds, totalWins, totalLosses, winRate, bestStreak, seasonsCompleted, perfectSeasons, highestBalance]
+      properties:
+        worldChampionships:
+          type: integer
+        continentalTitles:
+          type: integer
+        olympicGolds:
+          type: integer
+        totalWins:
+          type: integer
+        totalLosses:
+          type: integer
+        winRate:
+          type: number
+        bestStreak:
+          type: integer
+        seasonsCompleted:
+          type: integer
+        perfectSeasons:
+          type: integer
+        highestBalance:
+          type: number
+
+    HistoryManagerSeasonRow:
+      type: object
+      required: [seasonYear, clubName, wins, losses]
+      properties:
+        seasonYear:
+          type: integer
+        clubName:
+          type: string
+        leaguePosition:
+          type: integer
+          nullable: true
+        wins:
+          type: integer
+        losses:
+          type: integer
+        budgetSnapshot:
+          type: number
+          nullable: true
+        worldResult:
+          type: string
+          nullable: true
+        continentalResult:
+          type: string
+          nullable: true
+        youthResult:
+          type: string
+          nullable: true
+
+    HistoryHofPlayer:
+      type: object
+      required: [id, name, position, peakRating, worldTitles, careerWins, retiredSeason]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: string
+        peakRating:
+          type: integer
+        worldTitles:
+          type: integer
+        careerWins:
+          type: integer
+        retiredSeason:
+          type: string
+
+    HistoryHofManagerEntry:
+      type: object
+      required: [managerName, clubName, worldTitles, olympicMedals, totalWins, totalLosses, season]
+      properties:
+        managerName:
+          type: string
+        clubName:
+          type: string
+        worldTitles:
+          type: integer
+        olympicMedals:
+          type: integer
+        totalWins:
+          type: integer
+        totalLosses:
+          type: integer
+        season:
+          type: string
+
+    HistoryHofResponse:
+      type: object
+      required: [players, managerEntries]
+      properties:
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryHofPlayer"
+        managerEntries:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryHofManagerEntry"

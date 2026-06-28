@@ -56,6 +56,12 @@ import type {
   HallOfFameEntry,
   HealthStatus,
   HireMedicalStaffBody,
+  HistoryHofResponse,
+  HistoryManagerSeasonRow,
+  HistoryRecordsResponse,
+  HistorySeason,
+  HistorySeasonSummaryResponse,
+  HistoryStandingsResponse,
   InjuryHistoryEntry,
   LadderEntry,
   LeaderboardEntry,
@@ -3825,6 +3831,468 @@ export function useGetSeasonLadder<TData = Awaited<ReturnType<typeof getSeasonLa
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSeasonLadderQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListHistorySeasonsUrl = () => {
+
+
+
+
+  return `/api/history/seasons`
+}
+
+/**
+ * @summary List all seasons (completed and active) for history archive
+ */
+export const listHistorySeasons = async ( options?: RequestInit): Promise<HistorySeason[]> => {
+
+  return customFetch<HistorySeason[]>(getListHistorySeasonsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListHistorySeasonsQueryKey = () => {
+    return [
+    `/api/history/seasons`
+    ] as const;
+    }
+
+
+export const getListHistorySeasonsQueryOptions = <TData = Awaited<ReturnType<typeof listHistorySeasons>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listHistorySeasons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListHistorySeasonsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listHistorySeasons>>> = ({ signal }) => listHistorySeasons({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listHistorySeasons>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListHistorySeasonsQueryResult = NonNullable<Awaited<ReturnType<typeof listHistorySeasons>>>
+export type ListHistorySeasonsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all seasons (completed and active) for history archive
+ */
+
+export function useListHistorySeasons<TData = Awaited<ReturnType<typeof listHistorySeasons>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listHistorySeasons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListHistorySeasonsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHistoryStandingsUrl = (year: number,) => {
+
+
+
+
+  return `/api/history/seasons/${year}/standings`
+}
+
+/**
+ * @summary Get final senior and youth standings for a completed season year
+ */
+export const getHistoryStandings = async (year: number, options?: RequestInit): Promise<HistoryStandingsResponse> => {
+
+  return customFetch<HistoryStandingsResponse>(getGetHistoryStandingsUrl(year),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHistoryStandingsQueryKey = (year: number,) => {
+    return [
+    `/api/history/seasons/${year}/standings`
+    ] as const;
+    }
+
+
+export const getGetHistoryStandingsQueryOptions = <TData = Awaited<ReturnType<typeof getHistoryStandings>>, TError = ErrorType<unknown>>(year: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryStandings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHistoryStandingsQueryKey(year);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHistoryStandings>>> = ({ signal }) => getHistoryStandings(year, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(year), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHistoryStandings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHistoryStandingsQueryResult = NonNullable<Awaited<ReturnType<typeof getHistoryStandings>>>
+export type GetHistoryStandingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get final senior and youth standings for a completed season year
+ */
+
+export function useGetHistoryStandings<TData = Awaited<ReturnType<typeof getHistoryStandings>>, TError = ErrorType<unknown>>(
+ year: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryStandings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHistoryStandingsQueryOptions(year,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHistorySeasonSummaryUrl = (year: number,) => {
+
+
+
+
+  return `/api/history/seasons/${year}/summary`
+}
+
+/**
+ * @summary Get trophies and result summary for a completed season year
+ */
+export const getHistorySeasonSummary = async (year: number, options?: RequestInit): Promise<HistorySeasonSummaryResponse> => {
+
+  return customFetch<HistorySeasonSummaryResponse>(getGetHistorySeasonSummaryUrl(year),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHistorySeasonSummaryQueryKey = (year: number,) => {
+    return [
+    `/api/history/seasons/${year}/summary`
+    ] as const;
+    }
+
+
+export const getGetHistorySeasonSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getHistorySeasonSummary>>, TError = ErrorType<unknown>>(year: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistorySeasonSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHistorySeasonSummaryQueryKey(year);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHistorySeasonSummary>>> = ({ signal }) => getHistorySeasonSummary(year, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(year), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHistorySeasonSummary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHistorySeasonSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getHistorySeasonSummary>>>
+export type GetHistorySeasonSummaryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get trophies and result summary for a completed season year
+ */
+
+export function useGetHistorySeasonSummary<TData = Awaited<ReturnType<typeof getHistorySeasonSummary>>, TError = ErrorType<unknown>>(
+ year: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistorySeasonSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHistorySeasonSummaryQueryOptions(year,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHistoryRecordsUrl = () => {
+
+
+
+
+  return `/api/history/records`
+}
+
+/**
+ * @summary Get all-time career records and statistics
+ */
+export const getHistoryRecords = async ( options?: RequestInit): Promise<HistoryRecordsResponse> => {
+
+  return customFetch<HistoryRecordsResponse>(getGetHistoryRecordsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHistoryRecordsQueryKey = () => {
+    return [
+    `/api/history/records`
+    ] as const;
+    }
+
+
+export const getGetHistoryRecordsQueryOptions = <TData = Awaited<ReturnType<typeof getHistoryRecords>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryRecords>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHistoryRecordsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHistoryRecords>>> = ({ signal }) => getHistoryRecords({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHistoryRecords>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHistoryRecordsQueryResult = NonNullable<Awaited<ReturnType<typeof getHistoryRecords>>>
+export type GetHistoryRecordsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get all-time career records and statistics
+ */
+
+export function useGetHistoryRecords<TData = Awaited<ReturnType<typeof getHistoryRecords>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryRecords>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHistoryRecordsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHistoryManagerSeasonsUrl = () => {
+
+
+
+
+  return `/api/history/manager-seasons`
+}
+
+/**
+ * @summary Get per-season manager career summary
+ */
+export const getHistoryManagerSeasons = async ( options?: RequestInit): Promise<HistoryManagerSeasonRow[]> => {
+
+  return customFetch<HistoryManagerSeasonRow[]>(getGetHistoryManagerSeasonsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHistoryManagerSeasonsQueryKey = () => {
+    return [
+    `/api/history/manager-seasons`
+    ] as const;
+    }
+
+
+export const getGetHistoryManagerSeasonsQueryOptions = <TData = Awaited<ReturnType<typeof getHistoryManagerSeasons>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryManagerSeasons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHistoryManagerSeasonsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHistoryManagerSeasons>>> = ({ signal }) => getHistoryManagerSeasons({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHistoryManagerSeasons>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHistoryManagerSeasonsQueryResult = NonNullable<Awaited<ReturnType<typeof getHistoryManagerSeasons>>>
+export type GetHistoryManagerSeasonsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get per-season manager career summary
+ */
+
+export function useGetHistoryManagerSeasons<TData = Awaited<ReturnType<typeof getHistoryManagerSeasons>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryManagerSeasons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHistoryManagerSeasonsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHistoryHallOfFameUrl = () => {
+
+
+
+
+  return `/api/history/hall-of-fame`
+}
+
+/**
+ * @summary Get hall of fame inductees (players, clubs, manager record)
+ */
+export const getHistoryHallOfFame = async ( options?: RequestInit): Promise<HistoryHofResponse> => {
+
+  return customFetch<HistoryHofResponse>(getGetHistoryHallOfFameUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHistoryHallOfFameQueryKey = () => {
+    return [
+    `/api/history/hall-of-fame`
+    ] as const;
+    }
+
+
+export const getGetHistoryHallOfFameQueryOptions = <TData = Awaited<ReturnType<typeof getHistoryHallOfFame>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHistoryHallOfFameQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHistoryHallOfFame>>> = ({ signal }) => getHistoryHallOfFame({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHistoryHallOfFame>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHistoryHallOfFameQueryResult = NonNullable<Awaited<ReturnType<typeof getHistoryHallOfFame>>>
+export type GetHistoryHallOfFameQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get hall of fame inductees (players, clubs, manager record)
+ */
+
+export function useGetHistoryHallOfFame<TData = Awaited<ReturnType<typeof getHistoryHallOfFame>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHistoryHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHistoryHallOfFameQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

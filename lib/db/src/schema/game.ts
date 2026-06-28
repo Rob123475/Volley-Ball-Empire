@@ -385,6 +385,40 @@ export const activeCampsTable = pgTable("active_camps", {
 
 export type ActiveCamp = typeof activeCampsTable.$inferSelect;
 
+export const seasonFinalStandingsTable = pgTable("season_final_standings", {
+  id:             serial("id").primaryKey(),
+  teamId:         integer("team_id").notNull().references(() => teamsTable.id),
+  seasonYear:     integer("season_year").notNull(),
+  rank:           integer("rank").notNull(),
+  competitorName: varchar("competitor_name", { length: 100 }).notNull(),
+  isPlayer:       boolean("is_player").notNull().default(false),
+  wins:           integer("wins").notNull().default(0),
+  losses:         integer("losses").notNull().default(0),
+  points:         integer("points").notNull().default(0),
+  setDiff:        integer("set_diff").notNull().default(0),
+  createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type SeasonFinalStanding = typeof seasonFinalStandingsTable.$inferSelect;
+
+export const managerSeasonSummaryTable = pgTable("manager_season_summaries", {
+  id:                serial("id").primaryKey(),
+  userId:            varchar("user_id").notNull().references(() => usersTable.id),
+  teamId:            integer("team_id").references(() => teamsTable.id),
+  seasonYear:        integer("season_year").notNull(),
+  clubName:          varchar("club_name",   { length: 100 }).notNull(),
+  leaguePosition:    integer("league_position"),
+  wins:              integer("wins").notNull().default(0),
+  losses:            integer("losses").notNull().default(0),
+  budgetSnapshot:    numeric("budget_snapshot", { precision: 14, scale: 2 }),
+  worldResult:       varchar("world_result",      { length: 100 }),
+  continentalResult: varchar("continental_result",{ length: 100 }),
+  youthResult:       varchar("youth_result",      { length: 100 }),
+  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ManagerSeasonSummary = typeof managerSeasonSummaryTable.$inferSelect;
+
 export const injuryHistoryTable = pgTable("injury_history", {
   id:          serial("id").primaryKey(),
   teamId:      integer("team_id").notNull().references(() => teamsTable.id),

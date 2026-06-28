@@ -2349,6 +2349,131 @@ export const GetSeasonLadderResponse = zod.array(GetSeasonLadderResponseItem)
 
 
 /**
+ * @summary List all seasons (completed and active) for history archive
+ */
+export const ListHistorySeasonsResponseItem = zod.object({
+  "id": zod.number(),
+  "year": zod.number(),
+  "name": zod.string(),
+  "status": zod.string()
+})
+export const ListHistorySeasonsResponse = zod.array(ListHistorySeasonsResponseItem)
+
+
+/**
+ * @summary Get final senior and youth standings for a completed season year
+ */
+export const GetHistoryStandingsParams = zod.object({
+  "year": zod.coerce.number()
+})
+
+export const GetHistoryStandingsResponse = zod.object({
+  "seniors": zod.array(zod.object({
+  "rank": zod.number(),
+  "competitorName": zod.string(),
+  "isPlayer": zod.boolean(),
+  "wins": zod.number(),
+  "losses": zod.number(),
+  "points": zod.number(),
+  "setDiff": zod.number()
+})),
+  "youth": zod.array(zod.object({
+  "rank": zod.number(),
+  "teamName": zod.string(),
+  "isPlayer": zod.boolean(),
+  "wins": zod.number(),
+  "losses": zod.number(),
+  "points": zod.number()
+})),
+  "hasSnapshot": zod.boolean()
+})
+
+
+/**
+ * @summary Get trophies and result summary for a completed season year
+ */
+export const GetHistorySeasonSummaryParams = zod.object({
+  "year": zod.coerce.number()
+})
+
+export const GetHistorySeasonSummaryResponse = zod.object({
+  "year": zod.number(),
+  "trophies": zod.array(zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish()
+})),
+  "worldResult": zod.string().nullable(),
+  "continentalResult": zod.string().nullable(),
+  "youthResult": zod.string().nullable(),
+  "wins": zod.number(),
+  "losses": zod.number(),
+  "leaguePosition": zod.number().nullable(),
+  "budgetSnapshot": zod.number().nullish()
+})
+
+
+/**
+ * @summary Get all-time career records and statistics
+ */
+export const GetHistoryRecordsResponse = zod.object({
+  "worldChampionships": zod.number(),
+  "continentalTitles": zod.number(),
+  "olympicGolds": zod.number(),
+  "totalWins": zod.number(),
+  "totalLosses": zod.number(),
+  "winRate": zod.number(),
+  "bestStreak": zod.number(),
+  "seasonsCompleted": zod.number(),
+  "perfectSeasons": zod.number(),
+  "highestBalance": zod.number()
+})
+
+
+/**
+ * @summary Get per-season manager career summary
+ */
+export const GetHistoryManagerSeasonsResponseItem = zod.object({
+  "seasonYear": zod.number(),
+  "clubName": zod.string(),
+  "leaguePosition": zod.number().nullish(),
+  "wins": zod.number(),
+  "losses": zod.number(),
+  "budgetSnapshot": zod.number().nullish(),
+  "worldResult": zod.string().nullish(),
+  "continentalResult": zod.string().nullish(),
+  "youthResult": zod.string().nullish()
+})
+export const GetHistoryManagerSeasonsResponse = zod.array(GetHistoryManagerSeasonsResponseItem)
+
+
+/**
+ * @summary Get hall of fame inductees (players, clubs, manager record)
+ */
+export const GetHistoryHallOfFameResponse = zod.object({
+  "players": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "position": zod.string(),
+  "peakRating": zod.number(),
+  "worldTitles": zod.number(),
+  "careerWins": zod.number(),
+  "retiredSeason": zod.string()
+})),
+  "managerEntries": zod.array(zod.object({
+  "managerName": zod.string(),
+  "clubName": zod.string(),
+  "worldTitles": zod.number(),
+  "olympicMedals": zod.number(),
+  "totalWins": zod.number(),
+  "totalLosses": zod.number(),
+  "season": zod.string()
+}))
+})
+
+
+/**
  * @summary List all financial transactions for the user's team
  */
 export const ListFinancesResponseItem = zod.object({

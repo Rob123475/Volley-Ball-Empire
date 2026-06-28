@@ -1769,6 +1769,107 @@ export interface AiManagerFeedResponse {
   events: AiManagerEvent[];
 }
 
+export interface HistorySeason {
+  id: number;
+  year: number;
+  name: string;
+  status: string;
+}
+
+export interface HistoryStandingRow {
+  rank: number;
+  competitorName: string;
+  isPlayer: boolean;
+  wins: number;
+  losses: number;
+  points: number;
+  setDiff: number;
+}
+
+export interface HistoryYouthRow {
+  rank: number;
+  teamName: string;
+  isPlayer: boolean;
+  wins: number;
+  losses: number;
+  points: number;
+}
+
+export interface HistoryStandingsResponse {
+  seniors: HistoryStandingRow[];
+  youth: HistoryYouthRow[];
+  hasSnapshot: boolean;
+}
+
+export interface HistoryTrophyEntry {
+  type: string;
+  name: string;
+  continent?: string | null;
+  locationName?: string | null;
+}
+
+export interface HistorySeasonSummaryResponse {
+  year: number;
+  trophies: HistoryTrophyEntry[];
+  worldResult: string | null;
+  continentalResult: string | null;
+  youthResult: string | null;
+  wins: number;
+  losses: number;
+  leaguePosition: number | null;
+  budgetSnapshot?: number | null;
+}
+
+export interface HistoryRecordsResponse {
+  worldChampionships: number;
+  continentalTitles: number;
+  olympicGolds: number;
+  totalWins: number;
+  totalLosses: number;
+  winRate: number;
+  bestStreak: number;
+  seasonsCompleted: number;
+  perfectSeasons: number;
+  highestBalance: number;
+}
+
+export interface HistoryManagerSeasonRow {
+  seasonYear: number;
+  clubName: string;
+  leaguePosition?: number | null;
+  wins: number;
+  losses: number;
+  budgetSnapshot?: number | null;
+  worldResult?: string | null;
+  continentalResult?: string | null;
+  youthResult?: string | null;
+}
+
+export interface HistoryHofPlayer {
+  id: number;
+  name: string;
+  position: string;
+  peakRating: number;
+  worldTitles: number;
+  careerWins: number;
+  retiredSeason: string;
+}
+
+export interface HistoryHofManagerEntry {
+  managerName: string;
+  clubName: string;
+  worldTitles: number;
+  olympicMedals: number;
+  totalWins: number;
+  totalLosses: number;
+  season: string;
+}
+
+export interface HistoryHofResponse {
+  players: HistoryHofPlayer[];
+  managerEntries: HistoryHofManagerEntry[];
+}
+
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;

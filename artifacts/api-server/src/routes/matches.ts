@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -933,6 +933,113 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await checkAchievements(team.id, match.season);
   } catch {
     // achievements are non-critical; never let them break match simulation
+  }
+
+  // ── End-of-season history snapshot (World Final only) ────────────────────
+  if (isFinal && req.user?.id) {
+    (async () => {
+      try {
+        // Determine current season year
+        const [activeSeason] = await db
+          .select({ year: seasonsTable.year })
+          .from(seasonsTable)
+          .orderBy(desc(seasonsTable.year))
+          .limit(1);
+        const seasonYear = activeSeason?.year ?? new Date().getFullYear();
+
+        // Only snapshot once per team per year
+        const existing = await db
+          .select({ id: seasonFinalStandingsTable.id })
+          .from(seasonFinalStandingsTable)
+          .where(
+            and(
+              eq(seasonFinalStandingsTable.teamId, team.id),
+              eq(seasonFinalStandingsTable.seasonYear, seasonYear),
+            ),
+          )
+          .limit(1);
+
+        if (existing.length === 0) {
+          // Snapshot all teams sorted by points (wins × 3)
+          const allTeams = await db.select().from(teamsTable);
+          const sorted = [...allTeams].sort((a, b) => b.wins * 3 - a.wins * 3);
+          await db.insert(seasonFinalStandingsTable).values(
+            sorted.map((t, i) => ({
+              teamId: team.id,
+              seasonYear,
+              rank: i + 1,
+              competitorName: t.name,
+              isPlayer: t.id === team.id,
+              wins: t.wins,
+              losses: t.losses,
+              points: t.wins * 3,
+              setDiff: t.wins - t.losses,
+            })),
+          );
+        }
+
+        // Manager season summary — only once per user per year
+        const existingSummary = await db
+          .select({ id: managerSeasonSummaryTable.id })
+          .from(managerSeasonSummaryTable)
+          .where(
+            and(
+              eq(managerSeasonSummaryTable.userId, req.user!.id),
+              eq(managerSeasonSummaryTable.seasonYear, seasonYear),
+            ),
+          )
+          .limit(1);
+
+        if (existingSummary.length === 0) {
+          // World result from this match
+          const worldResult = homeWon ? "World Champion 🏆" : "Runner Up 🥈";
+
+          // Find player rank from snapshot
+          const [playerRow] = await db
+            .select({ rank: seasonFinalStandingsTable.rank })
+            .from(seasonFinalStandingsTable)
+            .where(
+              and(
+                eq(seasonFinalStandingsTable.teamId, team.id),
+                eq(seasonFinalStandingsTable.seasonYear, seasonYear),
+                eq(seasonFinalStandingsTable.isPlayer, true),
+              ),
+            );
+
+          // Youth champion from this season
+          const [youthChamp] = await db
+            .select()
+            .from(youthChampionshipTrophiesTable)
+            .where(
+              and(
+                eq(youthChampionshipTrophiesTable.teamId, team.id),
+                eq(youthChampionshipTrophiesTable.year, seasonYear),
+              ),
+            );
+          const youthResult = youthChamp
+            ? youthChamp.winningTeamName === team.name
+              ? "Youth Champion 🏆"
+              : "Youth season completed"
+            : null;
+
+          await db.insert(managerSeasonSummaryTable).values({
+            userId: req.user!.id,
+            teamId: team.id,
+            seasonYear,
+            clubName: team.name,
+            leaguePosition: playerRow?.rank ?? null,
+            wins: team.wins,
+            losses: team.losses,
+            budgetSnapshot: team.budget,
+            worldResult,
+            continentalResult: null,
+            youthResult,
+          });
+        }
+      } catch {
+        // non-critical: never break match simulation
+      }
+    })();
   }
 
   // Simulate Youth Development League for all signed youth players (fire-and-forget)
