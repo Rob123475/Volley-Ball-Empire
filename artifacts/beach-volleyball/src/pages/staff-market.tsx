@@ -29,6 +29,7 @@ import {
   BadgeDollarSign,
   ChevronDown,
   Radar,
+  Binoculars,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -47,7 +48,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 
-const MAX_STAFF = 4;
+const MAX_STAFF = 8;
 
 const ROLE_LABELS: Record<string, string> = {
   all:                  "All Roles",
@@ -57,6 +58,7 @@ const ROLE_LABELS: Record<string, string> = {
   strength_conditioner: "Strength Conditioner",
   massage_therapist:    "Massage Therapist",
   promotions_manager:   "Promotions Manager",
+  scout:                "Scout",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -66,6 +68,7 @@ const ROLE_COLORS: Record<string, string> = {
   strength_conditioner: "bg-red-500",
   massage_therapist:    "bg-teal-500",
   promotions_manager:   "bg-purple-500",
+  scout:                "bg-cyan-600",
 };
 
 type IconFC = React.FC<{ className?: string }>;
@@ -77,9 +80,10 @@ const ROLE_ICONS: Record<string, IconFC> = {
   strength_conditioner: Dumbbell as IconFC,
   massage_therapist:    Heart as IconFC,
   promotions_manager:   BadgeDollarSign as IconFC,
+  scout:                Binoculars as IconFC,
 };
 
-const ROLE_FILTERS = ["all", "head_coach", "assistant_coach", "fitness_trainer", "strength_conditioner", "massage_therapist", "promotions_manager"] as const;
+const ROLE_FILTERS = ["all", "head_coach", "assistant_coach", "fitness_trainer", "strength_conditioner", "massage_therapist", "promotions_manager", "scout"] as const;
 
 function OvrDisplay({ rating, revealed }: { rating: number; revealed: boolean }) {
   if (!revealed) {
@@ -278,7 +282,7 @@ function StaffMarketCard({
                   size="sm"
                   className="gap-1.5 text-xs shrink-0 opacity-50 cursor-not-allowed"
                   disabled
-                  title="Hire a Head Coach or Assistant Coach to scout staff."
+                  title="Hire a Head Coach, Assistant Coach, or Scout to scout staff."
                 >
                   <Eye className="h-3.5 w-3.5" />
                   Scout
@@ -343,7 +347,7 @@ export default function StaffMarket() {
 
   const myStaffIds = new Set(myStaff.map(s => s.id));
   const canHire  = myStaff.length < MAX_STAFF;
-  const hasCoach = myStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach");
+  const hasCoach = myStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach" || s.role === "scout");
 
   const handleHire = (staffId: number) => {
     hireMutation.mutate({ data: { staffId } }, {
@@ -445,7 +449,7 @@ export default function StaffMarket() {
         <div className="flex items-center gap-2 text-xs text-amber-500 bg-amber-500/10 rounded-lg px-4 py-2.5 border border-amber-500/30">
           <Eye className="h-3.5 w-3.5 shrink-0" />
           <span>
-            <strong className="text-amber-400">Scouting locked:</strong> Hire a Head Coach or Assistant Coach to unlock staff scouting.
+            <strong className="text-amber-400">Scouting locked:</strong> Hire a Head Coach, Assistant Coach, or Scout to unlock staff scouting.
           </span>
         </div>
       )}

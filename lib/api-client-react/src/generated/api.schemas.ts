@@ -316,6 +316,7 @@ export const StaffMemberRole = {
   strength_conditioner: 'strength_conditioner',
   massage_therapist: 'massage_therapist',
   promotions_manager: 'promotions_manager',
+  scout: 'scout',
 } as const;
 
 /**

@@ -869,7 +869,7 @@ export const GetTeamRosterResponse = zod.object({
   "staff": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1110,7 +1110,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "staff": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1354,7 +1354,7 @@ export const SetPlayerRoleResponse = zod.object({
   "staff": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1585,7 +1585,7 @@ export const TerminateContractResponse = zod.object({
 export const ListStaffResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1620,7 +1620,7 @@ export const HireStaffBody = zod.object({
 export const ListAvailableStaffResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1652,7 +1652,7 @@ export const GetStaffMarketQueryParams = zod.object({
 export const GetStaffMarketResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1683,7 +1683,7 @@ export const FireStaffParams = zod.object({
 export const FireStaffResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1713,7 +1713,7 @@ export const ScoutStaffParams = zod.object({
 export const ScoutStaffResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1789,7 +1789,7 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "coach": zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -1888,7 +1888,7 @@ export const CompleteTrainingResponse = zod.object({
   "coach": zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -2037,7 +2037,7 @@ export const GetTrainingPlanResponse = zod.object({
   "coach": zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -3336,7 +3336,7 @@ export const GetTrophyCabinetResponse = zod.object({
 export const ListMedicalStaffResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -3376,7 +3376,7 @@ export const GetMedicalStaffMarketQueryParams = zod.object({
 export const GetMedicalStaffMarketResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),
@@ -3407,7 +3407,7 @@ export const FireMedicalStaffParams = zod.object({
 export const FireMedicalStaffResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager']),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
   "salary": zod.number(),
   "skillLevel": zod.number(),

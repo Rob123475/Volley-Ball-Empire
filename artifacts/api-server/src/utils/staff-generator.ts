@@ -11,7 +11,8 @@ export type StaffRole =
   | "fitness_trainer"
   | "strength_conditioner"
   | "massage_therapist"
-  | "promotions_manager";
+  | "promotions_manager"
+  | "scout";
 
 export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
   head_coach:           "Head Coach",
@@ -20,6 +21,7 @@ export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
   strength_conditioner: "Strength Conditioner",
   massage_therapist:    "Massage Therapist",
   promotions_manager:   "Promotions Manager",
+  scout:                "Scout",
 };
 
 const ROLE_ATTRIBUTES: Record<StaffRole, string[]> = {
@@ -29,6 +31,7 @@ const ROLE_ATTRIBUTES: Record<StaffRole, string[]> = {
   strength_conditioner: ["Power Development", "Core Strength", "Injury Prevention"],
   massage_therapist:    ["Recovery Techniques", "Injury Treatment", "Fatigue Reduction"],
   promotions_manager:   ["Sponsorship Networks", "Media Relations", "Brand Building"],
+  scout:                ["Talent Identification", "Judgement Accuracy", "Regional Knowledge"],
 };
 
 const ROLE_TRAITS: Record<StaffRole, string[]> = {
@@ -38,6 +41,7 @@ const ROLE_TRAITS: Record<StaffRole, string[]> = {
   strength_conditioner: ["Explosive Power", "Peak Physical Prep", "Anti-Fatigue Protocol", "Strength Builder", "Muscle Recovery"],
   massage_therapist:    ["Healing Hands", "Deep Tissue Pro", "Rapid Recovery", "Pain Management", "Pre-Match Routine"],
   promotions_manager:   ["Deal Closer", "Media Darling", "Brand Builder", "Viral Marketer", "Sponsor Magnet"],
+  scout:                ["Diamond Eye", "Negotiation Expert", "Youth Specialist", "Global Network", "Hidden Gem Hunter"],
 };
 
 const ROLE_SALARY_RANGES: Record<StaffRole, [number, number]> = {
@@ -47,6 +51,7 @@ const ROLE_SALARY_RANGES: Record<StaffRole, [number, number]> = {
   strength_conditioner: [5000, 12000],
   massage_therapist:    [4000, 10000],
   promotions_manager:   [7000, 20000],
+  scout:                [6000, 22000],
 };
 
 const ROLE_RATING_RANGES: Record<StaffRole, [number, number]> = {
@@ -56,6 +61,7 @@ const ROLE_RATING_RANGES: Record<StaffRole, [number, number]> = {
   strength_conditioner: [48, 82],
   massage_therapist:    [45, 80],
   promotions_manager:   [50, 88],
+  scout:                [48, 90],
 };
 
 const ROLE_SCOUTING_RANGES: Record<StaffRole, [number, number]> = {
@@ -65,6 +71,7 @@ const ROLE_SCOUTING_RANGES: Record<StaffRole, [number, number]> = {
   strength_conditioner: [20, 55],
   massage_therapist:    [20, 50],
   promotions_manager:   [28, 62],
+  scout:                [60, 99],
 };
 
 const FEMALE_STAFF_NAMES = [
@@ -152,6 +159,7 @@ export function generateStaffMarket(count = 30): ReturnType<typeof generateStaff
     "strength_conditioner", "strength_conditioner", "strength_conditioner",
     "massage_therapist", "massage_therapist", "massage_therapist",
     "promotions_manager", "promotions_manager", "promotions_manager",
+    "scout", "scout", "scout", "scout",
   ];
 
   const result = [];

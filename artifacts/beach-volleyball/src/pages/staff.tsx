@@ -25,6 +25,7 @@ import {
   Users,
   Star,
   Radar,
+  Binoculars,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -42,7 +43,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 
-const MAX_STAFF = 4;
+const MAX_STAFF = 8;
 
 type StaffRole =
   | "head_coach"
@@ -50,7 +51,8 @@ type StaffRole =
   | "fitness_trainer"
   | "strength_conditioner"
   | "massage_therapist"
-  | "promotions_manager";
+  | "promotions_manager"
+  | "scout";
 
 const ROLE_LABELS: Record<string, string> = {
   head_coach:           "Head Coach",
@@ -59,6 +61,7 @@ const ROLE_LABELS: Record<string, string> = {
   strength_conditioner: "Strength Conditioner",
   massage_therapist:    "Massage Therapist",
   promotions_manager:   "Promotions Manager",
+  scout:                "Scout",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -68,6 +71,7 @@ const ROLE_COLORS: Record<string, string> = {
   strength_conditioner: "bg-red-500",
   massage_therapist:    "bg-teal-500",
   promotions_manager:   "bg-purple-500",
+  scout:                "bg-cyan-600",
 };
 
 type IconFC = React.FC<{ className?: string }>;
@@ -79,15 +83,17 @@ const ROLE_ICONS: Record<string, IconFC> = {
   strength_conditioner: Dumbbell as IconFC,
   massage_therapist:    Heart as IconFC,
   promotions_manager:   BadgeDollarSign as IconFC,
+  scout:                Binoculars as IconFC,
 };
 
 const BONUS_DESCRIPTIONS: Record<string, { icon: IconFC; color: string; label: string; detail: string }> = {
-  head_coach:           { icon: TrendingUp as IconFC,      color: "text-amber-600",  label: "Training XP",       detail: "+15–24% training XP based on OVR" },
-  assistant_coach:      { icon: Target as IconFC,          color: "text-blue-600",   label: "Set Play Design",    detail: "+8–12% serve & block training" },
-  fitness_trainer:      { icon: Zap as IconFC,             color: "text-green-600",  label: "Fatigue Recovery",   detail: "Speeds post-match fatigue recovery" },
-  strength_conditioner: { icon: Dumbbell as IconFC,        color: "text-red-600",    label: "Injury Prevention",  detail: "Reduces injury chance & recovery time" },
-  massage_therapist:    { icon: Heart as IconFC,           color: "text-teal-600",   label: "Faster Healing",     detail: "Extra injury recovery ticks per week" },
-  promotions_manager:   { icon: BadgeDollarSign as IconFC, color: "text-purple-600", label: "Sponsorship Boost",  detail: "+10–18% sponsorship income" },
+  head_coach:           { icon: TrendingUp as IconFC,      color: "text-amber-600",  label: "Training XP",         detail: "+15–24% training XP based on OVR"              },
+  assistant_coach:      { icon: Target as IconFC,          color: "text-blue-600",   label: "Set Play Design",      detail: "+8–12% serve & block training"                 },
+  fitness_trainer:      { icon: Zap as IconFC,             color: "text-green-600",  label: "Fatigue Recovery",     detail: "Speeds post-match fatigue recovery"             },
+  strength_conditioner: { icon: Dumbbell as IconFC,        color: "text-red-600",    label: "Injury Prevention",    detail: "Reduces injury chance & recovery time"          },
+  massage_therapist:    { icon: Heart as IconFC,           color: "text-teal-600",   label: "Faster Healing",       detail: "Extra injury recovery ticks per week"           },
+  promotions_manager:   { icon: BadgeDollarSign as IconFC, color: "text-purple-600", label: "Sponsorship Boost",    detail: "+10–18% sponsorship income"                    },
+  scout:                { icon: Binoculars as IconFC,      color: "text-cyan-600",   label: "Scouting Network",     detail: "Unlocks staff scouting & improves prospect quality" },
 };
 
 function OvrBadge({ rating }: { rating: number }) {

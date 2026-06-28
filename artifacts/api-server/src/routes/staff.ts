@@ -16,7 +16,7 @@ const serializeStaff = (s: any) => ({
 });
 
 
-const MAX_STAFF = 4;
+const MAX_STAFF = 8;
 
 async function backfillStaffAttributes(staffList: any[]): Promise<void> {
   const empty = staffList.filter(s => !s.attributes || Object.keys(s.attributes).length === 0);
@@ -127,10 +127,10 @@ router.post("/staff/:id/scout", async (req, res) => {
   if (member.isScoutRevealed) { res.status(400).json({ error: "Already revealed" }); return; }
 
   const teamStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
-  const hasCoach = teamStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach");
+  const hasCoach = teamStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach" || s.role === "scout");
 
   if (!hasCoach) {
-    res.status(400).json({ error: "You need a Head Coach or Assistant Coach to scout staff." });
+    res.status(400).json({ error: "You need a Head Coach, Assistant Coach, or Scout to scout staff." });
     return;
   }
 
