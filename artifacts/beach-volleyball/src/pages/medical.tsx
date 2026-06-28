@@ -11,6 +11,8 @@ import {
   useFireMedicalStaff,
   getListMedicalStaffQueryKey,
   getGetMedicalStaffMarketQueryKey,
+  useGetMyTeam,
+  getGetMyTeamQueryKey,
 } from "@workspace/api-client-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -1160,8 +1162,11 @@ const MC_MAX_LEVEL = 10;
 function MedicalCentreFacilityCard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { data: facilities, isLoading } = useGetFacilities({
+  const { data: facilities, isLoading: facilitiesLoading } = useGetFacilities({
     query: { queryKey: getGetFacilitiesQueryKey() },
+  });
+  const { data: team, isLoading: teamLoading } = useGetMyTeam({
+    query: { queryKey: getGetMyTeamQueryKey() },
   });
   const upgradeMutation = useUpgradeFacility();
 
@@ -1171,13 +1176,21 @@ function MedicalCentreFacilityCard() {
   const recoveryBonus = (level - 1) * 5;
   const injuryReduction = (level - 1) * 2;
 
+  const upgradeCost = level * 20_000;
+  const budget = Number(team?.budget ?? 0);
+  const canAfford = budget >= upgradeCost;
+
   const handleUpgrade = () => {
     upgradeMutation.mutate(
       { type: "medical_centre" },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetFacilitiesQueryKey() });
-          toast({ title: `Medical Centre upgraded to Level ${level + 1}` });
+          queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
+          toast({
+            title: `Medical Centre upgraded to Level ${level + 1}`,
+            description: `$${upgradeCost.toLocaleString()} deducted from budget.`,
+          });
         },
         onError: (err: any) => {
           toast({ title: "Upgrade failed", description: err?.message ?? "Insufficient funds.", variant: "destructive" });
@@ -1186,7 +1199,7 @@ function MedicalCentreFacilityCard() {
     );
   };
 
-  if (isLoading) return <Skeleton className="h-32 w-full" />;
+  if (facilitiesLoading || teamLoading) return <Skeleton className="h-32 w-full" />;
 
   return (
     <Card className="border-rose-500/30 bg-rose-500/5">
@@ -1229,10 +1242,29 @@ function MedicalCentreFacilityCard() {
               </span>
             </div>
           </div>
-          <Button size="sm" disabled={isMax || upgradeMutation.isPending} onClick={handleUpgrade} className="gap-1.5 shrink-0">
-            <ArrowUp className="h-3.5 w-3.5" />
-            {isMax ? "Max Level" : `Upgrade to Level ${level + 1}`}
-          </Button>
+          {!isMax && (
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <span className={cn("text-xs font-bold", canAfford ? "text-emerald-600" : "text-destructive")}>
+                ${upgradeCost.toLocaleString()}
+              </span>
+              <Button
+                size="sm"
+                disabled={!canAfford || upgradeMutation.isPending}
+                onClick={handleUpgrade}
+                variant={canAfford ? "default" : "outline"}
+                className="gap-1.5"
+              >
+                <ArrowUp className="h-3.5 w-3.5" />
+                {canAfford ? `Upgrade to Level ${level + 1}` : "Insufficient Funds"}
+              </Button>
+            </div>
+          )}
+          {isMax && (
+            <Button size="sm" disabled className="gap-1.5 shrink-0">
+              <ArrowUp className="h-3.5 w-3.5" />
+              Max Level
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
