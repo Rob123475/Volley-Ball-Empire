@@ -467,6 +467,20 @@ export const clubTemplatesTable = pgTable("club_templates", {
 
 export type ClubTemplate = typeof clubTemplatesTable.$inferSelect;
 
+export const careerHistoryEntriesTable = pgTable("career_history_entries", {
+  id:           serial("id").primaryKey(),
+  userId:       varchar("user_id").notNull().references(() => usersTable.id),
+  careerSaveId: integer("career_save_id").references(() => careerSavesTable.id),
+  type:         varchar("type", { length: 50 }).notNull(),
+  clubName:     varchar("club_name", { length: 100 }).notNull(),
+  season:       varchar("season",    { length: 50 }),
+  description:  varchar("description", { length: 500 }).notNull(),
+  occurredAt:   timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type CareerHistoryEntry    = typeof careerHistoryEntriesTable.$inferSelect;
+export type InsertCareerHistoryEntry = typeof careerHistoryEntriesTable.$inferInsert;
+
 export const careerSavesTable = pgTable("career_saves", {
   id:           serial("id").primaryKey(),
   userId:       varchar("user_id").notNull().references(() => usersTable.id),

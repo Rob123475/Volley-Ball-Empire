@@ -24,6 +24,8 @@ import type {
   AttentionItemsResponse,
   AuthUser,
   BoardConfidence,
+  BreakContractResult,
+  CareerHistoryEntry,
   CareerSaveList,
   CareerSaveSlot,
   CareerStats,
@@ -71,6 +73,7 @@ import type {
   PlayerWorkload,
   PrizeMoneySummary,
   PromoDeal,
+  ResignResult,
   RunCampInput,
   ScoutingResult,
   Season,
@@ -5390,6 +5393,223 @@ export const useDeleteCareerSave = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getDeleteCareerSaveMutationOptions(options));
+    }
+
+export const getGetCareerHistoryUrl = () => {
+
+
+
+
+  return `/api/careers/history`
+}
+
+/**
+ * @summary List all career history entries for the current user (resignations, breaks, etc.)
+ */
+export const getCareerHistory = async ( options?: RequestInit): Promise<CareerHistoryEntry[]> => {
+
+  return customFetch<CareerHistoryEntry[]>(getGetCareerHistoryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCareerHistoryQueryKey = () => {
+    return [
+    `/api/careers/history`
+    ] as const;
+    }
+
+
+export const getGetCareerHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getCareerHistory>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCareerHistoryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCareerHistory>>> = ({ signal }) => getCareerHistory({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCareerHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCareerHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getCareerHistory>>>
+export type GetCareerHistoryQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all career history entries for the current user (resignations, breaks, etc.)
+ */
+
+export function useGetCareerHistory<TData = Awaited<ReturnType<typeof getCareerHistory>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCareerHistoryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getResignCareerUrl = () => {
+
+
+
+
+  return `/api/careers/resign`
+}
+
+/**
+ * @summary Resign from the current club — manager becomes unemployed, history entry recorded
+ */
+export const resignCareer = async ( options?: RequestInit): Promise<ResignResult> => {
+
+  return customFetch<ResignResult>(getResignCareerUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getResignCareerMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resignCareer>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof resignCareer>>, TError,void, TContext> => {
+
+const mutationKey = ['resignCareer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resignCareer>>, void> = () => {
+
+
+          return  resignCareer(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResignCareerMutationResult = NonNullable<Awaited<ReturnType<typeof resignCareer>>>
+
+    export type ResignCareerMutationError = ErrorType<void>
+
+    /**
+ * @summary Resign from the current club — manager becomes unemployed, history entry recorded
+ */
+export const useResignCareer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resignCareer>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof resignCareer>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getResignCareerMutationOptions(options));
+    }
+
+export const getBreakContractUrl = () => {
+
+
+
+
+  return `/api/careers/break-contract`
+}
+
+/**
+ * @summary Break contract early — pays release clause, manager becomes unemployed
+ */
+export const breakContract = async ( options?: RequestInit): Promise<BreakContractResult> => {
+
+  return customFetch<BreakContractResult>(getBreakContractUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getBreakContractMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof breakContract>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof breakContract>>, TError,void, TContext> => {
+
+const mutationKey = ['breakContract'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof breakContract>>, void> = () => {
+
+
+          return  breakContract(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BreakContractMutationResult = NonNullable<Awaited<ReturnType<typeof breakContract>>>
+
+    export type BreakContractMutationError = ErrorType<void>
+
+    /**
+ * @summary Break contract early — pays release clause, manager becomes unemployed
+ */
+export const useBreakContract = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof breakContract>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof breakContract>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getBreakContractMutationOptions(options));
     }
 
 export const getGetUpcomingEventsUrl = () => {

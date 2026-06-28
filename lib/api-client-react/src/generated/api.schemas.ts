@@ -1641,6 +1641,37 @@ export interface AttentionItemsResponse {
   total: number;
 }
 
+export type CareerHistoryEntryType = typeof CareerHistoryEntryType[keyof typeof CareerHistoryEntryType];
+
+
+export const CareerHistoryEntryType = {
+  resignation: 'resignation',
+  contract_break: 'contract_break',
+  appointment: 'appointment',
+  dismissal: 'dismissal',
+} as const;
+
+export interface CareerHistoryEntry {
+  id: number;
+  type: CareerHistoryEntryType;
+  clubName: string;
+  season?: string | null;
+  description: string;
+  occurredAt: string;
+}
+
+export interface ResignResult {
+  ok: boolean;
+  clubName: string;
+}
+
+export interface BreakContractResult {
+  ok: boolean;
+  feePaid: number;
+  newBudget: string;
+  clubName: string;
+}
+
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;

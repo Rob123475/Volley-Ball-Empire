@@ -1297,6 +1297,59 @@ paths:
         "404":
           description: Not found
 
+  /careers/history:
+    get:
+      operationId: getCareerHistory
+      tags: [careers]
+      summary: List all career history entries for the current user (resignations, breaks, etc.)
+      responses:
+        "200":
+          description: Career history entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CareerHistoryEntry"
+        "401":
+          description: Unauthorized
+
+  /careers/resign:
+    post:
+      operationId: resignCareer
+      tags: [careers]
+      summary: Resign from the current club — manager becomes unemployed, history entry recorded
+      responses:
+        "200":
+          description: Resigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResignResult"
+        "400":
+          description: No active career
+        "401":
+          description: Unauthorized
+
+  /careers/break-contract:
+    post:
+      operationId: breakContract
+      tags: [careers]
+      summary: Break contract early — pays release clause, manager becomes unemployed
+      responses:
+        "200":
+          description: Contract broken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BreakContractResult"
+        "400":
+          description: No active career
+        "401":
+          description: Unauthorized
+        "404":
+          description: Career save or team not found
+
   /events/upcoming:
     get:
       operationId: getUpcomingEvents
@@ -4225,3 +4278,45 @@ components:
             $ref: "#/components/schemas/AttentionItem"
         total:
           type: integer
+
+    CareerHistoryEntry:
+      type: object
+      required: [id, type, clubName, description, occurredAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [resignation, contract_break, appointment, dismissal]
+        clubName:
+          type: string
+        season:
+          type: string
+          nullable: true
+        description:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+
+    ResignResult:
+      type: object
+      required: [ok, clubName]
+      properties:
+        ok:
+          type: boolean
+        clubName:
+          type: string
+
+    BreakContractResult:
+      type: object
+      required: [ok, feePaid, newBudget, clubName]
+      properties:
+        ok:
+          type: boolean
+        feePaid:
+          type: number
+        newBudget:
+          type: string
+        clubName:
+          type: string

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { careerSavesTable, teamsTable, trophiesTable, achievementsTable, hallOfFameTable } from "@workspace/db";
-import { eq, and, inArray } from "drizzle-orm";
+import { careerSavesTable, teamsTable, trophiesTable, achievementsTable, hallOfFameTable, careerHistoryEntriesTable } from "@workspace/db";
+import { eq, and, desc } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 
 const router = Router();
@@ -272,6 +272,142 @@ router.delete("/careers/:id", async (req, res) => {
   }
 
   res.json({ ok: true });
+});
+
+// ── Shared constant: release clause (matches frontend placeholder) ─────────────
+
+const BREAK_CONTRACT_FEE = 25_000;
+
+// ── GET /careers/history — career history entries for this user ────────────────
+
+router.get("/careers/history", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const entries = await db
+    .select()
+    .from(careerHistoryEntriesTable)
+    .where(eq(careerHistoryEntriesTable.userId, req.user.id))
+    .orderBy(desc(careerHistoryEntriesTable.occurredAt));
+
+  res.json(entries.map(e => ({
+    id:          e.id,
+    type:        e.type,
+    clubName:    e.clubName,
+    season:      e.season ?? null,
+    description: e.description,
+    occurredAt:  e.occurredAt.toISOString(),
+  })));
+});
+
+// ── POST /careers/resign — leave current club voluntarily ─────────────────────
+
+router.post("/careers/resign", async (req, res) => {
+  if (!req.user?.id)   { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const teamId = req.activeTeamId;
+  if (!teamId) { res.status(400).json({ error: "No active career to resign from" }); return; }
+
+  // Find the career save linked to this team
+  const [save] = await db
+    .select()
+    .from(careerSavesTable)
+    .where(and(
+      eq(careerSavesTable.teamId,  teamId),
+      eq(careerSavesTable.userId,  req.user.id),
+    ));
+
+  if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
+
+  const clubName = save.clubName;
+  const season   = save.season;
+
+  // Record career history entry
+  await db.insert(careerHistoryEntriesTable).values({
+    userId:       req.user.id,
+    careerSaveId: save.id,
+    type:         "resignation",
+    clubName,
+    season,
+    description:  `Resigned from ${clubName}`,
+  });
+
+  // Disconnect career save from team (unemployed — team record stays intact)
+  await db
+    .update(careerSavesTable)
+    .set({ teamId: null, lastPlayedAt: new Date() })
+    .where(eq(careerSavesTable.id, save.id));
+
+  // Clear session's active team
+  const sid = getSessionId(req);
+  if (sid) {
+    const session = await getSession(sid);
+    if (session) {
+      const { activeTeamId: _, ...rest } = session;
+      await updateSession(sid, rest);
+    }
+  }
+
+  res.json({ ok: true, clubName });
+});
+
+// ── POST /careers/break-contract — exit early, pay release clause ─────────────
+
+router.post("/careers/break-contract", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const teamId = req.activeTeamId;
+  if (!teamId) { res.status(400).json({ error: "No active career" }); return; }
+
+  // Find career save and team in parallel
+  const [[save], [team]] = await Promise.all([
+    db.select().from(careerSavesTable).where(and(
+      eq(careerSavesTable.teamId,  teamId),
+      eq(careerSavesTable.userId,  req.user.id),
+    )),
+    db.select().from(teamsTable).where(eq(teamsTable.id, teamId)),
+  ]);
+
+  if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
+  if (!team) { res.status(404).json({ error: "Team not found" }); return; }
+
+  const clubName   = save.clubName;
+  const season     = save.season;
+  const oldBudget  = parseFloat(team.budget ?? "0");
+  const newBudget  = oldBudget - BREAK_CONTRACT_FEE;
+
+  // Deduct release clause from team budget
+  await db
+    .update(teamsTable)
+    .set({ budget: newBudget.toFixed(2) })
+    .where(eq(teamsTable.id, teamId));
+
+  // Record career history entry
+  await db.insert(careerHistoryEntriesTable).values({
+    userId:       req.user.id,
+    careerSaveId: save.id,
+    type:         "contract_break",
+    clubName,
+    season,
+    description:  `Broke contract with ${clubName} (paid $${BREAK_CONTRACT_FEE.toLocaleString()} release clause)`,
+  });
+
+  // Disconnect career save from team
+  await db
+    .update(careerSavesTable)
+    .set({ teamId: null, lastPlayedAt: new Date() })
+    .where(eq(careerSavesTable.id, save.id));
+
+  // Clear session
+  const sid = getSessionId(req);
+  if (sid) {
+    const session = await getSession(sid);
+    if (session) {
+      const { activeTeamId: _, ...rest } = session;
+      await updateSession(sid, rest);
+    }
+  }
+
+  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName });
 });
 
 export default router;

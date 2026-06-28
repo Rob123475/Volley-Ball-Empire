@@ -2722,6 +2722,40 @@ export const DeleteCareerSaveResponse = zod.object({
 
 
 /**
+ * @summary List all career history entries for the current user (resignations, breaks, etc.)
+ */
+export const GetCareerHistoryResponseItem = zod.object({
+  "id": zod.number(),
+  "type": zod.enum(['resignation', 'contract_break', 'appointment', 'dismissal']),
+  "clubName": zod.string(),
+  "season": zod.string().nullish(),
+  "description": zod.string(),
+  "occurredAt": zod.coerce.date()
+})
+export const GetCareerHistoryResponse = zod.array(GetCareerHistoryResponseItem)
+
+
+/**
+ * @summary Resign from the current club — manager becomes unemployed, history entry recorded
+ */
+export const ResignCareerResponse = zod.object({
+  "ok": zod.boolean(),
+  "clubName": zod.string()
+})
+
+
+/**
+ * @summary Break contract early — pays release clause, manager becomes unemployed
+ */
+export const BreakContractResponse = zod.object({
+  "ok": zod.boolean(),
+  "feePaid": zod.number(),
+  "newBudget": zod.string(),
+  "clubName": zod.string()
+})
+
+
+/**
  * @summary Get upcoming events and fixtures for the manager's planning view
  */
 export const GetUpcomingEventsResponse = zod.object({
