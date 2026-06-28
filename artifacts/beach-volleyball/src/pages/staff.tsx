@@ -1,8 +1,11 @@
+import { useState } from "react";
 import {
   useListStaff,
   useFireStaff,
+  useGetMyTeam,
   getListStaffQueryKey,
   getGetStaffMarketQueryKey,
+  getGetMyTeamQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,18 +29,17 @@ import {
   Star,
   Radar,
   Binoculars,
+  AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -128,9 +130,30 @@ function AttributeBar({ name, value }: { name: string; value: number }) {
   );
 }
 
-function StaffCard({ member, onFire }: { member: any; onFire: (id: number) => void }) {
+function StaffCard({
+  member,
+  teamBudget,
+  onFire,
+  isFiring,
+}: {
+  member: any;
+  teamBudget: number;
+  onFire: (id: number) => void;
+  isFiring: boolean;
+}) {
+  const [open, setOpen] = useState(false);
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
   const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
+
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+  const monthlySalary   = Number(member.salary);
+  const monthsRemaining = member.contractLength as number;
+  const remainingValue  = monthlySalary * monthsRemaining;
+  const terminationFee  = Math.round(remainingValue * 0.5);
+  const balanceAfter    = teamBudget - terminationFee;
+  const canAfford       = teamBudget >= terminationFee;
 
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all border-border">
@@ -150,35 +173,109 @@ function StaffCard({ member, onFire }: { member: any; onFire: (id: number) => vo
           </Badge>
         </div>
 
-        {/* Fire button */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 h-7 w-7 bg-black/40 hover:bg-red-600/80 text-white"
-            >
-              <UserMinus className="h-3.5 w-3.5" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Release {member.name}?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will free up a staff slot. The {ROLE_LABELS[member.role]} position will be vacant.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => onFire(member.id)}
-                className="bg-destructive text-destructive-foreground"
+        {/* Terminate Contract button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setOpen(true)}
+          className="absolute top-2 right-2 h-7 w-7 bg-black/40 hover:bg-red-600/80 text-white"
+        >
+          <UserMinus className="h-3.5 w-3.5" />
+        </Button>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <UserMinus className="h-5 w-5" />
+                Terminate Contract
+              </DialogTitle>
+              <DialogDescription>
+                Review the termination details carefully before confirming.
+              </DialogDescription>
+            </DialogHeader>
+
+            {/* Staff details */}
+            <div className="space-y-4 py-2">
+              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Staff member</span>
+                  <span className="font-semibold">{member.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Role</span>
+                  <span className="font-semibold">{ROLE_LABELS[member.role] ?? member.role}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Monthly salary</span>
+                  <span className="font-semibold">{fmt(monthlySalary)}/mo</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Months remaining</span>
+                  <span className="font-semibold">{monthsRemaining} months</span>
+                </div>
+              </div>
+
+              {/* Fee calculation */}
+              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-2 text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Remaining contract value</span>
+                  <span>{fmt(remainingValue)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-destructive text-base">
+                  <span>Termination fee (50%)</span>
+                  <span>{fmt(terminationFee)}</span>
+                </div>
+              </div>
+
+              {/* Balance impact */}
+              <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Club balance now</span>
+                  <span className={cn("font-semibold", teamBudget < terminationFee ? "text-destructive" : "")}>
+                    {fmt(teamBudget)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                  <ArrowRight className="h-4 w-4" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Balance after</span>
+                  <span className={cn("font-bold text-base", canAfford ? "text-foreground" : "text-destructive")}>
+                    {canAfford ? fmt(balanceAfter) : "—"}
+                  </span>
+                </div>
+              </div>
+
+              {!canAfford && (
+                <div className="flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <span className="font-medium">Insufficient funds to terminate this contract.</span>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground text-center font-medium">
+                ⚠️ This cannot be undone.
+              </p>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setOpen(false)} disabled={isFiring}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={!canAfford || isFiring}
+                onClick={() => {
+                  onFire(member.id);
+                  setOpen(false);
+                }}
               >
-                Release
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                {isFiring ? "Terminating…" : "Terminate Contract"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* OVR */}
         <OvrBadge rating={member.overallRating} />
@@ -317,6 +414,9 @@ export default function StaffManagement() {
     query: { queryKey: getListStaffQueryKey() },
   });
 
+  const { data: team } = useGetMyTeam({ query: { queryKey: getGetMyTeamQueryKey() } });
+  const teamBudget = Number(team?.budget ?? 0);
+
   const fireMutation = useFireStaff();
 
   const handleFire = (staffId: number) => {
@@ -324,7 +424,15 @@ export default function StaffManagement() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetStaffMarketQueryKey() });
-        toast({ title: "Staff Released", description: "The position is now vacant." });
+        queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
+        toast({
+          title: "Contract Terminated",
+          description: "The termination fee has been deducted from your club balance.",
+        });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? "Could not terminate contract.";
+        toast({ title: "Termination Failed", description: msg, variant: "destructive" });
       },
     });
   };
@@ -365,7 +473,13 @@ export default function StaffManagement() {
       {/* Staff Slots */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {myStaff.map((member) => (
-          <StaffCard key={member.id} member={member} onFire={handleFire} />
+          <StaffCard
+            key={member.id}
+            member={member}
+            teamBudget={teamBudget}
+            onFire={handleFire}
+            isFiring={fireMutation.isPending}
+          />
         ))}
         {Array.from({ length: emptySlots }).map((_, i) => (
           <EmptySlot key={`empty-${i}`} slotNumber={myStaff.length + i + 1} />

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { staffTable, teamsTable } from "@workspace/db";
+import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
 import { eq, isNull, and, ilike, count } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 
@@ -106,12 +106,69 @@ router.get("/staff/available", async (req, res) => {
 
 router.delete("/staff/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const id = parseInt(req.params.id);
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const id = parseInt(req.params.id, 10);
+  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, id) });
+  if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
+  if (member.teamId !== team.id) { res.status(403).json({ error: "Staff member does not belong to your team" }); return; }
+
+  // Termination fee = 50% of remaining contract value
+  const monthlySalary  = Number(member.salary);
+  const monthsRemaining = member.contractLength;
+  const terminationFee  = Math.round(monthlySalary * monthsRemaining * 0.5);
+  const teamBudget      = Number(team.budget);
+
+  if (teamBudget < terminationFee) {
+    res.status(400).json({
+      error: "Insufficient funds",
+      terminationFee,
+      teamBudget,
+    });
+    return;
+  }
+
+  // Deduct termination fee from club budget
+  await db.update(teamsTable)
+    .set({ budget: String(teamBudget - terminationFee) })
+    .where(eq(teamsTable.id, team.id));
+
+  // Release the staff member back to the market
   const [updated] = await db.update(staffTable)
     .set({ teamId: null, isAvailable: true })
     .where(eq(staffTable.id, id))
     .returning();
-  res.json(serializeStaff(updated));
+
+  // Finance transaction — staff termination expense
+  const today = new Date().toISOString().split("T")[0];
+  await db.insert(financeTransactionsTable).values({
+    teamId:      team.id,
+    type:        "expense",
+    amount:      String(terminationFee),
+    description: `Contract termination — ${member.name} (${member.role.replace(/_/g, " ")})`,
+    category:    "staff_termination",
+    date:        today,
+  });
+
+  // Career history entry
+  if (req.user?.id) {
+    const [save] = await db
+      .select()
+      .from(careerSavesTable)
+      .where(eq(careerSavesTable.teamId, team.id));
+
+    await db.insert(careerHistoryEntriesTable).values({
+      userId:       req.user.id,
+      careerSaveId: save?.id ?? null,
+      type:         "staff_fired",
+      clubName:     team.name,
+      season:       save?.season ?? null,
+      description:  `Terminated contract of ${member.name} (${member.role.replace(/_/g, " ")}). Termination fee: $${terminationFee.toLocaleString()}.`,
+    });
+  }
+
+  res.json({ ...serializeStaff(updated), terminationFee, budgetAfter: teamBudget - terminationFee });
 });
 
 const STAFF_SCOUT_COST = 1_000;
