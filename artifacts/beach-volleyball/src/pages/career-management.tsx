@@ -770,12 +770,19 @@ export default function CareerManagement() {
       { id: save.id },
       {
         onSuccess: () => {
-          void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
           setDeleteSlot(null);
-          toast({ title: "Career deleted", description: `Slot ${save.slotNumber} cleared` });
+          void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
+          toast({ title: "Slot cleared", description: `Slot ${save.slotNumber} is now empty` });
         },
-        onError: () => {
-          toast({ title: "Failed to delete", variant: "destructive" });
+        onError: (err) => {
+          const raw = err as { response?: { data?: { error?: string } }; message?: string };
+          const detail = raw?.response?.data?.error ?? raw?.message ?? "Unknown error";
+          console.error("[Delete save slot] failed:", detail, err);
+          toast({
+            title: "Delete failed",
+            description: detail,
+            variant: "destructive",
+          });
         },
       },
     );

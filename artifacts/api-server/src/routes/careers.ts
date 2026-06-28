@@ -1,7 +1,31 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { careerSavesTable, teamsTable, trophiesTable, achievementsTable, hallOfFameTable, careerHistoryEntriesTable } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import {
+  careerSavesTable,
+  teamsTable,
+  trophiesTable,
+  achievementsTable,
+  hallOfFameTable,
+  careerHistoryEntriesTable,
+  poachingOffersTable,
+  playersTable,
+  contractsTable,
+  staffTable,
+  trainingSessionsTable,
+  youthLeagueResultsTable,
+  injuryHistoryTable,
+  matchesTable,
+  financeTransactionsTable,
+  facilitiesTable,
+  wellbeingEffectsTable,
+  seasonInjuryStatsTable,
+  youthProspectsTable,
+  youthLadderTable,
+  youthChampionshipTrophiesTable,
+  continentalScoutingMissionsTable,
+  promoDealsTable,
+} from "@workspace/db";
+import { eq, and, desc, or } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 
 const router = Router();
@@ -263,10 +287,16 @@ router.post("/careers/:id/load", async (req, res) => {
 
 // DELETE /careers/:id
 router.delete("/careers/:id", async (req, res) => {
-  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+  if (!req.user?.id) {
+    res.status(401).json({ error: "Unauthorized: no authenticated user" });
+    return;
+  }
 
   const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid save slot id: must be a number" });
+    return;
+  }
 
   const [save] = await db
     .select()
@@ -276,14 +306,102 @@ router.delete("/careers/:id", async (req, res) => {
       eq(careerSavesTable.userId, req.user.id),
     ));
 
-  if (!save) { res.status(404).json({ error: "Not found" }); return; }
-
-  await db.delete(careerSavesTable).where(eq(careerSavesTable.id, id));
-
-  if (save.teamId) {
-    await db.delete(teamsTable).where(eq(teamsTable.id, save.teamId));
+  if (!save) {
+    res.status(404).json({ error: `Save slot ${id} not found or does not belong to this user` });
+    return;
   }
 
+  try {
+    await db.transaction(async (tx) => {
+      // ── 1. Delete careerSaveId-linked records first (FK constraints) ──────────
+      await tx.delete(poachingOffersTable)
+        .where(eq(poachingOffersTable.careerSaveId, id));
+
+      await tx.delete(careerHistoryEntriesTable)
+        .where(eq(careerHistoryEntriesTable.careerSaveId, id));
+
+      // ── 2. Delete all team-owned data (if this save had a team) ───────────────
+      if (save.teamId) {
+        const tid = save.teamId;
+
+        // Player-child tables must go before players (FK from playerId)
+        await tx.delete(trainingSessionsTable)
+          .where(eq(trainingSessionsTable.teamId, tid));
+        await tx.delete(youthLeagueResultsTable)
+          .where(eq(youthLeagueResultsTable.teamId, tid));
+        await tx.delete(injuryHistoryTable)
+          .where(eq(injuryHistoryTable.teamId, tid));
+        await tx.delete(contractsTable)
+          .where(eq(contractsTable.teamId, tid));
+
+        // Match records that involve this team
+        await tx.delete(matchesTable)
+          .where(or(
+            eq(matchesTable.homeTeamId, tid),
+            eq(matchesTable.awayTeamId, tid),
+          ));
+
+        // Remaining team-owned tables
+        await tx.delete(financeTransactionsTable)
+          .where(eq(financeTransactionsTable.teamId, tid));
+        await tx.delete(achievementsTable)
+          .where(eq(achievementsTable.teamId, tid));
+        await tx.delete(facilitiesTable)
+          .where(eq(facilitiesTable.teamId, tid));
+        await tx.delete(trophiesTable)
+          .where(eq(trophiesTable.teamId, tid));
+        await tx.delete(wellbeingEffectsTable)
+          .where(eq(wellbeingEffectsTable.teamId, tid));
+        await tx.delete(seasonInjuryStatsTable)
+          .where(eq(seasonInjuryStatsTable.teamId, tid));
+        await tx.delete(youthProspectsTable)
+          .where(eq(youthProspectsTable.teamId, tid));
+        await tx.delete(youthLadderTable)
+          .where(eq(youthLadderTable.teamId, tid));
+        await tx.delete(youthChampionshipTrophiesTable)
+          .where(eq(youthChampionshipTrophiesTable.teamId, tid));
+        await tx.delete(continentalScoutingMissionsTable)
+          .where(eq(continentalScoutingMissionsTable.teamId, tid));
+
+        // Promo deals: delete team-specific ones, release global ones back to pool
+        await tx.delete(promoDealsTable)
+          .where(and(
+            eq(promoDealsTable.teamId, tid),
+            eq(promoDealsTable.isGlobal, false),
+          ));
+        await tx.update(promoDealsTable)
+          .set({ teamId: null })
+          .where(and(
+            eq(promoDealsTable.teamId, tid),
+            eq(promoDealsTable.isGlobal, true),
+          ));
+
+        // Release contracted staff back to free-agent pool (do not delete)
+        await tx.update(staffTable)
+          .set({ teamId: null })
+          .where(eq(staffTable.teamId, tid));
+
+        // Delete squad players (they are save-specific, not global)
+        await tx.delete(playersTable)
+          .where(eq(playersTable.teamId, tid));
+
+        // Finally delete the team itself
+        await tx.delete(teamsTable)
+          .where(eq(teamsTable.id, tid));
+      }
+
+      // ── 3. Delete the career save row ─────────────────────────────────────────
+      await tx.delete(careerSavesTable)
+        .where(eq(careerSavesTable.id, id));
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    req.log.error({ err, saveId: id, userId: req.user.id }, "DELETE /careers/:id failed");
+    res.status(500).json({ error: `Database error while deleting save slot: ${message}` });
+    return;
+  }
+
+  // ── 4. Clear session if this was the active save ───────────────────────────
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
