@@ -807,6 +807,30 @@ export interface StaffWageBill {
   staff: StaffWageBillMember[];
 }
 
+export interface BoardConfidenceBreakdown {
+  financeHealth: string;
+  recentForm: string;
+}
+
+export interface BoardConfidence {
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  score: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  rawScore: number;
+  financeAdjustment: number;
+  label: string;
+  /** @nullable */
+  warning?: string | null;
+  isJobAtRisk: boolean;
+  breakdown: BoardConfidenceBreakdown;
+}
+
 export interface SponsorReputation {
   /**
      * @minimum 0

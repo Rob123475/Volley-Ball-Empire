@@ -2424,6 +2424,31 @@ export const GetSponsorReputationResponse = zod.object({
 
 
 /**
+ * @summary Get current board confidence score, label and warnings
+ */
+export const getBoardConfidenceResponseScoreMin = 0;
+export const getBoardConfidenceResponseScoreMax = 100;
+
+export const getBoardConfidenceResponseRawScoreMin = 0;
+export const getBoardConfidenceResponseRawScoreMax = 100;
+
+
+
+export const GetBoardConfidenceResponse = zod.object({
+  "score": zod.number().min(getBoardConfidenceResponseScoreMin).max(getBoardConfidenceResponseScoreMax),
+  "rawScore": zod.number().min(getBoardConfidenceResponseRawScoreMin).max(getBoardConfidenceResponseRawScoreMax),
+  "financeAdjustment": zod.number(),
+  "label": zod.string(),
+  "warning": zod.string().nullish(),
+  "isJobAtRisk": zod.boolean(),
+  "breakdown": zod.object({
+  "financeHealth": zod.string(),
+  "recentForm": zod.string()
+})
+})
+
+
+/**
  * @summary Get weekly and monthly staff wage totals with per-staff breakdown
  */
 export const GetStaffWageBillResponse = zod.object({

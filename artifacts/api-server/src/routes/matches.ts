@@ -610,12 +610,17 @@ router.post("/matches/:id/simulate", async (req, res) => {
     const sponsorRepGain = 1 + sponsorTierBonus + sponsorDealBonus;
     const newSponsorRep  = Math.min(100, (team.sponsorReputation ?? 50) + sponsorRepGain);
 
+    // Board confidence: +3 normal, +5 continental final, +8 grand final
+    const isGrandFinal     = isFinal && !isContFinal;
+    const confWinDelta     = isGrandFinal ? 8 : isContFinal ? 5 : 3;
+
     await db.update(teamsTable).set({
       wins:              newWins,
       budget:            String(Number(team.budget) + prizeEarned),
       winStreak:         newStreak,
       managerRepPoints:  (team.managerRepPoints ?? 0) + repGain,
       sponsorReputation: newSponsorRep,
+      boardConfidence:   Math.min(100, (team.boardConfidence ?? 60) + confWinDelta),
       ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
     }).where(eq(teamsTable.id, team.id));
     const today = new Date().toISOString().split("T")[0];
@@ -634,6 +639,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
       losses:            team.losses + 1,
       winStreak:         0,
       sponsorReputation: newSponsorRep,
+      boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
     }).where(eq(teamsTable.id, team.id));
   }
 

@@ -23,6 +23,7 @@ import type {
   AchievementStatus,
   AttentionItemsResponse,
   AuthUser,
+  BoardConfidence,
   CareerSaveList,
   CareerSaveSlot,
   CareerStats,
@@ -4117,6 +4118,83 @@ export function useGetSponsorReputation<TData = Awaited<ReturnType<typeof getSpo
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSponsorReputationQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetBoardConfidenceUrl = () => {
+
+
+
+
+  return `/api/board-confidence`
+}
+
+/**
+ * @summary Get current board confidence score, label and warnings
+ */
+export const getBoardConfidence = async ( options?: RequestInit): Promise<BoardConfidence> => {
+
+  return customFetch<BoardConfidence>(getGetBoardConfidenceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBoardConfidenceQueryKey = () => {
+    return [
+    `/api/board-confidence`
+    ] as const;
+    }
+
+
+export const getGetBoardConfidenceQueryOptions = <TData = Awaited<ReturnType<typeof getBoardConfidence>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBoardConfidence>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBoardConfidenceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBoardConfidence>>> = ({ signal }) => getBoardConfidence({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBoardConfidence>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBoardConfidenceQueryResult = NonNullable<Awaited<ReturnType<typeof getBoardConfidence>>>
+export type GetBoardConfidenceQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get current board confidence score, label and warnings
+ */
+
+export function useGetBoardConfidence<TData = Awaited<ReturnType<typeof getBoardConfidence>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBoardConfidence>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBoardConfidenceQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

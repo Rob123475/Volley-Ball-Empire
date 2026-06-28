@@ -15,6 +15,8 @@ export * from './attentionItem';
 export * from './attentionItemPriority';
 export * from './attentionItemsResponse';
 export * from './authUser';
+export * from './boardConfidence';
+export * from './boardConfidenceBreakdown';
 export * from './careerSaveList';
 export * from './careerSaveSlot';
 export * from './careerStats';

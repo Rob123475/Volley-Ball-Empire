@@ -29,6 +29,7 @@ import attentionRouter from "./attention";
 import newsRouter from "./news";
 import eventsRouter from "./events";
 import careersRouter from "./careers";
+import boardConfidenceRouter from "./board-confidence";
 import clubTemplatesRouter from "./club-templates";
 import devRouter from "./dev";
 
@@ -64,6 +65,7 @@ router.use(attentionRouter);
 router.use(newsRouter);
 router.use(eventsRouter);
 router.use(careersRouter);
+router.use(boardConfidenceRouter);
 router.use(clubTemplatesRouter);
 router.use(devRouter);
 
