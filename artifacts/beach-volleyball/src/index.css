@@ -179,12 +179,13 @@
   --card-foreground: 0 0% 100%;
   --card-border: 200 20% 25%;
 
-  --sidebar: 200 100% 10%;
+  /* Keep the bright ocean teal sidebar identical to light mode */
+  --sidebar: 200 100% 36%;
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 200 20% 20%;
+  --sidebar-border: 200 100% 30%;
   --sidebar-primary: 30 90% 67%;
-  --sidebar-primary-foreground: 200 50% 5%;
-  --sidebar-accent: 200 100% 20%;
+  --sidebar-primary-foreground: 200 50% 10%;
+  --sidebar-accent: 200 100% 45%;
   --sidebar-accent-foreground: 0 0% 100%;
   --sidebar-ring: 30 90% 67%;
 

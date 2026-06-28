@@ -28,7 +28,6 @@ import {
   Users,
   Building2,
   Info,
-  Filter,
   Search,
   ShieldCheck,
   Flame,
@@ -36,6 +35,9 @@ import {
   XCircle,
   Loader2,
   Star,
+  Calendar,
+  HandCoins,
+  ChevronRight,
 } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -57,9 +59,10 @@ interface JobOffer {
   description:         string;
   founded:             number;
   logoColor:           string;
+  contractLength:      string;
 }
 
-// ── Sample job data ───────────────────────────────────────────────────────────
+// ── Job data ──────────────────────────────────────────────────────────────────
 
 const JOB_OFFERS: JobOffer[] = [
   {
@@ -68,7 +71,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 28_000, transferBudget: 650_000, clubReputation: 88,
     expectedFinish: "Top 4", requiredReputation: 70, squadStrength: 85,
     description: "One of South America's most storied beach volleyball clubs, playing on the iconic sands of Copacabana. The board demands excellence and backs it with serious investment.",
-    founded: 1998, logoColor: "#10b981",
+    founded: 1998, logoColor: "#10b981", contractLength: "3 seasons",
   },
   {
     id: 2, clubName: "Barcelona Sand FC", continent: "Europe", country: "Spain",
@@ -76,7 +79,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 24_000, transferBudget: 500_000, clubReputation: 84,
     expectedFinish: "Top 4", requiredReputation: 65, squadStrength: 80,
     description: "A Mediterranean powerhouse with a flair for attacking play. The club has invested heavily in its youth academy and looks for a manager who can develop talent while competing at the top.",
-    founded: 2002, logoColor: "#3b82f6",
+    founded: 2002, logoColor: "#3b82f6", contractLength: "2 seasons",
   },
   {
     id: 3, clubName: "Miami Blazers", continent: "North America", country: "USA",
@@ -84,7 +87,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 22_000, transferBudget: 420_000, clubReputation: 78,
     expectedFinish: "Top 8", requiredReputation: 55, squadStrength: 75,
     description: "Florida's most ambitious club rides a wave of commercial momentum. Strong sponsor relationships and a passionate fanbase make this a high-profile role.",
-    founded: 2007, logoColor: "#f59e0b",
+    founded: 2007, logoColor: "#f59e0b", contractLength: "2 seasons",
   },
   {
     id: 4, clubName: "Shanghai Stormers", continent: "Asia", country: "China",
@@ -92,7 +95,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 20_000, transferBudget: 380_000, clubReputation: 72,
     expectedFinish: "Top 4", requiredReputation: 50, squadStrength: 70,
     description: "Rapid-growth club backed by major corporate investment. The Asian Tour is increasingly competitive and the board want a manager who can modernise training methods.",
-    founded: 2011, logoColor: "#ef4444",
+    founded: 2011, logoColor: "#ef4444", contractLength: "3 seasons",
   },
   {
     id: 5, clubName: "Sydney Surf FC", continent: "Oceania", country: "Australia",
@@ -100,7 +103,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 18_000, transferBudget: 300_000, clubReputation: 68,
     expectedFinish: "Top 8", requiredReputation: 45, squadStrength: 66,
     description: "Australia's premier beach volleyball club with world-class facilities at Bondi. A comfortable environment for a manager looking to rebuild a squad on the rise.",
-    founded: 2004, logoColor: "#0ea5e9",
+    founded: 2004, logoColor: "#0ea5e9", contractLength: "2 seasons",
   },
   {
     id: 6, clubName: "Athens Aegean BC", continent: "Europe", country: "Greece",
@@ -108,7 +111,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 14_000, transferBudget: 200_000, clubReputation: 58,
     expectedFinish: "Reach Knockouts", requiredReputation: 35, squadStrength: 58,
     description: "Steeped in Mediterranean tradition, Athens Aegean offers a real challenge: limited resources, passionate fans, and beautiful surroundings. A classic project club.",
-    founded: 1995, logoColor: "#8b5cf6",
+    founded: 1995, logoColor: "#8b5cf6", contractLength: "1 season",
   },
   {
     id: 7, clubName: "Cape Town Swells", continent: "Africa", country: "South Africa",
@@ -116,7 +119,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 12_000, transferBudget: 160_000, clubReputation: 54,
     expectedFinish: "Top 8", requiredReputation: 30, squadStrength: 54,
     description: "Playing on some of the world's most spectacular beaches, Cape Town Swells are looking for a progressive manager to develop the club's young talent pipeline.",
-    founded: 2009, logoColor: "#f97316",
+    founded: 2009, logoColor: "#f97316", contractLength: "2 seasons",
   },
   {
     id: 8, clubName: "Hokkaido Snow Birds", continent: "Asia", country: "Japan",
@@ -124,7 +127,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 13_000, transferBudget: 180_000, clubReputation: 56,
     expectedFinish: "Mid-table", requiredReputation: 30, squadStrength: 55,
     description: "A disciplined, tactically-focused club from Japan's north. Training facilities are excellent and the organisation is meticulously run — ideal for a methodical manager.",
-    founded: 2014, logoColor: "#06b6d4",
+    founded: 2014, logoColor: "#06b6d4", contractLength: "2 seasons",
   },
   {
     id: 9, clubName: "Lagos Beach Kings", continent: "Africa", country: "Nigeria",
@@ -132,7 +135,7 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 9_000, transferBudget: 100_000, clubReputation: 44,
     expectedFinish: "Qualify for Finals", requiredReputation: 15, squadStrength: 46,
     description: "A passionate, high-energy club in one of Africa's fastest-growing markets. Limited funds but bags of raw talent. Perfect for a manager who thrives on development.",
-    founded: 2017, logoColor: "#84cc16",
+    founded: 2017, logoColor: "#84cc16", contractLength: "1 season",
   },
   {
     id: 10, clubName: "Reykjavik Frostbiters", continent: "Europe", country: "Iceland",
@@ -140,9 +143,72 @@ const JOB_OFFERS: JobOffer[] = [
     salary: 8_000, transferBudget: 80_000, clubReputation: 38,
     expectedFinish: "Avoid Bottom 4", requiredReputation: 0, squadStrength: 40,
     description: "Playing mostly indoors due to climate, Reykjavik Frostbiters are the ultimate underdog project. A fresh-start role with zero pressure and total freedom to build from scratch.",
-    founded: 2019, logoColor: "#e2e8f0",
+    founded: 2019, logoColor: "#e2e8f0", contractLength: "1 season",
   },
 ];
+
+// ── Filter tab type ────────────────────────────────────────────────────────────
+
+type FilterTab = "All" | "Realistic" | "Ambitious" | "Elite" | "International" | "Too Low Rep";
+
+const FILTER_TABS: FilterTab[] = ["All", "Realistic", "Ambitious", "Elite", "International", "Too Low Rep"];
+
+function filterJobs(jobs: JobOffer[], tab: FilterTab, rep: number): JobOffer[] {
+  switch (tab) {
+    case "All":
+      return jobs;
+    case "Realistic":
+      return jobs.filter(j => rep >= j.requiredReputation);
+    case "Ambitious":
+      return jobs.filter(j => rep < j.requiredReputation && rep >= j.requiredReputation - 25);
+    case "Elite":
+      return jobs.filter(j => j.clubReputation >= 78 || j.tier === "Elite");
+    case "International":
+      return jobs.filter(j => j.continent !== "Europe" && j.continent !== "North America");
+    case "Too Low Rep":
+      return jobs.filter(j => rep < j.requiredReputation);
+    default:
+      return jobs;
+  }
+}
+
+// ── Status badge logic ─────────────────────────────────────────────────────────
+
+type StatusBadge = {
+  label:     string;
+  className: string;
+  dotClass:  string;
+};
+
+function getStatusBadge(job: JobOffer, rep: number): StatusBadge {
+  const qualified = rep >= job.requiredReputation;
+  if (!qualified) {
+    return {
+      label:     "Rep Too Low",
+      className: "border-rose-500/30 bg-rose-500/10 text-rose-400",
+      dotClass:  "bg-rose-400",
+    };
+  }
+  if (job.tier === "Elite") {
+    return {
+      label:     "Elite Club",
+      className: "border-yellow-500/30 bg-yellow-500/10 text-yellow-400",
+      dotClass:  "bg-yellow-400",
+    };
+  }
+  if (Math.abs(job.clubReputation - rep) <= 20) {
+    return {
+      label:     "Good Fit",
+      className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+      dotClass:  "bg-emerald-400",
+    };
+  }
+  return {
+    label:     "Available",
+    className: "border-blue-500/30 bg-blue-500/10 text-blue-400",
+    dotClass:  "bg-blue-400",
+  };
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -180,9 +246,6 @@ function reputationLabel(rep: number) {
   return               { label: "None required",  colour: "text-white/40"    };
 }
 
-const TIERS: Array<JobOffer["tier"] | "All"> = ["All", "Elite", "Premier", "Regional", "Emerging"];
-const CONTINENTS = ["All", "Africa", "Asia", "Europe", "North America", "Oceania", "South America"];
-
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function StatRow({ icon: Icon, label, value, valueColour }: {
@@ -203,8 +266,8 @@ function StatRow({ icon: Icon, label, value, valueColour }: {
 function ClubLogo({ job, size = "md" }: { job: JobOffer; size?: "sm" | "md" | "lg" }) {
   const dim = size === "lg"
     ? "h-14 w-14 text-2xl rounded-2xl"
-    : size === "md" ? "h-12 w-12 text-lg rounded-xl"
-    : "h-10 w-10 text-base rounded-lg";
+    : size === "md" ? "h-11 w-11 text-lg rounded-xl"
+    : "h-9 w-9 text-base rounded-lg";
   return (
     <div
       className={cn("shrink-0 flex items-center justify-center font-black border", dim)}
@@ -215,10 +278,10 @@ function ClubLogo({ job, size = "md" }: { job: JobOffer; size?: "sm" | "md" | "l
   );
 }
 
-function ReputationBar({ current, required, color }: { current: number; required: number; color: string }) {
+function ReputationBar({ current, required }: { current: number; required: number }) {
   const qualified = current >= required;
   return (
-    <div className="space-y-2 py-3 border-b border-white/5">
+    <div className="space-y-1.5 py-3 border-b border-white/5">
       <div className="flex items-center justify-between text-xs">
         <span className="text-white/50 flex items-center gap-1.5">
           <Star className="h-3 w-3" />
@@ -234,14 +297,11 @@ function ReputationBar({ current, required, color }: { current: number; required
           style={{ width: `${Math.min(current, 100)}%`, backgroundColor: qualified ? "#10b981" : "#f43f5e" }}
         />
         {required > 0 && (
-          <div
-            className="absolute inset-y-0 w-0.5 bg-white/60"
-            style={{ left: `${required}%` }}
-          />
+          <div className="absolute inset-y-0 w-0.5 bg-white/60" style={{ left: `${required}%` }} />
         )}
       </div>
       <div className="flex justify-between text-[10px] text-white/35 tabular-nums">
-        <span>Your reputation: <span className={cn("font-bold", qualified ? "text-emerald-400" : "text-white/60")}>{current}</span></span>
+        <span>Your rep: <span className={cn("font-bold", qualified ? "text-emerald-400" : "text-white/60")}>{current}</span></span>
         <span>Required: <span className="font-bold text-white/60">{required === 0 ? "None" : required}</span></span>
       </div>
     </div>
@@ -257,74 +317,84 @@ function JobCard({ job, managerReputation, onApply, onView }: {
   const tier      = tierConfig(job.tier);
   const repReq    = reputationLabel(job.requiredReputation);
   const qualified = managerReputation >= job.requiredReputation;
+  const status    = getStatusBadge(job, managerReputation);
 
   return (
     <div className={cn(
-      "rounded-2xl border bg-white/3 overflow-hidden transition-colors flex flex-col",
-      qualified ? "border-white/10 hover:border-white/15" : "border-white/7 opacity-80",
+      "rounded-2xl border bg-white/3 overflow-hidden transition-all flex flex-col",
+      qualified ? "border-white/10 hover:border-white/18" : "border-white/7 opacity-75",
     )}>
       {/* Header */}
-      <div className="flex items-center gap-4 p-5 pb-4">
+      <div className="flex items-start gap-3.5 p-4 pb-3">
         <ClubLogo job={job} size="md" />
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-0.5">
-            <h3 className="text-base font-black text-white leading-tight">{job.clubName}</h3>
-            <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-widest", tier.bg, tier.text)}>
-              <span className={cn("h-1.5 w-1.5 rounded-full", tier.dot)} />
-              {job.tier}
-            </span>
-            {!qualified && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-rose-400">
-                Rep. too low
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-white/45 flex items-center gap-1.5 flex-wrap">
+          <h3 className="text-sm font-black text-white leading-tight mb-1">{job.clubName}</h3>
+          <p className="text-[11px] text-white/45 flex items-center gap-1 flex-wrap">
             <span>{continentFlag(job.continent)}</span>
             <span>{job.city}, {job.country}</span>
             <span className="text-white/20">·</span>
             <span>{job.competition}</span>
           </p>
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-widest", tier.bg, tier.text)}>
+              <span className={cn("h-1 w-1 rounded-full", tier.dot)} />
+              {job.tier}
+            </span>
+            <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-widest", status.className)}>
+              <span className={cn("h-1 w-1 rounded-full", status.dotClass)} />
+              {status.label}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-px bg-white/5 border-t border-b border-white/8">
-        <div className="bg-[#0d0f14] px-5 py-3">
+        <div className="bg-[#0a0f1a] px-4 py-2.5">
           <p className="text-[9px] uppercase tracking-widest text-white/30 font-semibold mb-0.5">Salary</p>
-          <p className="text-sm font-black text-emerald-400">{fmtSalary(job.salary)}</p>
+          <p className="text-xs font-black text-emerald-400">{fmtSalary(job.salary)}</p>
         </div>
-        <div className="bg-[#0d0f14] px-5 py-3">
+        <div className="bg-[#0a0f1a] px-4 py-2.5">
           <p className="text-[9px] uppercase tracking-widest text-white/30 font-semibold mb-0.5">Transfer Budget</p>
-          <p className="text-sm font-black text-blue-400">{fmtBudget(job.transferBudget)}</p>
+          <p className="text-xs font-black text-blue-400">{fmtBudget(job.transferBudget)}</p>
         </div>
-        <div className="bg-[#0d0f14] px-5 py-3">
+        <div className="bg-[#0a0f1a] px-4 py-2.5">
           <p className="text-[9px] uppercase tracking-widest text-white/30 font-semibold mb-0.5">Expected Finish</p>
-          <p className="text-sm font-bold text-white/80">{job.expectedFinish}</p>
+          <p className="text-xs font-bold text-white/80">{job.expectedFinish}</p>
         </div>
-        <div className="bg-[#0d0f14] px-5 py-3">
-          <p className="text-[9px] uppercase tracking-widest text-white/30 font-semibold mb-0.5">Min. Reputation</p>
-          <p className={cn("text-sm font-bold", repReq.colour)}>{repReq.label}</p>
+        <div className="bg-[#0a0f1a] px-4 py-2.5">
+          <p className="text-[9px] uppercase tracking-widest text-white/30 font-semibold mb-0.5">Contract</p>
+          <p className="text-xs font-bold text-amber-300/80">{job.contractLength}</p>
         </div>
       </div>
 
-      {/* Club reputation bar */}
-      <div className="px-5 pt-4 pb-2">
-        <div className="flex items-center justify-between mb-1.5">
+      {/* Rep bar + club rep */}
+      <div className="px-4 py-3 space-y-2.5">
+        <div className="flex items-center justify-between">
           <span className="text-[9px] uppercase tracking-widest text-white/30 font-semibold">Club Reputation</span>
-          <span className="text-xs font-black text-white/55 tabular-nums">{job.clubReputation} / 100</span>
+          <span className="text-[10px] font-black text-white/55 tabular-nums">{job.clubReputation} / 100</span>
         </div>
         <div className="h-1.5 w-full bg-white/8 rounded-full overflow-hidden">
           <div className="h-full rounded-full" style={{ width: `${job.clubReputation}%`, backgroundColor: job.logoColor }} />
         </div>
+        <div className="flex items-center justify-between text-[9px] text-white/30">
+          <span className="flex items-center gap-1">
+            <ShieldCheck className="h-2.5 w-2.5" />
+            Min. rep: <span className={cn("font-bold ml-0.5", repReq.colour)}>{job.requiredReputation === 0 ? "None" : repReq.label}</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-2.5 w-2.5" />
+            Est. {job.founded}
+          </span>
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 px-5 py-4 mt-auto">
+      <div className="flex gap-2 px-4 py-3 mt-auto border-t border-white/5">
         <Button
           variant="ghost"
           size="sm"
-          className="flex-1 border border-white/10 bg-white/3 hover:bg-white/8 text-white/70 text-xs"
+          className="flex-1 border border-white/10 bg-white/3 hover:bg-white/8 text-white/70 text-[11px] h-8"
           onClick={() => onView(job)}
         >
           <Building2 className="h-3.5 w-3.5 mr-1.5" />
@@ -332,9 +402,24 @@ function JobCard({ job, managerReputation, onApply, onView }: {
         </Button>
         <Button
           size="sm"
-          className="flex-1 text-xs font-bold border"
-          style={{ backgroundColor: `${job.logoColor}22`, borderColor: `${job.logoColor}55`, color: job.logoColor }}
-          onClick={() => onApply(job)}
+          variant="ghost"
+          disabled
+          className="flex-1 border border-white/8 bg-white/2 text-white/30 text-[11px] h-8 cursor-not-allowed"
+          title="Salary negotiation coming in a future update"
+        >
+          <HandCoins className="h-3.5 w-3.5 mr-1" />
+          Negotiate
+          <span className="ml-1 text-[8px] font-black uppercase tracking-wide text-white/20">Soon</span>
+        </Button>
+        <Button
+          size="sm"
+          disabled={!qualified}
+          className={cn(
+            "flex-1 text-[11px] font-bold border h-8",
+            !qualified && "opacity-40 cursor-not-allowed",
+          )}
+          style={qualified ? { backgroundColor: `${job.logoColor}22`, borderColor: `${job.logoColor}55`, color: job.logoColor } : undefined}
+          onClick={() => qualified && onApply(job)}
         >
           <Briefcase className="h-3.5 w-3.5 mr-1.5" />
           Apply
@@ -344,7 +429,7 @@ function JobCard({ job, managerReputation, onApply, onView }: {
   );
 }
 
-// ── Apply flow sub-states ─────────────────────────────────────────────────────
+// ── Apply flow ─────────────────────────────────────────────────────────────────
 
 type ApplyState = "confirm" | "submitting" | "accepted" | "rejected";
 
@@ -391,7 +476,7 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
   }
 
   return (
-    <DialogContent className="max-w-sm border-white/10 bg-[#0f1117]">
+    <DialogContent className="max-w-sm border-white/10 bg-[#0a0f1a]">
       {state === "accepted" ? (
         <>
           <DialogHeader>
@@ -406,7 +491,7 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
               <div className="text-center">
                 <DialogTitle className="text-lg font-black text-white">Offer Accepted!</DialogTitle>
                 <DialogDescription className="text-sm text-white/50 mt-1">
-                  Welcome to {job.clubName}. You are now the head coach.
+                  Welcome to {job.clubName}. You are now head coach.
                 </DialogDescription>
               </div>
             </div>
@@ -416,10 +501,11 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
           </div>
           <DialogFooter>
             <Button
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold gap-2"
               onClick={() => onAccepted(job.clubName)}
             >
               Go to Dashboard
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </DialogFooter>
         </>
@@ -437,10 +523,10 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
             </div>
           </DialogHeader>
           <div className="rounded-xl border border-white/8 bg-white/3 px-4">
-            <ReputationBar current={managerReputation} required={job.requiredReputation} color={job.logoColor} />
+            <ReputationBar current={managerReputation} required={job.requiredReputation} />
           </div>
           <p className="text-xs text-white/40 text-center leading-relaxed px-2">
-            Build your reputation by winning matches and advancing through the season before reapplying.
+            Win matches and advance through the season to raise your reputation before reapplying.
           </p>
           <DialogFooter>
             <DialogClose asChild>
@@ -460,25 +546,25 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
                   Apply to {job.clubName}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-white/40 mt-0.5">
-                  {job.city}, {job.country}
+                  {job.city}, {job.country} · {job.contractLength}
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
-          {/* Offer summary */}
           <div className="rounded-xl border border-white/8 bg-white/3 px-4">
-            <StatRow icon={DollarSign} label="Salary"          value={fmtSalary(job.salary)}        valueColour="text-emerald-400" />
-            <StatRow icon={Wallet}     label="Transfer Budget" value={fmtBudget(job.transferBudget)} valueColour="text-blue-400"    />
-            <StatRow icon={TrendingUp} label="Board Expects"   value={job.expectedFinish} />
-            <ReputationBar current={managerReputation} required={job.requiredReputation} color={job.logoColor} />
+            <StatRow icon={DollarSign} label="Annual Salary"    value={fmtSalary(job.salary)}        valueColour="text-emerald-400" />
+            <StatRow icon={Wallet}     label="Transfer Budget"  value={fmtBudget(job.transferBudget)} valueColour="text-blue-400"    />
+            <StatRow icon={TrendingUp} label="Board Expects"    value={job.expectedFinish} />
+            <StatRow icon={Calendar}   label="Contract Length"  value={job.contractLength}             valueColour="text-amber-300/80" />
+            <ReputationBar current={managerReputation} required={job.requiredReputation} />
           </div>
 
           {!qualified && (
             <div className="flex items-start gap-3 rounded-xl border border-rose-500/20 bg-rose-500/8 p-3">
               <XCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
               <p className="text-xs text-rose-300/80 leading-relaxed">
-                Your reputation ({managerReputation}) is below this club's minimum ({job.requiredReputation}). You can still apply, but expect to be turned down.
+                Your reputation ({managerReputation}) is below this club's minimum ({job.requiredReputation}).
               </p>
             </div>
           )}
@@ -489,9 +575,9 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
             </DialogClose>
             <Button
               size="sm"
-              disabled={state === "submitting"}
+              disabled={state === "submitting" || !qualified}
               className="border font-bold"
-              style={{ backgroundColor: `${job.logoColor}22`, borderColor: `${job.logoColor}55`, color: job.logoColor }}
+              style={qualified ? { backgroundColor: `${job.logoColor}22`, borderColor: `${job.logoColor}55`, color: job.logoColor } : undefined}
               onClick={handleApply}
             >
               {state === "submitting"
@@ -506,43 +592,114 @@ function ApplyModal({ job, managerReputation, onClose, onAccepted }: {
   );
 }
 
+// ── View Club modal ────────────────────────────────────────────────────────────
+
+function ViewClubModal({ job, managerReputation, onApply, onClose }: {
+  job:               JobOffer;
+  managerReputation: number;
+  onApply:           () => void;
+  onClose:           () => void;
+}) {
+  const tier      = tierConfig(job.tier);
+  const qualified = managerReputation >= job.requiredReputation;
+
+  return (
+    <DialogContent className="max-w-md border-white/10 bg-[#0a0f1a]">
+      <DialogHeader>
+        <div className="flex items-center gap-4 mb-2">
+          <ClubLogo job={job} size="lg" />
+          <div>
+            <DialogTitle className="text-base font-black text-white leading-tight">{job.clubName}</DialogTitle>
+            <DialogDescription className="text-xs text-white/40 mt-0.5">
+              {continentFlag(job.continent)} {job.city}, {job.country} · Est. {job.founded}
+            </DialogDescription>
+          </div>
+        </div>
+      </DialogHeader>
+      <div className="flex flex-wrap gap-2">
+        <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest", tier.bg, tier.text)}>
+          <span className={cn("h-1.5 w-1.5 rounded-full", tier.dot)} />
+          {job.tier}
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/50">
+          <Trophy className="h-3 w-3" />
+          {job.competition}
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/50">
+          <Calendar className="h-3 w-3" />
+          {job.contractLength}
+        </span>
+      </div>
+      <p className="text-sm text-white/60 leading-relaxed">{job.description}</p>
+      <div className="rounded-xl border border-white/8 bg-white/3 px-4">
+        <StatRow icon={DollarSign}  label="Annual Salary"   value={fmtSalary(job.salary)}          valueColour="text-emerald-400" />
+        <StatRow icon={Wallet}      label="Transfer Budget" value={fmtBudget(job.transferBudget)}   valueColour="text-blue-400"    />
+        <StatRow icon={TrendingUp}  label="Expected Finish" value={job.expectedFinish} />
+        <StatRow icon={ShieldCheck} label="Min. Reputation" value={job.requiredReputation === 0 ? "None required" : `${job.requiredReputation} pts`} />
+        <StatRow icon={Flame}       label="Club Reputation" value={`${job.clubReputation} / 100`}   valueColour="text-amber-400"   />
+        <StatRow icon={Users}       label="Squad Strength"  value={`${job.squadStrength} / 100`} />
+        <StatRow icon={MapPin}      label="Region"          value={`${continentFlag(job.continent)} ${job.continent}`} />
+      </div>
+      <DialogFooter className="gap-2">
+        <DialogClose asChild>
+          <Button variant="ghost" size="sm" className="text-white/50">Close</Button>
+        </DialogClose>
+        <Button
+          size="sm"
+          disabled={!qualified}
+          className={cn("border font-bold", !qualified && "opacity-40 cursor-not-allowed")}
+          style={qualified ? { backgroundColor: `${job.logoColor}22`, borderColor: `${job.logoColor}55`, color: job.logoColor } : undefined}
+          onClick={() => { if (qualified) { onClose(); onApply(); } }}
+        >
+          <Briefcase className="h-3.5 w-3.5 mr-1.5" />
+          {qualified ? "Apply for Role" : "Rep Too Low"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function JobMarket() {
   const [, navigate]   = useLocation();
   const queryClient    = useQueryClient();
-  const [search,       setSearch]     = useState("");
-  const [tierFilter,   setTierFilter] = useState<JobOffer["tier"] | "All">("All");
-  const [contFilter,   setContFilter] = useState("All");
-  const [viewJob,      setViewJob]    = useState<JobOffer | null>(null);
-  const [applyJob,     setApplyJob]   = useState<JobOffer | null>(null);
+  const [search,       setSearch]      = useState("");
+  const [activeTab,    setActiveTab]   = useState<FilterTab>("All");
+  const [viewJob,      setViewJob]     = useState<JobOffer | null>(null);
+  const [applyJob,     setApplyJob]    = useState<JobOffer | null>(null);
 
   const { data: savesData } = useListCareerSaves();
+  const activeSave          = savesData?.saves.find(s => s.id === savesData.activeCareerSaveId);
+  const managerReputation   = activeSave?.managerReputation ?? 50;
 
-  // Find the active career save's manager reputation
-  const activeSave       = savesData?.saves.find(s => s.id === savesData.activeCareerSaveId);
-  const managerReputation = activeSave?.managerReputation ?? 50;
-
-  function handleAccepted(clubName: string) {
+  function handleAccepted(_clubName: string) {
     queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
     setApplyJob(null);
     navigate("/");
   }
 
-  const filtered = JOB_OFFERS.filter(j => {
-    if (tierFilter !== "All" && j.tier !== tierFilter) return false;
-    if (contFilter !== "All" && j.continent !== contFilter) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      return (
-        j.clubName.toLowerCase().includes(q)    ||
-        j.country.toLowerCase().includes(q)      ||
-        j.city.toLowerCase().includes(q)         ||
-        j.competition.toLowerCase().includes(q)
-      );
-    }
-    return true;
+  const tabFiltered = filterJobs(JOB_OFFERS, activeTab, managerReputation);
+
+  const filtered = tabFiltered.filter(j => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      j.clubName.toLowerCase().includes(q)    ||
+      j.country.toLowerCase().includes(q)      ||
+      j.city.toLowerCase().includes(q)         ||
+      j.competition.toLowerCase().includes(q)
+    );
   });
+
+  const tabCounts: Record<FilterTab, number> = {
+    All:           JOB_OFFERS.length,
+    Realistic:     filterJobs(JOB_OFFERS, "Realistic",     managerReputation).length,
+    Ambitious:     filterJobs(JOB_OFFERS, "Ambitious",     managerReputation).length,
+    Elite:         filterJobs(JOB_OFFERS, "Elite",         managerReputation).length,
+    International: filterJobs(JOB_OFFERS, "International", managerReputation).length,
+    "Too Low Rep": filterJobs(JOB_OFFERS, "Too Low Rep",   managerReputation).length,
+  };
 
   return (
     <>
@@ -556,14 +713,14 @@ export default function JobMarket() {
           </p>
         </div>
 
-        {/* Manager reputation summary */}
+        {/* Reputation summary */}
         <div className="rounded-2xl border border-white/10 bg-white/3 px-5 py-4 flex items-center gap-4">
           <div className="h-10 w-10 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center shrink-0">
             <Star className="h-5 w-5 text-amber-400" />
           </div>
-          <div className="flex-1">
-            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold mb-1">Your Manager Reputation</p>
-            <div className="h-1.5 w-full bg-white/8 rounded-full overflow-hidden mb-1">
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold mb-1.5">Your Manager Reputation</p>
+            <div className="h-1.5 w-full bg-white/8 rounded-full overflow-hidden mb-1.5">
               <div className="h-full bg-amber-400 rounded-full" style={{ width: `${managerReputation}%` }} />
             </div>
             <p className="text-xs text-white/45">
@@ -573,7 +730,7 @@ export default function JobMarket() {
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-2xl font-black text-white tabular-nums">{managerReputation}</p>
+            <p className="text-3xl font-black text-white tabular-nums">{managerReputation}</p>
             <p className="text-[10px] text-white/30 uppercase tracking-widest">rep.</p>
           </div>
         </div>
@@ -582,60 +739,63 @@ export default function JobMarket() {
         <div className="flex items-start gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-4 py-3">
           <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
           <p className="text-xs text-blue-300/70 leading-relaxed">
-            Sample listings — full job offers with real club matching and salary negotiation will expand as the game evolves.
+            Curated listings — salary negotiation and real-time club matching will expand as the game evolves.
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search clubs, countries, competitions…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/3 pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/25"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 mr-1">
-              <Filter className="h-3.5 w-3.5 text-white/25" />
-              <span className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Tier</span>
-            </div>
-            {TIERS.map(t => (
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search clubs, countries, competitions…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/3 pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/25"
+          />
+        </div>
+
+        {/* Filter tabs */}
+        <div className="flex flex-wrap gap-2">
+          {FILTER_TABS.map(tab => {
+            const count = tabCounts[tab];
+            const active = activeTab === tab;
+            const isDanger = tab === "Too Low Rep";
+            return (
               <button
-                key={t}
-                onClick={() => setTierFilter(t as typeof tierFilter)}
+                key={tab}
+                onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "rounded-lg border px-3 py-1 text-[10px] font-bold uppercase tracking-wide transition-all",
-                  tierFilter === t ? "border-white/30 bg-white/10 text-white" : "border-white/8 bg-white/3 text-white/35 hover:text-white/60",
+                  "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[11px] font-bold transition-all",
+                  active
+                    ? isDanger
+                      ? "border-rose-500/40 bg-rose-500/15 text-rose-300"
+                      : "border-white/25 bg-white/10 text-white"
+                    : isDanger
+                      ? "border-rose-500/15 bg-rose-500/5 text-rose-400/60 hover:text-rose-400/90"
+                      : "border-white/8 bg-white/3 text-white/40 hover:text-white/70",
                 )}
-              >{t === "All" ? "All Tiers" : t}</button>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 mr-1">
-              <Globe className="h-3.5 w-3.5 text-white/25" />
-              <span className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Region</span>
-            </div>
-            {CONTINENTS.map(c => (
-              <button
-                key={c}
-                onClick={() => setContFilter(c)}
-                className={cn(
-                  "rounded-lg border px-3 py-1 text-[10px] font-bold uppercase tracking-wide transition-all",
-                  contFilter === c ? "border-white/30 bg-white/10 text-white" : "border-white/8 bg-white/3 text-white/35 hover:text-white/60",
-                )}
-              >{c === "All" ? "All Regions" : c}</button>
-            ))}
-          </div>
+              >
+                {tab}
+                <span className={cn(
+                  "rounded-md px-1.5 py-0.5 text-[9px] font-black tabular-nums",
+                  active
+                    ? isDanger ? "bg-rose-500/20 text-rose-300" : "bg-white/15 text-white/80"
+                    : "bg-white/5 text-white/30",
+                )}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Result count */}
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-white/35 font-semibold">{filtered.length} position{filtered.length !== 1 ? "s" : ""} available</p>
-          <p className="text-[10px] text-white/20 italic">Updated daily</p>
+        <div className="flex items-center justify-between -mt-2">
+          <p className="text-xs text-white/35 font-semibold">
+            {filtered.length} position{filtered.length !== 1 ? "s" : ""} shown
+          </p>
+          <p className="text-[10px] text-white/20 italic">Updated each season</p>
         </div>
 
         {/* Cards */}
@@ -646,12 +806,14 @@ export default function JobMarket() {
             </div>
             <div>
               <p className="text-sm font-bold text-white/60">No positions match your filters</p>
-              <p className="text-xs text-white/30 mt-1">Try clearing the search or adjusting the filters</p>
+              <p className="text-xs text-white/30 mt-1">Try clearing the search or switching tabs</p>
             </div>
             <button
-              onClick={() => { setSearch(""); setTierFilter("All"); setContFilter("All"); }}
+              onClick={() => { setSearch(""); setActiveTab("All"); }}
               className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2"
-            >Clear all filters</button>
+            >
+              Clear all filters
+            </button>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
@@ -668,60 +830,19 @@ export default function JobMarket() {
         )}
       </div>
 
-      {/* ── View Club modal ── */}
+      {/* View Club modal */}
       <Dialog open={viewJob !== null} onOpenChange={o => { if (!o) setViewJob(null); }}>
         {viewJob && (
-          <DialogContent className="max-w-md border-white/10 bg-[#0f1117]">
-            <DialogHeader>
-              <div className="flex items-center gap-4 mb-2">
-                <ClubLogo job={viewJob} size="lg" />
-                <div>
-                  <DialogTitle className="text-base font-black text-white leading-tight">{viewJob.clubName}</DialogTitle>
-                  <DialogDescription className="text-xs text-white/40 mt-0.5">
-                    {continentFlag(viewJob.continent)} {viewJob.city}, {viewJob.country} · Est. {viewJob.founded}
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
-            <div className="flex flex-wrap gap-2">
-              <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest", tierConfig(viewJob.tier).bg, tierConfig(viewJob.tier).text)}>
-                <span className={cn("h-1.5 w-1.5 rounded-full", tierConfig(viewJob.tier).dot)} />
-                {viewJob.tier}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-white/50">
-                <Trophy className="h-3 w-3" />
-                {viewJob.competition}
-              </span>
-            </div>
-            <p className="text-sm text-white/60 leading-relaxed">{viewJob.description}</p>
-            <div className="rounded-xl border border-white/8 bg-white/3 px-4">
-              <StatRow icon={DollarSign}  label="Annual Salary"   value={fmtSalary(viewJob.salary)}          valueColour="text-emerald-400" />
-              <StatRow icon={Wallet}      label="Transfer Budget" value={fmtBudget(viewJob.transferBudget)}   valueColour="text-blue-400"    />
-              <StatRow icon={TrendingUp}  label="Expected Finish" value={viewJob.expectedFinish} />
-              <StatRow icon={ShieldCheck} label="Min. Reputation" value={viewJob.requiredReputation === 0 ? "None required" : `${viewJob.requiredReputation} pts`} />
-              <StatRow icon={Flame}       label="Club Reputation" value={`${viewJob.clubReputation} / 100`}   valueColour="text-amber-400"   />
-              <StatRow icon={Users}       label="Squad Strength"  value={`${viewJob.squadStrength} / 100`} />
-              <StatRow icon={MapPin}      label="Region"          value={`${continentFlag(viewJob.continent)} ${viewJob.continent}`} />
-            </div>
-            <DialogFooter className="gap-2">
-              <DialogClose asChild>
-                <Button variant="ghost" size="sm" className="text-white/50">Close</Button>
-              </DialogClose>
-              <Button
-                size="sm"
-                className="border"
-                style={{ backgroundColor: `${viewJob.logoColor}22`, borderColor: `${viewJob.logoColor}55`, color: viewJob.logoColor }}
-                onClick={() => { setViewJob(null); setApplyJob(viewJob); }}
-              >
-                <Briefcase className="h-3.5 w-3.5 mr-1.5" />
-                Apply for Role
-              </Button>
-            </DialogFooter>
-          </DialogContent>
+          <ViewClubModal
+            job={viewJob}
+            managerReputation={managerReputation}
+            onApply={() => setApplyJob(viewJob)}
+            onClose={() => setViewJob(null)}
+          />
         )}
       </Dialog>
 
-      {/* ── Apply modal ── */}
+      {/* Apply modal */}
       <Dialog open={applyJob !== null} onOpenChange={o => { if (!o) setApplyJob(null); }}>
         {applyJob && (
           <ApplyModal
