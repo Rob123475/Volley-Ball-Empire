@@ -1,8 +1,15 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { facilitiesTable, teamsTable, playersTable, staffTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import {
+  facilitiesTable,
+  teamsTable,
+  playersTable,
+  staffTable,
+  seasonsTable,
+  financeTransactionsTable,
+} from "@workspace/db";
+import { eq, and, isNotNull, lte, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -40,6 +47,66 @@ function upgradeCost(currentLevel: number): number {
   return currentLevel * 20000;
 }
 
+const BUILD_ROUNDS: Record<number, number> = {
+  1: 3,   // 2 weeks
+  2: 6,   // 1 month
+  3: 8,   // 6 weeks
+  4: 12,  // 2 months
+  5: 18,  // 3 months
+  6: 24,  // 4 months
+  7: 29,  // 5 months
+  8: 35,  // 6 months
+  9: 52,  // 9 months
+};
+
+const BUILD_LABEL: Record<number, string> = {
+  1: "2 weeks",
+  2: "1 month",
+  3: "6 weeks",
+  4: "2 months",
+  5: "3 months",
+  6: "4 months",
+  7: "5 months",
+  8: "6 months",
+  9: "9 months",
+};
+
+async function getCurrentAbsoluteRound(): Promise<number> {
+  const [activeSeason] = await db
+    .select()
+    .from(seasonsTable)
+    .where(eq(seasonsTable.status, "active"))
+    .orderBy(desc(seasonsTable.year))
+    .limit(1);
+  if (!activeSeason) return 0;
+  return (activeSeason.year - 2026) * 70 + activeSeason.currentRound;
+}
+
+async function checkAndCompleteUpgrades(teamId: number, currentRound: number): Promise<void> {
+  const upgrading = await db
+    .select()
+    .from(facilitiesTable)
+    .where(
+      and(
+        eq(facilitiesTable.teamId, teamId),
+        isNotNull(facilitiesTable.upgradingToLevel),
+        lte(facilitiesTable.upgradeCompletesAtRound, currentRound),
+      ),
+    );
+
+  for (const f of upgrading) {
+    if (f.upgradingToLevel == null) continue;
+    await db
+      .update(facilitiesTable)
+      .set({
+        level:                   f.upgradingToLevel,
+        upgradingToLevel:        null,
+        upgradeCompletesAtRound: null,
+        updatedAt:               new Date(),
+      })
+      .where(eq(facilitiesTable.id, f.id));
+  }
+}
 
 async function ensureFacilities(teamId: number) {
   const existing = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, teamId));
@@ -59,8 +126,29 @@ router.get("/facilities", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const currentRound = await getCurrentAbsoluteRound();
+  await checkAndCompleteUpgrades(team.id, currentRound);
+
   const facilities = await ensureFacilities(team.id);
-  res.json(facilities);
+  const enriched = facilities.map(f => ({
+    ...f,
+    upgradeRoundsRemaining: f.upgradeCompletesAtRound != null
+      ? Math.max(0, f.upgradeCompletesAtRound - currentRound)
+      : null,
+    upgradeBuildLabel: f.level > 0 && f.level < 10 ? (BUILD_LABEL[f.level] ?? null) : null,
+  }));
+  res.json(enriched);
+});
+
+router.get("/facilities/upgrade-times", async (_req, res) => {
+  res.json(
+    Object.entries(BUILD_ROUNDS).map(([level, rounds]) => ({
+      fromLevel: Number(level),
+      rounds,
+      label: BUILD_LABEL[Number(level)] ?? "",
+    })),
+  );
 });
 
 router.post("/facilities/:type/upgrade", async (req, res) => {
@@ -77,6 +165,9 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
 
   await ensureFacilities(team.id);
 
+  const currentRound = await getCurrentAbsoluteRound();
+  await checkAndCompleteUpgrades(team.id, currentRound);
+
   const facility = await db.query.facilitiesTable.findFirst({
     where: and(eq(facilitiesTable.teamId, team.id), eq(facilitiesTable.type, type)),
   });
@@ -84,6 +175,14 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
 
   if (facility.level >= MAX_LEVEL) {
     res.status(400).json({ error: "Facility is already at maximum level" });
+    return;
+  }
+
+  if (facility.upgradingToLevel != null) {
+    const roundsLeft = (facility.upgradeCompletesAtRound ?? 0) - currentRound;
+    res.status(400).json({
+      error: `Upgrade already in progress — completes in ${Math.max(0, roundsLeft)} round${roundsLeft !== 1 ? "s" : ""}`,
+    });
     return;
   }
 
@@ -95,18 +194,41 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
     return;
   }
 
+  const buildRounds = BUILD_ROUNDS[facility.level] ?? 3;
+  const completesAtRound = currentRound + buildRounds;
+
   await db.update(teamsTable).set({
     budget:           String(budget - cost),
     managerRepPoints: (team.managerRepPoints ?? 0) + 5,
   }).where(eq(teamsTable.id, team.id));
 
-  const [upgraded] = await db
+  const today = new Date().toISOString().split("T")[0]!;
+  await db.insert(financeTransactionsTable).values({
+    teamId:      team.id,
+    type:        "expense",
+    amount:      String(-cost),
+    description: `Facility upgrade: ${type.replace(/_/g, " ")} → Level ${facility.level + 1}`,
+    category:    "facilities",
+    date:        today,
+  });
+
+  const [updated] = await db
     .update(facilitiesTable)
-    .set({ level: facility.level + 1, updatedAt: new Date() })
+    .set({
+      upgradingToLevel:        facility.level + 1,
+      upgradeCompletesAtRound: completesAtRound,
+      updatedAt:               new Date(),
+    })
     .where(eq(facilitiesTable.id, facility.id))
     .returning();
 
-  res.json(upgraded);
+  res.json({
+    ...updated,
+    buildRounds,
+    buildLabel: BUILD_LABEL[facility.level] ?? "",
+    completesAtRound,
+    roundsRemaining: buildRounds,
+  });
 });
 
 router.get("/club-rating", async (req, res) => {

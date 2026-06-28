@@ -3800,6 +3800,18 @@ components:
           type: string
         level:
           type: integer
+        upgradingToLevel:
+          type: integer
+          nullable: true
+        upgradeCompletesAtRound:
+          type: integer
+          nullable: true
+        upgradeRoundsRemaining:
+          type: integer
+          nullable: true
+        upgradeBuildLabel:
+          type: string
+          nullable: true
 
     ClubRatingComponent:
       type: object
@@ -3862,6 +3874,26 @@ components:
         createdAt:
           type: string
 
+    ActiveCamp:
+      type: object
+      required:
+        - id
+        - campType
+        - campName
+        - completesAtRound
+        - roundsRemaining
+      properties:
+        id:
+          type: integer
+        campType:
+          type: string
+        campName:
+          type: string
+        completesAtRound:
+          type: integer
+        roundsRemaining:
+          type: integer
+
     WellbeingStatus:
       type: object
       required:
@@ -3874,12 +3906,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/WellbeingEffect"
+        activeCamp:
+          nullable: true
+          $ref: "#/components/schemas/ActiveCamp"
 
     WellbeingResult:
       type: object
       required:
         - message
-        - updatedPlayers
         - activeEffects
       properties:
         message:
@@ -3890,6 +3924,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/WellbeingEffect"
+        activeCamp:
+          nullable: true
+          $ref: "#/components/schemas/ActiveCamp"
 
     HallOfFameEntry:
       type: object

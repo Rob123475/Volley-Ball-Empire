@@ -11,4 +11,8 @@ export interface Facility {
   teamId: number;
   type: string;
   level: number;
+  upgradingToLevel?: number | null;
+  upgradeCompletesAtRound?: number | null;
+  upgradeRoundsRemaining?: number | null;
+  upgradeBuildLabel?: string | null;
 }

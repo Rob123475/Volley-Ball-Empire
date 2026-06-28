@@ -1232,6 +1232,10 @@ export interface Facility {
   teamId: number;
   type: string;
   level: number;
+  upgradingToLevel?: number | null;
+  upgradeCompletesAtRound?: number | null;
+  upgradeRoundsRemaining?: number | null;
+  upgradeBuildLabel?: string | null;
 }
 
 export interface ClubRatingComponent {
@@ -1266,15 +1270,25 @@ export interface WellbeingEffect {
   createdAt: string;
 }
 
+export interface ActiveCamp {
+  id: number;
+  campType: string;
+  campName: string;
+  completesAtRound: number;
+  roundsRemaining: number;
+}
+
 export interface WellbeingStatus {
   teamBudget: number;
   activeEffects: WellbeingEffect[];
+  activeCamp?: ActiveCamp | null;
 }
 
 export interface WellbeingResult {
   message: string;
-  updatedPlayers: number;
+  updatedPlayers?: number;
   activeEffects: WellbeingEffect[];
+  activeCamp?: ActiveCamp | null;
 }
 
 export interface HallOfFameEntry {

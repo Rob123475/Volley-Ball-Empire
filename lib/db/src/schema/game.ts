@@ -331,6 +331,8 @@ export const facilitiesTable = pgTable("facilities", {
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
   type: varchar("type", { length: 50 }).notNull(),
   level: integer("level").notNull().default(1),
+  upgradingToLevel: integer("upgrading_to_level"),
+  upgradeCompletesAtRound: integer("upgrade_completes_at_round"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -361,6 +363,27 @@ export const wellbeingEffectsTable = pgTable("wellbeing_effects", {
 });
 
 export type WellbeingEffect = typeof wellbeingEffectsTable.$inferSelect;
+
+type PendingCampEffects = {
+  moraleBonus: number;
+  fatigueChange: number;
+  fitnessChange: number;
+  trainingPtBonus: number;
+  duration: number;
+  effectType: string | null;
+};
+
+export const activeCampsTable = pgTable("active_camps", {
+  id: serial("id").primaryKey(),
+  teamId: integer("team_id").notNull().references(() => teamsTable.id),
+  campType: varchar("camp_type", { length: 50 }).notNull(),
+  campName: varchar("camp_name", { length: 100 }).notNull(),
+  completesAtRound: integer("completes_at_round").notNull(),
+  pendingEffects: jsonb("pending_effects").$type<PendingCampEffects>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ActiveCamp = typeof activeCampsTable.$inferSelect;
 
 export const injuryHistoryTable = pgTable("injury_history", {
   id:          serial("id").primaryKey(),

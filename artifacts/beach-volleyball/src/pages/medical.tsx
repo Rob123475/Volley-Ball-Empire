@@ -46,8 +46,17 @@ import {
   Microscope,
   TrendingUp,
   HeartPulse,
+  Hammer,
   type LucideIcon,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1179,8 +1188,17 @@ function MedicalCentreFacilityCard() {
   const upgradeCost = level * 20_000;
   const budget = Number(team?.budget ?? 0);
   const canAfford = budget >= upgradeCost;
+  const isUpgrading = facility?.upgradingToLevel != null;
 
-  const handleUpgrade = () => {
+  const MC_BUILD_LABELS: Record<number, string> = {
+    1: "2 weeks (~3 rounds)", 2: "1 month (~6 rounds)", 3: "6 weeks (~8 rounds)",
+    4: "2 months (~12 rounds)", 5: "3 months (~18 rounds)", 6: "4 months (~24 rounds)",
+    7: "5 months (~29 rounds)", 8: "6 months (~35 rounds)", 9: "9 months (~52 rounds)",
+  };
+
+  const [confirming, setConfirming] = useState(false);
+
+  const handleConfirm = () => {
     upgradeMutation.mutate(
       { type: "medical_centre" },
       {
@@ -1188,12 +1206,14 @@ function MedicalCentreFacilityCard() {
           queryClient.invalidateQueries({ queryKey: getGetFacilitiesQueryKey() });
           queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
           toast({
-            title: `Medical Centre upgraded to Level ${level + 1}`,
-            description: `$${upgradeCost.toLocaleString()} deducted from budget.`,
+            title: `🏗️ Medical Centre upgrade started`,
+            description: `$${upgradeCost.toLocaleString()} deducted. Completes in ${MC_BUILD_LABELS[level] ?? "unknown time"}.`,
           });
+          setConfirming(false);
         },
         onError: (err: any) => {
-          toast({ title: "Upgrade failed", description: err?.message ?? "Insufficient funds.", variant: "destructive" });
+          toast({ title: "Upgrade failed", description: err?.response?.data?.error ?? err?.message ?? "Insufficient funds.", variant: "destructive" });
+          setConfirming(false);
         },
       },
     );
@@ -1202,6 +1222,7 @@ function MedicalCentreFacilityCard() {
   if (facilitiesLoading || teamLoading) return <Skeleton className="h-32 w-full" />;
 
   return (
+    <>
     <Card className="border-rose-500/30 bg-rose-500/5">
       <CardContent className="p-4">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
@@ -1242,7 +1263,19 @@ function MedicalCentreFacilityCard() {
               </span>
             </div>
           </div>
-          {!isMax && (
+          {isUpgrading ? (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-600 uppercase tracking-wide">
+                <Hammer className="h-3.5 w-3.5" /> Upgrading → Level {facility?.upgradingToLevel}
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                {(facility?.upgradeRoundsRemaining ?? 0) === 0
+                  ? "Ready — play a match to complete"
+                  : `${facility?.upgradeRoundsRemaining} round${facility?.upgradeRoundsRemaining !== 1 ? "s" : ""} remaining`}
+              </div>
+            </div>
+          ) : !isMax ? (
             <div className="flex flex-col items-end gap-1.5 shrink-0">
               <span className={cn("text-xs font-bold", canAfford ? "text-emerald-600" : "text-destructive")}>
                 ${upgradeCost.toLocaleString()}
@@ -1250,7 +1283,7 @@ function MedicalCentreFacilityCard() {
               <Button
                 size="sm"
                 disabled={!canAfford || upgradeMutation.isPending}
-                onClick={handleUpgrade}
+                onClick={() => setConfirming(true)}
                 variant={canAfford ? "default" : "outline"}
                 className="gap-1.5"
               >
@@ -1258,8 +1291,7 @@ function MedicalCentreFacilityCard() {
                 {canAfford ? `Upgrade to Level ${level + 1}` : "Insufficient Funds"}
               </Button>
             </div>
-          )}
-          {isMax && (
+          ) : (
             <Button size="sm" disabled className="gap-1.5 shrink-0">
               <ArrowUp className="h-3.5 w-3.5" />
               Max Level
@@ -1268,6 +1300,39 @@ function MedicalCentreFacilityCard() {
         </div>
       </CardContent>
     </Card>
+
+    <Dialog open={confirming} onOpenChange={(open) => !open && setConfirming(false)}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Hammer className="h-5 w-5 text-rose-500" /> Confirm Medical Centre Upgrade
+          </DialogTitle>
+          <DialogDescription>Level {level} → {level + 1}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+            <span className="text-sm font-medium">Upgrade Cost</span>
+            <span className="font-bold text-rose-600">${upgradeCost.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+            <span className="text-sm font-medium flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" /> Build Time
+            </span>
+            <span className="font-bold">{MC_BUILD_LABELS[level] ?? "Unknown"}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Funds are deducted immediately. The upgrade completes automatically after the required rounds pass.
+          </p>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={() => setConfirming(false)}>Cancel</Button>
+          <Button onClick={handleConfirm} disabled={upgradeMutation.isPending}>
+            {upgradeMutation.isPending ? "Starting…" : "Confirm Upgrade"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 

@@ -3103,7 +3103,11 @@ export const GetFacilitiesResponseItem = zod.object({
   "id": zod.number(),
   "teamId": zod.number(),
   "type": zod.string(),
-  "level": zod.number()
+  "level": zod.number(),
+  "upgradingToLevel": zod.number().nullish(),
+  "upgradeCompletesAtRound": zod.number().nullish(),
+  "upgradeRoundsRemaining": zod.number().nullish(),
+  "upgradeBuildLabel": zod.string().nullish()
 })
 export const GetFacilitiesResponse = zod.array(GetFacilitiesResponseItem)
 
@@ -3119,7 +3123,11 @@ export const UpgradeFacilityResponse = zod.object({
   "id": zod.number(),
   "teamId": zod.number(),
   "type": zod.string(),
-  "level": zod.number()
+  "level": zod.number(),
+  "upgradingToLevel": zod.number().nullish(),
+  "upgradeCompletesAtRound": zod.number().nullish(),
+  "upgradeRoundsRemaining": zod.number().nullish(),
+  "upgradeBuildLabel": zod.string().nullish()
 })
 
 
@@ -3485,7 +3493,14 @@ export const GetWellbeingStatusResponse = zod.object({
   "effectType": zod.string(),
   "matchesRemaining": zod.number(),
   "createdAt": zod.string()
-}))
+})),
+  "activeCamp": zod.object({
+  "id": zod.number(),
+  "campType": zod.string(),
+  "campName": zod.string(),
+  "completesAtRound": zod.number(),
+  "roundsRemaining": zod.number()
+}).nullish()
 })
 
 
@@ -3498,13 +3513,20 @@ export const RunWellbeingCampBody = zod.object({
 
 export const RunWellbeingCampResponse = zod.object({
   "message": zod.string(),
-  "updatedPlayers": zod.number(),
+  "updatedPlayers": zod.number().optional(),
   "activeEffects": zod.array(zod.object({
   "id": zod.number(),
   "effectType": zod.string(),
   "matchesRemaining": zod.number(),
   "createdAt": zod.string()
-}))
+})),
+  "activeCamp": zod.object({
+  "id": zod.number(),
+  "campType": zod.string(),
+  "campName": zod.string(),
+  "completesAtRound": zod.number(),
+  "roundsRemaining": zod.number()
+}).nullish()
 })
 
 

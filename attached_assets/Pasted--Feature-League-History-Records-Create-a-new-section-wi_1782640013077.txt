@@ -1,0 +1,149 @@
+## Feature: League History & Records
+
+Create a new section within **Club → League Ladders** called **History & Records**.
+
+This should become the archive for every completed season.
+
+### Season History
+
+At the top of the page include a season selector.
+
+Example:
+
+2026 ▼
+
+Users can switch between every completed season (2026, 2027, 2028...)
+
+Selecting a season loads the final standings for that year.
+
+Display the complete final ladder for both:
+
+* Senior World Beach Pro Series
+* Youth World Beach Pro Series
+
+Each ladder should include:
+
+* Final Rank
+* Club Logo
+* Club Name
+* Played
+* Won
+* Lost
+* Set Difference
+* Points
+* Final Position
+
+Highlight the user's club.
+
+---
+
+## Champions
+
+Display season champions.
+
+Example:
+
+2026
+🏆 World Champion
+Gold Coast Waves
+
+🥈 Runner Up
+Rio Praia SC
+
+🥉 Third Place
+Cape Town Swells
+
+🏅 Fourth Place
+Tokyo Suns
+
+Youth Champion
+
+Continental Champions
+
+World Finals MVP
+
+Olympic Champion (Olympic years only)
+
+---
+
+## Records
+
+Automatically track career records.
+
+Examples:
+
+Most World Championships
+
+Most Continental Titles
+
+Most Olympic Gold Medals
+
+Longest Winning Streak
+
+Highest Winning Percentage
+
+Most Consecutive Finals
+
+Most Consecutive Playoff Appearances
+
+Most Seasons Played
+
+Largest Championship Margin
+
+Biggest Upset
+
+Highest Scoring Team
+
+Best Defensive Team
+
+Perfect Seasons
+
+---
+
+## Manager History
+
+Track the manager's career.
+
+For every season display:
+
+Club Managed
+
+League Finish
+
+Continental Finish
+
+World Finals Result
+
+Olympic Result
+
+Wins
+
+Losses
+
+Budget
+
+Profit/Loss
+
+Championships Won
+
+Achievements Earned
+
+---
+
+## Hall of Fame
+
+Automatically induct legendary clubs and managers after long-term success.
+
+Display:
+
+Club Hall of Fame
+
+Manager Hall of Fame
+
+Player Hall of Fame
+
+Include career summaries and championship counts.
+
+---
+
+Everything on this page should update automatically at the end of every completed season and remain permanently archived. Nothing should ever be overwritten.

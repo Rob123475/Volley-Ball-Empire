@@ -13,6 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dumbbell,
@@ -31,6 +39,8 @@ import {
   Trophy,
   Zap,
   ChevronUp,
+  Clock,
+  Hammer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -40,6 +50,18 @@ const MAX_LEVEL = 10;
 function upgradeCost(level: number): number {
   return level * 20000;
 }
+
+const BUILD_LABELS: Record<number, string> = {
+  1: "2 weeks (~3 rounds)",
+  2: "1 month (~6 rounds)",
+  3: "6 weeks (~8 rounds)",
+  4: "2 months (~12 rounds)",
+  5: "3 months (~18 rounds)",
+  6: "4 months (~24 rounds)",
+  7: "5 months (~29 rounds)",
+  8: "6 months (~35 rounds)",
+  9: "9 months (~52 rounds)",
+};
 
 type FacilityConfig = {
   name: string;
@@ -227,6 +249,9 @@ export default function FacilitiesPage() {
   const upgradeMutation = useUpgradeFacility();
 
   const [highlightedType, setHighlightedType] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<{
+    type: string; name: string; level: number; cost: number; buildLabel: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!facilities || facilities.length === 0) return;
@@ -254,24 +279,30 @@ export default function FacilitiesPage() {
     queryClient.invalidateQueries({ queryKey: getGetClubRatingQueryKey() });
   };
 
-  const handleUpgrade = (type: string, name: string, currentLevel: number) => {
-    const cost = upgradeCost(currentLevel);
+  const openUpgradeModal = (type: string, name: string, level: number) => {
+    setConfirming({ type, name, level, cost: upgradeCost(level), buildLabel: BUILD_LABELS[level] ?? "Unknown" });
+  };
+
+  const handleConfirm = () => {
+    if (!confirming) return;
     upgradeMutation.mutate(
-      { type },
+      { type: confirming.type },
       {
         onSuccess: () => {
           invalidate();
           toast({
-            title: `${name} upgraded to Level ${currentLevel + 1}`,
-            description: `$${cost.toLocaleString()} deducted from budget.`,
+            title: `🏗️ ${confirming.name} upgrade started`,
+            description: `$${confirming.cost.toLocaleString()} deducted. Completes in ${confirming.buildLabel}.`,
           });
+          setConfirming(null);
         },
         onError: (err: any) => {
           toast({
             title: "Upgrade failed",
-            description: err?.message ?? "Unknown error",
+            description: err?.response?.data?.error ?? err?.message ?? "Unknown error",
             variant: "destructive",
           });
+          setConfirming(null);
         },
       },
     );
@@ -366,6 +397,7 @@ export default function FacilitiesPage() {
           const facility = facilityMap[type];
           const level = facility?.level ?? 1;
           const isMaxed = level >= MAX_LEVEL;
+          const isUpgrading = facility?.upgradingToLevel != null;
           const cost = upgradeCost(level);
           const canAfford = budget >= cost;
           const Icon = cfg.icon;
@@ -461,28 +493,38 @@ export default function FacilitiesPage() {
                   )}
                 </div>
 
-                {/* Upgrade cost display */}
-                {!isMaxed && (
-                  <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
-                    <span className="font-semibold">Upgrade cost</span>
-                    <span className={cn("font-black text-sm", canAfford ? "text-emerald-600" : "text-destructive")}>
-                      ${cost.toLocaleString()}
-                    </span>
+                {/* Upgrade in-progress / cost / button */}
+                {isUpgrading ? (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-600 uppercase tracking-wide">
+                      <Hammer className="h-3.5 w-3.5" /> Upgrading → Level {facility?.upgradingToLevel}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {(facility?.upgradeRoundsRemaining ?? 0) === 0
+                        ? "Ready — play a match to complete"
+                        : `${facility?.upgradeRoundsRemaining} round${facility?.upgradeRoundsRemaining !== 1 ? "s" : ""} remaining`}
+                    </div>
                   </div>
-                )}
-
-                {/* Upgrade button */}
-                {!isMaxed ? (
-                  <Button
-                    className={cn("w-full gap-2 font-bold mt-auto", !canAfford && "opacity-60")}
-                    variant={canAfford ? "default" : "outline"}
-                    disabled={upgradeMutation.isPending || !canAfford}
-                    onClick={() => handleUpgrade(type, cfg.name, level)}
-                    data-testid={`button-upgrade-${type}`}
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                    {canAfford ? `Upgrade to Level ${level + 1}` : `Need $${cost.toLocaleString()}`}
-                  </Button>
+                ) : !isMaxed ? (
+                  <>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
+                      <span className="font-semibold">Upgrade cost</span>
+                      <span className={cn("font-black text-sm", canAfford ? "text-emerald-600" : "text-destructive")}>
+                        ${cost.toLocaleString()}
+                      </span>
+                    </div>
+                    <Button
+                      className={cn("w-full gap-2 font-bold mt-auto", !canAfford && "opacity-60")}
+                      variant={canAfford ? "default" : "outline"}
+                      disabled={upgradeMutation.isPending || !canAfford}
+                      onClick={() => openUpgradeModal(type, cfg.name, level)}
+                      data-testid={`button-upgrade-${type}`}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                      {canAfford ? `Upgrade to Level ${level + 1}` : `Need $${cost.toLocaleString()}`}
+                    </Button>
+                  </>
                 ) : (
                   <div className="h-9 flex items-center justify-center rounded-md border border-dashed border-yellow-500/40 text-xs font-bold text-yellow-600 uppercase tracking-wider gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5" /> Fully Upgraded
@@ -493,6 +535,41 @@ export default function FacilitiesPage() {
           );
         })}
       </div>
+
+      {/* ── Upgrade Confirmation Dialog ── */}
+      <Dialog open={!!confirming} onOpenChange={(open) => !open && setConfirming(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Hammer className="h-5 w-5 text-primary" /> Confirm Facility Upgrade
+            </DialogTitle>
+            <DialogDescription>
+              {confirming?.name} — Level {confirming?.level} → {(confirming?.level ?? 0) + 1}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+              <span className="text-sm font-medium">Upgrade Cost</span>
+              <span className="font-bold text-primary">${confirming?.cost.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+              <span className="text-sm font-medium flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" /> Build Time
+              </span>
+              <span className="font-bold">{confirming?.buildLabel}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Funds are deducted immediately. The upgrade completes automatically after the required rounds pass — no action needed.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirming(null)}>Cancel</Button>
+            <Button onClick={handleConfirm} disabled={upgradeMutation.isPending}>
+              {upgradeMutation.isPending ? "Starting…" : "Confirm Upgrade"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Facility Bonuses Summary ── */}
       <Card>

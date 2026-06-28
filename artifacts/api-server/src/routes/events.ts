@@ -9,8 +9,9 @@ import {
   olympicSelectionsTable,
   facilitiesTable,
   youthLadderTable,
+  activeCampsTable,
 } from "@workspace/db";
-import { eq, and, or, desc, asc } from "drizzle-orm";
+import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
@@ -240,27 +241,56 @@ router.get("/events/upcoming", async (req, res) => {
     });
   }
 
-  // ── 6. Facility actions ──────────────────────────────────────────────────
+  // ── 6. Facility upgrades in progress ────────────────────────────────────
+  const currentRound = activeSeason
+    ? (activeSeason.year - 2026) * 70 + activeSeason.currentRound
+    : 0;
+
   const facilities = await db
     .select()
     .from(facilitiesTable)
-    .where(eq(facilitiesTable.teamId, team.id))
-    .orderBy(asc(facilitiesTable.level));
+    .where(and(eq(facilitiesTable.teamId, team.id), isNotNull(facilitiesTable.upgradingToLevel)));
 
-  const lowFacilities = facilities.filter(f => f.level < 5).slice(0, 2);
-  for (const fac of lowFacilities) {
-    const label = FACILITY_LABELS[fac.type] ?? fac.type.replace(/_/g, " ");
-    const upgradeCost = fac.level * 20_000;
+  for (const fac of facilities) {
+    if (!fac.upgradingToLevel || !fac.upgradeCompletesAtRound) continue;
+    const roundsLeft = Math.max(0, fac.upgradeCompletesAtRound - currentRound);
+    const facLabel = fac.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     items.push({
-      id: `facility_${fac.id}`,
-      type: "facility_action",
-      title: `Upgrade ${label}`,
-      subtitle: `Currently Level ${fac.level}`,
+      id: `upgrade_${fac.id}`,
+      type: "facility_upgrade",
+      title: `🏗️ ${facLabel} Upgrading`,
+      subtitle: `Level ${fac.level} → ${fac.upgradingToLevel}`,
       location: null,
       daysRemaining: null,
       prizeMoney: null,
-      urgency: fac.level <= 2 ? "soon" : "planning",
-      detail: `Upgrading to Level ${fac.level + 1} costs $${upgradeCost.toLocaleString()} and improves team performance.`,
+      urgency: roundsLeft <= 2 ? "soon" : roundsLeft <= 8 ? "upcoming" : "planning",
+      detail: roundsLeft === 0
+        ? "Upgrade complete — visit Facilities to collect"
+        : `${roundsLeft} round${roundsLeft !== 1 ? "s" : ""} remaining until upgrade completes`,
+    });
+  }
+
+  // ── 7. Active wellbeing camp ─────────────────────────────────────────────
+  const [activeCamp] = await db
+    .select()
+    .from(activeCampsTable)
+    .where(eq(activeCampsTable.teamId, team.id))
+    .limit(1);
+
+  if (activeCamp) {
+    const roundsLeft = Math.max(0, activeCamp.completesAtRound - currentRound);
+    items.push({
+      id: `camp_${activeCamp.id}`,
+      type: "wellbeing_camp",
+      title: `⛺ ${activeCamp.campName} Underway`,
+      subtitle: roundsLeft === 0 ? "Ready to apply effects" : `${roundsLeft} round${roundsLeft !== 1 ? "s" : ""} remaining`,
+      location: null,
+      daysRemaining: null,
+      prizeMoney: null,
+      urgency: roundsLeft <= 1 ? "soon" : roundsLeft <= 4 ? "upcoming" : "planning",
+      detail: roundsLeft === 0
+        ? "Camp complete — visit Wellbeing to collect effects"
+        : `Effects will be applied to all active players in ${roundsLeft} round${roundsLeft !== 1 ? "s" : ""}`,
     });
   }
 

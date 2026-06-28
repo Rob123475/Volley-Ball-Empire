@@ -1,8 +1,16 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { teamsTable, playersTable, facilitiesTable, wellbeingEffectsTable, financeTransactionsTable } from "@workspace/db";
-import { eq, and, gt } from "drizzle-orm";
+import {
+  teamsTable,
+  playersTable,
+  facilitiesTable,
+  wellbeingEffectsTable,
+  financeTransactionsTable,
+  activeCampsTable,
+  seasonsTable,
+} from "@workspace/db";
+import { eq, and, gt, lte, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -10,6 +18,8 @@ const router = Router();
 type CampDef = {
   name: string;
   cost: number;
+  durationRounds: number;
+  durationLabel: string;
   effectType?: string;
   baseDuration?: number;
   morale?: number;
@@ -19,11 +29,11 @@ type CampDef = {
 };
 
 const CAMPS: Record<string, CampDef> = {
-  team_retreat:       { name: "Team Retreat",             cost: 15_000, morale: 15, fatigue: -8 },
-  sports_psychology:  { name: "Sports Psychology Camp",   cost: 30_000, morale: 10, effectType: "psych_camp",     baseDuration: 8 },
-  recovery_retreat:   { name: "Recovery Retreat",         cost: 25_000, fatigue: -20, fitness: 5, effectType: "recovery_camp", baseDuration: 6 },
-  holiday_break:      { name: "Holiday Break",            cost: 10_000, morale: 25, fitness: -5 },
-  intensive_training: { name: "Intensive Training Block", cost: 20_000, trainingPoints: 50, fatigue: 12, morale: -5 },
+  team_retreat:       { name: "Team Retreat",             cost: 15_000, durationRounds: 1, durationLabel: "3 days",   morale: 15, fatigue: -8 },
+  sports_psychology:  { name: "Sports Psychology Camp",   cost: 30_000, durationRounds: 2, durationLabel: "1 week",   morale: 10, effectType: "psych_camp",     baseDuration: 8 },
+  recovery_retreat:   { name: "Recovery Retreat",         cost: 25_000, durationRounds: 2, durationLabel: "1 week",   fatigue: -20, fitness: 5, effectType: "recovery_camp", baseDuration: 6 },
+  holiday_break:      { name: "Holiday Break",            cost: 10_000, durationRounds: 3, durationLabel: "2 weeks",  morale: 25, fitness: -5 },
+  intensive_training: { name: "Intensive Training Block", cost: 20_000, durationRounds: 3, durationLabel: "2 weeks",  trainingPoints: 50, fatigue: 12, morale: -5 },
 };
 
 const serializeEffect = (e: { id: number; effectType: string; matchesRemaining: number; createdAt: Date }) => ({
@@ -33,19 +43,99 @@ const serializeEffect = (e: { id: number; effectType: string; matchesRemaining: 
   createdAt:        e.createdAt.toISOString(),
 });
 
+async function getCurrentAbsoluteRound(): Promise<number> {
+  const [activeSeason] = await db
+    .select()
+    .from(seasonsTable)
+    .where(eq(seasonsTable.status, "active"))
+    .orderBy(desc(seasonsTable.year))
+    .limit(1);
+  if (!activeSeason) return 0;
+  return (activeSeason.year - 2026) * 70 + activeSeason.currentRound;
+}
+
+async function checkAndApplyCamps(teamId: number, currentRound: number): Promise<void> {
+  const completedCamps = await db
+    .select()
+    .from(activeCampsTable)
+    .where(and(eq(activeCampsTable.teamId, teamId), lte(activeCampsTable.completesAtRound, currentRound)));
+
+  for (const camp of completedCamps) {
+    const fx = camp.pendingEffects;
+
+    const activePlayers = await db
+      .select()
+      .from(playersTable)
+      .where(and(eq(playersTable.teamId, teamId), eq(playersTable.isActive, true)));
+
+    for (const player of activePlayers) {
+      const updates: Record<string, unknown> = {};
+      if (fx.moraleBonus !== 0)     updates.morale         = Math.min(100, Math.max(0, player.morale + fx.moraleBonus));
+      if (fx.fatigueChange !== 0)   updates.fatigue        = Math.min(100, Math.max(0, player.fatigue + fx.fatigueChange));
+      if (fx.fitnessChange !== 0)   updates.fitness        = Math.min(100, Math.max(0, (player.fitness as number ?? 100) + fx.fitnessChange));
+      if (fx.trainingPtBonus > 0)   updates.trainingPoints = (player.trainingPoints ?? 0) + fx.trainingPtBonus;
+      if (Object.keys(updates).length > 0) {
+        await db.update(playersTable).set(updates).where(eq(playersTable.id, player.id));
+      }
+    }
+
+    if (fx.effectType && fx.duration > 0) {
+      await db.delete(wellbeingEffectsTable).where(
+        and(eq(wellbeingEffectsTable.teamId, teamId), eq(wellbeingEffectsTable.effectType, fx.effectType))
+      );
+      await db.insert(wellbeingEffectsTable).values({
+        teamId,
+        effectType: fx.effectType,
+        matchesRemaining: fx.duration,
+      });
+    }
+
+    await db.delete(activeCampsTable).where(eq(activeCampsTable.id, camp.id));
+  }
+}
+
 router.get("/wellbeing/status", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const activeEffects = await db.select().from(wellbeingEffectsTable).where(
-    and(eq(wellbeingEffectsTable.teamId, team.id), gt(wellbeingEffectsTable.matchesRemaining, 0))
-  );
+  const currentRound = await getCurrentAbsoluteRound();
+  await checkAndApplyCamps(team.id, currentRound);
+
+  const [activeEffects, [runningCamp]] = await Promise.all([
+    db.select().from(wellbeingEffectsTable).where(
+      and(eq(wellbeingEffectsTable.teamId, team.id), gt(wellbeingEffectsTable.matchesRemaining, 0))
+    ),
+    db.select().from(activeCampsTable).where(eq(activeCampsTable.teamId, team.id)).limit(1),
+  ]);
+
+  const activeCamp = runningCamp
+    ? {
+        id:               runningCamp.id,
+        campType:         runningCamp.campType,
+        campName:         runningCamp.campName,
+        completesAtRound: runningCamp.completesAtRound,
+        roundsRemaining:  Math.max(0, runningCamp.completesAtRound - currentRound),
+      }
+    : null;
 
   res.json({
-    teamBudget: Number(team.budget ?? 0),
+    teamBudget:   Number(team.budget ?? 0),
     activeEffects: activeEffects.map(serializeEffect),
+    activeCamp,
   });
+});
+
+router.get("/wellbeing/camps", async (_req, res) => {
+  res.json(
+    Object.entries(CAMPS).map(([id, c]) => ({
+      id,
+      name:          c.name,
+      cost:          c.cost,
+      durationRounds: c.durationRounds,
+      durationLabel: c.durationLabel,
+    })),
+  );
 });
 
 router.post("/wellbeing/run", async (req, res) => {
@@ -56,6 +146,23 @@ router.post("/wellbeing/run", async (req, res) => {
   const { campType } = req.body as { campType: string };
   const camp = CAMPS[campType];
   if (!camp) { res.status(400).json({ error: "Unknown camp type" }); return; }
+
+  const currentRound = await getCurrentAbsoluteRound();
+  await checkAndApplyCamps(team.id, currentRound);
+
+  const [existingCamp] = await db
+    .select()
+    .from(activeCampsTable)
+    .where(eq(activeCampsTable.teamId, team.id))
+    .limit(1);
+
+  if (existingCamp) {
+    const roundsLeft = Math.max(0, existingCamp.completesAtRound - currentRound);
+    res.status(400).json({
+      error: `${existingCamp.campName} is still in progress — completes in ${roundsLeft} round${roundsLeft !== 1 ? "s" : ""}`,
+    });
+    return;
+  }
 
   const budget = Number(team.budget ?? 0);
   if (budget < camp.cost) {
@@ -81,60 +188,42 @@ router.post("/wellbeing/run", async (req, res) => {
   let trainingPtBonus = camp.trainingPoints ?? 0;
   let duration        = camp.baseDuration   ?? 0;
 
-  // Psychology Centre: improves morale from Team Retreat + Sports Psychology Camp (+0→+5 at L10)
   if (campType === "team_retreat" || campType === "sports_psychology") {
     moraleBonus += Math.round((psychLevel - 1) * (5 / 9));
   }
-  // Psychology Centre: extends Sports Psychology Camp duration (+0→+4 matches at L10)
   if (campType === "sports_psychology") {
     duration += Math.round((psychLevel - 1) * (4 / 9));
   }
-  // Training Complex: more XP from Intensive Training Block (+0→+25 at L10)
   if (campType === "intensive_training") {
     trainingPtBonus += Math.round((trainingLevel - 1) * (25 / 9));
   }
-  // Medical Centre + Sports Science Lab: improve Recovery Retreat fatigue reduction and duration
   if (campType === "recovery_retreat") {
     fatigueChange -= Math.round((medLevel - 1) * (5 / 9));
     fatigueChange -= Math.round((labLevel  - 1) * (5 / 9));
     duration      += Math.round((medLevel  - 1) * (2 / 9));
   }
-  // Nutrition Centre: extra fatigue reduction from Recovery Retreat (+0→−5 at L10)
   if (campType === "recovery_retreat") {
     fatigueChange -= Math.round((nutritionLevel - 1) * (5 / 9));
   }
-  // Beach Resort: extra morale bonus from all camps (+0→+8 at L10)
   moraleBonus += Math.round((beachResortLevel - 1) * (8 / 9));
 
-  // Apply stat changes to all active players
-  const activePlayers = await db.select().from(playersTable).where(
-    and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true))
-  );
+  const completesAtRound = currentRound + camp.durationRounds;
 
-  for (const player of activePlayers) {
-    const updates: Record<string, unknown> = {};
-    if (moraleBonus !== 0)     updates.morale         = Math.min(100, Math.max(0, player.morale + moraleBonus));
-    if (fatigueChange !== 0)   updates.fatigue        = Math.min(100, Math.max(0, player.fatigue + fatigueChange));
-    if (fitnessChange !== 0)   updates.fitness        = Math.min(100, Math.max(0, (player.fitness as number ?? 100) + fitnessChange));
-    if (trainingPtBonus > 0)   updates.trainingPoints = (player.trainingPoints ?? 0) + trainingPtBonus;
-    if (Object.keys(updates).length > 0) {
-      await db.update(playersTable).set(updates).where(eq(playersTable.id, player.id));
-    }
-  }
+  await db.insert(activeCampsTable).values({
+    teamId:           team.id,
+    campType,
+    campName:         camp.name,
+    completesAtRound,
+    pendingEffects: {
+      moraleBonus,
+      fatigueChange,
+      fitnessChange,
+      trainingPtBonus,
+      duration,
+      effectType: camp.effectType ?? null,
+    },
+  });
 
-  // Store temporary effects, replacing any existing one of the same type
-  if (camp.effectType && duration > 0) {
-    await db.delete(wellbeingEffectsTable).where(
-      and(eq(wellbeingEffectsTable.teamId, team.id), eq(wellbeingEffectsTable.effectType, camp.effectType))
-    );
-    await db.insert(wellbeingEffectsTable).values({
-      teamId: team.id,
-      effectType: camp.effectType,
-      matchesRemaining: duration,
-    });
-  }
-
-  // Deduct cost and record finance transaction
   await db.update(teamsTable)
     .set({ budget: String(budget - camp.cost) })
     .where(eq(teamsTable.id, team.id));
@@ -153,9 +242,15 @@ router.post("/wellbeing/run", async (req, res) => {
   );
 
   res.json({
-    message:        `${camp.name} completed`,
-    updatedPlayers: activePlayers.length,
+    message:        `${camp.name} started — effects apply in ${camp.durationRounds} round${camp.durationRounds !== 1 ? "s" : ""}`,
     activeEffects:  activeEffects.map(serializeEffect),
+    activeCamp: {
+      id:               -1,
+      campType,
+      campName:         camp.name,
+      completesAtRound,
+      roundsRemaining:  camp.durationRounds,
+    },
   });
 });
 

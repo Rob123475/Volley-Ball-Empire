@@ -37,6 +37,8 @@ const CAMP_DEFS = [
     facilityNote: "Psychology Centre: +bonus morale at higher levels",
     facilityType: "psychology_centre",
     temporaryEffect: null as string | null,
+    durationLabel: "1 round (~1 week)",
+    durationRounds: 1,
   },
   {
     id: "sports_psychology",
@@ -50,6 +52,8 @@ const CAMP_DEFS = [
     facilityNote: "Psychology Centre: longer duration + extra morale",
     facilityType: "psychology_centre",
     temporaryEffect: "psych_camp",
+    durationLabel: "2 rounds (~2 weeks)",
+    durationRounds: 2,
   },
   {
     id: "recovery_retreat",
@@ -63,6 +67,8 @@ const CAMP_DEFS = [
     facilityNote: "Medical Centre + Sports Science Lab: more fatigue reduction & longer duration",
     facilityType: "medical_centre",
     temporaryEffect: "recovery_camp",
+    durationLabel: "2 rounds (~2 weeks)",
+    durationRounds: 2,
   },
   {
     id: "holiday_break",
@@ -76,6 +82,8 @@ const CAMP_DEFS = [
     facilityNote: null,
     facilityType: null,
     temporaryEffect: null,
+    durationLabel: "3 rounds (~3 weeks)",
+    durationRounds: 3,
   },
   {
     id: "intensive_training",
@@ -89,6 +97,8 @@ const CAMP_DEFS = [
     facilityNote: "Training Complex: more XP bonus at higher levels",
     facilityType: "training_complex",
     temporaryEffect: null,
+    durationLabel: "3 rounds (~3 weeks)",
+    durationRounds: 3,
   },
 ];
 
@@ -129,12 +139,12 @@ export default function WellbeingCamps() {
   const handleConfirm = () => {
     if (!confirming) return;
     runCamp.mutate({ data: { campType: confirming.id } }, {
-      onSuccess: (result) => {
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetWellbeingStatusQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
         toast({
-          title: `${confirming.emoji} ${confirming.name} completed`,
-          description: `${result.updatedPlayers} active players updated.`,
+          title: `${confirming.emoji} ${confirming.name} started`,
+          description: `Camp underway — effects apply in ${confirming.durationLabel}.`,
         });
         setConfirming(null);
       },
@@ -159,6 +169,7 @@ export default function WellbeingCamps() {
 
   const budget     = status?.teamBudget ?? 0;
   const activeFx   = status?.activeEffects ?? [];
+  const activeCamp = status?.activeCamp;
 
   return (
     <div className="space-y-8">
@@ -191,6 +202,25 @@ export default function WellbeingCamps() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Active camp countdown ─────────────────────────────────────── */}
+      {activeCamp && (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Camp In Progress</h3>
+          <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+            <span className="text-2xl">{CAMP_DEFS.find(c => c.id === activeCamp.campType)?.emoji ?? "🏕️"}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">{activeCamp.campName}</p>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                <Clock className="h-3 w-3" />
+                {activeCamp.roundsRemaining === 0
+                  ? "Ready — play a match to apply effects"
+                  : `${activeCamp.roundsRemaining} round${activeCamp.roundsRemaining !== 1 ? "s" : ""} remaining — effects pending`}
+              </div>
+            </div>
           </div>
         </section>
       )}
@@ -256,13 +286,18 @@ export default function WellbeingCamps() {
                       ✓ Effect currently active — running again will reset the duration
                     </p>
                   )}
+                  {activeCamp && (
+                    <p className="text-xs text-amber-500 mb-2">
+                      🏕️ A camp is already in progress — wait for it to finish
+                    </p>
+                  )}
                   <Button
                     className="w-full"
-                    variant={canAfford ? "default" : "outline"}
-                    disabled={!canAfford || runCamp.isPending}
+                    variant={canAfford && !activeCamp ? "default" : "outline"}
+                    disabled={!canAfford || runCamp.isPending || !!activeCamp}
                     onClick={() => setConfirming(camp)}
                   >
-                    {!canAfford ? "Insufficient funds" : "Run Camp"}
+                    {activeCamp ? "Camp in progress" : !canAfford ? "Insufficient funds" : "Run Camp"}
                   </Button>
                 </div>
               </CardContent>
@@ -289,6 +324,15 @@ export default function WellbeingCamps() {
               <span className="text-sm font-medium">Cost</span>
               <span className="font-bold text-primary">${confirming?.cost.toLocaleString()}</span>
             </div>
+            <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2">
+              <span className="text-sm font-medium flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" /> Camp Duration
+              </span>
+              <span className="font-bold">{confirming?.durationLabel}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Funds are deducted immediately. Effects are applied to your squad after the camp ends.
+            </p>
 
             <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Effects on all active players</p>

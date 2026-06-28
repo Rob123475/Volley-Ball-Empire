@@ -5,10 +5,12 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { ActiveCamp } from './activeCamp';
 import type { WellbeingEffect } from './wellbeingEffect';
 
 export interface WellbeingResult {
   message: string;
-  updatedPlayers: number;
+  updatedPlayers?: number;
   activeEffects: WellbeingEffect[];
+  activeCamp?: ActiveCamp | null;
 }
