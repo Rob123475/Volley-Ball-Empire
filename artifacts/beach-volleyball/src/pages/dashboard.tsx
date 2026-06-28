@@ -259,8 +259,12 @@ export default function Dashboard() {
   const repPts      = team?.managerRepPoints ?? 0;
   const repLvl      = getRepLevel(repPts);
   const repPct      = repLvl.next === null ? 100 : Math.round(((repPts - repLvl.min) / (repLvl.next - repLvl.min)) * 100);
-  const managerName = (dashboard as any)?.managerName ?? "";
-  const initials    = (team?.name ?? "C").split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+  // Club name priority: career-save clubName (custom or preset) → team.name → fallback
+  const clubDisplayName = (dashboard as any)?.clubName ?? team?.name ?? "No Club Selected";
+  // Manager name priority: career-save managerName → user display name → blank
+  const managerName = (dashboard as any)?.managerName
+    || (dashboard as any)?.userDisplayName
+    || "";
 
   const avgMorale   = dashboard?.topPlayers && dashboard.topPlayers.length > 0
     ? Math.round(dashboard.topPlayers.reduce((s, p) => s + (p.morale ?? 75), 0) / dashboard.topPlayers.length)
@@ -361,7 +365,7 @@ export default function Dashboard() {
               {/* Shield emblem — club crest + rating ring overlay */}
               <div className="shrink-0 relative w-[88px] h-[100px]">
                 <ClubCrest
-                  name={team?.name ?? ""}
+                  name={clubDisplayName}
                   primaryColor={team?.logoColor}
                   size={88}
                   className="drop-shadow-2xl"
@@ -397,14 +401,14 @@ export default function Dashboard() {
 
                 {/* Club name — headline */}
                 <h1 className="text-4xl md:text-5xl font-black text-white leading-none truncate mb-4 drop-shadow-lg">
-                  {team?.name ?? "My Club"}
+                  {clubDisplayName}
                 </h1>
 
                 {/* Manager row */}
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 border border-white/10">
                     <Users className="h-3 w-3 text-white/50" />
-                    <span className="text-xs font-bold text-white/80">{managerName || "Unnamed Manager"}</span>
+                    <span className="text-xs font-bold text-white/80">{managerName || "Manager"}</span>
                   </div>
                   <div className={cn("flex items-center gap-1.5 text-sm font-black", repLvl.colour)}>
                     <Award className="h-3.5 w-3.5" />

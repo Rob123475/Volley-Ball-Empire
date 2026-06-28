@@ -36,13 +36,30 @@ router.get("/dashboard", async (req, res) => {
   const allTeams = await db.select().from(teamsTable).orderBy(desc(teamsTable.wins)).limit(20);
   const myRank = allTeams.findIndex(t => t.id === team.id) + 1;
 
-  const careerSave = await db.query.careerSavesTable.findFirst({
-    where: eq(careerSavesTable.teamId, team.id),
-  });
+  // Career save: prefer session-tracked save ID (set on career creation/load),
+  // fall back to teamId lookup so legacy saves still work.
+  const careerSave = req.activeCareerSaveId
+    ? await db.query.careerSavesTable.findFirst({
+        where: and(
+          eq(careerSavesTable.id, req.activeCareerSaveId),
+          eq(careerSavesTable.userId, req.user!.id),
+        ),
+      })
+    : await db.query.careerSavesTable.findFirst({
+        where: eq(careerSavesTable.teamId, team.id),
+      });
+
+  // Resolved display name: career-save club name is authoritative (handles custom
+  // names entered during career creation). Fall back to team.name in the DB.
+  const clubDisplayName  = careerSave?.clubName ?? team.name;
+  const managerDisplayName = careerSave?.managerName ?? null;
+  const userDisplayName  = (req.user as any)?.name ?? null;
 
   res.json({
     team: { ...team, budget: Number(team.budget) },
-    managerName: careerSave?.managerName ?? null,
+    clubName:        clubDisplayName,
+    managerName:     managerDisplayName,
+    userDisplayName: userDisplayName,
     nextMatch: nextMatch ? {
       ...nextMatch,
       prizeAmount: nextMatch.prizeAmount ? Number(nextMatch.prizeAmount) : null,
