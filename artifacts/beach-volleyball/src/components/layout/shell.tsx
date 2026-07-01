@@ -27,6 +27,8 @@ import {
   FolderOpen,
   BarChart2,
 } from "lucide-react";
+import { CalendarPanel } from "@/components/calendar-panel";
+import { MatchDayModal } from "@/components/match-day-modal";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -294,6 +296,9 @@ export function Sidebar() {
         </div>
       </nav>
 
+      {/* ── Calendar panel ── */}
+      <CalendarPanel />
+
       {/* ── Role blocks ── */}
       <div className="px-3 pt-3 pb-2 border-t border-sidebar-border shrink-0 space-y-1.5">
         <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 bg-sidebar-accent/30">
@@ -415,6 +420,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background">
       <AchievementWatcher />
+      <MatchDayModal />
       <Sidebar />
       <main className="flex-1 p-4 lg:p-8 overflow-y-auto min-w-0">
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">

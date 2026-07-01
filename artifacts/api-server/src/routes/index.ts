@@ -35,6 +35,7 @@ import poachingRouter from "./poaching";
 import aiManagersRouter from "./ai-managers";
 import historyRouter from "./history";
 import gameApiRouter from "./game-api";
+import calendarRouter from "./calendar";
 import devRouter from "./dev";
 
 const router: IRouter = Router();
@@ -75,6 +76,7 @@ router.use(poachingRouter);
 router.use(aiManagersRouter);
 router.use(historyRouter);
 router.use(gameApiRouter);
+router.use(calendarRouter);
 router.use(devRouter);
 
 export default router;

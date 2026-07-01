@@ -642,3 +642,17 @@ export const unityMatchStatsTable = pgTable("unity_match_stats", {
 
 export type UnityMatchStats       = typeof unityMatchStatsTable.$inferSelect;
 export type InsertUnityMatchStats = typeof unityMatchStatsTable.$inferInsert;
+
+// Calendar progression system
+export const calendarStateTable = pgTable("calendar_state", {
+  id:             serial("id").primaryKey(),
+  teamId:         integer("team_id").notNull().unique().references(() => teamsTable.id),
+  currentDate:    varchar("current_date",    { length: 20 }).notNull().default("2026-01-15"),
+  calendarSpeed:  varchar("calendar_speed",  { length: 10 }).notNull().default("pause"),
+  pendingMatchId: integer("pending_match_id"),
+  lastSalaryDate: varchar("last_salary_date", { length: 20 }),
+  updatedAt:      timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type CalendarState       = typeof calendarStateTable.$inferSelect;
+export type InsertCalendarState = typeof calendarStateTable.$inferInsert;
