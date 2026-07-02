@@ -26,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/player-portrait";
 import { YouthPlayerCard, type YouthPlayerData } from "@/components/youth-player-card";
-import rawYouthPlayers from "@/data/youthPlayers.json";
+import rawYouthPlayers from "@/data/players_youth.json";
 import {
   Globe,
   MapPin,
