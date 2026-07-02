@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import {
   useGetContinentalRegions,
   useGetContinentalProspects,
@@ -15,9 +16,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/player-portrait";
+import { YouthPlayerCard, type YouthPlayerData } from "@/components/youth-player-card";
+import rawYouthPlayers from "@/data/youthPlayers.json";
 import {
   Globe,
   MapPin,
@@ -40,7 +49,11 @@ import {
   Sparkles,
   ExternalLink,
   AlertCircle,
+  Search,
+  CreditCard,
 } from "lucide-react";
+
+const ALL_YOUTH_PLAYERS = rawYouthPlayers as YouthPlayerData[];
 
 // ── Elite event config ─────────────────────────────────────────────────────
 
@@ -100,6 +113,8 @@ export default function YouthAcademy() {
   const [, navigate] = useLocation();
   const { toast }   = useToast();
   const qc          = useQueryClient();
+  const [cardPlayer, setCardPlayer] = useState<YouthPlayerData | null>(null);
+  const [search, setSearch]         = useState("");
 
   const { data: regions,   isLoading: regionsLoading }   = useGetContinentalRegions();
   const { data: contProspects = [], isLoading: contLoading } = useGetContinentalProspects();
@@ -110,6 +125,17 @@ export default function YouthAcademy() {
 
   const signMutation   = useSignYouthProspect();
   const ignoreMutation = useIgnoreYouthProspect();
+
+  const filteredPlayers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return ALL_YOUTH_PLAYERS;
+    return ALL_YOUTH_PLAYERS.filter(
+      (p) =>
+        p.fullName.toLowerCase().includes(q) ||
+        p.nationality.toLowerCase().includes(q) ||
+        p.primaryRole.toLowerCase().includes(q),
+    );
+  }, [search]);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: getGetContinentalRegionsQueryKey() });
@@ -396,6 +422,64 @@ export default function YouthAcademy() {
         </section>
       )}
 
+      {/* ── Youth Player Database ─────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <CreditCard className="h-5 w-5 text-primary" />
+          <h3 className="text-xl font-bold">Youth Player Database</h3>
+          <Badge variant="secondary" className="text-xs ml-1">
+            {ALL_YOUTH_PLAYERS.length} players
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground -mt-2">
+          Browse all youth players from the global talent pool. Click any player to view their full profile card.
+        </p>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name, nationality or role…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+
+        {filteredPlayers.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No players match your search.</p>
+        ) : (
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredPlayers.map((p) => {
+              const potStars = Array.from({ length: 5 }, (_, i) =>
+                i < p.potential ? "★" : "☆"
+              ).join("");
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setCardPlayer(p)}
+                  className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left hover:border-primary/50 hover:bg-muted/40 transition-colors group"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm leading-tight truncate group-hover:text-primary transition-colors">
+                      {p.fullName}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {p.nationality} · Age {p.age} · {p.primaryRole}
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-amber-500 text-xs tracking-wider leading-none">{potStars}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">Potential</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       {/* ── Youth Development League ──────────────────────────── */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
@@ -483,6 +567,17 @@ export default function YouthAcademy() {
           );
         })()}
       </section>
+      {/* ── Player Card Modal ─────────────────────────────────── */}
+      <Dialog open={cardPlayer !== null} onOpenChange={(open) => { if (!open) setCardPlayer(null); }}>
+        <DialogContent className="flex flex-col items-center gap-4 max-w-fit bg-transparent border-none shadow-none p-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{cardPlayer?.fullName ?? "Player Card"}</DialogTitle>
+          </DialogHeader>
+          {cardPlayer && (
+            <YouthPlayerCard player={cardPlayer} width={360} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
