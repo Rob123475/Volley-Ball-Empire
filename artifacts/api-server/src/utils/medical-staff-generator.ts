@@ -1,3 +1,16 @@
+const STAFF_DOCTORS = [
+  { id: "doctor_01", name: "Dr. Alessandro Bianchi", specialty: "Team Doctor", stars: 4, recoveryBonus: 14, salary: 18000, nationality: "Italy",          age: 42, image: "images/staff/staff_medical_doctor_01.webp" },
+  { id: "doctor_02", name: "Dr. Sofia Petrova",      specialty: "Team Doctor", stars: 4, recoveryBonus: 12, salary: 14000, nationality: "Bulgaria",       age: 38, image: "images/staff/staff_medical_doctor_02.webp" },
+  { id: "doctor_03", name: "Dr. Hiroshi Tanaka",     specialty: "Team Doctor", stars: 4, recoveryBonus: 18, salary: 24000, nationality: "Japan",           age: 51, image: "images/staff/staff_medical_doctor_03.webp" },
+  { id: "doctor_04", name: "Dr. Anna Kowalska",      specialty: "Team Doctor", stars: 4, recoveryBonus: 16, salary: 20000, nationality: "Poland",          age: 46, image: "images/staff/staff_medical_doctor_04.webp" },
+  { id: "doctor_05", name: "Dr. Karim Hassan",       specialty: "Team Doctor", stars: 4, recoveryBonus: 22, salary: 28000, nationality: "Egypt",           age: 57, image: "images/staff/staff_medical_doctor_05.webp" },
+  { id: "doctor_06", name: "Dr. Sarah Mitchell",     specialty: "Team Doctor", stars: 4, recoveryBonus: 12, salary: 14000, nationality: "Australia",       age: 38, image: "images/staff/staff_medical_doctor_06.webp" },
+  { id: "doctor_07", name: "Dr. James O'Connor",     specialty: "Team Doctor", stars: 4, recoveryBonus: 15, salary: 20000, nationality: "Australia",       age: 45, image: "images/staff/staff_medical_doctor_07.webp" },
+  { id: "doctor_08", name: "Dr. Emily Harrison",     specialty: "Team Doctor", stars: 4, recoveryBonus: 13, salary: 17000, nationality: "United Kingdom",  age: 43, image: "images/staff/staff_medical_doctor_08.webp" },
+  { id: "doctor_09", name: "Dr. Priya Sharma",       specialty: "Team Doctor", stars: 4, recoveryBonus: 11, salary: 13000, nationality: "India",           age: 39, image: "images/staff/staff_medical_doctor_09.webp" },
+  { id: "doctor_10", name: "Dr. Michael Anderson",   specialty: "Team Doctor", stars: 4, recoveryBonus: 20, salary: 26000, nationality: "USA",             age: 54, image: "images/staff/staff_medical_doctor_10.webp" },
+] as const;
+
 const NATIONALITIES = [
   "Brazilian","American","Australian","Spanish","German","French","Italian","Dutch",
   "Brazilian","Japanese","Chinese","Russian","Canadian","Argentine","Norwegian",
@@ -75,20 +88,55 @@ function rand(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function pick<T>(arr: T[]): T {
+function pick<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]!;
 }
 
-const getMedicalImageUrl = (name: string) =>
-  `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_medical")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9,c0aede`;
+function getMedicalImageUrl(name: string): string {
+  return `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_medical")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9,c0aede`;
+}
+
+function generateMedicalStaffDoctor() {
+  const doc = pick(STAFF_DOCTORS);
+  const overallRating = Math.min(95, 60 + Math.round(doc.recoveryBonus * 1.5));
+  const attrNames = ROLE_ATTRIBUTES["team_doctor"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-8, 8);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  return {
+    name:            doc.name,
+    role:            "team_doctor" as MedicalRole,
+    specialty:       doc.specialty,
+    salary:          doc.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     doc.nationality,
+    imageUrl:        `/${doc.image}`,
+    isAvailable:     true,
+    age:             doc.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24] as const),
+    coachSpeciality: "Medical",
+    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Innovative"] as const),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["team_doctor"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(15, 40),
+  };
+}
 
 export function generateMedicalStaffMember(role: MedicalRole) {
-  const name        = pick(FEMALE_MEDICAL_NAMES);
-  const nationality = pick(NATIONALITIES);
-  const [rMin, rMax] = ROLE_RATING_RANGES[role];
+  if (role === "team_doctor") {
+    return generateMedicalStaffDoctor();
+  }
+
+  const name          = pick(FEMALE_MEDICAL_NAMES);
+  const nationality   = pick(NATIONALITIES);
+  const [rMin, rMax]  = ROLE_RATING_RANGES[role];
   const overallRating = rand(rMin, rMax);
   const [sMin, sMax]  = ROLE_SALARY_RANGES[role];
-  const salary = rand(sMin, sMax);
+  const salary        = rand(sMin, sMax);
 
   const attrNames = ROLE_ATTRIBUTES[role];
   const attributes: Record<string, number> = {};
@@ -96,8 +144,6 @@ export function generateMedicalStaffMember(role: MedicalRole) {
     const base = overallRating + rand(-10, 10);
     attributes[attr] = Math.min(99, Math.max(40, base));
   }
-
-  const specialTrait   = pick(ROLE_TRAITS[role]);
 
   return {
     name,
@@ -110,11 +156,11 @@ export function generateMedicalStaffMember(role: MedicalRole) {
     isAvailable:     true,
     age:             rand(28, 55),
     overallRating,
-    contractLength:  pick([6, 12, 18, 24]),
+    contractLength:  pick([6, 12, 18, 24] as const),
     coachSpeciality: "Medical",
-    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Innovative"]),
+    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Innovative"] as const),
     attributes,
-    specialTrait,
+    specialTrait:    pick(ROLE_TRAITS[role]),
     isScoutRevealed: false,
     scoutingRating:  rand(15, 40),
   };
