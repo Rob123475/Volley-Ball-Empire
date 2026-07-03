@@ -3,15 +3,19 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable, facilitiesTable } from "@workspace/db";
 import { eq, isNull, and, lte, ne } from "drizzle-orm";
+import { generateDevelopment } from "../utils/player-development";
 
 const router = Router();
 
-const serializePlayer = (p: any) => ({
-  ...p,
-  height: Number(p.height),
-  salary: Number(p.salary),
-  askingPrice: p.askingPrice ? Number(p.askingPrice) : null,
-});
+const serializePlayer = (p: any) => {
+  const { development: _d, ...rest } = p;
+  return {
+    ...rest,
+    height:      Number(rest.height),
+    salary:      Number(rest.salary),
+    askingPrice: rest.askingPrice ? Number(rest.askingPrice) : null,
+  };
+};
 
 // ── Youth generation helpers ───────────────────────────────────────────────
 
@@ -97,14 +101,15 @@ router.post("/draft/generate-class", async (req, res) => {
       morale:  75 + Math.floor(Math.random() * 16),
       fatigue: Math.floor(Math.random() * 15),
       fitness: 85 + Math.floor(Math.random() * 15),
-      potential: rollPotential(academyLevel),
-      salary:    String(5000 + Math.floor(Math.random() * 3001)),
+      potential:   rollPotential(academyLevel),
+      salary:      String(5000 + Math.floor(Math.random() * 3001)),
       askingPrice: String(40000 + Math.floor(Math.random() * 30001)),
       isDraftPlayer: true,
-      isActive:  false,
-      isRetired: false,
+      isActive:    false,
+      isRetired:   false,
       injuryStatus: "Healthy",
-      imageUrl: null,
+      imageUrl:    null,
+      development: generateDevelopment(),
     }).returning();
 
     newPlayers.push({ ...serializePlayer(player), available: true });

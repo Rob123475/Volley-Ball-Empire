@@ -398,7 +398,7 @@
     "salary": 0,
     "morale": 100,
     "fatigue": 0,
-    "medical": {
+    "medical": {s
       "injured": false,
       "bodyPart": "",
       "severity": "",

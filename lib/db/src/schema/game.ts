@@ -33,6 +33,14 @@ export const outfitsTable = pgTable("outfits", {
 
 export type Outfit = typeof outfitsTable.$inferSelect;
 
+export type PlayerDevelopment = {
+  workEthic:       number;
+  coachability:    number;
+  consistency:     number;
+  leadership:      number;
+  injuryProneness: number;
+};
+
 export type CareerStats = {
   matchesWon: number;
   championshipsWon: number;
@@ -151,6 +159,7 @@ export const playersTable = pgTable("players", {
   peakOverallRating: integer("peak_overall_rating"),
   yearsActive: varchar("years_active", { length: 20 }),
   legendScore: integer("legend_score"),
+  development: jsonb("development").$type<PlayerDevelopment>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

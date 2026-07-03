@@ -11,6 +11,7 @@ import {
 import { eq, and, gte, lte } from "drizzle-orm";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
+import { generateDevelopment } from "../utils/player-development";
 
 const router = Router();
 
@@ -258,7 +259,8 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     discoveredBy:   prospect.discoveredBy   ?? undefined,
     eliteEventType: prospect.eliteEventType ?? undefined,
     ...stats,
-    imageUrl: null,
+    imageUrl:    null,
+    development: generateDevelopment(),
   }).returning();
 
   // Contract (3-year youth deal)

@@ -3,12 +3,13 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable } from "@workspace/db";
 import { eq, isNull, and } from "drizzle-orm";
+import { generateDevelopment } from "../utils/player-development";
 
 const router = Router();
 
-// Strips the true `potential` before sending to client — always hidden
+// Strips hidden engine fields before sending to client
 const serializePlayer = (p: any) => {
-  const { potential: _hidden, ...rest } = p;
+  const { potential: _p, development: _d, ...rest } = p;
   return {
     ...rest,
     height:      Number(rest.height),
@@ -78,7 +79,8 @@ router.post("/players", async (req, res) => {
     defense: Number(defense), serve: Number(serve),
     block: Number(block), stamina: Number(stamina),
     salary: String(salary),
-    potential: assignPotential(),
+    potential:   assignPotential(),
+    development: generateDevelopment(),
   }).returning();
   res.status(201).json(serializePlayer(player));
 });
