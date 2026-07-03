@@ -1,0 +1,202 @@
+[
+  {
+    "id": "physio_01",
+    "name": "Dr. Isabella Conti",
+    "specialty": "Injury & Rehab Specialist",
+    "stars": 4,
+    "experience": 10,
+    "rehabilitationBonus": 13,
+    "salary": 12000,
+    "contractYears": 2,
+    "nationality": "Italy",
+    "age": 38,
+    "morale": 88,
+    "fatigue": 10,
+    "careerStats": {
+      "playersHealed": 85,
+      "injuriesManaged": 124,
+      "seasonsWorked": 10
+    },
+    "image": "images/staff/staff_medical_physiotherapist_01.webp"
+  },
+  {
+    "id": "physio_02",
+    "name": "Dr. Sipho Dlamini",
+    "specialty": "Team Physiotherapist",
+    "stars": 4,
+    "experience": 12,
+    "rehabilitationBonus": 15,
+    "salary": 13000,
+    "contractYears": 3,
+    "nationality": "South Africa",
+    "age": 37,
+    "morale": 84,
+    "fatigue": 12,
+    "careerStats": {
+      "playersHealed": 98,
+      "injuriesManaged": 143,
+      "seasonsWorked": 12
+    },
+    "image": "images/staff/staff_medical_physiotherapist_02.webp"
+  },
+  {
+    "id": "physio_03",
+    "name": "Dr. Anastasia Ivanova",
+    "specialty": "Team Physiotherapist",
+    "stars": 4,
+    "experience": 17,
+    "rehabilitationBonus": 17,
+    "salary": 14000,
+    "contractYears": 2,
+    "nationality": "Russia",
+    "age": 42,
+    "morale": 82,
+    "fatigue": 14,
+    "careerStats": {
+      "playersHealed": 138,
+      "injuriesManaged": 201,
+      "seasonsWorked": 17
+    },
+    "image": "images/staff/staff_medical_physiotherapist_03.webp"
+  },
+  {
+    "id": "physio_04",
+    "name": "Dr. Nattaya Somboon",
+    "specialty": "Team Physiotherapist",
+    "stars": 4,
+    "experience": 7,
+    "rehabilitationBonus": 11,
+    "salary": 10000,
+    "contractYears": 3,
+    "nationality": "Thailand",
+    "age": 29,
+    "morale": 91,
+    "fatigue": 7,
+    "careerStats": {
+      "playersHealed": 56,
+      "injuriesManaged": 82,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_medical_physiotherapist_04.webp"
+  },
+  {
+    "id": "physio_05",
+    "name": "Dr. Anita Sharma",
+    "specialty": "Team Physiotherapist",
+    "stars": 4,
+    "experience": 23,
+    "rehabilitationBonus": 20,
+    "salary": 14000,
+    "contractYears": 1,
+    "nationality": "India",
+    "age": 52,
+    "morale": 79,
+    "fatigue": 18,
+    "careerStats": {
+      "playersHealed": 187,
+      "injuriesManaged": 275,
+      "seasonsWorked": 23
+    },
+    "image": "images/staff/staff_medical_physiotherapist_05.webp"
+  },
+  {
+    "id": "physio_06",
+    "name": "Dr. Emily Harrison",
+    "specialty": "Musculoskeletal Specialist",
+    "stars": 4,
+    "experience": 6,
+    "rehabilitationBonus": 10,
+    "salary": 9500,
+    "contractYears": 4,
+    "nationality": "Australia",
+    "age": 31,
+    "morale": 93,
+    "fatigue": 5,
+    "careerStats": {
+      "playersHealed": 47,
+      "injuriesManaged": 68,
+      "seasonsWorked": 6
+    },
+    "image": "images/staff/staff_medical_physiotherapist_06.webp"
+  },
+  {
+    "id": "physio_07",
+    "name": "Irina Morozova",
+    "specialty": "Movement & Recovery",
+    "stars": 2,
+    "experience": 7,
+    "rehabilitationBonus": 7,
+    "salary": 6500,
+    "contractYears": 2,
+    "nationality": "Russia",
+    "age": 29,
+    "morale": 76,
+    "fatigue": 8,
+    "careerStats": {
+      "playersHealed": 42,
+      "injuriesManaged": 61,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_medical_physiotherapist_07.webp"
+  },
+  {
+    "id": "physio_08",
+    "name": "Alexei Mironov",
+    "specialty": "Rehabilitation Specialist",
+    "stars": 5,
+    "experience": 9,
+    "rehabilitationBonus": 18,
+    "salary": 22000,
+    "contractYears": 3,
+    "nationality": "Russia",
+    "age": 34,
+    "morale": 87,
+    "fatigue": 11,
+    "careerStats": {
+      "playersHealed": 73,
+      "injuriesManaged": 108,
+      "seasonsWorked": 9
+    },
+    "image": "images/staff/staff_medical_physiotherapist_08.webp"
+  },
+  {
+    "id": "physio_09",
+    "name": "Mei Ling Tan",
+    "specialty": "Sports Rehabilitation",
+    "stars": 4,
+    "experience": 5,
+    "rehabilitationBonus": 10,
+    "salary": 8000,
+    "contractYears": 3,
+    "nationality": "Singapore",
+    "age": 27,
+    "morale": 90,
+    "fatigue": 4,
+    "careerStats": {
+      "playersHealed": 38,
+      "injuriesManaged": 55,
+      "seasonsWorked": 5
+    },
+    "image": "images/staff/staff_medical_physiotherapist_09.webp"
+  },
+  {
+    "id": "physio_10",
+    "name": "Nikita Belyakov",
+    "specialty": "Extra Specialist",
+    "stars": 5,
+    "experience": 7,
+    "rehabilitationBonus": 22,
+    "salary": 26000,
+    "contractYears": 2,
+    "nationality": "Russia",
+    "age": 31,
+    "morale": 85,
+    "fatigue": 9,
+    "careerStats": {
+      "playersHealed": 58,
+      "injuriesManaged": 87,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_medical_physiotherapist_10.png"
+  }
+]

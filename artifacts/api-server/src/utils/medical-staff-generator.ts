@@ -1,3 +1,16 @@
+const STAFF_PHYSIOTHERAPISTS = [
+  { id: "physio_01", name: "Dr. Isabella Conti",   specialty: "Injury & Rehab Specialist",  stars: 4, experience: 10, rehabilitationBonus: 13, salary: 12000, nationality: "Italy",        age: 38, image: "images/staff/staff_medical_physiotherapist_01.webp" },
+  { id: "physio_02", name: "Dr. Sipho Dlamini",    specialty: "Team Physiotherapist",        stars: 4, experience: 12, rehabilitationBonus: 15, salary: 13000, nationality: "South Africa", age: 37, image: "images/staff/staff_medical_physiotherapist_02.webp" },
+  { id: "physio_03", name: "Dr. Anastasia Ivanova",specialty: "Team Physiotherapist",        stars: 4, experience: 17, rehabilitationBonus: 17, salary: 14000, nationality: "Russia",       age: 42, image: "images/staff/staff_medical_physiotherapist_03.webp" },
+  { id: "physio_04", name: "Dr. Nattaya Somboon",  specialty: "Team Physiotherapist",        stars: 4, experience:  7, rehabilitationBonus: 11, salary: 10000, nationality: "Thailand",     age: 29, image: "images/staff/staff_medical_physiotherapist_04.webp" },
+  { id: "physio_05", name: "Dr. Anita Sharma",     specialty: "Team Physiotherapist",        stars: 4, experience: 23, rehabilitationBonus: 20, salary: 14000, nationality: "India",        age: 52, image: "images/staff/staff_medical_physiotherapist_05.webp" },
+  { id: "physio_06", name: "Dr. Emily Harrison",   specialty: "Musculoskeletal Specialist",  stars: 4, experience:  6, rehabilitationBonus: 10, salary:  9500, nationality: "Australia",    age: 31, image: "images/staff/staff_medical_physiotherapist_06.webp" },
+  { id: "physio_07", name: "Irina Morozova",       specialty: "Movement & Recovery",         stars: 2, experience:  7, rehabilitationBonus:  7, salary:  6500, nationality: "Russia",       age: 29, image: "images/staff/staff_medical_physiotherapist_07.webp" },
+  { id: "physio_08", name: "Alexei Mironov",       specialty: "Rehabilitation Specialist",   stars: 5, experience:  9, rehabilitationBonus: 18, salary: 22000, nationality: "Russia",       age: 34, image: "images/staff/staff_medical_physiotherapist_08.webp" },
+  { id: "physio_09", name: "Mei Ling Tan",         specialty: "Sports Rehabilitation",       stars: 4, experience:  5, rehabilitationBonus: 10, salary:  8000, nationality: "Singapore",    age: 27, image: "images/staff/staff_medical_physiotherapist_09.webp" },
+  { id: "physio_10", name: "Nikita Belyakov",      specialty: "Extra Specialist",            stars: 5, experience:  7, rehabilitationBonus: 22, salary: 26000, nationality: "Russia",       age: 31, image: "images/staff/staff_medical_physiotherapist_10.png"  },
+] as const;
+
 const STAFF_DOCTORS = [
   { id: "doctor_01", name: "Dr. Alessandro Bianchi", specialty: "Team Doctor", stars: 4, recoveryBonus: 14, salary: 18000, nationality: "Italy",          age: 42, image: "images/staff/staff_medical_doctor_01.webp" },
   { id: "doctor_02", name: "Dr. Sofia Petrova",      specialty: "Team Doctor", stars: 4, recoveryBonus: 12, salary: 14000, nationality: "Bulgaria",       age: 38, image: "images/staff/staff_medical_doctor_02.webp" },
@@ -96,6 +109,36 @@ function getMedicalImageUrl(name: string): string {
   return `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_medical")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9,c0aede`;
 }
 
+function generateMedicalStaffPhysiotherapist() {
+  const physio = pick(STAFF_PHYSIOTHERAPISTS);
+  const overallRating = Math.min(95, 45 + Math.round(physio.rehabilitationBonus * 2.2));
+  const attrNames = ROLE_ATTRIBUTES["physiotherapist"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-8, 8);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  return {
+    name:            physio.name,
+    role:            "physiotherapist" as MedicalRole,
+    specialty:       physio.specialty,
+    salary:          physio.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     physio.nationality,
+    imageUrl:        `/${physio.image}`,
+    isAvailable:     true,
+    age:             physio.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24] as const),
+    coachSpeciality: "Medical",
+    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Innovative"] as const),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["physiotherapist"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(15, 40),
+  };
+}
+
 function generateMedicalStaffDoctor() {
   const doc = pick(STAFF_DOCTORS);
   const overallRating = Math.min(95, 60 + Math.round(doc.recoveryBonus * 1.5));
@@ -129,6 +172,9 @@ function generateMedicalStaffDoctor() {
 export function generateMedicalStaffMember(role: MedicalRole) {
   if (role === "team_doctor") {
     return generateMedicalStaffDoctor();
+  }
+  if (role === "physiotherapist") {
+    return generateMedicalStaffPhysiotherapist();
   }
 
   const name          = pick(FEMALE_MEDICAL_NAMES);
