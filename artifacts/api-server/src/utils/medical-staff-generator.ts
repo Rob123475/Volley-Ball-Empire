@@ -11,6 +11,19 @@ const STAFF_NUTRITIONISTS = [
   { id: "nutritionist_10", name: "Isabella Moretti",     specialty: "Elite Sports Nutrition",    stars: 5,   experience: 18, nutritionBonus: 20, salary: 22000, nationality: "Italy",        age: 46, image: "images/staff/staff_medical_nutritionist_10.webp" },
 ] as const;
 
+const STAFF_SPORTS_SCIENTISTS = [
+  { id: "scientist_01", name: "Dr. Matthew Anderson", specialty: "Team Sports Scientist",        stars: 4.5, experience: 12, performanceBonus: 17, salary: 17500, nationality: "Australia",    age: 38, image: "images/staff/staff_medical_science_01.webp" },
+  { id: "scientist_02", name: "Dr. Emma Clarke",       specialty: "Team Sports Scientist",        stars: 4.0, experience:  8, performanceBonus: 12, salary: 12000, nationality: "Australia",    age: 33, image: "images/staff/staff_medical_science_02.webp" },
+  { id: "scientist_03", name: "Dr. Zandile Mokwena",   specialty: "Team Sports Scientist",        stars: 4.5, experience: 11, performanceBonus: 16, salary: 16500, nationality: "South Africa", age: 36, image: "images/staff/staff_medical_science_03.webp" },
+  { id: "scientist_04", name: "Dr. Luca Moretti",      specialty: "Team Sports Scientist",        stars: 4.5, experience:  8, performanceBonus: 14, salary: 14000, nationality: "Italy",        age: 33, image: "images/staff/staff_medical_science_04.webp" },
+  { id: "scientist_05", name: "Dr. Marta García",      specialty: "Performance Analyst",          stars: 4.0, experience:  7, performanceBonus: 11, salary: 11000, nationality: "Spain",        age: 31, image: "images/staff/staff_medical_science_05.webp" },
+  { id: "scientist_06", name: "Dr. James O'Connor",    specialty: "Performance Specialist",       stars: 4.5, experience:  9, performanceBonus: 15, salary: 15000, nationality: "Australia",    age: 34, image: "images/staff/staff_medical_science_06.webp" },
+  { id: "scientist_07", name: "Dr. Takashi Mori",      specialty: "Biomechanics Specialist",      stars: 4.5, experience: 12, performanceBonus: 17, salary: 17500, nationality: "Japan",        age: 38, image: "images/staff/staff_medical_science_07.webp" },
+  { id: "scientist_08", name: "Dr. Emily Thompson",    specialty: "Exercise Physiologist",        stars: 4.5, experience:  6, performanceBonus: 13, salary: 13000, nationality: "Canada",       age: 29, image: "images/staff/staff_medical_science_08.webp" },
+  { id: "scientist_09", name: "Dr. Larissa Almeida",   specialty: "Human Performance Specialist", stars: 4.5, experience:  5, performanceBonus: 12, salary: 12500, nationality: "Brazil",       age: 28, image: "images/staff/staff_medical_science_09.webp" },
+  { id: "scientist_10", name: "Dr. Andrea Bianchi",    specialty: "Data & Analytics Specialist",  stars: 4.5, experience: 14, performanceBonus: 19, salary: 20000, nationality: "Italy",        age: 42, image: "images/staff/staff_medical_science_10.webp" },
+] as const;
+
 const STAFF_PHYSIOTHERAPISTS = [
   { id: "physio_01", name: "Dr. Isabella Conti",   specialty: "Injury & Rehab Specialist",  stars: 4, experience: 10, rehabilitationBonus: 13, salary: 12000, nationality: "Italy",        age: 38, image: "images/staff/staff_medical_physiotherapist_01.webp" },
   { id: "physio_02", name: "Dr. Sipho Dlamini",    specialty: "Team Physiotherapist",        stars: 4, experience: 12, rehabilitationBonus: 15, salary: 13000, nationality: "South Africa", age: 37, image: "images/staff/staff_medical_physiotherapist_02.webp" },
@@ -49,7 +62,8 @@ export type MedicalRole =
   | "medical_specialist"
   | "physiotherapist"
   | "nutritionist"
-  | "sports_chemist";
+  | "sports_chemist"
+  | "sports_scientist";
 
 export const MEDICAL_ROLE_LABELS: Record<MedicalRole, string> = {
   team_doctor:        "Team Doctor",
@@ -57,6 +71,7 @@ export const MEDICAL_ROLE_LABELS: Record<MedicalRole, string> = {
   physiotherapist:    "Physiotherapist",
   nutritionist:       "Nutritionist",
   sports_chemist:     "Sports Chemist",
+  sports_scientist:   "Sports Scientist",
 };
 
 export const MEDICAL_ROLES: MedicalRole[] = [
@@ -65,6 +80,7 @@ export const MEDICAL_ROLES: MedicalRole[] = [
   "physiotherapist",
   "nutritionist",
   "sports_chemist",
+  "sports_scientist",
 ];
 
 const ROLE_ATTRIBUTES: Record<MedicalRole, string[]> = {
@@ -73,6 +89,7 @@ const ROLE_ATTRIBUTES: Record<MedicalRole, string[]> = {
   physiotherapist:    ["Rehabilitation Skill", "Manual Therapy", "Exercise Prescription"],
   nutritionist:       ["Dietary Planning", "Performance Nutrition", "Supplement Knowledge"],
   sports_chemist:     ["Biochemical Analysis", "Supplement Development", "Anti-Doping Knowledge"],
+  sports_scientist:   ["Load Monitoring", "Performance Testing", "Data Analysis"],
 };
 
 const ROLE_TRAITS: Record<MedicalRole, string[]> = {
@@ -81,6 +98,7 @@ const ROLE_TRAITS: Record<MedicalRole, string[]> = {
   physiotherapist:    ["Rehabilitation Guru", "Hands-On Healer", "Movement Specialist", "Pain Relief Expert", "Functional Recovery Pro"],
   nutritionist:       ["Performance Fueller", "Metabolic Specialist", "Recovery Nutrition Expert", "Anti-Inflammatory Diet", "Hydration Guru"],
   sports_chemist:     ["Supplement Pioneer", "Biochemical Genius", "Legal Edge Expert", "Anti-Doping Shield", "Performance Optimizer"],
+  sports_scientist:   ["Data Driven", "Peak Load Expert", "Biomechanics Guru", "Performance Prophet", "Recovery Analyst"],
 };
 
 const ROLE_SALARY_RANGES: Record<MedicalRole, [number, number]> = {
@@ -89,6 +107,7 @@ const ROLE_SALARY_RANGES: Record<MedicalRole, [number, number]> = {
   physiotherapist:    [5500, 14000],
   nutritionist:       [4500, 12000],
   sports_chemist:     [7500, 21000],
+  sports_scientist:   [9000, 22000],
 };
 
 const ROLE_RATING_RANGES: Record<MedicalRole, [number, number]> = {
@@ -97,6 +116,7 @@ const ROLE_RATING_RANGES: Record<MedicalRole, [number, number]> = {
   physiotherapist:    [48, 88],
   nutritionist:       [46, 85],
   sports_chemist:     [50, 90],
+  sports_scientist:   [50, 92],
 };
 
 const FEMALE_MEDICAL_NAMES = [
@@ -120,6 +140,36 @@ function pick<T>(arr: readonly T[]): T {
 
 function getMedicalImageUrl(name: string): string {
   return `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_medical")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9,c0aede`;
+}
+
+function generateMedicalStaffSportsScientist() {
+  const s = pick(STAFF_SPORTS_SCIENTISTS);
+  const overallRating = Math.min(95, 44 + Math.round(s.performanceBonus * 2.6));
+  const attrNames = ROLE_ATTRIBUTES["sports_scientist"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-8, 8);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  return {
+    name:            s.name,
+    role:            "sports_scientist" as MedicalRole,
+    specialty:       s.specialty,
+    salary:          s.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     s.nationality,
+    imageUrl:        `/${s.image}`,
+    isAvailable:     true,
+    age:             s.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24] as const),
+    coachSpeciality: "Performance",
+    personality:     pick(["Analytical", "Methodical", "Innovative", "Detail-Oriented", "Data-Driven"] as const),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["sports_scientist"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(15, 40),
+  };
 }
 
 function generateMedicalStaffNutritionist() {
@@ -221,6 +271,9 @@ export function generateMedicalStaffMember(role: MedicalRole) {
   }
   if (role === "nutritionist") {
     return generateMedicalStaffNutritionist();
+  }
+  if (role === "sports_scientist") {
+    return generateMedicalStaffSportsScientist();
   }
 
   const name          = pick(FEMALE_MEDICAL_NAMES);

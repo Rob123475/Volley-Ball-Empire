@@ -1,0 +1,202 @@
+[
+  {
+    "id": "scientist_01",
+    "name": "Dr. Matthew Anderson",
+    "specialty": "Team Sports Scientist",
+    "stars": 4.5,
+    "experience": 12,
+    "performanceBonus": 17,
+    "salary": 17500,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 38,
+    "morale": 84,
+    "fatigue": 13,
+    "careerStats": {
+      "athletesAnalysed": 164,
+      "reportsProduced": 287,
+      "seasonsWorked": 12
+    },
+    "image": "images/staff/staff_medical_science_01.webp"
+  },
+  {
+    "id": "scientist_02",
+    "name": "Dr. Emma Clarke",
+    "specialty": "Team Sports Scientist",
+    "stars": 4.0,
+    "experience": 8,
+    "performanceBonus": 12,
+    "salary": 12000,
+    "contractYears": 3,
+    "nationality": "Australia",
+    "age": 33,
+    "morale": 90,
+    "fatigue": 7,
+    "careerStats": {
+      "athletesAnalysed": 98,
+      "reportsProduced": 174,
+      "seasonsWorked": 8
+    },
+    "image": "images/staff/staff_medical_science_02.webp"
+  },
+  {
+    "id": "scientist_03",
+    "name": "Dr. Zandile Mokwena",
+    "specialty": "Team Sports Scientist",
+    "stars": 4.5,
+    "experience": 11,
+    "performanceBonus": 16,
+    "salary": 16500,
+    "contractYears": 3,
+    "nationality": "South Africa",
+    "age": 36,
+    "morale": 87,
+    "fatigue": 11,
+    "careerStats": {
+      "athletesAnalysed": 149,
+      "reportsProduced": 261,
+      "seasonsWorked": 11
+    },
+    "image": "images/staff/staff_medical_science_03.webp"
+  },
+  {
+    "id": "scientist_04",
+    "name": "Dr. Luca Moretti",
+    "specialty": "Team Sports Scientist",
+    "stars": 4.5,
+    "experience": 8,
+    "performanceBonus": 14,
+    "salary": 14000,
+    "contractYears": 3,
+    "nationality": "Italy",
+    "age": 33,
+    "morale": 91,
+    "fatigue": 8,
+    "careerStats": {
+      "athletesAnalysed": 106,
+      "reportsProduced": 188,
+      "seasonsWorked": 8
+    },
+    "image": "images/staff/staff_medical_science_04.webp"
+  },
+  {
+    "id": "scientist_05",
+    "name": "Dr. Marta García",
+    "specialty": "Performance Analyst",
+    "stars": 4.0,
+    "experience": 7,
+    "performanceBonus": 11,
+    "salary": 11000,
+    "contractYears": 4,
+    "nationality": "Spain",
+    "age": 31,
+    "morale": 93,
+    "fatigue": 6,
+    "careerStats": {
+      "athletesAnalysed": 87,
+      "reportsProduced": 156,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_medical_science_05.webp"
+  },
+  {
+    "id": "scientist_06",
+    "name": "Dr. James O'Connor",
+    "specialty": "Performance Specialist",
+    "stars": 4.5,
+    "experience": 9,
+    "performanceBonus": 15,
+    "salary": 15000,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 34,
+    "morale": 88,
+    "fatigue": 9,
+    "careerStats": {
+      "athletesAnalysed": 118,
+      "reportsProduced": 208,
+      "seasonsWorked": 9
+    },
+    "image": "images/staff/staff_medical_science_06.webp"
+  },
+  {
+    "id": "scientist_07",
+    "name": "Dr. Takashi Mori",
+    "specialty": "Biomechanics Specialist",
+    "stars": 4.5,
+    "experience": 12,
+    "performanceBonus": 17,
+    "salary": 17500,
+    "contractYears": 2,
+    "nationality": "Japan",
+    "age": 38,
+    "morale": 83,
+    "fatigue": 14,
+    "careerStats": {
+      "athletesAnalysed": 158,
+      "reportsProduced": 276,
+      "seasonsWorked": 12
+    },
+    "image": "images/staff/staff_medical_science_07.webp"
+  },
+  {
+    "id": "scientist_08",
+    "name": "Dr. Emily Thompson",
+    "specialty": "Exercise Physiologist",
+    "stars": 4.5,
+    "experience": 6,
+    "performanceBonus": 13,
+    "salary": 13000,
+    "contractYears": 3,
+    "nationality": "Canada",
+    "age": 29,
+    "morale": 92,
+    "fatigue": 5,
+    "careerStats": {
+      "athletesAnalysed": 74,
+      "reportsProduced": 131,
+      "seasonsWorked": 6
+    },
+    "image": "images/staff/staff_medical_science_08.webp"
+  },
+  {
+    "id": "scientist_09",
+    "name": "Dr. Larissa Almeida",
+    "specialty": "Human Performance Specialist",
+    "stars": 4.5,
+    "experience": 5,
+    "performanceBonus": 12,
+    "salary": 12500,
+    "contractYears": 4,
+    "nationality": "Brazil",
+    "age": 28,
+    "morale": 94,
+    "fatigue": 4,
+    "careerStats": {
+      "athletesAnalysed": 61,
+      "reportsProduced": 109,
+      "seasonsWorked": 5
+    },
+    "image": "images/staff/staff_medical_science_09.webp"
+  },
+  {
+    "id": "scientist_10",
+    "name": "Dr. Andrea Bianchi",
+    "specialty": "Data & Analytics Specialist",
+    "stars": 4.5,
+    "experience": 14,
+    "performanceBonus": 19,
+    "salary": 20000,
+    "contractYears": 1,
+    "nationality": "Italy",
+    "age": 42,
+    "morale": 82,
+    "fatigue": 15,
+    "careerStats": {
+      "athletesAnalysed": 187,
+      "reportsProduced": 331,
+      "seasonsWorked": 14
+    },
+    "image": "images/staff/staff_medical_science_10.webp"
+  }
+]
