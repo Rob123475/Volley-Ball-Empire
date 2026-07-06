@@ -1,3 +1,16 @@
+const STAFF_HEAD_COACHES = [
+  { id: "head_coach_01", name: "James Whitmore",   nationality: "Australia",    age: 41, experience: 15, stars: 4.5, salary:  9800, contractYears: 4, personality: "Demanding",    specialties: ["Leadership", "Strategy", "Elite Performance"],          development: 92, matchManagement: 94, tactics: 93, motivation: 90, discipline: 89, image: "images/staff/staff_head_coach_01.webp" },
+  { id: "head_coach_02", name: "Marco Ricci",       nationality: "Italy",        age: 52, experience: 21, stars: 4.5, salary: 11200, contractYears: 5, personality: "Calm",          specialties: ["Leadership", "Strategy", "Elite Performance"],          development: 90, matchManagement: 95, tactics: 96, motivation: 87, discipline: 92, image: "images/staff/staff_head_coach_02.webp" },
+  { id: "head_coach_03", name: "Tomasz Kowalski",  nationality: "Poland",       age: 45, experience: 17, stars: 3.0, salary:  7200, contractYears: 3, personality: "Analytical",    specialties: ["Tactical Expert", "Game Intelligence", "Player Development"], development: 88, matchManagement: 82, tactics: 89, motivation: 79, discipline: 86, image: "images/staff/staff_head_coach_03.webp" },
+  { id: "head_coach_04", name: "Sarah Mitchell",   nationality: "New Zealand",  age: 45, experience: 12, stars: 3.0, salary:  6900, contractYears: 3, personality: "Supportive",    specialties: ["Development", "Motivation", "Game Intelligence"],       development: 91, matchManagement: 79, tactics: 78, motivation: 90, discipline: 80, image: "images/staff/staff_head_coach_04.webp" },
+  { id: "head_coach_05", name: "Daniel Persson",   nationality: "Sweden",       age: 38, experience:  8, stars: 3.0, salary:  6400, contractYears: 2, personality: "Reserved",      specialties: ["Tactics", "Analysis", "Performance"],                  development: 82, matchManagement: 77, tactics: 85, motivation: 76, discipline: 84, image: "images/staff/staff_head_coach_05.webp" },
+  { id: "head_coach_06", name: "Laura Martínez",   nationality: "Spain",        age: 49, experience: 16, stars: 4.0, salary:  8600, contractYears: 4, personality: "Inspirational", specialties: ["Leadership", "Communication", "Team Culture"],          development: 90, matchManagement: 86, tactics: 85, motivation: 93, discipline: 84, image: "images/staff/staff_head_coach_06.webp" },
+  { id: "head_coach_07", name: "Nikita Thompson",  nationality: "Jamaica",      age: 43, experience: 14, stars: 4.0, salary:  8300, contractYears: 4, personality: "Intense",       specialties: ["Discipline", "Resilience", "Winning Mentality"],        development: 86, matchManagement: 87, tactics: 84, motivation: 94, discipline: 95, image: "images/staff/staff_head_coach_07.webp" },
+  { id: "head_coach_08", name: "Jessica Reid",     nationality: "Jamaica",      age: 29, experience:  6, stars: 3.5, salary:  5600, contractYears: 2, personality: "Energetic",     specialties: ["Energy", "Team Culture", "Player Development"],         development: 88, matchManagement: 74, tactics: 73, motivation: 91, discipline: 75, image: "images/staff/staff_head_coach_08.webp" },
+  { id: "head_coach_09", name: "Mekdes Tesfaye",   nationality: "Ethiopia",     age: 61, experience: 22, stars: 4.0, salary:  9400, contractYears: 5, personality: "Mentor",        specialties: ["Experience", "Wisdom", "Discipline"],                  development: 89, matchManagement: 93, tactics: 88, motivation: 86, discipline: 96, image: "images/staff/staff_head_coach_09.webp" },
+  { id: "head_coach_10", name: "Massimo Bianchi",  nationality: "Italy",        age: 52, experience: 20, stars: 4.5, salary: 10900, contractYears: 5, personality: "Professional",  specialties: ["Leadership", "Tactics", "Motivation"],                  development: 90, matchManagement: 94, tactics: 95, motivation: 90, discipline: 91, image: "images/staff/staff_head_coach_10.webp" },
+];
+
 const STAFF_FITNESS_TRAINERS = [
   { id: "fitness_trainer_01", name: "Lucas Anderson",       specialty: "Strength & Conditioning", stars: 4.5, experience:  8, fitnessBonus: 17, salary: 13000, nationality: "Australia",     age: 32, image: "images/staff/staff_fitness_trainer_01.webp" },
   { id: "fitness_trainer_02", name: "Lauren Johnson",        specialty: "Strength Training",        stars: 2.0, experience:  5, fitnessBonus:  6, salary:  6500, nationality: "United States",  age: 27, image: "images/staff/staff_fitness_trainer_02.webp" },
@@ -122,6 +135,37 @@ function pick<T>(arr: T[]): T {
 const getStaffImageUrl = (name: string) =>
   `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_coach")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9`;
 
+function generateHeadCoach() {
+  const c = pick(STAFF_HEAD_COACHES);
+  const overallRating = Math.round((c.development + c.matchManagement + c.tactics + c.motivation + c.discipline) / 5);
+  const [sqMin, sqMax] = ROLE_SCOUTING_RANGES["head_coach"];
+  return {
+    name:            c.name,
+    role:            "head_coach" as StaffRole,
+    specialty:       c.specialties[0] ?? "Leadership",
+    salary:          c.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     c.nationality,
+    imageUrl:        `/${c.image}`,
+    isAvailable:     true,
+    age:             c.age,
+    overallRating,
+    contractLength:  pick([12, 24, 36, 48, 60]),
+    coachSpeciality: c.specialties[0] ?? "General",
+    personality:     c.personality,
+    attributes: {
+      "Tactical Knowledge":   c.tactics,
+      "Attack Coaching":      c.matchManagement,
+      "Team Building":        c.development,
+      "Motivation":           c.motivation,
+      "Discipline":           c.discipline,
+    },
+    specialTrait:    pick(ROLE_TRAITS["head_coach"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(sqMin, sqMax),
+  };
+}
+
 function generateFitnessTrainer() {
   const c = pick(STAFF_FITNESS_TRAINERS);
   const overallRating = Math.min(95, 46 + Math.round(c.fitnessBonus * 2.4));
@@ -185,6 +229,9 @@ function generateAssistantCoach() {
 }
 
 export function generateStaffMember(role: StaffRole) {
+  if (role === "head_coach") {
+    return generateHeadCoach();
+  }
   if (role === "fitness_trainer") {
     return generateFitnessTrainer();
   }
