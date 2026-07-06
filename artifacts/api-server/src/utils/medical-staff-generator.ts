@@ -1,3 +1,16 @@
+const STAFF_NUTRITIONISTS = [
+  { id: "nutritionist_01", name: "Dr. Lucy Mitchell",    specialty: "Team Nutrition",            stars: 4,   experience:  9, nutritionBonus: 14, salary: 14500, nationality: "Australia",    age: 34, image: "images/staff/staff_medical_nutritionist_01.webp" },
+  { id: "nutritionist_02", name: "Dr. James O'Connor",   specialty: "Performance Nutrition",     stars: 4,   experience: 14, nutritionBonus: 16, salary: 17000, nationality: "Australia",    age: 41, image: "images/staff/staff_medical_nutritionist_02.webp" },
+  { id: "nutritionist_03", name: "Dr. Ingrid Nilsen",    specialty: "Team Nutrition",            stars: 4,   experience:  8, nutritionBonus: 13, salary: 14000, nationality: "Norway",       age: 33, image: "images/staff/staff_medical_nutritionist_03.webp" },
+  { id: "nutritionist_04", name: "Dr. Anastasia Petrova",specialty: "Plant-Based Nutrition",     stars: 2,   experience:  6, nutritionBonus:  6, salary:  7500, nationality: "Russia",       age: 33, image: "images/staff/staff_medical_nutritionist_04.webp" },
+  { id: "nutritionist_05", name: "Dr. Sipho Ndlovu",     specialty: "Team Nutrition",            stars: 2,   experience:  7, nutritionBonus:  7, salary:  8000, nationality: "South Africa", age: 35, image: "images/staff/staff_medical_nutritionist_05.webp" },
+  { id: "nutritionist_06", name: "Dr. Elena Sokolova",   specialty: "Head Performance Nutrition",stars: 5,   experience: 15, nutritionBonus: 19, salary: 21000, nationality: "Russia",       age: 42, image: "images/staff/staff_medical_nutritionist_06.webp" },
+  { id: "nutritionist_07", name: "Larissa Mendes",       specialty: "Recovery Nutrition",        stars: 3.5, experience:  4, nutritionBonus: 11, salary:  9000, nationality: "Brazil",       age: 27, image: "images/staff/staff_medical_nutritionist_07.webp" },
+  { id: "nutritionist_08", name: "Sophie Nguyen",        specialty: "Performance Nutrition",     stars: 4,   experience: 13, nutritionBonus: 14, salary: 16000, nationality: "Canada",       age: 42, image: "images/staff/staff_medical_nutritionist_08.webp" },
+  { id: "nutritionist_09", name: "Emilie Dupont",        specialty: "Performance Nutrition",     stars: 4.5, experience:  6, nutritionBonus: 15, salary: 13000, nationality: "France",       age: 29, image: "images/staff/staff_medical_nutritionist_09.webp" },
+  { id: "nutritionist_10", name: "Isabella Moretti",     specialty: "Elite Sports Nutrition",    stars: 5,   experience: 18, nutritionBonus: 20, salary: 22000, nationality: "Italy",        age: 46, image: "images/staff/staff_medical_nutritionist_10.webp" },
+] as const;
+
 const STAFF_PHYSIOTHERAPISTS = [
   { id: "physio_01", name: "Dr. Isabella Conti",   specialty: "Injury & Rehab Specialist",  stars: 4, experience: 10, rehabilitationBonus: 13, salary: 12000, nationality: "Italy",        age: 38, image: "images/staff/staff_medical_physiotherapist_01.webp" },
   { id: "physio_02", name: "Dr. Sipho Dlamini",    specialty: "Team Physiotherapist",        stars: 4, experience: 12, rehabilitationBonus: 15, salary: 13000, nationality: "South Africa", age: 37, image: "images/staff/staff_medical_physiotherapist_02.webp" },
@@ -109,6 +122,36 @@ function getMedicalImageUrl(name: string): string {
   return `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_medical")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9,c0aede`;
 }
 
+function generateMedicalStaffNutritionist() {
+  const n = pick(STAFF_NUTRITIONISTS);
+  const overallRating = Math.min(95, 42 + Math.round(n.nutritionBonus * 2.4));
+  const attrNames = ROLE_ATTRIBUTES["nutritionist"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-8, 8);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  return {
+    name:            n.name,
+    role:            "nutritionist" as MedicalRole,
+    specialty:       n.specialty,
+    salary:          n.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     n.nationality,
+    imageUrl:        `/${n.image}`,
+    isAvailable:     true,
+    age:             n.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24] as const),
+    coachSpeciality: "Medical",
+    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Innovative"] as const),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["nutritionist"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(15, 40),
+  };
+}
+
 function generateMedicalStaffPhysiotherapist() {
   const physio = pick(STAFF_PHYSIOTHERAPISTS);
   const overallRating = Math.min(95, 45 + Math.round(physio.rehabilitationBonus * 2.2));
@@ -175,6 +218,9 @@ export function generateMedicalStaffMember(role: MedicalRole) {
   }
   if (role === "physiotherapist") {
     return generateMedicalStaffPhysiotherapist();
+  }
+  if (role === "nutritionist") {
+    return generateMedicalStaffNutritionist();
   }
 
   const name          = pick(FEMALE_MEDICAL_NAMES);

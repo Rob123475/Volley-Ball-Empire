@@ -1,0 +1,192 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Matthew Anderson",
+    "role": "Sports Scientist",
+    "title": "Team Sports Scientist",
+    "nationality": "Australia",
+    "age": 38,
+    "experience": 12,
+    "stars": 4.5,
+    "portrait": "sports_scientist_01.webp",
+    "specialties": [
+      "Load Monitoring",
+      "Performance Testing",
+      "Athlete Profiling",
+      "GPS Analytics",
+      "Recovery Science",
+      "Training Periodisation"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Dr. Emma Clarke",
+    "role": "Sports Scientist",
+    "title": "Team Sports Scientist",
+    "nationality": "Australia",
+    "age": 33,
+    "experience": 8,
+    "stars": 4.0,
+    "portrait": "sports_scientist_02.webp",
+    "specialties": [
+      "Movement Analysis",
+      "Strength Diagnostics",
+      "Jump Testing",
+      "Fatigue Monitoring",
+      "Performance Data",
+      "Recovery Planning"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Dr. Zandile Mokwena",
+    "role": "Sports Scientist",
+    "title": "Team Sports Scientist",
+    "nationality": "South Africa",
+    "age": 36,
+    "experience": 11,
+    "stars": 4.5,
+    "portrait": "sports_scientist_03.webp",
+    "specialties": [
+      "Power Development",
+      "Sprint Analysis",
+      "Performance Analytics",
+      "Athlete Monitoring",
+      "Training Load",
+      "Recovery Optimisation"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Dr. Luca Moretti",
+    "role": "Sports Scientist",
+    "title": "Team Sports Scientist",
+    "nationality": "Italy",
+    "age": 33,
+    "experience": 8,
+    "stars": 4.5,
+    "portrait": "sports_scientist_04.webp",
+    "specialties": [
+      "Biomechanics",
+      "Movement Screening",
+      "Force Plate Analysis",
+      "Performance Testing",
+      "Jump Mechanics",
+      "Injury Prevention"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Dr. Marta García",
+    "role": "Sports Scientist",
+    "title": "Performance Analyst",
+    "nationality": "Spain",
+    "age": 31,
+    "experience": 7,
+    "stars": 4.0,
+    "portrait": "sports_scientist_05.webp",
+    "specialties": [
+      "Match Analytics",
+      "Video Analysis",
+      "Player Tracking",
+      "Opponent Analysis",
+      "Tactical Metrics",
+      "Performance Reports"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Dr. James O'Connor",
+    "role": "Sports Scientist",
+    "title": "Performance Specialist",
+    "nationality": "Australia",
+    "age": 34,
+    "experience": 9,
+    "stars": 4.5,
+    "portrait": "sports_scientist_06.webp",
+    "specialties": [
+      "Performance Optimisation",
+      "Speed Development",
+      "Reaction Testing",
+      "Power Analysis",
+      "Athlete Monitoring",
+      "Recovery Systems"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Dr. Takashi Mori",
+    "role": "Sports Scientist",
+    "title": "Biomechanics Specialist",
+    "nationality": "Japan",
+    "age": 38,
+    "experience": 12,
+    "stars": 4.5,
+    "portrait": "sports_scientist_07.webp",
+    "specialties": [
+      "Biomechanics",
+      "Motion Capture",
+      "Jump Technique",
+      "Force Analysis",
+      "Movement Efficiency",
+      "Performance Engineering"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Dr. Emily Thompson",
+    "role": "Sports Scientist",
+    "title": "Exercise Physiologist",
+    "nationality": "Canada",
+    "age": 29,
+    "experience": 6,
+    "stars": 4.5,
+    "portrait": "sports_scientist_08.webp",
+    "specialties": [
+      "Exercise Physiology",
+      "VO2 Max Testing",
+      "Endurance Analysis",
+      "Heart Rate Monitoring",
+      "Lactate Testing",
+      "Conditioning Science"
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Dr. Larissa Almeida",
+    "role": "Sports Scientist",
+    "title": "Human Performance Specialist",
+    "nationality": "Brazil",
+    "age": 28,
+    "experience": 5,
+    "stars": 4.5,
+    "portrait": "sports_scientist_09.webp",
+    "specialties": [
+      "Human Performance",
+      "Athletic Development",
+      "Movement Quality",
+      "Strength Diagnostics",
+      "Performance Assessment",
+      "Training Optimisation"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Dr. Andrea Bianchi",
+    "role": "Sports Scientist",
+    "title": "Data & Analytics Specialist",
+    "nationality": "Italy",
+    "age": 42,
+    "experience": 14,
+    "stars": 4.5,
+    "portrait": "sports_scientist_10.webp",
+    "specialties": [
+      "Sports Analytics",
+      "Data Science",
+      "Performance Dashboards",
+      "Predictive Modelling",
+      "Athlete Monitoring",
+      "Statistical Analysis"
+    ]
+  }
+]
