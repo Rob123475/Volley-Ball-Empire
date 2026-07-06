@@ -4,10 +4,19 @@
     "name": "Dr. Alessandro Bianchi",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 16,
     "recoveryBonus": 14,
     "salary": 18000,
+    "contractYears": 2,
     "nationality": "Italy",
     "age": 42,
+    "morale": 85,
+    "fatigue": 12,
+    "careerStats": {
+      "playersHealed": 142,
+      "injuriesManaged": 198,
+      "seasonsWorked": 16
+    },
     "image": "images/staff/staff_medical_doctor_01.webp"
   },
   {
@@ -15,10 +24,19 @@
     "name": "Dr. Sofia Petrova",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 12,
     "recoveryBonus": 12,
     "salary": 14000,
+    "contractYears": 3,
     "nationality": "Bulgaria",
     "age": 38,
+    "morale": 88,
+    "fatigue": 9,
+    "careerStats": {
+      "playersHealed": 104,
+      "injuriesManaged": 147,
+      "seasonsWorked": 12
+    },
     "image": "images/staff/staff_medical_doctor_02.webp"
   },
   {
@@ -26,10 +44,19 @@
     "name": "Dr. Hiroshi Tanaka",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 25,
     "recoveryBonus": 18,
     "salary": 24000,
+    "contractYears": 1,
     "nationality": "Japan",
     "age": 51,
+    "morale": 80,
+    "fatigue": 16,
+    "careerStats": {
+      "playersHealed": 218,
+      "injuriesManaged": 305,
+      "seasonsWorked": 25
+    },
     "image": "images/staff/staff_medical_doctor_03.webp"
   },
   {
@@ -37,10 +64,19 @@
     "name": "Dr. Anna Kowalska",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 20,
     "recoveryBonus": 16,
     "salary": 20000,
+    "contractYears": 2,
     "nationality": "Poland",
     "age": 46,
+    "morale": 83,
+    "fatigue": 13,
+    "careerStats": {
+      "playersHealed": 174,
+      "injuriesManaged": 242,
+      "seasonsWorked": 20
+    },
     "image": "images/staff/staff_medical_doctor_04.webp"
   },
   {
@@ -48,10 +84,19 @@
     "name": "Dr. Karim Hassan",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 30,
     "recoveryBonus": 22,
     "salary": 28000,
+    "contractYears": 1,
     "nationality": "Egypt",
     "age": 57,
+    "morale": 78,
+    "fatigue": 19,
+    "careerStats": {
+      "playersHealed": 261,
+      "injuriesManaged": 367,
+      "seasonsWorked": 30
+    },
     "image": "images/staff/staff_medical_doctor_05.webp"
   },
   {
@@ -59,10 +104,19 @@
     "name": "Dr. Sarah Mitchell",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 12,
     "recoveryBonus": 12,
     "salary": 14000,
+    "contractYears": 4,
     "nationality": "Australia",
     "age": 38,
+    "morale": 91,
+    "fatigue": 7,
+    "careerStats": {
+      "playersHealed": 103,
+      "injuriesManaged": 144,
+      "seasonsWorked": 12
+    },
     "image": "images/staff/staff_medical_doctor_06.webp"
   },
   {
@@ -70,10 +124,19 @@
     "name": "Dr. James O'Connor",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 19,
     "recoveryBonus": 15,
     "salary": 20000,
+    "contractYears": 2,
     "nationality": "Australia",
     "age": 45,
+    "morale": 84,
+    "fatigue": 14,
+    "careerStats": {
+      "playersHealed": 165,
+      "injuriesManaged": 231,
+      "seasonsWorked": 19
+    },
     "image": "images/staff/staff_medical_doctor_07.webp"
   },
   {
@@ -81,10 +144,19 @@
     "name": "Dr. Emily Harrison",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 17,
     "recoveryBonus": 13,
     "salary": 17000,
+    "contractYears": 3,
     "nationality": "United Kingdom",
     "age": 43,
+    "morale": 86,
+    "fatigue": 11,
+    "careerStats": {
+      "playersHealed": 148,
+      "injuriesManaged": 207,
+      "seasonsWorked": 17
+    },
     "image": "images/staff/staff_medical_doctor_08.webp"
   },
   {
@@ -92,10 +164,19 @@
     "name": "Dr. Priya Sharma",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 13,
     "recoveryBonus": 11,
     "salary": 13000,
+    "contractYears": 3,
     "nationality": "India",
     "age": 39,
+    "morale": 87,
+    "fatigue": 10,
+    "careerStats": {
+      "playersHealed": 112,
+      "injuriesManaged": 158,
+      "seasonsWorked": 13
+    },
     "image": "images/staff/staff_medical_doctor_09.webp"
   },
   {
@@ -103,10 +184,19 @@
     "name": "Dr. Michael Anderson",
     "specialty": "Team Doctor",
     "stars": 4,
+    "experience": 28,
     "recoveryBonus": 20,
     "salary": 26000,
+    "contractYears": 1,
     "nationality": "USA",
     "age": 54,
+    "morale": 79,
+    "fatigue": 17,
+    "careerStats": {
+      "playersHealed": 243,
+      "injuriesManaged": 341,
+      "seasonsWorked": 28
+    },
     "image": "images/staff/staff_medical_doctor_10.webp"
   }
 ]

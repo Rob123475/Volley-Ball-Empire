@@ -12,16 +12,16 @@ const STAFF_PHYSIOTHERAPISTS = [
 ] as const;
 
 const STAFF_DOCTORS = [
-  { id: "doctor_01", name: "Dr. Alessandro Bianchi", specialty: "Team Doctor", stars: 4, recoveryBonus: 14, salary: 18000, nationality: "Italy",          age: 42, image: "images/staff/staff_medical_doctor_01.webp" },
-  { id: "doctor_02", name: "Dr. Sofia Petrova",      specialty: "Team Doctor", stars: 4, recoveryBonus: 12, salary: 14000, nationality: "Bulgaria",       age: 38, image: "images/staff/staff_medical_doctor_02.webp" },
-  { id: "doctor_03", name: "Dr. Hiroshi Tanaka",     specialty: "Team Doctor", stars: 4, recoveryBonus: 18, salary: 24000, nationality: "Japan",           age: 51, image: "images/staff/staff_medical_doctor_03.webp" },
-  { id: "doctor_04", name: "Dr. Anna Kowalska",      specialty: "Team Doctor", stars: 4, recoveryBonus: 16, salary: 20000, nationality: "Poland",          age: 46, image: "images/staff/staff_medical_doctor_04.webp" },
-  { id: "doctor_05", name: "Dr. Karim Hassan",       specialty: "Team Doctor", stars: 4, recoveryBonus: 22, salary: 28000, nationality: "Egypt",           age: 57, image: "images/staff/staff_medical_doctor_05.webp" },
-  { id: "doctor_06", name: "Dr. Sarah Mitchell",     specialty: "Team Doctor", stars: 4, recoveryBonus: 12, salary: 14000, nationality: "Australia",       age: 38, image: "images/staff/staff_medical_doctor_06.webp" },
-  { id: "doctor_07", name: "Dr. James O'Connor",     specialty: "Team Doctor", stars: 4, recoveryBonus: 15, salary: 20000, nationality: "Australia",       age: 45, image: "images/staff/staff_medical_doctor_07.webp" },
-  { id: "doctor_08", name: "Dr. Emily Harrison",     specialty: "Team Doctor", stars: 4, recoveryBonus: 13, salary: 17000, nationality: "United Kingdom",  age: 43, image: "images/staff/staff_medical_doctor_08.webp" },
-  { id: "doctor_09", name: "Dr. Priya Sharma",       specialty: "Team Doctor", stars: 4, recoveryBonus: 11, salary: 13000, nationality: "India",           age: 39, image: "images/staff/staff_medical_doctor_09.webp" },
-  { id: "doctor_10", name: "Dr. Michael Anderson",   specialty: "Team Doctor", stars: 4, recoveryBonus: 20, salary: 26000, nationality: "USA",             age: 54, image: "images/staff/staff_medical_doctor_10.webp" },
+  { id: "doctor_01", name: "Dr. Alessandro Bianchi", specialty: "Team Doctor", stars: 4, experience: 16, recoveryBonus: 14, salary: 18000, contractYears: 2, nationality: "Italy",         age: 42, morale: 85, fatigue: 12, image: "images/staff/staff_medical_doctor_01.webp" },
+  { id: "doctor_02", name: "Dr. Sofia Petrova",      specialty: "Team Doctor", stars: 4, experience: 12, recoveryBonus: 12, salary: 14000, contractYears: 3, nationality: "Bulgaria",      age: 38, morale: 88, fatigue:  9, image: "images/staff/staff_medical_doctor_02.webp" },
+  { id: "doctor_03", name: "Dr. Hiroshi Tanaka",     specialty: "Team Doctor", stars: 4, experience: 25, recoveryBonus: 18, salary: 24000, contractYears: 1, nationality: "Japan",         age: 51, morale: 80, fatigue: 16, image: "images/staff/staff_medical_doctor_03.webp" },
+  { id: "doctor_04", name: "Dr. Anna Kowalska",      specialty: "Team Doctor", stars: 4, experience: 20, recoveryBonus: 16, salary: 20000, contractYears: 2, nationality: "Poland",        age: 46, morale: 83, fatigue: 13, image: "images/staff/staff_medical_doctor_04.webp" },
+  { id: "doctor_05", name: "Dr. Karim Hassan",       specialty: "Team Doctor", stars: 4, experience: 30, recoveryBonus: 22, salary: 28000, contractYears: 1, nationality: "Egypt",         age: 57, morale: 78, fatigue: 19, image: "images/staff/staff_medical_doctor_05.webp" },
+  { id: "doctor_06", name: "Dr. Sarah Mitchell",     specialty: "Team Doctor", stars: 4, experience: 12, recoveryBonus: 12, salary: 14000, contractYears: 4, nationality: "Australia",     age: 38, morale: 91, fatigue:  7, image: "images/staff/staff_medical_doctor_06.webp" },
+  { id: "doctor_07", name: "Dr. James O'Connor",     specialty: "Team Doctor", stars: 4, experience: 19, recoveryBonus: 15, salary: 20000, contractYears: 2, nationality: "Australia",     age: 45, morale: 84, fatigue: 14, image: "images/staff/staff_medical_doctor_07.webp" },
+  { id: "doctor_08", name: "Dr. Emily Harrison",     specialty: "Team Doctor", stars: 4, experience: 17, recoveryBonus: 13, salary: 17000, contractYears: 3, nationality: "United Kingdom", age: 43, morale: 86, fatigue: 11, image: "images/staff/staff_medical_doctor_08.webp" },
+  { id: "doctor_09", name: "Dr. Priya Sharma",       specialty: "Team Doctor", stars: 4, experience: 13, recoveryBonus: 11, salary: 13000, contractYears: 3, nationality: "India",         age: 39, morale: 87, fatigue: 10, image: "images/staff/staff_medical_doctor_09.webp" },
+  { id: "doctor_10", name: "Dr. Michael Anderson",   specialty: "Team Doctor", stars: 4, experience: 28, recoveryBonus: 20, salary: 26000, contractYears: 1, nationality: "USA",           age: 54, morale: 79, fatigue: 17, image: "images/staff/staff_medical_doctor_10.webp" },
 ] as const;
 
 const NATIONALITIES = [
