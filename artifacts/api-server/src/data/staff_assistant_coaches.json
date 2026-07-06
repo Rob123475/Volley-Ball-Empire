@@ -1,0 +1,292 @@
+[
+  {
+    "id": "assistant_coach_01",
+    "name": "Luca Bardi",
+    "specialty": "Offense Strategy",
+    "stars": 4.0,
+    "experience": 9,
+    "coachingBonus": 14,
+    "salary": 13000,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 38,
+    "morale": 88,
+    "fatigue": 9,
+    "attributes": {
+      "matchPreparation": 90,
+      "tacticalKnowledge": 89,
+      "offense": 95,
+      "defense": 74,
+      "training": 82,
+      "playerDevelopment": 84,
+      "motivation": 88
+    },
+    "careerStats": {
+      "playersCoached": 112,
+      "titlesWon": 3,
+      "seasonsWorked": 9
+    },
+    "image": "images/staff/staff_assistant_coach_01.webp"
+  },
+  {
+    "id": "assistant_coach_02",
+    "name": "Marcos Silva",
+    "specialty": "Player Development",
+    "stars": 2.5,
+    "experience": 17,
+    "coachingBonus": 7,
+    "salary": 8500,
+    "contractYears": 3,
+    "nationality": "Brazil",
+    "age": 46,
+    "morale": 82,
+    "fatigue": 14,
+    "attributes": {
+      "matchPreparation": 70,
+      "tacticalKnowledge": 73,
+      "offense": 75,
+      "defense": 73,
+      "training": 84,
+      "playerDevelopment": 94,
+      "motivation": 82
+    },
+    "careerStats": {
+      "playersCoached": 219,
+      "titlesWon": 1,
+      "seasonsWorked": 17
+    },
+    "image": "images/staff/staff_assistant_coach_02.webp"
+  },
+  {
+    "id": "assistant_coach_03",
+    "name": "Sofia Martinez",
+    "specialty": "Defensive Strategy",
+    "stars": 2.5,
+    "experience": 8,
+    "coachingBonus": 6,
+    "salary": 7500,
+    "contractYears": 4,
+    "nationality": "Spain",
+    "age": 34,
+    "morale": 80,
+    "fatigue": 7,
+    "attributes": {
+      "matchPreparation": 73,
+      "tacticalKnowledge": 75,
+      "offense": 65,
+      "defense": 82,
+      "training": 74,
+      "playerDevelopment": 76,
+      "motivation": 80
+    },
+    "careerStats": {
+      "playersCoached": 94,
+      "titlesWon": 0,
+      "seasonsWorked": 8
+    },
+    "image": "images/staff/staff_assistant_coach_03.webp"
+  },
+  {
+    "id": "assistant_coach_04",
+    "name": "Emma Watson",
+    "specialty": "Defensive Strategy",
+    "stars": 3.0,
+    "experience": 14,
+    "coachingBonus": 9,
+    "salary": 9500,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 42,
+    "morale": 84,
+    "fatigue": 12,
+    "attributes": {
+      "matchPreparation": 78,
+      "tacticalKnowledge": 82,
+      "offense": 66,
+      "defense": 89,
+      "training": 80,
+      "playerDevelopment": 77,
+      "motivation": 84
+    },
+    "careerStats": {
+      "playersCoached": 174,
+      "titlesWon": 2,
+      "seasonsWorked": 14
+    },
+    "image": "images/staff/staff_assistant_coach_04.webp"
+  },
+  {
+    "id": "assistant_coach_05",
+    "name": "Anouk Van Dijk",
+    "specialty": "All-Rounder Strategy",
+    "stars": 2.5,
+    "experience": 15,
+    "coachingBonus": 7,
+    "salary": 8000,
+    "contractYears": 3,
+    "nationality": "Netherlands",
+    "age": 47,
+    "morale": 78,
+    "fatigue": 13,
+    "attributes": {
+      "matchPreparation": 72,
+      "tacticalKnowledge": 74,
+      "offense": 71,
+      "defense": 72,
+      "training": 70,
+      "playerDevelopment": 73,
+      "motivation": 78
+    },
+    "careerStats": {
+      "playersCoached": 189,
+      "titlesWon": 1,
+      "seasonsWorked": 15
+    },
+    "image": "images/staff/staff_assistant_coach_05.webp"
+  },
+  {
+    "id": "assistant_coach_06",
+    "name": "Jessica De Groot",
+    "specialty": "Setting & Game Analysis",
+    "stars": 4.5,
+    "experience": 11,
+    "coachingBonus": 16,
+    "salary": 14000,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 38,
+    "morale": 90,
+    "fatigue": 10,
+    "attributes": {
+      "matchPreparation": 93,
+      "tacticalKnowledge": 92,
+      "offense": 87,
+      "defense": 89,
+      "training": 86,
+      "playerDevelopment": 90,
+      "motivation": 84
+    },
+    "careerStats": {
+      "playersCoached": 138,
+      "titlesWon": 4,
+      "seasonsWorked": 11
+    },
+    "image": "images/staff/staff_assistant_coach_06.webp"
+  },
+  {
+    "id": "assistant_coach_07",
+    "name": "Isabella Ricci",
+    "specialty": "Defense & Court Positioning",
+    "stars": 4.5,
+    "experience": 8,
+    "coachingBonus": 15,
+    "salary": 12500,
+    "contractYears": 3,
+    "nationality": "Italy",
+    "age": 34,
+    "morale": 91,
+    "fatigue": 7,
+    "attributes": {
+      "matchPreparation": 88,
+      "tacticalKnowledge": 90,
+      "offense": 77,
+      "defense": 96,
+      "training": 88,
+      "playerDevelopment": 85,
+      "motivation": 86
+    },
+    "careerStats": {
+      "playersCoached": 98,
+      "titlesWon": 2,
+      "seasonsWorked": 8
+    },
+    "image": "images/staff/staff_assistant_coach_07.webp"
+  },
+  {
+    "id": "assistant_coach_08",
+    "name": "Kwame Adu",
+    "specialty": "Strength & Conditioning",
+    "stars": 4.5,
+    "experience": 14,
+    "coachingBonus": 17,
+    "salary": 15000,
+    "contractYears": 2,
+    "nationality": "Ghana",
+    "age": 40,
+    "morale": 89,
+    "fatigue": 12,
+    "attributes": {
+      "matchPreparation": 85,
+      "tacticalKnowledge": 82,
+      "offense": 84,
+      "defense": 86,
+      "training": 98,
+      "playerDevelopment": 88,
+      "motivation": 94
+    },
+    "careerStats": {
+      "playersCoached": 176,
+      "titlesWon": 5,
+      "seasonsWorked": 14
+    },
+    "image": "images/staff/staff_assistant_coach_08.webp"
+  },
+  {
+    "id": "assistant_coach_09",
+    "name": "Mei-Ling Tan",
+    "specialty": "Technical Skills & Serve",
+    "stars": 4.5,
+    "experience": 7,
+    "coachingBonus": 15,
+    "salary": 12000,
+    "contractYears": 3,
+    "nationality": "Singapore",
+    "age": 31,
+    "morale": 92,
+    "fatigue": 6,
+    "attributes": {
+      "matchPreparation": 82,
+      "tacticalKnowledge": 86,
+      "offense": 92,
+      "defense": 80,
+      "training": 93,
+      "playerDevelopment": 90,
+      "motivation": 83
+    },
+    "careerStats": {
+      "playersCoached": 84,
+      "titlesWon": 2,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_assistant_coach_09.webp"
+  },
+  {
+    "id": "assistant_coach_10",
+    "name": "Lukas Schmidt",
+    "specialty": "Tactics & Game Strategy",
+    "stars": 4.5,
+    "experience": 12,
+    "coachingBonus": 18,
+    "salary": 15000,
+    "contractYears": 2,
+    "nationality": "Germany",
+    "age": 37,
+    "morale": 87,
+    "fatigue": 11,
+    "attributes": {
+      "matchPreparation": 95,
+      "tacticalKnowledge": 96,
+      "offense": 89,
+      "defense": 88,
+      "training": 84,
+      "playerDevelopment": 80,
+      "motivation": 85
+    },
+    "careerStats": {
+      "playersCoached": 151,
+      "titlesWon": 6,
+      "seasonsWorked": 12
+    },
+    "image": "images/staff/staff_assistant_coach_10.webp"
+  }
+]
