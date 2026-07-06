@@ -11,6 +11,19 @@ const STAFF_NUTRITIONISTS = [
   { id: "nutritionist_10", name: "Isabella Moretti",     specialty: "Elite Sports Nutrition",    stars: 5,   experience: 18, nutritionBonus: 20, salary: 22000, nationality: "Italy",        age: 46, image: "images/staff/staff_medical_nutritionist_10.webp" },
 ] as const;
 
+const STAFF_MEDICAL_SPECIALISTS = [
+  { id: "specialist_01", name: "Dr. James Carter",      specialty: "Back Specialist",           stars: 4.5, experience: 20, recoveryBonus: 21, salary: 25000, nationality: "United Kingdom", age: 52, image: "images/staff/staff_medical_specialist_01.webp" },
+  { id: "specialist_02", name: "Dr. Sarah Mitchell",    specialty: "Shoulder Specialist",        stars: 4.5, experience: 18, recoveryBonus: 19, salary: 24000, nationality: "Australia",      age: 48, image: "images/staff/staff_medical_specialist_02.webp" },
+  { id: "specialist_03", name: "Dr. David Thompson",    specialty: "Ankle Specialist",           stars: 4.5, experience: 17, recoveryBonus: 19, salary: 22000, nationality: "Canada",         age: 46, image: "images/staff/staff_medical_specialist_03.webp" },
+  { id: "specialist_04", name: "Dr. Benjamin Harris",   specialty: "Hand Specialist",            stars: 4.5, experience: 19, recoveryBonus: 18, salary: 23000, nationality: "United Kingdom", age: 50, image: "images/staff/staff_medical_specialist_04.webp" },
+  { id: "specialist_05", name: "Dr. Andrew Wilson",     specialty: "Knee Specialist",            stars: 4.5, experience: 18, recoveryBonus: 20, salary: 24000, nationality: "Australia",      age: 45, image: "images/staff/staff_medical_specialist_05.webp" },
+  { id: "specialist_06", name: "Dr. Meera Kapoor",      specialty: "Neck Specialist",            stars: 5,   experience: 21, recoveryBonus: 22, salary: 28000, nationality: "India",          age: 53, image: "images/staff/staff_medical_specialist_06.webp" },
+  { id: "specialist_07", name: "Dr. Sofia Martinez",    specialty: "Performance Analyst",        stars: 4.0, experience:  4, recoveryBonus: 10, salary: 13000, nationality: "Spain",          age: 27, image: "images/staff/staff_medical_specialist_07.webp" },
+  { id: "specialist_08", name: "Dr. Daniel Thompson",   specialty: "Orthopaedic Specialist",     stars: 4.5, experience: 13, recoveryBonus: 16, salary: 19000, nationality: "Australia",      age: 41, image: "images/staff/staff_medical_specialist_08.webp" },
+  { id: "specialist_09", name: "Dr. Alessandro Rossi",  specialty: "Cardiology Specialist",      stars: 4.5, experience: 10, recoveryBonus: 15, salary: 20000, nationality: "Italy",          age: 35, image: "images/staff/staff_medical_specialist_09.webp" },
+  { id: "specialist_10", name: "Dr. Nathaniel Goodwin", specialty: "Neurology Specialist",       stars: 4.5, experience: 16, recoveryBonus: 22, salary: 26000, nationality: "New Zealand",    age: 46, image: "images/staff/staff_medical_specialist_10.webp" },
+] as const;
+
 const STAFF_SPORTS_SCIENTISTS = [
   { id: "scientist_01", name: "Dr. Matthew Anderson", specialty: "Team Sports Scientist",        stars: 4.5, experience: 12, performanceBonus: 17, salary: 17500, nationality: "Australia",    age: 38, image: "images/staff/staff_medical_science_01.webp" },
   { id: "scientist_02", name: "Dr. Emma Clarke",       specialty: "Team Sports Scientist",        stars: 4.0, experience:  8, performanceBonus: 12, salary: 12000, nationality: "Australia",    age: 33, image: "images/staff/staff_medical_science_02.webp" },
@@ -142,6 +155,36 @@ function getMedicalImageUrl(name: string): string {
   return `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_medical")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9,c0aede`;
 }
 
+function generateMedicalStaffSpecialist() {
+  const s = pick(STAFF_MEDICAL_SPECIALISTS);
+  const overallRating = Math.min(95, 48 + Math.round(s.recoveryBonus * 2.1));
+  const attrNames = ROLE_ATTRIBUTES["medical_specialist"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-8, 8);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  return {
+    name:            s.name,
+    role:            "medical_specialist" as MedicalRole,
+    specialty:       s.specialty,
+    salary:          s.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     s.nationality,
+    imageUrl:        `/${s.image}`,
+    isAvailable:     true,
+    age:             s.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24] as const),
+    coachSpeciality: "Medical",
+    personality:     pick(["Precise", "Methodical", "Dedicated", "Evidence-Based", "Compassionate"] as const),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["medical_specialist"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(15, 40),
+  };
+}
+
 function generateMedicalStaffSportsScientist() {
   const s = pick(STAFF_SPORTS_SCIENTISTS);
   const overallRating = Math.min(95, 44 + Math.round(s.performanceBonus * 2.6));
@@ -265,6 +308,9 @@ function generateMedicalStaffDoctor() {
 export function generateMedicalStaffMember(role: MedicalRole) {
   if (role === "team_doctor") {
     return generateMedicalStaffDoctor();
+  }
+  if (role === "medical_specialist") {
+    return generateMedicalStaffSpecialist();
   }
   if (role === "physiotherapist") {
     return generateMedicalStaffPhysiotherapist();

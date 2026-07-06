@@ -1,0 +1,222 @@
+[
+  {
+    "id": "specialist_01",
+    "name": "Dr. James Carter",
+    "specialty": "Back Specialist",
+    "role": "Team Doctor",
+    "stars": 4.5,
+    "experience": 20,
+    "recoveryBonus": 21,
+    "salary": 25000,
+    "contractYears": 1,
+    "nationality": "United Kingdom",
+    "age": 52,
+    "morale": 90,
+    "fatigue": 17,
+    "injuryTypes": ["Back", "Lumbar", "Thoracic"],
+    "careerStats": {
+      "patientsTreated": 412,
+      "successfulRecoveries": 389,
+      "seasonsWorked": 20
+    },
+    "image": "images/staff/staff_medical_specialist_01.webp"
+  },
+  {
+    "id": "specialist_02",
+    "name": "Dr. Sarah Mitchell",
+    "specialty": "Shoulder Specialist",
+    "role": "Team Doctor",
+    "stars": 4.5,
+    "experience": 18,
+    "recoveryBonus": 19,
+    "salary": 24000,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 48,
+    "morale": 89,
+    "fatigue": 14,
+    "injuryTypes": ["Shoulder", "Rotator Cuff", "Upper Arm"],
+    "careerStats": {
+      "patientsTreated": 368,
+      "successfulRecoveries": 348,
+      "seasonsWorked": 18
+    },
+    "image": "images/staff/staff_medical_specialist_02.webp"
+  },
+  {
+    "id": "specialist_03",
+    "name": "Dr. David Thompson",
+    "specialty": "Ankle Specialist",
+    "role": "Team Doctor",
+    "stars": 4.5,
+    "experience": 17,
+    "recoveryBonus": 19,
+    "salary": 22000,
+    "contractYears": 2,
+    "nationality": "Canada",
+    "age": 46,
+    "morale": 87,
+    "fatigue": 13,
+    "injuryTypes": ["Ankle", "Achilles", "Foot"],
+    "careerStats": {
+      "patientsTreated": 341,
+      "successfulRecoveries": 323,
+      "seasonsWorked": 17
+    },
+    "image": "images/staff/staff_medical_specialist_03.webp"
+  },
+  {
+    "id": "specialist_04",
+    "name": "Dr. Benjamin Harris",
+    "specialty": "Hand Specialist",
+    "role": "Team Doctor",
+    "stars": 4.5,
+    "experience": 19,
+    "recoveryBonus": 18,
+    "salary": 23000,
+    "contractYears": 1,
+    "nationality": "United Kingdom",
+    "age": 50,
+    "morale": 88,
+    "fatigue": 15,
+    "injuryTypes": ["Hand", "Finger", "Wrist"],
+    "careerStats": {
+      "patientsTreated": 387,
+      "successfulRecoveries": 362,
+      "seasonsWorked": 19
+    },
+    "image": "images/staff/staff_medical_specialist_04.webp"
+  },
+  {
+    "id": "specialist_05",
+    "name": "Dr. Andrew Wilson",
+    "specialty": "Knee Specialist",
+    "role": "Team Doctor",
+    "stars": 4.5,
+    "experience": 18,
+    "recoveryBonus": 20,
+    "salary": 24000,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 45,
+    "morale": 90,
+    "fatigue": 13,
+    "injuryTypes": ["Knee", "ACL", "MCL", "Meniscus"],
+    "careerStats": {
+      "patientsTreated": 371,
+      "successfulRecoveries": 354,
+      "seasonsWorked": 18
+    },
+    "image": "images/staff/staff_medical_specialist_05.webp"
+  },
+  {
+    "id": "specialist_06",
+    "name": "Dr. Meera Kapoor",
+    "specialty": "Neck Specialist",
+    "role": "Team Doctor",
+    "stars": 5,
+    "experience": 21,
+    "recoveryBonus": 22,
+    "salary": 28000,
+    "contractYears": 1,
+    "nationality": "India",
+    "age": 53,
+    "morale": 91,
+    "fatigue": 18,
+    "injuryTypes": ["Neck", "Spine"],
+    "careerStats": {
+      "patientsTreated": 437,
+      "successfulRecoveries": 419,
+      "seasonsWorked": 21
+    },
+    "image": "images/staff/staff_medical_specialist_06.webp"
+  },
+  {
+    "id": "specialist_07",
+    "name": "Dr. Sofia Martinez",
+    "specialty": "Performance Analyst",
+    "role": "Sports Scientist",
+    "stars": 4.0,
+    "experience": 4,
+    "recoveryBonus": 10,
+    "salary": 13000,
+    "contractYears": 3,
+    "nationality": "Spain",
+    "age": 27,
+    "morale": 86,
+    "fatigue": 5,
+    "injuryTypes": ["Fatigue", "Recovery"],
+    "careerStats": {
+      "patientsTreated": 61,
+      "successfulRecoveries": 55,
+      "seasonsWorked": 4
+    },
+    "image": "images/staff/staff_medical_specialist_07.webp"
+  },
+  {
+    "id": "specialist_08",
+    "name": "Dr. Daniel Thompson",
+    "specialty": "Orthopaedic Specialist",
+    "role": "Sports Injury & Rehabilitation Expert",
+    "stars": 4.5,
+    "experience": 13,
+    "recoveryBonus": 16,
+    "salary": 19000,
+    "contractYears": 3,
+    "nationality": "Australia",
+    "age": 41,
+    "morale": 84,
+    "fatigue": 11,
+    "injuryTypes": ["Knee", "Ankle", "Shoulder", "Hip", "Fracture"],
+    "careerStats": {
+      "patientsTreated": 261,
+      "successfulRecoveries": 244,
+      "seasonsWorked": 13
+    },
+    "image": "images/staff/staff_medical_specialist_08.webp"
+  },
+  {
+    "id": "specialist_09",
+    "name": "Dr. Alessandro Rossi",
+    "specialty": "Cardiology Specialist",
+    "role": "Heart Health & Performance Medicine",
+    "stars": 4.5,
+    "experience": 10,
+    "recoveryBonus": 15,
+    "salary": 20000,
+    "contractYears": 3,
+    "nationality": "Italy",
+    "age": 35,
+    "morale": 87,
+    "fatigue": 9,
+    "injuryTypes": ["Heart", "Endurance", "Medical Clearance"],
+    "careerStats": {
+      "patientsTreated": 198,
+      "successfulRecoveries": 186,
+      "seasonsWorked": 10
+    },
+    "image": "images/staff/staff_medical_specialist_09.webp"
+  },
+  {
+    "id": "specialist_10",
+    "name": "Dr. Nathaniel Goodwin",
+    "specialty": "Neurology Specialist",
+    "role": "Brain & Nervous System Expert",
+    "stars": 4.5,
+    "experience": 16,
+    "recoveryBonus": 22,
+    "salary": 26000,
+    "contractYears": 2,
+    "nationality": "New Zealand",
+    "age": 46,
+    "morale": 88,
+    "fatigue": 13,
+    "injuryTypes": ["Concussion", "Neurological"],
+    "careerStats": {
+      "patientsTreated": 318,
+      "successfulRecoveries": 302,
+      "seasonsWorked": 16
+    },
+    "image": "images/staff/staff_medical_specialist_10.webp"
+  }
+]
