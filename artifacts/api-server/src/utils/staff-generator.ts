@@ -1,3 +1,16 @@
+const STAFF_FITNESS_TRAINERS = [
+  { id: "fitness_trainer_01", name: "Lucas Anderson",       specialty: "Strength & Conditioning", stars: 4.5, experience:  8, fitnessBonus: 17, salary: 13000, nationality: "Australia",     age: 32, image: "images/staff/staff_fitness_trainer_01.webp" },
+  { id: "fitness_trainer_02", name: "Lauren Johnson",        specialty: "Strength Training",        stars: 2.0, experience:  5, fitnessBonus:  6, salary:  6500, nationality: "United States",  age: 27, image: "images/staff/staff_fitness_trainer_02.webp" },
+  { id: "fitness_trainer_03", name: "Emily Carter",          specialty: "Strength Training",        stars: 4.0, experience:  6, fitnessBonus: 13, salary: 10000, nationality: "Australia",     age: 32, image: "images/staff/staff_fitness_trainer_03.webp" },
+  { id: "fitness_trainer_04", name: "Sofia Bianchi",         specialty: "HIIT Training",            stars: 4.0, experience:  4, fitnessBonus: 12, salary:  9500, nationality: "Italy",         age: 29, image: "images/staff/staff_fitness_trainer_04.webp" },
+  { id: "fitness_trainer_05", name: "Mateo Gonzalez",        specialty: "Strength & Conditioning", stars: 4.0, experience:  7, fitnessBonus: 14, salary: 11000, nationality: "Argentina",      age: 33, image: "images/staff/staff_fitness_trainer_05.webp" },
+  { id: "fitness_trainer_06", name: "Lucía Martínez",        specialty: "Strength Training",        stars: 4.0, experience:  5, fitnessBonus: 12, salary: 10000, nationality: "Spain",         age: 28, image: "images/staff/staff_fitness_trainer_06.webp" },
+  { id: "fitness_trainer_07", name: "Isabella Rodriguez",    specialty: "Strength Training",        stars: 4.0, experience:  6, fitnessBonus: 13, salary: 10500, nationality: "Brazil",        age: 30, image: "images/staff/staff_fitness_trainer_07.webp" },
+  { id: "fitness_trainer_08", name: "Natalie Thompson",      specialty: "Strength & Conditioning", stars: 4.0, experience:  8, fitnessBonus: 15, salary: 11500, nationality: "Canada",        age: 34, image: "images/staff/staff_fitness_trainer_08.webp" },
+  { id: "fitness_trainer_09", name: "Eleni Papadopoulos",   specialty: "Strength Training",        stars: 4.0, experience:  7, fitnessBonus: 14, salary: 11000, nationality: "Greece",        age: 32, image: "images/staff/staff_fitness_trainer_09.webp" },
+  { id: "fitness_trainer_10", name: "Sophie Martin",         specialty: "Strength Training",        stars: 4.0, experience:  5, fitnessBonus: 12, salary: 10000, nationality: "France",        age: 28, image: "images/staff/staff_fitness_trainer_10.webp" },
+];
+
 const STAFF_ASSISTANT_COACHES = [
   { id: "assistant_coach_01", name: "Luca Bardi",       specialty: "Offense Strategy",           stars: 4.0, experience:  9, coachingBonus: 14, salary: 13000, nationality: "Australia",  age: 38, image: "images/staff/staff_assistant_coach_01.webp" },
   { id: "assistant_coach_02", name: "Marcos Silva",      specialty: "Player Development",          stars: 2.5, experience: 17, coachingBonus:  7, salary:  8500, nationality: "Brazil",     age: 46, image: "images/staff/staff_assistant_coach_02.webp" },
@@ -109,6 +122,37 @@ function pick<T>(arr: T[]): T {
 const getStaffImageUrl = (name: string) =>
   `https://api.dicebear.com/7.x/personas/svg?seed=${encodeURIComponent(name + "_coach")}&backgroundColor=b6e3f4,ffd5dc,d1d4f9`;
 
+function generateFitnessTrainer() {
+  const c = pick(STAFF_FITNESS_TRAINERS);
+  const overallRating = Math.min(95, 46 + Math.round(c.fitnessBonus * 2.4));
+  const attrNames = ROLE_ATTRIBUTES["fitness_trainer"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-10, 10);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  const [sqMin, sqMax] = ROLE_SCOUTING_RANGES["fitness_trainer"];
+  return {
+    name:            c.name,
+    role:            "fitness_trainer" as StaffRole,
+    specialty:       c.specialty,
+    salary:          c.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     c.nationality,
+    imageUrl:        `/${c.image}`,
+    isAvailable:     true,
+    age:             c.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24]),
+    coachSpeciality: pick(["Conditioning", "Injury Prevention", "Nutrition", "Speed", "General"]),
+    personality:     pick(["Motivator", "Demanding", "Player Friendly", "Disciplinarian"]),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["fitness_trainer"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(sqMin, sqMax),
+  };
+}
+
 function generateAssistantCoach() {
   const c = pick(STAFF_ASSISTANT_COACHES);
   const overallRating = Math.min(95, 46 + Math.round(c.coachingBonus * 2.3));
@@ -141,6 +185,9 @@ function generateAssistantCoach() {
 }
 
 export function generateStaffMember(role: StaffRole) {
+  if (role === "fitness_trainer") {
+    return generateFitnessTrainer();
+  }
   if (role === "assistant_coach") {
     return generateAssistantCoach();
   }

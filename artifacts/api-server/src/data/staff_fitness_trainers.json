@@ -1,0 +1,212 @@
+[
+  {
+    "id": "fitness_trainer_01",
+    "name": "Lucas Anderson",
+    "specialty": "Strength & Conditioning",
+    "specialities": ["Strength & Conditioning", "Injury Prevention", "Mobility & Flexibility", "Performance Enhancement"],
+    "stars": 4.5,
+    "experience": 8,
+    "fitnessBonus": 17,
+    "salary": 13000,
+    "contractYears": 2,
+    "nationality": "Australia",
+    "age": 32,
+    "morale": 90,
+    "fatigue": 9,
+    "careerStats": {
+      "athletesTrained": 104,
+      "injuriesPrevented": 38,
+      "seasonsWorked": 8
+    },
+    "image": "images/staff/staff_fitness_trainer_01.webp"
+  },
+  {
+    "id": "fitness_trainer_02",
+    "name": "Lauren Johnson",
+    "specialty": "Strength Training",
+    "specialities": ["Strength Training", "Nutrition Coaching", "Injury Prevention", "Performance Optimization"],
+    "stars": 2.0,
+    "experience": 5,
+    "fitnessBonus": 6,
+    "salary": 6500,
+    "contractYears": 4,
+    "nationality": "United States",
+    "age": 27,
+    "morale": 80,
+    "fatigue": 5,
+    "careerStats": {
+      "athletesTrained": 58,
+      "injuriesPrevented": 12,
+      "seasonsWorked": 5
+    },
+    "image": "images/staff/staff_fitness_trainer_02.webp"
+  },
+  {
+    "id": "fitness_trainer_03",
+    "name": "Emily Carter",
+    "specialty": "Strength Training",
+    "specialities": ["Strength Training", "Conditioning", "Flexibility & Mobility", "Nutrition Coaching"],
+    "stars": 4.0,
+    "experience": 6,
+    "fitnessBonus": 13,
+    "salary": 10000,
+    "contractYears": 3,
+    "nationality": "Australia",
+    "age": 32,
+    "morale": 88,
+    "fatigue": 7,
+    "careerStats": {
+      "athletesTrained": 76,
+      "injuriesPrevented": 24,
+      "seasonsWorked": 6
+    },
+    "image": "images/staff/staff_fitness_trainer_03.webp"
+  },
+  {
+    "id": "fitness_trainer_04",
+    "name": "Sofia Bianchi",
+    "specialty": "HIIT Training",
+    "specialities": ["HIIT Training", "Core Strength", "Recovery & Rehab", "Performance Testing"],
+    "stars": 4.0,
+    "experience": 4,
+    "fitnessBonus": 12,
+    "salary": 9500,
+    "contractYears": 3,
+    "nationality": "Italy",
+    "age": 29,
+    "morale": 91,
+    "fatigue": 5,
+    "careerStats": {
+      "athletesTrained": 49,
+      "injuriesPrevented": 17,
+      "seasonsWorked": 4
+    },
+    "image": "images/staff/staff_fitness_trainer_04.webp"
+  },
+  {
+    "id": "fitness_trainer_05",
+    "name": "Mateo Gonzalez",
+    "specialty": "Strength & Conditioning",
+    "specialities": ["Strength & Conditioning", "Sports Nutrition", "Injury Prevention", "Athletic Performance"],
+    "stars": 4.0,
+    "experience": 7,
+    "fitnessBonus": 14,
+    "salary": 11000,
+    "contractYears": 2,
+    "nationality": "Argentina",
+    "age": 33,
+    "morale": 87,
+    "fatigue": 8,
+    "careerStats": {
+      "athletesTrained": 89,
+      "injuriesPrevented": 29,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_fitness_trainer_05.webp"
+  },
+  {
+    "id": "fitness_trainer_06",
+    "name": "Lucía Martínez",
+    "specialty": "Strength Training",
+    "specialities": ["Strength Training", "Mobility & Flexibility", "Pre & Postnatal Fitness", "Performance Testing"],
+    "stars": 4.0,
+    "experience": 5,
+    "fitnessBonus": 12,
+    "salary": 10000,
+    "contractYears": 3,
+    "nationality": "Spain",
+    "age": 28,
+    "morale": 90,
+    "fatigue": 5,
+    "careerStats": {
+      "athletesTrained": 61,
+      "injuriesPrevented": 19,
+      "seasonsWorked": 5
+    },
+    "image": "images/staff/staff_fitness_trainer_06.webp"
+  },
+  {
+    "id": "fitness_trainer_07",
+    "name": "Isabella Rodriguez",
+    "specialty": "Strength Training",
+    "specialities": ["Strength Training", "Sports Nutrition", "Mobility & Flexibility", "Injury Prevention"],
+    "stars": 4.0,
+    "experience": 6,
+    "fitnessBonus": 13,
+    "salary": 10500,
+    "contractYears": 3,
+    "nationality": "Brazil",
+    "age": 30,
+    "morale": 88,
+    "fatigue": 7,
+    "careerStats": {
+      "athletesTrained": 74,
+      "injuriesPrevented": 22,
+      "seasonsWorked": 6
+    },
+    "image": "images/staff/staff_fitness_trainer_07.webp"
+  },
+  {
+    "id": "fitness_trainer_08",
+    "name": "Natalie Thompson",
+    "specialty": "Strength & Conditioning",
+    "specialities": ["Strength & Conditioning", "Sports Nutrition", "Rehabilitation", "Performance Analysis"],
+    "stars": 4.0,
+    "experience": 8,
+    "fitnessBonus": 15,
+    "salary": 11500,
+    "contractYears": 2,
+    "nationality": "Canada",
+    "age": 34,
+    "morale": 86,
+    "fatigue": 10,
+    "careerStats": {
+      "athletesTrained": 98,
+      "injuriesPrevented": 34,
+      "seasonsWorked": 8
+    },
+    "image": "images/staff/staff_fitness_trainer_08.webp"
+  },
+  {
+    "id": "fitness_trainer_09",
+    "name": "Eleni Papadopoulos",
+    "specialty": "Strength Training",
+    "specialities": ["Strength Training", "Sports Nutrition", "Flexibility & Mobility", "Recovery & Rehab"],
+    "stars": 4.0,
+    "experience": 7,
+    "fitnessBonus": 14,
+    "salary": 11000,
+    "contractYears": 2,
+    "nationality": "Greece",
+    "age": 32,
+    "morale": 87,
+    "fatigue": 8,
+    "careerStats": {
+      "athletesTrained": 88,
+      "injuriesPrevented": 27,
+      "seasonsWorked": 7
+    },
+    "image": "images/staff/staff_fitness_trainer_09.webp"
+  },
+  {
+    "id": "fitness_trainer_10",
+    "name": "Sophie Martin",
+    "specialty": "Strength Training",
+    "specialities": ["Strength Training", "Conditioning", "Sports Nutrition", "Injury Prevention"],
+    "stars": 4.0,
+    "experience": 5,
+    "fitnessBonus": 12,
+    "salary": 10000,
+    "contractYears": 3,
+    "nationality": "France",
+    "age": 28,
+    "morale": 89,
+    "fatigue": 6,
+    "careerStats": {
+      "athletesTrained": 62,
+      "injuriesPrevented": 20,
+      "seasonsWorked": 5
+    },
+    "image": "images/staff/staff_fitness_trainer_10.webp"
+  }
+]
