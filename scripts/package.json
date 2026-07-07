@@ -11,6 +11,8 @@
     "seed-asia-players": "tsx ./src/seed-asia-players.ts",
     "seed-europe-players": "tsx ./src/seed-europe-players.ts",
     "seed-n-america-players": "tsx ./src/seed-n-america-players.ts",
+    "seed-oceania-players": "tsx ./src/seed-oceania-players.ts",
+    "seed-s-america-players": "tsx ./src/seed-s-america-players.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
