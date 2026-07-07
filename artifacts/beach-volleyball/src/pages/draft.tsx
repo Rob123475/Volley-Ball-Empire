@@ -113,7 +113,6 @@ export default function PlayerDraft() {
                     className="text-white font-bold select-none"
                     style={{
                       writingMode: "vertical-rl",
-                      transform: "rotate(180deg)",
                       fontSize: "11px",
                       letterSpacing: "0.05em",
                       maxHeight: "252px",
