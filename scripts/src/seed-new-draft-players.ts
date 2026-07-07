@@ -91,7 +91,7 @@ const PLAYERS: PlayerDef[] = [
     age: 29, heightCm: 173, position: "all_rounder", potential: "High",
     speed: 78, power: 77, defense: 74, serve: 76, block: 68, stamina: 75,
     salary: 10500, askingPrice: 126000,
-    imageFile: "player_senior_america_03_1783400328506.webp",
+    imageFile: "player_senior_america_03_1783465720533.webp",
   },
   {
     name: "Mia Anderson",
@@ -100,7 +100,7 @@ const PLAYERS: PlayerDef[] = [
     age: 22, heightCm: 176, position: "setter", potential: "Elite",
     speed: 80, power: 60, defense: 74, serve: 86, block: 56, stamina: 78,
     salary: 14000, askingPrice: 168000,
-    imageFile: "player_senior_australia_03_1783400334838.webp",
+    imageFile: "player_senior_australia_03_1783465720534.webp",
   },
   {
     name: "Tessa Lane",
@@ -109,7 +109,7 @@ const PLAYERS: PlayerDef[] = [
     age: 22, heightCm: 174, position: "spiker", potential: "High",
     speed: 79, power: 82, defense: 62, serve: 70, block: 65, stamina: 76,
     salary: 10500, askingPrice: 126000,
-    imageFile: "player_senior_australia_04_1783400343860.webp",
+    imageFile: "player_senior_australia_04_1783465720534.webp",
   },
   {
     name: "Kamila Torrez",
@@ -118,7 +118,7 @@ const PLAYERS: PlayerDef[] = [
     age: 20, heightCm: 162, position: "defender", potential: "High",
     speed: 82, power: 52, defense: 83, serve: 63, block: 48, stamina: 80,
     salary: 9000, askingPrice: 108000,
-    imageFile: "player_senior_bolivia_03_1783400350415.webp",
+    imageFile: "player_senior_bolivia_03_1783465720535.webp",
   },
   {
     name: "Julia Fernandes",
@@ -127,7 +127,7 @@ const PLAYERS: PlayerDef[] = [
     age: 24, heightCm: 174, position: "all_rounder", potential: "High",
     speed: 77, power: 79, defense: 73, serve: 75, block: 68, stamina: 76,
     salary: 10000, askingPrice: 120000,
-    imageFile: "player_senior_brazil_03_1783400360369.webp",
+    imageFile: "player_senior_brazil_03_1783465720535.webp",
   },
   {
     name: "Emily Roy",
@@ -136,7 +136,7 @@ const PLAYERS: PlayerDef[] = [
     age: 21, heightCm: 168, position: "defender", potential: "High",
     speed: 83, power: 54, defense: 84, serve: 65, block: 50, stamina: 79,
     salary: 9500, askingPrice: 114000,
-    imageFile: "player_senior_canada_03_1783400363805.webp",
+    imageFile: "player_senior_canada_03_1783465720536.webp",
   },
   {
     name: "Wang Yun",
@@ -145,7 +145,7 @@ const PLAYERS: PlayerDef[] = [
     age: 21, heightCm: 175, position: "setter", potential: "Elite",
     speed: 79, power: 62, defense: 75, serve: 87, block: 58, stamina: 77,
     salary: 14500, askingPrice: 174000,
-    imageFile: "player_senior_china_03_1783400374542.webp",
+    imageFile: "player_senior_china_03_1783465720536.webp",
   },
   {
     name: "Isabella Moreira",
@@ -154,7 +154,7 @@ const PLAYERS: PlayerDef[] = [
     age: 21, heightCm: 164, position: "setter", potential: "High",
     speed: 78, power: 57, defense: 72, serve: 82, block: 54, stamina: 76,
     salary: 9500, askingPrice: 114000,
-    imageFile: "player_senior_costa_rico_03_1783400377093.webp",
+    imageFile: "player_senior_costa_rico_03_1783465720537.webp",
   },
   {
     name: "Ava Patel",
@@ -163,7 +163,7 @@ const PLAYERS: PlayerDef[] = [
     age: 19, heightCm: 174, position: "setter", potential: "High",
     speed: 76, power: 58, defense: 70, serve: 80, block: 52, stamina: 74,
     salary: 9000, askingPrice: 108000,
-    imageFile: "player_senior_england_03_1783400426244.webp",
+    imageFile: "player_senior_england_03_1783465720537.webp",
   },
   {
     name: "Litia Naivakalou",
@@ -172,7 +172,7 @@ const PLAYERS: PlayerDef[] = [
     age: 23, heightCm: 176, position: "defender", potential: "Average",
     speed: 79, power: 54, defense: 80, serve: 62, block: 48, stamina: 77,
     salary: 7000, askingPrice: 84000,
-    imageFile: "player_senior_fiji_03_1783400431166.webp",
+    imageFile: "player_senior_fiji_03_1783465720537.webp",
   },
   {
     name: "Charlotte Moreau",
@@ -458,9 +458,13 @@ const PLAYERS: PlayerDef[] = [
 ];
 
 async function main() {
-  console.log(`=== Seeding ${PLAYERS.length} new draft players ===\n`);
+  const batchStart = process.env.BATCH_START ? parseInt(process.env.BATCH_START) - 1 : 0;
+  const batchEnd   = process.env.BATCH_END   ? parseInt(process.env.BATCH_END)       : PLAYERS.length;
+  const batch = PLAYERS.slice(batchStart, batchEnd);
+  console.log(`=== Seeding draft players ${batchStart + 1}–${batchStart + batch.length} of ${PLAYERS.length} ===\n`);
 
-  for (const [i, player] of PLAYERS.entries()) {
+  for (const [bi, player] of batch.entries()) {
+    const i = batchStart + bi;
     console.log(`[${i + 1}/${PLAYERS.length}] ${player.name} (${player.nationality}) — ${player.position} — ${player.potential}`);
 
     const localPath = resolve(WORKSPACE_ROOT, "attached_assets", player.imageFile);
@@ -498,7 +502,7 @@ async function main() {
     console.log(`  inserted → imageUrl=${imageUrl}\n`);
   }
 
-  console.log(`=== Done! ${PLAYERS.length} draft players seeded. ===`);
+  console.log(`=== Done! ${batch.length} draft players seeded (${batchStart + 1}–${batchStart + batch.length}). ===`);
   process.exit(0);
 }
 
