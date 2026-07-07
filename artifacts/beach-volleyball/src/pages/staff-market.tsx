@@ -92,12 +92,26 @@ const ROLE_ICONS: Record<string, IconFC> = {
 
 const ROLE_FILTERS = ["all", "head_coach", "assistant_coach", "fitness_trainer", "strength_conditioner", "massage_therapist", "promotions_manager", "scout"] as const;
 
+function starTier(rating: number): { stars: number; color: string; label: string } {
+  if (rating >= 90) return { stars: 5, color: "text-yellow-400",  label: "Elite"  };
+  if (rating >= 80) return { stars: 4, color: "text-blue-400",    label: "Great"  };
+  if (rating >= 70) return { stars: 3, color: "text-green-400",   label: "Good"   };
+  if (rating >= 60) return { stars: 2, color: "text-slate-400",   label: "Fair"   };
+  return               { stars: 1, color: "text-red-400",     label: "Poor"   };
+}
+
 function OvrDisplay({ rating, revealed }: { rating: number; revealed: boolean }) {
   if (!revealed) {
+    const { stars, color, label } = starTier(rating);
     return (
-      <div className="absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md w-12 h-12 bg-black/50 border border-white/20 leading-none">
-        <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">OVR</span>
-        <HelpCircle className="h-5 w-5 text-white/40 mt-0.5" />
+      <div className="absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md px-2 py-1.5 bg-black/60 border border-white/15 leading-none gap-0.5 min-w-[48px]">
+        <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">Quality</span>
+        <div className={cn("flex gap-px", color)}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className={cn("h-2.5 w-2.5", i < stars ? "fill-current" : "opacity-20")} />
+          ))}
+        </div>
+        <span className={cn("text-[8px] font-semibold", color)}>{label}</span>
       </div>
     );
   }
