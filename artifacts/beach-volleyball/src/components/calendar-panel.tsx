@@ -1,4 +1,5 @@
-import { useCalendar, type CalendarSpeed } from "@/hooks/use-calendar";
+import { useEffect, useRef } from "react";
+import { useCalendar, type CalendarSpeed, SPEED_MS } from "@/hooks/use-calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -43,7 +44,30 @@ function FatigueBar({ value, max = 100 }: { value: number; max?: number }) {
 }
 
 export function CalendarPanel() {
-  const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed } = useCalendar();
+  const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed, advanceMutation } = useCalendar();
+  const tickingRef = useRef(false);
+
+  // Auto-advance ticker — lives here (and only here) so only one interval ever runs
+  useEffect(() => {
+    if (!calendar) return;
+    if (calendar.calendarSpeed === "pause") return;
+    if (calendar.pendingMatchId) return;
+
+    const ms = SPEED_MS[calendar.calendarSpeed];
+    if (!ms) return;
+
+    const timer = setInterval(() => {
+      if (tickingRef.current) return;
+      if (advanceMutation.isPending) return;
+      tickingRef.current = true;
+      advanceMutation.mutate(undefined, {
+        onSettled: () => { tickingRef.current = false; },
+      });
+    }, ms);
+
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calendar?.calendarSpeed, calendar?.pendingMatchId, calendar?.currentDate]);
 
   if (isLoading || !calendar) {
     return (

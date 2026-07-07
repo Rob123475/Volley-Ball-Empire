@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
 
 export type CalendarSpeed = "pause" | "slow" | "medium" | "fast";
 
@@ -63,11 +62,11 @@ export type AdvanceResult = {
   currentDate?: string;
 };
 
-const SPEED_MS: Record<CalendarSpeed, number | null> = {
-  pause: null,
-  slow: 3000,
+export const SPEED_MS: Record<CalendarSpeed, number | null> = {
+  pause:  null,
+  slow:   3000,
   medium: 1000,
-  fast: 200,
+  fast:   200,
 };
 
 async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
@@ -78,7 +77,6 @@ async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
 
 export function useCalendar() {
   const queryClient = useQueryClient();
-  const tickingRef  = useRef(false);
 
   const { data: calendar, isLoading, error } = useQuery<CalendarState>({
     queryKey: ["calendar"],
@@ -90,7 +88,6 @@ export function useCalendar() {
   const advanceMutation = useMutation<AdvanceResult>({
     mutationFn: () => apiFetch<AdvanceResult>("/api/calendar/advance", { method: "POST" }),
     onSettled:  () => {
-      tickingRef.current = false;
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
     },
   });
@@ -123,39 +120,20 @@ export function useCalendar() {
     },
   });
 
-  // Auto-advance ticker
-  useEffect(() => {
-    if (!calendar) return;
-    if (calendar.calendarSpeed === "pause") return;
-    if (calendar.pendingMatchId) return;
-
-    const ms = SPEED_MS[calendar.calendarSpeed];
-    if (!ms) return;
-
-    const timer = setInterval(() => {
-      if (tickingRef.current) return;
-      if (advanceMutation.isPending) return;
-      tickingRef.current = true;
-      advanceMutation.mutate();
-    }, ms);
-
-    return () => clearInterval(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [calendar?.calendarSpeed, calendar?.pendingMatchId, calendar?.currentDate]);
-
   return {
     calendar,
     isLoading,
     error,
-    isAdvancing:      advanceMutation.isPending,
-    isSettingSpeed:   setSpeedMutation.isPending,
-    isDismissing:     dismissMatchMutation.isPending,
-    isSimulating:     simulateMatchMutation.isPending,
-    advance:          () => { tickingRef.current = true; advanceMutation.mutate(); },
-    setSpeed:         (speed: CalendarSpeed) => setSpeedMutation.mutate(speed),
-    dismissMatch:     () => dismissMatchMutation.mutate(),
-    skipMatch:        () => skipMatchMutation.mutate(),
-    simulateMatch:    (matchId: number) => simulateMatchMutation.mutate(matchId),
+    isAdvancing:       advanceMutation.isPending,
+    isSettingSpeed:    setSpeedMutation.isPending,
+    isDismissing:      dismissMatchMutation.isPending,
+    isSimulating:      simulateMatchMutation.isPending,
+    advance:           () => advanceMutation.mutate(),
+    setSpeed:          (speed: CalendarSpeed) => setSpeedMutation.mutate(speed),
+    dismissMatch:      () => dismissMatchMutation.mutate(),
+    skipMatch:         () => skipMatchMutation.mutate(),
+    simulateMatch:     (matchId: number) => simulateMatchMutation.mutate(matchId),
     lastAdvanceResult: advanceMutation.data,
+    advanceMutation,
   };
 }
