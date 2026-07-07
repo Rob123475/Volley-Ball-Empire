@@ -2,6 +2,7 @@ import {
   useGetMedicalStaffMarket,
   useHireMedicalStaff,
   useListMedicalStaff,
+  useScoutStaff,
   getGetMedicalStaffMarketQueryKey,
   getListMedicalStaffQueryKey,
 } from "@workspace/api-client-react";
@@ -24,7 +25,9 @@ import {
   Activity,
   Microscope,
   HeartPulse,
-  HelpCircle,
+  Star,
+  Lock,
+  Binoculars,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -89,24 +92,31 @@ const ROLE_ICONS: Record<string, IconFC> = {
 
 const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist"] as const;
 
-function OvrDisplay({ rating, revealed }: { rating: number; revealed: boolean }) {
+function starTier(rating: number): { stars: number; color: string; label: string } {
+  if (rating >= 90) return { stars: 5, color: "text-yellow-400",  label: "Elite"     };
+  if (rating >= 79) return { stars: 4, color: "text-blue-400",    label: "Great"     };
+  if (rating >= 67) return { stars: 3, color: "text-green-400",   label: "Good"      };
+  return               { stars: 2, color: "text-slate-300",   label: "Promising" };
+}
+
+function StarDisplay({ rating, revealed }: { rating: number; revealed: boolean }) {
   if (!revealed) {
     return (
-      <div className="absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md w-12 h-12 bg-black/50 border border-white/20 leading-none">
-        <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">OVR</span>
-        <HelpCircle className="h-5 w-5 text-white/40 mt-0.5" />
+      <div className="absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md w-12 h-12 bg-black/60 border border-white/20 leading-none gap-1 shadow-lg">
+        <Lock className="h-4 w-4 text-white/40" />
+        <span className="text-[8px] text-white/40 font-bold uppercase tracking-wider">Scout</span>
       </div>
     );
   }
-  const color =
-    rating >= 85 ? "bg-yellow-400 text-yellow-900" :
-    rating >= 75 ? "bg-blue-500 text-white" :
-    rating >= 65 ? "bg-slate-500 text-white" :
-                   "bg-slate-300 text-slate-700";
+  const { stars, color, label } = starTier(rating);
   return (
-    <div className={cn("absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md w-12 h-12 font-black leading-none shadow-lg", color)}>
-      <span className="text-[8px] font-bold opacity-70 uppercase tracking-wider">OVR</span>
-      <span className="text-lg">{rating}</span>
+    <div className="absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md px-2 py-1.5 bg-black/70 border border-white/20 leading-none gap-0.5 shadow-lg min-w-[52px]">
+      <div className="flex gap-0.5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Star key={i} className={cn("h-2.5 w-2.5", i < stars ? cn("fill-current", color) : "text-white/20")} />
+        ))}
+      </div>
+      <span className={cn("text-[9px] font-bold", color)}>{label}</span>
     </div>
   );
 }
@@ -133,15 +143,19 @@ function MedicalMarketCard({
   onHire,
   isHiring,
   canHire,
+  isScouting,
+  onScout,
 }: {
   member: any;
   isOwned: boolean;
   onHire: (id: number) => void;
   isHiring: boolean;
   canHire: boolean;
+  isScouting: boolean;
+  onScout: (id: number) => void;
 }) {
   const RoleIcon = ROLE_ICONS[member.role] ?? Stethoscope;
-  const revealed = member.isScoutRevealed ?? true;
+  const revealed = member.isScoutRevealed || isOwned;
 
   function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
     for (const [key, val] of Object.entries(attributes)) {
@@ -188,7 +202,7 @@ function MedicalMarketCard({
           )}
         </div>
 
-        <OvrDisplay rating={member.overallRating} revealed={revealed} />
+        <StarDisplay rating={member.overallRating} revealed={revealed} />
 
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
@@ -197,14 +211,31 @@ function MedicalMarketCard({
       </div>
 
       <CardContent className="p-4 space-y-3">
-        {member.specialTrait && (
+        {revealed && member.specialTrait && (
           <div className="flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />
             <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{member.specialTrait}</span>
           </div>
         )}
 
-        {attrs.length > 0 && (
+        {!revealed && (
+          <div className="flex flex-col items-center gap-2 py-3 text-center">
+            <Lock className="h-5 w-5 text-muted-foreground/40" />
+            <p className="text-xs text-muted-foreground">Scout to reveal stats & traits</p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-xs"
+              onClick={() => onScout(member.id)}
+              disabled={isScouting}
+            >
+              <Binoculars className="h-3.5 w-3.5" />
+              {isScouting ? "Scouting…" : "Scout"}
+            </Button>
+          </div>
+        )}
+
+        {revealed && attrs.length > 0 && (
           <div className="space-y-1.5">
             {attrs.map(([name, value]) => (
               <AttributeBar key={name} name={name} value={value} revealed={true} />
@@ -276,7 +307,8 @@ export default function MedicalMarket() {
     query: { queryKey: getListMedicalStaffQueryKey() },
   });
 
-  const hireMutation = useHireMedicalStaff();
+  const hireMutation  = useHireMedicalStaff();
+  const scoutMutation = useScoutStaff();
 
   const myStaffIds = new Set(myMedStaff.map((s: any) => s.id));
   const canHire = myMedStaff.length < MAX_MEDICAL_STAFF;
@@ -291,6 +323,19 @@ export default function MedicalMarket() {
       onError: (err: any) => {
         const msg = err?.response?.data?.error ?? "Could not hire this staff member.";
         toast({ title: "Hire Failed", description: msg, variant: "destructive" });
+      },
+    });
+  };
+
+  const handleScout = (staffId: number) => {
+    scoutMutation.mutate({ id: staffId } as any, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetMedicalStaffMarketQueryKey() });
+        toast({ title: "Scouted!", description: "Staff stats and traits have been revealed." });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? "Could not scout this staff member.";
+        toast({ title: "Scout Failed", description: msg, variant: "destructive" });
       },
     });
   };
@@ -363,6 +408,8 @@ export default function MedicalMarket() {
               onHire={handleHire}
               isHiring={hireMutation.isPending && (hireMutation.variables as any)?.data?.staffId === member.id}
               canHire={canHire}
+              isScouting={scoutMutation.isPending && (scoutMutation.variables as any)?.id === member.id}
+              onScout={handleScout}
             />
           ))}
         </div>
