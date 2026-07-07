@@ -34,7 +34,13 @@ import {
   AlertTriangle,
   ArrowRight,
   Pencil,
+  ChevronDown,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -243,12 +249,12 @@ function StaffCard({
 
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all border-border">
-      <div className="relative h-56 overflow-hidden">
+      <div className="relative h-72 overflow-hidden">
         <StaffPortrait
           name={member.name}
           imageUrl={member.imageUrl}
           role={member.role}
-          heightClass="h-56"
+          heightClass="h-72"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
 
@@ -488,11 +494,17 @@ function StaffCard({
 
         {/* Attributes */}
         {attrs.length > 0 && (
-          <div className="space-y-1.5">
-            {attrs.map(([name, value]) => (
-              <AttributeBar key={name} name={name} value={value} />
-            ))}
-          </div>
+          <Collapsible>
+            <CollapsibleTrigger className="flex w-full items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <span className="font-medium">Attributes</span>
+              <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 [[data-state=open]_&]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-2 space-y-1.5">
+              {attrs.map(([name, value]) => (
+                <AttributeBar key={name} name={name} value={value} />
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         )}
 
         {/* Contract & Salary */}

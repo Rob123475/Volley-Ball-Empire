@@ -45,6 +45,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
@@ -170,12 +175,12 @@ function StaffMarketCard({
       "overflow-hidden transition-all group",
       isOwned ? "ring-2 ring-primary/40" : "hover:shadow-xl hover:border-border/80"
     )}>
-      <div className="relative h-52 overflow-hidden">
+      <div className="relative h-64 overflow-hidden">
         <StaffPortrait
           name={member.name}
           imageUrl={member.imageUrl}
           role={member.role}
-          heightClass="h-52"
+          heightClass="h-64"
           className="group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
@@ -229,11 +234,17 @@ function StaffMarketCard({
 
         {/* Attributes */}
         {attrs.length > 0 && (
-          <div className="space-y-1.5">
-            {attrs.map(([name, value]) => (
-              <AttributeBar key={name} name={name} value={value} revealed={revealed} />
-            ))}
-          </div>
+          <Collapsible>
+            <CollapsibleTrigger className="flex w-full items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <span className="font-medium">Attributes</span>
+              <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 [[data-state=open]_&]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-2 space-y-1.5">
+              {attrs.map(([name, value]) => (
+                <AttributeBar key={name} name={name} value={value} revealed={revealed} />
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         )}
 
         {/* Contract & Salary */}
