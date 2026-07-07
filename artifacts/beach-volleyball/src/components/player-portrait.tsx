@@ -85,12 +85,20 @@ function nameSlug(name: string): string {
  * - Otherwise attempts the per-player file in public/images/players/{folder}/.
  * - On 404 the component's onError handler shows initials — never a blank box.
  */
+/** Rewrite `/objects/...` sidecar paths to the browser-accessible API route */
+function normaliseObjectUrl(url: string): string {
+  if (url.startsWith("/objects/")) {
+    return `/api/storage/objects/${url.slice("/objects/".length)}`;
+  }
+  return url;
+}
+
 export function resolvePortraitSrc(
   imageUrl:   string | null | undefined,
   name:       string,
   playerType: string | null | undefined,
 ): string {
-  if (imageUrl && !LEGACY_POOL_PATH.test(imageUrl)) return imageUrl;
+  if (imageUrl && !LEGACY_POOL_PATH.test(imageUrl)) return normaliseObjectUrl(imageUrl);
   const folder = playerType === "youth" ? "youth" : "seniors";
   return `/images/players/${folder}/${nameSlug(name)}.png`;
 }
