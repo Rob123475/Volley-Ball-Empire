@@ -90,7 +90,7 @@ const ROLE_ICONS: Record<string, IconFC> = {
   "Sports Scientist":   FlaskConical as IconFC,
 };
 
-const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_chemist"] as const;
+const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist"] as const;
 
 function OvrDisplay({ rating, revealed }: { rating: number; revealed: boolean }) {
   if (!revealed) {
