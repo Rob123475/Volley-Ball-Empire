@@ -90,7 +90,7 @@ export default function PlayerDraft() {
       />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {pool?.map((player) => {
+        {pool?.map((player, index) => {
           const avgRating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
           return (
             <Card key={player.id} data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary hover:shadow-lg transition-all">
@@ -113,13 +113,13 @@ export default function PlayerDraft() {
                     className="text-white font-bold select-none"
                     style={{
                       writingMode: "vertical-rl",
-                      textOrientation: "upright",
+                      ...(index === 0
+                        ? { textOrientation: "upright", letterSpacing: "0.1em", lineHeight: 1.1 }
+                        : { transform: "rotate(180deg)", letterSpacing: "0.05em", lineHeight: 1.2 }),
                       fontSize: "11px",
-                      letterSpacing: "0.1em",
                       maxHeight: "252px",
                       overflow: "hidden",
                       textShadow: "0 1px 4px rgba(0,0,0,0.95)",
-                      lineHeight: 1.1,
                     }}
                   >
                     {player.name}
