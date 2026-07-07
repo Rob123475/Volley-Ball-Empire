@@ -13,7 +13,21 @@ import {
 
 const router = Router();
 
-const MEDICAL_ROLE_SET = new Set<string>(MEDICAL_ROLES);
+// Include both legacy snake_case names and current Title Case DB names
+const MEDICAL_ROLE_SET = new Set<string>([
+  ...MEDICAL_ROLES,
+  "Doctor", "Medical Specialist", "Physiotherapist", "Nutritionist", "Sports Scientist",
+]);
+
+// Map snake_case filter pill values → Title Case DB role names
+const ROLE_FILTER_MAP: Record<string, string> = {
+  team_doctor:        "Doctor",
+  medical_specialist: "Medical Specialist",
+  physiotherapist:    "Physiotherapist",
+  nutritionist:       "Nutritionist",
+  sports_chemist:     "sports_chemist",
+  sports_scientist:   "Sports Scientist",
+};
 const MAX_MEDICAL_STAFF = 4;
 
 const serializeStaff = (s: any) => ({
@@ -95,7 +109,8 @@ router.get("/medical-staff/market", async (req, res) => {
 
   let filtered = medAvailable;
   if (role && role !== "all") {
-    filtered = filtered.filter(s => s.role === role);
+    const dbRole = ROLE_FILTER_MAP[role] ?? role;
+    filtered = filtered.filter(s => s.role === dbRole);
   }
   if (search) {
     const q = search.toLowerCase();

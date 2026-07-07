@@ -48,28 +48,46 @@ const MAX_MEDICAL_STAFF = 4;
 const ROLE_LABELS: Record<string, string> = {
   all:                "All Roles",
   team_doctor:        "Team Doctor",
+  "Doctor":           "Team Doctor",
   medical_specialist: "Medical Specialist",
+  "Medical Specialist": "Medical Specialist",
   physiotherapist:    "Physiotherapist",
+  "Physiotherapist":  "Physiotherapist",
   nutritionist:       "Nutritionist",
+  "Nutritionist":     "Nutritionist",
   sports_chemist:     "Sports Chemist",
+  sports_scientist:   "Sports Scientist",
+  "Sports Scientist": "Sports Scientist",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  team_doctor:        "bg-red-500",
-  medical_specialist: "bg-blue-600",
-  physiotherapist:    "bg-teal-500",
-  nutritionist:       "bg-green-500",
-  sports_chemist:     "bg-purple-500",
+  team_doctor:          "bg-red-500",
+  "Doctor":             "bg-red-500",
+  medical_specialist:   "bg-blue-600",
+  "Medical Specialist": "bg-blue-600",
+  physiotherapist:      "bg-teal-500",
+  "Physiotherapist":    "bg-teal-500",
+  nutritionist:         "bg-green-500",
+  "Nutritionist":       "bg-green-500",
+  sports_chemist:       "bg-purple-500",
+  sports_scientist:     "bg-indigo-500",
+  "Sports Scientist":   "bg-indigo-500",
 };
 
 type IconFC = React.FC<{ className?: string }>;
 
 const ROLE_ICONS: Record<string, IconFC> = {
-  team_doctor:        Stethoscope as IconFC,
-  medical_specialist: Microscope as IconFC,
-  physiotherapist:    Activity as IconFC,
-  nutritionist:       Salad as IconFC,
-  sports_chemist:     FlaskConical as IconFC,
+  team_doctor:          Stethoscope as IconFC,
+  "Doctor":             Stethoscope as IconFC,
+  medical_specialist:   Microscope as IconFC,
+  "Medical Specialist": Microscope as IconFC,
+  physiotherapist:      Activity as IconFC,
+  "Physiotherapist":    Activity as IconFC,
+  nutritionist:         Salad as IconFC,
+  "Nutritionist":       Salad as IconFC,
+  sports_chemist:       FlaskConical as IconFC,
+  sports_scientist:     FlaskConical as IconFC,
+  "Sports Scientist":   FlaskConical as IconFC,
 };
 
 const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_chemist"] as const;
@@ -126,8 +144,29 @@ function MedicalMarketCard({
   canHire: boolean;
 }) {
   const RoleIcon = ROLE_ICONS[member.role] ?? Stethoscope;
-  const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
   const revealed = member.isScoutRevealed ?? true;
+
+  function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
+    for (const [key, val] of Object.entries(attributes)) {
+      if (key.endsWith("Attributes") && val && typeof val === "object" && !Array.isArray(val)) {
+        return Object.entries(val as Record<string, number>).filter(
+          ([, v]) => typeof v === "number"
+        ) as [string, number][];
+      }
+    }
+    // Legacy flat: only take numeric values that look like skill ratings (not meta like age/salary)
+    const META_KEYS = new Set(["age","salary","stars","experienceYears","nutritionBonus","morale","fatigue"]);
+    return Object.entries(attributes).filter(
+      ([k, v]) => typeof v === "number" && !META_KEYS.has(k)
+    ) as [string, number][];
+  }
+  const attrs = extractSkillAttrs(member.attributes ?? {});
+
+  function normaliseImageUrl(url: string | null | undefined): string | undefined {
+    if (!url) return undefined;
+    if (url.startsWith("/objects/")) return `/api/storage${url}`;
+    return url;
+  }
 
   return (
     <Card className={cn(
@@ -136,7 +175,7 @@ function MedicalMarketCard({
     )}>
       <div className="relative h-52 overflow-hidden">
         <img
-          src={member.imageUrl ?? undefined}
+          src={normaliseImageUrl(member.imageUrl)}
           alt={member.name}
           className="w-full h-full object-cover object-[center_15%] group-hover:scale-105 transition-transform duration-500"
         />
