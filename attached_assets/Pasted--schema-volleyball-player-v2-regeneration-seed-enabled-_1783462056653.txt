@@ -1,0 +1,205 @@
+{
+  "schema": "volleyball_player_v2",
+  "regeneration_seed": {
+    "enabled": true,
+    "seed_type": "player_generation_seed",
+    "use_for": [
+      "senior_player_regeneration",
+      "draft_player_generation",
+      "youth_progression",
+      "hidden_potential",
+      "personality_variance",
+      "career_arc",
+      "injury_resistance",
+      "development_speed"
+    ],
+    "randomness_rules": {
+      "same_overall_different_growth": true,
+      "same_potential_different_outcomes": true,
+      "allow_late_bloomers": true,
+      "allow_early_peak_players": true,
+      "allow_busts": true,
+      "allow_hidden_gems": true,
+      "allow_superstars_rarely": true
+    }
+  },
+  "player_types": {
+    "senior_player": {
+      "age_range": [18, 38],
+      "ready_for_first_team": true,
+      "draft_eligible": false,
+      "uses_contract": true,
+      "uses_transfer_value": true
+    },
+    "draft_player": {
+      "age_range": [16, 22],
+      "ready_for_first_team": "varies",
+      "draft_eligible": true,
+      "uses_contract": false,
+      "uses_transfer_value": false,
+      "scouting_uncertainty": true
+    }
+  },
+  "player_profile": {
+    "player_id": "",
+    "player_type": "senior_player_or_draft_player",
+    "first_name": "",
+    "last_name": "",
+    "display_name": "",
+    "nationality": "",
+    "continent": "",
+    "age": 0,
+    "height_cm": 0,
+    "weight_kg": 0,
+    "handedness": "right_left_or_ambidextrous",
+    "primary_position": "server_defender_blocker_attacker_setter_all_rounder",
+    "secondary_position": "",
+    "beach_role": "attacker_defender_blocker_server_all_rounder",
+    "star_rating": 0,
+    "overall_rating": 0,
+    "potential_rating": 0,
+    "hidden_potential_rating": 0
+  },
+  "core_attributes": {
+    "serving": 0,
+    "serve_power": 0,
+    "serve_accuracy": 0,
+    "attack": 0,
+    "spike_power": 0,
+    "spike_accuracy": 0,
+    "blocking": 0,
+    "digging": 0,
+    "defense": 0,
+    "setting": 0,
+    "passing": 0,
+    "reaction": 0,
+    "jumping": 0,
+    "speed": 0,
+    "agility": 0,
+    "stamina": 0,
+    "strength": 0,
+    "consistency": 0,
+    "composure": 0,
+    "teamwork": 0,
+    "leadership": 0,
+    "game_iq": 0
+  },
+  "special_traits": {
+    "traits": [],
+    "possible_traits": [
+      "Power Server",
+      "Clutch Finisher",
+      "Elite Defender",
+      "Big Match Player",
+      "Fast Developer",
+      "Late Bloomer",
+      "Crowd Favourite",
+      "Captain Material",
+      "Injury Prone",
+      "Iron Body",
+      "Training Beast",
+      "Lazy Trainer",
+      "High Ceiling",
+      "Hidden Gem",
+      "Boom Or Bust",
+      "Reliable Veteran",
+      "Momentum Player",
+      "Pressure Choker",
+      "Super Scout Favourite",
+      "Raw Athlete"
+    ],
+    "max_traits": 4
+  },
+  "development_system": {
+    "development_speed": "slow_normal_fast_elite_random",
+    "career_arc": "early_peak_normal_late_bloomer_long_prime_short_prime_random",
+    "growth_variance": {
+      "enabled": true,
+      "min_yearly_growth": -2,
+      "max_yearly_growth": 8,
+      "draft_player_bonus_growth": true,
+      "senior_player_stability_bonus": true
+    },
+    "potential_rules": {
+      "visible_potential_can_be_wrong": true,
+      "hidden_potential_used_for_true_growth": true,
+      "scout_quality_reveals_hidden_potential": true,
+      "training_quality_affects_growth": true,
+      "game_time_affects_growth": true,
+      "morale_affects_growth": true,
+      "injuries_can_reduce_growth": true
+    },
+    "breakout_chance": {
+      "enabled": true,
+      "base_chance_percent": 5,
+      "draft_hidden_gem_bonus_percent": 8,
+      "elite_coach_bonus_percent": 5,
+      "poor_morale_penalty_percent": -4
+    }
+  },
+  "draft_system": {
+    "draft_rank": 0,
+    "projected_round": 0,
+    "scouted_overall_min": 0,
+    "scouted_overall_max": 0,
+    "scouted_potential_min": 0,
+    "scouted_potential_max": 0,
+    "true_overall": 0,
+    "true_potential": 0,
+    "draft_risk": "low_medium_high_extreme",
+    "draft_archetype": "safe_pick_raw_athlete_hidden_gem_boom_or_bust_elite_prospect_project_player",
+    "combine_scores": {
+      "jump_test": 0,
+      "speed_test": 0,
+      "reaction_test": 0,
+      "serve_power_test": 0,
+      "stamina_test": 0
+    },
+    "draft_notes": ""
+  },
+  "fitness_health": {
+    "current_fitness": 100,
+    "fatigue": 0,
+    "injury_status": "healthy_minor_injury_major_injury_recovering",
+    "injury_resistance": 0,
+    "recovery_speed": 0,
+    "injury_history": [],
+    "doctor_effect_enabled": true,
+    "physio_effect_enabled": true
+  },
+  "mental_personality": {
+    "morale": 75,
+    "confidence": 75,
+    "professionalism": 0,
+    "ambition": 0,
+    "loyalty": 0,
+    "coachability": 0,
+    "temperament": 0,
+    "pressure_handling": 0,
+    "personality_type": "leader_worker_star_ego_loner_team_first_raw_kid_veteran"
+  },
+  "contract_transfer": {
+    "contract_years": 0,
+    "salary": 0,
+    "transfer_value": 0,
+    "release_clause": 0,
+    "wants_new_contract": false,
+    "wants_transfer": false,
+    "club_loyalty_modifier": 0
+  },
+  "match_engine_modifiers": {
+    "attack_boost_effect": {
+      "winner_chance_bonus": true,
+      "unforced_error_risk_bonus": true
+    },
+    "defense_boost_effect": {
+      "dig_chance_bonus": true,
+      "opponent_winner_reduction": true
+    },
+    "form_affects_match_performance": true,
+    "fatigue_affects_match_performance": true,
+    "morale_affects_match_performance": true,
+    "big_match_trait_affects_finals": true
+  },
+  "generated_players": []
+}

@@ -7,6 +7,7 @@
     "hello": "tsx ./src/hello.ts",
     "seed": "tsx ./src/seed.ts",
     "expand-players": "tsx ./src/expand-players.ts",
+    "seed-all-senior-players": "tsx ./src/seed-all-senior-players.ts",
     "seed-africa-players": "tsx ./src/seed-africa-players.ts",
     "seed-asia-players": "tsx ./src/seed-asia-players.ts",
     "seed-europe-players": "tsx ./src/seed-europe-players.ts",
