@@ -21,6 +21,7 @@
     "seed-sports-scientists": "tsx ./src/seed-sports-scientists.ts",
     "fill-sports-scientists-json": "tsx ./src/fill-sports-scientists-json.ts",
     "seed-physiotherapists": "tsx ./src/seed-physiotherapists.ts",
+    "fill-all-player-development": "tsx ./src/fill-all-player-development.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
