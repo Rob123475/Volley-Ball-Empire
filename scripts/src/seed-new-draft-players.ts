@@ -273,7 +273,7 @@ const PLAYERS: PlayerDef[] = [
     age: 23, heightCm: 171, position: "all_rounder", potential: "High",
     speed: 80, power: 75, defense: 74, serve: 73, block: 65, stamina: 78,
     salary: 9500, askingPrice: 114000,
-    imageFile: "player_senior_jamaica_01_1783400568028.webp",
+    imageFile: "player_senior_jamaica_01_1783465811460.webp",
   },
   {
     name: "Chinenye Okafor",
@@ -282,7 +282,7 @@ const PLAYERS: PlayerDef[] = [
     age: 24, heightCm: 178, position: "defender", potential: "High",
     speed: 83, power: 57, defense: 85, serve: 65, block: 51, stamina: 81,
     salary: 9000, askingPrice: 108000,
-    imageFile: "player_senior_kenya_03_1783400574311.webp",
+    imageFile: "player_senior_kenya_03_1783465811461.webp",
   },
   {
     name: "Nurul Ain",
@@ -291,7 +291,7 @@ const PLAYERS: PlayerDef[] = [
     age: 28, heightCm: 173, position: "setter", potential: "Average",
     speed: 74, power: 55, defense: 70, serve: 78, block: 52, stamina: 73,
     salary: 7000, askingPrice: 84000,
-    imageFile: "player_senior_malaysia_01_1783400580692.webp",
+    imageFile: "player_senior_malaysia_01_1783465811462.webp",
   },
   {
     name: "Qistina Zulkifli",
@@ -300,7 +300,7 @@ const PLAYERS: PlayerDef[] = [
     age: 26, heightCm: 168, position: "defender", potential: "Average",
     speed: 78, power: 52, defense: 79, serve: 62, block: 47, stamina: 76,
     salary: 6500, askingPrice: 78000,
-    imageFile: "player_senior_malaysia_02_1783400586388.webp",
+    imageFile: "player_senior_malaysia_02_1783465811463.webp",
   },
   {
     name: "Aishath Nazeema",
@@ -309,7 +309,7 @@ const PLAYERS: PlayerDef[] = [
     age: 25, heightCm: 165, position: "defender", potential: "Average",
     speed: 77, power: 50, defense: 78, serve: 61, block: 45, stamina: 75,
     salary: 6500, askingPrice: 78000,
-    imageFile: "player_senior_maldives_01_1783400616542.webp",
+    imageFile: "player_senior_maldives_01_1783465811463.webp",
   },
   {
     name: "Fathimath Shiuna",
@@ -318,7 +318,7 @@ const PLAYERS: PlayerDef[] = [
     age: 24, heightCm: 163, position: "defender", potential: "Average",
     speed: 76, power: 49, defense: 77, serve: 60, block: 44, stamina: 74,
     salary: 6500, askingPrice: 78000,
-    imageFile: "player_senior_maldives_02_1783400620105.webp",
+    imageFile: "player_senior_maldives_02_1783465811464.webp",
   },
   {
     name: "Hinemoa Waikato",
@@ -327,7 +327,7 @@ const PLAYERS: PlayerDef[] = [
     age: 29, heightCm: 177, position: "defender", potential: "Average",
     speed: 79, power: 55, defense: 81, serve: 64, block: 50, stamina: 77,
     salary: 7500, askingPrice: 90000,
-    imageFile: "player_senior_newzealand_03_1783400628383.webp",
+    imageFile: "player_senior_newzealand_03_1783465811465.webp",
   },
   {
     // 5★ on card
@@ -337,7 +337,7 @@ const PLAYERS: PlayerDef[] = [
     age: 20, heightCm: 165, position: "defender", potential: "Elite",
     speed: 85, power: 56, defense: 88, serve: 66, block: 52, stamina: 83,
     salary: 13500, askingPrice: 162000,
-    imageFile: "player_senior_peru_03_1783400630710.webp",
+    imageFile: "player_senior_peru_03_1783465811465.webp",
   },
   {
     // 3★ on card
@@ -347,7 +347,7 @@ const PLAYERS: PlayerDef[] = [
     age: 20, heightCm: 158, position: "all_rounder", potential: "Average",
     speed: 73, power: 67, defense: 68, serve: 67, block: 58, stamina: 71,
     salary: 6500, askingPrice: 78000,
-    imageFile: "player_senior_png_03_1783400645172.webp",
+    imageFile: "player_senior_png_03_1783465811466.webp",
   },
   {
     name: "Matilde Costa",
@@ -356,7 +356,7 @@ const PLAYERS: PlayerDef[] = [
     age: 22, heightCm: 165, position: "defender", potential: "Average",
     speed: 78, power: 52, defense: 79, serve: 63, block: 47, stamina: 76,
     salary: 7000, askingPrice: 84000,
-    imageFile: "player_senior_portugal_03_1783400648088.webp",
+    imageFile: "player_senior_portugal_03_1783465811467.webp",
   },
   {
     // 4★ on card
