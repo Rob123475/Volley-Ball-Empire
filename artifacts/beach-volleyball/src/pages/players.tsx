@@ -268,12 +268,14 @@ export default function PlayerMarket() {
                     className="text-white font-bold select-none"
                     style={{
                       writingMode: "vertical-rl",
-                      fontSize: "11px",
-                      letterSpacing: "0.05em",
+                      textOrientation: "upright",
+                      textTransform: "uppercase",
+                      fontSize: "13px",
+                      letterSpacing: "0.12em",
+                      lineHeight: 1.1,
                       maxHeight: "252px",
                       overflow: "hidden",
                       textShadow: "0 1px 4px rgba(0,0,0,0.95)",
-                      lineHeight: 1.2,
                     }}
                   >
                     {player.name}
