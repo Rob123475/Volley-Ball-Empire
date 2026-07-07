@@ -181,7 +181,7 @@ const PLAYERS: PlayerDef[] = [
     age: 24, heightCm: 182, position: "blocker", potential: "High",
     speed: 65, power: 80, defense: 64, serve: 68, block: 86, stamina: 72,
     salary: 11000, askingPrice: 132000,
-    imageFile: "player_senior_france_02_1783400433154.webp",
+    imageFile: "player_senior_france_02_1783465781449.webp",
   },
   {
     name: "Leila Amiri",
@@ -190,7 +190,7 @@ const PLAYERS: PlayerDef[] = [
     age: 26, heightCm: 179, position: "defender", potential: "Average",
     speed: 81, power: 56, defense: 82, serve: 66, block: 52, stamina: 80,
     salary: 8000, askingPrice: 96000,
-    imageFile: "player_senior_france_03_1783400442828.webp",
+    imageFile: "player_senior_france_03_1783465781449.webp",
   },
   {
     name: "Clémence Dubois",
@@ -199,7 +199,7 @@ const PLAYERS: PlayerDef[] = [
     age: 25, heightCm: 178, position: "spiker", potential: "High",
     speed: 78, power: 83, defense: 63, serve: 71, block: 67, stamina: 76,
     salary: 10500, askingPrice: 126000,
-    imageFile: "player_senior_france_04_1783400448832.webp",
+    imageFile: "player_senior_france_04_1783465781450.webp",
   },
   {
     name: "Anna Köhler",
@@ -208,7 +208,7 @@ const PLAYERS: PlayerDef[] = [
     age: 28, heightCm: 180, position: "defender", potential: "High",
     speed: 80, power: 58, defense: 84, serve: 67, block: 55, stamina: 79,
     salary: 10000, askingPrice: 120000,
-    imageFile: "player_senior_germany_01_1783400456113.webp",
+    imageFile: "player_senior_germany_01_1783465781450.webp",
   },
   {
     name: "Eleni Papadopoulou",
@@ -217,7 +217,7 @@ const PLAYERS: PlayerDef[] = [
     age: 26, heightCm: 178, position: "spiker", potential: "Average",
     speed: 74, power: 78, defense: 60, serve: 68, block: 63, stamina: 72,
     salary: 8000, askingPrice: 96000,
-    imageFile: "player_senior_greece_01_1783400462061.webp",
+    imageFile: "player_senior_greece_01_1783465781451.webp",
   },
   {
     name: "Anastasia Kalogirou",
@@ -226,7 +226,7 @@ const PLAYERS: PlayerDef[] = [
     age: 31, heightCm: 182, position: "blocker", potential: "Average",
     speed: 62, power: 77, defense: 62, serve: 66, block: 83, stamina: 68,
     salary: 7500, askingPrice: 90000,
-    imageFile: "player_senior_greece_02_1783400468258.webp",
+    imageFile: "player_senior_greece_02_1783465781451.webp",
   },
   // ── BATCH 2 ──────────────────────────────────────────────────────────────
   {
@@ -237,7 +237,7 @@ const PLAYERS: PlayerDef[] = [
     age: 23, heightCm: 190, position: "spiker", potential: "Elite",
     speed: 72, power: 88, defense: 60, serve: 70, block: 74, stamina: 74,
     salary: 14000, askingPrice: 168000,
-    imageFile: "player_senior_greece_03_1783400545309.webp",
+    imageFile: "player_senior_greece_03_1783465781451.webp",
   },
   {
     name: "Giulia Rossi",
@@ -246,7 +246,7 @@ const PLAYERS: PlayerDef[] = [
     age: 24, heightCm: 182, position: "spiker", potential: "High",
     speed: 77, power: 84, defense: 62, serve: 71, block: 69, stamina: 75,
     salary: 11000, askingPrice: 132000,
-    imageFile: "player_senior_italy_01_1783400548345.webp",
+    imageFile: "player_senior_italy_01_1783465781452.webp",
   },
   {
     name: "Martina Bianchi",
@@ -255,7 +255,7 @@ const PLAYERS: PlayerDef[] = [
     age: 23, heightCm: 180, position: "defender", potential: "High",
     speed: 82, power: 56, defense: 83, serve: 67, block: 53, stamina: 80,
     salary: 10000, askingPrice: 120000,
-    imageFile: "player_senior_italy_02_1783400556596.webp",
+    imageFile: "player_senior_italy_02_1783465781452.webp",
   },
   {
     name: "Sofia Romano",
@@ -264,7 +264,7 @@ const PLAYERS: PlayerDef[] = [
     age: 22, heightCm: 162, position: "spiker", potential: "Average",
     speed: 77, power: 76, defense: 60, serve: 68, block: 58, stamina: 73,
     salary: 7500, askingPrice: 90000,
-    imageFile: "player_senior_italy_03_1783400562072.webp",
+    imageFile: "player_senior_italy_03_1783465781453.webp",
   },
   {
     name: "Kayla Thompson",
