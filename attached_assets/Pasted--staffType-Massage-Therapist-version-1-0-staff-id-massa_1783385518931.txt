@@ -1,0 +1,106 @@
+{
+  "staffType": "Massage Therapist",
+  "version": "1.0",
+  "staff": [
+    {
+      "id": "massage_001",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_01.webp"
+    },
+    {
+      "id": "massage_002",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_02.webp"
+    },
+    {
+      "id": "massage_003",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_03.webp"
+    },
+    {
+      "id": "massage_004",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_04.webp"
+    },
+    {
+      "id": "massage_005",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_05.webp"
+    },
+    {
+      "id": "massage_006",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_06.webp"
+    },
+    {
+      "id": "massage_007",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_07.webp"
+    },
+    {
+      "id": "massage_008",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_08.webp"
+    },
+    {
+      "id": "massage_009",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_09.webp"
+    },
+    {
+      "id": "massage_010",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_massage_therapist_10.webp"
+    }
+  ]
+}
