@@ -31,6 +31,7 @@ import {
   ChevronDown,
   Radar,
   Binoculars,
+  Lock,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -154,7 +155,7 @@ function StaffMarketCard({
   hasCoach: boolean;
 }) {
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
-  const revealed = member.isScoutRevealed;
+  const revealed = member.isScoutRevealed || isOwned;
 
   // V2 roles store skill numbers in a nested *Attributes key; legacy roles store them flat.
   function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
@@ -234,17 +235,24 @@ function StaffMarketCard({
 
         {/* Attributes */}
         {attrs.length > 0 && (
-          <Collapsible>
-            <CollapsibleTrigger className="flex w-full items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <span className="font-medium">Attributes</span>
-              <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 [[data-state=open]_&]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2 space-y-1.5">
-              {attrs.map(([name, value]) => (
-                <AttributeBar key={name} name={name} value={value} revealed={revealed} />
-              ))}
-            </CollapsibleContent>
-          </Collapsible>
+          revealed ? (
+            <Collapsible>
+              <CollapsibleTrigger className="flex w-full items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <span className="font-medium">Attributes</span>
+                <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 [[data-state=open]_&]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2 space-y-1.5">
+                {attrs.map(([name, value]) => (
+                  <AttributeBar key={name} name={name} value={value} revealed={true} />
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50 select-none">
+              <Lock className="h-3 w-3 shrink-0" />
+              <span>Attributes hidden — scout or hire to reveal</span>
+            </div>
+          )
         )}
 
         {/* Contract & Salary */}
