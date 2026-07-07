@@ -366,7 +366,7 @@ const PLAYERS: PlayerDef[] = [
     age: 21, heightCm: 159, position: "setter", potential: "High",
     speed: 76, power: 55, defense: 70, serve: 81, block: 51, stamina: 74,
     salary: 9000, askingPrice: 108000,
-    imageFile: "player_senior_samoa_03_1783400660182.webp",
+    imageFile: "player_senior_samoa_03_1783465869842.webp",
   },
   {
     name: "Lize van der Merwe",
@@ -375,7 +375,7 @@ const PLAYERS: PlayerDef[] = [
     age: 20, heightCm: 172, position: "setter", potential: "High",
     speed: 77, power: 57, defense: 71, serve: 80, block: 53, stamina: 75,
     salary: 9500, askingPrice: 114000,
-    imageFile: "player_senior_south_africa_03_1783400669590.webp",
+    imageFile: "player_senior_south_africa_03_1783465869843.webp",
   },
   // ── BATCH 3 ──────────────────────────────────────────────────────────────
   {
@@ -385,7 +385,7 @@ const PLAYERS: PlayerDef[] = [
     age: 27, heightCm: 172, position: "setter", potential: "High",
     speed: 78, power: 60, defense: 73, serve: 83, block: 56, stamina: 77,
     salary: 10000, askingPrice: 120000,
-    imageFile: "player_senior_sweden_01_1783401093798.webp",
+    imageFile: "player_senior_sweden_01_1783465869844.webp",
   },
   {
     // very tall all-rounder
@@ -395,7 +395,7 @@ const PLAYERS: PlayerDef[] = [
     age: 22, heightCm: 188, position: "all_rounder", potential: "Elite",
     speed: 76, power: 84, defense: 72, serve: 75, block: 78, stamina: 75,
     salary: 14000, askingPrice: 168000,
-    imageFile: "player_senior_sweden_02_1783401097245.webp",
+    imageFile: "player_senior_sweden_02_1783465869844.webp",
   },
   {
     // very tall defender
@@ -405,7 +405,7 @@ const PLAYERS: PlayerDef[] = [
     age: 21, heightCm: 186, position: "defender", potential: "High",
     speed: 80, power: 58, defense: 83, serve: 66, block: 60, stamina: 79,
     salary: 9500, askingPrice: 114000,
-    imageFile: "player_senior_sweden_03_1783401103605.webp",
+    imageFile: "player_senior_sweden_03_1783465869845.webp",
   },
   {
     // 3★ on card
@@ -415,7 +415,7 @@ const PLAYERS: PlayerDef[] = [
     age: 20, heightCm: 168, position: "spiker", potential: "Average",
     speed: 75, power: 73, defense: 58, serve: 67, block: 60, stamina: 71,
     salary: 7000, askingPrice: 84000,
-    imageFile: "player_senior_tahiti_03_1783401110267.webp",
+    imageFile: "player_senior_tahiti_03_1783465869846.webp",
   },
   {
     name: "Kanokwan P.",
@@ -424,7 +424,7 @@ const PLAYERS: PlayerDef[] = [
     age: 24, heightCm: 168, position: "defender", potential: "Average",
     speed: 78, power: 51, defense: 79, serve: 62, block: 46, stamina: 76,
     salary: 6500, askingPrice: 78000,
-    imageFile: "player_senior_thailand_03_1783401112391.webp",
+    imageFile: "player_senior_thailand_03_1783465869846.webp",
   },
   {
     name: "Maheli Fotu",
@@ -433,7 +433,7 @@ const PLAYERS: PlayerDef[] = [
     age: 25, heightCm: 175, position: "all_rounder", potential: "Average",
     speed: 73, power: 74, defense: 70, serve: 68, block: 65, stamina: 72,
     salary: 7000, askingPrice: 84000,
-    imageFile: "player_senior_tonga_01_1783401122600.webp",
+    imageFile: "player_senior_tonga_01_1783465869847.webp",
   },
   {
     // very tall blocker, purple text = High
@@ -443,7 +443,7 @@ const PLAYERS: PlayerDef[] = [
     age: 22, heightCm: 188, position: "blocker", potential: "High",
     speed: 62, power: 80, defense: 60, serve: 64, block: 88, stamina: 70,
     salary: 10000, askingPrice: 120000,
-    imageFile: "player_senior_tonga_02_1783401125010.webp",
+    imageFile: "player_senior_tonga_02_1783465869847.webp",
   },
   {
     // 4★ on card
@@ -453,7 +453,7 @@ const PLAYERS: PlayerDef[] = [
     age: 20, heightCm: 171, position: "blocker", potential: "High",
     speed: 65, power: 76, defense: 59, serve: 63, block: 84, stamina: 69,
     salary: 9500, askingPrice: 114000,
-    imageFile: "player_senior_tonga_03_1783401127556.webp",
+    imageFile: "player_senior_tonga_03_1783465869848.webp",
   },
 ];
 
