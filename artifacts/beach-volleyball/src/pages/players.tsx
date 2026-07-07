@@ -41,11 +41,11 @@ import { PlayerPortrait } from "@/components/player-portrait";
 import { format, addMonths } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const CONTINENTS = ["ALL", "Africa", "Asia", "Europe", "North America", "South America", "Oceania"] as const;
+const CONTINENTS = ["ALL", "Africa & Middle East", "Asia", "Europe", "North America", "South America", "Oceania"] as const;
 type ContinentFilter = typeof CONTINENTS[number];
 
 const CONTINENT_FLAG: Record<string, string> = {
-  Africa: "🌍", Asia: "🌏", Europe: "🇪🇺", "North America": "🌎", "South America": "🌎", Oceania: "🌊",
+  "Africa & Middle East": "🌍", Asia: "🌏", Europe: "🌍", "North America": "🌎", "South America": "🌎", Oceania: "🌊",
 };
 
 const POSITIONS = ["ALL", "setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
