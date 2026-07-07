@@ -17,6 +17,7 @@
     "seed-youth-players": "tsx ./src/seed-youth-players.ts",
     "seed-new-draft-players": "tsx ./src/seed-new-draft-players.ts",
     "fill-new-draft-development": "tsx ./src/fill-new-draft-development.ts",
+    "seed-missing-fitness-trainers": "tsx ./src/seed-missing-fitness-trainers.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
