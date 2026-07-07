@@ -19,6 +19,7 @@
     "fill-new-draft-development": "tsx ./src/fill-new-draft-development.ts",
     "seed-missing-fitness-trainers": "tsx ./src/seed-missing-fitness-trainers.ts",
     "seed-sports-scientists": "tsx ./src/seed-sports-scientists.ts",
+    "fill-sports-scientists-json": "tsx ./src/fill-sports-scientists-json.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
