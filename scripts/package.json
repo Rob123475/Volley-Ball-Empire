@@ -15,6 +15,7 @@
     "seed-s-america-players": "tsx ./src/seed-s-america-players.ts",
     "seed-staff": "tsx ./src/seed-staff.ts",
     "seed-youth-players": "tsx ./src/seed-youth-players.ts",
+    "seed-new-draft-players": "tsx ./src/seed-new-draft-players.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
