@@ -163,7 +163,29 @@ function StaffCard({
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
-  const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
+
+  // V2 roles store skill numbers inside a nested *Attributes key (coachingAttributes,
+  // fitnessAttributes, scoutingAttributes, etc.). Legacy roles (e.g. Doctor v1) store
+  // them flat at the top level. Try the nested key first; fall back to flat numbers.
+  function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
+    for (const [key, val] of Object.entries(attributes)) {
+      if (
+        key.endsWith("Attributes") &&
+        val &&
+        typeof val === "object" &&
+        !Array.isArray(val)
+      ) {
+        return Object.entries(val as Record<string, number>).filter(
+          ([, v]) => typeof v === "number"
+        ) as [string, number][];
+      }
+    }
+    return Object.entries(attributes).filter(
+      ([, v]) => typeof v === "number"
+    ) as [string, number][];
+  }
+
+  const attrs = extractSkillAttrs(member.attributes ?? {});
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const updateStaffMutation = useUpdateStaff();
@@ -180,7 +202,7 @@ function StaffCard({
       personality: member.personality ?? "",
       specialty:   member.specialty ?? "",
       specialTrait: member.specialTrait ?? "",
-      attributes:  { ...(member.attributes ?? {}) },
+      attributes:  Object.fromEntries(extractSkillAttrs(member.attributes ?? {})),
     });
     setEditOpen(true);
   };
