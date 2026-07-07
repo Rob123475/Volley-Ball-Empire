@@ -1,0 +1,128 @@
+{
+  "id": "",
+  "generationSeed": "",
+  "generationVersion": "1.0",
+  "createdDate": "",
+  "lastUpdated": "",
+
+  "fullName": "",
+  "nickname": "",
+
+  "nationality": "",
+  "countryCode": "",
+  "flag": "",
+
+  "gender": "Female",
+
+  "age": 0,
+  "heightCm": 0,
+  "weightKg": 0,
+
+  "position": "",
+  "preferredHand": "Right",
+
+  "overallRating": 0,
+  "potential": 0,
+  "starRating": 0,
+
+  "salary": 0,
+  "contractYears": 0,
+  "marketValue": 0,
+
+  "personality": "",
+  "leadership": 0,
+  "professionalism": 0,
+  "workEthic": 0,
+  "consistency": 0,
+
+  "fitness": 0,
+  "stamina": 0,
+  "strength": 0,
+  "speed": 0,
+  "agility": 0,
+  "jump": 0,
+  "recovery": 0,
+
+  "serve": 0,
+  "reception": 0,
+  "setting": 0,
+  "attack": 0,
+  "blocking": 0,
+  "digging": 0,
+
+  "volleyballIQ": 0,
+  "decisionMaking": 0,
+  "anticipation": 0,
+  "positioning": 0,
+  "composure": 0,
+  "clutch": 0,
+
+  "speciality1": "",
+  "speciality2": "",
+  "speciality3": "",
+
+  "hiddenAttributes": {
+    "injuryProneness": 0,
+    "bigMatchTemperament": 0,
+    "loyalty": 0,
+    "ambition": 0,
+    "coachability": 0,
+    "professionalismHidden": 0,
+    "mediaFriendliness": 0,
+    "trainingIntensity": 0,
+    "retirementAge": 0,
+    "growthCurve": 0
+  },
+
+  "morale": 100,
+  "confidence": 50,
+  "form": 50,
+  "fatigue": 0,
+  "chemistry": 50,
+
+  "injured": false,
+  "injury": "",
+  "injurySeverity": "",
+  "injuryDaysRemaining": 0,
+
+  "trainingFocus": "",
+  "developmentRate": 0,
+
+  "careerMatches": 0,
+  "careerWins": 0,
+  "careerLosses": 0,
+  "careerWinPercentage": 0,
+
+  "careerAces": 0,
+  "careerServiceErrors": 0,
+  "careerKills": 0,
+  "careerAttackErrors": 0,
+  "careerBlocks": 0,
+  "careerDigs": 0,
+  "careerReceives": 0,
+  "careerAssists": 0,
+
+  "careerMVPs": 0,
+  "careerPlayerOfTheTournament": 0,
+
+  "careerPrizeMoney": 0,
+  "careerFans": 0,
+  "careerSocialFollowers": 0,
+
+  "currentSeasonMatches": 0,
+  "currentSeasonWins": 0,
+  "currentSeasonLosses": 0,
+  "currentSeasonAces": 0,
+  "currentSeasonKills": 0,
+  "currentSeasonBlocks": 0,
+  "currentSeasonDigs": 0,
+
+  "worldRanking": 0,
+  "continentalRanking": 0,
+
+  "portrait": "",
+  "cardImage": "",
+  "thumbnail": "",
+
+  "bio": ""
+}

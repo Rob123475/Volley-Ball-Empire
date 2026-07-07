@@ -37,6 +37,7 @@ import historyRouter from "./history";
 import gameApiRouter from "./game-api";
 import calendarRouter from "./calendar";
 import devRouter from "./dev";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -78,5 +79,6 @@ router.use(historyRouter);
 router.use(gameApiRouter);
 router.use(calendarRouter);
 router.use(devRouter);
+router.use(storageRouter);
 
 export default router;
