@@ -113,12 +113,13 @@ export default function PlayerDraft() {
                     className="text-white font-bold select-none"
                     style={{
                       writingMode: "vertical-rl",
+                      textOrientation: "upright",
                       fontSize: "11px",
-                      letterSpacing: "0.05em",
+                      letterSpacing: "0.1em",
                       maxHeight: "252px",
                       overflow: "hidden",
                       textShadow: "0 1px 4px rgba(0,0,0,0.95)",
-                      lineHeight: 1.2,
+                      lineHeight: 1.1,
                     }}
                   >
                     {player.name}
