@@ -2,3 +2,4 @@
 - [Facility types](facility-types.md) — 9 displayed types + 2 legacy; all must stay in FACILITY_TYPES array for backward compat; new types added: gymnasium, nutrition_centre, scouting_department, commercial_department, beach_resort.
 - [Club Rating endpoint](club-rating-endpoint.md) — GET /club-rating on facilities router; weights: players 30%, staff 15%, medical 15%, facilities 25%, youth 15%; label scale from "Startup Club" to "World Class Club".
 - [Calendar system](calendar-system.md) — round→date mapping, daily processing pipeline, auth guard pattern for new routers
+- [Staff & youth seeding](staff-youth-seeding.md) — GCS paths, role names, image file selection rules, youth JSON structure

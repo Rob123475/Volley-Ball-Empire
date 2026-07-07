@@ -13,6 +13,8 @@
     "seed-n-america-players": "tsx ./src/seed-n-america-players.ts",
     "seed-oceania-players": "tsx ./src/seed-oceania-players.ts",
     "seed-s-america-players": "tsx ./src/seed-s-america-players.ts",
+    "seed-staff": "tsx ./src/seed-staff.ts",
+    "seed-youth-players": "tsx ./src/seed-youth-players.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
