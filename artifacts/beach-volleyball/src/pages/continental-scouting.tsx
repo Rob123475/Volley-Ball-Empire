@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Link } from "wouter";
 import {
   Globe,
   Clock,
@@ -273,6 +274,7 @@ function RegionCard({
   onDevComplete,
   isCollecting,
   isCancelling,
+  disabled,
 }: {
   region: ContinentalRegion;
   onSendScout: (region: ContinentalRegion) => void;
@@ -281,6 +283,7 @@ function RegionCard({
   onDevComplete:(missionId: number) => void;
   isCollecting: boolean;
   isCancelling: boolean;
+  disabled: boolean;
 }) {
   const gradient = REGION_GRADIENTS[region.id] ?? "from-muted/20 to-muted/40 border-border";
   const accent   = REGION_ACCENT[region.id]    ?? "text-primary";
@@ -344,6 +347,7 @@ function RegionCard({
               variant="outline"
               className="gap-1.5 text-xs h-8 w-full border-border/50"
               onClick={() => onSendScout(region)}
+              disabled={disabled}
             >
               <Radar className="h-3.5 w-3.5" />
               Send Scout →
@@ -447,6 +451,8 @@ export default function ContinentalScouting() {
   const activeMissions  = regions?.filter((r) => r.activeMission?.status === "active").length  ?? 0;
   const completedCount  = regions?.filter((r) => r.activeMission?.status === "completed").length ?? 0;
   const prospectCount   = prospects?.length ?? 0;
+
+  const hasScout = (staff ?? []).some((s: any) => s.role === "scout");
 
   function handleSendScout() {
     if (!dialogRegion) return;
@@ -561,6 +567,23 @@ export default function ContinentalScouting() {
         </div>
       </div>
 
+      {/* No-scout warning */}
+      {!hasScout && staff !== undefined && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-400">No Scout hired</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              You need a Scout on your staff to send scouting missions.{" "}
+              <Link href="/staff-market" className="text-primary underline underline-offset-2 hover:text-primary/80">
+                Visit the Staff Market
+              </Link>{" "}
+              to hire one.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Regions Grid */}
       {regionsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -584,6 +607,7 @@ export default function ContinentalScouting() {
               onDevComplete={handleDevComplete}
               isCollecting={collectMission.isPending}
               isCancelling={cancelMission.isPending}
+              disabled={!hasScout}
             />
           ))}
         </div>
