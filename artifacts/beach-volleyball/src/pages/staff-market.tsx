@@ -56,9 +56,9 @@ const ROLE_LABELS: Record<string, string> = {
   head_coach:           "Head Coach",
   assistant_coach:      "Assistant Coach",
   fitness_trainer:      "Fitness Trainer",
-  strength_conditioner: "Strength Conditioner",
+  strength_conditioner: "Strength Coach",
   massage_therapist:    "Massage Therapist",
-  promotions_manager:   "Promotions Manager",
+  promotions_manager:   "Promotional Manager",
   scout:                "Scout",
 };
 

@@ -82,9 +82,21 @@ router.get("/staff/market", async (req, res) => {
 
   await backfillStaffAttributes(available);
 
+  // Frontend sends snake_case filter keys; DB stores Title Case role names
+  const ROLE_FILTER_MAP: Record<string, string> = {
+    head_coach:           "Head Coach",
+    assistant_coach:      "Assistant Coach",
+    fitness_trainer:      "Fitness Trainer",
+    strength_conditioner: "Strength Coach",
+    massage_therapist:    "Massage Therapist",
+    promotions_manager:   "Promotional Manager",
+    scout:                "Scout",
+  };
+
   let filtered = available;
   if (role && role !== "all") {
-    filtered = filtered.filter(s => s.role === role);
+    const dbRole = ROLE_FILTER_MAP[role] ?? role;
+    filtered = filtered.filter(s => s.role === dbRole);
   }
   if (search) {
     const q = search.toLowerCase();
