@@ -1,0 +1,170 @@
+{
+  "schema": "beach_volleyball_youth_players",
+  "version": "2.0",
+  "playerType": "Youth Player",
+  "regenerationSeed": "BVM_YOUTH_PLAYERS_V2_2026_07_07",
+
+  "instructions": {
+    "generateCount": 30,
+    "imageCount": 30,
+    "imageNaming": "youth_player_01.png",
+    "replaceExisting": true,
+    "preserveIds": false,
+    "allowDuplicates": false,
+    "populateFromImages": true,
+    "nationalities": "Worldwide",
+    "genderDistribution": "Mixed",
+    "ageRange": {
+      "min": 15,
+      "max": 19
+    },
+    "positions": [
+      "Blocker",
+      "Defender",
+      "Hybrid"
+    ],
+    "ratingRange": {
+      "min": 1.0,
+      "max": 3.5
+    },
+    "potentialRange": {
+      "min": 2.5,
+      "max": 5.0
+    },
+    "developmentRule": "Players with the same current rating may develop differently based on hidden attributes, personality, training quality, match time, injuries, morale and coaching."
+  },
+
+  "youthTemplate": {
+    "id": "",
+    "uuid": "",
+    "active": true,
+
+    "name": "",
+    "nationality": "",
+    "age": 0,
+    "gender": "",
+    "portrait": "",
+
+    "position": "",
+    "secondaryPosition": "",
+
+    "currentStars": 0.0,
+    "potentialStars": 0.0,
+    "scoutedPotentialStars": 0.0,
+
+    "heightCm": 0,
+    "dominantHand": "",
+    "playStyle": "",
+
+    "attributes": {
+      "serving": 0,
+      "spiking": 0,
+      "blocking": 0,
+      "digging": 0,
+      "setting": 0,
+      "speed": 0,
+      "stamina": 0,
+      "jumpPower": 0,
+      "decisionMaking": 0,
+      "composure": 0
+    },
+
+    "development": {
+      "growthRate": 0,
+      "learningRate": 0,
+      "consistency": 0,
+      "lateBloomerChance": 0,
+      "earlyPeakRisk": 0,
+      "trainingResponse": 0,
+      "matchExperienceGain": 0,
+      "coachability": 0,
+      "developmentCurve": "",
+      "developmentNotes": ""
+    },
+
+    "hiddenAttributes": {
+      "truePotential": 0,
+      "workEthic": 0,
+      "ambition": 0,
+      "professionalism": 0,
+      "pressureHandling": 0,
+      "injuryResistance": 0,
+      "adaptability": 0,
+      "bigMatchTemperament": 0,
+      "loyalty": 0,
+      "confidence": 0
+    },
+
+    "personality": {
+      "leader": false,
+      "hardWorker": false,
+      "temperamental": false,
+      "teamPlayer": false,
+      "selfBelief": 0,
+      "discipline": 0,
+      "morale": 0
+    },
+
+    "scouting": {
+      "scoutedBy": "",
+      "scoutingAccuracy": 0,
+      "potentialConfidence": "",
+      "riskLevel": "",
+      "recommendedAction": "",
+      "scoutNotes": ""
+    },
+
+    "contract": {
+      "academyContract": true,
+      "contractYears": 0,
+      "salary": 0,
+      "releaseClause": 0,
+      "promotionEligible": false
+    },
+
+    "career": {
+      "club": "",
+      "academy": "",
+      "yearsAtClub": 0,
+      "matchesPlayed": 0,
+      "wins": 0,
+      "losses": 0,
+      "awards": []
+    },
+
+    "availability": {
+      "injured": false,
+      "injuryType": "",
+      "weeksOut": 0,
+      "available": true
+    },
+
+    "metadata": {
+      "created": "",
+      "lastModified": "",
+      "notes": ""
+    }
+  },
+
+  "developmentCurves": [
+    "Steady Improver",
+    "Late Bloomer",
+    "Fast Starter",
+    "High Ceiling Raw Talent",
+    "Inconsistent Prospect",
+    "Coach Dependent",
+    "Injury Risk Talent",
+    "Big Match Riser"
+  ],
+
+  "playStyles": [
+    "Power Blocker",
+    "Fast Defender",
+    "All-Rounder",
+    "Jump Server",
+    "Technical Defender",
+    "Explosive Attacker",
+    "Smart Positioner",
+    "Raw Athlete"
+  ]
+}

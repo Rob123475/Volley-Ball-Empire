@@ -1,9 +1,9 @@
 /**
- * Seed 72 female youth players (40 from JSON files + 32 generated to balance regions).
- * Clears existing youth players first, then reseeds with exactly 72.
+ * Replaces all youth players (playerType='youth') with 72 V2 card records.
+ * One shared image uploaded once, reused for all cards.
  * Run: pnpm --filter @workspace/scripts run seed-youth-players
  */
-
+import { Storage } from "@google-cloud/storage";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -13,204 +13,212 @@ import { eq } from "drizzle-orm";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(__dirname, "../../");
+const SIDECAR = "http://127.0.0.1:1106";
+const PRIVATE_OBJECT_DIR = process.env.PRIVATE_OBJECT_DIR!;
 
-// Youth card image already uploaded in GCS
-const SHARED_IMAGE_URL = "/objects/youth-cards/youth-card.webp";
+const gcs = new Storage({
+  credentials: {
+    audience: "replit",
+    subject_token_type: "access_token",
+    token_url: `${SIDECAR}/token`,
+    type: "external_account",
+    credential_source: {
+      url: `${SIDECAR}/credential`,
+      format: { type: "json", subject_token_field_name: "access_token" },
+    },
+    universe_domain: "googleapis.com",
+  } as object,
+  projectId: "",
+});
 
-type Position = "spiker" | "defender" | "setter" | "blocker" | "all_rounder";
-type Potential = "Elite" | "High" | "Average" | "Below Average" | "Poor";
-
-function mapPosition(role: string | undefined): Position {
-  if (!role) return "all_rounder";
-  const r = role.toLowerCase();
-  if (r === "server" || r === "attacker" || r === "spiker") return "spiker";
-  if (r === "setter") return "setter";
-  if (r === "blocker") return "blocker";
-  if (r === "defender" || r === "libero") return "defender";
-  return "all_rounder";
+async function upload(localFile: string, entityId: string): Promise<string> {
+  const privateDir = PRIVATE_OBJECT_DIR.endsWith("/") ? PRIVATE_OBJECT_DIR : `${PRIVATE_OBJECT_DIR}/`;
+  const parts = privateDir.startsWith("/") ? privateDir.slice(1) : privateDir;
+  const slashIdx = parts.indexOf("/");
+  const bucketName = slashIdx === -1 ? parts.replace(/\/$/, "") : parts.slice(0, slashIdx);
+  const prefix = slashIdx === -1 ? "" : parts.slice(slashIdx + 1);
+  await gcs.bucket(bucketName).file(`${prefix}${entityId}`).save(readFileSync(localFile), {
+    contentType: "image/webp",
+    metadata: { cacheControl: "public, max-age=31536000" },
+  });
+  return `/objects/${entityId}`;
 }
 
-function mapPotential(p: number): Potential {
-  if (p >= 5) return "Elite";
-  if (p === 4) return "High";
-  if (p === 3) return "Average";
-  if (p === 2) return "Below Average";
-  return "Poor";
+function potentialLabel(stars: number): string {
+  if (stars >= 4.5) return "Elite";
+  if (stars >= 3.5) return "High";
+  if (stars >= 2.5) return "Average";
+  return "Below Average";
 }
 
-function mapContinent(c: string): string {
-  if (c === "Africa") return "Africa & Middle East";
-  return c;
-}
-
-interface YouthRow {
-  name: string;
-  nationality: string;
-  continent: string;
-  age: number;
-  height: number;
-  position: Position;
-  potential: Potential;
-  speed: number;
-  power: number;
-  defense: number;
-  serve: number;
-  block: number;
-  stamina: number;
-}
-
-// ─── Load unique females from JSON files ─────────────────────────────────────
-function loadFromJsonFiles(): YouthRow[] {
-  const files = [
-    "youthPlayers_1782959799149.json",
-    "youthPlayers_international_1782962759015.json",
-    "youthPlayers_international_1782962759017.json",
-  ];
-
-  const seen = new Set<string>();
-  const rows: YouthRow[] = [];
-
-  for (const file of files) {
-    const raw: Array<{
-      fullName: string; gender: string; nationality: string;
-      continent: string; age: number; height: number;
-      role?: string; primaryRole?: string;
-      attackRating: number; defenceRating: number; serveRating: number;
-      speedRating: number; staminaRating: number; potential: number;
-    }> = JSON.parse(readFileSync(resolve(WORKSPACE_ROOT, "attached_assets", file), "utf-8"));
-
-    for (const p of raw) {
-      if (p.gender !== "Female") continue;
-      if (seen.has(p.fullName)) continue;
-      seen.add(p.fullName);
-
-      const role = p.primaryRole ?? p.role;
-      const block = Math.round((p.attackRating + p.defenceRating) / 2);
-
-      rows.push({
-        name: p.fullName,
-        nationality: p.nationality,
-        continent: mapContinent(p.continent),
-        age: p.age,
-        height: p.height,
-        position: mapPosition(role),
-        potential: mapPotential(p.potential),
-        speed: p.speedRating,
-        power: p.attackRating,
-        defense: p.defenceRating,
-        serve: p.serveRating,
-        block,
-        stamina: p.staminaRating,
-      });
-    }
+function scoutedPotentialLabel(stars: number): string {
+  const roll = Math.random();
+  if (roll < 0.20) {
+    if (stars >= 4.5) return "High";
+    if (stars >= 3.5) return "Average";
+    return "Below Average";
   }
-
-  return rows;
+  if (roll < 0.10) {
+    if (stars <= 3.0) return "High";
+    if (stars <= 4.0) return "Elite";
+  }
+  return potentialLabel(stars);
 }
 
-// ─── Generated players to balance to 72 ─────────────────────────────────────
-// JSON files yield 40 unique females: Europe 9, Asia 6, Oceania 6, N.America 7, S.America 6, Africa 6
-// We need 12 per continent → Europe +3, Asia +6, Oceania +6, N.America +5, S.America +6, Africa +6 = 32
-const GENERATED: YouthRow[] = [
-  // Europe +3
-  { name: "Klara Novotná", nationality: "Czech Republic", continent: "Europe", age: 15, height: 174, position: "setter", potential: "High", speed: 56, power: 44, defense: 58, serve: 61, block: 50, stamina: 52 },
-  { name: "Elina Mäkinen", nationality: "Finland", continent: "Europe", age: 14, height: 169, position: "defender", potential: "Average", speed: 63, power: 38, defense: 65, serve: 42, block: 40, stamina: 55 },
-  { name: "Ioanna Papadaki", nationality: "Greece", continent: "Europe", age: 16, height: 177, position: "spiker", potential: "High", speed: 58, power: 62, defense: 44, serve: 55, block: 52, stamina: 57 },
+type YouthRow = {
+  name: string; nationality: string; age: number; gender: string;
+  heightCm: number; position: string; currentStars: number; potentialStars: number;
+  serve: number; power: number; block: number; defense: number;
+  speed: number; stamina: number; morale: number; salary: number;
+  contractYears: number; developmentCurve: string; playStyle: string;
+};
 
-  // Asia +6
-  { name: "Nurul Ain", nationality: "Malaysia", continent: "Asia", age: 14, height: 162, position: "setter", potential: "Average", speed: 54, power: 41, defense: 52, serve: 58, block: 46, stamina: 50 },
-  { name: "Chayanee Prommas", nationality: "Thailand", continent: "Asia", age: 15, height: 165, position: "defender", potential: "High", speed: 67, power: 39, defense: 68, serve: 44, block: 42, stamina: 59 },
-  { name: "Kim Min-Ji", nationality: "South Korea", continent: "Asia", age: 16, height: 172, position: "spiker", potential: "High", speed: 60, power: 64, defense: 46, serve: 57, block: 53, stamina: 58 },
-  { name: "Pham Thi Lan", nationality: "Vietnam", continent: "Asia", age: 15, height: 163, position: "all_rounder", potential: "Average", speed: 55, power: 47, defense: 53, serve: 50, block: 48, stamina: 52 },
-  { name: "Aisha Rahimi", nationality: "Afghanistan", continent: "Asia", age: 14, height: 160, position: "defender", potential: "Below Average", speed: 51, power: 36, defense: 56, serve: 40, block: 38, stamina: 47 },
-  { name: "Zara Sultanova", nationality: "Kazakhstan", continent: "Asia", age: 16, height: 175, position: "blocker", potential: "High", speed: 52, power: 60, defense: 48, serve: 50, block: 66, stamina: 54 },
+const PLAYERS: YouthRow[] = [
+  // ── EUROPE (18) ───────────────────────────────────────────────────────────
+  { name:"Katarina Novak",       nationality:"Croatian",     age:16, gender:"Female", heightCm:173, position:"blocker",     currentStars:2.0, potentialStars:4.0, serve:46, power:50, block:52, defense:44, speed:50, stamina:48, morale:82, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Lena Fischer",         nationality:"German",       age:17, gender:"Female", heightCm:178, position:"defender",    currentStars:2.5, potentialStars:4.5, serve:50, power:46, block:46, defense:58, speed:60, stamina:56, morale:88, salary:0, contractYears:2, developmentCurve:"Late Bloomer",            playStyle:"Fast Defender"       },
+  { name:"Marco Ricci",          nationality:"Italian",      age:18, gender:"Male",   heightCm:189, position:"blocker",     currentStars:3.0, potentialStars:4.0, serve:58, power:64, block:68, defense:52, speed:54, stamina:60, morale:84, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Sofia Andersen",       nationality:"Danish",       age:15, gender:"Female", heightCm:168, position:"all_rounder", currentStars:1.5, potentialStars:3.5, serve:40, power:38, block:38, defense:40, speed:44, stamina:42, morale:80, salary:0, contractYears:1, developmentCurve:"Coach Dependent",        playStyle:"Smart Positioner"    },
+  { name:"Tomáš Krejčí",         nationality:"Czech",        age:17, gender:"Male",   heightCm:183, position:"defender",    currentStars:2.0, potentialStars:3.0, serve:44, power:46, block:44, defense:52, speed:54, stamina:50, morale:78, salary:0, contractYears:2, developmentCurve:"Inconsistent Prospect",  playStyle:"Technical Defender"  },
+  { name:"Maja Larsson",         nationality:"Swedish",      age:16, gender:"Female", heightCm:175, position:"blocker",     currentStars:2.5, potentialStars:5.0, serve:52, power:56, block:58, defense:46, speed:52, stamina:54, morale:90, salary:0, contractYears:2, developmentCurve:"High Ceiling Raw Talent", playStyle:"Explosive Attacker"  },
+  { name:"Pierre Dubois",        nationality:"French",       age:19, gender:"Male",   heightCm:186, position:"all_rounder", currentStars:3.0, potentialStars:3.5, serve:62, power:62, block:58, defense:60, speed:58, stamina:62, morale:82, salary:0, contractYears:3, developmentCurve:"Fast Starter",           playStyle:"All-Rounder"         },
+  { name:"Elena Kozlova",        nationality:"Russian",      age:15, gender:"Female", heightCm:170, position:"defender",    currentStars:1.5, potentialStars:4.0, serve:38, power:36, block:36, defense:44, speed:46, stamina:42, morale:80, salary:0, contractYears:1, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Nikos Papadopoulos",   nationality:"Greek",        age:18, gender:"Male",   heightCm:188, position:"blocker",     currentStars:2.5, potentialStars:3.5, serve:54, power:58, block:60, defense:48, speed:50, stamina:56, morale:82, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Inês Santos",          nationality:"Portuguese",   age:17, gender:"Female", heightCm:172, position:"all_rounder", currentStars:2.0, potentialStars:4.0, serve:46, power:48, block:46, defense:48, speed:52, stamina:50, morale:84, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Smart Positioner"    },
+  { name:"Lukas Weber",          nationality:"Swiss",        age:16, gender:"Male",   heightCm:181, position:"defender",    currentStars:1.5, potentialStars:3.0, serve:38, power:40, block:38, defense:44, speed:46, stamina:44, morale:76, salary:0, contractYears:1, developmentCurve:"Inconsistent Prospect",  playStyle:"Fast Defender"       },
+  { name:"Agnieszka Wiśniewska", nationality:"Polish",       age:18, gender:"Female", heightCm:176, position:"blocker",     currentStars:3.0, potentialStars:4.5, serve:58, power:62, block:66, defense:50, speed:52, stamina:58, morale:88, salary:0, contractYears:3, developmentCurve:"Big Match Riser",        playStyle:"Power Blocker"       },
+  { name:"Bart van der Berg",    nationality:"Dutch",        age:17, gender:"Male",   heightCm:190, position:"all_rounder", currentStars:2.5, potentialStars:4.0, serve:52, power:56, block:54, defense:54, speed:56, stamina:56, morale:84, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Karin Egilsdóttir",    nationality:"Icelandic",    age:15, gender:"Female", heightCm:167, position:"defender",    currentStars:1.5, potentialStars:3.5, serve:36, power:36, block:34, defense:44, speed:46, stamina:42, morale:80, salary:0, contractYears:1, developmentCurve:"Late Bloomer",            playStyle:"Fast Defender"       },
+  { name:"Dmitri Volkov",        nationality:"Ukrainian",    age:19, gender:"Male",   heightCm:187, position:"blocker",     currentStars:3.0, potentialStars:3.5, serve:60, power:64, block:68, defense:50, speed:52, stamina:62, morale:80, salary:0, contractYears:3, developmentCurve:"Fast Starter",           playStyle:"Power Blocker"       },
+  { name:"Valentina Iordanova",  nationality:"Bulgarian",    age:16, gender:"Female", heightCm:171, position:"all_rounder", currentStars:2.0, potentialStars:4.5, serve:46, power:48, block:46, defense:48, speed:52, stamina:50, morale:86, salary:0, contractYears:2, developmentCurve:"High Ceiling Raw Talent", playStyle:"All-Rounder"         },
+  { name:"Søren Christiansen",   nationality:"Danish",       age:18, gender:"Male",   heightCm:185, position:"defender",    currentStars:2.5, potentialStars:3.0, serve:54, power:50, block:48, defense:58, speed:60, stamina:56, morale:78, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Technical Defender"  },
+  { name:"Miriam Almeida",       nationality:"Spanish",      age:17, gender:"Female", heightCm:174, position:"blocker",     currentStars:3.5, potentialStars:5.0, serve:66, power:72, block:74, defense:54, speed:56, stamina:64, morale:92, salary:0, contractYears:3, developmentCurve:"High Ceiling Raw Talent", playStyle:"Explosive Attacker"  },
 
-  // Oceania +6
-  { name: "Aroha Tane", nationality: "New Zealand", continent: "Oceania", age: 15, height: 171, position: "spiker", potential: "High", speed: 61, power: 63, defense: 46, serve: 54, block: 54, stamina: 58 },
-  { name: "Sia Faleolo", nationality: "Samoa", continent: "Oceania", age: 14, height: 178, position: "blocker", potential: "Elite", speed: 55, power: 68, defense: 47, serve: 51, block: 70, stamina: 56 },
-  { name: "Mere Rokotuivuna", nationality: "Fiji", continent: "Oceania", age: 16, height: 173, position: "spiker", potential: "High", speed: 59, power: 65, defense: 45, serve: 58, block: 55, stamina: 60 },
-  { name: "Tiare Teuruaa", nationality: "Tahiti", continent: "Oceania", age: 15, height: 166, position: "setter", potential: "Average", speed: 57, power: 43, defense: 55, serve: 62, block: 47, stamina: 53 },
-  { name: "Niamh Kelly", nationality: "Australia", continent: "Oceania", age: 14, height: 170, position: "defender", potential: "Average", speed: 64, power: 40, defense: 66, serve: 45, block: 42, stamina: 56 },
-  { name: "Peni Tuivaga", nationality: "Tonga", continent: "Oceania", age: 16, height: 180, position: "blocker", potential: "High", speed: 50, power: 66, defense: 44, serve: 49, block: 68, stamina: 53 },
+  // ── SOUTH AMERICA (12) ────────────────────────────────────────────────────
+  { name:"Gabriel Ferreira",     nationality:"Brazilian",    age:17, gender:"Male",   heightCm:192, position:"blocker",     currentStars:3.5, potentialStars:5.0, serve:68, power:74, block:76, defense:52, speed:58, stamina:66, morale:94, salary:0, contractYears:3, developmentCurve:"High Ceiling Raw Talent", playStyle:"Explosive Attacker"  },
+  { name:"Valentina Cruz",       nationality:"Argentine",    age:15, gender:"Female", heightCm:166, position:"defender",    currentStars:1.5, potentialStars:4.0, serve:38, power:36, block:34, defense:44, speed:48, stamina:42, morale:82, salary:0, contractYears:1, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Diego Mendoza",        nationality:"Colombian",    age:18, gender:"Male",   heightCm:184, position:"all_rounder", currentStars:2.5, potentialStars:3.5, serve:54, power:56, block:52, defense:54, speed:56, stamina:58, morale:84, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Fernanda Lima",        nationality:"Brazilian",    age:16, gender:"Female", heightCm:177, position:"blocker",     currentStars:3.0, potentialStars:4.5, serve:58, power:64, block:66, defense:48, speed:52, stamina:60, morale:88, salary:0, contractYears:2, developmentCurve:"Big Match Riser",        playStyle:"Power Blocker"       },
+  { name:"Santiago Vega",        nationality:"Peruvian",     age:17, gender:"Male",   heightCm:182, position:"defender",    currentStars:2.0, potentialStars:3.5, serve:44, power:46, block:44, defense:52, speed:56, stamina:50, morale:80, salary:0, contractYears:2, developmentCurve:"Inconsistent Prospect",  playStyle:"Fast Defender"       },
+  { name:"Camila Torres",        nationality:"Chilean",      age:19, gender:"Female", heightCm:172, position:"all_rounder", currentStars:2.5, potentialStars:4.0, serve:52, power:52, block:50, defense:54, speed:58, stamina:56, morale:84, salary:0, contractYears:3, developmentCurve:"Steady Improver",        playStyle:"Smart Positioner"    },
+  { name:"Lucas Oliveira",       nationality:"Brazilian",    age:15, gender:"Male",   heightCm:180, position:"blocker",     currentStars:1.5, potentialStars:4.5, serve:38, power:42, block:44, defense:36, speed:46, stamina:44, morale:84, salary:0, contractYears:1, developmentCurve:"High Ceiling Raw Talent", playStyle:"Raw Athlete"         },
+  { name:"Mariana Salazar",      nationality:"Ecuadorian",   age:18, gender:"Female", heightCm:169, position:"defender",    currentStars:2.0, potentialStars:3.0, serve:44, power:44, block:42, defense:52, speed:54, stamina:50, morale:78, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Technical Defender"  },
+  { name:"Rodrigo Castillo",     nationality:"Venezuelan",   age:17, gender:"Male",   heightCm:186, position:"all_rounder", currentStars:2.5, potentialStars:3.5, serve:52, power:56, block:52, defense:54, speed:56, stamina:56, morale:82, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Ana Paula Nascimento", nationality:"Brazilian",    age:16, gender:"Female", heightCm:175, position:"blocker",     currentStars:2.5, potentialStars:4.0, serve:52, power:56, block:58, defense:46, speed:52, stamina:54, morale:86, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Emilio Vargas",        nationality:"Paraguayan",   age:19, gender:"Male",   heightCm:183, position:"defender",    currentStars:3.0, potentialStars:3.5, serve:60, power:58, block:52, defense:64, speed:62, stamina:62, morale:80, salary:0, contractYears:3, developmentCurve:"Fast Starter",           playStyle:"Fast Defender"       },
+  { name:"Isabella Ramos",       nationality:"Argentine",    age:15, gender:"Female", heightCm:165, position:"all_rounder", currentStars:1.5, potentialStars:3.5, serve:38, power:38, block:36, defense:42, speed:44, stamina:40, morale:80, salary:0, contractYears:1, developmentCurve:"Late Bloomer",           playStyle:"Smart Positioner"    },
 
-  // North America +5
-  { name: "Brianna Foster", nationality: "United States", continent: "North America", age: 15, height: 176, position: "spiker", potential: "High", speed: 62, power: 65, defense: 46, serve: 56, block: 55, stamina: 59 },
-  { name: "Aaliyah James", nationality: "United States", continent: "North America", age: 14, height: 174, position: "all_rounder", potential: "Elite", speed: 67, power: 62, defense: 58, serve: 60, block: 59, stamina: 64 },
-  { name: "Gabrielle Tremblay", nationality: "Canada", continent: "North America", age: 16, height: 169, position: "setter", potential: "Average", speed: 58, power: 42, defense: 56, serve: 64, block: 48, stamina: 54 },
-  { name: "Sofía Reyes", nationality: "Mexico", continent: "North America", age: 15, height: 167, position: "defender", potential: "Average", speed: 65, power: 40, defense: 67, serve: 46, block: 43, stamina: 57 },
-  { name: "Kezia Williams", nationality: "Jamaica", continent: "North America", age: 14, height: 172, position: "spiker", potential: "High", speed: 63, power: 61, defense: 44, serve: 54, block: 52, stamina: 58 },
+  // ── ASIA (14) ─────────────────────────────────────────────────────────────
+  { name:"Yuki Tanaka",          nationality:"Japanese",     age:16, gender:"Female", heightCm:168, position:"defender",    currentStars:2.5, potentialStars:4.0, serve:50, power:46, block:44, defense:58, speed:62, stamina:56, morale:86, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Technical Defender"  },
+  { name:"Hao Chen",             nationality:"Chinese",      age:18, gender:"Male",   heightCm:193, position:"blocker",     currentStars:3.0, potentialStars:4.5, serve:58, power:64, block:70, defense:50, speed:52, stamina:60, morale:86, salary:0, contractYears:2, developmentCurve:"Big Match Riser",        playStyle:"Power Blocker"       },
+  { name:"Min-Ji Park",          nationality:"South Korean", age:17, gender:"Female", heightCm:171, position:"all_rounder", currentStars:2.0, potentialStars:4.0, serve:46, power:48, block:46, defense:50, speed:54, stamina:50, morale:84, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Smart Positioner"    },
+  { name:"Ravi Sharma",          nationality:"Indian",       age:15, gender:"Male",   heightCm:178, position:"defender",    currentStars:1.5, potentialStars:3.0, serve:38, power:38, block:36, defense:44, speed:48, stamina:42, morale:76, salary:0, contractYears:1, developmentCurve:"Inconsistent Prospect",  playStyle:"Fast Defender"       },
+  { name:"Nguyen Thi Lan",       nationality:"Vietnamese",   age:19, gender:"Female", heightCm:167, position:"blocker",     currentStars:2.5, potentialStars:3.5, serve:52, power:54, block:58, defense:46, speed:50, stamina:54, morale:80, salary:0, contractYears:3, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Kenji Watanabe",       nationality:"Japanese",     age:16, gender:"Male",   heightCm:182, position:"all_rounder", currentStars:2.0, potentialStars:3.5, serve:46, power:48, block:46, defense:48, speed:52, stamina:50, morale:82, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"All-Rounder"         },
+  { name:"Li Wei",               nationality:"Chinese",      age:17, gender:"Female", heightCm:174, position:"defender",    currentStars:3.0, potentialStars:4.5, serve:56, power:52, block:50, defense:64, speed:64, stamina:60, morale:88, salary:0, contractYears:2, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Arjun Mehta",          nationality:"Indian",       age:18, gender:"Male",   heightCm:185, position:"blocker",     currentStars:2.0, potentialStars:3.0, serve:46, power:50, block:52, defense:42, speed:48, stamina:50, morale:78, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Park Ji-Young",        nationality:"South Korean", age:15, gender:"Female", heightCm:166, position:"all_rounder", currentStars:1.5, potentialStars:4.0, serve:36, power:38, block:36, defense:40, speed:44, stamina:40, morale:82, salary:0, contractYears:1, developmentCurve:"High Ceiling Raw Talent", playStyle:"Raw Athlete"         },
+  { name:"Muhammad Fariz",       nationality:"Malaysian",    age:17, gender:"Male",   heightCm:180, position:"defender",    currentStars:2.5, potentialStars:3.5, serve:52, power:50, block:48, defense:58, speed:60, stamina:56, morale:80, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Fast Defender"       },
+  { name:"Sakura Yamamoto",      nationality:"Japanese",     age:16, gender:"Female", heightCm:170, position:"blocker",     currentStars:2.5, potentialStars:4.5, serve:52, power:56, block:58, defense:46, speed:52, stamina:54, morale:88, salary:0, contractYears:2, developmentCurve:"High Ceiling Raw Talent", playStyle:"Explosive Attacker"  },
+  { name:"Chen Ming",            nationality:"Chinese",      age:19, gender:"Male",   heightCm:191, position:"all_rounder", currentStars:3.0, potentialStars:3.5, serve:62, power:62, block:58, defense:58, speed:58, stamina:62, morale:82, salary:0, contractYears:3, developmentCurve:"Fast Starter",           playStyle:"All-Rounder"         },
+  { name:"Priya Nair",           nationality:"Indian",       age:15, gender:"Female", heightCm:163, position:"defender",    currentStars:1.5, potentialStars:3.0, serve:36, power:34, block:32, defense:44, speed:46, stamina:40, morale:78, salary:0, contractYears:1, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Tran Minh Duc",        nationality:"Vietnamese",   age:18, gender:"Male",   heightCm:181, position:"blocker",     currentStars:2.5, potentialStars:4.0, serve:54, power:58, block:60, defense:46, speed:52, stamina:56, morale:84, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
 
-  // South America +6
-  { name: "Bruna Cavalcanti", nationality: "Brazil", continent: "South America", age: 15, height: 179, position: "spiker", potential: "Elite", speed: 63, power: 70, defense: 47, serve: 59, block: 58, stamina: 62 },
-  { name: "Fernanda Quispe", nationality: "Peru", continent: "South America", age: 14, height: 164, position: "setter", potential: "Average", speed: 55, power: 42, defense: 54, serve: 61, block: 47, stamina: 51 },
-  { name: "Natalia Escobar", nationality: "Colombia", continent: "South America", age: 16, height: 170, position: "defender", potential: "High", speed: 67, power: 41, defense: 70, serve: 47, block: 44, stamina: 60 },
-  { name: "Valentina Acosta", nationality: "Ecuador", continent: "South America", age: 15, height: 168, position: "blocker", potential: "Average", speed: 53, power: 57, defense: 46, serve: 49, block: 62, stamina: 52 },
-  { name: "Renata Cárdenas", nationality: "Bolivia", continent: "South America", age: 14, height: 163, position: "all_rounder", potential: "Below Average", speed: 51, power: 44, defense: 50, serve: 47, block: 46, stamina: 49 },
-  { name: "Javiera Muñoz", nationality: "Chile", continent: "South America", age: 16, height: 172, position: "spiker", potential: "High", speed: 60, power: 63, defense: 45, serve: 55, block: 53, stamina: 57 },
+  // ── NORTH AMERICA (10) ────────────────────────────────────────────────────
+  { name:"Tyler Johnson",        nationality:"American",     age:18, gender:"Male",   heightCm:190, position:"blocker",     currentStars:3.0, potentialStars:4.0, serve:60, power:64, block:68, defense:50, speed:54, stamina:62, morale:86, salary:0, contractYears:2, developmentCurve:"Big Match Riser",        playStyle:"Power Blocker"       },
+  { name:"Alexis Rivera",        nationality:"Mexican",      age:16, gender:"Female", heightCm:169, position:"all_rounder", currentStars:2.0, potentialStars:4.0, serve:46, power:48, block:46, defense:50, speed:54, stamina:50, morale:84, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Smart Positioner"    },
+  { name:"Connor MacLeod",       nationality:"Canadian",     age:17, gender:"Male",   heightCm:185, position:"defender",    currentStars:2.5, potentialStars:3.5, serve:52, power:50, block:48, defense:58, speed:60, stamina:56, morale:82, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Technical Defender"  },
+  { name:"Gabriela Flores",      nationality:"Mexican",      age:15, gender:"Female", heightCm:165, position:"blocker",     currentStars:1.5, potentialStars:3.5, serve:38, power:40, block:42, defense:36, speed:44, stamina:42, morale:80, salary:0, contractYears:1, developmentCurve:"High Ceiling Raw Talent", playStyle:"Raw Athlete"         },
+  { name:"Mason Brooks",         nationality:"American",     age:19, gender:"Male",   heightCm:188, position:"all_rounder", currentStars:3.0, potentialStars:3.5, serve:62, power:62, block:58, defense:58, speed:58, stamina:62, morale:80, salary:0, contractYears:3, developmentCurve:"Fast Starter",           playStyle:"All-Rounder"         },
+  { name:"Sofia Hernandez",      nationality:"Cuban",        age:17, gender:"Female", heightCm:174, position:"defender",    currentStars:2.5, potentialStars:4.5, serve:50, power:48, block:46, defense:60, speed:62, stamina:58, morale:88, salary:0, contractYears:2, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Jake Henderson",       nationality:"American",     age:16, gender:"Male",   heightCm:184, position:"blocker",     currentStars:2.0, potentialStars:4.0, serve:46, power:50, block:52, defense:42, speed:50, stamina:50, morale:84, salary:0, contractYears:2, developmentCurve:"High Ceiling Raw Talent", playStyle:"Explosive Attacker"  },
+  { name:"Natalie Tremblay",     nationality:"Canadian",     age:18, gender:"Female", heightCm:176, position:"all_rounder", currentStars:3.0, potentialStars:4.5, serve:58, power:60, block:56, defense:58, speed:60, stamina:60, morale:90, salary:0, contractYears:3, developmentCurve:"Big Match Riser",        playStyle:"All-Rounder"         },
+  { name:"Carlos Ortega",        nationality:"Dominican",    age:15, gender:"Male",   heightCm:178, position:"defender",    currentStars:1.5, potentialStars:3.0, serve:36, power:38, block:36, defense:44, speed:46, stamina:42, morale:78, salary:0, contractYears:1, developmentCurve:"Coach Dependent",        playStyle:"Fast Defender"       },
+  { name:"Mia Lawson",           nationality:"American",     age:17, gender:"Female", heightCm:173, position:"blocker",     currentStars:2.5, potentialStars:5.0, serve:52, power:58, block:60, defense:46, speed:54, stamina:56, morale:92, salary:0, contractYears:2, developmentCurve:"High Ceiling Raw Talent", playStyle:"Explosive Attacker"  },
 
-  // Africa & Middle East +6
-  { name: "Asmaa El-Sayed", nationality: "Egypt", continent: "Africa & Middle East", age: 15, height: 170, position: "spiker", potential: "High", speed: 61, power: 62, defense: 45, serve: 56, block: 53, stamina: 58 },
-  { name: "Chinonso Eze", nationality: "Nigeria", continent: "Africa & Middle East", age: 14, height: 174, position: "blocker", potential: "Average", speed: 54, power: 59, defense: 47, serve: 50, block: 64, stamina: 53 },
-  { name: "Zanele Khumalo", nationality: "Zimbabwe", continent: "Africa & Middle East", age: 16, height: 168, position: "defender", potential: "High", speed: 65, power: 40, defense: 68, serve: 46, block: 43, stamina: 59 },
-  { name: "Hiba Benali", nationality: "Tunisia", continent: "Africa & Middle East", age: 15, height: 166, position: "setter", potential: "Average", speed: 57, power: 43, defense: 55, serve: 63, block: 48, stamina: 52 },
-  { name: "Nadia Abebe", nationality: "Ethiopia", continent: "Africa & Middle East", age: 14, height: 171, position: "spiker", potential: "Elite", speed: 68, power: 66, defense: 50, serve: 58, block: 57, stamina: 65 },
-  { name: "Sara Al-Rashidi", nationality: "Kuwait", continent: "Africa & Middle East", age: 16, height: 165, position: "all_rounder", potential: "Average", speed: 56, power: 49, defense: 54, serve: 51, block: 50, stamina: 53 },
+  // ── AFRICA (10) ───────────────────────────────────────────────────────────
+  { name:"Amara Diallo",         nationality:"Senegalese",   age:17, gender:"Female", heightCm:172, position:"blocker",     currentStars:2.5, potentialStars:4.0, serve:52, power:56, block:58, defense:46, speed:54, stamina:56, morale:86, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Kwame Asante",         nationality:"Ghanaian",     age:16, gender:"Male",   heightCm:183, position:"all_rounder", currentStars:2.0, potentialStars:3.5, serve:46, power:50, block:48, defense:48, speed:54, stamina:52, morale:82, salary:0, contractYears:2, developmentCurve:"Inconsistent Prospect",  playStyle:"Raw Athlete"         },
+  { name:"Fatima Nkosi",         nationality:"South African",age:18, gender:"Female", heightCm:175, position:"defender",    currentStars:3.0, potentialStars:4.5, serve:56, power:50, block:48, defense:64, speed:64, stamina:60, morale:88, salary:0, contractYears:2, developmentCurve:"Big Match Riser",        playStyle:"Fast Defender"       },
+  { name:"Ibrahim Koné",         nationality:"Ivorian",      age:15, gender:"Male",   heightCm:182, position:"blocker",     currentStars:1.5, potentialStars:3.5, serve:36, power:42, block:44, defense:34, speed:46, stamina:42, morale:80, salary:0, contractYears:1, developmentCurve:"High Ceiling Raw Talent", playStyle:"Raw Athlete"         },
+  { name:"Zola Dlamini",         nationality:"South African",age:19, gender:"Female", heightCm:170, position:"all_rounder", currentStars:2.5, potentialStars:3.5, serve:52, power:52, block:50, defense:54, speed:58, stamina:56, morale:82, salary:0, contractYears:3, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Emmanuel Osei",        nationality:"Ghanaian",     age:17, gender:"Male",   heightCm:185, position:"defender",    currentStars:2.0, potentialStars:4.0, serve:44, power:46, block:44, defense:52, speed:56, stamina:52, morale:84, salary:0, contractYears:2, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Aissatou Balde",       nationality:"Guinean",      age:16, gender:"Female", heightCm:167, position:"blocker",     currentStars:2.0, potentialStars:3.5, serve:44, power:48, block:50, defense:42, speed:48, stamina:48, morale:82, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Power Blocker"       },
+  { name:"Samuel Mensah",        nationality:"Ghanaian",     age:18, gender:"Male",   heightCm:184, position:"all_rounder", currentStars:2.5, potentialStars:3.0, serve:54, power:54, block:52, defense:54, speed:56, stamina:56, morale:78, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Nadia Ouedraogo",      nationality:"Burkinabe",    age:15, gender:"Female", heightCm:164, position:"defender",    currentStars:1.5, potentialStars:4.0, serve:36, power:34, block:32, defense:44, speed:48, stamina:42, morale:82, salary:0, contractYears:1, developmentCurve:"Late Bloomer",            playStyle:"Fast Defender"       },
+  { name:"Chidi Okafor",         nationality:"Nigerian",     age:17, gender:"Male",   heightCm:188, position:"blocker",     currentStars:2.5, potentialStars:3.5, serve:54, power:58, block:60, defense:46, speed:52, stamina:56, morale:82, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+
+  // ── OCEANIA (4) ───────────────────────────────────────────────────────────
+  { name:"Callum O'Brien",       nationality:"Australian",   age:18, gender:"Male",   heightCm:189, position:"blocker",     currentStars:3.0, potentialStars:4.0, serve:60, power:64, block:68, defense:50, speed:54, stamina:62, morale:84, salary:0, contractYears:2, developmentCurve:"Big Match Riser",        playStyle:"Power Blocker"       },
+  { name:"Aroha Tane",           nationality:"New Zealander",age:16, gender:"Female", heightCm:171, position:"defender",    currentStars:2.0, potentialStars:4.0, serve:44, power:44, block:42, defense:52, speed:56, stamina:50, morale:84, salary:0, contractYears:2, developmentCurve:"Late Bloomer",            playStyle:"Technical Defender"  },
+  { name:"Jayden Walsh",         nationality:"Australian",   age:17, gender:"Male",   heightCm:185, position:"all_rounder", currentStars:2.5, potentialStars:3.5, serve:52, power:56, block:52, defense:54, speed:56, stamina:56, morale:82, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Moana Faleolo",        nationality:"Samoan",       age:15, gender:"Female", heightCm:169, position:"blocker",     currentStars:1.5, potentialStars:3.5, serve:38, power:40, block:42, defense:36, speed:46, stamina:44, morale:82, salary:0, contractYears:1, developmentCurve:"High Ceiling Raw Talent", playStyle:"Raw Athlete"         },
+
+  // ── MIDDLE EAST & NORTH AFRICA (4) ────────────────────────────────────────
+  { name:"Omar Hassan",          nationality:"Egyptian",     age:19, gender:"Male",   heightCm:184, position:"all_rounder", currentStars:2.5, potentialStars:3.0, serve:54, power:54, block:52, defense:54, speed:56, stamina:58, morale:78, salary:0, contractYears:3, developmentCurve:"Steady Improver",        playStyle:"All-Rounder"         },
+  { name:"Layla Al-Rashid",      nationality:"Jordanian",    age:17, gender:"Female", heightCm:168, position:"defender",    currentStars:2.5, potentialStars:4.0, serve:50, power:46, block:44, defense:58, speed:60, stamina:56, morale:84, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Technical Defender"  },
+  { name:"Karim Mansour",        nationality:"Moroccan",     age:16, gender:"Male",   heightCm:182, position:"blocker",     currentStars:2.0, potentialStars:3.5, serve:46, power:50, block:52, defense:42, speed:50, stamina:50, morale:80, salary:0, contractYears:2, developmentCurve:"Steady Improver",        playStyle:"Power Blocker"       },
+  { name:"Reem Al-Farsi",        nationality:"Omani",        age:18, gender:"Female", heightCm:166, position:"all_rounder", currentStars:2.0, potentialStars:3.5, serve:46, power:46, block:44, defense:48, speed:52, stamina:50, morale:80, salary:0, contractYears:2, developmentCurve:"Coach Dependent",        playStyle:"Smart Positioner"    },
 ];
 
 async function main() {
-  // Clear all existing youth players
-  console.log("Clearing existing youth players...");
-  const deleted = await db.delete(playersTable).where(eq(playersTable.playerType, "youth"));
-  console.log(`  Cleared existing youth records.\n`);
+  console.log("=== Seed Youth Players V2 ===\n");
 
-  // Load 40 unique females from JSON files
-  const fromJson = loadFromJsonFiles();
-  console.log(`Loaded ${fromJson.length} unique females from JSON files.`);
+  // 1. Upload single shared card image
+  const imgLocal = resolve(WORKSPACE_ROOT, "attached_assets", "player_youth_all_01_1783432743064.webp");
+  const imgGcsPath = "youth-cards/youth-card-v2.webp";
+  console.log("Uploading shared youth card image...");
+  const sharedImageUrl = await upload(imgLocal, imgGcsPath);
+  console.log(`  ✓ Image → ${sharedImageUrl}\n`);
 
-  // Combine with generated players
-  const all: YouthRow[] = [...fromJson, ...GENERATED];
-  console.log(`Total to seed: ${all.length} (${fromJson.length} from JSON + ${GENERATED.length} generated)\n`);
+  // 2. Delete existing youth players
+  console.log("Removing existing youth players...");
+  await db.delete(playersTable).where(eq(playersTable.playerType, "youth"));
+  console.log("  ✓ Cleared.\n");
 
-  // Verify continent balance
-  const byContinent: Record<string, number> = {};
-  for (const p of all) {
-    byContinent[p.continent] = (byContinent[p.continent] ?? 0) + 1;
-  }
-  console.log("Continent breakdown:", byContinent, "\n");
-
-  // Insert all players
-  for (const [i, player] of all.entries()) {
-    process.stdout.write(`[${i + 1}/${all.length}] ${player.name} (${player.nationality}) — ${player.position} — pot:${player.potential}\n`);
-
+  // 3. Insert all 72
+  console.log(`Inserting ${PLAYERS.length} youth players...\n`);
+  let count = 0;
+  for (const p of PLAYERS) {
     await db.insert(playersTable).values({
-      name: player.name,
-      nationality: player.nationality,
-      age: player.age,
-      height: String(player.height),
-      position: player.position,
-      speed: player.speed,
-      power: player.power,
-      defense: player.defense,
-      serve: player.serve,
-      block: player.block,
-      stamina: player.stamina,
-      potential: player.potential,
-      salary: "0",
-      askingPrice: null,
-      continent: player.continent,
-      imageUrl: SHARED_IMAGE_URL,
+      name: p.name,
+      nationality: p.nationality,
+      age: p.age,
+      height: p.heightCm,
+      position: p.position,
+      serve: p.serve,
+      power: p.power,
+      block: p.block,
+      defense: p.defense,
+      speed: p.speed,
+      stamina: p.stamina,
+      morale: p.morale,
+      salary: p.salary,
       teamId: null,
-      isDraftPlayer: false,
+      imageUrl: sharedImageUrl,
       playerType: "youth",
-      isRetired: false,
+      isDraftPlayer: false,
+      potential: potentialLabel(p.potentialStars),
+      scoutedPotential: scoutedPotentialLabel(p.potentialStars),
+      academyContractYears: p.contractYears,
+      isActive: true,
+      fatigue: 0,
+      isInjured: false,
+      trainingPoints: 0,
+      squadRole: "reserve",
+      fitness: 100,
+      injuryStatus: "Healthy",
+      injuryWeeksRemaining: 0,
+      consecutiveMatchesPlayed: 0,
     });
+    count++;
+    const half = p.currentStars % 1 === 0.5 ? "½" : "";
+    const stars = "★".repeat(Math.floor(p.currentStars)) + half;
+    console.log(`  [${String(count).padStart(2,"0")}/72] ${p.name.padEnd(26)} ${p.nationality.padEnd(15)} ${p.gender.padEnd(7)} ${p.age}y  ${stars.padEnd(5)} → pot:${potentialLabel(p.potentialStars)}`);
   }
 
-  console.log(`\n=== Done! ${all.length} female youth players seeded. ===`);
+  console.log(`\n=== Done — ${count} youth players seeded. ===`);
   process.exit(0);
 }
 
-main().catch((err) => {
-  console.error("Fatal:", err);
-  process.exit(1);
-});
+main().catch((err) => { console.error(err); process.exit(1); });
