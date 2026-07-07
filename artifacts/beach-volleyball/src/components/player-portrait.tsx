@@ -179,11 +179,29 @@ export function PlayerPortrait({
 
   return (
     <div className={`w-full ${heightClass} relative overflow-hidden ${className}`}>
+      {/* Blurred background fill — hides the letterbox gaps left by the narrowed portrait */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${src})`,
+          backgroundSize: "cover",
+          backgroundPosition: "top center",
+          filter: "blur(14px) brightness(0.28)",
+          transform: "scale(1.2)",
+          transformOrigin: "top center",
+        }}
+      />
+      {/*
+        Portrait at 62% container width → natural height ≈ 1.55× width.
+        At typical 3-col card widths (300–420 px) this renders the image
+        tall enough to show from the top of the head to roughly the knee,
+        rather than clipping at mid-torso the way object-cover did.
+      */}
       <img
         src={src}
         alt={name}
-        className={`absolute inset-0 w-full h-full object-cover ${objectPosition}`}
-        style={{ transform: "scale(0.88)", transformOrigin: "top center" }}
+        className="absolute top-0 left-1/2 -translate-x-1/2 h-auto"
+        style={{ width: "62%", zIndex: 1 }}
         onError={() => setFailed(true)}
       />
     </div>
