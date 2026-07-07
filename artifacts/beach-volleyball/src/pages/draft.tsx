@@ -9,11 +9,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Box, Zap, Shield, Target, Wind, Activity, Star, RefreshCw } from "lucide-react";
+import { Box, Zap, Shield, Target, Wind, Activity, RefreshCw, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { PlayerPortrait } from "@/components/player-portrait";
 
@@ -129,16 +127,16 @@ export default function PlayerDraft() {
                   </span>
                 </div>
 
-                {/* Right strip — OVR · position · nationality · age & height */}
+                {/* Right strip — position · nationality · age & height (OVR locked until signed) */}
                 <div
                   className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10"
                   style={{ width: "19%", gap: "5px", padding: "8px 3px" }}
                 >
                   <div className="text-center">
-                    <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>
-                      {avgRating}
+                    <div className="text-[22px] font-black text-white/30 leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>
+                      ?
                     </div>
-                    <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
+                    <div className="text-[7px] text-white/30 uppercase tracking-widest font-bold">OVR</div>
                   </div>
                   <div className="w-4/5 h-px bg-white/20" />
                   <div className="text-[8px] text-secondary font-black uppercase text-center leading-tight">
@@ -155,21 +153,18 @@ export default function PlayerDraft() {
 
               <CardContent className="p-4 space-y-4">
                 <div className="grid grid-cols-1 gap-1.5">
-                  <StatBar label="Power" value={player.power} icon={Zap} color="bg-orange-500" />
-                  <StatBar label="Speed" value={player.speed} icon={Wind} color="bg-blue-500" />
-                  <StatBar label="Defense" value={player.defense} icon={Shield} color="bg-green-500" />
-                  <StatBar label="Serve" value={player.serve} icon={Target} color="bg-purple-500" />
-                  <StatBar label="Block" value={player.block} icon={Shield} color="bg-red-500" />
-                  <StatBar label="Stamina" value={player.stamina} icon={Activity} color="bg-cyan-500" />
+                  <LockedStatBar label="Power" icon={Zap} />
+                  <LockedStatBar label="Speed" icon={Wind} />
+                  <LockedStatBar label="Defense" icon={Shield} />
+                  <LockedStatBar label="Serve" icon={Target} />
+                  <LockedStatBar label="Block" icon={Shield} />
+                  <LockedStatBar label="Stamina" icon={Activity} />
                 </div>
 
-                <div className="flex items-center justify-between text-xs border-t border-border pt-2">
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                    Morale: {(player as any).morale ?? 80}%
-                  </span>
-                  <span className="text-muted-foreground text-[10px] font-medium">
-                    High Potential
+                <div className="flex items-center justify-center text-xs border-t border-border pt-2">
+                  <span className="flex items-center gap-1.5 text-muted-foreground/50">
+                    <Shield className="h-3 w-3" />
+                    Sign to reveal attributes
                   </span>
                 </div>
 
@@ -207,17 +202,17 @@ const formatPosition = (pos: string | null | undefined): string => {
   return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 };
 
-function StatBar({ label, value, icon: Icon, color }: { label: string, value: number, icon: any, color: string }) {
+function LockedStatBar({ label, icon: Icon }: { label: string, icon: any }) {
   return (
     <div className="flex items-center gap-2">
-      <Icon className="h-3 w-3 text-muted-foreground shrink-0" />
+      <Icon className="h-3 w-3 text-muted-foreground/30 shrink-0" />
       <div className="flex-1">
         <div className="flex justify-between text-[10px] uppercase tracking-wider font-bold mb-0.5">
-          <span className="text-muted-foreground">{label}</span>
-          <span>{value}</span>
+          <span className="text-muted-foreground/30">{label}</span>
+          <Lock className="h-2.5 w-2.5 text-muted-foreground/30" />
         </div>
-        <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-          <div className={`h-full ${color} rounded-full`} style={{ width: `${value}%` }} />
+        <div className="h-1 w-full bg-muted/40 rounded-full overflow-hidden">
+          <div className="h-full w-0 rounded-full" />
         </div>
       </div>
     </div>
