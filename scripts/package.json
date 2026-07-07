@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
-    "@workspace/db": "workspace:*"
+    "@workspace/db": "workspace:*",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
