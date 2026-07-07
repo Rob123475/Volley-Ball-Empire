@@ -104,6 +104,26 @@ router.get("/staff/available", async (req, res) => {
   res.json(staff.map(serializeStaff));
 });
 
+router.patch("/staff/:id", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
+  const id = parseInt(req.params.id);
+  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, id) });
+  if (!member) { res.status(404).json({ error: "Staff not found" }); return; }
+  if (member.teamId !== team.id) { res.status(403).json({ error: "Not your staff" }); return; }
+  const { name, nationality, attributes, personality, specialty, specialTrait } = req.body;
+  const updates: any = {};
+  if (name        !== undefined) updates.name        = name;
+  if (nationality !== undefined) updates.nationality = nationality;
+  if (attributes  !== undefined) updates.attributes  = attributes;
+  if (personality !== undefined) updates.personality = personality;
+  if (specialty   !== undefined) updates.specialty   = specialty;
+  if (specialTrait !== undefined) updates.specialTrait = specialTrait;
+  const [updated] = await db.update(staffTable).set(updates).where(eq(staffTable.id, id)).returning();
+  res.json(serializeStaff(updated));
+});
+
 router.delete("/staff/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);

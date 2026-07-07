@@ -1,8 +1,10 @@
+import { useState } from "react";
 import {
   useGetTeamRoster,
   useGetTeamStrength,
   useListOutfits,
   useUpdatePlayerOutfit,
+  useUpdatePlayer,
   useReleasePlayer,
   useRetirePlayer,
   useSetPlayerRole,
@@ -35,6 +37,8 @@ import {
   Lock,
   Sparkles,
   Trophy,
+  Pencil,
+  Globe,
 } from "lucide-react";
 
 const ELITE_EVENT_CONFIG: Record<string, {
@@ -86,6 +90,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { cn } from "@/lib/utils";
 
@@ -96,6 +102,42 @@ const ROLE_CONFIG: Record<Role, { label: string; color: string; bg: string; bord
   interchange: { label: "Interchange",     color: "text-amber-700",   bg: "bg-amber-50 dark:bg-amber-950/30",   border: "border-amber-400",   maxSlots: 3 },
   reserve:     { label: "Reserve",         color: "text-slate-600",   bg: "bg-slate-50 dark:bg-slate-950/30",   border: "border-slate-300",   maxSlots: Infinity },
 };
+
+const NATIONALITIES = [
+  "Australian","New Zealander","Fijian","Samoan","Tongan","Tahitian","Vanuatuan","Papua New Guinean",
+  "Cook Islander","Solomon Islander","Ni-Vanuatu","Nauruan","Tuvaluan","Marshallese","Palauan",
+  "Japanese","Chinese","South Korean","Thai","Indonesian","Filipino","Malaysian","Vietnamese",
+  "Singaporean","Indian","Sri Lankan","Kazakh","Uzbek","Mongolian",
+  "German","French","Italian","Spanish","Dutch","Polish","Czech","Swiss","Austrian","Belgian",
+  "Portuguese","Swedish","Norwegian","Danish","Finnish","Russian","Greek","Turkish",
+  "Hungarian","Romanian","Bulgarian","Croatian","Serbian","Slovenian","Slovak","Ukrainian",
+  "American","Canadian","Brazilian","Argentine","Chilean","Peruvian","Colombian","Mexican",
+  "Cuban","Jamaican","Dominican","Puerto Rican","Uruguayan","Bolivian","Ecuadorian","Venezuelan",
+  "Kenyan","Egyptian","South African","Tanzanian","Nigerian","Moroccan","Ethiopian",
+  "Ghanaian","Rwandan","Ugandan","Tunisian","Algerian","Zimbabwean",
+  "Qatari","Emirati","Saudi Arabian","Israeli","Jordanian","Lebanese","Iranian","Turkish",
+  "Bahraini","Kuwaiti","Omani",
+];
+
+const CONTINENTS = [
+  "Asia",
+  "Australia & Pacific",
+  "Europe",
+  "Africa & Middle East",
+  "North America",
+  "South America",
+];
+
+const POSITIONS = [
+  { value: "setter",      label: "Setter"      },
+  { value: "spiker",      label: "Spiker"      },
+  { value: "defender",    label: "Defender"    },
+  { value: "blocker",     label: "Blocker"     },
+  { value: "server",      label: "Server"      },
+  { value: "all_rounder", label: "All-Rounder" },
+];
+
+const POTENTIALS = ["Low","Average","High","Elite","Generational"] as const;
 
 const formatPosition = (pos: string | null | undefined): string => {
   if (!pos) return "—";
@@ -179,11 +221,12 @@ export default function TeamRoster() {
   const { data: roster, isLoading } = useGetTeamRoster({ query: { queryKey: getGetTeamRosterQueryKey() } });
   const { data: teamStrength } = useGetTeamStrength({ query: { queryKey: getGetTeamStrengthQueryKey() } });
   const { data: outfits } = useListOutfits();
-  const releaseMutation = useReleasePlayer();
-  const retireMutation  = useRetirePlayer();
-  const outfitMutation  = useUpdatePlayerOutfit();
-  const roleMutation    = useSetPlayerRole();
-  const focusMutation   = useSetPlayerTrainingFocus();
+  const releaseMutation      = useReleasePlayer();
+  const retireMutation       = useRetirePlayer();
+  const outfitMutation       = useUpdatePlayerOutfit();
+  const roleMutation         = useSetPlayerRole();
+  const focusMutation        = useSetPlayerTrainingFocus();
+  const updatePlayerMutation = useUpdatePlayer();
 
   if (isLoading) {
     return (
@@ -292,6 +335,84 @@ export default function TeamRoster() {
     const rating  = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
     const fatigue = player.fatigue ?? 0;
     const cfg     = ROLE_CONFIG[role];
+
+    const [editOpen, setEditOpen] = useState(false);
+    const [natOpen,  setNatOpen]  = useState(false);
+    const [editForm, setEditForm] = useState<{
+      name: string; nationality: string; continent: string; age: number; position: string;
+      speed: number; power: number; defense: number; serve: number; block: number; stamina: number;
+      potential: string; scoutedPotential: string;
+    }>({ name: "", nationality: "", continent: "", age: 0, position: "all_rounder",
+         speed: 70, power: 70, defense: 70, serve: 70, block: 70, stamina: 70,
+         potential: "Average", scoutedPotential: "" });
+    const [natForm, setNatForm] = useState({ nationality: "", continent: "" });
+
+    const openEdit = () => {
+      setEditForm({
+        name:            player.name,
+        nationality:     player.nationality ?? "",
+        continent:       (player as any).continent ?? "",
+        age:             player.age,
+        position:        player.position ?? "all_rounder",
+        speed:           player.speed,
+        power:           player.power,
+        defense:         player.defense,
+        serve:           player.serve,
+        block:           player.block,
+        stamina:         player.stamina,
+        potential:       (player as any).potential ?? "Average",
+        scoutedPotential: (player as any).scoutedPotential ?? "",
+      });
+      setEditOpen(true);
+    };
+
+    const openNat = () => {
+      setNatForm({ nationality: player.nationality ?? "", continent: (player as any).continent ?? "" });
+      setNatOpen(true);
+    };
+
+    const handleEditSave = () => {
+      updatePlayerMutation.mutate(
+        { id: player.id, data: {
+            name: editForm.name,
+            nationality: editForm.nationality,
+            continent: editForm.continent || undefined,
+            age: editForm.age,
+            position: editForm.position as any,
+            speed: editForm.speed, power: editForm.power, defense: editForm.defense,
+            serve: editForm.serve, block: editForm.block, stamina: editForm.stamina,
+            potential: editForm.potential as any,
+            scoutedPotential: (editForm.scoutedPotential as any) || null,
+          },
+        },
+        {
+          onSuccess: () => {
+            setEditOpen(false);
+            invalidate();
+            toast({ title: "Player Updated", description: `${editForm.name} saved.` });
+          },
+          onError: (err: any) => {
+            toast({ title: "Save Failed", description: err?.response?.data?.error ?? "Could not save player.", variant: "destructive" });
+          },
+        }
+      );
+    };
+
+    const handleNatSave = () => {
+      updatePlayerMutation.mutate(
+        { id: player.id, data: { nationality: natForm.nationality, continent: natForm.continent || undefined } },
+        {
+          onSuccess: () => {
+            setNatOpen(false);
+            invalidate();
+            toast({ title: "Nationality Updated", description: `${player.name} now represents ${natForm.nationality}.` });
+          },
+          onError: (err: any) => {
+            toast({ title: "Save Failed", description: err?.response?.data?.error ?? "Could not update nationality.", variant: "destructive" });
+          },
+        }
+      );
+    };
 
     // What moves are available from this role
     const canMoveUp   = role === "reserve" || role === "interchange";
@@ -580,7 +701,158 @@ export default function TeamRoster() {
           </div>
 
           {/* ── Other actions ─────────────────────────────────────── */}
-          <div className="flex gap-1 pt-1">
+          <div className="flex gap-1 pt-1 flex-wrap">
+            {/* ── Full Editor ───────────────────────────────────────── */}
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost" size="sm"
+                  className="gap-1 text-xs text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                  onClick={openEdit}
+                  data-testid={`button-edit-${player.id}`}
+                  title="Edit player attributes"
+                >
+                  <Pencil className="h-3 w-3" /> Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Player — {player.name}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2 space-y-1">
+                      <Label htmlFor={`edit-name-${player.id}`}>Name</Label>
+                      <Input id={`edit-name-${player.id}`} value={editForm.name}
+                        onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`edit-nat-${player.id}`}>Nationality</Label>
+                      <Input id={`edit-nat-${player.id}`} list={`nat-list-${player.id}`}
+                        value={editForm.nationality}
+                        onChange={e => setEditForm(f => ({ ...f, nationality: e.target.value }))} />
+                      <datalist id={`nat-list-${player.id}`}>
+                        {NATIONALITIES.map(n => <option key={n} value={n} />)}
+                      </datalist>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`edit-cont-${player.id}`}>Continent</Label>
+                      <select id={`edit-cont-${player.id}`}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                        value={editForm.continent}
+                        onChange={e => setEditForm(f => ({ ...f, continent: e.target.value }))}>
+                        <option value="">— select —</option>
+                        {CONTINENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`edit-age-${player.id}`}>Age</Label>
+                      <Input id={`edit-age-${player.id}`} type="number" min={16} max={45}
+                        value={editForm.age}
+                        onChange={e => setEditForm(f => ({ ...f, age: Number(e.target.value) }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`edit-pos-${player.id}`}>Position</Label>
+                      <select id={`edit-pos-${player.id}`}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                        value={editForm.position}
+                        onChange={e => setEditForm(f => ({ ...f, position: e.target.value }))}>
+                        {POSITIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Stats (1–99)</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["speed","power","defense","serve","block","stamina"] as const).map(attr => (
+                        <div key={attr} className="space-y-1">
+                          <Label htmlFor={`edit-${attr}-${player.id}`} className="capitalize">{attr}</Label>
+                          <Input id={`edit-${attr}-${player.id}`} type="number" min={1} max={99}
+                            value={editForm[attr]}
+                            onChange={e => setEditForm(f => ({ ...f, [attr]: Number(e.target.value) }))} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor={`edit-pot-${player.id}`}>Potential</Label>
+                      <select id={`edit-pot-${player.id}`}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                        value={editForm.potential}
+                        onChange={e => setEditForm(f => ({ ...f, potential: e.target.value }))}>
+                        {POTENTIALS.map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`edit-scout-${player.id}`}>Scouted Potential</Label>
+                      <select id={`edit-scout-${player.id}`}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                        value={editForm.scoutedPotential}
+                        onChange={e => setEditForm(f => ({ ...f, scoutedPotential: e.target.value }))}>
+                        <option value="">Unknown</option>
+                        {POTENTIALS.map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+                  <Button onClick={handleEditSave} disabled={updatePlayerMutation.isPending}>
+                    {updatePlayerMutation.isPending ? "Saving…" : "Save Changes"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* ── Quick Nationality Change ───────────────────────────── */}
+            <Dialog open={natOpen} onOpenChange={setNatOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost" size="sm"
+                  className="gap-1 text-xs text-sky-600 hover:text-sky-700 hover:bg-sky-50"
+                  onClick={openNat}
+                  title="Change nationality"
+                >
+                  <Globe className="h-3 w-3" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Change Nationality — {player.name}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 py-2">
+                  <div className="space-y-1">
+                    <Label htmlFor={`nat-nat-${player.id}`}>Nationality</Label>
+                    <Input id={`nat-nat-${player.id}`} list={`nat-list2-${player.id}`}
+                      value={natForm.nationality}
+                      onChange={e => setNatForm(f => ({ ...f, nationality: e.target.value }))} />
+                    <datalist id={`nat-list2-${player.id}`}>
+                      {NATIONALITIES.map(n => <option key={n} value={n} />)}
+                    </datalist>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor={`nat-cont-${player.id}`}>Continent</Label>
+                    <select id={`nat-cont-${player.id}`}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                      value={natForm.continent}
+                      onChange={e => setNatForm(f => ({ ...f, continent: e.target.value }))}>
+                      <option value="">— select —</option>
+                      {CONTINENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" onClick={() => setNatOpen(false)}>Cancel</Button>
+                  <Button onClick={handleNatSave} disabled={updatePlayerMutation.isPending}>
+                    {updatePlayerMutation.isPending ? "Saving…" : "Change Nationality"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-1 text-xs" data-testid={`button-outfit-${player.id}`}>

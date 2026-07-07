@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   useListStaff,
   useFireStaff,
+  useUpdateStaff,
   useGetMyTeam,
   getListStaffQueryKey,
   getGetStaffMarketQueryKey,
@@ -32,6 +33,7 @@ import {
   Binoculars,
   AlertTriangle,
   ArrowRight,
+  Pencil,
 } from "lucide-react";
 import {
   Dialog,
@@ -41,6 +43,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -131,6 +135,20 @@ function AttributeBar({ name, value }: { name: string; value: number }) {
   );
 }
 
+const STAFF_PERSONALITIES = ["Motivator", "Demanding", "Player Friendly", "Disciplinarian"];
+
+const STAFF_NATIONALITIES = [
+  "Australian","New Zealander","Fijian","Samoan","Tongan","American","Canadian","Brazilian",
+  "Argentine","Chilean","Peruvian","Colombian","Mexican","Cuban","Jamaican","Dominican",
+  "Uruguayan","German","French","Italian","Spanish","Dutch","Polish","Czech","Swiss","Austrian",
+  "Belgian","Portuguese","Swedish","Norwegian","Danish","Finnish","Russian","Greek","Turkish",
+  "Hungarian","Romanian","Bulgarian","Croatian","Serbian","Slovenian","Slovak","Ukrainian",
+  "Japanese","Chinese","South Korean","Thai","Indonesian","Filipino","Malaysian","Vietnamese",
+  "Singaporean","Indian","Sri Lankan","Kazakh","Uzbek","Kenyan","Egyptian","South African",
+  "Tanzanian","Nigerian","Moroccan","Ethiopian","Ghanaian","Rwandan","Ugandan","Tunisian",
+  "Algerian","Zimbabwean","Qatari","Emirati","Saudi Arabian","Israeli","Jordanian","Lebanese",
+];
+
 function StaffCard({
   member,
   teamBudget,
@@ -143,8 +161,53 @@ function StaffCard({
   isFiring: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
   const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const updateStaffMutation = useUpdateStaff();
+
+  const [editForm, setEditForm] = useState<{
+    name: string; nationality: string; personality: string; specialty: string; specialTrait: string;
+    attributes: Record<string, number>;
+  }>({ name: "", nationality: "", personality: "", specialty: "", specialTrait: "", attributes: {} });
+
+  const openEdit = () => {
+    setEditForm({
+      name:        member.name,
+      nationality: member.nationality ?? "",
+      personality: member.personality ?? "",
+      specialty:   member.specialty ?? "",
+      specialTrait: member.specialTrait ?? "",
+      attributes:  { ...(member.attributes ?? {}) },
+    });
+    setEditOpen(true);
+  };
+
+  const handleEditSave = () => {
+    updateStaffMutation.mutate(
+      { id: member.id, data: {
+          name:        editForm.name,
+          nationality: editForm.nationality || undefined,
+          personality: editForm.personality as any || undefined,
+          specialty:   editForm.specialty   || undefined,
+          specialTrait: editForm.specialTrait || undefined,
+          attributes:  editForm.attributes,
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditOpen(false);
+          queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
+          toast({ title: "Staff Updated", description: `${editForm.name} saved.` });
+        },
+        onError: (err: any) => {
+          toast({ title: "Save Failed", description: err?.response?.data?.error ?? "Could not save.", variant: "destructive" });
+        },
+      }
+    );
+  };
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -175,15 +238,101 @@ function StaffCard({
           </Badge>
         </div>
 
-        {/* Terminate Contract button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setOpen(true)}
-          className="absolute top-2 right-2 h-7 w-7 bg-black/40 hover:bg-red-600/80 text-white"
-        >
-          <UserMinus className="h-3.5 w-3.5" />
-        </Button>
+        {/* Edit + Terminate buttons */}
+        <div className="absolute top-2 right-2 flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={openEdit}
+            className="h-7 w-7 bg-black/40 hover:bg-violet-600/80 text-white"
+            title="Edit staff"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen(true)}
+            className="h-7 w-7 bg-black/40 hover:bg-red-600/80 text-white"
+            title="Terminate contract"
+          >
+            <UserMinus className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        {/* Staff Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Pencil className="h-4 w-4 text-violet-500" />
+                Edit Staff — {member.name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="space-y-1">
+                <Label htmlFor={`staff-name-${member.id}`}>Name</Label>
+                <Input id={`staff-name-${member.id}`} value={editForm.name}
+                  onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`staff-nat-${member.id}`}>Nationality</Label>
+                <Input id={`staff-nat-${member.id}`} list={`staff-nat-list-${member.id}`}
+                  value={editForm.nationality}
+                  onChange={e => setEditForm(f => ({ ...f, nationality: e.target.value }))} />
+                <datalist id={`staff-nat-list-${member.id}`}>
+                  {STAFF_NATIONALITIES.map(n => <option key={n} value={n} />)}
+                </datalist>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`staff-pers-${member.id}`}>Personality</Label>
+                <select id={`staff-pers-${member.id}`}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                  value={editForm.personality}
+                  onChange={e => setEditForm(f => ({ ...f, personality: e.target.value }))}>
+                  <option value="">— select —</option>
+                  {STAFF_PERSONALITIES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`staff-spec-${member.id}`}>Specialty</Label>
+                <Input id={`staff-spec-${member.id}`} value={editForm.specialty}
+                  onChange={e => setEditForm(f => ({ ...f, specialty: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`staff-trait-${member.id}`}>Special Trait</Label>
+                <Input id={`staff-trait-${member.id}`} value={editForm.specialTrait}
+                  onChange={e => setEditForm(f => ({ ...f, specialTrait: e.target.value }))} />
+              </div>
+              {Object.keys(editForm.attributes).length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Attributes (1–99)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(editForm.attributes).map(([key, val]) => (
+                      <div key={key} className="space-y-1">
+                        <Label htmlFor={`staff-attr-${member.id}-${key}`} className="capitalize text-xs">
+                          {key.replace(/_/g, " ")}
+                        </Label>
+                        <Input id={`staff-attr-${member.id}-${key}`} type="number" min={1} max={99}
+                          value={val}
+                          onChange={e => setEditForm(f => ({
+                            ...f,
+                            attributes: { ...f.attributes, [key]: Number(e.target.value) }
+                          }))} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button onClick={handleEditSave} disabled={updateStaffMutation.isPending}>
+                {updateStaffMutation.isPending ? "Saving…" : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="sm:max-w-md">

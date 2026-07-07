@@ -638,6 +638,33 @@ paths:
                   $ref: "#/components/schemas/StaffMember"
 
   /staff/{id}:
+    patch:
+      operationId: updateStaff
+      tags: [staff]
+      summary: Edit a staff member's details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffUpdate"
+      responses:
+        "200":
+          description: Updated staff member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "403":
+          description: Not your staff
+        "404":
+          description: Staff not found
     delete:
       operationId: fireStaff
       tags: [staff]
@@ -2530,10 +2557,55 @@ components:
       properties:
         name:
           type: string
+        nationality:
+          type: string
+        continent:
+          type: string
+        age:
+          type: integer
+        position:
+          type: string
+          enum: [setter, spiker, defender, blocker, server, all_rounder]
+        speed:
+          type: integer
+        power:
+          type: integer
+        defense:
+          type: integer
+        serve:
+          type: integer
+        block:
+          type: integer
+        stamina:
+          type: integer
+        potential:
+          type: string
+          enum: [Low, Average, High, Elite, Generational]
+        scoutedPotential:
+          type: ["string", "null"]
+          enum: [Low, Average, High, Elite, Generational, null]
         isActive:
           type: boolean
         morale:
           type: integer
+
+    StaffUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        nationality:
+          type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: integer
+        personality:
+          type: string
+        specialty:
+          type: string
+        specialTrait:
+          type: string
 
     OutfitAssignment:
       type: object

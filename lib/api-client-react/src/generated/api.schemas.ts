@@ -221,10 +221,71 @@ export interface PlayerInput {
   salary: number;
 }
 
+export type PlayerUpdatePosition = typeof PlayerUpdatePosition[keyof typeof PlayerUpdatePosition];
+
+
+export const PlayerUpdatePosition = {
+  setter: 'setter',
+  spiker: 'spiker',
+  defender: 'defender',
+  blocker: 'blocker',
+  server: 'server',
+  all_rounder: 'all_rounder',
+} as const;
+
+export type PlayerUpdatePotential = typeof PlayerUpdatePotential[keyof typeof PlayerUpdatePotential];
+
+
+export const PlayerUpdatePotential = {
+  Low: 'Low',
+  Average: 'Average',
+  High: 'High',
+  Elite: 'Elite',
+  Generational: 'Generational',
+} as const;
+
+/**
+ * @nullable
+ */
+export type PlayerUpdateScoutedPotential = typeof PlayerUpdateScoutedPotential[keyof typeof PlayerUpdateScoutedPotential] | null;
+
+
+export const PlayerUpdateScoutedPotential = {
+  Low: 'Low',
+  Average: 'Average',
+  High: 'High',
+  Elite: 'Elite',
+  Generational: 'Generational',
+} as const;
+
 export interface PlayerUpdate {
   name?: string;
+  nationality?: string;
+  continent?: string;
+  age?: number;
+  position?: PlayerUpdatePosition;
+  speed?: number;
+  power?: number;
+  defense?: number;
+  serve?: number;
+  block?: number;
+  stamina?: number;
+  potential?: PlayerUpdatePotential;
+  /** @nullable */
+  scoutedPotential?: PlayerUpdateScoutedPotential;
   isActive?: boolean;
   morale?: number;
+}
+
+export type StaffUpdateAttributes = {[key: string]: number};
+
+export interface StaffUpdate {
+  name?: string;
+  nationality?: string;
+  attributes?: StaffUpdateAttributes;
+  personality?: string;
+  specialty?: string;
+  specialTrait?: string;
 }
 
 export interface OutfitAssignment {

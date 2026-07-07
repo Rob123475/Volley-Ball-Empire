@@ -159,14 +159,36 @@ router.get("/players/:id", async (req, res) => {
 
 router.patch("/players/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const id = parseInt(req.params.id);
-  const { name, isActive, morale } = req.body;
+  const existing = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+  if (!existing) { res.status(404).json({ error: "Player not found" }); return; }
+  if (existing.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
+  const {
+    name, nationality, continent, age, position,
+    speed, power, defense, serve, block, stamina,
+    potential, scoutedPotential,
+    isActive, morale,
+  } = req.body;
   const updates: any = {};
-  if (name     !== undefined) updates.name     = name;
-  if (isActive !== undefined) updates.isActive = isActive;
-  if (morale   !== undefined) updates.morale   = morale;
-  const [player] = await db.update(playersTable).set(updates).where(eq(playersTable.id, id)).returning();
-  res.json(serializePlayer(player));
+  if (name            !== undefined) updates.name            = name;
+  if (nationality     !== undefined) updates.nationality     = nationality;
+  if (continent       !== undefined) updates.continent       = continent;
+  if (age             !== undefined) updates.age             = Number(age);
+  if (position        !== undefined) updates.position        = position;
+  if (speed           !== undefined) updates.speed           = Number(speed);
+  if (power           !== undefined) updates.power           = Number(power);
+  if (defense         !== undefined) updates.defense         = Number(defense);
+  if (serve           !== undefined) updates.serve           = Number(serve);
+  if (block           !== undefined) updates.block           = Number(block);
+  if (stamina         !== undefined) updates.stamina         = Number(stamina);
+  if (potential       !== undefined) updates.potential       = potential;
+  if (scoutedPotential !== undefined) updates.scoutedPotential = scoutedPotential ?? null;
+  if (isActive        !== undefined) updates.isActive        = isActive;
+  if (morale          !== undefined) updates.morale          = morale;
+  const [updated] = await db.update(playersTable).set(updates).where(eq(playersTable.id, id)).returning();
+  res.json({ ...serializePlayer(updated), potential: updated.potential, scoutedPotential: updated.scoutedPotential });
 });
 
 router.patch("/players/:id/outfit", async (req, res) => {

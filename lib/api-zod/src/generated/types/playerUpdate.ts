@@ -5,9 +5,25 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { PlayerUpdatePosition } from './playerUpdatePosition';
+import type { PlayerUpdatePotential } from './playerUpdatePotential';
+import type { PlayerUpdateScoutedPotential } from './playerUpdateScoutedPotential';
 
 export interface PlayerUpdate {
   name?: string;
+  nationality?: string;
+  continent?: string;
+  age?: number;
+  position?: PlayerUpdatePosition;
+  speed?: number;
+  power?: number;
+  defense?: number;
+  serve?: number;
+  block?: number;
+  stamina?: number;
+  potential?: PlayerUpdatePotential;
+  /** @nullable */
+  scoutedPotential?: PlayerUpdateScoutedPotential;
   isActive?: boolean;
   morale?: number;
 }

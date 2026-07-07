@@ -275,6 +275,18 @@ export const UpdatePlayerParams = zod.object({
 
 export const UpdatePlayerBody = zod.object({
   "name": zod.string().optional(),
+  "nationality": zod.string().optional(),
+  "continent": zod.string().optional(),
+  "age": zod.number().optional(),
+  "position": zod.enum(['setter', 'spiker', 'defender', 'blocker', 'server', 'all_rounder']).optional(),
+  "speed": zod.number().optional(),
+  "power": zod.number().optional(),
+  "defense": zod.number().optional(),
+  "serve": zod.number().optional(),
+  "block": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "potential": zod.enum(['Low', 'Average', 'High', 'Elite', 'Generational']).optional(),
+  "scoutedPotential": zod.union([zod.literal('Low'),zod.literal('Average'),zod.literal('High'),zod.literal('Elite'),zod.literal('Generational'),zod.literal(null)]).nullish(),
   "isActive": zod.boolean().optional(),
   "morale": zod.number().optional()
 })
@@ -1671,6 +1683,45 @@ export const GetStaffMarketResponseItem = zod.object({
   "createdAt": zod.string()
 })
 export const GetStaffMarketResponse = zod.array(GetStaffMarketResponseItem)
+
+
+/**
+ * @summary Edit a staff member's details
+ */
+export const UpdateStaffParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateStaffBody = zod.object({
+  "name": zod.string().optional(),
+  "nationality": zod.string().optional(),
+  "attributes": zod.record(zod.string(), zod.number()).optional(),
+  "personality": zod.string().optional(),
+  "specialty": zod.string().optional(),
+  "specialTrait": zod.string().optional()
+})
+
+export const UpdateStaffResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Staff quality rating 50–99.'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
+  "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
+  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "createdAt": zod.string()
+})
 
 
 /**
