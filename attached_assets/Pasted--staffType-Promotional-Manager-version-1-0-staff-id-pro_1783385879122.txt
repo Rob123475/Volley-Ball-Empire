@@ -1,0 +1,106 @@
+{
+  "staffType": "Promotional Manager",
+  "version": "1.0",
+  "staff": [
+    {
+      "id": "promotional_manager_001",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_01.webp"
+    },
+    {
+      "id": "promotional_manager_002",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_02.webp"
+    },
+    {
+      "id": "promotional_manager_003",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_03.webp"
+    },
+    {
+      "id": "promotional_manager_004",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_04.webp"
+    },
+    {
+      "id": "promotional_manager_005",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_05.webp"
+    },
+    {
+      "id": "promotional_manager_006",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_06.webp"
+    },
+    {
+      "id": "promotional_manager_007",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_07.webp"
+    },
+    {
+      "id": "promotional_manager_008",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_08.webp"
+    },
+    {
+      "id": "promotional_manager_009",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_09.webp"
+    },
+    {
+      "id": "promotional_manager_010",
+      "name": "",
+      "nationality": "",
+      "age": 0,
+      "experience": 0,
+      "rating": 0,
+      "specialities": [],
+      "image": "staff_promotional_manager_10.webp"
+    }
+  ]
+}
