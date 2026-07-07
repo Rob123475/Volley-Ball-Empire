@@ -29,6 +29,7 @@
     "reupload-sports-scientist-images": "tsx ./src/reupload-sports-scientist-images.ts",
     "seed-assistant-coaches": "tsx ./src/seed-assistant-coaches.ts",
     "seed-fitness-trainers": "tsx ./src/seed-fitness-trainers.ts",
+    "seed-head-coaches": "tsx ./src/seed-head-coaches.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
