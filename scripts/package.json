@@ -31,6 +31,7 @@
     "seed-fitness-trainers": "tsx ./src/seed-fitness-trainers.ts",
     "seed-head-coaches": "tsx ./src/seed-head-coaches.ts",
     "seed-strength-coaches": "tsx ./src/seed-strength-coaches.ts",
+    "seed-massage-therapists": "tsx ./src/seed-massage-therapists.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
