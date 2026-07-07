@@ -102,27 +102,30 @@ const INJURY_ICONS: Record<string, LucideIcon> = {
 type IconFC = React.FC<{ className?: string }>;
 
 const MEDICAL_ROLE_LABELS: Record<string, string> = {
-  team_doctor:        "Team Doctor",
-  medical_specialist: "Medical Specialist",
-  physiotherapist:    "Physiotherapist",
-  nutritionist:       "Nutritionist",
-  sports_chemist:     "Sports Chemist",
+  team_doctor:          "Team Doctor",
+  medical_specialist:   "Medical Specialist",
+  physiotherapist:      "Physiotherapist",
+  nutritionist:         "Nutritionist",
+  sports_scientist:     "Sports Scientist",
+  "Sports Scientist":   "Sports Scientist",
 };
 
 const MEDICAL_ROLE_COLORS: Record<string, string> = {
-  team_doctor:        "bg-red-500",
-  medical_specialist: "bg-blue-600",
-  physiotherapist:    "bg-teal-500",
-  nutritionist:       "bg-green-500",
-  sports_chemist:     "bg-purple-500",
+  team_doctor:          "bg-red-500",
+  medical_specialist:   "bg-blue-600",
+  physiotherapist:      "bg-teal-500",
+  nutritionist:         "bg-green-500",
+  sports_scientist:     "bg-indigo-500",
+  "Sports Scientist":   "bg-indigo-500",
 };
 
 const MEDICAL_ROLE_ICONS: Record<string, IconFC> = {
-  team_doctor:        Stethoscope as IconFC,
-  medical_specialist: Microscope as IconFC,
-  physiotherapist:    Activity as IconFC,
-  nutritionist:       Salad as IconFC,
-  sports_chemist:     FlaskConical as IconFC,
+  team_doctor:          Stethoscope as IconFC,
+  medical_specialist:   Microscope as IconFC,
+  physiotherapist:      Activity as IconFC,
+  nutritionist:         Salad as IconFC,
+  sports_scientist:     FlaskConical as IconFC,
+  "Sports Scientist":   FlaskConical as IconFC,
 };
 
 const MEDICAL_BONUS_DESCRIPTIONS: Record<string, { icon: IconFC; color: string; label: string; detail: string }> = {
@@ -130,7 +133,8 @@ const MEDICAL_BONUS_DESCRIPTIONS: Record<string, { icon: IconFC; color: string; 
   medical_specialist: { icon: Shield as IconFC,      color: "text-blue-600",   label: "Injury Prevention",   detail: "−8–15% injury risk, faster complex injury recovery" },
   physiotherapist:    { icon: Activity as IconFC,    color: "text-teal-600",   label: "Fatigue Recovery",    detail: "+8–15% post-match fatigue recovery, stamina growth boost" },
   nutritionist:       { icon: Salad as IconFC,       color: "text-green-600",  label: "Stamina & Nutrition", detail: "+5–12% stamina growth, improved match-day conditioning" },
-  sports_chemist:     { icon: FlaskConical as IconFC, color: "text-purple-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, legal performance optimisation" },
+  sports_scientist:     { icon: FlaskConical as IconFC, color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
+  "Sports Scientist":   { icon: FlaskConical as IconFC, color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
 };
 
 /* ── Helpers ───────────────────────────────────────────────── */

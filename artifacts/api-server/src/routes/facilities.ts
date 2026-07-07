@@ -13,7 +13,7 @@ import { eq, and, isNotNull, lte, desc } from "drizzle-orm";
 
 const router = Router();
 
-const MEDICAL_ROLES = ["team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_chemist"];
+const MEDICAL_ROLES = ["team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "Sports Scientist"];
 
 const FACILITY_TYPES = [
   "training_complex",

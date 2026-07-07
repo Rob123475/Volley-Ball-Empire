@@ -55,7 +55,6 @@ const ROLE_LABELS: Record<string, string> = {
   "Physiotherapist":  "Physiotherapist",
   nutritionist:       "Nutritionist",
   "Nutritionist":     "Nutritionist",
-  sports_chemist:     "Sports Chemist",
   sports_scientist:   "Sports Scientist",
   "Sports Scientist": "Sports Scientist",
 };
@@ -69,7 +68,6 @@ const ROLE_COLORS: Record<string, string> = {
   "Physiotherapist":    "bg-teal-500",
   nutritionist:         "bg-green-500",
   "Nutritionist":       "bg-green-500",
-  sports_chemist:       "bg-purple-500",
   sports_scientist:     "bg-indigo-500",
   "Sports Scientist":   "bg-indigo-500",
 };
@@ -85,7 +83,6 @@ const ROLE_ICONS: Record<string, IconFC> = {
   "Physiotherapist":    Activity as IconFC,
   nutritionist:         Salad as IconFC,
   "Nutritionist":       Salad as IconFC,
-  sports_chemist:       FlaskConical as IconFC,
   sports_scientist:     FlaskConical as IconFC,
   "Sports Scientist":   FlaskConical as IconFC,
 };

@@ -43,7 +43,7 @@ const VALID_STAFF_ROLES = new Set([
 ]);
 const VALID_MEDICAL_ROLES = new Set([
   "team_doctor", "medical_specialist", "physiotherapist",
-  "nutritionist", "sports_chemist",
+  "nutritionist", "sports_scientist",
 ]);
 
 const AGE_RANGES: Record<GenerationType, [number, number]> = {
@@ -84,7 +84,7 @@ const ROLE_DISPLAY: Record<string, string> = {
   medical_specialist:   "Medical Specialist",
   physiotherapist:      "Physiotherapist",
   nutritionist:         "Nutritionist",
-  sports_chemist:       "Sports Chemist",
+  sports_scientist:     "Sports Scientist",
 };
 
 // ── Validation helpers ─────────────────────────────────────────────────────

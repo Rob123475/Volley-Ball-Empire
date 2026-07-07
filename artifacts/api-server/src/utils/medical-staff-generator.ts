@@ -75,7 +75,6 @@ export type MedicalRole =
   | "medical_specialist"
   | "physiotherapist"
   | "nutritionist"
-  | "sports_chemist"
   | "sports_scientist";
 
 export const MEDICAL_ROLE_LABELS: Record<MedicalRole, string> = {
@@ -83,7 +82,6 @@ export const MEDICAL_ROLE_LABELS: Record<MedicalRole, string> = {
   medical_specialist: "Medical Specialist",
   physiotherapist:    "Physiotherapist",
   nutritionist:       "Nutritionist",
-  sports_chemist:     "Sports Chemist",
   sports_scientist:   "Sports Scientist",
 };
 
@@ -92,7 +90,6 @@ export const MEDICAL_ROLES: MedicalRole[] = [
   "medical_specialist",
   "physiotherapist",
   "nutritionist",
-  "sports_chemist",
   "sports_scientist",
 ];
 
@@ -101,7 +98,6 @@ const ROLE_ATTRIBUTES: Record<MedicalRole, string[]> = {
   medical_specialist: ["Specialist Knowledge", "Clinical Precision", "Recovery Protocol"],
   physiotherapist:    ["Rehabilitation Skill", "Manual Therapy", "Exercise Prescription"],
   nutritionist:       ["Dietary Planning", "Performance Nutrition", "Supplement Knowledge"],
-  sports_chemist:     ["Biochemical Analysis", "Supplement Development", "Anti-Doping Knowledge"],
   sports_scientist:   ["Load Monitoring", "Performance Testing", "Data Analysis"],
 };
 
@@ -110,7 +106,6 @@ const ROLE_TRAITS: Record<MedicalRole, string[]> = {
   medical_specialist: ["Precision Healer", "Specialist Network", "Complex Case Expert", "Fast Track Recovery", "Evidence-Based Expert"],
   physiotherapist:    ["Rehabilitation Guru", "Hands-On Healer", "Movement Specialist", "Pain Relief Expert", "Functional Recovery Pro"],
   nutritionist:       ["Performance Fueller", "Metabolic Specialist", "Recovery Nutrition Expert", "Anti-Inflammatory Diet", "Hydration Guru"],
-  sports_chemist:     ["Supplement Pioneer", "Biochemical Genius", "Legal Edge Expert", "Anti-Doping Shield", "Performance Optimizer"],
   sports_scientist:   ["Data Driven", "Peak Load Expert", "Biomechanics Guru", "Performance Prophet", "Recovery Analyst"],
 };
 
@@ -119,7 +114,6 @@ const ROLE_SALARY_RANGES: Record<MedicalRole, [number, number]> = {
   medical_specialist: [11000, 26000],
   physiotherapist:    [5500, 14000],
   nutritionist:       [4500, 12000],
-  sports_chemist:     [7500, 21000],
   sports_scientist:   [9000, 22000],
 };
 
@@ -128,7 +122,6 @@ const ROLE_RATING_RANGES: Record<MedicalRole, [number, number]> = {
   medical_specialist: [52, 92],
   physiotherapist:    [48, 88],
   nutritionist:       [46, 85],
-  sports_chemist:     [50, 90],
   sports_scientist:   [50, 92],
 };
 
@@ -378,7 +371,7 @@ export function generateMedicalMarket(count = 30): ReturnType<typeof generateMed
     "medical_specialist", "medical_specialist", "medical_specialist",
     "physiotherapist", "physiotherapist", "physiotherapist", "physiotherapist",
     "nutritionist", "nutritionist", "nutritionist", "nutritionist",
-    "sports_chemist", "sports_chemist", "sports_chemist",
+    "sports_scientist", "sports_scientist", "sports_scientist",
   ];
 
   const result = [];
