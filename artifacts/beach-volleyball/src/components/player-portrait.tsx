@@ -178,12 +178,15 @@ export function PlayerPortrait({
   }
 
   return (
-    <img
-      src={src}
-      alt={name}
-      className={`w-full ${heightClass} object-cover ${objectPosition} ${className}`}
-      onError={() => setFailed(true)}
-    />
+    <div className={`w-full ${heightClass} relative overflow-hidden ${className}`}>
+      <img
+        src={src}
+        alt={name}
+        className={`absolute inset-0 w-full h-full object-cover ${objectPosition}`}
+        style={{ transform: "scale(0.88)", transformOrigin: "top center" }}
+        onError={() => setFailed(true)}
+      />
+    </div>
   );
 }
 
