@@ -379,9 +379,9 @@ async function applyPostMatchEffects(teamId: number, weather: string, facilityLe
 }
 
 
-// ── Season fixture (fixed 70-round structure) ─────────────────────────────────
-// Returns all non-finals events (rounds 1–66: regular + continental finals).
-// The 4-match World Finals (rounds 67–70) are handled separately.
+// ── Season fixture (fixed 76-round structure) ─────────────────────────────────
+// Returns all non-finals events (rounds 1–72: regular + continental finals).
+// The 4-match World Finals (rounds 73–76) are handled separately.
 const FINALS_TIERS = new Set(["World Semi Final", "All-Star Match", "World Final"]);
 
 function generateSeasonFixture(): WorldTourEvent[] {
@@ -465,7 +465,7 @@ router.get("/matches/upcoming", async (req, res) => {
   res.json(matches.filter(m => m.status === "scheduled").map(serializeMatch));
 });
 
-// Full season fixture — fixed 70-event schedule (66 regular/cont + 4 world finals)
+// Full season fixture — fixed 76-event schedule (72 regular/cont + 4 world finals)
 router.get("/matches/fixture", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
@@ -484,7 +484,7 @@ router.get("/matches/fixture", async (req, res) => {
   }
 
   // Migration 2: has Continental Finals but uses old single Grand Final — remove it and
-  // re-add as the 4-match World Finals (rounds 67–70).
+  // re-add as the 4-match World Finals (rounds 73–76).
   const hasWorldFinals = existing.some(m => FINALS_TIERS.has(m.tier ?? ""));
   if (existing.length > 0 && !hasWorldFinals) {
     await db.delete(matchesTable).where(
@@ -497,8 +497,18 @@ router.get("/matches/fixture", async (req, res) => {
     existing = existing.filter(m => (m.round ?? 0) < 67);
   }
 
+  // Migration 3: old 70-round structure (World Finals at rounds 67–70) — full regenerate
+  // to upgrade to the new 76-round structure (6 teams per competition, World Finals at 73–76).
+  const hasNewStructure = existing.some(m => FINALS_TIERS.has(m.tier ?? "") && (m.round ?? 0) >= 73);
+  const hasOldWorldFinals = existing.some(m => FINALS_TIERS.has(m.tier ?? "") && (m.round ?? 0) < 73);
+  if (existing.length > 0 && (hasOldWorldFinals || (!hasNewStructure && existing.length < 76))) {
+    await db.delete(matchesTable)
+      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)));
+    existing = [];
+  }
+
   if (existing.length === 0) {
-    // Full fresh fixture: 66 regular/continental events + 4 World Finals
+    // Full fresh fixture: 72 regular/continental events + 4 World Finals
     const regularEvents = generateSeasonFixture();
     const worldFinalsEvents = WORLD_TOUR.filter(e => FINALS_TIERS.has(e.tier));
     const finalLocIds = Object.keys(LOCATION_WEATHER_POOLS).map(Number);
@@ -600,8 +610,8 @@ router.get("/matches/fixture", async (req, res) => {
   const allContFinalsComplete = contFinals.length === 6 && contFinals.every(m => m.status === "completed");
 
   if (allContFinalsComplete) {
-    const sf1 = existing.find(m => m.tier === "World Semi Final" && m.round === 67);
-    const sf2 = existing.find(m => m.tier === "World Semi Final" && m.round === 68);
+    const sf1 = existing.find(m => m.tier === "World Semi Final" && m.round === 73);
+    const sf2 = existing.find(m => m.tier === "World Semi Final" && m.round === 74);
     const wf  = existing.find(m => m.tier === "World Final");
 
     // Populate SF seedings if not yet resolved

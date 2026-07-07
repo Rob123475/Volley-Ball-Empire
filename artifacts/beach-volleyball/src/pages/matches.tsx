@@ -252,7 +252,7 @@ export default function Matches() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
-                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 67} played
+                    {fixture?.filter(m => m.status === "completed").length ?? 0} / {fixture?.length ?? 73} played
                   </div>
                   <div className="text-sm font-bold text-primary">
                     {fixture?.filter(m => m.status === "completed" && (m.homeScore ?? 0) > (m.awayScore ?? 0)).length ?? 0}W –{" "}
@@ -664,8 +664,8 @@ function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSim
 }) {
   if (matches.length === 0) return null;
 
-  const sf1       = matches.find(m => m.tier === "World Semi Final" && m.round === 67);
-  const sf2       = matches.find(m => m.tier === "World Semi Final" && m.round === 68);
+  const sf1       = matches.find(m => m.tier === "World Semi Final" && m.round === 73);
+  const sf2       = matches.find(m => m.tier === "World Semi Final" && m.round === 74);
   const allStar   = matches.find(m => m.tier === "All-Star Match");
   const worldFinal = matches.find(m => m.tier === "World Final");
 

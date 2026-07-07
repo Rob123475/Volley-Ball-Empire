@@ -74,7 +74,7 @@ router.post("/draft/generate-class", async (req, res) => {
   const usedNames = new Set<string>();
   const newPlayers = [];
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 30; i++) {
     let name = YOUTH_NAMES[Math.floor(Math.random() * YOUTH_NAMES.length)];
     let attempts = 0;
     while (usedNames.has(name) && attempts < 20) {

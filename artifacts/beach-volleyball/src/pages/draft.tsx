@@ -47,7 +47,7 @@ export default function PlayerDraft() {
     generateMutation.mutate(undefined, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetDraftPoolQueryKey() });
-        toast({ title: "New Draft Class Generated!", description: "8 fresh prospects are ready — quality influenced by your Youth Academy." });
+        toast({ title: "New Draft Class Generated!", description: "30 fresh prospects are ready — quality influenced by your Youth Academy." });
       },
       onError: () => {
         toast({ title: "Error", description: "Could not generate a new class.", variant: "destructive" });
