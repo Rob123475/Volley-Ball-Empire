@@ -28,6 +28,7 @@
     "reupload-physiotherapist-images": "tsx ./src/reupload-physiotherapist-images.ts",
     "reupload-sports-scientist-images": "tsx ./src/reupload-sports-scientist-images.ts",
     "seed-assistant-coaches": "tsx ./src/seed-assistant-coaches.ts",
+    "seed-fitness-trainers": "tsx ./src/seed-fitness-trainers.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
