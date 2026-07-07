@@ -454,15 +454,17 @@ export default function TeamRoster() {
             <span
               className="text-white font-bold select-none"
               style={{
+                fontFamily: "'Bebas Neue', sans-serif",
                 writingMode: "vertical-rl",
                 textOrientation: "upright",
                 textTransform: "uppercase",
-                fontSize: "13px",
-                letterSpacing: "0.12em",
-                lineHeight: 1.1,
+                fontSize: "15px",
+                letterSpacing: "0.1em",
+                lineHeight: 1.0,
                 maxHeight: "220px",
                 overflow: "hidden",
-                textShadow: "0 1px 4px rgba(0,0,0,0.95)",
+                color: "#FBBF24",
+                textShadow: "0 1px 6px rgba(0,0,0,0.9)",
               }}
             >
               {player.name}
