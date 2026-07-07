@@ -149,8 +149,21 @@ function StaffMarketCard({
   hasCoach: boolean;
 }) {
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
-  const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
   const revealed = member.isScoutRevealed;
+
+  // V2 roles store skill numbers in a nested *Attributes key; legacy roles store them flat.
+  function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
+    for (const [key, val] of Object.entries(attributes)) {
+      if (key.endsWith("Attributes") && val && typeof val === "object" && !Array.isArray(val)) {
+        return Object.entries(val as Record<string, number>).filter(
+          ([, v]) => typeof v === "number"
+        ) as [string, number][];
+      }
+    }
+    return Object.entries(attributes).filter(([, v]) => typeof v === "number") as [string, number][];
+  }
+
+  const attrs = extractSkillAttrs(member.attributes ?? {});
 
   return (
     <Card className={cn(
