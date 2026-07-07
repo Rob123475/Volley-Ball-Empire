@@ -24,6 +24,7 @@
     "fill-all-player-development": "tsx ./src/fill-all-player-development.ts",
     "seed-doctors": "tsx ./src/seed-doctors.ts",
     "seed-medical-specialists": "tsx ./src/seed-medical-specialists.ts",
+    "seed-nutritionists": "tsx ./src/seed-nutritionists.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
