@@ -57,6 +57,8 @@ function rollPotential(academyLevel: number): string {
   return "Average";
 }
 
+const DRAFT_POOL_SIZE = 30;
+
 router.post("/draft/generate-class", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
@@ -74,7 +76,7 @@ router.post("/draft/generate-class", async (req, res) => {
   const usedNames = new Set<string>();
   const newPlayers = [];
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < DRAFT_POOL_SIZE; i++) {
     let name = YOUTH_NAMES[Math.floor(Math.random() * YOUTH_NAMES.length)];
     let attempts = 0;
     while (usedNames.has(name) && attempts < 20) {

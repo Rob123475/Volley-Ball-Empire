@@ -19,8 +19,12 @@ export interface WorldTourEvent {
 //   Asia (11 + CF) → Australia & Pacific (11 + CF) → Europe (11 + CF)
 //   → Africa & Middle East (11 + CF) → North America (11 + CF) → South America (11 + CF)
 //   → World Grand Final (rounds 73–76)
-// Each continental tour has 5 Bronze opponents (player + 5 = 6 teams per competition).
+// Each continental tour has 5 Bronze opponents (player + 5 = TEAMS_PER_COMPETITION).
 // Regular events use a 4-day cadence; 5-day gap precedes each Continental Final.
+
+/** Number of teams (including the player's club) that compete in each continental group. */
+export const TEAMS_PER_COMPETITION = 6;
+
 export const WORLD_TOUR: WorldTourEvent[] = [
 
   // ── Asia Tour  (Rounds 1–12) ──────────────────────────────────────────────
