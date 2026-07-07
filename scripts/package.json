@@ -25,6 +25,7 @@
     "seed-doctors": "tsx ./src/seed-doctors.ts",
     "seed-medical-specialists": "tsx ./src/seed-medical-specialists.ts",
     "seed-nutritionists": "tsx ./src/seed-nutritionists.ts",
+    "reupload-physiotherapist-images": "tsx ./src/reupload-physiotherapist-images.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
