@@ -102,25 +102,50 @@ export default function PlayerDraft() {
                   nationality={player.nationality}
                   playerType={(player as any).playerType}
                   heightClass="h-72"
-                  objectPosition="object-[center_20%]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
-                  <div>
-                    <div className="flex gap-1 mb-1">
-                      <Badge className="bg-secondary text-secondary-foreground text-[10px]">
-                        {formatPosition(player.position).toUpperCase()}
-                      </Badge>
-                      <Badge className="bg-green-600 text-white border-0 text-[10px]">
-                        AGE {player.age}
-                      </Badge>
+
+                {/* Left strip — player name, reading bottom-to-top */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 flex items-center justify-center z-10"
+                  style={{ width: "19%" }}
+                >
+                  <span
+                    className="text-white font-bold select-none"
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                      fontSize: "11px",
+                      letterSpacing: "0.05em",
+                      maxHeight: "252px",
+                      overflow: "hidden",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.95)",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {player.name}
+                  </span>
+                </div>
+
+                {/* Right strip — OVR · position · nationality · age & height */}
+                <div
+                  className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10"
+                  style={{ width: "19%", gap: "5px", padding: "8px 3px" }}
+                >
+                  <div className="text-center">
+                    <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>
+                      {avgRating}
                     </div>
-                    <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
-                    <div className="text-xs text-white/70">{player.nationality} • {player.height}cm</div>
+                    <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-black text-white drop-shadow">{avgRating}</div>
-                    <div className="text-[10px] text-white/70">OVR</div>
+                  <div className="w-4/5 h-px bg-white/20" />
+                  <div className="text-[8px] text-secondary font-black uppercase text-center leading-tight">
+                    {formatPosition(player.position)}
+                  </div>
+                  <div className="w-4/5 h-px bg-white/20" />
+                  <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
+                    <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
+                    <div className="text-white/55 mt-0.5">{player.age}y</div>
+                    <div className="text-white/55">{player.height}cm</div>
                   </div>
                 </div>
               </div>

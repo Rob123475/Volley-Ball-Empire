@@ -257,38 +257,56 @@ export default function PlayerMarket() {
                   nationality={player.nationality}
                   playerType={(player as any).playerType}
                   heightClass="h-72"
-                  objectPosition="object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                {/* Potential badge — top-right overlay */}
-                <div className="absolute top-2 right-2">
-                  {isScouted ? (
-                    <PotentialBadge
-                      potential={player.scoutedPotential!}
-                      size="xs"
-                    />
-                  ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] text-white/60">
-                      <HelpCircle className="h-2.5 w-2.5" /> Unknown
-                    </span>
-                  )}
+                {/* Left strip — player name, reading bottom-to-top */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 flex items-center justify-center z-10"
+                  style={{ width: "19%" }}
+                >
+                  <span
+                    className="text-white font-bold select-none"
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                      fontSize: "11px",
+                      letterSpacing: "0.05em",
+                      maxHeight: "252px",
+                      overflow: "hidden",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.95)",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {player.name}
+                  </span>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between">
-                  <div>
-                    <Badge className="bg-primary text-white border-0 text-[10px] mb-1">
-                      {POSITION_LABELS[normalizePosition(player.position)] ?? player.position.replace(/_/g, " ").toUpperCase()}
-                    </Badge>
-                    <div className="font-bold text-base leading-tight text-white drop-shadow">{player.name}</div>
-                    <div className="text-xs text-white/70">{player.nationality} • {player.age} yrs • {player.height}cm</div>
-                    {(player as any).continent && (
-                      <div className="text-[10px] text-white/50 mt-0.5">{CONTINENT_FLAG[(player as any).continent]} {(player as any).continent}</div>
-                    )}
+                {/* Right strip — OVR · potential · position · nationality · age & height */}
+                <div
+                  className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10"
+                  style={{ width: "19%", gap: "5px", padding: "8px 3px" }}
+                >
+                  <div className="text-center">
+                    <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>
+                      {overall}
+                    </div>
+                    <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-black text-white drop-shadow">{overall}</div>
-                    <div className="text-[10px] text-white/70">OVR</div>
+                  <div className="w-4/5 h-px bg-white/20" />
+                  {isScouted ? (
+                    <PotentialBadge potential={player.scoutedPotential!} size="xs" />
+                  ) : (
+                    <span className="text-[7px] text-white/40 italic text-center leading-tight">Unknown</span>
+                  )}
+                  <div className="w-4/5 h-px bg-white/20" />
+                  <div className="text-[8px] text-primary font-black uppercase text-center leading-tight">
+                    {POSITION_LABELS[normalizePosition(player.position)] ?? player.position.replace(/_/g, " ")}
+                  </div>
+                  <div className="w-4/5 h-px bg-white/20" />
+                  <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
+                    <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
+                    <div className="text-white/55 mt-0.5">{player.age}y</div>
+                    <div className="text-white/55">{player.height}cm</div>
                   </div>
                 </div>
               </div>
