@@ -132,76 +132,306 @@ export const PlayerTrainingFocus = {
   Leadership: 'Leadership',
 } as const;
 
-export type UniformVisualsTop = {
-  primary_colour?: string;
-  secondary_colour?: string;
+export type PlayerV4PlayerType = typeof PlayerV4PlayerType[keyof typeof PlayerV4PlayerType];
+
+
+export const PlayerV4PlayerType = {
+  Senior: 'Senior',
+  Youth: 'Youth',
+  Draft: 'Draft',
+  Regen: 'Regen',
+} as const;
+
+export type PlayerV4Status = {
+  active?: boolean;
+  retired?: boolean;
+  draft_eligible?: boolean;
+  youth_player?: boolean;
+  free_agent?: boolean;
+  injured?: boolean;
+  suspended?: boolean;
+};
+
+export type PlayerV4Contract = {
+  status?: string;
+  /** @nullable */
+  years_remaining?: number | null;
+  /** @nullable */
+  salary?: number | null;
+  /** @nullable */
+  release_clause?: number | null;
+  /** @nullable */
+  loyalty?: number | null;
+  /** @nullable */
+  transfer_interest?: number | null;
+  /** @nullable */
+  wage_demand_growth?: number | null;
+  /** @nullable */
+  renewal_likelihood?: number | null;
+};
+
+export type PlayerV4Draft = {
+  /** @nullable */
+  draft_year?: number | null;
+  /** @nullable */
+  draft_rank?: number | null;
+  /** @nullable */
+  projected_pick_range?: string | null;
+  /** @nullable */
+  combine_score?: number | null;
+  /** @nullable */
+  interview_score?: number | null;
+  /** @nullable */
+  boom_bust_rating?: number | null;
+};
+
+export type PlayerV4CoreAttributes = {
+  serve?: number;
+  attack?: number;
+  defence?: number;
+  block?: number;
+  set?: number;
+  dig?: number;
+  speed?: number;
+  stamina?: number;
+  jump?: number;
+  power?: number;
+  accuracy?: number;
+  reaction?: number;
+  vision?: number;
+  composure?: number;
+  teamwork?: number;
+};
+
+export type PlayerV4AdvancedAttributes = {
+  serve_pressure?: number;
+  spike_timing?: number;
+  shot_selection?: number;
+  line_defence?: number;
+  cross_defence?: number;
+  net_awareness?: number;
+  clutch?: number;
+  consistency?: number;
+  error_control?: number;
+  rally_iq?: number;
+  momentum_control?: number;
+  adaptability?: number;
+};
+
+export type PlayerV4MatchEngineBoostResponse = {
+  attack_boost_effect?: number;
+  defence_boost_effect?: number;
+  risk_under_attack_boost?: number;
+  stamina_cost_under_boost?: number;
+};
+
+export type PlayerV4MatchEngine = {
+  winner_chance_modifier?: number;
+  error_chance_modifier?: number;
+  dig_success_modifier?: number;
+  block_success_modifier?: number;
+  serve_ace_modifier?: number;
+  fatigue_drop_rate?: number;
+  pressure_bonus?: number;
+  bad_form_penalty?: number;
+  boost_response?: PlayerV4MatchEngineBoostResponse;
+};
+
+export type PlayerV4Development = {
+  development_curve?: string;
+  growth_rate?: number;
+  training_response?: number;
+  peak_age_start?: number;
+  peak_age_end?: number;
+  decline_rate?: number;
+  hidden_ceiling?: number;
+  same_rating_variance_enabled?: boolean;
+  development_personality?: string;
+  potential_can_rise?: boolean;
+  potential_can_fall?: boolean;
+  breakout_probability?: number;
+  bust_probability?: number;
+  late_bloomer_probability?: number;
+  position_change_probability?: number;
+};
+
+export type PlayerV4YouthDevelopment = {
+  enabled_if_player_type_youth?: boolean;
+  physical_growth?: number;
+  mental_growth?: number;
+  skill_growth?: number;
+  growth_variance?: number;
+  late_growth_chance?: number;
+  early_peak_chance?: number;
+  personality_shift?: boolean;
+  position_change_probability?: number;
+  breakout_probability?: number;
+  bust_probability?: number;
+  academy_quality_modifier?: number;
+};
+
+export type PlayerV4HiddenDna = {
+  competitiveness?: number;
+  work_ethic?: number;
+  coachability?: number;
+  confidence_growth?: number;
+  pressure_resistance?: number;
+  injury_resilience?: number;
+  adaptability?: number;
+  consistency_gene?: number;
+  leadership_growth?: number;
+  professionalism_growth?: number;
+};
+
+export type PlayerV4Regen = {
+  regen_enabled?: boolean;
+  /** @nullable */
+  regen_seed?: string | null;
+  regen_quality_min?: number;
+  regen_quality_max?: number;
+  inheritance_strength?: number;
+  can_create_family_style_successor?: boolean;
+  /** @nullable */
+  lineage_id?: string | null;
+  /** @nullable */
+  parent_player_id?: string | null;
+  generation_number?: number;
+  /** @nullable */
+  regen_notes?: string | null;
+};
+
+export type PlayerV4Health = {
+  current_fitness?: number;
+  injury_status?: string;
+  /** @nullable */
+  injury_type?: string | null;
+  weeks_out?: number;
+  injury_proneness?: number;
+  recovery_speed?: number;
+  fatigue?: number;
+  morale?: number;
+  confidence?: number;
+  burnout_risk?: number;
+};
+
+export type PlayerV4Personality = {
+  professionalism?: number;
+  ambition?: number;
+  temperament?: number;
+  leadership?: number;
+  coachability?: number;
+  marketability?: number;
+  ego?: number;
+  loyalty?: number;
+  media_handling?: number;
+};
+
+export type PlayerV4Form = {
+  current_form?: number;
+  last_5_matches_average?: number;
+  confidence_trend?: string;
+  morale_trend?: string;
+  hot_streak?: boolean;
+  cold_streak?: boolean;
+};
+
+export type PlayerV4VisualIdentity = {
+  /** @nullable */
+  card_image?: string | null;
+  /** @nullable */
+  unity_model?: string | null;
+  /** @nullable */
+  skin_tone?: string | null;
+  /** @nullable */
+  hair_style?: string | null;
+  /** @nullable */
+  hair_colour?: string | null;
+  /** @nullable */
+  body_type?: string | null;
+  height_scale?: number;
+  /** @nullable */
+  face_variant?: string | null;
+  /** @nullable */
+  animation_style?: string | null;
+};
+
+export type PlayerV4VisualKit = {
+  kit_source?: string;
+  top_primary_colour?: string;
+  top_secondary_colour?: string;
+  bottom_primary_colour?: string;
+  bottom_secondary_colour?: string;
   trim_colour?: string;
-  material?: string;
-  unity_material_slot?: string;
+  accessory_colour?: string;
+  unity_material_rule?: string;
 };
 
-export type UniformVisualsBottoms = {
-  primary_colour?: string;
-  secondary_colour?: string;
-  trim_colour?: string;
-  material?: string;
-  unity_material_slot?: string;
+export type PlayerV4Scouting = {
+  /** @nullable */
+  scouted_accuracy?: number | null;
+  known_potential?: boolean;
+  hidden_gem?: boolean;
+  /** @nullable */
+  risk_level?: string | null;
+  /** @nullable */
+  scout_summary?: string | null;
+  /** @nullable */
+  scout_confidence?: number | null;
+  /** @nullable */
+  false_positive_risk?: number | null;
+  /** @nullable */
+  false_negative_risk?: number | null;
 };
 
-export type UniformVisualsAccessories = {
-  wristband_colour?: string;
-  ankle_tape_colour?: string;
-  visor_colour?: string;
+export type PlayerV4CareerStats = {
+  matches_played?: number;
+  wins?: number;
+  losses?: number;
+  aces?: number;
+  blocks?: number;
+  kills?: number;
+  digs?: number;
+  errors?: number;
+  tournament_wins?: number;
+  championships?: number;
+  mvp_awards?: number;
+  all_star_selections?: number;
 };
 
-export type UniformVisualsCountryDefaultColours = {
-  use_if_player_colour_missing?: boolean;
-  match_national_flag?: boolean;
-};
-
-export type UniformVisualsRules = {
-  never_use_generic_grey_if_colours_exist?: boolean;
-  player_card_is_source_of_truth?: boolean;
-  home_and_away_can_share_card_colours?: boolean;
-  keep_same_colours_in_live_match?: boolean;
+export type PlayerV4HallOfFame = {
+  eligible?: boolean;
+  score?: number;
+  legacy_rating?: number;
+  retired_number?: boolean;
+  legend_status?: string;
 };
 
 /**
- * Uniform colour and material settings for Unity rendering and card display.
+ * Full V4 player schema for Senior, Youth, Draft and Regen players.
  */
-export interface UniformVisuals {
-  enabled?: boolean;
-  match_card_colours?: boolean;
-  unity_apply_on_spawn?: boolean;
-  uniform_type?: string;
-  top?: UniformVisualsTop;
-  bottoms?: UniformVisualsBottoms;
-  accessories?: UniformVisualsAccessories;
-  country_default_colours?: UniformVisualsCountryDefaultColours;
-  rules?: UniformVisualsRules;
-}
-
-export type UnityIntegrationMaterialSlots = {
-  skin?: string;
-  hair?: string;
-  top?: string;
-  bottoms?: string;
-  trim?: string;
-};
-
-/**
- * Unity engine integration settings for player prefab spawning and visuals.
- */
-export interface UnityIntegration {
-  enabled?: boolean;
-  player_id_required?: boolean;
-  prefab_type?: string;
-  apply_visuals_on_spawn?: boolean;
-  apply_uniform_from_card?: boolean;
-  never_spawn_generic_grey_if_uniform_data_exists?: boolean;
-  missing_data_behaviour?: string;
-  animation_controller?: string;
-  material_slots?: UnityIntegrationMaterialSlots;
+export interface PlayerV4 {
+  schema_version?: string;
+  player_type?: PlayerV4PlayerType;
+  status?: PlayerV4Status;
+  contract?: PlayerV4Contract;
+  draft?: PlayerV4Draft;
+  core_attributes?: PlayerV4CoreAttributes;
+  advanced_attributes?: PlayerV4AdvancedAttributes;
+  match_engine?: PlayerV4MatchEngine;
+  development?: PlayerV4Development;
+  youth_development?: PlayerV4YouthDevelopment;
+  hidden_dna?: PlayerV4HiddenDna;
+  regen?: PlayerV4Regen;
+  health?: PlayerV4Health;
+  personality?: PlayerV4Personality;
+  form?: PlayerV4Form;
+  specialities?: string[];
+  weaknesses?: string[];
+  visual_identity?: PlayerV4VisualIdentity;
+  visual_kit?: PlayerV4VisualKit;
+  scouting?: PlayerV4Scouting;
+  career_stats?: PlayerV4CareerStats;
+  hall_of_fame?: PlayerV4HallOfFame;
 }
 
 export interface Player {
@@ -275,10 +505,8 @@ export interface Player {
      * @nullable
      */
   academyContractYears?: number | null;
-  /** Uniform colour and material settings for Unity rendering and card display. */
-  uniformVisuals?: UniformVisuals | null;
-  /** Unity engine integration settings for player prefab spawning and visuals. */
-  unityIntegration?: UnityIntegration | null;
+  /** Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more. */
+  playerV4?: PlayerV4 | null;
   createdAt: string;
 }
 
@@ -1056,10 +1284,8 @@ export interface DraftPlayer {
   available: boolean;
   /** @nullable */
   imageUrl?: string | null;
-  /** Uniform colour and material settings for Unity rendering and card display. */
-  uniformVisuals?: UniformVisuals | null;
-  /** Unity engine integration settings for player prefab spawning and visuals. */
-  unityIntegration?: UnityIntegration | null;
+  /** Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more. */
+  playerV4?: PlayerV4 | null;
 }
 
 export interface DraftPickInput {

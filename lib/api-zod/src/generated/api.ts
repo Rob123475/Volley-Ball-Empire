@@ -147,58 +147,224 @@ export const ListPlayersResponseItem = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 export const ListPlayersResponse = zod.array(ListPlayersResponseItem)
@@ -264,58 +430,224 @@ export const ListFreeAgentsResponseItem = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 export const ListFreeAgentsResponse = zod.array(ListFreeAgentsResponseItem)
@@ -366,58 +698,224 @@ export const GetPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 
@@ -485,58 +983,224 @@ export const UpdatePlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 
@@ -590,58 +1254,224 @@ export const UpdatePlayerOutfitResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 
@@ -691,58 +1521,224 @@ export const ReleasePlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 
@@ -792,58 +1788,224 @@ export const RetirePlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 
@@ -897,58 +2059,224 @@ export const SetPlayerTrainingFocusResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })
 
@@ -999,58 +2327,224 @@ export const ScoutPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }),
   "scoutedPotential": zod.enum(['Low', 'Average', 'High', 'Elite', 'Generational']),
@@ -1200,58 +2694,224 @@ export const GetTeamRosterResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -1288,58 +2948,224 @@ export const GetTeamRosterResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -1376,58 +3202,224 @@ export const GetTeamRosterResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -1464,58 +3456,224 @@ export const GetTeamRosterResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -1552,58 +3710,224 @@ export const GetTeamRosterResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -1701,58 +4025,224 @@ export const SwapTeamPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -1789,58 +4279,224 @@ export const SwapTeamPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -1877,58 +4533,224 @@ export const SwapTeamPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -1965,58 +4787,224 @@ export const SwapTeamPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -2053,58 +5041,224 @@ export const SwapTeamPlayerResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -2205,58 +5359,224 @@ export const SetPlayerRoleResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -2293,58 +5613,224 @@ export const SetPlayerRoleResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -2381,58 +5867,224 @@ export const SetPlayerRoleResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -2469,58 +6121,224 @@ export const SetPlayerRoleResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -2557,58 +6375,224 @@ export const SetPlayerRoleResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -2701,58 +6685,224 @@ export const ListContractsResponseItem = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -2825,58 +6975,224 @@ export const GetContractResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -2937,58 +7253,224 @@ export const TerminateContractResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -3239,58 +7721,224 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -3390,58 +8038,224 @@ export const CompleteTrainingResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -3509,58 +8323,224 @@ export const CompleteTrainingResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }),
   "xpGained": zod.number().optional(),
@@ -3643,58 +8623,224 @@ export const GetTrainingPlanResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -3873,58 +9019,224 @@ export const SimulateMatchResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 }).optional(),
   "playerEvents": zod.array(zod.object({
@@ -4408,58 +9720,224 @@ export const GetDraftPoolResponseItem = zod.object({
   "askingPrice": zod.number(),
   "available": zod.boolean(),
   "imageUrl": zod.string().nullish(),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.')
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.')
 })
 export const GetDraftPoolResponse = zod.array(GetDraftPoolResponseItem)
 
@@ -4483,58 +9961,224 @@ export const GenerateDraftClassResponseItem = zod.object({
   "askingPrice": zod.number(),
   "available": zod.boolean(),
   "imageUrl": zod.string().nullish(),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.')
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.')
 })
 export const GenerateDraftClassResponse = zod.array(GenerateDraftClassResponseItem)
 
@@ -4938,58 +10582,224 @@ export const GetDashboardResponse = zod.object({
   "trainingFocus": zod.union([zod.literal('Attack'),zod.literal('Defence'),zod.literal('Serving'),zod.literal('Blocking'),zod.literal('Athleticism'),zod.literal('Leadership'),zod.literal(null)]).nullish().describe('Youth player\'s assigned training focus. Only applies to players aged 14–18. Null if no focus is set.'),
   "focusXp": zod.number().optional().describe('Accumulated XP toward the next focus stat gain. Every 100 points converts to +1 in the focus stat.'),
   "academyContractYears": zod.number().nullish().describe('Years remaining on the player\'s academy contract. Null for senior players. Decrements by 1\/52 each match week.'),
-  "uniformVisuals": zod.object({
-  "enabled": zod.boolean().optional(),
-  "match_card_colours": zod.boolean().optional(),
-  "unity_apply_on_spawn": zod.boolean().optional(),
-  "uniform_type": zod.string().optional(),
-  "top": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "playerV4": zod.object({
+  "schema_version": zod.string().optional(),
+  "player_type": zod.enum(['Senior', 'Youth', 'Draft', 'Regen']).optional(),
+  "status": zod.object({
+  "active": zod.boolean().optional(),
+  "retired": zod.boolean().optional(),
+  "draft_eligible": zod.boolean().optional(),
+  "youth_player": zod.boolean().optional(),
+  "free_agent": zod.boolean().optional(),
+  "injured": zod.boolean().optional(),
+  "suspended": zod.boolean().optional()
 }).optional(),
-  "bottoms": zod.object({
-  "primary_colour": zod.string().optional(),
-  "secondary_colour": zod.string().optional(),
-  "trim_colour": zod.string().optional(),
-  "material": zod.string().optional(),
-  "unity_material_slot": zod.string().optional()
+  "contract": zod.object({
+  "status": zod.string().optional(),
+  "years_remaining": zod.number().nullish(),
+  "salary": zod.number().nullish(),
+  "release_clause": zod.number().nullish(),
+  "loyalty": zod.number().nullish(),
+  "transfer_interest": zod.number().nullish(),
+  "wage_demand_growth": zod.number().nullish(),
+  "renewal_likelihood": zod.number().nullish()
 }).optional(),
-  "accessories": zod.object({
-  "wristband_colour": zod.string().optional(),
-  "ankle_tape_colour": zod.string().optional(),
-  "visor_colour": zod.string().optional()
+  "draft": zod.object({
+  "draft_year": zod.number().nullish(),
+  "draft_rank": zod.number().nullish(),
+  "projected_pick_range": zod.string().nullish(),
+  "combine_score": zod.number().nullish(),
+  "interview_score": zod.number().nullish(),
+  "boom_bust_rating": zod.number().nullish()
 }).optional(),
-  "country_default_colours": zod.object({
-  "use_if_player_colour_missing": zod.boolean().optional(),
-  "match_national_flag": zod.boolean().optional()
+  "core_attributes": zod.object({
+  "serve": zod.number().optional(),
+  "attack": zod.number().optional(),
+  "defence": zod.number().optional(),
+  "block": zod.number().optional(),
+  "set": zod.number().optional(),
+  "dig": zod.number().optional(),
+  "speed": zod.number().optional(),
+  "stamina": zod.number().optional(),
+  "jump": zod.number().optional(),
+  "power": zod.number().optional(),
+  "accuracy": zod.number().optional(),
+  "reaction": zod.number().optional(),
+  "vision": zod.number().optional(),
+  "composure": zod.number().optional(),
+  "teamwork": zod.number().optional()
 }).optional(),
-  "rules": zod.object({
-  "never_use_generic_grey_if_colours_exist": zod.boolean().optional(),
-  "player_card_is_source_of_truth": zod.boolean().optional(),
-  "home_and_away_can_share_card_colours": zod.boolean().optional(),
-  "keep_same_colours_in_live_match": zod.boolean().optional()
+  "advanced_attributes": zod.object({
+  "serve_pressure": zod.number().optional(),
+  "spike_timing": zod.number().optional(),
+  "shot_selection": zod.number().optional(),
+  "line_defence": zod.number().optional(),
+  "cross_defence": zod.number().optional(),
+  "net_awareness": zod.number().optional(),
+  "clutch": zod.number().optional(),
+  "consistency": zod.number().optional(),
+  "error_control": zod.number().optional(),
+  "rally_iq": zod.number().optional(),
+  "momentum_control": zod.number().optional(),
+  "adaptability": zod.number().optional()
+}).optional(),
+  "match_engine": zod.object({
+  "winner_chance_modifier": zod.number().optional(),
+  "error_chance_modifier": zod.number().optional(),
+  "dig_success_modifier": zod.number().optional(),
+  "block_success_modifier": zod.number().optional(),
+  "serve_ace_modifier": zod.number().optional(),
+  "fatigue_drop_rate": zod.number().optional(),
+  "pressure_bonus": zod.number().optional(),
+  "bad_form_penalty": zod.number().optional(),
+  "boost_response": zod.object({
+  "attack_boost_effect": zod.number().optional(),
+  "defence_boost_effect": zod.number().optional(),
+  "risk_under_attack_boost": zod.number().optional(),
+  "stamina_cost_under_boost": zod.number().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
-  "unityIntegration": zod.object({
-  "enabled": zod.boolean().optional(),
-  "player_id_required": zod.boolean().optional(),
-  "prefab_type": zod.string().optional(),
-  "apply_visuals_on_spawn": zod.boolean().optional(),
-  "apply_uniform_from_card": zod.boolean().optional(),
-  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
-  "missing_data_behaviour": zod.string().optional(),
-  "animation_controller": zod.string().optional(),
-  "material_slots": zod.object({
-  "skin": zod.string().optional(),
-  "hair": zod.string().optional(),
-  "top": zod.string().optional(),
-  "bottoms": zod.string().optional(),
-  "trim": zod.string().optional()
+}).optional(),
+  "development": zod.object({
+  "development_curve": zod.string().optional(),
+  "growth_rate": zod.number().optional(),
+  "training_response": zod.number().optional(),
+  "peak_age_start": zod.number().optional(),
+  "peak_age_end": zod.number().optional(),
+  "decline_rate": zod.number().optional(),
+  "hidden_ceiling": zod.number().optional(),
+  "same_rating_variance_enabled": zod.boolean().optional(),
+  "development_personality": zod.string().optional(),
+  "potential_can_rise": zod.boolean().optional(),
+  "potential_can_fall": zod.boolean().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "late_bloomer_probability": zod.number().optional(),
+  "position_change_probability": zod.number().optional()
+}).optional(),
+  "youth_development": zod.object({
+  "enabled_if_player_type_youth": zod.boolean().optional(),
+  "physical_growth": zod.number().optional(),
+  "mental_growth": zod.number().optional(),
+  "skill_growth": zod.number().optional(),
+  "growth_variance": zod.number().optional(),
+  "late_growth_chance": zod.number().optional(),
+  "early_peak_chance": zod.number().optional(),
+  "personality_shift": zod.boolean().optional(),
+  "position_change_probability": zod.number().optional(),
+  "breakout_probability": zod.number().optional(),
+  "bust_probability": zod.number().optional(),
+  "academy_quality_modifier": zod.number().optional()
+}).optional(),
+  "hidden_dna": zod.object({
+  "competitiveness": zod.number().optional(),
+  "work_ethic": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "confidence_growth": zod.number().optional(),
+  "pressure_resistance": zod.number().optional(),
+  "injury_resilience": zod.number().optional(),
+  "adaptability": zod.number().optional(),
+  "consistency_gene": zod.number().optional(),
+  "leadership_growth": zod.number().optional(),
+  "professionalism_growth": zod.number().optional()
+}).optional(),
+  "regen": zod.object({
+  "regen_enabled": zod.boolean().optional(),
+  "regen_seed": zod.string().nullish(),
+  "regen_quality_min": zod.number().optional(),
+  "regen_quality_max": zod.number().optional(),
+  "inheritance_strength": zod.number().optional(),
+  "can_create_family_style_successor": zod.boolean().optional(),
+  "lineage_id": zod.string().nullish(),
+  "parent_player_id": zod.string().nullish(),
+  "generation_number": zod.number().optional(),
+  "regen_notes": zod.string().nullish()
+}).optional(),
+  "health": zod.object({
+  "current_fitness": zod.number().optional(),
+  "injury_status": zod.string().optional(),
+  "injury_type": zod.string().nullish(),
+  "weeks_out": zod.number().optional(),
+  "injury_proneness": zod.number().optional(),
+  "recovery_speed": zod.number().optional(),
+  "fatigue": zod.number().optional(),
+  "morale": zod.number().optional(),
+  "confidence": zod.number().optional(),
+  "burnout_risk": zod.number().optional()
+}).optional(),
+  "personality": zod.object({
+  "professionalism": zod.number().optional(),
+  "ambition": zod.number().optional(),
+  "temperament": zod.number().optional(),
+  "leadership": zod.number().optional(),
+  "coachability": zod.number().optional(),
+  "marketability": zod.number().optional(),
+  "ego": zod.number().optional(),
+  "loyalty": zod.number().optional(),
+  "media_handling": zod.number().optional()
+}).optional(),
+  "form": zod.object({
+  "current_form": zod.number().optional(),
+  "last_5_matches_average": zod.number().optional(),
+  "confidence_trend": zod.string().optional(),
+  "morale_trend": zod.string().optional(),
+  "hot_streak": zod.boolean().optional(),
+  "cold_streak": zod.boolean().optional()
+}).optional(),
+  "specialities": zod.array(zod.string()).optional(),
+  "weaknesses": zod.array(zod.string()).optional(),
+  "visual_identity": zod.object({
+  "card_image": zod.string().nullish(),
+  "unity_model": zod.string().nullish(),
+  "skin_tone": zod.string().nullish(),
+  "hair_style": zod.string().nullish(),
+  "hair_colour": zod.string().nullish(),
+  "body_type": zod.string().nullish(),
+  "height_scale": zod.number().optional(),
+  "face_variant": zod.string().nullish(),
+  "animation_style": zod.string().nullish()
+}).optional(),
+  "visual_kit": zod.object({
+  "kit_source": zod.string().optional(),
+  "top_primary_colour": zod.string().optional(),
+  "top_secondary_colour": zod.string().optional(),
+  "bottom_primary_colour": zod.string().optional(),
+  "bottom_secondary_colour": zod.string().optional(),
+  "trim_colour": zod.string().optional(),
+  "accessory_colour": zod.string().optional(),
+  "unity_material_rule": zod.string().optional()
+}).optional(),
+  "scouting": zod.object({
+  "scouted_accuracy": zod.number().nullish(),
+  "known_potential": zod.boolean().optional(),
+  "hidden_gem": zod.boolean().optional(),
+  "risk_level": zod.string().nullish(),
+  "scout_summary": zod.string().nullish(),
+  "scout_confidence": zod.number().nullish(),
+  "false_positive_risk": zod.number().nullish(),
+  "false_negative_risk": zod.number().nullish()
+}).optional(),
+  "career_stats": zod.object({
+  "matches_played": zod.number().optional(),
+  "wins": zod.number().optional(),
+  "losses": zod.number().optional(),
+  "aces": zod.number().optional(),
+  "blocks": zod.number().optional(),
+  "kills": zod.number().optional(),
+  "digs": zod.number().optional(),
+  "errors": zod.number().optional(),
+  "tournament_wins": zod.number().optional(),
+  "championships": zod.number().optional(),
+  "mvp_awards": zod.number().optional(),
+  "all_star_selections": zod.number().optional()
+}).optional(),
+  "hall_of_fame": zod.object({
+  "eligible": zod.boolean().optional(),
+  "score": zod.number().optional(),
+  "legacy_rating": zod.number().optional(),
+  "retired_number": zod.boolean().optional(),
+  "legend_status": zod.string().optional()
 }).optional()
-}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
+}).describe('Full V4 player schema for Senior, Youth, Draft and Regen players.').nullish().describe('Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more.'),
   "createdAt": zod.string()
 })),
   "seasonStanding": zod.object({

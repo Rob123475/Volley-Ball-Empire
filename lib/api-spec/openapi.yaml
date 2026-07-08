@@ -2520,16 +2520,11 @@ components:
         academyContractYears:
           type: ["number", "null"]
           description: "Years remaining on the player's academy contract. Null for senior players. Decrements by 1/52 each match week."
-        uniformVisuals:
+        playerV4:
           nullable: true
           allOf:
-            - $ref: "#/components/schemas/UniformVisuals"
-          description: "Uniform colour and material settings for Unity rendering and card display."
-        unityIntegration:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/UnityIntegration"
-          description: "Unity engine integration settings for player prefab spawning and visuals."
+            - $ref: "#/components/schemas/PlayerV4"
+          description: "Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more."
         createdAt:
           type: string
 
@@ -3449,16 +3444,11 @@ components:
           type: boolean
         imageUrl:
           type: ["string", "null"]
-        uniformVisuals:
+        playerV4:
           nullable: true
           allOf:
-            - $ref: "#/components/schemas/UniformVisuals"
-          description: "Uniform colour and material settings for Unity rendering and card display."
-        unityIntegration:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/UnityIntegration"
-          description: "Unity engine integration settings for player prefab spawning and visuals."
+            - $ref: "#/components/schemas/PlayerV4"
+          description: "Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more."
 
     DraftPickInput:
       type: object
@@ -4563,81 +4553,251 @@ components:
             target:
               type: number
 
-    UnityIntegration:
+    PlayerV4:
       type: object
-      description: "Unity engine integration settings for player prefab spawning and visuals."
+      description: "Full V4 player schema for Senior, Youth, Draft and Regen players."
       properties:
-        enabled:
-          type: boolean
-        player_id_required:
-          type: boolean
-        prefab_type:
+        schema_version: { type: string }
+        player_type:
           type: string
-        apply_visuals_on_spawn:
-          type: boolean
-        apply_uniform_from_card:
-          type: boolean
-        never_spawn_generic_grey_if_uniform_data_exists:
-          type: boolean
-        missing_data_behaviour:
-          type: string
-        animation_controller:
-          type: string
-        material_slots:
+          enum: [Senior, Youth, Draft, Regen]
+        status:
           type: object
           properties:
-            skin: { type: string }
-            hair: { type: string }
-            top: { type: string }
-            bottoms: { type: string }
-            trim: { type: string }
-
-    UniformVisuals:
-      type: object
-      description: "Uniform colour and material settings for Unity rendering and card display."
-      properties:
-        enabled:
-          type: boolean
-        match_card_colours:
-          type: boolean
-        unity_apply_on_spawn:
-          type: boolean
-        uniform_type:
-          type: string
-        top:
+            active: { type: boolean }
+            retired: { type: boolean }
+            draft_eligible: { type: boolean }
+            youth_player: { type: boolean }
+            free_agent: { type: boolean }
+            injured: { type: boolean }
+            suspended: { type: boolean }
+        contract:
           type: object
           properties:
-            primary_colour: { type: string }
-            secondary_colour: { type: string }
+            status: { type: string }
+            years_remaining: { type: ["number","null"] }
+            salary: { type: ["number","null"] }
+            release_clause: { type: ["number","null"] }
+            loyalty: { type: ["number","null"] }
+            transfer_interest: { type: ["number","null"] }
+            wage_demand_growth: { type: ["number","null"] }
+            renewal_likelihood: { type: ["number","null"] }
+        draft:
+          type: object
+          properties:
+            draft_year: { type: ["integer","null"] }
+            draft_rank: { type: ["integer","null"] }
+            projected_pick_range: { type: ["string","null"] }
+            combine_score: { type: ["number","null"] }
+            interview_score: { type: ["number","null"] }
+            boom_bust_rating: { type: ["number","null"] }
+        core_attributes:
+          type: object
+          properties:
+            serve: { type: integer }
+            attack: { type: integer }
+            defence: { type: integer }
+            block: { type: integer }
+            set: { type: integer }
+            dig: { type: integer }
+            speed: { type: integer }
+            stamina: { type: integer }
+            jump: { type: integer }
+            power: { type: integer }
+            accuracy: { type: integer }
+            reaction: { type: integer }
+            vision: { type: integer }
+            composure: { type: integer }
+            teamwork: { type: integer }
+        advanced_attributes:
+          type: object
+          properties:
+            serve_pressure: { type: integer }
+            spike_timing: { type: integer }
+            shot_selection: { type: integer }
+            line_defence: { type: integer }
+            cross_defence: { type: integer }
+            net_awareness: { type: integer }
+            clutch: { type: integer }
+            consistency: { type: integer }
+            error_control: { type: integer }
+            rally_iq: { type: integer }
+            momentum_control: { type: integer }
+            adaptability: { type: integer }
+        match_engine:
+          type: object
+          properties:
+            winner_chance_modifier: { type: number }
+            error_chance_modifier: { type: number }
+            dig_success_modifier: { type: number }
+            block_success_modifier: { type: number }
+            serve_ace_modifier: { type: number }
+            fatigue_drop_rate: { type: number }
+            pressure_bonus: { type: number }
+            bad_form_penalty: { type: number }
+            boost_response:
+              type: object
+              properties:
+                attack_boost_effect: { type: number }
+                defence_boost_effect: { type: number }
+                risk_under_attack_boost: { type: number }
+                stamina_cost_under_boost: { type: number }
+        development:
+          type: object
+          properties:
+            development_curve: { type: string }
+            growth_rate: { type: number }
+            training_response: { type: number }
+            peak_age_start: { type: integer }
+            peak_age_end: { type: integer }
+            decline_rate: { type: number }
+            hidden_ceiling: { type: integer }
+            same_rating_variance_enabled: { type: boolean }
+            development_personality: { type: string }
+            potential_can_rise: { type: boolean }
+            potential_can_fall: { type: boolean }
+            breakout_probability: { type: number }
+            bust_probability: { type: number }
+            late_bloomer_probability: { type: number }
+            position_change_probability: { type: number }
+        youth_development:
+          type: object
+          properties:
+            enabled_if_player_type_youth: { type: boolean }
+            physical_growth: { type: number }
+            mental_growth: { type: number }
+            skill_growth: { type: number }
+            growth_variance: { type: number }
+            late_growth_chance: { type: number }
+            early_peak_chance: { type: number }
+            personality_shift: { type: boolean }
+            position_change_probability: { type: number }
+            breakout_probability: { type: number }
+            bust_probability: { type: number }
+            academy_quality_modifier: { type: number }
+        hidden_dna:
+          type: object
+          properties:
+            competitiveness: { type: integer }
+            work_ethic: { type: integer }
+            coachability: { type: integer }
+            confidence_growth: { type: integer }
+            pressure_resistance: { type: integer }
+            injury_resilience: { type: integer }
+            adaptability: { type: integer }
+            consistency_gene: { type: integer }
+            leadership_growth: { type: integer }
+            professionalism_growth: { type: integer }
+        regen:
+          type: object
+          properties:
+            regen_enabled: { type: boolean }
+            regen_seed: { type: ["string","null"] }
+            regen_quality_min: { type: integer }
+            regen_quality_max: { type: integer }
+            inheritance_strength: { type: number }
+            can_create_family_style_successor: { type: boolean }
+            lineage_id: { type: ["string","null"] }
+            parent_player_id: { type: ["string","null"] }
+            generation_number: { type: integer }
+            regen_notes: { type: ["string","null"] }
+        health:
+          type: object
+          properties:
+            current_fitness: { type: integer }
+            injury_status: { type: string }
+            injury_type: { type: ["string","null"] }
+            weeks_out: { type: integer }
+            injury_proneness: { type: integer }
+            recovery_speed: { type: integer }
+            fatigue: { type: integer }
+            morale: { type: integer }
+            confidence: { type: integer }
+            burnout_risk: { type: integer }
+        personality:
+          type: object
+          properties:
+            professionalism: { type: integer }
+            ambition: { type: integer }
+            temperament: { type: integer }
+            leadership: { type: integer }
+            coachability: { type: integer }
+            marketability: { type: integer }
+            ego: { type: integer }
+            loyalty: { type: integer }
+            media_handling: { type: integer }
+        form:
+          type: object
+          properties:
+            current_form: { type: integer }
+            last_5_matches_average: { type: number }
+            confidence_trend: { type: string }
+            morale_trend: { type: string }
+            hot_streak: { type: boolean }
+            cold_streak: { type: boolean }
+        specialities:
+          type: array
+          items: { type: string }
+        weaknesses:
+          type: array
+          items: { type: string }
+        visual_identity:
+          type: object
+          properties:
+            card_image: { type: ["string","null"] }
+            unity_model: { type: ["string","null"] }
+            skin_tone: { type: ["string","null"] }
+            hair_style: { type: ["string","null"] }
+            hair_colour: { type: ["string","null"] }
+            body_type: { type: ["string","null"] }
+            height_scale: { type: number }
+            face_variant: { type: ["string","null"] }
+            animation_style: { type: ["string","null"] }
+        visual_kit:
+          type: object
+          properties:
+            kit_source: { type: string }
+            top_primary_colour: { type: string }
+            top_secondary_colour: { type: string }
+            bottom_primary_colour: { type: string }
+            bottom_secondary_colour: { type: string }
             trim_colour: { type: string }
-            material: { type: string }
-            unity_material_slot: { type: string }
-        bottoms:
+            accessory_colour: { type: string }
+            unity_material_rule: { type: string }
+        scouting:
           type: object
           properties:
-            primary_colour: { type: string }
-            secondary_colour: { type: string }
-            trim_colour: { type: string }
-            material: { type: string }
-            unity_material_slot: { type: string }
-        accessories:
+            scouted_accuracy: { type: ["integer","null"] }
+            known_potential: { type: boolean }
+            hidden_gem: { type: boolean }
+            risk_level: { type: ["string","null"] }
+            scout_summary: { type: ["string","null"] }
+            scout_confidence: { type: ["integer","null"] }
+            false_positive_risk: { type: ["integer","null"] }
+            false_negative_risk: { type: ["integer","null"] }
+        career_stats:
           type: object
           properties:
-            wristband_colour: { type: string }
-            ankle_tape_colour: { type: string }
-            visor_colour: { type: string }
-        country_default_colours:
+            matches_played: { type: integer }
+            wins: { type: integer }
+            losses: { type: integer }
+            aces: { type: integer }
+            blocks: { type: integer }
+            kills: { type: integer }
+            digs: { type: integer }
+            errors: { type: integer }
+            tournament_wins: { type: integer }
+            championships: { type: integer }
+            mvp_awards: { type: integer }
+            all_star_selections: { type: integer }
+        hall_of_fame:
           type: object
           properties:
-            use_if_player_colour_missing: { type: boolean }
-            match_national_flag: { type: boolean }
-        rules:
-          type: object
-          properties:
-            never_use_generic_grey_if_colours_exist: { type: boolean }
-            player_card_is_source_of_truth: { type: boolean }
-            home_and_away_can_share_card_colours: { type: boolean }
-            keep_same_colours_in_live_match: { type: boolean }
+            eligible: { type: boolean }
+            score: { type: integer }
+            legacy_rating: { type: integer }
+            retired_number: { type: boolean }
+            legend_status: { type: string }
 
     CareerStats:
       type: object

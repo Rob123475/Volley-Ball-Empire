@@ -41,57 +41,110 @@ export type PlayerDevelopment = {
   injuryProneness: number;
 };
 
-export type UnityIntegration = {
-  enabled: boolean;
-  player_id_required: boolean;
-  prefab_type: string;
-  apply_visuals_on_spawn: boolean;
-  apply_uniform_from_card: boolean;
-  never_spawn_generic_grey_if_uniform_data_exists: boolean;
-  missing_data_behaviour: string;
-  animation_controller: string;
-  material_slots: {
-    skin: string;
-    hair: string;
-    top: string;
-    bottoms: string;
-    trim: string;
+export type PlayerV4 = {
+  schema_version: string;
+  player_type: "Senior" | "Youth" | "Draft" | "Regen";
+  status: {
+    active: boolean; retired: boolean; draft_eligible: boolean;
+    youth_player: boolean; free_agent: boolean; injured: boolean; suspended: boolean;
   };
-};
-
-export type UniformVisuals = {
-  enabled: boolean;
-  match_card_colours: boolean;
-  unity_apply_on_spawn: boolean;
-  uniform_type: string;
-  top: {
-    primary_colour: string;
-    secondary_colour: string;
-    trim_colour: string;
-    material: string;
-    unity_material_slot: string;
+  contract: {
+    status: string; years_remaining: number | null; salary: number | null;
+    release_clause: number | null; loyalty: number | null; transfer_interest: number | null;
+    wage_demand_growth: number | null; renewal_likelihood: number | null;
   };
-  bottoms: {
-    primary_colour: string;
-    secondary_colour: string;
-    trim_colour: string;
-    material: string;
-    unity_material_slot: string;
+  draft: {
+    draft_year: number | null; draft_rank: number | null; projected_pick_range: string | null;
+    combine_score: number | null; interview_score: number | null; boom_bust_rating: number | null;
   };
-  accessories: {
-    wristband_colour: string;
-    ankle_tape_colour: string;
-    visor_colour: string;
+  core_attributes: {
+    serve: number; attack: number; defence: number; block: number; set: number; dig: number;
+    speed: number; stamina: number; jump: number; power: number; accuracy: number;
+    reaction: number; vision: number; composure: number; teamwork: number;
   };
-  country_default_colours: {
-    use_if_player_colour_missing: boolean;
-    match_national_flag: boolean;
+  advanced_attributes: {
+    serve_pressure: number; spike_timing: number; shot_selection: number;
+    line_defence: number; cross_defence: number; net_awareness: number;
+    clutch: number; consistency: number; error_control: number;
+    rally_iq: number; momentum_control: number; adaptability: number;
   };
-  rules: {
-    never_use_generic_grey_if_colours_exist: boolean;
-    player_card_is_source_of_truth: boolean;
-    home_and_away_can_share_card_colours: boolean;
-    keep_same_colours_in_live_match: boolean;
+  match_engine: {
+    winner_chance_modifier: number; error_chance_modifier: number;
+    dig_success_modifier: number; block_success_modifier: number;
+    serve_ace_modifier: number; fatigue_drop_rate: number;
+    pressure_bonus: number; bad_form_penalty: number;
+    boost_response: {
+      attack_boost_effect: number; defence_boost_effect: number;
+      risk_under_attack_boost: number; stamina_cost_under_boost: number;
+    };
+  };
+  development: {
+    development_curve: string; growth_rate: number; training_response: number;
+    peak_age_start: number; peak_age_end: number; decline_rate: number;
+    hidden_ceiling: number; same_rating_variance_enabled: boolean;
+    development_personality: string; potential_can_rise: boolean; potential_can_fall: boolean;
+    breakout_probability: number; bust_probability: number;
+    late_bloomer_probability: number; position_change_probability: number;
+  };
+  youth_development: {
+    enabled_if_player_type_youth: boolean; physical_growth: number; mental_growth: number;
+    skill_growth: number; growth_variance: number; late_growth_chance: number;
+    early_peak_chance: number; personality_shift: boolean; position_change_probability: number;
+    breakout_probability: number; bust_probability: number; academy_quality_modifier: number;
+  };
+  hidden_dna: {
+    competitiveness: number; work_ethic: number; coachability: number;
+    confidence_growth: number; pressure_resistance: number; injury_resilience: number;
+    adaptability: number; consistency_gene: number; leadership_growth: number;
+    professionalism_growth: number;
+  };
+  regen: {
+    regen_enabled: boolean; regen_seed: string | null;
+    regen_quality_min: number; regen_quality_max: number;
+    inheritance_strength: number; can_create_family_style_successor: boolean;
+    lineage_id: string | null; parent_player_id: string | null;
+    generation_number: number; regen_notes: string | null;
+  };
+  health: {
+    current_fitness: number; injury_status: string; injury_type: string | null;
+    weeks_out: number; injury_proneness: number; recovery_speed: number;
+    fatigue: number; morale: number; confidence: number; burnout_risk: number;
+  };
+  personality: {
+    professionalism: number; ambition: number; temperament: number;
+    leadership: number; coachability: number; marketability: number;
+    ego: number; loyalty: number; media_handling: number;
+  };
+  form: {
+    current_form: number; last_5_matches_average: number;
+    confidence_trend: string; morale_trend: string;
+    hot_streak: boolean; cold_streak: boolean;
+  };
+  specialities: string[];
+  weaknesses: string[];
+  visual_identity: {
+    card_image: string | null; unity_model: string | null; skin_tone: string | null;
+    hair_style: string | null; hair_colour: string | null; body_type: string | null;
+    height_scale: number; face_variant: string | null; animation_style: string | null;
+  };
+  visual_kit: {
+    kit_source: string; top_primary_colour: string; top_secondary_colour: string;
+    bottom_primary_colour: string; bottom_secondary_colour: string;
+    trim_colour: string; accessory_colour: string; unity_material_rule: string;
+  };
+  scouting: {
+    scouted_accuracy: number | null; known_potential: boolean; hidden_gem: boolean;
+    risk_level: string | null; scout_summary: string | null;
+    scout_confidence: number | null; false_positive_risk: number | null; false_negative_risk: number | null;
+  };
+  career_stats: {
+    matches_played: number; wins: number; losses: number; aces: number;
+    blocks: number; kills: number; digs: number; errors: number;
+    tournament_wins: number; championships: number; mvp_awards: number; all_star_selections: number;
+  };
+  hall_of_fame: {
+    eligible: boolean; score: number; legacy_rating: number;
+    retired_number: boolean; legend_status: string;
   };
 };
 
@@ -214,8 +267,7 @@ export const playersTable = pgTable("players", {
   yearsActive: varchar("years_active", { length: 20 }),
   legendScore: integer("legend_score"),
   development: jsonb("development").$type<PlayerDevelopment>(),
-  uniformVisuals: jsonb("uniform_visuals").$type<UniformVisuals>(),
-  unityIntegration: jsonb("unity_integration").$type<UnityIntegration>(),
+  playerV4: jsonb("player_v4").$type<PlayerV4>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

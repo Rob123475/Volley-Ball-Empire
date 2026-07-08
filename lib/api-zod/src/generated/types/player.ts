@@ -11,8 +11,7 @@ import type { PlayerPosition } from './playerPosition';
 import type { PlayerScoutedPotential } from './playerScoutedPotential';
 import type { PlayerSquadRole } from './playerSquadRole';
 import type { PlayerTrainingFocus } from './playerTrainingFocus';
-import type { UniformVisuals } from './uniformVisuals';
-import type { UnityIntegration } from './unityIntegration';
+import type { PlayerV4 } from './playerV4';
 
 export interface Player {
   id: number;
@@ -85,9 +84,7 @@ export interface Player {
      * @nullable
      */
   academyContractYears?: number | null;
-  /** Uniform colour and material settings for Unity rendering and card display. */
-  uniformVisuals?: UniformVisuals | null;
-  /** Unity engine integration settings for player prefab spawning and visuals. */
-  unityIntegration?: UnityIntegration | null;
+  /** Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more. */
+  playerV4?: PlayerV4 | null;
   createdAt: string;
 }
