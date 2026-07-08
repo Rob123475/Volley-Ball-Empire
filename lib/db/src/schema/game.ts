@@ -41,6 +41,42 @@ export type PlayerDevelopment = {
   injuryProneness: number;
 };
 
+export type UniformVisuals = {
+  enabled: boolean;
+  match_card_colours: boolean;
+  unity_apply_on_spawn: boolean;
+  uniform_type: string;
+  top: {
+    primary_colour: string;
+    secondary_colour: string;
+    trim_colour: string;
+    material: string;
+    unity_material_slot: string;
+  };
+  bottoms: {
+    primary_colour: string;
+    secondary_colour: string;
+    trim_colour: string;
+    material: string;
+    unity_material_slot: string;
+  };
+  accessories: {
+    wristband_colour: string;
+    ankle_tape_colour: string;
+    visor_colour: string;
+  };
+  country_default_colours: {
+    use_if_player_colour_missing: boolean;
+    match_national_flag: boolean;
+  };
+  rules: {
+    never_use_generic_grey_if_colours_exist: boolean;
+    player_card_is_source_of_truth: boolean;
+    home_and_away_can_share_card_colours: boolean;
+    keep_same_colours_in_live_match: boolean;
+  };
+};
+
 export type CareerStats = {
   matchesWon: number;
   championshipsWon: number;
@@ -160,6 +196,7 @@ export const playersTable = pgTable("players", {
   yearsActive: varchar("years_active", { length: 20 }),
   legendScore: integer("legend_score"),
   development: jsonb("development").$type<PlayerDevelopment>(),
+  uniformVisuals: jsonb("uniform_visuals").$type<UniformVisuals>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

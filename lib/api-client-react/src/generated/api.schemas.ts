@@ -132,6 +132,55 @@ export const PlayerTrainingFocus = {
   Leadership: 'Leadership',
 } as const;
 
+export type UniformVisualsTop = {
+  primary_colour?: string;
+  secondary_colour?: string;
+  trim_colour?: string;
+  material?: string;
+  unity_material_slot?: string;
+};
+
+export type UniformVisualsBottoms = {
+  primary_colour?: string;
+  secondary_colour?: string;
+  trim_colour?: string;
+  material?: string;
+  unity_material_slot?: string;
+};
+
+export type UniformVisualsAccessories = {
+  wristband_colour?: string;
+  ankle_tape_colour?: string;
+  visor_colour?: string;
+};
+
+export type UniformVisualsCountryDefaultColours = {
+  use_if_player_colour_missing?: boolean;
+  match_national_flag?: boolean;
+};
+
+export type UniformVisualsRules = {
+  never_use_generic_grey_if_colours_exist?: boolean;
+  player_card_is_source_of_truth?: boolean;
+  home_and_away_can_share_card_colours?: boolean;
+  keep_same_colours_in_live_match?: boolean;
+};
+
+/**
+ * Uniform colour and material settings for Unity rendering and card display.
+ */
+export interface UniformVisuals {
+  enabled?: boolean;
+  match_card_colours?: boolean;
+  unity_apply_on_spawn?: boolean;
+  uniform_type?: string;
+  top?: UniformVisualsTop;
+  bottoms?: UniformVisualsBottoms;
+  accessories?: UniformVisualsAccessories;
+  country_default_colours?: UniformVisualsCountryDefaultColours;
+  rules?: UniformVisualsRules;
+}
+
 export interface Player {
   id: number;
   name: string;
@@ -203,6 +252,8 @@ export interface Player {
      * @nullable
      */
   academyContractYears?: number | null;
+  /** Uniform colour and material settings for Unity rendering and card display. */
+  uniformVisuals?: UniformVisuals | null;
   createdAt: string;
 }
 
@@ -980,6 +1031,8 @@ export interface DraftPlayer {
   available: boolean;
   /** @nullable */
   imageUrl?: string | null;
+  /** Uniform colour and material settings for Unity rendering and card display. */
+  uniformVisuals?: UniformVisuals | null;
 }
 
 export interface DraftPickInput {

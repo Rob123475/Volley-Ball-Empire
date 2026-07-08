@@ -11,6 +11,7 @@ import type { PlayerPosition } from './playerPosition';
 import type { PlayerScoutedPotential } from './playerScoutedPotential';
 import type { PlayerSquadRole } from './playerSquadRole';
 import type { PlayerTrainingFocus } from './playerTrainingFocus';
+import type { UniformVisuals } from './uniformVisuals';
 
 export interface Player {
   id: number;
@@ -83,5 +84,7 @@ export interface Player {
      * @nullable
      */
   academyContractYears?: number | null;
+  /** Uniform colour and material settings for Unity rendering and card display. */
+  uniformVisuals?: UniformVisuals | null;
   createdAt: string;
 }

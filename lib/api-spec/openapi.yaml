@@ -2520,6 +2520,11 @@ components:
         academyContractYears:
           type: ["number", "null"]
           description: "Years remaining on the player's academy contract. Null for senior players. Decrements by 1/52 each match week."
+        uniformVisuals:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/UniformVisuals"
+          description: "Uniform colour and material settings for Unity rendering and card display."
         createdAt:
           type: string
 
@@ -3439,6 +3444,11 @@ components:
           type: boolean
         imageUrl:
           type: ["string", "null"]
+        uniformVisuals:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/UniformVisuals"
+          description: "Uniform colour and material settings for Unity rendering and card display."
 
     DraftPickInput:
       type: object
@@ -4542,6 +4552,53 @@ components:
               type: number
             target:
               type: number
+
+    UniformVisuals:
+      type: object
+      description: "Uniform colour and material settings for Unity rendering and card display."
+      properties:
+        enabled:
+          type: boolean
+        match_card_colours:
+          type: boolean
+        unity_apply_on_spawn:
+          type: boolean
+        uniform_type:
+          type: string
+        top:
+          type: object
+          properties:
+            primary_colour: { type: string }
+            secondary_colour: { type: string }
+            trim_colour: { type: string }
+            material: { type: string }
+            unity_material_slot: { type: string }
+        bottoms:
+          type: object
+          properties:
+            primary_colour: { type: string }
+            secondary_colour: { type: string }
+            trim_colour: { type: string }
+            material: { type: string }
+            unity_material_slot: { type: string }
+        accessories:
+          type: object
+          properties:
+            wristband_colour: { type: string }
+            ankle_tape_colour: { type: string }
+            visor_colour: { type: string }
+        country_default_colours:
+          type: object
+          properties:
+            use_if_player_colour_missing: { type: boolean }
+            match_national_flag: { type: boolean }
+        rules:
+          type: object
+          properties:
+            never_use_generic_grey_if_colours_exist: { type: boolean }
+            player_card_is_source_of_truth: { type: boolean }
+            home_and_away_can_share_card_colours: { type: boolean }
+            keep_same_colours_in_live_match: { type: boolean }
 
     CareerStats:
       type: object

@@ -5,6 +5,7 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { UniformVisuals } from './uniformVisuals';
 
 export interface DraftPlayer {
   id: number;
@@ -23,4 +24,6 @@ export interface DraftPlayer {
   available: boolean;
   /** @nullable */
   imageUrl?: string | null;
+  /** Uniform colour and material settings for Unity rendering and card display. */
+  uniformVisuals?: UniformVisuals | null;
 }
