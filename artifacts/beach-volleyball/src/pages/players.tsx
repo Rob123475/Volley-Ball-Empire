@@ -276,6 +276,7 @@ export default function PlayerMarket() {
                       lineHeight: 1.0,
                       maxHeight: "252px",
                       overflow: "hidden",
+                      whiteSpace: "nowrap",
                       color: "#FBBF24",
                       textShadow: "0 1px 6px rgba(0,0,0,0.9)",
                     }}
