@@ -259,30 +259,36 @@ export default function PlayerMarket() {
                   heightClass="h-72"
                 />
 
-                {/* Left strip — full name (first name → surname) */}
+                {/* Left strip — first name (left col) + surname (right col) */}
                 <div
-                  className="absolute left-0 top-0 bottom-0 flex items-center justify-center z-10"
-                  style={{ width: "19%" }}
+                  className="absolute left-0 top-0 bottom-0 flex flex-row items-center justify-center z-10 gap-0.5"
+                  style={{ width: "22%" }}
                 >
-                  <span
-                    className="text-white font-bold select-none"
-                    style={{
+                  {(() => {
+                    const parts = player.name.split(" ");
+                    const firstName = parts[0];
+                    const surname = parts.slice(1).join(" ");
+                    const nameStyle: React.CSSProperties = {
                       fontFamily: "'Bebas Neue', sans-serif",
                       writingMode: "vertical-rl",
                       textOrientation: "upright",
                       textTransform: "uppercase",
-                      fontSize: "15px",
-                      letterSpacing: "0.1em",
+                      fontSize: "14px",
+                      letterSpacing: "0.08em",
                       lineHeight: 1.0,
                       maxHeight: "252px",
                       overflow: "hidden",
                       whiteSpace: "nowrap",
                       color: "#FBBF24",
                       textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-                    }}
-                  >
-                    {player.name}
-                  </span>
+                    };
+                    return (
+                      <>
+                        <span className="font-bold select-none" style={nameStyle}>{firstName}</span>
+                        {surname && <span className="font-bold select-none" style={nameStyle}>{surname}</span>}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Right strip — OVR · potential · position · nationality · age & height */}
