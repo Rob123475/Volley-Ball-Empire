@@ -181,6 +181,29 @@ export interface UniformVisuals {
   rules?: UniformVisualsRules;
 }
 
+export type UnityIntegrationMaterialSlots = {
+  skin?: string;
+  hair?: string;
+  top?: string;
+  bottoms?: string;
+  trim?: string;
+};
+
+/**
+ * Unity engine integration settings for player prefab spawning and visuals.
+ */
+export interface UnityIntegration {
+  enabled?: boolean;
+  player_id_required?: boolean;
+  prefab_type?: string;
+  apply_visuals_on_spawn?: boolean;
+  apply_uniform_from_card?: boolean;
+  never_spawn_generic_grey_if_uniform_data_exists?: boolean;
+  missing_data_behaviour?: string;
+  animation_controller?: string;
+  material_slots?: UnityIntegrationMaterialSlots;
+}
+
 export interface Player {
   id: number;
   name: string;
@@ -254,6 +277,8 @@ export interface Player {
   academyContractYears?: number | null;
   /** Uniform colour and material settings for Unity rendering and card display. */
   uniformVisuals?: UniformVisuals | null;
+  /** Unity engine integration settings for player prefab spawning and visuals. */
+  unityIntegration?: UnityIntegration | null;
   createdAt: string;
 }
 
@@ -1033,6 +1058,8 @@ export interface DraftPlayer {
   imageUrl?: string | null;
   /** Uniform colour and material settings for Unity rendering and card display. */
   uniformVisuals?: UniformVisuals | null;
+  /** Unity engine integration settings for player prefab spawning and visuals. */
+  unityIntegration?: UnityIntegration | null;
 }
 
 export interface DraftPickInput {

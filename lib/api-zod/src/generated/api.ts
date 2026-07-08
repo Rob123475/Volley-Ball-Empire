@@ -182,6 +182,23 @@ export const ListPlayersResponseItem = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 export const ListPlayersResponse = zod.array(ListPlayersResponseItem)
@@ -282,6 +299,23 @@ export const ListFreeAgentsResponseItem = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 export const ListFreeAgentsResponse = zod.array(ListFreeAgentsResponseItem)
@@ -367,6 +401,23 @@ export const GetPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 
@@ -469,6 +520,23 @@ export const UpdatePlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 
@@ -557,6 +625,23 @@ export const UpdatePlayerOutfitResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 
@@ -641,6 +726,23 @@ export const ReleasePlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 
@@ -725,6 +827,23 @@ export const RetirePlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 
@@ -813,6 +932,23 @@ export const SetPlayerTrainingFocusResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })
 
@@ -898,6 +1034,23 @@ export const ScoutPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }),
   "scoutedPotential": zod.enum(['Low', 'Average', 'High', 'Elite', 'Generational']),
@@ -1082,6 +1235,23 @@ export const GetTeamRosterResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -1153,6 +1323,23 @@ export const GetTeamRosterResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -1224,6 +1411,23 @@ export const GetTeamRosterResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -1295,6 +1499,23 @@ export const GetTeamRosterResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -1366,6 +1587,23 @@ export const GetTeamRosterResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -1498,6 +1736,23 @@ export const SwapTeamPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -1569,6 +1824,23 @@ export const SwapTeamPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -1640,6 +1912,23 @@ export const SwapTeamPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -1711,6 +2000,23 @@ export const SwapTeamPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -1782,6 +2088,23 @@ export const SwapTeamPlayerResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -1917,6 +2240,23 @@ export const SetPlayerRoleResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "interchanges": zod.array(zod.object({
@@ -1988,6 +2328,23 @@ export const SetPlayerRoleResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "reserves": zod.array(zod.object({
@@ -2059,6 +2416,23 @@ export const SetPlayerRoleResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "activePlayers": zod.array(zod.object({
@@ -2130,6 +2504,23 @@ export const SetPlayerRoleResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })).describe('Legacy: starters + interchanges combined.'),
   "benchPlayers": zod.array(zod.object({
@@ -2201,6 +2592,23 @@ export const SetPlayerRoleResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })).describe('Legacy: same as reserves.'),
   "staff": zod.array(zod.object({
@@ -2328,6 +2736,23 @@ export const ListContractsResponseItem = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -2435,6 +2860,23 @@ export const GetContractResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -2530,6 +2972,23 @@ export const TerminateContractResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "createdAt": zod.string()
@@ -2815,6 +3274,23 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -2949,6 +3425,23 @@ export const CompleteTrainingResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -3051,6 +3544,23 @@ export const CompleteTrainingResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }),
   "xpGained": zod.number().optional(),
@@ -3168,6 +3678,23 @@ export const GetTrainingPlanResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "coach": zod.object({
@@ -3381,6 +3908,23 @@ export const SimulateMatchResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 }).optional(),
   "playerEvents": zod.array(zod.object({
@@ -3898,7 +4442,24 @@ export const GetDraftPoolResponseItem = zod.object({
   "home_and_away_can_share_card_colours": zod.boolean().optional(),
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.')
+}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.')
 })
 export const GetDraftPoolResponse = zod.array(GetDraftPoolResponseItem)
 
@@ -3956,7 +4517,24 @@ export const GenerateDraftClassResponseItem = zod.object({
   "home_and_away_can_share_card_colours": zod.boolean().optional(),
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
-}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.')
+}).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.')
 })
 export const GenerateDraftClassResponse = zod.array(GenerateDraftClassResponseItem)
 
@@ -4395,6 +4973,23 @@ export const GetDashboardResponse = zod.object({
   "keep_same_colours_in_live_match": zod.boolean().optional()
 }).optional()
 }).describe('Uniform colour and material settings for Unity rendering and card display.').nullish().describe('Uniform colour and material settings for Unity rendering and card display.'),
+  "unityIntegration": zod.object({
+  "enabled": zod.boolean().optional(),
+  "player_id_required": zod.boolean().optional(),
+  "prefab_type": zod.string().optional(),
+  "apply_visuals_on_spawn": zod.boolean().optional(),
+  "apply_uniform_from_card": zod.boolean().optional(),
+  "never_spawn_generic_grey_if_uniform_data_exists": zod.boolean().optional(),
+  "missing_data_behaviour": zod.string().optional(),
+  "animation_controller": zod.string().optional(),
+  "material_slots": zod.object({
+  "skin": zod.string().optional(),
+  "hair": zod.string().optional(),
+  "top": zod.string().optional(),
+  "bottoms": zod.string().optional(),
+  "trim": zod.string().optional()
+}).optional()
+}).describe('Unity engine integration settings for player prefab spawning and visuals.').nullish().describe('Unity engine integration settings for player prefab spawning and visuals.'),
   "createdAt": zod.string()
 })),
   "seasonStanding": zod.object({

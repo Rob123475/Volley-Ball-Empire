@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UniformVisuals } from './uniformVisuals';
+import type { UnityIntegration } from './unityIntegration';
 
 export interface DraftPlayer {
   id: number;
@@ -26,4 +27,6 @@ export interface DraftPlayer {
   imageUrl?: string | null;
   /** Uniform colour and material settings for Unity rendering and card display. */
   uniformVisuals?: UniformVisuals | null;
+  /** Unity engine integration settings for player prefab spawning and visuals. */
+  unityIntegration?: UnityIntegration | null;
 }

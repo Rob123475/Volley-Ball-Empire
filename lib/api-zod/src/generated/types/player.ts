@@ -12,6 +12,7 @@ import type { PlayerScoutedPotential } from './playerScoutedPotential';
 import type { PlayerSquadRole } from './playerSquadRole';
 import type { PlayerTrainingFocus } from './playerTrainingFocus';
 import type { UniformVisuals } from './uniformVisuals';
+import type { UnityIntegration } from './unityIntegration';
 
 export interface Player {
   id: number;
@@ -86,5 +87,7 @@ export interface Player {
   academyContractYears?: number | null;
   /** Uniform colour and material settings for Unity rendering and card display. */
   uniformVisuals?: UniformVisuals | null;
+  /** Unity engine integration settings for player prefab spawning and visuals. */
+  unityIntegration?: UnityIntegration | null;
   createdAt: string;
 }

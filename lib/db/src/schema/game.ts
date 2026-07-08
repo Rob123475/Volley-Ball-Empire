@@ -41,6 +41,24 @@ export type PlayerDevelopment = {
   injuryProneness: number;
 };
 
+export type UnityIntegration = {
+  enabled: boolean;
+  player_id_required: boolean;
+  prefab_type: string;
+  apply_visuals_on_spawn: boolean;
+  apply_uniform_from_card: boolean;
+  never_spawn_generic_grey_if_uniform_data_exists: boolean;
+  missing_data_behaviour: string;
+  animation_controller: string;
+  material_slots: {
+    skin: string;
+    hair: string;
+    top: string;
+    bottoms: string;
+    trim: string;
+  };
+};
+
 export type UniformVisuals = {
   enabled: boolean;
   match_card_colours: boolean;
@@ -197,6 +215,7 @@ export const playersTable = pgTable("players", {
   legendScore: integer("legend_score"),
   development: jsonb("development").$type<PlayerDevelopment>(),
   uniformVisuals: jsonb("uniform_visuals").$type<UniformVisuals>(),
+  unityIntegration: jsonb("unity_integration").$type<UnityIntegration>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -180,6 +180,8 @@ export * from './uniformVisualsBottoms';
 export * from './uniformVisualsCountryDefaultColours';
 export * from './uniformVisualsRules';
 export * from './uniformVisualsTop';
+export * from './unityIntegration';
+export * from './unityIntegrationMaterialSlots';
 export * from './upcomingEvent';
 export * from './upcomingEventsFeed';
 export * from './upcomingEventType';

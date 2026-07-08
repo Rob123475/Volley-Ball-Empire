@@ -2525,6 +2525,11 @@ components:
           allOf:
             - $ref: "#/components/schemas/UniformVisuals"
           description: "Uniform colour and material settings for Unity rendering and card display."
+        unityIntegration:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/UnityIntegration"
+          description: "Unity engine integration settings for player prefab spawning and visuals."
         createdAt:
           type: string
 
@@ -3449,6 +3454,11 @@ components:
           allOf:
             - $ref: "#/components/schemas/UniformVisuals"
           description: "Uniform colour and material settings for Unity rendering and card display."
+        unityIntegration:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/UnityIntegration"
+          description: "Unity engine integration settings for player prefab spawning and visuals."
 
     DraftPickInput:
       type: object
@@ -4552,6 +4562,35 @@ components:
               type: number
             target:
               type: number
+
+    UnityIntegration:
+      type: object
+      description: "Unity engine integration settings for player prefab spawning and visuals."
+      properties:
+        enabled:
+          type: boolean
+        player_id_required:
+          type: boolean
+        prefab_type:
+          type: string
+        apply_visuals_on_spawn:
+          type: boolean
+        apply_uniform_from_card:
+          type: boolean
+        never_spawn_generic_grey_if_uniform_data_exists:
+          type: boolean
+        missing_data_behaviour:
+          type: string
+        animation_controller:
+          type: string
+        material_slots:
+          type: object
+          properties:
+            skin: { type: string }
+            hair: { type: string }
+            top: { type: string }
+            bottoms: { type: string }
+            trim: { type: string }
 
     UniformVisuals:
       type: object
