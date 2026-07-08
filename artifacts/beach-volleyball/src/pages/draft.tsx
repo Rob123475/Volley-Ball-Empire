@@ -102,13 +102,13 @@ export default function PlayerDraft() {
                   heightClass="h-72"
                 />
 
-                {/* Left strip — player name, reading bottom-to-top */}
+                {/* Left strip — first name */}
                 <div
                   className="absolute left-0 top-0 bottom-0 flex items-center justify-center z-10"
                   style={{ width: "19%" }}
                 >
                   <span
-                    className="text-white font-bold select-none"
+                    className="font-bold select-none"
                     style={{
                       fontFamily: "'Bebas Neue', sans-serif",
                       writingMode: "vertical-rl",
@@ -123,35 +123,45 @@ export default function PlayerDraft() {
                       textShadow: "0 1px 6px rgba(0,0,0,0.9)",
                     }}
                   >
-                    {player.name}
+                    {player.name.split(" ")[0]}
                   </span>
                 </div>
 
-                {/* Right strip — position · nationality · age & height (OVR locked until signed) */}
+                {/* Right strip — surname */}
                 <div
-                  className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10"
-                  style={{ width: "19%", gap: "5px", padding: "8px 3px" }}
+                  className="absolute right-0 top-0 bottom-0 flex items-center justify-center z-10"
+                  style={{ width: "19%" }}
                 >
-                  <div className="text-center">
-                    <div className="text-[22px] font-black text-white/30 leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>
-                      ?
-                    </div>
-                    <div className="text-[7px] text-white/30 uppercase tracking-widest font-bold">OVR</div>
-                  </div>
-                  <div className="w-4/5 h-px bg-white/20" />
-                  <div className="text-[8px] text-secondary font-black uppercase text-center leading-tight">
-                    {formatPosition(player.position)}
-                  </div>
-                  <div className="w-4/5 h-px bg-white/20" />
-                  <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
-                    <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
-                    <div className="text-white/55 mt-0.5">{player.age}y</div>
-                    <div className="text-white/55">{player.height}cm</div>
-                  </div>
+                  <span
+                    className="font-bold select-none"
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      writingMode: "vertical-rl",
+                      textOrientation: "upright",
+                      textTransform: "uppercase",
+                      fontSize: "15px",
+                      letterSpacing: "0.1em",
+                      lineHeight: 1.0,
+                      maxHeight: "252px",
+                      overflow: "hidden",
+                      color: "#FBBF24",
+                      textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+                    }}
+                  >
+                    {player.name.split(" ").slice(1).join(" ")}
+                  </span>
                 </div>
               </div>
 
               <CardContent className="p-4 space-y-4">
+                {/* position · nationality · age · height row */}
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] text-secondary font-black uppercase tracking-wide">
+                    {formatPosition(player.position)}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-medium">{player.nationality}</div>
+                  <div className="text-[10px] text-muted-foreground">{player.age}y · {player.height}cm</div>
+                </div>
                 <div className="grid grid-cols-1 gap-1.5">
                   <LockedStatBar label="Power" icon={Zap} />
                   <LockedStatBar label="Speed" icon={Wind} />

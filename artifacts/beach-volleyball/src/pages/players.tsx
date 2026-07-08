@@ -259,7 +259,7 @@ export default function PlayerMarket() {
                   heightClass="h-72"
                 />
 
-                {/* Left strip — player name, reading bottom-to-top */}
+                {/* Left strip — first name */}
                 <div
                   className="absolute left-0 top-0 bottom-0 flex items-center justify-center z-10"
                   style={{ width: "19%" }}
@@ -280,41 +280,48 @@ export default function PlayerMarket() {
                       textShadow: "0 1px 6px rgba(0,0,0,0.9)",
                     }}
                   >
-                    {player.name}
+                    {player.name.split(" ")[0]}
                   </span>
                 </div>
 
-                {/* Right strip — OVR · potential · position · nationality · age & height */}
+                {/* Right strip — surname */}
                 <div
-                  className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10"
-                  style={{ width: "19%", gap: "5px", padding: "8px 3px" }}
+                  className="absolute right-0 top-0 bottom-0 flex items-center justify-center z-10"
+                  style={{ width: "19%" }}
                 >
-                  <div className="text-center">
-                    <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>
-                      {overall}
-                    </div>
-                    <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
-                  </div>
-                  <div className="w-4/5 h-px bg-white/20" />
-                  {isScouted ? (
-                    <PotentialBadge potential={player.scoutedPotential!} size="xs" />
-                  ) : (
-                    <span className="text-[7px] text-white/40 italic text-center leading-tight">Unknown</span>
-                  )}
-                  <div className="w-4/5 h-px bg-white/20" />
-                  <div className="text-[8px] text-primary font-black uppercase text-center leading-tight">
-                    {POSITION_LABELS[normalizePosition(player.position)] ?? player.position.replace(/_/g, " ")}
-                  </div>
-                  <div className="w-4/5 h-px bg-white/20" />
-                  <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
-                    <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
-                    <div className="text-white/55 mt-0.5">{player.age}y</div>
-                    <div className="text-white/55">{player.height}cm</div>
-                  </div>
+                  <span
+                    className="font-bold select-none"
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      writingMode: "vertical-rl",
+                      textOrientation: "upright",
+                      textTransform: "uppercase",
+                      fontSize: "15px",
+                      letterSpacing: "0.1em",
+                      lineHeight: 1.0,
+                      maxHeight: "252px",
+                      overflow: "hidden",
+                      color: "#FBBF24",
+                      textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+                    }}
+                  >
+                    {player.name.split(" ").slice(1).join(" ")}
+                  </span>
                 </div>
               </div>
 
               <CardContent className="p-4 space-y-4">
+                {/* OVR · position · height row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-2xl font-black leading-none">{overall}</span>
+                    <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold self-end mb-0.5">OVR</span>
+                  </div>
+                  <div className="text-[10px] text-primary font-black uppercase tracking-wide">
+                    {POSITION_LABELS[normalizePosition(player.position)] ?? player.position.replace(/_/g, " ")}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-medium">{player.height} cm</div>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <StatMini label="Power" value={player.power} icon={Zap} color="text-orange-500" />
                   <StatMini label="Speed" value={player.speed} icon={Wind} color="text-blue-500" />
