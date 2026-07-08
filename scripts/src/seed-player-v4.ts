@@ -400,7 +400,10 @@ function buildV4(p: {
 
   return {
     schema_version: "players_v4_ultimate_dynasty",
+    player_id:      p.id,
     player_type:    playerType,
+    position:       pos,
+    overall_rating: ovr,
     status: {
       active:         !p.isDraftPlayer && !!p.teamId,
       retired:        false,
