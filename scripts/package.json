@@ -23,6 +23,7 @@
     "fill-sports-scientists-json": "tsx ./src/fill-sports-scientists-json.ts",
     "seed-physiotherapists": "tsx ./src/seed-physiotherapists.ts",
     "fill-all-player-development": "tsx ./src/fill-all-player-development.ts",
+    "seed-player-v4": "tsx ./src/seed-player-v4.ts",
     "seed-doctors": "tsx ./src/seed-doctors.ts",
     "seed-medical-specialists": "tsx ./src/seed-medical-specialists.ts",
     "seed-nutritionists": "tsx ./src/seed-nutritionists.ts",
