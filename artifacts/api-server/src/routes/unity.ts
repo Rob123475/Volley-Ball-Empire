@@ -122,6 +122,18 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     defenceBoostTeam:     null,
     attackBoostRemaining: 0,
     defenceBoostRemaining: 0,
+    // Rally / live match state — not persisted in DB
+    currentServer:        null,
+    ballOwner:            null,
+    rallyState:           "unknown",
+    lastAction:           "",
+    lastActionPlayer:     null,
+    lastActionTeam:       null,
+    lastOutcome:          "",
+    pointWinner:          null,
+    setA:                 0,
+    setB:                 0,
+    matchTime:            0,
     players,
   });
 });
