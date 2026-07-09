@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db, matchesTable, locationsTable } from "@workspace/db";
-import { eq, desc, inArray } from "drizzle-orm";
+import { db, matchesTable, locationsTable, playersTable } from "@workspace/db";
+import { eq, desc, inArray, or } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -60,7 +60,45 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     venueName = location?.name ?? null;
   }
 
-  req.log.info({ matchId: match.id, status: match.status }, "unity/match-state served");
+  // Fetch players — use lineup IDs if present, otherwise both team rosters
+  const lineupIds = match.lineup ?? [];
+  let rawPlayers: (typeof playersTable.$inferSelect)[] = [];
+
+  if (lineupIds.length > 0) {
+    rawPlayers = await db
+      .select()
+      .from(playersTable)
+      .where(inArray(playersTable.id, lineupIds));
+  } else if (match.homeTeamId || match.awayTeamId) {
+    const teamConditions = [
+      match.homeTeamId ? eq(playersTable.teamId, match.homeTeamId) : null,
+      match.awayTeamId ? eq(playersTable.teamId, match.awayTeamId) : null,
+    ].filter(Boolean) as Parameters<typeof or>;
+    rawPlayers = await db
+      .select()
+      .from(playersTable)
+      .where(or(...teamConditions));
+  }
+
+  const players = rawPlayers.map((p) => {
+    // Determine which team label this player belongs to
+    let team: string | null = null;
+    if (p.teamId === match!.homeTeamId)      team = match!.homeTeamName ?? null;
+    else if (p.teamId === match!.awayTeamId) team = match!.awayTeamName ?? null;
+
+    return {
+      id:            p.id,
+      name:          p.name,
+      team,
+      position:      p.position,
+      fatigue:       p.fatigue        ?? 0,
+      stamina:       p.stamina        ?? 100,
+      injured:       p.isInjured      ?? false,
+      injuryStatus:  p.injuryStatus   ?? "",
+    };
+  });
+
+  req.log.info({ matchId: match.id, status: match.status, playerCount: players.length }, "unity/match-state served");
 
   const highlights = match.highlights ?? [];
   const commentaryLine = highlights.length > 0 ? highlights[highlights.length - 1] : "";
@@ -84,6 +122,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     defenceBoostTeam:     null,
     attackBoostRemaining: 0,
     defenceBoostRemaining: 0,
+    players,
   });
 });
 
