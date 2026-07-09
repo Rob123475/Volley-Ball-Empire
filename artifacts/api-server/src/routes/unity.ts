@@ -66,17 +66,24 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   const commentaryLine = highlights.length > 0 ? highlights[highlights.length - 1] : "";
 
   res.json({
-    matchId:        match.id,
-    venue:          venueName,
-    homeTeam:       match.homeTeamName ?? null,
-    awayTeam:       match.awayTeamName ?? null,
-    homeScore:      match.homeScore  ?? 0,
-    awayScore:      match.awayScore  ?? 0,
-    servingTeam:    null,           // live state — not persisted in DB
-    weather:        match.weather,
-    windSpeed:      match.windSpeed  != null ? parseFloat(match.windSpeed) : null,
-    crowdSize:      estimateCrowdSize(match.tier),
+    matchId:              match.id,
+    venue:                venueName,
+    homeTeam:             match.homeTeamName ?? null,
+    awayTeam:             match.awayTeamName ?? null,
+    homeScore:            match.homeScore  ?? 0,
+    awayScore:            match.awayScore  ?? 0,
+    servingTeam:          null,   // live state — not persisted in DB
+    weather:              match.weather,
+    windSpeed:            match.windSpeed != null ? parseFloat(match.windSpeed) : null,
+    crowdSize:            estimateCrowdSize(match.tier),
     commentaryLine,
+    // Boost — live state, not persisted in DB
+    attackBoostActive:    false,
+    defenceBoostActive:   false,
+    attackBoostTeam:      null,
+    defenceBoostTeam:     null,
+    attackBoostRemaining: 0,
+    defenceBoostRemaining: 0,
   });
 });
 
