@@ -38,6 +38,7 @@ import gameApiRouter from "./game-api";
 import calendarRouter from "./calendar";
 import devRouter from "./dev";
 import storageRouter from "./storage";
+import unityRouter from "./unity";
 
 const router: IRouter = Router();
 
@@ -75,6 +76,7 @@ router.use(boardConfidenceRouter);
 router.use(clubTemplatesRouter);
 router.use(poachingRouter);
 router.use(aiManagersRouter);
+router.use(unityRouter);
 router.use(historyRouter);
 router.use(gameApiRouter);
 router.use(calendarRouter);
