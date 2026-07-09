@@ -24,22 +24,56 @@ function estimateCrowdSize(tier: string | null | undefined): number {
  * if no match is currently live.
  * No auth required — Unity connects as an external service.
  */
-// ── TEMPORARY TEST STUB — revert to live data after test ──────────────────────
 router.get("/unity/match-state", async (req, res): Promise<void> => {
-  req.log.info("unity/match-state — returning test stub");
+  // Prefer an in-progress match; fall back to the most recently completed one
+  const statusPriority = ["in_progress", "completed", "scheduled"];
+
+  let match: typeof matchesTable.$inferSelect | null = null;
+
+  for (const status of statusPriority) {
+    const [row] = await db
+      .select()
+      .from(matchesTable)
+      .where(eq(matchesTable.status, status))
+      .orderBy(desc(matchesTable.createdAt))
+      .limit(1);
+
+    if (row) {
+      match = row;
+      break;
+    }
+  }
+
+  if (!match) {
+    res.status(404).json({ error: "No match found" });
+    return;
+  }
+
+  // Resolve venue name — prefer denormalised column, fall back to location join
+  let venueName = match.locationName ?? null;
+  if (!venueName && match.locationId) {
+    const [location] = await db
+      .select()
+      .from(locationsTable)
+      .where(eq(locationsTable.id, match.locationId))
+      .limit(1);
+    venueName = location?.name ?? null;
+  }
+
+  req.log.info({ matchId: match.id, status: match.status }, "unity/match-state served");
+
   res.json({
-    matchId:     999,
-    venue:       "Unity Test Arena",
-    homeTeam:    "OPENAI SHARKS",
-    awayTeam:    "ROB'S LEGENDS",
-    homeScore:   12,
-    awayScore:   8,
-    servingTeam: "OPENAI SHARKS",
-    weather:     "sunny",
-    windSpeed:   0,
-    crowdSize:   9999,
+    matchId:     match.id,
+    venue:       venueName,
+    homeTeam:    match.homeTeamName ?? null,
+    awayTeam:    match.awayTeamName ?? null,
+    homeScore:   match.homeScore  ?? 0,
+    awayScore:   match.awayScore  ?? 0,
+    servingTeam: null,           // live state — not persisted in DB
+    weather:     match.weather,
+    windSpeed:   match.windSpeed  != null ? parseFloat(match.windSpeed) : null,
+    crowdSize:   estimateCrowdSize(match.tier),
   });
 });
-// ── END TEMPORARY TEST STUB ───────────────────────────────────────────────────
 
 export default router;
