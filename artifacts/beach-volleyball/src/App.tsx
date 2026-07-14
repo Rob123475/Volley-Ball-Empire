@@ -37,6 +37,31 @@ import LeagueLadders from "@/pages/league-ladders";
 import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound from "@/pages/not-found";
 
+// Competition pages — Continental
+import RegionalOverview from "@/pages/competition/regional-overview";
+import RegionalFixtures from "@/pages/competition/regional-fixtures";
+import RegionalResults from "@/pages/competition/regional-results";
+import RegionalLadders from "@/pages/competition/regional-ladders";
+import ContinentalPools from "@/pages/competition/continental-pools";
+import PromotionRelegation from "@/pages/competition/promotion-relegation";
+import RegionalHistory from "@/pages/competition/regional-history";
+
+// Competition pages — World Tour
+import QualifiedTeams from "@/pages/competition/qualified-teams";
+import WtFixtures from "@/pages/competition/wt-fixtures";
+import WtResults from "@/pages/competition/wt-results";
+import WtLadder from "@/pages/competition/wt-ladder";
+import WorldFinals from "@/pages/competition/world-finals";
+import AllStar from "@/pages/competition/all-star";
+import WtHistory from "@/pages/competition/wt-history";
+
+// Competition pages — Olympics
+import NationalSquads from "@/pages/competition/national-squads";
+import OlympicSchedule from "@/pages/competition/olympic-schedule";
+import OlympicResults from "@/pages/competition/olympic-results";
+import MedalTable from "@/pages/competition/medal-table";
+import OlympicHistory from "@/pages/competition/olympic-history";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -101,6 +126,28 @@ function Router() {
               <Route path="/job-market" component={JobMarket} />
               <Route path="/career-history" component={CareerHistory} />
               <Route path="/league-ladders" component={LeagueLadders} />
+              {/* Competition — Continental */}
+              <Route path="/competition/regional-overview"    component={RegionalOverview}    />
+              <Route path="/competition/regional-fixtures"    component={RegionalFixtures}    />
+              <Route path="/competition/regional-results"     component={RegionalResults}     />
+              <Route path="/competition/regional-ladders"     component={RegionalLadders}     />
+              <Route path="/competition/continental-pools"    component={ContinentalPools}    />
+              <Route path="/competition/promotion-relegation" component={PromotionRelegation} />
+              <Route path="/competition/regional-history"     component={RegionalHistory}     />
+              {/* Competition — World Tour */}
+              <Route path="/competition/qualified-teams"      component={QualifiedTeams}      />
+              <Route path="/competition/wt-fixtures"          component={WtFixtures}          />
+              <Route path="/competition/wt-results"           component={WtResults}           />
+              <Route path="/competition/wt-ladder"            component={WtLadder}            />
+              <Route path="/competition/world-finals"         component={WorldFinals}         />
+              <Route path="/competition/all-star"             component={AllStar}             />
+              <Route path="/competition/wt-history"           component={WtHistory}           />
+              {/* Competition — Olympics */}
+              <Route path="/competition/national-squads"      component={NationalSquads}      />
+              <Route path="/competition/olympic-schedule"     component={OlympicSchedule}     />
+              <Route path="/competition/olympic-results"      component={OlympicResults}      />
+              <Route path="/competition/medal-table"          component={MedalTable}          />
+              <Route path="/competition/olympic-history"      component={OlympicHistory}      />
               <Route component={NotFound} />
             </Switch>
           </Shell>

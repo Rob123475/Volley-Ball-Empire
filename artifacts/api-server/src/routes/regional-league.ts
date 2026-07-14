@@ -278,4 +278,73 @@ router.post("/regional-league/:continent/simulate-all", async (req, res) => {
   });
 });
 
+// ── GET /regional-league/:continent/pools ────────────────────────────────────
+// Returns all continental pool teams with their players for a continent.
+// isActiveInLeague=true → currently in the regional league
+// isActiveInLeague=false → in the pool (promotion candidates)
+router.get("/regional-league/:continent/pools", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const continent = decodeURIComponent(req.params.continent);
+  if (!CONTINENTS.includes(continent as Continent)) {
+    res.status(400).json({ error: "Unknown continent", valid: CONTINENTS });
+    return;
+  }
+
+  const poolTeams = await db
+    .select()
+    .from(continentalPoolTeamsTable)
+    .where(eq(continentalPoolTeamsTable.continent, continent))
+    .orderBy(continentalPoolTeamsTable.poolRanking);
+
+  if (poolTeams.length === 0) {
+    res.json({ continent, poolTeams: [] });
+    return;
+  }
+
+  const teamIds = poolTeams.map(t => t.id);
+  const players = await db
+    .select()
+    .from(continentalPoolPlayersTable)
+    .where(inArray(continentalPoolPlayersTable.poolTeamId, teamIds));
+
+  const playersByTeam = new Map<number, typeof players>();
+  for (const p of players) {
+    if (!playersByTeam.has(p.poolTeamId)) playersByTeam.set(p.poolTeamId, []);
+    playersByTeam.get(p.poolTeamId)!.push(p);
+  }
+
+  res.json({
+    continent,
+    poolTeams: poolTeams.map(t => ({
+      id:              t.id,
+      teamName:        t.teamName,
+      stableId:        t.stableId,
+      rating:          t.rating,
+      form:            t.form,
+      fitness:         t.fitness,
+      poolRanking:     t.poolRanking,
+      promotionCount:  t.promotionCount,
+      relegationCount: t.relegationCount,
+      isActiveInLeague:t.isActiveInLeague,
+      players: (playersByTeam.get(t.id) ?? []).map(p => ({
+        id:          p.id,
+        name:        p.name,
+        nationality: p.nationality,
+        age:         p.age,
+        speed:       p.speed,
+        power:       p.power,
+        defense:     p.defense,
+        serve:       p.serve,
+        block:       p.block,
+        stamina:     p.stamina,
+        imageUrl:    p.imageUrl,
+      })),
+    })),
+  });
+});
+
 export default router;

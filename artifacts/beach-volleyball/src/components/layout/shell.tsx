@@ -25,6 +25,10 @@ import {
   FolderOpen,
   BarChart2,
   Medal,
+  Calendar,
+  ArrowUpDown,
+  CheckCircle2,
+  Flag,
 } from "lucide-react";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
@@ -48,7 +52,18 @@ type NavSubItem = {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   neverActive?: boolean;
+  sectionHeader?: never;
 };
+
+type NavSectionHeader = {
+  sectionHeader: true;
+  label: string;
+  href?: never;
+  icon?: never;
+  neverActive?: never;
+};
+
+type AnyNavSubItem = NavSubItem | NavSectionHeader;
 
 type DirectGroup = {
   id: string;
@@ -63,7 +78,7 @@ type ExpandableGroup = {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   href?: never;
-  items: NavSubItem[];
+  items: AnyNavSubItem[];
 };
 
 type NavGroup = DirectGroup | ExpandableGroup;
@@ -105,9 +120,36 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Competition",
     icon: Trophy,
     items: [
-      { href: "/youth-results", label: "Youth Results", icon: Star    },
-      { href: "/matches",       label: "World Tour",    icon: Globe   },
-      { href: "/locations",     label: "Olympics",      icon: Medal   },
+      // ── Continental ──────────────────────────────────────────
+      { sectionHeader: true, label: "Continental" },
+      { href: "/competition/regional-overview",    label: "Regional Overview",      icon: Globe        },
+      { href: "/competition/regional-fixtures",    label: "Regional Fixtures",      icon: Calendar     },
+      { href: "/competition/regional-results",     label: "Regional Results",       icon: CheckCircle2 },
+      { href: "/competition/regional-ladders",     label: "Regional Ladders",       icon: BarChart2    },
+      { href: "/competition/continental-pools",    label: "Continental Pools",      icon: Users        },
+      { href: "/competition/promotion-relegation", label: "Promotion & Relegation", icon: ArrowUpDown  },
+      { href: "/competition/regional-history",     label: "Regional History",       icon: FolderOpen   },
+      // ── World Tour ───────────────────────────────────────────
+      { sectionHeader: true, label: "World Tour" },
+      { href: "/competition/qualified-teams",      label: "Qualified Teams",        icon: Star         },
+      { href: "/matches",                          label: "World Tour Calendar",    icon: Globe        },
+      { href: "/competition/wt-fixtures",          label: "WT Fixtures",            icon: Calendar     },
+      { href: "/competition/wt-results",           label: "WT Results",             icon: Activity     },
+      { href: "/competition/wt-ladder",            label: "WT Ladder",              icon: BarChart2    },
+      { href: "/competition/world-finals",         label: "World Finals",           icon: Trophy       },
+      { href: "/competition/all-star",             label: "All-Star Match",         icon: Sparkles     },
+      { href: "/competition/wt-history",           label: "WT History",             icon: FolderOpen   },
+      // ── Olympics ─────────────────────────────────────────────
+      { sectionHeader: true, label: "Olympics" },
+      { href: "/locations",                         label: "Olympic Qualification", icon: Medal        },
+      { href: "/competition/national-squads",       label: "National Squads",       icon: Flag         },
+      { href: "/competition/olympic-schedule",      label: "Olympic Schedule",      icon: Calendar     },
+      { href: "/competition/olympic-results",       label: "Olympic Results",       icon: Trophy       },
+      { href: "/competition/medal-table",           label: "Medal Table",           icon: Medal        },
+      { href: "/competition/olympic-history",       label: "Olympic History",       icon: FolderOpen   },
+      // ── Youth ────────────────────────────────────────────────
+      { sectionHeader: true, label: "Youth" },
+      { href: "/youth-results",                     label: "Youth Results",         icon: Star         },
     ],
   },
   {
@@ -150,7 +192,7 @@ const NAV_GROUPS: NavGroup[] = [
 
 function groupContainsLocation(group: NavGroup, loc: string): boolean {
   if (group.href) return loc === group.href;
-  return group.items?.some(item => loc === item.href) ?? false;
+  return group.items?.some(item => !item.sectionHeader && loc === item.href) ?? false;
 }
 
 function findActiveGroupId(loc: string): string | null {
@@ -261,23 +303,33 @@ export function Sidebar() {
                 {/* Sub-items */}
                 {isOpen && (
                   <div className="mt-0.5 ml-4 pl-3 border-l border-sidebar-border/60 space-y-0.5 pb-1">
-                    {group.items!.map(item => {
-                      const ItemIcon = item.icon;
-                      const isItemActive = !item.neverActive && location === item.href;
+                    {group.items!.map((item, idx) => {
+                      if (item.sectionHeader) {
+                        return (
+                          <div key={`section-${idx}`} className="pt-2 pb-0.5 px-2.5 first:pt-1">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40 select-none">
+                              {item.label}
+                            </p>
+                          </div>
+                        );
+                      }
+                      const navItem = item as NavSubItem;
+                      const ItemIcon = navItem.icon;
+                      const isItemActive = !navItem.neverActive && location === navItem.href;
                       return (
                         <Link
-                          key={`${item.href}::${item.label}`}
-                          href={item.href}
+                          key={`${navItem.href}::${navItem.label}`}
+                          href={navItem.href}
                           className={cn(
                             "flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] transition-colors",
                             isItemActive
                               ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-sm"
                               : "text-sidebar-foreground/65 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground",
                           )}
-                          data-testid={`link-${item.label.toLowerCase().replace(/[\s&]+/g, "-")}`}
+                          data-testid={`link-${navItem.label.toLowerCase().replace(/[\s&]+/g, "-")}`}
                         >
                           <ItemIcon className="h-3.5 w-3.5 shrink-0" />
-                          <span className="truncate">{item.label}</span>
+                          <span className="truncate">{navItem.label}</span>
                           {isItemActive && <ChevronRight className="ml-auto h-3 w-3 opacity-50 shrink-0" />}
                         </Link>
                       );
