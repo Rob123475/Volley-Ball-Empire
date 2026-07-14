@@ -39,6 +39,7 @@ import calendarRouter from "./calendar";
 import devRouter from "./dev";
 import storageRouter from "./storage";
 import unityRouter from "./unity";
+import regionalLeagueRouter from "./regional-league";
 
 const router: IRouter = Router();
 
@@ -82,5 +83,6 @@ router.use(gameApiRouter);
 router.use(calendarRouter);
 router.use(devRouter);
 router.use(storageRouter);
+router.use(regionalLeagueRouter);
 
 export default router;
