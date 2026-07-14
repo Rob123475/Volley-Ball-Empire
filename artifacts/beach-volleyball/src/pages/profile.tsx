@@ -387,8 +387,8 @@ export default function ManagerProfile() {
         onClose={() => setShowRetire(false)}
         onRetired={() => {
           setShowRetire(false);
-          void queryClient.invalidateQueries();
-          navigate("/career");
+          sessionStorage.removeItem("bvp-title-dismissed");
+          window.location.href = "/";
         }}
       />
     )}

@@ -10,7 +10,7 @@ import {
   useListClubTemplates,
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
-import { EndCareerModal } from "@/components/career/EndCareerModal";
+import { RetireModal } from "@/components/career/RetireModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -887,12 +887,12 @@ export default function CareerManagement() {
       )}
 
       {showEndCareer && (
-        <EndCareerModal
+        <RetireModal
           onClose={() => setShowEndCareer(false)}
-          onSuccess={() => {
+          onRetired={() => {
             setShowEndCareer(false);
-            void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });
-            toast({ title: "Career ended", description: "Your career has been saved to the Hall of Fame" });
+            sessionStorage.removeItem("bvp-title-dismissed");
+            window.location.href = "/";
           }}
         />
       )}
