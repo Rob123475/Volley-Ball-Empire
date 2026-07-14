@@ -9,7 +9,7 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { EndCareerModal } from "./EndCareerModal";
+import { RetireModal } from "./RetireModal";
 
 interface Props {
   isOpen: boolean;
@@ -156,9 +156,9 @@ export function CareerOptionsMenu({ isOpen, onClose }: Props) {
 
       {/* End Career modal — rendered outside the menu panel so it stacks above */}
       {showEndCareer && (
-        <EndCareerModal
+        <RetireModal
           onClose={() => setShowEndCareer(false)}
-          onSuccess={() => {
+          onRetired={() => {
             setShowEndCareer(false);
             onClose();
             navigate("/career");
