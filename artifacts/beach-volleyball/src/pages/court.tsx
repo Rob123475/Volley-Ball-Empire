@@ -15,7 +15,10 @@ export default function ThreeDCourt() {
 
   if (buildState === "checking") {
     return (
-      <div className="flex items-center justify-center h-full w-full text-muted-foreground text-sm">
+      <div
+        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
+        className="text-muted-foreground text-sm"
+      >
         Checking for Unity build…
       </div>
     );
@@ -23,20 +26,25 @@ export default function ThreeDCourt() {
 
   if (buildState === "available") {
     return (
-      <div className="relative w-full h-full">
-        <iframe
-          src={`${import.meta.env.BASE_URL}unity-build/index.html`}
-          title="Beach Volleyball 3D Court"
-          className="w-full h-full border-0"
-          allow="fullscreen"
-        />
-      </div>
+      <iframe
+        src={`${import.meta.env.BASE_URL}unity-build/index.html`}
+        title="Beach Volleyball 3D Court"
+        allow="fullscreen"
+        style={{
+          width: "100%",
+          height: "100%",
+          border: 0,
+          display: "block",
+          minWidth: 0,
+        }}
+      />
     );
   }
 
-  // No Unity build uploaded yet
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full gap-6 text-center px-6">
+    <div
+      style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.5rem", textAlign: "center", padding: "1.5rem" }}
+    >
       <div className="rounded-full bg-muted p-5">
         <Monitor className="h-10 w-10 text-muted-foreground" />
       </div>
@@ -45,14 +53,17 @@ export default function ThreeDCourt() {
         <p className="text-sm text-muted-foreground leading-relaxed">
           Upload the latest Unity WebGL build to{" "}
           <code className="text-xs bg-muted rounded px-1.5 py-0.5 font-mono">
-            /public/unity-build/
+            public/unity-build/
           </code>{" "}
           to enable the 3D match viewer.
         </p>
       </div>
       <div className="flex items-center gap-2 text-xs text-muted-foreground border border-dashed border-border rounded-lg px-4 py-3">
         <UploadCloud className="h-4 w-4 shrink-0" />
-        <span>Place <code className="font-mono">index.html</code> and Unity build files in <code className="font-mono">public/unity-build/</code></span>
+        <span>
+          Place <code className="font-mono">index.html</code> and Unity build files in{" "}
+          <code className="font-mono">public/unity-build/</code>
+        </span>
       </div>
     </div>
   );

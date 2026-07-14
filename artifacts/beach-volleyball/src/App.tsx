@@ -62,6 +62,14 @@ function Router() {
   return (
     <Switch>
       <Route path="/dev/generation-test" component={DevGenerationTest} />
+      {/* Court page rendered outside Shell — full viewport, no sidebar */}
+      <Route path="/court">
+        <AuthGuard>
+          <div style={{ width: "100vw", height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <ThreeDCourt />
+          </div>
+        </AuthGuard>
+      </Route>
       <Route>
         <AuthGuard>
           <Shell>
@@ -71,7 +79,6 @@ function Router() {
               <Route path="/players" component={PlayerMarket} />
               <Route path="/draft" component={PlayerDraft} />
               <Route path="/matches" component={Matches} />
-              <Route path="/court" component={ThreeDCourt} />
               <Route path="/training" component={Training} />
               <Route path="/contracts" component={Contracts} />
               <Route path="/staff" component={StaffManagement} />
