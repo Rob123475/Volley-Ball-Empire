@@ -1,123 +1,168 @@
 /**
- * Seeds continental pool teams and players for the regional league system.
- * 6 active + 2 bench teams per continent = 48 teams, 96 players total.
- *
+ * Seeds continental pool teams, players, initial seasons, and 180 fixtures.
  * Run: pnpm --filter @workspace/scripts run seed-regional-leagues
+ *
+ * Idempotent: skips any stableId that already exists.
  */
 import { db } from "@workspace/db";
 import {
   continentalPoolTeamsTable,
   continentalPoolPlayersTable,
+  regionalLeagueSeasonsTable,
+  regionalLeagueFixturesTable,
 } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { generateDoubleRoundRobin } from "./fixtures.js";
+
+type PlayerDef = {
+  name: string;
+  nationality: string;
+  age: number;
+  speed: number;
+  power: number;
+  defense: number;
+  serve: number;
+  block: number;
+  stamina: number;
+};
 
 type TeamDef = {
   stableId: string;
-  name: string;
-  tier: "active" | "bench";
-  seededIndex: number;
-  strength: number;
-  logoColor: string;
-  players: [{ name: string; position: string; overall: number }, { name: string; position: string; overall: number }];
+  teamName: string;
+  isActiveInLeague: boolean;
+  poolRanking: number;
+  rating: number;
+  form: number;
+  players: [PlayerDef, PlayerDef];
 };
 
 const POOL: Record<string, TeamDef[]> = {
   "Europe": [
-    { stableId: "EUR_01", name: "Berlin Sand Queens",      tier: "active", seededIndex: 1,  strength: 88, logoColor: "#1a1a2e", players: [{ name: "Annika Bauer",       position: "blocker",     overall: 89 }, { name: "Sophie Müller",     position: "defender",    overall: 86 }] },
-    { stableId: "EUR_02", name: "Barcelona Playa Elites",  tier: "active", seededIndex: 2,  strength: 85, logoColor: "#c0392b", players: [{ name: "María Alonso",       position: "all_rounder", overall: 86 }, { name: "Carmen Ruiz",       position: "blocker",     overall: 83 }] },
-    { stableId: "EUR_03", name: "Paris Sables Royales",    tier: "active", seededIndex: 3,  strength: 82, logoColor: "#2c3e50", players: [{ name: "Élise Fontaine",     position: "defender",    overall: 83 }, { name: "Céline Moreau",     position: "blocker",     overall: 80 }] },
-    { stableId: "EUR_04", name: "Rome Beach Gladiators",   tier: "active", seededIndex: 4,  strength: 79, logoColor: "#8e44ad", players: [{ name: "Giulia Ricci",       position: "blocker",     overall: 80 }, { name: "Valentina Bianchi", position: "defender",    overall: 77 }] },
-    { stableId: "EUR_05", name: "Amsterdam Dune Riders",   tier: "active", seededIndex: 5,  strength: 76, logoColor: "#e67e22", players: [{ name: "Emma van Dijk",      position: "all_rounder", overall: 77 }, { name: "Lisa de Boer",      position: "defender",    overall: 74 }] },
-    { stableId: "EUR_06", name: "Athens Aegean Stars",     tier: "active", seededIndex: 6,  strength: 73, logoColor: "#27ae60", players: [{ name: "Eleni Papadaki",     position: "blocker",     overall: 74 }, { name: "Niki Stavros",      position: "all_rounder", overall: 71 }] },
-    { stableId: "EUR_07", name: "Warsaw Vistula Waves",    tier: "bench",  seededIndex: 7,  strength: 70, logoColor: "#e74c3c", players: [{ name: "Agnieszka Kowal",    position: "defender",    overall: 71 }, { name: "Marta Wiśniewska",  position: "blocker",     overall: 68 }] },
-    { stableId: "EUR_08", name: "Stockholm Northern Lights",tier:"bench",  seededIndex: 8,  strength: 67, logoColor: "#2980b9", players: [{ name: "Ingrid Larsson",     position: "blocker",     overall: 68 }, { name: "Astrid Eriksson",   position: "defender",    overall: 65 }] },
+    { stableId: "EUR_01", teamName: "Berlin Sand Queens",       isActiveInLeague: true,  poolRanking: 1,  rating: 88, form: 72, players: [{ name: "Annika Bauer",        nationality: "German",      age: 27, speed: 84, power: 80, defense: 88, serve: 86, block: 85, stamina: 82 }, { name: "Sophie Müller",      nationality: "German",      age: 25, speed: 88, power: 74, defense: 90, serve: 82, block: 76, stamina: 86 }] },
+    { stableId: "EUR_02", teamName: "Barcelona Playa Elites",   isActiveInLeague: true,  poolRanking: 2,  rating: 85, form: 68, players: [{ name: "María Alonso",         nationality: "Spanish",     age: 28, speed: 82, power: 78, defense: 84, serve: 84, block: 80, stamina: 80 }, { name: "Carmen Ruiz",        nationality: "Spanish",     age: 26, speed: 86, power: 76, defense: 86, serve: 80, block: 78, stamina: 84 }] },
+    { stableId: "EUR_03", teamName: "Paris Sables Royales",     isActiveInLeague: true,  poolRanking: 3,  rating: 82, form: 64, players: [{ name: "Élise Fontaine",       nationality: "French",      age: 26, speed: 80, power: 72, defense: 84, serve: 80, block: 76, stamina: 78 }, { name: "Céline Moreau",      nationality: "French",      age: 24, speed: 84, power: 70, defense: 82, serve: 78, block: 74, stamina: 80 }] },
+    { stableId: "EUR_04", teamName: "Rome Beach Gladiators",    isActiveInLeague: true,  poolRanking: 4,  rating: 79, form: 60, players: [{ name: "Giulia Ricci",         nationality: "Italian",     age: 29, speed: 78, power: 76, defense: 80, serve: 78, block: 80, stamina: 76 }, { name: "Valentina Bianchi",  nationality: "Italian",     age: 27, speed: 80, power: 74, defense: 78, serve: 76, block: 78, stamina: 78 }] },
+    { stableId: "EUR_05", teamName: "Amsterdam Dune Riders",    isActiveInLeague: true,  poolRanking: 5,  rating: 76, form: 56, players: [{ name: "Emma van Dijk",        nationality: "Dutch",       age: 25, speed: 82, power: 68, defense: 76, serve: 74, block: 72, stamina: 80 }, { name: "Lisa de Boer",       nationality: "Dutch",       age: 23, speed: 80, power: 66, defense: 74, serve: 72, block: 70, stamina: 76 }] },
+    { stableId: "EUR_06", teamName: "Athens Aegean Stars",      isActiveInLeague: true,  poolRanking: 6,  rating: 73, form: 52, players: [{ name: "Eleni Papadaki",       nationality: "Greek",       age: 28, speed: 76, power: 70, defense: 74, serve: 72, block: 74, stamina: 74 }, { name: "Niki Stavros",       nationality: "Greek",       age: 26, speed: 74, power: 68, defense: 72, serve: 70, block: 72, stamina: 72 }] },
+    { stableId: "EUR_07", teamName: "Warsaw Vistula Waves",     isActiveInLeague: false, poolRanking: 7,  rating: 70, form: 48, players: [{ name: "Agnieszka Kowal",       nationality: "Polish",      age: 27, speed: 74, power: 66, defense: 72, serve: 70, block: 70, stamina: 72 }, { name: "Marta Wiśniewska",   nationality: "Polish",      age: 25, speed: 72, power: 64, defense: 70, serve: 68, block: 68, stamina: 70 }] },
+    { stableId: "EUR_08", teamName: "Stockholm Northern Lights",isActiveInLeague: false, poolRanking: 8,  rating: 67, form: 44, players: [{ name: "Ingrid Larsson",        nationality: "Swedish",     age: 26, speed: 72, power: 62, defense: 70, serve: 66, block: 66, stamina: 70 }, { name: "Astrid Eriksson",    nationality: "Swedish",     age: 24, speed: 70, power: 60, defense: 68, serve: 64, block: 64, stamina: 68 }] },
   ],
   "Asia": [
-    { stableId: "ASI_01", name: "Tokyo Surf Samurai",       tier: "active", seededIndex: 1,  strength: 87, logoColor: "#c0392b", players: [{ name: "Yuki Tanaka",        position: "defender",    overall: 88 }, { name: "Aoi Yamamoto",      position: "blocker",     overall: 85 }] },
-    { stableId: "ASI_02", name: "Shanghai Yangtze Elites",  tier: "active", seededIndex: 2,  strength: 84, logoColor: "#e74c3c", players: [{ name: "Wei Lin",            position: "blocker",     overall: 85 }, { name: "Jing Chen",         position: "all_rounder", overall: 82 }] },
-    { stableId: "ASI_03", name: "Seoul Han River Queens",   tier: "active", seededIndex: 3,  strength: 81, logoColor: "#2c3e50", players: [{ name: "Ji-Yeon Park",       position: "all_rounder", overall: 82 }, { name: "Min-Seo Kim",       position: "defender",    overall: 79 }] },
-    { stableId: "ASI_04", name: "Bangkok Palm Beach Stars", tier: "active", seededIndex: 4,  strength: 78, logoColor: "#27ae60", players: [{ name: "Nisa Suwannaphat",   position: "blocker",     overall: 79 }, { name: "Pimchanok Meesuk",  position: "defender",    overall: 76 }] },
-    { stableId: "ASI_05", name: "Mumbai Coastal Warriors",  tier: "active", seededIndex: 5,  strength: 75, logoColor: "#f39c12", players: [{ name: "Priya Sharma",       position: "defender",    overall: 76 }, { name: "Ananya Nair",       position: "all_rounder", overall: 73 }] },
-    { stableId: "ASI_06", name: "Bali Island Legends",      tier: "active", seededIndex: 6,  strength: 72, logoColor: "#e67e22", players: [{ name: "Dewi Santoso",       position: "blocker",     overall: 73 }, { name: "Sari Wulandari",    position: "defender",    overall: 70 }] },
-    { stableId: "ASI_07", name: "Manila Bay Pearls",        tier: "bench",  seededIndex: 7,  strength: 69, logoColor: "#8e44ad", players: [{ name: "Maria Santos",       position: "all_rounder", overall: 70 }, { name: "Ana Reyes",         position: "blocker",     overall: 67 }] },
-    { stableId: "ASI_08", name: "Kuala Lumpur Monsoon FC",  tier: "bench",  seededIndex: 8,  strength: 66, logoColor: "#1abc9c", players: [{ name: "Nur Aisyah",         position: "defender",    overall: 67 }, { name: "Siti Rahimah",      position: "all_rounder", overall: 64 }] },
+    { stableId: "ASI_01", teamName: "Tokyo Surf Samurai",        isActiveInLeague: true,  poolRanking: 1,  rating: 87, form: 70, players: [{ name: "Yuki Tanaka",          nationality: "Japanese",    age: 26, speed: 90, power: 72, defense: 86, serve: 84, block: 78, stamina: 84 }, { name: "Aoi Yamamoto",       nationality: "Japanese",    age: 24, speed: 88, power: 70, defense: 84, serve: 82, block: 76, stamina: 82 }] },
+    { stableId: "ASI_02", teamName: "Shanghai Yangtze Elites",   isActiveInLeague: true,  poolRanking: 2,  rating: 84, form: 66, players: [{ name: "Wei Lin",              nationality: "Chinese",     age: 28, speed: 82, power: 80, defense: 82, serve: 82, block: 84, stamina: 80 }, { name: "Jing Chen",          nationality: "Chinese",     age: 26, speed: 84, power: 78, defense: 80, serve: 80, block: 82, stamina: 78 }] },
+    { stableId: "ASI_03", teamName: "Seoul Han River Queens",    isActiveInLeague: true,  poolRanking: 3,  rating: 81, form: 62, players: [{ name: "Ji-Yeon Park",         nationality: "South Korean",age: 27, speed: 86, power: 74, defense: 80, serve: 80, block: 76, stamina: 82 }, { name: "Min-Seo Kim",        nationality: "South Korean",age: 25, speed: 84, power: 72, defense: 78, serve: 78, block: 74, stamina: 80 }] },
+    { stableId: "ASI_04", teamName: "Bangkok Palm Beach Stars",  isActiveInLeague: true,  poolRanking: 4,  rating: 78, form: 58, players: [{ name: "Nisa Suwannaphat",     nationality: "Thai",        age: 26, speed: 82, power: 70, defense: 76, serve: 76, block: 74, stamina: 78 }, { name: "Pimchanok Meesuk",   nationality: "Thai",        age: 24, speed: 80, power: 68, defense: 74, serve: 74, block: 72, stamina: 76 }] },
+    { stableId: "ASI_05", teamName: "Mumbai Coastal Warriors",   isActiveInLeague: true,  poolRanking: 5,  rating: 75, form: 54, players: [{ name: "Priya Sharma",         nationality: "Indian",      age: 27, speed: 78, power: 66, defense: 74, serve: 72, block: 70, stamina: 76 }, { name: "Ananya Nair",        nationality: "Indian",      age: 25, speed: 76, power: 64, defense: 72, serve: 70, block: 68, stamina: 74 }] },
+    { stableId: "ASI_06", teamName: "Bali Island Legends",       isActiveInLeague: true,  poolRanking: 6,  rating: 72, form: 50, players: [{ name: "Dewi Santoso",         nationality: "Indonesian",  age: 28, speed: 76, power: 68, defense: 72, serve: 70, block: 72, stamina: 72 }, { name: "Sari Wulandari",     nationality: "Indonesian",  age: 26, speed: 74, power: 66, defense: 70, serve: 68, block: 70, stamina: 70 }] },
+    { stableId: "ASI_07", teamName: "Manila Bay Pearls",         isActiveInLeague: false, poolRanking: 7,  rating: 69, form: 46, players: [{ name: "Maria Santos",         nationality: "Filipino",    age: 27, speed: 74, power: 64, defense: 70, serve: 68, block: 68, stamina: 70 }, { name: "Ana Reyes",          nationality: "Filipino",    age: 25, speed: 72, power: 62, defense: 68, serve: 66, block: 66, stamina: 68 }] },
+    { stableId: "ASI_08", teamName: "Kuala Lumpur Monsoon FC",   isActiveInLeague: false, poolRanking: 8,  rating: 66, form: 42, players: [{ name: "Nur Aisyah",           nationality: "Malaysian",   age: 26, speed: 72, power: 60, defense: 68, serve: 64, block: 64, stamina: 68 }, { name: "Siti Rahimah",       nationality: "Malaysian",   age: 24, speed: 70, power: 58, defense: 66, serve: 62, block: 62, stamina: 66 }] },
   ],
   "North America": [
-    { stableId: "NAM_01", name: "LA Beach Legends",          tier: "active", seededIndex: 1,  strength: 90, logoColor: "#f39c12", players: [{ name: "Ashley Carter",      position: "blocker",     overall: 91 }, { name: "Taylor Brooks",     position: "defender",    overall: 88 }] },
-    { stableId: "NAM_02", name: "Miami Shoreline Queens",    tier: "active", seededIndex: 2,  strength: 87, logoColor: "#e74c3c", players: [{ name: "Destiny Rivera",     position: "all_rounder", overall: 88 }, { name: "Jasmine Washington",position: "blocker",     overall: 85 }] },
-    { stableId: "NAM_03", name: "Cancún Coral Storm",        tier: "active", seededIndex: 3,  strength: 84, logoColor: "#27ae60", players: [{ name: "Valentina Torres",   position: "defender",    overall: 85 }, { name: "Sofía Herrera",     position: "blocker",     overall: 82 }] },
-    { stableId: "NAM_04", name: "Havana Salsa Spikers",      tier: "active", seededIndex: 4,  strength: 81, logoColor: "#c0392b", players: [{ name: "Lisandra Pérez",     position: "blocker",     overall: 82 }, { name: "Yoanna Fuentes",    position: "defender",    overall: 79 }] },
-    { stableId: "NAM_05", name: "Honolulu Aloha Warriors",   tier: "active", seededIndex: 5,  strength: 78, logoColor: "#2980b9", players: [{ name: "Kalani Akana",       position: "all_rounder", overall: 79 }, { name: "Lani Kealoha",      position: "defender",    overall: 76 }] },
-    { stableId: "NAM_06", name: "Vancouver Pacific Orcas",   tier: "active", seededIndex: 6,  strength: 75, logoColor: "#1a1a2e", players: [{ name: "Brittany MacLeod",   position: "blocker",     overall: 76 }, { name: "Cassandra Tremblay",position: "all_rounder", overall: 73 }] },
-    { stableId: "NAM_07", name: "Myrtle Beach Sunblazers",   tier: "bench",  seededIndex: 7,  strength: 72, logoColor: "#e67e22", players: [{ name: "Madison Hughes",     position: "defender",    overall: 73 }, { name: "Brooke Simmons",    position: "blocker",     overall: 70 }] },
-    { stableId: "NAM_08", name: "San Juan Caribbean Pearls", tier: "bench",  seededIndex: 8,  strength: 69, logoColor: "#8e44ad", players: [{ name: "Mariela Colon",      position: "all_rounder", overall: 70 }, { name: "Xiomara Cruz",      position: "defender",    overall: 67 }] },
+    { stableId: "NAM_01", teamName: "LA Beach Legends",           isActiveInLeague: true,  poolRanking: 1,  rating: 90, form: 74, players: [{ name: "Ashley Carter",       nationality: "American",    age: 28, speed: 88, power: 84, defense: 88, serve: 88, block: 86, stamina: 84 }, { name: "Taylor Brooks",      nationality: "American",    age: 26, speed: 90, power: 80, defense: 86, serve: 86, block: 82, stamina: 86 }] },
+    { stableId: "NAM_02", teamName: "Miami Shoreline Queens",     isActiveInLeague: true,  poolRanking: 2,  rating: 87, form: 70, players: [{ name: "Destiny Rivera",      nationality: "American",    age: 27, speed: 86, power: 82, defense: 84, serve: 86, block: 84, stamina: 82 }, { name: "Jasmine Washington", nationality: "American",    age: 25, speed: 88, power: 80, defense: 82, serve: 84, block: 82, stamina: 84 }] },
+    { stableId: "NAM_03", teamName: "Cancún Coral Storm",         isActiveInLeague: true,  poolRanking: 3,  rating: 84, form: 66, players: [{ name: "Valentina Torres",    nationality: "Mexican",     age: 27, speed: 84, power: 78, defense: 82, serve: 82, block: 80, stamina: 80 }, { name: "Sofía Herrera",      nationality: "Mexican",     age: 25, speed: 82, power: 76, defense: 80, serve: 80, block: 78, stamina: 78 }] },
+    { stableId: "NAM_04", teamName: "Havana Salsa Spikers",       isActiveInLeague: true,  poolRanking: 4,  rating: 81, form: 62, players: [{ name: "Lisandra Pérez",      nationality: "Cuban",       age: 28, speed: 82, power: 76, defense: 80, serve: 80, block: 82, stamina: 78 }, { name: "Yoanna Fuentes",     nationality: "Cuban",       age: 26, speed: 80, power: 74, defense: 78, serve: 78, block: 80, stamina: 76 }] },
+    { stableId: "NAM_05", teamName: "Honolulu Aloha Warriors",    isActiveInLeague: true,  poolRanking: 5,  rating: 78, form: 58, players: [{ name: "Kalani Akana",        nationality: "American",    age: 26, speed: 84, power: 70, defense: 76, serve: 76, block: 74, stamina: 80 }, { name: "Lani Kealoha",       nationality: "American",    age: 24, speed: 82, power: 68, defense: 74, serve: 74, block: 72, stamina: 78 }] },
+    { stableId: "NAM_06", teamName: "Vancouver Pacific Orcas",    isActiveInLeague: true,  poolRanking: 6,  rating: 75, form: 54, players: [{ name: "Brittany MacLeod",    nationality: "Canadian",    age: 27, speed: 80, power: 70, defense: 74, serve: 74, block: 72, stamina: 76 }, { name: "Cassandra Tremblay", nationality: "Canadian",    age: 25, speed: 78, power: 68, defense: 72, serve: 72, block: 70, stamina: 74 }] },
+    { stableId: "NAM_07", teamName: "Myrtle Beach Sunblazers",    isActiveInLeague: false, poolRanking: 7,  rating: 72, form: 50, players: [{ name: "Madison Hughes",      nationality: "American",    age: 26, speed: 78, power: 66, defense: 72, serve: 70, block: 70, stamina: 74 }, { name: "Brooke Simmons",     nationality: "American",    age: 24, speed: 76, power: 64, defense: 70, serve: 68, block: 68, stamina: 72 }] },
+    { stableId: "NAM_08", teamName: "San Juan Caribbean Pearls",  isActiveInLeague: false, poolRanking: 8,  rating: 69, form: 46, players: [{ name: "Mariela Colon",       nationality: "Puerto Rican",age: 27, speed: 76, power: 62, defense: 70, serve: 68, block: 66, stamina: 72 }, { name: "Xiomara Cruz",       nationality: "Puerto Rican",age: 25, speed: 74, power: 60, defense: 68, serve: 66, block: 64, stamina: 70 }] },
   ],
   "South America": [
-    { stableId: "SAM_01", name: "Rio Copacabana Queens",     tier: "active", seededIndex: 1,  strength: 92, logoColor: "#27ae60", players: [{ name: "Fernanda Silva",     position: "blocker",     overall: 93 }, { name: "Beatriz Costa",     position: "defender",    overall: 90 }] },
-    { stableId: "SAM_02", name: "São Paulo Beach Warriors",  tier: "active", seededIndex: 2,  strength: 89, logoColor: "#e74c3c", players: [{ name: "Carolina Souza",     position: "all_rounder", overall: 90 }, { name: "Amanda Lima",       position: "blocker",     overall: 87 }] },
-    { stableId: "SAM_03", name: "Buenos Aires Pampas Storm", tier: "active", seededIndex: 3,  strength: 86, logoColor: "#2c3e50", players: [{ name: "Valentina Rodríguez",position: "defender",    overall: 87 }, { name: "Camila Gómez",      position: "blocker",     overall: 84 }] },
-    { stableId: "SAM_04", name: "Lima Pacific Soarers",      tier: "active", seededIndex: 4,  strength: 83, logoColor: "#f39c12", players: [{ name: "Lucía Quispe",       position: "blocker",     overall: 84 }, { name: "Andrea Huanca",     position: "all_rounder", overall: 81 }] },
-    { stableId: "SAM_05", name: "Bogotá Altitude Queens",    tier: "active", seededIndex: 5,  strength: 80, logoColor: "#e67e22", players: [{ name: "Isabella Vargas",    position: "defender",    overall: 81 }, { name: "Sara Moreno",       position: "blocker",     overall: 78 }] },
-    { stableId: "SAM_06", name: "Santiago Atacama Aces",     tier: "active", seededIndex: 6,  strength: 77, logoColor: "#c0392b", players: [{ name: "Daniela Rojas",      position: "all_rounder", overall: 78 }, { name: "Catalina Fuentes",  position: "defender",    overall: 75 }] },
-    { stableId: "SAM_07", name: "Montevideo Río Elites",     tier: "bench",  seededIndex: 7,  strength: 74, logoColor: "#1abc9c", players: [{ name: "Verónica Martínez",  position: "blocker",     overall: 75 }, { name: "Paula Álvarez",     position: "all_rounder", overall: 72 }] },
-    { stableId: "SAM_08", name: "Caracas Caribbean Coast",   tier: "bench",  seededIndex: 8,  strength: 71, logoColor: "#9b59b6", players: [{ name: "Gabriela Herrera",   position: "defender",    overall: 72 }, { name: "Andreína Colmenares",position:"blocker",     overall: 69 }] },
+    { stableId: "SAM_01", teamName: "Rio Copacabana Queens",      isActiveInLeague: true,  poolRanking: 1,  rating: 92, form: 76, players: [{ name: "Fernanda Silva",       nationality: "Brazilian",   age: 28, speed: 90, power: 88, defense: 90, serve: 92, block: 88, stamina: 86 }, { name: "Beatriz Costa",      nationality: "Brazilian",   age: 26, speed: 92, power: 84, defense: 88, serve: 90, block: 86, stamina: 88 }] },
+    { stableId: "SAM_02", teamName: "São Paulo Beach Warriors",   isActiveInLeague: true,  poolRanking: 2,  rating: 89, form: 72, players: [{ name: "Carolina Souza",       nationality: "Brazilian",   age: 27, speed: 88, power: 86, defense: 86, serve: 88, block: 86, stamina: 84 }, { name: "Amanda Lima",        nationality: "Brazilian",   age: 25, speed: 86, power: 84, defense: 84, serve: 86, block: 84, stamina: 82 }] },
+    { stableId: "SAM_03", teamName: "Buenos Aires Pampas Storm",  isActiveInLeague: true,  poolRanking: 3,  rating: 86, form: 68, players: [{ name: "Valentina Rodríguez",  nationality: "Argentine",   age: 28, speed: 84, power: 82, defense: 84, serve: 84, block: 84, stamina: 82 }, { name: "Camila Gómez",       nationality: "Argentine",   age: 26, speed: 86, power: 80, defense: 82, serve: 82, block: 82, stamina: 80 }] },
+    { stableId: "SAM_04", teamName: "Lima Pacific Soarers",       isActiveInLeague: true,  poolRanking: 4,  rating: 83, form: 64, players: [{ name: "Lucía Quispe",         nationality: "Peruvian",    age: 27, speed: 82, power: 78, defense: 82, serve: 82, block: 80, stamina: 80 }, { name: "Andrea Huanca",      nationality: "Peruvian",    age: 25, speed: 80, power: 76, defense: 80, serve: 80, block: 78, stamina: 78 }] },
+    { stableId: "SAM_05", teamName: "Bogotá Altitude Queens",     isActiveInLeague: true,  poolRanking: 5,  rating: 80, form: 60, players: [{ name: "Isabella Vargas",      nationality: "Colombian",   age: 26, speed: 80, power: 74, defense: 78, serve: 78, block: 76, stamina: 78 }, { name: "Sara Moreno",        nationality: "Colombian",   age: 24, speed: 78, power: 72, defense: 76, serve: 76, block: 74, stamina: 76 }] },
+    { stableId: "SAM_06", teamName: "Santiago Atacama Aces",      isActiveInLeague: true,  poolRanking: 6,  rating: 77, form: 56, players: [{ name: "Daniela Rojas",        nationality: "Chilean",     age: 27, speed: 78, power: 72, defense: 76, serve: 76, block: 76, stamina: 76 }, { name: "Catalina Fuentes",   nationality: "Chilean",     age: 25, speed: 76, power: 70, defense: 74, serve: 74, block: 74, stamina: 74 }] },
+    { stableId: "SAM_07", teamName: "Montevideo Río Elites",      isActiveInLeague: false, poolRanking: 7,  rating: 74, form: 52, players: [{ name: "Verónica Martínez",    nationality: "Uruguayan",   age: 27, speed: 76, power: 68, defense: 74, serve: 74, block: 72, stamina: 74 }, { name: "Paula Álvarez",      nationality: "Uruguayan",   age: 25, speed: 74, power: 66, defense: 72, serve: 72, block: 70, stamina: 72 }] },
+    { stableId: "SAM_08", teamName: "Caracas Caribbean Coast",    isActiveInLeague: false, poolRanking: 8,  rating: 71, form: 48, players: [{ name: "Gabriela Herrera",     nationality: "Venezuelan",  age: 26, speed: 74, power: 64, defense: 72, serve: 70, block: 70, stamina: 72 }, { name: "Andreína Colmenares",nationality: "Venezuelan",  age: 24, speed: 72, power: 62, defense: 70, serve: 68, block: 68, stamina: 70 }] },
   ],
   "Africa and Middle East": [
-    { stableId: "AFM_01", name: "Lagos Surf Queens",          tier: "active", seededIndex: 1,  strength: 83, logoColor: "#27ae60", players: [{ name: "Amara Okafor",       position: "blocker",     overall: 84 }, { name: "Chisom Nwosu",      position: "defender",    overall: 81 }] },
-    { stableId: "AFM_02", name: "Cairo Desert Eagles",        tier: "active", seededIndex: 2,  strength: 80, logoColor: "#f39c12", players: [{ name: "Fatima Al-Rashid",   position: "all_rounder", overall: 81 }, { name: "Nour Ibrahim",      position: "blocker",     overall: 78 }] },
-    { stableId: "AFM_03", name: "Durban Indian Ocean Tides",  tier: "active", seededIndex: 3,  strength: 77, logoColor: "#2980b9", players: [{ name: "Lindiwe Dlamini",    position: "defender",    overall: 78 }, { name: "Thandi Nkosi",      position: "blocker",     overall: 75 }] },
-    { stableId: "AFM_04", name: "Dubai Sand Aces",            tier: "active", seededIndex: 4,  strength: 74, logoColor: "#c0392b", players: [{ name: "Rania Al-Mansouri",  position: "blocker",     overall: 75 }, { name: "Sara Al-Hashimi",   position: "all_rounder", overall: 72 }] },
-    { stableId: "AFM_05", name: "Nairobi Savannah Stars",     tier: "active", seededIndex: 5,  strength: 71, logoColor: "#e67e22", players: [{ name: "Wanjiru Kamau",      position: "defender",    overall: 72 }, { name: "Aisha Mwangi",      position: "blocker",     overall: 69 }] },
-    { stableId: "AFM_06", name: "Casablanca Atlantic Spikers",tier: "active", seededIndex: 6,  strength: 68, logoColor: "#8e44ad", players: [{ name: "Nadia Benali",        position: "all_rounder", overall: 69 }, { name: "Samira El-Fassi",   position: "defender",    overall: 66 }] },
-    { stableId: "AFM_07", name: "Accra Goldcoast Waves",      tier: "bench",  seededIndex: 7,  strength: 65, logoColor: "#e74c3c", players: [{ name: "Abena Asante",        position: "blocker",     overall: 66 }, { name: "Efua Mensah",       position: "all_rounder", overall: 63 }] },
-    { stableId: "AFM_08", name: "Riyadh Dune Dominators",     tier: "bench",  seededIndex: 8,  strength: 62, logoColor: "#2c3e50", players: [{ name: "Hessa Al-Mutairi",   position: "defender",    overall: 63 }, { name: "Dalal Al-Saud",     position: "blocker",     overall: 60 }] },
+    { stableId: "AFM_01", teamName: "Lagos Surf Queens",           isActiveInLeague: true,  poolRanking: 1,  rating: 83, form: 66, players: [{ name: "Amara Okafor",        nationality: "Nigerian",    age: 27, speed: 84, power: 78, defense: 80, serve: 80, block: 80, stamina: 82 }, { name: "Chisom Nwosu",       nationality: "Nigerian",    age: 25, speed: 86, power: 74, defense: 78, serve: 78, block: 76, stamina: 84 }] },
+    { stableId: "AFM_02", teamName: "Cairo Desert Eagles",         isActiveInLeague: true,  poolRanking: 2,  rating: 80, form: 62, players: [{ name: "Fatima Al-Rashid",    nationality: "Egyptian",    age: 28, speed: 80, power: 76, defense: 78, serve: 78, block: 76, stamina: 78 }, { name: "Nour Ibrahim",       nationality: "Egyptian",    age: 26, speed: 82, power: 72, defense: 76, serve: 76, block: 74, stamina: 80 }] },
+    { stableId: "AFM_03", teamName: "Durban Indian Ocean Tides",   isActiveInLeague: true,  poolRanking: 3,  rating: 77, form: 58, players: [{ name: "Lindiwe Dlamini",     nationality: "South African",age:27, speed: 80, power: 72, defense: 76, serve: 74, block: 76, stamina: 78 }, { name: "Thandi Nkosi",       nationality: "South African",age:25, speed: 78, power: 70, defense: 74, serve: 72, block: 74, stamina: 76 }] },
+    { stableId: "AFM_04", teamName: "Dubai Sand Aces",             isActiveInLeague: true,  poolRanking: 4,  rating: 74, form: 54, players: [{ name: "Rania Al-Mansouri",   nationality: "Emirati",     age: 26, speed: 78, power: 72, defense: 74, serve: 72, block: 74, stamina: 76 }, { name: "Sara Al-Hashimi",    nationality: "Emirati",     age: 24, speed: 76, power: 70, defense: 72, serve: 70, block: 72, stamina: 74 }] },
+    { stableId: "AFM_05", teamName: "Nairobi Savannah Stars",      isActiveInLeague: true,  poolRanking: 5,  rating: 71, form: 50, players: [{ name: "Wanjiru Kamau",       nationality: "Kenyan",      age: 27, speed: 82, power: 66, defense: 70, serve: 68, block: 68, stamina: 80 }, { name: "Aisha Mwangi",       nationality: "Kenyan",      age: 25, speed: 80, power: 64, defense: 68, serve: 66, block: 66, stamina: 78 }] },
+    { stableId: "AFM_06", teamName: "Casablanca Atlantic Spikers", isActiveInLeague: true,  poolRanking: 6,  rating: 68, form: 46, players: [{ name: "Nadia Benali",         nationality: "Moroccan",    age: 28, speed: 76, power: 66, defense: 68, serve: 66, block: 68, stamina: 74 }, { name: "Samira El-Fassi",    nationality: "Moroccan",    age: 26, speed: 74, power: 64, defense: 66, serve: 64, block: 66, stamina: 72 }] },
+    { stableId: "AFM_07", teamName: "Accra Goldcoast Waves",       isActiveInLeague: false, poolRanking: 7,  rating: 65, form: 42, players: [{ name: "Abena Asante",         nationality: "Ghanaian",    age: 27, speed: 76, power: 62, defense: 66, serve: 64, block: 64, stamina: 72 }, { name: "Efua Mensah",        nationality: "Ghanaian",    age: 25, speed: 74, power: 60, defense: 64, serve: 62, block: 62, stamina: 70 }] },
+    { stableId: "AFM_08", teamName: "Riyadh Dune Dominators",      isActiveInLeague: false, poolRanking: 8,  rating: 62, form: 38, players: [{ name: "Hessa Al-Mutairi",    nationality: "Saudi",       age: 26, speed: 72, power: 60, defense: 64, serve: 62, block: 62, stamina: 70 }, { name: "Dalal Al-Saud",      nationality: "Saudi",       age: 24, speed: 70, power: 58, defense: 62, serve: 60, block: 60, stamina: 68 }] },
   ],
   "Australia and Pacific Islands": [
-    { stableId: "AUS_01", name: "Bondi Beach Legends",        tier: "active", seededIndex: 1,  strength: 86, logoColor: "#27ae60", players: [{ name: "Scarlett Thompson",  position: "blocker",     overall: 87 }, { name: "Ruby Walker",       position: "defender",    overall: 84 }] },
-    { stableId: "AUS_02", name: "Gold Coast Thunderbirds",    tier: "active", seededIndex: 2,  strength: 83, logoColor: "#f39c12", players: [{ name: "Chloe Harrison",      position: "all_rounder", overall: 84 }, { name: "Lily Mitchell",     position: "blocker",     overall: 81 }] },
-    { stableId: "AUS_03", name: "Auckland Pacific Diamonds",  tier: "active", seededIndex: 3,  strength: 80, logoColor: "#2980b9", players: [{ name: "Aroha Tane",         position: "defender",    overall: 81 }, { name: "Mia Patel",         position: "blocker",     overall: 78 }] },
-    { stableId: "AUS_04", name: "Honolulu Hula Warriors",     tier: "active", seededIndex: 4,  strength: 77, logoColor: "#c0392b", players: [{ name: "Leilani Kahananui",  position: "blocker",     overall: 78 }, { name: "Kaimana Akana",     position: "all_rounder", overall: 75 }] },
-    { stableId: "AUS_05", name: "Fiji Island Breakers",       tier: "active", seededIndex: 5,  strength: 74, logoColor: "#e67e22", players: [{ name: "Mere Volavola",       position: "defender",    overall: 75 }, { name: "Adi Cakobau",       position: "blocker",     overall: 72 }] },
-    { stableId: "AUS_06", name: "Samoa Southern Swells",      tier: "active", seededIndex: 6,  strength: 71, logoColor: "#8e44ad", players: [{ name: "Sina Faleolo",        position: "all_rounder", overall: 72 }, { name: "Losa Tuilagi",      position: "defender",    overall: 69 }] },
-    { stableId: "AUS_07", name: "Vanuatu Coral Crushers",     tier: "bench",  seededIndex: 7,  strength: 68, logoColor: "#1abc9c", players: [{ name: "Mandy Tari",          position: "blocker",     overall: 69 }, { name: "Lisa Natuman",      position: "all_rounder", overall: 66 }] },
-    { stableId: "AUS_08", name: "Tonga Polynesian Power",     tier: "bench",  seededIndex: 8,  strength: 65, logoColor: "#e74c3c", players: [{ name: "Mele Taufa",          position: "defender",    overall: 66 }, { name: "Siosaia Taufa",     position: "blocker",     overall: 63 }] },
+    { stableId: "AUS_01", teamName: "Bondi Beach Legends",         isActiveInLeague: true,  poolRanking: 1,  rating: 86, form: 70, players: [{ name: "Scarlett Thompson",   nationality: "Australian",  age: 27, speed: 86, power: 82, defense: 84, serve: 84, block: 84, stamina: 82 }, { name: "Ruby Walker",        nationality: "Australian",  age: 25, speed: 84, power: 78, defense: 82, serve: 82, block: 80, stamina: 84 }] },
+    { stableId: "AUS_02", teamName: "Gold Coast Thunderbirds",     isActiveInLeague: true,  poolRanking: 2,  rating: 83, form: 66, players: [{ name: "Chloe Harrison",       nationality: "Australian",  age: 28, speed: 84, power: 80, defense: 80, serve: 82, block: 80, stamina: 80 }, { name: "Lily Mitchell",      nationality: "Australian",  age: 26, speed: 82, power: 76, defense: 78, serve: 80, block: 78, stamina: 82 }] },
+    { stableId: "AUS_03", teamName: "Auckland Pacific Diamonds",   isActiveInLeague: true,  poolRanking: 3,  rating: 80, form: 62, players: [{ name: "Aroha Tane",           nationality: "New Zealander",age:27, speed: 82, power: 74, defense: 78, serve: 78, block: 76, stamina: 80 }, { name: "Mia Patel",          nationality: "New Zealander",age:25, speed: 80, power: 72, defense: 76, serve: 76, block: 74, stamina: 78 }] },
+    { stableId: "AUS_04", teamName: "Honolulu Hula Warriors",      isActiveInLeague: true,  poolRanking: 4,  rating: 77, form: 58, players: [{ name: "Leilani Kahananui",   nationality: "Hawaiian",    age: 26, speed: 82, power: 70, defense: 74, serve: 76, block: 72, stamina: 78 }, { name: "Kaimana Akana",      nationality: "Hawaiian",    age: 24, speed: 80, power: 68, defense: 72, serve: 74, block: 70, stamina: 76 }] },
+    { stableId: "AUS_05", teamName: "Fiji Island Breakers",        isActiveInLeague: true,  poolRanking: 5,  rating: 74, form: 54, players: [{ name: "Mere Volavola",        nationality: "Fijian",      age: 27, speed: 78, power: 68, defense: 72, serve: 72, block: 72, stamina: 76 }, { name: "Adi Cakobau",        nationality: "Fijian",      age: 25, speed: 76, power: 66, defense: 70, serve: 70, block: 70, stamina: 74 }] },
+    { stableId: "AUS_06", teamName: "Samoa Southern Swells",       isActiveInLeague: true,  poolRanking: 6,  rating: 71, form: 50, players: [{ name: "Sina Faleolo",         nationality: "Samoan",      age: 28, speed: 76, power: 68, defense: 70, serve: 70, block: 70, stamina: 74 }, { name: "Losa Tuilagi",       nationality: "Samoan",      age: 26, speed: 74, power: 66, defense: 68, serve: 68, block: 68, stamina: 72 }] },
+    { stableId: "AUS_07", teamName: "Vanuatu Coral Crushers",      isActiveInLeague: false, poolRanking: 7,  rating: 68, form: 46, players: [{ name: "Mandy Tari",           nationality: "Vanuatuan",   age: 27, speed: 74, power: 62, defense: 68, serve: 66, block: 66, stamina: 72 }, { name: "Lisa Natuman",       nationality: "Vanuatuan",   age: 25, speed: 72, power: 60, defense: 66, serve: 64, block: 64, stamina: 70 }] },
+    { stableId: "AUS_08", teamName: "Tonga Polynesian Power",      isActiveInLeague: false, poolRanking: 8,  rating: 65, form: 42, players: [{ name: "Mele Taufa",           nationality: "Tongan",      age: 26, speed: 72, power: 62, defense: 66, serve: 64, block: 64, stamina: 70 }, { name: "Siosaia Taufa",      nationality: "Tongan",      age: 24, speed: 70, power: 60, defense: 64, serve: 62, block: 62, stamina: 68 }] },
   ],
 };
 
+// Use a relative import — the scripts package is compiled with tsx which handles .ts
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+// We need the fixture generator — import directly from the shared util
+// Since this script lives in scripts/src/ and the util is in api-server/src/utils/,
+// we duplicate the minimal generator here to avoid cross-artifact imports.
+function generateDoubleRoundRobinLocal(teamIds: number[]): { round: number; home: number; away: number }[] {
+  if (teamIds.length !== 6) throw new Error(`Expected 6 teams, got ${teamIds.length}`);
+  const slots: { round: number; home: number; away: number }[] = [];
+  const n = 6;
+  const rotating = [1, 2, 3, 4, 5];
+  for (let round = 1; round <= 5; round++) {
+    const indices = [0, ...rotating];
+    for (let i = 0; i < n / 2; i++) {
+      slots.push({ round, home: teamIds[indices[i]!]!, away: teamIds[indices[n - 1 - i]!]! });
+    }
+    rotating.unshift(rotating.pop()!);
+  }
+  const firstLeg = slots.slice();
+  for (const s of firstLeg) slots.push({ round: s.round + 5, home: s.away, away: s.home });
+  return slots;
+}
+
 async function main() {
-  console.log("Seeding continental pool teams and players...");
+  console.log("=== Seeding continental pool teams, players, seasons, and fixtures ===\n");
+
+  const CURRENT_SEASON_YEAR = 1;
 
   for (const [continent, teams] of Object.entries(POOL)) {
+    console.log(`\n── ${continent} ──`);
+    const activeTeamIds: number[] = [];
+
     for (const teamDef of teams) {
-      // Upsert: skip if stableId already exists
+      // Upsert pool team
       const [existing] = await db
         .select()
         .from(continentalPoolTeamsTable)
         .where(eq(continentalPoolTeamsTable.stableId, teamDef.stableId));
 
       let teamId: number;
-
       if (existing) {
-        console.log(`  Skipping ${teamDef.stableId} (already exists)`);
+        console.log(`  Skipping team ${teamDef.stableId} (already exists)`);
         teamId = existing.id;
       } else {
         const [inserted] = await db
           .insert(continentalPoolTeamsTable)
           .values({
             continent,
-            stableId: teamDef.stableId,
-            name: teamDef.name,
-            tier: teamDef.tier,
-            seededIndex: teamDef.seededIndex,
-            strength: teamDef.strength,
-            logoColor: teamDef.logoColor,
+            stableId:         teamDef.stableId,
+            teamName:         teamDef.teamName,
+            rating:           teamDef.rating,
+            form:             teamDef.form,
+            fitness:          80,
+            fatigue:          0,
+            poolRanking:      teamDef.poolRanking,
+            promotionCount:   0,
+            relegationCount:  0,
+            isActiveInLeague: teamDef.isActiveInLeague,
           })
           .returning();
         teamId = inserted!.id;
-        console.log(`  Inserted ${teamDef.stableId}: ${teamDef.name}`);
+        console.log(`  Inserted team ${teamDef.stableId}: ${teamDef.teamName}`);
       }
 
-      // Seed players if not already present
+      // Seed players
       for (let i = 0; i < teamDef.players.length; i++) {
         const p = teamDef.players[i]!;
         const playerStableId = `${teamDef.stableId}_P${i + 1}`;
@@ -128,19 +173,74 @@ async function main() {
 
         if (!existingP) {
           await db.insert(continentalPoolPlayersTable).values({
-            poolTeamId: teamId,
-            stableId: playerStableId,
-            name: p.name,
-            position: p.position,
-            overall: p.overall,
+            poolTeamId:  teamId,
+            stableId:    playerStableId,
+            name:        p.name,
+            nationality: p.nationality,
+            age:         p.age,
+            speed:       p.speed,
+            power:       p.power,
+            defense:     p.defense,
+            serve:       p.serve,
+            block:       p.block,
+            stamina:     p.stamina,
           });
           console.log(`    Inserted player ${playerStableId}: ${p.name}`);
         }
       }
+
+      if (teamDef.isActiveInLeague) activeTeamIds.push(teamId);
     }
+
+    if (activeTeamIds.length !== 6) {
+      console.warn(`  WARNING: ${continent} has ${activeTeamIds.length} active teams (expected 6)`);
+      continue;
+    }
+
+    // Seed initial season (idempotent)
+    const [existingSeason] = await db
+      .select()
+      .from(regionalLeagueSeasonsTable)
+      .where(
+        and(
+          eq(regionalLeagueSeasonsTable.continent, continent),
+          eq(regionalLeagueSeasonsTable.seasonYear, CURRENT_SEASON_YEAR),
+        ),
+      );
+
+    if (existingSeason) {
+      console.log(`  Season ${CURRENT_SEASON_YEAR} already exists (id=${existingSeason.id}), skipping fixtures`);
+      continue;
+    }
+
+    const [season] = await db
+      .insert(regionalLeagueSeasonsTable)
+      .values({
+        seasonYear: CURRENT_SEASON_YEAR,
+        continent,
+        teamIds:    activeTeamIds,
+        status:     "active",
+      })
+      .returning();
+
+    if (!season) continue;
+    console.log(`  Created season ${CURRENT_SEASON_YEAR} (id=${season.id})`);
+
+    // Generate 30 fixtures
+    const slots = generateDoubleRoundRobinLocal(activeTeamIds);
+    await db.insert(regionalLeagueFixturesTable).values(
+      slots.map(s => ({
+        regionalLeagueSeasonId: season.id,
+        round:          s.round,
+        homePoolTeamId: s.home,
+        awayPoolTeamId: s.away,
+        status:         "scheduled" as const,
+      })),
+    );
+    console.log(`  Inserted ${slots.length} fixtures`);
   }
 
-  console.log("Done!");
+  console.log("\n=== Done! ===");
   process.exit(0);
 }
 

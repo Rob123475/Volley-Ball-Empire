@@ -1,7 +1,7 @@
 /**
  * Regional league season utilities:
  *  - Ladder computation with full tie-breaker chain
- *  - Season resolution (qualification, relegation, promotion)
+ *  - Season resolution (qualification, relegation, promotion, next-season fixture generation)
  */
 
 import { db } from "@workspace/db";
@@ -12,13 +12,13 @@ import {
   worldTourQualificationsTable,
   continentalPoolTeamsTable,
 } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
+import { generateDoubleRoundRobin } from "./fixtures.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type LadderEntry = {
-  poolTeamId: number | null;
-  isUser: boolean;
+  poolTeamId: number;
   played: number;
   wins: number;
   losses: number;
@@ -36,58 +36,39 @@ export type Ladder = LadderEntry[];
 // ── Ladder computation ────────────────────────────────────────────────────────
 
 /**
- * Compute the league ladder for a given regional season.
+ * Pure function: reduce completed results into a sorted standings array.
  * Tie-breaker order:
  *   1. Points (win = 3 pts)
  *   2. Wins
  *   3. Set difference (set wins − set losses)
  *   4. Match-point difference
  *   5. Head-to-head points (among tied teams)
- *   6. Stable seeded index (from pool team seededIndex, user = 0)
+ *   6. Stable seeded rank (poolRanking from pool team record)
  */
-export async function computeLadder(seasonId: number): Promise<Ladder> {
-  const fixtures = await db
-    .select()
-    .from(regionalLeagueFixturesTable)
-    .where(
-      and(
-        eq(regionalLeagueFixturesTable.seasonId, seasonId),
-        eq(regionalLeagueFixturesTable.status, "completed"),
-      ),
-    );
+export function computeRegionalLadder(
+  fixtures: Array<{
+    id: number;
+    homePoolTeamId: number;
+    awayPoolTeamId: number;
+    status: string;
+  }>,
+  results: Array<{
+    fixtureId: number;
+    winnerId: number | null;
+    homeSets: number;
+    awaySets: number;
+    homeMatchPoints: number;
+    awayMatchPoints: number;
+  }>,
+  poolRankings: Map<number, number>,
+): Ladder {
+  const resultMap = new Map(results.map(r => [r.fixtureId, r]));
+  const entriesMap = new Map<number, LadderEntry>();
 
-  if (fixtures.length === 0) return [];
-
-  const fixtureIds = fixtures.map((f) => f.id);
-  const allResults = await db
-    .select()
-    .from(regionalLeagueResultsTable)
-    .where(
-      fixtureIds.length === 1
-        ? eq(regionalLeagueResultsTable.fixtureId, fixtureIds[0]!)
-        : eq(regionalLeagueResultsTable.fixtureId, fixtureIds[0]!),
-    );
-
-  // Build results map fixtureId → result
-  const resultMap = new Map(allResults.map((r) => [r.fixtureId, r]));
-
-  // Collect all participant keys
-  type ParticipantKey = string; // "pool:${id}" | "user"
-  const entriesMap = new Map<ParticipantKey, LadderEntry>();
-
-  function key(poolTeamId: number | null, isUser: boolean): ParticipantKey {
-    return isUser ? "user" : `pool:${poolTeamId}`;
-  }
-
-  function getOrCreate(
-    poolTeamId: number | null,
-    isUser: boolean,
-  ): LadderEntry {
-    const k = key(poolTeamId, isUser);
-    if (!entriesMap.has(k)) {
-      entriesMap.set(k, {
-        poolTeamId,
-        isUser,
+  function getOrCreate(teamId: number): LadderEntry {
+    if (!entriesMap.has(teamId)) {
+      entriesMap.set(teamId, {
+        poolTeamId: teamId,
         played: 0,
         wins: 0,
         losses: 0,
@@ -100,28 +81,29 @@ export async function computeLadder(seasonId: number): Promise<Ladder> {
         matchPointDiff: 0,
       });
     }
-    return entriesMap.get(k)!;
+    return entriesMap.get(teamId)!;
   }
 
   for (const fixture of fixtures) {
+    if (fixture.status !== "completed") continue;
     const result = resultMap.get(fixture.id);
     if (!result) continue;
 
-    const home = getOrCreate(fixture.homePoolTeamId, fixture.homeIsUser);
-    const away = getOrCreate(fixture.awayPoolTeamId, fixture.awayIsUser);
+    const home = getOrCreate(fixture.homePoolTeamId);
+    const away = getOrCreate(fixture.awayPoolTeamId);
 
-    const homeWon = result.homeSetWins > result.awaySetWins;
+    const homeWon = result.homeSets > result.awaySets;
 
     home.played++;
     away.played++;
-    home.setWins += result.homeSetWins;
-    home.setLosses += result.awaySetWins;
-    away.setWins += result.awaySetWins;
-    away.setLosses += result.homeSetWins;
-    home.matchPointsFor += result.homeMatchPoints;
-    home.matchPointsAgainst += result.awayMatchPoints;
-    away.matchPointsFor += result.awayMatchPoints;
-    away.matchPointsAgainst += result.homeMatchPoints;
+    home.setWins    += result.homeSets;
+    home.setLosses  += result.awaySets;
+    away.setWins    += result.awaySets;
+    away.setLosses  += result.homeSets;
+    home.matchPointsFor      += result.homeMatchPoints;
+    home.matchPointsAgainst  += result.awayMatchPoints;
+    away.matchPointsFor      += result.awayMatchPoints;
+    away.matchPointsAgainst  += result.homeMatchPoints;
 
     if (homeWon) {
       home.wins++;
@@ -134,148 +116,269 @@ export async function computeLadder(seasonId: number): Promise<Ladder> {
     }
   }
 
-  // Recalculate diffs
+  // Recalculate derived diffs
   for (const e of entriesMap.values()) {
-    e.setDiff = e.setWins - e.setLosses;
+    e.setDiff        = e.setWins - e.setLosses;
     e.matchPointDiff = e.matchPointsFor - e.matchPointsAgainst;
   }
 
   const ladder = Array.from(entriesMap.values());
 
-  // Build head-to-head lookup
-  function h2hPoints(
-    teamA: LadderEntry,
-    teamB: LadderEntry,
-  ): number {
+  // Head-to-head helper: points scored by teamA against teamB
+  function h2hPoints(aId: number, bId: number): number {
     let pts = 0;
     for (const fixture of fixtures) {
       const result = resultMap.get(fixture.id);
       if (!result) continue;
-      const homeKey = key(fixture.homePoolTeamId, fixture.homeIsUser);
-      const awayKey = key(fixture.awayPoolTeamId, fixture.awayIsUser);
-      const aKey = key(teamA.poolTeamId, teamA.isUser);
-      const bKey = key(teamB.poolTeamId, teamB.isUser);
-      if (homeKey === aKey && awayKey === bKey) {
-        const homeWon = result.homeSetWins > result.awaySetWins;
-        pts += homeWon ? 3 : 0;
-      } else if (homeKey === bKey && awayKey === aKey) {
-        const homeWon = result.homeSetWins > result.awaySetWins;
-        pts += homeWon ? 0 : 3;
+      if (fixture.homePoolTeamId === aId && fixture.awayPoolTeamId === bId) {
+        pts += result.homeSets > result.awaySets ? 3 : 0;
+      } else if (fixture.homePoolTeamId === bId && fixture.awayPoolTeamId === aId) {
+        pts += result.awaySets > result.homeSets ? 3 : 0;
       }
     }
     return pts;
   }
 
   ladder.sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points;
-    if (b.wins !== a.wins) return b.wins - a.wins;
-    if (b.setDiff !== a.setDiff) return b.setDiff - a.setDiff;
-    if (b.matchPointDiff !== a.matchPointDiff)
-      return b.matchPointDiff - a.matchPointDiff;
-    // Head-to-head
-    const h2h = h2hPoints(b, a) - h2hPoints(a, b);
+    if (b.points        !== a.points)        return b.points        - a.points;
+    if (b.wins          !== a.wins)           return b.wins          - a.wins;
+    if (b.setDiff       !== a.setDiff)        return b.setDiff       - a.setDiff;
+    if (b.matchPointDiff!== a.matchPointDiff) return b.matchPointDiff- a.matchPointDiff;
+    const h2h = h2hPoints(b.poolTeamId, a.poolTeamId) - h2hPoints(a.poolTeamId, b.poolTeamId);
     if (h2h !== 0) return h2h;
-    // Stable: user first among equals (index 0), then seededIndex (fetched separately)
-    return 0;
+    // Stable: lower poolRanking = better seed
+    return (poolRankings.get(a.poolTeamId) ?? 99) - (poolRankings.get(b.poolTeamId) ?? 99);
   });
 
   return ladder;
+}
+
+// ── Fetch helpers ─────────────────────────────────────────────────────────────
+
+async function fetchLadderData(seasonId: number): Promise<{
+  fixtures: Array<{
+    id: number;
+    homePoolTeamId: number;
+    awayPoolTeamId: number;
+    status: string;
+  }>;
+  results: Array<{
+    fixtureId: number;
+    winnerId: number | null;
+    homeSets: number;
+    awaySets: number;
+    homeMatchPoints: number;
+    awayMatchPoints: number;
+  }>;
+  poolRankings: Map<number, number>;
+}> {
+  const fixtures = await db
+    .select({
+      id:             regionalLeagueFixturesTable.id,
+      homePoolTeamId: regionalLeagueFixturesTable.homePoolTeamId,
+      awayPoolTeamId: regionalLeagueFixturesTable.awayPoolTeamId,
+      status:         regionalLeagueFixturesTable.status,
+    })
+    .from(regionalLeagueFixturesTable)
+    .where(eq(regionalLeagueFixturesTable.regionalLeagueSeasonId, seasonId));
+
+  const fixtureIds = fixtures.map(f => f.id);
+
+  const results = fixtureIds.length > 0
+    ? await db
+        .select({
+          fixtureId:       regionalLeagueResultsTable.fixtureId,
+          winnerId:        regionalLeagueResultsTable.winnerId,
+          homeSets:        regionalLeagueResultsTable.homeSets,
+          awaySets:        regionalLeagueResultsTable.awaySets,
+          homeMatchPoints: regionalLeagueResultsTable.homeMatchPoints,
+          awayMatchPoints: regionalLeagueResultsTable.awayMatchPoints,
+        })
+        .from(regionalLeagueResultsTable)
+        .where(inArray(regionalLeagueResultsTable.fixtureId, fixtureIds))
+    : [];
+
+  // Collect all participating team IDs
+  const allTeamIds = Array.from(new Set([
+    ...fixtures.map(f => f.homePoolTeamId),
+    ...fixtures.map(f => f.awayPoolTeamId),
+  ]));
+
+  const poolTeams = allTeamIds.length > 0
+    ? await db
+        .select({ id: continentalPoolTeamsTable.id, poolRanking: continentalPoolTeamsTable.poolRanking })
+        .from(continentalPoolTeamsTable)
+        .where(inArray(continentalPoolTeamsTable.id, allTeamIds))
+    : [];
+
+  const poolRankings = new Map(poolTeams.map(t => [t.id, t.poolRanking]));
+
+  return { fixtures, results, poolRankings };
+}
+
+// Public: compute ladder from DB for a given season
+export async function computeLadderForSeason(seasonId: number): Promise<Ladder> {
+  const { fixtures, results, poolRankings } = await fetchLadderData(seasonId);
+  return computeRegionalLadder(fixtures, results, poolRankings);
 }
 
 // ── Season resolution ─────────────────────────────────────────────────────────
 
 /**
  * Resolve a completed regional season:
- *  - Positions 1–3 → qualified for World Tour
- *  - Position 6    → relegated (bench team promoted into active slot)
- *
- * Returns the qualification records inserted.
- * Does NOT mutate pool team tiers in this call; tier mutation is
- * deferred to when the next season is initialised.
+ *  - Insert World Tour qualification rows for positions 1–3
+ *  - Set 6th-place team isActiveInLeague=false, increment relegationCount
+ *  - Promote highest-ranked bench team: isActiveInLeague=true, increment promotionCount
+ *  - Create a new regional_league_seasons row for seasonYear+1 with the updated roster
+ *  - Generate and insert 30 new fixtures for the next season
+ *  - Mark the resolved season as 'completed'
  */
 export async function resolveRegionalSeason(seasonId: number): Promise<void> {
-  const ladder = await computeLadder(seasonId);
-  if (ladder.length === 0) return;
+  const [season] = await db
+    .select()
+    .from(regionalLeagueSeasonsTable)
+    .where(eq(regionalLeagueSeasonsTable.id, seasonId));
+  if (!season) throw new Error(`Season ${seasonId} not found`);
 
-  const records: Array<{
-    seasonId: number;
-    position: number;
-    poolTeamId: number | null;
-    isUser: boolean;
-    type: string;
-  }> = [];
+  const { fixtures, results, poolRankings } = await fetchLadderData(seasonId);
+  const ladder = computeRegionalLadder(fixtures, results, poolRankings);
 
-  ladder.forEach((entry, idx) => {
-    const position = idx + 1;
-    if (position <= 3) {
-      records.push({
-        seasonId,
-        position,
-        poolTeamId: entry.poolTeamId,
-        isUser: entry.isUser,
-        type: "qualified",
-      });
-    }
-    if (position === 6) {
-      records.push({
-        seasonId,
-        position,
-        poolTeamId: entry.poolTeamId,
-        isUser: entry.isUser,
-        type: "relegated",
-      });
-    }
-  });
-
-  if (records.length > 0) {
-    await db.insert(worldTourQualificationsTable).values(records);
+  // Insert qualification rows for top 3
+  for (let i = 0; i < Math.min(3, ladder.length); i++) {
+    await db.insert(worldTourQualificationsTable).values({
+      seasonYear:         season.seasonYear,
+      continent:          season.continent,
+      poolTeamId:         ladder[i]!.poolTeamId,
+      qualifyingPosition: i + 1,
+    });
   }
 
-  // Mark season completed
+  // Relegate 6th-place AI pool team
+  const sixthEntry = ladder[5];
+  if (sixthEntry) {
+    await db
+      .update(continentalPoolTeamsTable)
+      .set({ isActiveInLeague: false, relegationCount: (await getTeam(sixthEntry.poolTeamId)).relegationCount + 1 })
+      .where(eq(continentalPoolTeamsTable.id, sixthEntry.poolTeamId));
+  }
+
+  // Promote top bench team (lowest poolRanking among isActiveInLeague=false for this continent)
+  const benchTeams = await db
+    .select()
+    .from(continentalPoolTeamsTable)
+    .where(
+      and(
+        eq(continentalPoolTeamsTable.continent, season.continent),
+        eq(continentalPoolTeamsTable.isActiveInLeague, false),
+      ),
+    );
+
+  // Exclude just-relegated team and sort by poolRanking
+  const candidates = benchTeams
+    .filter(t => !sixthEntry || t.id !== sixthEntry.poolTeamId)
+    .sort((a, b) => a.poolRanking - b.poolRanking);
+
+  if (candidates[0]) {
+    const promoted = candidates[0];
+    await db
+      .update(continentalPoolTeamsTable)
+      .set({ isActiveInLeague: true, promotionCount: promoted.promotionCount + 1 })
+      .where(eq(continentalPoolTeamsTable.id, promoted.id));
+  }
+
+  // Build updated 6-team roster for next season
+  // Start from existing season teamIds, replace relegated with promoted
+  const currentTeamIds = (season.teamIds as number[]).slice();
+  if (sixthEntry && candidates[0]) {
+    const relegatedIdx = currentTeamIds.indexOf(sixthEntry.poolTeamId);
+    if (relegatedIdx !== -1) currentTeamIds[relegatedIdx] = candidates[0].id;
+  }
+
+  // Create next-season record
+  const nextSeasonYear = season.seasonYear + 1;
+  const [nextSeason] = await db
+    .insert(regionalLeagueSeasonsTable)
+    .values({
+      seasonYear: nextSeasonYear,
+      continent:  season.continent,
+      teamIds:    currentTeamIds,
+      status:     "active",
+    })
+    .returning();
+
+  if (nextSeason) {
+    // Generate and insert 30 fixtures for next season
+    const fixtureSlots = generateDoubleRoundRobin(currentTeamIds);
+    await db.insert(regionalLeagueFixturesTable).values(
+      fixtureSlots.map(s => ({
+        regionalLeagueSeasonId: nextSeason.id,
+        round:          s.round,
+        homePoolTeamId: s.home,
+        awayPoolTeamId: s.away,
+        status:         "scheduled" as const,
+      })),
+    );
+  }
+
+  // Mark current season completed
   await db
     .update(regionalLeagueSeasonsTable)
     .set({ status: "completed" })
     .where(eq(regionalLeagueSeasonsTable.id, seasonId));
+}
 
-  // If the 6th-place team is an AI pool team, swap it to bench and promote a bench team
-  const sixthEntry = ladder[5];
-  if (sixthEntry && !sixthEntry.isUser && sixthEntry.poolTeamId != null) {
-    const relegatedId = sixthEntry.poolTeamId;
+async function getTeam(id: number) {
+  const [t] = await db.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id));
+  if (!t) throw new Error(`Pool team ${id} not found`);
+  return t;
+}
 
-    // Get continent for this season
-    const [season] = await db
-      .select()
-      .from(regionalLeagueSeasonsTable)
-      .where(eq(regionalLeagueSeasonsTable.id, seasonId));
-    if (!season) return;
+// ── AI match simulation ───────────────────────────────────────────────────────
 
-    // Demote relegated team to bench
-    await db
-      .update(continentalPoolTeamsTable)
-      .set({ tier: "bench" })
-      .where(eq(continentalPoolTeamsTable.id, relegatedId));
+/**
+ * Simulate a single fixture result using team rating + form.
+ * Higher-rated team wins ~70% of the time with realistic set/point spreads.
+ */
+export function simulateFixtureResult(
+  homeRating: number,
+  awayRating: number,
+): { homeSets: number; awaySets: number; homeMatchPoints: number; awayMatchPoints: number; winnerId: "home" | "away" } {
+  const homeAdv = 2; // home advantage points
+  const effectiveHome = homeRating + homeAdv + (Math.random() * 20 - 10);
+  const effectiveAway = awayRating + (Math.random() * 20 - 10);
 
-    // Find a bench team to promote (lowest seededIndex bench team)
-    const benchTeams = await db
-      .select()
-      .from(continentalPoolTeamsTable)
-      .where(
-        and(
-          eq(continentalPoolTeamsTable.continent, season.continent),
-          eq(continentalPoolTeamsTable.tier, "bench"),
-        ),
-      );
+  const homeWins = effectiveHome > effectiveAway;
+  const homeSets = homeWins ? 2 : Math.random() < 0.4 ? 1 : 0;
+  const awaySets = homeWins ? (Math.random() < 0.4 ? 1 : 0) : 2;
 
-    // Sort bench teams, pick lowest seededIndex (excluding the just-relegated one)
-    const candidates = benchTeams
-      .filter((t) => t.id !== relegatedId)
-      .sort((a, b) => a.seededIndex - b.seededIndex);
-
-    if (candidates[0]) {
-      await db
-        .update(continentalPoolTeamsTable)
-        .set({ tier: "active" })
-        .where(eq(continentalPoolTeamsTable.id, candidates[0].id));
+  // Per-set point totals (beach volleyball: first to 21, tie-break to 15)
+  function setPoints(winner: boolean): { won: number; lost: number } {
+    if (winner) {
+      const won = 21;
+      const lost = Math.floor(Math.random() * 18) + 3; // 3..20
+      return { won, lost };
+    } else {
+      const lost = 21;
+      const won = Math.floor(Math.random() * 18) + 3;
+      return { won, lost };
     }
   }
+
+  let homeMatchPoints = 0;
+  let awayMatchPoints = 0;
+  const totalSets = homeSets + awaySets;
+  for (let i = 0; i < totalSets; i++) {
+    const homeWinsSet = i < homeSets;
+    const pts = setPoints(homeWinsSet);
+    homeMatchPoints += pts.won;
+    awayMatchPoints += pts.lost;
+  }
+
+  return {
+    homeSets,
+    awaySets,
+    homeMatchPoints,
+    awayMatchPoints,
+    winnerId: homeWins ? "home" : "away",
+  };
 }

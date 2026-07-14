@@ -777,15 +777,19 @@ export type InsertCalendarState = typeof calendarStateTable.$inferInsert;
 // ── Regional League Competition ───────────────────────────────────────────────
 // Stable AI pool teams per continent (seeded once, reused across seasons)
 export const continentalPoolTeamsTable = pgTable("continental_pool_teams", {
-  id:          serial("id").primaryKey(),
-  continent:   varchar("continent",   { length: 60 }).notNull(),
-  stableId:    varchar("stable_id",   { length: 20 }).notNull().unique(),
-  name:        varchar("name",        { length: 100 }).notNull(),
-  tier:        varchar("tier",        { length: 10 }).notNull().default("active"),
-  seededIndex: integer("seeded_index").notNull().default(0),
-  strength:    integer("strength").notNull().default(50),
-  logoColor:   varchar("logo_color",  { length: 7 }),
-  createdAt:   timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  id:             serial("id").primaryKey(),
+  continent:      varchar("continent",   { length: 60 }).notNull(),
+  stableId:       varchar("stable_id",   { length: 20 }).notNull().unique(),
+  teamName:       varchar("team_name",   { length: 100 }).notNull(),
+  rating:         integer("rating").notNull().default(70),
+  form:           integer("form").notNull().default(50),
+  fitness:        integer("fitness").notNull().default(80),
+  fatigue:        integer("fatigue").notNull().default(0),
+  poolRanking:    integer("pool_ranking").notNull().default(0),
+  promotionCount: integer("promotion_count").notNull().default(0),
+  relegationCount:integer("relegation_count").notNull().default(0),
+  isActiveInLeague:boolean("is_active_in_league").notNull().default(true),
+  createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type ContinentalPoolTeam       = typeof continentalPoolTeamsTable.$inferSelect;
@@ -793,25 +797,33 @@ export type InsertContinentalPoolTeam = typeof continentalPoolTeamsTable.$inferI
 
 // Two players per pool team — stable across seasons
 export const continentalPoolPlayersTable = pgTable("continental_pool_players", {
-  id:         serial("id").primaryKey(),
-  poolTeamId: integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
-  stableId:   varchar("stable_id", { length: 24 }).notNull().unique(),
-  name:       varchar("name",      { length: 100 }).notNull(),
-  position:   varchar("position",  { length: 20 }).notNull().default("all_rounder"),
-  overall:    integer("overall").notNull().default(60),
+  id:          serial("id").primaryKey(),
+  poolTeamId:  integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  stableId:    varchar("stable_id",   { length: 24 }).notNull().unique(),
+  name:        varchar("name",        { length: 100 }).notNull(),
+  nationality: varchar("nationality", { length: 60 }).notNull().default(""),
+  age:         integer("age").notNull().default(22),
+  speed:       integer("speed").notNull().default(60),
+  power:       integer("power").notNull().default(60),
+  defense:     integer("defense").notNull().default(60),
+  serve:       integer("serve").notNull().default(60),
+  block:       integer("block").notNull().default(60),
+  stamina:     integer("stamina").notNull().default(60),
+  imageUrl:    text("image_url"),
+  createdAt:   timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type ContinentalPoolPlayer       = typeof continentalPoolPlayersTable.$inferSelect;
 export type InsertContinentalPoolPlayer = typeof continentalPoolPlayersTable.$inferInsert;
 
-// One season record per continent per game-season
+// One season record per continent per season year
 export const regionalLeagueSeasonsTable = pgTable("regional_league_seasons", {
-  id:        serial("id").primaryKey(),
-  continent: varchar("continent", { length: 60 }).notNull(),
-  season:    integer("season").notNull(),
-  teamId:    integer("team_id").references(() => teamsTable.id),
-  status:    varchar("status", { length: 15 }).notNull().default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  id:         serial("id").primaryKey(),
+  seasonYear: integer("season_year").notNull(),
+  continent:  varchar("continent", { length: 60 }).notNull(),
+  teamIds:    jsonb("team_ids").notNull().default([]),
+  status:     varchar("status", { length: 15 }).notNull().default("active"),
+  createdAt:  timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type RegionalLeagueSeason       = typeof regionalLeagueSeasonsTable.$inferSelect;
@@ -819,14 +831,15 @@ export type InsertRegionalLeagueSeason = typeof regionalLeagueSeasonsTable.$infe
 
 // Double round-robin: 10 rounds × 3 matches = 30 fixtures per season per continent
 export const regionalLeagueFixturesTable = pgTable("regional_league_fixtures", {
-  id:             serial("id").primaryKey(),
-  seasonId:       integer("season_id").notNull().references(() => regionalLeagueSeasonsTable.id),
-  round:          integer("round").notNull(),
-  homePoolTeamId: integer("home_pool_team_id").references(() => continentalPoolTeamsTable.id),
-  awayPoolTeamId: integer("away_pool_team_id").references(() => continentalPoolTeamsTable.id),
-  homeIsUser:     boolean("home_is_user").notNull().default(false),
-  awayIsUser:     boolean("away_is_user").notNull().default(false),
-  status:         varchar("status", { length: 15 }).notNull().default("scheduled"),
+  id:                    serial("id").primaryKey(),
+  regionalLeagueSeasonId:integer("regional_league_season_id").notNull().references(() => regionalLeagueSeasonsTable.id),
+  round:                 integer("round").notNull(),
+  homePoolTeamId:        integer("home_pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  awayPoolTeamId:        integer("away_pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  homeScore:             integer("home_score"),
+  awayScore:             integer("away_score"),
+  status:                varchar("status", { length: 15 }).notNull().default("scheduled"),
+  createdAt:             timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type RegionalLeagueFixture       = typeof regionalLeagueFixturesTable.$inferSelect;
@@ -836,25 +849,26 @@ export type InsertRegionalLeagueFixture = typeof regionalLeagueFixturesTable.$in
 export const regionalLeagueResultsTable = pgTable("regional_league_results", {
   id:              serial("id").primaryKey(),
   fixtureId:       integer("fixture_id").notNull().unique().references(() => regionalLeagueFixturesTable.id),
-  homeSetWins:     integer("home_set_wins").notNull().default(0),
-  awaySetWins:     integer("away_set_wins").notNull().default(0),
+  winnerId:        integer("winner_id").references(() => continentalPoolTeamsTable.id),
+  homeSets:        integer("home_sets").notNull().default(0),
+  awaySets:        integer("away_sets").notNull().default(0),
   homeMatchPoints: integer("home_match_points").notNull().default(0),
   awayMatchPoints: integer("away_match_points").notNull().default(0),
-  playedAt:        timestamp("played_at", { withTimezone: true }).notNull().defaultNow(),
+  playedAt:        timestamp("played_at",  { withTimezone: true }).notNull().defaultNow(),
+  createdAt:       timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type RegionalLeagueResult       = typeof regionalLeagueResultsTable.$inferSelect;
 export type InsertRegionalLeagueResult = typeof regionalLeagueResultsTable.$inferInsert;
 
-// Season-end qualification and relegation records
+// Season-end World Tour qualification records
 export const worldTourQualificationsTable = pgTable("world_tour_qualifications", {
-  id:         serial("id").primaryKey(),
-  seasonId:   integer("season_id").notNull().references(() => regionalLeagueSeasonsTable.id),
-  position:   integer("position").notNull(),
-  poolTeamId: integer("pool_team_id").references(() => continentalPoolTeamsTable.id),
-  isUser:     boolean("is_user").notNull().default(false),
-  type:       varchar("type", { length: 15 }).notNull(),
-  createdAt:  timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  id:                serial("id").primaryKey(),
+  seasonYear:        integer("season_year").notNull(),
+  continent:         varchar("continent",  { length: 60 }).notNull(),
+  poolTeamId:        integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  qualifyingPosition:integer("qualifying_position").notNull(),
+  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type WorldTourQualification       = typeof worldTourQualificationsTable.$inferSelect;
