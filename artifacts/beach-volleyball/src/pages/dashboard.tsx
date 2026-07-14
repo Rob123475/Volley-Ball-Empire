@@ -577,7 +577,9 @@ export default function Dashboard() {
       {/* ══════════════════════════════════════════════════════════════
           ATTENTION REQUIRED
       ══════════════════════════════════════════════════════════════ */}
-      <AttentionPanel items={attention?.items ?? []} />
+      <section id="attention-required">
+        <AttentionPanel items={attention?.items ?? []} />
+      </section>
 
       {/* ══════════════════════════════════════════════════════════════
           RECENT RESULTS

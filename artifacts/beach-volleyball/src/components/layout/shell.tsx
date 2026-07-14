@@ -8,14 +8,12 @@ import {
   FileText,
   UserCog,
   DollarSign,
-  Medal,
   LogOut,
   ChevronRight,
   ChevronDown,
   Menu,
   Box,
   Heart,
-  Briefcase,
   Building2,
   Sparkles,
   Globe,
@@ -26,16 +24,15 @@ import {
   Radar,
   FolderOpen,
   BarChart2,
+  Medal,
 } from "lucide-react";
-import { CalendarPanel } from "@/components/calendar-panel";
+import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   useGetCurrentAuthUser,
   getGetCurrentAuthUserQueryKey,
-  useGetOlympicSelection,
-  getGetOlympicSelectionQueryKey,
   useGetAchievements,
   getGetAchievementsQueryKey,
 } from "@workspace/api-client-react";
@@ -141,7 +138,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/profile",          label: "Manager Profile", icon: UserCog  },
       { href: "/manager-contract", label: "Contract",        icon: FileText },
-      { href: "/job-market",       label: "Job Market",      icon: Briefcase },
+      { href: "/job-market",       label: "Job Market",      icon: UserCog  },
       { href: "/career-history",   label: "Career History",  icon: Activity  },
       { href: "/achievements",     label: "Achievements",    icon: Star      },
       { href: "/trophy-cabinet",   label: "Manager Records", icon: Flame, neverActive: true },
@@ -167,9 +164,6 @@ export function Sidebar() {
 
   const { data: user } = useGetCurrentAuthUser({
     query: { queryKey: getGetCurrentAuthUserQueryKey() },
-  });
-  const { data: selection } = useGetOlympicSelection({
-    query: { queryKey: getGetOlympicSelectionQueryKey(), retry: false },
   });
 
   const logout = () => { window.location.href = "/api/logout"; };
@@ -296,35 +290,6 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* ── Calendar panel ── */}
-      <CalendarPanel />
-
-      {/* ── Role blocks ── */}
-      <div className="px-3 pt-3 pb-2 border-t border-sidebar-border shrink-0 space-y-1.5">
-        <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 bg-sidebar-accent/30">
-          <div className="h-6 w-6 rounded-md bg-primary/20 flex items-center justify-center shrink-0">
-            <Briefcase className="h-3.5 w-3.5 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none">Club Manager</p>
-            <p className="text-xs font-semibold truncate leading-tight mt-0.5">{user?.username ?? "—"}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 bg-blue-500/5 border border-blue-500/10">
-          <div className="h-6 w-6 rounded-md bg-blue-500/15 flex items-center justify-center shrink-0">
-            <Medal className="h-3.5 w-3.5 text-blue-400" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[9px] font-black uppercase tracking-widest text-blue-400/70 leading-none">National Coach</p>
-            {selection ? (
-              <p className="text-xs font-semibold truncate leading-tight mt-0.5">{selection.flag} {selection.country}</p>
-            ) : (
-              <p className="text-xs text-sidebar-foreground/30 italic leading-tight mt-0.5">Unassigned</p>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* ── User + logout ── */}
       <div className="px-3 pb-4 pt-2 border-t border-sidebar-border shrink-0">
         <div className="flex items-center gap-3 px-2 py-2">
@@ -422,11 +387,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <AchievementWatcher />
       <MatchDayModal />
       <Sidebar />
-      <main className="flex-1 p-4 lg:p-8 overflow-y-auto min-w-0">
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-          {children}
-        </div>
-      </main>
+      <div className="flex-1 flex flex-col min-w-0 lg:h-screen lg:overflow-hidden">
+        <GameplayHeader />
+        <main className="flex-1 p-4 lg:p-8 overflow-y-auto min-w-0">
+          <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

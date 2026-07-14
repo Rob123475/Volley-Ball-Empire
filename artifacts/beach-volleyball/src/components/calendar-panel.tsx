@@ -8,10 +8,10 @@ import {
   Zap,
   Gauge,
   ChevronRight,
-  Heart,
   AlertTriangle,
   Trophy,
   Loader2,
+  Heart,
 } from "lucide-react";
 
 const SPEED_OPTIONS: { id: CalendarSpeed; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -30,17 +30,8 @@ function formatGameDate(dateStr: string): { short: string; full: string } {
   };
 }
 
-function FatigueBar({ value, max = 100 }: { value: number; max?: number }) {
-  const pct = Math.round((value / max) * 100);
-  const color =
-    pct > 70 ? "bg-red-500" :
-    pct > 40 ? "bg-amber-500" :
-    "bg-emerald-500";
-  return (
-    <div className="h-1 w-full rounded-full bg-sidebar-border overflow-hidden">
-      <div className={cn("h-full rounded-full transition-all", color)} style={{ width: `${pct}%` }} />
-    </div>
-  );
+function VDiv() {
+  return <div className="w-px h-7 bg-sidebar-border shrink-0 mx-1" />;
 }
 
 export function CalendarPanel() {
@@ -71,24 +62,16 @@ export function CalendarPanel() {
 
   if (isLoading || !calendar) {
     return (
-      <div className="px-3 py-2 border-t border-sidebar-border">
-        <div className="flex items-center gap-2 text-sidebar-foreground/30 text-xs">
-          <Loader2 className="h-3 w-3 animate-spin" />
-          <span>Loading calendar…</span>
-        </div>
+      <div className="flex items-center gap-2 text-sidebar-foreground/30 text-xs shrink-0">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        <span>Loading…</span>
       </div>
     );
   }
 
   const dateLabel = formatGameDate(calendar.currentDate);
+  const year      = new Date(calendar.currentDate + "T00:00:00Z").getUTCFullYear();
   const speed     = calendar.calendarSpeed;
-
-  const speedLabel: Record<CalendarSpeed, string> = {
-    pause:  "PAUSED",
-    slow:   "SLOW",
-    medium: "MEDIUM",
-    fast:   "FAST",
-  };
 
   const speedColor: Record<CalendarSpeed, string> = {
     pause:  "text-sidebar-foreground/40",
@@ -97,134 +80,132 @@ export function CalendarPanel() {
     fast:   "text-emerald-400",
   };
 
+  const speedLabel: Record<CalendarSpeed, string> = {
+    pause: "PAUSED", slow: "SLOW", medium: "MED", fast: "FAST",
+  };
+
   const { avgFitness, avgFatigue, injuredCount, totalActive } = calendar.teamFitness;
 
   return (
-    <div className="px-3 pb-2 pt-2 border-t border-sidebar-border shrink-0 space-y-2">
+    <div className="flex items-center gap-0 min-w-0 overflow-x-auto">
 
-      {/* Date + speed state */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none">
-            In-Game Date
-          </p>
-          <p className="text-sm font-bold leading-tight mt-0.5 tabular-nums">{dateLabel.short}, {new Date(calendar.currentDate + "T00:00:00Z").getUTCFullYear()}</p>
+      {/* ── Date ── */}
+      <div className="flex flex-col shrink-0 px-2">
+        <span className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none">
+          Date
+        </span>
+        <span className="text-sm font-bold tabular-nums leading-tight mt-0.5">
+          {dateLabel.short}, {year}
+        </span>
+      </div>
+
+      <VDiv />
+
+      {/* ── Season / Round ── */}
+      <div className="flex flex-col shrink-0 px-2">
+        <span className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none">
+          Season
+        </span>
+        <span className="text-xs font-bold leading-tight mt-0.5">
+          {calendar.seasonYear} · R{calendar.seasonRound}/{calendar.seasonTotalRounds}
+        </span>
+      </div>
+
+      <VDiv />
+
+      {/* ── Match status ── */}
+      {calendar.pendingMatchId ? (
+        <div className="flex items-center gap-1 shrink-0 px-2 rounded bg-amber-500/15 border border-amber-500/30 h-7">
+          <AlertTriangle className="h-3 w-3 text-amber-400 shrink-0" />
+          <span className="text-[10px] font-black uppercase tracking-wide text-amber-400">Match Day!</span>
         </div>
-        <span className={cn("text-[9px] font-black uppercase tracking-widest leading-none", speedColor[speed])}>
+      ) : calendar.nextMatch ? (
+        <div className="flex items-center gap-1.5 shrink-0 px-2 rounded bg-sidebar-accent/30 h-7">
+          <Trophy className="h-3 w-3 text-sidebar-foreground/50 shrink-0" />
+          <span className="text-[11px] font-semibold leading-none max-w-[120px] truncate">
+            R{calendar.nextMatch.round} · {calendar.nextMatch.awayTeamName ?? "Opponent"}
+          </span>
+          {calendar.daysToNextMatch !== null && (
+            <span className="text-[10px] text-sidebar-foreground/45 shrink-0">
+              {calendar.daysToNextMatch === 0 ? "Today" : calendar.daysToNextMatch === 1 ? "Tomorrow" : `in ${calendar.daysToNextMatch}d`}
+            </span>
+          )}
+        </div>
+      ) : null}
+
+      <VDiv />
+
+      {/* ── Speed controls ── */}
+      <div className="flex items-center gap-0.5 shrink-0 px-1">
+        {SPEED_OPTIONS.map(opt => {
+          const Icon = opt.icon;
+          const isActive = speed === opt.id;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => setSpeed(opt.id)}
+              disabled={isSettingSpeed}
+              title={opt.label}
+              className={cn(
+                "flex items-center justify-center w-7 h-7 rounded text-[9px] font-bold uppercase transition-colors",
+                isActive
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+            </button>
+          );
+        })}
+
+        <span className={cn("text-[9px] font-black uppercase tracking-wide ml-1 shrink-0", speedColor[speed])}>
           {speedLabel[speed]}
         </span>
       </div>
 
-      {/* Season progress */}
-      <div className="text-[10px] text-sidebar-foreground/45 font-medium">
-        Season {calendar.seasonYear} · Round {calendar.seasonRound}/{calendar.seasonTotalRounds}
-      </div>
+      {/* ── Advance Day ── */}
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-7 px-2.5 text-[11px] font-semibold gap-1 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent shrink-0 ml-1"
+        onClick={advance}
+        disabled={isAdvancing || !!calendar.pendingMatchId}
+      >
+        {isAdvancing ? (
+          <Loader2 className="h-3 w-3 animate-spin" />
+        ) : (
+          <ChevronRight className="h-3 w-3" />
+        )}
+        <span className="hidden sm:inline">Advance</span>
+      </Button>
 
-      {/* Next match */}
-      {calendar.nextMatch ? (
-        <div className="rounded-md bg-sidebar-accent/30 px-2 py-1.5 space-y-0.5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none flex items-center gap-1">
-            <Trophy className="h-2.5 w-2.5" />
-            Next Match
-          </p>
-          <p className="text-[11px] font-semibold leading-tight truncate">
-            R{calendar.nextMatch.round} · {calendar.nextMatch.homeTeamId === undefined
-              ? "vs Opponent"
-              : calendar.nextMatch.awayTeamName ?? "Opponent"}
-          </p>
-          {calendar.daysToNextMatch !== null && (
-            <p className="text-[10px] text-sidebar-foreground/50">
-              {calendar.daysToNextMatch === 0
-                ? "Today!"
-                : calendar.daysToNextMatch === 1
-                ? "Tomorrow"
-                : `In ${calendar.daysToNextMatch} days`}
-              {calendar.nextMatchDate && ` · ${formatGameDate(calendar.nextMatchDate).short}`}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="text-[10px] text-sidebar-foreground/30 italic px-1">No upcoming matches</div>
-      )}
-
-      {/* Match day alert */}
-      {calendar.pendingMatchId && (
-        <div className="rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-1.5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 leading-none flex items-center gap-1">
-            <AlertTriangle className="h-2.5 w-2.5" />
-            Match Day!
-          </p>
-          <p className="text-[10px] text-amber-300/70 mt-0.5">Waiting for your decision…</p>
-        </div>
-      )}
-
-      {/* Team fitness summary */}
       {totalActive > 0 && (
-        <div className="space-y-1">
-          <p className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none flex items-center gap-1">
-            <Heart className="h-2.5 w-2.5" />
-            Squad Condition
-          </p>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-sidebar-foreground/60 w-8 shrink-0">Fit</span>
-            <FatigueBar value={avgFitness} />
-            <span className="text-[10px] tabular-nums text-sidebar-foreground/50 w-7 text-right shrink-0">{avgFitness}%</span>
+        <>
+          <VDiv />
+
+          {/* ── Fitness / Fatigue ── */}
+          <div className="flex items-center gap-3 shrink-0 px-2">
+            <div className="flex items-center gap-1.5">
+              <Heart className="h-3 w-3 text-emerald-400 shrink-0" />
+              <span className="text-[11px] font-bold tabular-nums text-sidebar-foreground/75">
+                {avgFitness}%
+              </span>
+              <span className="text-[9px] uppercase tracking-wide text-sidebar-foreground/35 font-black">Fit</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold tabular-nums text-sidebar-foreground/75">
+                {avgFatigue}%
+              </span>
+              <span className="text-[9px] uppercase tracking-wide text-sidebar-foreground/35 font-black">Tired</span>
+            </div>
+            {injuredCount > 0 && (
+              <span className="text-[10px] text-red-400 font-bold tabular-nums">
+                {injuredCount}⚕
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-sidebar-foreground/60 w-8 shrink-0">Tired</span>
-            <FatigueBar value={avgFatigue} />
-            <span className="text-[10px] tabular-nums text-sidebar-foreground/50 w-7 text-right shrink-0">{avgFatigue}%</span>
-          </div>
-          {injuredCount > 0 && (
-            <p className="text-[10px] text-red-400 font-medium">
-              {injuredCount} player{injuredCount !== 1 ? "s" : ""} injured
-            </p>
-          )}
-        </div>
+        </>
       )}
-
-      {/* Speed controls */}
-      <div className="space-y-1">
-        <div className="grid grid-cols-4 gap-0.5">
-          {SPEED_OPTIONS.map(opt => {
-            const Icon = opt.icon;
-            const isActive = speed === opt.id;
-            return (
-              <button
-                key={opt.id}
-                onClick={() => setSpeed(opt.id)}
-                disabled={isSettingSpeed}
-                title={opt.label}
-                className={cn(
-                  "flex flex-col items-center gap-0.5 py-1.5 px-1 rounded text-[9px] font-bold uppercase tracking-wide transition-colors",
-                  isActive
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
-                )}
-              >
-                <Icon className="h-3 w-3 shrink-0" />
-                <span>{opt.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Manual advance */}
-        <Button
-          size="sm"
-          variant="outline"
-          className="w-full h-7 text-[11px] font-semibold gap-1.5 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
-          onClick={advance}
-          disabled={isAdvancing || !!calendar.pendingMatchId}
-        >
-          {isAdvancing ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : (
-            <ChevronRight className="h-3 w-3" />
-          )}
-          Advance Day
-        </Button>
-      </div>
     </div>
   );
 }
