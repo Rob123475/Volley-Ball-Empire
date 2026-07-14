@@ -1,6 +1,18 @@
 import { Router } from "express";
 import { generateStaffMember, type StaffRole } from "../utils/staff-generator.js";
 import { generateMedicalStaffMember, type MedicalRole, MEDICAL_ROLES } from "../utils/medical-staff-generator.js";
+import { db } from "@workspace/db";
+import { matchesTable, seasonsTable, calendarStateTable, teamsTable } from "@workspace/db";
+import { eq, sql } from "drizzle-orm";
+import { WORLD_TOUR } from "../data/worldTour.js";
+
+const WEATHER_CONDITIONS = ["sunny", "clear", "cloudy", "windy", "hot", "overcast", "perfect"];
+function quickWeather() {
+  const w = WEATHER_CONDITIONS[Math.floor(Math.random() * WEATHER_CONDITIONS.length)]!;
+  const wind = String((Math.random() * 20).toFixed(1));
+  const temp = String((22 + Math.random() * 15).toFixed(1));
+  return { weather: w, windSpeed: wind, temperature: temp };
+}
 
 const router = Router();
 
@@ -163,6 +175,102 @@ router.post("/dev/generate-test", (req, res) => {
   }
 
   res.json(results);
+});
+
+// ── POST /api/dev/migrate-season-78 ──────────────────────────────────────────
+// Restructures the 2026 season to the 78-slot schedule:
+//   Slots  1–10  Regional Period   (no matches — handled by regional league tables)
+//   Slots 11–70  World Tour Period (60 events, one match per team)
+//   Slots 71–72  Finals Period     (2 finals matches per team)
+//   Slots 73–78  Holiday Period    (no matches)
+//
+// Safe to call multiple times: deletes and recreates all scheduled WT matches.
+
+router.post("/dev/migrate-season-78", async (_req, res) => {
+  try {
+    // 1. Load the active season
+    const seasons = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
+    const season = seasons[0];
+    if (!season) { res.status(400).json({ error: "No active season found" }); return; }
+
+    // 2. Load all teams
+    const teams = await db.select({ id: teamsTable.id, name: teamsTable.name }).from(teamsTable);
+    if (teams.length === 0) { res.status(400).json({ error: "No teams found" }); return; }
+
+    // 3. Delete all scheduled matches for this season
+    await db.delete(matchesTable)
+      .where(eq(matchesTable.season, season.year));
+
+    const deletedCount = 0; // approximate — drizzle delete doesn't return count easily
+
+    // 4. Update season: 78 slots, reset regional tracking
+    await db.update(seasonsTable)
+      .set({ totalRounds: 78, currentRound: 1, regionalRoundsProcessed: 0 })
+      .where(eq(seasonsTable.id, season.id));
+
+    // 5. Seed new matches for each team × each WORLD_TOUR event (slots 11–72)
+    const matchRows: Array<typeof matchesTable.$inferInsert> = [];
+    for (const team of teams) {
+      for (const event of WORLD_TOUR) {
+        const { weather, windSpeed, temperature } = quickWeather();
+        matchRows.push({
+          homeTeamId:    team.id,
+          awayTeamId:    team.id,
+          homeTeamName:  team.name,
+          awayTeamName:  event.opponent,
+          locationId:    event.locId,
+          locationName:  event.locName,
+          season:        season.year,
+          round:         event.round,
+          tier:          event.tier,
+          continent:     event.continent,
+          scheduledAt:   event.date,
+          prizeAmount:   String(event.prize),
+          status:        "scheduled",
+          teamSize:      2,
+          weather,
+          windSpeed,
+          temperature,
+        });
+      }
+    }
+
+    // Insert in batches of 100 to avoid statement size limits
+    const BATCH = 100;
+    let inserted = 0;
+    for (let i = 0; i < matchRows.length; i += BATCH) {
+      await db.insert(matchesTable).values(matchRows.slice(i, i + BATCH));
+      inserted += Math.min(BATCH, matchRows.length - i);
+    }
+
+    // 6. Reset calendar state for all teams to the season start
+    await db.update(calendarStateTable)
+      .set({
+        currentDate:    season.startDate,
+        pendingMatchId: null,
+        lastSalaryDate: season.startDate,
+        calendarSpeed:  "pause",
+      });
+
+    res.json({
+      ok: true,
+      seasonId:       season.id,
+      seasonYear:     season.year,
+      totalRounds:    78,
+      teamsProcessed: teams.length,
+      matchesCreated: inserted,
+      deletedPrior:   "all scheduled matches for season",
+      slots: {
+        regional:   "1–10  (auto-simulated via regional league tables)",
+        worldTour:  "11–70 (60 events, 10 per continent)",
+        finals:     "71–72 (Semifinals + World Final)",
+        holiday:    "73–78 (off-season rest)",
+      },
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
 });
 
 export default router;

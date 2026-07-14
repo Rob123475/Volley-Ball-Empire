@@ -350,10 +350,12 @@ export const seasonsTable = pgTable("seasons", {
   year: integer("year").notNull(),
   name: varchar("name", { length: 100 }).notNull(),
   status: varchar("status", { length: 20 }).notNull().default("upcoming"),
-  totalRounds: integer("total_rounds").notNull().default(10),
+  totalRounds: integer("total_rounds").notNull().default(78),
   currentRound: integer("current_round").notNull().default(0),
   startDate: varchar("start_date", { length: 20 }).notNull(),
   endDate: varchar("end_date", { length: 20 }).notNull(),
+  isOlympicSeason: boolean("is_olympic_season").notNull().default(false),
+  regionalRoundsProcessed: integer("regional_rounds_processed").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

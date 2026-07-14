@@ -343,6 +343,93 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
   });
 }
 
+// ── Calendar integration: auto-simulate a regional round ─────────────────────
+
+/**
+ * Auto-simulate all regional fixtures for a given round number across every
+ * active continental season in the specified year.
+ *
+ * Called by the calendar advance endpoint when it reaches a regional slot (1–10).
+ * Returns a summary of how many fixtures were simulated per continent.
+ */
+export async function simulateRegionalRound(
+  roundNumber: number,
+  seasonYear: number,
+): Promise<Array<{ continent: string; simulated: number }>> {
+  // Load all active seasons for this year
+  const activeSeasons = await db
+    .select()
+    .from(regionalLeagueSeasonsTable)
+    .where(
+      and(
+        eq(regionalLeagueSeasonsTable.seasonYear, seasonYear),
+        eq(regionalLeagueSeasonsTable.status, "active"),
+      ),
+    );
+
+  if (activeSeasons.length === 0) return [];
+
+  const seasonIds = activeSeasons.map(s => s.id);
+
+  // Load ALL pool teams once (for rating lookup)
+  const allPoolTeams = await db
+    .select({ id: continentalPoolTeamsTable.id, poolRanking: continentalPoolTeamsTable.poolRanking })
+    .from(continentalPoolTeamsTable);
+  const ratingByTeamId = new Map(
+    allPoolTeams.map(t => [t.id, 100 - (t.poolRanking - 1) * 8]),
+  );
+
+  // Load all scheduled fixtures for this round across all active seasons
+  const fixtures = await db
+    .select()
+    .from(regionalLeagueFixturesTable)
+    .where(
+      and(
+        inArray(regionalLeagueFixturesTable.regionalLeagueSeasonId, seasonIds),
+        eq(regionalLeagueFixturesTable.round, roundNumber),
+        eq(regionalLeagueFixturesTable.status, "scheduled"),
+      ),
+    );
+
+  if (fixtures.length === 0) return [];
+
+  // Simulate each fixture and write results
+  const summaryMap = new Map<string, number>();
+
+  await db.transaction(async (tx) => {
+    for (const fixture of fixtures) {
+      const homeRating = ratingByTeamId.get(fixture.homePoolTeamId) ?? 70;
+      const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId) ?? 70;
+      const result = simulateFixtureResult(homeRating, awayRating);
+
+      const winnerId =
+        result.winnerId === "home" ? fixture.homePoolTeamId : fixture.awayPoolTeamId;
+
+      await tx.insert(regionalLeagueResultsTable).values({
+        fixtureId:       fixture.id,
+        winnerId,
+        homeSets:        result.homeSets,
+        awaySets:        result.awaySets,
+        homeMatchPoints: result.homeMatchPoints,
+        awayMatchPoints: result.awayMatchPoints,
+      });
+
+      await tx
+        .update(regionalLeagueFixturesTable)
+        .set({ status: "completed", homeScore: result.homeSets, awayScore: result.awaySets })
+        .where(eq(regionalLeagueFixturesTable.id, fixture.id));
+
+      // Track per-season continent for summary
+      const season = activeSeasons.find(s => s.id === fixture.regionalLeagueSeasonId);
+      if (season) {
+        summaryMap.set(season.continent, (summaryMap.get(season.continent) ?? 0) + 1);
+      }
+    }
+  });
+
+  return Array.from(summaryMap.entries()).map(([continent, simulated]) => ({ continent, simulated }));
+}
+
 async function getTeam(id: number) {
   const [t] = await db.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id));
   if (!t) throw new Error(`Pool team ${id} not found`);

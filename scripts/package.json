@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
+    "migrate-season-78": "tsx ./src/migrate-season-78.ts",
     "seed": "tsx ./src/seed.ts",
     "expand-players": "tsx ./src/expand-players.ts",
     "seed-all-senior-players": "tsx ./src/seed-all-senior-players.ts",

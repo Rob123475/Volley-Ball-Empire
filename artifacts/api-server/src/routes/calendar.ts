@@ -8,8 +8,11 @@ import {
   playersTable,
   teamsTable,
   financeTransactionsTable,
+  regionalLeagueSeasonsTable,
 } from "@workspace/db";
-import { eq, or, and, ne, sql } from "drizzle-orm";
+import { eq, or, and, ne, sql, inArray } from "drizzle-orm";
+import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
+import { isRegionalSlot, isLastRegionalSlot, getSlotType } from "../utils/calendarSlots.js";
 
 const router = Router();
 
@@ -144,6 +147,10 @@ router.get("/calendar", async (req, res) => {
   const todayRounds = todayRoundsForDate(calendar.currentDate, season.startDate, season.endDate, season.totalRounds);
   const todayUserMatches = scheduledMatches.filter(m => todayRounds.includes(m.round));
 
+  // Regional info for today
+  const todaySlotTypes = todayRounds.map(r => ({ round: r, type: getSlotType(r) }));
+  const todayIsRegional = todaySlotTypes.some(s => s.type === "regional");
+
   // Pending match details
   let pendingMatch = null;
   if (calendar.pendingMatchId) {
@@ -162,13 +169,18 @@ router.get("/calendar", async (req, res) => {
     seasonYear:        season.year,
     seasonRound:       season.currentRound,
     seasonTotalRounds: season.totalRounds,
+    regionalRoundsProcessed: season.regionalRoundsProcessed,
+    isOlympicSeason:   season.isOlympicSeason,
     teamFitness: { avgFitness, avgFatigue, injuredCount, totalActive: active.length },
     todayEvents: todayUserMatches.map(m => ({
       type:     "match",
       round:    m.round,
+      slotType: getSlotType(m.round),
       opponent: m.homeTeamId === team.id ? m.awayTeamName : m.homeTeamName,
       isHome:   m.homeTeamId === team.id,
     })),
+    todayIsRegional,
+    todaySlots: todaySlotTypes,
   });
 });
 
@@ -225,10 +237,69 @@ router.post("/calendar/advance", async (req, res) => {
     if (updated[0]) calendar = updated[0];
   }
 
-  // Check for user match on today's date
+  // Determine which schedule slots fall on today's date
   const todayRounds = todayRoundsForDate(calendar.currentDate, season.startDate, season.endDate, season.totalRounds);
 
-  if (todayRounds.length > 0) {
+  const events: string[] = [];
+
+  // ── Regional period processing ──────────────────────────────────────────
+  // For each regional slot (1–10) that falls on today's date and hasn't yet
+  // been auto-simulated, simulate all 6 continents' fixtures for that round.
+  if (todayRounds.some(r => isRegionalSlot(r))) {
+    for (const round of todayRounds.filter(r => isRegionalSlot(r))) {
+      if (round > season.regionalRoundsProcessed) {
+        // Auto-simulate this regional round across all continents
+        try {
+          const summary = await simulateRegionalRound(round, season.year);
+          const totalFixtures = summary.reduce((s, c) => s + c.simulated, 0);
+          if (totalFixtures > 0) {
+            events.push(`Regional Round ${round}: ${totalFixtures} continental fixtures auto-simulated`);
+          }
+        } catch {
+          // Non-fatal — fixtures may already be simulated or seasons not found
+        }
+
+        // Update season.regionalRoundsProcessed
+        await db.update(seasonsTable)
+          .set({ regionalRoundsProcessed: round })
+          .where(eq(seasonsTable.id, season.id));
+
+        // If this was the final regional round, resolve all 6 continental seasons
+        if (isLastRegionalSlot(round)) {
+          const activeSeasons = await db
+            .select({ id: regionalLeagueSeasonsTable.id, continent: regionalLeagueSeasonsTable.continent })
+            .from(regionalLeagueSeasonsTable)
+            .where(
+              and(
+                eq(regionalLeagueSeasonsTable.seasonYear, season.year),
+                eq(regionalLeagueSeasonsTable.status, "active"),
+              ),
+            );
+
+          const resolvedContinents: string[] = [];
+          for (const rs of activeSeasons) {
+            try {
+              await resolveRegionalSeason(rs.id);
+              resolvedContinents.push(rs.continent);
+            } catch {
+              // Skip continents whose season cannot yet be resolved (incomplete fixtures)
+            }
+          }
+          if (resolvedContinents.length > 0) {
+            events.push(`Regional season resolved: ${resolvedContinents.join(", ")} — World Tour qualifiers confirmed`);
+          }
+        }
+      }
+    }
+
+    // Regional days do NOT create pendingMatch for the user's team
+    // (the user's club is a World Tour entrant, not in the regional leagues)
+  }
+
+  // ── World Tour / Finals match check ────────────────────────────────────
+  // Only check for user matches on non-regional slots
+  if (todayRounds.some(r => !isRegionalSlot(r))) {
+    const wtRounds = todayRounds.filter(r => !isRegionalSlot(r));
     const todayMatches = await db.select().from(matchesTable).where(
       and(
         eq(matchesTable.season, season.year),
@@ -236,7 +307,7 @@ router.post("/calendar/advance", async (req, res) => {
         or(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.awayTeamId, team.id)),
       )
     );
-    const matchToday = todayMatches.find(m => todayRounds.includes(m.round));
+    const matchToday = todayMatches.find(m => wtRounds.includes(m.round));
 
     if (matchToday) {
       await db.update(calendarStateTable)
@@ -247,6 +318,7 @@ router.post("/calendar/advance", async (req, res) => {
         matchDay: {
           matchId:     matchToday.id,
           round:       matchToday.round,
+          slotType:    getSlotType(matchToday.round),
           isHome:      matchToday.homeTeamId === team.id,
           opponent:    matchToday.homeTeamId === team.id ? matchToday.awayTeamName : matchToday.homeTeamName,
           location:    matchToday.locationName,
@@ -260,8 +332,12 @@ router.post("/calendar/advance", async (req, res) => {
     }
   }
 
+  // ── Holiday period note ─────────────────────────────────────────────────
+  if (todayRounds.some(r => getSlotType(r) === "holiday")) {
+    events.push("Off-season rest period — no matches scheduled");
+  }
+
   // ── Daily processing ──────────────────────────────────────────
-  const events: string[] = [];
 
   // 1. Fatigue recovery — healthy players
   await db.update(playersTable)
@@ -392,6 +468,24 @@ router.post("/calendar/skip-match", async (req, res) => {
     .where(eq(calendarStateTable.teamId, team.id));
 
   res.json({ success: true, newDate: nextDate });
+});
+
+// ── GET /api/calendar/season-structure ────────────────────────────────────
+// Returns the full 78-slot season structure for UI display
+
+router.get("/calendar/season-structure", async (_req, res) => {
+  const { TOTAL_SLOTS, REGIONAL_START, REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
+          FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END } = await import("../utils/calendarSlots.js");
+
+  res.json({
+    totalSlots: TOTAL_SLOTS,
+    phases: [
+      { name: "Regional Period",   slots: `${REGIONAL_START}–${REGIONAL_END}`,    count: 10, description: "All 6 continents play one round per slot" },
+      { name: "World Tour",        slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: 60, description: "60 events, 10 per continent" },
+      { name: "World Finals",      slots: `${FINALS_START}–${FINALS_END}`,         count: 2,  description: "Semifinals + World Final" },
+      { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,  count: 6,  description: "Rest & preparation for next season" },
+    ],
+  });
 });
 
 export default router;
