@@ -254,6 +254,20 @@ router.post("/careers/end", async (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /careers/quit — clear session without writing to Hall of Fame
+router.post("/careers/quit", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const sid = getSessionId(req);
+  if (sid) {
+    const session = await getSession(sid);
+    if (session) {
+      const { activeTeamId: _, ...rest } = session;
+      await updateSession(sid, rest);
+    }
+  }
+  res.json({ ok: true });
+});
+
 // POST /careers/:id/load — activate a career save for this session
 router.post("/careers/:id/load", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
