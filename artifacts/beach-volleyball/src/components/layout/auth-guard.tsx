@@ -6,7 +6,7 @@ import {
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Activity, Loader2, Play, ChevronRight, BookOpen, X } from "lucide-react";
-import { ClubSelectionScreen } from "@/components/club-selection-screen";
+import CareerManagement from "@/pages/career-management";
 
 
 const RULES = [
@@ -210,9 +210,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  // ── First-time user — pick a club ───────────────────────────────────────────
+  // ── No active career — show career management (load or create) ──────────────
   if (needsTeam) {
-    return <ClubSelectionScreen onComplete={() => refetchTeam()} />;
+    return <CareerManagement />;
   }
 
   return <>{children}</>;

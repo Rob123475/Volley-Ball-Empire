@@ -278,7 +278,8 @@ export function RetireModal({ onClose, onRetired }: Props) {
       onSuccess: () => {
         setFinalSummary(summary);
         setStep("done");
-        void queryClient.invalidateQueries();
+        // Don't invalidate here — the "done" screen would unmount immediately.
+        // onRetired (called when the user clicks Done) handles cleanup.
       },
     },
   });

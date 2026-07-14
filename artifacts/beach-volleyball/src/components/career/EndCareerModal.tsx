@@ -36,8 +36,8 @@ export function EndCareerModal({ onClose, onSuccess }: Props) {
   const handleConfirm = () => {
     endMutation.mutate(undefined, {
       onSuccess: () => {
-        void queryClient.invalidateQueries();
-        onSuccess();
+        onSuccess(); // navigate / close first
+        void queryClient.invalidateQueries(); // then invalidate so AuthGuard transitions cleanly
       },
     });
   };

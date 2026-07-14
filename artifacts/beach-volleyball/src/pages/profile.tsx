@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { RetireModal } from "@/components/career/RetireModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -168,7 +168,7 @@ function HighlightRow({
 
 export default function ManagerProfile() {
   const [showRetire, setShowRetire] = useState(false);
-  const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
 
   const { data: summary, isLoading: summaryLoading } = useGetCareerSummary({
     query: { queryKey: getGetCareerSummaryQueryKey() },
@@ -385,7 +385,9 @@ export default function ManagerProfile() {
         onClose={() => setShowRetire(false)}
         onRetired={() => {
           setShowRetire(false);
-          navigate("/career");
+          // Invalidate queries so AuthGuard detects no active team and
+          // renders CareerManagement where the user can start a fresh career.
+          void queryClient.invalidateQueries();
         }}
       />
     )}
