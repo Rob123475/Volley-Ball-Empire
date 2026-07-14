@@ -1,0 +1,147 @@
+COMPETITION RESTRUCTURE — PART 1 OF 4
+
+Work only on the competition structure and underlying competition data.
+
+Do not redesign the UI yet.
+Do not change Unity integration.
+Do not change player images.
+Do not change unrelated game systems.
+Do not delete existing save data without a migration.
+
+OBJECTIVE
+
+Create the following competition hierarchy:
+
+1. Continental Pool
+2. Continental Regional League
+3. World Tour
+4. World Finals
+5. Olympics in Olympic seasons
+
+CONTINENTAL REGIONAL LEAGUE
+
+There are six continental regional leagues:
+
+- Europe
+- Asia
+- North America
+- South America
+- Africa and Middle East
+- Australia and Pacific Islands
+
+Each continental regional league contains:
+
+- 6 active teams
+- 2 players per team
+- 12 active players
+- 10 regional rounds
+
+Each team must play every other team twice:
+
+- 5 opponents
+- 2 matches against each opponent
+- 10 matches per team
+- 30 actual matches per continent
+- 3 matches per round
+- 10 rounds total
+
+Generate the regional fixture schedule using a proper double round-robin algorithm.
+
+No team may:
+
+- play itself
+- play twice in the same regional round
+- miss an opponent
+- play an opponent more or less than twice
+
+REGIONAL LADDER
+
+Award:
+
+- 3 ladder points for a win
+- 0 ladder points for a loss
+
+Sort the regional ladder by:
+
+1. Ladder points
+2. Matches won
+3. Set difference
+4. Match-point difference
+5. Head-to-head result
+6. Stable seeded tiebreaker only if still tied
+
+After Round 10:
+
+- Positions 1, 2 and 3 qualify for the World Tour
+- Positions 4 and 5 remain in the regional league
+- Position 6 is relegated to the Continental Pool
+- The highest-ranked eligible Continental Pool team is promoted
+
+CONTINENTAL POOL
+
+Create a persistent pool for each continent.
+
+Pool teams must be permanent teams with:
+
+- stable team ID
+- stable player IDs
+- continent
+- team name
+- two-player roster
+- rating
+- form
+- fitness
+- fatigue
+- pool ranking
+- promotion history
+- relegation history
+- previous regional appearances
+- previous World Tour qualifications
+
+Do not generate a brand-new promoted team every season.
+
+At season rollover:
+
+- move the sixth-place regional team into its continent’s pool
+- promote the top eligible pool team into the regional league
+- preserve all player, team and historical records
+- rebuild the next season’s regional fixtures using the new six-team lineup
+
+WORLD TOUR QUALIFICATION
+
+The top three teams from each of the six regional leagues qualify.
+
+This produces:
+
+- 18 World Tour teams
+- 3 from each continent
+
+Store the qualification source, qualifying position and season.
+
+Do not implement the calendar or UI changes in this part.
+
+VALIDATION
+
+Verify:
+
+- 6 regional leagues exist
+- each has exactly 6 active teams
+- each team has exactly 10 regional matches
+- each continent has exactly 30 actual regional matches
+- each round contains exactly 3 matches per continent
+- every pairing occurs exactly twice
+- top 3 qualification works
+- sixth-place relegation works
+- pool promotion works
+- team and player histories survive promotion and relegation
+- no console errors
+- no duplicate team or fixture IDs
+
+Stop after completing Part 1.
+
+Report only:
+
+- files changed
+- data migrations added
+- validation results
+- any genuine blocker

@@ -1,0 +1,164 @@
+CALENDAR RESTRUCTURE — PART 2 OF 4
+
+Continue from the completed competition restructure.
+
+Work only on the season calendar, scheduling engine and season progression.
+
+Do not redesign unrelated pages.
+Do not change Unity gameplay.
+Do not change player generation.
+Do not alter the competition rules completed in Part 1.
+
+OBJECTIVE
+
+Restructure the game calendar so every season follows this order:
+
+1. 10 regional rounds
+2. 60 World Tour dates
+3. 2 World Finals dates
+4. 6 holiday dates
+5. Olympics scheduled inside the holiday period during Olympic seasons
+
+IMPORTANT DATE RULE
+
+Treat these as 78 sequential in-game schedule slots:
+
+- Regional: 10 dates
+- World Tour: 60 dates
+- World Finals: 2 dates
+- Holiday period: 6 dates
+
+Total:
+
+- 78 scheduled season dates
+
+Do not automatically interpret every schedule slot as seven real-world days unless the existing game architecture requires it.
+
+The in-game date system must advance through all 78 schedule slots cleanly.
+
+REGIONAL PERIOD
+
+Schedule Regional Dates 1–10 first.
+
+On each regional date:
+
+- every continent plays one regional round
+- each continent has 3 matches
+- all six continents can run their regional round on the same date
+- therefore each regional team plays once per regional date
+
+After Regional Date 10:
+
+- finalize all six regional ladders
+- qualify the top three teams from each continent
+- confirm the 18 World Tour teams
+- process promotion and relegation at the correct season boundary
+
+WORLD TOUR PERIOD
+
+Schedule World Tour Dates 1–60 after regional qualification.
+
+Preserve the existing World Tour format where possible, but ensure:
+
+- only the 18 qualified teams participate
+- every World Tour date has a valid fixture or event
+- no eliminated or non-qualified team enters
+- fitness, fatigue, travel, injuries and form continue between dates
+- World Tour ranking points accumulate correctly
+- the World Tour ladder is separate from every regional ladder
+- regional points do not carry into World Tour standings
+
+At World Tour Date 60:
+
+- freeze the World Tour ladder
+- qualify the top four teams for the World Finals
+
+WORLD FINALS PERIOD
+
+Use two scheduled finals dates.
+
+Finals Date 1:
+
+- Semifinal 1: World Tour position 1 vs position 4
+- Semifinal 2: World Tour position 2 vs position 3
+
+Finals Date 2:
+
+- World Final between the semifinal winners
+
+Keep the existing All-Star match if already implemented.
+
+Schedule the All-Star match between the semifinals and World Final without creating a third main finals date.
+
+The All-Star players must exclude players involved in the World Final if that is the existing rule.
+
+HOLIDAY PERIOD
+
+Create six holiday dates after the World Finals.
+
+In a normal season:
+
+- these are recovery and holiday dates
+- no normal regional or World Tour fixtures occur
+- fatigue and recovery systems continue
+- appropriate offseason actions remain available
+
+OLYMPIC SEASONS
+
+In an Olympic season, schedule the Olympics entirely inside the six-date holiday period.
+
+The Olympics must not extend the season beyond the same 78 scheduled dates.
+
+During an Olympic season:
+
+- replace or partially occupy the six holiday dates with Olympic fixtures
+- preserve any minimum rest dates required by the existing fatigue system
+- do not overlap Olympic matches with regional, World Tour or World Finals fixtures
+- use national teams and national eligibility
+- do not use club teams as Olympic teams
+- return players to their club teams after the Olympics
+
+SEASON ROLLOVER
+
+After Schedule Date 78:
+
+- archive the season
+- record champions and qualification history
+- process aging and player development
+- process contracts and retirements using existing systems
+- process continental promotion and relegation
+- create the next season
+- regenerate regional fixtures based on the new regional team lineup
+- reset seasonal ladders without deleting historical records
+
+Do not create an infinite calendar loop.
+
+VALIDATION
+
+Run a simulated full season and verify:
+
+- exactly 78 schedule slots
+- regional dates run from 1 to 10
+- World Tour dates run from 1 to 60
+- finals use exactly 2 dates
+- holiday period uses exactly 6 dates
+- Olympic seasons still use exactly 78 total dates
+- all six continents complete 10 regional rounds
+- 18 teams enter the World Tour
+- top 4 enter the World Finals
+- next season initializes correctly
+- no date is skipped or duplicated
+- no fixture overlaps incorrectly
+- Advance Day still works
+- pause and speed controls still work
+- save and reload preserve the current calendar position
+- no console errors
+
+Stop after completing Part 2.
+
+Report only:
+
+- files changed
+- calendar migration performed
+- simulated season validation results
+- any genuine blocker
