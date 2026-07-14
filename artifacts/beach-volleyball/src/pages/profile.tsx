@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { RetireModal } from "@/components/career/RetireModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -169,6 +170,7 @@ function HighlightRow({
 export default function ManagerProfile() {
   const [showRetire, setShowRetire] = useState(false);
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
 
   const { data: summary, isLoading: summaryLoading } = useGetCareerSummary({
     query: { queryKey: getGetCareerSummaryQueryKey() },
@@ -385,9 +387,8 @@ export default function ManagerProfile() {
         onClose={() => setShowRetire(false)}
         onRetired={() => {
           setShowRetire(false);
-          // Invalidate queries so AuthGuard detects no active team and
-          // renders CareerManagement where the user can start a fresh career.
           void queryClient.invalidateQueries();
+          navigate("/career");
         }}
       />
     )}

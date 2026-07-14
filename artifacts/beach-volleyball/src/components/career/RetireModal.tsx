@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetCareerSummary,
@@ -27,14 +26,6 @@ import {
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
-}
-
-function fmtMoney(val: string | number | undefined): string {
-  const n = Number(val ?? 0);
-  if (isNaN(n) || n === 0) return "$0";
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `$${Math.round(n / 1_000).toLocaleString()}k`;
-  return `$${n.toLocaleString()}`;
 }
 
 function SummaryCell({
@@ -85,17 +76,17 @@ function ChoiceStep({
     {
       id: "no-save",
       label: "End Career (no save)",
-      desc: "Exit to career selection. Your progress is not saved to history.",
+      desc: "Exit to career selection. Progress is not saved to history.",
       icon: LogOut,
       colour: "text-red-400",
       border: "border-red-500/25",
       bg: "hover:bg-red-500/8",
-      warn: "Unsaved progress will be lost",
+      warn: "Career history will not be recorded",
     },
     {
       id: "save",
       label: "End Career & Save",
-      desc: "Save your career stats and exit. You can view them in Career History.",
+      desc: "Save your stats to career history and exit. Can view in Career History.",
       icon: Save,
       colour: "text-sky-400",
       border: "border-sky-500/25",
@@ -136,7 +127,7 @@ function ChoiceStep({
             onClick={() => onChoice(id)}
             disabled={isPending}
             className={cn(
-              "w-full flex items-start gap-3.5 rounded-xl border px-4 py-3.5 text-left transition-all disabled:opacity-40",
+              "w-full flex items-start gap-3.5 rounded-xl border px-4 py-3.5 text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed",
               border,
               bg,
             )}
@@ -162,21 +153,25 @@ function ChoiceStep({
   );
 }
 
-// ── Step 2: HoF confirm (with career summary preview) ─────────────────────────
+// ── Step 2: HoF confirm — query loaded lazily here, not at modal mount ────────
 
 function HofConfirmStep({
-  summary,
-  isLoading,
   onConfirm,
   onBack,
   isPending,
 }: {
-  summary: CareerSummary | undefined;
-  isLoading: boolean;
-  onConfirm: () => void;
+  onConfirm: (summary: CareerSummary | undefined) => void;
   onBack: () => void;
   isPending: boolean;
 }) {
+  // Lazy: only fetch when user has already chosen the HoF path
+  const { data: summary, isLoading } = useGetCareerSummary({
+    query: {
+      queryKey: getGetCareerSummaryQueryKey(),
+      retry: false,
+    },
+  });
+
   return (
     <>
       <div className="flex items-start justify-between gap-3 p-6 pb-4">
@@ -233,7 +228,7 @@ function HofConfirmStep({
           Go Back
         </button>
         <button
-          onClick={onConfirm}
+          onClick={() => onConfirm(summary)}
           disabled={isPending || isLoading}
           className="flex-1 rounded-xl bg-amber-600 hover:bg-amber-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
@@ -324,45 +319,40 @@ export function RetireModal({ onClose, onRetired }: Props) {
   const [step, setStep] = useState<"choice" | "hof-confirm" | "hof-done">("choice");
   const [finalSummary, setFinalSummary] = useState<CareerSummary | undefined>();
   const [isQuitting, setIsQuitting] = useState(false);
-  const [, navigate] = useLocation();
 
   const queryClient = useQueryClient();
 
-  const { data: summary, isLoading } = useGetCareerSummary({
-    query: { queryKey: getGetCareerSummaryQueryKey() },
-  });
-
   const { mutate: endCareer, isPending: isHofPending } = useEndCareer({
     mutation: {
-      onSuccess: () => {
-        setFinalSummary(summary);
-        setStep("hof-done");
-      },
+      onSuccess: () => setStep("hof-done"),
     },
   });
 
   const isPending = isHofPending || isQuitting;
 
-  async function handleQuit(saveMode: "no-save" | "save") {
+  async function handleQuit() {
     setIsQuitting(true);
     try {
       await fetch("/api/careers/quit", { method: "POST", credentials: "include" });
-      await queryClient.invalidateQueries();
+    } catch {
+      // network error — still proceed to exit
     } finally {
       setIsQuitting(false);
     }
     onRetired();
-    navigate("/career");
   }
 
-  async function handleChoice(choice: Choice) {
-    if (choice === "no-save") {
-      await handleQuit("no-save");
-    } else if (choice === "save") {
-      await handleQuit("save");
+  function handleChoice(choice: Choice) {
+    if (choice === "no-save" || choice === "save") {
+      void handleQuit();
     } else {
       setStep("hof-confirm");
     }
+  }
+
+  function handleHofConfirm(summary: CareerSummary | undefined) {
+    setFinalSummary(summary);
+    endCareer(undefined);
   }
 
   return (
@@ -379,9 +369,7 @@ export function RetireModal({ onClose, onRetired }: Props) {
 
         {step === "hof-confirm" && (
           <HofConfirmStep
-            summary={summary}
-            isLoading={isLoading}
-            onConfirm={() => endCareer(undefined)}
+            onConfirm={handleHofConfirm}
             onBack={() => setStep("choice")}
             isPending={isPending}
           />
@@ -390,6 +378,25 @@ export function RetireModal({ onClose, onRetired }: Props) {
         {step === "hof-done" && finalSummary && (
           <FinalSummary
             summary={finalSummary}
+            onDone={onRetired}
+          />
+        )}
+
+        {step === "hof-done" && !finalSummary && (
+          <FinalSummary
+            summary={{
+              managerName: "Manager",
+              clubName: "—",
+              season: "—",
+              worldRanking: null,
+              worldTitles: 0,
+              olympicMedals: 0,
+              achievementsCompleted: 0,
+              totalAchievements: 25,
+              totalWins: 0,
+              totalLosses: 0,
+              managerReputation: 50,
+            }}
             onDone={onRetired}
           />
         )}
