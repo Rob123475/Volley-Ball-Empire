@@ -234,101 +234,125 @@ export async function computeLadderForSeason(seasonId: number): Promise<Ladder> 
  *  - Mark the resolved season as 'completed'
  */
 export async function resolveRegionalSeason(seasonId: number): Promise<void> {
+  // ── 1. Load and validate season ───────────────────────────────────────────
   const [season] = await db
     .select()
     .from(regionalLeagueSeasonsTable)
     .where(eq(regionalLeagueSeasonsTable.id, seasonId));
   if (!season) throw new Error(`Season ${seasonId} not found`);
+  if (season.status === "completed") throw new Error(`Season ${seasonId} is already completed`);
 
   const { fixtures, results, poolRankings } = await fetchLadderData(seasonId);
+
+  // ── 2. Completion guard: all 30 fixtures must be completed ────────────────
+  const totalFixtures = fixtures.length;
+  const completedFixtures = fixtures.filter(f => f.status === "completed").length;
+  if (totalFixtures !== 30) {
+    throw new Error(`Expected 30 fixtures for season ${seasonId}, found ${totalFixtures}`);
+  }
+  if (completedFixtures !== 30) {
+    throw new Error(
+      `Season ${seasonId} is not fully played: ${completedFixtures}/30 fixtures completed`,
+    );
+  }
+
   const ladder = computeRegionalLadder(fixtures, results, poolRankings);
 
-  // Insert qualification rows for top 3
-  for (let i = 0; i < Math.min(3, ladder.length); i++) {
-    await db.insert(worldTourQualificationsTable).values({
-      seasonYear:         season.seasonYear,
-      continent:          season.continent,
-      poolTeamId:         ladder[i]!.poolTeamId,
-      qualifyingPosition: i + 1,
-    });
-  }
+  // ── 3. All writes in a single transaction ─────────────────────────────────
+  await db.transaction(async (tx) => {
+    // Insert World Tour qualification rows for top 3
+    for (let i = 0; i < Math.min(3, ladder.length); i++) {
+      await tx.insert(worldTourQualificationsTable).values({
+        seasonYear:         season.seasonYear,
+        continent:          season.continent,
+        poolTeamId:         ladder[i]!.poolTeamId,
+        qualifyingPosition: i + 1,
+      });
+    }
 
-  // Relegate 6th-place AI pool team
-  const sixthEntry = ladder[5];
-  if (sixthEntry) {
-    await db
-      .update(continentalPoolTeamsTable)
-      .set({ isActiveInLeague: false, relegationCount: (await getTeam(sixthEntry.poolTeamId)).relegationCount + 1 })
-      .where(eq(continentalPoolTeamsTable.id, sixthEntry.poolTeamId));
-  }
+    // Relegate 6th-place team
+    const sixthEntry = ladder[5];
+    if (sixthEntry) {
+      const sixth = await getTeamTx(tx, sixthEntry.poolTeamId);
+      await tx
+        .update(continentalPoolTeamsTable)
+        .set({ isActiveInLeague: false, relegationCount: sixth.relegationCount + 1 })
+        .where(eq(continentalPoolTeamsTable.id, sixthEntry.poolTeamId));
+    }
 
-  // Promote top bench team (lowest poolRanking among isActiveInLeague=false for this continent)
-  const benchTeams = await db
-    .select()
-    .from(continentalPoolTeamsTable)
-    .where(
-      and(
-        eq(continentalPoolTeamsTable.continent, season.continent),
-        eq(continentalPoolTeamsTable.isActiveInLeague, false),
-      ),
-    );
+    // Promote top bench team (lowest poolRanking among bench for this continent,
+    // excluding the just-relegated team)
+    const sixthId = ladder[5]?.poolTeamId ?? null;
+    const benchTeams = await tx
+      .select()
+      .from(continentalPoolTeamsTable)
+      .where(
+        and(
+          eq(continentalPoolTeamsTable.continent, season.continent),
+          eq(continentalPoolTeamsTable.isActiveInLeague, false),
+        ),
+      );
+    const candidates = benchTeams
+      .filter(t => t.id !== sixthId)
+      .sort((a, b) => a.poolRanking - b.poolRanking);
 
-  // Exclude just-relegated team and sort by poolRanking
-  const candidates = benchTeams
-    .filter(t => !sixthEntry || t.id !== sixthEntry.poolTeamId)
-    .sort((a, b) => a.poolRanking - b.poolRanking);
+    const promoted = candidates[0] ?? null;
+    if (promoted) {
+      await tx
+        .update(continentalPoolTeamsTable)
+        .set({ isActiveInLeague: true, promotionCount: promoted.promotionCount + 1 })
+        .where(eq(continentalPoolTeamsTable.id, promoted.id));
+    }
 
-  if (candidates[0]) {
-    const promoted = candidates[0];
-    await db
-      .update(continentalPoolTeamsTable)
-      .set({ isActiveInLeague: true, promotionCount: promoted.promotionCount + 1 })
-      .where(eq(continentalPoolTeamsTable.id, promoted.id));
-  }
+    // Build next-season roster: replace relegated slot with promoted team
+    const nextTeamIds = (season.teamIds as number[]).slice();
+    if (sixthId !== null && promoted) {
+      const idx = nextTeamIds.indexOf(sixthId);
+      if (idx !== -1) nextTeamIds[idx] = promoted.id;
+    }
 
-  // Build updated 6-team roster for next season
-  // Start from existing season teamIds, replace relegated with promoted
-  const currentTeamIds = (season.teamIds as number[]).slice();
-  if (sixthEntry && candidates[0]) {
-    const relegatedIdx = currentTeamIds.indexOf(sixthEntry.poolTeamId);
-    if (relegatedIdx !== -1) currentTeamIds[relegatedIdx] = candidates[0].id;
-  }
+    // Create next-season record
+    const [nextSeason] = await tx
+      .insert(regionalLeagueSeasonsTable)
+      .values({
+        seasonYear: season.seasonYear + 1,
+        continent:  season.continent,
+        teamIds:    nextTeamIds,
+        status:     "active",
+      })
+      .returning();
 
-  // Create next-season record
-  const nextSeasonYear = season.seasonYear + 1;
-  const [nextSeason] = await db
-    .insert(regionalLeagueSeasonsTable)
-    .values({
-      seasonYear: nextSeasonYear,
-      continent:  season.continent,
-      teamIds:    currentTeamIds,
-      status:     "active",
-    })
-    .returning();
+    if (nextSeason) {
+      const fixtureSlots = generateDoubleRoundRobin(nextTeamIds);
+      await tx.insert(regionalLeagueFixturesTable).values(
+        fixtureSlots.map(s => ({
+          regionalLeagueSeasonId: nextSeason.id,
+          round:          s.round,
+          homePoolTeamId: s.home,
+          awayPoolTeamId: s.away,
+          status:         "scheduled" as const,
+        })),
+      );
+    }
 
-  if (nextSeason) {
-    // Generate and insert 30 fixtures for next season
-    const fixtureSlots = generateDoubleRoundRobin(currentTeamIds);
-    await db.insert(regionalLeagueFixturesTable).values(
-      fixtureSlots.map(s => ({
-        regionalLeagueSeasonId: nextSeason.id,
-        round:          s.round,
-        homePoolTeamId: s.home,
-        awayPoolTeamId: s.away,
-        status:         "scheduled" as const,
-      })),
-    );
-  }
-
-  // Mark current season completed
-  await db
-    .update(regionalLeagueSeasonsTable)
-    .set({ status: "completed" })
-    .where(eq(regionalLeagueSeasonsTable.id, seasonId));
+    // Mark current season completed
+    await tx
+      .update(regionalLeagueSeasonsTable)
+      .set({ status: "completed" })
+      .where(eq(regionalLeagueSeasonsTable.id, seasonId));
+  });
 }
 
 async function getTeam(id: number) {
   const [t] = await db.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id));
+  if (!t) throw new Error(`Pool team ${id} not found`);
+  return t;
+}
+
+type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function getTeamTx(tx: DbTx, id: number) {
+  const [t] = await tx.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id));
   if (!t) throw new Error(`Pool team ${id} not found`);
   return t;
 }

@@ -12,7 +12,6 @@ import {
   regionalLeagueFixturesTable,
 } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import { generateDoubleRoundRobin } from "./fixtures.js";
 
 type PlayerDef = {
   name: string;

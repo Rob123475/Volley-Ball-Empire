@@ -44,6 +44,61 @@ async function getActiveSeason(continent: string) {
   return season ?? null;
 }
 
+// ── GET /regional-league/qualifications ───────────────────────────────────────
+// All world_tour_qualifications for the most recent completed season year,
+// grouped by continent (18 teams total when all 6 continents completed)
+router.get("/regional-league/qualifications", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  // Find the most recent season year that has any qualification rows
+  const latestRows = await db
+    .select()
+    .from(worldTourQualificationsTable)
+    .orderBy(desc(worldTourQualificationsTable.seasonYear))
+    .limit(1);
+
+  if (latestRows.length === 0) {
+    res.json({ seasonYear: null, qualifications: [] });
+    return;
+  }
+
+  const latestYear = latestRows[0]!.seasonYear;
+
+  const qualifications = await db
+    .select()
+    .from(worldTourQualificationsTable)
+    .where(eq(worldTourQualificationsTable.seasonYear, latestYear))
+    .orderBy(
+      worldTourQualificationsTable.continent,
+      worldTourQualificationsTable.qualifyingPosition,
+    );
+
+  // Enrich with team names
+  const teamIds = qualifications.map(q => q.poolTeamId);
+  const teams = teamIds.length > 0
+    ? await db
+        .select({ id: continentalPoolTeamsTable.id, teamName: continentalPoolTeamsTable.teamName })
+        .from(continentalPoolTeamsTable)
+        .where(inArray(continentalPoolTeamsTable.id, teamIds))
+    : [];
+  const nameMap = new Map(teams.map(t => [t.id, t.teamName]));
+
+  res.json({
+    seasonYear: latestYear,
+    qualifications: qualifications.map(q => ({
+      id:                q.id,
+      seasonYear:        q.seasonYear,
+      continent:         q.continent,
+      poolTeamId:        q.poolTeamId,
+      teamName:          nameMap.get(q.poolTeamId) ?? "Unknown",
+      qualifyingPosition:q.qualifyingPosition,
+    })),
+  });
+});
+
 // ── GET /regional-league/:continent ──────────────────────────────────────────
 // Returns current season, full fixture list with results, and computed ladder
 router.get("/regional-league/:continent", async (req, res) => {
@@ -128,61 +183,6 @@ router.get("/regional-league/:continent", async (req, res) => {
       points:          entry.points,
       setDiff:         entry.setDiff,
       matchPointDiff:  entry.matchPointDiff,
-    })),
-  });
-});
-
-// ── GET /regional-league/qualifications ───────────────────────────────────────
-// All world_tour_qualifications for the most recent completed season year,
-// grouped by continent (18 teams total when all 6 continents completed)
-router.get("/regional-league/qualifications", async (req, res) => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  // Find the most recent season year that has any qualification rows
-  const latestRows = await db
-    .select()
-    .from(worldTourQualificationsTable)
-    .orderBy(desc(worldTourQualificationsTable.seasonYear))
-    .limit(1);
-
-  if (latestRows.length === 0) {
-    res.json({ seasonYear: null, qualifications: [] });
-    return;
-  }
-
-  const latestYear = latestRows[0]!.seasonYear;
-
-  const qualifications = await db
-    .select()
-    .from(worldTourQualificationsTable)
-    .where(eq(worldTourQualificationsTable.seasonYear, latestYear))
-    .orderBy(
-      worldTourQualificationsTable.continent,
-      worldTourQualificationsTable.qualifyingPosition,
-    );
-
-  // Enrich with team names
-  const teamIds = qualifications.map(q => q.poolTeamId);
-  const teams = teamIds.length > 0
-    ? await db
-        .select({ id: continentalPoolTeamsTable.id, teamName: continentalPoolTeamsTable.teamName })
-        .from(continentalPoolTeamsTable)
-        .where(inArray(continentalPoolTeamsTable.id, teamIds))
-    : [];
-  const nameMap = new Map(teams.map(t => [t.id, t.teamName]));
-
-  res.json({
-    seasonYear: latestYear,
-    qualifications: qualifications.map(q => ({
-      id:                q.id,
-      seasonYear:        q.seasonYear,
-      continent:         q.continent,
-      poolTeamId:        q.poolTeamId,
-      teamName:          nameMap.get(q.poolTeamId) ?? "Unknown",
-      qualifyingPosition:q.qualifyingPosition,
     })),
   });
 });
