@@ -115,17 +115,18 @@ router.get("/careers/summary", async (req, res) => {
 router.post("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { slotNumber, managerName, clubName, originalClubName, season, worldRanking, budget, locationId, primaryColor, secondaryColor } = req.body as {
-    slotNumber:        number;
-    managerName:       string;
-    clubName:          string;
-    originalClubName?: string | null;
-    season?:           string;
-    worldRanking?:     number | null;
-    budget?:           string | null;
-    locationId?:       number | null;
-    primaryColor?:     string | null;
-    secondaryColor?:   string | null;
+  const { slotNumber, managerName, managerNationality, clubName, originalClubName, season, worldRanking, budget, locationId, primaryColor, secondaryColor } = req.body as {
+    slotNumber:           number;
+    managerName:          string;
+    managerNationality?:  string | null;
+    clubName:             string;
+    originalClubName?:    string | null;
+    season?:              string;
+    worldRanking?:        number | null;
+    budget?:              string | null;
+    locationId?:          number | null;
+    primaryColor?:        string | null;
+    secondaryColor?:      string | null;
   };
 
   if (
@@ -167,16 +168,17 @@ router.post("/careers", async (req, res) => {
   const [inserted] = await db
     .insert(careerSavesTable)
     .values({
-      userId:           req.user.id,
-      teamId:           newTeam.id,
+      userId:              req.user.id,
+      teamId:              newTeam.id,
       slotNumber,
-      managerName:      managerName.trim(),
-      clubName:         clubName.trim(),
-      originalClubName: originalClubName?.trim() ?? null,
-      season:           season ?? "Season 1",
-      worldRanking:     worldRanking ?? null,
-      budget:           budget ?? null,
-      lastPlayedAt:     new Date(),
+      managerName:         managerName.trim(),
+      managerNationality:  managerNationality?.trim() ?? null,
+      clubName:            clubName.trim(),
+      originalClubName:    originalClubName?.trim() ?? null,
+      season:              season ?? "Season 1",
+      worldRanking:        worldRanking ?? null,
+      budget:              budget ?? null,
+      lastPlayedAt:        new Date(),
     })
     .returning();
 

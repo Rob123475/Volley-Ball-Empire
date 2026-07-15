@@ -1492,6 +1492,7 @@ export interface CareerSaveSlot {
   teamId?: number | null;
   slotNumber: number;
   managerName: string;
+  managerNationality?: string | null;
   clubName: string;
   originalClubName?: string | null;
   season: string;
@@ -1528,6 +1529,7 @@ export interface CareerSaveList {
 export interface UpsertCareerSaveBody {
   slotNumber: number;
   managerName: string;
+  managerNationality?: string | null;
   clubName: string;
   originalClubName?: string | null;
   season?: string;

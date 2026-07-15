@@ -9,6 +9,7 @@
 export interface UpsertCareerSaveBody {
   slotNumber: number;
   managerName: string;
+  managerNationality?: string | null;
   clubName: string;
   originalClubName?: string | null;
   season?: string;

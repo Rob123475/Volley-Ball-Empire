@@ -34,8 +34,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const handlePrimary = () => {
     if (isLoading) return;
-    if (!user) { sessionStorage.setItem("bvp-title-dismissed", "1"); window.location.href = loginUrl; }
-    else        { dismissTitle(); }
+    if (!user) {
+      sessionStorage.setItem("bvp-title-dismissed", "1");
+      window.location.href = loginUrl;
+    } else if (!hasTeam) {
+      sessionStorage.setItem("bvp-title-dismissed", "1");
+      window.location.href = "/new-career";
+    } else {
+      dismissTitle();
+    }
   };
 
   // ── Title screen (shown to everyone on fresh session) ──────────────────────
@@ -137,9 +144,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  // ── No active career — show career management (load or create) ──────────────
+  // ── No active career — redirect to title screen ─────────────────────────────
   if (needsTeam) {
-    return <CareerManagement />;
+    sessionStorage.removeItem("bvp-title-dismissed");
+    window.location.href = "/";
+    return null;
   }
 
   return <>{children}</>;

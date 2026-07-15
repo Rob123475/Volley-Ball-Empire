@@ -3771,6 +3771,9 @@ components:
           type: integer
         managerName:
           type: string
+        managerNationality:
+          type: string
+          nullable: true
         clubName:
           type: string
         originalClubName:
@@ -3847,6 +3850,9 @@ components:
           type: integer
         managerName:
           type: string
+        managerNationality:
+          type: string
+          nullable: true
         clubName:
           type: string
         originalClubName:

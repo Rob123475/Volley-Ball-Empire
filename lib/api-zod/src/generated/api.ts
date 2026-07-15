@@ -10218,6 +10218,7 @@ export const ListCareerSavesResponse = zod.object({
   "teamId": zod.number().nullish(),
   "slotNumber": zod.number(),
   "managerName": zod.string(),
+  "managerNationality": zod.string().nullish(),
   "clubName": zod.string(),
   "originalClubName": zod.string().nullish(),
   "season": zod.string(),
@@ -10239,6 +10240,7 @@ export const ListCareerSavesResponse = zod.object({
 export const UpsertCareerSaveBody = zod.object({
   "slotNumber": zod.number(),
   "managerName": zod.string(),
+  "managerNationality": zod.string().nullish(),
   "clubName": zod.string(),
   "originalClubName": zod.string().nullish(),
   "season": zod.string().optional(),
@@ -10254,6 +10256,7 @@ export const UpsertCareerSaveResponse = zod.object({
   "teamId": zod.number().nullish(),
   "slotNumber": zod.number(),
   "managerName": zod.string(),
+  "managerNationality": zod.string().nullish(),
   "clubName": zod.string(),
   "originalClubName": zod.string().nullish(),
   "season": zod.string(),

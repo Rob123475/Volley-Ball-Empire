@@ -663,6 +663,7 @@ export const careerSavesTable = pgTable("career_saves", {
   teamId:       integer("team_id").references(() => teamsTable.id),
   slotNumber:   integer("slot_number").notNull(),
   managerName:      varchar("manager_name",       { length: 100 }).notNull(),
+  managerNationality: varchar("manager_nationality", { length: 100 }),
   clubName:         varchar("club_name",          { length: 100 }).notNull(),
   originalClubName: varchar("original_club_name", { length: 100 }),
   season:       varchar("season",       { length: 50  }).notNull().default("Season 1"),

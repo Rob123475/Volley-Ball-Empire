@@ -33,6 +33,7 @@ import ManagerProfile from "@/pages/profile";
 import ManagerContract from "@/pages/manager-contract";
 import JobMarket from "@/pages/job-market";
 import CareerHistory from "@/pages/career-history";
+import NewCareer from "@/pages/new-career";
 import LeagueLadders from "@/pages/league-ladders";
 import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound from "@/pages/not-found";
@@ -87,6 +88,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/dev/generation-test" component={DevGenerationTest} />
+      <Route path="/new-career" component={NewCareer} />
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>

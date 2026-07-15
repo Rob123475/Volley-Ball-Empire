@@ -8,8 +8,6 @@ import type { Request } from "express";
  * Otherwise falls back to the first team belonging to the authenticated user.
  */
 export const getActiveTeam = async (req: Request) => {
-  if (req.activeTeamId) {
-    return db.query.teamsTable.findFirst({ where: eq(teamsTable.id, req.activeTeamId) });
-  }
-  return db.query.teamsTable.findFirst({ where: eq(teamsTable.userId, req.user!.id) });
+  if (!req.activeTeamId) return null;
+  return db.query.teamsTable.findFirst({ where: eq(teamsTable.id, req.activeTeamId) });
 };
