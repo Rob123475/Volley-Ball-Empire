@@ -5,56 +5,16 @@ import {
   getGetMyTeamQueryKey,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { Activity, Loader2, Play, ChevronRight, BookOpen, X } from "lucide-react";
+import { Activity, Loader2, Play } from "lucide-react";
 import CareerManagement from "@/pages/career-management";
 
 
-const RULES = [
-  { heading: "Scoring",     body: "Every rally awards a point to the winner — you don't need to be serving." },
-  { heading: "Sets",        body: "Sets 1 & 2: first to 21, win by 2. Set 3 (if needed): first to 15, win by 2." },
-  { heading: "Match",       body: "Best of 3 sets. Win 2 sets to take the match." },
-  { heading: "Court Swap",  body: "Teams swap ends every 7 combined points in sets 1 & 2, every 5 in set 3." },
-  { heading: "Service",     body: "The team that wins a rally earns the right to serve next." },
-  { heading: "Boosts",      body: "Attack & Defense boosts: 15 s active, 30 s cooldown. Use them on key rallies." },
-  { heading: "Match Clock", body: "Two 3-minute halves. Clock pauses with the game. After Full Time the score stands." },
-];
-
-function RulesPanel({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg bg-black/90 border border-white/15 rounded-2xl shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-secondary" />
-            <span className="text-white font-black text-lg uppercase tracking-widest">Rules</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-white/40 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
-          {RULES.map((r) => (
-            <div key={r.heading}>
-              <div className="text-secondary font-black text-xs uppercase tracking-widest mb-0.5">{r.heading}</div>
-              <div className="text-white/70 text-sm leading-relaxed">{r.body}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   // Title screen: shown on every fresh session until dismissed
   const [showTitle, setShowTitle] = useState(
     () => sessionStorage.getItem("bvp-title-dismissed") !== "1"
   );
-  const [showRules, setShowRules] = useState(false);
-
   const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
 
   const { data: team, isLoading: teamLoading, isError: noTeam, refetch: refetchTeam } = useGetMyTeam({
@@ -78,17 +38,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     else        { dismissTitle(); }
   };
 
-  const handleSecondary = () => {
-    if (isLoading) return;
-    if (!user) { sessionStorage.setItem("bvp-title-dismissed", "1"); window.location.href = loginUrl; }
-    else        { dismissTitle(); }
-  };
-
   // ── Title screen (shown to everyone on fresh session) ──────────────────────
   if (showTitle) {
     return (
       <div className="relative h-screen w-full overflow-hidden bg-black">
-        {showRules && <RulesPanel onClose={() => setShowRules(false)} />}
 
         <img
           src={`${import.meta.env.BASE_URL}title-hero.png`}
@@ -139,34 +92,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 {isLoading
                   ? <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   : <Play className="mr-2 h-5 w-5 fill-white" />}
-                {hasTeam ? "CONTINUE" : "START NEW GAME"}
+                {hasTeam ? "CONTINUE" : "START NEW CAREER"}
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
-              </Button>
-
-              {/* Secondary action — only show when there's a meaningful distinction */}
-              {!hasTeam && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="group border-white/30 bg-white/10 backdrop-blur hover:bg-white/20 text-white font-bold text-lg px-10 py-6 rounded-xl transition-all"
-                  onClick={handleSecondary}
-                  disabled={isLoading}
-                  data-testid="button-continue"
-                >
-                  CONTINUE
-                  <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              )}
-
-              {/* Rules */}
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/20 bg-white/5 backdrop-blur hover:bg-white/15 text-white/70 hover:text-white font-bold text-lg px-7 py-6 rounded-xl transition-all"
-                onClick={() => setShowRules(true)}
-              >
-                <BookOpen className="mr-2 h-5 w-5" />
-                RULES
               </Button>
             </div>
 
