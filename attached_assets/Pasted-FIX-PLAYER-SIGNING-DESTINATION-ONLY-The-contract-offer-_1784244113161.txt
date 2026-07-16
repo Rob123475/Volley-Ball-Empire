@@ -1,0 +1,63 @@
+FIX PLAYER SIGNING DESTINATION ONLY.
+
+The contract offer modal currently signs recruited players into the wrong squad. A 24-year-old player was placed into the Youth Team.
+
+Add a new required control inside the existing Contract Offer modal, directly below Contract Duration:
+
+ASSIGN TO
+
+Options:
+
+- Main Team
+- Interchange
+- Youth Team
+
+Use either a segmented slider or three-button selector matching the existing modal styling.
+
+RULES
+
+1. The user must select the destination before Finalize Contract.
+2. Main Team and Interchange are available for senior players.
+3. Youth Team is available only when player age is 14–18 inclusive.
+4. For players aged 19 or older:
+   - disable Youth Team
+   - visually dim it
+   - show tooltip or small text: "Youth eligibility: ages 14–18"
+5. Do not automatically assign senior players to Youth.
+6. Default senior-player selection to Interchange.
+7. Default youth-player selection to Youth Team.
+8. On Finalize Contract, save the selected squad assignment to the existing roster/team field.
+9. Reuse the existing squad identifiers already used by the Team/Roster pages.
+10. Do not invent duplicate squad categories or new player schemas.
+11. Do not change salary, bonus, contract duration or recruitment logic.
+12. Do not redesign the modal or unrelated pages.
+
+DATA SAFETY
+
+Inspect the existing player and roster schema first.
+
+Use the current values already used for:
+
+- Main Team
+- Interchange
+- Youth Team
+
+Do not create competing values such as main, senior, firstTeam or reserve unless they already exist.
+
+Also fix the signing handler so age cannot silently route a senior player into Youth.
+
+VALIDATION
+
+Test signing:
+
+- age 24 to Main Team
+- age 24 to Interchange
+- age 24 cannot select Youth Team
+- age 17 defaults to Youth Team
+- age 17 may only use squad destinations allowed by existing youth rules
+- selected destination persists after page refresh
+- player appears on the correct roster page
+- no duplicate player record is created
+- no console errors
+
+Stop after this fix and report only the files changed and test results.

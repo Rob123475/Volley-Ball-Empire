@@ -159,7 +159,8 @@ export default function PlayerMarket() {
         playerId, 
         salary: values.salary, 
         endDate: values.endDate, 
-        bonusPerWin: values.winBonus 
+        bonusPerWin: values.winBonus,
+        squadRole: values.squadRole,
       } 
     }, {
       onSuccess: () => {
@@ -405,10 +406,22 @@ function StatMini({ label, value, icon: Icon, color }: { label: string, value: n
   );
 }
 
+type SquadRole = "starter" | "interchange" | "reserve";
+
+const SQUAD_DESTINATIONS: { role: SquadRole; label: string; seniorOnly?: boolean }[] = [
+  { role: "starter",      label: "Main Team" },
+  { role: "interchange",  label: "Interchange" },
+  { role: "reserve",      label: "Youth Team",  seniorOnly: false },
+];
+
 function ContractModal({ player, onSign, isPending }: { player: any, onSign: (v: any) => void, isPending: boolean }) {
   const [salary, setSalary] = useState([5000]);
   const [winBonus, setWinBonus] = useState([500]);
   const [months, setMonths] = useState(6);
+
+  const isYouth = player.age >= 14 && player.age <= 18;
+  const defaultRole: SquadRole = isYouth ? "reserve" : "interchange";
+  const [squadRole, setSquadRole] = useState<SquadRole>(defaultRole);
 
   const endDate = format(addMonths(new Date(), months), 'yyyy-MM-dd');
 
@@ -448,10 +461,41 @@ function ContractModal({ player, onSign, isPending }: { player: any, onSign: (v:
             <Slider min={1} max={12} step={1} value={[months]} onValueChange={(v) => setMonths(v[0])} />
             <p className="text-[10px] text-muted-foreground text-right">Ends: {endDate}</p>
           </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Assign To</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {SQUAD_DESTINATIONS.map(({ role, label }) => {
+                const youthOnly = role === "reserve";
+                const disabled = youthOnly && !isYouth;
+                return (
+                  <div key={role} className="flex flex-col gap-1">
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => !disabled && setSquadRole(role)}
+                      className={[
+                        "rounded-md border px-2 py-2 text-xs font-semibold transition-colors",
+                        disabled
+                          ? "cursor-not-allowed opacity-35 border-border text-muted-foreground bg-muted/30"
+                          : squadRole === role
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-muted/40 text-foreground hover:border-primary/60 hover:bg-muted/70",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </button>
+                    {disabled && (
+                      <p className="text-[9px] text-muted-foreground text-center leading-tight">Ages 14–18 only</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
         <Button 
           className="w-full" 
-          onClick={() => onSign({ salary: salary[0], winBonus: winBonus[0], endDate })}
+          onClick={() => onSign({ salary: salary[0], winBonus: winBonus[0], endDate, squadRole })}
           disabled={isPending}
           data-testid="button-confirm-sign"
         >

@@ -31,11 +31,13 @@ router.post("/contracts", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
-  const { playerId, salary, endDate, bonusPerWin } = req.body;
+  const { playerId, salary, endDate, bonusPerWin, squadRole: rawSquadRole } = req.body;
 
   // Youth academy capacity check (max 6 players aged 14–18)
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, Number(playerId)) });
-  if (player && player.age >= 14 && player.age <= 18) {
+  const isYouth = player ? (player.age >= 14 && player.age <= 18) : false;
+
+  if (isYouth) {
     const existingYouths = await db.select()
       .from(playersTable)
       .where(and(
@@ -48,6 +50,24 @@ router.post("/contracts", async (req, res) => {
       res.status(422).json({ error: "Youth Academy is full (6/6). Promote, draft, sell, or release a youth player before signing another." });
       return;
     }
+  }
+
+  // Resolve squad role: validate and apply age guards
+  const validRoles = ["starter", "interchange", "reserve"] as const;
+  type SquadRole = typeof validRoles[number];
+  let squadRole: SquadRole;
+
+  if (rawSquadRole && validRoles.includes(rawSquadRole as SquadRole)) {
+    squadRole = rawSquadRole as SquadRole;
+  } else {
+    // Sensible default if omitted
+    squadRole = isYouth ? "reserve" : "interchange";
+  }
+
+  // Guard: senior players (age 19+) cannot be placed in youth reserve
+  if (!isYouth && squadRole === "reserve") {
+    res.status(422).json({ error: "Players aged 19 or older cannot be assigned to the Youth Team." });
+    return;
   }
 
   const today = new Date().toISOString().split("T")[0];
@@ -69,7 +89,8 @@ router.post("/contracts", async (req, res) => {
     teamId: team.id,
     salary: String(salary),
     contractEndDate: actualEnd,
-    isActive: true,
+    isActive: squadRole === "starter" || squadRole === "interchange",
+    squadRole,
   }).where(eq(playersTable.id, Number(playerId)));
 
   res.status(201).json(serializeContract(contract));

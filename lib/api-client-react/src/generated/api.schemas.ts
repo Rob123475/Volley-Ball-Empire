@@ -807,11 +807,25 @@ export interface Contract {
   createdAt: string;
 }
 
+/**
+ * Squad assignment on signing. 'reserve' is youth-only (ages 14–18).
+ */
+export type ContractInputSquadRole = typeof ContractInputSquadRole[keyof typeof ContractInputSquadRole];
+
+
+export const ContractInputSquadRole = {
+  starter: 'starter',
+  interchange: 'interchange',
+  reserve: 'reserve',
+} as const;
+
 export interface ContractInput {
   playerId: number;
   salary: number;
   endDate: string;
   bonusPerWin: number;
+  /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
+  squadRole?: ContractInputSquadRole;
 }
 
 export interface StaffInput {

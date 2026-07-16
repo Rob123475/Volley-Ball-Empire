@@ -2795,6 +2795,10 @@ components:
           type: string
         bonusPerWin:
           type: number
+        squadRole:
+          type: string
+          enum: [starter, interchange, reserve]
+          description: "Squad assignment on signing. 'reserve' is youth-only (ages 14–18)."
 
     StaffMember:
       type: object

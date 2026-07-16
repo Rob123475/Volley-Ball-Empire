@@ -45,6 +45,7 @@ export * from './continentalScoutingMission';
 export * from './continentalScoutingMissionStatus';
 export * from './contract';
 export * from './contractInput';
+export * from './contractInputSquadRole';
 export * from './contractStatus';
 export * from './dashboard';
 export * from './dashboardFinanceSummary';

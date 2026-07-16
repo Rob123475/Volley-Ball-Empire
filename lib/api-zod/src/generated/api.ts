@@ -6917,7 +6917,8 @@ export const SignContractBody = zod.object({
   "playerId": zod.number(),
   "salary": zod.number(),
   "endDate": zod.string(),
-  "bonusPerWin": zod.number()
+  "bonusPerWin": zod.number(),
+  "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Squad assignment on signing. \'reserve\' is youth-only (ages 14–18).')
 })
 
 

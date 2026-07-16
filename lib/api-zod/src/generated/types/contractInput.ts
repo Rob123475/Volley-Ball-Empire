@@ -5,10 +5,13 @@
  * Beach Volleyball Manager API
  * OpenAPI spec version: 0.1.0
  */
+import type { ContractInputSquadRole } from './contractInputSquadRole';
 
 export interface ContractInput {
   playerId: number;
   salary: number;
   endDate: string;
   bonusPerWin: number;
+  /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
+  squadRole?: ContractInputSquadRole;
 }
