@@ -1,0 +1,138 @@
+FIX UNITY WEBGL STUCK ON LOADING SCREEN — TARGETED FIX ONLY
+
+The Unity WebGL page at /court displays the Unity logo and an empty loading bar but never loads the game.
+
+This means the Unity HTML/loader is opening, but one or more Unity WebGL build files are not loading.
+
+DO NOT rebuild, redesign or modify the Unity game.
+DO NOT change gameplay.
+DO NOT change the /api/unity/match-state connection.
+DO NOT replace the Unity build.
+
+Investigate and fix only the Unity WebGL file loading and hosting.
+
+REQUIRED CHECKS:
+
+1. Find the current Unity WebGL build folder.
+
+Confirm that all required files physically exist:
+
+- *.loader.js
+- *.framework.js or *.framework.js.unityweb
+- *.wasm or *.wasm.unityweb
+- *.data or *.data.unityweb
+- index.html or the current Unity wrapper
+
+2. Check the Unity loader configuration.
+
+Verify that the configured paths exactly match the real filenames and letter casing:
+
+dataUrl
+frameworkUrl
+codeUrl
+streamingAssetsUrl
+
+Do not guess filenames.
+Use the actual files currently present in the project.
+
+3. Check browser/network failures for /court.
+
+Look specifically for:
+
+- 404 Not Found
+- incorrect MIME type
+- CORS errors
+- Content-Encoding errors
+- failed .wasm requests
+- failed .data requests
+- HTML being returned instead of a Unity build file
+- route fallback intercepting Unity asset requests
+
+4. STATIC FILE ROUTING
+
+Make sure Unity build files are served as static files and are not intercepted by:
+
+- React routing
+- Vite history fallback
+- Express catch-all routes
+- authentication redirects
+- the /court page route
+
+Requests for Unity files must return the actual binary or JavaScript file, not index.html.
+
+5. MIME TYPES
+
+Serve files with correct content types:
+
+.wasm:
+application/wasm
+
+.js:
+application/javascript
+
+.data:
+application/octet-stream
+
+.unityweb:
+application/octet-stream unless compression-specific handling is required
+
+6. COMPRESSION
+
+Determine whether this Unity build is:
+
+- uncompressed,
+- gzip compressed, or
+- Brotli compressed.
+
+If files end in .unityweb, configure the correct Content-Encoding headers.
+
+Do not send gzip or Brotli headers for uncompressed files.
+
+Do not attempt runtime decompression unless the build was exported with decompression fallback.
+
+7. PUBLIC PATH
+
+Make sure the Unity build uses an absolute stable public path such as:
+
+/unity/Build/filename.data
+/unity/Build/filename.framework.js
+/unity/Build/filename.wasm
+
+Do not use fragile relative paths that change depending on whether the user is at /court or another route.
+
+8. VERIFY DIRECT FILE ACCESS
+
+Open each required Unity build file URL directly and confirm:
+
+- it returns HTTP 200,
+- it does not return the website HTML,
+- it has a non-zero file size,
+- it has the correct content type.
+
+9. CACHE
+
+Ensure old loader files are not referencing older build filenames.
+
+Update the wrapper to use the current build filenames and add a safe build-version cache parameter if necessary.
+
+10. ERROR DISPLAY
+
+Add a visible Unity load error message to the /court page if loading fails.
+
+The message should show the failed filename and error, rather than remaining permanently on an empty loading bar.
+
+ACCEPTANCE TEST:
+
+1. Open /court in a fresh browser tab.
+2. Unity loading bar advances.
+3. Unity game reaches the volleyball court.
+4. Refresh /court.
+5. Unity loads again.
+6. Open the fullscreen Unity view.
+7. Unity loads there as well.
+8. Browser console contains no Unity build 404, MIME, CORS or Content-Encoding errors.
+9. Existing match-state integration still works.
+10. No other pages or gameplay systems are changed.
+
+Do not report completion merely because the Unity logo appears.
+Completion requires the actual volleyball court to load and run.

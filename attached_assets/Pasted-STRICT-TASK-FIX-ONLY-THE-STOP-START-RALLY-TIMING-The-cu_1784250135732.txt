@@ -1,0 +1,51 @@
+STRICT TASK — FIX ONLY THE STOP-START RALLY TIMING
+
+The current volleyball rally looks janky because every player performs one action, pauses for approximately one second, then the next action begins.
+
+This is NOT a request to redesign the match system.
+
+Inspect the complete rally sequence and remove excessive idle delays between:
+
+Serve
+Receive/Dig
+Set
+Approach
+Spike
+Block
+Recovery movement
+
+REQUIRED RESULT:
+
+1. Rally actions must flow continuously and naturally.
+2. Remove or greatly reduce any WaitForSeconds, Invoke delays, timers, animation waits, state-transition pauses or coroutine gaps creating approximately one-second pauses.
+3. Do not wait for an animation to finish completely before starting the next connected action.
+4. Begin the receiving player’s movement while the ball is travelling.
+5. Begin the setter’s movement immediately after the dig trajectory starts.
+6. Begin the attacker’s approach while the set is travelling.
+7. Begin blockers’ approach and jump while the attacker is approaching.
+8. Players must return to ready positions smoothly without freezing between actions.
+9. Keep very short readable pauses only after:
+   - a point is scored;
+   - the commentary announces the result;
+   - players reset before the next serve.
+10. Target transition gaps during a live rally:
+   - normal maximum: 0.05–0.15 seconds;
+   - never use a one-second pause between connected rally actions.
+11. Use smooth overlapping movement and animation transitions.
+12. Do not increase global Time.timeScale as a workaround.
+13. Do not change ball physics, scoring, player attributes, cameras, UI, commentary, boosts, weather, scene objects, crowd, court or Replit communication.
+14. Do not create new scripts if the existing rally controller can be corrected.
+15. Do not rename, remove or restructure unrelated files.
+
+TEST BEFORE FINISHING:
+
+Run several complete rallies and confirm:
+- serve flows directly into receive;
+- receive flows directly into set;
+- set flows directly into approach and spike;
+- blockers move before the spike occurs;
+- no player freezes for approximately one second during a live rally;
+- scoring and rally endings still work correctly;
+- the match-state connection remains unchanged.
+
+Report exactly which script and timing values were changed.

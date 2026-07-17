@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import type { Plugin } from "vite";
 
 const rawPort = process.env.PORT;
 
@@ -26,9 +27,33 @@ if (!basePath) {
   );
 }
 
+// Unity WebGL files need explicit MIME types that sirv doesn't know.
+// We inject headers before sirv runs so it won't override them.
+const unityMimePlugin: Plugin = {
+  name: "unity-webgl-mime-types",
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      const url = req.url ?? "";
+      if (url.includes("/unity-build/")) {
+        if (url.endsWith(".data")) {
+          res.setHeader("Content-Type", "application/octet-stream");
+          // Allow range requests so large downloads resume properly
+          res.setHeader("Accept-Ranges", "bytes");
+        } else if (url.endsWith(".wasm")) {
+          res.setHeader("Content-Type", "application/wasm");
+        } else if (url.endsWith(".js")) {
+          res.setHeader("Content-Type", "application/javascript");
+        }
+      }
+      next();
+    });
+  },
+};
+
 export default defineConfig({
   base: basePath,
   plugins: [
+    unityMimePlugin,
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
