@@ -475,8 +475,8 @@ function StaffCard({
           </div>
         )}
 
-        {/* Scouting Rating */}
-        {member.scoutingRating != null && (() => {
+        {/* Scouting Rating — scouts only */}
+        {member.scoutingRating != null && ["scout", "scouting", "talent_scout"].includes(member.role?.toLowerCase()) && (() => {
           const r = member.scoutingRating as number;
           const { label, color } = r >= 86 ? { label: "Elite Scout",  color: "text-amber-400"  } :
                                    r >= 71 ? { label: "Great Scout",  color: "text-orange-400" } :

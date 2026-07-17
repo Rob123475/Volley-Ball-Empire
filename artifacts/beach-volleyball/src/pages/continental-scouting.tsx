@@ -452,7 +452,9 @@ export default function ContinentalScouting() {
   const completedCount  = regions?.filter((r) => r.activeMission?.status === "completed").length ?? 0;
   const prospectCount   = prospects?.length ?? 0;
 
-  const hasScout = (staff ?? []).some((s: any) => s.role === "scout");
+  const SCOUT_ROLES = new Set(["scout", "scouting", "talent_scout"]);
+  const isScoutRole = (role: string) => SCOUT_ROLES.has(role?.toLowerCase());
+  const hasScout = (staff ?? []).some((s: any) => isScoutRole(s.role));
 
   function handleSendScout() {
     if (!dialogRegion) return;
