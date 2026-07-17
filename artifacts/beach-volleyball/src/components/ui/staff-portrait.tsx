@@ -5,12 +5,16 @@
  * Mirrors the PlayerPortrait / AvatarPortrait API so the two families
  * can be used interchangeably across the app.
  *
+ * Full-size StaffPortrait is click-to-zoom via the global ImageLightbox.
+ * Small round StaffAvatarPortrait is NOT zoomable.
+ *
  * Fallback colours are keyed by staff role so each department has its
  * own distinct identity in the initials placeholder.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { resolveStaffImageUrl } from "@/data/image-registry";
+import { useLightbox } from "@/components/image-lightbox";
 
 // ── Role colours ──────────────────────────────────────────────────────────────
 
@@ -41,7 +45,7 @@ function initials(name: string): string {
   return ((words[0]?.[0] ?? "") + (words[words.length - 1]?.[0] ?? "")).toUpperCase();
 }
 
-// ── StaffPortrait (full card height) ─────────────────────────────────────────
+// ── StaffPortrait (full card height) — click-to-zoom ─────────────────────────
 
 type StaffPortraitProps = {
   name:            string;
@@ -64,12 +68,15 @@ export function StaffPortrait({
   className      = "",
 }: StaffPortraitProps) {
   const [failed, setFailed] = useState(false);
+  const { open } = useLightbox();
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const src    = resolveStaffImageUrl(imageUrl, imageKey, name, role ?? undefined);
   const colors = roleColor(role);
   const ini    = initials(name);
 
   if (failed || !src) {
+    // Initials placeholder — not zoomable (no real image)
     return (
       <div
         className={`w-full ${heightClass} flex flex-col items-center justify-center select-none ${className}`}
@@ -92,16 +99,25 @@ export function StaffPortrait({
   }
 
   return (
-    <img
-      src={src}
-      alt={name}
-      className={`w-full ${heightClass} object-cover ${objectPosition} ${className}`}
-      onError={() => setFailed(true)}
-    />
+    <button
+      ref={triggerRef}
+      type="button"
+      aria-label={`View ${name} portrait`}
+      className={`w-full ${heightClass} block p-0 border-0 cursor-zoom-in overflow-hidden ${className}`}
+      style={{ background: "none" }}
+      onClick={() => open(src, name, triggerRef.current)}
+    >
+      <img
+        src={src}
+        alt={name}
+        className={`w-full h-full object-cover ${objectPosition}`}
+        onError={() => setFailed(true)}
+      />
+    </button>
   );
 }
 
-// ── StaffAvatarPortrait (compact round) ───────────────────────────────────────
+// ── StaffAvatarPortrait (compact round) — NOT zoomable ────────────────────────
 
 type StaffAvatarPortraitProps = {
   name:            string;

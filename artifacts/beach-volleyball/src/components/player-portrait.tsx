@@ -3,8 +3,12 @@
  *
  * Uses the `/players/{prefix}-{continent}-{index}.png` asset system.
  * On image load error shows a styled initials + continent-coloured placeholder.
+ *
+ * Full-size portraits (PlayerPortrait) are click-to-zoom via the global
+ * ImageLightbox. Small round avatars (AvatarPortrait) are never zoomable.
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useLightbox } from "@/components/image-lightbox";
 
 // ── Portrait URL helpers (also used by server routes) ────────────────────────
 
@@ -22,14 +26,18 @@ export const NATIONALITY_CONTINENT: Record<string, string> = {
   // Asia
   Japan: "Asia", "South Korea": "Asia", China: "Asia", India: "Asia",
   Thailand: "Asia", Indonesia: "Asia", Philippines: "Asia", Vietnam: "Asia",
+  Malaysia: "Asia", Maldives: "Asia",
   // Europe
   Germany: "Europe", France: "Europe", Italy: "Europe", Spain: "Europe",
   Norway: "Europe", Sweden: "Europe", Denmark: "Europe", Netherlands: "Europe",
   Switzerland: "Europe", Poland: "Europe", Greece: "Europe", Portugal: "Europe",
   Austria: "Europe", Belgium: "Europe", Russia: "Europe", Czech: "Europe",
   Finland: "Europe", Croatia: "Europe", Serbia: "Europe", Ukraine: "Europe",
+  England: "Europe", Monaco: "Europe",
   // North America
   USA: "North America", Canada: "North America", Mexico: "North America",
+  "United States": "North America", Jamaica: "North America",
+  "Costa Rica": "North America", Cuba: "North America",
   // South America
   Brazil: "South America", Argentina: "South America", Colombia: "South America",
   Chile: "South America", Peru: "South America", Venezuela: "South America",
@@ -41,7 +49,7 @@ export const NATIONALITY_CONTINENT: Record<string, string> = {
   Morocco: "Africa", Algeria: "Africa", Tunisia: "Africa",
   // Oceania
   Australia: "Oceania", "New Zealand": "Oceania", Fiji: "Oceania",
-  Samoa: "Oceania", Tahiti: "Oceania",
+  Samoa: "Oceania", Tahiti: "Oceania", "Papua New Guinea": "Oceania",
 };
 
 /** Deterministic hash → 0–9 */
@@ -79,12 +87,6 @@ function nameSlug(name: string): string {
   return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
-/**
- * Resolve the best portrait src for a player.
- * - Explicit imageUrl (non-legacy) wins.
- * - Otherwise attempts the per-player file in public/images/players/{folder}/.
- * - On 404 the component's onError handler shows initials — never a blank box.
- */
 /** Rewrite `/objects/...` sidecar paths to the browser-accessible API route */
 function normaliseObjectUrl(url: string): string {
   if (url.startsWith("/objects/")) {
@@ -106,12 +108,12 @@ export function resolvePortraitSrc(
 // ── Continent placeholder colours ─────────────────────────────────────────────
 
 const CONTINENT_COLORS: Record<string, { bg: string; text: string }> = {
-  Africa:          { bg: "#78350f", text: "#fcd34d" },
-  Asia:            { bg: "#7f1d1d", text: "#fca5a5" },
-  Europe:          { bg: "#1e3a5f", text: "#93c5fd" },
-  "North America": { bg: "#14532d", text: "#86efac" },
-  "South America": { bg: "#365314", text: "#bef264" },
-  Oceania:         { bg: "#164e63", text: "#67e8f9" },
+  Africa:            { bg: "#78350f", text: "#fcd34d" },
+  Asia:              { bg: "#7f1d1d", text: "#fca5a5" },
+  Europe:            { bg: "#1e3a5f", text: "#93c5fd" },
+  "North America":   { bg: "#14532d", text: "#86efac" },
+  "South America":   { bg: "#365314", text: "#bef264" },
+  Oceania:           { bg: "#164e63", text: "#67e8f9" },
 };
 const DEFAULT_COLOR = { bg: "#3b0764", text: "#d8b4fe" };
 
@@ -147,6 +149,8 @@ export function PlayerPortrait({
   className = "",
 }: PlayerPortraitProps) {
   const [failed, setFailed] = useState(false);
+  const { open } = useLightbox();
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   const resolved =
     continent ??
@@ -158,7 +162,7 @@ export function PlayerPortrait({
   const src = resolvePortraitSrc(imageUrl, name, playerType);
 
   if (failed) {
-    // Styled initials placeholder — never shows a blank box
+    // Initials placeholder — not zoomable (no real image)
     return (
       <div
         className={`w-full ${heightClass} flex flex-col items-center justify-center select-none ${className}`}
@@ -178,8 +182,16 @@ export function PlayerPortrait({
   }
 
   return (
-    <div className={`w-full ${heightClass} relative overflow-hidden ${className}`}>
-      {/* Blurred background fill — hides the letterbox gaps left by the narrowed portrait */}
+    <div
+      ref={triggerRef}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${name} portrait`}
+      className={`w-full ${heightClass} relative overflow-hidden ${className} cursor-zoom-in`}
+      onClick={() => open(src, name, triggerRef.current)}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(src, name, triggerRef.current); } }}
+    >
+      {/* Blurred background fill */}
       <div
         className="absolute inset-0"
         style={{
@@ -191,12 +203,6 @@ export function PlayerPortrait({
           transformOrigin: "top center",
         }}
       />
-      {/*
-        Portrait at 62% container width → natural height ≈ 1.55× width.
-        At typical 3-col card widths (300–420 px) this renders the image
-        tall enough to show from the top of the head to roughly the knee,
-        rather than clipping at mid-torso the way object-cover did.
-      */}
       <img
         src={src}
         alt={name}
@@ -210,7 +216,7 @@ export function PlayerPortrait({
 
 /**
  * Compact round avatar with portrait or initials fallback.
- * Matches the existing `w-N h-N rounded-full` pattern.
+ * NOT zoomable — small avatars are decorative navigation elements.
  */
 type AvatarPortraitProps = {
   name: string;

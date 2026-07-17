@@ -1,0 +1,86 @@
+IMPLEMENT A UNIVERSAL CLICK-TO-ZOOM IMAGE VIEWER ACROSS THE ENTIRE APP.
+
+GOAL:
+Every full-size player, staff, scout and medical image must open in a large zoom viewer when clicked.
+
+APPLY TO ALL EXISTING AND FUTURE IMAGES IN:
+
+- Senior players
+- Youth players, where an individual image exists
+- Draft players
+- Player Market
+- Scouting
+- Team and Roster
+- Head Coaches
+- Assistant Coaches
+- Fitness Trainers
+- Strength Conditioners
+- Massage Therapists
+- Promotional Managers
+- Scouts and Super Scouts
+- Doctors
+- Medical Specialists
+- Physiotherapists
+- Nutritionists
+- Sports Scientists
+- Any player or staff profile, card, list, modal or detail page
+
+REQUIRED BEHAVIOUR:
+
+1. Clicking or tapping an image opens it in a centred full-screen lightbox/modal.
+2. Display the complete original image without cropping or stretching.
+3. Preserve the image’s original aspect ratio.
+4. Allow the image to use up to 90% of the screen width and 90% of the screen height.
+5. Add a dark semi-transparent background behind the enlarged image.
+6. Add a clear X close button in the top-right corner.
+7. Clicking the dark background closes the viewer.
+8. Pressing Escape closes the viewer.
+9. On mobile, tapping the image opens it and tapping outside closes it.
+10. Change the mouse cursor to a magnifying-glass/zoom-in cursor when hovering over a zoomable image.
+11. Do not navigate away from the current page.
+12. When closed, return the user to the same page and scroll position.
+13. Do not alter the underlying image files, image quality, cards or database records.
+14. Do not create separate zoom code for every page.
+
+IMPLEMENTATION REQUIREMENT:
+
+Create ONE reusable global image lightbox component and use it throughout the app. Update the shared player/staff/medical image components so existing images automatically gain click-to-zoom behaviour. Ensure newly generated player, staff and medical cards also receive this behaviour automatically.
+
+IMPORTANT EXCLUSIONS:
+
+- Do not make small icons, flags, logos, stars, menu icons, decorative backgrounds or buttons zoomable.
+- Only the main portrait/card image belonging to a player, staff member, scout or medical employee should open.
+- Do not redesign any cards or pages.
+- Do not change navigation, menus, colours, spacing, text, filters or existing functionality.
+- Do not add a separate page.
+- Do not duplicate components unnecessarily.
+
+ACCESSIBILITY:
+
+- The viewer must be keyboard accessible.
+- Give the close button an accessible label.
+- Prevent keyboard focus from becoming trapped behind the open viewer.
+- Restore focus to the clicked image after closing.
+- Use appropriate button semantics for clickable images.
+
+VERIFICATION:
+
+After implementation, test the zoom viewer on at least one image from each of these groups:
+
+1. Senior player
+2. Draft or Market player
+3. Scout
+4. Team staff member
+5. Doctor or medical employee
+
+Also confirm:
+
+- The image is not cropped.
+- Escape closes it.
+- Clicking outside closes it.
+- The close button works.
+- Mobile sizing works.
+- No icons, flags or logos open in the viewer.
+- Existing card actions and navigation still work.
+
+Do not report completion until the universal image zoom works consistently across all listed sections.
