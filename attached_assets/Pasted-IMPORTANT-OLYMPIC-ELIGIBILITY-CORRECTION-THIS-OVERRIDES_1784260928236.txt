@@ -1,0 +1,393 @@
+IMPORTANT OLYMPIC ELIGIBILITY CORRECTION — THIS OVERRIDES ANY CONFLICTING RULES IN THE PREVIOUS OLYMPIC PROMPT.
+
+CHANGE THE NATIONAL ELIGIBILITY AND SQUAD RULES AS FOLLOWS.
+
+==================================================
+1. THREE REAL PLAYERS ARE MANDATORY
+==================================================
+
+A country must have AT LEAST THREE eligible real senior players of that country’s origin before it may:
+
+- Enter an Olympic qualifier.
+- Earn Olympic qualification points.
+- Qualify for the Olympics.
+- Enter the Year 4 Olympic tournament.
+
+All three players must have the same permanent:
+
+nationalityCountryCode
+
+The nationalityCountryCode represents the player’s country of origin.
+
+A country with only one or two eligible players is INELIGIBLE.
+
+STRICT RULES:
+
+- Do not generate a temporary third player.
+- Do not generate an Olympic-only player.
+- Do not use a player from another country.
+- Do not borrow a player from another national team.
+- Do not allow a staff member to fill a player position.
+- Do not use club location as nationality.
+- Do not allow a two-player country into qualifiers.
+- Do not award qualifier points to an ineligible country.
+- Do not reserve an Olympic position for an ineligible country.
+- Do not manufacture players merely to make a country eligible.
+
+There are now enough real players in the database. Olympic eligibility must be earned using the existing and naturally regenerated player population.
+
+==================================================
+2. PLAYER ELIGIBILITY
+==================================================
+
+For a player to count toward the three-player minimum, she must:
+
+- Be a real senior player in the permanent player database.
+- Have the country’s nationalityCountryCode.
+- Be old enough for senior competition.
+- Not be retired.
+- Not be permanently unavailable.
+- Not be serving a suspension covering the entire tournament.
+- Not already represent another country.
+- Have a valid permanent player ID.
+
+The player may currently be:
+
+- Signed to a club in any country.
+- In the player market.
+- A free agent.
+- Signed to a foreign club.
+- Playing in another continent.
+
+The location and nationality of the player’s club do not affect national eligibility.
+
+Example:
+
+Brazil has three Brazilian-origin players:
+
+- One plays for an Australian club.
+- One plays for a Japanese club.
+- One is a free agent.
+
+All three remain eligible to represent Brazil because their nationalityCountryCode is Brazil.
+
+==================================================
+3. QUALIFIER ENTRY VALIDATION
+==================================================
+
+Before every Olympic qualifier, validate every country again.
+
+A country may enter only if it has at least three eligible players of origin on the qualifier registration date.
+
+If a country has fewer than three:
+
+- Mark it INELIGIBLE.
+- Do not include it in the qualifier draw.
+- Do not create fixtures for it.
+- Do not award it qualification points.
+- Display the reason: “Requires three eligible players of national origin.”
+- Move to the next eligible country where necessary.
+
+A country that becomes eligible in a later year may enter the remaining qualifiers.
+
+Example:
+
+- Year 1: Country has only two eligible players and cannot enter.
+- Year 2: A third eligible player enters the senior pool.
+- Country may now enter the Year 2 and Year 3 qualifiers.
+- It keeps zero points for the qualifier it missed.
+- It may still qualify if its accumulated points are high enough.
+
+Do not award backdated points for missed qualifiers.
+
+==================================================
+4. FINAL OLYMPIC QUALIFICATION VALIDATION
+==================================================
+
+At the end of Year 3:
+
+1. Calculate qualification points from all three qualifying tournaments.
+2. Rank countries within each continent.
+3. Check that every prospective qualifier still has at least three eligible players of origin.
+4. Lock only eligible countries into the Olympic field.
+5. Replace an ineligible country with the next eligible country from the same continental standings.
+6. Never exceed four qualified countries from one continent.
+7. Never exceed 24 qualified countries overall.
+
+A country cannot qualify based only on points if it does not have three eligible players.
+
+Qualification requires BOTH:
+
+- A qualifying position based on accumulated points.
+- At least three eligible players of national origin.
+
+==================================================
+5. YEAR 4 REVALIDATION
+==================================================
+
+Revalidate all qualified countries before the Year 4 Olympic squad-registration deadline.
+
+If a qualified country has fewer than three eligible players:
+
+1. Search its existing real senior player pool again.
+2. Include eligible free agents and players based at foreign clubs.
+3. Do not generate a replacement player.
+4. If three eligible players still cannot be found, withdraw the country.
+5. Replace it with the next eligible country from the same continent’s final Year 3 standings.
+6. The replacement country must also have at least three eligible players.
+7. Preserve the maximum of four countries per continent and 24 countries overall.
+8. Record the withdrawal and replacement in Olympic history and news.
+
+If no eligible replacement exists within that continent:
+
+- Leave the Olympic place empty.
+- Run the tournament with fewer countries.
+- Do not transfer the unused place to another continent.
+- Do not create a fake country or fake player.
+
+==================================================
+6. NATIONAL PLAYER SQUAD
+==================================================
+
+Each country registers exactly three players:
+
+- Two starting players.
+- One reserve player.
+
+All three must:
+
+- Be real permanent players.
+- Have the same nationalityCountryCode as the represented country.
+- Have valid permanent player IDs.
+- Be eligible for senior national competition.
+
+The reserve may replace a starter because of:
+
+- Injury.
+- Fatigue.
+- Suspension.
+- Poor form.
+- Tactical selection.
+
+The three registered players temporarily join their national squad without leaving their clubs permanently.
+
+After national duty:
+
+- Return every player to her original club or free-agent status.
+- Preserve her existing contract.
+- Preserve injuries and fatigue.
+- Add national appearances and results to her permanent career record.
+
+==================================================
+7. INJURIES AFTER SQUAD REGISTRATION
+==================================================
+
+A country must have three eligible players when entering qualifiers, qualifying for the Olympics and registering its Olympic squad.
+
+If a registered player becomes injured during the tournament:
+
+- Keep her registered with the national squad.
+- Use the reserve when possible.
+- Do not generate another player.
+- Do not borrow a foreign player.
+- Apply normal injury and forfeiture rules if the country cannot field two fit starters.
+- An injury during the tournament does not retroactively erase qualification.
+
+If a player becomes unavailable before the squad-registration deadline:
+
+- Replace her only with another real eligible player from the same country.
+- If no third eligible national player exists, apply the withdrawal and replacement rules.
+
+==================================================
+8. OLYMPIC STAFF MAY BE INTERNATIONAL
+==================================================
+
+Nationality restrictions apply only to PLAYERS.
+
+Olympic and qualifier staff may come from any country.
+
+National teams may hire or appoint international:
+
+- Head Coaches
+- Assistant Coaches
+- Fitness Trainers
+- Strength Conditioners
+- Massage Therapists
+- Promotional Managers
+- Scouts
+- Doctors
+- Medical Specialists
+- Physiotherapists
+- Nutritionists
+- Sports Scientists
+
+Examples:
+
+- Brazil may appoint an Australian head coach.
+- Australia may appoint a Japanese physiotherapist.
+- Japan may appoint a Brazilian sports scientist.
+
+A staff member’s nationality must not:
+
+- Affect the country’s Olympic eligibility.
+- Count toward the three-player requirement.
+- Change the nationality of players.
+- Prevent the staff member from working for a foreign national team.
+- Cause the national team to be marked ineligible.
+
+Only the three registered players must be from the represented country of origin.
+
+==================================================
+9. NATIONAL STAFF APPOINTMENTS
+==================================================
+
+If national-team staffing is implemented:
+
+- National appointments are temporary.
+- Staff do not permanently leave their club unless normal contract logic says so.
+- Prevent scheduling conflicts during national duty.
+- National staff contracts or assignments end after the qualifier or Olympics.
+- Staff experience and achievements may record national-team service.
+- Staff nationality is informational only.
+- Do not limit staff selection by continent or country.
+
+If the game does not yet support national staff appointments:
+
+- Use suitable existing staff-selection logic.
+- Do not create a large new staff-management system unless required.
+- Ensure staff nationality never blocks a national team’s participation.
+
+==================================================
+10. UI REQUIREMENTS
+==================================================
+
+In Olympic qualification tables, show:
+
+- Country.
+- Flag.
+- Continent.
+- Number of eligible origin players.
+- Qualification points.
+- Qualification position.
+- Eligibility status.
+- Reason for ineligibility.
+
+Eligibility labels:
+
+- ELIGIBLE — three or more eligible players.
+- INELIGIBLE — fewer than three eligible players.
+- QUALIFIED — earned a qualifying position and passed eligibility validation.
+- WITHDRAWN — failed eligibility validation after qualification.
+- REPLACEMENT — entered after a higher-ranked country became ineligible.
+
+On the national squad screen, display:
+
+- Three registered players.
+- Country of origin.
+- Current club.
+- Starting or reserve status.
+- Fitness.
+- Fatigue.
+- Injury status.
+- Form.
+
+Display national staff separately from players.
+
+Never include staff members in the eligible-player count.
+
+==================================================
+11. REGENERATION AND FUTURE ELIGIBILITY
+==================================================
+
+Player regeneration must preserve the country-of-origin system.
+
+New regenerated players must receive:
+
+- A valid nationalityCountryCode.
+- A valid country of origin.
+- A unique permanent player ID.
+- A continent based on the country of origin.
+
+Regeneration may naturally make additional countries eligible in future cycles.
+
+However:
+
+- Do not generate players specifically to rescue a country before a qualifier.
+- Do not force every country to become eligible.
+- Do not alter player nationality to fill national teams.
+- Allow the global player population to evolve naturally.
+
+==================================================
+12. REMOVE CONFLICTING PREVIOUS LOGIC
+==================================================
+
+Find and remove or replace any previous rule that:
+
+- Generates a temporary third Olympic player.
+- Allows a country with two players to compete.
+- Uses a two-player team plus a wildcard.
+- Automatically fills an incomplete national roster.
+- Allows a foreign player to represent the country.
+- Treats staff nationality as an eligibility requirement.
+
+Do not leave both the old and new eligibility systems active.
+
+There must be one authoritative Olympic eligibility rule:
+
+A COUNTRY MUST HAVE AT LEAST THREE REAL ELIGIBLE PLAYERS OF THAT COUNTRY’S ORIGIN.
+
+==================================================
+13. REQUIRED TESTS
+==================================================
+
+TEST 1 — THREE PLAYERS:
+
+- Country with three eligible origin players can enter.
+- Country with two eligible origin players cannot enter.
+- Country with one eligible origin player cannot enter.
+- No temporary player is generated.
+
+TEST 2 — FOREIGN CLUBS:
+
+- Three Brazilian players at clubs outside Brazil still make Brazil eligible.
+- Their clubs do not change their nationality.
+- They return to their original clubs after national duty.
+
+TEST 3 — INTERNATIONAL STAFF:
+
+- Brazil can appoint an Australian coach.
+- Brazil remains eligible because its three players are Brazilian.
+- The Australian coach does not count as a Brazilian player.
+- Staff nationality does not block entry.
+
+TEST 4 — LATE ELIGIBILITY:
+
+- A country with two players misses Year 1.
+- It gains a third real senior player before Year 2.
+- It may enter Years 2 and 3.
+- It receives no Year 1 points.
+
+TEST 5 — LOSS OF ELIGIBILITY:
+
+- A qualified country falls below three available players before Year 4 registration.
+- No replacement player is generated.
+- The next eligible country from the same continent replaces it.
+- The total field remains at or below 24.
+
+TEST 6 — TOURNAMENT INJURY:
+
+- A country registers three eligible players.
+- One player is injured during the Olympics.
+- The reserve can enter.
+- Qualification is not deleted retrospectively.
+- No foreign or generated player is added.
+
+TEST 7 — LONG-TERM SAVE:
+
+- Eligibility remains correct after saving and loading.
+- Player transfers do not change country of origin.
+- Regenerated players use valid nationalityCountryCode values.
+- No Olympics contains an ineligible country.
+- No Olympics exceeds 24 countries.
+
+DO NOT REPORT COMPLETION UNTIL THE OLD TWO-PLAYER/TEMPORARY-PLAYER LOGIC HAS BEEN REMOVED AND ALL TESTS PASS.
