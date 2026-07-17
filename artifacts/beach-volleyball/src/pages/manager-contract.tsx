@@ -384,7 +384,7 @@ export default function ManagerContract() {
                 {c.status}
               </span>
             </div>
-            <p className="text-sm text-white/45 mt-0.5 font-medium">Head Coach · {clubName}</p>
+            <p className="text-sm text-white/45 mt-0.5 font-medium">Club Manager · {clubName}</p>
           </div>
           <div className="text-right shrink-0">
             <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold">Expires</p>

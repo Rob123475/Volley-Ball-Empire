@@ -251,7 +251,7 @@ export default function ManagerProfile() {
           <div>
             <h2 className="text-3xl font-black text-white leading-none truncate">{managerName}</h2>
             <p className="text-sm text-white/45 mt-1 font-medium">
-              Head Coach · {clubName} · {season}
+              Club Manager · {clubName} · {season}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
