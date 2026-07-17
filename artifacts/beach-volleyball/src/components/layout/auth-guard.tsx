@@ -51,7 +51,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       <div className="relative h-screen w-full overflow-hidden bg-black">
 
         <img
-          src={`${import.meta.env.BASE_URL}title-hero.png`}
+          src={`${import.meta.env.BASE_URL}title-hero.webp`}
           alt="Beach Volleyball Pro"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
