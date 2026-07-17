@@ -9,7 +9,6 @@ import { Shell } from "@/components/layout/shell";
 import Dashboard from "@/pages/dashboard";
 import TeamRoster from "@/pages/team";
 import PlayerMarket from "@/pages/players";
-import PlayerDraft from "@/pages/draft";
 import Matches from "@/pages/matches";
 import ThreeDCourt from "@/pages/court";
 import Training from "@/pages/training";
@@ -104,7 +103,6 @@ function Router() {
               <Route path="/" component={Dashboard} />
               <Route path="/team" component={TeamRoster} />
               <Route path="/players" component={PlayerMarket} />
-              <Route path="/draft" component={PlayerDraft} />
               <Route path="/matches" component={Matches} />
               <Route path="/training" component={Training} />
               <Route path="/contracts" component={Contracts} />

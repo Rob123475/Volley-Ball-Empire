@@ -12,7 +12,6 @@ import {
   ChevronRight,
   ChevronDown,
   Menu,
-  Box,
   Heart,
   Building2,
   Sparkles,
@@ -109,7 +108,6 @@ const NAV_GROUPS: NavGroup[] = [
     icon: UserPlus,
     items: [
       { href: "/players",               label: "Player Market",       icon: UserPlus },
-      { href: "/draft",                 label: "Player Draft",        icon: Box      },
       { href: "/staff",                 label: "My Staff",            icon: UserCog  },
       { href: "/staff-market",          label: "Staff Market",        icon: UserCog  },
       { href: "/continental-scouting",  label: "Scouting",             icon: Radar   },
