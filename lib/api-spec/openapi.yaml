@@ -3801,6 +3801,10 @@ components:
           type: string
           nullable: true
           description: "Club secondary colour (from team secondary logo colour)"
+        retiredAt:
+          type: string
+          nullable: true
+          description: "ISO timestamp of when this career was retired. Null if still active."
         lastPlayedAt:
           type: string
         createdAt:

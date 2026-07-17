@@ -670,6 +670,7 @@ export const careerSavesTable = pgTable("career_saves", {
   worldRanking: integer("world_ranking"),
   budget:       numeric("budget", { precision: 14, scale: 2 }),
   managerReputation: integer("manager_reputation").notNull().default(50),
+  retiredAt:    timestamp("retired_at",     { withTimezone: true }),
   lastPlayedAt: timestamp("last_played_at", { withTimezone: true }).notNull().defaultNow(),
   createdAt:    timestamp("created_at",     { withTimezone: true }).notNull().defaultNow(),
 });

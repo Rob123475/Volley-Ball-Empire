@@ -22,6 +22,8 @@ export interface CareerSaveSlot {
   primaryColor?: string | null;
   /** Club secondary colour (from team secondary logo colour) */
   secondaryColor?: string | null;
+  /** ISO timestamp of when this career was retired. Null if still active. */
+  retiredAt?: string | null;
   lastPlayedAt: string;
   createdAt: string;
 }

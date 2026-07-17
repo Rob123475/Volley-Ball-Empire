@@ -1,0 +1,136 @@
+FIX EXISTING CAREER / CONTINUE BUTTON FLOW — DO NOT REDESIGN ANYTHING
+
+This is a targeted save-state and navigation fix only.
+
+CURRENT BUG:
+- A user creates and starts a career successfully.
+- When they leave and later return to the game, the opening screen still shows "Start Career".
+- Pressing it sends them through the New Career setup again.
+- At "Begin Career", the process becomes stuck because an existing career already exists.
+- The user currently has no working way to continue their saved career.
+
+REQUIRED BEHAVIOUR:
+
+1. ON APP LOAD
+Check whether a valid active career/save already exists.
+
+2. IF NO CAREER EXISTS
+The main opening-screen button must display:
+
+START CAREER
+
+Pressing it must open the existing New Career flow:
+Manager → Club → Customise → Begin Career.
+
+3. IF A VALID CAREER EXISTS
+The main opening-screen button must display:
+
+CONTINUE CAREER
+
+Pressing it must:
+- load the existing active career,
+- restore the saved manager,
+- restore the selected club,
+- restore club colours and customisation,
+- restore current date/season,
+- restore players, staff, finances, fixtures, competitions and all saved career data,
+- navigate directly to the normal career dashboard.
+
+It must NOT open /new-career.
+
+4. START CAREER MUST ONLY APPEAR WHEN:
+- no career/save exists, or
+- the user has deliberately deleted every save, or
+- the user has deliberately ended the career and confirmed that action.
+
+5. NEW CAREER
+If the game supports multiple save slots, "New Career" must remain a separate deliberate option.
+It must never replace or overwrite an existing save without a clear save-slot selection and confirmation.
+
+6. BEGIN CAREER PROTECTION
+Before creating a career, check whether the selected save slot already contains a career.
+
+If occupied:
+- do not freeze,
+- do not silently fail,
+- do not create duplicate records,
+- do not remain stuck on the button.
+
+Instead, show a clear message:
+"A career already exists in this save slot. Continue it, choose another slot, or delete the existing save."
+
+7. SAVE DETECTION
+Use the application's real persistent save source as the single source of truth.
+Do not rely only on temporary React state, page state, URL state or a variable that resets when the app reloads.
+
+The career must still be detected after:
+- browser refresh,
+- closing and reopening the tab,
+- returning later,
+- redeployment,
+- navigating away and back.
+
+8. LOADING STATE
+While checking for a career:
+- temporarily disable the main button,
+- display "Loading Career...",
+- prevent the user from entering New Career before save detection completes.
+
+9. INVALID OR INCOMPLETE SAVE
+If save data exists but is damaged or incomplete:
+- do not treat it as a valid career,
+- show a useful recovery error,
+- do not trap the user on the Begin Career screen.
+
+10. DO NOT CHANGE
+Do not redesign or alter:
+- New Career screens,
+- Manager screen,
+- Club selection screen,
+- Customise screen,
+- colours,
+- layout,
+- fonts,
+- navigation styling,
+- club data,
+- gameplay systems,
+- competitions,
+- sidebar,
+- dashboard layout.
+
+Only fix the save detection, Start/Continue button state, career loading and duplicate-career protection.
+
+ACCEPTANCE TEST:
+
+TEST A — FRESH USER
+1. Clear all saves.
+2. Open game.
+3. Button says START CAREER.
+4. Complete career creation.
+5. Career dashboard opens.
+
+TEST B — RETURNING USER
+1. Refresh browser.
+2. Return to opening screen.
+3. Button says CONTINUE CAREER.
+4. Press it.
+5. Existing dashboard opens with the same manager and club.
+6. No New Career screens appear.
+
+TEST C — CLOSE AND RETURN
+1. Close game tab.
+2. Reopen game.
+3. Button says CONTINUE CAREER.
+4. Existing career loads correctly.
+
+TEST D — DUPLICATE PROTECTION
+1. Attempt to create another career in an occupied slot.
+2. Game does not freeze.
+3. A clear occupied-slot message appears.
+
+TEST E — DELETE SAVE
+1. Delete/end the existing career with confirmation.
+2. Return to opening screen.
+3. Button changes back to START CAREER.
+
+Do not report completion until all five tests pass.

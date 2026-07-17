@@ -16,6 +16,7 @@ export interface SessionData {
   expires_at?: number;
   activeTeamId?: number;
   activeCareerSaveId?: number;
+  careerSessionRestored?: boolean;
 }
 
 let oidcConfig: client.Configuration | null = null;

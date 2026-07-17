@@ -10228,6 +10228,7 @@ export const ListCareerSavesResponse = zod.object({
   "managerReputation": zod.number(),
   "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
   "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
+  "retiredAt": zod.string().nullish().describe('ISO timestamp of when this career was retired. Null if still active.'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
 })),
@@ -10266,6 +10267,7 @@ export const UpsertCareerSaveResponse = zod.object({
   "managerReputation": zod.number(),
   "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
   "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
+  "retiredAt": zod.string().nullish().describe('ISO timestamp of when this career was retired. Null if still active.'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
 })

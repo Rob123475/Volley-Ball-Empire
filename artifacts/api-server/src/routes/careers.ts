@@ -63,6 +63,7 @@ router.get("/careers", async (req, res) => {
       worldRanking:      careerSavesTable.worldRanking,
       budget:            careerSavesTable.budget,
       managerReputation: careerSavesTable.managerReputation,
+      retiredAt:         careerSavesTable.retiredAt,
       lastPlayedAt:      careerSavesTable.lastPlayedAt,
       createdAt:         careerSavesTable.createdAt,
       primaryColor:      teamsTable.logoColor,
@@ -94,6 +95,7 @@ router.get("/careers", async (req, res) => {
       managerReputation: s.managerReputation ?? 50,
       primaryColor:      s.primaryColor ?? null,
       secondaryColor:    s.secondaryColor ?? null,
+      retiredAt:         s.retiredAt ? s.retiredAt.toISOString() : null,
       lastPlayedAt:      s.lastPlayedAt.toISOString(),
       createdAt:         s.createdAt.toISOString(),
     })),
@@ -243,13 +245,21 @@ router.post("/careers/end", async (req, res) => {
     }
   }
 
+  // Mark the career save as retired so session restore doesn't pick it back up
+  if (teamId) {
+    await db
+      .update(careerSavesTable)
+      .set({ retiredAt: new Date() })
+      .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, req.user.id)));
+  }
+
   // Clear active career from session
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
     if (session) {
-      const { activeTeamId: _, ...rest } = session;
-      await updateSession(sid, rest);
+      const { activeTeamId: _, activeCareerSaveId: __, careerSessionRestored: ___, ...rest } = session;
+      await updateSession(sid, { ...rest, careerSessionRestored: true });
     }
   }
 
@@ -259,12 +269,22 @@ router.post("/careers/end", async (req, res) => {
 // POST /careers/quit — clear session without writing to Hall of Fame
 router.post("/careers/quit", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  // Mark the career save as retired
+  const teamId = req.activeTeamId;
+  if (teamId) {
+    await db
+      .update(careerSavesTable)
+      .set({ retiredAt: new Date() })
+      .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, req.user.id)));
+  }
+
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
     if (session) {
-      const { activeTeamId: _, ...rest } = session;
-      await updateSession(sid, rest);
+      const { activeTeamId: _, activeCareerSaveId: __, careerSessionRestored: ___, ...rest } = session;
+      await updateSession(sid, { ...rest, careerSessionRestored: true });
     }
   }
   res.json({ ok: true });

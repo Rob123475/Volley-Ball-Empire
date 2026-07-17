@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
   useGetCurrentAuthUser,
+  useGetMyTeam,
+  getGetMyTeamQueryKey,
   useUpsertCareerSave,
   useListClubTemplates,
   getListClubTemplatesQueryKey,
@@ -265,6 +267,9 @@ function StepBar({ current }: { current: number }) {
 export default function NewCareer() {
   const [, navigate]   = useLocation();
   const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
+  const { data: team, isLoading: teamLoading } = useGetMyTeam({
+    query: { queryKey: getGetMyTeamQueryKey(), enabled: !!user, retry: false },
+  });
 
   const [step, setStep]               = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName] = useState("");
@@ -338,7 +343,7 @@ export default function NewCareer() {
     window.location.href = "/";
   };
 
-  if (authLoading) {
+  if (authLoading || (!!user && teamLoading)) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-secondary" />
@@ -349,6 +354,40 @@ export default function NewCareer() {
   if (!user) {
     window.location.href = "/api/login";
     return null;
+  }
+
+  // Occupied-slot guard: if an active career already exists, do not allow
+  // the user to accidentally start a new one. Show options instead.
+  if (team) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-8">
+        <div className="max-w-sm w-full rounded-2xl border border-white/10 bg-white/3 p-8 text-center space-y-5">
+          <div className="text-4xl">🏖️</div>
+          <div>
+            <h2 className="text-lg font-black text-white">Career Already Active</h2>
+            <p className="mt-2 text-sm text-white/50">
+              A career already exists in Save Slot 1. Continue it, or retire your current career first before starting a new one.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => { window.location.href = "/"; }}
+              className="w-full rounded-xl bg-secondary hover:bg-secondary/90 py-3 text-sm font-black text-white transition-all shadow-[0_0_20px_rgba(244,162,97,0.3)]"
+            >
+              Continue Existing Career
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="w-full rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-bold text-white/60 hover:bg-white/10 transition-all"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

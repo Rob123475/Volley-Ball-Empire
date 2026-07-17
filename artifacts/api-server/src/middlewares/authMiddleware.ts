@@ -9,6 +9,8 @@ import {
   updateSession,
   type SessionData,
 } from "../lib/auth";
+import { db, careerSavesTable } from "@workspace/db";
+import { eq, and, isNull, isNotNull, desc } from "drizzle-orm";
 
 declare global {
   namespace Express {
@@ -87,5 +89,40 @@ export async function authMiddleware(
   req.user = refreshed.user;
   if (refreshed.activeTeamId)       req.activeTeamId       = refreshed.activeTeamId;
   if (refreshed.activeCareerSaveId) req.activeCareerSaveId = refreshed.activeCareerSaveId;
+
+  // Session restore: if no active career in session, look up the DB once per session.
+  // Protects returning users whose SID cookie expired or who re-logged via OIDC.
+  if (!refreshed.activeTeamId && !refreshed.careerSessionRestored) {
+    try {
+      const [latestSave] = await db
+        .select({ id: careerSavesTable.id, teamId: careerSavesTable.teamId })
+        .from(careerSavesTable)
+        .where(and(
+          eq(careerSavesTable.userId, refreshed.user.id),
+          isNotNull(careerSavesTable.teamId),
+          isNull(careerSavesTable.retiredAt),
+        ))
+        .orderBy(desc(careerSavesTable.lastPlayedAt))
+        .limit(1);
+
+      if (latestSave?.teamId) {
+        const restored: SessionData = {
+          ...refreshed,
+          activeTeamId:          latestSave.teamId,
+          activeCareerSaveId:    latestSave.id,
+          careerSessionRestored: true,
+        };
+        await updateSession(sid, restored);
+        req.activeTeamId       = latestSave.teamId;
+        req.activeCareerSaveId = latestSave.id;
+      } else {
+        // Mark so we don't query DB on every subsequent request for this session.
+        await updateSession(sid, { ...refreshed, careerSessionRestored: true });
+      }
+    } catch {
+      // Non-fatal — continue without restoration.
+    }
+  }
+
   next();
 }
