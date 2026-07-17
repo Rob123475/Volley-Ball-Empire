@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { BarChart2, Building2, Heart, Sparkles, Trophy } from "lucide-react";
+import { BarChart2, Building2, Heart, Crown, Trophy } from "lucide-react";
 import LeagueLadders  from "@/pages/league-ladders";
 import Facilities     from "@/pages/facilities";
 import MedicalCentre  from "@/pages/medical";
 import MedicalMarket  from "@/pages/medical-market";
-import Wellbeing      from "@/pages/wellbeing";
+import Leaderboard    from "@/pages/leaderboard";
 import TrophyCabinet  from "@/pages/trophy-cabinet";
 
-type Tab = "overview" | "facilities" | "medical" | "wellbeing" | "trophy";
+type Tab = "overview" | "facilities" | "medical" | "halloffame" | "trophy";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
-  { id: "overview",   label: "Overview",        icon: BarChart2  },
-  { id: "facilities", label: "Facilities",      icon: Building2  },
-  { id: "medical",    label: "Medical Centre",  icon: Heart      },
-  { id: "wellbeing",  label: "Wellbeing",       icon: Sparkles   },
-  { id: "trophy",     label: "Trophy Cabinet",  icon: Trophy     },
+  { id: "overview",    label: "Overview",       icon: BarChart2  },
+  { id: "facilities",  label: "Facilities",     icon: Building2  },
+  { id: "medical",     label: "Medical Centre", icon: Heart      },
+  { id: "halloffame",  label: "Hall of Fame",   icon: Crown      },
+  { id: "trophy",      label: "Trophy Cabinet", icon: Trophy     },
 ];
 
 export default function ClubHub() {
@@ -47,7 +47,7 @@ export default function ClubHub() {
           <MedicalMarket />
         </div>
       )}
-      {tab === "wellbeing"  && <Wellbeing />}
+      {tab === "halloffame" && <Leaderboard />}
       {tab === "trophy"     && <TrophyCabinet />}
     </div>
   );

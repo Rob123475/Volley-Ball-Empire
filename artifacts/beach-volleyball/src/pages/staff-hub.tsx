@@ -8,9 +8,9 @@ import ContinentalScouting from "@/pages/continental-scouting";
 type Tab = "my-staff" | "market" | "scouting";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
-  { id: "my-staff",  label: "My Staff", icon: UserCog    },
   { id: "market",    label: "Market",   icon: ShoppingBag },
   { id: "scouting",  label: "Scouting", icon: Radar      },
+  { id: "my-staff",  label: "My Staff", icon: UserCog    },
 ];
 
 export default function StaffHub() {
