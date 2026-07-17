@@ -452,9 +452,12 @@ export default function ContinentalScouting() {
   const completedCount  = regions?.filter((r) => r.activeMission?.status === "completed").length ?? 0;
   const prospectCount   = prospects?.length ?? 0;
 
-  const SCOUT_ROLES = new Set(["scout", "scouting", "talent_scout"]);
-  const isScoutRole = (role: string) => SCOUT_ROLES.has(role?.toLowerCase());
-  const hasScout = (staff ?? []).some((s: any) => isScoutRole(s.role));
+  // Roles stored as Title Case — normalise before comparing.
+  // Head Coach, Assistant Coach, and Scout all unlock scouting.
+  const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
+  const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
+  const scoutingUnlocked = (staff ?? []).some((s: any) => SCOUTING_ROLES.has(normaliseRole(s.role)));
+  const hasScout = scoutingUnlocked;
 
   function handleSendScout() {
     if (!dialogRegion) return;

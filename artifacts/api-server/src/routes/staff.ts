@@ -216,7 +216,10 @@ router.post("/staff/:id/scout", async (req, res) => {
   if (member.isScoutRevealed) { res.status(400).json({ error: "Already revealed" }); return; }
 
   const teamStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
-  const hasCoach = teamStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach" || s.role === "scout");
+  // Roles are stored as Title Case ("Head Coach", "Scout") — normalise before comparing.
+  const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
+  const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
+  const hasCoach = teamStaff.some(s => SCOUTING_ROLES.has(normaliseRole(s.role)));
 
   if (!hasCoach) {
     res.status(400).json({ error: "You need a Head Coach, Assistant Coach, or Scout to scout staff." });

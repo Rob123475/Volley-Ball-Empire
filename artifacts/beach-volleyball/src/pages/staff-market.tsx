@@ -395,8 +395,13 @@ export default function StaffMarket() {
   const scoutMutation = useScoutStaff();
 
   const myStaffIds = new Set(myStaff.map(s => s.id));
-  const canHire  = myStaff.length < MAX_STAFF;
-  const hasCoach = myStaff.some(s => s.role === "head_coach" || s.role === "assistant_coach" || s.role === "scout");
+  const canHire = myStaff.length < MAX_STAFF;
+
+  // Roles are stored as Title Case in the DB ("Head Coach", "Assistant Coach", "Scout").
+  // Normalise before comparing so the check is robust to casing/spacing differences.
+  const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
+  const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
+  const scoutingUnlocked = myStaff.some(s => SCOUTING_ROLES.has(normaliseRole(s.role)));
 
   const handleHire = (staffId: number) => {
     hireMutation.mutate({ data: { staffId } }, {
@@ -487,7 +492,7 @@ export default function StaffMarket() {
       </div>
 
       {/* Scout hint */}
-      {hasCoach ? (
+      {scoutingUnlocked ? (
         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-2.5 border border-border/40">
           <Eye className="h-3.5 w-3.5 shrink-0" />
           <span>
@@ -526,7 +531,7 @@ export default function StaffMarket() {
               isHiring={hireMutation.isPending && (hireMutation.variables as any)?.data?.staffId === member.id}
               isScouting={scoutMutation.isPending && (scoutMutation.variables as any)?.id === member.id}
               canHire={canHire}
-              hasCoach={hasCoach}
+              hasCoach={scoutingUnlocked}
             />
           ))}
         </div>
