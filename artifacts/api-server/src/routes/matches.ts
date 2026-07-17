@@ -1145,6 +1145,63 @@ router.post("/matches/:id/simulate", async (req, res) => {
   });
 });
 
+// ─── POST /api/matches/:id/forfeit ───────────────────────────────────────────
+/**
+ * Forfeit a scheduled match — records it as a 0–21 loss, applies
+ * the standard loss-side team penalties (losses, board confidence,
+ * sponsor reputation, win-streak reset) and post-match player effects.
+ */
+router.post("/matches/:id/forfeit", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid match id" }); return; }
+
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No active team" }); return; }
+
+  const [match] = await db.select().from(matchesTable).where(eq(matchesTable.id, id));
+  if (!match) { res.status(404).json({ error: "Match not found" }); return; }
+  if (match.homeTeamId !== team.id && match.awayTeamId !== team.id) {
+    res.status(403).json({ error: "This match does not belong to your team" }); return;
+  }
+  if (match.status === "completed") {
+    res.status(400).json({ error: "Match is already completed" }); return;
+  }
+
+  const homeScore = 0;
+  const awayScore = 21;
+
+  const [updatedMatch] = await db
+    .update(matchesTable)
+    .set({ homeScore, awayScore, status: "completed" })
+    .where(eq(matchesTable.id, id))
+    .returning();
+
+  const newSponsorRep = Math.max(0, (team.sponsorReputation ?? 50) - 1);
+  await db.update(teamsTable).set({
+    losses:            team.losses + 1,
+    winStreak:         0,
+    sponsorReputation: newSponsorRep,
+    boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
+  }).where(eq(teamsTable.id, team.id));
+
+  const [facilityRows] = await Promise.all([
+    db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),
+  ]);
+  const facilityLevels: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
+
+  await applyPostMatchEffects(team.id, match.weather ?? "sunny", facilityLevels, false, 0, 25);
+
+  res.json({
+    ok:        true,
+    matchId:   id,
+    homeScore,
+    awayScore,
+    forfeit:   true,
+    match:     serializeMatch(updatedMatch),
+  });
+});
+
 router.patch("/matches/:id/lineup", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);

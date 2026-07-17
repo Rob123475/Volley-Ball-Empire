@@ -167,6 +167,30 @@ export default function Matches() {
     });
   };
 
+  const [isForfeiting, setIsForfeiting] = useState(false);
+
+  const handleForfeit = async (matchId: number) => {
+    setIsForfeiting(true);
+    try {
+      const res = await fetch(`/api/matches/${matchId}/forfeit`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast({ title: "Forfeit failed", description: (err as any).error ?? "Unknown error", variant: "destructive" });
+        return;
+      }
+      toast({ title: "Match forfeited", description: "Recorded as a 0–21 loss.", variant: "destructive" });
+      queryClient.invalidateQueries({ queryKey: getListUpcomingMatchesQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getListMatchesQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
+      refetchFixture();
+    } catch {
+      toast({ title: "Forfeit failed", description: "Network error.", variant: "destructive" });
+    } finally {
+      setIsForfeiting(false);
+    }
+  };
+
   const activePlayers = roster?.activePlayers ?? [];
 
   // First scheduled fixture match is the "next to play"
@@ -309,6 +333,8 @@ export default function Matches() {
                             onSimulate={(ids) => handleSimulate(match.id, ids)}
                             isSimulating={simulateMutation.isPending || lineupMutation.isPending}
                             activePlayers={activePlayers}
+                            onForfeit={handleForfeit}
+                            isForfeiting={isForfeiting}
                           />
                         </div>
                       );
@@ -531,9 +557,10 @@ export default function Matches() {
 }
 
 // ── Regular fixture round card ──
-function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isSimulating, activePlayers }: {
+function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isSimulating, activePlayers, onForfeit, isForfeiting }: {
   match: any; isCompleted: boolean; isNext: boolean; homeWon: boolean;
   onSimulate: (ids: number[]) => void; isSimulating: boolean; activePlayers: any[];
+  onForfeit: (matchId: number) => void; isForfeiting: boolean;
 }) {
   const [selected, setSelected] = useState<number[]>([]);
   const [expanded, setExpanded] = useState(false);
@@ -642,10 +669,13 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
           <MatchActionButtons
             activePlayers={activePlayers}
             teamSize={match.teamSize ?? 2}
+            matchId={match.id}
             matchLabel={`Round ${match.round} vs ${match.awayTeamName ?? "Opponent"}`}
             onSimulate={onSimulate}
             isSimulating={isSimulating}
             onWatchMatch={() => setExpanded(true)}
+            onForfeit={onForfeit}
+            isForfeiting={isForfeiting}
           />
         </div>
       )}
@@ -918,10 +948,13 @@ function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSi
               <MatchActionButtons
                 activePlayers={activePlayers}
                 teamSize={match.teamSize ?? 2}
+                matchId={match.id}
                 matchLabel={label}
                 onSimulate={(ids) => onSimulate(match.id, ids)}
                 isSimulating={isSimulating}
                 onWatchMatch={() => setLineupOpen(true)}
+                onForfeit={() => {}}
+                isForfeiting={false}
               />
             ) : (
               <div className="space-y-3">
@@ -1040,10 +1073,13 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
             <MatchActionButtons
               activePlayers={activePlayers}
               teamSize={match.teamSize}
+              matchId={match.id}
               matchLabel={match.locationName ?? "Scheduled Match"}
               onSimulate={onSimulate}
               isSimulating={isSimulating}
               onWatchMatch={() => setExpanded(true)}
+              onForfeit={() => {}}
+              isForfeiting={false}
             />
           ) : (
             <Button
