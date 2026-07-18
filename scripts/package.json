@@ -40,6 +40,7 @@
     "seed-promotional-managers": "tsx ./src/seed-promotional-managers.ts",
     "seed-scouts": "tsx ./src/seed-scouts.ts",
     "update-staff-from-json": "tsx ./src/update-staff-from-json.ts",
+    "seed-new-batch-players": "tsx ./src/seed-new-batch-players.ts",
     "seed-regional-leagues": "tsx ./src/seed-regional-leagues.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

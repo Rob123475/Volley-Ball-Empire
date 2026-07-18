@@ -72,6 +72,20 @@ const FLAG_MAP: Record<string, { code: string; flag: string }> = {
   "Portugal": { code: "PT", flag: "🇵🇹" }, "Jamaica": { code: "JM", flag: "🇯🇲" },
   "Maldives": { code: "MV", flag: "🇲🇻" }, "Costa Rica": { code: "CR", flag: "🇨🇷" },
   "Bolivia": { code: "BO", flag: "🇧🇴" }, "Tahiti": { code: "PF", flag: "🇵🇫" },
+  // New-batch nations
+  "Ecuador":        { code: "EC", flag: "🇪🇨" },
+  "Ireland":        { code: "IE", flag: "🇮🇪" },
+  "Laos":           { code: "LA", flag: "🇱🇦" },
+  "Madagascar":     { code: "MG", flag: "🇲🇬" },
+  "Mozambique":     { code: "MZ", flag: "🇲🇿" },
+  "Malta":          { code: "MT", flag: "🇲🇹" },
+  "Monaco":         { code: "MC", flag: "🇲🇨" },
+  "Cook Islands":   { code: "CK", flag: "🇨🇰" },
+  "Solomon Islands":{ code: "SB", flag: "🇸🇧" },
+  "Taiwan":         { code: "TW", flag: "🇹🇼" },
+  "Bahamas":        { code: "BS", flag: "🇧🇸" },
+  "Panama":         { code: "PA", flag: "🇵🇦" },
+  "Uruguay":        { code: "UY", flag: "🇺🇾" },
 };
 
 const PERSONALITIES = ["Determined", "Competitive", "Team Player", "Leader", "Disciplined",

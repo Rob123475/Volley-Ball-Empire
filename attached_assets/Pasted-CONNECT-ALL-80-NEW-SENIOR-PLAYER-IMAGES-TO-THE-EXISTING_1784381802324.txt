@@ -1,0 +1,86 @@
+CONNECT ALL 80 NEW SENIOR PLAYER IMAGES TO THE EXISTING PLAYER JSON SYSTEM.
+
+SCOPE:
+The 80 images uploaded in Batches 1–8 are now stored in the existing senior-player image directory. Connect every one of those new images to exactly one senior-player record.
+
+THIS IS A DATA-INTEGRATION TASK ONLY.
+Do not perform the player stocktake yet.
+Do not assign these players to continental teams, clubs or the draft yet.
+
+MANDATORY RULES:
+
+1. Inspect the project and locate the current authoritative senior-player JSON schema, player generator, validation rules and image-path format.
+
+2. Reuse the existing senior-player JSON schema exactly.
+   - Do not create a second player schema.
+   - Do not create a separate disconnected JSON system.
+   - Do not rename or remove existing fields.
+   - Preserve current save-game compatibility.
+
+3. Create exactly one valid senior-player record for each newly uploaded image that does not already have a matching record.
+
+4. Read the player information printed on each image card and use it exactly:
+   - Full name
+   - Nationality
+   - Age
+   - Height
+   - Primary role/position
+   - Star rating
+
+5. Link each record to its exact supplied WEBP filename and public image path.
+
+6. Preserve every supplied image:
+   - Do not rename it.
+   - Do not resize or recompress it.
+   - Do not redraw or replace it.
+   - Never generate cartoons or placeholders.
+
+7. Player roles must use only the project’s approved beach-volleyball roles:
+   - Spiker
+   - Blocker
+   - Defender
+   - Setter
+   - All-Rounder
+
+8. Populate all remaining required JSON fields using the project’s existing senior-player generation rules and deterministic regeneration seed. This includes existing fields for attributes, ratings, stamina, fatigue, morale, resilience, clutch ability, weather tolerance, injuries, development and statistics.
+
+9. Preserve the visible card information as the source of truth. Generated JSON values must not contradict the name, nationality, age, height, role or stars printed on the image.
+
+10. Give every new player a unique permanent ID following the existing senior-player ID convention.
+
+11. Keep every new player unassigned for now, using the project’s existing valid status for an unassigned/free-agent senior player.
+    - Do not invent a new status.
+    - Do not add them to clubs.
+    - Do not add them to continental teams.
+    - Do not add them to the draft yet.
+
+12. Do not change any existing player, roster, team, competition, Olympics, UI, navigation, finance, save system or gameplay code unless a minimal change is strictly required to register these player records.
+
+13. Do not delete anyone.
+
+14. If any image card cannot be read confidently, do not guess. Leave that record unresolved and report the exact filename and unreadable field.
+
+VALIDATION REQUIRED:
+- Confirm the number of new image files found.
+- Confirm the number of player records successfully created or matched.
+- Confirm every new record has a working image path.
+- Confirm all IDs are unique.
+- Confirm all image paths are unique.
+- Confirm there are no duplicate records.
+- Confirm there are no orphaned new images.
+- Confirm the JSON passes the project’s existing validation/type checks.
+- Run the relevant tests and typecheck.
+
+FINAL REPORT ONLY:
+- New images found
+- New records created
+- Existing records matched
+- Successfully linked
+- Unresolved files
+- Duplicate IDs
+- Duplicate image paths
+- Missing/broken image paths
+- JSON/schema file updated
+- Test/typecheck result
+
+Stop after this integration report. Do not begin the stocktake or create teams.
