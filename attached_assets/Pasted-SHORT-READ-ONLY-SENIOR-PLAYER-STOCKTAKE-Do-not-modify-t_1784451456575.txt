@@ -1,0 +1,97 @@
+SHORT READ-ONLY SENIOR PLAYER STOCKTAKE
+
+Do not modify the database.
+Do not run any seed script.
+Do not delete or generate players.
+Do not change files or code.
+
+Count UNIQUE senior player identities only.
+
+Do not double-count draft/live copies of the same player. Include both:
+
+1. Existing unique senior players in the database.
+2. All valid unseeded players represented by the 80 uploaded images and seed-new-batch-players.ts.
+
+Produce only these three short tables:
+
+TABLE 1 — CONTINENTAL CLUB CAPACITY
+
+For each of the six continents show:
+
+- existing unique DB players
+- valid unseeded players
+- projected unique total
+- target: 30 players
+- surplus or shortage
+
+Use these exact continent labels:
+
+- Africa & Middle East
+- Asia
+- Europe
+- North America
+- Oceania
+- South America
+
+Requirements:
+
+- 10 club teams per continent
+- 3 players per team
+- 30 players per continent
+- 60 club teams globally
+- 180 contracted players globally
+
+TABLE 2 — OLYMPIC NATIONAL-TEAM CAPACITY
+
+For every nationality, grouped by continent, show:
+
+- nationality
+- existing unique DB players
+- valid unseeded players
+- projected unique total
+- Olympic eligible: YES if projected total is at least 3, otherwise NO
+- players needed to reach 3
+
+Then show a summary for each continent:
+
+- number of Olympic-eligible countries
+- target: 10 eligible countries
+- surplus or shortage
+
+Olympic structure:
+
+- 10 qualifying national teams per continent
+- 60 national teams globally
+- minimum 3 native players per national team
+- 24 countries eventually qualify for the Olympics
+- club location does not determine nationality
+- players may represent their country while remaining contracted to a club
+
+TABLE 3 — GLOBAL CAPACITY
+
+Show only:
+
+- projected unique senior players
+- contracted-roster requirement: 180
+- recommended draft/free-agent pool: 30
+- recommended total target: 210
+- projected number remaining after filling 180 club positions
+- total Olympic-eligible countries
+- target Olympic-eligible countries: 60
+- exact global player surplus or shortage against 210
+
+VALIDATION
+
+Before presenting the tables, confirm:
+
+- number of senior images in /public/images/players/seniors/
+- number of matching entries in seed-new-batch-players.ts
+- number of uploaded images missing seed entries
+- number of seed entries missing images
+
+Do not use raw database record counts as player totals.
+Do not count duplicate draft/live records twice.
+Do not treat an uploaded image as a player unless it has a valid matching seed entry.
+Do not include youth players, retired players or staff.
+
+Keep the answer short and numerical. Stop after the three tables and validation totals.
