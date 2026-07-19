@@ -1,0 +1,125 @@
+STRICTLY REPAIR AND EXECUTE THE 80-PLAYER SENIOR SEED
+
+The 80 new senior-player images have been uploaded, but only 79 currently have matching entries in seed-new-batch-players.ts.
+
+Complete and execute the seed safely.
+
+DO NOT:
+- generate players
+- delete existing players
+- alter youth players
+- alter staff
+- alter competitions
+- change existing team assignments
+- create draft/live duplicate copies
+- redesign any page
+- add the proposed final 14 Olympic players yet
+
+STEP 1 — SAFETY
+
+Create a database backup/export before inserting anything.
+
+STEP 2 — COMPLETE THE SEED
+
+1. Inspect all files in:
+   /public/images/players/seniors/
+
+2. Identify the Moroccan image currently missing a seed entry.
+
+3. Add the correct Moroccan player entry to:
+   seed-new-batch-players.ts
+
+4. Use the player information shown on the card and the established batch data.
+5. Do not duplicate another Moroccan player’s identity or attributes.
+
+The completed script must contain exactly:
+- 80 unique players
+- 80 unique image paths
+- one seed entry per uploaded image
+- zero entries without an image
+- zero images without a seed entry
+
+STEP 3 — PREVENT DATABASE DUPLICATION
+
+Repair the seed script before running it:
+
+1. Create exactly ONE database record per player.
+2. Do not create separate draft and live/free-agent copies.
+3. Every new player must initially be:
+   - unassigned
+   - team_id = null
+   - available in the existing draft/player-market system
+4. Use the existing canonical location/status fields. Do not invent a parallel player system.
+5. Make the seed idempotent:
+   - check the image path and player identity before inserting
+   - running the script again must insert zero duplicate records
+6. Preserve each player’s intended:
+   - name
+   - nationality
+   - continent
+   - age
+   - height
+   - role
+   - potential
+   - stars and attributes
+   - image URL
+   - uniform colours
+   - regeneration seed
+
+Canonical continents:
+
+- Africa & Middle East
+- Asia
+- Europe
+- North America
+- Oceania
+- South America
+
+Canonical roles:
+
+- Spiker
+- Blocker
+- Defender
+- Setter
+- All-Rounder
+
+Canonical potential values:
+
+- Elite
+- High
+- Average
+- Below Average
+- Poor
+
+Use `USA`, not `United States`.
+
+STEP 4 — EXECUTE ONCE
+
+After all validation passes:
+
+1. Run seed-new-batch-players.ts exactly once.
+2. Insert the 80 unique senior players.
+3. Do not create a second copy for the transfer market.
+4. Do not remove or replace existing records.
+
+STEP 5 — VERIFY
+
+After execution, report only:
+
+- database backup completed: YES/NO
+- uploaded senior images: expected 80
+- valid seed entries: expected 80
+- images missing seed entries: expected 0
+- seed entries missing images: expected 0
+- records inserted
+- existing records skipped
+- duplicate new identities created: expected 0
+- duplicate new image paths created: expected 0
+- new players assigned to teams: expected 0
+- new players available in draft/player market: expected 80
+- broken new-player images: expected 0
+- projected unique senior-player total after seeding
+
+Then rerun the unique continental and Olympic stocktake using actual database records.
+
+STOP after the verification and stocktake. Do not generate or seed any additional Olympic players.

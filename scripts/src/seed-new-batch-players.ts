@@ -1,5 +1,5 @@
 /**
- * Insert 79 new-batch senior free-agent players whose portrait images
+ * Insert 80 new-batch senior free-agent players whose portrait images
  * already live in the public assets directory:
  *   artifacts/beach-volleyball/public/images/players/seniors/
  *
@@ -10,6 +10,7 @@
  *       (to populate the development JSONB for these new rows)
  */
 
+import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { playersTable } from "@workspace/db/schema";
 
@@ -370,6 +371,13 @@ const PLAYERS: PlayerDef[] = [
     salary: 10500, askingPrice: 126000,
     imageFile: "player_senior_morocco_03_1784380878141.webp", continent: "Africa & Middle East",
   },
+  {
+    name: "Zineb Ouadi", nationality: "Morocco", age: 22, heightCm: 170,
+    position: "setter", potential: "Average",
+    stats: { speed: 73, power: 62, defense: 72, serve: 80, block: 57, stamina: 73 },
+    salary: 8000, askingPrice: 96000,
+    imageFile: "player_senior_morocco_03_1784381592100.webp", continent: "Africa & Middle East",
+  },
 
   // ── Mozambique ────────────────────────────────────────────────────────────────
   {
@@ -706,15 +714,30 @@ function contractYears(age: number): number {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log(`=== Inserting ${PLAYERS.length} new-batch senior players ===\n`);
+  const total = PLAYERS.length;
+  console.log(`=== Seeding ${total} new-batch senior players (idempotent) ===\n`);
 
-  let ok = 0;
+  let inserted = 0;
+  let skipped  = 0;
 
   for (const [i, player] of PLAYERS.entries()) {
-    const n = String(i + 1).padStart(2, " ");
+    const n        = String(i + 1).padStart(2, " ");
     const imageUrl = `/images/players/seniors/${player.imageFile}`;
     const overall  = ovr(player.stats);
     const endYear  = 2026 + contractYears(player.age);
+
+    // Idempotency guard — skip if a record with this image path already exists
+    const existing = await db
+      .select({ id: playersTable.id })
+      .from(playersTable)
+      .where(eq(playersTable.imageUrl, imageUrl))
+      .limit(1);
+
+    if (existing.length > 0) {
+      console.log(`[${n}/${total}] SKIP ${player.name} (${player.nationality}) — already in DB (id=${existing[0].id})`);
+      skipped++;
+      continue;
+    }
 
     await db.insert(playersTable).values({
       name:            player.name,
@@ -740,11 +763,11 @@ async function main() {
       contractEndDate: `${endYear}-06-30`,
     });
 
-    console.log(`[${n}/80] ✓ ${player.name} (${player.nationality}) — OVR ${overall}, ${player.potential}`);
-    ok++;
+    console.log(`[${n}/${total}] ✓ ${player.name} (${player.nationality}) — OVR ${overall}, ${player.potential}`);
+    inserted++;
   }
 
-  console.log(`\n=== Done! ${ok} players inserted. ===`);
+  console.log(`\n=== Done! ${inserted} inserted, ${skipped} skipped (already existed). ===`);
   console.log("\nNext: pnpm --filter @workspace/scripts run fill-all-player-development");
   console.log("      to populate the development JSONB for these new rows.\n");
   process.exit(0);
