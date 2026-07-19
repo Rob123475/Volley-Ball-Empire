@@ -1,5 +1,5 @@
 /**
- * Insert 80 new-batch senior free-agent players whose portrait images
+ * Insert 79 new-batch senior free-agent players whose portrait images
  * already live in the public assets directory:
  *   artifacts/beach-volleyball/public/images/players/seniors/
  *
@@ -202,7 +202,7 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_india_03_1784380628813.webp", continent: "Asia",
   },
 
-  // ── Indonesia (two different files; indonesian_01 and _02 share the same card) ──
+  // ── Indonesia ─────────────────────────────────────────────────────────────────
   {
     name: "Sinta Wulandari", nationality: "Indonesia", age: 21, heightCm: 165,
     position: "defender", potential: "High",
@@ -211,10 +211,10 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_indonesian_01_1784380628813.webp", continent: "Asia",
   },
   {
-    name: "Sinta Wulandari", nationality: "Indonesia", age: 21, heightCm: 165,
-    position: "defender", potential: "High",
-    stats: { speed: 84, power: 58, defense: 83, serve: 66, block: 52, stamina: 80 },
-    salary: 10000, askingPrice: 120000,
+    name: "Novi Anggraini", nationality: "Indonesia", age: 23, heightCm: 168,
+    position: "setter", potential: "Average",
+    stats: { speed: 72, power: 63, defense: 71, serve: 80, block: 57, stamina: 73 },
+    salary: 8000, askingPrice: 96000,
     imageFile: "player_senior_indonesian_02_1784380742425.webp", continent: "Asia",
   },
   {
@@ -257,7 +257,7 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_japan_03_1784380742429.webp", continent: "Asia",
   },
 
-  // ── Laos (laos_01 and _02 are different-stat cards for the same player name) ──
+  // ── Laos ──────────────────────────────────────────────────────────────────────
   {
     name: "Keovilay Phommachanh", nationality: "Laos", age: 20, heightCm: 165,
     position: "setter", potential: "High",
@@ -266,10 +266,10 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_laos_01_1784380742430.webp", continent: "Asia",
   },
   {
-    name: "Keovilay Phommachanh", nationality: "Laos", age: 19, heightCm: 158,
-    position: "setter", potential: "High",
-    stats: { speed: 76, power: 63, defense: 74, serve: 82, block: 59, stamina: 74 },
-    salary: 9500, askingPrice: 114000,
+    name: "Bouavanh Sisouvanh", nationality: "Laos", age: 24, heightCm: 172,
+    position: "defender", potential: "Average",
+    stats: { speed: 80, power: 57, defense: 80, serve: 63, block: 50, stamina: 77 },
+    salary: 8000, askingPrice: 96000,
     imageFile: "player_senior_laos_02_1784380742430.webp", continent: "Asia",
   },
   {
@@ -362,20 +362,13 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_monaco_03_1784380878141.webp", continent: "Europe",
   },
 
-  // ── Morocco (two files share the same card — both get separate DB rows) ───────
+  // ── Morocco ───────────────────────────────────────────────────────────────────
   {
     name: "Salma El Idrissi", nationality: "Morocco", age: 24, heightCm: 183,
     position: "blocker", potential: "High",
     stats: { speed: 68, power: 79, defense: 66, serve: 63, block: 85, stamina: 72 },
     salary: 10500, askingPrice: 126000,
     imageFile: "player_senior_morocco_03_1784380878141.webp", continent: "Africa & Middle East",
-  },
-  {
-    name: "Salma El Idrissi", nationality: "Morocco", age: 24, heightCm: 183,
-    position: "blocker", potential: "High",
-    stats: { speed: 68, power: 79, defense: 66, serve: 63, block: 85, stamina: 72 },
-    salary: 10500, askingPrice: 126000,
-    imageFile: "player_senior_morocco_03_1784381592100.webp", continent: "Africa & Middle East",
   },
 
   // ── Mozambique ────────────────────────────────────────────────────────────────
@@ -661,7 +654,7 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_uruguay_03_1784381592103.webp", continent: "South America",
   },
 
-  // ── Venezuela (venezuela_02 and _03 share the same card) ─────────────────────
+  // ── Venezuela ─────────────────────────────────────────────────────────────────
   {
     name: "Valentina Rojas", nationality: "Venezuela", age: 24, heightCm: 175,
     position: "defender", potential: "Average",
@@ -677,9 +670,9 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_venezuela_02_1784381592104.webp", continent: "South America",
   },
   {
-    name: "Camila Pérez", nationality: "Venezuela", age: 21, heightCm: 170,
-    position: "setter", potential: "Average",
-    stats: { speed: 74, power: 63, defense: 73, serve: 80, block: 58, stamina: 74 },
+    name: "Adriana Herrera", nationality: "Venezuela", age: 26, heightCm: 173,
+    position: "spiker", potential: "Average",
+    stats: { speed: 77, power: 74, defense: 63, serve: 68, block: 62, stamina: 73 },
     salary: 8000, askingPrice: 96000,
     imageFile: "player_senior_venezuela_03_1784381592105.webp", continent: "South America",
   },
