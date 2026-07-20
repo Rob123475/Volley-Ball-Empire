@@ -1,0 +1,68 @@
+CANCEL ALL DELETION. DO NOT MODIFY ANY DATA.
+
+We require exactly 180 genuine senior players:
+
+6 continents × 30 senior players per continent = 180.
+
+Currently:
+- 80 confirmed records use player_senior_*.webp
+- 224 records use /objects/player-cards/
+- 304 total senior records
+
+Some of the 224 records may be genuine earlier players required for the final 180-player collection. They must not all be deleted.
+
+PERFORM A STRICT READ-ONLY INVESTIGATION.
+
+For the 80 player_senior_*.webp records and the 224 /objects/player-cards/ records:
+
+1. Count unique player identities.
+2. Count unique image files/URLs.
+3. Group records sharing the same image URL.
+4. Where possible, group images with identical file hashes/content.
+5. Identify exact duplicate database records.
+6. Trace each group to its creation source:
+   - seed.ts
+   - expand-players.ts
+   - uploaded/generated player
+   - unknown
+7. Count players by the six official continents:
+   - Europe
+   - Asia
+   - South America
+   - North America
+   - Africa/Middle East
+   - Australia & Pacific Islands
+8. Within each continent, show counts by nationality.
+
+Return only these concise tables:
+
+TABLE A — STORAGE SOURCE
+- player_senior_*.webp records
+- /objects/player-cards/ records
+- unique identities
+- unique images
+- duplicate records
+
+TABLE B — CONTINENT TOTALS
+For each continent show:
+- confirmed player_senior_*.webp players
+- unique /objects/player-cards/ players
+- combined unique players
+- target of 30
+- surplus or shortage
+
+TABLE C — /objects/player-cards/ CLASSIFICATION
+- genuine unique earlier players
+- exact duplicate records
+- original generic demo players
+- records with missing images
+- unresolved records
+
+TABLE D — RECONCILIATION
+- total live senior records
+- total uniquely classified records
+- difference, which must equal 0
+
+DO NOT print hundreds of individual player rows.
+DO NOT delete, rename, relink, seed or generate anything.
+STOP after the read-only report.
