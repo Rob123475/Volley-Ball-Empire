@@ -1,0 +1,63 @@
+STRICT READ-ONLY PLAYER DATABASE AUDIT — DO NOT MODIFY ANY DATA
+
+The current senior-player stocktake appears to include original demo/seeded Replit players as well as our imported players.
+
+Do not delete, create, update, rename, merge or reseed any player yet.
+
+Audit every SENIOR player currently in the live database. Exclude youth players.
+
+For every senior player, report:
+
+1. Database ID
+2. Full name
+3. Nationality
+4. Continent
+5. Age
+6. Current team or pool
+7. Image filename/path
+8. JSON/source filename if traceable
+9. Date created if available
+10. Whether the player appears to be:
+   - ORIGINAL REPLIT SEED/DEMO PLAYER
+   - EXISTING IMPORTED PLAYER
+   - NEW PLAYER UPLOAD
+   - DUPLICATE
+   - UNKNOWN SOURCE
+
+Use database records as the primary source, but also compare them against:
+
+- all current player JSON files
+- the original player seed script
+- the “new players” folder
+- player image filenames
+- any import or seeding scripts
+
+Then provide these separate totals:
+
+A. Original Replit seed/demo players
+B. Existing imported players
+C. Newly uploaded players
+D. Suspected duplicate records
+E. Unknown-source players
+F. Total unique senior players after excluding duplicates
+
+Also provide:
+
+- totals by continent
+- totals by nationality
+- every duplicate or near-duplicate
+- every database player without an image
+- every image without a database player
+- every JSON player missing from the database
+- countries such as Laos or Taiwan that exist in files but are missing from the live database
+
+A duplicate may have the same name, image, nationality and attributes but a different database ID. Check exact and near-duplicates.
+
+IMPORTANT:
+
+- Do not assume every database player belongs to our final player set.
+- Do not count images alone as successfully imported players.
+- Do not run the seed script.
+- Do not fix anything.
+- Do not delete the original Replit players.
+- Return the full audit and clearly separate the five source categories first.

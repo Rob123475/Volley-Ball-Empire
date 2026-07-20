@@ -1,0 +1,79 @@
+STRICT READ-ONLY SENIOR PLAYER STOCKTAKE — USE IMAGE FILENAMES TO IDENTIFY OUR PLAYERS
+
+Do not create, delete, update, rename, merge, import or reseed anything.
+
+Our legitimate created senior players all have image filenames matching this structure:
+
+player_senior_[country-or-continent]_[number].webp
+
+Examples:
+player_senior_australia_01.webp
+player_senior_laos_01.webp
+player_senior_europe_01.webp
+
+Treat this filename pattern as the primary identifier for OUR senior players.
+
+Audit every senior-player record in the LIVE DATABASE.
+
+Separate records into these categories:
+
+1. OUR SENIOR PLAYERS
+Database records whose assigned image filename matches:
+player_senior_*.webp
+
+2. ORIGINAL REPLIT SEED/DEMO PLAYERS
+Database records whose image does not match the filename pattern, or whose record can be traced to Replit’s original seed/demo data.
+
+3. BROKEN IMAGE LINKS
+Database records that claim to use player_senior_*.webp but the referenced image file does not exist.
+
+4. UNLINKED PLAYER IMAGES
+Existing player_senior_*.webp files that are not attached to any live database player.
+
+5. DUPLICATES
+More than one database record linked to the same image filename, or duplicate/near-duplicate records for the same player.
+
+6. UNKNOWN
+Records whose origin cannot be reliably determined.
+
+For every record, report:
+
+- database ID
+- player name
+- nationality
+- continent
+- age
+- team or player pool
+- exact image filename/path
+- source category
+- duplicate status
+
+Then provide:
+
+A. Total live senior-player database records
+B. Total of OUR senior players with valid matching images
+C. Total original Replit seed/demo players
+D. Total broken image links
+E. Total unlinked player_senior_*.webp images
+F. Total duplicate database records
+G. Total unique valid OUR senior players after duplicates are excluded
+H. Totals of our unique valid players by continent
+I. Totals of our unique valid players by nationality
+
+Also list:
+
+- every original Replit seed/demo player separately
+- every duplicated image filename
+- every player_senior_*.webp image without a database record
+- every database record without a valid image
+- every player whose database nationality conflicts with the country shown in their filename
+- whether Laos and Taiwan images and database records are present
+
+IMPORTANT:
+
+- Inspect the actual live database, not only JSON or image folders.
+- Do not count an image as a database player unless it is connected to a live player record.
+- Do not include youth players.
+- Do not run any seed or import scripts.
+- Do not fix anything.
+- Return the complete audit only.
