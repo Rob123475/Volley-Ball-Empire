@@ -43,7 +43,7 @@ import {
   Hammer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MAX_LEVEL = 10;
 
@@ -253,11 +253,19 @@ export default function FacilitiesPage() {
     type: string; name: string; level: number; cost: number; buildLabel: string;
   } | null>(null);
 
+  // Capture hash at mount time (synchronously) before any async op can clear it.
+  // wouter's navigate() sets window.location.hash correctly, but by the time
+  // the facilities query resolves the hash may already be consumed.
+  const mountHashRef = useRef(window.location.hash);
+  const scrolledRef = useRef(false);
+
   useEffect(() => {
     if (!facilities || facilities.length === 0) return;
-    const hash = window.location.hash;
+    if (scrolledRef.current) return;
+    const hash = mountHashRef.current;
     if (!hash) return;
     const elementId = hash.slice(1);
+    scrolledRef.current = true;
     const timer = setTimeout(() => {
       const el = document.getElementById(elementId);
       if (!el) return;
