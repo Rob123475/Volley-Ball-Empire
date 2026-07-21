@@ -80,8 +80,8 @@ router.use(aiManagersRouter);
 router.use(unityRouter);
 router.use(historyRouter);
 router.use(gameApiRouter);
-router.use(calendarRouter);
 router.use(devRouter);
+router.use(calendarRouter);
 router.use(storageRouter);
 router.use(regionalLeagueRouter);
 

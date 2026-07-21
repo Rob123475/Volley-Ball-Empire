@@ -1,0 +1,146 @@
+AUTOMATIC TIME PROGRESSION AND ANNUAL CALENDAR
+
+The management game currently remains paused instead of progressing through the season.
+
+Fix the non-Unity game-time system so that:
+
+- a new career begins at Normal speed
+- continuing an existing career resumes at the last valid active speed
+- if no valid speed is stored, default to Normal speed
+- Slow, Normal and Fast advance the in-game calendar at their established rates
+- Pause remains available for deliberate planning
+- the game must only remain paused when the manager explicitly selects Pause
+- opening and closing an ordinary page must not pause the calendar
+- opening the annual calendar must not permanently stop progression
+- a blocking decision or confirmation window may temporarily pause progression
+- after a temporary pause, restore the previously selected speed
+- saving and reloading must preserve the correct in-game date
+- migration must not reset the calendar to a permanently paused state
+- calendar progression must never depend on the Unity live-match build
+
+Do not use the computer’s real-world date as the career date.
+
+Do not advance dates while a save is being loaded or migrated.
+
+Do not skip unresolved mandatory events.
+
+ANNUAL VISUAL CALENDAR
+
+Create a proper visual annual calendar that allows the manager to look ahead and plan the season.
+
+Do not change the underlying competition rules, date counts or event scheduling.
+
+The calendar must include:
+
+- all 12 months of the current in-game year
+- a clear month-by-month calendar grid
+- weekday headings
+- numbered date cells
+- the current in-game date clearly highlighted
+- past, current and future dates visually distinguishable
+- navigation to the previous and next in-game year where valid
+- a “Return to Current Date” button
+- the current game-speed controls visible and functional
+- responsive layout for desktop and laptop screens
+
+Display every scheduled event on its correct date, including:
+
+- regional competition dates
+- Continental Pool events
+- World Tour dates
+- World Finals
+- holidays
+- Olympic qualifiers
+- Olympic tournament events
+- transfer and contract deadlines
+- staff and facility completion dates
+- financial events
+- scheduled scouting events
+- other existing dated career events
+
+Do not invent new events.
+
+MULTIPLE EVENTS ON ONE DATE
+
+When one event occurs on a date:
+
+- show the event directly inside the date cell
+- allow the event to be selected
+- direct the manager to the correct existing page or event screen
+
+When multiple events occur on the same date:
+
+- show a compact event count or summary inside the date cell
+- provide a dropdown or expandable menu
+- list every event scheduled for that date
+- show the event name and event type
+- allow each event to be selected independently
+- direct each selection to the correct existing destination
+- do not hide, overwrite or merge separate events incorrectly
+
+The dropdown must:
+
+- remain inside the visible screen area
+- close when clicking outside it
+- support keyboard selection
+- not cause the calendar layout to jump
+- not advance or alter the date merely by opening it
+
+CALENDAR COLOUR KEY
+
+Use the application’s existing visual style.
+
+Add a simple colour key for event categories such as:
+
+- Regional
+- Continental Pool
+- World Tour
+- Finals
+- Olympics or Olympic Qualifiers
+- Holiday
+- Club or Administration
+
+Do not redesign the application or introduce a separate visual theme.
+
+CALENDAR DATA
+
+The visual calendar must use the same canonical calendar state as:
+
+- dashboard upcoming events
+- fixtures
+- results
+- competition pages
+- save files
+- season simulation
+
+Do not create a second independent calendar system.
+
+An event changed in the canonical schedule must automatically appear correctly in every calendar view.
+
+CALENDAR VALIDATION
+
+Test and confirm:
+
+- a new career begins with time advancing
+- an existing career is not permanently paused after migration
+- Slow advances correctly
+- Normal advances correctly
+- Fast advances correctly
+- Pause stops progression
+- Resume continues from the same date
+- pages can be opened without permanently pausing time
+- all 12 months render correctly
+- every scheduled event appears on the correct date
+- multiple events produce a working dropdown
+- every event link opens the correct destination
+- Olympic qualifiers appear during their scheduled dates
+- the Olympic tournament appears during the Olympic-period dates
+- promotion and relegation do not corrupt the next year’s calendar
+- saving and reloading preserves the date and schedule
+- no event is duplicated after reload
+- no date is skipped
+- no console errors occur
+
+Exclude Unity live-match testing.
+
+Do not modify Unity integration, Unity materials, animations, live-match timing or uniforms in this task.

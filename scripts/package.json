@@ -42,6 +42,7 @@
     "update-staff-from-json": "tsx ./src/update-staff-from-json.ts",
     "seed-new-batch-players": "tsx ./src/seed-new-batch-players.ts",
     "seed-regional-leagues": "tsx ./src/seed-regional-leagues.ts",
+    "seed-continental-pool-extension": "tsx ./src/seed-continental-pool-extension.ts",
     "migrate-canonical-images": "tsx ./src/migrate-canonical-images.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

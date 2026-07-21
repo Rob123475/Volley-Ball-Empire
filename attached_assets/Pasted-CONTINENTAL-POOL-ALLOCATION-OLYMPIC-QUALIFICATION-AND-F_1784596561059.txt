@@ -1,0 +1,451 @@
+CONTINENTAL POOL ALLOCATION, OLYMPIC QUALIFICATION AND FULL VALIDATION — PART 4 OF 4
+
+Continue from the completed player audit, competition restructuring, calendar restructuring and Competition UI restructuring.
+
+IMPORTANT CORRECTION
+
+Every continent must have:
+
+- 6 active regional teams
+- 4 Continental Pool teams
+- 10 total club teams
+- 2 active players per team
+
+Therefore, globally the competition structure requires:
+
+- 36 active regional teams
+- 24 Continental Pool teams
+- 60 total club teams
+- 72 players assigned to active regional teams
+- 48 players assigned to Continental Pool teams
+- 120 club-assigned players globally
+
+The validated senior-player database contains 208 players.
+
+Use existing player records. Do not automatically generate another 48 players.
+
+The remaining players must retain their existing free-agent, market, unassigned, reserve or other valid status. They must not be deleted.
+
+DO NOT:
+
+- redesign the application
+- change the established competition rules beyond applying this correction
+- modify Unity integration
+- replace existing players
+- delete existing players
+- delete existing saves
+- generate new player images
+- reduce the 208-player database
+- duplicate players
+- add unrelated features
+
+OBJECTIVE
+
+Create or complete four functional Continental Pool teams for every continent.
+
+At the end of each season:
+
+- the sixth-place regional team from each continent is relegated into that continent’s Continental Pool
+- the first-place eligible Continental Pool team from each continent is promoted into that continent’s six-team regional competition
+- promotion and relegation are a one-for-one exchange
+- each continent must still have exactly 6 regional teams and 4 pool teams after season rollover
+
+This means up to six different teams can enter the regional/world competition pathway each season—one promoted team from each continent.
+
+Promotion is into the following season’s six-team regional competition.
+
+The promoted team must still finish in the regional top three to qualify for the 18-team World Tour.
+
+PLAYER AUDIT
+
+Before creating or assigning anything:
+
+1. Count all senior-player records.
+2. Confirm whether the current total is 208.
+3. Detect duplicate player IDs.
+4. Detect duplicate player records.
+5. Match player images to their existing player records.
+6. Identify players assigned to the 36 active regional teams.
+7. Identify players already assigned to Continental Pool teams.
+8. Identify all unassigned or surplus senior players.
+9. Group available players by canonical continent.
+10. Confirm that every continent can support:
+   - 12 active regional players
+   - 8 Continental Pool players
+   - 20 club-assigned players in total
+11. Confirm that assigning players to clubs does not remove their national-team eligibility.
+
+Do not mistake image files for additional player records.
+
+Resolve safe filename and continent-label aliases before reporting a shortage.
+
+PLAYER ALLOCATION
+
+Allocate or confirm exactly eight Continental Pool players per continent:
+
+- Europe: 8 pool players
+- Asia: 8 pool players
+- North America: 8 pool players
+- South America: 8 pool players
+- Africa and Middle East: 8 pool players
+- Australia and Pacific Islands: 8 pool players
+
+Total required:
+
+- 48 existing Continental Pool players
+- 24 Continental Pool teams
+- exactly 2 players per pool team
+
+Use suitable existing players from the validated database.
+
+Do not:
+
+- assign one player to multiple club teams
+- change a player’s nationality
+- move a player to the wrong continent
+- use youth players
+- create reduced placeholder records
+- disturb active regional teams unless correcting an invalid duplicate assignment
+
+PLAYER SCHEMA
+
+Every player must retain the complete canonical senior-player schema already used by the game, including all required fields such as:
+
+- stable player ID
+- name
+- nationality
+- continent
+- age
+- height
+- beach volleyball role
+- star rating
+- skills
+- potential
+- development curve
+- form
+- morale
+- fitness
+- fatigue
+- stamina
+- resilience
+- injury status
+- weather tolerance
+- clutch rating
+- regeneration seed
+- uniform top colour
+- uniform bottom colour
+- image reference or valid existing fallback
+
+Do not overwrite complete player records with a reduced schema.
+
+If an existing player is missing a required field, safely normalise the record while preserving:
+
+- player identity
+- stable ID
+- nationality
+- continent
+- image
+- existing statistics
+- existing history
+
+CONTINENTAL POOL TEAMS
+
+Create, reuse or complete exactly four Continental Pool teams per continent.
+
+Each team must have:
+
+- stable unique team ID
+- canonical continent
+- unique team name
+- exactly two eligible senior players
+- rating
+- form
+- pool ranking
+- promotion eligibility
+- promotion history
+- relegation history
+- current competition status
+- active/inactive status
+- created season
+
+Create or confirm:
+
+- 4 pool teams per continent
+- 24 pool teams globally
+- 8 pool players per continent
+- 48 pool players globally
+
+The operation must be idempotent:
+
+- reuse valid existing pool teams
+- create only missing teams
+- do not duplicate teams when loading a save
+- do not duplicate players when loading a save
+- do not repeat player assignments
+- do not change stable IDs unnecessarily
+
+PROMOTION AND RELEGATION
+
+At the end of each season, process every continent independently.
+
+For each continent:
+
+1. Identify the sixth-place team in the final regional ladder.
+2. Identify the first-place promotion-eligible Continental Pool team.
+3. Relegate the sixth-place regional team.
+4. Promote the first-place pool team.
+5. Exchange their competition statuses.
+6. Preserve both teams’ player rosters, records and histories.
+7. Add the promotion to the promoted team’s history.
+8. Add the relegation to the relegated team’s history.
+9. Rebuild the next season’s regional and pool memberships.
+10. Confirm that the continent still has:
+    - exactly 6 regional teams
+    - exactly 4 pool teams
+
+Do not create or delete a team during the exchange.
+
+Do not promote a fifth pool team or leave five teams in the pool.
+
+Do not directly place a promoted pool team into the 18-team World Tour.
+
+The promoted team enters the next regional season and must earn World Tour qualification by finishing in the regional top three.
+
+OLYMPIC ELIGIBILITY
+
+Olympic national-team eligibility is separate from club employment.
+
+A player may be selected for national duty whether the player is:
+
+- signed to a regional club
+- signed to a Continental Pool club
+- listed in the player market
+- a free agent
+- unsigned
+- otherwise unassigned to a club
+
+Club employment must never be required for Olympic selection.
+
+A country is eligible to enter Olympic qualification only when it has at least three eligible senior players of that country of origin.
+
+Olympic players must represent their recorded country of origin.
+
+Olympic staff may come from any country.
+
+National-team selection must:
+
+- temporarily reference the existing player records
+- not transfer the player away from their club
+- not change club ownership
+- not duplicate the player
+- not create a second permanent player record
+- not remove unsigned players from eligibility
+
+OLYMPIC QUALIFICATION
+
+Olympic qualification must use elimination qualifiers.
+
+Across the three seasons before an Olympic season:
+
+- run the established qualifying events during the allocated Olympic qualifying dates
+- use eligible national teams only
+- progressively eliminate teams through the qualifying pathway
+- preserve qualification results between seasons
+- continue until exactly 24 countries qualify for the Olympic tournament
+
+During the Olympic season:
+
+- only the final 24 qualified countries compete
+- do not automatically select countries by reputation or alphabetical order
+- do not allow an ineligible country with fewer than three origin players to compete
+- do not require players to be signed to a club
+- schedule the Olympic tournament inside the established six-date holiday/Olympic period
+- do not change the 78-date season total
+
+SAVE MIGRATION
+
+Add a safe, versioned and idempotent migration for existing careers.
+
+The migration must:
+
+- detect saves created before the current competition structure
+- preserve all existing players
+- preserve teams and rosters
+- preserve finances
+- preserve facilities
+- preserve staff
+- preserve medical data
+- preserve contracts and injuries
+- preserve competition history
+- preserve trophies and achievements
+- preserve manager progress
+- preserve Olympic qualifying progress where it already exists
+- create only missing pool teams
+- allocate missing pool players only once
+- create the new calendar state safely
+- map old competition progress into the nearest valid new-season state
+- preserve the current date wherever safely possible
+- record a migration version or completion marker
+- create a backup or rollback point if supported by the existing save system
+
+Run the migration twice during development testing.
+
+The second run must create:
+
+- zero additional players
+- zero additional teams
+- zero duplicate assignments
+- zero additional calendar entries
+- zero duplicate migration data
+
+FULL NORMAL-SEASON TEST
+
+Run an isolated automated or development simulation covering:
+
+1. Regional Dates 1–10
+2. Six independent six-team regional ladders
+3. Double round-robin regional fixtures
+4. Top-three qualification from each continent
+5. Formation of the 18-team World Tour
+6. World Tour Dates 1–60
+7. Top-four World Finals qualification
+8. Two World Finals dates
+9. Six holiday dates
+10. Sixth-place relegation in each continent
+11. First-place pool promotion in each continent
+12. One-for-one regional and pool team exchange
+13. Creation of the next season
+14. Changed regional team lineups
+15. Save during the regional phase
+16. Reload and continue
+17. Save during the World Tour
+18. Reload and continue
+19. Save before season rollover
+20. Reload and complete promotion and relegation
+21. Continue into the next season without corruption
+
+FULL OLYMPIC-SEASON TEST
+
+Run a separate isolated Olympic-cycle test covering:
+
+1. Olympic eligibility based on three origin players
+2. Eligibility of signed players
+3. Eligibility of unsigned players
+4. Eligibility of Continental Pool players
+5. Elimination qualifiers
+6. Qualification progress preserved between seasons
+7. Exactly 24 national teams reaching the Olympics
+8. Olympic scheduling inside the six-date holiday/Olympic period
+9. No additional season dates
+10. Club rosters remaining intact during national duty
+11. Save during Olympic qualification
+12. Reload and continue qualification
+13. Save during the Olympic tournament
+14. Reload and continue without bracket corruption
+15. Normal continental promotion and relegation still processing correctly
+
+REGIONAL FIXTURE VALIDATION
+
+For each continent:
+
+- 6 regional teams
+- 10 regional dates
+- double round-robin
+- every team plays five opponents twice
+- 10 matches per team
+- 30 actual matches per continent
+
+Globally:
+
+- 180 actual regional matches
+- no duplicate fixtures
+- no missing fixtures
+- no team playing itself
+- no team playing twice on the same regional date
+
+FINAL VALIDATION TOTALS
+
+Confirm:
+
+- 6 continents
+- 6 regional teams per continent
+- 36 regional teams globally
+- 12 regional players per continent
+- 72 regional players globally
+- 4 Continental Pool teams per continent
+- 24 Continental Pool teams globally
+- 8 Continental Pool players per continent
+- 48 Continental Pool players globally
+- 10 total club teams per continent
+- 60 total club teams globally
+- 20 club-assigned players per continent
+- 120 club-assigned players globally
+- 208 total senior-player records remain
+- remaining players preserved
+- 10 regional dates
+- 30 regional matches per continent
+- 180 regional matches globally
+- 3 World Tour qualifiers per continent
+- 18 World Tour qualifiers globally
+- 60 World Tour dates
+- 4 World Finals teams
+- 2 World Finals dates
+- 6 holiday or Olympic-period dates
+- 78 scheduled season dates
+- 1 relegated team per continent
+- 1 promoted team per continent
+- exactly 24 Olympic teams
+- Olympic selection includes eligible unsigned players
+- no duplicate player IDs
+- no duplicate player records
+- no duplicate team IDs
+- no duplicate team records
+- no player assigned to multiple club teams
+- no duplicated migration data
+- no duplicated calendar entries
+- no broken saves
+- no calendar corruption
+- no ladder corruption
+- no Olympic bracket corruption
+- no console errors
+
+GENUINE SHORTAGE HANDLING
+
+If a continent genuinely cannot provide eight existing pool players after safe alias resolution:
+
+- do not silently generate replacements
+- do not borrow players from another continent
+- do not change nationalities
+- do not use youth players
+- do not delete or disturb valid regional teams
+
+Stop and report:
+
+- affected continent
+- eligible players available
+- additional players required
+- records examined
+- reason each unavailable player could not be used
+- minimum recommended correction
+
+Only create additional players if a genuine shortage is proven and explicitly approved.
+
+STOP CONDITION
+
+Stop after completing Part 4.
+
+Do not begin another feature or redesign.
+
+REPORT ONLY
+
+1. Files changed
+2. Starting and final senior-player count
+3. Regional and pool player allocation by continent
+4. Pool teams created or reused
+5. Promotion and relegation validation
+6. Migration result
+7. Second migration/idempotency result
+8. Normal-season test result
+9. Olympic-season test result
+10. Final validation totals
+11. Any genuine blocker
