@@ -43,7 +43,8 @@ import {
   Hammer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useSearch } from "wouter";
 
 const MAX_LEVEL = 10;
 
@@ -253,31 +254,29 @@ export default function FacilitiesPage() {
     type: string; name: string; level: number; cost: number; buildLabel: string;
   } | null>(null);
 
-  // Capture hash at mount time (synchronously) before any async op can clear it.
-  // wouter's navigate() sets window.location.hash correctly, but by the time
-  // the facilities query resolves the hash may already be consumed.
-  const mountHashRef = useRef(window.location.hash);
-  const scrolledRef = useRef(false);
+  // Use wouter's reactive useSearch() so this re-runs whenever the URL search
+  // params change — works even when the component is already mounted.
+  const search = useSearch();
+  const [, navigate] = useLocation();
 
   useEffect(() => {
-    if (!facilities || facilities.length === 0) return;
-    if (scrolledRef.current) return;
-    const hash = mountHashRef.current;
-    if (!hash) return;
-    const elementId = hash.slice(1);
-    scrolledRef.current = true;
+    const params = new URLSearchParams(search);
+    const scrollTo = params.get("scroll");
+    if (!scrollTo || !facilities || facilities.length === 0) return;
+    const elementId = `facility-${scrollTo}`;
     const timer = setTimeout(() => {
       const el = document.getElementById(elementId);
       if (!el) return;
       const headerOffset = 80;
       const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
       window.scrollTo({ top, behavior: "smooth" });
-      const facType = elementId.replace("facility-", "");
-      setHighlightedType(facType);
+      setHighlightedType(scrollTo);
       setTimeout(() => setHighlightedType(null), 1800);
+      // Clean the param from the URL so navigating back doesn't re-trigger
+      navigate("/facilities", { replace: true });
     }, 150);
     return () => clearTimeout(timer);
-  }, [facilities]);
+  }, [search, facilities, navigate]);
 
   const budget = Number(team?.budget ?? 0);
 
