@@ -1,0 +1,312 @@
+SENIOR PLAYER MASTER MIGRATION — FINAL TARGET: 208 PLAYERS
+
+Complete this as one controlled, staged operation.
+
+FINAL DESIGN
+
+The game must contain exactly 208 unique senior players:
+
+- 180 players form the base national-player coverage:
+  60 countries × 3 players
+- 28 additional senior players remain available in the wider player pool
+- All senior players may be recruited and used by clubs
+- Club nationality does not affect a player’s Olympic nationality
+- Olympic eligibility is determined strictly by the player’s country of origin
+- The larger player pool exists to support Olympic qualification and national selection depth
+
+CURRENT VERIFIED STATE
+
+- 192 live senior-player database records
+- 192 unique player IDs
+- 192 unique image URLs
+- 80 records currently use player_senior_*.webp
+- 112 records currently use /objects/player-cards/ image URLs
+- 16 newly uploaded player_senior_*.webp files are not yet linked
+- 96 player_senior_*.webp files currently exist on disk
+- No duplicate image URLs were reported
+- No duplicate player IDs were reported
+- Final total after integrating all 16 must be 208
+
+NON-NEGOTIABLE SAFETY RULES
+
+1. Preserve all 192 existing player records.
+2. Add exactly 16 new records.
+3. Do not delete or archive any player.
+4. Do not rename or regenerate displayed player names.
+5. Do not change any existing database player ID.
+6. Do not change existing:
+   - clubs
+   - contracts
+   - team assignments
+   - finances
+   - career history
+   - injuries
+   - attributes
+   - statistics
+   - competition history
+   - Olympic history
+7. Do not reset or reseed the complete player database.
+8. Do not create duplicate players.
+9. Do not create duplicate image URLs.
+10. Preserve compatibility with existing saved careers.
+11. Make the complete operation idempotent so running it again cannot add another 16 records or rename files differently.
+
+STAGE 1 — DISCOVER THE REAL DATA STRUCTURE
+
+Before changing anything:
+
+1. Locate the live senior-player database table and schema.
+2. Locate every senior-player JSON file, TypeScript data file and seed script.
+3. Identify which file is the authoritative senior-player source.
+4. Locate the directory containing the current 96 player_senior_*.webp files.
+5. Identify all code that constructs, stores or displays senior-player image URLs.
+6. Identify all references to the 112 /objects/player-cards/ images.
+7. Confirm that the current database total is still 192.
+8. Create a backup/export of all 192 existing senior-player records before migration.
+9. Create a deterministic old-image-URL to new-image-URL migration map.
+
+If the starting database count is not exactly 192, STOP without making changes and report the discrepancy.
+
+STAGE 2 — STANDARDISE ALL 208 IMAGE FILES
+
+Use one canonical senior-player image directory.
+
+Use the existing directory that currently holds the 96 player_senior_*.webp files unless the application already defines another canonical senior-player directory.
+
+Every senior-player image must use this naming convention:
+
+player_senior_<country_slug>_<two-digit-number>.webp
+
+Examples:
+
+player_senior_kenya_01.webp
+player_senior_puerto_rico_03.webp
+player_senior_dominican_republic_02.webp
+player_senior_cook_islands_01.webp
+
+FILENAME RULES
+
+1. Use lowercase only.
+2. Use underscores instead of spaces or hyphens.
+3. Use the player’s canonical country of origin—not their club.
+4. Use a two-digit sequence: 01, 02, 03 and so on.
+5. Every filename must be unique.
+6. Country numbering must be deterministic and stable on future runs.
+7. Use proper country slugs, including:
+   - puerto_rico, not peurto_rico
+   - dominican_republic
+   - papua_new_guinea
+   - cook_islands
+   - south_africa
+   - new_zealand
+8. Correct the three newly uploaded Puerto Rico filenames currently misspelled with `peurto_rico`.
+9. Do not merely change an extension. If an older source image is PNG or JPEG, properly convert the actual file to WebP at high quality without cropping, resizing, redesigning or degrading it.
+10. Preserve the original resolution and aspect ratio wherever possible.
+
+MIGRATE THE 112 OLDER IMAGES
+
+For the 112 players currently using /objects/player-cards/:
+
+1. Preserve their existing player records and stable IDs.
+2. Copy/download each existing image into the canonical senior-player directory.
+3. Properly convert it to WebP when necessary.
+4. Give it the correct player_senior_<country_slug>_<number>.webp filename.
+5. Update that player’s image URL to the new canonical local path.
+6. Do not delete the old remote/object image during this operation.
+7. Keep the old image URL in the migration map for recovery.
+8. Verify the new local image works before switching the database record.
+
+After migration, all 208 active senior-player records must reference the same canonical image directory and filename convention.
+
+STAGE 3 — CONNECT THE EXISTING PLAYER JSON DATA
+
+Standardise the JSON/data structure for all senior players.
+
+1. Use the current live senior-player schema as the authority.
+2. Every one of the final 208 database records must have exactly one corresponding canonical JSON/data entry.
+3. Every JSON entry must point to exactly one canonical image.
+4. Preserve all existing gameplay values.
+5. Do not randomly regenerate existing player attributes.
+6. Do not create a second competing senior-player dataset.
+7. Consolidate active senior-player source data into the project’s actual authoritative file or source system.
+8. Prevent old seed files from reseeding duplicate records.
+
+Ensure every canonical senior-player record contains the equivalent existing schema fields for:
+
+- stable player ID
+- displayed player name
+- nationality
+- country of origin
+- continent
+- age
+- height
+- position/role
+- star rating
+- speciality
+- fatigue
+- stamina
+- injury data
+- resilience
+- morale
+- clutch
+- weather tolerance
+- development curve
+- club/team assignment
+- contract status
+- market/player-pool status
+- Olympic eligibility
+- canonical image URL
+
+Use the project’s real field names and types. Do not introduce incompatible duplicate fields merely because the labels above differ from the current schema.
+
+For an existing record missing a field required by the authoritative schema:
+
+- add only the missing field;
+- use the established project default;
+- do not overwrite an existing value;
+- report every default that was added.
+
+STAGE 4 — INTEGRATE ALL 16 NEW PLAYERS
+
+Create exactly one new senior-player record for each of the 16 uploaded images.
+
+Before creating a record:
+
+1. Search all existing JSON, data and seed files for a prepared player entry matching the image/player.
+2. Match using player name, nationality and image filename—not filename alone.
+3. If prepared JSON already exists, reuse its player details and attributes.
+4. Do not create a second JSON definition for the same player.
+5. If no prepared entry exists, obtain the player details from the information printed on the player card and construct one record using the existing senior-player schema.
+6. Do not invent a different name, nationality, age, height, position or star rating.
+7. If any required card information cannot be determined reliably, STOP before changing the database and list the affected files.
+
+For all 16 new players:
+
+- assign a new unique stable player ID;
+- attach the correct canonical WebP image;
+- set the correct nationality and country of origin;
+- set the correct continent;
+- place them in the available senior-player market/pool;
+- do not automatically assign them to a club;
+- allow clubs to recruit, buy and use them;
+- make them eligible for Olympic selection based on country of origin;
+- do not treat club nationality as Olympic nationality.
+
+STAGE 5 — OLYMPIC AND MARKET LOGIC
+
+Confirm the existing logic supports these rules:
+
+1. Any senior player can play for a club regardless of nationality.
+2. Available player-pool players can be recruited through the player market.
+3. Olympic selection uses country of origin only.
+4. A country needs at least three eligible players of that origin to enter Olympic qualification.
+5. Olympic staff may be from any country.
+6. The 28 extra players remain normal senior players and are not deleted after a season.
+7. Being unassigned to a club does not make a player ineligible for Olympic selection.
+8. Being signed by a foreign club does not change Olympic eligibility.
+9. Do not redesign the Olympic competition or qualifier format during this migration.
+
+Only make the minimum code changes required to enforce these already-defined rules.
+
+STAGE 6 — SAFE DATABASE MIGRATION
+
+Implement and run one idempotent migration.
+
+The migration must:
+
+1. Verify the starting count is 192.
+2. Preserve all existing stable player IDs.
+3. Update existing image URLs using the migration map.
+4. Insert only the 16 genuinely new player records.
+5. Refuse to insert a new record if its player identity or canonical image URL already exists.
+6. use a database transaction where supported;
+7. roll back database changes if validation fails;
+8. finish with exactly 208 live senior-player records.
+
+Do not use a destructive full reseed.
+
+STAGE 7 — UPDATE REFERENCES SAFELY
+
+Search the codebase and update active references to old senior-player image paths.
+
+Check:
+
+- player market
+- scouting
+- team roster
+- player profile
+- medical centre
+- match screens
+- Olympic selection
+- Olympic qualifiers
+- draft/player pool
+- saved-career loading
+- seed scripts
+- JSON/data imports
+- tests and fixtures
+
+Do not change player IDs or relationships.
+
+If saved careers contain old image URLs, add a backward-compatible resolver or safe migration so old saves continue loading with the new canonical images.
+
+STAGE 8 — FINAL VERIFICATION
+
+Do not declare completion unless all checks pass.
+
+Required final results:
+
+- total live senior-player database records: 208
+- unique stable player IDs: 208
+- canonical senior-player JSON/data entries: 208
+- unique canonical image URLs: 208
+- canonical local WebP image files: 208
+- newly inserted records: exactly 16
+- existing records preserved: exactly 192
+- records still using /objects/player-cards/: 0
+- active senior image filenames outside the canonical pattern: 0
+- duplicate player IDs: 0
+- duplicate canonical image URLs: 0
+- missing images: 0
+- broken local images: 0
+- incorrectly formatted image filenames: 0
+- `peurto_rico` filenames or active references: 0
+- `puerto_rico` filenames for the three Puerto Rico players: 3
+- players available for appropriate club recruitment: confirmed
+- Olympic eligibility based on country of origin: confirmed
+- existing clubs, contracts and save relationships preserved: confirmed
+
+Test representative pages and confirm that images load for:
+
+- an existing migrated /objects/player-cards/ player
+- an existing player_senior_*.webp player
+- one of the 16 new players
+- player market
+- team roster
+- player profile
+- Olympic selection/qualifiers
+
+FINAL REPORT
+
+Return:
+
+1. Exact canonical image directory.
+2. Exact authoritative senior-player JSON/data source.
+3. Backup/export location.
+4. Migration script location.
+5. Old-to-new image migration-map location.
+6. Starting and finishing database counts.
+7. Number of existing images migrated.
+8. List of all 16 newly connected players:
+   - player ID
+   - name
+   - nationality
+   - position
+   - canonical image URL
+   - market status
+   - Olympic eligibility
+9. All validation totals.
+10. Any missing metadata, failed conversion, broken reference or unresolved warning.
+
+Do not silently skip a player or image.
+
+If any stage cannot be completed safely, stop before destructive changes, preserve the existing database, and report the exact blocker.
