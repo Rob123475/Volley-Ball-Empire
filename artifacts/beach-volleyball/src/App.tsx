@@ -68,6 +68,8 @@ import WorldFinals    from "@/pages/competition/world-finals";
 import AllStar        from "@/pages/competition/all-star";
 import WtHistory      from "@/pages/competition/wt-history";
 
+import AnnualCalendar from "@/pages/annual-calendar";
+
 // Competition pages — Olympics
 import NationalSquads   from "@/pages/competition/national-squads";
 import OlympicSchedule  from "@/pages/competition/olympic-schedule";
@@ -173,6 +175,8 @@ function Router() {
               <Route path="/competition/olympic-results"      component={OlympicResults}      />
               <Route path="/competition/medal-table"          component={MedalTable}          />
               <Route path="/competition/olympic-history"      component={OlympicHistory}      />
+
+              <Route path="/annual-calendar" component={AnnualCalendar} />
 
               <Route component={NotFound} />
             </Switch>

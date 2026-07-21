@@ -17,6 +17,7 @@ import {
   Monitor,
   FolderOpen,
   Medal,
+  CalendarDays,
 } from "lucide-react";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
@@ -87,8 +88,9 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/youth-league", label: "Youth League", icon: Star   },
     ],
   },
-  { id: "club",     label: "Club",     icon: Building2,  href: "/club"     },
-  { id: "finances", label: "Finances", icon: DollarSign, href: "/finances" },
+  { id: "club",     label: "Club",         icon: Building2,   href: "/club"             },
+  { id: "calendar", label: "Season Cal",   icon: CalendarDays, href: "/annual-calendar" },
+  { id: "finances", label: "Finances",     icon: DollarSign,  href: "/finances"         },
   { id: "career",   label: "Career",   icon: FolderOpen, href: "/career"   },
   { id: "matchday", label: "Match Day",icon: Monitor,    href: "/court"    },
 ];

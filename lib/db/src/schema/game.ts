@@ -771,6 +771,7 @@ export const calendarStateTable = pgTable("calendar_state", {
   currentDate:    varchar("current_date",    { length: 20 }).notNull().default("2026-01-15"),
   calendarSpeed:  varchar("calendar_speed",  { length: 10 }).notNull().default("pause"),
   pendingMatchId: integer("pending_match_id"),
+  preMatchSpeed:  varchar("pre_match_speed",  { length: 10 }),
   lastSalaryDate: varchar("last_salary_date", { length: 20 }),
   updatedAt:      timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

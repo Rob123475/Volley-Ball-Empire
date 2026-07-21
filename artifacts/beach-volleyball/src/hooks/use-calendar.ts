@@ -1,5 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+export type AnnualEventType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility";
+
+export type AnnualEvent = {
+  date: string;
+  type: AnnualEventType;
+  title: string;
+  subtitle?: string;
+  link: string;
+  round?: number;
+};
+
+export type AnnualCalendarData = {
+  year: number;
+  seasonStart?: string;
+  seasonEnd?: string;
+  currentDate: string;
+  calendarSpeed: CalendarSpeed;
+  isOlympicSeason: boolean;
+  hasSeasonData: boolean;
+  events: AnnualEvent[];
+};
+
 export type CalendarSpeed = "pause" | "slow" | "medium" | "fast";
 
 export type CalendarMatchDay = {
@@ -136,4 +158,13 @@ export function useCalendar() {
     lastAdvanceResult: advanceMutation.data,
     advanceMutation,
   };
+}
+
+export function useAnnualCalendar(year: number) {
+  return useQuery<AnnualCalendarData>({
+    queryKey: ["annual-calendar", year],
+    queryFn:  () => apiFetch<AnnualCalendarData>(`/api/calendar/annual?year=${year}`),
+    staleTime: 30_000,
+    retry: 1,
+  });
 }
