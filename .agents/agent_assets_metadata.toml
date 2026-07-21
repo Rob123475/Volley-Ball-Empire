@@ -36,6 +36,12 @@ uri = "file://artifacts/beach-volleyball/public/title-hero.png"
 type = "image"
 title = "womens beach volleyball title hero"
 
+[[generated]]
+id = "l4HDAoVk5NomMqmcu0EdD"
+uri = "file://artifacts/beach-volleyball/public/images/hero-women-volleyball.png"
+type = "image"
+title = "women beach volleyball hero"
+
 [[outputs]]
 id = "XCcLc6p_yRoa2T48ZEAei"
 uri = "file://artifacts/beach-volleyball/public/swimwear-sponsor.png"

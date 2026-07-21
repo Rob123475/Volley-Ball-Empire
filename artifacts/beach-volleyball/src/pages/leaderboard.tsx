@@ -8,8 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Medal, Star, TrendingUp, Globe, Zap, Crown } from "lucide-react";
 
-const CHAMP_IMAGE =
-  "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1200&q=80";
+const CHAMP_IMAGE = "/images/hero-women-volleyball.png";
 
 function cn(...inputs: (string | false | null | undefined)[]) {
   return inputs.filter(Boolean).join(" ");

@@ -317,7 +317,7 @@ export default function Dashboard() {
           backgroundColor: "#0a0f1e",
           backgroundImage: [
             "linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.35) 38%, rgba(0,0,0,0.82) 100%)",
-            "url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1600&q=80&auto=format&fit=crop')",
+            "url('/images/hero-women-volleyball.png')",
           ].join(", "),
           backgroundSize: "cover",
           backgroundPosition: "center 30%",
