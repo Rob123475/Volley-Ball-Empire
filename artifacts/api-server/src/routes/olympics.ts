@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { playersTable, olympicSelectionsTable } from "@workspace/db";
 import type { OlympicPlayerData } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -158,9 +158,12 @@ const MIN_PLAYERS = 3;
 router.get("/olympics/countries", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  // All active senior players (isDraftPlayer = false to exclude draft pool)
+  // Senior players only — youth players must not count toward Olympic eligibility
   const allPlayers = await db.select().from(playersTable)
-    .where(eq(playersTable.isActive, true));
+    .where(and(
+      eq(playersTable.isActive, true),
+      eq(playersTable.playerType, "senior"),
+    ));
 
   const byNationality = new Map<string, typeof allPlayers>();
   for (const p of allPlayers) {

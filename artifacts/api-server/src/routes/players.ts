@@ -115,7 +115,7 @@ router.get("/players/validation", async (req, res) => {
   const seniors = all.filter(p => p.playerType === "senior");
   const youth   = all.filter(p => p.playerType === "youth");
 
-  const CONTINENTS = ["Africa", "Asia", "Europe", "North America", "South America", "Oceania"];
+  const CONTINENTS = ["Africa & Middle East", "Asia", "Europe", "North America", "South America", "Oceania"];
 
   const seniorByCont = Object.fromEntries(
     CONTINENTS.map(c => [c, seniors.filter(p => p.continent === c).length])

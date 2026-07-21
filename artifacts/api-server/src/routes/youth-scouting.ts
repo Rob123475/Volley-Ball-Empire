@@ -33,12 +33,21 @@ export const SCOUTING_COST = 15_000;
 // ── Nationality pools by continent ────────────────────────────────────────
 
 const NATIONALITIES: Record<string, string[]> = {
-  Europe:          ["Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands", "Poland", "Denmark"],
-  Africa:          ["Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco"],
-  "North America": ["USA", "Canada", "USA", "USA"],
-  "South America": ["Brazil", "Colombia", "Argentina", "Brazil", "Brazil", "Chile"],
-  Asia:            ["Japan", "South Korea", "China", "India", "Thailand"],
-  Oceania:         ["Australia", "New Zealand", "Australia", "Australia"],
+  Europe:          ["Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands",
+                    "Poland", "Denmark", "Switzerland", "Greece", "Portugal", "Austria", "Belgium",
+                    "Russia", "Czech Republic", "Finland", "Croatia", "Serbia", "Ukraine",
+                    "Hungary", "England", "Ireland", "Malta", "Monaco"],
+  Africa:          ["Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco",
+                    "Tunisia", "Tanzania", "Zimbabwe", "Mozambique", "Madagascar", "Cameroon",
+                    "Algeria", "Burkina Faso", "Ivory Coast", "Guinea"],
+  "North America": ["USA", "Canada", "Mexico", "Cuba", "Jamaica", "Dominican Republic",
+                    "Puerto Rico", "Panama", "Costa Rica", "Bahamas"],
+  "South America": ["Brazil", "Colombia", "Argentina", "Chile", "Peru", "Venezuela",
+                    "Ecuador", "Bolivia", "Uruguay", "Guyana"],
+  Asia:            ["Japan", "South Korea", "China", "India", "Thailand", "Indonesia",
+                    "Philippines", "Vietnam", "Malaysia", "Taiwan", "Laos", "Maldives"],
+  Oceania:         ["Australia", "New Zealand", "Fiji", "Samoa", "Tahiti",
+                    "Papua New Guinea", "Tonga", "Vanuatu"],
 };
 
 // ── Speciality → primary stat boost ─────────────────────────────────────
@@ -259,7 +268,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     discoveredBy:   prospect.discoveredBy   ?? undefined,
     eliteEventType: prospect.eliteEventType ?? undefined,
     ...stats,
-    imageUrl:    null,
+    imageUrl:    "/objects/youth-cards/youth-card.webp",
     development: generateDevelopment(),
   }).returning();
 

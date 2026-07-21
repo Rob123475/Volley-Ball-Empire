@@ -4,3 +4,4 @@
 - [API type shapes](api-type-shapes.md) — Match.homeTeamName (not homeTeam.name), Season.year (not seasonYear), LadderEntry.rank (not position), HistoryStandingsResponse.seniors[]
 - [Calendar system](calendar-system.md) — round→date mapping, daily processing pipeline, auth guard pattern for new routers
 - [Staff & youth seeding](staff-youth-seeding.md) — GCS paths, role names, image file selection rules, youth JSON structure
+- [Youth nationality system](youth-nationality-system.md) — two nationality formats coexist (adjective legacy + country-name academy); DB continent values differ from olympics.ts map; replenishment endpoint details.

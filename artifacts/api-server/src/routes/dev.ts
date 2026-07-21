@@ -5,8 +5,9 @@ import { db } from "@workspace/db";
 import {
   matchesTable, seasonsTable, calendarStateTable, teamsTable,
   continentalPoolTeamsTable, continentalPoolPlayersTable,
+  playersTable,
 } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour.js";
 
 const WEATHER_CONDITIONS = ["sunny", "clear", "cloudy", "windy", "hot", "overcast", "perfect"];
@@ -74,11 +75,19 @@ const YOUTH_NAMES = [
 
 const YOUTH_NATIONALITIES = [
   "Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands", "Poland", "Denmark",
+  "Switzerland", "Greece", "Portugal", "Austria", "Belgium", "Russia", "Czech Republic",
+  "Finland", "Croatia", "Serbia", "Ukraine", "Hungary", "England", "Ireland", "Malta", "Monaco",
   "Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco",
-  "USA", "Canada",
-  "Brazil", "Colombia", "Argentina", "Chile",
-  "Japan", "South Korea", "China", "India", "Thailand",
-  "Australia", "New Zealand",
+  "Tunisia", "Tanzania", "Zimbabwe", "Mozambique", "Madagascar", "Cameroon", "Algeria",
+  "Burkina Faso", "Ivory Coast", "Guinea",
+  "USA", "Canada", "Mexico", "Cuba", "Jamaica", "Dominican Republic",
+  "Puerto Rico", "Panama", "Costa Rica", "Bahamas",
+  "Brazil", "Colombia", "Argentina", "Chile", "Peru", "Venezuela",
+  "Ecuador", "Bolivia", "Uruguay", "Guyana",
+  "Japan", "South Korea", "China", "India", "Thailand", "Indonesia",
+  "Philippines", "Vietnam", "Malaysia", "Taiwan", "Laos", "Maldives",
+  "Australia", "New Zealand", "Fiji", "Samoa", "Tahiti",
+  "Papua New Guinea", "Tonga", "Vanuatu",
 ];
 
 const YOUTH_SPECIALITIES = ["Power", "Defense", "Serve", "Speed", "Block", "All-Rounder"] as const;
@@ -352,6 +361,284 @@ router.post("/dev/ensure-continental-pool-extension", async (_req, res) => {
     const existing = report.filter(r => r.status === "exists").length;
 
     res.json({ ok: true, inserted, existing, total: report.length, report });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── Adjective nationality → DB continent mapping ───────────────────────────
+// Used to back-fill the continent column for legacy youth players seeded
+// from the JSON file (which used adjective-form nationalities like "German").
+const ADJECTIVE_NATIONALITY_CONTINENT: Record<string, string> = {
+  // Europe
+  German: "Europe", French: "Europe", Italian: "Europe", Spanish: "Europe",
+  Norwegian: "Europe", Swedish: "Europe", Danish: "Europe", Dutch: "Europe",
+  Swiss: "Europe", Polish: "Europe", Greek: "Europe", Portuguese: "Europe",
+  Austrian: "Europe", Belgian: "Europe", Russian: "Europe", Czech: "Europe",
+  Finnish: "Europe", Croatian: "Europe", Serbian: "Europe", Ukrainian: "Europe",
+  Hungarian: "Europe", English: "Europe", Irish: "Europe", Maltese: "Europe",
+  Icelandic: "Europe", Bulgarian: "Europe", Romanian: "Europe", Slovak: "Europe",
+  Slovenian: "Europe", Bosnian: "Europe", Monégasque: "Europe",
+  // North America
+  American: "North America", Canadian: "North America", Mexican: "North America",
+  Cuban: "North America", Jamaican: "North America", Dominican: "North America",
+  "Puerto Rican": "North America", Panamanian: "North America",
+  "Costa Rican": "North America", Bahamian: "North America",
+  // South America
+  Brazilian: "South America", Argentine: "South America", Colombian: "South America",
+  Chilean: "South America", Peruvian: "South America", Venezuelan: "South America",
+  Ecuadorian: "South America", Bolivian: "South America", Uruguayan: "South America",
+  Guyanese: "South America", Paraguayan: "South America",
+  // Asia
+  Japanese: "Asia", Chinese: "Asia", "South Korean": "Asia", Indian: "Asia",
+  Thai: "Asia", Indonesian: "Asia", Filipino: "Asia", Vietnamese: "Asia",
+  Malaysian: "Asia", Taiwanese: "Asia", Laotian: "Asia", Maldivian: "Asia",
+  Mongolian: "Asia", Kazakhstani: "Asia",
+  // Africa & Middle East
+  Nigerian: "Africa & Middle East", Egyptian: "Africa & Middle East",
+  Kenyan: "Africa & Middle East", Moroccan: "Africa & Middle East",
+  Tunisian: "Africa & Middle East", "South African": "Africa & Middle East",
+  Tanzanian: "Africa & Middle East", Zimbabwean: "Africa & Middle East",
+  Mozambican: "Africa & Middle East", Malagasy: "Africa & Middle East",
+  Ghanaian: "Africa & Middle East", Senegalese: "Africa & Middle East",
+  Cameroonian: "Africa & Middle East", Algerian: "Africa & Middle East",
+  Burkinabe: "Africa & Middle East", Ivorian: "Africa & Middle East",
+  Guinean: "Africa & Middle East", Jordanian: "Africa & Middle East", Omani: "Africa & Middle East",
+  Ugandan: "Africa & Middle East", Rwandan: "Africa & Middle East",
+  Ethiopian: "Africa & Middle East", Malian: "Africa & Middle East",
+  Congolese: "Africa & Middle East", Liberian: "Africa & Middle East",
+  Malawian: "Africa & Middle East",
+  // Oceania
+  Australian: "Oceania", "New Zealander": "Oceania", Fijian: "Oceania",
+  Samoan: "Oceania", Tahitian: "Oceania", "Papua New Guinean": "Oceania",
+  Tongan: "Oceania", Vanuatuan: "Oceania",
+};
+
+// ── POST /api/dev/fix-youth-data ─────────────────────────────────────────────
+// Idempotent maintenance: for every youth player in the DB —
+//   1. Sets continent where it is NULL, using ADJECTIVE_NATIONALITY_CONTINENT
+//   2. Caps age at 18 for any player exceeding the 14–18 youth age range
+
+router.post("/dev/fix-youth-data", async (_req, res) => {
+  try {
+    const youth = await db.select().from(playersTable)
+      .where(and(
+        eq(playersTable.playerType, "youth"),
+        eq(playersTable.isRetired, false),
+      ));
+
+    let continentFixed = 0;
+    let ageFixed = 0;
+    const unmapped: string[] = [];
+
+    for (const p of youth) {
+      const updates: Record<string, unknown> = {};
+
+      // Fix missing continent
+      if (!p.continent) {
+        const resolved = ADJECTIVE_NATIONALITY_CONTINENT[p.nationality]
+          ?? null;
+        if (resolved) {
+          updates.continent = resolved;
+        } else {
+          unmapped.push(`${p.name} (${p.nationality})`);
+        }
+      }
+
+      // Cap age at 18
+      if (p.age > 18) {
+        updates.age = 18;
+        ageFixed++;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await db.update(playersTable)
+          .set(updates as Parameters<typeof db.update>[0] extends never ? never : Record<string, unknown>)
+          .where(eq(playersTable.id, p.id));
+        if (updates.continent) continentFixed++;
+      }
+    }
+
+    res.json({
+      ok: true,
+      total: youth.length,
+      continentFixed,
+      ageFixed,
+      unmappedNationalities: unmapped,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── Country-name nationality pools by DB continent (for new youth generation) ─
+// Drawn from the canonical NATIONALITY_CONTINENT registry in olympics.ts.
+const YOUTH_POOL_BY_CONTINENT: Record<string, string[]> = {
+  Europe: [
+    "Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Denmark",
+    "Netherlands", "Switzerland", "Poland", "Greece", "Portugal", "Austria",
+    "Belgium", "Russia", "Czech Republic", "Finland", "Croatia", "Serbia",
+    "Ukraine", "Hungary", "England", "Ireland", "Malta", "Monaco",
+  ],
+  "North America": [
+    "USA", "Canada", "Mexico", "Cuba", "Jamaica", "Dominican Republic",
+    "Puerto Rico", "Panama", "Costa Rica", "Bahamas",
+  ],
+  "South America": [
+    "Brazil", "Argentina", "Colombia", "Chile", "Peru", "Venezuela",
+    "Ecuador", "Bolivia", "Uruguay", "Guyana",
+  ],
+  Asia: [
+    "Japan", "China", "South Korea", "India", "Thailand", "Indonesia",
+    "Philippines", "Vietnam", "Malaysia", "Taiwan", "Laos", "Maldives",
+  ],
+  "Africa & Middle East": [
+    "Nigeria", "Egypt", "Kenya", "Morocco", "Tunisia", "South Africa",
+    "Tanzania", "Zimbabwe", "Mozambique", "Madagascar", "Ghana", "Senegal",
+    "Cameroon", "Algeria", "Burkina Faso", "Ivory Coast", "Guinea",
+  ],
+  Oceania: [
+    "Australia", "New Zealand", "Fiji", "Samoa", "Tahiti",
+    "Papua New Guinea", "Tonga", "Vanuatu",
+  ],
+};
+
+const GLOBAL_YOUTH_TARGET = 60;
+const YOUTH_POOL_IMAGE = "/objects/youth-cards/youth-card.webp";
+const YOUTH_POSITIONS = ["setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+const YOUTH_POTENTIALS = ["Below Average", "Average", "Average", "High", "High", "Elite"] as const;
+
+const YOUTH_REPLENISH_NAMES: Record<string, string[]> = {
+  Europe: [
+    "Emma Müller", "Sofia Rossi", "Lena Andersen", "Maja Karlsson", "Klara Novak",
+    "Ingrid Berg", "Elena Petrova", "Marta Kowalski", "Anna Horváth", "Laura Becker",
+    "Julia Braun", "Marie Dupont", "Chiara Ferrari", "Astrid Larsen", "Petra Kováč",
+    "Hanna Schulz", "Saoirse Murphy", "Sofia Alves", "Valentina Gruber", "Nia Žanić",
+  ],
+  "North America": [
+    "Avery Thompson", "Riley Anderson", "Taylor Mitchell", "Morgan Wilson",
+    "Jordan Davis", "Brooke Sullivan", "Paige Harris", "Sydney Clark",
+    "Kayla Lewis", "Alexis Walker", "Maya Torres", "Isabella Reyes",
+  ],
+  "South America": [
+    "Valentina García", "Camila Rodríguez", "Isabela Costa", "Lucía Fernández",
+    "Sofía López", "Mariana Santos", "Gabriela Moreno", "Ana Lima",
+    "Daniela Ruiz", "Paula Herrera", "Natalia Castro", "Andrea Vargas",
+  ],
+  Asia: [
+    "Yuki Tanaka", "Mei Lin", "Sakura Ito", "Ji-Young Park", "Priya Sharma",
+    "Ananya Patel", "Nguyen Thi Mai", "Siti Rahma", "Yuna Kim", "Rin Sato",
+    "Divya Nair", "Hana Suzuki", "Miku Yamamoto", "Aisyah Binti Ahmad",
+  ],
+  "Africa & Middle East": [
+    "Amina Diallo", "Fatou Koné", "Aisha Okafor", "Nkechi Eze", "Abena Asante",
+    "Nadia Hassan", "Layla Omar", "Zainab Musa", "Chiamaka Obi", "Efua Mensah",
+    "Sara Ben Ammar", "Yasmin Traoré", "Fatoumata Bah", "Miriam Wanjiru",
+  ],
+  Oceania: [
+    "Zoe Harrison", "Chloe Martin", "Emma Wilson", "Lily Thompson",
+    "Grace Anderson", "Mia Cooper", "Ella Davis", "Sophie Evans",
+    "Aroha Tane", "Kezia Ratu",
+  ],
+};
+
+// ── POST /api/dev/ensure-global-youth-pool ───────────────────────────────────
+// Idempotent: counts all non-retired youth players and fills vacancies up to
+// GLOBAL_YOUTH_TARGET (60). Distributes evenly across 6 continents.
+// Only adds players — never removes existing youth.
+
+router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
+  try {
+    const allYouth = await db.select().from(playersTable)
+      .where(and(
+        eq(playersTable.playerType, "youth"),
+        eq(playersTable.isRetired, false),
+      ));
+
+    const currentCount = allYouth.length;
+    const vacancies = Math.max(0, GLOBAL_YOUTH_TARGET - currentCount);
+
+    if (vacancies === 0) {
+      res.json({ ok: true, added: 0, currentCount, message: "Pool already at or above target" });
+      return;
+    }
+
+    // Count existing youth per continent to distribute vacancies fairly
+    const continents = Object.keys(YOUTH_POOL_BY_CONTINENT);
+    const countByCont: Record<string, number> = Object.fromEntries(
+      continents.map(c => [c, allYouth.filter(p => p.continent === c).length])
+    );
+
+    const toAdd: Array<{ nationality: string; continent: string }> = [];
+
+    // Fill each continent up to its fair share (target / 6) first
+    const perContinent = Math.floor(GLOBAL_YOUTH_TARGET / continents.length);
+    for (const c of continents) {
+      const needed = Math.max(0, perContinent - countByCont[c]!);
+      const pool = YOUTH_POOL_BY_CONTINENT[c]!;
+      for (let i = 0; i < needed && toAdd.length < vacancies; i++) {
+        const nationality = pool[Math.floor(Math.random() * pool.length)]!;
+        toAdd.push({ nationality, continent: c });
+      }
+    }
+
+    // If still room, fill from continents with most deficit
+    if (toAdd.length < vacancies) {
+      let ci = 0;
+      while (toAdd.length < vacancies) {
+        const c = continents[ci % continents.length]!;
+        const pool = YOUTH_POOL_BY_CONTINENT[c]!;
+        const nationality = pool[Math.floor(Math.random() * pool.length)]!;
+        toAdd.push({ nationality, continent: c });
+        ci++;
+      }
+    }
+
+    // Insert players
+    const rand = (lo: number, hi: number) => lo + Math.floor(Math.random() * (hi - lo + 1));
+    for (const { nationality, continent } of toAdd) {
+      const namePool = YOUTH_REPLENISH_NAMES[continent] ?? YOUTH_REPLENISH_NAMES["Europe"]!;
+      const name = namePool[Math.floor(Math.random() * namePool.length)]!;
+      const age = rand(14, 18);
+      const position = YOUTH_POSITIONS[Math.floor(Math.random() * YOUTH_POSITIONS.length)]!;
+      const potential = YOUTH_POTENTIALS[Math.floor(Math.random() * YOUTH_POTENTIALS.length)]!;
+      const stat = () => rand(30, 62);
+
+      await db.insert(playersTable).values({
+        name,
+        nationality,
+        age,
+        continent,
+        position,
+        potential,
+        playerType: "youth",
+        isDraftPlayer: false,
+        isRetired: false,
+        isActive: true,
+        teamId: null,
+        imageUrl: YOUTH_POOL_IMAGE,
+        speed: stat(), power: stat(), defense: stat(),
+        serve: stat(), block: stat(), stamina: stat(),
+        height: String((1.58 + Math.random() * 0.20).toFixed(1)),
+        injuryStatus: "Healthy",
+        morale: rand(65, 85),
+        fatigue: 0,
+        fitness: 100,
+      });
+    }
+
+    res.json({
+      ok: true,
+      added: toAdd.length,
+      currentCount,
+      newTotal: currentCount + toAdd.length,
+      distribution: toAdd.reduce((acc, { continent }) => {
+        acc[continent] = (acc[continent] ?? 0) + 1;
+        return acc;
+      }, {} as Record<string, number>),
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
