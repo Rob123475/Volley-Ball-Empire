@@ -76,9 +76,9 @@ const TABS: { id: MarketTab; label: string; icon: React.FC<{ className?: string 
 
 // Tab descriptions shown below the title
 const TAB_DESC: Record<MarketTab, string> = {
-  "transfer":    "Established players age 21+ available for immediate signing.",
+  "transfer":    "Established players age 19+ available for immediate signing.",
   "draft":       "Young stars aged 20 and under. All rookies receive a 6-month contract on signing.",
-  "youth":       "Emerging talent aged 20 and under — sign on a regular contract.",
+  "youth":       "Emerging talent aged 18 and under — sign on a regular contract.",
   "free-agents": "All unsigned players available across every age group.",
 };
 
@@ -547,8 +547,8 @@ export default function PlayerMarket() {
       .filter(p => continent === "ALL" || (p as any).continent === continent)
       .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
-  const transferPlayers  = applyMarketFilters(baseMarketPlayers.filter(p => p.age >= 21));
-  const youthPlayers     = applyMarketFilters(baseMarketPlayers.filter(p => p.age <= 20));
+  const transferPlayers  = applyMarketFilters(baseMarketPlayers.filter(p => p.age >= 19));
+  const youthPlayers     = applyMarketFilters(baseMarketPlayers.filter(p => p.age <= 18));
   const freeAgentPlayers = applyMarketFilters(baseMarketPlayers);
 
   const visibleMarketPlayers =
@@ -616,8 +616,8 @@ export default function PlayerMarket() {
             {/* Live counts */}
             {id !== "draft" && (
               <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.2rem] px-1 text-[10px] rounded-full">
-                {id === "transfer"    ? (players ? baseMarketPlayers.filter(p => p.age >= 21).length : "…") :
-                 id === "youth"       ? (players ? baseMarketPlayers.filter(p => p.age <= 20).length : "…") :
+                {id === "transfer"    ? (players ? baseMarketPlayers.filter(p => p.age >= 19).length : "…") :
+                 id === "youth"       ? (players ? baseMarketPlayers.filter(p => p.age <= 18).length : "…") :
                  /* free-agents */      (players ? baseMarketPlayers.length : "…")}
               </Badge>
             )}
@@ -674,8 +674,8 @@ export default function PlayerMarket() {
       {isMarketTab && players && (
         <p className="text-xs text-muted-foreground/70 font-medium -mt-4">
           {visibleMarketPlayers.length} of {
-            tab === "transfer"    ? baseMarketPlayers.filter(p => p.age >= 21).length :
-            tab === "youth"       ? baseMarketPlayers.filter(p => p.age <= 20).length :
+            tab === "transfer"    ? baseMarketPlayers.filter(p => p.age >= 19).length :
+            tab === "youth"       ? baseMarketPlayers.filter(p => p.age <= 18).length :
             baseMarketPlayers.length
           } shown
         </p>
