@@ -111,6 +111,7 @@ export function useCalendar() {
     mutationFn: () => apiFetch<AdvanceResult>("/api/calendar/advance", { method: "POST" }),
     onSettled:  () => {
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-calendar"] });
     },
   });
 

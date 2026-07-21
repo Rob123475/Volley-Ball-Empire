@@ -14,7 +14,11 @@ import {
 } from "@workspace/db";
 import { eq, or, and, ne, sql, inArray, isNotNull } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
-import { isRegionalSlot, isLastRegionalSlot, getSlotType } from "../utils/calendarSlots.js";
+import {
+  isRegionalSlot, isLastRegionalSlot, getSlotType,
+  REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
+  FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
+} from "../utils/calendarSlots.js";
 
 const router = Router();
 
@@ -38,6 +42,23 @@ function roundToDate(
   const offset = totalRounds <= 1 ? 0 : Math.floor((round - 1) * totalDays / (totalRounds - 1));
   const d = new Date(start.getTime() + offset * 86400000);
   return d.toISOString().split("T")[0]!;
+}
+
+/** Return the schedule round (1-indexed) that best represents a given date. */
+function dateToRound(
+  dateStr: string,
+  startDate: string,
+  endDate: string,
+  totalRounds: number,
+): number {
+  const start    = new Date(startDate + "T00:00:00Z");
+  const end      = new Date(endDate   + "T00:00:00Z");
+  const date     = new Date(dateStr   + "T00:00:00Z");
+  const totalDays = Math.max(1, Math.floor((end.getTime() - start.getTime()) / 86400000));
+  const dayOffset = Math.floor((date.getTime() - start.getTime()) / 86400000);
+  if (dayOffset <= 0) return 1;
+  if (dayOffset >= totalDays) return totalRounds;
+  return Math.min(totalRounds, Math.floor(dayOffset * (totalRounds - 1) / totalDays) + 1);
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -454,6 +475,14 @@ router.post("/calendar/advance", async (req, res) => {
     .set({ currentDate: nextDate, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
 
+  // 7. Keep season.currentRound in sync with the game date
+  const newRound = dateToRound(nextDate, season.startDate, season.endDate, season.totalRounds);
+  if (newRound > season.currentRound) {
+    await db.update(seasonsTable)
+      .set({ currentRound: newRound })
+      .where(eq(seasonsTable.id, season.id));
+  }
+
   const isQuietDay    = events.length === 0;
   const atSeasonEnd   = nextDate >= season.endDate;
 
@@ -560,9 +589,6 @@ router.get("/calendar/annual", async (req, res) => {
   const events: {
     date: string; type: EvType; title: string; subtitle?: string; link: string; round?: number;
   }[] = [];
-
-  const { REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END, FINALS_START, FINALS_END,
-          HOLIDAY_START, HOLIDAY_END } = await import("../utils/calendarSlots.js");
 
   // 1. Season slot events (regional, finals, holiday; WT filled from matchesTable)
   for (let slot = 1; slot <= season.totalRounds; slot++) {
