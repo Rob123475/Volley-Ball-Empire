@@ -201,6 +201,21 @@ paths:
                 items:
                   $ref: "#/components/schemas/Player"
 
+  /players/transfer-window:
+    get:
+      operationId: listTransferWindow
+      tags: [players]
+      summary: Contracted players whose contract expires within 6 months (approachable)
+      responses:
+        "200":
+          description: Transfer window players (include currentTeamName field)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+
   /players/{id}:
     get:
       operationId: getPlayer

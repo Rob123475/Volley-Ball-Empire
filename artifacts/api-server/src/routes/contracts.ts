@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { contractsTable, playersTable, teamsTable } from "@workspace/db";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
+import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
@@ -35,7 +35,8 @@ router.post("/contracts", async (req, res) => {
 
   // Youth academy capacity check (max 6 players aged 14–18)
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, Number(playerId)) });
-  const isYouth = player ? (player.age >= 14 && player.age <= 18) : false;
+  if (!player) { res.status(404).json({ error: "Player not found." }); return; }
+  const isYouth = player.age >= 14 && player.age <= 18;
 
   if (isYouth) {
     const existingYouths = await db.select()
@@ -68,6 +69,31 @@ router.post("/contracts", async (req, res) => {
   if (!isYouth && squadRole === "reserve") {
     res.status(422).json({ error: "Players aged 19 or older cannot be assigned to the Youth Team." });
     return;
+  }
+
+  // Transfer window enforcement — if player is already contracted to another team,
+  // they can only be approached in the last 6 months of their contract.
+  if (player.teamId !== null) {
+    if (player.teamId === team.id) {
+      res.status(422).json({ error: "This player is already on your team. Use the Contracts page to renew their contract." });
+      return;
+    }
+    const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
+      .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
+    const currentDate = calRows[0]?.currentDate ?? new Date().toISOString().split("T")[0]!;
+    const windowEnd = new Date(currentDate);
+    windowEnd.setMonth(windowEnd.getMonth() + 6);
+    const windowEndStr = windowEnd.toISOString().split("T")[0]!;
+
+    if (!player.contractEndDate || player.contractEndDate > windowEndStr) {
+      res.status(422).json({
+        error: "This player is under contract and cannot be approached until the last 6 months of their contract.",
+      });
+      return;
+    }
+    // In transfer window — terminate existing contract so player can be signed
+    await db.update(contractsTable).set({ status: "terminated" })
+      .where(and(eq(contractsTable.playerId, player.id), eq(contractsTable.status, "active")));
   }
 
   const today = new Date().toISOString().split("T")[0];

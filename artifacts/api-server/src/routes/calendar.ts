@@ -12,7 +12,7 @@ import {
   facilitiesTable,
   contractsTable,
 } from "@workspace/db";
-import { eq, or, and, ne, sql, inArray } from "drizzle-orm";
+import { eq, or, and, ne, sql, inArray, isNotNull } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
 import { isRegionalSlot, isLastRegionalSlot, getSlotType } from "../utils/calendarSlots.js";
 
@@ -419,7 +419,37 @@ router.post("/calendar/advance", async (req, res) => {
     );
   }
 
-  // 5. Advance the date
+  // 5. Expire contracts globally — any contracted player whose contractEndDate < nextDate
+  //    is freed back to the pool (teamId → null). This runs for ALL teams, not just user's.
+  const expired = await db
+    .select({ id: playersTable.id, name: playersTable.name, teamId: playersTable.teamId })
+    .from(playersTable)
+    .where(and(
+      isNotNull(playersTable.teamId),
+      isNotNull(playersTable.contractEndDate),
+      eq(playersTable.isRetired, false),
+      sql`${playersTable.contractEndDate} < ${nextDate}`,
+    ));
+
+  if (expired.length > 0) {
+    const expiredIds = expired.map(p => p.id);
+    await db.update(playersTable)
+      .set({ teamId: null, contractEndDate: null, isActive: false, salary: "0" })
+      .where(sql`${playersTable.id} = ANY(ARRAY[${sql.join(expiredIds.map(id => sql`${id}`), sql`, `)}]::int[])`);
+    await db.update(contractsTable)
+      .set({ status: "terminated" })
+      .where(and(
+        sql`${contractsTable.playerId} = ANY(ARRAY[${sql.join(expiredIds.map(id => sql`${id}`), sql`, `)}]::int[])`,
+        eq(contractsTable.status, "active"),
+      ));
+    // Only push an event if the user's own players expired (captured before nulling teamId)
+    const userExpiredCount = expired.filter(p => p.teamId === team.id).length;
+    if (userExpiredCount > 0) {
+      events.push(`${userExpiredCount} contract${userExpiredCount > 1 ? "s" : ""} expired — player${userExpiredCount > 1 ? "s" : ""} returned to free agency`);
+    }
+  }
+
+  // 6. Advance the date
   await db.update(calendarStateTable)
     .set({ currentDate: nextDate, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));

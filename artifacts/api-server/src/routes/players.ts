@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable } from "@workspace/db";
-import { eq, isNull, and } from "drizzle-orm";
+import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
+import { eq, isNull, isNotNull, and, sql } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
 
 const router = Router();
@@ -94,6 +94,47 @@ router.get("/players/free-agents", async (req, res) => {
       .filter(p => !p.isDraftPlayer && p.academyContractYears == null && p.playerType === "senior")
       .map(serializePlayer)
   );
+});
+
+// Transfer window — contracted senior players whose contract expires within 6 months
+router.get("/players/transfer-window", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(401).json({ error: "No team" }); return; }
+
+  // Get current game date from this user's calendar state
+  const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
+    .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
+  const currentDate = calRows[0]?.currentDate ?? new Date().toISOString().split("T")[0]!;
+
+  // 6-month window cutoff
+  const cutoff = new Date(currentDate);
+  cutoff.setMonth(cutoff.getMonth() + 6);
+  const cutoffStr = cutoff.toISOString().split("T")[0]!;
+
+  const inWindow = await db.select().from(playersTable)
+    .where(and(
+      isNotNull(playersTable.teamId),
+      isNotNull(playersTable.contractEndDate),
+      eq(playersTable.isRetired, false),
+      eq(playersTable.playerType, "senior"),
+      sql`${playersTable.contractEndDate} >= ${currentDate}`,
+      sql`${playersTable.contractEndDate} <= ${cutoffStr}`,
+    ));
+
+  // Attach current team name to each player
+  const teamIds = [...new Set(inWindow.map(p => p.teamId!))];
+  const teamRows = teamIds.length > 0
+    ? await db.select({ id: teamsTable.id, name: teamsTable.name })
+        .from(teamsTable).where(sql`${teamsTable.id} = ANY(ARRAY[${sql.join(teamIds.map(id => sql`${id}`), sql`, `)}]::int[])`)
+    : [];
+  const teamMap = Object.fromEntries(teamRows.map(t => [t.id, t.name]));
+
+  res.json(inWindow.map(p => ({
+    ...serializePlayer(p),
+    currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : null,
+    currentTeamId: p.teamId ?? null,
+  })));
 });
 
 // Youth free agent pool — only youth players not on any team

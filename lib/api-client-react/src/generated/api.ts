@@ -892,6 +892,83 @@ export function useListFreeAgents<TData = Awaited<ReturnType<typeof listFreeAgen
 
 
 
+export const getListTransferWindowUrl = () => {
+
+
+
+
+  return `/api/players/transfer-window`
+}
+
+/**
+ * @summary Contracted players whose contract expires within 6 months (approachable)
+ */
+export const listTransferWindow = async ( options?: RequestInit): Promise<Player[]> => {
+
+  return customFetch<Player[]>(getListTransferWindowUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTransferWindowQueryKey = () => {
+    return [
+    `/api/players/transfer-window`
+    ] as const;
+    }
+
+
+export const getListTransferWindowQueryOptions = <TData = Awaited<ReturnType<typeof listTransferWindow>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTransferWindow>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTransferWindowQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTransferWindow>>> = ({ signal }) => listTransferWindow({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTransferWindow>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListTransferWindowQueryResult = NonNullable<Awaited<ReturnType<typeof listTransferWindow>>>
+export type ListTransferWindowQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Contracted players whose contract expires within 6 months (approachable)
+ */
+
+export function useListTransferWindow<TData = Awaited<ReturnType<typeof listTransferWindow>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTransferWindow>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListTransferWindowQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getGetPlayerUrl = (id: number,) => {
 
 

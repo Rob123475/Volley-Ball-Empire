@@ -1,11 +1,13 @@
 import {
   useListFreeAgents,
+  useListTransferWindow,
   useSignContract,
   useScoutPlayer,
   useGetDraftPool,
   useDraftPick,
   useGenerateDraftClass,
   getListFreeAgentsQueryKey,
+  getListTransferWindowQueryKey,
   getListContractsQueryKey,
   getGetDraftPoolQueryKey,
   getGetTeamRosterQueryKey,
@@ -386,6 +388,20 @@ function MarketPlayerCard({
           </Button>
         </div>
 
+        {player.currentTeamName && (
+          <div className="flex items-center justify-between text-xs border-t border-border pt-2">
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <Shield className="h-3 w-3 text-amber-500" />
+              <span>Under contract at <span className="font-medium text-foreground">{player.currentTeamName}</span></span>
+            </span>
+            {player.contractEndDate && (
+              <span className="text-amber-500 font-medium">
+                Expires {new Date(player.contractEndDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between text-xs border-t border-border pt-2">
           <span className="flex items-center gap-1 text-muted-foreground">
             <DollarSign className="h-3 w-3" />
@@ -484,6 +500,9 @@ export default function PlayerMarket() {
   const { data: players, isLoading: playersLoading } = useListFreeAgents({
     query: { queryKey: getListFreeAgentsQueryKey() },
   });
+  const { data: transferWindow, isLoading: transferWindowLoading } = useListTransferWindow({
+    query: { queryKey: getListTransferWindowQueryKey() },
+  });
   const { data: draftPool, isLoading: draftLoading } = useGetDraftPool({
     query: { queryKey: getGetDraftPoolQueryKey() },
   });
@@ -497,8 +516,12 @@ export default function PlayerMarket() {
     signMutation.mutate({ data: { playerId, salary: values.salary, endDate: values.endDate, bonusPerWin: values.winBonus, squadRole: values.squadRole } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListTransferWindowQueryKey() });
         queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
         toast({ title: "Contract Signed!", description: "Welcome to the team!" });
+      },
+      onError: (err: any) => {
+        toast({ title: "Cannot Sign Player", description: err?.response?.data?.error ?? "Unable to sign this player.", variant: "destructive" });
       },
     });
   };
@@ -540,16 +563,17 @@ export default function PlayerMarket() {
   };
 
   // Client-side filtering for market tabs
-  const baseMarketPlayers = players ?? [];
-  const applyMarketFilters = (list: typeof baseMarketPlayers) =>
+  const baseMarketPlayers  = players ?? [];
+  const baseTransferPlayers = transferWindow ?? [];
+  const applyFilters = (list: any[]) =>
     list
       .filter(p => posFilter === "ALL" || normalizePosition(p.position) === posFilter)
       .filter(p => continent === "ALL" || (p as any).continent === continent)
       .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
-  const transferPlayers  = applyMarketFilters(baseMarketPlayers.filter(p => p.age >= 19));
-  const youthPlayers     = applyMarketFilters(baseMarketPlayers.filter(p => p.age <= 18));
-  const freeAgentPlayers = applyMarketFilters(baseMarketPlayers);
+  const transferPlayers  = applyFilters(baseTransferPlayers);
+  const youthPlayers     = applyFilters(baseMarketPlayers.filter(p => p.age <= 18));
+  const freeAgentPlayers = applyFilters(baseMarketPlayers);
 
   const visibleMarketPlayers =
     tab === "transfer"    ? transferPlayers  :
@@ -558,7 +582,7 @@ export default function PlayerMarket() {
 
   const isDraftTab    = tab === "draft";
   const isMarketTab   = !isDraftTab;
-  const isLoadingMain = isDraftTab ? draftLoading : playersLoading;
+  const isLoadingMain = isDraftTab ? draftLoading : (tab === "transfer" ? transferWindowLoading : playersLoading);
 
   return (
     <div className="space-y-8">
@@ -616,7 +640,7 @@ export default function PlayerMarket() {
             {/* Live counts */}
             {id !== "draft" && (
               <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.2rem] px-1 text-[10px] rounded-full">
-                {id === "transfer"    ? (players ? baseMarketPlayers.filter(p => p.age >= 19).length : "…") :
+                {id === "transfer"    ? (transferWindow ? baseTransferPlayers.length : "…") :
                  id === "youth"       ? (players ? baseMarketPlayers.filter(p => p.age <= 18).length : "…") :
                  /* free-agents */      (players ? baseMarketPlayers.length : "…")}
               </Badge>
@@ -671,10 +695,10 @@ export default function PlayerMarket() {
       )}
 
       {/* Result count for market tabs */}
-      {isMarketTab && players && (
+      {isMarketTab && (tab === "transfer" ? transferWindow : players) && (
         <p className="text-xs text-muted-foreground/70 font-medium -mt-4">
           {visibleMarketPlayers.length} of {
-            tab === "transfer"    ? baseMarketPlayers.filter(p => p.age >= 19).length :
+            tab === "transfer"    ? baseTransferPlayers.length :
             tab === "youth"       ? baseMarketPlayers.filter(p => p.age <= 18).length :
             baseMarketPlayers.length
           } shown
@@ -725,8 +749,17 @@ export default function PlayerMarket() {
           {visibleMarketPlayers.length === 0 && (
             <div className="col-span-full text-center py-16 text-muted-foreground">
               <UserPlus className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p className="text-lg">No players match your search.</p>
-              <p className="text-sm">Try adjusting your filters or search term.</p>
+              {tab === "transfer" && !search && posFilter === "ALL" && continent === "ALL" ? (
+                <>
+                  <p className="text-lg">No players in the transfer window.</p>
+                  <p className="text-sm">Players become approachable in their final 6 months of contract.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg">No players match your search.</p>
+                  <p className="text-sm">Try adjusting your filters or search term.</p>
+                </>
+              )}
             </div>
           )}
         </div>
