@@ -56,7 +56,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 
-const MAX_STAFF = 8;
+const MAX_STAFF = 4;
 
 type StaffRole =
   | "head_coach"
