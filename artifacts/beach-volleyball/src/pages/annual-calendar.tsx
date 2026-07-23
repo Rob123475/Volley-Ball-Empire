@@ -22,33 +22,39 @@ const MONTH_NAMES = [
 const WEEKDAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 const EVENT_DOT: Record<AnnualEventType, string> = {
-  regional:   "bg-blue-500",
-  world_tour: "bg-amber-500",
-  finals:     "bg-red-500",
-  holiday:    "bg-slate-400",
-  financial:  "bg-emerald-500",
-  contract:   "bg-purple-500",
-  facility:   "bg-cyan-500",
+  regional:          "bg-blue-500",
+  world_tour:        "bg-amber-500",
+  finals:            "bg-red-500",
+  holiday:           "bg-slate-400",
+  financial:         "bg-emerald-500",
+  contract:          "bg-purple-500",
+  facility:          "bg-cyan-500",
+  olympic_qualifier: "bg-orange-500",
+  olympic:           "bg-pink-500",
 };
 
 const CATEGORY_LABEL: Record<AnnualEventType, string> = {
-  regional:   "Regional / Pool",
-  world_tour: "World Tour",
-  finals:     "World Finals",
-  holiday:    "Off-Season",
-  financial:  "Financial",
-  contract:   "Contract Deadline",
-  facility:   "Facility / Club",
+  regional:          "Regional / Pool",
+  world_tour:        "World Tour",
+  finals:            "World Finals",
+  holiday:           "Off-Season",
+  financial:         "Financial",
+  contract:          "Contract Deadline",
+  facility:          "Facility / Club",
+  olympic_qualifier: "Olympic Qualifier",
+  olympic:           "Olympics",
 };
 
 const LEGEND = [
-  { type: "regional"   as AnnualEventType, label: "Regional / Pool",   dot: "bg-blue-500"    },
-  { type: "world_tour" as AnnualEventType, label: "World Tour",        dot: "bg-amber-500"   },
-  { type: "finals"     as AnnualEventType, label: "World Finals",      dot: "bg-red-500"     },
-  { type: "holiday"    as AnnualEventType, label: "Off-Season",        dot: "bg-slate-400"   },
-  { type: "financial"  as AnnualEventType, label: "Financial",         dot: "bg-emerald-500" },
-  { type: "contract"   as AnnualEventType, label: "Contract Deadline", dot: "bg-purple-500"  },
-  { type: "facility"   as AnnualEventType, label: "Facility / Club",   dot: "bg-cyan-500"    },
+  { type: "regional"          as AnnualEventType, label: "Regional / Pool",   dot: "bg-blue-500"    },
+  { type: "world_tour"        as AnnualEventType, label: "World Tour",        dot: "bg-amber-500"   },
+  { type: "finals"            as AnnualEventType, label: "World Finals",      dot: "bg-red-500"     },
+  { type: "olympic_qualifier" as AnnualEventType, label: "Olympic Qualifier", dot: "bg-orange-500"  },
+  { type: "olympic"           as AnnualEventType, label: "Olympics",          dot: "bg-pink-500"    },
+  { type: "holiday"           as AnnualEventType, label: "Off-Season",        dot: "bg-slate-400"   },
+  { type: "financial"         as AnnualEventType, label: "Financial",         dot: "bg-emerald-500" },
+  { type: "contract"          as AnnualEventType, label: "Contract Deadline", dot: "bg-purple-500"  },
+  { type: "facility"          as AnnualEventType, label: "Facility / Club",   dot: "bg-cyan-500"    },
 ];
 
 const SPEED_LABELS: Record<CalendarSpeed, string> = {

@@ -671,7 +671,7 @@ router.get("/calendar/annual", async (req, res) => {
   }
   const season = seasonRows[0] ?? null;
 
-  type EvType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility";
+  type EvType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "olympic_qualifier" | "olympic";
   const events: {
     date: string; type: EvType; title: string; subtitle?: string; link: string; round?: number;
   }[] = [];
@@ -761,6 +761,31 @@ router.get("/calendar/annual", async (req, res) => {
     const playerRows = await db.select({ name: playersTable.name }).from(playersTable).where(eq(playersTable.id, c.playerId)).limit(1);
     const name = playerRows[0]?.name ?? "Player";
     events.push({ date: c.endDate, type: "contract", title: `Contract Expires: ${name}`, subtitle: "Review and renew if needed", link: "/team" });
+  }
+
+  // 6. Olympic events — qualifier window close + tournament days
+  if (season) {
+    if (!season.isOlympicSeason) {
+      // Non-Olympic year: show the qualification standings lock-in near end of World Tour (slot 68)
+      const qualDate = roundToDate(season.startDate, season.endDate, 68, season.totalRounds);
+      if (qualDate >= yearStart && qualDate <= yearEnd) {
+        events.push({ date: qualDate, type: "olympic_qualifier", title: "Olympic Qualification Closes", subtitle: "Final standings determine Olympic spots per continent", link: "/competition/qualified-teams" });
+      }
+    } else {
+      // Olympic year: show group stage (slot 36), knockout (slot 39), and final (slot 42)
+      const groupDate    = roundToDate(season.startDate, season.endDate, 36, season.totalRounds);
+      const knockoutDate = roundToDate(season.startDate, season.endDate, 39, season.totalRounds);
+      const finalDate    = roundToDate(season.startDate, season.endDate, 42, season.totalRounds);
+      for (const { date, title, subtitle } of [
+        { date: groupDate,    title: "Olympic Games — Group Stage",  subtitle: "Pool play · top 2 per group advance"   },
+        { date: knockoutDate, title: "Olympic Games — Quarter-Finals", subtitle: "Single elimination begins"            },
+        { date: finalDate,    title: "Olympic Games — Gold Medal Match", subtitle: "The world's best compete for gold" },
+      ]) {
+        if (date >= yearStart && date <= yearEnd) {
+          events.push({ date, type: "olympic", title, subtitle, link: "/competition/olympic-schedule" });
+        }
+      }
+    }
   }
 
   events.sort((a, b) => a.date.localeCompare(b.date));
