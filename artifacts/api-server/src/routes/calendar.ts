@@ -12,11 +12,11 @@ import {
   facilitiesTable,
   contractsTable,
 } from "@workspace/db";
-import { eq, or, and, ne, sql, inArray, isNotNull } from "drizzle-orm";
+import { eq, or, and, ne, sql, inArray, isNotNull, desc } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
 import {
   isRegionalSlot, isLastRegionalSlot, getSlotType,
-  REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
+  TOTAL_SLOTS, REGIONAL_START, REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 
@@ -540,159 +540,161 @@ router.post("/calendar/skip-match", async (req, res) => {
 // ── GET /api/calendar/season-structure ────────────────────────────────────
 // Returns the full 78-slot season structure for UI display
 
-router.get("/calendar/season-structure", async (_req, res) => {
-  const { TOTAL_SLOTS, REGIONAL_START, REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
-          FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END } = await import("../utils/calendarSlots.js");
-
+router.get("/calendar/season-structure", (_req, res) => {
   res.json({
     totalSlots: TOTAL_SLOTS,
     phases: [
-      { name: "Regional Period",   slots: `${REGIONAL_START}–${REGIONAL_END}`,    count: 10, description: "All 6 continents play one round per slot" },
-      { name: "World Tour",        slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: 60, description: "60 events, 10 per continent" },
-      { name: "World Finals",      slots: `${FINALS_START}–${FINALS_END}`,         count: 2,  description: "Semifinals + World Final" },
-      { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,  count: 6,  description: "Rest & preparation for next season" },
+      { name: "Regional Period",      slots: `${REGIONAL_START}–${REGIONAL_END}`,     count: 10, description: "All 6 continents play one round per slot" },
+      { name: "World Tour",           slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: 60, description: "60 events, 10 per continent" },
+      { name: "World Finals",         slots: `${FINALS_START}–${FINALS_END}`,          count: 2,  description: "Semifinals + World Final" },
+      { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,       count: 6,  description: "Rest & preparation for next season" },
     ],
   });
 });
 
 // ── GET /api/calendar/annual ───────────────────────────────────────────────
 // Returns all events for every day of the requested in-game year.
+// Works even when the in-game year has no exact season record (e.g. between
+// seasons or a future year): contracts/facilities are queried by real date.
 
 router.get("/calendar/annual", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(401).json({ error: "No active team" }); return; }
 
-  // Get current calendar state (do not create if missing)
   const calRows = await db.select().from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
   const calState = calRows[0];
-  const currentDate = calState?.currentDate ?? new Date().toISOString().split("T")[0]!;
+  const currentDate    = calState?.currentDate ?? new Date().toISOString().split("T")[0]!;
   const currentInGameYear = parseInt(currentDate.split("-")[0]!, 10);
 
   const yearParam = req.query["year"];
   const year = yearParam ? parseInt(String(yearParam), 10) : currentInGameYear;
-
   if (isNaN(year)) { res.status(400).json({ error: "Invalid year" }); return; }
 
-  // Find season for requested year
-  const seasonRows = await db.select().from(seasonsTable).where(eq(seasonsTable.year, year)).limit(1);
-  const season = seasonRows[0];
+  const yearStart = `${year}-01-01`;
+  const yearEnd   = `${year}-12-31`;
 
-  if (!season) {
-    res.json({
-      year, currentDate, calendarSpeed: calState?.calendarSpeed ?? "medium",
-      isOlympicSeason: false, hasSeasonData: false, events: [],
-    });
-    return;
+  // Find the season that best covers the requested year.
+  // Priority 1: exact year match.
+  // Priority 2: season whose date range overlaps this calendar year.
+  // Priority 3: most-recent season ending before this year (provides context).
+  let seasonRows = await db.select().from(seasonsTable).where(eq(seasonsTable.year, year)).limit(1);
+  if (!seasonRows[0]) {
+    seasonRows = await db.select().from(seasonsTable)
+      .where(and(
+        sql`${seasonsTable.startDate} <= ${yearEnd}`,
+        sql`${seasonsTable.endDate}   >= ${yearStart}`,
+      ))
+      .orderBy(desc(seasonsTable.year))
+      .limit(1);
   }
+  const season = seasonRows[0] ?? null;
 
   type EvType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility";
   const events: {
     date: string; type: EvType; title: string; subtitle?: string; link: string; round?: number;
   }[] = [];
 
-  // 1. Season slot events (regional, finals, holiday; WT filled from matchesTable)
-  for (let slot = 1; slot <= season.totalRounds; slot++) {
-    const date = roundToDate(season.startDate, season.endDate, slot, season.totalRounds);
-    if (slot <= REGIONAL_END) {
-      events.push({ date, type: "regional", title: `Regional & Pool Round ${slot}`, subtitle: "Continental leagues play simultaneously", link: "/continental", round: slot });
-    } else if (slot >= FINALS_START && slot <= FINALS_END) {
-      const label = slot === FINALS_START ? "World Finals — Semi-Finals" : "World Finals — Grand Final";
-      events.push({ date, type: "finals", title: label, link: "/world-tour", round: slot });
-    } else if (slot >= HOLIDAY_START && slot <= HOLIDAY_END) {
-      events.push({ date, type: "holiday", title: "Off-Season Rest", subtitle: "Preparation for next season", link: "/career", round: slot });
+  if (season) {
+    // 1. Season slot events (regional, finals, holiday) — filter to requested year
+    for (let slot = 1; slot <= season.totalRounds; slot++) {
+      const date = roundToDate(season.startDate, season.endDate, slot, season.totalRounds);
+      if (date < yearStart || date > yearEnd) continue;
+      if (slot <= REGIONAL_END) {
+        events.push({ date, type: "regional", title: `Regional & Pool Round ${slot}`, subtitle: "Continental leagues play simultaneously", link: "/continental", round: slot });
+      } else if (slot >= FINALS_START && slot <= FINALS_END) {
+        const label = slot === FINALS_START ? "World Finals — Semi-Finals" : "World Finals — Grand Final";
+        events.push({ date, type: "finals", title: label, subtitle: "Top teams compete for the title", link: "/world-tour", round: slot });
+      } else if (slot >= HOLIDAY_START && slot <= HOLIDAY_END) {
+        events.push({ date, type: "holiday", title: "Off-Season Rest", subtitle: "Preparation for next season", link: "/career", round: slot });
+      }
     }
-  }
 
-  // 2. User's matches this year (World Tour)
-  const userMatches = await db.select().from(matchesTable).where(
-    and(
-      eq(matchesTable.season, year),
-      or(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.awayTeamId, team.id)),
-    )
-  );
-
-  for (const m of userMatches) {
-    const date     = roundToDate(season.startDate, season.endDate, m.round, season.totalRounds);
-    const isHome   = m.homeTeamId === team.id;
-    const opponent = isHome ? m.awayTeamName : m.homeTeamName;
-    const phase    = getSlotType(m.round);
-    const evType: EvType = phase === "finals" ? "finals" : phase === "regional" ? "regional" : "world_tour";
-    const completed = m.status === "completed";
-    const location  = m.locationName ?? "TBD";
-    events.push({
-      date,
-      type: evType,
-      title: `${phase === "world_tour" ? "WT" : phase === "finals" ? "Finals" : "Regional"} R${m.round} · ${location}`,
-      subtitle: `vs ${opponent ?? "TBD"} · ${completed ? "Completed" : "Scheduled"}`,
-      link: completed ? "/world-tour" : "/world-tour",
-      round: m.round,
-    });
-  }
-
-  // 3. Weekly financial events (every 7 days from season start)
-  {
-    const start = new Date(season.startDate + "T00:00:00Z");
-    const end   = new Date(season.endDate   + "T00:00:00Z");
-    let d = new Date(start);
-    d.setUTCDate(d.getUTCDate() + 7);
-    while (d <= end) {
+    // 2. User's matches this season (World Tour) — filter to requested year
+    const userMatches = await db.select().from(matchesTable).where(
+      and(
+        eq(matchesTable.season, season.year),
+        or(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.awayTeamId, team.id)),
+      )
+    );
+    for (const m of userMatches) {
+      const date = roundToDate(season.startDate, season.endDate, m.round, season.totalRounds);
+      if (date < yearStart || date > yearEnd) continue;
+      const isHome    = m.homeTeamId === team.id;
+      const opponent  = isHome ? m.awayTeamName : m.homeTeamName;
+      const phase     = getSlotType(m.round);
+      const evType: EvType = phase === "finals" ? "finals" : phase === "regional" ? "regional" : "world_tour";
+      const completed = m.status === "completed";
+      const location  = m.locationName ?? "TBD";
       events.push({
-        date:     d.toISOString().split("T")[0]!,
-        type:     "financial",
-        title:    "Salary Week",
-        subtitle: "Weekly wages & sponsor income processed",
-        link:     "/finances",
+        date,
+        type: evType,
+        title: `${phase === "world_tour" ? "WT" : phase === "finals" ? "Finals" : "Regional"} R${m.round} · ${location}`,
+        subtitle: `vs ${opponent ?? "TBD"} · ${completed ? "Completed" : "Scheduled"}`,
+        link: "/world-tour",
+        round: m.round,
       });
+    }
+
+    // 3. Weekly financial events (every 7 days from season start, filtered to requested year)
+    {
+      const start = new Date(season.startDate + "T00:00:00Z");
+      const end   = new Date(season.endDate   + "T00:00:00Z");
+      let d = new Date(start);
       d.setUTCDate(d.getUTCDate() + 7);
+      while (d <= end) {
+        const dateStr = d.toISOString().split("T")[0]!;
+        if (dateStr >= yearStart && dateStr <= yearEnd) {
+          events.push({ date: dateStr, type: "financial", title: "Salary Week", subtitle: "Weekly wages & sponsor income processed", link: "/finances" });
+        }
+        d.setUTCDate(d.getUTCDate() + 7);
+      }
+    }
+
+    // 4. Facility upgrades completing this season (filter to requested year)
+    const upgrades = await db
+      .select({ type: facilitiesTable.type, upgradeCompletesAtRound: facilitiesTable.upgradeCompletesAtRound, upgradingToLevel: facilitiesTable.upgradingToLevel })
+      .from(facilitiesTable)
+      .where(and(eq(facilitiesTable.teamId, team.id), isNotNull(facilitiesTable.upgradeCompletesAtRound)));
+    for (const f of upgrades) {
+      if (f.upgradeCompletesAtRound && f.upgradeCompletesAtRound <= season.totalRounds) {
+        const date = roundToDate(season.startDate, season.endDate, f.upgradeCompletesAtRound, season.totalRounds);
+        if (date < yearStart || date > yearEnd) continue;
+        events.push({ date, type: "facility", title: `Upgrade Complete: ${f.type.replace(/_/g, " ")}`, subtitle: `Level ${f.upgradingToLevel ?? "?"} ready`, link: "/club" });
+      }
     }
   }
 
-  // 4. Facility upgrades completing this season
-  const upgrades = await db
-    .select({ type: facilitiesTable.type, upgradeCompletesAtRound: facilitiesTable.upgradeCompletesAtRound, upgradingToLevel: facilitiesTable.upgradingToLevel })
-    .from(facilitiesTable)
-    .where(and(eq(facilitiesTable.teamId, team.id), sql`${facilitiesTable.upgradeCompletesAtRound} IS NOT NULL`));
-
-  for (const f of upgrades) {
-    if (f.upgradeCompletesAtRound && f.upgradeCompletesAtRound <= season.totalRounds) {
-      const date = roundToDate(season.startDate, season.endDate, f.upgradeCompletesAtRound, season.totalRounds);
-      events.push({
-        date, type: "facility",
-        title:    `Upgrade Complete: ${f.type.replace(/_/g, " ")}`,
-        subtitle: `Level ${f.upgradingToLevel ?? "?"} ready`,
-        link:     "/club",
-      });
-    }
-  }
-
-  // 5. Player contracts expiring within the season window
+  // 5. Player/staff contracts expiring in the requested calendar year.
+  //    Queried by real end_date so this works even when there is no matching season.
   const expiringContracts = await db
     .select({ id: contractsTable.id, endDate: contractsTable.endDate, playerId: contractsTable.playerId })
     .from(contractsTable)
     .where(and(
       eq(contractsTable.teamId, team.id),
       eq(contractsTable.status, "active"),
-      sql`${contractsTable.endDate} >= ${season.startDate}`,
-      sql`${contractsTable.endDate} <= ${season.endDate}`,
+      sql`${contractsTable.endDate} >= ${yearStart}`,
+      sql`${contractsTable.endDate} <= ${yearEnd}`,
     ));
-
   for (const c of expiringContracts) {
     const playerRows = await db.select({ name: playersTable.name }).from(playersTable).where(eq(playersTable.id, c.playerId)).limit(1);
     const name = playerRows[0]?.name ?? "Player";
-    events.push({ date: c.endDate, type: "contract", title: `Contract Expires: ${name}`, link: "/team" });
+    events.push({ date: c.endDate, type: "contract", title: `Contract Expires: ${name}`, subtitle: "Review and renew if needed", link: "/team" });
   }
 
-  // Sort by date
   events.sort((a, b) => a.date.localeCompare(b.date));
+
+  // hasSeasonData = a season record exists and overlaps this year
+  const hasSeasonData = season !== null &&
+    season.startDate <= yearEnd && season.endDate >= yearStart;
 
   res.json({
     year,
-    seasonStart:    season.startDate,
-    seasonEnd:      season.endDate,
+    seasonStart:     season?.startDate ?? null,
+    seasonEnd:       season?.endDate   ?? null,
     currentDate,
-    calendarSpeed:  calState?.calendarSpeed ?? "medium",
-    isOlympicSeason: season.isOlympicSeason,
-    hasSeasonData:  true,
+    calendarSpeed:   calState?.calendarSpeed ?? "medium",
+    isOlympicSeason: season?.isOlympicSeason ?? false,
+    hasSeasonData,
     events,
   });
 });

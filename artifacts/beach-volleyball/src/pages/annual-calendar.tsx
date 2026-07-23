@@ -31,6 +31,16 @@ const EVENT_DOT: Record<AnnualEventType, string> = {
   facility:   "bg-cyan-500",
 };
 
+const CATEGORY_LABEL: Record<AnnualEventType, string> = {
+  regional:   "Regional / Pool",
+  world_tour: "World Tour",
+  finals:     "World Finals",
+  holiday:    "Off-Season",
+  financial:  "Financial",
+  contract:   "Contract Deadline",
+  facility:   "Facility / Club",
+};
+
 const LEGEND = [
   { type: "regional"   as AnnualEventType, label: "Regional / Pool",   dot: "bg-blue-500"    },
   { type: "world_tour" as AnnualEventType, label: "World Tour",        dot: "bg-amber-500"   },
@@ -82,7 +92,7 @@ function EventDropdown({
       aria-label="Events"
       onClick={e => e.stopPropagation()}
       className={cn(
-        "absolute z-50 top-full mt-0.5 bg-popover border border-border rounded-lg shadow-lg p-1.5 space-y-0.5 min-w-[200px] max-w-[260px]",
+        "absolute z-50 top-full mt-0.5 bg-popover border border-border rounded-lg shadow-lg p-1.5 space-y-0.5 min-w-[220px] max-w-[280px]",
         preferLeft ? "right-0" : "left-0",
       )}
     >
@@ -92,9 +102,10 @@ function EventDropdown({
           className="w-full text-left flex items-start gap-2 px-2 py-1.5 rounded hover:bg-accent text-xs focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           onClick={() => { navigate(ev.link); onClose(); }}
         >
-          <div className={cn("w-2 h-2 rounded-full shrink-0 mt-0.5", EVENT_DOT[ev.type] ?? "bg-muted")} />
+          <div className={cn("w-2 h-2 rounded-full shrink-0 mt-1", EVENT_DOT[ev.type] ?? "bg-muted")} />
           <div className="min-w-0">
-            <div className="font-medium leading-tight truncate">{ev.title}</div>
+            <div className="font-medium leading-tight">{ev.title}</div>
+            <div className="text-muted-foreground/70 leading-tight text-[10px]">{CATEGORY_LABEL[ev.type]}</div>
             {ev.subtitle && (
               <div className="text-muted-foreground leading-tight truncate">{ev.subtitle}</div>
             )}
@@ -123,23 +134,23 @@ function DayCell({
   colIndex: number;
 }) {
   const [open, setOpen] = useState(false);
-  const [, navigate] = useLocation();
 
   const handleClick = useCallback(() => {
     if (events.length === 0) return;
-    if (events.length === 1) { navigate(events[0]!.link); return; }
     setOpen(o => !o);
-  }, [events, navigate]);
+  }, [events]);
 
   const hasEvents = events.length > 0;
   const preferLeft = colIndex >= 4;
+
+  // Deduplicate dots to one per category, keeping event order
+  const dotTypes = Array.from(new Set(events.map(e => e.type)));
 
   return (
     <div
       className={cn(
         "relative min-h-[32px] p-0.5 rounded text-[10px] select-none",
         isToday && "ring-1 ring-primary bg-primary/10",
-        !isToday && isPast && "opacity-40",
         hasEvents && "cursor-pointer hover:bg-accent/60",
       )}
       onClick={handleClick}
@@ -148,19 +159,25 @@ function DayCell({
       onKeyDown={e => { if (e.key === "Enter" || e.key === " ") handleClick(); }}
       aria-label={hasEvents ? `${day} — ${events.length} event${events.length > 1 ? "s" : ""}` : undefined}
     >
-      <span className={cn("font-medium", isToday && "text-primary font-bold")}>
+      {/* Day number — dimmed for past dates, highlighted for today */}
+      <span className={cn(
+        "font-medium",
+        isToday  && "text-primary font-bold",
+        !isToday && isPast && "text-muted-foreground/50",
+      )}>
         {day}
       </span>
+      {/* Event dots — always full opacity so they're always visible */}
       {hasEvents && (
         <div className="flex flex-wrap gap-px mt-px">
-          {events.slice(0, 3).map((ev, i) => (
+          {dotTypes.slice(0, 4).map((type, i) => (
             <div
               key={i}
-              className={cn("w-1.5 h-1.5 rounded-full", EVENT_DOT[ev.type] ?? "bg-muted")}
+              className={cn("w-1.5 h-1.5 rounded-full", EVENT_DOT[type] ?? "bg-muted")}
             />
           ))}
-          {events.length > 3 && (
-            <span className="text-[8px] leading-none text-muted-foreground">+{events.length - 3}</span>
+          {dotTypes.length > 4 && (
+            <span className="text-[8px] leading-none text-muted-foreground">+{dotTypes.length - 4}</span>
           )}
         </div>
       )}
@@ -312,13 +329,13 @@ export default function AnnualCalendar() {
           </Button>
           <h1 className="text-lg font-bold flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-primary" />
-            Season {viewYear} Calendar
+            {viewYear} Calendar
           </h1>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setViewYear(y => y + 1)}
-            disabled={viewYear >= 2035}
+            disabled={viewYear >= currentInGameYear + 5}
             aria-label="Next year"
           >
             <ChevronRight className="h-4 w-4" />
@@ -370,14 +387,19 @@ export default function AnnualCalendar() {
           {data.isOlympicSeason && (
             <span className="text-amber-400 font-semibold">🏅 Olympic Season</span>
           )}
-          <span>{data.events.length} events scheduled</span>
+          <span>{data.events.length} event{data.events.length !== 1 ? "s" : ""} scheduled</span>
         </div>
       ) : !isLoading ? (
         <p className="text-xs text-muted-foreground">
-          No season data found for {viewYear}.{" "}
-          <button className="underline" onClick={returnToCurrentYear}>
-            Return to current year
-          </button>
+          {(data?.events?.length ?? 0) > 0
+            ? <>{data!.events.length} event{data!.events.length !== 1 ? "s" : ""} found — no full season scheduled for {viewYear} yet.</>
+            : <>No events scheduled for {viewYear} yet.</>
+          }{" "}
+          {viewYear !== currentInGameYear && (
+            <button className="underline" onClick={returnToCurrentYear}>
+              Return to current year
+            </button>
+          )}
         </p>
       ) : null}
 

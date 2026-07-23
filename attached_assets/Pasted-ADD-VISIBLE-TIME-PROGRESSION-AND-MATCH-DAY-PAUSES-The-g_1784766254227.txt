@@ -1,0 +1,220 @@
+ADD VISIBLE TIME PROGRESSION AND MATCH-DAY PAUSES
+
+The game date advances, but it does not feel as though the season is moving forward.
+
+Improve the sense of time passing without redesigning the existing calendar or time controls.
+
+IMPORTANT:
+- Preserve the existing Pause, Slow, Medium, Fast and Advance controls.
+- Normal calendar progression should continue automatically unless the player pauses it.
+- Do not interrupt the player for every AI-controlled fixture.
+- Existing saves must receive these improvements.
+
+1. VISUALLY MARK TIME ON THE ANNUAL CALENDAR
+
+Every calendar date must have one of these visual states:
+
+PAST DAY
+- Slightly faded or darkened.
+- Events and coloured dots remain visible.
+- Completed match days may show a small checkmark.
+
+TODAY
+- Strong gold or cyan border.
+- Subtle filled background.
+- Clearly display “TODAY” when the date is selected or hovered.
+- Today must be immediately recognisable without searching the calendar.
+
+FUTURE DAY
+- Normal calendar appearance.
+- Future event dots remain fully visible.
+
+SELECTED DAY
+- Visually different from Today.
+- Do not let the selected-day styling hide the current date.
+
+As time advances, the calendar must update automatically so completed days gradually become shaded. This should make the year visibly fill up as the season progresses.
+
+2. ADD A PERMANENT NEXT-EVENT DISPLAY
+
+Near the existing game date and time controls, display:
+
+NEXT EVENT
+Event name
+Date
+Countdown
+
+Examples:
+
+NEXT EVENT
+Regional Match vs Bondi Breakers
+3 days
+
+NEXT EVENT
+Contract Deadline
+Tomorrow
+
+NEXT EVENT
+World Tour Match
+Today
+
+This must always find the next relevant event for the player’s team.
+
+Prioritise:
+
+1. Player’s team matches
+2. Required manager decisions
+3. Contract deadlines
+4. Transfer deadlines
+5. Facility completion
+6. Financial events
+7. Training and club events
+
+Clicking the Next Event display should open that event or select its date on the Annual Calendar.
+
+3. AUTOMATIC MATCH-DAY PAUSE
+
+When the calendar reaches a match involving the player’s team:
+
+- Automatically pause time.
+- Do not allow the calendar to advance beyond the match without resolving it.
+- Display a Match Day announcement.
+- Do not automatically pause for unrelated AI-team matches.
+
+MATCH DAY ANNOUNCEMENT
+
+Display a clear modal or full-width notification containing:
+
+MATCH DAY
+Competition name
+Player’s team vs opponent
+Venue
+Scheduled date
+Weather summary if available
+
+Buttons:
+
+- Watch Match
+- Simulate Match
+- Match Preview
+- Decide Later
+
+“Decide Later” keeps the game paused.
+
+Time may resume only after the match has been watched, simulated or otherwise resolved.
+
+4. IMPORTANT EVENT PAUSES
+
+Automatically pause for events requiring the manager’s attention, including:
+
+- Player’s team match
+- Contract expiry requiring a decision
+- Transfer or registration deadline
+- Player or staff offer requiring a response
+- Serious injury
+- Manager job offer
+- Board ultimatum
+- Required Olympic squad selection
+- Required competition registration
+- End-of-season review
+
+Show a concise notification explaining why the game paused and what decision is required.
+
+5. NON-BLOCKING EVENT NOTIFICATIONS
+
+Do not pause for routine events such as:
+
+- AI-team results
+- Ordinary wage payments
+- Minor facility progress
+- Routine training completion
+- General competition results
+
+Instead, show a small notification and add it to the notification centre.
+
+6. MAKE DAILY PROGRESSION VISIBLE
+
+When the date changes:
+
+- Animate the date briefly instead of silently replacing it.
+- Use a short calendar-page flip, number transition or subtle highlight.
+- Briefly show the new day and date.
+- Keep the animation quick so Fast speed remains usable.
+
+Example:
+
+MONDAY
+18 MARCH 2027
+
+At Fast speed, do not animate every individual date slowly. Use a faster transition and stop cleanly when an important event is reached.
+
+7. UPCOMING EVENT WARNINGS
+
+Provide advance warnings for the player’s team:
+
+- Match in 7 days
+- Match in 3 days
+- Match tomorrow
+- Match today
+
+For important deadlines:
+
+- Deadline in 14 days
+- Deadline in 7 days
+- Deadline in 3 days
+- Deadline tomorrow
+- Deadline today
+
+Do not repeatedly show the same warning more than once per milestone.
+
+8. DASHBOARD SEASON PROGRESS
+
+Add a compact Season Progress section to the Dashboard showing:
+
+- Current date
+- Current competition phase
+- Current round
+- Next team match
+- Days until next match
+- Matches played
+- Matches remaining
+
+Include a small progress bar showing how far the current season has advanced.
+
+Example:
+
+SEASON PROGRESS
+Regional Phase — Round 4 of 10
+████████░░░░░░░░ 40%
+Next Match: 3 days
+
+9. TIME-CONTROL SAFETY
+
+- Pause must always stop progression immediately.
+- Slow, Medium and Fast must visibly show which speed is active.
+- The selected speed must persist when navigating between pages.
+- Opening a modal requiring a decision must pause time.
+- Closing an ordinary information panel must not accidentally change the time speed.
+- Never skip unresolved player-team matches or mandatory decisions.
+- Resume the previously selected speed only after the blocking event is resolved.
+- Do not resume automatically after “Decide Later”.
+
+10. VERIFICATION
+
+Test the following:
+
+1. Start time progression on Slow, Medium and Fast.
+2. Confirm the game date visibly changes.
+3. Confirm previous calendar days become shaded.
+4. Confirm Today moves to the correct calendar cell.
+5. Confirm the Next Event countdown decreases.
+6. Reach a player-team match and confirm time pauses.
+7. Confirm the Match Day announcement appears.
+8. Confirm the game cannot advance past an unresolved match.
+9. Resolve the match and confirm time can resume.
+10. Confirm an unrelated AI match does not pause time.
+11. Confirm a contract deadline pauses when a decision is required.
+12. Advance across a month and year boundary.
+13. Confirm it works in existing saved careers.
+
+Report all files changed and the events that now automatically pause time.
