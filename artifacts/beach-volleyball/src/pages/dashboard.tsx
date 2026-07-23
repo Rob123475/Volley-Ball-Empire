@@ -66,6 +66,7 @@ import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
 import { PoachingInbox } from "@/components/career/PoachingInbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useCalendar } from "@/hooks/use-calendar";
 import type { AttentionItem } from "@workspace/api-client-react";
@@ -189,6 +190,100 @@ function CollapsiblePanel({
       </button>
       {open && <div className="mt-2">{children}</div>}
     </div>
+  );
+}
+
+// ── Olympic Dashboard Widget ───────────────────────────────────────────────────
+type OlympicQualContinent = {
+  continent: string;
+  spots: number;
+  teams: { country: string; flag: string; teamRating: number; rank: number; qualStatus: string }[];
+};
+type OlympicQualData = { olympicsYear: number; totalSpots: number; continents: OlympicQualContinent[] };
+
+function OlympicDashboardWidget() {
+  const [, navigate] = useLocation();
+  const { data, isLoading } = useQuery<OlympicQualData>({
+    queryKey: ["olympic-qualifiers-widget"],
+    queryFn: () => fetch("/api/olympics/qualifiers").then(r => r.json()),
+    staleTime: 300_000,
+  });
+
+  return (
+    <Card className="overflow-hidden border-amber-500/20 bg-gradient-to-br from-amber-950/20 via-card to-card">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/10">
+              <span className="text-lg">🏅</span>
+            </div>
+            <div>
+              <CardTitle className="text-base">
+                {data ? `${data.olympicsYear} Olympic Qualifying` : "Olympic Qualifying"}
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Off-season — national teams competing for {data?.totalSpots ?? 12} spots
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-amber-500/30 text-amber-300 hover:bg-amber-950/30 text-xs"
+            onClick={() => navigate("/olympics")}
+          >
+            View All <ChevronRight className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}
+          </div>
+        ) : data ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {data.continents.map(cont => {
+              const qualified = cont.teams.filter(t => t.qualStatus === "qualified");
+              const top = cont.teams[0];
+              return (
+                <div
+                  key={cont.continent}
+                  className="rounded-lg border bg-muted/20 p-2.5 cursor-pointer hover:bg-muted/40 transition-colors"
+                  onClick={() => navigate("/olympics?tab=qualifying")}
+                >
+                  <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 truncate mb-1.5">
+                    {cont.continent}
+                  </div>
+                  {top && (
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-base leading-none">{top.flag}</span>
+                      <span className="text-xs font-semibold truncate">{top.country}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1 mt-1">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: cont.spots }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "h-1.5 w-3 rounded-full",
+                            i < qualified.length ? "bg-emerald-400" : "bg-muted-foreground/20"
+                          )}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground ml-1">
+                      {qualified.length}/{cont.spots}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -600,6 +695,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          OLYMPIC QUALIFIER WIDGET (off-season & Olympic years)
+      ══════════════════════════════════════════════════════════════ */}
+      {((calendar?.seasonRound ?? 0) >= 73 || (calendar?.seasonYear ?? 0) % 4 === 0) && (
+        <OlympicDashboardWidget />
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           ATTENTION REQUIRED

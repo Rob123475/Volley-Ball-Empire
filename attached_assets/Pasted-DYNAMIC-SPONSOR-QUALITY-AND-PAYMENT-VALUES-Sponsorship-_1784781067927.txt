@@ -1,0 +1,90 @@
+DYNAMIC SPONSOR QUALITY AND PAYMENT VALUES
+
+Sponsorship quality and money must rise or fall according to each team’s performance.
+
+Calculate a Sponsor Appeal Rating for every club using:
+
+- Current-season ladder position
+- Recent match form
+- Continental Pool, Continental Group or World Tour level
+- Finals qualification
+- Trophies won
+- Previous-season finishing position
+- Club reputation
+- Fanbase
+- Media exposure
+- Promotion or relegation
+- Financial stability
+
+Weight the current season and most recent completed season more heavily than older history.
+
+SUCCESSFUL CLUBS
+
+Teams that consistently win, reach finals, earn promotion or win trophies must receive:
+
+- Higher-tier sponsors
+- Larger signing bonuses
+- Larger regular payments
+- Better performance bonuses
+- More Global and International offers
+- More offers competing for their sponsorship slots
+
+A major trophy or promotion should create an immediate improvement in available offers.
+
+POORLY PERFORMING CLUBS
+
+Teams that consistently lose, finish near the bottom, suffer relegation or lose reputation must receive:
+
+- Lower-tier sponsors
+- Smaller signing bonuses
+- Smaller regular payments
+- Harder or less generous contract terms
+- Fewer International and Global offers
+- More Local and Regional offers
+
+Relegated teams should experience a noticeable sponsorship-value reduction at their next renewal.
+
+CONTRACT PROTECTION
+
+Performance changes must not rewrite the payment value of an already signed contract.
+
+An active sponsor must continue paying the agreed amount until:
+
+- The contract expires
+- The club terminates it
+- A clearly stated contract clause is triggered
+
+When the contract expires, the club’s current Sponsor Appeal Rating determines the quality and value of its renewal offers.
+
+BALANCING RULES
+
+- Do not base offers entirely on permanent club reputation.
+- A previously successful team that begins performing badly must gradually receive worse offers.
+- A smaller club that performs exceptionally must be able to attract increasingly better sponsors.
+- Use a rolling performance history so one loss does not destroy sponsorship value.
+- Sustained poor performance must have a genuine financial consequence.
+- Sustained success must produce a genuine financial advantage.
+- Prevent unlimited financial growth by scaling offers within balanced minimum and maximum values for each competition level.
+- Apply the same sponsorship-performance rules to user-controlled and AI-controlled clubs.
+
+VISIBLE EXPLANATION
+
+Each offer must show why it was generated, for example:
+
+- Improved offer: World Tour qualification
+- Premium offer: Continental champion
+- Reduced offer: Relegated last season
+- Local offer: Low current club reputation
+- Increased value: Strong recent form
+
+TESTING
+
+Simulate clubs with different results and verify:
+
+1. A championship-winning club receives better offers and more money.
+2. A promoted club receives improved sponsorship offers.
+3. A consistently losing club receives lower-value offers.
+4. A relegated club loses access to inappropriate Global offers.
+5. A struggling former champion gradually drops in sponsor quality.
+6. A successful smaller club can climb through the sponsor tiers.
+7. Existing signed contract values remain unchanged until renewal.

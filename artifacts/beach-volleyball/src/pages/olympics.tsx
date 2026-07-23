@@ -2,7 +2,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Flag, Star, Calendar, CheckCircle2, Medal, FolderOpen } from "lucide-react";
 import NationalSquads       from "@/pages/competition/national-squads";
-import WorldTourLocations   from "@/pages/locations";
+import OlympicQualifiers    from "@/pages/competition/olympic-qualifiers";
 import OlympicSchedule      from "@/pages/competition/olympic-schedule";
 import OlympicResults       from "@/pages/competition/olympic-results";
 import MedalTable           from "@/pages/competition/medal-table";
@@ -41,7 +41,7 @@ export default function OlympicsHub() {
         ))}
       </div>
       {tab === "overview"   && <NationalSquads />}
-      {tab === "qualifying" && <WorldTourLocations />}
+      {tab === "qualifying" && <OlympicQualifiers />}
       {tab === "fixtures"   && <OlympicSchedule />}
       {tab === "results"    && <OlympicResults />}
       {tab === "medals"     && <MedalTable />}

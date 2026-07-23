@@ -3,6 +3,7 @@
 - [Club Rating endpoint](club-rating-endpoint.md) — GET /club-rating on facilities router; weights: players 30%, staff 15%, medical 15%, facilities 25%, youth 15%; label scale from "Startup Club" to "World Class Club".
 - [API type shapes](api-type-shapes.md) — Match.homeTeamName (not homeTeam.name), Season.year (not seasonYear), LadderEntry.rank (not position), HistoryStandingsResponse.seniors[]
 - [Calendar system](calendar-system.md) — round→date mapping, daily processing pipeline, auth guard pattern for new routers
+- [Olympic qualifier system](olympic-qualifier-system.md) — qualifier+schedule endpoints on olympics.ts router; CalendarState lacks isOlympicSeason, derive from seasonYear % 4
 - [AI match automation](ai-match-automation.md) — autoSimulateAIMatches() in calendar.ts; WT away_team_id quirk; batch sql.raw pattern
 - [Staff & youth seeding](staff-youth-seeding.md) — GCS paths, role names, image file selection rules, youth JSON structure
 - [Youth nationality system](youth-nationality-system.md) — two nationality formats coexist (adjective legacy + country-name academy); DB continent values differ from olympics.ts map; replenishment endpoint details.

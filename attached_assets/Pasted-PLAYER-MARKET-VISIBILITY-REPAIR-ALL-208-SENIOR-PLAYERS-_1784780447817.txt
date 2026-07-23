@@ -1,0 +1,80 @@
+PLAYER MARKET VISIBILITY REPAIR — ALL 208 SENIOR PLAYERS MUST BE ACCESSIBLE
+
+The audit confirms that exactly 208 unique senior player records exist:
+
+- 36 signed to teams
+- 76 unassigned players with is_draft_player = true
+- 96 unassigned non-draft free agents
+- Total: 208
+
+The database is complete. Do not create, reseed, delete, merge or replace any player records or images.
+
+The problem is that the UI currently hides many valid players because:
+
+1. The Draft endpoint filters players to age <= 20, so only 4 of the 76 draft-flagged players appear.
+2. The Transfer Market endpoint only shows signed players whose contracts expire within six months.
+3. There is no clear interface showing all 96 free agents and all 76 draft/player-pool players.
+4. Many older players still have stale is_draft_player = true flags.
+
+REQUIRED FIX
+
+Use the existing combined Player Market page. Do not create a separate Draft page.
+
+Add fast-filter pills/tabs at the top:
+
+1. ALL PLAYERS — all 208 senior players
+2. AVAILABLE PLAYERS — every unassigned player, including both free agents and player-pool/draft players
+3. FREE AGENTS — team_id is null and is_draft_player is false
+4. PLAYER POOL — team_id is null and is_draft_player is true
+5. SIGNED PLAYERS — team_id is not null
+6. TRANSFER AVAILABLE — signed players genuinely available for transfer under the game’s transfer rules
+
+Show the live count on every pill.
+
+Expected starting counts:
+
+- All Players: 208
+- Available Players: 172
+- Free Agents: 96
+- Player Pool: 76
+- Signed Players: 36
+- Transfer Available: calculated separately
+
+IMPORTANT RULES
+
+- Remove the age <= 20 filter from the Player Pool display.
+- These are senior players aged 18–40. A senior player must not disappear merely because she is older than 20.
+- Do not automatically clear is_draft_player flags.
+- Treat is_draft_player as membership in the Player Pool, not as a youth-age restriction.
+- All 172 unassigned players must be available for clubs to inspect and recruit, subject to the normal finance, roster and contract rules.
+- Player Pool players must remain available for national-team and Olympic selection based on nationality, even while unsigned.
+- Keep every player image connected to its existing database record.
+- Do not use or import the obsolete 120 files inside /public/players/.
+- Preserve all 208 records under the Protected Player Rule.
+- Player categories must be mutually exclusive in the summary totals so the total always equals 208.
+- Searching and filtering by continent, nationality, age, role, star rating and availability must work without changing the total database records.
+
+PLAYER CARD STATUS
+
+Every player card must visibly show one status:
+
+- Signed — display club name
+- Free Agent
+- Player Pool
+- Transfer Available, where applicable
+
+TESTS REQUIRED
+
+Verify and report:
+
+1. All Players displays 208.
+2. Available Players displays 172.
+3. Free Agents displays 96.
+4. Player Pool displays 76, not 4.
+5. Signed Players displays 36.
+6. No player is duplicated or missing between the exclusive ownership groups.
+7. Every one of the 208 player records loads its correct image.
+8. Search and filters reset correctly and cannot make players permanently disappear.
+9. The counts remain correct after refreshing and restarting the application.
+
+Do not alter the competition structure, player attributes, player nationalities, images, contracts or team assignments while completing this repair.

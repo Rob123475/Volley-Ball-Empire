@@ -1,0 +1,212 @@
+REGENERATIVE SPONSORSHIP SYSTEM
+
+Upgrade the existing sponsorship system so sponsor offers regenerate throughout a 100-year career.
+
+Do not create a duplicate sponsorship page. Extend the existing Finance/Sponsorship interface and preserve current saves.
+
+CORE RULE
+
+Sponsorship offers are renewable opportunities, not a finite one-time database list. New fictional sponsors must continue appearing during every season of the career.
+
+SPONSOR GENERATION
+
+Procedurally generate fictional sponsor companies using reusable name components and business categories.
+
+Categories may include:
+
+- Sportswear
+- Health and fitness
+- Food and beverages
+- Travel and accommodation
+- Technology
+- Finance
+- Automotive
+- Tourism
+- Media
+- Local businesses
+- International brands
+
+Do not use real company names, logos or trademarks.
+
+Each generated sponsor requires:
+
+- Unique ID
+- Company name
+- Business category
+- Sponsor tier
+- Home continent or Global status
+- Reputation requirement
+- Contract length
+- Base payment
+- Payment frequency
+- Signing bonus
+- Performance bonuses
+- Optional objective
+- Contract start date
+- Contract end date
+- Offer expiry date
+- Active, available, rejected or expired status
+
+SPONSOR TIERS
+
+Create five balanced levels:
+
+1. Local
+2. Regional
+3. Continental
+4. International
+5. Global
+
+Offer quality must depend on:
+
+- Club reputation
+- Competition level
+- Recent results
+- Ladder position
+- Trophies and achievements
+- Fanbase
+- Media exposure
+- Manager reputation
+- Financial stability
+
+New clubs should mainly receive Local and Regional offers. Successful clubs should gradually unlock stronger sponsors. Do not offer impossible Global contracts to a new club.
+
+CONTRACT LENGTHS
+
+Generate contracts lasting:
+
+- 1 season
+- 2 seasons
+- 3 seasons
+
+Longer contracts provide security but should not always pay more than shorter high-performance offers.
+
+PAYMENTS AND BONUSES
+
+Support:
+
+- Signing payment
+- Weekly or monthly base payments
+- Tournament appearance bonus
+- Match-win bonus
+- Finals qualification bonus
+- Continental championship bonus
+- World Tour championship bonus
+- Olympic participation publicity bonus where appropriate
+
+Do not pay the same signing bonus more than once.
+
+REGENERATION LOGIC
+
+1. Maintain at least 6 available sponsorship offers for the user’s club.
+2. Generate new offers when:
+   - A sponsorship offer expires
+   - An offer is rejected
+   - An active sponsorship contract ends
+   - The club’s reputation tier changes
+   - A new season begins
+3. Run a complete sponsorship refresh at the start of every season.
+4. Add occasional new offers during the season after major achievements.
+5. Expired and rejected offers must be replaced, but not necessarily immediately by an identical offer.
+6. Never allow the offer pool to permanently run out.
+7. Avoid generating the same company name more than once within the same career.
+8. Store generated sponsors and contracts in the save file so refreshing the page does not reroll them.
+9. Only generate replacements through game-time events, not browser refreshes.
+
+PLAYER CHOICE
+
+The player must manually accept or reject offers.
+
+Do not automatically replace an active user sponsorship unless:
+
+- Its contract expires, or
+- The player terminates it and pays any applicable cancellation fee.
+
+Allow the player to compare offers before accepting one.
+
+SPONSOR SLOTS
+
+Support these sponsorship slots:
+
+- Primary Sponsor: maximum 1
+- Kit Sponsor: maximum 1
+- Supporting Sponsors: maximum 3
+
+An offer must state which slot it occupies. A player cannot accept a sponsorship when its required slot is already occupied unless the existing contract has expired or is terminated.
+
+OBJECTIVES
+
+Objectives must be achievable and scaled to the club:
+
+- Finish above a specified ladder position
+- Win a certain number of matches
+- Qualify for finals
+- Reach a continental event
+- Win a trophy
+- Maintain a minimum club reputation
+
+Do not generate objectives for competitions the club cannot enter during that contract period.
+
+Failed objectives may remove a bonus, but should not automatically bankrupt the club. Any penalty must be clearly displayed before acceptance.
+
+INTERFACE
+
+On the existing Sponsorship section, show:
+
+- Active Sponsorships
+- Available Offers
+- Expired Contracts
+- Sponsor slot
+- Contract value
+- Contract duration
+- Regular payment
+- Available bonuses
+- Objectives
+- Expiry date
+- Accept button
+- Reject button
+- Terminate button and cancellation cost
+
+Add filters for:
+
+- All offers
+- Sponsor tier
+- Sponsor slot
+- Contract length
+- Local or Global
+
+Show a countdown for offers that are close to expiring.
+
+AI CLUBS
+
+AI-controlled clubs must also receive and renew sponsorships appropriate to their reputation and results. Their sponsorship income must feed into their finances without taking offers away from the user’s offer pool.
+
+SAVE-SAFETY
+
+Add any required database fields through a safe migration.
+
+Do not delete or invalidate:
+
+- Existing careers
+- Existing financial history
+- Existing sponsors
+- Existing active sponsorship contracts
+
+Existing sponsors should be converted into the new system and allowed to complete their current contracts.
+
+TESTING
+
+Test and report that:
+
+1. A new club receives at least 6 suitable offers.
+2. Accepting an offer creates one active contract.
+3. Payments occur only at the scheduled frequency.
+4. The signing bonus is paid only once.
+5. Rejected and expired offers are replaced.
+6. New-season regeneration works.
+7. Major achievements can trigger improved offers.
+8. Browser refresh does not regenerate or duplicate offers.
+9. Sponsor names remain unique throughout the career.
+10. The system continues functioning after simulating at least 20 seasons.
+11. Active sponsor slot limits cannot be exceeded.
+12. Existing saved careers still load successfully.
