@@ -67,6 +67,7 @@ import { PoachingInbox } from "@/components/career/PoachingInbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useCalendar } from "@/hooks/use-calendar";
 import type { AttentionItem } from "@workspace/api-client-react";
 
 const weatherIcons: Record<string, string> = {
@@ -198,6 +199,8 @@ export default function Dashboard() {
   const [upcomingOpen,     setUpcomingOpen]     = useState(false);
   const [worldNewsOpen,    setWorldNewsOpen]    = useState(false);
   const [managerMovesOpen, setManagerMovesOpen] = useState(false);
+
+  const { calendar } = useCalendar();
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
     query: { queryKey: getGetDashboardQueryKey() },
@@ -346,6 +349,30 @@ export default function Dashboard() {
               <Calendar className="h-3 w-3 text-white/50" />
               <span className="text-[11px] font-black uppercase tracking-widest text-white/70">{season?.name ?? "Season 1"}</span>
             </div>
+
+            {/* Season round progress pill */}
+            {calendar && calendar.seasonTotalRounds > 0 && (
+              <>
+                <div className="h-3 w-px bg-white/15" />
+                <div className="flex items-center gap-2 bg-white/8 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/50">Round</span>
+                  <span className="text-[11px] font-black tabular-nums text-white/80">
+                    {calendar.seasonRound}
+                    <span className="text-white/35 font-semibold">/{calendar.seasonTotalRounds}</span>
+                  </span>
+                  <div className="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-amber-400/70 transition-all duration-500"
+                      style={{ width: `${Math.round((calendar.seasonRound / calendar.seasonTotalRounds) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-white/40 font-semibold tabular-nums">
+                    {Math.round((calendar.seasonRound / calendar.seasonTotalRounds) * 100)}%
+                  </span>
+                </div>
+              </>
+            )}
+
             <div className="h-3 w-px bg-white/15" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/25">Beach Volley Pro</span>
             <div className="flex-1" />
