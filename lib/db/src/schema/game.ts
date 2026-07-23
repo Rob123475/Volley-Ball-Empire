@@ -414,6 +414,19 @@ export const promoDealsTable = pgTable("promo_deals", {
   isGlobal: boolean("is_global").notNull().default(true),
   imageUrl: varchar("image_url", { length: 500 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  // Regenerative sponsor system (v2) — new columns with safe defaults
+  tier: varchar("tier", { length: 20 }),
+  slot: varchar("slot", { length: 20 }),
+  category: varchar("category", { length: 50 }),
+  signingBonus: numeric("signing_bonus", { precision: 10, scale: 2 }).default("0"),
+  monthlyPayment: numeric("monthly_payment", { precision: 10, scale: 2 }).default("0"),
+  contractLengthSeasons: integer("contract_length_seasons"),
+  contractStartDate: varchar("contract_start_date", { length: 20 }),
+  contractEndDate: varchar("contract_end_date", { length: 20 }),
+  appealReason: text("appeal_reason"),
+  status: varchar("status", { length: 20 }).default("available"),
+  lastPaymentDate: varchar("last_payment_date", { length: 20 }),
+  signingBonusPaid: boolean("signing_bonus_paid").default(false),
 });
 
 export type PromoDeal = typeof promoDealsTable.$inferSelect;

@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable, calendarStateTable } from "@workspace/db";
+import { eq, and, desc, sql } from "drizzle-orm";
+import { generateOfferBatch } from "../utils/sponsor-generator.js";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -282,6 +283,302 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   await db.update(teamsTable).set({ budget: String(Number(team.budget) + finalAmount) }).where(eq(teamsTable.id, team.id));
 
   res.json(serializeTx(tx));
+});
+
+/* ── Sponsor system helpers ──────────────────────────────────── */
+
+function daysDiff(from: string, to: string): number {
+  const a = new Date(from).getTime();
+  const b = new Date(to).getTime();
+  return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+}
+
+async function getGameDate(teamId: number): Promise<string> {
+  const rows = await db.select({ currentDate: calendarStateTable.currentDate })
+    .from(calendarStateTable).where(eq(calendarStateTable.teamId, teamId)).limit(1);
+  return rows[0]?.currentDate ?? new Date().toISOString().split("T")[0];
+}
+
+/* ── Regenerative sponsor offers ─────────────────────────────── */
+
+router.get("/finances/sponsor-offers", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.json([]); return; }
+
+  const gameDate = await getGameDate(team.id);
+
+  // Expire offers past their expiresAt date
+  await db.update(promoDealsTable)
+    .set({ status: "expired" })
+    .where(and(
+      eq(promoDealsTable.teamId, team.id),
+      eq(promoDealsTable.status, "available"),
+      sql`${promoDealsTable.expiresAt} < ${gameDate}`,
+    ));
+
+  // Fetch current available offers
+  let available = await db.select().from(promoDealsTable)
+    .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.status, "available")));
+
+  if (available.length < 6) {
+    // Get all sponsor names ever used by this team to avoid repeats
+    const allTeamDeals = await db.select({ sponsor: promoDealsTable.sponsor })
+      .from(promoDealsTable).where(eq(promoDealsTable.teamId, team.id));
+    const usedNames = new Set(allTeamDeals.map(d => d.sponsor));
+
+    const toGenerate = 6 - available.length;
+    const newOffers = generateOfferBatch({ team, usedNames, gameDate, count: toGenerate });
+
+    for (const offer of newOffers) {
+      await db.insert(promoDealsTable).values({
+        teamId:                team.id,
+        sponsor:               offer.sponsor,
+        description:           offer.description,
+        amount:                offer.amount,
+        requirementWins:       offer.requirementWins,
+        expiresAt:             offer.expiresAt,
+        isAccepted:            false,
+        isGlobal:              false,
+        tier:                  offer.tier,
+        slot:                  offer.slot,
+        category:              offer.category,
+        signingBonus:          offer.signingBonus,
+        monthlyPayment:        offer.monthlyPayment,
+        contractLengthSeasons: offer.contractLengthSeasons,
+        contractStartDate:     null,
+        contractEndDate:       null,
+        appealReason:          offer.appealReason,
+        status:                "available",
+        lastPaymentDate:       null,
+        signingBonusPaid:      false,
+      });
+    }
+
+    available = await db.select().from(promoDealsTable)
+      .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.status, "available")));
+  }
+
+  res.json(available.map(d => ({
+    ...d,
+    amount:        Number(d.amount),
+    signingBonus:  Number(d.signingBonus ?? 0),
+    monthlyPayment: Number(d.monthlyPayment ?? 0),
+  })));
+});
+
+/* ── Active sponsorship contracts ────────────────────────────── */
+
+router.get("/finances/sponsor-active", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.json([]); return; }
+
+  const gameDate = await getGameDate(team.id);
+
+  // Expire contracts past their contractEndDate
+  await db.update(promoDealsTable)
+    .set({ status: "expired" })
+    .where(and(
+      eq(promoDealsTable.teamId, team.id),
+      eq(promoDealsTable.isAccepted, true),
+      eq(promoDealsTable.status, "accepted"),
+      sql`${promoDealsTable.contractEndDate} IS NOT NULL AND ${promoDealsTable.contractEndDate} < ${gameDate}`,
+    ));
+
+  // Fetch active contracts
+  const active = await db.select().from(promoDealsTable)
+    .where(and(
+      eq(promoDealsTable.teamId, team.id),
+      eq(promoDealsTable.isAccepted, true),
+      eq(promoDealsTable.status, "accepted"),
+    ));
+
+  // Process due monthly payments
+  let teamBudget = Number(team.budget);
+  for (const contract of active) {
+    const monthly = Number(contract.monthlyPayment ?? 0);
+    if (monthly <= 0) continue;
+    const lastPaid = contract.lastPaymentDate;
+    if (!lastPaid || daysDiff(lastPaid, gameDate) >= 30) {
+      await db.update(promoDealsTable)
+        .set({ lastPaymentDate: gameDate })
+        .where(eq(promoDealsTable.id, contract.id));
+      await db.insert(financeTransactionsTable).values({
+        teamId:      team.id,
+        type:        "income",
+        amount:      String(monthly),
+        description: `Monthly sponsorship: ${contract.sponsor}`,
+        category:    "sponsorship",
+        date:        gameDate,
+      });
+      teamBudget += monthly;
+    }
+  }
+  if (teamBudget !== Number(team.budget)) {
+    await db.update(teamsTable)
+      .set({ budget: String(teamBudget) })
+      .where(eq(teamsTable.id, team.id));
+  }
+
+  const refreshed = await db.select().from(promoDealsTable)
+    .where(and(
+      eq(promoDealsTable.teamId, team.id),
+      eq(promoDealsTable.isAccepted, true),
+      eq(promoDealsTable.status, "accepted"),
+    ));
+
+  res.json(refreshed.map(d => ({
+    ...d,
+    amount:         Number(d.amount),
+    signingBonus:   Number(d.signingBonus ?? 0),
+    monthlyPayment: Number(d.monthlyPayment ?? 0),
+    currentWins:    team.wins,
+    progressPct:    d.requirementWins > 0
+      ? Math.min(100, Math.round((team.wins / d.requirementWins) * 100))
+      : 100,
+    isComplete:     team.wins >= d.requirementWins,
+    daysRemaining:  d.contractEndDate
+      ? Math.max(0, daysDiff(gameDate, d.contractEndDate))
+      : null,
+  })));
+});
+
+/* ── Accept a new-system sponsor offer ───────────────────────── */
+
+router.post("/finances/sponsor-offers/:id/accept", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const id   = parseInt(req.params.id);
+
+  const deal = await db.query.promoDealsTable.findFirst({ where: eq(promoDealsTable.id, id) });
+  if (!deal) { res.status(404).json({ error: "Deal not found" }); return; }
+  if (deal.status !== "available") { res.status(400).json({ error: "Offer is no longer available" }); return; }
+
+  const slot = deal.slot ?? "supporting";
+  const activeContracts = await db.select().from(promoDealsTable)
+    .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.status, "accepted")));
+
+  if (slot === "primary" && activeContracts.some(d => d.slot === "primary")) {
+    res.status(400).json({ error: "Primary sponsor slot already occupied." }); return;
+  }
+  if (slot === "kit" && activeContracts.some(d => d.slot === "kit")) {
+    res.status(400).json({ error: "Kit sponsor slot already occupied." }); return;
+  }
+  if (slot === "supporting" && activeContracts.filter(d => d.slot === "supporting").length >= 3) {
+    res.status(400).json({ error: "All 3 supporting slots are occupied." }); return;
+  }
+
+  const gameDate        = await getGameDate(team.id);
+  const contractLength  = deal.contractLengthSeasons ?? 1;
+  const endDate         = new Date(gameDate);
+  endDate.setDate(endDate.getDate() + contractLength * 90);
+  const contractEndDate = endDate.toISOString().split("T")[0];
+  const signingBonus    = Number(deal.signingBonus ?? 0);
+
+  await db.update(promoDealsTable).set({
+    isAccepted:       true,
+    status:           "accepted",
+    contractStartDate: gameDate,
+    contractEndDate,
+    signingBonusPaid: signingBonus > 0,
+    lastPaymentDate:  null,
+  }).where(eq(promoDealsTable.id, id));
+
+  if (signingBonus > 0) {
+    await db.insert(financeTransactionsTable).values({
+      teamId:      team.id,
+      type:        "income",
+      amount:      String(signingBonus),
+      description: `Signing bonus: ${deal.sponsor}`,
+      category:    "sponsorship",
+      date:        gameDate,
+    });
+    await db.update(teamsTable)
+      .set({ budget: String(Number(team.budget) + signingBonus) })
+      .where(eq(teamsTable.id, team.id));
+  }
+
+  res.json({ success: true, signingBonus });
+});
+
+/* ── Reject a sponsor offer ──────────────────────────────────── */
+
+router.post("/finances/sponsor-offers/:id/reject", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const id = parseInt(req.params.id);
+
+  await db.update(promoDealsTable)
+    .set({ status: "rejected" })
+    .where(and(eq(promoDealsTable.id, id), eq(promoDealsTable.teamId, team.id)));
+
+  res.json({ success: true });
+});
+
+/* ── Terminate an active contract ────────────────────────────── */
+
+router.post("/finances/sponsor-active/:id/terminate", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const id   = parseInt(req.params.id);
+
+  const contract = await db.query.promoDealsTable.findFirst({
+    where: and(eq(promoDealsTable.id, id), eq(promoDealsTable.teamId, team.id)),
+  });
+  if (!contract)                    { res.status(404).json({ error: "Contract not found" }); return; }
+  if (contract.status !== "accepted") { res.status(400).json({ error: "Contract is not active" }); return; }
+
+  const gameDate   = await getGameDate(team.id);
+  const monthly    = Number(contract.monthlyPayment ?? 0);
+  const daysLeft   = contract.contractEndDate ? Math.max(0, daysDiff(gameDate, contract.contractEndDate)) : 0;
+  const monthsLeft = Math.ceil(daysLeft / 30);
+  const cancelFee  = Math.round(monthly * Math.min(monthsLeft, 2) / 100) * 100;
+
+  await db.update(promoDealsTable)
+    .set({ status: "expired" })
+    .where(eq(promoDealsTable.id, id));
+
+  if (cancelFee > 0) {
+    await db.insert(financeTransactionsTable).values({
+      teamId:      team.id,
+      type:        "expense",
+      amount:      String(cancelFee),
+      description: `Contract termination fee: ${contract.sponsor}`,
+      category:    "other",
+      date:        gameDate,
+    });
+    await db.update(teamsTable)
+      .set({ budget: String(Math.max(0, Number(team.budget) - cancelFee)) })
+      .where(eq(teamsTable.id, team.id));
+  }
+
+  res.json({ success: true, cancellationFee: cancelFee });
+});
+
+/* ── Get termination fee preview ─────────────────────────────── */
+
+router.get("/finances/sponsor-active/:id/terminate-preview", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const id   = parseInt(req.params.id);
+
+  const contract = await db.query.promoDealsTable.findFirst({
+    where: and(eq(promoDealsTable.id, id), eq(promoDealsTable.teamId, team.id)),
+  });
+  if (!contract) { res.status(404).json({ error: "Contract not found" }); return; }
+
+  const gameDate   = await getGameDate(team.id);
+  const monthly    = Number(contract.monthlyPayment ?? 0);
+  const daysLeft   = contract.contractEndDate ? Math.max(0, daysDiff(gameDate, contract.contractEndDate)) : 0;
+  const monthsLeft = Math.ceil(daysLeft / 30);
+  const cancelFee  = Math.round(monthly * Math.min(monthsLeft, 2) / 100) * 100;
+
+  res.json({ cancellationFee: cancelFee, daysLeft, monthsLeft });
 });
 
 export default router;

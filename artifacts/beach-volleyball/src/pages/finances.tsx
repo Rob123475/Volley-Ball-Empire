@@ -19,7 +19,7 @@ import {
   type StaffWageBill,
   type SponsorReputation,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,18 @@ import {
   PieChart,
   CalendarDays,
   ChevronRight,
+  Handshake,
+  Award,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  X,
+  Sparkles,
+  Building2,
+  BadgeCheck,
+  Shirt,
+  Users,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,10 +73,36 @@ function formatCompact(val: number): string {
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
+interface SponsorOffer {
+  id: number;
+  sponsor: string;
+  description: string;
+  amount: number;
+  signingBonus: number;
+  monthlyPayment: number;
+  tier: string | null;
+  slot: string | null;
+  category: string | null;
+  contractLengthSeasons: number | null;
+  requirementWins: number;
+  expiresAt: string;
+  appealReason: string | null;
+  status: string | null;
+}
+
+interface ActiveContract extends SponsorOffer {
+  contractStartDate: string | null;
+  contractEndDate: string | null;
+  lastPaymentDate: string | null;
+  currentWins: number;
+  progressPct: number;
+  isComplete: boolean;
+  daysRemaining: number | null;
+}
+
 export default function Finances() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [selectedSponsorId, setSelectedSponsorId] = useState<number | null>(null);
 
   const { data: summary, isLoading: summaryLoading } = useGetFinanceSummary({
     query: { queryKey: getGetFinanceSummaryQueryKey() }
@@ -84,6 +122,99 @@ export default function Finances() {
   const { data: sponsorRep, isLoading: sponsorRepLoading } = useGetSponsorReputation();
 
   const acceptDealMutation = useAcceptPromoDeal();
+  const [filterTier, setFilterTier] = useState("all");
+  const [filterSlot, setFilterSlot] = useState("all");
+  const [terminateId, setTerminateId] = useState<number | null>(null);
+  const [terminateFee, setTerminateFee] = useState(0);
+  const [terminateName, setTerminateName] = useState("");
+
+  const { data: sponsorOffers, isLoading: offersLoading, refetch: refetchOffers } = useQuery<SponsorOffer[]>({
+    queryKey: ["sponsor-offers"],
+    queryFn: async () => {
+      const r = await fetch("/api/finances/sponsor-offers", { credentials: "include" });
+      if (!r.ok) throw new Error("Failed to load offers");
+      return r.json();
+    },
+  });
+
+  const { data: sponsorActive, isLoading: activeLoading, refetch: refetchActive } = useQuery<ActiveContract[]>({
+    queryKey: ["sponsor-active"],
+    queryFn: async () => {
+      const r = await fetch("/api/finances/sponsor-active", { credentials: "include" });
+      if (!r.ok) throw new Error("Failed to load active contracts");
+      return r.json();
+    },
+  });
+
+  const acceptOfferMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const r = await fetch(`/api/finances/sponsor-offers/${id}/accept`, { method: "POST", credentials: "include" });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Failed to accept");
+      return data;
+    },
+    onSuccess: (data) => {
+      refetchOffers();
+      refetchActive();
+      queryClient.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
+      toast({
+        title: "Contract Signed!",
+        description: data.signingBonus > 0
+          ? `Signing bonus of ${formatCompact(data.signingBonus)} deposited.`
+          : "Sponsorship contract is now active.",
+      });
+    },
+    onError: (e: Error) => toast({ title: "Cannot Accept", description: e.message, variant: "destructive" }),
+  });
+
+  const rejectOfferMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const r = await fetch(`/api/finances/sponsor-offers/${id}/reject`, { method: "POST", credentials: "include" });
+      if (!r.ok) throw new Error("Failed to reject");
+      return r.json();
+    },
+    onSuccess: () => {
+      refetchOffers();
+      toast({ title: "Offer Declined", description: "A replacement offer will be generated." });
+    },
+  });
+
+  const terminateMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const r = await fetch(`/api/finances/sponsor-active/${id}/terminate`, { method: "POST", credentials: "include" });
+      if (!r.ok) throw new Error("Failed to terminate");
+      return r.json();
+    },
+    onSuccess: (data) => {
+      setTerminateId(null);
+      refetchActive();
+      queryClient.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
+      toast({
+        title: "Contract Terminated",
+        description: data.cancellationFee > 0
+          ? `Cancellation fee of ${formatCompact(data.cancellationFee)} charged.`
+          : "Contract ended with no penalty.",
+        variant: data.cancellationFee > 0 ? "destructive" : "default",
+      });
+    },
+  });
+
+  const activeContracts = sponsorActive ?? [];
+  const isPrimaryOccupied  = activeContracts.some(d => d.slot === "primary");
+  const isKitOccupied      = activeContracts.some(d => d.slot === "kit");
+  const supportingCount    = activeContracts.filter(d => d.slot === "supporting").length;
+  const isSlotOccupied = (slot: string) => {
+    if (slot === "primary")   return isPrimaryOccupied;
+    if (slot === "kit")       return isKitOccupied;
+    if (slot === "supporting") return supportingCount >= 3;
+    return false;
+  };
+
+  const filteredOffers = (sponsorOffers ?? []).filter(o => {
+    if (filterTier !== "all" && o.tier !== filterTier) return false;
+    if (filterSlot !== "all" && o.slot !== filterSlot) return false;
+    return true;
+  });
 
   const handleAcceptDeal = (dealId: number, isSeason = false) => {
     acceptDealMutation.mutate({ id: dealId }, {
@@ -104,11 +235,6 @@ export default function Finances() {
   if (summaryLoading || transLoading || dealsLoading) {
     return <div className="space-y-8"><Skeleton className="h-32 w-full" /><Skeleton className="h-96 w-full" /></div>;
   }
-
-  // Top 3 by value → Season Sponsors; rest → regular deals
-  const sortedDeals = [...(deals ?? [])].sort((a, b) => b.amount - a.amount);
-  const seasonSponsors = sortedDeals.slice(0, 3);
-  const otherDeals = sortedDeals.slice(3);
 
   const netPosition = (summary?.monthlyIncome || 0) - (summary?.monthlyExpenses || 0);
 
@@ -153,152 +279,197 @@ export default function Finances() {
       {/* Sponsor Reputation */}
       <SponsorReputationCard data={sponsorRep} isLoading={sponsorRepLoading} />
 
-      {/* Season Sponsors */}
+      {/* ── Active Sponsorships ── */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Trophy className="h-5 w-5 text-yellow-500" />
-          <h3 className="text-lg md:text-xl font-bold">Season Sponsors</h3>
-          <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Choose 1</Badge>
+        <div className="flex items-center gap-2 mb-4">
+          <Handshake className="h-5 w-5 text-primary" />
+          <h3 className="text-lg md:text-xl font-bold">Active Contracts</h3>
+          {!activeLoading && (
+            <Badge variant="secondary">
+              {activeContracts.length} {activeContracts.length === 1 ? "contract" : "contracts"}
+            </Badge>
+          )}
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          {seasonSponsors.map((deal) => {
-            const isSelected = selectedSponsorId === deal.id;
-            return (
-              <div
-                key={deal.id}
-                onClick={() => setSelectedSponsorId(deal.id)}
-                className={cn(
-                  "relative overflow-hidden rounded-xl border-2 cursor-pointer transition-all duration-200 group",
-                  isSelected
-                    ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
-                    : "border-border hover:border-primary/50"
-                )}
-              >
-                {/* Image banner */}
-                <div className="relative h-28 sm:h-36 overflow-hidden">
-                  <img
-                    src={deal.imageUrl ?? undefined}
-                    alt={deal.sponsor}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  {isSelected && (
-                    <div className="absolute top-2 right-2 bg-primary rounded-full p-1">
-                      <Star className="h-4 w-4 text-white fill-white" />
-                    </div>
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <div className="text-white font-bold text-base leading-tight drop-shadow">{deal.sponsor}</div>
-                    <div className="text-white/70 text-xs">Requires {deal.requirementWins} wins • Expires {format(new Date(deal.expiresAt), "MMM d")}</div>
-                  </div>
-                </div>
-
-                {/* Card footer */}
-                <div className="p-3 flex items-center justify-between bg-card">
-                  <div className="text-2xl font-black text-primary">{formatCompact(deal.amount)}</div>
-                  <Button
-                    size="sm"
-                    variant={isSelected ? "default" : "outline"}
-                    onClick={(e) => { e.stopPropagation(); handleAcceptDeal(deal.id, true); }}
-                    disabled={acceptDealMutation.isPending}
-                    data-testid={`button-accept-deal-${deal.id}`}
-                    className={isSelected ? "" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity"}
-                  >
-                    {isSelected ? "Activate" : "Select"}
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {selectedSponsorId && (
-          <p className="text-xs text-muted-foreground mt-2 text-center">
-            Click <span className="font-bold text-foreground">Activate</span> on your chosen sponsor to secure the deal.
-          </p>
+        {activeLoading ? (
+          <div className="grid gap-3 md:grid-cols-2">
+            <Skeleton className="h-44 rounded-xl" /><Skeleton className="h-44 rounded-xl" />
+          </div>
+        ) : activeContracts.length === 0 ? (
+          <div className="border-2 border-dashed rounded-xl p-8 text-center space-y-2">
+            <Handshake className="h-10 w-10 mx-auto text-muted-foreground/30" />
+            <p className="text-sm font-medium text-muted-foreground">No active sponsorships</p>
+            <p className="text-xs text-muted-foreground">Accept an offer below to start earning monthly payments.</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {activeContracts.map(c => (
+              <ActiveContractCard
+                key={c.id}
+                contract={c}
+                onTerminate={(id, fee, name) => { setTerminateId(id); setTerminateFee(fee); setTerminateName(name); }}
+              />
+            ))}
+          </div>
         )}
       </div>
 
-      <div className="grid gap-3 md:gap-6 lg:grid-cols-2">
-        {/* Income & Expenses */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Income & Expenses</CardTitle>
-            <CardDescription>Visual breakdown of your cashflow.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Income Sources</h4>
-              {(() => {
-                const prizeMoney   = summary?.incomeSources?.prizeMoney   || 0;
-                const sponsorships = summary?.incomeSources?.sponsorships || 0;
-                const promoDeals   = summary?.incomeSources?.promoDeals   || 0;
-                const hasIncome    = prizeMoney + sponsorships + promoDeals > 0;
-                return hasIncome ? (
-                  <div className="space-y-2">
-                    <BreakdownRow label="Prize Money" amount={prizeMoney} total={summary?.monthlyIncome || 1} color="bg-green-500" />
-                    <BreakdownRow label="Sponsorships" amount={sponsorships} total={summary?.monthlyIncome || 1} color="bg-blue-500" />
-                    <BreakdownRow label="Promo Deals" amount={promoDeals} total={summary?.monthlyIncome || 1} color="bg-gray-500" />
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">No income recorded yet.</p>
-                );
-              })()}
-            </div>
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Expense Breakdown</h4>
-              {(() => {
-                const playerSalaries = summary?.expenseBreakdown?.playerSalaries || 0;
-                const staffSalaries  = summary?.expenseBreakdown?.staffSalaries  || 0;
-                const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
-                const other          = summary?.expenseBreakdown?.other          || 0;
-                const hasExpenses    = playerSalaries + staffSalaries + trainingCosts + other > 0;
-                return hasExpenses ? (
-                  <div className="space-y-2">
-                    <BreakdownRow label="Player Salaries" amount={playerSalaries} total={summary?.monthlyExpenses || 1} color="bg-red-500" />
-                    <BreakdownRow label="Staff" amount={staffSalaries} total={summary?.monthlyExpenses || 1} color="bg-orange-500" />
-                    <BreakdownRow label="Training" amount={trainingCosts} total={summary?.monthlyExpenses || 1} color="bg-purple-500" />
-                    <BreakdownRow label="Other" amount={other} total={summary?.monthlyExpenses || 1} color="bg-gray-500" />
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">No expenses recorded yet.</p>
-                );
-              })()}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Other Promo Deals */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Promo Deals</CardTitle>
-            <CardDescription>Smaller sponsorship opportunities available to accept.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {otherDeals.map((deal) => (
-              <div key={deal.id} className="flex items-center gap-3 p-3 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 transition-all group">
-                <div className="h-14 w-14 rounded-lg overflow-hidden flex-shrink-0 border border-primary/20">
-                  <img
-                    src={deal.imageUrl ?? undefined}
-                    alt={deal.sponsor}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm truncate">{deal.sponsor}</div>
-                  <div className="text-xs text-muted-foreground">{deal.requirementWins} wins req</div>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="font-black text-primary text-base">{formatCompact(deal.amount)}</div>
-                  <Button size="sm" className="h-7 text-xs mt-1" onClick={() => handleAcceptDeal(deal.id)} disabled={acceptDealMutation.isPending} data-testid={`button-accept-deal-${deal.id}`}>
-                    Accept
-                  </Button>
-                </div>
-              </div>
+      {/* ── Sponsor Offers ── */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Award className="h-5 w-5 text-yellow-500" />
+          <h3 className="text-lg md:text-xl font-bold">Sponsor Offers</h3>
+          {!offersLoading && (
+            <Badge className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20 text-xs">
+              {filteredOffers.length} available
+            </Badge>
+          )}
+        </div>
+        <div className="space-y-2 mb-4">
+          <div className="flex flex-wrap gap-1.5">
+            {["all", "Local", "Regional", "Continental", "International", "Global"].map(t => (
+              <button
+                key={t}
+                onClick={() => setFilterTier(t)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-semibold border transition-colors",
+                  filterTier === t
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                )}
+              >{t === "all" ? "All Tiers" : t}</button>
             ))}
-            {otherDeals.length === 0 && <p className="text-center text-muted-foreground py-6 text-sm">All available deals are featured above.</p>}
-          </CardContent>
-        </Card>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { id: "all", label: "All Slots" },
+              { id: "primary", label: "Primary" },
+              { id: "kit", label: "Kit" },
+              { id: "supporting", label: "Supporting" },
+            ].map(s => (
+              <button
+                key={s.id}
+                onClick={() => setFilterSlot(s.id)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-semibold border transition-colors",
+                  filterSlot === s.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                )}
+              >{s.label}</button>
+            ))}
+          </div>
+        </div>
+        {offersLoading ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-56 rounded-xl" />)}
+          </div>
+        ) : filteredOffers.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-xl">
+            No offers match the selected filters.
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredOffers.map(offer => (
+              <SponsorOfferCard
+                key={offer.id}
+                offer={offer}
+                slotOccupied={isSlotOccupied(offer.slot ?? "supporting")}
+                onAccept={() => acceptOfferMutation.mutate(offer.id)}
+                onReject={() => rejectOfferMutation.mutate(offer.id)}
+                isPending={acceptOfferMutation.isPending || rejectOfferMutation.isPending}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Income & Expenses */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle>Income & Expenses</CardTitle>
+          <CardDescription>Visual breakdown of your cashflow.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Income Sources</h4>
+            {(() => {
+              const prizeMoney   = summary?.incomeSources?.prizeMoney   || 0;
+              const sponsorships = summary?.incomeSources?.sponsorships || 0;
+              const promoDeals   = summary?.incomeSources?.promoDeals   || 0;
+              const hasIncome    = prizeMoney + sponsorships + promoDeals > 0;
+              return hasIncome ? (
+                <div className="space-y-2">
+                  <BreakdownRow label="Prize Money" amount={prizeMoney} total={summary?.monthlyIncome || 1} color="bg-green-500" />
+                  <BreakdownRow label="Sponsorships" amount={sponsorships} total={summary?.monthlyIncome || 1} color="bg-blue-500" />
+                  <BreakdownRow label="Promo Deals" amount={promoDeals} total={summary?.monthlyIncome || 1} color="bg-gray-500" />
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">No income recorded yet.</p>
+              );
+            })()}
+          </div>
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Expense Breakdown</h4>
+            {(() => {
+              const playerSalaries = summary?.expenseBreakdown?.playerSalaries || 0;
+              const staffSalaries  = summary?.expenseBreakdown?.staffSalaries  || 0;
+              const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
+              const other          = summary?.expenseBreakdown?.other          || 0;
+              const hasExpenses    = playerSalaries + staffSalaries + trainingCosts + other > 0;
+              return hasExpenses ? (
+                <div className="space-y-2">
+                  <BreakdownRow label="Player Salaries" amount={playerSalaries} total={summary?.monthlyExpenses || 1} color="bg-red-500" />
+                  <BreakdownRow label="Staff" amount={staffSalaries} total={summary?.monthlyExpenses || 1} color="bg-orange-500" />
+                  <BreakdownRow label="Training" amount={trainingCosts} total={summary?.monthlyExpenses || 1} color="bg-purple-500" />
+                  <BreakdownRow label="Other" amount={other} total={summary?.monthlyExpenses || 1} color="bg-gray-500" />
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">No expenses recorded yet.</p>
+              );
+            })()}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Termination Confirmation Modal */}
+      {terminateId !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setTerminateId(null)}
+        >
+          <div
+            className="bg-card border rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <h4 className="font-bold text-lg">Terminate Contract?</h4>
+            </div>
+            <p className="text-sm text-muted-foreground mb-1">
+              Ending the contract with{" "}
+              <span className="font-semibold text-foreground">{terminateName}</span>.
+            </p>
+            {terminateFee > 0 ? (
+              <p className="text-sm text-destructive font-semibold mb-4">
+                Cancellation fee: {formatCompact(terminateFee)}
+              </p>
+            ) : (
+              <p className="text-sm text-green-600 font-semibold mb-4">No cancellation fee applies.</p>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                className="flex-1"
+                disabled={terminateMutation.isPending}
+                onClick={() => terminateMutation.mutate(terminateId)}
+              >
+                {terminateMutation.isPending ? "Terminating…" : "Confirm Terminate"}
+              </Button>
+              <Button variant="outline" onClick={() => setTerminateId(null)} className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Transaction History */}
       <Card>
@@ -1212,6 +1383,233 @@ function BreakdownRow({ label, amount, total, color }: {
       </div>
       <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
         <div className={cn("h-full", color)} style={{ width: `${percentage}%` }} />
+      </div>
+    </div>
+  );
+}
+
+const TIER_STYLES: Record<string, string> = {
+  Local:         "bg-gray-100 text-gray-700 border-gray-300",
+  Regional:      "bg-emerald-100 text-emerald-700 border-emerald-300",
+  Continental:   "bg-blue-100 text-blue-700 border-blue-300",
+  International: "bg-violet-100 text-violet-700 border-violet-300",
+  Global:        "bg-amber-100 text-amber-700 border-amber-300",
+};
+
+const SLOT_STYLES: Record<string, { label: string; class: string; Icon: any }> = {
+  primary:   { label: "Primary",   class: "bg-amber-100 text-amber-700 border-amber-300",   Icon: BadgeCheck },
+  kit:       { label: "Kit",       class: "bg-teal-100 text-teal-700 border-teal-300",       Icon: Shirt },
+  supporting:{ label: "Supporting",class: "bg-slate-100 text-slate-700 border-slate-300",   Icon: Users },
+};
+
+function TierBadge({ tier }: { tier: string | null }) {
+  if (!tier) return null;
+  return (
+    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide", TIER_STYLES[tier] ?? "bg-gray-100 text-gray-600 border-gray-300")}>
+      {tier}
+    </span>
+  );
+}
+
+function SlotBadge({ slot }: { slot: string | null }) {
+  if (!slot) return null;
+  const s = SLOT_STYLES[slot];
+  if (!s) return null;
+  const Icon = s.Icon;
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold", s.class)}>
+      <Icon className="h-2.5 w-2.5" />
+      {s.label}
+    </span>
+  );
+}
+
+function SponsorOfferCard({
+  offer, slotOccupied, onAccept, onReject, isPending,
+}: {
+  offer: SponsorOffer;
+  slotOccupied: boolean;
+  onAccept: () => void;
+  onReject: () => void;
+  isPending: boolean;
+}) {
+  const expiresDate = offer.expiresAt ? new Date(offer.expiresAt) : null;
+  const daysLeft = expiresDate
+    ? Math.max(0, Math.ceil((expiresDate.getTime() - Date.now()) / 86_400_000))
+    : null;
+
+  return (
+    <div className={cn(
+      "flex flex-col rounded-xl border-2 bg-card overflow-hidden transition-all",
+      slotOccupied ? "border-border opacity-70" : "border-border hover:border-primary/40"
+    )}>
+      {/* Header band */}
+      <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border-b gap-2 flex-wrap">
+        <TierBadge tier={offer.tier} />
+        <SlotBadge slot={offer.slot} />
+      </div>
+
+      <div className="flex-1 p-3 space-y-2">
+        {/* Sponsor name */}
+        <div className="font-bold text-sm leading-snug">{offer.sponsor}</div>
+        {offer.category && (
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{offer.category.replace(/_/g, " ")}</div>
+        )}
+
+        {/* Financials */}
+        <div className="grid grid-cols-2 gap-1 text-xs">
+          {offer.signingBonus > 0 && (
+            <div className="col-span-2 flex items-center gap-1 bg-green-50 border border-green-200 rounded-lg px-2 py-1">
+              <Sparkles className="h-3 w-3 text-green-600 flex-shrink-0" />
+              <span className="font-bold text-green-700">{formatCompact(offer.signingBonus)}</span>
+              <span className="text-green-600">signing bonus</span>
+            </div>
+          )}
+          <div className="bg-muted/60 rounded-lg px-2 py-1">
+            <div className="text-muted-foreground text-[10px]">Monthly</div>
+            <div className="font-bold text-foreground">{formatCompact(offer.monthlyPayment)}</div>
+          </div>
+          <div className="bg-muted/60 rounded-lg px-2 py-1">
+            <div className="text-muted-foreground text-[10px]">Duration</div>
+            <div className="font-bold text-foreground">
+              {offer.contractLengthSeasons != null ? `${offer.contractLengthSeasons} season${offer.contractLengthSeasons !== 1 ? "s" : ""}` : "—"}
+            </div>
+          </div>
+          <div className="bg-muted/60 rounded-lg px-2 py-1">
+            <div className="text-muted-foreground text-[10px]">Win req.</div>
+            <div className="font-bold text-foreground">{offer.requirementWins} wins</div>
+          </div>
+          <div className={cn("rounded-lg px-2 py-1", daysLeft !== null && daysLeft <= 5 ? "bg-red-50 border border-red-200" : "bg-muted/60")}>
+            <div className="text-muted-foreground text-[10px]">Expires</div>
+            <div className={cn("font-bold", daysLeft !== null && daysLeft <= 5 ? "text-red-600" : "text-foreground")}>
+              {daysLeft !== null ? `${daysLeft}d` : "—"}
+            </div>
+          </div>
+        </div>
+
+        {/* Appeal reason */}
+        {offer.appealReason && (
+          <p className="text-[11px] text-muted-foreground italic border-l-2 border-primary/30 pl-2 leading-snug">
+            {offer.appealReason}
+          </p>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="px-3 pb-3 flex gap-2">
+        {slotOccupied ? (
+          <div className="flex-1 text-center text-xs text-muted-foreground py-1.5 border rounded-lg bg-muted/40">
+            Slot occupied
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            className="flex-1 text-xs h-8"
+            disabled={isPending}
+            onClick={onAccept}
+          >
+            <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+            Accept
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 px-2 text-muted-foreground hover:text-destructive hover:border-destructive"
+          disabled={isPending}
+          onClick={onReject}
+          title="Decline offer"
+        >
+          <XCircle className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function ActiveContractCard({
+  contract,
+  onTerminate,
+}: {
+  contract: ActiveContract;
+  onTerminate: (id: number, fee: number, name: string) => void;
+}) {
+  const cancellationFee = contract.daysRemaining != null && contract.daysRemaining > 0
+    ? Math.min(Math.ceil(contract.daysRemaining / 30), 2) * contract.monthlyPayment
+    : 0;
+
+  return (
+    <div className="rounded-xl border-2 border-primary/20 bg-card overflow-hidden">
+      {/* Header band */}
+      <div className="flex items-center justify-between px-3 py-2 bg-primary/5 border-b gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          <TierBadge tier={contract.tier} />
+          <SlotBadge slot={contract.slot} />
+        </div>
+        {contract.isComplete && (
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-100 border border-green-300 rounded-full px-2 py-0.5">
+            <CheckCircle2 className="h-2.5 w-2.5" /> Complete
+          </span>
+        )}
+      </div>
+
+      <div className="p-3 space-y-3">
+        {/* Name + monthly */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="font-bold text-sm leading-snug truncate">{contract.sponsor}</div>
+            {contract.category && (
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{contract.category.replace(/_/g, " ")}</div>
+            )}
+          </div>
+          <div className="text-right flex-shrink-0">
+            <div className="font-black text-primary text-base leading-none">{formatCompact(contract.monthlyPayment)}</div>
+            <div className="text-[10px] text-muted-foreground">/ month</div>
+          </div>
+        </div>
+
+        {/* Contract period */}
+        {(contract.contractStartDate || contract.contractEndDate) && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3 flex-shrink-0" />
+            <span>
+              {contract.contractStartDate ? format(new Date(contract.contractStartDate), "MMM d, yyyy") : "—"}
+              {" → "}
+              {contract.contractEndDate ? format(new Date(contract.contractEndDate), "MMM d, yyyy") : "—"}
+            </span>
+            {contract.daysRemaining != null && contract.daysRemaining > 0 && (
+              <span className="ml-auto text-foreground font-semibold">{contract.daysRemaining}d left</span>
+            )}
+          </div>
+        )}
+
+        {/* Win progress */}
+        {contract.requirementWins > 0 && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-[11px] text-muted-foreground">
+              <span>Win target</span>
+              <span className="font-semibold text-foreground">{contract.currentWins} / {contract.requirementWins}</span>
+            </div>
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+              <div
+                className={cn("h-full rounded-full transition-all", contract.isComplete ? "bg-green-500" : "bg-primary")}
+                style={{ width: `${Math.min(contract.progressPct, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-3 pb-3">
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full h-7 text-xs text-muted-foreground hover:text-destructive hover:border-destructive"
+          onClick={() => onTerminate(contract.id, cancellationFee, contract.sponsor)}
+        >
+          Terminate{cancellationFee > 0 ? ` (fee: ${formatCompact(cancellationFee)})` : " (no fee)"}
+        </Button>
       </div>
     </div>
   );
