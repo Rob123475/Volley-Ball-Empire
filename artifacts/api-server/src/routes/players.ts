@@ -210,6 +210,65 @@ router.get("/players/summary", async (_req, res) => {
   res.json({ totalSenior, freeAgentCount, draftPoolCount, signedCount });
 });
 
+// All senior players with status — powers the Player Market filter pills
+router.get("/players/market-all", async (req, res) => {
+  const all = await db.select().from(playersTable)
+    .where(and(
+      eq(playersTable.isRetired, false),
+      eq(playersTable.playerType, "senior"),
+    ));
+
+  // Build team name lookup for signed players
+  const teamIdSet = [...new Set(all.filter(p => p.teamId).map(p => p.teamId!))];
+  const teamMap: Record<number, string> = {};
+  if (teamIdSet.length > 0) {
+    const teams = await db.select({ id: teamsTable.id, name: teamsTable.name })
+      .from(teamsTable)
+      .where(sql`${teamsTable.id} = ANY(ARRAY[${sql.join(teamIdSet.map(id => sql`${id}`), sql`, `)}]::int[])`);
+    for (const t of teams) teamMap[t.id] = t.name;
+  }
+
+  // Compute 6-month transfer window from authenticated user's game date
+  let currentDate = new Date().toISOString().split("T")[0]!;
+  let transferCutoff: string | null = null;
+  if (req.isAuthenticated()) {
+    const team = await getActiveTeam(req);
+    if (team) {
+      const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
+        .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
+      if (calRows[0]?.currentDate) {
+        currentDate = calRows[0].currentDate;
+        const cutoff = new Date(currentDate);
+        cutoff.setMonth(cutoff.getMonth() + 6);
+        transferCutoff = cutoff.toISOString().split("T")[0]!;
+      }
+    }
+  }
+
+  const result = all.map(p => {
+    let status: "signed" | "free_agent" | "player_pool" | "transfer_available";
+    if (p.teamId) {
+      const inWindow = transferCutoff && p.contractEndDate
+        && p.contractEndDate >= currentDate
+        && p.contractEndDate <= transferCutoff;
+      status = inWindow ? "transfer_available" : "signed";
+    } else if (p.isDraftPlayer) {
+      status = "player_pool";
+    } else {
+      status = "free_agent";
+    }
+    return {
+      ...serializePlayer(p),
+      status,
+      currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : null,
+      currentTeamId: p.teamId ?? null,
+      isDraftPlayer: p.isDraftPlayer,
+    };
+  });
+
+  res.json(result);
+});
+
 router.get("/players/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });

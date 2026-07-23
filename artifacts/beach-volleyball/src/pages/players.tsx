@@ -1,9 +1,6 @@
 import {
-  useListFreeAgents,
-  useListTransferWindow,
   useSignContract,
   useScoutPlayer,
-  useGetDraftPool,
   useDraftPick,
   useGenerateDraftClass,
   getListFreeAgentsQueryKey,
@@ -33,6 +30,9 @@ import {
   Lock,
   TrendingUp,
   Users,
+  CheckCircle2,
+  Package,
+  Handshake,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -67,21 +67,17 @@ const POSITION_LABELS: Record<string, string> = {
   blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
 };
 
-type MarketTab = "transfer" | "draft" | "youth" | "free-agents";
+type PageSection = "senior" | "youth";
+type MarketFilter = "all" | "available" | "free_agents" | "player_pool" | "signed" | "transfer";
+type PlayerStatus = "signed" | "free_agent" | "player_pool" | "transfer_available";
 
-const TABS: { id: MarketTab; label: string; icon: React.FC<{ className?: string }> }[] = [
-  { id: "transfer",    label: "Transfer Market", icon: TrendingUp as any },
-  { id: "draft",       label: "Draft Pool",      icon: Box        as any },
-  { id: "youth",       label: "Youth",           icon: Star       as any },
-  { id: "free-agents", label: "Free Agents",     icon: Users      as any },
-];
+// ── Status config ─────────────────────────────────────────────────────────────
 
-// Tab descriptions shown below the title
-const TAB_DESC: Record<MarketTab, string> = {
-  "transfer":    "Established players age 19+ available for immediate signing.",
-  "draft":       "Young stars aged 20 and under. All rookies receive a 6-month contract on signing.",
-  "youth":       "Emerging talent aged 18 and under — sign on a regular contract.",
-  "free-agents": "All unsigned players available across every age group.",
+const STATUS_CONFIG: Record<PlayerStatus, { label: string; badgeClass: string; icon: React.FC<{ className?: string }> }> = {
+  signed:            { label: "Signed",            badgeClass: "bg-blue-500/15 text-blue-500 border-blue-400/30",      icon: CheckCircle2 as any },
+  free_agent:        { label: "Free Agent",        badgeClass: "bg-emerald-500/15 text-emerald-500 border-emerald-400/30", icon: Users as any },
+  player_pool:       { label: "Player Pool",       badgeClass: "bg-amber-500/15 text-amber-600 border-amber-400/30",  icon: Package as any },
+  transfer_available:{ label: "Transfer Available",badgeClass: "bg-purple-500/15 text-purple-500 border-purple-400/30", icon: Handshake as any },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -169,7 +165,6 @@ function LockedStatBar({ label, icon: Icon }: { label: string; icon: any }) {
   );
 }
 
-// Shared name strip used in both market and draft cards
 function NameStrip({ name }: { name: string }) {
   const parts = name.split(" ");
   const firstName = parts[0];
@@ -208,7 +203,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
   const [salary, setSalary]   = useState([5000]);
   const [winBonus, setWinBonus] = useState([500]);
   const [months, setMonths]   = useState(6);
-  const isYouth = player.age >= 14 && player.age <= 18;
+  const isYouth = player.age >= 14 && player.age <= 17;
   const defaultRole: SquadRole = isYouth ? "reserve" : "interchange";
   const [squadRole, setSquadRole] = useState<SquadRole>(defaultRole);
   const endDate = format(addMonths(new Date(), months), "yyyy-MM-dd");
@@ -272,7 +267,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
                     >
                       {label}
                     </button>
-                    {disabled && <p className="text-[9px] text-muted-foreground text-center leading-tight">Ages 14–18 only</p>}
+                    {disabled && <p className="text-[9px] text-muted-foreground text-center leading-tight">Ages 14–17 only</p>}
                   </div>
                 );
               })}
@@ -292,7 +287,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
   );
 }
 
-// ── Market player card (Transfer Market / Youth / Free Agents tabs) ────────────
+// ── Player card with full stats (free agents, transfer, signed) ───────────────
 
 function MarketPlayerCard({
   player,
@@ -309,6 +304,9 @@ function MarketPlayerCard({
 }) {
   const overall   = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
   const isScouted = !!player.scoutedPotential;
+  const status: PlayerStatus = player.status ?? (player.currentTeamName ? "signed" : "free_agent");
+  const statusCfg = STATUS_CONFIG[status];
+  const canSign = status === "free_agent" || status === "transfer_available";
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all group">
@@ -316,9 +314,9 @@ function MarketPlayerCard({
         <PlayerPortrait
           name={player.name}
           imageUrl={player.imageUrl}
-          continent={(player as any).continent}
+          continent={player.continent}
           nationality={player.nationality}
-          playerType={(player as any).playerType}
+          playerType={player.playerType}
           heightClass="h-72"
         />
         <NameStrip name={player.name} />
@@ -347,6 +345,17 @@ function MarketPlayerCard({
       </div>
 
       <CardContent className="p-4 space-y-4">
+        {/* Status badge */}
+        <div className="flex items-center gap-1.5">
+          <Badge variant="outline" className={cn("text-[10px] gap-1 font-bold", statusCfg.badgeClass)}>
+            <statusCfg.icon className="h-2.5 w-2.5" />
+            {statusCfg.label}
+          </Badge>
+          {player.currentTeamName && (
+            <span className="text-xs text-muted-foreground truncate">at {player.currentTeamName}</span>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
           <StatMini label="Power"   value={player.power}   icon={Zap}      color="text-orange-500" />
           <StatMini label="Speed"   value={player.speed}   icon={Wind}     color="text-blue-500"   />
@@ -388,17 +397,15 @@ function MarketPlayerCard({
           </Button>
         </div>
 
-        {player.currentTeamName && (
+        {player.contractEndDate && player.currentTeamName && (
           <div className="flex items-center justify-between text-xs border-t border-border pt-2">
             <span className="flex items-center gap-1.5 text-muted-foreground">
               <Shield className="h-3 w-3 text-amber-500" />
               <span>Under contract at <span className="font-medium text-foreground">{player.currentTeamName}</span></span>
             </span>
-            {player.contractEndDate && (
-              <span className="text-amber-500 font-medium">
-                Expires {new Date(player.contractEndDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
-              </span>
-            )}
+            <span className="text-amber-500 font-medium">
+              Expires {new Date(player.contractEndDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+            </span>
           </div>
         )}
 
@@ -409,15 +416,17 @@ function MarketPlayerCard({
           </span>
         </div>
 
-        <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
+        {canSign && (
+          <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
+        )}
       </CardContent>
     </Card>
   );
 }
 
-// ── Draft player card ─────────────────────────────────────────────────────────
+// ── Player Pool card (locked stats, sign on set terms) ────────────────────────
 
-function DraftPlayerCard({
+function PlayerPoolCard({
   player,
   onDraft,
   isDrafting,
@@ -432,9 +441,9 @@ function DraftPlayerCard({
         <PlayerPortrait
           name={player.name}
           imageUrl={player.imageUrl}
-          continent={(player as any).continent}
+          continent={player.continent}
           nationality={player.nationality}
-          playerType={(player as any).playerType}
+          playerType={player.playerType}
           heightClass="h-72"
         />
         <NameStrip name={player.name} />
@@ -457,6 +466,12 @@ function DraftPlayerCard({
       </div>
 
       <CardContent className="p-4 space-y-4">
+        {/* Status badge */}
+        <Badge variant="outline" className={cn("text-[10px] gap-1 font-bold", STATUS_CONFIG.player_pool.badgeClass)}>
+          <Package className="h-2.5 w-2.5" />
+          Player Pool
+        </Badge>
+
         <div className="grid grid-cols-1 gap-1.5">
           <LockedStatBar label="Power"   icon={Zap}      />
           <LockedStatBar label="Speed"   icon={Wind}     />
@@ -476,15 +491,116 @@ function DraftPlayerCard({
         <Button
           className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold"
           onClick={() => onDraft(player.id)}
-          disabled={isDrafting || !player.available}
+          disabled={isDrafting}
           data-testid={`button-draft-${player.id}`}
         >
-          {!player.available ? "DRAFTED" : isDrafting ? "Drafting..." : "DRAFT PLAYER"}
+          {isDrafting ? "Signing..." : "SIGN TO SQUAD"}
         </Button>
       </CardContent>
     </Card>
   );
 }
+
+// ── Youth pool card (same as MarketPlayerCard but for youth players) ───────────
+
+function YouthPoolCard({
+  player,
+  onSign,
+  onScout,
+  isScoutingThis,
+  signPending,
+}: {
+  player: any;
+  onSign: (id: number, values: any) => void;
+  onScout: (id: number) => void;
+  isScoutingThis: boolean;
+  signPending: boolean;
+}) {
+  const overall   = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+  const isScouted = !!player.scoutedPotential;
+
+  return (
+    <Card className="overflow-hidden hover:shadow-lg transition-all group">
+      <div className="relative h-72 overflow-hidden bg-slate-800">
+        <PlayerPortrait
+          name={player.name}
+          imageUrl={player.imageUrl}
+          continent={player.continent}
+          nationality={player.nationality}
+          playerType={player.playerType}
+          heightClass="h-72"
+        />
+        <NameStrip name={player.name} />
+        <div className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10" style={{ width: "19%", gap: "5px", padding: "8px 3px" }}>
+          <div className="text-center">
+            <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>{overall}</div>
+            <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
+          </div>
+          <div className="w-4/5 h-px bg-white/20" />
+          {isScouted ? <PotentialBadge potential={player.scoutedPotential!} size="xs" /> : (
+            <span className="text-[7px] text-white/40 italic text-center leading-tight">Unknown</span>
+          )}
+          <div className="w-4/5 h-px bg-white/20" />
+          <div className="text-[8px] text-primary font-black uppercase text-center leading-tight">
+            {POSITION_LABELS[normalizePosition(player.position)] ?? player.position}
+          </div>
+          <div className="w-4/5 h-px bg-white/20" />
+          <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
+            <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
+            <div className="text-white/55 mt-0.5">{player.age}y</div>
+            <div className="text-white/55">{player.height}cm</div>
+          </div>
+        </div>
+      </div>
+      <CardContent className="p-4 space-y-4">
+        <Badge variant="outline" className="bg-star-500/15 text-amber-600 border-amber-400/30 text-[10px] gap-1 font-bold">
+          <Star className="h-2.5 w-2.5" />
+          Youth Player • Age {player.age}
+        </Badge>
+        <div className="grid grid-cols-2 gap-2">
+          <StatMini label="Power"   value={player.power}   icon={Zap}      color="text-orange-500" />
+          <StatMini label="Speed"   value={player.speed}   icon={Wind}     color="text-blue-500"   />
+          <StatMini label="Defense" value={player.defense} icon={Shield}   color="text-green-500"  />
+          <StatMini label="Serve"   value={player.serve}   icon={Target}   color="text-purple-500" />
+          <StatMini label="Block"   value={player.block}   icon={Shield}   color="text-red-500"    />
+          <StatMini label="Stamina" value={player.stamina} icon={Activity} color="text-cyan-500"   />
+        </div>
+        <div className="flex items-center justify-between border-t border-border pt-2">
+          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+            {isScouted ? (
+              <><span className="font-medium text-foreground">Potential</span><PotentialBadge potential={player.scoutedPotential!} size="xs" /></>
+            ) : <span className="italic">Potential not assessed</span>}
+          </div>
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1"
+            onClick={() => onScout(player.id)} disabled={isScoutingThis}
+            data-testid={`button-scout-${player.id}`}>
+            <Search className="h-3 w-3" />
+            {isScoutingThis ? "Scouting…" : "Scout"}
+          </Button>
+        </div>
+        <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Filter pill config ────────────────────────────────────────────────────────
+
+type FilterPillConfig = {
+  id: MarketFilter;
+  label: string;
+  icon: React.FC<{ className?: string }>;
+  desc: string;
+};
+
+const FILTER_PILLS: FilterPillConfig[] = [
+  { id: "all",         label: "All Players",        icon: Users       as any, desc: "All 208 senior players in the game." },
+  { id: "available",   label: "Available",           icon: UserPlus    as any, desc: "All unsigned players — free agents and player pool combined." },
+  { id: "free_agents", label: "Free Agents",         icon: Users       as any, desc: "Unsigned players not in any pool. Sign on negotiated terms." },
+  { id: "player_pool", label: "Player Pool",         icon: Package     as any, desc: "Unsigned players in the Player Pool. Sign on a 6-month development contract." },
+  { id: "signed",      label: "Signed Players",      icon: CheckCircle2 as any, desc: "Players currently under contract with a club." },
+  { id: "transfer",    label: "Transfer Available",  icon: Handshake   as any, desc: "Signed players whose contract expires within 6 months — approachable now." },
+];
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
@@ -492,43 +608,55 @@ export default function PlayerMarket() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const [tab, setTab]           = useState<MarketTab>("transfer");
+  const [section, setSection]     = useState<PageSection>("senior");
+  const [filter, setFilter]       = useState<MarketFilter>("all");
   const [posFilter, setPosFilter] = useState<string>("ALL");
   const [continent, setContinent] = useState<ContinentFilter>("ALL");
-  const [search, setSearch]     = useState("");
+  const [search, setSearch]       = useState("");
 
-  const { data: playerSummary } = useQuery<{
-    totalSenior: number;
-    freeAgentCount: number;
-    draftPoolCount: number;
-    signedCount: number;
-  }>({
-    queryKey: ["players-summary"],
-    queryFn: () => fetch("/api/players/summary").then(r => r.json()),
-    staleTime: 60_000,
+  // ── Data ──────────────────────────────────────────────────────────────────
+
+  const { data: marketAll, isLoading: marketLoading } = useQuery<any[]>({
+    queryKey: ["players-market-all"],
+    queryFn: () => fetch("/api/players/market-all").then(r => r.json()),
+    staleTime: 30_000,
   });
 
-  const { data: players, isLoading: playersLoading } = useListFreeAgents({
-    query: { queryKey: getListFreeAgentsQueryKey() },
+  const { data: youthPool, isLoading: youthLoading } = useQuery<any[]>({
+    queryKey: ["players-youth-pool"],
+    queryFn: () => fetch("/api/players/youth-pool").then(r => r.json()),
+    staleTime: 30_000,
   });
-  const { data: transferWindow, isLoading: transferWindowLoading } = useListTransferWindow({
-    query: { queryKey: getListTransferWindowQueryKey() },
+
+  const { data: generateResult } = useQuery<any[]>({
+    queryKey: [getGetDraftPoolQueryKey()],
+    queryFn: () => fetch("/api/draft").then(r => r.json()),
+    staleTime: 30_000,
+    enabled: false,
   });
-  const { data: draftPool, isLoading: draftLoading } = useGetDraftPool({
-    query: { queryKey: getGetDraftPoolQueryKey() },
-  });
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
 
   const signMutation     = useSignContract();
   const scoutMutation    = useScoutPlayer();
   const draftMutation    = useDraftPick();
   const generateMutation = useGenerateDraftClass();
 
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["players-market-all"] });
+    queryClient.invalidateQueries({ queryKey: ["players-youth-pool"] });
+    queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getListTransferWindowQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getGetDraftPoolQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
+    queryClient.invalidateQueries({ queryKey: ["players-summary"] });
+  };
+
   const handleSign = (playerId: number, values: any) => {
     signMutation.mutate({ data: { playerId, salary: values.salary, endDate: values.endDate, bonusPerWin: values.winBonus, squadRole: values.squadRole } }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getListTransferWindowQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
+        invalidateAll();
         toast({ title: "Contract Signed!", description: "Welcome to the team!" });
       },
       onError: (err: any) => {
@@ -540,7 +668,7 @@ export default function PlayerMarket() {
   const handleScout = (playerId: number) => {
     scoutMutation.mutate({ id: playerId }, {
       onSuccess: (result) => {
-        queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
+        invalidateAll();
         const cfg = POTENTIAL_CONFIG[result.scoutedPotential as PotentialTier];
         const confidenceText = CONFIDENCE_LABEL[result.confidence] ?? result.confidence;
         toast({ title: "Scout Report", description: `${result.scoutName} rates this player as ${cfg?.label ?? result.scoutedPotential} potential. (${confidenceText} assessment)` });
@@ -554,9 +682,11 @@ export default function PlayerMarket() {
   const handleDraft = (playerId: number) => {
     draftMutation.mutate({ data: { draftPlayerId: playerId } }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetDraftPoolQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
-        toast({ title: "Draft Pick Successful!", description: "The rookie has joined your team on a 6-month contract." });
+        invalidateAll();
+        toast({ title: "Signed to Squad!", description: "The player has joined your team on a 6-month contract." });
+      },
+      onError: (err: any) => {
+        toast({ title: "Cannot Sign", description: err?.response?.data?.error ?? "Unable to sign this player.", variant: "destructive" });
       },
     });
   };
@@ -564,36 +694,53 @@ export default function PlayerMarket() {
   const handleGenerate = () => {
     generateMutation.mutate(undefined, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetDraftPoolQueryKey() });
-        toast({ title: "New Draft Class Generated!", description: "30 fresh prospects are ready — quality influenced by your Youth Academy." });
+        invalidateAll();
+        toast({ title: "Player Pool Refreshed!", description: "New players are available in the Player Pool." });
       },
       onError: () => {
-        toast({ title: "Error", description: "Could not generate a new class.", variant: "destructive" });
+        toast({ title: "Error", description: "Could not refresh the player pool.", variant: "destructive" });
       },
     });
   };
 
-  // Client-side filtering for market tabs
-  const baseMarketPlayers  = players ?? [];
-  const baseTransferPlayers = transferWindow ?? [];
-  const applyFilters = (list: any[]) =>
+  // ── Filtering ─────────────────────────────────────────────────────────────
+
+  const all = marketAll ?? [];
+
+  const counts = {
+    all:         all.length,
+    available:   all.filter(p => !p.currentTeamId).length,
+    free_agents: all.filter(p => p.status === "free_agent").length,
+    player_pool: all.filter(p => p.status === "player_pool").length,
+    signed:      all.filter(p => p.status === "signed" || p.status === "transfer_available").length,
+    transfer:    all.filter(p => p.status === "transfer_available").length,
+  };
+
+  const applySearch = (list: any[]) =>
     list
       .filter(p => posFilter === "ALL" || normalizePosition(p.position) === posFilter)
-      .filter(p => continent === "ALL" || (p as any).continent === continent)
+      .filter(p => continent === "ALL" || p.continent === continent)
       .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
-  const transferPlayers  = applyFilters(baseTransferPlayers);
-  const youthPlayers     = applyFilters(baseMarketPlayers.filter(p => p.age <= 18));
-  const freeAgentPlayers = applyFilters(baseMarketPlayers);
+  const baseFiltered = (() => {
+    switch (filter) {
+      case "all":         return all;
+      case "available":   return all.filter(p => !p.currentTeamId);
+      case "free_agents": return all.filter(p => p.status === "free_agent");
+      case "player_pool": return all.filter(p => p.status === "player_pool");
+      case "signed":      return all.filter(p => p.status === "signed" || p.status === "transfer_available");
+      case "transfer":    return all.filter(p => p.status === "transfer_available");
+      default:            return all;
+    }
+  })();
 
-  const visibleMarketPlayers =
-    tab === "transfer"    ? transferPlayers  :
-    tab === "youth"       ? youthPlayers     :
-    tab === "free-agents" ? freeAgentPlayers : [];
+  const visiblePlayers = applySearch(baseFiltered);
 
-  const isDraftTab    = tab === "draft";
-  const isMarketTab   = !isDraftTab;
-  const isLoadingMain = isDraftTab ? draftLoading : (tab === "transfer" ? transferWindowLoading : playersLoading);
+  const youthFiltered = applySearch(
+    (youthPool ?? []).filter(p => p.age >= 14 && p.age <= 17)
+  );
+
+  const activeDesc = FILTER_PILLS.find(f => f.id === filter)?.desc ?? "";
 
   return (
     <div className="space-y-8">
@@ -604,37 +751,39 @@ export default function PlayerMarket() {
             <UserPlus className="h-8 w-8 text-secondary" />
             Player Market
           </h2>
-          <p className="text-muted-foreground">{TAB_DESC[tab]}</p>
+          <p className="text-muted-foreground mt-1">
+            {section === "senior" ? activeDesc : "Emerging talent aged 14–17 — sign on a regular contract."}
+          </p>
           {/* Live database summary */}
-          {playerSummary && (
+          {marketAll && (
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <span className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">{playerSummary.totalSenior}</span> total senior players
+                <span className="font-semibold text-foreground">{counts.all}</span> total senior players
               </span>
               <span className="text-muted-foreground/40 text-xs">·</span>
               <span className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">{playerSummary.freeAgentCount}</span> currently available free agents
+                <span className="font-semibold text-foreground">{counts.available}</span> available
               </span>
               <span className="text-muted-foreground/40 text-xs">·</span>
               <span className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">{playerSummary.signedCount}</span> signed to teams
+                <span className="font-semibold text-foreground">{counts.player_pool}</span> in Player Pool
+              </span>
+              <span className="text-muted-foreground/40 text-xs">·</span>
+              <span className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{counts.signed}</span> signed to teams
               </span>
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {/* Search — only for market tabs */}
-          {isMarketTab && (
-            <Input
-              placeholder="Search players..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-44"
-            />
-          )}
-          {/* Generate Class button — only for draft tab */}
-          {isDraftTab && (
+          <Input
+            placeholder="Search players..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-44"
+          />
+          {section === "senior" && filter === "player_pool" && (
             <Button
               variant="outline"
               className="gap-2"
@@ -643,60 +792,89 @@ export default function PlayerMarket() {
               data-testid="button-generate-draft-class"
             >
               <RefreshCw className={`h-4 w-4 ${generateMutation.isPending ? "animate-spin" : ""}`} />
-              {generateMutation.isPending ? "Generating…" : "Generate New Class"}
+              {generateMutation.isPending ? "Refreshing…" : "Refresh Pool"}
             </Button>
           )}
         </div>
       </div>
 
-      {/* Tab pills */}
-      <div className="flex gap-2 flex-wrap border-b border-border pb-4">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-              tab === id
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {label}
-            {/* Live counts */}
-            {id !== "draft" && (
-              <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.2rem] px-1 text-[10px] rounded-full">
-                {id === "transfer"    ? (transferWindow ? baseTransferPlayers.length : "…") :
-                 id === "youth"       ? (players ? baseMarketPlayers.filter(p => p.age <= 18).length : "…") :
-                 /* free-agents */      (players ? baseMarketPlayers.length : "…")}
-              </Badge>
-            )}
-            {id === "draft" && (
-              <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.2rem] px-1 text-[10px] rounded-full">
-                {draftPool ? draftPool.filter(p => p.available).length : "…"}
-              </Badge>
-            )}
-          </button>
-        ))}
+      {/* Section toggle: SENIOR / YOUTH */}
+      <div className="flex gap-2 border-b border-border pb-4">
+        <button
+          onClick={() => setSection("senior")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold transition-colors",
+            section === "senior"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <TrendingUp className="h-3.5 w-3.5" />
+          Senior Players
+          {marketAll && (
+            <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.5rem] px-1.5 text-[10px] rounded-full">
+              {counts.all}
+            </Badge>
+          )}
+        </button>
+        <button
+          onClick={() => setSection("youth")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold transition-colors",
+            section === "youth"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <Star className="h-3.5 w-3.5" />
+          Youth Players
+          {youthPool && (
+            <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.5rem] px-1.5 text-[10px] rounded-full">
+              {youthPool.filter(p => p.age >= 14 && p.age <= 17).length}
+            </Badge>
+          )}
+        </button>
       </div>
 
-      {/* Draft Pool: facility banner */}
-      {isDraftTab && (
-        <FacilityBonusBanner
-          facilityType="youth_academy"
-          facilityName="Youth Academy"
-          getBonusText={(level) => {
-            const elitePct = Math.round((0.12 + (level - 1) * (0.13 / 9)) * 100);
-            const genPct   = Math.round((0.03 + (level - 1) * (0.09 / 9)) * 100);
-            return `${elitePct}% Elite + ${genPct}% Generational prospect chance on Generate`;
-          }}
-        />
-      )}
-
-      {/* Market tabs: continent + position filters */}
-      {isMarketTab && (
+      {/* ── SENIOR section ── */}
+      {section === "senior" && (
         <>
+          {/* Filter pills */}
+          <div className="flex gap-2 flex-wrap">
+            {FILTER_PILLS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setFilter(id)}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+                  filter === id
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+                <Badge variant="secondary" className="ml-0.5 h-4 min-w-[1.5rem] px-1.5 text-[10px] rounded-full">
+                  {marketAll ? counts[id] : "…"}
+                </Badge>
+              </button>
+            ))}
+          </div>
+
+          {/* Player Pool facility banner */}
+          {filter === "player_pool" && (
+            <FacilityBonusBanner
+              facilityType="youth_academy"
+              facilityName="Youth Academy"
+              getBonusText={(level) => {
+                const elitePct = Math.round((0.12 + (level - 1) * (0.13 / 9)) * 100);
+                const genPct   = Math.round((0.03 + (level - 1) * (0.09 / 9)) * 100);
+                return `${elitePct}% Elite + ${genPct}% Generational prospect chance on pool refresh`;
+              }}
+            />
+          )}
+
+          {/* Continent + position filters */}
           <div className="flex gap-2 flex-wrap items-center">
             <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
             {CONTINENTS.map((c) => (
@@ -718,78 +896,123 @@ export default function PlayerMarket() {
               </Button>
             ))}
           </div>
-        </>
-      )}
 
-      {/* Result count for market tabs */}
-      {isMarketTab && (tab === "transfer" ? transferWindow : players) && (
-        <p className="text-xs text-muted-foreground/70 font-medium -mt-4">
-          {visibleMarketPlayers.length} of {
-            tab === "transfer"    ? baseTransferPlayers.length :
-            tab === "youth"       ? baseMarketPlayers.filter(p => p.age <= 18).length :
-            baseMarketPlayers.length
-          } shown
-        </p>
-      )}
+          {/* Result count */}
+          {marketAll && (
+            <p className="text-xs text-muted-foreground/70 font-medium -mt-4">
+              {visiblePlayers.length} of {baseFiltered.length} shown
+            </p>
+          )}
 
-      {/* Loading skeleton */}
-      {isLoadingMain && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
-        </div>
-      )}
-
-      {/* Draft Pool grid */}
-      {!isLoadingMain && isDraftTab && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {draftPool?.map((player) => (
-            <DraftPlayerCard
-              key={player.id}
-              player={player}
-              onDraft={handleDraft}
-              isDrafting={draftMutation.isPending && (draftMutation.variables as any)?.data?.draftPlayerId === player.id}
-            />
-          ))}
-          {(!draftPool || draftPool.length === 0) && (
-            <div className="col-span-full text-center py-16 text-muted-foreground">
-              <Box className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p className="text-lg">No rookies available in the draft pool.</p>
-              <p className="text-sm">Generate a new class to see fresh prospects.</p>
+          {/* Loading skeleton */}
+          {marketLoading && (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
             </div>
           )}
-        </div>
-      )}
 
-      {/* Market (Transfer / Youth / Free Agents) grid */}
-      {!isLoadingMain && isMarketTab && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {visibleMarketPlayers.map((player) => (
-            <MarketPlayerCard
-              key={player.id}
-              player={player}
-              onSign={handleSign}
-              onScout={handleScout}
-              isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
-              signPending={signMutation.isPending}
-            />
-          ))}
-          {visibleMarketPlayers.length === 0 && (
-            <div className="col-span-full text-center py-16 text-muted-foreground">
-              <UserPlus className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              {tab === "transfer" && !search && posFilter === "ALL" && continent === "ALL" ? (
-                <>
-                  <p className="text-lg">No players in the transfer window.</p>
-                  <p className="text-sm">Players become approachable in their final 6 months of contract.</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-lg">No players match your search.</p>
-                  <p className="text-sm">Try adjusting your filters or search term.</p>
-                </>
+          {/* Player grid */}
+          {!marketLoading && (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {visiblePlayers.map((player) =>
+                player.status === "player_pool" ? (
+                  <PlayerPoolCard
+                    key={player.id}
+                    player={player}
+                    onDraft={handleDraft}
+                    isDrafting={draftMutation.isPending && (draftMutation.variables as any)?.data?.draftPlayerId === player.id}
+                  />
+                ) : (
+                  <MarketPlayerCard
+                    key={player.id}
+                    player={player}
+                    onSign={handleSign}
+                    onScout={handleScout}
+                    isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
+                    signPending={signMutation.isPending}
+                  />
+                )
+              )}
+              {visiblePlayers.length === 0 && !marketLoading && (
+                <div className="col-span-full text-center py-16 text-muted-foreground">
+                  <Box className="h-16 w-16 mx-auto mb-4 opacity-20" />
+                  {filter === "transfer" && !search && posFilter === "ALL" && continent === "ALL" ? (
+                    <>
+                      <p className="text-lg">No players in the transfer window.</p>
+                      <p className="text-sm">Players become approachable in their final 6 months of contract.</p>
+                    </>
+                  ) : filter === "player_pool" && !search && posFilter === "ALL" && continent === "ALL" ? (
+                    <>
+                      <p className="text-lg">Player pool is empty.</p>
+                      <p className="text-sm">Click "Refresh Pool" to add new prospects (influenced by your Youth Academy).</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg">No players match your filters.</p>
+                      <p className="text-sm">Try adjusting your search, position or continent.</p>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           )}
-        </div>
+        </>
+      )}
+
+      {/* ── YOUTH section ── */}
+      {section === "youth" && (
+        <>
+          {/* Continent + position filters */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+            {CONTINENTS.map((c) => (
+              <Button key={c} variant={continent === c ? "default" : "outline"} size="sm" onClick={() => setContinent(c)}>
+                {c === "ALL" ? "All Continents" : `${CONTINENT_FLAG[c]} ${c}`}
+              </Button>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {POSITIONS.map((pos) => (
+              <Button key={pos} variant={posFilter === pos ? "default" : "outline"} size="sm" onClick={() => setPosFilter(pos)}>
+                {POSITION_LABELS[pos]}
+              </Button>
+            ))}
+          </div>
+
+          {youthPool && (
+            <p className="text-xs text-muted-foreground/70 font-medium -mt-4">
+              {youthFiltered.length} of {youthPool.filter(p => p.age >= 14 && p.age <= 17).length} shown
+            </p>
+          )}
+
+          {youthLoading && (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+            </div>
+          )}
+
+          {!youthLoading && (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {youthFiltered.map((player) => (
+                <YouthPoolCard
+                  key={player.id}
+                  player={player}
+                  onSign={handleSign}
+                  onScout={handleScout}
+                  isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
+                  signPending={signMutation.isPending}
+                />
+              ))}
+              {youthFiltered.length === 0 && (
+                <div className="col-span-full text-center py-16 text-muted-foreground">
+                  <Star className="h-16 w-16 mx-auto mb-4 opacity-20" />
+                  <p className="text-lg">No youth players match your filters.</p>
+                  <p className="text-sm">Try adjusting your continent or position filter.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

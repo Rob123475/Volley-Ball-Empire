@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable, facilitiesTable } from "@workspace/db";
-import { eq, isNull, and, lte, ne } from "drizzle-orm";
+import { eq, isNull, and, gte, ne } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
 
 const router = Router();
@@ -122,7 +122,12 @@ router.post("/draft/generate-class", async (req, res) => {
 
 router.get("/draft", async (req, res) => {
   const draftPlayers = await db.select().from(playersTable)
-    .where(and(eq(playersTable.isDraftPlayer, true), lte(playersTable.age, 20), eq(playersTable.isRetired, false)));
+    .where(and(
+      eq(playersTable.isDraftPlayer, true),
+      eq(playersTable.isRetired, false),
+      eq(playersTable.playerType, "senior"),
+      gte(playersTable.age, 18),
+    ));
   res.json(draftPlayers.filter(p => !p.teamId).map(p => ({
     ...serializePlayer(p),
     available: !p.teamId,
