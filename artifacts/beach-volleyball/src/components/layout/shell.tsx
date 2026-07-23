@@ -18,6 +18,11 @@ import {
   FolderOpen,
   Medal,
   CalendarDays,
+  LayoutList,
+  CheckCircle2,
+  BarChart2,
+  ArrowUpDown,
+  Sparkles,
 } from "lucide-react";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
@@ -82,10 +87,36 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Competition",
     icon: Trophy,
     items: [
-      { href: "/world-tour",   label: "World Tour",   icon: Globe  },
-      { href: "/continental",  label: "Continental",  icon: Globe  },
-      { href: "/olympics",     label: "Olympics",     icon: Medal  },
-      { href: "/youth-league", label: "Youth League", icon: Star   },
+      // ── CONTINENTAL ───────────────────────────────────────────────────────
+      { sectionHeader: true, label: "Continental" },
+      { href: "/competition/regional-overview",    label: "Overview",            icon: Globe        },
+      { href: "/competition/regional-fixtures",    label: "Fixtures",            icon: LayoutList   },
+      { href: "/competition/regional-results",     label: "Results",             icon: CheckCircle2 },
+      { href: "/competition/regional-ladders",     label: "Ladders",             icon: BarChart2    },
+      { href: "/competition/continental-pools",    label: "Pools",               icon: Users        },
+      { href: "/competition/promotion-relegation", label: "Promotion / Relegation", icon: ArrowUpDown },
+      { href: "/competition/regional-history",     label: "History",             icon: FolderOpen   },
+      // ── WORLD TOUR ────────────────────────────────────────────────────────
+      { sectionHeader: true, label: "World Tour" },
+      { href: "/competition/qualified-teams",      label: "Qualified Teams",     icon: Star         },
+      { href: "/matches",                          label: "WT Calendar",         icon: CalendarDays },
+      { href: "/competition/wt-fixtures",          label: "WT Fixtures",         icon: LayoutList   },
+      { href: "/competition/wt-results",           label: "WT Results",          icon: CheckCircle2 },
+      { href: "/competition/wt-ladder",            label: "WT Standings",        icon: BarChart2    },
+      { href: "/competition/world-finals",         label: "World Finals",        icon: Trophy       },
+      { href: "/competition/all-star",             label: "All-Star Match",      icon: Sparkles     },
+      { href: "/competition/wt-history",           label: "WT History",          icon: FolderOpen   },
+      // ── OLYMPICS ─────────────────────────────────────────────────────────
+      { sectionHeader: true, label: "Olympics" },
+      { href: "/olympics",                         label: "Qualification",       icon: Medal        },
+      { href: "/competition/national-squads",      label: "National Squads",     icon: Users        },
+      { href: "/competition/olympic-schedule",     label: "Schedule",            icon: CalendarDays },
+      { href: "/competition/olympic-results",      label: "Results",             icon: CheckCircle2 },
+      { href: "/competition/medal-table",          label: "Medal Table",         icon: Medal        },
+      { href: "/competition/olympic-history",      label: "History",             icon: FolderOpen   },
+      // ── YOUTH ─────────────────────────────────────────────────────────────
+      { sectionHeader: true, label: "Youth" },
+      { href: "/youth-league",                     label: "Youth League",        icon: Star         },
     ],
   },
   { id: "club",     label: "Club",         icon: Building2,   href: "/club"             },
