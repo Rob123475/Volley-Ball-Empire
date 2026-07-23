@@ -285,7 +285,7 @@ export default function Finances() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-sm truncate">{deal.sponsor}</div>
-                  <div className="text-xs text-muted-foreground">{deal.requirementWins} wins req • Exp {format(new Date(deal.expiresAt), "MMM d")}</div>
+                  <div className="text-xs text-muted-foreground">{deal.requirementWins} wins req</div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="font-black text-primary text-base">{formatCompact(deal.amount)}</div>
