@@ -1,0 +1,140 @@
+FIX AND FULLY POPULATE THE TEAM ANNUAL CALENDAR
+
+The Annual Calendar page has a completed colour legend, but none of the calendar dates display event dots.
+
+There is also a year-selection bug:
+- Current in-game date: 1 January 2027
+- Calendar is displaying 2027
+- Page incorrectly says: “No season data found for 2027”
+- Header still shows Season 2026
+
+Repair the data connection and year rollover properly. Do not redesign the calendar.
+
+CORE REQUIREMENTS
+
+1. Connect the Annual Calendar to the authoritative game schedule and event data already used elsewhere in the application.
+2. Do not create a separate disconnected demonstration calendar.
+3. Do not hard-code dots onto specific dates.
+4. Do not delete or rebuild existing competitions, fixtures, results, saves or calendar components.
+5. Preserve the existing layout and legend.
+6. Existing career saves must be repaired without requiring a new game.
+
+DISPLAY THESE EXISTING LEGEND CATEGORIES
+
+- Blue: Regional / Pool
+- Orange: World Tour
+- Red: World Finals
+- Grey: Off-Season
+- Green: Financial
+- Purple: Contract Deadline
+- Cyan: Facility / Club
+
+CALENDAR EVENT SOURCES
+
+Populate the calendar from every relevant existing source, including:
+
+- Regional competition fixtures
+- Continental Pool fixtures
+- World Tour fixtures
+- World Tour Finals
+- Olympic qualifiers
+- Olympic Games
+- Youth competition fixtures
+- Pre-season and off-season periods
+- Holiday periods
+- Transfer or player-market deadlines
+- Staff and player contract deadlines
+- Contract expiry dates
+- Wage and financial reporting dates
+- Sponsorship payment dates
+- Facility upgrade completion dates
+- Training-camp dates
+- Club events
+- Medical return dates where appropriate
+- Any other scheduled team or competition event already stored in the game
+
+DATE DOT BEHAVIOUR
+
+- Show a small coloured dot underneath each date containing an event.
+- Use the exact colour assigned by the existing legend.
+- If several events share the same category on one date, show one dot for that category.
+- If several different categories occur on the same date, show their different coloured dots together.
+- Dots must be derived from live schedule data and update when events are created, completed, postponed or rescheduled.
+- Past events should remain visible when reviewing earlier months or years.
+- Future events must be visible so the manager can plan ahead.
+
+DATE INTERACTION
+
+When the user clicks a date containing events:
+
+- Open a dropdown, popover or small expandable panel attached to that date.
+- List every event occurring on that day.
+- Each item must show:
+  - Event title
+  - Event category
+  - Competition or department
+  - Time if applicable
+  - Home/away or opponent for fixtures
+  - Status: upcoming, completed, postponed or cancelled
+- If an appropriate application page already exists, make the event clickable and navigate to that page.
+- Clicking a blank date may show “No scheduled events”.
+- Clicking outside the panel or pressing its close control must dismiss it.
+
+MULTIPLE EVENTS
+
+More than one event can occur on the same date. Never discard events or display only the first event.
+
+The clicked-date panel must show the complete list for that date, including overlapping:
+
+- Senior fixtures
+- Youth fixtures
+- Olympic events
+- Financial events
+- Contract deadlines
+- Facility or club events
+
+YEAR AND SEASON REPAIR
+
+Fix the current contradiction between the game date, calendar year and season data.
+
+- The calendar year must be based on the selected/viewed calendar year.
+- Season lookup must support a season crossing from one calendar year into another.
+- Do not require an object named exactly “season 2027” just to display events dated in 2027.
+- Retrieve events by their actual start/end dates.
+- Previous-year and next-year arrows must load events for the selected year.
+- “Return to Current Year” must return to the year of the current in-game date.
+- Remove the “No season data found” message whenever dated events or an active season overlap the displayed year.
+- If the year genuinely has no generated schedule, display a clear empty-year message without breaking the calendar.
+
+DATE-SAFETY REQUIREMENTS
+
+- Use one consistent date-key format, preferably YYYY-MM-DD.
+- Avoid UTC/timezone conversion moving an event onto the previous or following day.
+- Correctly handle leap years and month boundaries.
+- Date matching must not rely on formatted display strings such as “1 Jan 2027”.
+
+FUTURE SEASON GENERATION
+
+Ensure every new season automatically generates and registers its events with the Annual Calendar.
+
+When the game advances into a new year:
+
+- Existing scheduled events must continue displaying.
+- The calendar must not become empty.
+- New competition fixtures and deadlines must automatically appear.
+- This must work throughout the intended 100-year manager career.
+
+VERIFICATION
+
+After repairing it:
+
+1. Open the calendar for 2027.
+2. Confirm coloured dots appear on dates with scheduled events.
+3. Click a date containing one event and verify its details.
+4. Click a date containing multiple events and verify all events appear.
+5. Test every legend category.
+6. Test previous year, next year and Return to Current Year.
+7. Advance the game across a month boundary and a year boundary.
+8. Confirm dots update without refreshing or starting a new career.
+9. Confirm existing saved careers receive the fix.
+10. Report the files changed, event sources connected and number of populated events by category for 2027.
