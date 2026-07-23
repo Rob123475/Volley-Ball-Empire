@@ -133,7 +133,6 @@ const POSITIONS = [
   { value: "spiker",      label: "Spiker"      },
   { value: "defender",    label: "Defender"    },
   { value: "blocker",     label: "Blocker"     },
-  { value: "server",      label: "Server"      },
   { value: "all_rounder", label: "All-Rounder" },
 ];
 
@@ -143,7 +142,7 @@ const formatPosition = (pos: string | null | undefined): string => {
   if (!pos) return "—";
   const map: Record<string, string> = {
     setter: "Setter", spiker: "Spiker", defender: "Defender",
-    blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+    blocker: "Blocker", server: "All-Rounder", all_rounder: "All-Rounder",
     opposite: "Spiker", universal: "All-Rounder",
   };
   return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());

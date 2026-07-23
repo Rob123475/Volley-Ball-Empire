@@ -166,7 +166,7 @@ router.patch("/players/:id/training-focus", async (req, res) => {
 });
 
 // ── Team Strength Overview ───────────────────────────────────────────────────
-const POSITIONS = ["setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+const POSITIONS = ["setter", "spiker", "defender", "blocker", "all_rounder"] as const;
 
 const playerOvr = (p: { power: number; speed: number; defense: number; serve: number; block: number }) =>
   Math.round((p.power + p.speed + p.defense + p.serve + p.block) / 5);

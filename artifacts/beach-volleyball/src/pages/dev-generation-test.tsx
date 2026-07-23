@@ -36,7 +36,7 @@ type Summary = {
 
 // ── Validation constants ───────────────────────────────────────────────────
 
-const VALID_POSITIONS = new Set(["setter", "spiker", "defender", "blocker", "server", "all_rounder"]);
+const VALID_POSITIONS = new Set(["setter", "spiker", "defender", "blocker", "all_rounder"]);
 const VALID_STAFF_ROLES = new Set([
   "head_coach", "assistant_coach", "fitness_trainer",
   "strength_conditioner", "massage_therapist", "promotions_manager",

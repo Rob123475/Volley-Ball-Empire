@@ -1,0 +1,102 @@
+PLAYER POSITION STOCKTAKE AND REBALANCE — ALL 208 PLAYERS
+
+Audit and correct the playing positions of every player in the authoritative player database.
+
+IMPORTANT:
+- There must be exactly 208 unique players before and after this operation.
+- Do not create, delete, duplicate or replace any players.
+- Do not change player names, images, IDs, ages, nationalities, countries of origin, contracts, clubs, teams, youth/senior status, attributes, ratings, statistics or Olympic eligibility.
+- Make a backup of the current player data before making changes.
+- Update the actual authoritative data source, not merely the displayed UI data.
+
+APPROVED POSITIONS
+
+Only these five player positions are valid:
+
+1. Spiker
+2. Blocker
+3. Defender
+4. Setter
+5. All-Rounder
+
+“Server” is not a valid player position because every player serves during matches.
+
+STEP 1 — STOCKTAKE
+
+Scan all 208 player records and report:
+
+- Total unique players
+- Count for each exact position value
+- Senior count by position
+- Youth count by position
+- Signed/team player count by position
+- Unsigned/player-market count by position
+- Position totals by continent
+- Every invalid, blank, misspelled, legacy or unrecognised position
+- Names and IDs of all players currently marked as “Server”
+- Duplicate player IDs or records, if any
+
+Normalise harmless naming differences before counting, including differences in capitalisation, spacing and hyphenation. Do not treat “All Rounder” and “All-Rounder” as separate positions.
+
+STEP 2 — REBALANCE
+
+After completing the stocktake, rebalance all 208 players to these exact overall totals:
+
+- Spiker: 42
+- Blocker: 42
+- Defender: 42
+- Setter: 41
+- All-Rounder: 41
+
+Total: 208
+
+Reassign all players marked “Server”, blank or invalid to whichever approved position is most underrepresented.
+
+When additional changes are required:
+
+1. Prefer changing unsigned/player-market players first.
+2. Then change players from positions that exceed their target.
+3. Avoid changing established signed players unless necessary.
+4. Select the new position using the player’s existing attributes:
+   - Spiker: strongest attack/spike attributes
+   - Blocker: strongest block, height and reach attributes
+   - Defender: strongest defence, dig and agility attributes
+   - Setter: strongest setting, control and accuracy attributes
+   - All-Rounder: most balanced overall attributes
+5. Keep senior and youth position distributions reasonably balanced.
+6. Keep each continent reasonably balanced.
+7. Avoid leaving a club or competition team with all players assigned the same position.
+8. Do not alter overall ratings or attributes merely to justify a new position.
+
+STEP 3 — ENFORCEMENT
+
+Update every relevant schema, validation rule, seed script, import routine, player generator, editor, filter and dropdown so only the five approved positions can be stored.
+
+If old data contains “Server” or another invalid position, automatically map it to the most suitable approved position during migration/import.
+
+Serving ability must remain a player attribute or match skill, not a playing position.
+
+STEP 4 — VERIFICATION
+
+Run a final audit and provide a clear before-and-after table showing:
+
+- Position
+- Before count
+- After count
+- Senior count
+- Youth count
+- Signed count
+- Unsigned count
+
+Confirm:
+
+- Exactly 208 unique players remain.
+- Position totals equal 208.
+- The exact target distribution has been achieved.
+- No player is still marked “Server”.
+- No blank or invalid positions remain.
+- No player identity, nationality, image, club assignment or contract was lost.
+- Player Market, Team Selection, Scouting and player profile screens all use the corrected position data.
+- Existing saves are migrated safely and do not need to be restarted.
+
+Do not report completion unless all verification checks pass.

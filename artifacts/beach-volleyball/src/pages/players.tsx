@@ -63,10 +63,10 @@ const CONTINENT_FLAG: Record<string, string> = {
   "Africa & Middle East": "🌍", Asia: "🌏", Europe: "🌍", "North America": "🌎", "South America": "🌎", Oceania: "🌊",
 };
 
-const POSITIONS = ["ALL", "setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+const POSITIONS = ["ALL", "setter", "spiker", "defender", "blocker", "all_rounder"] as const;
 const POSITION_LABELS: Record<string, string> = {
   ALL: "All", setter: "Setter", spiker: "Spiker", defender: "Defender",
-  blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+  blocker: "Blocker", all_rounder: "All-Rounder",
 };
 
 type PageSection = "senior" | "youth";
@@ -89,7 +89,7 @@ function normalizePosition(pos: string): string {
     opposite: "spiker", universal: "all_rounder", libero: "defender",
     outside_hitter: "spiker", middle_blocker: "blocker",
     Setter: "setter", Spiker: "spiker", Defender: "defender",
-    Blocker: "blocker", Server: "server",
+    Blocker: "blocker", Server: "all_rounder",
   };
   return map[pos] ?? pos;
 }
@@ -98,7 +98,7 @@ const formatPosition = (pos: string | null | undefined): string => {
   if (!pos) return "—";
   const map: Record<string, string> = {
     setter: "Setter", spiker: "Spiker", defender: "Defender",
-    blocker: "Blocker", server: "Server", all_rounder: "All-Rounder",
+    blocker: "Blocker", server: "All-Rounder", all_rounder: "All-Rounder",
     opposite: "Spiker", universal: "All-Rounder",
   };
   return map[pos.toLowerCase()] ?? pos.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());

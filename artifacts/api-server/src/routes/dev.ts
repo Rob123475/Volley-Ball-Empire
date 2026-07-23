@@ -51,7 +51,7 @@ const SENIOR_NATIONALITIES = [
   "Ghana", "Sweden", "Denmark", "Switzerland", "Brazil", "USA", "Australia",
 ];
 
-const POSITIONS = ["setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+const POSITIONS = ["setter", "spiker", "defender", "blocker", "all_rounder"] as const;
 
 const YOUTH_NAMES = [
   "Emma Weber", "Lena Müller", "Sophie Braun", "Hannah Fischer", "Laura Becker",
@@ -507,7 +507,7 @@ const YOUTH_POOL_BY_CONTINENT: Record<string, string[]> = {
 
 const GLOBAL_YOUTH_TARGET = 60;
 const YOUTH_POOL_IMAGE = "/objects/youth-cards/youth-card.webp";
-const YOUTH_POSITIONS = ["setter", "spiker", "defender", "blocker", "server", "all_rounder"] as const;
+const YOUTH_POSITIONS = ["setter", "spiker", "defender", "blocker", "all_rounder"] as const;
 const YOUTH_POTENTIALS = ["Below Average", "Average", "Average", "High", "High", "Elite"] as const;
 
 const YOUTH_REPLENISH_NAMES: Record<string, string[]> = {
