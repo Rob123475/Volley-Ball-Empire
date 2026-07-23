@@ -12,7 +12,7 @@ import {
   getGetDraftPoolQueryKey,
   getGetTeamRosterQueryKey,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -497,6 +497,17 @@ export default function PlayerMarket() {
   const [continent, setContinent] = useState<ContinentFilter>("ALL");
   const [search, setSearch]     = useState("");
 
+  const { data: playerSummary } = useQuery<{
+    totalSenior: number;
+    freeAgentCount: number;
+    draftPoolCount: number;
+    signedCount: number;
+  }>({
+    queryKey: ["players-summary"],
+    queryFn: () => fetch("/api/players/summary").then(r => r.json()),
+    staleTime: 60_000,
+  });
+
   const { data: players, isLoading: playersLoading } = useListFreeAgents({
     query: { queryKey: getListFreeAgentsQueryKey() },
   });
@@ -594,6 +605,22 @@ export default function PlayerMarket() {
             Player Market
           </h2>
           <p className="text-muted-foreground">{TAB_DESC[tab]}</p>
+          {/* Live database summary */}
+          {playerSummary && (
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{playerSummary.totalSenior}</span> total senior players
+              </span>
+              <span className="text-muted-foreground/40 text-xs">·</span>
+              <span className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{playerSummary.freeAgentCount}</span> currently available free agents
+              </span>
+              <span className="text-muted-foreground/40 text-xs">·</span>
+              <span className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{playerSummary.signedCount}</span> signed to teams
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

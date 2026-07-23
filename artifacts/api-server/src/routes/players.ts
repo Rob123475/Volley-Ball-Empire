@@ -191,6 +191,25 @@ router.get("/players/validation", async (req, res) => {
   });
 });
 
+router.get("/players/summary", async (_req, res) => {
+  const rows = await db
+    .select({
+      playerType: playersTable.playerType,
+      hasteam: sql<boolean>`(${playersTable.teamId} IS NOT NULL)`,
+      isDraft:  playersTable.isDraftPlayer,
+    })
+    .from(playersTable)
+    .where(eq(playersTable.isRetired, false));
+
+  const seniors = rows.filter(r => r.playerType === "senior");
+  const totalSenior   = seniors.length;
+  const freeAgentCount  = seniors.filter(r => !r.hasteam && !r.isDraft).length;
+  const draftPoolCount  = seniors.filter(r => r.isDraft && !r.hasteam).length;
+  const signedCount     = seniors.filter(r => r.hasteam).length;
+
+  res.json({ totalSenior, freeAgentCount, draftPoolCount, signedCount });
+});
+
 router.get("/players/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });

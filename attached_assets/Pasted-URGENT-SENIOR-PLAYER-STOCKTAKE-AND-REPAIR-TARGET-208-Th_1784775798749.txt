@@ -1,0 +1,154 @@
+URGENT SENIOR PLAYER STOCKTAKE AND REPAIR — TARGET 208
+
+The Player Market currently displays:
+
+- Transfer Market: 6
+- Draft Pool: 4
+- Youth: 0
+- Free Agents: 96
+
+The Free Agents page says “96 of 96 shown”.
+
+Our required senior-player database total is exactly 208 unique players. Do not assume the Free Agents count represents the entire database because signed team players may be excluded.
+
+PHASE 1 — READ-ONLY AUDIT FIRST
+
+Before editing, deleting, seeding or moving anything, audit every senior-player source:
+
+- Live database player table
+- Senior-player JSON files
+- Seed scripts
+- Team rosters
+- Free-agent pool
+- Transfer market
+- Draft pool
+- Continental Pool teams
+- Regional teams
+- World Tour teams
+- Any reserve or unassigned player pools
+- Senior-player image folders
+- Object-storage player-card folders
+
+Count unique senior players using stable player ID/UUID first, then normalised name and image filename to detect duplicates.
+
+Produce these counts:
+
+1. Total unique senior database records
+2. Players assigned to teams
+3. Unassigned/free agents
+4. Draft-pool players
+5. Transfer-listed players
+6. Players in any reserve or continental pool
+7. Players with contracts
+8. Players without contracts
+9. Senior image files
+10. JSON entries
+11. Database records with no image
+12. Images with no database record
+13. JSON entries with no database record
+14. Duplicate names
+15. Duplicate IDs
+16. Duplicate image paths
+17. Missing or broken image paths
+
+IMPORTANT COUNTING RULE
+
+Transfer-listed players may still be signed to teams, so do not incorrectly add overlapping categories together.
+
+Provide:
+
+- One authoritative total of unique senior players
+- An exclusive ownership/status breakdown that sums exactly to that total
+- Separate overlapping flags such as transfer-listed
+
+Stop and display the audit report before performing destructive operations.
+
+PHASE 2 — REPAIR ONLY IF TOTAL IS BELOW 208
+
+If exactly 208 unique senior records exist:
+
+- Do not reseed anything.
+- Do not create additional players.
+- Repair only UI filtering/counting or missing image references.
+- Explain where the 208 players are located.
+
+If fewer than 208 unique senior records exist:
+
+- Compare the database against every existing senior JSON entry and senior image.
+- Restore only genuinely missing player records.
+- Use the existing player’s real JSON data and matching image.
+- Do not generate fake replacement players when their original data exists.
+- Do not replace or alter existing player identities, nationalities, statistics or images.
+- Preserve team assignments, contracts, market status and save-game data.
+
+PROTECTED PLAYER RULE
+
+Never delete any player connected to a valid:
+
+player_senior_*.webp
+player_senior_*.png
+
+image unless it is proven to be an exact duplicate of another record and the surviving record retains the correct image, data, contract and assignment.
+
+DUPLICATE PREVENTION
+
+Treat players as duplicates only after checking:
+
+- Stable ID or UUID
+- Normalised full name
+- Nationality
+- Image filename
+- Existing team assignment
+
+Do not merge two different players merely because they share a similar name or nationality.
+
+SEED REPAIR
+
+If a seed/import script is needed:
+
+- Make it idempotent.
+- Use upsert behaviour based on stable player identity.
+- Running it repeatedly must create zero additional records.
+- Never replace the complete player table.
+- Never reset assignments or contracts.
+- Never move signed players into Free Agents.
+- Never create separate copies in the database, Draft Pool and Free Agents.
+
+PLAYER MARKET DISPLAY
+
+The Player Market must continue showing only players appropriate to each tab.
+
+Add a clear summary near the page heading:
+
+208 total senior players
+96 currently available free agents
+
+Use live calculated values, not hard-coded numbers.
+
+The tab meanings must be:
+
+- Transfer Market: signed players officially transfer-listed
+- Draft Pool: players currently assigned to the draft
+- Youth: youth players available through the appropriate youth system
+- Free Agents: unsigned senior players available for immediate contract
+
+Do not display all 208 as free agents if some are signed to teams.
+
+FINAL VERIFICATION
+
+After any approved repair:
+
+1. Confirm exactly 208 unique senior players exist.
+2. Confirm every player has exactly one canonical database record.
+3. Confirm every player has one valid image reference.
+4. Confirm no signed player was moved or duplicated.
+5. Confirm team rosters and contracts remain intact.
+6. Confirm Free Agents shows only unsigned available players.
+7. Confirm all continent filters work.
+8. Confirm all role filters work.
+9. Confirm search can locate players from every status.
+10. Report the final exclusive breakdown that sums to 208.
+11. Report every record added, repaired or merged.
+12. Report the before-and-after database totals.
+
+Do not claim completion merely because the Free Agents page shows 208. Completion requires 208 unique senior players across the entire game database.
