@@ -33,6 +33,8 @@ import {
   CheckCircle2,
   Package,
   Handshake,
+  ArrowDown,
+  ArrowUp,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -613,6 +615,7 @@ export default function PlayerMarket() {
   const [posFilter, setPosFilter] = useState<string>("ALL");
   const [continent, setContinent] = useState<ContinentFilter>("ALL");
   const [search, setSearch]       = useState("");
+  const [statSort, setStatSort]   = useState<{ stat: string; dir: "desc" | "asc" } | null>(null);
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -734,7 +737,14 @@ export default function PlayerMarket() {
     }
   })();
 
-  const visiblePlayers = applySearch(baseFiltered);
+  const visiblePlayers = (() => {
+    const list = applySearch(baseFiltered);
+    if (!statSort) return list;
+    const { stat, dir } = statSort;
+    return [...list].sort((a, b) =>
+      dir === "desc" ? (b[stat] ?? 0) - (a[stat] ?? 0) : (a[stat] ?? 0) - (b[stat] ?? 0)
+    );
+  })();
 
   const youthFiltered = applySearch(
     (youthPool ?? []).filter(p => p.age >= 14 && p.age <= 17)
@@ -895,6 +905,57 @@ export default function PlayerMarket() {
                 {POSITION_LABELS[pos]}
               </Button>
             ))}
+          </div>
+
+          {/* Stat sort pills */}
+          <div className="flex gap-2 flex-wrap items-center">
+            {([
+              { stat: "power",   label: "Power",   icon: Zap,      color: "text-orange-500" },
+              { stat: "speed",   label: "Speed",   icon: Wind,     color: "text-blue-500"   },
+              { stat: "defense", label: "Defense", icon: Shield,   color: "text-green-500"  },
+              { stat: "serve",   label: "Serve",   icon: Target,   color: "text-purple-500" },
+              { stat: "block",   label: "Block",   icon: Shield,   color: "text-red-500"    },
+              { stat: "stamina", label: "Stamina", icon: Activity, color: "text-cyan-500"   },
+            ] as const).map(({ stat, label, icon: Icon, color }) => {
+              const active = statSort?.stat === stat;
+              const dir    = active ? statSort!.dir : null;
+              return (
+                <button
+                  key={stat}
+                  onClick={() => {
+                    if (!active) {
+                      setStatSort({ stat, dir: "desc" });
+                    } else if (dir === "desc") {
+                      setStatSort({ stat, dir: "asc" });
+                    } else {
+                      setStatSort(null);
+                    }
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors border",
+                    active
+                      ? "bg-secondary/20 border-secondary text-foreground"
+                      : "bg-muted/40 border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <Icon className={cn("h-3 w-3", active ? color : "")} />
+                  {label}
+                  {active && (
+                    dir === "desc"
+                      ? <ArrowDown className="h-3 w-3" />
+                      : <ArrowUp   className="h-3 w-3" />
+                  )}
+                </button>
+              );
+            })}
+            {statSort && (
+              <button
+                onClick={() => setStatSort(null)}
+                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 ml-1"
+              >
+                Clear sort
+              </button>
+            )}
           </div>
 
           {/* Result count */}
