@@ -1,0 +1,426 @@
+diff --git a/artifacts/api-server/src/routes/matches.ts b/artifacts/api-server/src/routes/matches.ts
+index 39350bb..e348295 100644
+--- a/artifacts/api-server/src/routes/matches.ts
++++ b/artifacts/api-server/src/routes/matches.ts
+@@ -1,7 +1,7 @@
+ import { Router } from "express";
+ import { getActiveTeam } from "../lib/getActiveTeam.js";
+ import { db } from "@workspace/db";
+-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable } from "@workspace/db";
++import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable } from "@workspace/db";
+ import { eq, desc, gt, gte, and, sql } from "drizzle-orm";
+ import { WORLD_TOUR } from "../data/worldTour";
+ import type { WorldTourEvent } from "../data/worldTour";
+@@ -10,6 +10,7 @@ import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
+ import { autoCompleteContinentalMissions } from "./continental-scouting";
+ import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
+ import { getSession, getSessionId, updateSession } from "../lib/auth.js";
++import { startMatchTick } from "../utils/match-tick-engine.js";
+ 
+ const router = Router();
+ 
+@@ -233,7 +234,7 @@ export function getWeatherEffects(weather: string, windSpeed: number, temperatur
+   }
+ }
+ 
+-const serializeMatch = (m: any) => ({
++export const serializeMatch = (m: any) => ({
+   ...m,
+   prizeAmount: m.prizeAmount ? Number(m.prizeAmount) : null,
+   windSpeed:   m.windSpeed   ? Number(m.windSpeed)   : null,
+@@ -292,7 +293,7 @@ function rollInjurySeverity(currentStatus: string): { status: string; weeks: num
+   return                    { status: "Unavailable",  weeks: 12 };
+ }
+ 
+-type PlayerEvent = {
++export type PlayerEvent = {
+   playerId: number;
+   playerName: string;
+   event: "injury_new" | "injury_worsened" | "recovery_complete";
+@@ -306,7 +307,7 @@ type PlayerEvent = {
+  *  - Bench/reserve:   fatigue ↓, fitness ↑, consecutive resets, injury weeks tick down
+  * Returns events (new injuries, worsenings, recoveries) for the UI to surface.
+  */
+-async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false, windSpeed = 0, temperature = 25): Promise<PlayerEvent[]> {
++export async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false, windSpeed = 0, temperature = 25): Promise<PlayerEvent[]> {
+   const [players, physioSkill] = await Promise.all([
+     db.select().from(playersTable).where(eq(playersTable.teamId, teamId)),
+     getBestMedicalSkill(teamId),
+@@ -662,6 +663,39 @@ router.get("/matches/:id", async (req, res) => {
+   res.json(serializeMatch(match));
+ });
+ 
++// ─── POST /api/matches/:id/watch ─────────────────────────────────────────────
++/**
++ * Starts the live point-tick engine for a match — this is what the "Watch
++ * Match" button should call before opening the Unity 3D court, instead of
++ * navigating straight there. Fire-and-forget: responds as soon as the loop
++ * is scheduled, does not wait for the match to finish.
++ */
++router.post("/matches/:id/watch", async (req, res) => {
++  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
++  const id = parseInt(req.params.id);
++  if (isNaN(id)) { res.status(400).json({ error: "Invalid match id" }); return; }
++
++  const result = await startMatchTick(id);
++  if (!result.ok) { res.status(400).json({ error: result.error }); return; }
++  res.json({ ok: true, matchId: id });
++});
++
++// ─── GET /api/matches/:id/live-state ─────────────────────────────────────────
++/**
++ * Web-frontend polling endpoint — same underlying data as /unity/match-state
++ * but scoped to a specific match and requiring auth (unlike the Unity route,
++ * which is a no-auth external-service endpoint).
++ */
++router.get("/matches/:id/live-state", async (req, res) => {
++  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
++  const id = parseInt(req.params.id);
++  if (isNaN(id)) { res.status(400).json({ error: "Invalid match id" }); return; }
++
++  const state = await db.query.matchLiveStateTable.findFirst({ where: eq(matchLiveStateTable.matchId, id) });
++  if (!state) { res.status(404).json({ error: "No live state for this match yet" }); return; }
++  res.json(state);
++});
++
+ router.post("/matches/:id/simulate", async (req, res) => {
+   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+   const id = parseInt(req.params.id);
+@@ -705,11 +739,25 @@ router.post("/matches/:id/simulate", async (req, res) => {
+   const psychBonusFromCamp = hasPsychCamp ? 3 : 0;
+   const statThreshold = isHighPressure ? Math.max(58, 70 - (psychLevel - 1) - psychBonusFromCamp) : 70;
+ 
+-  // Rally randomness: harsh weather = more chaos, perfect = consistent play
+-  const baseRoll = Math.max(2, 3 + wx.rallyRandomness);
+-  const homeScore = Math.floor(Math.random() * baseRoll) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
+-  const awayScore = Math.floor(Math.random() * baseRoll) + 1;
+-  const homeWon   = homeScore > awayScore;
++  // Score source: either the point-tick engine already played this match live
++  // (body carries the real outcome) or we fall back to the instant random roll
++  // used by the "Sim Result" button. Everything below this point — economy,
++  // injuries, achievements, board review — is identical either way.
++  const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
++    req.body?.precomputedResult;
++
++  let homeScore: number;
++  let awayScore: number;
++  if (precomputed && Number.isInteger(precomputed.homeScore) && Number.isInteger(precomputed.awayScore)) {
++    homeScore = precomputed.homeScore;
++    awayScore = precomputed.awayScore;
++  } else {
++    // Rally randomness: harsh weather = more chaos, perfect = consistent play
++    const baseRoll = Math.max(2, 3 + wx.rallyRandomness);
++    homeScore = Math.floor(Math.random() * baseRoll) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
++    awayScore = Math.floor(Math.random() * baseRoll) + 1;
++  }
++  const homeWon = homeScore > awayScore;
+ 
+   const weatherHighlights: Record<string, string> = {
+     stormy:       "Players battle through gusting winds and dramatic conditions!",
+@@ -750,6 +798,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
+     awayScore,
+     status: "completed",
+     highlights,
++    ...(precomputed?.sets ? { sets: precomputed.sets } : {}),
+   }).where(eq(matchesTable.id, id)).returning();
+ 
+   // All-Star exhibition: no standings updates (wins/losses/prize/board confidence unchanged).
+diff --git a/artifacts/api-server/src/routes/unity.ts b/artifacts/api-server/src/routes/unity.ts
+index 3f14586..cd1c2be 100644
+--- a/artifacts/api-server/src/routes/unity.ts
++++ b/artifacts/api-server/src/routes/unity.ts
+@@ -1,5 +1,5 @@
+ import { Router } from "express";
+-import { db, matchesTable, locationsTable, playersTable, teamsTable } from "@workspace/db";
++import { db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable } from "@workspace/db";
+ import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
+ import { logger } from "../lib/logger.js";
+ 
+@@ -25,30 +25,38 @@ function estimateCrowdSize(tier: string | null | undefined): number {
+ }
+ 
+ /**
+- * GET /unity/match-state
++ * GET /unity/match-state?matchId=123
+  *
+  * Read-only endpoint for Unity integration.
+- * Returns the current in-progress match, or the most recent completed match
+- * if no match is currently live.
++ * If matchId is given, returns that specific match (plus its live tick
++ * state, if the point-tick engine has one running/finished for it).
++ * If matchId is omitted, falls back to the previous behavior: the current
++ * in-progress match, or the most recently completed one.
+  * No auth required — Unity connects as an external service.
+  */
+ router.get("/unity/match-state", async (req, res): Promise<void> => {
+-  // Prefer an in-progress match; fall back to the most recently completed one
+-  const statusPriority = ["in_progress", "completed", "scheduled"];
++  const matchIdParam = req.query.matchId != null ? parseInt(String(req.query.matchId)) : NaN;
+ 
+   let match: typeof matchesTable.$inferSelect | null = null;
+ 
+-  for (const status of statusPriority) {
+-    const [row] = await db
+-      .select()
+-      .from(matchesTable)
+-      .where(eq(matchesTable.status, status))
+-      .orderBy(desc(matchesTable.createdAt))
+-      .limit(1);
++  if (!isNaN(matchIdParam)) {
++    const [row] = await db.select().from(matchesTable).where(eq(matchesTable.id, matchIdParam)).limit(1);
++    match = row ?? null;
++  } else {
++    // Legacy fallback — prefer an in-progress match; fall back to the most recently completed one
++    const statusPriority = ["in_progress", "completed", "scheduled"];
++    for (const status of statusPriority) {
++      const [row] = await db
++        .select()
++        .from(matchesTable)
++        .where(eq(matchesTable.status, status))
++        .orderBy(desc(matchesTable.createdAt))
++        .limit(1);
+ 
+-    if (row) {
+-      match = row;
+-      break;
++      if (row) {
++        match = row;
++        break;
++      }
+     }
+   }
+ 
+@@ -57,6 +65,11 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
+     return;
+   }
+ 
++  // Live tick state, if the point-tick engine has (or had) one for this match
++  const liveState = await db.query.matchLiveStateTable.findFirst({
++    where: eq(matchLiveStateTable.matchId, match.id),
++  });
++
+   // Resolve venue name — prefer denormalised column, fall back to location join
+   let venueName = match.locationName ?? null;
+   if (!venueName && match.locationId) {
+@@ -214,32 +227,37 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
+     venue:                venueName,
+     homeTeam:             match.homeTeamName ?? null,
+     awayTeam:             match.awayTeamName ?? null,
+-    homeScore:            match.homeScore  ?? 0,
+-    awayScore:            match.awayScore  ?? 0,
+-    servingTeam:          null,   // live state — not persisted in DB
++    // Sets won — the score that decides the match. Falls back to the raw
++    // homeScore/awayScore columns once the match has been finalized.
++    homeScore:            liveState?.setsWonHome ?? match.homeScore ?? 0,
++    awayScore:            liveState?.setsWonAway ?? match.awayScore ?? 0,
++    servingTeam:          liveState?.servingTeam ?? null,
+     weather:              match.weather,
+     windSpeed:            match.windSpeed != null ? parseFloat(match.windSpeed) : null,
+     crowdSize:            estimateCrowdSize(match.tier),
+-    commentaryLine,
+-    // Boost — live state, not persisted in DB
++    commentaryLine:       liveState?.lastAction ?? commentaryLine,
++    // Boost mechanic isn't implemented in the API yet — always off for now.
+     attackBoostActive:    false,
+     defenceBoostActive:   false,
+     attackBoostTeam:      null,
+     defenceBoostTeam:     null,
+     attackBoostRemaining: 0,
+     defenceBoostRemaining: 0,
+-    // Rally / live match state — not persisted in DB
+-    currentServer:        null,
+-    ballOwner:            null,
+-    rallyState:           "unknown",
+-    lastAction:           "",
+-    lastActionPlayer:     null,
+-    lastActionTeam:       null,
+-    lastOutcome:          "",
+-    pointWinner:          null,
+-    setA:                 0,
+-    setB:                 0,
+-    matchTime:            0,
++    // Live rally state — real values once a match has been started via
++    // POST /matches/:id/watch; unset/defaults for matches that were only
++    // ever instant-simulated via the "Sim Result" button.
++    currentServer:        liveState?.servingTeam ?? null,
++    ballOwner:            liveState?.ballOwnerId ?? null,
++    rallyState:           liveState?.rallyState ?? "unknown",
++    lastAction:           liveState?.lastAction ?? "",
++    lastActionPlayer:     liveState?.lastActionPlayerId ?? null,
++    lastActionTeam:       liveState?.lastActionTeam ?? null,
++    lastOutcome:          liveState?.lastOutcome ?? "",
++    pointWinner:          liveState?.pointWinner ?? null,
++    setA:                 liveState?.homeSetScore ?? 0,
++    setB:                 liveState?.awaySetScore ?? 0,
++    currentSet:           liveState?.currentSet ?? 1,
++    matchTime:            liveState?.matchTimeSeconds ?? 0,
+     players,
+   });
+ });
+diff --git a/artifacts/beach-volleyball/src/components/match-day-modal.tsx b/artifacts/beach-volleyball/src/components/match-day-modal.tsx
+index b222697..630b754 100644
+--- a/artifacts/beach-volleyball/src/components/match-day-modal.tsx
++++ b/artifacts/beach-volleyball/src/components/match-day-modal.tsx
+@@ -32,9 +32,11 @@ export function MatchDayModal() {
+     calendar,
+     isSimulating,
+     isDismissing,
++    isStartingWatch,
+     simulateMatch,
+     skipMatch,
+     dismissMatch,
++    watchMatch,
+   } = useCalendar();
+ 
+   const isOpen = !!calendar?.pendingMatchId && !!calendar?.pendingMatch;
+@@ -51,8 +53,15 @@ export function MatchDayModal() {
+ 
+   const tierLabel = match.tier ? match.tier.toUpperCase() : "WORLD TOUR";
+ 
+-  const handleWatchMatch = () => {
+-    navigate("/court");
++  const handleWatchMatch = async () => {
++    try {
++      await watchMatch(match.id);
++    } catch {
++      // If the tick engine fails to start, Unity's /unity/match-state falls
++      // back to its old "most recent match" behavior — still navigate so
++      // the player isn't stuck, just without a live-driven view.
++    }
++    navigate(`/court?matchId=${match.id}`);
+   };
+ 
+   const handleSimResult = () => {
+@@ -120,8 +129,13 @@ export function MatchDayModal() {
+             size="lg"
+             className="h-auto py-3 flex-col gap-1.5 bg-primary hover:bg-primary/90 col-span-2"
+             onClick={handleWatchMatch}
++            disabled={isStartingWatch || isSimulating || isDismissing}
+           >
+-            <Monitor className="h-5 w-5" />
++            {isStartingWatch ? (
++              <Loader2 className="h-5 w-5 animate-spin" />
++            ) : (
++              <Monitor className="h-5 w-5" />
++            )}
+             <span className="font-bold">Watch Match</span>
+             <span className="text-[10px] opacity-75 font-normal">Play on the 3D court</span>
+           </Button>
+@@ -131,7 +145,7 @@ export function MatchDayModal() {
+             size="lg"
+             className="h-auto py-3 flex-col gap-1.5"
+             onClick={handleSimResult}
+-            disabled={isSimulating || isDismissing}
++            disabled={isSimulating || isDismissing || isStartingWatch}
+           >
+             {isSimulating ? (
+               <Loader2 className="h-4 w-4 animate-spin" />
+diff --git a/artifacts/beach-volleyball/src/hooks/use-calendar.ts b/artifacts/beach-volleyball/src/hooks/use-calendar.ts
+index 60156b6..a4edfb0 100644
+--- a/artifacts/beach-volleyball/src/hooks/use-calendar.ts
++++ b/artifacts/beach-volleyball/src/hooks/use-calendar.ts
+@@ -143,6 +143,16 @@ export function useCalendar() {
+     },
+   });
+ 
++  // Starts the point-tick engine for a match. Does NOT dismiss the match-day
++  // modal or invalidate calendar — the match isn't decided yet, it's just
++  // begun. The caller (match-day-modal) navigates to /court after this
++  // resolves; once the live view later reports the match finished, call
++  // simulateMatch(matchId) to run the real economy off the live result.
++  const watchMatchMutation = useMutation<{ ok: boolean; matchId: number }, Error, number>({
++    mutationFn: (matchId) =>
++      apiFetch(`/api/matches/${matchId}/watch`, { method: "POST" }),
++  });
++
+   return {
+     calendar,
+     isLoading,
+@@ -151,11 +161,13 @@ export function useCalendar() {
+     isSettingSpeed:    setSpeedMutation.isPending,
+     isDismissing:      dismissMatchMutation.isPending,
+     isSimulating:      simulateMatchMutation.isPending,
++    isStartingWatch:   watchMatchMutation.isPending,
+     advance:           () => advanceMutation.mutate(),
+     setSpeed:          (speed: CalendarSpeed) => setSpeedMutation.mutate(speed),
+     dismissMatch:      () => dismissMatchMutation.mutate(),
+     skipMatch:         () => skipMatchMutation.mutate(),
+     simulateMatch:     (matchId: number) => simulateMatchMutation.mutate(matchId),
++    watchMatch:        (matchId: number) => watchMatchMutation.mutateAsync(matchId),
+     lastAdvanceResult: advanceMutation.data,
+     advanceMutation,
+   };
+diff --git a/artifacts/beach-volleyball/src/pages/court.tsx b/artifacts/beach-volleyball/src/pages/court.tsx
+index 2cfa45c..9512343 100644
+--- a/artifacts/beach-volleyball/src/pages/court.tsx
++++ b/artifacts/beach-volleyball/src/pages/court.tsx
+@@ -8,6 +8,11 @@ export default function ThreeDCourt() {
+   const [unityLoaded, setUnityLoaded] = useState(false);
+   const iframeRef = useRef<HTMLIFrameElement>(null);
+ 
++  // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
++  // Unity itself should read this from its own iframe location and call
++  // GET /unity/match-state?matchId=<id> instead of the old no-param fallback.
++  const matchId = new URLSearchParams(window.location.search).get("matchId");
++
+   useEffect(() => {
+     const buildUrl = `${import.meta.env.BASE_URL}unity-build/index.html`;
+     fetch(buildUrl, { method: "HEAD" })
+@@ -42,7 +47,7 @@ export default function ThreeDCourt() {
+       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+         <iframe
+           ref={iframeRef}
+-          src={`${import.meta.env.BASE_URL}unity-build/index.html`}
++          src={`${import.meta.env.BASE_URL}unity-build/index.html${matchId ? `?matchId=${matchId}` : ""}`}
+           title="Beach Volleyball 3D Court"
+           allow="fullscreen"
+           onLoad={() => {
+diff --git a/lib/db/src/schema/game.ts b/lib/db/src/schema/game.ts
+index bdf32ec..c37b255 100644
+--- a/lib/db/src/schema/game.ts
++++ b/lib/db/src/schema/game.ts
+@@ -384,11 +384,44 @@ export const matchesTable = pgTable("matches", {
+   highlights: json("highlights").$type<string[]>(),
+   continent: varchar("continent", { length: 100 }),
+   tier: varchar("tier", { length: 20 }),
++  // Set-by-set scores for the point-tick engine, e.g. [{home:21,away:18},{home:19,away:21},{home:15,away:9}]
++  // Populated as the live tick engine progresses; homeScore/awayScore remain the authoritative
++  // final-set (or match-level) totals used everywhere else once status = 'completed'.
++  sets: json("sets").$type<{ home: number; away: number }[]>(),
+   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+ });
+ 
+ export type Match = typeof matchesTable.$inferSelect;
+ 
++// ── Live match state ──────────────────────────────────────────────────────
++// One row per match while status = 'in_progress'. Written by the point-tick
++// engine (see matches.ts `startMatchTick`) and read by GET /unity/match-state.
++// Row is left in place after completion (rallyState becomes 'finished') so a
++// late Unity poll still gets a coherent final frame instead of a 404.
++export const matchLiveStateTable = pgTable("match_live_state", {
++  id: serial("id").primaryKey(),
++  matchId: integer("match_id").notNull().unique().references(() => matchesTable.id),
++  currentSet: integer("current_set").notNull().default(1),
++  homeSetScore: integer("home_set_score").notNull().default(0),
++  awaySetScore: integer("away_set_score").notNull().default(0),
++  setsWonHome: integer("sets_won_home").notNull().default(0),
++  setsWonAway: integer("sets_won_away").notNull().default(0),
++  servingTeam: varchar("serving_team", { length: 10 }), // 'home' | 'away'
++  currentServerId: integer("current_server_id").references(() => playersTable.id),
++  ballOwnerId: integer("ball_owner_id").references(() => playersTable.id),
++  // 'serving' | 'in_rally' | 'dead_ball' | 'set_break' | 'finished'
++  rallyState: varchar("rally_state", { length: 20 }).notNull().default("serving"),
++  lastAction: varchar("last_action", { length: 255 }),
++  lastActionPlayerId: integer("last_action_player_id").references(() => playersTable.id),
++  lastActionTeam: varchar("last_action_team", { length: 10 }), // 'home' | 'away'
++  lastOutcome: varchar("last_outcome", { length: 255 }),
++  pointWinner: varchar("point_winner", { length: 10 }), // 'home' | 'away'
++  matchTimeSeconds: integer("match_time_seconds").notNull().default(0),
++  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
++});
++
++export type MatchLiveState = typeof matchLiveStateTable.$inferSelect;
++
+ export const financeTransactionsTable = pgTable("finance_transactions", {
+   id: serial("id").primaryKey(),
+   teamId: integer("team_id").notNull().references(() => teamsTable.id),

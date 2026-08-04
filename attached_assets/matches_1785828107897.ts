@@ -663,44 +663,37 @@ router.get("/matches/:id", async (req, res) => {
   res.json(serializeMatch(match));
 });
 
+// ─── POST /api/matches/:id/watch ─────────────────────────────────────────────
 /**
- * POST /matches/:id/watch
- * Starts the point-tick engine for a match and marks it in_progress.
- * The frontend navigates to /court after calling this; Unity then polls
- * GET /unity/match-state?matchId=:id to see each tick update.
+ * Starts the live point-tick engine for a match — this is what the "Watch
+ * Match" button should call before opening the Unity 3D court, instead of
+ * navigating straight there. Fire-and-forget: responds as soon as the loop
+ * is scheduled, does not wait for the match to finish.
  */
-router.post("/matches/:id/watch", async (req, res): Promise<void> => {
+router.post("/matches/:id/watch", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid match id" }); return; }
-  const match = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
-  if (!match) { res.status(404).json({ error: "Match not found" }); return; }
-  if (match.status === "completed") {
-    res.status(409).json({ error: "Match already completed" });
-    return;
-  }
+
   const result = await startMatchTick(id);
-  if (!result.ok) {
-    res.status(500).json({ error: result.error ?? "Failed to start match" });
-    return;
-  }
+  if (!result.ok) { res.status(400).json({ error: result.error }); return; }
   res.json({ ok: true, matchId: id });
 });
 
+// ─── GET /api/matches/:id/live-state ─────────────────────────────────────────
 /**
- * GET /matches/:id/live-state
- * Returns the latest tick state from matchLiveStateTable. Returns 404 if
- * the match hasn't been started via /watch yet.
+ * Web-frontend polling endpoint — same underlying data as /unity/match-state
+ * but scoped to a specific match and requiring auth (unlike the Unity route,
+ * which is a no-auth external-service endpoint).
  */
-router.get("/matches/:id/live-state", async (req, res): Promise<void> => {
+router.get("/matches/:id/live-state", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid match id" }); return; }
-  const liveState = await db.query.matchLiveStateTable.findFirst({
-    where: eq(matchLiveStateTable.matchId, id),
-  });
-  if (!liveState) { res.status(404).json({ error: "No live state for this match" }); return; }
-  res.json(liveState);
+
+  const state = await db.query.matchLiveStateTable.findFirst({ where: eq(matchLiveStateTable.matchId, id) });
+  if (!state) { res.status(404).json({ error: "No live state for this match yet" }); return; }
+  res.json(state);
 });
 
 router.post("/matches/:id/simulate", async (req, res) => {
@@ -748,7 +741,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   // Score source: either the point-tick engine already played this match live
   // (body carries the real outcome) or we fall back to the instant random roll
-  // used by the "Sim Result" button.
+  // used by the "Sim Result" button. Everything below this point — economy,
+  // injuries, achievements, board review — is identical either way.
   const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
     req.body?.precomputedResult;
 
