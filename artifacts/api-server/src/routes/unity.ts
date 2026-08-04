@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, matchesTable, locationsTable, playersTable, teamsTable } from "@workspace/db";
-import { eq, desc, inArray, or } from "drizzle-orm";
+import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
@@ -68,51 +68,113 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     venueName = location?.name ?? null;
   }
 
-  // Fetch players — use lineup IDs if present, otherwise both team rosters
-  const lineupIds = match.lineup ?? [];
-  let rawPlayers: (typeof playersTable.$inferSelect)[] = [];
+  // SQL expression for computed overall — used for ordering fallback queries
+  const overallExpr = sql`(${playersTable.speed}+${playersTable.power}+${playersTable.defense}+${playersTable.serve}+${playersTable.block}+${playersTable.stamina})`;
 
-  if (lineupIds.length > 0) {
-    rawPlayers = await db
-      .select()
-      .from(playersTable)
-      .where(inArray(playersTable.id, lineupIds));
-  } else if (match.homeTeamId || match.awayTeamId) {
-    const teamConditions = [
-      match.homeTeamId ? eq(playersTable.teamId, match.homeTeamId) : null,
-      match.awayTeamId ? eq(playersTable.teamId, match.awayTeamId) : null,
-    ].filter(Boolean) as Parameters<typeof or>;
-    rawPlayers = await db
-      .select()
-      .from(playersTable)
-      .where(or(...teamConditions));
+  // Fetch exactly 2 home players and 2 away players.
+  //
+  // Path A — explicit lineup: the match stores 4 player IDs (home1,home2,away1,away2).
+  //           Use them directly; team label is resolved by teamId comparison below.
+  //
+  // Path B — no lineup (most matches): query home and away separately so we always
+  //           get 2 per side even when the away team is an AI club with no DB rows.
+  const lineupIds = match.lineup ?? [];
+
+  type PlayerRow = typeof playersTable.$inferSelect;
+  let homePlayers: PlayerRow[] = [];
+  let awayPlayers: PlayerRow[] = [];
+
+  if (lineupIds.length >= 4) {
+    // Path A — explicit lineup (first 2 = home, last 2 = away)
+    const homeIds = lineupIds.slice(0, 2);
+    const awayIds = lineupIds.slice(2, 4);
+    [homePlayers, awayPlayers] = await Promise.all([
+      db.select().from(playersTable).where(inArray(playersTable.id, homeIds)),
+      db.select().from(playersTable).where(inArray(playersTable.id, awayIds)),
+    ]);
+  } else {
+    // Path B — derive from team IDs
+
+    // Home: top 2 active seniors on the home team
+    if (match.homeTeamId) {
+      homePlayers = await db
+        .select()
+        .from(playersTable)
+        .where(and(
+          eq(playersTable.teamId,    match.homeTeamId),
+          eq(playersTable.isActive,  true),
+          eq(playersTable.playerType, "senior"),
+        ))
+        .orderBy(desc(overallExpr))
+        .limit(2);
+    }
+
+    // Away: top 2 active seniors on the away team, if it is a distinct DB team
+    const awayIsDistinct = match.awayTeamId != null && match.awayTeamId !== match.homeTeamId;
+    if (awayIsDistinct) {
+      awayPlayers = await db
+        .select()
+        .from(playersTable)
+        .where(and(
+          eq(playersTable.teamId,    match.awayTeamId!),
+          eq(playersTable.isActive,  true),
+          eq(playersTable.playerType, "senior"),
+        ))
+        .orderBy(desc(overallExpr))
+        .limit(2);
+    }
+
+    // Fallback: AI opponent has no DB team — fill remaining slots from the
+    // unsigned senior pool, excluding anyone already selected for home.
+    if (awayPlayers.length < 2) {
+      const needed    = 2 - awayPlayers.length;
+      const excludeIds = [
+        ...homePlayers.map((p) => p.id),
+        ...awayPlayers.map((p) => p.id),
+      ];
+      const fallbackWhere = excludeIds.length > 0
+        ? and(
+            isNull(playersTable.teamId),
+            eq(playersTable.playerType, "senior"),
+            eq(playersTable.isActive,   true),
+            notInArray(playersTable.id, excludeIds),
+          )
+        : and(
+            isNull(playersTable.teamId),
+            eq(playersTable.playerType, "senior"),
+            eq(playersTable.isActive,   true),
+          );
+
+      const fillPlayers = await db
+        .select()
+        .from(playersTable)
+        .where(fallbackWhere)
+        .orderBy(desc(overallExpr))
+        .limit(needed);
+
+      awayPlayers = [...awayPlayers, ...fillPlayers];
+    }
   }
 
-  // Fetch team colors for all players that have a teamId
-  const teamIds = [...new Set(rawPlayers.map((p) => p.teamId).filter((id): id is number => id != null))];
-  const teamRows = teamIds.length > 0
-    ? await db.select().from(teamsTable).where(inArray(teamsTable.id, teamIds))
+  // Fetch team colors for all DB-team players in one round-trip
+  const allRows    = [...homePlayers, ...awayPlayers];
+  const dbTeamIds  = [...new Set(allRows.map((p) => p.teamId).filter((id): id is number => id != null))];
+  const teamRows   = dbTeamIds.length > 0
+    ? await db.select().from(teamsTable).where(inArray(teamsTable.id, dbTeamIds))
     : [];
   const teamColorMap = new Map(teamRows.map((t) => [t.id, t]));
 
-  const players = rawPlayers.map((p) => {
-    // Determine which team label this player belongs to
-    let team: string | null = null;
-    if (p.teamId === match!.homeTeamId)      team = match!.homeTeamName ?? null;
-    else if (p.teamId === match!.awayTeamId) team = match!.awayTeamName ?? null;
-
-    // Resolve team kit colours from the teams table
-    const teamRow = p.teamId != null ? teamColorMap.get(p.teamId) : undefined;
+  // Serialise a player row, tagging it with its match-side team label
+  function serializeMatchPlayer(p: PlayerRow, teamLabel: string | null) {
+    const teamRow      = p.teamId != null ? teamColorMap.get(p.teamId) : undefined;
     const primaryColor   = teamRow?.logoColor          ?? null;
     const secondaryColor = teamRow?.secondaryLogoColor ?? null;
-
-    // Resolve skinTone from player_v4 JSONB visual_identity block
-    const skinTone = (p.playerV4 as any)?.visual_identity?.skin_tone ?? null;
+    const skinTone       = (p.playerV4 as any)?.visual_identity?.skin_tone ?? null;
 
     return {
       id:            p.id,
       name:          p.name,
-      team,
+      team:          teamLabel,
       position:      p.position,
       speed:         p.speed,
       power:         p.power,
@@ -132,7 +194,15 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       secondaryColor,
       skinTone,
     };
-  });
+  }
+
+  const homeLabel = match.homeTeamName ?? null;
+  const awayLabel = match.awayTeamName ?? null;
+
+  const players = [
+    ...homePlayers.map((p) => serializeMatchPlayer(p, homeLabel)),
+    ...awayPlayers.map((p) => serializeMatchPlayer(p, awayLabel)),
+  ];
 
   req.log.info({ matchId: match.id, status: match.status, playerCount: players.length }, "unity/match-state served");
 
