@@ -1,0 +1,173 @@
+Unity Player Integration Audit (DO NOT MODIFY ANY CODE)
+
+I want a complete audit of the current Unity player integration before we make any changes.
+
+This is an investigation only.
+
+Do NOT modify code, rebalance players, regenerate stats, or rewrite MatchManager. I only want a detailed report.
+
+1. Trace the Complete Player Pipeline
+
+Map the complete journey of player data from the Replit database into Unity.
+
+For every step identify:
+
+Filename
+Class
+Function/Method
+Purpose
+Whether it is currently active
+Whether data is successfully passed
+
+Example:
+
+Database
+↓
+JSON/API
+↓
+Player Loader
+↓
+PlayerStats
+↓
+MatchManager
+2. PlayerStats Audit
+
+List every variable contained in PlayerStats.
+
+For every variable include:
+
+Variable name
+Data type
+Where it is assigned
+Where it is updated
+Where it is used
+
+Example:
+
+Serve
+Power
+Defence
+Speed
+Stamina
+Morale
+Overall
+Height
+Weight
+Age
+Blocking
+Jump
+etc.
+3. MatchManager Usage
+
+Create a table showing exactly which PlayerStats variables MatchManager currently uses.
+
+Example:
+
+Stat	Used	Purpose
+Serve	Yes	Serve accuracy
+Power	Yes	Spike strength
+Defence	Yes	Dig quality
+Speed	Yes	Movement
+Morale	Yes	Performance modifier
+Stamina	Yes	Fatigue
+Overall	Yes	Overall modifier
+Height	No	Not currently used
+4. Player Database Audit
+
+Inspect every player currently in the database.
+
+Report:
+
+Total players
+Minimum Overall
+Maximum Overall
+Average Overall
+Minimum and Maximum for every attribute
+Missing values
+Null values
+Duplicate values
+Default values
+
+Do not change any player data.
+
+5. Origin of Player Ratings
+
+Identify which player ratings were:
+
+Imported from the original player cards/images
+Estimated by AI
+Randomly generated
+Default values
+
+Estimate approximately what percentage of the database falls into each category.
+
+6. Statistical Spread
+
+Produce a report showing whether the player database has enough variation to create noticeably different gameplay.
+
+Examples:
+
+Serve range
+Power range
+Defence range
+Speed range
+Morale range
+Stamina range
+
+If most players are clustered within only a few rating points, identify this as a gameplay issue.
+
+7. Unused Player Attributes
+
+List every player attribute that exists but is never used anywhere in Unity.
+
+8. Missing Gameplay Attributes
+
+Recommend additional attributes that would improve gameplay realism without changing the current architecture.
+
+Examples include:
+
+Aggression
+Risk Taking
+Decision Making
+Clutch Performance
+Consistency
+Leadership
+Blocking Reach
+Jump Timing
+Recovery Rate
+Composure
+Court Awareness
+
+Do NOT implement them.
+
+9. Bottleneck Analysis
+
+Identify every reason why players may currently feel too similar during matches.
+
+Examples:
+
+Ratings too close together
+Match formulas compressing differences
+AI decisions not using player strengths
+Overall rating overpowering specialist skills
+Stats loaded correctly but not utilised
+10. Final Assessment
+
+Answer these questions:
+
+Is Unity currently using real player data from Replit?
+Is every player genuinely unique during gameplay?
+What are the biggest weaknesses in the current player system?
+What are the five highest-impact improvements?
+Is the current system good enough for a Steam release, or should improvements be made first?
+IMPORTANT
+
+This is an audit only.
+
+Do NOT modify code.
+Do NOT rewrite MatchManager.
+Do NOT rebalance players.
+Do NOT regenerate ratings.
+Do NOT change any files.
+
+Return a comprehensive report first so we can decide on the next course of action.

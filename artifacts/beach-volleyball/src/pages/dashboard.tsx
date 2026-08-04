@@ -415,7 +415,7 @@ export default function Dashboard() {
           backgroundColor: "#0a0f1e",
           backgroundImage: [
             "linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.35) 38%, rgba(0,0,0,0.82) 100%)",
-            "url('/images/hero-women-volleyball.png')",
+            "url('/images/hero-women-volleyball.webp')",
           ].join(", "),
           backgroundSize: "cover",
           backgroundPosition: "center 30%",
