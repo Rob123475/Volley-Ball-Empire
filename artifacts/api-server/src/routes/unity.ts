@@ -1,9 +1,17 @@
 import { Router } from "express";
-import { db, matchesTable, locationsTable, playersTable } from "@workspace/db";
+import { db, matchesTable, locationsTable, playersTable, teamsTable } from "@workspace/db";
 import { eq, desc, inArray, or } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 
 const router = Router();
+
+// Compute overall rating from the six core stats (mirrors game-api.ts)
+function computeOverall(p: {
+  speed: number; power: number; defense: number;
+  serve: number; block: number; stamina: number;
+}): number {
+  return Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
+}
 
 // Crowd size estimate by match tier
 function estimateCrowdSize(tier: string | null | undefined): number {
@@ -80,21 +88,49 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       .where(or(...teamConditions));
   }
 
+  // Fetch team colors for all players that have a teamId
+  const teamIds = [...new Set(rawPlayers.map((p) => p.teamId).filter((id): id is number => id != null))];
+  const teamRows = teamIds.length > 0
+    ? await db.select().from(teamsTable).where(inArray(teamsTable.id, teamIds))
+    : [];
+  const teamColorMap = new Map(teamRows.map((t) => [t.id, t]));
+
   const players = rawPlayers.map((p) => {
     // Determine which team label this player belongs to
     let team: string | null = null;
     if (p.teamId === match!.homeTeamId)      team = match!.homeTeamName ?? null;
     else if (p.teamId === match!.awayTeamId) team = match!.awayTeamName ?? null;
 
+    // Resolve team kit colours from the teams table
+    const teamRow = p.teamId != null ? teamColorMap.get(p.teamId) : undefined;
+    const primaryColor   = teamRow?.logoColor          ?? null;
+    const secondaryColor = teamRow?.secondaryLogoColor ?? null;
+
+    // Resolve skinTone from player_v4 JSONB visual_identity block
+    const skinTone = (p.playerV4 as any)?.visual_identity?.skin_tone ?? null;
+
     return {
       id:            p.id,
       name:          p.name,
       team,
       position:      p.position,
-      fatigue:       p.fatigue        ?? 0,
-      stamina:       p.stamina        ?? 100,
-      injured:       p.isInjured      ?? false,
-      injuryStatus:  p.injuryStatus   ?? "",
+      speed:         p.speed,
+      power:         p.power,
+      defense:       p.defense,
+      serve:         p.serve,
+      block:         p.block,
+      stamina:       p.stamina,
+      overall:       computeOverall(p),
+      morale:        p.morale,
+      fatigue:       p.fatigue,
+      fitness:       p.fitness,
+      injured:       p.isInjured,
+      injuryStatus:  p.injuryStatus,
+      age:           p.age,
+      height:        p.height != null ? parseFloat(p.height) : null,
+      primaryColor,
+      secondaryColor,
+      skinTone,
     };
   });
 

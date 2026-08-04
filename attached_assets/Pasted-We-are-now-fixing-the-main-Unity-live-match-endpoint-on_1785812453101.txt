@@ -1,0 +1,73 @@
+We are now fixing the main Unity live-match endpoint only.
+
+Target endpoint:
+GET /unity/match-state
+
+Current problem:
+The player payload sent by this endpoint includes only partial data. It currently sends fields such as id, name, team, position, stamina, injured, and injuryStatus, but it does not send the core gameplay ratings Unity needs.
+
+Update the existing /unity/match-state response so that every player object also includes these real database values:
+
+- speed
+- power
+- defense
+- serve
+- block
+- overall
+- morale
+- fatigue
+- fitness
+- age
+- height
+- primaryColor
+- secondaryColor
+- skinTone
+
+Important rules:
+
+1. Do not create a second endpoint.
+2. Do not change the route name.
+3. Do not remove any existing response fields.
+4. Do not hardcode fallback values unless the database value is genuinely null.
+5. Fatigue must use the actual database value, not a hardcoded 0.
+6. Use the existing player database columns and existing serializer patterns already used by /api/game/squad where possible.
+7. Preserve the current team assignment and player-selection logic.
+8. Do not alter the database schema.
+9. Do not modify Unity files or the compiled WebGL build.
+10. Do not change gameplay logic, match simulation, scoring, UI, or post-match writes.
+
+The final player object returned by /unity/match-state should contain at minimum:
+
+{
+  id,
+  name,
+  team,
+  position,
+  speed,
+  power,
+  defense,
+  serve,
+  block,
+  stamina,
+  overall,
+  morale,
+  fatigue,
+  fitness,
+  injured,
+  injuryStatus,
+  age,
+  height,
+  primaryColor,
+  secondaryColor,
+  skinTone
+}
+
+After making the change:
+
+A. Show me the exact file or files changed.
+B. Show me the final serializer or mapping code.
+C. Show me one real example JSON response from GET /unity/match-state.
+D. Confirm that speed, power, defense, serve, block, overall, morale and fatigue are coming from the database.
+E. Confirm that no existing endpoint fields were removed.
+F. Run a typecheck/build and report any errors.
+G. Do not make any additional changes beyond this endpoint fix.
