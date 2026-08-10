@@ -1,34 +1,34 @@
-import { pgTable, serial, varchar, integer, numeric, boolean, timestamp, text, json, jsonb } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./auth";
 
-export const locationsTable = pgTable("locations", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  country: varchar("country", { length: 100 }).notNull(),
-  city: varchar("city", { length: 100 }).notNull(),
+export const locationsTable = sqliteTable("locations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  country: text("country").notNull(),
+  city: text("city").notNull(),
   description: text("description").notNull().default(""),
-  weatherPatterns: json("weather_patterns").$type<string[]>().notNull().default([]),
-  imageUrl: varchar("image_url", { length: 500 }),
-  courtType: varchar("court_type", { length: 100 }).notNull().default("sand"),
-  latitude: numeric("latitude", { precision: 9, scale: 6 }),
-  longitude: numeric("longitude", { precision: 9, scale: 6 }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  weatherPatterns: text("weather_patterns", { mode: "json" }).$type<string[]>().notNull().default([]),
+  imageUrl: text("image_url"),
+  courtType: text("court_type").notNull().default("sand"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Location = typeof locationsTable.$inferSelect;
 export type InsertLocation = typeof locationsTable.$inferInsert;
 
-export const outfitsTable = pgTable("outfits", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  primaryColor: varchar("primary_color", { length: 20 }).notNull(),
-  secondaryColor: varchar("secondary_color", { length: 20 }).notNull(),
-  description: varchar("description", { length: 255 }).notNull().default(""),
-  price: numeric("price", { precision: 10, scale: 2 }).notNull().default("0"),
-  imageUrl: varchar("image_url", { length: 500 }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+export const outfitsTable = sqliteTable("outfits", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  primaryColor: text("primary_color").notNull(),
+  secondaryColor: text("secondary_color").notNull(),
+  description: text("description").notNull().default(""),
+  price: real("price").notNull().default(0),
+  imageUrl: text("image_url"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Outfit = typeof outfitsTable.$inferSelect;
@@ -166,62 +166,62 @@ export type CareerStats = {
   currentSeasonLosses: number;
 };
 
-export const teamsTable = pgTable("teams", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => usersTable.id),
-  name: varchar("name", { length: 100 }).notNull(),
-  budget: numeric("budget", { precision: 14, scale: 2 }).notNull().default("500000"),
+export const teamsTable = sqliteTable("teams", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id").notNull().references(() => usersTable.id),
+  name: text("name").notNull(),
+  budget: real("budget").notNull().default(500000),
   reputation: integer("reputation").notNull().default(50),
   wins: integer("wins").notNull().default(0),
   losses: integer("losses").notNull().default(0),
   titlesWon: integer("titles_won").notNull().default(0),
   locationId: integer("location_id").references(() => locationsTable.id),
-  logoColor: varchar("logo_color", { length: 20 }),
-  secondaryLogoColor: varchar("secondary_logo_color", { length: 20 }),
-  trainingPhilosophy: varchar("training_philosophy", { length: 30 }),
+  logoColor: text("logo_color"),
+  secondaryLogoColor: text("secondary_logo_color"),
+  trainingPhilosophy: text("training_philosophy"),
   managerRepPoints: integer("manager_rep_points").notNull().default(0),
   winStreak: integer("win_streak").notNull().default(0),
   sponsorReputation: integer("sponsor_reputation").notNull().default(50),
   boardConfidence: integer("board_confidence").notNull().default(60),
-  youthScoutingContinent: varchar("youth_scouting_continent", { length: 50 }),
-  youthScoutingStatus: varchar("youth_scouting_status", { length: 20 }).notNull().default("idle"),
+  youthScoutingContinent: text("youth_scouting_continent"),
+  youthScoutingStatus: text("youth_scouting_status").notNull().default("idle"),
   youthScoutingWeeksRemaining: integer("youth_scouting_weeks_remaining").notNull().default(0),
-  careerStats: jsonb("career_stats").$type<CareerStats>(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  careerStats: text("career_stats", { mode: "json" }).$type<CareerStats>(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Team = typeof teamsTable.$inferSelect;
 export const insertTeamSchema = createInsertSchema(teamsTable).omit({ id: true, createdAt: true });
 
-export const achievementsTable = pgTable("achievements", {
-  id: serial("id").primaryKey(),
+export const achievementsTable = sqliteTable("achievements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  achievementKey: varchar("achievement_key", { length: 100 }).notNull(),
-  unlockedAt: timestamp("unlocked_at", { withTimezone: true }).notNull().defaultNow(),
+  achievementKey: text("achievement_key").notNull(),
+  unlockedAt: integer("unlocked_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   seasonUnlocked: integer("season_unlocked"),
 });
 
 export type AchievementRecord = typeof achievementsTable.$inferSelect;
 
-export const userProfilesTable = pgTable("user_profiles", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().unique().references(() => usersTable.id),
-  teamName: varchar("team_name", { length: 100 }).notNull(),
+export const userProfilesTable = sqliteTable("user_profiles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id").notNull().unique().references(() => usersTable.id),
+  teamName: text("team_name").notNull(),
   totalWins: integer("total_wins").notNull().default(0),
   totalLosses: integer("total_losses").notNull().default(0),
-  totalEarnings: numeric("total_earnings", { precision: 14, scale: 2 }).notNull().default("0"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  totalEarnings: real("total_earnings").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type UserProfile = typeof userProfilesTable.$inferSelect;
 
-export const playersTable = pgTable("players", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  nationality: varchar("nationality", { length: 50 }).notNull(),
+export const playersTable = sqliteTable("players", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  nationality: text("nationality").notNull(),
   age: integer("age").notNull(),
-  height: numeric("height", { precision: 4, scale: 1 }).notNull().default("175"),
-  position: varchar("position", { length: 30 }).notNull().default("universal"),
+  height: real("height").notNull().default(175),
+  position: text("position").notNull().default("universal"),
   speed: integer("speed").notNull().default(70),
   power: integer("power").notNull().default(70),
   defense: integer("defense").notNull().default(70),
@@ -231,31 +231,31 @@ export const playersTable = pgTable("players", {
   morale: integer("morale").notNull().default(80),
   fatigue: integer("fatigue").notNull().default(0),
   trainingPoints: integer("training_points").notNull().default(0),
-  salary: numeric("salary", { precision: 10, scale: 2 }).notNull().default("5000"),
+  salary: real("salary").notNull().default(5000),
   teamId: integer("team_id").references(() => teamsTable.id),
   outfitId: integer("outfit_id").references(() => outfitsTable.id),
-  isActive: boolean("is_active").notNull().default(true),
-  squadRole: varchar("squad_role", { length: 20 }).notNull().default("reserve"),
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  squadRole: text("squad_role").notNull().default("reserve"),
   fitness: integer("fitness").notNull().default(100),
-  injuryStatus: varchar("injury_status", { length: 20 }).notNull().default("Healthy"),
+  injuryStatus: text("injury_status").notNull().default("Healthy"),
   injuryWeeksRemaining: integer("injury_weeks_remaining").notNull().default(0),
   consecutiveMatchesPlayed: integer("consecutive_matches_played").notNull().default(0),
   doctorQuality: integer("doctor_quality").notNull().default(3),
-  isInjured: boolean("is_injured").notNull().default(false),
-  imageUrl: varchar("image_url", { length: 500 }),
-  continent: varchar("continent", { length: 30 }),
-  playerType: varchar("player_type", { length: 20 }).notNull().default("senior"),
-  contractEndDate: varchar("contract_end_date", { length: 20 }),
-  isDraftPlayer: boolean("is_draft_player").notNull().default(false),
-  askingPrice: numeric("asking_price", { precision: 10, scale: 2 }),
-  potential: varchar("potential", { length: 20 }).notNull().default("Average"),
-  scoutedPotential: varchar("scouted_potential", { length: 20 }),
-  discoveredBy:    varchar("discovered_by", { length: 200 }),
-  eliteEventType:  varchar("elite_event_type", { length: 50 }),
-  trainingFocus: varchar("training_focus", { length: 30 }),
+  isInjured: integer("is_injured", { mode: "boolean" }).notNull().default(false),
+  imageUrl: text("image_url"),
+  continent: text("continent"),
+  playerType: text("player_type").notNull().default("senior"),
+  contractEndDate: text("contract_end_date"),
+  isDraftPlayer: integer("is_draft_player", { mode: "boolean" }).notNull().default(false),
+  askingPrice: real("asking_price"),
+  potential: text("potential").notNull().default("Average"),
+  scoutedPotential: text("scouted_potential"),
+  discoveredBy: text("discovered_by"),
+  eliteEventType: text("elite_event_type"),
+  trainingFocus: text("training_focus"),
   focusXp: integer("focus_xp").notNull().default(0),
-  academyContractYears: numeric("academy_contract_years", { precision: 5, scale: 2 }),
-  isRetired: boolean("is_retired").notNull().default(false),
+  academyContractYears: real("academy_contract_years"),
+  isRetired: integer("is_retired", { mode: "boolean" }).notNull().default(false),
   retiredSeasonYear: integer("retired_season_year"),
   careerSeasons: integer("career_seasons"),
   careerWins: integer("career_wins"),
@@ -264,131 +264,131 @@ export const playersTable = pgTable("players", {
   worldTitles: integer("world_titles"),
   olympicMedalsCount: integer("olympic_medals_count"),
   peakOverallRating: integer("peak_overall_rating"),
-  yearsActive: varchar("years_active", { length: 20 }),
+  yearsActive: text("years_active"),
   legendScore: integer("legend_score"),
-  development: jsonb("development").$type<PlayerDevelopment>(),
-  playerV4: jsonb("player_v4").$type<PlayerV4>(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  development: text("development", { mode: "json" }).$type<PlayerDevelopment>(),
+  playerV4: text("player_v4", { mode: "json" }).$type<PlayerV4>(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Player = typeof playersTable.$inferSelect;
 export const insertPlayerSchema = createInsertSchema(playersTable).omit({ id: true, createdAt: true });
 
-export const contractsTable = pgTable("contracts", {
-  id: serial("id").primaryKey(),
+export const contractsTable = sqliteTable("contracts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   playerId: integer("player_id").notNull().references(() => playersTable.id),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  salary: numeric("salary", { precision: 10, scale: 2 }).notNull(),
-  startDate: varchar("start_date", { length: 20 }).notNull(),
-  endDate: varchar("end_date", { length: 20 }).notNull(),
-  bonusPerWin: numeric("bonus_per_win", { precision: 8, scale: 2 }).notNull().default("0"),
-  status: varchar("status", { length: 20 }).notNull().default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  salary: real("salary").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  bonusPerWin: real("bonus_per_win").notNull().default(0),
+  status: text("status").notNull().default("active"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Contract = typeof contractsTable.$inferSelect;
 
-export const staffTable = pgTable("staff", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  role: varchar("role", { length: 30 }).notNull(),
-  specialty: varchar("specialty", { length: 100 }).notNull().default("General"),
-  salary: numeric("salary", { precision: 10, scale: 2 }).notNull().default("3000"),
+export const staffTable = sqliteTable("staff", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  specialty: text("specialty").notNull().default("General"),
+  salary: real("salary").notNull().default(3000),
   skillLevel: integer("skill_level").notNull().default(60),
   teamId: integer("team_id").references(() => teamsTable.id),
-  nationality: varchar("nationality", { length: 50 }),
-  imageUrl: varchar("image_url", { length: 500 }),
-  isAvailable: boolean("is_available").notNull().default(true),
+  nationality: text("nationality"),
+  imageUrl: text("image_url"),
+  isAvailable: integer("is_available", { mode: "boolean" }).notNull().default(true),
   age: integer("age").notNull().default(35),
   overallRating: integer("overall_rating").notNull().default(70),
   contractLength: integer("contract_length").notNull().default(12),
-  coachSpeciality: varchar("coach_speciality", { length: 50 }).notNull().default("General"),
-  personality: varchar("personality", { length: 50 }).notNull().default("Motivator"),
-  attributes: jsonb("attributes").$type<Record<string, number>>().notNull().default({}),
-  specialTrait: varchar("special_trait", { length: 100 }).notNull().default(""),
-  isScoutRevealed: boolean("is_scout_revealed").notNull().default(false),
-  scoutingRating:  integer("scouting_rating").notNull().default(50),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  coachSpeciality: text("coach_speciality").notNull().default("General"),
+  personality: text("personality").notNull().default("Motivator"),
+  attributes: text("attributes", { mode: "json" }).$type<Record<string, number>>().notNull().default({}),
+  specialTrait: text("special_trait").notNull().default(""),
+  isScoutRevealed: integer("is_scout_revealed", { mode: "boolean" }).notNull().default(false),
+  scoutingRating: integer("scouting_rating").notNull().default(50),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type StaffMember = typeof staffTable.$inferSelect;
 
-export const youthLeagueResultsTable = pgTable("youth_league_results", {
-  id: serial("id").primaryKey(),
+export const youthLeagueResultsTable = sqliteTable("youth_league_results", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
   playerId: integer("player_id").notNull().references(() => playersTable.id),
-  playerName: varchar("player_name", { length: 100 }).notNull(),
+  playerName: text("player_name").notNull(),
   weekNumber: integer("week_number").notNull(),
-  result: varchar("result", { length: 10 }).notNull(),
-  oppositionName: varchar("opposition_name", { length: 100 }).notNull(),
+  result: text("result").notNull(),
+  oppositionName: text("opposition_name").notNull(),
   xpGained: integer("xp_gained").notNull().default(0),
   devPointsGained: integer("dev_points_gained").notNull().default(0),
   moraleChange: integer("morale_change").notNull().default(0),
   playerRatingAtTime: integer("player_rating_at_time").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type YouthLeagueResult = typeof youthLeagueResultsTable.$inferSelect;
 
-export const trainingSessionsTable = pgTable("training_sessions", {
-  id: serial("id").primaryKey(),
+export const trainingSessionsTable = sqliteTable("training_sessions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
   playerId: integer("player_id").notNull().references(() => playersTable.id),
-  type: varchar("type", { length: 30 }).notNull(),
-  focus: varchar("focus", { length: 100 }).notNull(),
-  durationHours: numeric("duration_hours", { precision: 4, scale: 1 }).notNull().default("2"),
-  scheduledAt: varchar("scheduled_at", { length: 30 }).notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("scheduled"),
+  type: text("type").notNull(),
+  focus: text("focus").notNull(),
+  durationHours: real("duration_hours").notNull().default(2),
+  scheduledAt: text("scheduled_at").notNull(),
+  status: text("status").notNull().default("scheduled"),
   coachId: integer("coach_id").references(() => staffTable.id),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type TrainingSession = typeof trainingSessionsTable.$inferSelect;
 
-export const seasonsTable = pgTable("seasons", {
-  id: serial("id").primaryKey(),
+export const seasonsTable = sqliteTable("seasons", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   year: integer("year").notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("upcoming"),
+  name: text("name").notNull(),
+  status: text("status").notNull().default("upcoming"),
   totalRounds: integer("total_rounds").notNull().default(78),
   currentRound: integer("current_round").notNull().default(0),
-  startDate: varchar("start_date", { length: 20 }).notNull(),
-  endDate: varchar("end_date", { length: 20 }).notNull(),
-  isOlympicSeason: boolean("is_olympic_season").notNull().default(false),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  isOlympicSeason: integer("is_olympic_season", { mode: "boolean" }).notNull().default(false),
   regionalRoundsProcessed: integer("regional_rounds_processed").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Season = typeof seasonsTable.$inferSelect;
 
-export const matchesTable = pgTable("matches", {
-  id: serial("id").primaryKey(),
+export const matchesTable = sqliteTable("matches", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   homeTeamId: integer("home_team_id").notNull().references(() => teamsTable.id),
   awayTeamId: integer("away_team_id").notNull().references(() => teamsTable.id),
   locationId: integer("location_id").notNull().references(() => locationsTable.id),
-  weather: varchar("weather", { length: 20 }).notNull().default("sunny"),
-  windSpeed: numeric("wind_speed", { precision: 5, scale: 1 }),
-  temperature: numeric("temperature", { precision: 5, scale: 1 }),
-  status: varchar("status", { length: 20 }).notNull().default("scheduled"),
+  weather: text("weather").notNull().default("sunny"),
+  windSpeed: real("wind_speed"),
+  temperature: real("temperature"),
+  status: text("status").notNull().default("scheduled"),
   season: integer("season").notNull().default(1),
   round: integer("round").notNull().default(1),
   teamSize: integer("team_size").notNull().default(2),
   homeScore: integer("home_score"),
   awayScore: integer("away_score"),
-  homeTeamName: varchar("home_team_name", { length: 100 }),
-  awayTeamName: varchar("away_team_name", { length: 100 }),
-  locationName: varchar("location_name", { length: 100 }),
-  prizeAmount: numeric("prize_amount", { precision: 10, scale: 2 }),
-  scheduledAt: varchar("scheduled_at", { length: 30 }),
-  lineup: json("lineup").$type<number[]>(),
-  highlights: json("highlights").$type<string[]>(),
-  continent: varchar("continent", { length: 100 }),
-  tier: varchar("tier", { length: 20 }),
+  homeTeamName: text("home_team_name"),
+  awayTeamName: text("away_team_name"),
+  locationName: text("location_name"),
+  prizeAmount: real("prize_amount"),
+  scheduledAt: text("scheduled_at"),
+  lineup: text("lineup", { mode: "json" }).$type<number[]>(),
+  highlights: text("highlights", { mode: "json" }).$type<string[]>(),
+  continent: text("continent"),
+  tier: text("tier"),
   // Set-by-set scores for the point-tick engine, e.g. [{home:21,away:18},{home:19,away:21},{home:15,away:9}]
   // Populated as the live tick engine progresses; homeScore/awayScore remain the authoritative
   // final-set (or match-level) totals used everywhere else once status = 'completed'.
-  sets: json("sets").$type<{ home: number; away: number }[]>(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  sets: text("sets", { mode: "json" }).$type<{ home: number; away: number }[]>(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Match = typeof matchesTable.$inferSelect;
@@ -398,68 +398,68 @@ export type Match = typeof matchesTable.$inferSelect;
 // engine (see matches.ts `startMatchTick`) and read by GET /unity/match-state.
 // Row is left in place after completion (rallyState becomes 'finished') so a
 // late Unity poll still gets a coherent final frame instead of a 404.
-export const matchLiveStateTable = pgTable("match_live_state", {
-  id: serial("id").primaryKey(),
+export const matchLiveStateTable = sqliteTable("match_live_state", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   matchId: integer("match_id").notNull().unique().references(() => matchesTable.id),
   currentSet: integer("current_set").notNull().default(1),
   homeSetScore: integer("home_set_score").notNull().default(0),
   awaySetScore: integer("away_set_score").notNull().default(0),
   setsWonHome: integer("sets_won_home").notNull().default(0),
   setsWonAway: integer("sets_won_away").notNull().default(0),
-  servingTeam: varchar("serving_team", { length: 10 }), // 'home' | 'away'
+  servingTeam: text("serving_team"), // 'home' | 'away'
   currentServerId: integer("current_server_id").references(() => playersTable.id),
   ballOwnerId: integer("ball_owner_id").references(() => playersTable.id),
   // 'serving' | 'in_rally' | 'dead_ball' | 'set_break' | 'finished'
-  rallyState: varchar("rally_state", { length: 20 }).notNull().default("serving"),
-  lastAction: varchar("last_action", { length: 255 }),
+  rallyState: text("rally_state").notNull().default("serving"),
+  lastAction: text("last_action"),
   lastActionPlayerId: integer("last_action_player_id").references(() => playersTable.id),
-  lastActionTeam: varchar("last_action_team", { length: 10 }), // 'home' | 'away'
-  lastOutcome: varchar("last_outcome", { length: 255 }),
-  pointWinner: varchar("point_winner", { length: 10 }), // 'home' | 'away'
+  lastActionTeam: text("last_action_team"), // 'home' | 'away'
+  lastOutcome: text("last_outcome"),
+  pointWinner: text("point_winner"), // 'home' | 'away'
   matchTimeSeconds: integer("match_time_seconds").notNull().default(0),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type MatchLiveState = typeof matchLiveStateTable.$inferSelect;
 
-export const financeTransactionsTable = pgTable("finance_transactions", {
-  id: serial("id").primaryKey(),
+export const financeTransactionsTable = sqliteTable("finance_transactions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  type: varchar("type", { length: 10 }).notNull(),
-  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
-  description: varchar("description", { length: 255 }).notNull(),
-  category: varchar("category", { length: 50 }).notNull(),
-  date: varchar("date", { length: 20 }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  type: text("type").notNull(),
+  amount: real("amount").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  date: text("date").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type FinanceTransaction = typeof financeTransactionsTable.$inferSelect;
 
-export const promoDealsTable = pgTable("promo_deals", {
-  id: serial("id").primaryKey(),
+export const promoDealsTable = sqliteTable("promo_deals", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").references(() => teamsTable.id),
-  sponsor: varchar("sponsor", { length: 100 }).notNull(),
+  sponsor: text("sponsor").notNull(),
   description: text("description").notNull(),
-  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: real("amount").notNull(),
   requirementWins: integer("requirement_wins").notNull().default(0),
-  expiresAt: varchar("expires_at", { length: 20 }).notNull(),
-  isAccepted: boolean("is_accepted").notNull().default(false),
-  isGlobal: boolean("is_global").notNull().default(true),
-  imageUrl: varchar("image_url", { length: 500 }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: text("expires_at").notNull(),
+  isAccepted: integer("is_accepted", { mode: "boolean" }).notNull().default(false),
+  isGlobal: integer("is_global", { mode: "boolean" }).notNull().default(true),
+  imageUrl: text("image_url"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   // Regenerative sponsor system (v2) — new columns with safe defaults
-  tier: varchar("tier", { length: 20 }),
-  slot: varchar("slot", { length: 20 }),
-  category: varchar("category", { length: 50 }),
-  signingBonus: numeric("signing_bonus", { precision: 10, scale: 2 }).default("0"),
-  monthlyPayment: numeric("monthly_payment", { precision: 10, scale: 2 }).default("0"),
+  tier: text("tier"),
+  slot: text("slot"),
+  category: text("category"),
+  signingBonus: real("signing_bonus").default(0),
+  monthlyPayment: real("monthly_payment").default(0),
   contractLengthSeasons: integer("contract_length_seasons"),
-  contractStartDate: varchar("contract_start_date", { length: 20 }),
-  contractEndDate: varchar("contract_end_date", { length: 20 }),
+  contractStartDate: text("contract_start_date"),
+  contractEndDate: text("contract_end_date"),
   appealReason: text("appeal_reason"),
-  status: varchar("status", { length: 20 }).default("available"),
-  lastPaymentDate: varchar("last_payment_date", { length: 20 }),
-  signingBonusPaid: boolean("signing_bonus_paid").default(false),
+  status: text("status").default("available"),
+  lastPaymentDate: text("last_payment_date"),
+  signingBonusPaid: integer("signing_bonus_paid", { mode: "boolean" }).default(false),
 });
 
 export type PromoDeal = typeof promoDealsTable.$inferSelect;
@@ -479,52 +479,55 @@ export type OlympicPlayerData = {
   imageUrl?: string | null;
 };
 
-export const olympicSelectionsTable = pgTable("olympic_selections", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().unique().references(() => usersTable.id),
-  selectedCountry: varchar("selected_country", { length: 100 }).notNull(),
-  selectedFlag: varchar("selected_flag", { length: 20 }).notNull(),
-  squad: json("squad").$type<OlympicPlayerData[]>().notNull().default([]),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+export const olympicSelectionsTable = sqliteTable("olympic_selections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id").notNull().unique().references(() => usersTable.id),
+  selectedCountry: text("selected_country").notNull(),
+  selectedFlag: text("selected_flag").notNull(),
+  squad: text("squad", { mode: "json" }).$type<OlympicPlayerData[]>().notNull().default([]),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdate(() => new Date()),
 });
 
 export type OlympicSelection = typeof olympicSelectionsTable.$inferSelect;
 
-export const facilitiesTable = pgTable("facilities", {
-  id: serial("id").primaryKey(),
+export const facilitiesTable = sqliteTable("facilities", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  type: varchar("type", { length: 50 }).notNull(),
+  type: text("type").notNull(),
   level: integer("level").notNull().default(1),
   upgradingToLevel: integer("upgrading_to_level"),
   upgradeCompletesAtRound: integer("upgrade_completes_at_round"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Facility = typeof facilitiesTable.$inferSelect;
 
-export const trophiesTable = pgTable("trophies", {
-  id: serial("id").primaryKey(),
+export const trophiesTable = sqliteTable("trophies", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  type: varchar("type", { length: 50 }).notNull(),
-  name: varchar("name", { length: 200 }).notNull(),
+  type: text("type").notNull(),
+  name: text("name").notNull(),
   season: integer("season"),
   year: integer("year"),
-  continent: varchar("continent", { length: 100 }),
-  locationName: varchar("location_name", { length: 200 }),
+  continent: text("continent"),
+  locationName: text("location_name"),
   notes: text("notes"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type TrophyRecord = typeof trophiesTable.$inferSelect;
 
-export const wellbeingEffectsTable = pgTable("wellbeing_effects", {
-  id:               serial("id").primaryKey(),
+export const wellbeingEffectsTable = sqliteTable("wellbeing_effects", {
+  id:               integer("id").primaryKey({ autoIncrement: true }),
   teamId:           integer("team_id").notNull().references(() => teamsTable.id),
-  effectType:       varchar("effect_type", { length: 50 }).notNull(),
+  effectType:       text("effect_type").notNull(),
   matchesRemaining: integer("matches_remaining").notNull().default(8),
-  createdAt:        timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:        integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type WellbeingEffect = typeof wellbeingEffectsTable.$inferSelect;
@@ -538,67 +541,67 @@ type PendingCampEffects = {
   effectType: string | null;
 };
 
-export const activeCampsTable = pgTable("active_camps", {
-  id: serial("id").primaryKey(),
+export const activeCampsTable = sqliteTable("active_camps", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  campType: varchar("camp_type", { length: 50 }).notNull(),
-  campName: varchar("camp_name", { length: 100 }).notNull(),
+  campType: text("camp_type").notNull(),
+  campName: text("camp_name").notNull(),
   completesAtRound: integer("completes_at_round").notNull(),
-  pendingEffects: jsonb("pending_effects").$type<PendingCampEffects>().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  pendingEffects: text("pending_effects", { mode: "json" }).$type<PendingCampEffects>().notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type ActiveCamp = typeof activeCampsTable.$inferSelect;
 
-export const seasonFinalStandingsTable = pgTable("season_final_standings", {
-  id:             serial("id").primaryKey(),
+export const seasonFinalStandingsTable = sqliteTable("season_final_standings", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
   teamId:         integer("team_id").notNull().references(() => teamsTable.id),
   seasonYear:     integer("season_year").notNull(),
   rank:           integer("rank").notNull(),
-  competitorName: varchar("competitor_name", { length: 100 }).notNull(),
-  isPlayer:       boolean("is_player").notNull().default(false),
+  competitorName: text("competitor_name").notNull(),
+  isPlayer:       integer("is_player", { mode: "boolean" }).notNull().default(false),
   wins:           integer("wins").notNull().default(0),
   losses:         integer("losses").notNull().default(0),
   points:         integer("points").notNull().default(0),
   setDiff:        integer("set_diff").notNull().default(0),
-  createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:      integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type SeasonFinalStanding = typeof seasonFinalStandingsTable.$inferSelect;
 
-export const managerSeasonSummaryTable = pgTable("manager_season_summaries", {
-  id:                serial("id").primaryKey(),
-  userId:            varchar("user_id").notNull().references(() => usersTable.id),
+export const managerSeasonSummaryTable = sqliteTable("manager_season_summaries", {
+  id:                integer("id").primaryKey({ autoIncrement: true }),
+  userId:            text("user_id").notNull().references(() => usersTable.id),
   teamId:            integer("team_id").references(() => teamsTable.id),
   seasonYear:        integer("season_year").notNull(),
-  clubName:          varchar("club_name",   { length: 100 }).notNull(),
+  clubName:          text("club_name").notNull(),
   leaguePosition:    integer("league_position"),
   wins:              integer("wins").notNull().default(0),
   losses:            integer("losses").notNull().default(0),
-  budgetSnapshot:    numeric("budget_snapshot", { precision: 14, scale: 2 }),
-  worldResult:       varchar("world_result",      { length: 100 }),
-  continentalResult: varchar("continental_result",{ length: 100 }),
-  youthResult:       varchar("youth_result",      { length: 100 }),
-  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  budgetSnapshot:    real("budget_snapshot"),
+  worldResult:       text("world_result"),
+  continentalResult: text("continental_result"),
+  youthResult:       text("youth_result"),
+  createdAt:         integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type ManagerSeasonSummary = typeof managerSeasonSummaryTable.$inferSelect;
 
-export const injuryHistoryTable = pgTable("injury_history", {
-  id:          serial("id").primaryKey(),
+export const injuryHistoryTable = sqliteTable("injury_history", {
+  id:          integer("id").primaryKey({ autoIncrement: true }),
   teamId:      integer("team_id").notNull().references(() => teamsTable.id),
   seasonId:    integer("season_id").notNull(),
   playerId:    integer("player_id").notNull().references(() => playersTable.id),
-  playerName:  varchar("player_name", { length: 100 }).notNull(),
-  injuryType:  varchar("injury_type", { length: 30 }).notNull(),
+  playerName:  text("player_name").notNull(),
+  injuryType:  text("injury_type").notNull(),
   daysMissed:  integer("days_missed").notNull(),
-  dateInjured: timestamp("date_injured", { withTimezone: true }).notNull().defaultNow(),
+  dateInjured: integer("date_injured", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type InjuryHistoryEntry = typeof injuryHistoryTable.$inferSelect;
 
-export const seasonInjuryStatsTable = pgTable("season_injury_stats", {
-  id:                  serial("id").primaryKey(),
+export const seasonInjuryStatsTable = sqliteTable("season_injury_stats", {
+  id:                  integer("id").primaryKey({ autoIncrement: true }),
   teamId:              integer("team_id").notNull().references(() => teamsTable.id),
   seasonId:            integer("season_id").notNull(),
   totalInjuries:       integer("total_injuries").notNull().default(0),
@@ -606,156 +609,159 @@ export const seasonInjuryStatsTable = pgTable("season_injury_stats", {
   minorInjuries:       integer("minor_injuries").notNull().default(0),
   majorInjuries:       integer("major_injuries").notNull().default(0),
   unavailableInjuries: integer("unavailable_injuries").notNull().default(0),
-  updatedAt:           timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+  updatedAt:           integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdate(() => new Date()),
 });
 
 export type SeasonInjuryStat = typeof seasonInjuryStatsTable.$inferSelect;
 
-export const youthProspectsTable = pgTable("youth_prospects", {
-  id:            serial("id").primaryKey(),
+export const youthProspectsTable = sqliteTable("youth_prospects", {
+  id:            integer("id").primaryKey({ autoIncrement: true }),
   teamId:        integer("team_id").notNull().references(() => teamsTable.id),
-  name:          varchar("name", { length: 100 }).notNull(),
+  name:          text("name").notNull(),
   age:           integer("age").notNull(),
-  continent:     varchar("continent", { length: 50 }).notNull(),
+  continent:     text("continent").notNull(),
   currentRating: integer("current_rating").notNull(),
-  potentialStars: varchar("potential_stars", { length: 30 }).notNull(),
-  speciality:    varchar("speciality", { length: 50 }).notNull(),
+  potentialStars: text("potential_stars").notNull(),
+  speciality:    text("speciality").notNull(),
   signingCost:   integer("signing_cost").notNull(),
-  status:               varchar("status", { length: 20 }).notNull().default("pending"),
+  status:               text("status").notNull().default("pending"),
   scoutingReportText:   text("scouting_report_text"),
-  discoveredBy:         varchar("discovered_by", { length: 200 }),
-  scoutedPotentialLabel: varchar("scouted_potential_label", { length: 30 }),
+  discoveredBy:         text("discovered_by"),
+  scoutedPotentialLabel: text("scouted_potential_label"),
   continentalMissionId:  integer("continental_mission_id"),
-  eliteEventType:        varchar("elite_event_type", { length: 50 }),
-  createdAt:            timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  eliteEventType:        text("elite_event_type"),
+  createdAt:            integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type YouthProspect = typeof youthProspectsTable.$inferSelect;
 
-export const youthLadderTable = pgTable("youth_ladder", {
-  id: serial("id").primaryKey(),
+export const youthLadderTable = sqliteTable("youth_ladder", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
   season: integer("season").notNull().default(1),
-  competitorName: varchar("competitor_name", { length: 100 }).notNull(),
-  isPlayer: boolean("is_player").notNull().default(false),
+  competitorName: text("competitor_name").notNull(),
+  isPlayer: integer("is_player", { mode: "boolean" }).notNull().default(false),
   wins: integer("wins").notNull().default(0),
   losses: integer("losses").notNull().default(0),
   points: integer("points").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type YouthLadderEntry = typeof youthLadderTable.$inferSelect;
 
-export const youthChampionshipTrophiesTable = pgTable("youth_championship_trophies", {
-  id: serial("id").primaryKey(),
+export const youthChampionshipTrophiesTable = sqliteTable("youth_championship_trophies", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
   season: integer("season").notNull(),
   year: integer("year"),
-  winningTeamName: varchar("winning_team_name", { length: 100 }).notNull(),
-  isPlayerWin: boolean("is_player_win").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  winningTeamName: text("winning_team_name").notNull(),
+  isPlayerWin: integer("is_player_win", { mode: "boolean" }).notNull().default(false),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type YouthChampionshipTrophy = typeof youthChampionshipTrophiesTable.$inferSelect;
 
-export const continentalScoutingMissionsTable = pgTable("continental_scouting_missions", {
-  id:              serial("id").primaryKey(),
+export const continentalScoutingMissionsTable = sqliteTable("continental_scouting_missions", {
+  id:              integer("id").primaryKey({ autoIncrement: true }),
   teamId:          integer("team_id").notNull().references(() => teamsTable.id),
-  region:          varchar("region", { length: 30 }).notNull(),
-  status:          varchar("status", { length: 20 }).notNull().default("active"),
+  region:          text("region").notNull(),
+  status:          text("status").notNull().default("active"),
   durationMonths:  integer("duration_months").notNull().default(1),
-  startDate:       timestamp("start_date", { withTimezone: true }).notNull().defaultNow(),
-  endDate:         timestamp("end_date", { withTimezone: true }).notNull(),
+  startDate:       integer("start_date", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  endDate:         integer("end_date", { mode: "timestamp" }).notNull(),
   assignedStaffId: integer("assigned_staff_id").references(() => staffTable.id),
   prospectsFound:  integer("prospects_found").notNull().default(0),
-  cost:            numeric("cost", { precision: 10, scale: 2 }).notNull().default("0"),
-  createdAt:       timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  cost:            real("cost").notNull().default(0),
+  createdAt:       integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type ContinentalScoutingMission = typeof continentalScoutingMissionsTable.$inferSelect;
 
-export const clubTemplatesTable = pgTable("club_templates", {
-  id:             serial("id").primaryKey(),
-  name:           varchar("name",      { length: 100 }).notNull(),
-  continent:      varchar("continent", { length: 50  }).notNull(),
-  town:           varchar("town",      { length: 100 }).notNull().default("Unknown"),
+export const clubTemplatesTable = sqliteTable("club_templates", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
+  name:           text("name").notNull(),
+  continent:      text("continent").notNull(),
+  town:           text("town").notNull().default("Unknown"),
   rating:         integer("rating").notNull().default(50),
-  startingBudget: numeric("starting_budget", { precision: 14, scale: 2 }).notNull().default("500000"),
+  startingBudget: real("starting_budget").notNull().default(500000),
   reputation:     integer("reputation").notNull().default(50),
-  primaryColor:   varchar("primary_color",   { length: 20 }).notNull().default("#E05A00"),
-  secondaryColor: varchar("secondary_color", { length: 20 }).notNull().default("#FFFFFF"),
-  createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  primaryColor:   text("primary_color").notNull().default("#E05A00"),
+  secondaryColor: text("secondary_color").notNull().default("#FFFFFF"),
+  createdAt:      integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type ClubTemplate = typeof clubTemplatesTable.$inferSelect;
 
-export const careerHistoryEntriesTable = pgTable("career_history_entries", {
-  id:           serial("id").primaryKey(),
-  userId:       varchar("user_id").notNull().references(() => usersTable.id),
+export const careerHistoryEntriesTable = sqliteTable("career_history_entries", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  userId:       text("user_id").notNull().references(() => usersTable.id),
   careerSaveId: integer("career_save_id").references(() => careerSavesTable.id),
-  type:         varchar("type", { length: 50 }).notNull(),
-  clubName:     varchar("club_name", { length: 100 }).notNull(),
-  season:       varchar("season",    { length: 50 }),
-  description:  varchar("description", { length: 500 }).notNull(),
-  occurredAt:   timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  type:         text("type").notNull(),
+  clubName:     text("club_name").notNull(),
+  season:       text("season"),
+  description:  text("description").notNull(),
+  occurredAt:   integer("occurred_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type CareerHistoryEntry    = typeof careerHistoryEntriesTable.$inferSelect;
 export type InsertCareerHistoryEntry = typeof careerHistoryEntriesTable.$inferInsert;
 
-export const careerSavesTable = pgTable("career_saves", {
-  id:           serial("id").primaryKey(),
-  userId:       varchar("user_id").notNull().references(() => usersTable.id),
+export const careerSavesTable = sqliteTable("career_saves", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  userId:       text("user_id").notNull().references(() => usersTable.id),
   teamId:       integer("team_id").references(() => teamsTable.id),
   slotNumber:   integer("slot_number").notNull(),
-  managerName:      varchar("manager_name",       { length: 100 }).notNull(),
-  managerNationality: varchar("manager_nationality", { length: 100 }),
-  clubName:         varchar("club_name",          { length: 100 }).notNull(),
-  originalClubName: varchar("original_club_name", { length: 100 }),
-  season:       varchar("season",       { length: 50  }).notNull().default("Season 1"),
+  managerName:      text("manager_name").notNull(),
+  managerNationality: text("manager_nationality"),
+  clubName:         text("club_name").notNull(),
+  originalClubName: text("original_club_name"),
+  season:       text("season").notNull().default("Season 1"),
   worldRanking: integer("world_ranking"),
-  budget:       numeric("budget", { precision: 14, scale: 2 }),
+  budget:       real("budget"),
   managerReputation: integer("manager_reputation").notNull().default(50),
-  retiredAt:    timestamp("retired_at",     { withTimezone: true }),
-  lastPlayedAt: timestamp("last_played_at", { withTimezone: true }).notNull().defaultNow(),
-  createdAt:    timestamp("created_at",     { withTimezone: true }).notNull().defaultNow(),
+  retiredAt:    integer("retired_at", { mode: "timestamp" }),
+  lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type CareerSave    = typeof careerSavesTable.$inferSelect;
 export type InsertCareerSave = typeof careerSavesTable.$inferInsert;
 
-export const hallOfFameTable = pgTable("hall_of_fame", {
-  id:                   serial("id").primaryKey(),
-  userId:               varchar("user_id").notNull().references(() => usersTable.id),
-  managerName:          varchar("manager_name",  { length: 100 }).notNull(),
-  clubName:             varchar("club_name",     { length: 100 }).notNull(),
-  season:               varchar("season",        { length: 50  }).notNull(),
+export const hallOfFameTable = sqliteTable("hall_of_fame", {
+  id:                   integer("id").primaryKey({ autoIncrement: true }),
+  userId:               text("user_id").notNull().references(() => usersTable.id),
+  managerName:          text("manager_name").notNull(),
+  clubName:             text("club_name").notNull(),
+  season:               text("season").notNull(),
   worldRanking:         integer("world_ranking"),
   worldTitles:          integer("world_titles").notNull().default(0),
   olympicMedals:        integer("olympic_medals").notNull().default(0),
   achievementsCompleted: integer("achievements_completed").notNull().default(0),
   totalWins:            integer("total_wins").notNull().default(0),
   totalLosses:          integer("total_losses").notNull().default(0),
-  retiredAt:            timestamp("retired_at", { withTimezone: true }).notNull().defaultNow(),
+  retiredAt:            integer("retired_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type HallOfFameRecord = typeof hallOfFameTable.$inferSelect;
 
-export const poachingOffersTable = pgTable("poaching_offers", {
-  id:                serial("id").primaryKey(),
-  userId:            varchar("user_id").notNull().references(() => usersTable.id),
+export const poachingOffersTable = sqliteTable("poaching_offers", {
+  id:                integer("id").primaryKey({ autoIncrement: true }),
+  userId:            text("user_id").notNull().references(() => usersTable.id),
   careerSaveId:      integer("career_save_id").notNull().references(() => careerSavesTable.id),
-  clubName:          varchar("club_name",          { length: 100 }).notNull(),
-  continent:         varchar("continent",          { length: 50  }).notNull(),
-  country:           varchar("country",            { length: 100 }).notNull(),
-  logoColor:         varchar("logo_color",         { length: 20  }).notNull(),
+  clubName:          text("club_name").notNull(),
+  continent:         text("continent").notNull(),
+  country:           text("country").notNull(),
+  logoColor:         text("logo_color").notNull(),
   salary:            integer("salary").notNull(),
   contractLength:    integer("contract_length").notNull(),
-  transferBudget:    numeric("transfer_budget",    { precision: 14, scale: 2 }).notNull(),
-  seasonExpectation: varchar("season_expectation", { length: 100 }).notNull(),
+  transferBudget:    real("transfer_budget").notNull(),
+  seasonExpectation: text("season_expectation").notNull(),
   clubReputation:    integer("club_reputation").notNull(),
-  status:            varchar("status", { length: 20 }).notNull().default("pending"),
-  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  status:            text("status").notNull().default("pending"),
+  createdAt:         integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type PoachingOffer       = typeof poachingOffersTable.$inferSelect;
@@ -763,33 +769,33 @@ export type InsertPoachingOffer = typeof poachingOffersTable.$inferInsert;
 
 // ── AI Manager World Simulation ───────────────────────────────────────────────
 
-export const aiManagersTable = pgTable("ai_managers", {
-  id:                    serial("id").primaryKey(),
-  name:                  varchar("name",         { length: 100 }).notNull(),
+export const aiManagersTable = sqliteTable("ai_managers", {
+  id:                    integer("id").primaryKey({ autoIncrement: true }),
+  name:                  text("name").notNull(),
   reputation:            integer("reputation").notNull().default(50),
-  currentClub:           varchar("current_club", { length: 100 }),
+  currentClub:           text("current_club"),
   currentClubReputation: integer("current_club_reputation"),
-  status:                varchar("status", { length: 20 }).notNull().default("active"),
-  hiredAt:               timestamp("hired_at",   { withTimezone: true }),
-  createdAt:             timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  status:                text("status").notNull().default("active"),
+  hiredAt:               integer("hired_at", { mode: "timestamp" }),
+  createdAt:             integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
-export const aiManagerEventsTable = pgTable("ai_manager_events", {
-  id:          serial("id").primaryKey(),
-  managerName: varchar("manager_name", { length: 100 }).notNull(),
-  eventType:   varchar("event_type",   { length: 30  }).notNull(),
-  fromClub:    varchar("from_club",    { length: 100 }),
-  toClub:      varchar("to_club",      { length: 100 }),
+export const aiManagerEventsTable = sqliteTable("ai_manager_events", {
+  id:          integer("id").primaryKey({ autoIncrement: true }),
+  managerName: text("manager_name").notNull(),
+  eventType:   text("event_type").notNull(),
+  fromClub:    text("from_club"),
+  toClub:      text("to_club"),
   description: text("description").notNull(),
-  occurredAt:  timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  occurredAt:  integer("occurred_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type AiManager      = typeof aiManagersTable.$inferSelect;
 export type AiManagerEvent = typeof aiManagerEventsTable.$inferSelect;
 
 // Unity Game API — per-player match stats submitted by the Unity client
-export const unityMatchStatsTable = pgTable("unity_match_stats", {
-  id:            serial("id").primaryKey(),
+export const unityMatchStatsTable = sqliteTable("unity_match_stats", {
+  id:            integer("id").primaryKey({ autoIncrement: true }),
   matchId:       integer("match_id").notNull(),
   teamId:        integer("team_id").notNull().references(() => teamsTable.id),
   playerId:      integer("player_id").notNull().references(() => playersTable.id),
@@ -804,22 +810,22 @@ export const unityMatchStatsTable = pgTable("unity_match_stats", {
   attacksIn:     integer("attacks_in").notNull().default(0),
   attacksTotal:  integer("attacks_total").notNull().default(0),
   minutesPlayed: integer("minutes_played").notNull().default(0),
-  createdAt:     timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:     integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type UnityMatchStats       = typeof unityMatchStatsTable.$inferSelect;
 export type InsertUnityMatchStats = typeof unityMatchStatsTable.$inferInsert;
 
 // Calendar progression system
-export const calendarStateTable = pgTable("calendar_state", {
-  id:             serial("id").primaryKey(),
+export const calendarStateTable = sqliteTable("calendar_state", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
   teamId:         integer("team_id").notNull().unique().references(() => teamsTable.id),
-  currentDate:    varchar("current_date",    { length: 20 }).notNull().default("2026-01-15"),
-  calendarSpeed:  varchar("calendar_speed",  { length: 10 }).notNull().default("pause"),
+  currentDate:    text("current_date").notNull().default("2026-01-15"),
+  calendarSpeed:  text("calendar_speed").notNull().default("pause"),
   pendingMatchId: integer("pending_match_id"),
-  preMatchSpeed:  varchar("pre_match_speed",  { length: 10 }),
-  lastSalaryDate: varchar("last_salary_date", { length: 20 }),
-  updatedAt:      timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  preMatchSpeed:  text("pre_match_speed"),
+  lastSalaryDate: text("last_salary_date"),
+  updatedAt:      integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type CalendarState       = typeof calendarStateTable.$inferSelect;
@@ -827,11 +833,11 @@ export type InsertCalendarState = typeof calendarStateTable.$inferInsert;
 
 // ── Regional League Competition ───────────────────────────────────────────────
 // Stable AI pool teams per continent (seeded once, reused across seasons)
-export const continentalPoolTeamsTable = pgTable("continental_pool_teams", {
-  id:             serial("id").primaryKey(),
-  continent:      varchar("continent",   { length: 60 }).notNull(),
-  stableId:       varchar("stable_id",   { length: 20 }).notNull().unique(),
-  teamName:       varchar("team_name",   { length: 100 }).notNull(),
+export const continentalPoolTeamsTable = sqliteTable("continental_pool_teams", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
+  continent:      text("continent").notNull(),
+  stableId:       text("stable_id").notNull().unique(),
+  teamName:       text("team_name").notNull(),
   rating:         integer("rating").notNull().default(70),
   form:           integer("form").notNull().default(50),
   fitness:        integer("fitness").notNull().default(80),
@@ -839,20 +845,20 @@ export const continentalPoolTeamsTable = pgTable("continental_pool_teams", {
   poolRanking:    integer("pool_ranking").notNull().default(0),
   promotionCount: integer("promotion_count").notNull().default(0),
   relegationCount:integer("relegation_count").notNull().default(0),
-  isActiveInLeague:boolean("is_active_in_league").notNull().default(true),
-  createdAt:      timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  isActiveInLeague:integer("is_active_in_league", { mode: "boolean" }).notNull().default(true),
+  createdAt:      integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type ContinentalPoolTeam       = typeof continentalPoolTeamsTable.$inferSelect;
 export type InsertContinentalPoolTeam = typeof continentalPoolTeamsTable.$inferInsert;
 
 // Two players per pool team — stable across seasons
-export const continentalPoolPlayersTable = pgTable("continental_pool_players", {
-  id:          serial("id").primaryKey(),
+export const continentalPoolPlayersTable = sqliteTable("continental_pool_players", {
+  id:          integer("id").primaryKey({ autoIncrement: true }),
   poolTeamId:  integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
-  stableId:    varchar("stable_id",   { length: 24 }).notNull().unique(),
-  name:        varchar("name",        { length: 100 }).notNull(),
-  nationality: varchar("nationality", { length: 60 }).notNull().default(""),
+  stableId:    text("stable_id").notNull().unique(),
+  name:        text("name").notNull(),
+  nationality: text("nationality").notNull().default(""),
   age:         integer("age").notNull().default(22),
   speed:       integer("speed").notNull().default(60),
   power:       integer("power").notNull().default(60),
@@ -861,65 +867,65 @@ export const continentalPoolPlayersTable = pgTable("continental_pool_players", {
   block:       integer("block").notNull().default(60),
   stamina:     integer("stamina").notNull().default(60),
   imageUrl:    text("image_url"),
-  createdAt:   timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:   integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type ContinentalPoolPlayer       = typeof continentalPoolPlayersTable.$inferSelect;
 export type InsertContinentalPoolPlayer = typeof continentalPoolPlayersTable.$inferInsert;
 
 // One season record per continent per season year
-export const regionalLeagueSeasonsTable = pgTable("regional_league_seasons", {
-  id:         serial("id").primaryKey(),
+export const regionalLeagueSeasonsTable = sqliteTable("regional_league_seasons", {
+  id:         integer("id").primaryKey({ autoIncrement: true }),
   seasonYear: integer("season_year").notNull(),
-  continent:  varchar("continent", { length: 60 }).notNull(),
-  teamIds:    jsonb("team_ids").notNull().default([]),
-  status:     varchar("status", { length: 15 }).notNull().default("active"),
-  createdAt:  timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  continent:  text("continent").notNull(),
+  teamIds:    text("team_ids", { mode: "json" }).notNull().default([]),
+  status:     text("status").notNull().default("active"),
+  createdAt:  integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type RegionalLeagueSeason       = typeof regionalLeagueSeasonsTable.$inferSelect;
 export type InsertRegionalLeagueSeason = typeof regionalLeagueSeasonsTable.$inferInsert;
 
 // Double round-robin: 10 rounds × 3 matches = 30 fixtures per season per continent
-export const regionalLeagueFixturesTable = pgTable("regional_league_fixtures", {
-  id:                    serial("id").primaryKey(),
+export const regionalLeagueFixturesTable = sqliteTable("regional_league_fixtures", {
+  id:                    integer("id").primaryKey({ autoIncrement: true }),
   regionalLeagueSeasonId:integer("regional_league_season_id").notNull().references(() => regionalLeagueSeasonsTable.id),
   round:                 integer("round").notNull(),
   homePoolTeamId:        integer("home_pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
   awayPoolTeamId:        integer("away_pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
   homeScore:             integer("home_score"),
   awayScore:             integer("away_score"),
-  status:                varchar("status", { length: 15 }).notNull().default("scheduled"),
-  createdAt:             timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  status:                text("status").notNull().default("scheduled"),
+  createdAt:             integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type RegionalLeagueFixture       = typeof regionalLeagueFixturesTable.$inferSelect;
 export type InsertRegionalLeagueFixture = typeof regionalLeagueFixturesTable.$inferInsert;
 
 // Match result for each fixture
-export const regionalLeagueResultsTable = pgTable("regional_league_results", {
-  id:              serial("id").primaryKey(),
+export const regionalLeagueResultsTable = sqliteTable("regional_league_results", {
+  id:              integer("id").primaryKey({ autoIncrement: true }),
   fixtureId:       integer("fixture_id").notNull().unique().references(() => regionalLeagueFixturesTable.id),
   winnerId:        integer("winner_id").references(() => continentalPoolTeamsTable.id),
   homeSets:        integer("home_sets").notNull().default(0),
   awaySets:        integer("away_sets").notNull().default(0),
   homeMatchPoints: integer("home_match_points").notNull().default(0),
   awayMatchPoints: integer("away_match_points").notNull().default(0),
-  playedAt:        timestamp("played_at",  { withTimezone: true }).notNull().defaultNow(),
-  createdAt:       timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  playedAt:        integer("played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  createdAt:       integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type RegionalLeagueResult       = typeof regionalLeagueResultsTable.$inferSelect;
 export type InsertRegionalLeagueResult = typeof regionalLeagueResultsTable.$inferInsert;
 
 // Season-end World Tour qualification records
-export const worldTourQualificationsTable = pgTable("world_tour_qualifications", {
-  id:                serial("id").primaryKey(),
+export const worldTourQualificationsTable = sqliteTable("world_tour_qualifications", {
+  id:                integer("id").primaryKey({ autoIncrement: true }),
   seasonYear:        integer("season_year").notNull(),
-  continent:         varchar("continent",  { length: 60 }).notNull(),
+  continent:         text("continent").notNull(),
   poolTeamId:        integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
   qualifyingPosition:integer("qualifying_position").notNull(),
-  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt:         integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 export type WorldTourQualification       = typeof worldTourQualificationsTable.$inferSelect;

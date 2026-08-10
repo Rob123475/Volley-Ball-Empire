@@ -2,15 +2,51 @@
   "name": "workspace",
   "version": "0.0.0",
   "license": "MIT",
+  "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder"
   },
-  "private": true,
   "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0",
     "prettier": "^3.8.3",
     "typescript": "~5.9.3"
+  },
+  "build": {
+    "appId": "com.volleyballempire.desktop",
+    "productName": "Volley-Ball-Empire",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "artifacts/api-server/dist",
+        "to": "server/dist"
+      },
+      {
+        "from": "artifacts/beach-volleyball/dist/public",
+        "to": "public"
+      },
+      {
+        "from": "lib/db/volleyball-empire.sqlite",
+        "to": "starter-db/volleyball-empire.sqlite"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

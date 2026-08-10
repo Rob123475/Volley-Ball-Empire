@@ -1,0 +1,113 @@
+const { app, BrowserWindow } = require("electron");
+const path = require("path");
+const fs = require("fs");
+const { fork } = require("child_process");
+const http = require("http");
+
+// ── Paths ────────────────────────────────────────────────────────────────────
+// process.resourcesPath only points into your packaged app once electron-builder
+// has run. In dev (electron:dev, unpackaged) it points inside Electron's own
+// install folder instead — so we resolve straight from the repo when unpackaged.
+const isPackaged = app.isPackaged;
+const repoRoot = path.join(__dirname, ".."); // electron/ -> repo root
+
+// Bundled starter DB (copied into resources by electron-builder — see package.json extraResources)
+const bundledDbPath = isPackaged
+  ? path.join(process.resourcesPath, "starter-db", "volleyball-empire.sqlite")
+  : path.join(repoRoot, "lib", "db", "volleyball-empire.sqlite");
+
+// Writable per-user location the app actually reads/writes from.
+// Copying the starter DB here on first launch means every subsequent launch
+// re-uses the player's saved progress instead of resetting to the bundled starter.
+const userDbPath = path.join(app.getPath("userData"), "volleyball-empire.sqlite");
+
+// The compiled API server (bundled via extraResources: api-server/dist -> server/dist)
+const serverEntry = isPackaged
+  ? path.join(process.resourcesPath, "server", "dist", "index.mjs")
+  : path.join(repoRoot, "artifacts", "api-server", "dist", "index.mjs");
+
+const SERVER_PORT = 4173;
+
+let serverProcess = null;
+let mainWindow = null;
+
+// ── First-launch DB setup ────────────────────────────────────────────────────
+function ensureUserDb() {
+  if (!fs.existsSync(userDbPath)) {
+    fs.mkdirSync(path.dirname(userDbPath), { recursive: true });
+    fs.copyFileSync(bundledDbPath, userDbPath);
+  }
+}
+
+// ── Spawn the API server as a child process ─────────────────────────────────
+function startServer() {
+  return new Promise((resolve, reject) => {
+    serverProcess = fork(serverEntry, [], {
+      env: {
+        ...process.env,
+        NODE_ENV: "production",
+        PORT: String(SERVER_PORT),
+        DB_PATH: userDbPath,
+      },
+      silent: true,
+    });
+
+    serverProcess.stdout?.on("data", (d) => console.log(`[server] ${d}`));
+    serverProcess.stderr?.on("data", (d) => console.error(`[server] ${d}`));
+    serverProcess.on("error", reject);
+
+    // Poll until the server actually responds, rather than guessing a fixed delay
+    const start = Date.now();
+    const timeoutMs = 15000;
+    const poll = () => {
+      const req = http.get(`http://localhost:${SERVER_PORT}/api/healthz`, (res) => {
+        res.destroy();
+        resolve();
+      });
+      req.on("error", () => {
+        if (Date.now() - start > timeoutMs) {
+          reject(new Error("Server did not start within 15s"));
+        } else {
+          setTimeout(poll, 300);
+        }
+      });
+    };
+    poll();
+  });
+}
+
+// ── Window ───────────────────────────────────────────────────────────────────
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  mainWindow.loadURL(`http://localhost:${SERVER_PORT}/`);
+}
+
+// ── App lifecycle ────────────────────────────────────────────────────────────
+app.whenReady().then(async () => {
+  try {
+    ensureUserDb();
+    await startServer();
+    createWindow();
+  } catch (err) {
+    console.error("Failed to start:", err);
+    app.quit();
+  }
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});
+
+app.on("before-quit", () => {
+  if (serverProcess) serverProcess.kill();
+});
++
+  

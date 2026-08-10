@@ -5,6 +5,8 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { authMiddleware } from "./middlewares/authMiddleware";
+import path from "path";
+import fs from "fs";
 
 const app: Express = express();
 
@@ -34,5 +36,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(authMiddleware);
 
 app.use("/api", router);
+if (process.env.NODE_ENV === "production") {
+  const staticDir = path.join((process as any).resourcesPath ?? __dirname, "public");
 
+  if (fs.existsSync(staticDir)) {
+    app.use(express.static(staticDir));
+
+    app.get(/^(?!\/api).*/, (_req, res) => {
+      res.sendFile(path.join(staticDir, "index.html"));
+    });
+  }
+}
 export default app;

@@ -1,14 +1,14 @@
 import { defineConfig } from "drizzle-kit";
 import path from "path";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL, ensure the database is provisioned");
-}
+// DB_PATH: same env var used by lib/db/src/index.ts, so `drizzle-kit push`
+// targets the same SQLite file the app actually runs against.
+const dbPath = process.env.DB_PATH || "./volleyball-empire.sqlite";
 
 export default defineConfig({
   schema: path.join(__dirname, "./src/schema/index.ts"),
-  dialect: "postgresql",
+  dialect: "sqlite",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    url: dbPath,
   },
 });
