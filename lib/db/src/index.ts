@@ -8,7 +8,7 @@ if (!process.env.DB_PATH) {
   );
 }
 
-export const sqlite = new Database(process.env.DB_PATH);
+export const sqlite: Database.Database = new Database(process.env.DB_PATH);
 sqlite.pragma("journal_mode = WAL");
 
 export const db = drizzle(sqlite, { schema });

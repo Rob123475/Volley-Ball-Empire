@@ -3,62 +3,21 @@
  * Run: pnpm --filter @workspace/scripts run seed-n-america-players
  */
 
-import { Storage } from "@google-cloud/storage";
-import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { db } from "@workspace/db";
 import { playersTable } from "@workspace/db/schema";
+import { localImageUrl } from "./lib/local-image";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(__dirname, "../../");
 
-const SIDECAR = "http://127.0.0.1:1106";
-const BUCKET_ID = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID!;
-const PRIVATE_OBJECT_DIR = process.env.PRIVATE_OBJECT_DIR!;
-
-if (!BUCKET_ID || !PRIVATE_OBJECT_DIR) {
-  console.error("Missing DEFAULT_OBJECT_STORAGE_BUCKET_ID or PRIVATE_OBJECT_DIR");
-  process.exit(1);
-}
-
-const gcs = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${SIDECAR}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${SIDECAR}/credential`,
-      format: { type: "json", subject_token_field_name: "access_token" },
-    },
-    universe_domain: "googleapis.com",
-  } as object,
-  projectId: "",
-});
-
-async function uploadPlayerImage(localPath: string, entityId: string): Promise<string> {
-  const privateDir = PRIVATE_OBJECT_DIR.endsWith("/")
-    ? PRIVATE_OBJECT_DIR
-    : `${PRIVATE_OBJECT_DIR}/`;
-
-  const parts = privateDir.startsWith("/") ? privateDir.slice(1) : privateDir;
-  const slashIdx = parts.indexOf("/");
-  const bucketName = slashIdx === -1 ? parts.replace(/\/$/, "") : parts.slice(0, slashIdx);
-  const prefix = slashIdx === -1 ? "" : parts.slice(slashIdx + 1);
-
-  const objectName = `${prefix}${entityId}`;
-  const bucket = gcs.bucket(bucketName);
-  const file = bucket.file(objectName);
-
-  const content = readFileSync(localPath);
-  await file.save(content, {
-    contentType: "image/webp",
-    metadata: { cacheControl: "public, max-age=31536000" },
-  });
-
-  console.log(`  uploaded → gs://${bucketName}/${objectName}`);
-  return `/objects/${entityId}`;
+async function uploadPlayerImage(
+  _localPath: string,
+  _entityId: string,
+  sourceFileName: string,
+): Promise<string | null> {
+  return localImageUrl(sourceFileName);
 }
 
 type Position = "spiker" | "defender" | "setter" | "blocker" | "all_rounder";
@@ -242,7 +201,7 @@ async function main() {
 
     let imageUrl: string | null = null;
     try {
-      imageUrl = await uploadPlayerImage(localPath, entityId);
+      imageUrl = await uploadPlayerImage(localPath, entityId, player.imageFile);
     } catch (err) {
       console.error(`  ERROR uploading image: ${err}`);
     }

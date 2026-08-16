@@ -1,0 +1,30 @@
+$ electron .
+
+[server] {"level":30,"time":1786420653818,"pid":26304,"hostname":"Beast","port":4173,"msg":"Server listening"}
+
+[server] {"level":30,"time":1786420653856,"pid":26304,"hostname":"Beast","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420653914,"pid":26304,"hostname":"Beast","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420653922,"pid":26304,"hostname":"Beast","req":{"id":3,"method":"GET","url":"/assets/index-11Z0Z2-z.js"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420653923,"pid":26304,"hostname":"Beast","req":{"id":4,"method":"GET","url":"/assets/index-CkuxRInT.css"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420653968,"pid":26304,"hostname":"Beast","req":{"id":5,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420653969,"pid":26304,"hostname":"Beast","req":{"id":6,"method":"GET","url":"/title-hero.webp"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420653995,"pid":26304,"hostname":"Beast","req":{"id":7,"method":"GET","url":"/api/team"},"res":{"statusCode":404},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420667513,"pid":26304,"hostname":"Beast","req":{"id":8,"method":"GET","url":"/new-career"},"res":{"statusCode":304},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420667516,"pid":26304,"hostname":"Beast","req":{"id":9,"method":"GET","url":"/assets/index-CkuxRInT.css"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420667517,"pid":26304,"hostname":"Beast","req":{"id":10,"method":"GET","url":"/assets/index-11Z0Z2-z.js"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420667531,"pid":26304,"hostname":"Beast","req":{"id":11,"method":"GET","url":"/api/auth/user"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420667534,"pid":26304,"hostname":"Beast","req":{"id":12,"method":"GET","url":"/api/club-templates"},"res":{"statusCode":304},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1786420667534,"pid":26304,"hostname":"Beast","req":{"id":13,"method":"GET","url":"/api/team"},"res":{"statusCode":404},"responseTime":0,"msg":"request completed"}
+

@@ -26,6 +26,15 @@ const serverEntry = isPackaged
   ? path.join(process.resourcesPath, "server", "dist", "index.mjs")
   : path.join(repoRoot, "artifacts", "api-server", "dist", "index.mjs");
 
+// Built frontend static files. Computed explicitly here (same pattern as
+// serverEntry/bundledDbPath above) and passed to the server via env var —
+// we stopped relying on the server reading process.resourcesPath itself,
+// since that's been observed to resolve inconsistently across launches
+// inside a forked (ELECTRON_RUN_AS_NODE) child process.
+const publicDir = isPackaged
+  ? path.join(process.resourcesPath, "public")
+  : path.join(repoRoot, "artifacts", "api-server", "dist", "public");
+
 const SERVER_PORT = 4173;
 
 let serverProcess = null;
@@ -48,6 +57,7 @@ function startServer() {
         NODE_ENV: "production",
         PORT: String(SERVER_PORT),
         DB_PATH: userDbPath,
+        PUBLIC_DIR: publicDir,
       },
       silent: true,
     });
@@ -81,10 +91,16 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
+    show: false, // avoid a flash of the small unmaximized window before it fills the screen
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.maximize();
+    mainWindow.show();
   });
 
   mainWindow.loadURL(`http://localhost:${SERVER_PORT}/`);
@@ -109,5 +125,3 @@ app.on("window-all-closed", () => {
 app.on("before-quit", () => {
   if (serverProcess) serverProcess.kill();
 });
-+
-  

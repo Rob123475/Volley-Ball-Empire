@@ -25,7 +25,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const needsTeam = !!user && (noTeam || !team) && !teamLoading;
   const isLoading = authLoading || (!!user && teamLoading);
 
-  const loginUrl = `/api/login?returnTo=${encodeURIComponent(window.location.origin + import.meta.env.BASE_URL)}`;
+  const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
 
   const dismissTitle = () => {
     sessionStorage.setItem("bvp-title-dismissed", "1");
@@ -107,7 +107,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             <p className="mt-6 text-white/30 text-xs">
               {user
                 ? `Signed in · ${hasTeam ? "Your progress is saved." : "Set up your team to begin."}`
-                : "Sign in with your Replit account to save your progress across sessions."}
+                : "Select or create a manager profile to save your progress."}
             </p>
           </div>
         </div>

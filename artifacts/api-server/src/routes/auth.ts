@@ -1,82 +1,19 @@
-import * as oidc from "openid-client";
 import { Router, type IRouter, type Request, type Response } from "express";
 import { GetCurrentAuthUserResponse } from "@workspace/api-zod";
 import { db, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import {
-  clearSession,
-  getOidcConfig,
   getSessionId,
   createSession,
-  deleteSession,
-  SESSION_COOKIE,
-  SESSION_TTL,
-  ISSUER_URL,
+  clearSession,
+  setSessionCookie,
   type SessionData,
 } from "../lib/auth";
 
-const OIDC_COOKIE_TTL = 10 * 60 * 1000;
-
 const router: IRouter = Router();
 
-function getOrigin(req: Request): string {
-  const proto = req.headers["x-forwarded-proto"] || "https";
-  const host =
-    req.headers["x-forwarded-host"] || req.headers["host"] || "localhost";
-  return `${proto}://${host}`;
-}
-
-function setSessionCookie(res: Response, sid: string) {
-  res.cookie(SESSION_COOKIE, sid, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_TTL,
-  });
-}
-
-function setOidcCookie(res: Response, name: string, value: string) {
-  res.cookie(name, value, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: OIDC_COOKIE_TTL,
-  });
-}
-
-function getSafeReturnTo(value: unknown): string {
-  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) {
-    return "/";
-  }
-  return value;
-}
-
-async function upsertUser(claims: Record<string, unknown>) {
-  const userData = {
-    id: claims.sub as string,
-    email: (claims.email as string) || null,
-    firstName: (claims.first_name as string) || null,
-    lastName: (claims.last_name as string) || null,
-    profileImageUrl: (claims.profile_image_url || claims.picture) as
-      | string
-      | null,
-  };
-
-  const [user] = await db
-    .insert(usersTable)
-    .values(userData)
-    .onConflictDoUpdate({
-      target: usersTable.id,
-      set: {
-        ...userData,
-        updatedAt: new Date(),
-      },
-    })
-    .returning();
-  return user;
-}
-
+// ── GET /auth/user — unchanged response shape, so the frontend doesn't care
+//    whether the profile came from Replit OIDC or a local picker ────────────
 router.get("/auth/user", (req: Request, res: Response) => {
   if (!req.isAuthenticated() || !req.user) {
     res.status(401).json({ error: "Not authenticated" });
@@ -93,114 +30,92 @@ router.get("/auth/user", (req: Request, res: Response) => {
   );
 });
 
-router.get("/login", async (req: Request, res: Response) => {
-  const config = await getOidcConfig();
-  const callbackUrl = `${getOrigin(req)}/api/callback`;
+// ── GET /profiles — list local profiles to show on the picker screen ────────
+router.get("/profiles", async (_req: Request, res: Response) => {
+  const rows = await db
+    .select({
+      id: usersTable.id,
+      firstName: usersTable.firstName,
+      profileImageUrl: usersTable.profileImageUrl,
+      createdAt: usersTable.createdAt,
+    })
+    .from(usersTable)
+    .orderBy(usersTable.createdAt);
 
-  const returnTo = getSafeReturnTo(req.query.returnTo);
-
-  const state = oidc.randomState();
-  const nonce = oidc.randomNonce();
-  const codeVerifier = oidc.randomPKCECodeVerifier();
-  const codeChallenge = await oidc.calculatePKCECodeChallenge(codeVerifier);
-
-  const redirectTo = oidc.buildAuthorizationUrl(config, {
-    redirect_uri: callbackUrl,
-    scope: "openid email profile offline_access",
-    code_challenge: codeChallenge,
-    code_challenge_method: "S256",
-    prompt: "login consent",
-    state,
-    nonce,
+  res.json({
+    profiles: rows.map((r) => ({
+      id: r.id,
+      name: r.firstName || "Unnamed Manager",
+      profileImage: r.profileImageUrl ?? null,
+    })),
   });
-
-  setOidcCookie(res, "code_verifier", codeVerifier);
-  setOidcCookie(res, "nonce", nonce);
-  setOidcCookie(res, "state", state);
-  setOidcCookie(res, "return_to", returnTo);
-
-  res.redirect(redirectTo.href);
 });
 
-router.get("/callback", async (req: Request, res: Response) => {
-  const config = await getOidcConfig();
-  const callbackUrl = `${getOrigin(req)}/api/callback`;
-
-  const codeVerifier = req.cookies?.code_verifier;
-  const nonce = req.cookies?.nonce;
-  const expectedState = req.cookies?.state;
-
-  if (!codeVerifier || !expectedState) {
-    res.redirect("/api/login");
+// ── POST /profiles — create a new local profile ({ name }) ──────────────────
+router.post("/profiles", async (req: Request, res: Response) => {
+  const { name } = req.body as { name?: string };
+  const trimmed = (name ?? "").trim();
+  if (!trimmed) {
+    res.status(400).json({ error: "name is required" });
+    return;
+  }
+  if (trimmed.length > 50) {
+    res.status(400).json({ error: "name must be 50 characters or fewer" });
     return;
   }
 
-  const currentUrl = new URL(
-    `${callbackUrl}?${new URL(req.url, `http://${req.headers.host}`).searchParams}`,
-  );
+  const [created] = await db
+    .insert(usersTable)
+    .values({ firstName: trimmed })
+    .returning();
 
-  let tokens: oidc.TokenEndpointResponse & oidc.TokenEndpointResponseHelpers;
-  try {
-    tokens = await oidc.authorizationCodeGrant(config, currentUrl, {
-      pkceCodeVerifier: codeVerifier,
-      expectedNonce: nonce,
-      expectedState,
-      idTokenExpected: true,
-    });
-  } catch {
-    res.redirect("/api/login");
+  res.status(201).json({
+    id: created.id,
+    name: created.firstName,
+    profileImage: created.profileImageUrl ?? null,
+  });
+});
+
+// ── POST /profiles/:id/select — activate a profile for this session ─────────
+router.post("/profiles/:id/select", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  if (!user) {
+    res.status(404).json({ error: "Profile not found" });
     return;
   }
 
-  const returnTo = getSafeReturnTo(req.cookies?.return_to);
-
-  res.clearCookie("code_verifier", { path: "/" });
-  res.clearCookie("nonce", { path: "/" });
-  res.clearCookie("state", { path: "/" });
-  res.clearCookie("return_to", { path: "/" });
-
-  const claims = tokens.claims();
-  if (!claims) {
-    res.redirect("/api/login");
-    return;
-  }
-
-  const dbUser = await upsertUser(
-    claims as unknown as Record<string, unknown>,
-  );
-
-  const now = Math.floor(Date.now() / 1000);
   const sessionData: SessionData = {
     user: {
-      id: dbUser.id,
-      email: dbUser.email,
-      firstName: dbUser.firstName,
-      lastName: dbUser.lastName,
-      profileImageUrl: dbUser.profileImageUrl,
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl,
     },
-    access_token: tokens.access_token,
-    refresh_token: tokens.refresh_token,
-    expires_at: tokens.expiresIn() ? now + tokens.expiresIn()! : claims.exp,
   };
 
   const sid = await createSession(sessionData);
   setSessionCookie(res, sid);
-  res.redirect(returnTo);
+  res.json({ ok: true, id: user.id });
 });
 
-router.get("/logout", async (req: Request, res: Response) => {
-  const config = await getOidcConfig();
-  const origin = getOrigin(req);
+// ── DELETE /profiles/:id — remove a local profile ────────────────────────────
+// Leaves that profile's teams/career saves in place (they're keyed by userId
+// and just become unreachable) rather than cascading a destructive delete —
+// safer default; can be revisited if you want a full wipe-on-delete.
+router.delete("/profiles/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await db.delete(usersTable).where(eq(usersTable.id, id));
+  res.json({ ok: true });
+});
 
+// ── GET /logout — clear the session and go home ─────────────────────────────
+router.get("/logout", async (req: Request, res: Response) => {
   const sid = getSessionId(req);
   await clearSession(res, sid);
-
-  const endSessionUrl = oidc.buildEndSessionUrl(config, {
-    client_id: process.env.REPL_ID!,
-    post_logout_redirect_uri: origin,
-  });
-
-  res.redirect(endSessionUrl.href);
+  res.redirect("/");
 });
 
 export default router;

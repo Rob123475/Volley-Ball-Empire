@@ -352,7 +352,7 @@ export default function NewCareer() {
   }
 
   if (!user) {
-    window.location.href = "/api/login";
+    window.location.href = "/login";
     return null;
   }
 

@@ -13,6 +13,7 @@
     "electron:build": "electron-builder"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.2.0",
     "electron": "^32.0.0",
     "electron-builder": "^25.0.0",
     "prettier": "^3.8.3",

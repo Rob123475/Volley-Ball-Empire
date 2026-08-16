@@ -1,0 +1,16 @@
+$ electron .
+
+[server] {"level":30,"time":1786411227293,"pid":672,"hostname":"Beast","port":4173,"msg":"Server listening"}
+
+[server] {"level":30,"time":1786411227334,"pid":672,"hostname":"Beast","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":3,"msg":"request completed"}
+
+[server] {"level":30,"time":1786411227402,"pid":672,"hostname":"Beast","req":{"id":2,"method":"GET","url":"/"},"res":{"statusCode":304},"responseTime":2,"msg":"request completed"}
+
+[server] {"level":30,"time":1786411227417,"pid":672,"hostname":"Beast","req":{"id":3,"method":"GET","url":"/Program%20Files/Git/assets/index-BtayNp36.js"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786411227417,"pid":672,"hostname":"Beast","req":{"id":4,"method":"GET","url":"/Program%20Files/Git/assets/index-CkuxRInT.css"},"res":{"statusCode":304},"responseTime":1,"msg":"request completed"}
+
+[server] {"level":30,"time":1786411310381,"pid":672,"hostname":"Beast","req":{"id":5,"method":"GET","url":"/Program%20Files/Git/assets/index-CkuxRInT.css"},"res":{"statusCode":304},"responseTime":0,"msg":"request completed"}
+
+[28524:0811/112150.401:ERROR:CONSOLE(1)] "Request Autofill.enable failed. {"code":-32601,"message":"'Autofill.enable' wasn't found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[28524:0811/112150.401:ERROR:CONSOLE(1)] "Request Autofill.setAddresses failed. {"code":-32601,"message":"'Autofill.setAddresses' wasn't found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)

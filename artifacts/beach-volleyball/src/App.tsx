@@ -13,6 +13,7 @@ import Matches          from "@/pages/matches";
 import ThreeDCourt      from "@/pages/court";
 import Finances         from "@/pages/finances";
 import NewCareer        from "@/pages/new-career";
+import ProfilePicker    from "@/pages/profile-picker";
 import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound         from "@/pages/not-found";
 
@@ -94,7 +95,7 @@ queryClient.getQueryCache().subscribe((event) => {
     event.action.type === "error" &&
     (event.action.error as any)?.status === 401
   ) {
-    window.location.href = `/api/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
+    window.location.href = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
   }
 });
 
@@ -102,6 +103,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/dev/generation-test" component={DevGenerationTest} />
+      <Route path="/login" component={ProfilePicker} />
       <Route path="/new-career" component={NewCareer} />
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">

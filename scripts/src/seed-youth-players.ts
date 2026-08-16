@@ -3,46 +3,15 @@
  * One shared image uploaded once, reused for all cards.
  * Run: pnpm --filter @workspace/scripts run seed-youth-players
  */
-import { Storage } from "@google-cloud/storage";
-import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { db } from "@workspace/db";
 import { playersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
+import { localImageUrl } from "./lib/local-image";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(__dirname, "../../");
-const SIDECAR = "http://127.0.0.1:1106";
-const PRIVATE_OBJECT_DIR = process.env.PRIVATE_OBJECT_DIR!;
-
-const gcs = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${SIDECAR}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${SIDECAR}/credential`,
-      format: { type: "json", subject_token_field_name: "access_token" },
-    },
-    universe_domain: "googleapis.com",
-  } as object,
-  projectId: "",
-});
-
-async function upload(localFile: string, entityId: string): Promise<string> {
-  const privateDir = PRIVATE_OBJECT_DIR.endsWith("/") ? PRIVATE_OBJECT_DIR : `${PRIVATE_OBJECT_DIR}/`;
-  const parts = privateDir.startsWith("/") ? privateDir.slice(1) : privateDir;
-  const slashIdx = parts.indexOf("/");
-  const bucketName = slashIdx === -1 ? parts.replace(/\/$/, "") : parts.slice(0, slashIdx);
-  const prefix = slashIdx === -1 ? "" : parts.slice(slashIdx + 1);
-  await gcs.bucket(bucketName).file(`${prefix}${entityId}`).save(readFileSync(localFile), {
-    contentType: "image/webp",
-    metadata: { cacheControl: "public, max-age=31536000" },
-  });
-  return `/objects/${entityId}`;
-}
 
 function potentialLabel(stars: number): string {
   if (stars >= 4.5) return "Elite";
@@ -164,11 +133,10 @@ const PLAYERS: YouthRow[] = [
 async function main() {
   console.log("=== Seed Youth Players V2 ===\n");
 
-  // 1. Upload single shared card image
-  const imgLocal = resolve(WORKSPACE_ROOT, "attached_assets", "player_youth_all_01_1783432743064.webp");
-  const imgGcsPath = "youth-cards/youth-card-v2.webp";
-  console.log("Uploading shared youth card image...");
-  const sharedImageUrl = await upload(imgLocal, imgGcsPath);
+  // 1. Copy the single shared card image into the local public folder
+  const sharedImageFileName = "player_youth_all_01_1783432743064.webp";
+  console.log("Copying shared youth card image...");
+  const sharedImageUrl = localImageUrl(sharedImageFileName, "youth");
   console.log(`  ✓ Image → ${sharedImageUrl}\n`);
 
   // 2. Delete existing youth players

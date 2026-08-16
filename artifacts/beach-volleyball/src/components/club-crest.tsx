@@ -8,6 +8,7 @@ type ClubCrestProps = {
   name: string;
   primaryColor?: string | null;
   secondaryColor?: string | null;
+  shapeIndex?: number | null;
   size?: number;
   className?: string;
 };
@@ -78,12 +79,13 @@ export function ClubCrest({
   name,
   primaryColor,
   secondaryColor,
+  shapeIndex,
   size = 44,
   className,
 }: ClubCrestProps) {
   const primary   = primaryColor   ?? "#E05A00";
   const secondary = secondaryColor ?? "#FFFFFF";
-  const variant   = VARIANTS[nameHash(name)]!;
+  const variant   = VARIANTS[shapeIndex ?? nameHash(name)]!;
   const initials  = getInitials(name);
   const stroke    = darkenHex(primary);
 
