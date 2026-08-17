@@ -50,6 +50,7 @@ import CareerHistory      from "@/pages/career-history";
 import LeagueLadders      from "@/pages/league-ladders";
 import Leaderboard        from "@/pages/leaderboard";
 import WorldTourLocations from "@/pages/locations";
+import Rules from "@/pages/rules";
 
 // Competition pages — Continental
 import RegionalOverview    from "@/pages/competition/regional-overview";
@@ -133,6 +134,7 @@ function Router() {
               {/* ── Backward-compatible leaf routes ── */}
               <Route path="/matches"            component={Matches}           />
               <Route path="/training"           component={Training}          />
+        <Route path="/rules"               component={Rules}              />
               <Route path="/contracts"          component={Contracts}         />
               <Route path="/staff-market"       component={StaffMarket}       />
               <Route path="/medical"            component={MedicalCentre}     />

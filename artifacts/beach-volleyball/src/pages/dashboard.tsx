@@ -38,6 +38,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  BookOpen,
   HeartPulse,
   Flame,
   MapPin,
@@ -289,6 +290,7 @@ function OlympicDashboardWidget() {
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
+  const [, navigate] = useLocation();
   const [showCareerOptions, setShowCareerOptions] = useState(false);
   const [facilitiesOpen,   setFacilitiesOpen]   = useState(false);
   const [upcomingOpen,     setUpcomingOpen]     = useState(false);
@@ -476,6 +478,13 @@ export default function Dashboard() {
                 <Flame className="h-3.5 w-3.5" /> {streak}-MATCH STREAK
               </Badge>
             )}
+              <button
+                onClick={() => navigate("/rules")}
+                className="flex items-center gap-1.5 bg-white/8 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10 hover:bg-white/15 transition-colors text-[11px] font-black uppercase tracking-widest text-white/70"
+              >
+                <BookOpen className="h-3 w-3" />
+                Rules
+              </button>
           </div>
 
           {/* ── Main: Club identity (left) + Rating panel (right) ── */}
