@@ -125,7 +125,7 @@ router.post("/careers", async (req, res) => {
     originalClubName?:    string | null;
     season?:              string;
     worldRanking?:        number | null;
-    budget?:              string | null;
+    budget?:              number | null;
     locationId?:          number | null;
     primaryColor?:        string | null;
     secondaryColor?:      string | null;
@@ -159,7 +159,7 @@ router.post("/careers", async (req, res) => {
     .values({
       userId:             req.user.id,
       name:               clubName.trim(),
-      budget:             budget ?? "500000",
+      budget:             budget ?? 500000,
       reputation:         50,
       ...(locationId   ? { locationId }                   : {}),
       ...(primaryColor ? { logoColor: primaryColor }      : {}),
@@ -464,7 +464,7 @@ router.post("/careers/apply-job", async (req, res) => {
     .values({
       userId:     req.user.id,
       name:       clubName.trim(),
-      budget:     transferBudget.toFixed(2),
+      budget:     transferBudget,
       reputation: clubReputation,
       logoColor:  logoColor ?? null,
     })
@@ -604,13 +604,13 @@ router.post("/careers/break-contract", async (req, res) => {
 
   const clubName   = save.clubName;
   const season     = save.season;
-  const oldBudget  = parseFloat(team.budget ?? "0");
+  const oldBudget  = team.budget;
   const newBudget  = oldBudget - BREAK_CONTRACT_FEE;
 
   // Deduct release clause from team budget
   await db
     .update(teamsTable)
-    .set({ budget: newBudget.toFixed(2) })
+    .set({ budget: newBudget })
     .where(eq(teamsTable.id, teamId));
 
   // Record career history entry

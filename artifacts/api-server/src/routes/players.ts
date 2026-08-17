@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
-import { eq, isNull, isNotNull, and, sql } from "drizzle-orm";
+import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
 
 const router = Router();
@@ -73,12 +73,12 @@ router.post("/players", async (req, res) => {
   const { name, nationality, age, height, position, speed, power, defense, serve, block, stamina, salary } = req.body;
   const [player] = await db.insert(playersTable).values({
     name, nationality,
-    age: Number(age), height: String(height),
+    age: Number(age), height: Number(height),
     position,
     speed: Number(speed), power: Number(power),
     defense: Number(defense), serve: Number(serve),
     block: Number(block), stamina: Number(stamina),
-    salary: String(salary),
+    salary: Number(salary),
     potential:   assignPotential(),
     development: generateDevelopment(),
   }).returning();
@@ -126,7 +126,7 @@ router.get("/players/transfer-window", async (req, res) => {
   const teamIds = [...new Set(inWindow.map(p => p.teamId!))];
   const teamRows = teamIds.length > 0
     ? await db.select({ id: teamsTable.id, name: teamsTable.name })
-        .from(teamsTable).where(sql`${teamsTable.id} = ANY(ARRAY[${sql.join(teamIds.map(id => sql`${id}`), sql`, `)}]::int[])`)
+        .from(teamsTable).where(inArray(teamsTable.id, teamIds))
     : [];
   const teamMap = Object.fromEntries(teamRows.map(t => [t.id, t.name]));
 
@@ -224,7 +224,7 @@ router.get("/players/market-all", async (req, res) => {
   if (teamIdSet.length > 0) {
     const teams = await db.select({ id: teamsTable.id, name: teamsTable.name })
       .from(teamsTable)
-      .where(sql`${teamsTable.id} = ANY(ARRAY[${sql.join(teamIdSet.map(id => sql`${id}`), sql`, `)}]::int[])`);
+      .where(inArray(teamsTable.id, teamIdSet));
     for (const t of teams) teamMap[t.id] = t.name;
   }
 
@@ -333,7 +333,7 @@ router.post("/players/:id/release", async (req, res) => {
     await db.insert(financeTransactionsTable).values({
       teamId:      before.teamId,
       type:        "expense",
-      amount:      "0",
+      amount:      0,
       description: `${before.name} released from Youth Academy`,
       category:    "other",
       date:        today,

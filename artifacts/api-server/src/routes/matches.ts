@@ -35,7 +35,7 @@ const LOCATION_WEATHER_POOLS: Record<number, string[]> = {
 // Fallback for unknown location ids
 const DEFAULT_POOL = ["sunny","clear","cloudy","windy","hot","overcast","stormy","perfect","rain"];
 
-type WeatherResult = { weather: string; windSpeed: string; temperature: string };
+type WeatherResult = { weather: string; windSpeed: number; temperature: number };
 
 function generateWeather(locId?: number | null): WeatherResult {
   const pool = (locId != null ? LOCATION_WEATHER_POOLS[locId] : null) ?? DEFAULT_POOL;
@@ -101,8 +101,8 @@ function generateWeather(locId?: number | null): WeatherResult {
 
   return {
     weather,
-    windSpeed:   wind.toFixed(1),
-    temperature: temp.toFixed(1),
+    windSpeed:   Number(wind.toFixed(1)),
+    temperature: Number(temp.toFixed(1)),
   };
 }
 
@@ -451,7 +451,7 @@ router.post("/matches", async (req, res) => {
     teamSize:  Number(teamSize),
     scheduledAt,
     homeTeamName: team.name,
-    prizeAmount: prizeAmount ? String(prizeAmount) : "5000",
+    prizeAmount: prizeAmount ? Number(prizeAmount) : 5000,
   }).returning();
   res.status(201).json(serializeMatch(match));
 });
@@ -533,7 +533,7 @@ router.get("/matches/fixture", async (req, res) => {
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount:  String(f.prize),
+        prizeAmount:  f.prize,
         status:      "scheduled",
         continent:   f.continent,
         tier:        f.tier,
@@ -557,7 +557,7 @@ router.get("/matches/fixture", async (req, res) => {
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount:  String(f.prize),
+        prizeAmount:  f.prize,
         status:      "scheduled",
         continent:   f.continent,
         tier:        f.tier,
@@ -592,7 +592,7 @@ router.get("/matches/fixture", async (req, res) => {
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount:  String(f.prize),
+        prizeAmount:  f.prize,
         status:      "scheduled",
         continent:   f.continent,
         tier:        f.tier,
@@ -860,7 +860,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
     await db.update(teamsTable).set({
       wins:              newWins,
-      budget:            String(Number(team.budget) + prizeEarned),
+      budget:            Number(team.budget) + prizeEarned,
       winStreak:         newStreak,
       managerRepPoints:  (team.managerRepPoints ?? 0) + repGain,
       sponsorReputation: newSponsorRep,
@@ -871,7 +871,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.insert(financeTransactionsTable).values({
       teamId:      team.id,
       type:        "income",
-      amount:      String(prizeEarned),
+      amount:      prizeEarned,
       description: `Prize money: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
       category:    "prize_money",
       date:        today,
@@ -958,7 +958,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     await db.insert(financeTransactionsTable).values({
       teamId:      team.id,
       type:        "expense",
-      amount:      String(academyWages.totalWeeklyWages),
+      amount:      academyWages.totalWeeklyWages,
       description: `Youth Academy wages — ${academyWages.playerCount} player${academyWages.playerCount !== 1 ? "s" : ""}`,
       category:    "player_salary",
       date:        wageDate,

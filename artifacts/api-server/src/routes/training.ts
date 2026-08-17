@@ -351,7 +351,7 @@ router.post("/training", async (req, res) => {
     playerId: Number(playerId),
     type: programName,
     focus: focus || programName,
-    durationHours: String(durationHours || 2),
+    durationHours: Number(durationHours || 2),
     scheduledAt,
     coachId: coachId ? Number(coachId) : null,
   }).returning();
@@ -375,7 +375,7 @@ router.post("/training/team", async (req, res) => {
       playerId: player.id,
       type: programName,
       focus: focus || programName,
-      durationHours: String(durationHours || 2),
+      durationHours: Number(durationHours || 2),
       scheduledAt,
       coachId: coachId ? Number(coachId) : null,
     }).returning()

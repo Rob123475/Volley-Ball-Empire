@@ -128,7 +128,7 @@ async function autoSimulateAIMatches(
   const caseHS = results.map(r => `WHEN ${r.id} THEN ${r.homeScore}`).join(" ");
   const caseAS = results.map(r => `WHEN ${r.id} THEN ${r.awayScore}`).join(" ");
   const idList = results.map(r => r.id).join(",");
-  await db.execute(sql.raw(`
+  db.run(sql.raw(`
     UPDATE matches
     SET status     = 'completed',
         home_score = CASE id ${caseHS} ELSE home_score END,
@@ -144,7 +144,7 @@ async function autoSimulateAIMatches(
     if (r.homeScore > r.awayScore) s.wins++; else s.losses++;
   }
   for (const [teamId, stats] of teamStats) {
-    await db.execute(sql.raw(
+    db.run(sql.raw(
       `UPDATE teams SET wins = wins + ${stats.wins}, losses = losses + ${stats.losses} WHERE id = ${teamId}`
     ));
   }
@@ -490,7 +490,7 @@ router.post("/calendar/advance", async (req, res) => {
       {
         teamId:      team.id,
         type:        "income",
-        amount:      String(sponsorIncome),
+        amount:      sponsorIncome,
         description: "Weekly sponsor & commercial income",
         category:    "sponsorship",
         date:        nextDate,
@@ -498,7 +498,7 @@ router.post("/calendar/advance", async (req, res) => {
       {
         teamId:      team.id,
         type:        "expense",
-        amount:      String(weeklySalary),
+        amount:      weeklySalary,
         description: `Weekly player salaries (${teamPlayers.length} players)`,
         category:    "salaries",
         date:        nextDate,
@@ -506,7 +506,7 @@ router.post("/calendar/advance", async (req, res) => {
       {
         teamId:      team.id,
         type:        "expense",
-        amount:      String(weeklyStaff),
+        amount:      weeklyStaff,
         description: "Weekly staff & operational costs",
         category:    "staff",
         date:        nextDate,
@@ -537,12 +537,12 @@ router.post("/calendar/advance", async (req, res) => {
   if (expired.length > 0) {
     const expiredIds = expired.map(p => p.id);
     await db.update(playersTable)
-      .set({ teamId: null, contractEndDate: null, isActive: false, salary: "0" })
-      .where(sql`${playersTable.id} = ANY(ARRAY[${sql.join(expiredIds.map(id => sql`${id}`), sql`, `)}]::int[])`);
+      .set({ teamId: null, contractEndDate: null, isActive: false, salary: 0 })
+      .where(inArray(playersTable.id, expiredIds));
     await db.update(contractsTable)
       .set({ status: "terminated" })
       .where(and(
-        sql`${contractsTable.playerId} = ANY(ARRAY[${sql.join(expiredIds.map(id => sql`${id}`), sql`, `)}]::int[])`,
+        inArray(contractsTable.playerId, expiredIds),
         eq(contractsTable.status, "active"),
       ));
     // Only push an event if the user's own players expired (captured before nulling teamId)

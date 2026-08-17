@@ -92,7 +92,7 @@ router.post("/draft/generate-class", async (req, res) => {
       name,
       nationality,
       age,
-      height: String(Number((1.65 + Math.random() * 0.20).toFixed(2))),
+      height: Number((1.65 + Math.random() * 0.20).toFixed(2)),
       position: ["setter", "spiker", "defender", "blocker", "all_rounder"][Math.floor(Math.random() * 5)],
       speed:   randStat(),
       power:   randStat(),
@@ -104,8 +104,8 @@ router.post("/draft/generate-class", async (req, res) => {
       fatigue: Math.floor(Math.random() * 15),
       fitness: 85 + Math.floor(Math.random() * 15),
       potential:   rollPotential(academyLevel),
-      salary:      String(5000 + Math.floor(Math.random() * 3001)),
-      askingPrice: String(40000 + Math.floor(Math.random() * 30001)),
+      salary:      5000 + Math.floor(Math.random() * 3001),
+      askingPrice: 40000 + Math.floor(Math.random() * 30001),
       isDraftPlayer: true,
       isActive:    false,
       isRetired:   false,
@@ -158,10 +158,10 @@ router.post("/draft/pick", async (req, res) => {
   await db.insert(contractsTable).values({
     playerId: Number(draftPlayerId),
     teamId: team.id,
-    salary: player.salary || "5000",
+    salary: player.salary || 5000,
     startDate: today,
     endDate,
-    bonusPerWin: "500",
+    bonusPerWin: 500,
   });
 
   res.status(201).json(serializePlayer(updated));

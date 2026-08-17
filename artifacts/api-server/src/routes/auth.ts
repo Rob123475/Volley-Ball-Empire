@@ -78,7 +78,7 @@ router.post("/profiles", async (req: Request, res: Response) => {
 
 // ── POST /profiles/:id/select — activate a profile for this session ─────────
 router.post("/profiles/:id/select", async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = String(req.params.id);
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
   if (!user) {
@@ -106,7 +106,7 @@ router.post("/profiles/:id/select", async (req: Request, res: Response) => {
 // and just become unreachable) rather than cascading a destructive delete —
 // safer default; can be revisited if you want a full wipe-on-delete.
 router.delete("/profiles/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = String(req.params.id);
   await db.delete(usersTable).where(eq(usersTable.id, id));
   res.json({ ok: true });
 });

@@ -234,7 +234,7 @@ export async function tickAcademyContracts(teamId: number): Promise<{ totalWeekl
     const newYears = Math.max(0, currentYears - 1 / 52);
 
     await db.update(playersTable)
-      .set({ academyContractYears: newYears.toFixed(2) })
+      .set({ academyContractYears: Number(newYears.toFixed(2)) })
       .where(eq(playersTable.id, player.id));
 
     totalWeeklyWages += YOUTH_WEEKLY_WAGE_MAP[player.potential] ?? 75;

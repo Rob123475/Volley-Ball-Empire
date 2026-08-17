@@ -315,39 +315,8 @@ export function generateMedicalStaffMember(role: MedicalRole) {
     return generateMedicalStaffSportsScientist();
   }
 
-  const name          = pick(FEMALE_MEDICAL_NAMES);
-  const nationality   = pick(NATIONALITIES);
-  const [rMin, rMax]  = ROLE_RATING_RANGES[role];
-  const overallRating = rand(rMin, rMax);
-  const [sMin, sMax]  = ROLE_SALARY_RANGES[role];
-  const salary        = rand(sMin, sMax);
-
-  const attrNames = ROLE_ATTRIBUTES[role];
-  const attributes: Record<string, number> = {};
-  for (const attr of attrNames) {
-    const base = overallRating + rand(-10, 10);
-    attributes[attr] = Math.min(99, Math.max(40, base));
-  }
-
-  return {
-    name,
-    role,
-    specialty:       MEDICAL_ROLE_LABELS[role],
-    salary:          salary.toFixed(2),
-    skillLevel:      overallRating,
-    nationality,
-    imageUrl:        getMedicalImageUrl(name),
-    isAvailable:     true,
-    age:             rand(28, 55),
-    overallRating,
-    contractLength:  pick([6, 12, 18, 24] as const),
-    coachSpeciality: "Medical",
-    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Innovative"] as const),
-    attributes,
-    specialTrait:    pick(ROLE_TRAITS[role]),
-    isScoutRevealed: false,
-    scoutingRating:  rand(15, 40),
-  };
+  const exhaustiveCheck: never = role;
+  throw new Error(`Unhandled medical role: ${exhaustiveCheck}`);
 }
 
 export function generateMedicalAttributesForRole(role: string, skillLevel: number): Record<string, number> {

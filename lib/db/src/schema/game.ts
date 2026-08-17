@@ -207,6 +207,8 @@ export const userProfilesTable = sqliteTable("user_profiles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: text("user_id").notNull().unique().references(() => usersTable.id),
   teamName: text("team_name").notNull(),
+  coachName: text("coach_name"),
+  savePin: text("save_pin"),
   totalWins: integer("total_wins").notNull().default(0),
   totalLosses: integer("total_losses").notNull().default(0),
   totalEarnings: real("total_earnings").notNull().default(0),

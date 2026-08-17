@@ -122,7 +122,7 @@ router.get("/poaching/offers", async (req, res) => {
           logoColor:         club.logoColor,
           salary,
           contractLength,
-          transferBudget:    transferBudget.toFixed(2),
+          transferBudget,
           seasonExpectation: expectation,
           clubReputation:    club.reputation,
           status:            "pending",

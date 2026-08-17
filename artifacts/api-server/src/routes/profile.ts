@@ -29,7 +29,7 @@ router.get("/profile", async (req, res) => {
   if (!profile.savePin) {
     const pin = makeSavePin(req.user.id);
     await db.update(userProfilesTable)
-      .set({ savePin: pin } as any)
+      .set({ savePin: pin })
       .where(eq(userProfilesTable.userId, req.user.id));
     res.json(serialize({ ...profile, savePin: pin }));
     return;
@@ -47,14 +47,14 @@ router.post("/profile", async (req, res) => {
     teamName,
     savePin,
     coachName: coachName ?? null,
-  } as any).returning();
+  }).returning();
   res.status(201).json(serialize(profile));
 });
 
 router.patch("/profile", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const { teamName, coachName, savePin } = req.body;
-  const updates: any = {};
+  const updates: Partial<typeof userProfilesTable.$inferInsert> = {};
   if (teamName  !== undefined) updates.teamName  = teamName;
   if (coachName !== undefined) updates.coachName = coachName;
   if (savePin   !== undefined) updates.savePin   = savePin;

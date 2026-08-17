@@ -217,19 +217,19 @@ router.post("/continental-scouting/start", async (req, res) => {
       durationMonths,
       endDate,
       assignedStaffId: staffId ?? null,
-      cost:           String(cost),
+      cost,
     })
     .returning();
 
   await db.update(teamsTable)
-    .set({ budget: String(budget - cost) })
+    .set({ budget: budget - cost })
     .where(eq(teamsTable.id, team.id));
 
   const today = new Date().toISOString().split("T")[0]!;
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      String(-cost),
+    amount:      -cost,
     description: `Continental scouting — ${region} (${durationMonths} month${durationMonths > 1 ? "s" : ""})`,
     category:    "youth_academy",
     date:        today,

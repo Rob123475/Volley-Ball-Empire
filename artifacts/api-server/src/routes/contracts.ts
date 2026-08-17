@@ -105,15 +105,15 @@ router.post("/contracts", async (req, res) => {
   const [contract] = await db.insert(contractsTable).values({
     playerId: Number(playerId),
     teamId: team.id,
-    salary: String(salary),
+    salary: Number(salary),
     startDate: today,
     endDate: actualEnd,
-    bonusPerWin: String(bonusPerWin ?? 0),
+    bonusPerWin: Number(bonusPerWin ?? 0),
   }).returning();
 
   await db.update(playersTable).set({
     teamId: team.id,
-    salary: String(salary),
+    salary: Number(salary),
     contractEndDate: actualEnd,
     isActive: squadRole === "starter" || squadRole === "interchange",
     squadRole,

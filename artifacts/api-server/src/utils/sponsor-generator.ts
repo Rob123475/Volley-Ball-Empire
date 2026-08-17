@@ -206,7 +206,7 @@ function appealReason(tier: SponsorTier, appealScore: number): string {
 export interface GeneratedOffer {
   sponsor:              string;
   description:          string;
-  amount:               string;
+  amount:               number;
   requirementWins:      number;
   expiresAt:            string;
   isAccepted:           boolean;
@@ -214,8 +214,8 @@ export interface GeneratedOffer {
   tier:                 SponsorTier;
   slot:                 SponsorSlot;
   category:             SponsorCategory;
-  signingBonus:         string;
-  monthlyPayment:       string;
+  signingBonus:         number;
+  monthlyPayment:       number;
   contractLengthSeasons:number;
   contractStartDate:    null;
   contractEndDate:      null;
@@ -263,7 +263,7 @@ export function generateOffer(params: {
   return {
     sponsor,
     description:           `${slotLabel} — ${categoryLabel}. ${contractLength}-season contract.`,
-    amount:                String(totalValue),
+    amount:                totalValue,
     requirementWins,
     expiresAt,
     isAccepted:            false,
@@ -271,8 +271,8 @@ export function generateOffer(params: {
     tier,
     slot,
     category,
-    signingBonus:          String(signingBonus),
-    monthlyPayment:        String(monthlyPayment),
+    signingBonus,
+    monthlyPayment,
     contractLengthSeasons: contractLength,
     contractStartDate:     null,
     contractEndDate:       null,
@@ -292,11 +292,12 @@ export function generateOfferBatch(params: {
   const { team, usedNames, gameDate, count } = params;
   const appealScore = computeAppealScore(team);
 
-  const slotAssignments: SponsorSlot[] = [
+  const slotOrder: SponsorSlot[] = [
     "primary", "kit",
     "supporting", "supporting", "supporting", "supporting",
     "supporting", "supporting",
-  ].slice(0, count);
+  ];
+  const slotAssignments = slotOrder.slice(0, count);
 
   return slotAssignments.map(slot => {
     const tier = selectTier(appealScore);

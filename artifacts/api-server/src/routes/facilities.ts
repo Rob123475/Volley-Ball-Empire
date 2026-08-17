@@ -198,7 +198,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
   const completesAtRound = currentRound + buildRounds;
 
   await db.update(teamsTable).set({
-    budget:           String(budget - cost),
+    budget:           budget - cost,
     managerRepPoints: (team.managerRepPoints ?? 0) + 5,
   }).where(eq(teamsTable.id, team.id));
 
@@ -206,7 +206,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      String(-cost),
+    amount:      -cost,
     description: `Facility upgrade: ${type.replace(/_/g, " ")} → Level ${facility.level + 1}`,
     category:    "facilities",
     date:        today,

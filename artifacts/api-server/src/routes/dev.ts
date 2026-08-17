@@ -13,8 +13,8 @@ import { WORLD_TOUR } from "../data/worldTour.js";
 const WEATHER_CONDITIONS = ["sunny", "clear", "cloudy", "windy", "hot", "overcast", "perfect"];
 function quickWeather() {
   const w = WEATHER_CONDITIONS[Math.floor(Math.random() * WEATHER_CONDITIONS.length)]!;
-  const wind = String((Math.random() * 20).toFixed(1));
-  const temp = String((22 + Math.random() * 15).toFixed(1));
+  const wind = Number((Math.random() * 20).toFixed(1));
+  const temp = Number((22 + Math.random() * 15).toFixed(1));
   return { weather: w, windSpeed: wind, temperature: temp };
 }
 
@@ -237,7 +237,7 @@ router.post("/dev/migrate-season-78", async (_req, res) => {
           tier:          event.tier,
           continent:     event.continent,
           scheduledAt:   event.date,
-          prizeAmount:   String(event.prize),
+          prizeAmount:   event.prize,
           status:        "scheduled",
           teamSize:      2,
           weather,
@@ -621,7 +621,7 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
         imageUrl: YOUTH_POOL_IMAGE,
         speed: stat(), power: stat(), defense: stat(),
         serve: stat(), block: stat(), stamina: stat(),
-        height: String((1.58 + Math.random() * 0.20).toFixed(1)),
+        height: Number((1.58 + Math.random() * 0.20).toFixed(1)),
         injuryStatus: "Healthy",
         morale: rand(65, 85),
         fatigue: 0,

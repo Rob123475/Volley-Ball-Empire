@@ -50,7 +50,7 @@ function makeFreeAgentPlayer(name: string, i: number) {
     name,
     nationality: nationalities[i % nationalities.length],
     age: randomInt(18, 33),
-    height: (170 + randomInt(0, 25)).toFixed(1),
+    height: Number((170 + randomInt(0, 25)).toFixed(1)),
     position: positions[i % positions.length],
     speed:   base + randomInt(-8, 8),
     power:   base + randomInt(-8, 8),
@@ -58,7 +58,7 @@ function makeFreeAgentPlayer(name: string, i: number) {
     serve:   base + randomInt(-8, 8),
     block:   base + randomInt(-8, 8),
     stamina: base + randomInt(-8, 8),
-    salary:  (3000 + base * 40).toFixed(2),
+    salary:  Number((3000 + base * 40).toFixed(2)),
     potential: base > 72 ? "High" : base > 62 ? "Average" : "Low",
   };
 }
@@ -89,7 +89,7 @@ function makeFreeAgentStaff(name: string, i: number) {
     name,
     role: staffRoles[i % staffRoles.length],
     specialty: "General",
-    salary: (2000 + skill * 30).toFixed(2),
+    salary: Number((2000 + skill * 30).toFixed(2)),
     skillLevel: skill,
     age: randomInt(28, 60),
     overallRating: skill,

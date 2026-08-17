@@ -202,7 +202,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       injured:       p.isInjured,
       injuryStatus:  p.injuryStatus,
       age:           p.age,
-      height:        p.height != null ? parseFloat(p.height) : null,
+      height:        p.height,
       primaryColor,
       secondaryColor,
       skinTone,
@@ -233,7 +233,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     awayScore:            liveState?.setsWonAway ?? match.awayScore ?? 0,
     servingTeam:          liveState?.servingTeam ?? null,
     weather:              match.weather,
-    windSpeed:            match.windSpeed != null ? parseFloat(match.windSpeed) : null,
+    windSpeed:            match.windSpeed,
     crowdSize:            estimateCrowdSize(match.tier),
     commentaryLine:       liveState?.lastAction ?? commentaryLine,
     // Boost mechanic isn't implemented in the API yet — always off for now.

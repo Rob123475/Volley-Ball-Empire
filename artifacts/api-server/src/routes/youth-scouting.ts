@@ -139,13 +139,13 @@ router.post("/youth-scouting/start", async (req, res) => {
     youthScoutingContinent:      continent,
     youthScoutingStatus:         "active",
     youthScoutingWeeksRemaining: SCOUTING_WEEKS,
-    budget:                      String(budget - SCOUTING_COST),
+    budget:                      budget - SCOUTING_COST,
   }).where(eq(teamsTable.id, team.id)).returning();
 
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      String(-SCOUTING_COST),
+    amount:      -SCOUTING_COST,
     description: `Youth scouting — ${continent}`,
     category:    "youth_academy",
     date:        today,
@@ -238,7 +238,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   const YOUTH_WEEKLY_WAGE: Record<string, number> = {
     Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
   };
-  const salary = String(YOUTH_WEEKLY_WAGE[prospect.potentialStars] ?? 75);
+  const salary = YOUTH_WEEKLY_WAGE[prospect.potentialStars] ?? 75;
 
   const today = new Date().toISOString().split("T")[0]!;
   const contractEnd = new Date();
@@ -250,7 +250,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     name:          prospect.name,
     nationality,
     age:           prospect.age,
-    height:        String(Number((1.60 + Math.random() * 0.18).toFixed(1))),
+    height:        Number((1.60 + Math.random() * 0.18).toFixed(1)),
     position,
     teamId:        team.id,
     continent:     prospect.continent,
@@ -261,7 +261,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     injuryStatus:  "Healthy",
     potential:     prospect.potentialStars,
     salary,
-    academyContractYears: "2.00",
+    academyContractYears: 2.0,
     morale:        75 + Math.floor(Math.random() * 16),
     fatigue:       0,
     fitness:       100,
@@ -279,19 +279,19 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     salary,
     startDate:   today,
     endDate,
-    bonusPerWin: "250",
+    bonusPerWin: 250,
   });
 
   // Deduct signing fee
   await db.update(teamsTable)
-    .set({ budget: String(budget - prospect.signingCost) })
+    .set({ budget: budget - prospect.signingCost })
     .where(eq(teamsTable.id, team.id));
 
   // Finance transaction
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      String(-prospect.signingCost),
+    amount:      -prospect.signingCost,
     description: `Youth signing — ${prospect.name}`,
     category:    "youth_academy",
     date:        today,

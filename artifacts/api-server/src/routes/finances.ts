@@ -55,7 +55,8 @@ async function computeWageBill(teamId: number) {
   // Exclude youth academy players (age 14–18, reserve role) — they have a separate wage system
   const seniorPlayers = players.filter(p => !(p.age >= 14 && p.age <= 18 && p.squadRole === "reserve"));
   const roster = seniorPlayers.map(p => {
-    const tier       = getPlayerTier(p.overallRating);
+    const overallRating = Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
+    const tier       = getPlayerTier(overallRating);
     const weeklySalary = WEEKLY_SALARY[tier];
     return { id: p.id, name: p.name, tier, weeklySalary };
   });
@@ -104,7 +105,7 @@ router.post("/finances", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { type, amount, description, category, date } = req.body;
   const [tx] = await db.insert(financeTransactionsTable).values({
-    teamId: team.id, type, amount: String(amount), description, category, date,
+    teamId: team.id, type, amount: Number(amount), description, category, date,
   }).returning();
   res.status(201).json(serializeTx(tx));
 });
@@ -273,14 +274,14 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   const [tx] = await db.insert(financeTransactionsTable).values({
     teamId: team.id,
     type: "income",
-    amount: String(finalAmount),
+    amount: finalAmount,
     description: promoMgr
       ? `Promo deal: ${deal.sponsor} (+${Math.round((promoBonus - 1) * 100)}% Promotions Manager bonus)`
       : `Promo deal: ${deal.sponsor}`,
     category: "promo_deal",
     date: today,
   }).returning();
-  await db.update(teamsTable).set({ budget: String(Number(team.budget) + finalAmount) }).where(eq(teamsTable.id, team.id));
+  await db.update(teamsTable).set({ budget: Number(team.budget) + finalAmount }).where(eq(teamsTable.id, team.id));
 
   res.json(serializeTx(tx));
 });
@@ -407,7 +408,7 @@ router.get("/finances/sponsor-active", async (req, res) => {
       await db.insert(financeTransactionsTable).values({
         teamId:      team.id,
         type:        "income",
-        amount:      String(monthly),
+        amount:      monthly,
         description: `Monthly sponsorship: ${contract.sponsor}`,
         category:    "sponsorship",
         date:        gameDate,
@@ -417,7 +418,7 @@ router.get("/finances/sponsor-active", async (req, res) => {
   }
   if (teamBudget !== Number(team.budget)) {
     await db.update(teamsTable)
-      .set({ budget: String(teamBudget) })
+      .set({ budget: teamBudget })
       .where(eq(teamsTable.id, team.id));
   }
 
@@ -490,13 +491,13 @@ router.post("/finances/sponsor-offers/:id/accept", async (req, res) => {
     await db.insert(financeTransactionsTable).values({
       teamId:      team.id,
       type:        "income",
-      amount:      String(signingBonus),
+      amount:      signingBonus,
       description: `Signing bonus: ${deal.sponsor}`,
       category:    "sponsorship",
       date:        gameDate,
     });
     await db.update(teamsTable)
-      .set({ budget: String(Number(team.budget) + signingBonus) })
+      .set({ budget: Number(team.budget) + signingBonus })
       .where(eq(teamsTable.id, team.id));
   }
 
@@ -546,13 +547,13 @@ router.post("/finances/sponsor-active/:id/terminate", async (req, res) => {
     await db.insert(financeTransactionsTable).values({
       teamId:      team.id,
       type:        "expense",
-      amount:      String(cancelFee),
+      amount:      cancelFee,
       description: `Contract termination fee: ${contract.sponsor}`,
       category:    "other",
       date:        gameDate,
     });
     await db.update(teamsTable)
-      .set({ budget: String(Math.max(0, Number(team.budget) - cancelFee)) })
+      .set({ budget: Math.max(0, Number(team.budget) - cancelFee) })
       .where(eq(teamsTable.id, team.id));
   }
 

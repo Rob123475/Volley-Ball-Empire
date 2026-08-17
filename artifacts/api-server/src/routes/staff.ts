@@ -163,7 +163,7 @@ router.delete("/staff/:id", async (req, res) => {
 
   // Deduct termination fee from club budget
   await db.update(teamsTable)
-    .set({ budget: String(teamBudget - terminationFee) })
+    .set({ budget: teamBudget - terminationFee })
     .where(eq(teamsTable.id, team.id));
 
   // Release the staff member back to the market
@@ -177,7 +177,7 @@ router.delete("/staff/:id", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      String(terminationFee),
+    amount:      terminationFee,
     description: `Contract termination — ${member.name} (${member.role.replace(/_/g, " ")})`,
     category:    "staff_termination",
     date:        today,
@@ -233,7 +233,7 @@ router.post("/staff/:id/scout", async (req, res) => {
   }
 
   await db.update(teamsTable)
-    .set({ budget: String(currentBudget - STAFF_SCOUT_COST) })
+    .set({ budget: currentBudget - STAFF_SCOUT_COST })
     .where(eq(teamsTable.id, team.id));
 
   const [updated] = await db.update(staffTable)

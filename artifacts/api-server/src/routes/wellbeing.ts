@@ -225,13 +225,13 @@ router.post("/wellbeing/run", async (req, res) => {
   });
 
   await db.update(teamsTable)
-    .set({ budget: String(budget - camp.cost) })
+    .set({ budget: budget - camp.cost })
     .where(eq(teamsTable.id, team.id));
 
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      String(-camp.cost),
+    amount:      -camp.cost,
     description: camp.name,
     category:    "wellbeing",
     date:        new Date().toISOString().split("T")[0]!,
