@@ -5,7 +5,7 @@
  *   - 72 youth players (null → full)
  * Run: pnpm --filter @workspace/scripts run fill-all-player-development
  */
-import { db } from "@workspace/db";
+import { db, sqlite } from "@workspace/db";
 import { playersTable } from "@workspace/db/schema";
 import { isNull, or, like, notLike, eq } from "drizzle-orm";
 
@@ -100,8 +100,8 @@ const SPECIALITIES: Record<string, string[]> = {
 };
 
 function buildDevelopment(player: {
-  name: string; nationality: string; age: number; height: string;
-  position: string; potential: string; salary: string; speed: number;
+  name: string; nationality: string; age: number; height: number;
+  position: string; potential: string; salary: number; speed: number;
   power: number; defense: number; serve: number; block: number; stamina: number;
   playerType: string; existingDev?: Record<string, unknown> | null;
 }, regenerationSeed: string) {
@@ -271,7 +271,7 @@ async function main() {
   console.log(`  ✓ Updated ${count} youth players.\n`);
 
   // ── final verification ────────────────────────────────────────────────────
-  const verify = await db.execute(`
+  const verify = sqlite.prepare(`
     SELECT
       CASE
         WHEN image_url LIKE '%new-draft%' THEN 'new-draft (40)'
@@ -285,10 +285,10 @@ async function main() {
     WHERE is_retired = false
     GROUP BY 1
     ORDER BY 1
-  ` as any);
+  `).all() as any[];
 
   console.log("=== Final verification ===");
-  for (const row of (verify as any).rows) {
+  for (const row of verify) {
     const status = row.has_seed === row.total ? "✅" : "⚠️";
     console.log(`  ${status} ${row.pool}: ${row.has_seed}/${row.total} have regenerationSeed`);
   }

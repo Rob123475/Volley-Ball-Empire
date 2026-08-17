@@ -2013,7 +2013,7 @@ async function main() {
         age: member.age,
         role: member.role,
         specialty: member.specialty,
-        salary: String(member.salary),
+        salary: member.salary,
         skillLevel: member.skillLevel,
         overallRating: member.overallRating,
         teamId: null,

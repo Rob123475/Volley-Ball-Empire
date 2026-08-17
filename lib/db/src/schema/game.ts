@@ -306,7 +306,7 @@ export const staffTable = sqliteTable("staff", {
   contractLength: integer("contract_length").notNull().default(12),
   coachSpeciality: text("coach_speciality").notNull().default("General"),
   personality: text("personality").notNull().default("Motivator"),
-  attributes: text("attributes", { mode: "json" }).$type<Record<string, number>>().notNull().default({}),
+  attributes: text("attributes", { mode: "json" }).$type<Record<string, unknown>>().notNull().default({}),
   specialTrait: text("special_trait").notNull().default(""),
   isScoutRevealed: integer("is_scout_revealed", { mode: "boolean" }).notNull().default(false),
   scoutingRating: integer("scouting_rating").notNull().default(50),

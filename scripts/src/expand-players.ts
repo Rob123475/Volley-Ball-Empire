@@ -1,4 +1,4 @@
-import { pool } from "@workspace/db";
+import { sqlite } from "@workspace/db";
 
 const dice = (name: string, bg = "b6e3f4") =>
   `https://api.dicebear.com/7.x/lorelei/png?seed=${encodeURIComponent(name)}&size=200&backgroundColor=${bg}`;
@@ -184,103 +184,97 @@ const NEW_YOUTH: YouthDef[] = [
 
 // ── Main ───────────────────────────────────────────────────────────────────────
 async function main() {
-  const client = await pool.connect();
   console.log("▶ Starting player expansion…\n");
 
-  try {
-    // 1. Delete excess / malformed players
-    console.log(`Deleting ${DELETE_IDS.length} players: ${DELETE_IDS.join(", ")}`);
-    await client.query(`DELETE FROM players WHERE id = ANY($1)`, [DELETE_IDS]);
+  // 1. Delete excess / malformed players
+  console.log(`Deleting ${DELETE_IDS.length} players: ${DELETE_IDS.join(", ")}`);
+  const deletePlaceholders = DELETE_IDS.map(() => "?").join(",");
+  sqlite.prepare(`DELETE FROM players WHERE id IN (${deletePlaceholders})`).run(...DELETE_IDS);
 
-    // 2. Tag existing seniors with continent + player_type
-    console.log("\nTagging existing senior players with continent…");
-    for (const [idStr, continent] of Object.entries(EXISTING_CONTINENT)) {
-      await client.query(
-        `UPDATE players SET continent = $1, player_type = 'senior' WHERE id = $2`,
-        [continent, parseInt(idStr)]
-      );
-    }
-
-    // 3. Insert new senior free agents
-    console.log(`\nInserting ${NEW_SENIORS.length} new senior players…`);
-    for (const p of NEW_SENIORS) {
-      const st = stats(p.ovr, p.pos);
-      const sal = salary(p.ovr);
-      const ap  = askingPrice(p.ovr);
-      await client.query(
-        `INSERT INTO players
-           (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
-            salary, asking_price, continent, player_type, potential, image_url,
-            is_active, squad_role, is_retired, is_injured, fitness, morale, fatigue)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'senior',$15,$16,false,'reserve',false,false,100,80,0)`,
-        [
-          p.name, p.nationality, p.age, p.height.toString(), p.pos,
-          st.speed, st.power, st.defense, st.serve, st.block, st.stamina,
-          sal.toString(), ap.toString(), p.continent,
-          potential(), dice(p.name, "b6e3f4"),
-        ]
-      );
-      console.log(`  ✓ ${p.name} (${p.continent}, OVR ${p.ovr})`);
-    }
-
-    // 4. Insert youth players
-    console.log(`\nInserting ${NEW_YOUTH.length} new youth players…`);
-    for (const p of NEW_YOUTH) {
-      const yOvr = 45 + Math.round((p.age - 14) * 3 + Math.random() * 12);
-      const st = stats(yOvr, p.pos);
-      await client.query(
-        `INSERT INTO players
-           (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
-            salary, continent, player_type, potential, image_url,
-            is_active, squad_role, is_retired, is_injured, fitness, morale, fatigue)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'1500',$12,'youth',$13,$14,false,'reserve',false,false,100,80,0)`,
-        [
-          p.name, p.nationality, p.age, p.height.toString(), p.pos,
-          st.speed, st.power, st.defense, st.serve, st.block, st.stamina,
-          p.continent, potential(), dice(p.name, "ffd5dc"),
-        ]
-      );
-      console.log(`  ✓ ${p.name} (${p.continent}, age ${p.age})`);
-    }
-
-    // 5. Validation report
-    console.log("\n── Validation ──────────────────────────────────────────────");
-    const { rows: counts } = await client.query(`
-      SELECT player_type, continent, COUNT(*) AS n
-      FROM players
-      WHERE is_retired = false
-      GROUP BY player_type, continent
-      ORDER BY player_type, continent
-    `);
-    const { rows: totals } = await client.query(`
-      SELECT player_type, COUNT(*) AS n
-      FROM players WHERE is_retired = false
-      GROUP BY player_type ORDER BY player_type
-    `);
-    console.table(counts);
-    console.table(totals);
-
-    // Age checks
-    const { rows: ageViolations } = await client.query(`
-      SELECT id, name, age, player_type
-      FROM players
-      WHERE is_retired = false
-        AND (
-          (player_type = 'senior' AND (age < 18 OR age > 40))
-          OR (player_type = 'youth' AND (age < 14 OR age > 18))
-        )
-    `);
-    if (ageViolations.length > 0) {
-      console.warn("⚠ Age violations:", ageViolations);
-    } else {
-      console.log("✅ All age ranges valid.");
-    }
-
-    console.log("\n✅ Expansion complete!");
-  } finally {
-    client.release();
-    await pool.end();
+  // 2. Tag existing seniors with continent + player_type
+  console.log("\nTagging existing senior players with continent…");
+  for (const [idStr, continent] of Object.entries(EXISTING_CONTINENT)) {
+    sqlite.prepare(
+      `UPDATE players SET continent = ?, player_type = 'senior' WHERE id = ?`
+    ).run(continent, parseInt(idStr));
   }
+
+  // 3. Insert new senior free agents
+  console.log(`\nInserting ${NEW_SENIORS.length} new senior players…`);
+  const insertSenior = sqlite.prepare(`
+    INSERT INTO players
+       (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
+        salary, asking_price, continent, player_type, potential, image_url,
+        is_active, squad_role, is_retired, is_injured, fitness, morale, fatigue)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'senior',?,?,false,'reserve',false,false,100,80,0)
+  `);
+  for (const p of NEW_SENIORS) {
+    const st = stats(p.ovr, p.pos);
+    const sal = salary(p.ovr);
+    const ap  = askingPrice(p.ovr);
+    insertSenior.run(
+      p.name, p.nationality, p.age, p.height, p.pos,
+      st.speed, st.power, st.defense, st.serve, st.block, st.stamina,
+      sal, ap, p.continent,
+      potential(), dice(p.name, "b6e3f4"),
+    );
+    console.log(`  ✓ ${p.name} (${p.continent}, OVR ${p.ovr})`);
+  }
+
+  // 4. Insert youth players
+  console.log(`\nInserting ${NEW_YOUTH.length} new youth players…`);
+  const insertYouth = sqlite.prepare(`
+    INSERT INTO players
+       (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
+        salary, continent, player_type, potential, image_url,
+        is_active, squad_role, is_retired, is_injured, fitness, morale, fatigue)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,1500,?,'youth',?,?,false,'reserve',false,false,100,80,0)
+  `);
+  for (const p of NEW_YOUTH) {
+    const yOvr = 45 + Math.round((p.age - 14) * 3 + Math.random() * 12);
+    const st = stats(yOvr, p.pos);
+    insertYouth.run(
+      p.name, p.nationality, p.age, p.height, p.pos,
+      st.speed, st.power, st.defense, st.serve, st.block, st.stamina,
+      p.continent, potential(), dice(p.name, "ffd5dc"),
+    );
+    console.log(`  ✓ ${p.name} (${p.continent}, age ${p.age})`);
+  }
+
+  // 5. Validation report
+  console.log("\n── Validation ──────────────────────────────────────────────");
+  const counts = sqlite.prepare(`
+    SELECT player_type, continent, COUNT(*) AS n
+    FROM players
+    WHERE is_retired = false
+    GROUP BY player_type, continent
+    ORDER BY player_type, continent
+  `).all();
+  const totals = sqlite.prepare(`
+    SELECT player_type, COUNT(*) AS n
+    FROM players WHERE is_retired = false
+    GROUP BY player_type ORDER BY player_type
+  `).all();
+  console.table(counts);
+  console.table(totals);
+
+  // Age checks
+  const ageViolations = sqlite.prepare(`
+    SELECT id, name, age, player_type
+    FROM players
+    WHERE is_retired = false
+      AND (
+        (player_type = 'senior' AND (age < 18 OR age > 40))
+        OR (player_type = 'youth' AND (age < 14 OR age > 18))
+      )
+  `).all();
+  if (ageViolations.length > 0) {
+    console.warn("⚠ Age violations:", ageViolations);
+  } else {
+    console.log("✅ All age ranges valid.");
+  }
+
+  console.log("\n✅ Expansion complete!");
   process.exit(0);
 }
 

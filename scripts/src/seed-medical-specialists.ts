@@ -7,7 +7,7 @@ import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { db } from "@workspace/db";
-import { staffTable } from "@workspace/db/schema";
+import { staffTable, trainingSessionsTable, continentalScoutingMissionsTable } from "@workspace/db/schema";
 import { eq, inArray } from "drizzle-orm";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -184,8 +184,8 @@ async function main() {
 
   if (existing.length > 0) {
     const ids = existing.map((r) => r.id);
-    await db.execute(`UPDATE training_sessions SET coach_id = NULL WHERE coach_id = ANY(ARRAY[${ids.join(",")}]::int[])` as any);
-    await db.execute(`UPDATE continental_scouting_missions SET assigned_staff_id = NULL WHERE assigned_staff_id = ANY(ARRAY[${ids.join(",")}]::int[])` as any);
+    await db.update(trainingSessionsTable).set({ coachId: null }).where(inArray(trainingSessionsTable.coachId, ids));
+    await db.update(continentalScoutingMissionsTable).set({ assignedStaffId: null }).where(inArray(continentalScoutingMissionsTable.assignedStaffId, ids));
     await db.delete(staffTable).where(inArray(staffTable.id, ids));
     console.log(`  deleted ${ids.length} rows.\n`);
   }
@@ -206,7 +206,7 @@ async function main() {
       specialty:       s.specialty,
       age:             s.age,
       nationality:     s.nationality,
-      salary:          String(salary),
+      salary,
       skillLevel:      skill,
       overallRating:   skill,
       contractLength:  12,

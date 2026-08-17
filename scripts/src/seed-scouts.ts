@@ -194,7 +194,7 @@ async function main() {
 
   // NULL out FK references before deleting
   console.log("Nulling assigned_staff_id FK references in continental_scouting_missions...");
-  await db.execute(sql`UPDATE continental_scouting_missions SET assigned_staff_id = NULL WHERE assigned_staff_id IN (SELECT id FROM staff WHERE role = 'Scout')`);
+  db.run(sql`UPDATE continental_scouting_missions SET assigned_staff_id = NULL WHERE assigned_staff_id IN (SELECT id FROM staff WHERE role = 'Scout')`);
   console.log("  Done.\n");
 
   console.log("Deleting existing scouts...");
@@ -213,14 +213,14 @@ async function main() {
       name: s.name,
       role: "Scout",
       nationality: s.nationality,
-      gender: s.gender,
       age: s.age,
       skillLevel: s.skillLevel,
       salary: s.salary,
-      contractYears: s.contractYears,
       imageUrl,
       attributes: {
         regenerationSeed: SEED,
+        gender: s.gender,
+        contractYears: s.contractYears,
         stars: s.stars,
         experienceYears: s.experienceYears,
         scoutTier: s.scoutTier,

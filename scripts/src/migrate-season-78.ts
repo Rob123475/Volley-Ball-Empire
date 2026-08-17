@@ -8,8 +8,8 @@ import { eq } from "drizzle-orm";
 const WEATHER_CONDITIONS = ["sunny", "clear", "cloudy", "windy", "hot", "overcast", "perfect"];
 function quickWeather() {
   const w = WEATHER_CONDITIONS[Math.floor(Math.random() * WEATHER_CONDITIONS.length)]!;
-  const wind = String((Math.random() * 20).toFixed(1));
-  const temp = String((22 + Math.random() * 15).toFixed(1));
+  const wind = Number((Math.random() * 20).toFixed(1));
+  const temp = Number((22 + Math.random() * 15).toFixed(1));
   return { weather: w, windSpeed: wind, temperature: temp };
 }
 
@@ -133,7 +133,7 @@ async function main() {
         tier:         event.tier,
         continent:    event.continent,
         scheduledAt:  event.date,
-        prizeAmount:  String(event.prize),
+        prizeAmount:  event.prize,
         status:       "scheduled",
         teamSize:     2,
         weather,

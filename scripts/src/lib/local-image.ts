@@ -34,4 +34,3 @@ export function localImageUrl(sourceFileName: string, subdir: string = "seniors"
   copyFileSync(src, dest);
   return `/images/players/${subdir}/${sourceFileName}`;
 }
-
