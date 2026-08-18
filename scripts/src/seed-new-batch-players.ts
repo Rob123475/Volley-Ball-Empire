@@ -1,6 +1,6 @@
 /**
- * Insert 80 new-batch senior free-agent players whose portrait images
- * already live in the public assets directory:
+ * Insert 80 new-batch senior free-agent players. Portrait source files live in
+ * attached_assets/ and get copied into the served public assets directory:
  *   artifacts/beach-volleyball/public/images/players/seniors/
  *
  * No GCS upload needed — imageUrl points directly at the served public path.
@@ -13,6 +13,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { playersTable } from "@workspace/db/schema";
+import { localImageUrl } from "./lib/local-image";
 
 type Position  = "spiker" | "defender" | "setter" | "blocker" | "all_rounder";
 type Potential = "Elite" | "High" | "Average" | "Below Average" | "Poor";
@@ -722,7 +723,7 @@ async function main() {
 
   for (const [i, player] of PLAYERS.entries()) {
     const n        = String(i + 1).padStart(2, " ");
-    const imageUrl = `/images/players/seniors/${player.imageFile}`;
+    const imageUrl = localImageUrl(player.imageFile) ?? `/images/players/seniors/${player.imageFile}`;
     const overall  = ovr(player.stats);
     const endYear  = 2026 + contractYears(player.age);
 
