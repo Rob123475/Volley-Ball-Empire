@@ -101,40 +101,82 @@ const INJURY_ICONS: Record<string, LucideIcon> = {
 
 type IconFC = React.FC<{ className?: string }>;
 
-const MEDICAL_ROLE_LABELS: Record<string, string> = {
-  team_doctor:          "Team Doctor",
-  medical_specialist:   "Medical Specialist",
-  physiotherapist:      "Physiotherapist",
-  nutritionist:         "Nutritionist",
-  sports_scientist:     "Sports Scientist",
-  "Sports Scientist":   "Sports Scientist",
+// Canonical role keys for every map/lookup below. The DB stores Title Case
+// role names (verified live: "Doctor", "Medical Specialist", "Physiotherapist",
+// "Nutritionist", "Sports Scientist", "Massage Therapist"), but the auto-refill
+// market generator (medical-staff-generator.ts) inserts snake_case role values
+// ("team_doctor", "massage_therapist", ...) when the pool runs low. Comparing
+// member.role directly against a single hardcoded casing broke every lookup
+// below for real seeded staff. normalizeMedicalRole() accepts either casing so
+// this can't silently drift out of sync again, and MedicalRoleKey being a
+// closed union means TypeScript will flag any map below that's missing an
+// entry for a role.
+type MedicalRoleKey =
+  | "doctor"
+  | "medical_specialist"
+  | "physiotherapist"
+  | "nutritionist"
+  | "sports_scientist"
+  | "massage_therapist";
+
+function normalizeMedicalRole(role: string | null | undefined): MedicalRoleKey | null {
+  if (!role) return null;
+  const key = role.trim().toLowerCase().replace(/\s+/g, "_");
+  if (key === "team_doctor" || key === "doctor") return "doctor";
+  if (
+    key === "medical_specialist" ||
+    key === "physiotherapist" ||
+    key === "nutritionist" ||
+    key === "sports_scientist" ||
+    key === "massage_therapist"
+  ) {
+    return key;
+  }
+  return null;
+}
+
+const MEDICAL_ROLE_LABELS: Record<MedicalRoleKey, string> = {
+  doctor:              "Team Doctor",
+  medical_specialist:  "Medical Specialist",
+  physiotherapist:     "Physiotherapist",
+  nutritionist:        "Nutritionist",
+  sports_scientist:    "Sports Scientist",
+  massage_therapist:   "Massage Therapist",
 };
 
-const MEDICAL_ROLE_COLORS: Record<string, string> = {
-  team_doctor:          "bg-red-500",
-  medical_specialist:   "bg-blue-600",
-  physiotherapist:      "bg-teal-500",
-  nutritionist:         "bg-green-500",
-  sports_scientist:     "bg-indigo-500",
-  "Sports Scientist":   "bg-indigo-500",
+const MEDICAL_ROLE_COLORS: Record<MedicalRoleKey, string> = {
+  doctor:              "bg-red-500",
+  medical_specialist:  "bg-blue-600",
+  physiotherapist:     "bg-teal-500",
+  nutritionist:        "bg-green-500",
+  sports_scientist:    "bg-indigo-500",
+  massage_therapist:   "bg-pink-500",
 };
 
-const MEDICAL_ROLE_ICONS: Record<string, IconFC> = {
-  team_doctor:          Stethoscope as IconFC,
-  medical_specialist:   Microscope as IconFC,
-  physiotherapist:      Activity as IconFC,
-  nutritionist:         Salad as IconFC,
-  sports_scientist:     FlaskConical as IconFC,
-  "Sports Scientist":   FlaskConical as IconFC,
+const MEDICAL_ROLE_ICONS: Record<MedicalRoleKey, IconFC> = {
+  doctor:              Stethoscope as IconFC,
+  medical_specialist:  Microscope as IconFC,
+  physiotherapist:     Activity as IconFC,
+  nutritionist:        Salad as IconFC,
+  sports_scientist:    FlaskConical as IconFC,
+  massage_therapist:   Heart as IconFC,
 };
 
-const MEDICAL_BONUS_DESCRIPTIONS: Record<string, { icon: IconFC; color: string; label: string; detail: string }> = {
-  team_doctor:        { icon: HeartPulse as IconFC,  color: "text-red-600",    label: "Injury Recovery",     detail: "+10–20% recovery speed, boosts player morale when injured" },
-  medical_specialist: { icon: Shield as IconFC,      color: "text-blue-600",   label: "Injury Prevention",   detail: "−8–15% injury risk, faster complex injury recovery" },
-  physiotherapist:    { icon: Activity as IconFC,    color: "text-teal-600",   label: "Fatigue Recovery",    detail: "+8–15% post-match fatigue recovery, stamina growth boost" },
-  nutritionist:       { icon: Salad as IconFC,       color: "text-green-600",  label: "Stamina & Nutrition", detail: "+5–12% stamina growth, improved match-day conditioning" },
-  sports_scientist:     { icon: FlaskConical as IconFC, color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
-  "Sports Scientist":   { icon: FlaskConical as IconFC, color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
+// Massage Therapist deliberately does NOT get an injury-treatment bonus like
+// Doctor/Medical Specialist — its real attributes (medical-staff-generator.ts:
+// Deep Tissue Technique, Muscle Recovery, Player Care) and the source roster's
+// own data (seed-staff.ts: deepTissueMassage/sportsMassage/recovery/
+// injuryPrevention) describe hands-on fatigue/muscle recovery and player
+// wellbeing, not clinical diagnosis or injury prevention. It gets a smaller
+// fatigue-focused bonus, distinct from and lower-ceiling than Physiotherapist's
+// clinical "Fatigue Recovery" bonus.
+const MEDICAL_BONUS_DESCRIPTIONS: Record<MedicalRoleKey, { icon: IconFC; color: string; label: string; detail: string }> = {
+  doctor:              { icon: HeartPulse as IconFC,    color: "text-red-600",    label: "Injury Recovery",        detail: "+10–20% recovery speed, boosts player morale when injured" },
+  medical_specialist:  { icon: Shield as IconFC,        color: "text-blue-600",   label: "Injury Prevention",      detail: "−8–15% injury risk, faster complex injury recovery" },
+  physiotherapist:     { icon: Activity as IconFC,      color: "text-teal-600",   label: "Fatigue Recovery",       detail: "+8–15% post-match fatigue recovery, stamina growth boost" },
+  nutritionist:        { icon: Salad as IconFC,         color: "text-green-600",  label: "Stamina & Nutrition",    detail: "+5–12% stamina growth, improved match-day conditioning" },
+  sports_scientist:    { icon: FlaskConical as IconFC,  color: "text-indigo-600", label: "Training Effectiveness", detail: "+5–12% training XP gains, data-driven performance optimisation" },
+  massage_therapist:   { icon: Heart as IconFC,         color: "text-pink-600",   label: "Muscle & Fatigue Care",  detail: "+5–10% post-match fatigue recovery, improved player morale and wellbeing" },
 };
 
 /* ── Helpers ───────────────────────────────────────────────── */
@@ -242,7 +284,9 @@ function AttributeBar({ name, value }: { name: string; value: number }) {
 }
 
 function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number) => void }) {
-  const RoleIcon = MEDICAL_ROLE_ICONS[member.role] ?? Stethoscope;
+  const roleKey = normalizeMedicalRole(member.role);
+  const RoleIcon = (roleKey ? MEDICAL_ROLE_ICONS[roleKey] : undefined) ?? Stethoscope;
+  const roleLabel = (roleKey ? MEDICAL_ROLE_LABELS[roleKey] : undefined) ?? member.role;
   const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
 
   return (
@@ -256,9 +300,9 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
 
         <div className="absolute top-2 left-2">
-          <Badge className={cn("text-white text-[10px] gap-1 shadow", MEDICAL_ROLE_COLORS[member.role] ?? "bg-slate-500")}>
+          <Badge className={cn("text-white text-[10px] gap-1 shadow", (roleKey ? MEDICAL_ROLE_COLORS[roleKey] : undefined) ?? "bg-slate-500")}>
             <RoleIcon className="h-2.5 w-2.5" />
-            {MEDICAL_ROLE_LABELS[member.role] ?? member.role}
+            {roleLabel}
           </Badge>
         </div>
 
@@ -276,7 +320,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
             <AlertDialogHeader>
               <AlertDialogTitle>Release {member.name}?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will free up a medical staff slot. The {MEDICAL_ROLE_LABELS[member.role]} position will be vacant.
+                This will free up a medical staff slot. The {roleLabel} position will be vacant.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -350,9 +394,9 @@ function MedicalEmptySlot({ slotNumber }: { slotNumber: number }) {
 /* ── Medical Bonus Panel ───────────────────────────────────── */
 
 function MedicalBonusPanel({ staff }: { staff: any[] }) {
-  const roleSet = new Set(staff.map((s: any) => s.role));
-  const activeBonuses   = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role));
-  const missingBonuses  = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role));
+  const roleSet = new Set(staff.map((s: any) => normalizeMedicalRole(s.role)).filter((r): r is MedicalRoleKey => r !== null));
+  const activeBonuses   = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role as MedicalRoleKey));
+  const missingBonuses  = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role as MedicalRoleKey));
 
   return (
     <Card>
@@ -385,7 +429,7 @@ function MedicalBonusPanel({ staff }: { staff: any[] }) {
               <div className="flex flex-wrap gap-1">
                 {missingBonuses.map(([role]) => (
                   <Badge key={role} variant="outline" className="text-[9px] text-muted-foreground border-dashed">
-                    {MEDICAL_ROLE_LABELS[role]}
+                    {MEDICAL_ROLE_LABELS[role as MedicalRoleKey]}
                   </Badge>
                 ))}
               </div>
@@ -477,6 +521,16 @@ export default function MedicalCentre() {
   const { data: roster, isLoading } = useGetTeamRoster({
     query: { queryKey: getGetTeamRosterQueryKey() },
   });
+  // Same query MedicalReportPanel uses internally (React Query dedupes by
+  // queryKey) — needed here too so TreatmentQueue/RecoveryForecastPanel get
+  // the real best hired medical skill instead of a hardcoded 0, which made
+  // their recovery-time estimates ignore medical staff entirely.
+  const { data: medStaffForBestSkill = [] } = useListMedicalStaff({
+    query: { queryKey: getListMedicalStaffQueryKey() },
+  });
+  const bestMedicalSkill = medStaffForBestSkill.length > 0
+    ? Math.max(...medStaffForBestSkill.map((s: any) => s.skillLevel ?? s.overallRating ?? 0))
+    : 0;
 
   if (isLoading) {
     return (
@@ -528,10 +582,10 @@ export default function MedicalCentre() {
       <MedicalReportPanel injuredPlayers={injuredPlayers} allPlayers={allPlayers} />
 
       {/* ── Treatment Queue ── */}
-      <TreatmentQueue injuredPlayers={injuredPlayers} bestSkill={0} />
+      <TreatmentQueue injuredPlayers={injuredPlayers} bestSkill={bestMedicalSkill} />
 
       {/* ── Recovery Forecast ── */}
-      <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={0} />
+      <RecoveryForecastPanel injuredPlayers={injuredPlayers} bestSkill={bestMedicalSkill} />
 
       {/* ── Injury History ── */}
       <InjuryHistorySection />
@@ -559,10 +613,12 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
     ? Math.max(...medStaff.map((s: any) => s.skillLevel ?? s.overallRating ?? 0))
     : 0;
 
-  const doctor     = medStaff.find((s: any) => s.role === "team_doctor");
-  const specialist = medStaff.find((s: any) => s.role === "medical_specialist");
-  const physio     = medStaff.find((s: any) => s.role === "physiotherapist");
-  const nutritionist = medStaff.find((s: any) => s.role === "nutritionist");
+  const doctor        = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "doctor");
+  const specialist    = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "medical_specialist");
+  const physio        = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "physiotherapist");
+  const nutritionist  = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "nutritionist");
+  const sportsScientist = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "sports_scientist");
+  const massageTherapist = medStaff.find((s: any) => normalizeMedicalRole(s.role) === "massage_therapist");
 
   return (
     <section className="space-y-3">
@@ -616,7 +672,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                         <p className={cn("text-xs font-bold", colors.text)}>
                           {weeksLeft === 0 ? "Ready" : `${weeksLeft}w`}
                         </p>
-                        {doctor && <p className="text-[10px] text-muted-foreground">Dr. {doctor.name.split(" ")[0]}</p>}
+                        {doctor && <p className="text-[10px] text-muted-foreground">{doctor.name}</p>}
                       </div>
                     </div>
                   );
@@ -667,6 +723,22 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                     staff={nutritionist}
                     bonus={`+${Math.round((nutritionist.skillLevel ?? nutritionist.overallRating) / 20)}%`}
                     color="text-green-600"
+                  />
+                )}
+                {sportsScientist && (
+                  <ContributionRow
+                    label="Training Effectiveness"
+                    staff={sportsScientist}
+                    bonus={`+${Math.round((sportsScientist.skillLevel ?? sportsScientist.overallRating) / 10)}%`}
+                    color="text-indigo-600"
+                  />
+                )}
+                {massageTherapist && (
+                  <ContributionRow
+                    label="Muscle & Fatigue Care"
+                    staff={massageTherapist}
+                    bonus={`+${Math.round((massageTherapist.skillLevel ?? massageTherapist.overallRating) / 12)}%`}
+                    color="text-pink-600"
                   />
                 )}
               </div>
@@ -720,7 +792,8 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
 }
 
 function ContributionRow({ label, staff, bonus, color }: { label: string; staff: any; bonus: string; color: string }) {
-  const RoleIcon = MEDICAL_ROLE_ICONS[staff.role] ?? Stethoscope;
+  const roleKey = normalizeMedicalRole(staff.role);
+  const RoleIcon = (roleKey ? MEDICAL_ROLE_ICONS[roleKey] : undefined) ?? Stethoscope;
   return (
     <div className="flex items-center justify-between text-xs">
       <div className="flex items-center gap-2 min-w-0">
