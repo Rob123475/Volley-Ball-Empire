@@ -80,6 +80,11 @@ router.get("/staff/market", async (req, res) => {
     available = await db.select().from(staffTable).where(isNull(staffTable.teamId));
   }
 
+  // Massage Therapist moved to the Medical Market — no longer listed here.
+  // (auto-refilled market rows use snake_case roles, real seeded rows use
+  // Title Case — exclude both so this actually holds regardless of source.)
+  available = available.filter(s => s.role !== "Massage Therapist" && s.role !== "massage_therapist");
+
   await backfillStaffAttributes(available);
 
   // Frontend sends snake_case filter keys; DB stores Title Case role names

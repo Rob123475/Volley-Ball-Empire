@@ -3,61 +3,70 @@
  * Run: pnpm --filter @workspace/scripts run seed-staff
  */
 
-import { Storage } from "@google-cloud/storage";
-import { readFileSync, existsSync } from "fs";
-import { resolve, dirname } from "path";
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from "fs";
+import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { db } from "@workspace/db";
-import { staffTable } from "@workspace/db/schema";
+import { DatabaseSync } from "node:sqlite";
+
+// NOTE: this writes via Node's built-in node:sqlite instead of the shared
+// @workspace/db (better-sqlite3) client. better-sqlite3 11.10.0 crashes
+// (SIGABRT, native Statement destructor firing during an isolate/env
+// teardown assertion) partway through this workload under Node 24 on
+// Windows — reproduced consistently outside this script too. node:sqlite
+// has no native addon in the crash path, so it's used here as a scoped
+// workaround; it is NOT a general replacement for @workspace/db.
+if (!process.env.DB_PATH) {
+  throw new Error("DB_PATH must be set. Did you forget to pass the SQLite file path?");
+}
+const sqlite = new DatabaseSync(process.env.DB_PATH);
+sqlite.exec("PRAGMA journal_mode = WAL;");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKSPACE_ROOT = resolve(__dirname, "../../");
+const WORKSPACE_ROOT = process.env.SEED_WORKSPACE_ROOT
+  ? resolve(process.env.SEED_WORKSPACE_ROOT)
+  : resolve(__dirname, "../../");
+const PUBLIC_IMAGES_ROOT = resolve(WORKSPACE_ROOT, "artifacts/beach-volleyball/public/images");
+const ATTACHED_ASSETS_ROOT = resolve(WORKSPACE_ROOT, "attached_assets");
 
-const SIDECAR = "http://127.0.0.1:1106";
-const PRIVATE_OBJECT_DIR = process.env.PRIVATE_OBJECT_DIR!;
+// Some imageFile references below have drifted from the actual files on disk
+// (portraits were regenerated later with new upload timestamps in the filename).
+// Fall back to a prefix match on `staff_<alias>_<idx>` so every member still
+// resolves to a real local portrait instead of silently going null.
+const ATTACHED_ASSETS_FILES = readdirSync(ATTACHED_ASSETS_ROOT);
 
-if (!PRIVATE_OBJECT_DIR) {
-  console.error("Missing PRIVATE_OBJECT_DIR");
-  process.exit(1);
+function resolveLocalImagePath(batchType: string, imageFile: string): string {
+  const exact = resolve(ATTACHED_ASSETS_ROOT, imageFile);
+  if (existsSync(exact)) return exact;
+
+  // Recover the intended slot number from the recorded filename itself (NOT the
+  // array position — some batches skip numbers non-sequentially, e.g. fitness
+  // trainers go ...06, 09, 10) so a stale-timestamp file still maps to the
+  // correct real portrait rather than a mismatched one.
+  const match = imageFile.match(/_(\d{2})(?:_\d+)?\.\w+$/);
+  if (!match) {
+    throw new Error(`Could not parse slot index from imageFile "${imageFile}"`);
+  }
+  const idx = match[1];
+  const aliases = batchType === "scouts" ? ["scout", "scouts"] : [batchType];
+  const candidates = ATTACHED_ASSETS_FILES.filter((f) =>
+    aliases.some((alias) => f.startsWith(`staff_${alias}_${idx}`)),
+  ).sort();
+
+  if (candidates.length === 0) {
+    throw new Error(`No local image found for ${batchType} #${idx} (expected ${imageFile})`);
+  }
+  // Prefer the newest regenerated file when multiple candidates exist (sorts last).
+  const chosen = candidates[candidates.length - 1];
+  console.log(`    (image mismatch: "${imageFile}" not found, using "${chosen}" instead)`);
+  return resolve(ATTACHED_ASSETS_ROOT, chosen);
 }
 
-const gcs = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${SIDECAR}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${SIDECAR}/credential`,
-      format: { type: "json", subject_token_field_name: "access_token" },
-    },
-    universe_domain: "googleapis.com",
-  } as object,
-  projectId: "",
-});
-
 async function uploadImage(localPath: string, entityId: string): Promise<string> {
-  const privateDir = PRIVATE_OBJECT_DIR.endsWith("/")
-    ? PRIVATE_OBJECT_DIR
-    : `${PRIVATE_OBJECT_DIR}/`;
-
-  const parts = privateDir.startsWith("/") ? privateDir.slice(1) : privateDir;
-  const slashIdx = parts.indexOf("/");
-  const bucketName = slashIdx === -1 ? parts.replace(/\/$/, "") : parts.slice(0, slashIdx);
-  const prefix = slashIdx === -1 ? "" : parts.slice(slashIdx + 1);
-
-  const objectName = `${prefix}${entityId}`;
-  const bucket = gcs.bucket(bucketName);
-  const file = bucket.file(objectName);
-
-  const content = readFileSync(localPath);
-  await file.save(content, {
-    contentType: "image/webp",
-    metadata: { cacheControl: "public, max-age=31536000" },
-  });
-
-  console.log(`  uploaded → gs://${bucketName}/${objectName}`);
-  return `/objects/${entityId}`;
+  const destPath = join(PUBLIC_IMAGES_ROOT, entityId);
+  mkdirSync(dirname(destPath), { recursive: true });
+  copyFileSync(localPath, destPath);
+  console.log(`  copied → /images/${entityId}`);
+  return `/images/${entityId}`;
 }
 
 interface StaffDef {
@@ -66,7 +75,7 @@ interface StaffDef {
   age: number;
   role: string;
   specialty: string;
-  salary: number;
+  salary: number;ssss
   skillLevel: number;
   overallRating: number;
   coachSpeciality: string;
@@ -1986,6 +1995,15 @@ const ALL_BATCHES: StaffBatch[] = [
   { type: "strength_conditioner", members: STRENGTH_CONDITIONERS },
 ];
 
+const findExistingStmt = sqlite.prepare(`SELECT id FROM staff WHERE name = ? AND role = ?`);
+const insertStmt = sqlite.prepare(`
+  INSERT INTO staff (
+    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
+    is_available, age, overall_rating, contract_length, coach_speciality, personality,
+    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
 async function main() {
   let totalInserted = 0;
   let totalUploaded = 0;
@@ -1996,8 +2014,18 @@ async function main() {
     for (const [i, member] of batch.members.entries()) {
       console.log(`  [${i + 1}/${batch.members.length}] ${member.name} (${member.nationality})`);
 
+      // Idempotent: a native better-sqlite3/Node GC crash can kill the process
+      // mid-run (see report), so re-running this script must skip rows a prior
+      // pass already committed rather than insert duplicates.
+      const already = findExistingStmt.get(member.name, member.role) as { id: number } | undefined;
+      if (already) {
+        console.log(`    already seeded (id=${already.id}), skipping`);
+        totalInserted++;
+        continue;
+      }
+
       const entityId = `staff/${batch.type}/staff-${String(i + 1).padStart(2, "0")}.webp`;
-      const localPath = resolve(WORKSPACE_ROOT, "attached_assets", member.imageFile);
+      const localPath = resolveLocalImagePath(batch.type, member.imageFile);
 
       let imageUrl: string | null = null;
       try {
@@ -2007,25 +2035,27 @@ async function main() {
         console.error(`    ERROR uploading image: ${err}`);
       }
 
-      await db.insert(staffTable).values({
-        name: member.name,
-        nationality: member.nationality,
-        age: member.age,
-        role: member.role,
-        specialty: member.specialty,
-        salary: member.salary,
-        skillLevel: member.skillLevel,
-        overallRating: member.overallRating,
-        teamId: null,
-        isAvailable: true,
-        coachSpeciality: member.coachSpeciality,
-        personality: member.personality,
-        attributes: member.attributes,
-        specialTrait: member.specialTrait,
-        scoutingRating: member.scoutingRating,
-        contractLength: 12,
+      insertStmt.run(
+        member.name,
+        member.role,
+        member.specialty,
+        member.salary,
+        member.skillLevel,
+        null,
+        member.nationality,
         imageUrl,
-      });
+        1,
+        member.age,
+        member.overallRating,
+        12,
+        member.coachSpeciality,
+        member.personality,
+        JSON.stringify(member.attributes),
+        member.specialTrait,
+        0,
+        member.scoutingRating,
+        Math.floor(Date.now() / 1000),
+      );
 
       totalInserted++;
       console.log(`    inserted → imageUrl=${imageUrl}`);
@@ -2033,10 +2063,11 @@ async function main() {
   }
 
   console.log(`\n=== Done! ${totalInserted} staff seeded, ${totalUploaded} images uploaded. ===`);
-  process.exit(0);
+  sqlite.close();
 }
 
 main().catch((err) => {
   console.error("Fatal:", err);
-  process.exit(1);
+  sqlite.close();
+  process.exitCode = 1;
 });

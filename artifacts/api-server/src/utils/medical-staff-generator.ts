@@ -63,6 +63,21 @@ const STAFF_DOCTORS = [
   { id: "doctor_10", name: "Dr. Michael Anderson",   specialty: "Team Doctor", stars: 4, experience: 28, recoveryBonus: 20, salary: 26000, contractYears: 1, nationality: "USA",           age: 54, morale: 79, fatigue: 17, image: "images/staff/staff_medical_doctor_10.webp" },
 ] as const;
 
+// Real overallRating comes straight from skillLevel (matches the actual seeded
+// roster) rather than a derived bonus formula like the other STAFF_* arrays use.
+const STAFF_MASSAGE_THERAPISTS = [
+  { id: "massage_01", name: "Yuki Hashimoto",   specialty: "Sports Massage & Deep Tissue",       skillLevel: 90, salary: 78000, nationality: "Japan",        age: 34, image: "images/staff/massage_therapist/staff-01.webp" },
+  { id: "massage_02", name: "Camille Dupont",   specialty: "Relaxation & Recovery Massage",      skillLevel: 82, salary: 68000, nationality: "France",       age: 28, image: "images/staff/massage_therapist/staff-02.webp" },
+  { id: "massage_03", name: "Amira Osman",      specialty: "Thai Sports Massage",                skillLevel: 85, salary: 72000, nationality: "Sudan",        age: 37, image: "images/staff/massage_therapist/staff-03.webp" },
+  { id: "massage_04", name: "Nkechi Eze",       specialty: "Trigger Point & Myofascial Release", skillLevel: 87, salary: 75000, nationality: "Nigeria",      age: 31, image: "images/staff/massage_therapist/staff-04.webp" },
+  { id: "massage_05", name: "Lena Bauer",       specialty: "Lymphatic Drainage & Recovery",      skillLevel: 83, salary: 70000, nationality: "Germany",      age: 39, image: "images/staff/massage_therapist/staff-05.webp" },
+  { id: "massage_06", name: "Maya Patel",       specialty: "Ayurvedic Sports Massage",           skillLevel: 78, salary: 63000, nationality: "India",        age: 26, image: "images/staff/massage_therapist/staff-06.webp" },
+  { id: "massage_07", name: "Ingrid Svensson",  specialty: "Cold & Heat Therapy Massage",        skillLevel: 80, salary: 66000, nationality: "Norway",       age: 43, image: "images/staff/massage_therapist/staff-07.webp" },
+  { id: "massage_08", name: "Rosa Gutierrez",   specialty: "Pre-Match Activation Massage",       skillLevel: 76, salary: 61000, nationality: "Peru",         age: 33, image: "images/staff/massage_therapist/staff-08.webp" },
+  { id: "massage_09", name: "Ji-Yeon Park",     specialty: "Acupressure & Meridian Therapy",     skillLevel: 81, salary: 67000, nationality: "South Korea",  age: 30, image: "images/staff/massage_therapist/staff-09.webp" },
+  { id: "massage_10", name: "Daniela Ferreira", specialty: "Structural Integration & Fascia",    skillLevel: 73, salary: 58000, nationality: "Brazil",       age: 48, image: "images/staff/massage_therapist/staff-10.webp" },
+] as const;
+
 const NATIONALITIES = [
   "Brazilian","American","Australian","Spanish","German","French","Italian","Dutch",
   "Brazilian","Japanese","Chinese","Russian","Canadian","Argentine","Norwegian",
@@ -75,7 +90,8 @@ export type MedicalRole =
   | "medical_specialist"
   | "physiotherapist"
   | "nutritionist"
-  | "sports_scientist";
+  | "sports_scientist"
+  | "massage_therapist";
 
 export const MEDICAL_ROLE_LABELS: Record<MedicalRole, string> = {
   team_doctor:        "Team Doctor",
@@ -83,6 +99,7 @@ export const MEDICAL_ROLE_LABELS: Record<MedicalRole, string> = {
   physiotherapist:    "Physiotherapist",
   nutritionist:       "Nutritionist",
   sports_scientist:   "Sports Scientist",
+  massage_therapist:  "Massage Therapist",
 };
 
 export const MEDICAL_ROLES: MedicalRole[] = [
@@ -91,6 +108,7 @@ export const MEDICAL_ROLES: MedicalRole[] = [
   "physiotherapist",
   "nutritionist",
   "sports_scientist",
+  "massage_therapist",
 ];
 
 const ROLE_ATTRIBUTES: Record<MedicalRole, string[]> = {
@@ -99,6 +117,7 @@ const ROLE_ATTRIBUTES: Record<MedicalRole, string[]> = {
   physiotherapist:    ["Rehabilitation Skill", "Manual Therapy", "Exercise Prescription"],
   nutritionist:       ["Dietary Planning", "Performance Nutrition", "Supplement Knowledge"],
   sports_scientist:   ["Load Monitoring", "Performance Testing", "Data Analysis"],
+  massage_therapist:  ["Deep Tissue Technique", "Muscle Recovery", "Player Care"],
 };
 
 const ROLE_TRAITS: Record<MedicalRole, string[]> = {
@@ -107,6 +126,7 @@ const ROLE_TRAITS: Record<MedicalRole, string[]> = {
   physiotherapist:    ["Rehabilitation Guru", "Hands-On Healer", "Movement Specialist", "Pain Relief Expert", "Functional Recovery Pro"],
   nutritionist:       ["Performance Fueller", "Metabolic Specialist", "Recovery Nutrition Expert", "Anti-Inflammatory Diet", "Hydration Guru"],
   sports_scientist:   ["Data Driven", "Peak Load Expert", "Biomechanics Guru", "Performance Prophet", "Recovery Analyst"],
+  massage_therapist:  ["Deep Tissue Master", "Tension Reliever", "Circulation Expert", "Recovery Specialist", "Player Favourite"],
 };
 
 const ROLE_SALARY_RANGES: Record<MedicalRole, [number, number]> = {
@@ -115,6 +135,7 @@ const ROLE_SALARY_RANGES: Record<MedicalRole, [number, number]> = {
   physiotherapist:    [5500, 14000],
   nutritionist:       [4500, 12000],
   sports_scientist:   [9000, 22000],
+  massage_therapist:  [58000, 78000],
 };
 
 const ROLE_RATING_RANGES: Record<MedicalRole, [number, number]> = {
@@ -123,6 +144,7 @@ const ROLE_RATING_RANGES: Record<MedicalRole, [number, number]> = {
   physiotherapist:    [48, 88],
   nutritionist:       [46, 85],
   sports_scientist:   [50, 92],
+  massage_therapist:  [73, 90],
 };
 
 const FEMALE_MEDICAL_NAMES = [
@@ -298,6 +320,36 @@ function generateMedicalStaffDoctor() {
   };
 }
 
+function generateMedicalStaffMassageTherapist() {
+  const m = pick(STAFF_MASSAGE_THERAPISTS);
+  const overallRating = m.skillLevel;
+  const attrNames = ROLE_ATTRIBUTES["massage_therapist"];
+  const attributes: Record<string, number> = {};
+  for (const attr of attrNames) {
+    const base = overallRating + rand(-8, 8);
+    attributes[attr] = Math.min(99, Math.max(40, base));
+  }
+  return {
+    name:            m.name,
+    role:            "massage_therapist" as MedicalRole,
+    specialty:       m.specialty,
+    salary:          m.salary.toFixed(2),
+    skillLevel:      overallRating,
+    nationality:     m.nationality,
+    imageUrl:        `/${m.image}`,
+    isAvailable:     true,
+    age:             m.age,
+    overallRating,
+    contractLength:  pick([6, 12, 18, 24] as const),
+    coachSpeciality: "Massage",
+    personality:     pick(["Empathetic", "Methodical", "Results-Driven", "Detail-Oriented", "Calming"] as const),
+    attributes,
+    specialTrait:    pick(ROLE_TRAITS["massage_therapist"]),
+    isScoutRevealed: false,
+    scoutingRating:  rand(15, 40),
+  };
+}
+
 export function generateMedicalStaffMember(role: MedicalRole) {
   if (role === "team_doctor") {
     return generateMedicalStaffDoctor();
@@ -313,6 +365,9 @@ export function generateMedicalStaffMember(role: MedicalRole) {
   }
   if (role === "sports_scientist") {
     return generateMedicalStaffSportsScientist();
+  }
+  if (role === "massage_therapist") {
+    return generateMedicalStaffMassageTherapist();
   }
 
   const exhaustiveCheck: never = role;
@@ -341,6 +396,7 @@ export function generateMedicalMarket(count = 30): ReturnType<typeof generateMed
     "physiotherapist", "physiotherapist", "physiotherapist", "physiotherapist",
     "nutritionist", "nutritionist", "nutritionist", "nutritionist",
     "sports_scientist", "sports_scientist", "sports_scientist",
+    "massage_therapist", "massage_therapist", "massage_therapist",
   ];
 
   const result = [];

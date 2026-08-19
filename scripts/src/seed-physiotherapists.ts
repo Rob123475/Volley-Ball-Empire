@@ -3,45 +3,58 @@
  * Includes full JSON attributes from the Physiotherapist schema.
  * Run: pnpm --filter @workspace/scripts run seed-physiotherapists
  */
-import { Storage } from "@google-cloud/storage";
-import { readFileSync } from "fs";
-import { resolve, dirname } from "path";
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from "fs";
+import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { db } from "@workspace/db";
-import { staffTable, trainingSessionsTable, continentalScoutingMissionsTable } from "@workspace/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { DatabaseSync } from "node:sqlite";
+
+// NOTE: writes via Node's built-in node:sqlite instead of the shared
+// @workspace/db (better-sqlite3) client — same crash (native Statement
+// destructor firing during isolate/env teardown, SIGABRT) that seed-staff.ts
+// hit under Node 24 on Windows. See seed-staff.ts for the full writeup.
+if (!process.env.DB_PATH) {
+  throw new Error("DB_PATH must be set. Did you forget to pass the SQLite file path?");
+}
+const sqlite = new DatabaseSync(process.env.DB_PATH);
+sqlite.exec("PRAGMA journal_mode = WAL;");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKSPACE_ROOT = resolve(__dirname, "../../");
-const SIDECAR = "http://127.0.0.1:1106";
-const PRIVATE_OBJECT_DIR = process.env.PRIVATE_OBJECT_DIR!;
+const WORKSPACE_ROOT = process.env.SEED_WORKSPACE_ROOT
+  ? resolve(process.env.SEED_WORKSPACE_ROOT)
+  : resolve(__dirname, "../../");
+const PUBLIC_IMAGES_ROOT = resolve(WORKSPACE_ROOT, "artifacts/beach-volleyball/public/images");
+const ATTACHED_ASSETS_ROOT = resolve(WORKSPACE_ROOT, "attached_assets");
+const ATTACHED_ASSETS_FILES = readdirSync(ATTACHED_ASSETS_ROOT);
 
-const gcs = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${SIDECAR}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${SIDECAR}/credential`,
-      format: { type: "json", subject_token_field_name: "access_token" },
-    },
-    universe_domain: "googleapis.com",
-  } as object,
-  projectId: "",
-});
+// Same stale-filename problem as seed-staff.ts: the imageFile timestamps
+// recorded below don't match what's actually on disk (portraits were
+// re-uploaded/renamed since). Fall back to a prefix match on the recorded
+// slot number so every physio still resolves to a real local portrait.
+function resolveLocalImagePath(roleSlug: string, imageFile: string): string {
+  const exact = resolve(ATTACHED_ASSETS_ROOT, imageFile);
+  if (existsSync(exact)) return exact;
+
+  const match = imageFile.match(/_(\d{2})(?:_\d+)?\.\w+$/);
+  if (!match) {
+    throw new Error(`Could not parse slot index from imageFile "${imageFile}"`);
+  }
+  const idx = match[1];
+  const candidates = ATTACHED_ASSETS_FILES.filter((f) => f.startsWith(`staff_${roleSlug}_${idx}`)).sort();
+
+  if (candidates.length === 0) {
+    throw new Error(`No local image found for ${roleSlug} #${idx} (expected ${imageFile})`);
+  }
+  const chosen = candidates[candidates.length - 1];
+  console.log(`  (image mismatch: "${imageFile}" not found, using "${chosen}" instead)`);
+  return resolve(ATTACHED_ASSETS_ROOT, chosen);
+}
 
 async function upload(localFile: string, entityId: string): Promise<string> {
-  const privateDir = PRIVATE_OBJECT_DIR.endsWith("/") ? PRIVATE_OBJECT_DIR : `${PRIVATE_OBJECT_DIR}/`;
-  const parts = privateDir.startsWith("/") ? privateDir.slice(1) : privateDir;
-  const slashIdx = parts.indexOf("/");
-  const bucketName = slashIdx === -1 ? parts.replace(/\/$/, "") : parts.slice(0, slashIdx);
-  const prefix = slashIdx === -1 ? "" : parts.slice(slashIdx + 1);
-  await gcs.bucket(bucketName).file(`${prefix}${entityId}`).save(readFileSync(localFile), {
-    contentType: "image/webp",
-    metadata: { cacheControl: "public, max-age=31536000" },
-  });
-  return `/objects/${entityId}`;
+  const destPath = join(PUBLIC_IMAGES_ROOT, entityId);
+  mkdirSync(dirname(destPath), { recursive: true });
+  copyFileSync(localFile, destPath);
+  console.log(`  copied → /images/${entityId}`);
+  return `/images/${entityId}`;
 }
 
 // Star → skill level range (mid-point used, adjusted by experience)
@@ -50,9 +63,16 @@ function skillFromStars(stars: number, expYears: number): number {
   return Math.min(99, Math.round(base + expYears * 0.3));
 }
 
-function salaryFromStarsExp(stars: number, expYears: number): number {
-  const base = { 1.5: 2800, 2: 3500, 2.5: 4000, 3: 4500, 3.5: 5000, 4: 5500, 4.5: 6500, 5: 7800 }[stars] ?? 5000;
-  return Math.round((base + expYears * 80) / 100) * 100;
+// Shared salary scale across all 5 medical seed scripts (Doctor, Physiotherapist,
+// Nutritionist, Sports Scientist, Medical Specialist) — one linear map from skill
+// level to salary so the same skill level pays the same regardless of which
+// script/role generated it. Bounds are the global min/max skill_level across all
+// 50 medical staff as seeded by these 5 scripts combined (currently 55-97).
+const MEDICAL_SALARY_SKILL_MIN = 55;
+const MEDICAL_SALARY_SKILL_MAX = 97;
+function medicalSalaryFromSkill(skill: number): number {
+  const t = (skill - MEDICAL_SALARY_SKILL_MIN) / (MEDICAL_SALARY_SKILL_MAX - MEDICAL_SALARY_SKILL_MIN);
+  return Math.round((100000 + t * 100000) / 1000) * 1000;
 }
 
 const PHYSIOS = [
@@ -172,86 +192,101 @@ const PHYSIOS = [
   },
 ];
 
+const insertStmt = sqlite.prepare(`
+  INSERT INTO staff (
+    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
+    is_available, age, overall_rating, contract_length, coach_speciality, personality,
+    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
 async function main() {
   // ── Step 1: delete all existing Physiotherapists ──────────────────────────
   console.log("Removing existing Physiotherapists...");
-  const existing = await db
-    .select({ id: staffTable.id, name: staffTable.name })
-    .from(staffTable)
-    .where(eq(staffTable.role, "Physiotherapist"));
+  const existing = sqlite
+    .prepare(`SELECT id, name FROM staff WHERE role = ?`)
+    .all("Physiotherapist") as { id: number; name: string }[];
 
   if (existing.length > 0) {
     const ids = existing.map((r) => r.id);
-    await db.update(trainingSessionsTable).set({ coachId: null }).where(inArray(trainingSessionsTable.coachId, ids));
-    await db.update(continentalScoutingMissionsTable).set({ assignedStaffId: null }).where(inArray(continentalScoutingMissionsTable.assignedStaffId, ids));
-    await db.delete(staffTable).where(inArray(staffTable.id, ids));
+    const placeholders = ids.map(() => "?").join(",");
+    sqlite.prepare(`UPDATE training_sessions SET coach_id = NULL WHERE coach_id IN (${placeholders})`).run(...ids);
+    sqlite
+      .prepare(`UPDATE continental_scouting_missions SET assigned_staff_id = NULL WHERE assigned_staff_id IN (${placeholders})`)
+      .run(...ids);
+    sqlite.prepare(`DELETE FROM staff WHERE id IN (${placeholders})`).run(...ids);
     console.log(`  deleted ${ids.length} rows.\n`);
   }
 
   // ── Step 2: upload & insert all 10 ───────────────────────────────────────
   for (const [i, p] of PHYSIOS.entries()) {
     const skill = skillFromStars(p.stars, p.experienceYears);
-    const salary = salaryFromStarsExp(p.stars, p.experienceYears);
+    const salary = medicalSalaryFromSkill(skill);
     console.log(`[${i + 1}/10] ${p.name} (${p.nationality}, ★${p.stars}, ${p.experienceYears} yrs) — skill ${skill}`);
 
-    const imageUrl = await upload(
-      resolve(WORKSPACE_ROOT, "attached_assets", p.imageFile),
-      `staff/physiotherapist/${p.slot}.webp`,
-    );
+    const localPath = resolveLocalImagePath("medical_physiotherapist", p.imageFile);
+    const imageUrl = await upload(localPath, `staff/physiotherapist/${p.slot}.webp`);
 
-    await db.insert(staffTable).values({
-      name:            p.name,
-      role:            "Physiotherapist",
-      specialty:       p.specialty,
-      age:             p.age,
+    const attributes = {
+      schema:          "beach_volleyball_staff",
+      version:         "1.0",
+      staffType:       "Physiotherapist",
       nationality:     p.nationality,
+      age:             p.age,
+      gender:          p.gender,
+      stars:           p.stars,
+      experienceYears: p.experienceYears,
       salary,
-      skillLevel:      skill,
-      overallRating:   skill,
-      contractLength:  12,
-      coachSpeciality: p.coachSpeciality,
-      personality:     "Caring",
-      specialTrait:    p.specialties[0],
-      attributes: {
-        schema:          "beach_volleyball_staff",
-        version:         "1.0",
-        staffType:       "Physiotherapist",
-        nationality:     p.nationality,
-        age:             p.age,
-        gender:          p.gender,
-        stars:           p.stars,
-        experienceYears: p.experienceYears,
-        salary,
-        specialties:     p.specialties,
-        description:     p.description,
-        // Physiotherapist-specific attributes
-        injuryRecovery:  p.attributes.injuryRecovery,
-        injuryPrevention:p.attributes.injuryPrevention,
-        mobility:        p.attributes.mobility,
-        rehabilitation:  p.attributes.rehabilitation,
-        manualTherapy:   p.attributes.manualTherapy,
-        fitnessSupport:  p.attributes.fitnessSupport,
-        playerCare:      p.attributes.playerCare,
-        professionalism: p.attributes.professionalism,
-      },
+      specialties:     p.specialties,
+      description:     p.description,
+      // Physiotherapist-specific attributes
+      injuryRecovery:  p.attributes.injuryRecovery,
+      injuryPrevention:p.attributes.injuryPrevention,
+      mobility:        p.attributes.mobility,
+      rehabilitation:  p.attributes.rehabilitation,
+      manualTherapy:   p.attributes.manualTherapy,
+      fitnessSupport:  p.attributes.fitnessSupport,
+      playerCare:      p.attributes.playerCare,
+      professionalism: p.attributes.professionalism,
+    };
+
+    insertStmt.run(
+      p.name,
+      "Physiotherapist",
+      p.specialty,
+      salary,
+      skill,
+      null,
+      p.nationality,
       imageUrl,
-      isAvailable:     true,
-      isScoutRevealed: false,
-      scoutingRating:  skill - 5,
-    });
+      1,
+      p.age,
+      skill,
+      12,
+      p.coachSpeciality,
+      "Caring",
+      JSON.stringify(attributes),
+      p.specialties[0],
+      0,
+      skill - 5,
+      Math.floor(Date.now() / 1000),
+    );
 
     console.log(`  ✓ inserted → ${imageUrl}`);
   }
 
   // ── verify ────────────────────────────────────────────────────────────────
-  const final = await db
-    .select({ name: staffTable.name, skill: staffTable.skillLevel })
-    .from(staffTable)
-    .where(eq(staffTable.role, "Physiotherapist"));
+  const final = sqlite
+    .prepare(`SELECT name, skill_level FROM staff WHERE role = ?`)
+    .all("Physiotherapist") as { name: string; skill_level: number }[];
 
   console.log(`\nDone — ${final.length} Physiotherapists now in DB:`);
-  final.forEach((r) => console.log(`  ${r.name} (skill ${r.skill})`));
-  process.exit(0);
+  final.forEach((r) => console.log(`  ${r.name} (skill ${r.skill_level})`));
+  sqlite.close();
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+main().catch((err) => {
+  console.error(err);
+  sqlite.close();
+  process.exitCode = 1;
+});

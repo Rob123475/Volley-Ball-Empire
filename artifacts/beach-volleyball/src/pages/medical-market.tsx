@@ -28,6 +28,7 @@ import {
   Star,
   Lock,
   Binoculars,
+  Hand,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -60,6 +61,8 @@ const ROLE_LABELS: Record<string, string> = {
   "Nutritionist":     "Nutritionist",
   sports_scientist:   "Sports Scientist",
   "Sports Scientist": "Sports Scientist",
+  massage_therapist:  "Massage Therapist",
+  "Massage Therapist": "Massage Therapist",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -73,6 +76,8 @@ const ROLE_COLORS: Record<string, string> = {
   "Nutritionist":       "bg-green-500",
   sports_scientist:     "bg-indigo-500",
   "Sports Scientist":   "bg-indigo-500",
+  massage_therapist:    "bg-pink-500",
+  "Massage Therapist":  "bg-pink-500",
 };
 
 type IconFC = React.FC<{ className?: string }>;
@@ -88,9 +93,11 @@ const ROLE_ICONS: Record<string, IconFC> = {
   "Nutritionist":       Salad as IconFC,
   sports_scientist:     FlaskConical as IconFC,
   "Sports Scientist":   FlaskConical as IconFC,
+  massage_therapist:    Hand as IconFC,
+  "Massage Therapist":  Hand as IconFC,
 };
 
-const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist"] as const;
+const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "massage_therapist"] as const;
 
 function starTier(rating: number): { stars: number; color: string; label: string } {
   if (rating >= 90) return { stars: 5, color: "text-yellow-400",  label: "Elite"     };

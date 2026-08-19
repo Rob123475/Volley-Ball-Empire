@@ -90,7 +90,8 @@ const ROLE_ICONS: Record<string, IconFC> = {
   scout:                Binoculars as IconFC,
 };
 
-const ROLE_FILTERS = ["all", "head_coach", "assistant_coach", "fitness_trainer", "strength_conditioner", "massage_therapist", "promotions_manager", "scout"] as const;
+// Massage Therapist moved to the Medical Market — no longer a filter pill here.
+const ROLE_FILTERS = ["all", "head_coach", "assistant_coach", "fitness_trainer", "strength_conditioner", "promotions_manager", "scout"] as const;
 
 function starTier(rating: number): { stars: number; color: string; label: string } {
   if (rating >= 90) return { stars: 5, color: "text-yellow-400",  label: "Elite"  };

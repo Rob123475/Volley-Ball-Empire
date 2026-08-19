@@ -1,62 +1,114 @@
-import { Storage } from "@google-cloud/storage";
-import { readFileSync } from "fs";
-import { resolve, dirname } from "path";
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from "fs";
+import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { db } from "@workspace/db";
-import { staffTable } from "@workspace/db/schema";
+import { DatabaseSync } from "node:sqlite";
+
+// NOTE: writes via Node's built-in node:sqlite instead of the shared
+// @workspace/db (better-sqlite3) client — same crash (native Statement
+// destructor firing during isolate/env teardown, SIGABRT) that seed-staff.ts
+// hit under Node 24 on Windows. See seed-staff.ts for the full writeup.
+if (!process.env.DB_PATH) {
+  throw new Error("DB_PATH must be set. Did you forget to pass the SQLite file path?");
+}
+const sqlite = new DatabaseSync(process.env.DB_PATH);
+sqlite.exec("PRAGMA journal_mode = WAL;");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKSPACE_ROOT = resolve(__dirname, "../../");
-const SIDECAR = "http://127.0.0.1:1106";
-const PRIVATE_OBJECT_DIR = process.env.PRIVATE_OBJECT_DIR!;
+const WORKSPACE_ROOT = process.env.SEED_WORKSPACE_ROOT
+  ? resolve(process.env.SEED_WORKSPACE_ROOT)
+  : resolve(__dirname, "../../");
+const PUBLIC_IMAGES_ROOT = resolve(WORKSPACE_ROOT, "artifacts/beach-volleyball/public/images");
+const ATTACHED_ASSETS_ROOT = resolve(WORKSPACE_ROOT, "attached_assets");
+const ATTACHED_ASSETS_FILES = readdirSync(ATTACHED_ASSETS_ROOT);
 
-const gcs = new Storage({
-  credentials: {
-    audience: "replit",
-    subject_token_type: "access_token",
-    token_url: `${SIDECAR}/token`,
-    type: "external_account",
-    credential_source: {
-      url: `${SIDECAR}/credential`,
-      format: { type: "json", subject_token_field_name: "access_token" },
-    },
-    universe_domain: "googleapis.com",
-  } as object,
-  projectId: "",
-});
+// Same stale-filename problem as seed-staff.ts: the imageFile timestamps
+// recorded below don't match what's actually on disk (portraits were
+// re-uploaded/renamed since). Fall back to a prefix match on the recorded
+// slot number so both trainers still resolve to a real local portrait.
+function resolveLocalImagePath(roleSlug: string, imageFile: string): string {
+  const exact = resolve(ATTACHED_ASSETS_ROOT, imageFile);
+  if (existsSync(exact)) return exact;
+
+  const match = imageFile.match(/_(\d{2})(?:_\d+)?\.\w+$/);
+  if (!match) {
+    throw new Error(`Could not parse slot index from imageFile "${imageFile}"`);
+  }
+  const idx = match[1];
+  const candidates = ATTACHED_ASSETS_FILES.filter((f) => f.startsWith(`staff_${roleSlug}_${idx}`)).sort();
+
+  if (candidates.length === 0) {
+    throw new Error(`No local image found for ${roleSlug} #${idx} (expected ${imageFile})`);
+  }
+  const chosen = candidates[candidates.length - 1];
+  console.log(`  (image mismatch: "${imageFile}" not found, using "${chosen}" instead)`);
+  return resolve(ATTACHED_ASSETS_ROOT, chosen);
+}
 
 async function upload(localFile: string, entityId: string): Promise<string> {
-  const privateDir = PRIVATE_OBJECT_DIR.endsWith("/") ? PRIVATE_OBJECT_DIR : `${PRIVATE_OBJECT_DIR}/`;
-  const parts = privateDir.startsWith("/") ? privateDir.slice(1) : privateDir;
-  const slashIdx = parts.indexOf("/");
-  const bucketName = slashIdx === -1 ? parts.replace(/\/$/, "") : parts.slice(0, slashIdx);
-  const prefix = slashIdx === -1 ? "" : parts.slice(slashIdx + 1);
-  const objectName = `${prefix}${entityId}`;
-  await gcs.bucket(bucketName).file(objectName).save(readFileSync(localFile), {
-    contentType: "image/webp",
-    metadata: { cacheControl: "public, max-age=31536000" },
-  });
-  console.log(`  uploaded → gs://${bucketName}/${objectName}`);
-  return `/objects/${entityId}`;
+  const destPath = join(PUBLIC_IMAGES_ROOT, entityId);
+  mkdirSync(dirname(destPath), { recursive: true });
+  copyFileSync(localFile, destPath);
+  console.log(`  copied → /images/${entityId}`);
+  return `/images/${entityId}`;
+}
+
+const findExistingStmt = sqlite.prepare(`SELECT id FROM staff WHERE name = ? AND role = ?`);
+const insertStmt = sqlite.prepare(`
+  INSERT INTO staff (
+    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
+    is_available, age, overall_rating, contract_length, coach_speciality, personality,
+    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
+// Idempotent: skip a trainer that's already in the DB rather than inserting a
+// duplicate on a second run.
+function insertIfMissing(row: {
+  name: string; specialty: string; age: number; nationality: string; salary: number;
+  skillLevel: number; coachSpeciality: string; personality: string; specialTrait: string;
+  attributes: Record<string, unknown>; imageUrl: string; scoutingRating: number;
+}): boolean {
+  const already = findExistingStmt.get(row.name, "Fitness Trainer") as { id: number } | undefined;
+  if (already) {
+    console.log(`  already seeded (id=${already.id}), skipping`);
+    return false;
+  }
+  insertStmt.run(
+    row.name,
+    "Fitness Trainer",
+    row.specialty,
+    row.salary,
+    row.skillLevel,
+    null,
+    row.nationality,
+    row.imageUrl,
+    1,
+    row.age,
+    row.skillLevel,
+    12,
+    row.coachSpeciality,
+    row.personality,
+    JSON.stringify(row.attributes),
+    row.specialTrait,
+    0,
+    row.scoutingRating,
+    Math.floor(Date.now() / 1000),
+  );
+  return true;
 }
 
 async function main() {
   // ── Emily Carter ─────────────────────────────────────────────────────────
   console.log("[1/2] Emily Carter");
-  const emilyUrl = await upload(
-    resolve(WORKSPACE_ROOT, "attached_assets/staff_fitness_trainer_03_1783426200690.webp"),
-    "staff/fitness_trainer/staff-09.webp",
-  );
-  await db.insert(staffTable).values({
+  const emilyLocalPath = resolveLocalImagePath("fitness_trainer", "staff_fitness_trainer_03_1783426200690.webp");
+  const emilyUrl = await upload(emilyLocalPath, "staff/fitness_trainer/staff-09.webp");
+  const emilyInserted = insertIfMissing({
     name: "Emily Carter",
-    role: "Fitness Trainer",
     specialty: "Strength Training & Conditioning",
     age: 32,
     nationality: "Australian",
     salary: 5200,
     skillLevel: 80,
-    overallRating: 80,
-    contractLength: 12,
     coachSpeciality: "Strength Training",
     personality: "Motivator",
     specialTrait: "Flexibility & Mobility Expert",
@@ -66,28 +118,21 @@ async function main() {
       starRating: 4,
     },
     imageUrl: emilyUrl,
-    isAvailable: true,
-    isScoutRevealed: false,
     scoutingRating: 75,
   });
-  console.log(`  inserted → ${emilyUrl}\n`);
+  if (emilyInserted) console.log(`  inserted → ${emilyUrl}\n`);
 
   // ── Sofia Bianchi ─────────────────────────────────────────────────────────
   console.log("[2/2] Sofia Bianchi");
-  const sofiaUrl = await upload(
-    resolve(WORKSPACE_ROOT, "attached_assets/staff_fitness_trainer_04_1783426208396.webp"),
-    "staff/fitness_trainer/staff-10.webp",
-  );
-  await db.insert(staffTable).values({
+  const sofiaLocalPath = resolveLocalImagePath("fitness_trainer", "staff_fitness_trainer_04_1783426208396.webp");
+  const sofiaUrl = await upload(sofiaLocalPath, "staff/fitness_trainer/staff-10.webp");
+  const sofiaInserted = insertIfMissing({
     name: "Sofia Bianchi",
-    role: "Fitness Trainer",
     specialty: "HIIT Training & Core Strength",
     age: 29,
     nationality: "Italian",
     salary: 4800,
     skillLevel: 78,
-    overallRating: 78,
-    contractLength: 12,
     coachSpeciality: "HIIT Training",
     personality: "Disciplined",
     specialTrait: "Recovery & Rehab Specialist",
@@ -97,14 +142,19 @@ async function main() {
       starRating: 4,
     },
     imageUrl: sofiaUrl,
-    isAvailable: true,
-    isScoutRevealed: false,
     scoutingRating: 72,
   });
-  console.log(`  inserted → ${sofiaUrl}\n`);
+  if (sofiaInserted) console.log(`  inserted → ${sofiaUrl}\n`);
 
-  console.log("Done — Fitness Trainers now at 10.");
-  process.exit(0);
+  const final = sqlite
+    .prepare(`SELECT COUNT(*) c FROM staff WHERE role = ?`)
+    .get("Fitness Trainer") as { c: number };
+  console.log(`Done — Fitness Trainers now at ${final.c}.`);
+  sqlite.close();
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+main().catch((err) => {
+  console.error(err);
+  sqlite.close();
+  process.exitCode = 1;
+});

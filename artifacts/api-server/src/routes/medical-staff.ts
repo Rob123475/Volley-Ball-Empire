@@ -16,7 +16,7 @@ const router = Router();
 // Include both legacy snake_case names and current Title Case DB names
 const MEDICAL_ROLE_SET = new Set<string>([
   ...MEDICAL_ROLES,
-  "Doctor", "Medical Specialist", "Physiotherapist", "Nutritionist", "Sports Scientist",
+  "Doctor", "Medical Specialist", "Physiotherapist", "Nutritionist", "Sports Scientist", "Massage Therapist",
   "sports_chemist", // legacy rows already migrated but guard against stragglers
 ]);
 
@@ -28,6 +28,7 @@ const ROLE_FILTER_MAP: Record<string, string> = {
   nutritionist:       "Nutritionist",
   sports_scientist:   "Sports Scientist",
   sports_chemist:     "Sports Scientist",
+  massage_therapist:  "Massage Therapist",
 };
 const MAX_MEDICAL_STAFF = 4;
 
