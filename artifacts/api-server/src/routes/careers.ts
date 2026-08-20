@@ -8,6 +8,7 @@ import {
   hallOfFameTable,
   careerHistoryEntriesTable,
   poachingOffersTable,
+  seasonsTable,
 } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
@@ -152,6 +153,33 @@ router.post("/careers", async (req, res) => {
     if (existing.teamId) {
       await db.delete(teamsTable).where(eq(teamsTable.id, existing.teamId));
     }
+  }
+
+  // Seasons are global (shared across every save/team), not per-career, so
+  // this only creates one the very first time any career is started. Without
+  // it, nothing ever populates seasonsTable — /api/calendar, the annual
+  // calendar, and getOrCreateCalendar() all depend on an active season and
+  // silently fail/return empty without one. Bounds are chosen so the
+  // existing hardcoded World Tour match dates (worldTour.ts) land exactly
+  // where the linear round→date interpolation in calendar.ts expects them
+  // (round 11 → 2026-02-17, round 72 → 2026-12-02).
+  const [existingActiveSeason] = await db
+    .select()
+    .from(seasonsTable)
+    .where(eq(seasonsTable.status, "active"))
+    .limit(1);
+  if (!existingActiveSeason) {
+    await db.insert(seasonsTable).values({
+      year:                    2026,
+      name:                    "Season 1",
+      status:                  "active",
+      totalRounds:             78,
+      currentRound:            1,
+      startDate:               "2026-01-01",
+      endDate:                 "2026-12-31",
+      isOlympicSeason:         false,
+      regionalRoundsProcessed: 0,
+    });
   }
 
   const [newTeam] = await db
