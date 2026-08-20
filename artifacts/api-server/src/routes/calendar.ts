@@ -447,18 +447,24 @@ router.post("/calendar/advance", async (req, res) => {
   // ── Daily processing ──────────────────────────────────────────
 
   // 1. Fatigue recovery — healthy players
+  // NOTE: SQLite has no GREATEST/LEAST (Postgres/MySQL). Its multi-argument
+  // MAX()/MIN() is the scalar per-row form and is equivalent here — verified
+  // against the real engine. The only semantic difference vs GREATEST/LEAST
+  // is NULL handling (SQLite's MAX/MIN returns NULL if any arg is NULL,
+  // GREATEST/LEAST would skip it), which can't occur here since both
+  // `fatigue` and `fitness` are NOT NULL columns.
   await db.update(playersTable)
-    .set({ fatigue: sql`GREATEST(0, fatigue - 4)` })
+    .set({ fatigue: sql`MAX(0, fatigue - 4)` })
     .where(and(eq(playersTable.teamId, team.id), eq(playersTable.injuryStatus, "Healthy")));
 
   // 2. Fatigue recovery — injured players (slower, bed rest)
   await db.update(playersTable)
-    .set({ fatigue: sql`GREATEST(0, fatigue - 2)` })
+    .set({ fatigue: sql`MAX(0, fatigue - 2)` })
     .where(and(eq(playersTable.teamId, team.id), ne(playersTable.injuryStatus, "Healthy")));
 
   // 3. Fitness recovery for well-rested healthy players
   await db.update(playersTable)
-    .set({ fitness: sql`LEAST(100, fitness + 1)` })
+    .set({ fitness: sql`MIN(100, fitness + 1)` })
     .where(and(
       eq(playersTable.teamId, team.id),
       eq(playersTable.injuryStatus, "Healthy"),
