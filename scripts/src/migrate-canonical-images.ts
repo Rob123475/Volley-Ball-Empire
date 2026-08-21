@@ -29,6 +29,11 @@ import { fileURLToPath } from "url";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
+// --dry-run: does everything (count, assignment, source resolution,
+// verification) but performs no file copies, no GCS downloads, and no DB
+// updates — prints what it would do instead.
+const DRY_RUN = process.argv.includes("--dry-run");
+
 const SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
 const BUCKET_NAME      = "replit-objstore-3c52c78e-ce4f-47c1-b52c-13136f0d8203";
 const GCS_PRIVATE_PFX  = ".private"; // prefix inside bucket for /objects/ entity files
@@ -152,6 +157,7 @@ const SLUG_FIX: Record<string, string> = {
   swiss:          "switzerland",
   solomon_island: "solomon_islands",
   peurto_rico:    "puerto_rico",
+  newzealand:     "new_zealand",
 };
 
 // ── 16 new players (data extracted from uploaded card images) ──────────────────
@@ -240,9 +246,16 @@ async function downloadFromGcs(objectsRelPath: string, destPath: string): Promis
 
 // ── Filename parsing ───────────────────────────────────────────────────────────
 
-/** Parse "player_senior_<slug>_<NN>_<timestamp>.webp" → { slug, num } or null. */
+/**
+ * Parse "player_senior_<slug>_<NN>_<timestamp>.webp" → { slug, num } or null.
+ * Slug may contain a literal dot (e.g. "n.america", "s.america"). Also
+ * tolerates two observed malformed variants: a "_(N)" duplicate marker
+ * before the timestamp (player_senior_n.america_04_(2)_<ts>.webp), and a
+ * stray dot right after the 2-digit number instead of an underscore
+ * (player_senior_s.america_04._<ts>.webp).
+ */
 function parseDiskFilename(filename: string): { slug: string; num: string } | null {
-  const m = filename.match(/^player_senior_([a-z_]+)_(\d{2})_\d+\.webp$/);
+  const m = filename.match(/^player_senior_([a-z_.]+)_(\d{2})(?:_\(\d+\))?\.?_\d+\.webp$/);
   return m ? { slug: m[1]!, num: m[2]! } : null;
 }
 
@@ -274,27 +287,41 @@ async function main() {
     .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)));
 
   const count = existing.length;
-  if (count !== 192 && count !== 208) {
-    throw new Error(`ABORT: Expected 192 or 208 senior players, found ${count}.`);
+  console.log(`  Active senior player count: ${count}`);
+  if (count === 0) {
+    throw new Error(`ABORT: 0 active senior players found — nothing to migrate.`);
   }
+  const startingCount = count;
 
-  // Check if already fully migrated (208 + all canonical)
-  if (count === 208) {
+  // Check if already fully migrated (startingCount + NEW_PLAYERS.length + all
+  // canonical). NOTE: this reads as tautological — count is read into
+  // startingCount immediately above, so `count === startingCount + N` can
+  // only be true if N === 0, which it never is (16 new players). This
+  // shortcut is therefore never reachable from a single Stage-0 snapshot; a
+  // true "already migrated" re-run instead falls through to Stage 1 (SKIPs
+  // every already-present player by name+nationality) and Stage 4 (skips
+  // any player whose imageUrl already equals its canonical path), so
+  // correctness doesn't depend on this branch firing — it's just no longer
+  // an instant-exit fast path. Left in per the literal ask; flagged here in
+  // case a real fast-path is wanted later (it would need the *pre-Stage-1*
+  // count compared against a *post-Stage-1* re-read, not a single snapshot).
+  if (count === startingCount + NEW_PLAYERS.length) {
     const bad = existing.filter(
       (p) => !/^\/images\/players\/seniors\/player_senior_[a-z_]+_\d{2}\.webp$/.test(p.imageUrl ?? "")
     );
     if (bad.length === 0) {
-      console.log("✅ Already fully migrated (208 players, all canonical). Nothing to do.\n");
+      console.log("✅ Already fully migrated (all canonical). Nothing to do.\n");
       process.exit(0);
     }
-    console.log(`  208 players found but ${bad.length} still non-canonical. Continuing…`);
+    console.log(`  ${count} players found but ${bad.length} still non-canonical. Continuing…`);
   } else {
-    console.log(`  Found ${count} existing senior players. Will add 16.\n`);
+    console.log(`  Found ${count} existing senior players. Will add ${NEW_PLAYERS.length}.\n`);
   }
 
-  // ── Stage 1: Insert 16 new players (idempotent) ────────────────────────────
-  console.log("Stage 1: Inserting 16 new players (idempotent by name+nationality)…");
+  // ── Stage 1: Insert new players (idempotent) ───────────────────────────────
+  console.log(`Stage 1: ${DRY_RUN ? "Checking" : "Inserting"} ${NEW_PLAYERS.length} new players (idempotent by name+nationality)…`);
   let newInserted = 0;
+  const alreadyExistingNewPlayers = new Set<string>(); // "name|nationality"
 
   for (const np of NEW_PLAYERS) {
     const found = await db
@@ -309,6 +336,12 @@ async function main() {
 
     if (found.length > 0) {
       console.log(`  SKIP (exists id=${found[0]!.id}): ${np.name} [${np.nationality}]`);
+      alreadyExistingNewPlayers.add(`${np.name}|${np.nationality}`);
+      continue;
+    }
+
+    if (DRY_RUN) {
+      console.log(`  WOULD INSERT: ${np.name} [${np.nationality}] (${np.position}, ${np.stars}★)`);
       continue;
     }
 
@@ -350,19 +383,57 @@ async function main() {
     console.log(`  INSERTED: ${np.name} [${np.nationality}] (${np.position}, ${np.stars}★)`);
     newInserted++;
   }
-  console.log(`  Stage 1 done — inserted ${newInserted} new players.\n`);
+  console.log(
+    `  Stage 1 done — ${DRY_RUN ? "would insert" : "inserted"} ` +
+      `${DRY_RUN ? NEW_PLAYERS.length - alreadyExistingNewPlayers.size : newInserted} new players.\n`
+  );
 
-  // ── Stage 2: Load all 208, build canonical assignment ─────────────────────
-  console.log("Stage 2: Building canonical number assignment for all 208 players…");
+  // ── Stage 2: Load all players, build canonical assignment ─────────────────
+  console.log(`Stage 2: Building canonical number assignment for all ${startingCount + NEW_PLAYERS.length} players…`);
 
-  const allPlayers = await db
-    .select()
-    .from(playersTable)
-    .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)))
-    .orderBy(playersTable.id);
+  let allPlayers: (typeof playersTable.$inferSelect)[];
 
-  if (allPlayers.length !== 208) {
-    throw new Error(`Expected 208 after insertion, got ${allPlayers.length}.`);
+  if (DRY_RUN) {
+    // Nothing was actually inserted — build a virtual roster: real DB rows
+    // plus synthetic placeholders (negative sentinel ids) for whichever
+    // NEW_PLAYERS aren't already present, so assignment/reporting behaves
+    // exactly as it would after a real Stage 1 run.
+    const currentPlayers = await db
+      .select()
+      .from(playersTable)
+      .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)))
+      .orderBy(playersTable.id);
+
+    let syntheticId = -1;
+    const synthetic = NEW_PLAYERS
+      .filter((np) => !alreadyExistingNewPlayers.has(`${np.name}|${np.nationality}`))
+      .map((np) =>
+        ({
+          id: syntheticId--,
+          name: np.name,
+          nationality: np.nationality,
+          imageUrl: null,
+          playerType: "senior",
+          isRetired: false,
+        } as typeof playersTable.$inferSelect)
+      );
+
+    allPlayers = [...currentPlayers, ...synthetic];
+    console.log(
+      `  (dry run) ${currentPlayers.length} existing + ${synthetic.length} not-yet-inserted new players = ${allPlayers.length}`
+    );
+  } else {
+    allPlayers = await db
+      .select()
+      .from(playersTable)
+      .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)))
+      .orderBy(playersTable.id);
+
+    if (allPlayers.length !== startingCount + NEW_PLAYERS.length) {
+      throw new Error(
+        `Expected ${startingCount + NEW_PLAYERS.length} after insertion, got ${allPlayers.length}.`
+      );
+    }
   }
 
   // Group by nationality → sort by id → assign 01, 02, …
@@ -407,9 +478,9 @@ async function main() {
   console.log(`  Stage 2 done.\n`);
 
   // ── Stage 3: Image file operations ────────────────────────────────────────
-  console.log("Stage 3: Image file operations (GCS download + copy/rename webp)…");
+  console.log(`Stage 3: Image file operations${DRY_RUN ? " (DRY RUN — resolving sources, no writes)" : " (GCS download + copy/rename webp)"}…`);
 
-  fs.mkdirSync(CANONICAL_DIR, { recursive: true });
+  if (!DRY_RUN) fs.mkdirSync(CANONICAL_DIR, { recursive: true });
 
   // Build index of all existing files on disk keyed by (fixedSlug, num)
   const diskFiles = fs.readdirSync(CANONICAL_DIR);
@@ -430,29 +501,45 @@ async function main() {
   let copied     = 0;
   let alreadyOk  = 0;
 
+  type ReportRow = {
+    id: number;
+    name: string;
+    nationality: string;
+    currentBasename: string;
+    resolvedSource: string;
+    canonicalFile: string;
+    willOverwrite: boolean;
+  };
+  const report: ReportRow[] = [];
+
   for (const p of allPlayers) {
     const a = assign.get(p.id!);
     if (!a) continue;
 
-    const destPath    = path.join(CANONICAL_DIR, a.canonicalFile);
-    const destExists  = fs.existsSync(destPath);
-
-    if (destExists) {
-      alreadyOk++;
-      continue; // canonical file already present — skip
-    }
-
-    const url = p.imageUrl ?? "";
+    const destPath      = path.join(CANONICAL_DIR, a.canonicalFile);
+    const destExistsNow = fs.existsSync(destPath); // read-only check, always safe
+    const url           = p.imageUrl ?? "";
+    const currentBasename = url ? path.basename(url) : "(null)";
 
     if (url.startsWith("/objects/player-cards/")) {
-      // ── Download from GCS ──────────────────────────────────────────────────
+      // ── Download from GCS — ALWAYS, overwriting whatever's at destPath.
+      // The 208 files currently on disk were staged for a different roster
+      // size, so an existing canonical file here may belong to the wrong
+      // player; only this player's own tracked source is trustworthy.
       const relPath = url.slice("/objects/".length); // "player-cards/s-america/player-03.webp"
-      console.log(`  GCS  → ${a.canonicalFile} (id=${p.id} ${p.name})`);
-      await downloadFromGcs(relPath, destPath);
+      report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+        resolvedSource: `GCS:${relPath}`, canonicalFile: a.canonicalFile, willOverwrite: destExistsNow });
+      if (DRY_RUN) {
+        console.log(`  [DRY] GCS  → ${a.canonicalFile} (id=${p.id} ${p.name})${destExistsNow ? " [OVERWRITE]" : " [CREATE]"}`);
+      } else {
+        console.log(`  GCS  → ${a.canonicalFile} (id=${p.id} ${p.name})`);
+        await downloadFromGcs(relPath, destPath);
+      }
       downloaded++;
 
     } else if (url.startsWith(CANONICAL_DB_PFX)) {
-      // ── Copy existing on-disk file (slug fix or number change) ────────────
+      // ── Copy existing on-disk file (slug fix or number change) — ALWAYS,
+      // overwriting whatever's at destPath, same rationale as above.
       const existingFilename = path.basename(url);
 
       // First try exact match
@@ -468,40 +555,112 @@ async function main() {
       }
 
       if (fs.existsSync(srcPath)) {
-        console.log(`  COPY → ${a.canonicalFile} (from ${path.basename(srcPath)})`);
-        fs.copyFileSync(srcPath, destPath);
-        // Update disk index
-        diskIndex.set(`${a.slug}:${a.num}`, a.canonicalFile);
-        copied++;
+        if (path.resolve(srcPath) === path.resolve(destPath)) {
+          // Source and canonical destination are already the same file on
+          // disk — copyFileSync onto itself risks truncating/corrupting it,
+          // and there's nothing to do anyway.
+          report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+            resolvedSource: path.basename(srcPath), canonicalFile: a.canonicalFile, willOverwrite: false });
+          alreadyOk++;
+        } else {
+          report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+            resolvedSource: path.basename(srcPath), canonicalFile: a.canonicalFile, willOverwrite: destExistsNow });
+          if (DRY_RUN) {
+            console.log(`  [DRY] COPY → ${a.canonicalFile} (from ${path.basename(srcPath)})${destExistsNow ? " [OVERWRITE]" : " [CREATE]"}`);
+          } else {
+            console.log(`  COPY → ${a.canonicalFile} (from ${path.basename(srcPath)})`);
+            fs.copyFileSync(srcPath, destPath);
+          }
+          // Update disk index (in-memory only — harmless to do during a dry
+          // run too, keeps later players' resolution accurate)
+          diskIndex.set(`${a.slug}:${a.num}`, a.canonicalFile);
+          copied++;
+        }
       } else {
+        report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+          resolvedSource: "(not found)", canonicalFile: a.canonicalFile, willOverwrite: destExistsNow });
         console.warn(`  ⚠️  Source file not found for id=${p.id} ${p.name}: "${url}"`);
       }
 
     } else if (!url) {
-      // ── New player — match pre-uploaded file via slug + imageSlot ─────────
+      // ── New player — match pre-uploaded file via slug + imageSlot. Unlike
+      // the branches above, a new player has no tracked source of its own —
+      // the pre-staged file *is* the assignment — so skipping when the
+      // canonical file is already present is legitimate here.
+      if (destExistsNow) {
+        report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+          resolvedSource: "(canonical file already present)", canonicalFile: a.canonicalFile, willOverwrite: false });
+        alreadyOk++;
+        continue;
+      }
       const np = NEW_PLAYERS.find((x) => x.name === p.name && x.nationality === p.nationality);
       if (!np) {
+        report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+          resolvedSource: "(no NewPlayer config)", canonicalFile: a.canonicalFile, willOverwrite: false });
         console.warn(`  ⚠️  No NewPlayer config for id=${p.id} ${p.name} — imageUrl is null`);
         continue;
       }
       const candidate = diskIndex.get(`${a.slug}:${np.imageSlot}`);
       if (candidate) {
         const srcPath = path.join(CANONICAL_DIR, candidate);
-        console.log(`  COPY (new) → ${a.canonicalFile} (from ${candidate}, id=${p.id} ${p.name})`);
-        fs.copyFileSync(srcPath, destPath);
+        report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+          resolvedSource: candidate, canonicalFile: a.canonicalFile, willOverwrite: false });
+        if (DRY_RUN) {
+          console.log(`  [DRY] COPY (new) → ${a.canonicalFile} (from ${candidate}, id=${p.id} ${p.name}) [CREATE]`);
+        } else {
+          console.log(`  COPY (new) → ${a.canonicalFile} (from ${candidate}, id=${p.id} ${p.name})`);
+          fs.copyFileSync(srcPath, destPath);
+        }
         diskIndex.set(`${a.slug}:${a.num}`, a.canonicalFile);
         copied++;
       } else {
+        report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+          resolvedSource: "(no pre-uploaded file)", canonicalFile: a.canonicalFile, willOverwrite: false });
         console.warn(`  ⚠️  No pre-uploaded file for new player id=${p.id} ${p.name} (${a.slug} slot ${np.imageSlot})`);
         console.warn(`       Available for this slug: ${[...diskIndex.entries()].filter(([k]) => k.startsWith(a.slug + ":")).map(([k, v]) => v).join(", ") || "none"}`);
       }
 
     } else {
+      report.push({ id: p.id!, name: p.name, nationality: p.nationality ?? "", currentBasename,
+        resolvedSource: "(unrecognised imageUrl)", canonicalFile: a.canonicalFile, willOverwrite: destExistsNow });
       console.warn(`  ⚠️  Unrecognised imageUrl for id=${p.id} ${p.name}: "${url}"`);
     }
   }
 
   console.log(`  Stage 3 done — GCS downloads: ${downloaded}, copies: ${copied}, already present: ${alreadyOk}.\n`);
+
+  if (DRY_RUN) {
+    const resolved = report.filter(
+      (r) => r.resolvedSource !== "(not found)" &&
+             r.resolvedSource !== "(no pre-uploaded file)" &&
+             r.resolvedSource !== "(no NewPlayer config)" &&
+             r.resolvedSource !== "(unrecognised imageUrl)"
+    );
+    const unresolved = report.filter((r) => !resolved.includes(r));
+    const wouldOverwrite = report.filter((r) => r.willOverwrite).length;
+    const wouldCreate = report.filter((r) => !r.willOverwrite && r.resolvedSource !== "(canonical file already present)").length;
+
+    console.log("=== DRY RUN REPORT ===\n");
+    console.log(`Resolve a source file: ${resolved.length}`);
+    console.log(`Do NOT resolve a source: ${unresolved.length}`);
+    if (unresolved.length > 0) {
+      console.log("  Unresolved:");
+      for (const r of unresolved) {
+        console.log(`    id=${r.id} ${r.name} [${r.nationality}] — ${r.resolvedSource} (current: ${r.currentBasename})`);
+      }
+    }
+    console.log(`\nCanonical destinations that would be overwritten: ${wouldOverwrite}`);
+    console.log(`Canonical destinations that would be newly created: ${wouldCreate}`);
+
+    console.log("\n--- Full player → canonical filename mapping ---");
+    console.log("id\tname\tnationality\tcurrent_basename\tresolved_source\tcanonical_file\toverwrite?");
+    for (const r of report) {
+      console.log(`${r.id}\t${r.name}\t${r.nationality}\t${r.currentBasename}\t${r.resolvedSource}\t${r.canonicalFile}\t${r.willOverwrite ? "yes" : "no"}`);
+    }
+
+    console.log("\nDRY RUN complete — no files, GCS objects, or DB rows were modified.\n");
+    return;
+  }
 
   // ── Stage 4: Update DB image_urls ─────────────────────────────────────────
   console.log("Stage 4: Updating DB image_urls…");
@@ -562,8 +721,9 @@ async function main() {
     .readdirSync(CANONICAL_DIR)
     .filter((f) => /^player_senior_[a-z_]+_\d{2}_\d{9,}\.webp$/.test(f));
 
-  console.log(`  Total senior players in DB: ${totalCount} (target: 208)`);
-  console.log(`  Canonical files on disk:    ${canonicalOnDisk.length} (target: 208)`);
+  const targetCount = startingCount + NEW_PLAYERS.length;
+  console.log(`  Total senior players in DB: ${totalCount} (target: ${targetCount})`);
+  console.log(`  Canonical files on disk:    ${canonicalOnDisk.length} (target: ${targetCount})`);
   console.log(`  Old timestamp files on disk: ${oldTimestamped.length} (safe to delete)`);
 
   if (badUrl.length > 0) {
@@ -573,9 +733,9 @@ async function main() {
     );
   }
 
-  const success = totalCount === 208 && badUrl.length === 0 && missing === 0;
+  const success = totalCount === targetCount && badUrl.length === 0 && missing === 0;
   if (success) {
-    console.log(`\n✅ MIGRATION COMPLETE. 208 senior players, all with canonical image paths.\n`);
+    console.log(`\n✅ MIGRATION COMPLETE. ${targetCount} senior players, all with canonical image paths.\n`);
   } else {
     console.log(`\n⚠️  Migration finished with issues. Review warnings above.\n`);
     if (missing > 0) process.exit(1);
