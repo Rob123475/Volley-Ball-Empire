@@ -338,9 +338,10 @@ router.post("/calendar/advance", async (req, res) => {
     for (const round of todayRounds.filter(r => isRegionalSlot(r))) {
       if (round > season.regionalRoundsProcessed) {
         // Auto-simulate this regional round across all continents
+        let totalFixtures = 0;
         try {
-          const summary = await simulateRegionalRound(round, season.year);
-          const totalFixtures = summary.reduce((s, c) => s + c.simulated, 0);
+          const summary = await simulateRegionalRound(round);
+          totalFixtures = summary.reduce((s, c) => s + c.simulated, 0);
           if (totalFixtures > 0) {
             events.push(`Regional Round ${round}: ${totalFixtures} continental fixtures auto-simulated`);
           }
@@ -348,13 +349,22 @@ router.post("/calendar/advance", async (req, res) => {
           // Non-fatal — fixtures may already be simulated or seasons not found
         }
 
-        // Update season.regionalRoundsProcessed
-        await db.update(seasonsTable)
-          .set({ regionalRoundsProcessed: round })
-          .where(eq(seasonsTable.id, season.id));
+        if (totalFixtures === 0) {
+          // Nothing actually simulated — don't record this round as
+          // processed, or a real failure (e.g. no active regional season
+          // found) would masquerade as silent success. Log so it's visible
+          // instead of only discoverable by noticing regional_league_results
+          // stays empty.
+          req.log.warn({ round }, "simulateRegionalRound found no matching fixtures — regionalRoundsProcessed not advanced");
+        } else {
+          // Update season.regionalRoundsProcessed
+          await db.update(seasonsTable)
+            .set({ regionalRoundsProcessed: round })
+            .where(eq(seasonsTable.id, season.id));
+        }
 
         // If this was the final regional round, resolve all 6 continental seasons
-        if (isLastRegionalSlot(round)) {
+        if (totalFixtures > 0 && isLastRegionalSlot(round)) {
           const activeSeasons = await db
             .select({ id: regionalLeagueSeasonsTable.id, continent: regionalLeagueSeasonsTable.continent })
             .from(regionalLeagueSeasonsTable)

@@ -381,23 +381,31 @@ router.delete("/careers/:id", async (req, res) => {
   req.log.info({ saveId: id, userId: req.user.id, slotNumber: save.slotNumber }, "DELETE /careers/:id — starting");
 
   try {
-    await db.transaction(async (tx) => {
+    // Synchronous callback — better-sqlite3 transactions must not be async
+    // (see the note in utils/regionalSeason.ts). A bare `catch {}` around
+    // one hides the resulting "Transaction function cannot return a
+    // promise" TypeError entirely; this one at least surfaces it via
+    // req.log.error below, but was still silently never deleting anything.
+    db.transaction((tx) => {
       // Step 1: poaching_offers — NOT NULL FK to career_saves, must go first
       req.log.info({ saveId: id }, "step 1: deleting poaching_offers");
-      await tx.delete(poachingOffersTable)
-        .where(eq(poachingOffersTable.careerSaveId, id));
+      tx.delete(poachingOffersTable)
+        .where(eq(poachingOffersTable.careerSaveId, id))
+        .run();
 
       // Step 2: career_history_entries — nullable FK to career_saves
       req.log.info({ saveId: id }, "step 2: deleting career_history_entries");
-      await tx.delete(careerHistoryEntriesTable)
-        .where(eq(careerHistoryEntriesTable.careerSaveId, id));
+      tx.delete(careerHistoryEntriesTable)
+        .where(eq(careerHistoryEntriesTable.careerSaveId, id))
+        .run();
 
       // Step 3: career_saves row itself
       // Teams, players, facilities, matches, finances, etc. are GLOBAL world data
       // and must not be touched. Only the career save row is deleted.
       req.log.info({ saveId: id }, "step 3: deleting career_saves row");
-      await tx.delete(careerSavesTable)
-        .where(eq(careerSavesTable.id, id));
+      tx.delete(careerSavesTable)
+        .where(eq(careerSavesTable.id, id))
+        .run();
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

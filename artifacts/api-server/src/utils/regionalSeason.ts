@@ -259,31 +259,41 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
   const ladder = computeRegionalLadder(fixtures, results, poolRankings);
 
   // ── 3. All writes in a single transaction ─────────────────────────────────
-  await db.transaction(async (tx) => {
+  // NOTE: better-sqlite3 transactions must be synchronous — its native
+  // .transaction() wrapper throws "Transaction function cannot return a
+  // promise" if the callback is `async`. Every statement below uses the
+  // driver's synchronous .run()/.all() accessors instead of await, and the
+  // callback itself is a plain (non-async) function. If you ever see that
+  // exact TypeError, this is why — and check whether the caller wraps this
+  // in a bare `catch {}`, which will hide it completely (writes still land,
+  // but non-atomically, as individually auto-committed statements outside
+  // any real transaction).
+  db.transaction((tx) => {
     // Insert World Tour qualification rows for top 3
     for (let i = 0; i < Math.min(3, ladder.length); i++) {
-      await tx.insert(worldTourQualificationsTable).values({
+      tx.insert(worldTourQualificationsTable).values({
         seasonYear:         season.seasonYear,
         continent:          season.continent,
         poolTeamId:         ladder[i]!.poolTeamId,
         qualifyingPosition: i + 1,
-      });
+      }).run();
     }
 
     // Relegate 6th-place team
     const sixthEntry = ladder[5];
     if (sixthEntry) {
-      const sixth = await getTeamTx(tx, sixthEntry.poolTeamId);
-      await tx
+      const sixth = getTeamTx(tx, sixthEntry.poolTeamId);
+      tx
         .update(continentalPoolTeamsTable)
         .set({ isActiveInLeague: false, relegationCount: sixth.relegationCount + 1 })
-        .where(eq(continentalPoolTeamsTable.id, sixthEntry.poolTeamId));
+        .where(eq(continentalPoolTeamsTable.id, sixthEntry.poolTeamId))
+        .run();
     }
 
     // Promote top bench team (lowest poolRanking among bench for this continent,
     // excluding the just-relegated team)
     const sixthId = ladder[5]?.poolTeamId ?? null;
-    const benchTeams = await tx
+    const benchTeams = tx
       .select()
       .from(continentalPoolTeamsTable)
       .where(
@@ -291,17 +301,19 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
           eq(continentalPoolTeamsTable.continent, season.continent),
           eq(continentalPoolTeamsTable.isActiveInLeague, false),
         ),
-      );
+      )
+      .all();
     const candidates = benchTeams
       .filter(t => t.id !== sixthId)
       .sort((a, b) => a.poolRanking - b.poolRanking);
 
     const promoted = candidates[0] ?? null;
     if (promoted) {
-      await tx
+      tx
         .update(continentalPoolTeamsTable)
         .set({ isActiveInLeague: true, promotionCount: promoted.promotionCount + 1 })
-        .where(eq(continentalPoolTeamsTable.id, promoted.id));
+        .where(eq(continentalPoolTeamsTable.id, promoted.id))
+        .run();
     }
 
     // Build next-season roster: replace relegated slot with promoted team
@@ -312,7 +324,7 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
     }
 
     // Create next-season record
-    const [nextSeason] = await tx
+    const [nextSeason] = tx
       .insert(regionalLeagueSeasonsTable)
       .values({
         seasonYear: season.seasonYear + 1,
@@ -320,11 +332,12 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
         teamIds:    nextTeamIds,
         status:     "active",
       })
-      .returning();
+      .returning()
+      .all();
 
     if (nextSeason) {
       const fixtureSlots = generateDoubleRoundRobin(nextTeamIds);
-      await tx.insert(regionalLeagueFixturesTable).values(
+      tx.insert(regionalLeagueFixturesTable).values(
         fixtureSlots.map(s => ({
           regionalLeagueSeasonId: nextSeason.id,
           round:          s.round,
@@ -332,14 +345,15 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
           awayPoolTeamId: s.away,
           status:         "scheduled" as const,
         })),
-      );
+      ).run();
     }
 
     // Mark current season completed
-    await tx
+    tx
       .update(regionalLeagueSeasonsTable)
       .set({ status: "completed" })
-      .where(eq(regionalLeagueSeasonsTable.id, seasonId));
+      .where(eq(regionalLeagueSeasonsTable.id, seasonId))
+      .run();
   });
 }
 
@@ -347,25 +361,26 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
 
 /**
  * Auto-simulate all regional fixtures for a given round number across every
- * active continental season in the specified year.
+ * active continental season.
  *
  * Called by the calendar advance endpoint when it reaches a regional slot (1–10).
  * Returns a summary of how many fixtures were simulated per continent.
+ *
+ * No year parameter: regional_league_seasons.seasonYear is an internal
+ * ordinal counter local to the regional league (resolveRegionalSeason sets
+ * it to `season.seasonYear + 1` on rollover), unrelated to the career's
+ * real calendar year (seasons.year, e.g. 2026). Matching on status="active"
+ * alone — the same pattern getActiveSeason() already uses — avoids the
+ * two ever being conflated again.
  */
 export async function simulateRegionalRound(
   roundNumber: number,
-  seasonYear: number,
 ): Promise<Array<{ continent: string; simulated: number }>> {
-  // Load all active seasons for this year
+  // Load all active seasons (one per continent, in lockstep)
   const activeSeasons = await db
     .select()
     .from(regionalLeagueSeasonsTable)
-    .where(
-      and(
-        eq(regionalLeagueSeasonsTable.seasonYear, seasonYear),
-        eq(regionalLeagueSeasonsTable.status, "active"),
-      ),
-    );
+    .where(eq(regionalLeagueSeasonsTable.status, "active"));
 
   if (activeSeasons.length === 0) return [];
 
@@ -396,7 +411,9 @@ export async function simulateRegionalRound(
   // Simulate each fixture and write results
   const summaryMap = new Map<string, number>();
 
-  await db.transaction(async (tx) => {
+  // Synchronous callback — see the note on the transaction in
+  // resolveRegionalSeason() above for why (better-sqlite3 requirement).
+  db.transaction((tx) => {
     for (const fixture of fixtures) {
       const homeRating = ratingByTeamId.get(fixture.homePoolTeamId) ?? 70;
       const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId) ?? 70;
@@ -405,19 +422,20 @@ export async function simulateRegionalRound(
       const winnerId =
         result.winnerId === "home" ? fixture.homePoolTeamId : fixture.awayPoolTeamId;
 
-      await tx.insert(regionalLeagueResultsTable).values({
+      tx.insert(regionalLeagueResultsTable).values({
         fixtureId:       fixture.id,
         winnerId,
         homeSets:        result.homeSets,
         awaySets:        result.awaySets,
         homeMatchPoints: result.homeMatchPoints,
         awayMatchPoints: result.awayMatchPoints,
-      });
+      }).run();
 
-      await tx
+      tx
         .update(regionalLeagueFixturesTable)
         .set({ status: "completed", homeScore: result.homeSets, awayScore: result.awaySets })
-        .where(eq(regionalLeagueFixturesTable.id, fixture.id));
+        .where(eq(regionalLeagueFixturesTable.id, fixture.id))
+        .run();
 
       // Track per-season continent for summary
       const season = activeSeasons.find(s => s.id === fixture.regionalLeagueSeasonId);
@@ -438,8 +456,8 @@ async function getTeam(id: number) {
 
 type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-async function getTeamTx(tx: DbTx, id: number) {
-  const [t] = await tx.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id));
+function getTeamTx(tx: DbTx, id: number) {
+  const [t] = tx.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id)).all();
   if (!t) throw new Error(`Pool team ${id} not found`);
   return t;
 }
