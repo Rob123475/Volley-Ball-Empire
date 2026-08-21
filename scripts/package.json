@@ -44,14 +44,17 @@
     "seed-regional-leagues": "tsx ./src/seed-regional-leagues.ts",
     "seed-continental-pool-extension": "tsx ./src/seed-continental-pool-extension.ts",
     "migrate-canonical-images": "tsx ./src/migrate-canonical-images.ts",
+    "make-starter-db": "tsx ./src/make-starter-db.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
     "@workspace/db": "workspace:*",
+    "better-sqlite3": "^11.3.0",
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
     "@types/node": "catalog:",
     "tsx": "catalog:"
   }

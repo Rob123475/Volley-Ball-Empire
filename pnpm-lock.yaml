@@ -704,10 +704,16 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../lib/db
+      better-sqlite3:
+        specifier: ^11.3.0
+        version: 11.10.0
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(@types/better-sqlite3@7.6.13)(better-sqlite3@11.10.0)
     devDependencies:
+      '@types/better-sqlite3':
+        specifier: ^7.6.11
+        version: 7.6.13
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.2
