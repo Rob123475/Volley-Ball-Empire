@@ -596,7 +596,7 @@ type FilterPillConfig = {
 };
 
 const FILTER_PILLS: FilterPillConfig[] = [
-  { id: "all",         label: "All Players",        icon: Users       as any, desc: "All 208 senior players in the game." },
+  { id: "all",         label: "All Players",        icon: Users       as any, desc: "All senior players in the game." },
   { id: "available",   label: "Available",           icon: UserPlus    as any, desc: "All unsigned players — free agents and player pool combined." },
   { id: "free_agents", label: "Free Agents",         icon: Users       as any, desc: "Unsigned players not in any pool. Sign on negotiated terms." },
   { id: "player_pool", label: "Player Pool",         icon: Package     as any, desc: "Unsigned players in the Player Pool. Sign on a 6-month development contract." },
@@ -762,7 +762,9 @@ export default function PlayerMarket() {
             Player Market
           </h2>
           <p className="text-muted-foreground mt-1">
-            {section === "senior" ? activeDesc : "Emerging talent aged 14–17 — sign on a regular contract."}
+            {section === "senior"
+              ? (filter === "all" ? `All ${counts.all} senior players in the game.` : activeDesc)
+              : "Emerging talent aged 14–17 — sign on a regular contract."}
           </p>
           {/* Live database summary */}
           {marketAll && (
