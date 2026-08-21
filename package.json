@@ -24,7 +24,7 @@
     "appId": "com.volleyballempire.desktop",
     "productName": "Volley-Ball-Empire",
     "directories": {
-      "output": "dist-electron"
+      "output": "C:\\build\\vbe"
     },
     "files": [
       "electron/**/*"
