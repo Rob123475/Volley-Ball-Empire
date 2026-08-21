@@ -41,10 +41,25 @@ let serverProcess = null;
 let mainWindow = null;
 
 // ── First-launch DB setup ────────────────────────────────────────────────────
+// Copies the -wal/-shm sidecars alongside the main file, if present, rather
+// than opening + checkpointing bundledDbPath first: bundledDbPath lives
+// under process.resourcesPath in a packaged build, which can be read-only
+// (e.g. an unelevated install under Program Files), so anything requiring
+// write access to the bundled copy would fail there. A bare copyFileSync of
+// only the main .sqlite file silently drops any writes still sitting in an
+// un-checkpointed WAL — SQLite auto-replays the copied WAL the first time
+// the destination is opened, so the result is correct either way, but only
+// this way works regardless of whether the source is writable.
 function ensureUserDb() {
   if (!fs.existsSync(userDbPath)) {
     fs.mkdirSync(path.dirname(userDbPath), { recursive: true });
     fs.copyFileSync(bundledDbPath, userDbPath);
+    for (const suffix of ["-wal", "-shm"]) {
+      const src = `${bundledDbPath}${suffix}`;
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, `${userDbPath}${suffix}`);
+      }
+    }
   }
 }
 

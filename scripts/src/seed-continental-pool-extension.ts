@@ -7,7 +7,7 @@
  * Idempotent: skips any stableId that already exists.
  */
 
-import { db } from "@workspace/db";
+import { db, sqlite } from "@workspace/db";
 import {
   continentalPoolTeamsTable,
   continentalPoolPlayersTable,
@@ -405,6 +405,10 @@ async function main() {
   for (const [continent, counts] of [...byContinent.entries()].sort()) {
     console.log(`  ${continent}: ${counts.total} total (${counts.active} active, ${counts.bench} bench)`);
   }
+
+  // Checkpoint so a raw file copy of the .sqlite (e.g. ensureUserDb, or
+  // packaging the starter DB) never has to depend on the -wal sidecar too.
+  sqlite.pragma("wal_checkpoint(TRUNCATE)");
 }
 
 main()
