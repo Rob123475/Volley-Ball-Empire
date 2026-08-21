@@ -1,14 +1,109 @@
-import { createRequire } from "node:module";
+import { createRequire, builtinModules } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, cp, mkdir, realpath, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+
+// A handful of the `external` packages below are externalized because they're
+// native addons or do dynamic/path-traversal loading esbuild can't bundle —
+// but electron-builder's extraResources only ships dist/, so anything actually
+// installed+imported among them needs its runtime files copied in by hand.
+// Most of the external list is speculative ("in case we add it later") with
+// nothing installed to vendor; only list packages here once you've confirmed
+// (e.g. `grep` the actual imports in src/) that they're really used.
+const EXTERNAL_DEPS_TO_VENDOR = ["better-sqlite3", "@google-cloud/storage"];
+
+// IMPORTANT (native ABI): better-sqlite3's compiled addon must be built for
+// Electron's Node ABI, not the system Node used to run this build script.
+// pnpm dedupes better-sqlite3 to one physical file in the pnpm store shared by
+// every consumer (api-server, lib/db, scripts) — `pnpm electron:build` rebuilds
+// that one file for Electron's ABI via @electron/rebuild, but a plain
+// `pnpm install` or any system-Node script touching better-sqlite3 rebuilds it
+// back to system-Node's ABI, silently breaking the packaged app. Always run
+// `pnpm electron:build` immediately before packaging (never `pnpm install`
+// afterward) and re-verify the shipped binary's ABI post-package.
+
+// Resolves a package's real root directory the same way Node would search
+// for it at runtime from `fromDir` (following pnpm's symlinked store layout
+// via realpath in the caller) — using require.resolve.paths() to get the
+// candidate node_modules directories and checking the filesystem directly,
+// rather than require.resolve() itself. Some packages (e.g.
+// @google-cloud/storage, xml-naming) have an "exports" map that blocks
+// resolving "./package.json" or even the bare specifier, but the package
+// still needs to be found and vendored wholesale.
+function resolvePackageRoot(name, req) {
+  const searchPaths = req.resolve.paths(name) ?? [];
+  for (const base of searchPaths) {
+    const candidate = path.join(base, name);
+    if (existsSync(path.join(candidate, "package.json"))) {
+      return candidate;
+    }
+  }
+  throw new Error(`Could not locate package.json for "${name}" (searched ${searchPaths.length} node_modules dirs)`);
+}
+
+// Non-runtime cruft to prune while vendoring: nested private dep trees (we
+// flatten dependencies ourselves, see below), test fixtures, native-addon
+// build intermediates (obj/) and debug symbols (.pdb/.iobj/.ipdb/.exp/.lib),
+// and source maps (never require()'d).
+const PRUNE_DIR_NAMES = new Set(["node_modules", "test", "tests", "__tests__", "obj"]);
+const PRUNE_EXTENSIONS = new Set([".pdb", ".iobj", ".ipdb", ".exp", ".lib", ".map"]);
+const BUILTINS = new Set(builtinModules);
+
+// Copies a package's real directory into dist/node_modules, then recurses
+// into its declared `dependencies` (resolved from *its own* directory, so the
+// chain follows pnpm's actual resolution path hop by hop) — flattening the
+// whole runtime dependency closure into one self-contained node_modules next
+// to index.mjs, since the packaged app has no pnpm store to resolve against.
+async function vendorPackageTree(name, fromDir, distDir, visited) {
+  if (visited.has(name)) return;
+  visited.add(name);
+
+  const req = createRequire(path.join(fromDir, "package.json"));
+  const realDir = await realpath(resolvePackageRoot(name, req));
+
+  const destDir = path.join(distDir, "node_modules", name);
+  await rm(destDir, { recursive: true, force: true });
+  await mkdir(destDir, { recursive: true });
+  await cp(realDir, destDir, {
+    recursive: true,
+    dereference: true,
+    filter: (src) => {
+      const rel = path.relative(realDir, src);
+      if (rel === "") return true;
+      const parts = rel.split(path.sep);
+      if (parts.some((p) => PRUNE_DIR_NAMES.has(p))) return false;
+      return !PRUNE_EXTENSIONS.has(path.extname(rel));
+    },
+  });
+
+  const pkgJson = JSON.parse(await readFile(path.join(realDir, "package.json"), "utf8"));
+  for (const dep of Object.keys(pkgJson.dependencies ?? {})) {
+    // Some packages list Node builtins (buffer, string_decoder, ...) as a
+    // dependency for browser-polyfill fallback; in real Node these resolve to
+    // the builtin regardless, and there's usually no npm package to vendor.
+    if (BUILTINS.has(dep)) continue;
+    try {
+      await vendorPackageTree(dep, realDir, distDir, visited);
+    } catch (err) {
+      console.warn(`[vendor] WARNING: couldn't vendor transitive dep "${dep}" of "${name}": ${err.message}`);
+    }
+  }
+}
+
+async function vendorExternalDeps(distDir) {
+  const visited = new Set();
+  for (const name of EXTERNAL_DEPS_TO_VENDOR) {
+    await vendorPackageTree(name, artifactDir, distDir, visited);
+  }
+}
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
@@ -118,6 +213,8 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+
+  await vendorExternalDeps(distDir);
 }
 
 buildAll().catch((err) => {
