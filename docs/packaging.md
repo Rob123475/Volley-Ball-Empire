@@ -44,14 +44,18 @@ Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist
 # 3. Strip that same folder again before packaging — see next section.
 Remove-Item -Recurse -Force artifacts/api-server/dist/public
 
-# 4. Package. See "NSIS vs --dir" below for why this uses --win dir.
-npx electron-builder --win dir
+# 4. Package. See "NSIS installer" below for the Bitdefender prerequisite.
+pnpm run electron:build
 
 # 5. If you need the standalone dev server again afterward, restore step 2's copy.
 Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist/public/
 ```
 
-Output lands in `C:\build\vbe\win-unpacked` (see
+`win-unpacked` (a runnable, unsigned build — good for quick local testing)
+lands in `C:\build\vbe\win-unpacked`; the NSIS installer lands next to it as
+`C:\build\vbe\Volley-Ball-Empire Setup <version>.exe` — 641 MB as of the
+2026-08-21 post-re-encode build, roughly in line with the 746 MB unpacked
+`resources/` it's compressing (see
 `build.directories.output` in `package.json` — deliberately outside
 `Documents`, see below).
 
@@ -103,30 +107,59 @@ changes that (the tool's own log suggests adding a `postinstall:
 electron-builder install-app-deps` script, which rebuilds in place), re-verify
 this before assuming dev mode still works untouched after packaging.
 
-### NSIS vs `--dir`
+### NSIS installer
 
-The NSIS installer step (`build.win.target: "nsis"` in `package.json`) is
-flaky on this dev machine — it intermittently fails signing/staging the
-uninstaller with `spawn UNKNOWN` while trying to shell out via Wine, most
-likely Bitdefender's on-access scanner locking a freshly-written staging file
-(see commit `0701b24`, which already moved the output dir outside `Documents`
-for a related lock issue). This is unresolved, not fixed.
+`build.win.target: "nsis"` in `package.json` builds a real installer
+(`Volley-Ball-Empire Setup <version>.exe`), not just `win-unpacked`. **This
+requires Bitdefender on-access-scan exclusions** for both:
 
-Until it's resolved, build `win-unpacked` only and skip the installer:
+- `C:\build\vbe` (the electron-builder output dir — `build.directories.output`
+  in `package.json`)
+- `C:\Users\<you>\AppData\Local\electron-builder\Cache\nsis` (the cached NSIS
+  toolchain electron-builder downloads and shells out to)
+
+covering both **Antivirus** and **Advanced Threat Defense** in Bitdefender.
+Without both exclusions in place, the NSIS step intermittently fails signing/
+staging the uninstaller with `spawn UNKNOWN` (via `execWine`, even on native
+Windows) — almost certainly Bitdefender locking a freshly-written staging
+file mid-write (see commit `0701b24`, which already moved the output dir
+outside `Documents` for a related lock issue). With the exclusions in place
+(added 2026-08-21), a full `pnpm run electron:build` completed cleanly and
+produced a working, installable `.exe` — see [Verifying a rebuilt
+package](#verifying-a-rebuilt-package) for the install+verify steps run
+against it.
+
+**If you hit `spawn UNKNOWN` again**, do not keep retrying — that's a sign
+the exclusions aren't actually in effect (wrong path, exclusion scope not
+covering both Bitdefender modules, or a Bitdefender update reset them).
+Confirm the exclusions before re-running, and fall back to an unpacked-only
+build in the meantime:
 
 ```powershell
 npx electron-builder --win dir
 ```
 
-`pnpm run electron:build -- --dir` does **not** reliably do this — the CLI's
-bare `--dir` shortcut only applies when no target is configured, and
+Note `pnpm run electron:build -- --dir` does **not** reliably do this — the
+CLI's bare `--dir` shortcut only applies when no target is configured, and
 `package.json` explicitly sets `win.target: "nsis"`, which wins. You must
-pass `--win dir` to override it. `win-unpacked/Volley-Ball-Empire.exe` is a
-fully functional build for local testing and doesn't need the installer.
+pass `--win dir` to override it. `win-unpacked/Volley-Ball-Empire.exe` runs
+fine standalone and doesn't need the installer for local testing.
 
 ## Verifying a rebuilt package
 
+For a quick check, launch `win-unpacked` directly. For a real end-to-end
+check of the installer itself, silent-install to a scratch directory first
+(don't install over a previous test — `userData`, i.e. save games/profiles,
+is keyed by `appId`/`productName` and is **shared** across every install and
+every `win-unpacked` run on the machine, regardless of install path):
+
 ```powershell
+# Installer path:
+Start-Process -FilePath "C:\build\vbe\Volley-Ball-Empire Setup <version>.exe" `
+  -ArgumentList "/S", "/D=C:\some-scratch-dir" -Wait
+Start-Process -FilePath "C:\some-scratch-dir\Volley-Ball-Empire.exe"
+
+# Or, for a quick unpacked-only check:
 Start-Process -FilePath "C:\build\vbe\win-unpacked\Volley-Ball-Empire.exe"
 ```
 
@@ -139,12 +172,19 @@ window creation, so give it a few seconds):
 - Staff portraits: enumerate `resources/public/images/staff/*/staff-*.webp`
   on disk and check each URL the same way — the `/api/staff/market` endpoint
   only returns *available* (unhired) staff, not the full roster of files.
-- Regional round resolution needs an authenticated session — the app uses
-  local profiles, not passwordless local auth:
+- Regional round resolution needs an authenticated session with an actual
+  team — the app uses local profiles, not passwordless local auth, and a
+  fresh profile has no team until one is created:
   ```powershell
-  curl -c cookies.txt http://localhost:4173/api/profiles          # list profiles, grab an id
+  curl -c cookies.txt http://localhost:4173/api/profiles          # existing profiles, if any
+  curl -c cookies.txt -X POST http://localhost:4173/api/profiles `
+    -H "Content-Type: application/json" -d '{"name":"Verify"}'    # or create a new one
   curl -c cookies.txt -b cookies.txt -X POST `
     http://localhost:4173/api/profiles/<id>/select
+  curl -b cookies.txt "http://localhost:4173/api/locations"       # grab a locationId
+  curl -b cookies.txt -X POST http://localhost:4173/api/team `
+    -H "Content-Type: application/json" `
+    -d '{"name":"Verify FC","locationId":1,"logoColor":"#1e3a8a"}'
   curl -b cookies.txt -X POST http://localhost:4173/api/calendar/advance
   ```
   Repeat `calendar/advance` until the response's `events` includes a
