@@ -75,7 +75,7 @@ interface StaffDef {
   age: number;
   role: string;
   specialty: string;
-  salary: number;ssss
+  salary: number;
   skillLevel: number;
   overallRating: number;
   coachSpeciality: string;
