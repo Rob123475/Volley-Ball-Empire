@@ -57,14 +57,13 @@ Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist
 # 3. Strip that same folder again before packaging — see next section.
 Remove-Item -Recurse -Force artifacts/api-server/dist/public
 
-# 3b. Strip the raw Unity .data/.wasm from the frontend's own dist/public —
-#     extraResources ships this folder directly, and the middleware doesn't
-#     need the raw originals on disk (it reads the .br sibling regardless).
-#     See "The Unity double-ship trap" below.
-Remove-Item artifacts/beach-volleyball/dist/public/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data,
-            artifacts/beach-volleyball/dist/public/unity-build/Build/Volleyball_WebGL_Uncompressed_2.wasm
-
 # 4. Package. See "NSIS installer" below for the Bitdefender prerequisite.
+#    electron-builder's beforePack hook (scripts/verify-unity-brotli.cjs)
+#    runs automatically here: it aborts loudly if the .br files are missing
+#    or stale, and strips the raw Unity .data/.wasm from
+#    beach-volleyball/dist/public for you if step 1 put them back — see
+#    "The Unity double-ship trap" below. There is no longer a manual
+#    "strip before you package" step to forget.
 pnpm run electron:build
 
 # 5. If you need the standalone dev server again afterward, restore step 2's copy.
@@ -133,7 +132,7 @@ and barely compresses further under LZMA. If the goal is a smaller
 compression settings, audio import quality) — see the `data.unity3d`
 breakdown below.
 
-### The Unity double-ship trap — don't skip this either
+### The Unity double-ship trap — enforced automatically, not just documented
 
 Vite copies `beach-volleyball/public/` (originals **and** `.br` siblings)
 into `beach-volleyball/dist/public/` on every build, and
@@ -142,12 +141,29 @@ as-is. `precompressedUnityAssets.ts` never needs the raw `.data`/`.wasm` on
 disk — it reads the `.br` sibling directly off the request path regardless
 of whether the original exists — so leaving both in `resources/public/`
 means shipping the same asset twice: the original **and** a same-sized-ish
-Brotli copy, growing the package by ~534 MB instead of shrinking it. Always
-delete the raw `.data`/`.wasm` from `beach-volleyball/dist/public/.../Build/`
-after the frontend build and before `electron-builder` runs (step 3b above).
-Verify by listing `resources/public/unity-build/Build/` post-package — it
-should contain only `.br` files (plus the small `.framework.js`/`.loader.js`)
-and nothing named exactly `Volleyball_WebGL_Uncompressed_2.data` or `.wasm`.
+Brotli copy, growing the package by ~534 MB instead of shrinking it.
+
+This used to be a manual "remember to delete the raw files before you
+package" step. It isn't anymore: `package.json`'s `build.beforePack` points
+at `scripts/verify-unity-brotli.cjs`, which electron-builder runs
+automatically before every pack — for both `pnpm run electron:build` and the
+`npx electron-builder --win dir` fallback, since both go through
+electron-builder's own hook lifecycle rather than an npm script. It:
+
+1. **Fails the build loudly** (throws, aborting packaging before anything is
+   copied) if the source `.br` files in
+   `beach-volleyball/public/unity-build/Build/` are missing, or older than
+   the `.data`/`.wasm` they're derived from — i.e. `compress-unity-data.cjs`
+   was never run, or wasn't re-run after the Unity build changed. There is
+   no silent fallback to shipping the raw originals.
+2. **Deletes the raw `.data`/`.wasm`** from
+   `beach-volleyball/dist/public/unity-build/Build/` if present, since that
+   part is safe to automate deterministically.
+
+`resources/public/unity-build/Build/` after packaging should contain only
+`.br` files (plus the small `.framework.js`/`.loader.js`) — this is now
+guaranteed rather than merely expected, but it's still worth spot-checking
+after a packaging change.
 
 ### Electron-ABI native rebuild
 
