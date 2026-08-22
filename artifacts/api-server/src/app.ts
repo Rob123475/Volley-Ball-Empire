@@ -5,6 +5,7 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { authMiddleware } from "./middlewares/authMiddleware";
+import { precompressedUnityAssets } from "./middlewares/precompressedUnityAssets";
 import path from "path";
 import fs from "fs";
 
@@ -47,6 +48,7 @@ if (process.env.NODE_ENV === "production") {
   console.log(`[static-debug] PUBLIC_DIR=${process.env.PUBLIC_DIR} staticDir=${staticDir} exists=${fs.existsSync(staticDir)}`);
 
   if (fs.existsSync(staticDir)) {
+    app.use(precompressedUnityAssets(staticDir));
     app.use(express.static(staticDir));
 
     app.get(/^(?!\/api).*/, (_req, res) => {

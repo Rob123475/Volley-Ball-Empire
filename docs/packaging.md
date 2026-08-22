@@ -27,11 +27,24 @@ controls what electron-builder copies into `resources/`:
 
 That second row is the trap — see [The dist/public trap](#the-distpublic-trap-dont-skip-this).
 
+The Unity WebGL `.data`/`.wasm` under `unity-build/Build/` are served
+Brotli-precompressed rather than raw — see [Brotli-precompressed Unity
+assets](#brotli-precompressed-unity-assets) — which adds its own
+double-shipping trap, [The Unity double-ship
+trap](#the-unity-double-ship-trap-dont-skip-this-either).
+
 ## Full rebuild + repackage, in order
 
 ```powershell
+# 0. Regenerate the .br siblings for the Unity build if the build changed
+#    (skips work if they're already up to date - safe to always run).
+#    See "Brotli-precompressed Unity assets" below.
+node scripts/compress-unity-data.cjs
+
 # 1. Typecheck + build every workspace (frontend, api-server, scripts, etc.)
 #    vite needs these two env vars even for a one-shot build, not just dev.
+#    This copies public/ (including the .br files from step 0) into
+#    artifacts/beach-volleyball/dist/public.
 $env:PORT = "5173"; $env:BASE_PATH = "/"
 pnpm run build
 
@@ -44,6 +57,13 @@ Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist
 # 3. Strip that same folder again before packaging — see next section.
 Remove-Item -Recurse -Force artifacts/api-server/dist/public
 
+# 3b. Strip the raw Unity .data/.wasm from the frontend's own dist/public —
+#     extraResources ships this folder directly, and the middleware doesn't
+#     need the raw originals on disk (it reads the .br sibling regardless).
+#     See "The Unity double-ship trap" below.
+Remove-Item artifacts/beach-volleyball/dist/public/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data,
+            artifacts/beach-volleyball/dist/public/unity-build/Build/Volleyball_WebGL_Uncompressed_2.wasm
+
 # 4. Package. See "NSIS installer" below for the Bitdefender prerequisite.
 pnpm run electron:build
 
@@ -53,9 +73,12 @@ Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist
 
 `win-unpacked` (a runnable, unsigned build — good for quick local testing)
 lands in `C:\build\vbe\win-unpacked`; the NSIS installer lands next to it as
-`C:\build\vbe\Volley-Ball-Empire Setup <version>.exe` — 641 MB as of the
-2026-08-21 post-re-encode build, roughly in line with the 746 MB unpacked
-`resources/` it's compressing (see
+`C:\build\vbe\Volley-Ball-Empire Setup <version>.exe` — 641.5 MB as of the
+2026-08-22 Brotli-precompression build, essentially unchanged from the
+pre-Brotli 641 MB baseline despite `resources/` dropping from 746 MB to
+592 MB — see [Brotli-precompressed Unity
+assets](#brotli-precompressed-unity-assets) for why the installer didn't
+shrink even though the unpacked footprint did (see
 `build.directories.output` in `package.json` — deliberately outside
 `Documents`, see below).
 
@@ -76,6 +99,55 @@ dev-mode copy was still in place when packaging ran. Always strip
 `artifacts/api-server/dist/public` immediately before running
 `electron-builder`, and only restore it afterward if you need the standalone
 server for local testing.
+
+### Brotli-precompressed Unity assets
+
+`unity-build/Build/Volleyball_WebGL_Uncompressed_2.data` (636 MB) and its
+`.wasm` (47 MB) are Unity's own uncompressed WebGL output — Unity's
+"Compression Format: Disabled" publishing setting, not this repo's doing.
+`scripts/compress-unity-data.cjs` Brotli-compresses both (quality 11) into
+`.data.br` / `.wasm.br` siblings next to the originals in
+`artifacts/beach-volleyball/public/unity-build/Build/`.
+`artifacts/api-server/src/middlewares/precompressedUnityAssets.ts` serves
+those `.br` files with `Content-Encoding: br` whenever a request for the
+plain `.data`/`.wasm` path arrives with `Accept-Encoding: br` — Chromium
+(all Electron windows, and any Chromium browser hitting `localhost` even
+over plain HTTP, since `localhost` is treated as a secure context) decodes
+it transparently before handing the bytes to Unity's loader.
+
+**The `.br` files are not committed to git** (they're gitignored — 560 MB
+combined is too much to put in history for build output). Run
+`node scripts/compress-unity-data.cjs` after checkout or whenever the Unity
+build changes; it skips work if the `.br` is already newer than its source.
+
+**This did not shrink the installer.** `resources/` and the unpacked build
+dropped by ~154 MB (746→592 MB, 1011→857 MB) because the Brotli-compressed
+`.data.br`/`.wasm.br` are smaller on disk than the raw originals they
+replace. But the NSIS installer itself stayed flat (641→641.5 MB): NSIS
+compresses everything it packs with LZMA, and it was *already* squeezing the
+raw, "uncompressed" `.data`/`.wasm` down to roughly the same size Brotli
+achieves — pre-compressing with Brotli just moved where that compression
+happens, it didn't add new savings, because Brotli output is high-entropy
+and barely compresses further under LZMA. If the goal is a smaller
+*download*, the real lever is the source Unity assets themselves (texture
+compression settings, audio import quality) — see the `data.unity3d`
+breakdown below.
+
+### The Unity double-ship trap — don't skip this either
+
+Vite copies `beach-volleyball/public/` (originals **and** `.br` siblings)
+into `beach-volleyball/dist/public/` on every build, and
+`build.extraResources` ships that whole folder into `resources/public/`
+as-is. `precompressedUnityAssets.ts` never needs the raw `.data`/`.wasm` on
+disk — it reads the `.br` sibling directly off the request path regardless
+of whether the original exists — so leaving both in `resources/public/`
+means shipping the same asset twice: the original **and** a same-sized-ish
+Brotli copy, growing the package by ~534 MB instead of shrinking it. Always
+delete the raw `.data`/`.wasm` from `beach-volleyball/dist/public/.../Build/`
+after the frontend build and before `electron-builder` runs (step 3b above).
+Verify by listing `resources/public/unity-build/Build/` post-package — it
+should contain only `.br` files (plus the small `.framework.js`/`.loader.js`)
+and nothing named exactly `Volleyball_WebGL_Uncompressed_2.data` or `.wasm`.
 
 ### Electron-ABI native rebuild
 
@@ -228,15 +300,60 @@ full-resolution original is recoverable elsewhere (e.g. `attached_assets/`)
 by content hash, not filename — regenerated uploads frequently land under a
 different name than the canonical file they replace.
 
-## Known remaining bulk (not addressed by this pipeline)
+## What's actually inside the 636 MB .data (as of 2026-08-22)
 
-As of the 2026-08-21 portrait re-encode, `resources/` is 746 MB and the
-total unpacked build is 1011 MB. Player and staff portraits are now a small
-fraction of that (22 MB). The dominant cost is
-`resources/public/unity-build/Build/Volleyball_WebGL_Uncompressed_2.data`
-at 636 MB (91% of `resources/`, 63% of the whole package) — a Unity WebGL
-build whose own filename says it's uncompressed. Unity WebGL builds normally
-ship Brotli- or Gzip-compressed `.data`/`.wasm` files, typically 3-4x
-smaller; re-exporting that build with compression enabled is a separate
-project from the image pipeline this doc describes, but it's the next real
-lever if the package size needs to come down further.
+The `.data` file is Unity's `UnityWebData1.0` container format — a flat
+archive with a tiny header (offset/size/name per entry) followed by
+concatenated file contents. Parsing that header (see
+`scripts/inspect-unity-data.cjs`, a one-off diagnostic, not part of the
+build) shows it holds almost nothing but a single embedded Unity
+`AssetBundle`:
+
+| Entry | Size | % |
+|---|---|---|
+| `data.unity3d` (a `UnityFS` AssetBundle) | 627.0 MB | 98.5% |
+| `Il2CppData/Metadata/global-metadata.dat` | 7.8 MB | 1.2% |
+| `Resources/unity default resources` | 1.6 MB | 0.2% |
+| everything else (`boot.config`, JSON manifests) | <0.1 MB | ~0% |
+
+One level deeper, that `UnityFS` bundle (built with Unity `6000.3.16f1`,
+internally LZ4HC-block-compressed) has its own directory of packed files
+(see `scripts/inspect-unity-bundle.cjs`, same caveat — parses the bundle's
+LZ4HC-compressed block directory by hand, no Unity tooling involved):
+
+| Entry | Uncompressed size | % |
+|---|---|---|
+| `sharedassets0.assets` | 1263.9 MB | 97.9% |
+| `resources.assets` | 13.0 MB | 1.0% |
+| `globalgamemanagers.assets` | 7.1 MB | 0.5% |
+| `level0` (scene) | 6.0 MB | 0.5% |
+| `Resources/unity_builtin_extra` | 0.4 MB | ~0% |
+| `globalgamemanagers` | 0.3 MB | ~0% |
+
+(These are *logical/uncompressed* sizes reported by the bundle's own
+directory, which is why they sum to more than the 627 MB compressed
+`data.unity3d` — they don't map 1:1 onto compressed on-disk bytes, but the
+proportions are a reliable guide.)
+
+**Conclusion: virtually the entire budget (98%) lives in one file,
+`sharedassets0.assets`** — Unity's bucket for assets referenced across more
+than one scene (textures, materials, audio clips, meshes), as opposed to
+scene-specific data (`level0`, 6 MB) or engine internals
+(`globalgamemanagers*`, IL2CPP metadata). It isn't fragmented across many
+small unused assets; it's concentrated in the shared asset pool. Going
+further — an exact textures-vs-audio-vs-meshes split — means parsing
+`sharedassets0.assets` as a Unity `SerializedFile` object table (class IDs
+and per-object byte sizes), which needs either real Unity tooling (Editor's
+Build Report / Memory Profiler, or a proper asset-inspection tool like
+AssetStudio) or a much more involved hand-rolled parser than the two
+scripts above — not attempted here.
+
+This does line up with the 18%-Brotli-ratio observation that prompted the
+investigation: if `sharedassets0.assets` is dominated by already-compressed
+texture formats (crunched/ASTC) or compressed audio (ogg/mp3) rather than
+raw bitmap/PCM data, Brotli would struggle to compress it further — which
+is exactly what was measured (`.data` compressed to 82% of original size,
+vs. `.wasm`, which is compiled code with much more redundancy, compressing
+to 17.5%). That supports checking the *source* texture/audio import
+settings in the Unity project (compression format, quality/bitrate) as the
+next lever, rather than anything on the build/export side.
