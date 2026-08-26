@@ -18,6 +18,12 @@ const locations = [
   { name: "Waikiki Sands",     country: "USA",          city: "Honolulu",      courtType: "sand", description: "Volcanic-sand courts under Diamond Head." },
   { name: "Phuket Cove",       country: "Thailand",     city: "Phuket",        courtType: "sand", description: "Tropical island courts with warm, humid conditions." },
   { name: "Gold Coast Strand", country: "Australia",    city: "Gold Coast",    courtType: "sand", description: "Wide, wind-swept beaches favored by power servers." },
+  // World Tour venues referenced by locId 9/10/11 in worldTour.ts (Asia, Europe,
+  // and Africa & Middle East legs) — ids must stay 9/10/11, so keep this
+  // block last and never reorder the array above it.
+  { name: "Kuta Beach",           country: "Indonesia", city: "Bali",     courtType: "sand", description: "Tropical Balinese sand courts with warm afternoon squalls." },
+  { name: "Côte d'Azur Beach",    country: "France",    city: "Nice",     courtType: "sand", description: "Mediterranean courts along the French Riviera, variable winds." },
+  { name: "Red Sea Beach",        country: "Egypt",     city: "Hurghada", courtType: "sand", description: "Desert heat meets Red Sea coral reefs." },
 ];
 
 // ── Club templates ──────────────────────────────────────────────────────────

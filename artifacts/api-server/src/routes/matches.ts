@@ -472,40 +472,28 @@ router.get("/matches/fixture", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
+  const [activeSeason] = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
+  if (!activeSeason) { res.status(400).json({ error: "No active season" }); return; }
+  const seasonYear = activeSeason.year;
+
   let existing = await db.select().from(matchesTable)
-    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
+    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
     .orderBy(matchesTable.round);
 
-  // Migration 1: old structure without Continental Finals — full regenerate.
-  const hasContFinals = existing.some(m => m.tier === "Continental Final");
-  if (existing.length > 0 && !hasContFinals) {
-    await db.delete(matchesTable)
-      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)));
-    existing = [];
-  }
-
-  // Migration 2: has Continental Finals but uses old single Grand Final — remove it and
-  // re-add as the 4-match World Finals (rounds 73–76).
+  // Migration: has old fixtures but is missing the World Finals events (e.g. saves
+  // created before Finals matches existed) — remove any stale rounds >= 67 and
+  // re-add the current World Finals events (see the `else if (!hasWorldFinals)`
+  // branch below).
   const hasWorldFinals = existing.some(m => FINALS_TIERS.has(m.tier ?? ""));
   if (existing.length > 0 && !hasWorldFinals) {
     await db.delete(matchesTable).where(
       and(
         eq(matchesTable.homeTeamId, team.id),
-        eq(matchesTable.season, 1),
+        eq(matchesTable.season, seasonYear),
         gte(matchesTable.round, 67),
       )
     );
     existing = existing.filter(m => (m.round ?? 0) < 67);
-  }
-
-  // Migration 3: old 70-round structure (World Finals at rounds 67–70) — full regenerate
-  // to upgrade to the new 76-round structure (6 teams per competition, World Finals at 73–76).
-  const hasNewStructure = existing.some(m => FINALS_TIERS.has(m.tier ?? "") && (m.round ?? 0) >= 73);
-  const hasOldWorldFinals = existing.some(m => FINALS_TIERS.has(m.tier ?? "") && (m.round ?? 0) < 73);
-  if (existing.length > 0 && (hasOldWorldFinals || (!hasNewStructure && existing.length < 76))) {
-    await db.delete(matchesTable)
-      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)));
-    existing = [];
   }
 
   if (existing.length === 0) {
@@ -529,7 +517,7 @@ router.get("/matches/fixture", async (req, res) => {
         weather,
         windSpeed,
         temperature,
-        season:      1,
+        season:      seasonYear,
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
@@ -553,7 +541,7 @@ router.get("/matches/fixture", async (req, res) => {
         weather,
         windSpeed,
         temperature,
-        season:      1,
+        season:      seasonYear,
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
@@ -565,7 +553,7 @@ router.get("/matches/fixture", async (req, res) => {
     }
 
     existing = await db.select().from(matchesTable)
-      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
+      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
       .orderBy(matchesTable.round);
   } else if (!hasWorldFinals) {
     // Only add the 4 World Finals matches (migration 2 path)
@@ -588,7 +576,7 @@ router.get("/matches/fixture", async (req, res) => {
         weather,
         windSpeed,
         temperature,
-        season:      1,
+        season:      seasonYear,
         round:       f.round,
         teamSize:    2,
         scheduledAt: `${f.date}T14:00:00.000Z`,
@@ -600,7 +588,7 @@ router.get("/matches/fixture", async (req, res) => {
     }
 
     existing = await db.select().from(matchesTable)
-      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, 1)))
+      .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
       .orderBy(matchesTable.round);
   }
 
