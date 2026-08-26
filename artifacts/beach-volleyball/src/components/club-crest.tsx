@@ -16,7 +16,7 @@ type ClubCrestProps = {
 function nameHash(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h % 5;
+  return h % CREST_SHAPE_COUNT;
 }
 
 function getInitials(name: string): string {
@@ -65,6 +65,8 @@ const VARIANTS: Array<{ outer: string; inner: string; cy: number }> = [
     cy: 54,
   },
 ];
+
+export const CREST_SHAPE_COUNT = VARIANTS.length;
 
 function darkenHex(hex: string, amount = 0.35): string {
   const h = hex.replace("#", "");

@@ -11,6 +11,7 @@ export interface TeamUpdate {
   name?: string;
   locationId?: number;
   logoColor?: string;
+  crestShapeIndex?: number | null;
   /** @nullable */
   trainingPhilosophy?: TeamUpdateTrainingPhilosophy;
 }

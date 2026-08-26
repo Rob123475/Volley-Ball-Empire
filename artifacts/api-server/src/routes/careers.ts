@@ -69,6 +69,7 @@ router.get("/careers", async (req, res) => {
       createdAt:         careerSavesTable.createdAt,
       primaryColor:      teamsTable.logoColor,
       secondaryColor:    teamsTable.secondaryLogoColor,
+      crestShapeIndex:   teamsTable.crestShapeIndex,
     })
     .from(careerSavesTable)
     .leftJoin(teamsTable, eq(teamsTable.id, careerSavesTable.teamId))
@@ -96,6 +97,7 @@ router.get("/careers", async (req, res) => {
       managerReputation: s.managerReputation ?? 50,
       primaryColor:      s.primaryColor ?? null,
       secondaryColor:    s.secondaryColor ?? null,
+      crestShapeIndex:   s.crestShapeIndex ?? null,
       retiredAt:         s.retiredAt ? s.retiredAt.toISOString() : null,
       lastPlayedAt:      s.lastPlayedAt.toISOString(),
       createdAt:         s.createdAt.toISOString(),
@@ -118,7 +120,7 @@ router.get("/careers/summary", async (req, res) => {
 router.post("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { slotNumber, managerName, managerNationality, clubName, originalClubName, season, worldRanking, budget, locationId, primaryColor, secondaryColor } = req.body as {
+  const { slotNumber, managerName, managerNationality, clubName, originalClubName, season, worldRanking, budget, locationId, primaryColor, secondaryColor, crestShapeIndex } = req.body as {
     slotNumber:           number;
     managerName:          string;
     managerNationality?:  string | null;
@@ -130,6 +132,7 @@ router.post("/careers", async (req, res) => {
     locationId?:          number | null;
     primaryColor?:        string | null;
     secondaryColor?:      string | null;
+    crestShapeIndex?:     number | null;
   };
 
   if (
@@ -192,6 +195,7 @@ router.post("/careers", async (req, res) => {
       ...(locationId   ? { locationId }                   : {}),
       ...(primaryColor ? { logoColor: primaryColor }      : {}),
       ...(secondaryColor ? { secondaryLogoColor: secondaryColor } : {}),
+      ...(crestShapeIndex != null ? { crestShapeIndex } : {}),
     })
     .returning();
 

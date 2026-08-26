@@ -18,4 +18,5 @@ export interface UpsertCareerSaveBody {
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;
+  crestShapeIndex?: number | null;
 }

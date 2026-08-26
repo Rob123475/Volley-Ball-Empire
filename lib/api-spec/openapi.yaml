@@ -2677,6 +2677,9 @@ components:
           type: ["integer", "null"]
         logoColor:
           type: ["string", "null"]
+        crestShapeIndex:
+          type: ["integer", "null"]
+          description: "Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape."
         trainingPhilosophy:
           type: ["string", "null"]
           enum: ["Power Volleyball", "Fast Volleyball", "Defensive Volleyball", null]
@@ -2700,6 +2703,9 @@ components:
           type: integer
         logoColor:
           type: string
+        crestShapeIndex:
+          type: integer
+          nullable: true
 
     TeamUpdate:
       type: object
@@ -2710,6 +2716,9 @@ components:
           type: integer
         logoColor:
           type: string
+        crestShapeIndex:
+          type: integer
+          nullable: true
         trainingPhilosophy:
           type: ["string", "null"]
           enum: ["Power Volleyball", "Fast Volleyball", "Defensive Volleyball", null]
@@ -3816,6 +3825,10 @@ components:
           type: string
           nullable: true
           description: "Club secondary colour (from team secondary logo colour)"
+        crestShapeIndex:
+          type: integer
+          nullable: true
+          description: "Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape."
         retiredAt:
           type: string
           nullable: true
@@ -3897,6 +3910,9 @@ components:
           nullable: true
         secondaryColor:
           type: string
+          nullable: true
+        crestShapeIndex:
+          type: integer
           nullable: true
 
     UpcomingEventsFeed:

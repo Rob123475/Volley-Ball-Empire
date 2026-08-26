@@ -2847,6 +2847,7 @@ export const GetMyTeamResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
   "winStreak": zod.number().describe('Current consecutive-win streak'),
@@ -2860,7 +2861,8 @@ export const GetMyTeamResponse = zod.object({
 export const CreateTeamBody = zod.object({
   "name": zod.string(),
   "locationId": zod.number(),
-  "logoColor": zod.string().optional()
+  "logoColor": zod.string().optional(),
+  "crestShapeIndex": zod.number().nullish()
 })
 
 
@@ -2871,6 +2873,7 @@ export const UpdateTeamBody = zod.object({
   "name": zod.string().optional(),
   "locationId": zod.number().optional(),
   "logoColor": zod.string().optional(),
+  "crestShapeIndex": zod.number().nullish(),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish()
 })
 
@@ -2885,6 +2888,7 @@ export const UpdateTeamResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
   "winStreak": zod.number().describe('Current consecutive-win streak'),
@@ -2919,6 +2923,7 @@ export const GetTeamRosterResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
   "winStreak": zod.number().describe('Current consecutive-win streak'),
@@ -4250,6 +4255,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
   "winStreak": zod.number().describe('Current consecutive-win streak'),
@@ -5584,6 +5590,7 @@ export const SetPlayerRoleResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
   "winStreak": zod.number().describe('Current consecutive-win streak'),
@@ -10492,6 +10499,7 @@ export const ListCareerSavesResponse = zod.object({
   "managerReputation": zod.number(),
   "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
   "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "retiredAt": zod.string().nullish().describe('ISO timestamp of when this career was retired. Null if still active.'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
@@ -10514,7 +10522,8 @@ export const UpsertCareerSaveBody = zod.object({
   "budget": zod.string().nullish(),
   "locationId": zod.number().nullish(),
   "primaryColor": zod.string().nullish(),
-  "secondaryColor": zod.string().nullish()
+  "secondaryColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish()
 })
 
 export const UpsertCareerSaveResponse = zod.object({
@@ -10531,6 +10540,7 @@ export const UpsertCareerSaveResponse = zod.object({
   "managerReputation": zod.number(),
   "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
   "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "retiredAt": zod.string().nullish().describe('ISO timestamp of when this career was retired. Null if still active.'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
@@ -10784,6 +10794,7 @@ export const GetDashboardResponse = zod.object({
   "titlesWon": zod.number(),
   "locationId": zod.number().nullable(),
   "logoColor": zod.string().nullish(),
+  "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
   "trainingPhilosophy": zod.union([zod.literal('Power Volleyball'),zod.literal('Fast Volleyball'),zod.literal('Defensive Volleyball'),zod.literal(null)]).nullish().describe('Team-wide training philosophy; provides small XP bonuses to related programs.'),
   "managerRepPoints": zod.number().describe('Manager reputation XP — used to derive level (1–5) and progress to next level'),
   "winStreak": zod.number().describe('Current consecutive-win streak'),

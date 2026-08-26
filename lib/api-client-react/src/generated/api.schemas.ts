@@ -634,6 +634,11 @@ export interface Team {
   /** @nullable */
   logoColor?: string | null;
   /**
+     * Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape.
+     * @nullable
+     */
+  crestShapeIndex?: number | null;
+  /**
      * Team-wide training philosophy; provides small XP bonuses to related programs.
      * @nullable
      */
@@ -649,6 +654,7 @@ export interface TeamInput {
   name: string;
   locationId: number;
   logoColor?: string;
+  crestShapeIndex?: number | null;
 }
 
 /**
@@ -667,6 +673,7 @@ export interface TeamUpdate {
   name?: string;
   locationId?: number;
   logoColor?: string;
+  crestShapeIndex?: number | null;
   /** @nullable */
   trainingPhilosophy?: TeamUpdateTrainingPhilosophy;
 }
@@ -1517,6 +1524,8 @@ export interface CareerSaveSlot {
   primaryColor?: string | null;
   /** Club secondary colour (from team secondary logo colour) */
   secondaryColor?: string | null;
+  /** Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape. */
+  crestShapeIndex?: number | null;
   /** ISO timestamp of when this career was retired. Null if still active. */
   retiredAt?: string | null;
   lastPlayedAt: string;
@@ -1554,6 +1563,7 @@ export interface UpsertCareerSaveBody {
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;
+  crestShapeIndex?: number | null;
 }
 
 export interface UpcomingEventsFeed {

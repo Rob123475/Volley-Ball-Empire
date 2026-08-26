@@ -8,7 +8,7 @@ import {
   useListClubTemplates,
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
-import { ClubCrest } from "@/components/club-crest";
+import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
 import { cn } from "@/lib/utils";
 import {
   Loader2,
@@ -170,6 +170,63 @@ function ColorPicker({
   );
 }
 
+function ShapeSwatch({
+  index,
+  primaryColor,
+  secondaryColor,
+  selected,
+  onSelect,
+}: {
+  index: number;
+  primaryColor: string;
+  secondaryColor: string;
+  selected: boolean;
+  onSelect: (i: number) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(index)}
+      className={cn(
+        "h-11 w-11 rounded-lg border-2 transition-all flex items-center justify-center bg-white/5",
+        selected ? "border-white scale-110 shadow-lg" : "border-white/20 hover:border-white/50",
+      )}
+    >
+      <ClubCrest name="" primaryColor={primaryColor} secondaryColor={secondaryColor} shapeIndex={index} size={28} />
+    </button>
+  );
+}
+
+function ShapePicker({
+  primaryColor,
+  secondaryColor,
+  value,
+  onChange,
+}: {
+  primaryColor: string;
+  secondaryColor: string;
+  value: number;
+  onChange: (i: number) => void;
+}) {
+  return (
+    <div className="space-y-2.5">
+      <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Crest Shape</label>
+      <div className="flex gap-2">
+        {Array.from({ length: CREST_SHAPE_COUNT }, (_, i) => (
+          <ShapeSwatch
+            key={i}
+            index={i}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            selected={value === i}
+            onSelect={onChange}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ContinentGroup({
   continent,
   clubs,
@@ -280,6 +337,7 @@ export default function NewCareer() {
   const [customClubName, setCustomClubName] = useState("");
   const [primaryColor, setPrimaryColor]     = useState("#E05A00");
   const [secondaryColor, setSecondaryColor] = useState("#FFFFFF");
+  const [shapeIndex, setShapeIndex]         = useState(0);
 
   const upsertMutation = useUpsertCareerSave();
 
@@ -328,6 +386,7 @@ export default function NewCareer() {
           budget:              selectedClub.startingBudget,
           primaryColor,
           secondaryColor,
+          crestShapeIndex:     shapeIndex,
         },
       },
       {
@@ -614,6 +673,12 @@ export default function NewCareer() {
 
                   <ColorPicker label="Primary Colour" value={primaryColor} onChange={setPrimaryColor} />
                   <ColorPicker label="Secondary Colour" value={secondaryColor} onChange={setSecondaryColor} />
+                  <ShapePicker
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                    value={shapeIndex}
+                    onChange={setShapeIndex}
+                  />
                 </div>
 
                 {/* Right: preview */}
@@ -622,6 +687,7 @@ export default function NewCareer() {
                     name={customClubName.trim() || selectedClub.name}
                     primaryColor={primaryColor}
                     secondaryColor={secondaryColor}
+                    shapeIndex={shapeIndex}
                     size={80}
                   />
                   <div className="text-center">

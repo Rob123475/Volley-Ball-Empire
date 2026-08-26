@@ -21,6 +21,11 @@ export interface Team {
   /** @nullable */
   logoColor?: string | null;
   /**
+     * Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape.
+     * @nullable
+     */
+  crestShapeIndex?: number | null;
+  /**
      * Team-wide training philosophy; provides small XP bonuses to related programs.
      * @nullable
      */

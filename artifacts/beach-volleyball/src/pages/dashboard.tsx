@@ -498,6 +498,7 @@ export default function Dashboard() {
                 <ClubCrest
                   name={clubDisplayName}
                   primaryColor={team?.logoColor}
+                  shapeIndex={team?.crestShapeIndex}
                   size={88}
                   className="drop-shadow-2xl"
                 />

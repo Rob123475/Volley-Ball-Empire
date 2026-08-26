@@ -178,6 +178,9 @@ export const teamsTable = sqliteTable("teams", {
   locationId: integer("location_id").references(() => locationsTable.id),
   logoColor: text("logo_color"),
   secondaryLogoColor: text("secondary_logo_color"),
+  // Player-chosen crest shape index (0-based, into ClubCrest's VARIANTS). Null
+  // for existing/AI teams — ClubCrest falls back to a name-hash shape for those.
+  crestShapeIndex: integer("crest_shape_index"),
   trainingPhilosophy: text("training_philosophy"),
   managerRepPoints: integer("manager_rep_points").notNull().default(0),
   winStreak: integer("win_streak").notNull().default(0),

@@ -602,6 +602,7 @@ function FilledSlotCard({ save, isActive, onLoad, onDelete, onEndCareer }: Fille
           <ClubCrest
             name={save.originalClubName ?? save.clubName}
             primaryColor={save.primaryColor}
+            shapeIndex={save.crestShapeIndex}
             size={48}
             className="shrink-0 mt-0.5 drop-shadow-lg"
           />

@@ -10,4 +10,5 @@ export interface TeamInput {
   name: string;
   locationId: number;
   logoColor?: string;
+  crestShapeIndex?: number | null;
 }
