@@ -593,53 +593,35 @@ router.get("/matches/fixture", async (req, res) => {
   }
 
   // ── Lazy seeding resolution ────────────────────────────────────────────────
-  // Once all 6 continental finals are completed, resolve the top-4 team seedings
-  // and populate awayTeamName on SF1, SF2, and the World Final.
-  const contFinals = existing.filter(m => m.tier === "Continental Final");
-  const allContFinalsComplete = contFinals.length === 6 && contFinals.every(m => m.status === "completed");
+  // Resolve the World Semi Final opponent once this team's regular World Tour
+  // season (all non-finals fixtures, rounds 11-70) is complete. worldTour.ts
+  // no longer produces a "Continental Final" tier, and there is exactly one
+  // "World Semi Final" row per team's fixture (round 71, not 73/74 — that was
+  // a leftover from an older two-semifinal bracket design) — so this now
+  // gates on a signal the fixture can actually produce.
+  const regularEvents = existing.filter(m => !FINALS_TIERS.has(m.tier ?? ""));
+  const regularSeasonComplete = regularEvents.length > 0 && regularEvents.every(m => m.status === "completed");
 
-  if (allContFinalsComplete) {
-    const sf1 = existing.find(m => m.tier === "World Semi Final" && m.round === 73);
-    const sf2 = existing.find(m => m.tier === "World Semi Final" && m.round === 74);
-    const wf  = existing.find(m => m.tier === "World Final");
+  if (regularSeasonComplete) {
+    const sf = existing.find(m => m.tier === "World Semi Final");
 
-    // Populate SF seedings if not yet resolved
-    if (sf1 && sf1.awayTeamName === "TBD") {
+    if (sf && sf.awayTeamName === "TBD") {
       const seeds = await getWorldFinalsSeedings(team.id, team.name);
-      // seeds = [rank1, rank2, rank3, rank4]
-      // SF1: player (rank1 or 2) vs their paired seed
-      // SF2: the other pair
+      // seeds = [rank1, rank2, rank3, rank4]; player is seeded 1st or 2nd and
+      // faces the other of that pair in the semifinal.
       const playerIdx = seeds.indexOf(team.name);
-      const sf1Home = team.name;
-      const sf1Away = playerIdx === 0 ? seeds[1]! : seeds[0]!;
-      const sf2Home = playerIdx === 0 ? seeds[2]! : seeds[2]!;
-      const sf2Away = playerIdx === 0 ? seeds[3]! : seeds[3]!;
+      const sfAway = playerIdx === 0 ? seeds[1]! : seeds[0]!;
 
       await db.update(matchesTable)
-        .set({ awayTeamName: sf1Away })
-        .where(eq(matchesTable.id, sf1.id));
-      sf1.awayTeamName = sf1Away;
-
-      if (sf2) {
-        await db.update(matchesTable)
-          .set({ homeTeamName: sf2Home, awayTeamName: sf2Away })
-          .where(eq(matchesTable.id, sf2.id));
-        sf2.homeTeamName = sf2Home;
-        sf2.awayTeamName = sf2Away;
-      }
-    }
-
-    // Populate World Final opponent from SF2 result
-    if (wf && wf.awayTeamName === "TBD" && sf2 && sf2.status === "completed") {
-      const sf2Winner = (sf2.homeScore ?? 0) > (sf2.awayScore ?? 0)
-        ? (sf2.homeTeamName ?? "SF2 Winner")
-        : (sf2.awayTeamName ?? "SF2 Winner");
-      await db.update(matchesTable)
-        .set({ awayTeamName: sf2Winner })
-        .where(eq(matchesTable.id, wf.id));
-      wf.awayTeamName = sf2Winner;
+        .set({ awayTeamName: sfAway })
+        .where(eq(matchesTable.id, sf.id));
+      sf.awayTeamName = sfAway;
     }
   }
+
+  // World Final opponent resolution is not implemented — there's no simulated
+  // second semifinal to read a result from in this per-team fixture model, so
+  // wf.awayTeamName stays "TBD" until a real design for that exists.
 
   res.json(existing.map(serializeMatch));
 });
