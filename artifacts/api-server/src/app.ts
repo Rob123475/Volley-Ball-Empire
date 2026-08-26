@@ -30,7 +30,17 @@ app.use(
     },
   }),
 );
-app.use(cors({ credentials: true, origin: true }));
+// `origin: true` reflects whatever Origin the request carries, so with
+// credentials enabled ANY page open in the player's normal browser could make
+// authenticated calls to the game server on localhost while the game is
+// running. The packaged app serves its own frontend same-origin from this very
+// server, so it needs no cross-origin access at all; dev keeps the loose
+// setting for the standalone Vite dev server on a different port.
+app.use(
+  process.env.NODE_ENV === "production"
+    ? cors({ credentials: true, origin: false })
+    : cors({ credentials: true, origin: true }),
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

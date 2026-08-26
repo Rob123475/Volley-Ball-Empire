@@ -80,7 +80,13 @@ router.use(aiManagersRouter);
 router.use(unityRouter);
 router.use(historyRouter);
 router.use(gameApiRouter);
-router.use(devRouter);
+// Dev-only maintenance endpoints. Several of these are destructive
+// (/dev/migrate-season-78 deletes every scheduled match for the active
+// season), so they must never be reachable in a shipped desktop build:
+// electron/main.js forks the server with NODE_ENV=production.
+if (process.env.NODE_ENV !== "production") {
+  router.use(devRouter);
+}
 router.use(calendarRouter);
 router.use(storageRouter);
 router.use(regionalLeagueRouter);

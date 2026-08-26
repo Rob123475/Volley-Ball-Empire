@@ -183,7 +183,7 @@ const NEW_TEAMS: TeamDef[] = [
         stableId: "EUR_09_P1",
         name: "Sofia Almeida", nationality: "Portuguese", age: 28,
         speed: 79, power: 83, defense: 63, serve: 71, block: 67, stamina: 76,
-        imageUrl: "/images/players/seniors/player_senior_portugal_04.webp",
+        imageUrl: "/images/players/seniors/player_senior_portugal_01.webp",
       },
       {
         stableId: "EUR_09_P2",
