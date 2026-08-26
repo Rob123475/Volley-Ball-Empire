@@ -152,9 +152,29 @@ router.post("/careers", async (req, res) => {
     ));
 
   if (existing) {
-    await db.delete(careerSavesTable).where(eq(careerSavesTable.id, existing.id));
-    if (existing.teamId) {
-      await db.delete(teamsTable).where(eq(teamsTable.id, existing.teamId));
+    // Overwriting a slot must only remove save-slot-owned data, the same
+    // scope as DELETE /careers/:id below: career_history_entries and
+    // poaching_offers reference career_saves without ON DELETE CASCADE, so
+    // they must be deleted first, inside a transaction. The old team is
+    // GLOBAL world data (referenced by 25 other tables) and must NOT be
+    // deleted — it's left orphaned, same as DELETE /careers/:id does.
+    try {
+      db.transaction((tx) => {
+        tx.delete(poachingOffersTable)
+          .where(eq(poachingOffersTable.careerSaveId, existing.id))
+          .run();
+        tx.delete(careerHistoryEntriesTable)
+          .where(eq(careerHistoryEntriesTable.careerSaveId, existing.id))
+          .run();
+        tx.delete(careerSavesTable)
+          .where(eq(careerSavesTable.id, existing.id))
+          .run();
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      req.log.error({ err, saveId: existing.id, userId: req.user.id }, "POST /careers overwrite failed");
+      res.status(500).json({ error: `Database error while overwriting save slot: ${message}` });
+      return;
     }
   }
 
