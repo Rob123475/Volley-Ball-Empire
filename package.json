@@ -23,7 +23,7 @@
   "build": {
     "appId": "com.volleyballempire.desktop",
     "productName": "Volley-Ball-Empire",
-    "beforePack": "scripts/verify-unity-brotli.cjs",
+    "beforePack": "scripts/before-pack.cjs",
     "directories": {
       "output": "C:\\build\\vbe"
     },

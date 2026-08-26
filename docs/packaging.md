@@ -36,10 +36,22 @@ trap](#the-unity-double-ship-trap-dont-skip-this-either).
 ## Full rebuild + repackage, in order
 
 ```powershell
-# 0. Regenerate the .br siblings for the Unity build if the build changed
+# 0a. Regenerate the .br siblings for the Unity build if the build changed
 #    (skips work if they're already up to date - safe to always run).
 #    See "Brotli-precompressed Unity assets" below.
 node scripts/compress-unity-data.cjs
+
+# 0b. Rebuild native modules (better-sqlite3) for Electron's ABI - BEFORE
+#    step 1, not after. Step 1 vendors better-sqlite3 into
+#    artifacts/api-server/dist/node_modules from whatever is currently in
+#    the pnpm store, so the store copy must already be Electron-ABI by then.
+#    `pnpm exec electron-rebuild -f -w better-sqlite3` can silently no-op -
+#    it may print "Rebuild Complete" without producing a new file. Verify a
+#    freshly-timestamped .node file actually appeared; if not, drive
+#    node-gyp directly. See "Native module ABI" below.
+find node_modules artifacts/api-server/dist -name better_sqlite3.node -delete
+pnpm exec electron-rebuild -f -w better-sqlite3
+find node_modules -name better_sqlite3.node -exec ls -la {} \;   # check the timestamp is today
 
 # 1. Typecheck + build every workspace (frontend, api-server, scripts, etc.)
 #    vite needs these two env vars even for a one-shot build, not just dev.
@@ -58,12 +70,15 @@ Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist
 Remove-Item -Recurse -Force artifacts/api-server/dist/public
 
 # 4. Package. See "NSIS installer" below for the Bitdefender prerequisite.
-#    electron-builder's beforePack hook (scripts/verify-unity-brotli.cjs)
-#    runs automatically here: it aborts loudly if the .br files are missing
-#    or stale, and strips the raw Unity .data/.wasm from
-#    beach-volleyball/dist/public for you if step 1 put them back — see
-#    "The Unity double-ship trap" below. There is no longer a manual
-#    "strip before you package" step to forget.
+#    electron-builder's beforePack hook (scripts/before-pack.cjs) runs
+#    automatically here, chaining two checks: it aborts loudly if the .br
+#    files are missing or stale, strips the raw Unity .data/.wasm from
+#    beach-volleyball/dist/public for you if step 1 put them back (see "The
+#    Unity double-ship trap" below), and separately aborts if the vendored
+#    better-sqlite3 fails to load under Electron's actual runtime (see
+#    "Native module ABI" below). There is no longer a manual "strip before
+#    you package" step, or a way to accidentally ship a broken DB binary,
+#    to forget.
 pnpm run electron:build
 
 # 5. If you need the standalone dev server again afterward, restore step 2's copy.
@@ -145,10 +160,12 @@ Brotli copy, growing the package by ~534 MB instead of shrinking it.
 
 This used to be a manual "remember to delete the raw files before you
 package" step. It isn't anymore: `package.json`'s `build.beforePack` points
-at `scripts/verify-unity-brotli.cjs`, which electron-builder runs
-automatically before every pack — for both `pnpm run electron:build` and the
-`npx electron-builder --win dir` fallback, since both go through
-electron-builder's own hook lifecycle rather than an npm script. It:
+at `scripts/before-pack.cjs`, which chains this check with
+`scripts/verify-native-abi.cjs` (see "Native module ABI" below) and which
+electron-builder runs automatically before every pack — for both
+`pnpm run electron:build` and the `npx electron-builder --win dir` fallback,
+since both go through electron-builder's own hook lifecycle rather than an
+npm script. The Unity check specifically:
 
 1. **Fails the build loudly** (throws, aborting packaging before anything is
    copied) if the source `.br` files in
@@ -165,7 +182,7 @@ electron-builder's own hook lifecycle rather than an npm script. It:
 guaranteed rather than merely expected, but it's still worth spot-checking
 after a packaging change.
 
-### Electron-ABI native rebuild
+### Native module ABI
 
 `electron-builder` (invoked by both `pnpm run electron:build` and
 `npx electron-builder --win dir`) runs `@electron/rebuild` as its first step,
@@ -177,23 +194,61 @@ every time, automatically:
 • completed installing native dependencies
 ```
 
-This recompiles native modules (`better-sqlite3` is the one that matters
-here — it's a dependency of `api-server`, `lib/db`, and `scripts`) against
-Electron's own Node ABI, which differs from the plain Node.js ABI the
-workspace's pnpm-managed `node_modules` are built against. You cannot skip or
-shortcut this by hand-copying `dist/` folders into `resources/` — the
-packaged app's server process needs Electron-ABI native binaries or it will
-crash on startup with a `NODE_MODULE_VERSION` mismatch. It runs before the
-"packaging" step in every `electron-builder` invocation, so treat its log
-output as normal, not a failure.
+This is *supposed* to recompile native modules (`better-sqlite3` is the one
+that matters here — it's a dependency of `api-server`, `lib/db`, and
+`scripts`) against Electron's own Node ABI, which differs from the plain
+Node.js ABI the workspace's pnpm-managed `node_modules` are built against.
 
-Note: as of 2026-08-21 this rebuild operates on a copy electron-builder
-stages for packaging, not the shared pnpm store — `pnpm --filter
-@workspace/api-server run dev` continued to load `better-sqlite3` fine
-immediately after a packaging run. If a future electron-builder upgrade
-changes that (the tool's own log suggests adding a `postinstall:
-electron-builder install-app-deps` script, which rebuilds in place), re-verify
-this before assuming dev mode still works untouched after packaging.
+**Do not trust this log output as proof it worked — as of 2026-08-26,
+confirmed on this machine, it doesn't reliably rebuild anything.**
+`@electron/rebuild` (and `pnpm exec electron-rebuild -f -w better-sqlite3`
+run by hand) can print `✔ Rebuild Complete` while leaving the exact same
+stale, wrong-ABI `.node` file in place — apparently satisfied by a
+cached/prebuilt binary rather than actually compiling one. The only way to
+tell is to check the resulting file's timestamp:
+
+```
+find node_modules -name better_sqlite3.node -exec ls -la {} \;
+```
+
+If it isn't from today, the "rebuild" didn't happen. Drive `node-gyp`
+directly instead:
+
+```
+find node_modules artifacts/api-server/dist -name better_sqlite3.node -delete
+cd node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3
+pnpm exec node-gyp rebuild --target=<electron version> --arch=x64 \
+  --dist-url=https://electronjs.org/headers
+cd -
+```
+
+This one actually compiles from source (you'll see real MSBuild/gcc output,
+not an instant "completed") and reliably produces a correctly-ABI'd binary.
+
+**Order matters.** `artifacts/api-server/build.mjs` vendors `better-sqlite3`
+into `artifacts/api-server/dist/node_modules` by copying whatever is
+currently in the pnpm store at the moment `pnpm run build` runs. If the
+store copy is fixed *after* that vendoring step (e.g. by running
+`electron:build`'s `@electron/rebuild` after an already-stale `pnpm run
+build`), the fix never reaches the packaged copy — you must rebuild the
+native module **before** `pnpm run build`, then run `pnpm run build` again
+so the fixed binary actually gets vendored. See step 0b in "Full rebuild +
+repackage, in order" above.
+
+**This is now enforced automatically.** `scripts/verify-native-abi.cjs`
+(chained into `package.json`'s `build.beforePack` via
+`scripts/before-pack.cjs`) loads the actual vendored
+`artifacts/api-server/dist/node_modules/better-sqlite3` under the real
+Electron binary (via `ELECTRON_RUN_AS_NODE=1`) and opens an in-memory
+database before every pack. If that fails, packaging aborts with the
+node-gyp commands above in the error message — it's no longer possible to
+ship a build with this bug without the pack itself refusing to proceed.
+
+Note: as of 2026-08-21 the `@electron/rebuild` step (when it does rebuild
+something) operates on a copy electron-builder stages for packaging, not the
+shared pnpm store — `pnpm --filter @workspace/api-server run dev` continued
+to load `better-sqlite3` fine immediately after a packaging run. Not
+re-verified since; treat it as unconfirmed rather than relying on it.
 
 ### NSIS installer
 
@@ -213,9 +268,22 @@ Windows) — almost certainly Bitdefender locking a freshly-written staging
 file mid-write (see commit `0701b24`, which already moved the output dir
 outside `Documents` for a related lock issue). With the exclusions in place
 (added 2026-08-21), a full `pnpm run electron:build` completed cleanly and
-produced a working, installable `.exe` — see [Verifying a rebuilt
-package](#verifying-a-rebuilt-package) for the install+verify steps run
-against it.
+produced an installable `.exe` — see [Verifying a rebuilt
+package](#verifying-a-rebuilt-package) for the install+verify steps.
+
+**Correction (2026-08-26): "completed cleanly and produced an installable
+`.exe`" was not the same as "worked."** That build, the 2026-08-22
+Brotli-precompression build, and every build in between actually crashed on
+launch — the Electron shell window opened fine, but the forked server
+process died immediately on `new Database(...)` with a `NODE_MODULE_VERSION`
+mismatch (see "Native module ABI" above). Nothing above verified that; it
+only verified that NSIS could produce and install a `.exe` without
+Bitdefender interference, not that the app inside it actually ran. The
+`better-sqlite3` binary vendored into every one of those packages was
+already stale (dated 2026-08-22, never actually rebuilt for Electron's ABI
+by any of the packaging runs since). This is now caught automatically by
+`scripts/verify-native-abi.cjs` before packaging can complete — see "Native
+module ABI" above.
 
 **If you hit `spawn UNKNOWN` again**, do not keep retrying — that's a sign
 the exclusions aren't actually in effect (wrong path, exclusion scope not
