@@ -1,0 +1,36 @@
+import type { Player } from "@workspace/db";
+
+/**
+ * Senior vs youth classification.
+ *
+ * `players.player_type` is the source of truth, and every other route already
+ * treats it that way (players.ts, olympics.ts, draft.ts, unity.ts). finances.ts
+ * was the lone exception: it inferred youth from `age 14-18 && squadRole ===
+ * "reserve"`, which disagreed with the column for 9 shipped players who are
+ * 19 and still in the academy. They were billed at senior tier rates on the
+ * finances page — up to $4,500/week each of wage bill that does not exist.
+ *
+ * players.ts:170 already reports age/type mismatches as a data-integrity
+ * warning, so the age range stays useful as a *validation* rule. It just must
+ * not be used to decide who is a youth player.
+ */
+export type ClassifiablePlayer = Pick<Player, "playerType" | "age" | "isRetired">;
+
+/** Academy player. Authoritative. */
+export function isYouthPlayer(p: ClassifiablePlayer): boolean {
+  return p.playerType === "youth";
+}
+
+/** Senior (first-team) player. Authoritative. */
+export function isSeniorPlayer(p: ClassifiablePlayer): boolean {
+  return p.playerType !== "youth";
+}
+
+/** Youth players who are still on the books (not retired). */
+export function isActiveYouthPlayer(p: ClassifiablePlayer): boolean {
+  return isYouthPlayer(p) && !p.isRetired;
+}
+
+/** The age band a youth player is *expected* to fall in. Validation only. */
+export const YOUTH_AGE_MIN = 14;
+export const YOUTH_AGE_MAX = 18;
