@@ -727,8 +727,11 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
   const worldFinal = matches.find(m => m.tier === "World Final");
 
   const semiDone   = semiFinal?.status === "completed";
+  // Losing the semi eliminates you — the Grand Final unlocks on WINNING it,
+  // not merely on it being played. The server enforces the same rule.
+  const semiWon    = semiDone && (semiFinal!.homeScore ?? 0) > (semiFinal!.awayScore ?? 0);
   const semiWinner = semiDone
-    ? ((semiFinal.homeScore ?? 0) > (semiFinal.awayScore ?? 0) ? semiFinal.homeTeamName : semiFinal.awayTeamName)
+    ? ((semiFinal!.homeScore ?? 0) > (semiFinal!.awayScore ?? 0) ? semiFinal!.homeTeamName : semiFinal!.awayTeamName)
     : null;
 
   return (
@@ -778,10 +781,14 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
           </div>
           <WorldFinalsMatchCard
             label="World Championship Final"
-            subtitle={semiWinner ? `${semiWinner} contests the title` : "Semi Final winner"}
+            subtitle={
+              semiDone && !semiWon
+                ? `Eliminated in the semi final — ${semiWinner} contests the title`
+                : semiWinner ? `${semiWinner} contests the title` : "Semi Final winner"
+            }
             match={worldFinal}
-            locked={!semiDone}
-            isPlayable={semiDone && worldFinal.id === nextMatchId}
+            locked={!semiWon}
+            isPlayable={semiWon && worldFinal.id === nextMatchId}
             onSimulate={onSimulate}
             isSimulating={isSimulating}
             activePlayers={activePlayers}

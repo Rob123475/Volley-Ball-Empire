@@ -424,6 +424,34 @@ async function getWorldFinalsSeedings(userTeamId: number, userTeamName: string):
   return [rivals[0]!, userTeamName, rivals[1]!, rivals[2]!];
 }
 
+/**
+ * Losing the World Semi Final eliminates you from the Grand Final.
+ *
+ * Enforced on the server because the UI gate is a convenience, not the rule:
+ * without this a player who lost the semi could POST the final directly and
+ * bank the 500,000. Returns an error message, or null when the match may
+ * proceed.
+ */
+async function bracketBlockReason(teamId: number, match: { tier: string | null; season: number }): Promise<string | null> {
+  if (match.tier !== "World Final") return null;
+
+  const [semi] = await db.select().from(matchesTable).where(and(
+    eq(matchesTable.homeTeamId, teamId),
+    eq(matchesTable.season, match.season),
+    eq(matchesTable.tier, "World Semi Final"),
+  )).limit(1);
+
+  if (!semi || semi.status !== "completed") return "The World Semi Final must be played first.";
+  if ((semi.homeScore ?? 0) <= (semi.awayScore ?? 0)) {
+    // awayTeamName can still be "TBD" if the semi was resolved early (e.g.
+    // forfeited before the regular season completed), so never print it raw.
+    const beatenBy = semi.awayTeamName && semi.awayTeamName !== "TBD"
+      ? ` by ${semi.awayTeamName}` : "";
+    return `You were eliminated in the World Semi Final${beatenBy}.`;
+  }
+  return null;
+}
+
 router.get("/matches", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
@@ -638,9 +666,48 @@ router.get("/matches/fixture", async (req, res) => {
     }
   }
 
-  // World Final opponent resolution is not implemented — there's no simulated
-  // second semifinal to read a result from in this per-team fixture model, so
-  // wf.awayTeamName stays "TBD" until a real design for that exists.
+  // ── World Final opponent ────────────────────────────────────────────────
+  // Resolved once the semi final is decided. The fixture is per-team, so there
+  // is no second semi to read a winner from; seeds 3 and 4 are the other half
+  // of the bracket, and the higher-ranked of them takes the other final berth.
+  // A final against "TBD" is not a climax.
+  const wf = existing.find(m => m.tier === "World Final");
+  const semi = existing.find(m => m.tier === "World Semi Final");
+
+  if (wf && wf.awayTeamName === "TBD" && semi && semi.status === "completed") {
+    const seeds = await getWorldFinalsSeedings(team.id, team.name);
+    const playerWonSemi = (semi.homeScore ?? 0) > (semi.awayScore ?? 0);
+
+    // Seeds [rank1, rank2, rank3, rank4]; ranks 1-2 met in this semi, so the
+    // other finalist comes from the 3/4 pair — rank 3, the higher seed.
+    const otherHalfWinner = seeds[2] ?? "World Select";
+
+    const finalAway = playerWonSemi
+      ? otherHalfWinner
+      // Player is out. The final is still played and shown, but between the
+      // two clubs that earned it: whoever knocked the player out, versus the
+      // other half's winner.
+      : (semi.awayTeamName && semi.awayTeamName !== "TBD" ? semi.awayTeamName : (seeds[3] ?? "World Select"));
+
+    await db.update(matchesTable)
+      .set({
+        awayTeamName: finalAway,
+        // Losing the semi eliminates the player: the Grand Final is no longer
+        // theirs to contest, so the fixture stops being a player match and the
+        // home side becomes the club that beat them.
+        ...(playerWonSemi ? {} : {
+          homeTeamName: semi.awayTeamName && semi.awayTeamName !== "TBD"
+            ? semi.awayTeamName : otherHalfWinner,
+        }),
+      })
+      .where(eq(matchesTable.id, wf.id));
+
+    wf.awayTeamName = finalAway;
+    if (!playerWonSemi) {
+      wf.homeTeamName = semi.awayTeamName && semi.awayTeamName !== "TBD"
+        ? semi.awayTeamName : otherHalfWinner;
+    }
+  }
 
   res.json(existing.map(serializeMatch));
 });
@@ -667,6 +734,11 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
   if (match.status === "completed") {
     res.status(409).json({ error: "Match already completed" });
     return;
+  }
+  const watchTeam = await getActiveTeam(req);
+  if (watchTeam) {
+    const blocked = await bracketBlockReason(watchTeam.id, match);
+    if (blocked) { res.status(409).json({ error: blocked }); return; }
   }
   const result = await startMatchTick(id);
   if (!result.ok) {
@@ -709,6 +781,9 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const blocked = await bracketBlockReason(team.id, match);
+  if (blocked) { res.status(409).json({ error: blocked }); return; }
 
   // Load all facility levels and active wellbeing effects for match bonuses
   const [facilityRows, wellbeingEffects] = await Promise.all([

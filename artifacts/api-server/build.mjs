@@ -221,7 +221,32 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
   await vendorExternalDeps(distDir);
 }
 
-buildAll().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// esbuild prints its own bundle summary ending in a cheerful "Done in NNNms"
+// BEFORE the vendoring step runs, so a failure after that point scrolls in
+// underneath a line that reads like success. Anyone tailing the output — or
+// reading $? from a pipeline, which reports the LAST command's status, not
+// node's — concludes the build passed when it did not. So: fail with a banner
+// that cannot be mistaken for anything else, and print an explicit success
+// line as the final word, so its absence is itself the signal.
+buildAll().then(
+  () => {
+    console.log("");
+    console.log("=".repeat(64));
+    console.log("  BUILD OK - bundle written and all external deps vendored");
+    console.log("=".repeat(64));
+  },
+  (err) => {
+    const line = "!".repeat(64);
+    console.error("");
+    console.error(line);
+    console.error("  BUILD FAILED - the bundle summary above is NOT success");
+    console.error(line);
+    console.error("");
+    console.error(err && err.stack ? err.stack : String(err));
+    console.error("");
+    console.error(line);
+    console.error("  BUILD FAILED - exiting 1");
+    console.error(line);
+    process.exit(1);
+  },
+);
