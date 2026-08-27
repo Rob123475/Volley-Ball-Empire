@@ -60,3 +60,4 @@ artifacts/mockup-sandbox/src/.generated/
 # SQLite sidecars — transient, recreated whenever the database is opened.
 lib/db/*.sqlite-wal
 lib/db/*.sqlite-shm
+PR_BODY.md
