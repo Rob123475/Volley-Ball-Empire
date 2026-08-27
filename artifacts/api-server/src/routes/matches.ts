@@ -698,6 +698,15 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const match = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
   if (!match) { res.status(404).json({ error: "Match not found" }); return; }
 
+  // Simulating a completed match used to re-run the whole result: it credited
+  // the purse a second time and wrote a second prize_money row, so any event
+  // could be replayed for unlimited cash. /watch and the forfeit route already
+  // guarded this; /simulate did not.
+  if (match.status === "completed") {
+    res.status(409).json({ error: "Match already completed" });
+    return;
+  }
+
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
@@ -786,7 +795,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
     : null;
 
   // All-Star match is an exhibition: prize is always 0 for standings purposes.
-  const prizeEarned = (homeWon && !isAllStar) ? Number(match.prizeAmount || 5000) : 0;
+  // Pay exactly what the fixture advertises. The `|| 5000` fallback here meant
+  // a match with a zero/absent purse displayed "$0" on the fixture card but
+  // still credited $5,000 — the paid figure has to be the quoted figure.
+  const prizeEarned = (homeWon && !isAllStar) ? Number(match.prizeAmount ?? 0) : 0;
 
   const [updatedMatch] = await db.update(matchesTable).set({
     homeScore,
@@ -852,23 +864,35 @@ router.post("/matches/:id/simulate", async (req, res) => {
     // Board confidence: +3 normal, +5 cont/semi final, +8 world final
     const confWinDelta     = isFinal ? 8 : (isContFinal || isWorldSemiFinal) ? 5 : 3;
 
-    await db.update(teamsTable).set({
-      wins:              newWins,
-      budget:            Number(team.budget) + prizeEarned,
-      winStreak:         newStreak,
-      managerRepPoints:  (team.managerRepPoints ?? 0) + repGain,
-      sponsorReputation: newSponsorRep,
-      boardConfidence:   Math.min(100, (team.boardConfidence ?? 60) + confWinDelta),
-      ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
-    }).where(eq(teamsTable.id, team.id));
     const today = await getGameDate(team.id);
-    await db.insert(financeTransactionsTable).values({
-      teamId:      team.id,
-      type:        "income",
-      amount:      prizeEarned,
-      description: `Prize money: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
-      category:    "prize_money",
-      date:        today,
+
+    // Credit and record in ONE transaction: these were two separate awaits, so
+    // a failure between them either paid the purse with no record of it or
+    // logged income that was never banked. The budget is incremented with a
+    // SQL expression rather than a read-modify-write, so a concurrent write
+    // (the auto-advance ticker can overlap a manual sim) cannot silently drop
+    // the prize.
+    db.transaction((tx) => {
+      tx.update(teamsTable).set({
+        wins:              newWins,
+        budget:            sql`${teamsTable.budget} + ${prizeEarned}`,
+        winStreak:         newStreak,
+        managerRepPoints:  (team.managerRepPoints ?? 0) + repGain,
+        sponsorReputation: newSponsorRep,
+        boardConfidence:   Math.min(100, (team.boardConfidence ?? 60) + confWinDelta),
+        ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
+      }).where(eq(teamsTable.id, team.id)).run();
+
+      if (prizeEarned > 0) {
+        tx.insert(financeTransactionsTable).values({
+          teamId:      team.id,
+          type:        "income",
+          amount:      prizeEarned,
+          description: `Prize money: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
+          category:    "prize_money",
+          date:        today,
+        }).run();
+      }
     });
   } else {
     // Sponsor reputation: -1 per loss, clamped at 0

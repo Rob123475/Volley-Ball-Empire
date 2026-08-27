@@ -3,6 +3,10 @@ import {
   getGetLeaderboardQueryKey,
   getGetDashboardQueryKey,
   useGetDashboard,
+  useListLocations,
+  getListLocationsQueryKey,
+  useGetCurrentSeason,
+  getGetCurrentSeasonQueryKey,
 } from "@workspace/api-client-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,6 +97,20 @@ export default function Leaderboard() {
   const { data: rankings, isLoading } = useGetLeaderboard({
     query: { queryKey: getGetLeaderboardQueryKey() },
   });
+
+  // These three figures were hardcoded as "128 Teams Active", "Across 10 world
+  // locations" and "New season every 11 rounds" — all seed-era placeholders,
+  // and all wrong. Derive them so they cannot go stale again as the world grows.
+  const { data: locations } = useListLocations({
+    query: { queryKey: getListLocationsQueryKey() },
+  });
+  const { data: currentSeason } = useGetCurrentSeason({
+    query: { queryKey: getGetCurrentSeasonQueryKey(), retry: false },
+  });
+
+  const activeTeamCount = rankings?.length ?? 0;
+  const venueCount      = locations?.length ?? 0;
+  const roundsPerSeason = currentSeason?.totalRounds ?? null;
 
   if (isLoading) {
     return (
@@ -317,9 +335,9 @@ export default function Leaderboard() {
         <InfoCard
           gradient="from-fuchsia-500 to-violet-600"
           icon={<Globe className="h-6 w-6 text-white" />}
-          label="128 Teams Active"
-          sub="Across 10 world locations"
-          detail="New season every 11 rounds"
+          label={`${activeTeamCount} ${activeTeamCount === 1 ? "Team" : "Teams"} Ranked`}
+          sub={venueCount > 0 ? `Across ${venueCount} world venues` : "World Tour venues"}
+          detail={roundsPerSeason ? `${roundsPerSeason} rounds per season` : "One season per calendar year"}
         />
       </div>
     </div>

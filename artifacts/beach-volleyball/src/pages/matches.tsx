@@ -306,8 +306,15 @@ export default function Matches() {
                 const WORLD_FINALS_TIERS = new Set(["World Semi Final", "All-Star Match", "World Final"]);
                 const regularFixture = fixture?.filter(m => !WORLD_FINALS_TIERS.has(m.tier ?? "")) ?? [];
                 const finalsMatches  = fixture?.filter(m => WORLD_FINALS_TIERS.has(m.tier ?? "")) ?? [];
-                const contFinals     = fixture?.filter(m => m.tier === "Continental Final") ?? [];
-                const allContFinalsComplete = contFinals.length === 6 && contFinals.every(m => m.status === "completed");
+                // The World Finals unlock when the regular World Tour season is
+                // done — the same signal the server uses to resolve the semi
+                // final opponent (routes/matches.ts). This used to gate on six
+                // "Continental Final" matches, a tier worldTour.ts stopped
+                // producing, so the condition was permanently false and the
+                // entire World Finals bracket — including the 500,000 Grand
+                // Final — could never be played.
+                const worldFinalsUnlocked =
+                  regularFixture.length > 0 && regularFixture.every(m => m.status === "completed");
 
                 return (
                   <>
@@ -360,7 +367,7 @@ export default function Matches() {
                     <WorldFinalsSection
                       matches={finalsMatches}
                       nextMatchId={nextFixtureMatchId}
-                      allContFinalsComplete={allContFinalsComplete}
+                      worldFinalsUnlocked={worldFinalsUnlocked}
                       onSimulate={handleSimulate}
                       isSimulating={simulateMutation.isPending || lineupMutation.isPending}
                       activePlayers={activePlayers}
@@ -701,10 +708,10 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
 }
 
 // ── World Finals Section ──────────────────────────────────────────────────────
-function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSimulate, isSimulating, activePlayers }: {
+function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimulate, isSimulating, activePlayers }: {
   matches: any[];
   nextMatchId: number | null;
-  allContFinalsComplete: boolean;
+  worldFinalsUnlocked: boolean;
   onSimulate: (matchId: number, ids: number[]) => void;
   isSimulating: boolean;
   activePlayers: any[];
@@ -712,20 +719,16 @@ function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSim
   const seasonLabel = useSeasonLabel();
   if (matches.length === 0) return null;
 
-  const sf1       = matches.find(m => m.tier === "World Semi Final" && m.round === 73);
-  const sf2       = matches.find(m => m.tier === "World Semi Final" && m.round === 74);
-  const allStar   = matches.find(m => m.tier === "All-Star Match");
+  // worldTour.ts schedules exactly one semi final (slot 71) and one final
+  // (slot 72). This looked for two semis at rounds 73/74 and an "All-Star
+  // Match" — all leftovers from an older bracket design that the schedule no
+  // longer produces, so none of these cards ever rendered.
+  const semiFinal  = matches.find(m => m.tier === "World Semi Final");
   const worldFinal = matches.find(m => m.tier === "World Final");
 
-  const sf1Done    = sf1?.status   === "completed";
-  const sf2Done    = sf2?.status   === "completed";
-  const allStarDone = allStar?.status === "completed";
-
-  const sf1Winner = sf1Done
-    ? ((sf1.homeScore ?? 0) > (sf1.awayScore ?? 0) ? sf1.homeTeamName : sf1.awayTeamName)
-    : null;
-  const sf2Winner = sf2Done
-    ? ((sf2.homeScore ?? 0) > (sf2.awayScore ?? 0) ? sf2.homeTeamName : sf2.awayTeamName)
+  const semiDone   = semiFinal?.status === "completed";
+  const semiWinner = semiDone
+    ? ((semiFinal.homeScore ?? 0) > (semiFinal.awayScore ?? 0) ? semiFinal.homeTeamName : semiFinal.awayTeamName)
     : null;
 
   return (
@@ -740,57 +743,26 @@ function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSim
       </div>
 
       {/* Lock notice */}
-      {!allContFinalsComplete && (
+      {!worldFinalsUnlocked && (
         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4 flex items-center gap-3">
           <Lock className="h-4 w-4 shrink-0 text-yellow-500/70" />
           <span className="text-sm text-muted-foreground">
-            Complete all 6 Continental Finals to unlock the World Finals bracket and reveal the top 4 clubs.
+            Complete your World Tour season to unlock the Finals and reveal your semi final opponent.
           </span>
         </div>
       )}
 
-      {/* SF1 */}
-      {sf1 && (
+      {/* Semi Final */}
+      {semiFinal && (
         <WorldFinalsMatchCard
-          label="Semi Final 1"
-          subtitle="Rank 1 vs Rank 2"
-          match={sf1}
-          locked={!allContFinalsComplete}
-          isPlayable={allContFinalsComplete && sf1.id === nextMatchId}
+          label="World Semi Final"
+          subtitle="Top 4 seeds · winner advances to the Grand Final"
+          match={semiFinal}
+          locked={!worldFinalsUnlocked}
+          isPlayable={worldFinalsUnlocked && semiFinal.id === nextMatchId}
           onSimulate={onSimulate}
           isSimulating={isSimulating}
           activePlayers={activePlayers}
-        />
-      )}
-
-      {/* SF2 */}
-      {sf2 && (
-        <WorldFinalsMatchCard
-          label="Semi Final 2"
-          subtitle="Rank 3 vs Rank 4"
-          match={sf2}
-          locked={!allContFinalsComplete}
-          isPlayable={allContFinalsComplete && sf2.id === nextMatchId}
-          onSimulate={onSimulate}
-          isSimulating={isSimulating}
-          activePlayers={activePlayers}
-          isAutoMatch
-        />
-      )}
-
-      {/* All-Star Match */}
-      {allStar && (
-        <WorldFinalsMatchCard
-          label="All-Star Match"
-          subtitle="Exhibition · Does not affect league standings"
-          match={allStar}
-          locked={!(sf1Done && sf2Done)}
-          isPlayable={sf1Done && sf2Done && allStar.id === nextMatchId}
-          onSimulate={onSimulate}
-          isSimulating={isSimulating}
-          activePlayers={activePlayers}
-          isAutoMatch
-          isExhibition
         />
       )}
 
@@ -806,14 +778,10 @@ function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSim
           </div>
           <WorldFinalsMatchCard
             label="World Championship Final"
-            subtitle={
-              sf1Winner && sf2Winner
-                ? `${sf1Winner} vs ${sf2Winner}`
-                : "Semi Final Winners"
-            }
+            subtitle={semiWinner ? `${semiWinner} contests the title` : "Semi Final winner"}
             match={worldFinal}
-            locked={!allStarDone}
-            isPlayable={allStarDone && worldFinal.id === nextMatchId}
+            locked={!semiDone}
+            isPlayable={semiDone && worldFinal.id === nextMatchId}
             onSimulate={onSimulate}
             isSimulating={isSimulating}
             activePlayers={activePlayers}

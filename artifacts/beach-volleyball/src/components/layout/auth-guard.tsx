@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Activity, Loader2, Play } from "lucide-react";
 import CareerManagement from "@/pages/career-management";
+import { useQuery } from "@tanstack/react-query";
 import { careerSlotStatus } from "@/lib/career-slot-status";
 
 
@@ -41,6 +42,32 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     query: { queryKey: getGetCurrentSeasonQueryKey(), retry: false },
   });
   const seasonYear = currentSeason?.year ?? null;
+
+  // World-size figures are counted from the locations table rather than typed
+  // in. The originals ("11 cities across 9 countries") happen to be right
+  // today, but they were written when the world was seeded and nothing would
+  // have caught them drifting as venues were added.
+  const { data: world } = useQuery({
+    queryKey: ["world-summary"],
+    retry: false,
+    queryFn: async () => {
+      const res = await fetch("/api/locations/world-summary");
+      if (!res.ok) throw new Error("Failed to load world summary");
+      return res.json() as Promise<{
+        venues: number; cities: number; countries: number;
+        totalEvents: number; topPrize: number;
+      }>;
+    },
+  });
+
+  const venueCount   = world?.venues    ?? 0;
+  const cityCount    = world?.cities    ?? 0;
+  const countryCount = world?.countries ?? 0;
+  // Formatted from the real top purse (500,000 -> "$500k") rather than typed
+  // in — the old pill said "$50k", off by a factor of ten.
+  const topPrizeLabel = world?.topPrize
+    ? `$${Math.round(world.topPrize / 1000).toLocaleString()}k`
+    : "—";
 
   const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
 
@@ -106,7 +133,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             </h1>
 
             <p className="mt-4 text-white/60 text-base md:text-lg max-w-md leading-relaxed">
-              Build your dream team. Conquer 11 cities across 9 countries. Claim the world championship.
+              Build your dream team.{" "}
+              {cityCount > 0 && countryCount > 0
+                ? `Conquer ${cityCount} cities across ${countryCount} countries.`
+                : "Conquer the world tour."}{" "}
+              Claim the world championship.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 flex-wrap">
@@ -139,9 +170,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         {/* Right-side stat pills */}
         <div className="hidden lg:flex absolute right-12 top-1/2 -translate-y-1/2 flex-col gap-3">
           {[
-            { label: "World Tour Stops", value: "11" },
-            { label: "Countries",        value: "9"  },
-            { label: "Grand Final Prize",value: "$500k"},
+            { label: "World Tour Stops", value: venueCount   > 0 ? String(venueCount)   : "—" },
+            { label: "Countries",        value: countryCount > 0 ? String(countryCount) : "—" },
+            { label: "Grand Final Prize",value: topPrizeLabel },
           ].map((s) => (
             <div key={s.label} className="bg-black/50 backdrop-blur border border-white/10 rounded-xl px-5 py-3 text-right">
               <div className="text-white font-black text-2xl">{s.value}</div>
