@@ -19,6 +19,7 @@ import {
   TOTAL_SLOTS, REGIONAL_START, REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -188,8 +189,7 @@ router.get("/calendar", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(401).json({ error: "No active team" }); return; }
 
-  const seasonRows = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
-  const season = seasonRows[0];
+  const season = await getActiveSeason(req);
   if (!season) { res.status(400).json({ error: "No active season" }); return; }
 
   let calendar = await getOrCreateCalendar(team.id, season);
@@ -296,8 +296,7 @@ router.patch("/calendar/speed", async (req, res) => {
     res.status(400).json({ error: "Invalid speed" }); return;
   }
 
-  const seasonRows = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
-  const season = seasonRows[0];
+  const season = await getActiveSeason(req);
   if (season) await getOrCreateCalendar(team.id, season);
 
   await db.update(calendarStateTable)
@@ -313,8 +312,7 @@ router.post("/calendar/advance", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(401).json({ error: "No active team" }); return; }
 
-  const seasonRows = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
-  const season = seasonRows[0];
+  const season = await getActiveSeason(req);
   if (!season) { res.status(400).json({ error: "No active season" }); return; }
 
   let calendar = await getOrCreateCalendar(team.id, season);

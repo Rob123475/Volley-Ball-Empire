@@ -16,6 +16,7 @@ import {
   sideRating, pointProbability, simulateMatch,
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
 
 const router = Router();
 
@@ -512,7 +513,7 @@ router.post("/matches", async (req, res) => {
   // Fall back to the active season rather than trusting the caller. The
   // friendlies UI hardcoded season 1, so those matches were written outside
   // the 2026 season every query filters on and were never visible anywhere.
-  const [activeSeason] = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
+  const activeSeason = await getActiveSeason(req);
   const seasonNumber = Number(season) > 1 ? Number(season) : (activeSeason?.year ?? Number(season));
 
   const { weather, windSpeed, temperature } = generateWeather(Number(locationId));
@@ -549,7 +550,7 @@ router.get("/matches/fixture", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
-  const [activeSeason] = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
+  const activeSeason = await getActiveSeason(req);
   if (!activeSeason) { res.status(400).json({ error: "No active season" }); return; }
   const seasonYear = activeSeason.year;
 

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@workspace/db";
 import { eq, and, gt, lte, desc } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
 
 const router = Router();
 
@@ -44,13 +45,8 @@ const serializeEffect = (e: { id: number; effectType: string; matchesRemaining: 
   createdAt:        e.createdAt.toISOString(),
 });
 
-async function getCurrentAbsoluteRound(): Promise<number> {
-  const [activeSeason] = await db
-    .select()
-    .from(seasonsTable)
-    .where(eq(seasonsTable.status, "active"))
-    .orderBy(desc(seasonsTable.year))
-    .limit(1);
+async function getCurrentAbsoluteRound(req: Request): Promise<number> {
+  const activeSeason = await getActiveSeason(req);
   if (!activeSeason) return 0;
   return (activeSeason.year - 2026) * 70 + activeSeason.currentRound;
 }
@@ -100,7 +96,7 @@ router.get("/wellbeing/status", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const currentRound = await getCurrentAbsoluteRound();
+  const currentRound = await getCurrentAbsoluteRound(req);
   await checkAndApplyCamps(team.id, currentRound);
 
   const [activeEffects, [runningCamp]] = await Promise.all([
@@ -148,7 +144,7 @@ router.post("/wellbeing/run", async (req, res) => {
   const camp = CAMPS[campType];
   if (!camp) { res.status(400).json({ error: "Unknown camp type" }); return; }
 
-  const currentRound = await getCurrentAbsoluteRound();
+  const currentRound = await getCurrentAbsoluteRound(req);
   await checkAndApplyCamps(team.id, currentRound);
 
   const [existingCamp] = await db

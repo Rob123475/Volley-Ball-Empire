@@ -13,6 +13,7 @@ import {
 } from "@workspace/db";
 import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
 
 const router = Router();
 
@@ -127,12 +128,7 @@ router.get("/events/upcoming", async (req, res) => {
   }
 
   // ── 2. Current season end ────────────────────────────────────────────────
-  const [activeSeason] = await db
-    .select()
-    .from(seasonsTable)
-    .where(eq(seasonsTable.status, "active"))
-    .orderBy(desc(seasonsTable.year))
-    .limit(1);
+  const activeSeason = await getActiveSeason(req);
 
   if (activeSeason) {
     const roundsLeft = activeSeason.totalRounds - activeSeason.currentRound;

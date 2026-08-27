@@ -353,6 +353,12 @@ export type TrainingSession = typeof trainingSessionsTable.$inferSelect;
 
 export const seasonsTable = sqliteTable("seasons", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  // Seasons are per CAREER. Multiple careers per install is a shipped feature —
+  // the local profile picker exists for it — and without this column career
+  // creation reused whatever season row already had status "active", so a second
+  // career inherited the first one's timeline and could start mid-season or at
+  // season end. Nullable only so pre-existing rows survive the migration.
+  careerSaveId: integer("career_save_id"),
   year: integer("year").notNull(),
   name: text("name").notNull(),
   status: text("status").notNull().default("upcoming"),

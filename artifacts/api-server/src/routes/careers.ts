@@ -189,24 +189,6 @@ router.post("/careers", async (req, res) => {
   // existing hardcoded World Tour match dates (worldTour.ts) land exactly
   // where the linear round→date interpolation in calendar.ts expects them
   // (round 11 → 2026-02-17, round 72 → 2026-12-02).
-  const [existingActiveSeason] = await db
-    .select()
-    .from(seasonsTable)
-    .where(eq(seasonsTable.status, "active"))
-    .limit(1);
-  if (!existingActiveSeason) {
-    await db.insert(seasonsTable).values({
-      year:                    2026,
-      name:                    "Season 1",
-      status:                  "active",
-      totalRounds:             78,
-      currentRound:            1,
-      startDate:               "2026-01-01",
-      endDate:                 "2026-12-31",
-      isOlympicSeason:         false,
-      regionalRoundsProcessed: 0,
-    });
-  }
 
   const [newTeam] = await db
     .insert(teamsTable)
@@ -238,6 +220,28 @@ router.post("/careers", async (req, res) => {
       lastPlayedAt:        new Date(),
     })
     .returning();
+
+  // This career's own season timeline. Previously one global season row was
+  // created on the first career and every later career reused it, so a second
+  // career inherited the first one's currentRound and could start mid-season or
+  // immediately at season end. Multiple careers per install is a shipped
+  // feature, so that was a live bug, not just a harness artifact.
+  //
+  // Bounds are chosen so the hardcoded World Tour dates (worldTour.ts) land
+  // where calendar.ts's round->date interpolation expects them
+  // (round 11 -> 2026-02-17, round 72 -> 2026-12-02).
+  await db.insert(seasonsTable).values({
+    careerSaveId:            inserted!.id,
+    year:                    2026,
+    name:                    "Season 1",
+    status:                  "active",
+    totalRounds:             78,
+    currentRound:            1,
+    startDate:               "2026-01-01",
+    endDate:                 "2026-12-31",
+    isOlympicSeason:         false,
+    regionalRoundsProcessed: 0,
+  });
 
   const sid = getSessionId(req);
   if (sid) {

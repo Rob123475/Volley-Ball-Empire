@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { seasonsTable, matchesTable, teamsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
 
 const router = Router();
 
@@ -21,9 +22,7 @@ router.post("/seasons", async (req, res) => {
 });
 
 router.get("/seasons/current", async (req, res) => {
-  const season = await db.query.seasonsTable.findFirst({
-    where: eq(seasonsTable.status, "active"),
-  });
+  const season = await getActiveSeason(req);
   if (!season) {
     const latest = await db.query.seasonsTable.findFirst();
     res.json(latest || { id: 1, year: 2026, name: "2026 World Series", status: "active", totalRounds: 10, currentRound: 1, startDate: "2026-01-01", endDate: "2026-12-31" });
