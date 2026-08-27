@@ -236,7 +236,6 @@ export const playersTable = sqliteTable("players", {
   stamina: integer("stamina").notNull().default(70),
   trainingPoints: integer("training_points").notNull().default(0),
   salary: real("salary").notNull().default(5000),
-  teamId: integer("team_id").references(() => teamsTable.id),
   outfitId: integer("outfit_id").references(() => outfitsTable.id),
   isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
   squadRole: text("squad_role").notNull().default("reserve"),

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
@@ -65,7 +66,7 @@ router.get("/players", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   res.json(players.map(serializePlayer));
 });
 
@@ -87,8 +88,7 @@ router.post("/players", async (req, res) => {
 });
 
 router.get("/players/free-agents", async (req, res) => {
-  const freeAgents = await db.select().from(playersTable)
-    .where(and(isNull(playersTable.teamId), eq(playersTable.isRetired, false)));
+  const freeAgents = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { freeAgents: true });
   // Senior free agents only — youth players have their own pool endpoint
   res.json(
     freeAgents
@@ -113,15 +113,13 @@ router.get("/players/transfer-window", async (req, res) => {
   cutoff.setMonth(cutoff.getMonth() + 6);
   const cutoffStr = cutoff.toISOString().split("T")[0]!;
 
-  const inWindow = await db.select().from(playersTable)
-    .where(and(
-      isNotNull(playersTable.teamId),
-      isNotNull(playersTable.contractEndDate),
-      eq(playersTable.isRetired, false),
-      eq(playersTable.playerType, "senior"),
-      sql`${playersTable.contractEndDate} >= ${currentDate}`,
-      sql`${playersTable.contractEndDate} <= ${cutoffStr}`,
-    ));
+  // Contracted seniors whose deal expires inside the six-month window.
+  const inWindow = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" }))
+    .filter((p) =>
+      p.teamId != null &&
+      p.contractEndDate != null &&
+      p.contractEndDate >= currentDate &&
+      p.contractEndDate <= cutoffStr);
 
   // Attach current team name to each player
   const teamIds = [...new Set(inWindow.map(p => p.teamId!))];
@@ -141,8 +139,7 @@ router.get("/players/transfer-window", async (req, res) => {
 // Youth free agent pool — only youth players not on any team
 router.get("/players/youth-pool", async (req, res) => {
   const { continent } = req.query;
-  const youth = await db.select().from(playersTable)
-    .where(and(isNull(playersTable.teamId), eq(playersTable.isRetired, false)));
+  const youth = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { freeAgents: true });
   let result = youth.filter(p => p.playerType === "youth" && p.academyContractYears == null);
   if (continent && typeof continent === "string") {
     result = result.filter(p => p.continent === continent);
@@ -152,7 +149,7 @@ router.get("/players/youth-pool", async (req, res) => {
 
 // Validation endpoint — checks all 120-player rules
 router.get("/players/validation", async (req, res) => {
-  const all = await db.select().from(playersTable).where(eq(playersTable.isRetired, false));
+  const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId));
 
   const seniors = all.filter(p => p.playerType === "senior");
   const youth   = all.filter(p => p.playerType === "youth");
@@ -196,7 +193,7 @@ router.get("/players/summary", async (_req, res) => {
   const rows = await db
     .select({
       playerType: playersTable.playerType,
-      hasteam: sql<boolean>`(${playersTable.teamId} IS NOT NULL)`,
+      hasteam: sql<boolean>`0`,
       isDraft:  playersTable.isDraftPlayer,
     })
     .from(playersTable)
@@ -213,11 +210,7 @@ router.get("/players/summary", async (_req, res) => {
 
 // All senior players with status — powers the Player Market filter pills
 router.get("/players/market-all", async (req, res) => {
-  const all = await db.select().from(playersTable)
-    .where(and(
-      eq(playersTable.isRetired, false),
-      eq(playersTable.playerType, "senior"),
-    ));
+  const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" });
 
   // Build team name lookup for signed players
   const teamIdSet = [...new Set(all.filter(p => p.teamId).map(p => p.teamId!))];
@@ -272,7 +265,7 @@ router.get("/players/market-all", async (req, res) => {
 
 router.get("/players/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
   res.json(serializePlayer(player));
 });
@@ -282,7 +275,7 @@ router.patch("/players/:id", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const id = parseInt(req.params.id);
-  const existing = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+  const existing = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!existing) { res.status(404).json({ error: "Player not found" }); return; }
   if (existing.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
   const {
@@ -324,9 +317,10 @@ router.post("/players/:id/release", async (req, res) => {
   const id = parseInt(req.params.id);
 
   // Fetch before clearing so we can capture teamId and age for the transaction log
-  const before = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+  const before = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
 
-  const [player] = await db.update(playersTable).set({ teamId: null, contractEndDate: null, academyContractYears: null }).where(eq(playersTable.id, id)).returning();
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, { teamId: null, contractEndDate: null, academyContractYears: null, isActive: false, squadRole: "reserve" });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
 
   // Record a Youth Academy release transaction so it appears in Transaction History
   if (before?.teamId && before.age >= 14 && before.age <= 18) {
@@ -348,7 +342,7 @@ router.post("/players/:id/retire", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
 
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, id) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
 
   const team = await getActiveTeam(req);
@@ -393,7 +387,7 @@ router.post("/players/:id/scout", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const playerId = parseInt(req.params.id);
-  const player   = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  const player   = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
 
   const team = await getActiveTeam(req);

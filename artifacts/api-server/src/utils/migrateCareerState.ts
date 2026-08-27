@@ -133,15 +133,19 @@ export function seedCareerState(careerSaveId: number): void {
   db.transaction((tx) => {
     const players = tx.select({ id: playersTable.id }).from(playersTable).all();
     const staff   = tx.select({ id: staffTable.id }).from(staffTable).all();
-    const baseAges = new Map(
-      tx.all<{ id: number; age: number }>(
-        sql.raw(`SELECT id, age FROM players`),
-      ).map((r) => [r.id, r.age]),
+    // Copy the reference age AND salary. Seeding salary at the column default
+    // left every player in a new career priced at 0.
+    const refs = new Map(
+      tx.all<{ id: number; age: number; salary: number }>(
+        sql.raw(`SELECT id, age, salary FROM players`),
+      ).map((r) => [r.id, r]),
     );
 
     for (const p of players) {
       tx.insert(careerPlayerStateTable).values({
-        careerSaveId, playerId: p.id, age: baseAges.get(p.id) ?? 20,
+        careerSaveId, playerId: p.id,
+        age:    refs.get(p.id)?.age ?? 20,
+        salary: Number(refs.get(p.id)?.salary ?? 0),
       }).onConflictDoNothing().run();
     }
     for (const st of staff) {

@@ -2,6 +2,7 @@ import { db, teamsTable, achievementsTable, playersTable, trophiesTable } from "
 import type { CareerStats } from "@workspace/db";
 import { eq, and, gte } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions";
+import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 
 export const DEFAULT_CAREER_STATS: CareerStats = {
   matchesWon: 0,
@@ -49,10 +50,8 @@ export async function checkAchievements(teamId: number, season?: number): Promis
   const stats = getCareerStats(team.careerStats);
 
   // Derive 5-star players from DB (peakOverallRating >= 85 = 5 stars)
-  const fiveStarRows = await db
-    .select({ id: playersTable.id })
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, teamId), gte(playersTable.peakOverallRating, 85)));
+  const fiveStarRows = (await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId }))
+    .filter((p) => (p.peakOverallRating ?? 0) >= 85);
 
   // Derive Olympic golds from trophies table
   const olympicGoldRows = await db

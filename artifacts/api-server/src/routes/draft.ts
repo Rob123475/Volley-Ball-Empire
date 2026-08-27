@@ -4,7 +4,7 @@ import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable, facilitiesTable } from "@workspace/db";
 import { eq, isNull, and, gte, ne } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
-import { createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -72,7 +72,9 @@ router.post("/draft/generate-class", async (req, res) => {
   const academyLevel = academy?.level ?? 1;
 
   // Clear old unclaimed draft players
-  await db.delete(playersTable).where(and(eq(playersTable.isDraftPlayer, true), isNull(playersTable.teamId)));
+  // Old unclaimed draft players are this career's state, not global rows.
+  const stale = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { freeAgents: true })).filter((p) => p.isDraftPlayer);
+  for (const p of stale) await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), p.id, { isRetired: true });
 
   const usedNames = new Set<string>();
   const newPlayers = [];
@@ -128,13 +130,8 @@ router.post("/draft/generate-class", async (req, res) => {
 });
 
 router.get("/draft", async (req, res) => {
-  const draftPlayers = await db.select().from(playersTable)
-    .where(and(
-      eq(playersTable.isDraftPlayer, true),
-      eq(playersTable.isRetired, false),
-      eq(playersTable.playerType, "senior"),
-      gte(playersTable.age, 18),
-    ));
+  const draftPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" }))
+    .filter((p) => p.isDraftPlayer && p.age >= 18);
   res.json(draftPlayers.filter(p => !p.teamId).map(p => ({
     ...serializePlayer(p),
     available: !p.teamId,
@@ -147,7 +144,7 @@ router.post("/draft/pick", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { draftPlayerId } = req.body;
 
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, Number(draftPlayerId)) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(draftPlayerId));
   if (!player || player.teamId) { res.status(400).json({ error: "Player not available" }); return; }
 
   const today = new Date().toISOString().split("T")[0];
@@ -155,12 +152,13 @@ router.post("/draft/pick", async (req, res) => {
   sixMonths.setMonth(sixMonths.getMonth() + 6);
   const endDate = sixMonths.toISOString().split("T")[0];
 
-  const [updated] = await db.update(playersTable).set({
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), Number(draftPlayerId), {
     teamId: team.id,
     isActive: true,
     contractEndDate: endDate,
     isDraftPlayer: false,
-  }).where(eq(playersTable.id, Number(draftPlayerId))).returning();
+  });
+  const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(draftPlayerId));
 
   await db.insert(contractsTable).values({
     playerId: Number(draftPlayerId),

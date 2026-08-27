@@ -3,7 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, careerPlayerStateTable } from "@workspace/db";
 import { teamsTable, playersTable, seasonInjuryStatsTable, injuryHistoryTable, matchesTable, trainingSessionsTable } from "@workspace/db";
 import { eq, and, desc, gte } from "drizzle-orm";
-import { requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -45,15 +45,7 @@ router.get("/medical/workload", async (req, res) => {
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
   const [players, recentMatches, recentTraining] = await Promise.all([
-    db.select({
-      id:        playersTable.id,
-      name:      playersTable.name,
-      position:  playersTable.position,
-      squadRole: playersTable.squadRole,
-      imageUrl:  playersTable.imageUrl,
-    })
-      .from(playersTable)
-      .where(eq(playersTable.teamId, team.id)),
+    loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }),
     db.select({ lineup: matchesTable.lineup })
       .from(matchesTable)
       .where(and(

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { loadPlayers, loadPlayer, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -9,7 +10,7 @@ const router = Router();
 
 const serializeTeam = (t: any) => ({ ...t, budget: Number(t.budget) });
 
-const serializePlayer = (p: any) => ({
+const serializePlayer = (p: PlayerDTO) => ({
   ...p,
   height: Number(p.height),
   salary: Number(p.salary),
@@ -73,7 +74,7 @@ router.get("/team/roster", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
-  const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   res.json(buildRosterResponse(team, players, staff));
 });
@@ -94,7 +95,7 @@ router.patch("/team/roster/:id/role", async (req, res) => {
 
   // Youth players under 18 (age 14–17) may not be promoted to starter or interchange
   if (role === "starter" || role === "interchange") {
-    const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+    const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
     if (player && player.age >= 14 && player.age <= 17) {
       res.status(422).json({ error: "Youth players under 18 cannot occupy Match Player or Interchange slots." });
       return;
@@ -105,7 +106,7 @@ router.patch("/team/roster/:id/role", async (req, res) => {
   const isActive = role !== "reserve";
 
   // When an 18-year-old youth player is promoted, their academy contract ends
-  const promotedPlayer = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  const promotedPlayer = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
   const endsAcademyContract =
     (role === "starter" || role === "interchange") &&
     promotedPlayer?.age === 18 &&
@@ -133,7 +134,7 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     }
   }
 
-  const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   res.json(buildRosterResponse(team, players, staff));
 });
@@ -150,7 +151,7 @@ router.patch("/players/:id/training-focus", async (req, res) => {
   const playerId = Number(req.params.id);
   const { focus } = req.body as { focus: string };
 
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
   if (player.teamId !== team.id) { res.status(403).json({ error: "Not your player" }); return; }
   if (player.age < 14 || player.age > 18) {
@@ -178,10 +179,7 @@ router.get("/team/strength", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
-  const allPlayers = await db
-    .select()
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
+  const allPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
   const activePlayers = allPlayers.filter(p => p.squadRole === "starter" || p.squadRole === "interchange");
   const evalPlayers   = activePlayers.length > 0 ? activePlayers : allPlayers;
@@ -230,7 +228,7 @@ router.post("/team/swap-player", async (req, res) => {
   await db.update(playersTable).set({ isActive: true,  squadRole: "starter" }).where(eq(playersTable.id, Number(playerInId)));
   await db.update(playersTable).set({ isActive: false, squadRole: "reserve"  }).where(eq(playersTable.id, Number(playerOutId)));
 
-  const players = await db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, false)));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
   res.json(buildRosterResponse(team, players, staff));
 });

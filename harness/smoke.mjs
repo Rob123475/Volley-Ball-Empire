@@ -48,9 +48,12 @@ async function newCareer(api, label) {
   return (await api("GET", "/team")).data;
 }
 
+// market-all is a BROWSER: it lists every senior and attaches a team name to
+// the signed ones. The free pool is the subset with no team in this career.
 const market = async (api) => {
   const r = await api("GET", "/players/market-all?playerType=senior");
-  return Array.isArray(r.data) ? r.data : (r.data?.players ?? []);
+  const all = Array.isArray(r.data) ? r.data : (r.data?.players ?? []);
+  return all.filter((p) => !p.teamId && !p.currentTeamId);
 };
 const roster = async (api) => {
   const r = await api("GET", "/team/roster");

@@ -227,6 +227,17 @@ export async function updateStaffState(
     ));
 }
 
+/**
+ * Career id for a team, for helpers that only receive a teamId. Throws rather
+ * than silently falling back to global data.
+ */
+export async function careerSaveIdForTeamOrThrow(teamId: number): Promise<number> {
+  const { careerSaveIdForTeam } = await import("./getActiveSeason.js");
+  const id = await careerSaveIdForTeam(teamId);
+  if (id == null) throw new Error(`No career save owns team ${teamId}`);
+  return id;
+}
+
 /** Guard for code paths that must have a career context. */
 export function requireCareerSaveId(id: number | undefined): number {
   if (id == null) {

@@ -21,7 +21,7 @@ import {
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -513,8 +513,7 @@ router.post("/calendar/advance", async (req, res) => {
   const nextDate   = addDays(calendar.currentDate, 1);
 
   if (daysBetween(lastSalary, nextDate) >= 7) {
-    const teamPlayers = await db.select({ salary: playersTable.salary })
-      .from(playersTable).where(eq(playersTable.teamId, team.id));
+    const teamPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
     const teamRow = await db.select({ sponsorReputation: teamsTable.sponsorReputation })
       .from(teamsTable).where(eq(teamsTable.id, team.id)).limit(1);
@@ -595,21 +594,19 @@ router.post("/calendar/advance", async (req, res) => {
 
   // 5. Expire contracts globally — any contracted player whose contractEndDate < nextDate
   //    is freed back to the pool (teamId → null). This runs for ALL teams, not just user's.
-  const expired = await db
-    .select({ id: playersTable.id, name: playersTable.name, teamId: playersTable.teamId })
-    .from(playersTable)
-    .where(and(
-      isNotNull(playersTable.teamId),
-      isNotNull(playersTable.contractEndDate),
-      eq(playersTable.isRetired, false),
-      sql`${playersTable.contractEndDate} < ${nextDate}`,
-    ));
+  // Contract expiry is per career: another save's clock must not free this
+  // career's players.
+  const expiryCareerId = requireCareerSaveId(req.activeCareerSaveId);
+  const expired = (await loadPlayers(expiryCareerId))
+    .filter((p) => p.teamId != null && p.contractEndDate != null && p.contractEndDate < nextDate);
 
   if (expired.length > 0) {
     const expiredIds = expired.map(p => p.id);
-    await db.update(playersTable)
-      .set({ teamId: null, contractEndDate: null, isActive: false, salary: 0 })
-      .where(inArray(playersTable.id, expiredIds));
+    for (const id of expiredIds) {
+      await updatePlayerState(expiryCareerId, id, {
+        teamId: null, contractEndDate: null, isActive: false, salary: 0,
+      });
+    }
     await db.update(contractsTable)
       .set({ status: "terminated" })
       .where(and(

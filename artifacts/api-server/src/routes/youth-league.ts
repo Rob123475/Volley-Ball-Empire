@@ -9,7 +9,7 @@ import {
 } from "@workspace/db";
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 import { teamsTable } from "@workspace/db";
-import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, updatePlayerState, requireCareerSaveId, type CareerPlayerFields } from "../lib/playerDto.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 
 const router = Router();
@@ -60,17 +60,9 @@ router.get("/youth-league/stars", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
-  const youthPlayers = await db.select()
-    .from(playersTable)
-    .where(
-      and(
-        eq(playersTable.teamId, team.id),
-        gte(playersTable.age, 14),
-        lte(playersTable.age, 18),
-        eq(playersTable.isRetired, false),
-      )
-    )
-    .orderBy(asc(playersTable.age));
+  const youthPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
+    .filter((p) => p.age >= 14 && p.age <= 18)
+    .sort((a, b) => a.age - b.age);
 
   const stars = youthPlayers.map(p => ({
     id: p.id,

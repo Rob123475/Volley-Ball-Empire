@@ -18,7 +18,7 @@ import {
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, requireCareerSaveId, updatePlayerState } from "../lib/playerDto.js";
+import { loadPlayers, updatePlayerState, requireCareerSaveId, careerSaveIdForTeamOrThrow, type CareerPlayerFields } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -380,7 +380,11 @@ export async function applyPostMatchEffects(teamId: number, weather: string, fac
     }
 
     if (Object.keys(updates).length > 0) {
-      await db.update(playersTable).set(updates).where(eq(playersTable.id, player.id));
+      await updatePlayerState(
+        await careerSaveIdForTeamOrThrow(teamId),
+        player.id,
+        updates as Partial<CareerPlayerFields>,
+      );
     }
   }
 
@@ -457,8 +461,7 @@ async function resolveOpponentRating(
   const name = match.awayTeamName ?? "";
 
   if (match.awayTeamId != null && match.awayTeamId !== playerTeamId) {
-    const roster = await db.select().from(playersTable)
-      .where(and(eq(playersTable.teamId, match.awayTeamId), eq(playersTable.isActive, true)));
+    const roster = await loadPlayers(await careerSaveIdForTeamOrThrow(playerTeamId), { teamId: match.awayTeamId, isActive: true });
     if (roster.length > 0) return clampRating(sideRating(roster));
   }
 
@@ -837,7 +840,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const hasPsychCamp    = wellbeingEffects.some(e => e.effectType === "psych_camp");
   const hasRecoveryCamp = wellbeingEffects.some(e => e.effectType === "recovery_camp");
 
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const activePlayers = players.filter(p => p.isActive);
   // Six-stat mean, the same OVR the UI shows. The old three-stat average here
   // disagreed with the tick engine's four-stat one about what a squad is worth.

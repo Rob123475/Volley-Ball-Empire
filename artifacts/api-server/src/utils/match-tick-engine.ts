@@ -21,6 +21,7 @@ import { sideRating, pointProbability, pointTarget as sharedPointTarget } from "
 import { eq, and, inArray, isNull, notInArray, desc, sql } from "drizzle-orm";
 import { getWeatherEffects } from "../routes/matches.js";
 import { logger } from "../lib/logger.js";
+import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 
 const TICK_MS = 1800; // ~1 point every 1.8s of real time
 const SECONDS_PER_POINT = 22; // in-fiction rally duration, for matchTimeSeconds
@@ -44,31 +45,18 @@ const overallExpr = sql<number>`(${playersTable.speed}+${playersTable.power}+${p
 
 async function loadRoster(teamId: number | null, excludeIds: number[]): Promise<RosterPlayer[]> {
   if (teamId == null) return [];
-  const rows = await db
-    .select()
-    .from(playersTable)
-    .where(and(
-      eq(playersTable.teamId, teamId),
-      eq(playersTable.isActive, true),
-      eq(playersTable.playerType, "senior"),
-    ))
-    .orderBy(desc(overallExpr))
-    .limit(2);
+  const cid = await careerSaveIdForTeamOrThrow(teamId);
+  const rows = (await loadPlayers(cid, { teamId, isActive: true, playerType: "senior" }))
+    .sort((a, b) => sideRating([b]) - sideRating([a]))
+    .slice(0, 2);
   return rows.filter(p => !excludeIds.includes(p.id));
 }
 
-async function loadFallbackPool(excludeIds: number[]): Promise<RosterPlayer[]> {
-  const rows = await db
-    .select()
-    .from(playersTable)
-    .where(and(
-      isNull(playersTable.teamId),
-      eq(playersTable.playerType, "senior"),
-      eq(playersTable.isActive, true),
-      excludeIds.length > 0 ? notInArray(playersTable.id, excludeIds) : undefined,
-    ))
-    .orderBy(desc(overallExpr))
-    .limit(2);
+async function loadFallbackPool(fallbackCareerId: number, excludeIds: number[]): Promise<RosterPlayer[]> {
+  const rows = (await loadPlayers(fallbackCareerId, { freeAgents: true, playerType: "senior", isActive: true }))
+    .filter((p) => !excludeIds.includes(p.id))
+    .sort((a, b) => sideRating([b]) - sideRating([a]))
+    .slice(0, 2);
   return rows;
 }
 
@@ -125,7 +113,7 @@ export async function startMatchTick(matchId: number): Promise<{ ok: boolean; er
     : [];
   if (awayRoster.length < 2) {
     const exclude = [...homeRoster.map(p => p.id), ...awayRoster.map(p => p.id)];
-    awayRoster = [...awayRoster, ...(await loadFallbackPool(exclude))];
+    awayRoster = [...awayRoster, ...(await loadFallbackPool(await careerSaveIdForTeamOrThrow(match.homeTeamId), exclude))];
   }
 
   const homeAvg = sideAvg(homeRoster);

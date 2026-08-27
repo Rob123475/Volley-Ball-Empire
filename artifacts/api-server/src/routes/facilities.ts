@@ -12,6 +12,7 @@ import {
 import { eq, and, isNotNull, lte, desc } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -236,7 +237,7 @@ router.get("/club-rating", async (req, res) => {
 
   const [facilities, allPlayers, allStaff] = await Promise.all([
     ensureFacilities(team.id),
-    db.select().from(playersTable).where(and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true))),
+    loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true }),
     db.select().from(staffTable).where(eq(staffTable.teamId, team.id)),
   ]);
 

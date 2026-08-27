@@ -13,7 +13,7 @@ import { generateScoutingProspects } from "../utils/prospect-generator";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
-import { createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -209,16 +209,8 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   }
 
   // Youth Academy capacity check (max 6 players age 14–18)
-  const youthPlayers = await db.select()
-    .from(playersTable)
-    .where(
-      and(
-        eq(playersTable.teamId, team.id),
-        gte(playersTable.age, 14),
-        lte(playersTable.age, 18),
-        eq(playersTable.isRetired, false),
-      ),
-    );
+  const youthPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
+    .filter((p) => p.age >= 14 && p.age <= 18);
   if (youthPlayers.length >= 6) {
     res.status(422).json({
       error: "Youth Academy is full (6/6). Release a youth player before signing a new one.",

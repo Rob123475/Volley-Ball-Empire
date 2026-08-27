@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
@@ -34,19 +35,13 @@ router.post("/contracts", async (req, res) => {
   const { playerId, salary, endDate, bonusPerWin, squadRole: rawSquadRole } = req.body;
 
   // Youth academy capacity check (max 6 players aged 14–18)
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, Number(playerId)) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
   if (!player) { res.status(404).json({ error: "Player not found." }); return; }
   const isYouth = player.age >= 14 && player.age <= 18;
 
   if (isYouth) {
-    const existingYouths = await db.select()
-      .from(playersTable)
-      .where(and(
-        eq(playersTable.teamId, team.id),
-        gte(playersTable.age, 14),
-        lte(playersTable.age, 18),
-        eq(playersTable.isRetired, false),
-      ));
+    const existingYouths = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
+      .filter((p) => p.age >= 14 && p.age <= 18);
     if (existingYouths.length >= 6) {
       res.status(422).json({ error: "Youth Academy is full (6/6). Promote, draft, sell, or release a youth player before signing another." });
       return;
@@ -111,13 +106,14 @@ router.post("/contracts", async (req, res) => {
     bonusPerWin: Number(bonusPerWin ?? 0),
   }).returning();
 
-  await db.update(playersTable).set({
+  // Squad membership is career state, not a property of the athlete.
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), Number(playerId), {
     teamId: team.id,
     salary: Number(salary),
     contractEndDate: actualEnd,
     isActive: squadRole === "starter" || squadRole === "interchange",
     squadRole,
-  }).where(eq(playersTable.id, Number(playerId)));
+  });
 
   res.status(201).json(serializeContract(contract));
 });
@@ -137,7 +133,7 @@ router.delete("/contracts/:id", async (req, res) => {
   const contract = await db.query.contractsTable.findFirst({ where: eq(contractsTable.id, id) });
   if (!contract) { res.status(404).json({ error: "Contract not found" }); return; }
 
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, contract.playerId) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), contract.playerId);
 
   // Development Rights Protection: academy players cannot have their contract terminated directly.
   // They may only leave via Promotion, Sale, Draft Entry, or Release.
@@ -149,7 +145,7 @@ router.delete("/contracts/:id", async (req, res) => {
   }
 
   const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
-  await db.update(playersTable).set({ teamId: null, contractEndDate: null }).where(eq(playersTable.id, contract.playerId));
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve" });
   res.json(serializeContract(terminated));
 });
 

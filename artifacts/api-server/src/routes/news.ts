@@ -3,6 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable, trophiesTable, matchesTable } from "@workspace/db";
 import { eq, desc, and, or } from "drizzle-orm";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -324,12 +325,9 @@ router.get("/news/world-tour", async (req, res) => {
     }
 
     // Real event: recent player signings
-    const recentPlayers = await db
-      .select()
-      .from(playersTable)
-      .where(eq(playersTable.teamId, team.id))
-      .orderBy(desc(playersTable.createdAt))
-      .limit(2);
+    const recentPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
+      .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+      .slice(0, 2);
 
     for (const player of recentPlayers) {
       const pos = POSITIONS_LABEL[player.position] ?? player.position;

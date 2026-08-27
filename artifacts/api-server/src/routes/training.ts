@@ -4,7 +4,7 @@ import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import { loadPlayers, loadPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -306,8 +306,10 @@ const applyFatigueAndStats = async (
     }
   }
 
-  const [newPlayer] = await db.update(playersTable).set(updates)
-    .where(eq(playersTable.id, playerId)).returning();
+  // Training results are career state. This wrote to the reference table via an
+  // untyped Record, which the compiler could not catch.
+  await updatePlayerState(careerSaveId, playerId, updates as Partial<CareerPlayerFields>);
+  const newPlayer = await loadPlayer(careerSaveId, playerId);
 
   const nextMilestone = (newPrimaryMilestone + 1) * PRIMARY_THRESHOLD;
   return {
@@ -367,8 +369,7 @@ router.post("/training/team", async (req, res) => {
   const { type, focus, durationHours, scheduledAt, coachId } = req.body;
   const programName = resolveProgram(type);
 
-  const activePlayers = await db.select().from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true)));
+  const activePlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
   if (activePlayers.length === 0) { res.status(400).json({ error: "No active players" }); return; }
 
   const sessions = await Promise.all(activePlayers.map(player =>

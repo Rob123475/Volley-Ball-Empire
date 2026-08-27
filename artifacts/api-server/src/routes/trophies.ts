@@ -11,6 +11,7 @@ import {
   trophiesTable,
 } from "@workspace/db";
 import { eq, desc, sql, and } from "drizzle-orm";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -53,10 +54,7 @@ router.get("/trophies/cabinet", async (req, res) => {
     .from(olympicSelectionsTable)
     .where(eq(olympicSelectionsTable.userId, userId));
 
-  const teamPlayers = await db
-    .select()
-    .from(playersTable)
-    .where(eq(playersTable.teamId, team.id));
+  const teamPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
   const teamStaff = await db
     .select()
@@ -324,11 +322,9 @@ router.get("/trophies/hall-of-fame", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) return res.status(404).json({ error: "Team not found" });
 
-  const retired = await db
-    .select()
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, true)))
-    .orderBy(desc(playersTable.legendScore));
+  const retired = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, includeRetired: true }))
+    .filter((p) => p.isRetired)
+    .sort((a, b) => (b.legendScore ?? 0) - (a.legendScore ?? 0));
 
   return res.json(
     retired.map((p) => ({

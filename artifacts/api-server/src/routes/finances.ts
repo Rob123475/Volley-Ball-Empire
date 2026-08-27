@@ -6,6 +6,7 @@ import { eq, and, desc, sql, count } from "drizzle-orm";
 import { generateOfferBatch } from "../utils/sponsor-generator.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
+import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -58,7 +59,7 @@ async function computeStaffWageBill(teamId: number) {
 }
 
 async function computeWageBill(teamId: number) {
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, teamId));
+  const players = await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId });
   // Exclude youth academy players — they have a separate wage system. Keyed on
   // player_type, not an age guess: 9 shipped academy players are 19, and the
   // old age test billed them at senior tier rates.
@@ -79,7 +80,7 @@ const YOUTH_WEEKLY_WAGE: Record<string, number> = {
 };
 
 async function computeYouthWageBill(teamId: number) {
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, teamId));
+  const players = await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId });
   const youthPlayers = players.filter(isActiveYouthPlayer);
   const roster = youthPlayers.map(p => ({
     id:           p.id,

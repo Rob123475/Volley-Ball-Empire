@@ -20,6 +20,7 @@ import {
   unityMatchStatsTable,
 } from "@workspace/db";
 import { eq, and, asc } from "drizzle-orm";
+import { loadPlayers, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -140,10 +141,7 @@ router.get("/game/squad", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No active team" }); return; }
 
-  const players = await db
-    .select()
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true)));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
 
   res.json({
     clubId:   team.id,
@@ -236,10 +234,7 @@ router.get("/game/match-setup/:matchId", async (req, res) => {
     ? (match.awayTeamName ?? "Opponent")
     : (match.homeTeamName ?? "Opponent");
 
-  const allPlayers = await db
-    .select()
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true)));
+  const allPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
 
   const lineup: number[] = Array.isArray(match.lineup) ? (match.lineup as number[]) : [];
   const lineupPlayers = lineup.length > 0
@@ -444,10 +439,7 @@ router.post("/game/post-match", async (req, res) => {
 
     if (Object.keys(patch).length === 0) continue;
 
-    await db
-      .update(playersTable)
-      .set(patch)
-      .where(and(eq(playersTable.id, playerId), eq(playersTable.teamId, team.id)));
+    await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, patch);
     applied++;
   }
 
@@ -464,10 +456,7 @@ router.get("/game/assets", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No active team" }); return; }
 
-  const players = await db
-    .select({ id: playersTable.id, name: playersTable.name, imageUrl: playersTable.imageUrl })
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true)));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
 
   res.json({
     myClub: {

@@ -14,6 +14,7 @@ import {
 } from "@workspace/db";
 import { eq, and, desc, asc } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -280,11 +281,9 @@ router.get("/history/hall-of-fame", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
-  const retiredPlayers = await db
-    .select()
-    .from(playersTable)
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.isRetired, true)))
-    .orderBy(desc(playersTable.legendScore));
+  const retiredPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, includeRetired: true }))
+    .filter((p) => p.isRetired)
+    .sort((a, b) => (b.legendScore ?? 0) - (a.legendScore ?? 0));
 
   const managerEntries = await db
     .select()

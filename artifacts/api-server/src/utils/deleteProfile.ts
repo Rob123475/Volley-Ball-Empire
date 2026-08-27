@@ -32,6 +32,8 @@ import {
   careerSavesTable,
   careerHistoryEntriesTable,
   poachingOffersTable,
+  careerPlayerStateTable,
+  careerStaffStateTable,
 } from "@workspace/db";
 import { eq, inArray, or } from "drizzle-orm";
 
@@ -61,12 +63,14 @@ export function deleteProfileCascade(userId: string): void {
       .map((r) => r.id);
 
     if (teamIds.length > 0) {
+      // players is global reference data now — a career owns only its state
+      // rows, so deleting a profile must not delete athletes.
       const playerIds = tx
-        .select({ id: playersTable.id })
-        .from(playersTable)
-        .where(inArray(playersTable.teamId, teamIds))
+        .select({ playerId: careerPlayerStateTable.playerId })
+        .from(careerPlayerStateTable)
+        .where(inArray(careerPlayerStateTable.teamId, teamIds))
         .all()
-        .map((r) => r.id);
+        .map((r) => r.playerId);
 
       const matchIds = tx
         .select({ id: matchesTable.id })
@@ -125,11 +129,25 @@ export function deleteProfileCascade(userId: string): void {
       if (matchIds.length > 0) {
         tx.delete(matchesTable).where(inArray(matchesTable.id, matchIds)).run();
       }
-      tx.delete(playersTable).where(inArray(playersTable.teamId, teamIds)).run();
-      tx.delete(staffTable).where(inArray(staffTable.teamId, teamIds)).run();
+      // Only this career's state rows go; the athletes themselves are shared.
+      tx.delete(careerPlayerStateTable).where(inArray(careerPlayerStateTable.teamId, teamIds)).run();
+      tx.delete(careerStaffStateTable).where(inArray(careerStaffStateTable.teamId, teamIds)).run();
     }
 
     // ── Career-save children, then the saves ───────────────────────────────
+    // career_player_state / career_staff_state FK career_save_id, so they must
+    // go for EVERY save this user owns, not only those whose team matched above.
+    const saveIds = tx
+      .select({ id: careerSavesTable.id })
+      .from(careerSavesTable)
+      .where(eq(careerSavesTable.userId, userId))
+      .all()
+      .map((r) => r.id);
+    if (saveIds.length > 0) {
+      tx.delete(careerPlayerStateTable).where(inArray(careerPlayerStateTable.careerSaveId, saveIds)).run();
+      tx.delete(careerStaffStateTable).where(inArray(careerStaffStateTable.careerSaveId, saveIds)).run();
+    }
+
     tx.delete(poachingOffersTable).where(eq(poachingOffersTable.userId, userId)).run();
     tx.delete(careerHistoryEntriesTable).where(eq(careerHistoryEntriesTable.userId, userId)).run();
     tx.delete(careerSavesTable).where(eq(careerSavesTable.userId, userId)).run();
