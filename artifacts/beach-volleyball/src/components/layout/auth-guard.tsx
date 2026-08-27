@@ -47,9 +47,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // in. The originals ("11 cities across 9 countries") happen to be right
   // today, but they were written when the world was seeded and nothing would
   // have caught them drifting as venues were added.
-  const { data: world } = useQuery({
+  const { data: world, isError: worldFailed } = useQuery({
     queryKey: ["world-summary"],
-    retry: false,
+    retry: 1,
+    staleTime: Infinity,
     queryFn: async () => {
       const res = await fetch("/api/locations/world-summary");
       if (!res.ok) throw new Error("Failed to load world summary");
@@ -60,14 +61,34 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     },
   });
 
-  const venueCount   = world?.venues    ?? 0;
-  const cityCount    = world?.cities    ?? 0;
-  const countryCount = world?.countries ?? 0;
-  // Formatted from the real top purse (500,000 -> "$500k") rather than typed
-  // in — the old pill said "$50k", off by a factor of ten.
-  const topPrizeLabel = world?.topPrize
-    ? `$${Math.round(world.topPrize / 1000).toLocaleString()}k`
-    : "—";
+  // The title screen is the first thing a player ever sees, and it now depends
+  // on a network call it never used to make. It must degrade to something
+  // presentable, never to zeros, NaN or a half-empty stat rail:
+  //   loading -> a neutral placeholder in the pills
+  //   failed  -> drop the numeric pills entirely and use generic copy
+  // Keyed only on whether real data arrived — never on pending-vs-error. A
+  // stat rail that can get stuck showing filler is worse than one that stays
+  // empty, and the pending/error distinction is not worth betting the first
+  // screen of the game on.
+  const worldReady =
+    !worldFailed && !!world &&
+    Number.isFinite(world.venues) && Number.isFinite(world.countries) &&
+    Number.isFinite(world.cities) && Number.isFinite(world.topPrize) &&
+    world.venues > 0 && world.countries > 0 && world.cities > 0;
+
+  const formatPrize = (n: number) => `$${Math.round(n / 1000).toLocaleString()}k`;
+
+  const statPills = worldReady
+    ? [
+        { label: "World Tour Stops",  value: String(world!.venues) },
+        { label: "Countries",         value: String(world!.countries) },
+        { label: "Grand Final Prize", value: formatPrize(world!.topPrize) },
+      ]
+    : [];
+
+  const tagline = worldReady
+    ? `Conquer ${world!.cities} cities across ${world!.countries} countries.`
+    : "Conquer the world tour.";
 
   const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
 
@@ -133,11 +154,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             </h1>
 
             <p className="mt-4 text-white/60 text-base md:text-lg max-w-md leading-relaxed">
-              Build your dream team.{" "}
-              {cityCount > 0 && countryCount > 0
-                ? `Conquer ${cityCount} cities across ${countryCount} countries.`
-                : "Conquer the world tour."}{" "}
-              Claim the world championship.
+              Build your dream team. {tagline} Claim the world championship.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 flex-wrap">
@@ -169,11 +186,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
         {/* Right-side stat pills */}
         <div className="hidden lg:flex absolute right-12 top-1/2 -translate-y-1/2 flex-col gap-3">
-          {[
-            { label: "World Tour Stops", value: venueCount   > 0 ? String(venueCount)   : "—" },
-            { label: "Countries",        value: countryCount > 0 ? String(countryCount) : "—" },
-            { label: "Grand Final Prize",value: topPrizeLabel },
-          ].map((s) => (
+          {statPills.map((s) => (
             <div key={s.label} className="bg-black/50 backdrop-blur border border-white/10 rounded-xl px-5 py-3 text-right">
               <div className="text-white font-black text-2xl">{s.value}</div>
               <div className="text-white/40 text-xs uppercase tracking-wider">{s.label}</div>
