@@ -10,6 +10,7 @@ import {
 } from "@workspace/db";
 import { eq, and, inArray } from "drizzle-orm";
 import { generateContinentalProspects } from "../utils/prospect-generator";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -225,7 +226,7 @@ router.post("/continental-scouting/start", async (req, res) => {
     .set({ budget: budget - cost })
     .where(eq(teamsTable.id, team.id));
 
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = await getGameDate(team.id);
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",

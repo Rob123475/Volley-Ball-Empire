@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { generateOfferBatch } from "../utils/sponsor-generator.js";
+import { getGameDate } from "../utils/gameDate.js";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -38,15 +39,20 @@ function getPlayerTier(overallRating: number): PlayerTier {
 const WEEKS_PER_MONTH = 52 / 12;
 
 async function computeStaffWageBill(teamId: number) {
+  // staff.salary is a MONTHLY figure — that is how the source data is written
+  // (a head coach is ~9,800 on a 12-month contract) and how the staff market
+  // labels it ("/mo"). Reading it as weekly and multiplying by 4.33 overstated
+  // the staff wage bill by 4.33x on the finances page.
   const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
   const roster = staff.map(s => ({
-    id:           s.id,
-    name:         s.name,
-    role:         s.role,
-    weeklySalary: Number(s.salary),
+    id:            s.id,
+    name:          s.name,
+    role:          s.role,
+    monthlySalary: Number(s.salary),
+    weeklySalary:  Math.round(Number(s.salary) / WEEKS_PER_MONTH),
   }));
-  const weeklyWages  = roster.reduce((sum, s) => sum + s.weeklySalary, 0);
-  const monthlyWages = Math.round(weeklyWages * WEEKS_PER_MONTH);
+  const monthlyWages = Math.round(roster.reduce((sum, s) => sum + s.monthlySalary, 0));
+  const weeklyWages  = Math.round(monthlyWages / WEEKS_PER_MONTH);
   return { weeklyWages, monthlyWages, staffCount: roster.length, staff: roster };
 }
 
@@ -126,8 +132,8 @@ router.get("/finances/summary", async (req, res) => {
   const totalIncome = income.reduce((acc, t) => acc + Number(t.amount), 0);
   const totalExpenses = expenses.reduce((acc, t) => acc + Number(t.amount), 0);
 
-  const now = new Date();
-  const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // In-game month, not the machine's — see dashboard.ts for the same fix.
+  const monthStr = (await getGameDate(team.id)).slice(0, 7);
   const monthIncome = income.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
   const monthExpenses = expenses.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
 
@@ -136,8 +142,13 @@ router.get("/finances/summary", async (req, res) => {
     computeStaffWageBill(team.id),
     computeYouthWageBill(team.id),
   ]);
-  const txPlayerSalaries = expenses.filter(t => t.category === "player_salary").reduce((acc, t) => acc + Number(t.amount), 0);
-  const txStaffSalaries  = expenses.filter(t => t.category === "staff_salary").reduce((acc, t) => acc + Number(t.amount), 0);
+  // The weekly charge in calendar.ts writes categories "salaries" and "staff";
+  // older/other rows use "player_salary" and "staff_salary". Accept both, or
+  // every wage row falls through to "Other".
+  const PLAYER_SALARY_CATEGORIES = ["player_salary", "salaries"];
+  const STAFF_SALARY_CATEGORIES  = ["staff_salary", "staff"];
+  const txPlayerSalaries = expenses.filter(t => PLAYER_SALARY_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
+  const txStaffSalaries  = expenses.filter(t => STAFF_SALARY_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
 
   res.json({
     totalBalance: Number(team.budget),
@@ -154,7 +165,7 @@ router.get("/finances/summary", async (req, res) => {
       playerSalaries: txPlayerSalaries + wageBill.monthlyWages + youthWageBill.monthlyWages,
       staffSalaries: txStaffSalaries + staffWageBill.monthlyWages,
       trainingCosts: expenses.filter(t => t.category === "training_cost").reduce((acc, t) => acc + Number(t.amount), 0),
-      other: expenses.filter(t => !["player_salary","staff_salary","training_cost"].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),
+      other: expenses.filter(t => ![...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, "training_cost"].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),
     },
     recentTransactions: txs.slice(0, 10).map(serializeTx),
   });
@@ -270,7 +281,7 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   const finalAmount = Math.round(Number(deal.amount) * promoBonus);
 
   await db.update(promoDealsTable).set({ isAccepted: true, teamId: team.id }).where(eq(promoDealsTable.id, id));
-  const today = new Date().toISOString().split("T")[0];
+  const today = await getGameDate(team.id);
   const [tx] = await db.insert(financeTransactionsTable).values({
     teamId: team.id,
     type: "income",
@@ -292,12 +303,6 @@ function daysDiff(from: string, to: string): number {
   const a = new Date(from).getTime();
   const b = new Date(to).getTime();
   return Math.floor((b - a) / (1000 * 60 * 60 * 24));
-}
-
-async function getGameDate(teamId: number): Promise<string> {
-  const rows = await db.select({ currentDate: calendarStateTable.currentDate })
-    .from(calendarStateTable).where(eq(calendarStateTable.teamId, teamId)).limit(1);
-  return rows[0]?.currentDate ?? new Date().toISOString().split("T")[0];
 }
 
 /* ── Regenerative sponsor offers ─────────────────────────────── */

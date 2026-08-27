@@ -4,11 +4,13 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import {
   getSessionId,
+  getSession,
   createSession,
   clearSession,
   setSessionCookie,
   type SessionData,
 } from "../lib/auth";
+import { deleteProfileCascade } from "../utils/deleteProfile";
 
 const router: IRouter = Router();
 
@@ -102,12 +104,32 @@ router.post("/profiles/:id/select", async (req: Request, res: Response) => {
 });
 
 // ── DELETE /profiles/:id — remove a local profile ────────────────────────────
-// Leaves that profile's teams/career saves in place (they're keyed by userId
-// and just become unreachable) rather than cascading a destructive delete —
-// safer default; can be revisited if you want a full wipe-on-delete.
+// Deletes the profile and everything it owns. Leaving the dependent rows
+// behind is not an option: every user_id column is NOT NULL, so with foreign
+// keys enforced the bare users-row delete failed for any profile that had
+// ever started a career. See utils/deleteProfile.ts.
 router.delete("/profiles/:id", async (req: Request, res: Response) => {
   const id = String(req.params.id);
-  await db.delete(usersTable).where(eq(usersTable.id, id));
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
+  if (!user) { res.status(404).json({ error: "Profile not found" }); return; }
+
+  try {
+    deleteProfileCascade(id);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    req.log?.error({ err, profileId: id }, "DELETE /profiles/:id failed");
+    res.status(500).json({ error: `Could not delete profile: ${message}` });
+    return;
+  }
+
+  // If the deleted profile was the one signed in, drop the session too.
+  const sid = getSessionId(req);
+  if (sid) {
+    const session = await getSession(sid);
+    if (session?.user?.id === id) await clearSession(res, sid);
+  }
+
   res.json({ ok: true });
 });
 

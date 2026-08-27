@@ -10,6 +10,7 @@ import {
   financeTransactionsTable,
 } from "@workspace/db";
 import { eq, and, isNotNull, lte, desc } from "drizzle-orm";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -202,7 +203,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
     managerRepPoints: (team.managerRepPoints ?? 0) + 5,
   }).where(eq(teamsTable.id, team.id));
 
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = await getGameDate(team.id);
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",

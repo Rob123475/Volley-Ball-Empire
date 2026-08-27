@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Activity, Loader2, Play } from "lucide-react";
 import CareerManagement from "@/pages/career-management";
+import { careerSlotStatus } from "@/lib/career-slot-status";
 
 
 
@@ -17,13 +18,20 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   );
   const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
 
-  const { data: team, isLoading: teamLoading, isError: noTeam, refetch: refetchTeam } = useGetMyTeam({
+  const teamQuery = useGetMyTeam({
     query: { enabled: !!user, queryKey: getGetMyTeamQueryKey(), retry: false }
   });
+  const { data: team, isLoading: teamLoading, refetch: refetchTeam } = teamQuery;
 
-  const hasTeam   = !!user && !!team && !noTeam;
-  const needsTeam = !!user && (noTeam || !team) && !teamLoading;
-  const isLoading = authLoading || (!!user && teamLoading);
+  // A 404 means "no career yet"; anything else means the request failed and we
+  // do not know. Never let a failed request present as an empty account — that
+  // turns Continue into "Start New Career" over the top of a real save.
+  const slot = careerSlotStatus(teamQuery);
+
+  const hasTeam    = !!user && slot === "present";
+  const needsTeam  = !!user && slot === "absent";
+  const teamFailed = !!user && slot === "unknown";
+  const isLoading  = authLoading || (!!user && teamLoading);
 
   const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
 
@@ -37,6 +45,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!user) {
       sessionStorage.setItem("bvp-title-dismissed", "1");
       window.location.href = loginUrl;
+    } else if (teamFailed) {
+      // We could not read the save slot. Retry — do not offer a new career.
+      refetchTeam();
     } else if (!hasTeam) {
       sessionStorage.setItem("bvp-title-dismissed", "1");
       window.location.href = "/new-career";
@@ -99,14 +110,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 {isLoading
                   ? <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   : <Play className="mr-2 h-5 w-5 fill-white" />}
-                {hasTeam ? "CONTINUE" : "START NEW CAREER"}
+                {teamFailed ? "RETRY" : hasTeam ? "CONTINUE" : "START NEW CAREER"}
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
               </Button>
             </div>
 
             <p className="mt-6 text-white/30 text-xs">
               {user
-                ? `Signed in · ${hasTeam ? "Your progress is saved." : "Set up your team to begin."}`
+                ? teamFailed
+                  ? "Could not reach your save data. Your career is safe — press Retry."
+                  : `Signed in · ${hasTeam ? "Your progress is saved." : "Set up your team to begin."}`
                 : "Select or create a manager profile to save your progress."}
             </p>
           </div>
@@ -149,6 +162,28 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     sessionStorage.removeItem("bvp-title-dismissed");
     window.location.href = "/";
     return null;
+  }
+
+  // ── Could not read the save slot — say so, rather than rendering an empty
+  //    game or bouncing the player into career creation over a live save. ─────
+  if (teamFailed) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background p-8">
+        <div className="max-w-sm w-full rounded-2xl border border-white/10 bg-white/5 p-8 text-center space-y-5">
+          <div className="text-4xl">📡</div>
+          <div>
+            <h2 className="text-lg font-black text-white">Could not load your career</h2>
+            <p className="mt-2 text-sm text-white/50">
+              The game could not reach its local server. Your save has not been
+              changed. Try again, and restart the game if this keeps happening.
+            </p>
+          </div>
+          <Button className="w-full font-black" onClick={() => refetchTeam()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

@@ -3,6 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { teamsTable, matchesTable, playersTable, financeTransactionsTable, seasonsTable, careerSavesTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -23,8 +24,10 @@ router.get("/dashboard", async (req, res) => {
   const allTx = await db.select().from(financeTransactionsTable)
     .where(eq(financeTransactionsTable.teamId, team.id));
   const balance = Number(team.budget);
-  const now = new Date();
-  const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  // Month filter must come from the in-game clock: finance_transactions.date
+  // holds in-game dates, so a real-world month prefix never matched and
+  // monthly income/expenses were always $0.
+  const monthStr = (await getGameDate(team.id)).slice(0, 7);
   const monthIncome = allTx.filter(t => t.type === "income" && t.date.startsWith(monthStr)).reduce((a, t) => a + Number(t.amount), 0);
   const monthExpenses = allTx.filter(t => t.type === "expense" && t.date.startsWith(monthStr)).reduce((a, t) => a + Number(t.amount), 0);
 

@@ -12,6 +12,7 @@ import { eq, and, gte, lte } from "drizzle-orm";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { generateDevelopment } from "../utils/player-development";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -133,7 +134,7 @@ router.post("/youth-scouting/start", async (req, res) => {
     return;
   }
 
-  const today = new Date().toISOString().split("T")[0]!;
+  const today = await getGameDate(team.id);
 
   const [updated] = await db.update(teamsTable).set({
     youthScoutingContinent:      continent,

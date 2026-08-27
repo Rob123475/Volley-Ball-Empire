@@ -16,7 +16,11 @@ export default function ProfilePicker() {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
 
-  const { data, isLoading } = useQuery({
+  // A failed profiles request must never render as "you have no managers" —
+  // that reads as data loss on what is often the first screen of the game.
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["local-profiles"],
     queryFn: async (): Promise<{ profiles: Profile[] }> => {
       const res = await fetch("/api/profiles");
@@ -31,10 +35,12 @@ export default function ProfilePicker() {
       if (!res.ok) throw new Error("Failed to select profile");
       return res.json();
     },
+    onMutate: () => setActionError(null),
     onSuccess: () => {
       queryClient.clear();
       window.location.href = getReturnTo();
     },
+    onError: () => setActionError("Could not open that profile. Please try again."),
   });
 
   const createMutation = useMutation({
@@ -47,9 +53,11 @@ export default function ProfilePicker() {
       if (!res.ok) throw new Error("Failed to create profile");
       return res.json() as Promise<{ id: string }>;
     },
+    onMutate: () => setActionError(null),
     onSuccess: (created) => {
       selectMutation.mutate(created.id);
     },
+    onError: () => setActionError("Could not create that profile. Please try again."),
   });
 
   const profiles = data?.profiles ?? [];
@@ -68,6 +76,20 @@ export default function ProfilePicker() {
             <div className="flex items-center justify-center py-10 gap-3 text-white/40">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span className="text-sm">Loading profiles…</span>
+            </div>
+          ) : isError ? (
+            <div className="py-8 px-4 text-center space-y-3">
+              <p className="text-sm text-white/50">
+                Could not load your managers. They have not been deleted — the
+                game could not reach its local server.
+              </p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/70 hover:bg-white/10 transition-all"
+              >
+                Try Again
+              </button>
             </div>
           ) : profiles.length === 0 ? (
             <div className="py-8 px-4 text-center text-sm text-white/30">No profiles yet — create one below.</div>
@@ -134,6 +156,10 @@ export default function ProfilePicker() {
           >
             <Plus className="h-4 w-4" /> New Profile
           </button>
+        )}
+
+        {actionError && (
+          <p className="text-center text-sm text-red-400/90" role="alert">{actionError}</p>
         )}
       </div>
     </div>

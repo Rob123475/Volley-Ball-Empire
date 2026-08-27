@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable } from "@workspace/db";
-import { eq, desc, gt, gte, and, sql } from "drizzle-orm";
+import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
@@ -11,6 +11,7 @@ import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -486,13 +487,21 @@ router.get("/matches/fixture", async (req, res) => {
   // branch below).
   const hasWorldFinals = existing.some(m => FINALS_TIERS.has(m.tier ?? ""));
   if (existing.length > 0 && !hasWorldFinals) {
-    await db.delete(matchesTable).where(
-      and(
-        eq(matchesTable.homeTeamId, team.id),
-        eq(matchesTable.season, seasonYear),
-        gte(matchesTable.round, 67),
-      )
-    );
+    // match_live_state rows are created when a live match starts and are never
+    // cleaned up, so deleting the matches they reference is a FOREIGN KEY
+    // failure — a permanent 500 on the fixture screen for that save. Clear the
+    // dependents first, in one transaction with the delete.
+    const staleIds = existing.filter(m => (m.round ?? 0) >= 67).map(m => m.id);
+    if (staleIds.length > 0) {
+      db.transaction((tx) => {
+        tx.delete(matchLiveStateTable)
+          .where(inArray(matchLiveStateTable.matchId, staleIds))
+          .run();
+        tx.delete(matchesTable)
+          .where(inArray(matchesTable.id, staleIds))
+          .run();
+      });
+    }
     existing = existing.filter(m => (m.round ?? 0) < 67);
   }
 
@@ -777,6 +786,11 @@ router.post("/matches/:id/simulate", async (req, res) => {
     ...(precomputed?.sets ? { sets: precomputed.sets } : {}),
   }).where(eq(matchesTable.id, id)).returning();
 
+  // The live-tick scratch row has served its purpose once the match is over.
+  // Leaving it behind pinned the match row in place and broke any later
+  // fixture rebuild with a FOREIGN KEY failure.
+  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, id));
+
   // All-Star exhibition: no standings updates (wins/losses/prize/board confidence unchanged).
   if (isAllStar) {
     const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
@@ -837,7 +851,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
       boardConfidence:   Math.min(100, (team.boardConfidence ?? 60) + confWinDelta),
       ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
     }).where(eq(teamsTable.id, team.id));
-    const today = new Date().toISOString().split("T")[0];
+    const today = await getGameDate(team.id);
     await db.insert(financeTransactionsTable).values({
       teamId:      team.id,
       type:        "income",
@@ -921,7 +935,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // Tick academy contracts (decrement years, charge weekly wages)
   const academyWages = await tickAcademyContracts(team.id);
   if (academyWages.totalWeeklyWages > 0) {
-    const wageDate = new Date().toISOString().split("T")[0];
+    const wageDate = await getGameDate(team.id);
     await db.update(teamsTable)
       .set({ budget: sql`${teamsTable.budget} - ${academyWages.totalWeeklyWages}` })
       .where(eq(teamsTable.id, team.id));
@@ -1201,6 +1215,8 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     .set({ homeScore, awayScore, status: "completed" })
     .where(eq(matchesTable.id, id))
     .returning();
+
+  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, id));
 
   const newSponsorRep = Math.max(0, (team.sponsorReputation ?? 50) - 1);
   await db.update(teamsTable).set({

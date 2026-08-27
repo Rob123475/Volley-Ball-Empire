@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { fork } = require("child_process");
@@ -39,6 +39,7 @@ const SERVER_PORT = 4173;
 
 let serverProcess = null;
 let mainWindow = null;
+let isQuitting = false;
 
 // ── First-launch DB setup ────────────────────────────────────────────────────
 // Copies the -wal/-shm sidecars alongside the main file, if present, rather
@@ -81,21 +82,48 @@ function startServer() {
     serverProcess.stderr?.on("data", (d) => console.error(`[server] ${d}`));
     serverProcess.on("error", reject);
 
+    // Without this, a server that dies after a successful startup left the
+    // window up with every request failing — the game looked frozen and the
+    // player had nothing to report.
+    serverProcess.on("exit", (code, signal) => {
+      serverProcess = null;
+      if (isQuitting) return;
+      const detail = signal ? `signal ${signal}` : `exit code ${code}`;
+      reject(new Error(`Server process stopped (${detail})`));
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        dialog.showErrorBox(
+          "Volleyball Empire has lost its server",
+          `The game's local server stopped unexpectedly (${detail}).
+
+` +
+            `Your save is on disk and unchanged. Please restart the game.`
+        );
+        app.quit();
+      }
+    });
+
     // Poll until the server actually responds, rather than guessing a fixed delay
     const start = Date.now();
     const timeoutMs = 15000;
+    const retryOrFail = (reason) => {
+      if (Date.now() - start > timeoutMs) {
+        reject(new Error(`Server did not start within 15s (${reason})`));
+      } else {
+        setTimeout(poll, 300);
+      }
+    };
+
     const poll = () => {
       const req = http.get(`http://localhost:${SERVER_PORT}/api/healthz`, (res) => {
-        res.destroy();
-        resolve();
+        // Any HTTP answer used to count as success, so an unrelated service
+        // already holding port 4173 would make startup "succeed" and the game
+        // would load someone else's page. Require a 2xx from our own endpoint.
+        const ok = res.statusCode >= 200 && res.statusCode < 300;
+        res.resume();
+        res.on("end", () => (ok ? resolve() : retryOrFail(`health check returned ${res.statusCode}`)));
       });
-      req.on("error", () => {
-        if (Date.now() - start > timeoutMs) {
-          reject(new Error("Server did not start within 15s"));
-        } else {
-          setTimeout(poll, 300);
-        }
-      });
+      req.setTimeout(2000, () => req.destroy(new Error("health check timed out")));
+      req.on("error", (err) => retryOrFail(err.message));
     };
     poll();
   });
@@ -122,21 +150,58 @@ function createWindow() {
 }
 
 // ── App lifecycle ────────────────────────────────────────────────────────────
-app.whenReady().then(async () => {
-  try {
-    ensureUserDb();
-    await startServer();
-    createWindow();
-  } catch (err) {
-    console.error("Failed to start:", err);
-    app.quit();
-  }
-});
+
+// Two copies of the game against one SQLite file corrupts saves. Keep one.
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(async () => {
+    try {
+      ensureUserDb();
+      await startServer();
+      createWindow();
+    } catch (err) {
+      // A packaged Windows app has no console, so console.error here was an
+      // invisible quit: fifteen seconds of nothing, then the process ends.
+      // Show the player something they can actually report.
+      console.error("Failed to start:", err);
+      dialog.showErrorBox(
+        "Volleyball Empire could not start",
+        `The game's local server failed to start, so the game has to close.
+
+` +
+          `${err && err.message ? err.message : String(err)}
+
+` +
+          `Log file: ${path.join(app.getPath("userData"), "startup-error.log")}`
+      );
+      try {
+        fs.writeFileSync(
+          path.join(app.getPath("userData"), "startup-error.log"),
+          `${new Date().toISOString()}
+${(err && err.stack) || String(err)}
+`
+        );
+      } catch { /* nothing more we can do */ }
+      app.quit();
+    }
+  });
+}
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
 app.on("before-quit", () => {
+  isQuitting = true;
   if (serverProcess) serverProcess.kill();
 });

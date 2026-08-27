@@ -11,6 +11,7 @@ import {
   seasonsTable,
 } from "@workspace/db";
 import { eq, and, gt, lte, desc } from "drizzle-orm";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -234,7 +235,7 @@ router.post("/wellbeing/run", async (req, res) => {
     amount:      -camp.cost,
     description: camp.name,
     category:    "wellbeing",
-    date:        new Date().toISOString().split("T")[0]!,
+    date:        await getGameDate(team.id),
   });
 
   const activeEffects = await db.select().from(wellbeingEffectsTable).where(

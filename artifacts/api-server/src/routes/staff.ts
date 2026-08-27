@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
 import { eq, isNull, and, ilike, count } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -62,10 +63,42 @@ router.post("/staff", async (req, res) => {
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
-  const [updated] = await db.update(staffTable)
-    .set({ teamId: team.id, isAvailable: false })
-    .where(eq(staffTable.id, Number(staffId)))
-    .returning();
+  // Hiring costs the first month up front. Without this the staff market was
+  // free: the budget never moved no matter who you signed.
+  const signingCost = Math.round(Number(member.salary));
+  const signingDate = await getGameDate(team.id);
+
+  if (Number(team.budget) < signingCost) {
+    res.status(400).json({
+      error: `Not enough budget to hire ${member.name}. Needs $${signingCost.toLocaleString()}, you have $${Math.round(Number(team.budget)).toLocaleString()}.`,
+    });
+    return;
+  }
+
+  const updated = db.transaction((tx) => {
+    const [row] = tx.update(staffTable)
+      .set({ teamId: team.id, isAvailable: false })
+      .where(eq(staffTable.id, Number(staffId)))
+      .returning()
+      .all();
+
+    tx.update(teamsTable)
+      .set({ budget: Number(team.budget) - signingCost })
+      .where(eq(teamsTable.id, team.id))
+      .run();
+
+    tx.insert(financeTransactionsTable).values({
+      teamId:      team.id,
+      type:        "expense",
+      amount:      signingCost,
+      description: `Signed ${member.name} (${member.role}) — first month's salary`,
+      category:    "staff_salary",
+      date:        signingDate,
+    }).run();
+
+    return row;
+  });
+
   res.status(201).json(serializeStaff(updated));
 });
 
@@ -178,7 +211,7 @@ router.delete("/staff/:id", async (req, res) => {
     .returning();
 
   // Finance transaction — staff termination expense
-  const today = new Date().toISOString().split("T")[0];
+  const today = await getGameDate(team.id);
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",

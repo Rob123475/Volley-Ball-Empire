@@ -9,6 +9,7 @@ import {
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
 import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
+import { careerSlotStatus } from "@/lib/career-slot-status";
 import { cn } from "@/lib/utils";
 import {
   Loader2,
@@ -324,9 +325,13 @@ function StepBar({ current }: { current: number }) {
 export default function NewCareer() {
   const [, navigate]   = useLocation();
   const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
-  const { data: team, isLoading: teamLoading } = useGetMyTeam({
+  const teamQuery = useGetMyTeam({
     query: { queryKey: getGetMyTeamQueryKey(), enabled: !!user, retry: false },
   });
+  const { data: team, isLoading: teamLoading, refetch: refetchTeam } = teamQuery;
+  // Only a 404 proves the slot is free. If the check itself failed we must not
+  // let the wizard run — POST /careers would overwrite an existing save.
+  const slot = careerSlotStatus(teamQuery);
 
   const [step, setStep]               = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName] = useState("");
@@ -413,6 +418,41 @@ export default function NewCareer() {
   if (!user) {
     window.location.href = "/login";
     return null;
+  }
+
+  // The slot check failed, so we cannot tell whether a career is already
+  // there. Refuse to start one rather than risk overwriting a real save.
+  if (slot === "unknown") {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-8">
+        <div className="max-w-sm w-full rounded-2xl border border-white/10 bg-white/3 p-8 text-center space-y-5">
+          <div className="text-4xl">📡</div>
+          <div>
+            <h2 className="text-lg font-black text-white">Could not check your save slots</h2>
+            <p className="mt-2 text-sm text-white/50">
+              Starting a new career now could overwrite an existing one, so it
+              has been blocked. Try again, or restart the game.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => { refetchTeam(); }}
+              className="w-full rounded-xl bg-secondary hover:bg-secondary/90 py-3 text-sm font-black text-white transition-all shadow-[0_0_20px_rgba(244,162,97,0.3)]"
+            >
+              Try Again
+            </button>
+            <button
+              type="button"
+              onClick={() => { window.location.href = "/"; }}
+              className="w-full rounded-xl border border-white/10 py-3 text-sm font-bold text-white/60 hover:text-white transition-all"
+            >
+              Back to Title
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Occupied-slot guard: if an active career already exists, do not allow

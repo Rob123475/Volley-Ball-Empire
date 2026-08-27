@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -329,7 +330,7 @@ router.post("/players/:id/release", async (req, res) => {
 
   // Record a Youth Academy release transaction so it appears in Transaction History
   if (before?.teamId && before.age >= 14 && before.age <= 18) {
-    const today = new Date().toISOString().split("T")[0];
+    const today = await getGameDate(before.teamId);
     await db.insert(financeTransactionsTable).values({
       teamId:      before.teamId,
       type:        "expense",
