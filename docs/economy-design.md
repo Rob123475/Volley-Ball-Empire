@@ -185,6 +185,23 @@ Dependency order. Each phase states what it builds and what it measures.
   it; World Tour field drawn from real pool clubs instead of name strings;
   ranking-point accrual; fix the broken season_final_standings writer. Fold
   regionalSeason and youth-league results into matchEngine. Measures I7.
+- **Phase 0.5 — Per-career player and staff state.** players and staff are global
+  reference pools, but the columns a career mutates lived on them, so signing a
+  player in one career removed them from every other career's market and
+  injuries/fitness/contracts applied across saves. career_player_state and
+  career_staff_state hold the per-career half; the mutable columns are DROPPED
+  from the reference tables so a missed read is a compile error, not a silently
+  global value. ~269 compile errors across 28 files, taken in chunks with the
+  tree green between each.
+- **Phase 0.6 — Regional league and pool-team state.** SEPARATE PHASE, not a
+  ride-along. regional_league_seasons/_fixtures/_results are keyed by season with
+  no career scope, and continental_pool_teams mixes immutable identity with
+  mutable per-career state (is_active_in_league, promotion_count,
+  relegation_count) — the same disease as players. Sized at ~105 code references
+  across 863 lines plus a new state table plus per-career seeding of 6 seasons
+  and 180 fixtures, which is comparable to the player migration itself. The two
+  free column-adds (world_tour_qualifications, ai_managers — both empty today,
+  both populated by later phases) fold into a Phase 0.5 chunk instead.
 - **Phase 1 — Season rollover (§6).** Boundary handler terminal at season five;
   age, retire, promote youth; carry balance/standings/history/HoF; fixtures
   parameterised by year and tier. Also scope seasons per career. Measures that a
