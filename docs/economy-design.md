@@ -7,6 +7,8 @@
 - The player CAN lose. Sustained debt or sustained failure gets you sacked
   before the arc completes.
 - Difficulty is chosen at career start: UNDERDOG or ESTABLISHED.
+- The career ends with a CAREER SCORE and a named rank band, so five seasons
+  resolve into an answer to "how did I do?". See Career score below.
 
 ## The arc
 The intended shape, to be produced by qualification thresholds rather than
@@ -21,6 +23,43 @@ Winning the Grand Final does NOT end the career. The arc runs its full five
 seasons and you attempt to defend. The career ends after season five with a
 final result: trophies won, best world ranking, final balance, hall of fame
 entries, and a career score.
+
+## Career score
+Career score exists to answer "how did I do?" at the end of five seasons. It must
+reward the things the game is about, and it must make a good UNDERDOG run beat a
+good ESTABLISHED run — otherwise nobody picks the harder start.
+
+Components, in descending weight:
+
+| Component | Weight | Detail |
+|---|---|---|
+| Trophies won, by tier | dominant | Grand Final 1000, Gold 120, Silver 50, Bronze 15. A Grand Final is worth ~8 Gold events. |
+| Peak world ranking | high | `max(0, 1200 - 110 x (rank - 1))`. Rank 1 = 1200, zero from rank 12. |
+| Progression | medium | Per tier, `max x (5 - firstQualifiedSeason) / 4`. Maxima: Silver 200, Gold 300, Finals 300. Qualifying in season 2 scores double season 4. Never qualified = 0. |
+| Financial health at end | modest | `balance / 10,000`, capped +400, floored -300. Money is a means, not the point. |
+| Difficulty multiplier | applied last | UNDERDOG x1.5, ESTABLISHED x1.0. |
+
+Being sacked ends the career with the score earned to that point, not zero.
+
+Rank bands: Legend 6000+, Elite 4000+, Respected 2200+, Journeyman 900+,
+Forgotten below. Always shown with the band, never a bare number.
+
+Modelled outcomes:
+
+| Career | Raw | Total | Band |
+|---|---|---|---|
+| UNDERDOG exceptional (2 GF, peak #1) | 6110 | 9165 | Legend |
+| ESTABLISHED exceptional (2 GF, peak #1) | 6815 | 6815 | Legend |
+| UNDERDOG competent (3 Gold, peak #6) | 2480 | 3720 | Respected |
+| ESTABLISHED competent (5 Gold, peak #5) | 3085 | 3085 | Respected |
+| Sacked season 4, two Gold titles | 1265 | 1898 | Journeyman |
+| Survived five seasons, won nothing | 225 | 338 | Forgotten |
+
+Both acceptance conditions hold: the sacked manager with two Gold titles (1898)
+beats the survivor who won nothing (338), and a good UNDERDOG run (9165) beats a
+good ESTABLISHED one (6815). ESTABLISHED out-achieves UNDERDOG in RAW terms, as
+it should — it starts a tier up. The multiplier must exceed ~1.24x to flip that;
+1.5x is a deliberate margin.
 
 ## What the player should feel
 - UNDERDOG: money is tight from the first week. Bronze-locked. Every signing
@@ -73,6 +112,39 @@ Over five seasons the world does not need to regenerate itself:
 Build the season boundary handler. Do NOT build deep aging curves, procedural
 player generation, or a self-sustaining world — those are only needed for an
 endless mode, which is deferred.
+
+## Manager policies — the harness subjects
+Every harness run so far used one implicit policy (buy a fixed squad, contest
+everything), so there was no such thing as a badly-run club to measure. I2 and I8
+measure different clubs; both must be defined.
+
+The two policies differ ONLY in financial decision-making. Both enter everything
+they qualify for, so what is isolated is money management, not participation.
+
+COMPETENT
+- Signs only when the balance after signing covers at least three months of the
+  new wage bill.
+- Only signs a player who improves the starting pair's average rating.
+- Keeps the total monthly wage bill at or below ~35% of projected monthly income
+  (sponsorship plus expected prize at the current tier).
+- If the wage bill exceeds ~50% of monthly income, releases the highest-paid
+  non-starter.
+- Spends on staff and facilities only from surplus above two months of running
+  costs.
+
+INCOMPETENT
+- Signs the highest-rated player it can afford in a single payment, ignoring the
+  ongoing wage entirely.
+- Chases players above its tier (top quartile of the market regardless of
+  eligibility).
+- Applies no wage-to-income test.
+- Never releases anyone.
+- Spends any surplus immediately on staff and facilities.
+
+I2 is measured against INCOMPETENT, I8 against COMPETENT. Thresholds are tuned
+against their own policy. If the two policies produce similar outcomes, that is
+itself a finding and must be reported: it would mean the game's decisions do not
+matter enough.
 
 ## Invariants — these are the acceptance tests
 Tune numbers until the harness proves every one. Report each PASS/FAIL with the
