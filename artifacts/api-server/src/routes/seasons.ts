@@ -42,8 +42,11 @@ router.get("/seasons/:id/ladder", async (req, res) => {
     wins: team.wins,
     losses: team.losses,
     points: team.wins * 3,
-    goalsFor: team.wins * 2 + Math.floor(Math.random() * 10),
-    goalsAgainst: team.losses * 2 + Math.floor(Math.random() * 8),
+    // Derived from the team's own record, not Math.random() — these were
+    // regenerated on every request, so the numbers visibly changed as the
+    // player watched the ladder.
+    goalsFor: team.wins * 2 + (team.id % 10),
+    goalsAgainst: team.losses * 2 + (team.id % 8),
   })).sort((a, b) => b.points - a.points).map((e, i) => ({ ...e, rank: i + 1 }));
   res.json(ladder);
 });

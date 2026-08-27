@@ -37,6 +37,10 @@ function VDiv() {
 export function CalendarPanel() {
   const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed, advanceMutation } = useCalendar();
   const tickingRef = useRef(false);
+  // A failing advance never changes the date, so the ticker would otherwise
+  // retry forever — at Fast speed that is five failing requests a second, in
+  // silence. Give up after a few consecutive failures and pause the clock.
+  const failuresRef = useRef(0);
 
   // Auto-advance ticker — lives here (and only here) so only one interval ever runs
   useEffect(() => {
@@ -47,11 +51,27 @@ export function CalendarPanel() {
     const ms = SPEED_MS[calendar.calendarSpeed];
     if (!ms) return;
 
+    const MAX_CONSECUTIVE_FAILURES = 3;
+
     const timer = setInterval(() => {
       if (tickingRef.current) return;
       if (advanceMutation.isPending) return;
       tickingRef.current = true;
       advanceMutation.mutate(undefined, {
+        onSuccess: (result) => {
+          failuresRef.current = 0;
+          // useCalendar pauses the clock and tells the player; just stop the
+          // ticker so it does not keep polling a finished season.
+          if (result?.blocked === "season_end") clearInterval(timer);
+        },
+        onError:   () => {
+          failuresRef.current += 1;
+          if (failuresRef.current >= MAX_CONSECUTIVE_FAILURES) {
+            clearInterval(timer);
+            failuresRef.current = 0;
+            setSpeed("pause");
+          }
+        },
         onSettled: () => { tickingRef.current = false; },
       });
     }, ms);

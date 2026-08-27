@@ -127,8 +127,11 @@ router.get("/finances/summary", async (req, res) => {
     .where(eq(financeTransactionsTable.teamId, team.id))
     .orderBy(desc(financeTransactionsTable.createdAt));
 
-  const income = txs.filter(t => t.type === "income");
-  const expenses = txs.filter(t => t.type === "expense");
+  // Expense rows carry a positive magnitude and take their sign from `type`.
+  // A few routes used to store negatives; normalise so old saves total up
+  // correctly and the "other" bar cannot go negative.
+  const income = txs.filter(t => t.type === "income").map(t => ({ ...t, amount: Math.abs(Number(t.amount)) }));
+  const expenses = txs.filter(t => t.type === "expense").map(t => ({ ...t, amount: Math.abs(Number(t.amount)) }));
   const totalIncome = income.reduce((acc, t) => acc + Number(t.amount), 0);
   const totalExpenses = expenses.reduce((acc, t) => acc + Number(t.amount), 0);
 

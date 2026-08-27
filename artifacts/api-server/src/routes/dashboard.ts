@@ -36,8 +36,13 @@ router.get("/dashboard", async (req, res) => {
     .slice(0, 5).map(p => ({ ...p, height: Number(p.height), salary: Number(p.salary) }));
   const injuredCount = players.filter(p => p.isInjured).length;
 
+  // The teams table holds player-created clubs only, so on a fresh save it
+  // contains exactly one row and the player was "World Rank #1" before ever
+  // playing. A rank is only meaningful once there are results behind it —
+  // the UI already renders a null rank as "Unranked".
   const allTeams = await db.select().from(teamsTable).orderBy(desc(teamsTable.wins)).limit(20);
-  const myRank = allTeams.findIndex(t => t.id === team.id) + 1;
+  const hasPlayed = (team.wins ?? 0) + (team.losses ?? 0) > 0;
+  const myRank = hasPlayed ? allTeams.findIndex(t => t.id === team.id) + 1 : 0;
 
   // Career save: prefer session-tracked save ID (set on career creation/load),
   // fall back to teamId lookup so legacy saves still work.

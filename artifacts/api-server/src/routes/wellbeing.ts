@@ -232,7 +232,7 @@ router.post("/wellbeing/run", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      -camp.cost,
+    amount:      camp.cost,
     description: camp.name,
     category:    "wellbeing",
     date:        await getGameDate(team.id),

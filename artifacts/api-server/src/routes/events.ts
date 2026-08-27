@@ -12,15 +12,20 @@ import {
   activeCampsTable,
 } from "@workspace/db";
 import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function daysFrom(date: Date | string): number {
-  const target = typeof date === "string" ? new Date(date) : date;
-  const diff = target.getTime() - Date.now();
-  return Math.ceil(diff / 86_400_000);
+// Measured against the in-game clock, not Date.now(). scheduledAt holds 2026
+// in-game dates, so comparing them to the real date made every event read as
+// due now: the next match was permanently "Today" and its progress bar pinned
+// at 100%.
+function daysBetween(from: string, to: Date | string): number {
+  const target = typeof to === "string" ? new Date(to) : to;
+  const origin = new Date(`${from.slice(0, 10)}T00:00:00.000Z`);
+  return Math.ceil((target.getTime() - origin.getTime()) / 86_400_000);
 }
 
 function urgency(days: number | null): "critical" | "soon" | "upcoming" | "planning" {
@@ -66,6 +71,8 @@ router.get("/events/upcoming", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
+  const gameDate = await getGameDate(team.id);
+
   type EventItem = {
     id: string;
     type: string;
@@ -102,7 +109,7 @@ router.get("/events/upcoming", async (req, res) => {
       m.homeTeamId === team.id
         ? (m.awayTeamName ?? "Opponent")
         : (m.homeTeamName ?? "Opponent");
-    const days = m.scheduledAt ? daysFrom(m.scheduledAt) : null;
+    const days = m.scheduledAt ? daysBetween(gameDate, m.scheduledAt) : null;
     const tier = m.tier ? ` · ${m.tier.charAt(0).toUpperCase() + m.tier.slice(1)} Tier` : "";
     items.push({
       id: `match_${m.id}`,
@@ -129,7 +136,7 @@ router.get("/events/upcoming", async (req, res) => {
 
   if (activeSeason) {
     const roundsLeft = activeSeason.totalRounds - activeSeason.currentRound;
-    const days = activeSeason.endDate ? daysFrom(activeSeason.endDate) : null;
+    const days = activeSeason.endDate ? daysBetween(gameDate, activeSeason.endDate) : null;
     items.push({
       id: `season_${activeSeason.id}`,
       type: "season_end",
@@ -156,7 +163,7 @@ router.get("/events/upcoming", async (req, res) => {
     .orderBy(asc(continentalScoutingMissionsTable.endDate));
 
   for (const mission of activeMissions.slice(0, 2)) {
-    const days = daysFrom(mission.endDate);
+    const days = daysBetween(gameDate, mission.endDate);
     const flag = CONTINENT_FLAGS[mission.region] ?? "🌐";
     items.push({
       id: `scout_${mission.id}`,

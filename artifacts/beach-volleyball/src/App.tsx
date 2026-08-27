@@ -1,5 +1,6 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, MutationCache } from "@tanstack/react-query";
+import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LightboxProvider } from "@/components/image-lightbox";
@@ -79,6 +80,37 @@ import OlympicResults   from "@/pages/competition/olympic-results";
 import MedalTable       from "@/pages/competition/medal-table";
 import OlympicHistory   from "@/pages/competition/olympic-history";
 
+function isUnauthorized(error: unknown): boolean {
+  return (error as { status?: number } | null)?.status === 401;
+}
+
+function redirectToLogin() {
+  window.location.href = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
+}
+
+/**
+ * Default error handling for every mutation.
+ *
+ * Roughly forty player-facing actions — release a player, terminate a
+ * contract, decline a sponsor, schedule training — were generated without an
+ * onError, so they failed in complete silence: the click did nothing and the
+ * player had no idea why. A mutation that supplies its own onError still
+ * overrides this; this is only the floor.
+ */
+const mutationCache = new MutationCache({
+  onError: (error, _vars, _ctx, mutation) => {
+    if (isUnauthorized(error)) { redirectToLogin(); return; }
+    // Let a mutation opt out when it renders its own inline error UI.
+    if (mutation.options.onError) return;
+    const message = error instanceof Error ? error.message : String(error);
+    toast({
+      variant: "destructive",
+      title: "That didn't go through",
+      description: message.replace(/^HTTP \d+ [^:]*: /, "") || "Please try again.",
+    });
+  },
+});
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -86,17 +118,17 @@ const queryClient = new QueryClient({
       retry: false,
     },
   },
-  mutationCache: undefined,
+  mutationCache,
 });
 
-// Redirect to login whenever any query or mutation gets a 401
+// Redirect to login whenever any query gets a 401 (mutations: see mutationCache)
 queryClient.getQueryCache().subscribe((event) => {
   if (
     event.type === "updated" &&
     event.action.type === "error" &&
-    (event.action.error as any)?.status === 401
+    isUnauthorized(event.action.error)
   ) {
-    window.location.href = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
+    redirectToLogin();
   }
 });
 

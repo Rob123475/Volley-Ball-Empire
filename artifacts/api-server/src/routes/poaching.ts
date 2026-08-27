@@ -86,8 +86,23 @@ router.get("/poaching/offers", async (req, res) => {
     ))
     .orderBy(desc(poachingOffersTable.createdAt));
 
+  // A rival club should not be trying to poach a manager who has not managed
+  // anything yet. New saves default to reputation exactly 50, so a `>= 50`
+  // gate plus a 55% roll meant roughly half of all new careers got a job
+  // offer before their first match — and accepting one silently replaces the
+  // club the player just built in the wizard. Require a record to poach.
+  const [record] = save.teamId
+    ? await db.select({ wins: teamsTable.wins, losses: teamsTable.losses })
+        .from(teamsTable).where(eq(teamsTable.id, save.teamId)).limit(1)
+    : [];
+  const matchesPlayed = (record?.wins ?? 0) + (record?.losses ?? 0);
+  const MIN_MATCHES_BEFORE_POACHING = 5;
+
+  const isPoachable =
+    managerReputation > 50 && matchesPlayed >= MIN_MATCHES_BEFORE_POACHING;
+
   // ── Auto-generate if qualified and no pending offers ──────────────────────
-  if (pending.length === 0 && managerReputation >= 50) {
+  if (pending.length === 0 && isPoachable) {
     // Cooldown: don't generate if an offer (any status) was created within the last 4 hours
     const [mostRecent] = await db
       .select().from(poachingOffersTable)

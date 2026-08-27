@@ -504,7 +504,9 @@ export default function Finances() {
                     <TableCell className="hidden sm:table-cell"><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
                     <TableCell className="font-medium max-w-[140px] truncate">{t.description}</TableCell>
                     <TableCell className={cn("text-right font-bold whitespace-nowrap tabular-nums", t.type === "income" ? "text-green-600" : "text-red-600")}>
-                      {t.type === "income" ? "+" : "-"}{formatCurrency(t.amount)}
+                      {/* The row's sign comes from t.type; some older saves stored
+                          expenses as negative amounts, which rendered as "--$20,000". */}
+                      {t.type === "income" ? "+" : "-"}{formatCurrency(Math.abs(t.amount))}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -207,7 +207,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      -cost,
+    amount:      cost,
     description: `Facility upgrade: ${type.replace(/_/g, " ")} → Level ${facility.level + 1}`,
     category:    "facilities",
     date:        today,

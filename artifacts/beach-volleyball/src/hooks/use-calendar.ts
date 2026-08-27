@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/hooks/use-toast";
 
 export type AnnualEventType = "regional" | "world_tour" | "finals" | "holiday" | "financial" | "contract" | "facility" | "olympic_qualifier" | "olympic";
 
@@ -107,8 +108,34 @@ export function useCalendar() {
     retry: 1,
   });
 
+  // Advance Day is the most-clicked button in the game and had only onSettled,
+  // so a failure was completely silent. The auto-advance ticker then kept
+  // firing against a date that never changed — at Fast speed, a failing POST
+  // every 200ms, indefinitely. calendar-panel pauses the ticker on repeated
+  // failures; this reports the failure to the player.
   const advanceMutation = useMutation<AdvanceResult>({
     mutationFn: () => apiFetch<AdvanceResult>("/api/calendar/advance", { method: "POST" }),
+    onSuccess: (result) => {
+      // The server returns { blocked: "season_end" } past the season's last
+      // day. Nothing read that field, so the clock just froze with no
+      // explanation. Pause and say so — for the manual button as well as the
+      // auto-advance ticker.
+      if (result?.blocked === "season_end") {
+        setSpeedMutation.mutate("pause");
+        toast({
+          title: "Season complete",
+          description: "The season has finished. There is nothing left to play on the calendar.",
+        });
+      }
+    },
+    onError: (err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({
+        variant: "destructive",
+        title: "Could not advance the day",
+        description: message.replace(/^HTTP \d+ [^:]*: /, "") || "Please try again.",
+      });
+    },
     onSettled:  () => {
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
       queryClient.invalidateQueries({ queryKey: ["annual-calendar"] });
@@ -160,6 +187,7 @@ export function useCalendar() {
     isAdvancing:       advanceMutation.isPending,
     isSettingSpeed:    setSpeedMutation.isPending,
     isDismissing:      dismissMatchMutation.isPending,
+    isSkipping:        skipMatchMutation.isPending,
     isSimulating:      simulateMatchMutation.isPending,
     isStartingWatch:   watchMatchMutation.isPending,
     advance:           () => advanceMutation.mutate(),
@@ -170,6 +198,8 @@ export function useCalendar() {
     watchMatch:        (matchId: number) => watchMatchMutation.mutateAsync(matchId),
     lastAdvanceResult: advanceMutation.data,
     advanceMutation,
+    simulateMatchMutation,
+    skipMatchMutation,
   };
 }
 

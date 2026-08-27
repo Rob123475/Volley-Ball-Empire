@@ -156,9 +156,13 @@ async function getOrCreateCalendar(teamId: number, season: typeof seasonsTable.$
   const rows = await db.select().from(calendarStateTable).where(eq(calendarStateTable.teamId, teamId));
   if (rows[0]) return rows[0];
 
-  const lastRound = Math.max(0, season.currentRound);
-  const nextRound = Math.min(lastRound + 1, season.totalRounds);
-  const initDate  = roundToDate(season.startDate, season.endDate, nextRound, season.totalRounds);
+  // season.currentRound is the round the season is ON, not the last one
+  // completed — step 7 of the advance handler sets it from the current game
+  // date. Starting the clock at currentRound + 1 therefore skipped a round:
+  // on a fresh career (currentRound = 1) the calendar opened on round 2, and
+  // round 1's 18 regional fixtures could never come due.
+  const startRound = Math.min(Math.max(1, season.currentRound), season.totalRounds);
+  const initDate   = roundToDate(season.startDate, season.endDate, startRound, season.totalRounds);
 
   const [created] = await db.insert(calendarStateTable).values({
     teamId,
@@ -365,15 +369,16 @@ router.post("/calendar/advance", async (req, res) => {
 
         // If this was the final regional round, resolve all 6 continental seasons
         if (totalFixtures > 0 && isLastRegionalSlot(round)) {
+          // regional_league_seasons.seasonYear is an internal ordinal counter
+          // local to the regional league (1, 2, 3 … — resolveRegionalSeason
+          // bumps it on rollover), NOT the career's calendar year. Filtering
+          // it by season.year (2026) matched nothing, so the six continental
+          // seasons never resolved and nobody ever qualified. Match on
+          // status alone, exactly as simulateRegionalRound() does.
           const activeSeasons = await db
             .select({ id: regionalLeagueSeasonsTable.id, continent: regionalLeagueSeasonsTable.continent })
             .from(regionalLeagueSeasonsTable)
-            .where(
-              and(
-                eq(regionalLeagueSeasonsTable.seasonYear, season.year),
-                eq(regionalLeagueSeasonsTable.status, "active"),
-              ),
-            );
+            .where(eq(regionalLeagueSeasonsTable.status, "active"));
 
           const resolvedContinents: string[] = [];
           for (const rs of activeSeasons) {

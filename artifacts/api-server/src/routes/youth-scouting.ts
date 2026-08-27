@@ -146,7 +146,7 @@ router.post("/youth-scouting/start", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      -SCOUTING_COST,
+    amount:      SCOUTING_COST,
     description: `Youth scouting — ${continent}`,
     category:    "youth_academy",
     date:        today,
@@ -292,7 +292,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      -prospect.signingCost,
+    amount:      prospect.signingCost,
     description: `Youth signing — ${prospect.name}`,
     category:    "youth_academy",
     date:        today,

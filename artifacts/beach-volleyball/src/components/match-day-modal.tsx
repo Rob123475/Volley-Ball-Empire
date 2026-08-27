@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useCalendar } from "@/hooks/use-calendar";
 import {
   Dialog,
@@ -32,12 +33,20 @@ export function MatchDayModal() {
     calendar,
     isSimulating,
     isDismissing,
+    isSkipping,
     isStartingWatch,
-    simulateMatch,
-    skipMatch,
+    simulateMatchMutation,
+    skipMatchMutation,
     dismissMatch,
     watchMatch,
   } = useCalendar();
+
+  // If an action fails, this modal must stop being inescapable — it blocks
+  // close, outside-click and Escape, so a failed simulate left the player
+  // staring at a dialog that did nothing.
+  const [actionError, setActionError] = useState<string | null>(null);
+  const describe = (err: unknown) =>
+    (err instanceof Error ? err.message : String(err)).replace(/^HTTP \d+ [^:]*: /, "");
 
   const isOpen = !!calendar?.pendingMatchId && !!calendar?.pendingMatch;
 
@@ -65,7 +74,10 @@ export function MatchDayModal() {
   };
 
   const handleSimResult = () => {
-    simulateMatch(match.id);
+    setActionError(null);
+    simulateMatchMutation.mutate(match.id, {
+      onError: (err) => setActionError(describe(err) || "The match could not be simulated."),
+    });
   };
 
   const handleManageTeam = () => {
@@ -73,15 +85,18 @@ export function MatchDayModal() {
   };
 
   const handleSkipForNow = () => {
-    skipMatch();
+    setActionError(null);
+    skipMatchMutation.mutate(undefined, {
+      onError: (err) => setActionError(describe(err) || "The match could not be skipped."),
+    });
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open && actionError) dismissMatch(); }}>
       <DialogContent
-        className="max-w-sm [&>button:first-child]:hidden"
-        onInteractOutside={e => e.preventDefault()}
-        onEscapeKeyDown={e => e.preventDefault()}
+        className={actionError ? "max-w-sm" : "max-w-sm [&>button:first-child]:hidden"}
+        onInteractOutside={e => { if (!actionError) e.preventDefault(); }}
+        onEscapeKeyDown={e => { if (!actionError) e.preventDefault(); }}
       >
         <DialogHeader className="space-y-1">
           <div className="flex items-center gap-2">
@@ -173,9 +188,9 @@ export function MatchDayModal() {
             size="sm"
             className="col-span-2 text-muted-foreground hover:text-foreground gap-2"
             onClick={handleSkipForNow}
-            disabled={isSimulating || isDismissing}
+            disabled={isSimulating || isDismissing || isSkipping}
           >
-            {isDismissing ? (
+            {isSkipping ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <SkipForward className="h-3.5 w-3.5" />
@@ -183,6 +198,12 @@ export function MatchDayModal() {
             Skip for now (auto-sim in background)
           </Button>
         </div>
+
+        {actionError && (
+          <p className="text-sm text-destructive text-center" role="alert">
+            {actionError} You can close this and try again.
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -230,7 +230,7 @@ router.post("/continental-scouting/start", async (req, res) => {
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
-    amount:      -cost,
+    amount:      cost,
     description: `Continental scouting — ${region} (${durationMonths} month${durationMonths > 1 ? "s" : ""})`,
     category:    "youth_academy",
     date:        today,
