@@ -18,7 +18,8 @@ import {
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, updatePlayerState, requireCareerSaveId, careerSaveIdForTeamOrThrow, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, careerSaveIdForTeamOrThrow, type CareerPlayerFields } from "../lib/playerDto.js";
+import type { Match } from "@workspace/db";
 
 const router = Router();
 
@@ -242,7 +243,7 @@ export function getWeatherEffects(weather: string, windSpeed: number, temperatur
   }
 }
 
-export const serializeMatch = (m: any) => ({
+export const serializeMatch = (m: Match) => ({
   ...m,
   prizeAmount: m.prizeAmount ? Number(m.prizeAmount) : null,
   windSpeed:   m.windSpeed   ? Number(m.windSpeed)   : null,
@@ -328,7 +329,7 @@ export async function applyPostMatchEffects(teamId: number, weather: string, fac
   const wx = getWeatherEffects(weather, windSpeed, temperature);
 
   for (const player of players) {
-    const updates: Record<string, unknown> = {};
+    const updates: Partial<CareerPlayerFields> = {};
     const prevStatus  = (player.injuryStatus  as string)  ?? "Healthy";
     const curFatigue  = player.fatigue  ?? 0;
     const curFitness  = (player.fitness  as number) ?? 100;

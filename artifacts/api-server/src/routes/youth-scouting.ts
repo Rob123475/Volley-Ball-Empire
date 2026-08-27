@@ -14,6 +14,7 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
 import { loadPlayers, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import type { Team, YouthProspect } from "@workspace/db";
 
 const router = Router();
 
@@ -82,7 +83,7 @@ function buildStats(currentRating: number, speciality: string): typeof BASE_STAT
 // ── Helpers ───────────────────────────────────────────────────────────────
 
 
-const serializeMission = (team: any) => ({
+const serializeMission = (team: Team) => ({
   status:              team.youthScoutingStatus    ?? "idle",
   continent:           team.youthScoutingContinent  ?? null,
   weeksRemaining:      team.youthScoutingWeeksRemaining ?? 0,
@@ -92,7 +93,7 @@ const serializeMission = (team: any) => ({
   scoutingCost: SCOUTING_COST,
 });
 
-const serializeProspect = (p: any) => ({
+const serializeProspect = (p: YouthProspect) => ({
   id:            p.id,
   name:          p.name,
   age:           p.age,
@@ -353,6 +354,7 @@ router.post("/youth-scouting/dev-complete", async (req, res) => {
   await generateScoutingProspects(team.id, team.youthScoutingContinent!);
 
   const updated = await getActiveTeam(req);
+  if (!updated) { res.status(404).json({ error: "No team" }); return; }
   res.json(serializeMission(updated));
 });
 

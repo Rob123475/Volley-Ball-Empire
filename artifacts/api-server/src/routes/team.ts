@@ -5,10 +5,11 @@ import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
+import type { Team } from "@workspace/db";
 
 const router = Router();
 
-const serializeTeam = (t: any) => ({ ...t, budget: Number(t.budget) });
+const serializeTeam = (t: Team) => ({ ...t, budget: Number(t.budget) });
 
 const serializePlayer = (p: PlayerDTO) => ({
   ...p,

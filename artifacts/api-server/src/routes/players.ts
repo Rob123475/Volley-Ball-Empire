@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
@@ -10,7 +10,7 @@ import { getGameDate } from "../utils/gameDate.js";
 const router = Router();
 
 // Strips hidden engine fields before sending to client
-const serializePlayer = (p: any) => {
+const serializePlayer = (p: PlayerDTO) => {
   const { potential: _p, development: _d, ...rest } = p;
   return {
     ...rest,
@@ -84,7 +84,9 @@ router.post("/players", async (req, res) => {
     potential:   assignPotential(),
     development: generateDevelopment(),
   }).returning();
-  res.status(201).json(serializePlayer(player));
+  // A reference row with no career state is invisible to every career.
+  const dto = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), player!.id);
+  res.status(201).json(dto ? serializePlayer(dto) : null);
 });
 
 router.get("/players/free-agents", async (req, res) => {
@@ -267,6 +269,7 @@ router.get("/players/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
   res.json(serializePlayer(player));
 });
 
@@ -300,7 +303,9 @@ router.patch("/players/:id", async (req, res) => {
   if (scoutedPotential !== undefined) updates.scoutedPotential = scoutedPotential ?? null;
   if (isActive        !== undefined) updates.isActive        = isActive;
   if (morale          !== undefined) updates.morale          = morale;
-  const [updated] = await db.update(playersTable).set(updates).where(eq(playersTable.id, id)).returning();
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, updates as Partial<CareerPlayerFields>);
+  const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
+  if (!updated) { res.status(404).json({ error: "Player not found" }); return; }
   res.json({ ...serializePlayer(updated), potential: updated.potential, scoutedPotential: updated.scoutedPotential });
 });
 
@@ -308,7 +313,9 @@ router.patch("/players/:id/outfit", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
   const { outfitId } = req.body;
-  const [player] = await db.update(playersTable).set({ outfitId: Number(outfitId) }).where(eq(playersTable.id, id)).returning();
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, { outfitId: Number(outfitId) });
+  const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
   res.json(serializePlayer(player));
 });
 
@@ -335,6 +342,7 @@ router.post("/players/:id/release", async (req, res) => {
     });
   }
 
+  if (!player) { res.status(404).json({ error: "Player not found" }); return; }
   res.json(serializePlayer(player));
 });
 
@@ -365,21 +373,26 @@ router.post("/players/:id/retire", async (req, res) => {
 
   const retiredSeasonYear = new Date().getFullYear();
 
-  const [retired] = await db.update(playersTable).set({
+  // Retirement is career state; the legend fields that belong to the athlete
+  // (peak rating, honours, legend score) stay on the reference row.
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, {
     isRetired: true,
     isActive: false,
     contractEndDate: null,
-    peakOverallRating,
     careerWins: team.wins,
+    retiredSeasonYear,
+  });
+  await db.update(playersTable).set({
+    peakOverallRating,
     careerTitles,
     continentalTitles,
     worldTitles,
     olympicMedalsCount,
     legendScore,
-    retiredSeasonYear,
     careerSeasons: 1,
-  }).where(eq(playersTable.id, id)).returning();
-
+  }).where(eq(playersTable.id, id));
+  const retired = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
+  if (!retired) { res.status(404).json({ error: "Player not found" }); return; }
   res.json(serializePlayer(retired));
 });
 
@@ -406,10 +419,9 @@ router.post("/players/:id/scout", async (req, res) => {
   const bestScout = scouts.reduce((a, b) => a.overallRating > b.overallRating ? a : b);
   const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, bestScout.overallRating);
 
-  const [updated] = await db.update(playersTable)
-    .set({ scoutedPotential })
-    .where(eq(playersTable.id, playerId))
-    .returning();
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential });
+  const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
+  if (!updated) { res.status(404).json({ error: "Player not found" }); return; }
 
   res.json({
     player:          serializePlayer(updated),

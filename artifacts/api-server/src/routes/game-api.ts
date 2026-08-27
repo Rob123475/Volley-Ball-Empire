@@ -20,7 +20,7 @@ import {
   unityMatchStatsTable,
 } from "@workspace/db";
 import { eq, and, asc } from "drizzle-orm";
-import { loadPlayers, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -428,7 +428,7 @@ router.post("/game/post-match", async (req, res) => {
     const playerId = Number(u.playerId);
     if (!playerId) continue;
 
-    const patch: Record<string, unknown> = {};
+    const patch: Partial<CareerPlayerFields> = {};
     if (u.fatigue  != null) patch.fatigue  = clamp(Number(u.fatigue));
     if (u.morale   != null) patch.morale   = clamp(Number(u.morale));
     if (u.fitness  != null) patch.fitness  = clamp(Number(u.fitness));

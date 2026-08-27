@@ -312,6 +312,16 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   isInjured:              integer("is_injured", { mode: "boolean" }).notNull().default(false),
   consecutiveMatchesPlayed: integer("consecutive_matches_played").notNull().default(0),
 
+  // Current stats. The reference row holds the athlete's BASE stats; training
+  // and development move these, and they must be per career — otherwise
+  // training a player in one save improves them in every other save too.
+  speed:   integer("speed").notNull().default(70),
+  power:   integer("power").notNull().default(70),
+  defense: integer("defense").notNull().default(70),
+  serve:   integer("serve").notNull().default(70),
+  block:   integer("block").notNull().default(70),
+  stamina: integer("stamina").notNull().default(70),
+
   // development and scouting
   trainingPoints:   integer("training_points").notNull().default(0),
   trainingFocus:    text("training_focus"),

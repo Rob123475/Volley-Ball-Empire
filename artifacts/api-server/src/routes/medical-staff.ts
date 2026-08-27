@@ -10,6 +10,7 @@ import {
   MEDICAL_ROLES,
   type MedicalRole,
 } from "../utils/medical-staff-generator";
+import type { StaffDTO } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ const ROLE_FILTER_MAP: Record<string, string> = {
 };
 const MAX_MEDICAL_STAFF = 4;
 
-const serializeStaff = (s: any) => ({
+const serializeStaff = (s: StaffDTO) => ({
   ...s,
   salary:          Number(s.salary),
   attributes:      s.attributes ?? {},

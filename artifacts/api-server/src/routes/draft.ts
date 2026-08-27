@@ -4,11 +4,11 @@ import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable, facilitiesTable } from "@workspace/db";
 import { eq, isNull, and, gte, ne } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
-import { loadPlayers, loadPlayer, updatePlayerState, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, createCareerPlayer, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
 
 const router = Router();
 
-const serializePlayer = (p: any) => {
+const serializePlayer = (p: PlayerDTO) => {
   const { development: _d, ...rest } = p;
   return {
     ...rest,
@@ -169,6 +169,7 @@ router.post("/draft/pick", async (req, res) => {
     bonusPerWin: 500,
   });
 
+  if (!updated) { res.status(404).json({ error: "Player not found" }); return; }
   res.status(201).json(serializePlayer(updated));
 });
 

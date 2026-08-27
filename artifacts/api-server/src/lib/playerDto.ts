@@ -35,6 +35,12 @@ export type CareerPlayerFields = {
   injuryWeeksRemaining: number;
   isInjured: boolean;
   consecutiveMatchesPlayed: number;
+  speed: number;
+  power: number;
+  defense: number;
+  serve: number;
+  block: number;
+  stamina: number;
   trainingPoints: number;
   trainingFocus: string | null;
   focusXp: number;
@@ -77,6 +83,12 @@ export function assemblePlayer(
     injuryWeeksRemaining: state.injuryWeeksRemaining,
     isInjured:            state.isInjured,
     consecutiveMatchesPlayed: state.consecutiveMatchesPlayed,
+    speed:                state.speed,
+    power:                state.power,
+    defense:              state.defense,
+    serve:                state.serve,
+    block:                state.block,
+    stamina:              state.stamina,
     trainingPoints:       state.trainingPoints,
     trainingFocus:        state.trainingFocus,
     focusXp:              state.focusXp,
@@ -89,6 +101,9 @@ export function assemblePlayer(
     outfitId:             state.outfitId,
   };
 }
+
+/** The six trainable stats. Typed so an update cannot target an arbitrary key. */
+export type StatKey = "speed" | "power" | "defense" | "serve" | "block" | "stamina";
 
 export type PlayerFilter = {
   /** Players signed to this team in this career. */

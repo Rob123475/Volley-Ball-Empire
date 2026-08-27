@@ -4,11 +4,12 @@ import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
+import type { TrainingSession } from "@workspace/db";
 
 const router = Router();
 
-const serializeSession = (s: any) => ({ ...s, durationHours: Number(s.durationHours) });
+const serializeSession = (s: TrainingSession) => ({ ...s, durationHours: Number(s.durationHours) });
 const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
 
@@ -224,12 +225,13 @@ const applyFatigueAndStats = async (
     statGains[program.secondaryStat] = (statGains[program.secondaryStat] ?? 0) + secondaryGain;
   }
 
-  const updates: Record<string, unknown> = { trainingPoints: newPoints };
+  const updates: Partial<CareerPlayerFields> = { trainingPoints: newPoints };
 
   // Apply stat gains
   const applyStatGain = (stat: string, gain: number) => {
-    const cur = player[stat as keyof typeof player] as number;
-    updates[stat] = Math.min(99, cur + gain);
+    const key = stat as StatKey;
+    const cur = player[key];
+    updates[key] = Math.min(99, cur + gain);
   };
   if (program.primaryStat   && primaryGain   > 0) applyStatGain(program.primaryStat,   primaryGain);
   if (program.secondaryStat && secondaryGain > 0) applyStatGain(program.secondaryStat, secondaryGain);
@@ -265,8 +267,9 @@ const applyFatigueAndStats = async (
         const focusGain   = Math.floor(newFocusXp / FOCUS_XP_THRESHOLD) - Math.floor(prevFocusXp / FOCUS_XP_THRESHOLD);
         updates.focusXp   = newFocusXp;
         if (focusGain > 0) {
-          const curStat = (updates[focusStat] as number | undefined) ?? (player[focusStat as keyof typeof player] as number);
-          updates[focusStat] = Math.min(99, curStat + focusGain);
+          const fk = focusStat as StatKey;
+          const curStat = updates[fk] ?? player[fk];
+          updates[fk] = Math.min(99, curStat + focusGain);
         }
       }
     }

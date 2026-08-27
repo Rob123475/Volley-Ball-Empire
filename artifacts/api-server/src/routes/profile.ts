@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { userProfilesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import type { UserProfile } from "@workspace/db";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const makeSavePin = (userId: string) => {
   return String(n % 900000 + 100000); // always 6 digits
 };
 
-const serialize = (p: any) => ({
+const serialize = (p: UserProfile) => ({
   ...p,
   totalEarnings: Number(p.totalEarnings),
   savePin: p.savePin ?? makeSavePin(p.userId),

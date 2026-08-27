@@ -5,10 +5,11 @@ import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesT
 import { eq, isNull, and, ilike, count } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 import { getGameDate } from "../utils/gameDate.js";
+import type { StaffDTO } from "../lib/playerDto.js";
 
 const router = Router();
 
-const serializeStaff = (s: any) => ({
+const serializeStaff = (s: StaffDTO) => ({
   ...s,
   salary:     Number(s.salary),
   attributes: s.attributes ?? {},

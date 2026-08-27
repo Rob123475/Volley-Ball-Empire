@@ -55,6 +55,7 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
       ? tx.all<any>(sql.raw(`
           SELECT id, team_id, squad_role, is_active, salary, contract_end_date,
                  academy_contract_years, age, fitness, fatigue, morale,
+                 speed, power, defense, serve, block, stamina,
                  injury_status, injury_weeks_remaining, is_injured,
                  consecutive_matches_played, training_points, training_focus,
                  focus_xp, scouted_potential, discovered_by, is_retired,
@@ -84,6 +85,12 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
           contractEndDate:      p.contract_end_date ?? null,
           academyContractYears: p.academy_contract_years ?? null,
           age:          Number(p.age ?? 20),
+          speed:        Number(p.speed   ?? 70),
+          power:        Number(p.power   ?? 70),
+          defense:      Number(p.defense ?? 70),
+          serve:        Number(p.serve   ?? 70),
+          block:        Number(p.block   ?? 70),
+          stamina:      Number(p.stamina ?? 70),
           fitness:      Number(p.fitness ?? 100),
           fatigue:      Number(p.fatigue ?? 0),
           morale:       Number(p.morale ?? 75),
@@ -136,16 +143,22 @@ export function seedCareerState(careerSaveId: number): void {
     // Copy the reference age AND salary. Seeding salary at the column default
     // left every player in a new career priced at 0.
     const refs = new Map(
-      tx.all<{ id: number; age: number; salary: number }>(
-        sql.raw(`SELECT id, age, salary FROM players`),
+      tx.all<any>(
+        sql.raw(`SELECT id, age, salary, speed, power, defense, serve, block, stamina FROM players`),
       ).map((r) => [r.id, r]),
     );
 
     for (const p of players) {
       tx.insert(careerPlayerStateTable).values({
         careerSaveId, playerId: p.id,
-        age:    refs.get(p.id)?.age ?? 20,
-        salary: Number(refs.get(p.id)?.salary ?? 0),
+        age:     refs.get(p.id)?.age ?? 20,
+        salary:  Number(refs.get(p.id)?.salary ?? 0),
+        speed:   Number(refs.get(p.id)?.speed   ?? 70),
+        power:   Number(refs.get(p.id)?.power   ?? 70),
+        defense: Number(refs.get(p.id)?.defense ?? 70),
+        serve:   Number(refs.get(p.id)?.serve   ?? 70),
+        block:   Number(refs.get(p.id)?.block   ?? 70),
+        stamina: Number(refs.get(p.id)?.stamina ?? 70),
       }).onConflictDoNothing().run();
     }
     for (const st of staff) {

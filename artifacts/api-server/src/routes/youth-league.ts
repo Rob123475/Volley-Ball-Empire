@@ -9,7 +9,7 @@ import {
 } from "@workspace/db";
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 import { teamsTable } from "@workspace/db";
-import { loadPlayers, updatePlayerState, requireCareerSaveId, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 
 const router = Router();
@@ -306,7 +306,7 @@ export async function simulateYouthLeague(teamId: number): Promise<void> {
       playerRatingAtTime: rating,
     });
 
-    const updates: Record<string, unknown> = {
+    const updates: Partial<CareerPlayerFields> = {
       trainingPoints: player.trainingPoints + xpGained,
       morale:         Math.min(100, Math.max(0, player.morale + moraleChange)),
     };
@@ -322,10 +322,8 @@ export async function simulateYouthLeague(teamId: number): Promise<void> {
           updates.focusXp   = newFocusXp;
           const focusGain   = Math.floor(newFocusXp / 100) - Math.floor(prevFocusXp / 100);
           if (focusGain > 0) {
-            updates[focusStat] = Math.min(
-              99,
-              (player[focusStat as keyof typeof player] as number) + focusGain
-            );
+            const fk = focusStat as StatKey;
+            updates[fk] = Math.min(99, player[fk] + focusGain);
           }
         }
       }

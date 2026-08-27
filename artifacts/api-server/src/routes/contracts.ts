@@ -4,10 +4,11 @@ import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from 
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
+import type { Contract } from "@workspace/db";
 
 const router = Router();
 
-const serializeContract = (c: any) => ({
+const serializeContract = (c: Contract) => ({
   ...c,
   salary: Number(c.salary),
   bonusPerWin: Number(c.bonusPerWin),

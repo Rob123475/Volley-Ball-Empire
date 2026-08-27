@@ -13,7 +13,7 @@ import {
 import { eq, and, gt, lte, desc } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, type CareerPlayerFields } from "../lib/playerDto.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 
 const router = Router();
@@ -66,7 +66,7 @@ async function checkAndApplyCamps(teamId: number, currentRound: number): Promise
     const activePlayers = await loadPlayers(campCareerId, { teamId, isActive: true });
 
     for (const player of activePlayers) {
-      const updates: Record<string, unknown> = {};
+      const updates: Partial<CareerPlayerFields> = {};
       if (fx.moraleBonus !== 0)     updates.morale         = Math.min(100, Math.max(0, player.morale + fx.moraleBonus));
       if (fx.fatigueChange !== 0)   updates.fatigue        = Math.min(100, Math.max(0, player.fatigue + fx.fatigueChange));
       if (fx.fitnessChange !== 0)   updates.fitness        = Math.min(100, Math.max(0, (player.fitness as number ?? 100) + fx.fitnessChange));

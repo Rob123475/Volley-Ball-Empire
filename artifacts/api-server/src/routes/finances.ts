@@ -7,6 +7,7 @@ import { generateOfferBatch } from "../utils/sponsor-generator.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import type { FinanceTransaction, PromoDeal } from "@workspace/db";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -95,8 +96,8 @@ async function computeYouthWageBill(teamId: number) {
 
 const router = Router();
 
-const serializeTx = (t: any) => ({ ...t, amount: Number(t.amount) });
-const serializeDeal = (d: any) => ({ ...d, amount: Number(d.amount) });
+const serializeTx = (t: FinanceTransaction) => ({ ...t, amount: Number(t.amount) });
+const serializeDeal = (d: PromoDeal) => ({ ...d, amount: Number(d.amount) });
 
 
 // Returns at most 100 rows and always has. That is fine for the ledger table

@@ -3,10 +3,11 @@ import { db } from "@workspace/db";
 import { locationsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour.js";
+import type { Location } from "@workspace/db";
 
 const router = Router();
 
-const serializeLocation = (loc: any) => ({
+const serializeLocation = (loc: Location) => ({
   ...loc,
   latitude: loc.latitude ? Number(loc.latitude) : null,
   longitude: loc.longitude ? Number(loc.longitude) : null,
