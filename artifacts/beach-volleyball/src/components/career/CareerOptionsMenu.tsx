@@ -134,7 +134,7 @@ export function CareerOptionsMenu({ isOpen, onClose }: Props) {
 
             {/* Footer */}
             <div className="px-5 py-2.5 border-t border-white/5">
-              <p className="text-[9px] text-white/18 text-center font-black uppercase tracking-widest">Beach Volley Pro</p>
+              <p className="text-[9px] text-white/18 text-center font-black uppercase tracking-widest">Volleyball Empire</p>
             </div>
           </div>
         </div>

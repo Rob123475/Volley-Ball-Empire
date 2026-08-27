@@ -824,7 +824,7 @@ export default function CareerManagement() {
           </div>
           <div>
             <h1 className="text-2xl font-black text-white leading-none">Career Management</h1>
-            <p className="text-sm text-white/45 mt-1">Manage your Beach Volley Pro save files</p>
+            <p className="text-sm text-white/45 mt-1">Manage your Volleyball Empire save files</p>
           </div>
         </div>
       </div>

@@ -22,7 +22,7 @@
   },
   "build": {
     "appId": "com.volleyballempire.desktop",
-    "productName": "Volley-Ball-Empire",
+    "productName": "Volleyball Empire",
     "beforePack": "scripts/before-pack.cjs",
     "directories": {
       "output": "C:\\build\\vbe"

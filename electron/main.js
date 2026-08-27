@@ -12,11 +12,33 @@ const http = require("http");
 // userData folder from the app name, which otherwise comes from the monorepo's
 // package.json "name" ("workspace") and put every player's save in a folder
 // called workspace. migrateLegacyUserData() below moves an existing one across.
-const APP_NAME = "Volley-Ball-Empire";
-const legacyUserDataPath = app.getPath("userData");
+const APP_NAME = "Volleyball Empire";
+
+// Electron derives userData from the app name, and the app name differs by how
+// the game was started: an unpackaged dev run takes it from the monorepo's root
+// package.json "name" ("workspace"), a packaged build takes it from
+// electron-builder's productName. Neither is the name we want on disk, so the
+// path is set explicitly here and APP_NAME is the only thing that decides it.
+//
+// The root package.json "name" is deliberately NOT renamed: it is the pnpm
+// workspace identifier, and changing it would move the dev save folder as a
+// side effect of a packaging change — exactly the kind of coupling this block
+// exists to remove.
+const defaultUserDataPath = app.getPath("userData");
+const appDataRoot = path.dirname(defaultUserDataPath);
 app.setName(APP_NAME);
-const userDataPath = path.join(path.dirname(legacyUserDataPath), APP_NAME);
+const userDataPath = path.join(appDataRoot, APP_NAME);
 app.setPath("userData", userDataPath);
+
+// Every folder name this game's saves have ever lived under, newest first.
+// Enumerated rather than derived, because the derived value depends on whether
+// the build is packaged and would silently miss the other case.
+const LEGACY_APP_DIRS = [
+  "Volley-Ball-Empire",   // previous APP_NAME
+  "Volley-Ball Empire",   // launcher/shortcut spelling
+  "Volleyball-Empire",
+  "workspace",            // the pnpm workspace name — where dev saves actually went
+];
 
 const isPackaged = app.isPackaged;
 const repoRoot = path.join(__dirname, ".."); // electron/ -> repo root
@@ -31,25 +53,62 @@ const bundledDbPath = isPackaged
 // re-uses the player's saved progress instead of resetting to the bundled starter.
 const userDbPath = path.join(userDataPath, "volleyball-empire.sqlite");
 
-// One-time move of a save written under the old "workspace" folder name.
-// Copies rather than renames so a failure leaves the original intact.
+/**
+ * Bring a save forward from any folder the game used to write to.
+ *
+ * Copies rather than moves, so the original is untouched and a failure costs
+ * nothing. Never overwrites an existing save at the new path. The -wal sidecar
+ * is copied too and is not optional: SQLite keeps recent writes there until a
+ * checkpoint, so copying only the .sqlite silently drops the most recent
+ * progress — which is the part a player would notice.
+ */
 function migrateLegacyUserData() {
-  if (legacyUserDataPath === userDataPath) return;
-  if (fs.existsSync(userDbPath)) return;
+  if (fs.existsSync(userDbPath)) return;   // already have a save here
 
-  const legacyDb = path.join(legacyUserDataPath, "volleyball-empire.sqlite");
-  if (!fs.existsSync(legacyDb)) return;
+  let best = null;
+  for (const dir of LEGACY_APP_DIRS) {
+    const candidate = path.join(appDataRoot, dir, "volleyball-empire.sqlite");
+    if (candidate === userDbPath) continue;
+    if (!fs.existsSync(candidate)) continue;
+    // Prefer the most recently written save, counting the WAL: a save whose
+    // newest writes are still in the sidecar has a stale .sqlite mtime.
+    let mtime = 0;
+    for (const suffix of ["", "-wal"]) {
+      try {
+        const t = fs.statSync(`${candidate}${suffix}`).mtimeMs;
+        if (t > mtime) mtime = t;
+      } catch { /* sidecar absent — fine */ }
+    }
+    if (!best || mtime > best.mtime) best = { db: candidate, dir, mtime };
+  }
+
+  if (!best) return;
 
   try {
     fs.mkdirSync(userDataPath, { recursive: true });
-    fs.copyFileSync(legacyDb, userDbPath);
+    fs.copyFileSync(best.db, userDbPath);
     for (const suffix of ["-wal", "-shm"]) {
-      const src = `${legacyDb}${suffix}`;
+      const src = `${best.db}${suffix}`;
       if (fs.existsSync(src)) fs.copyFileSync(src, `${userDbPath}${suffix}`);
     }
-    console.log(`Migrated save data from ${legacyUserDataPath} to ${userDataPath}`);
+    console.log(`Migrated save data from ${best.dir} to ${APP_NAME}`);
   } catch (err) {
+    // Non-fatal: the game still starts, just with a fresh save. Say so loudly
+    // rather than letting a player think their career vanished silently.
     console.error("Could not migrate legacy save data:", err);
+    try {
+      dialog.showErrorBox(
+        "Could not move your existing save",
+        `Volleyball Empire found an earlier save in "${best.dir}" but could not ` +
+          `copy it to its new location.
+
+Your old save has NOT been changed — ` +
+          `it is still at:
+${path.dirname(best.db)}
+
+${err && err.message ? err.message : String(err)}`
+      );
+    } catch { /* dialog unavailable this early — the log line still stands */ }
   }
 }
 

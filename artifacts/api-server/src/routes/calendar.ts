@@ -20,6 +20,10 @@ import {
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 
+// 52 weeks / 12 months — the divisor that turns a monthly salary into the
+// weekly instalment actually charged.
+const WEEKS_PER_MONTH = 52 / 12;
+
 const router = Router();
 
 // Guard — all calendar routes require an authenticated session
@@ -497,7 +501,18 @@ router.post("/calendar/advance", async (req, res) => {
     const teamRow = await db.select({ sponsorReputation: teamsTable.sponsorReputation })
       .from(teamsTable).where(eq(teamsTable.id, team.id)).limit(1);
 
-    const weeklySalary  = Math.round(teamPlayers.reduce((s, p) => s + Number(p.salary), 0));
+    // players.salary is a MONTHLY figure. The seed data settles it: every one
+    // of the 72 hand-typed players in scripts/src/seed-all-senior-players.ts
+    // has askingPrice === salary * 12, i.e. a transfer priced at exactly one
+    // year of wages — and that holds for all 196 senior rows in the shipped
+    // database. Charging the raw figure once a week billed 4.33x the intended
+    // wage, which bankrupted every club: even a perfect season, winning all 62
+    // events including the 500,000 Grand Final, finished under water.
+    //
+    // Divided into a weekly drip rather than charged as a monthly lump, so
+    // signing a player the day before payday cannot bankrupt a club.
+    const monthlySalary = teamPlayers.reduce((s, p) => s + Number(p.salary), 0);
+    const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH);
     const weeklyStaff   = Math.round(weeklySalary * 0.2);
     const sponsorRep    = teamRow[0]?.sponsorReputation ?? 50;
     const sponsorIncome = Math.round(sponsorRep * 200);

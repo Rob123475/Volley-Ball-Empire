@@ -120,7 +120,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
         <img
           src={`${import.meta.env.BASE_URL}title-hero.webp`}
-          alt="Beach Volleyball Pro"
+          alt="Volleyball Empire"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
@@ -130,12 +130,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-6">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-secondary" />
-            <span className="text-white/80 font-bold text-sm uppercase tracking-widest">Beach Volley Pro</span>
+            <span className="text-white/80 font-bold text-sm uppercase tracking-widest">Volleyball Empire</span>
           </div>
           <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur px-3 py-1.5 rounded-full border border-white/20">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-white/70 text-xs font-semibold uppercase tracking-wide">
-              {seasonYear ? `Season ${seasonYear}` : "Beach Volley Pro"}
+              {seasonYear ? `Season ${seasonYear}` : "Volleyball Empire"}
             </span>
           </div>
         </div>
@@ -148,9 +148,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             </div>
 
             <h1 className="text-6xl md:text-8xl font-black text-white leading-none tracking-tight drop-shadow-2xl">
-              BEACH<br />
-              <span className="text-secondary drop-shadow-[0_0_30px_rgba(244,162,97,0.6)]">VOLLEY</span><br />
-              PRO
+              VOLLEYBALL<br />
+              <span className="text-secondary drop-shadow-[0_0_30px_rgba(244,162,97,0.6)]">EMPIRE</span>
             </h1>
 
             <p className="mt-4 text-white/60 text-base md:text-lg max-w-md leading-relaxed">

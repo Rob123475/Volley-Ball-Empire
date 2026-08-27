@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable, calendarStateTable } from "@workspace/db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, count } from "drizzle-orm";
 import { generateOfferBatch } from "../utils/sponsor-generator.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
@@ -98,6 +98,14 @@ const serializeTx = (t: any) => ({ ...t, amount: Number(t.amount) });
 const serializeDeal = (d: any) => ({ ...d, amount: Number(d.amount) });
 
 
+// Returns at most 100 rows and always has. That is fine for the ledger table
+// this feeds — no caller sums these rows, and every total on the finances page
+// comes from /finances/summary, which aggregates server-side over the full
+// history. It is NOT fine as the only way to read your history: a season
+// generates a transaction most weeks plus one per event, so a player passes
+// 100 partway through season one and the older half of their ledger simply
+// stops existing. Use /finances/history for anything that needs to page or
+// needs to know how many there really are.
 router.get("/finances", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
@@ -106,6 +114,35 @@ router.get("/finances", async (req, res) => {
     .where(eq(financeTransactionsTable.teamId, team.id))
     .orderBy(desc(financeTransactionsTable.createdAt)).limit(100);
   res.json(txs.map(serializeTx));
+});
+
+/**
+ * GET /finances/history?limit=&offset=
+ *
+ * Paged ledger with a real total counted server-side, so the UI can say
+ * "showing 50 of 431" instead of silently ending at 100.
+ */
+router.get("/finances/history", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.json({ transactions: [], total: 0, limit: 0, offset: 0 }); return; }
+
+  const rawLimit  = Number(req.query.limit);
+  const rawOffset = Number(req.query.offset);
+  const limit  = Number.isFinite(rawLimit)  ? Math.min(Math.max(Math.trunc(rawLimit), 1), 200) : 50;
+  const offset = Number.isFinite(rawOffset) ? Math.max(Math.trunc(rawOffset), 0) : 0;
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(financeTransactionsTable)
+    .where(eq(financeTransactionsTable.teamId, team.id));
+
+  const txs = await db.select().from(financeTransactionsTable)
+    .where(eq(financeTransactionsTable.teamId, team.id))
+    .orderBy(desc(financeTransactionsTable.createdAt))
+    .limit(limit).offset(offset);
+
+  res.json({ transactions: txs.map(serializeTx), total: Number(total), limit, offset });
 });
 
 router.post("/finances", async (req, res) => {

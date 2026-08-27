@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-echo Starting Volley-Ball Empire...
+echo Starting Volleyball Empire...
 echo.
 call pnpm electron:dev
 if errorlevel 1 (

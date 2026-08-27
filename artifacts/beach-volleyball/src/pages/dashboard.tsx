@@ -465,7 +465,7 @@ export default function Dashboard() {
             )}
 
             <div className="h-3 w-px bg-white/15" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/25">Beach Volley Pro</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/25">Volleyball Empire</span>
             <div className="flex-1" />
             {streak >= 3 && (
               <Badge className="text-[11px] bg-orange-500/20 text-orange-300 border border-orange-500/40 font-black gap-1.5 px-3 py-1 animate-pulse">

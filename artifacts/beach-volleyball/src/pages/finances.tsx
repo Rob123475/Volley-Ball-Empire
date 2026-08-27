@@ -1,6 +1,5 @@
 import { 
   useGetFinanceSummary, 
-  useListFinances, 
   useListPromoDeals, 
   useAcceptPromoDeal,
   useGetSponsorProgress,
@@ -9,7 +8,6 @@ import {
   useGetStaffWageBill,
   useGetSponsorReputation,
   getGetFinanceSummaryQueryKey,
-  getListFinancesQueryKey,
   getListPromoDealsQueryKey,
   getGetSponsorProgressQueryKey,
   type FinanceSummary,
@@ -107,9 +105,29 @@ export default function Finances() {
   const { data: summary, isLoading: summaryLoading } = useGetFinanceSummary({
     query: { queryKey: getGetFinanceSummaryQueryKey() }
   });
-  const { data: transactions, isLoading: transLoading } = useListFinances({
-    query: { queryKey: getListFinancesQueryKey() }
+  // Paged from /finances/history rather than /finances, which caps at 100 rows
+  // with no indication. A season produces a transaction most weeks plus one per
+  // event, so a player crosses 100 partway through season one and the older
+  // half of their ledger silently disappeared. Totals were never affected —
+  // those come from /finances/summary, which aggregates server-side.
+  const PAGE_SIZE = 50;
+  const [historyLimit, setHistoryLimit] = useState(PAGE_SIZE);
+  const { data: history, isLoading: transLoading } = useQuery({
+    queryKey: ["finance-history", historyLimit],
+    queryFn: async () => {
+      const res = await fetch(`/api/finances/history?limit=${historyLimit}&offset=0`);
+      if (!res.ok) throw new Error("Failed to load transaction history");
+      return res.json() as Promise<{
+        transactions: Array<{
+          id: number; type: string; category: string; description: string;
+          amount: number; createdAt: string;
+        }>;
+        total: number; limit: number; offset: number;
+      }>;
+    },
   });
+  const transactions = history?.transactions;
+  const totalTransactions = history?.total ?? 0;
   const { data: deals, isLoading: dealsLoading } = useListPromoDeals({
     query: { queryKey: getListPromoDealsQueryKey() }
   });
@@ -475,7 +493,11 @@ export default function Finances() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>Transaction History</CardTitle>
-          <CardDescription>Complete log of your team's financial movements.</CardDescription>
+          <CardDescription>
+            {totalTransactions > 0
+              ? `Showing ${transactions?.length ?? 0} of ${totalTransactions.toLocaleString()} transactions.`
+              : "Complete log of your team's financial movements."}
+          </CardDescription>
         </CardHeader>
         <CardContent className={transactions && transactions.length > 0 ? "p-0" : "p-6"}>
           {transactions && transactions.length > 0 ? (
@@ -515,6 +537,20 @@ export default function Finances() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground italic">No transactions recorded yet.</p>
+          )}
+          {transactions && totalTransactions > transactions.length && (
+            <div className="p-4 border-t border-border flex justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHistoryLimit((n) => n + PAGE_SIZE)}
+                disabled={transLoading}
+              >
+                {transLoading
+                  ? "Loading…"
+                  : `Show ${Math.min(PAGE_SIZE, totalTransactions - transactions.length)} more`}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

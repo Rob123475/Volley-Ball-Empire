@@ -181,7 +181,7 @@ export function Sidebar() {
         <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
           <Activity className="h-5 w-5 text-sidebar-primary shrink-0" />
           <span className="truncate">
-            BEACH VOLLEY <span className="text-sidebar-primary">PRO</span>
+            VOLLEYBALL <span className="text-sidebar-primary">EMPIRE</span>
           </span>
         </h1>
       </div>

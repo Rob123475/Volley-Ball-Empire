@@ -289,7 +289,7 @@ export default function Matches() {
               <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/5 to-transparent border border-primary/20 mb-6">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-widest text-primary/60">{seasonLabel} World Tour</div>
-                  <div className="text-xl font-black">Beach Volley World Tour</div>
+                  <div className="text-xl font-black">Volleyball Empire World Tour</div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">

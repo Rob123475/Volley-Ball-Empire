@@ -146,7 +146,7 @@ export default function Leaderboard() {
               <div className="flex items-center gap-2 mb-1">
                 <Trophy className="h-5 w-5 text-amber-400 fill-amber-400" />
                 <span className="text-amber-300 text-xs font-bold uppercase tracking-widest">
-                  Beach Volley Pro · World Tour
+                  Volleyball Empire · World Tour
                 </span>
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-white leading-tight drop-shadow">
