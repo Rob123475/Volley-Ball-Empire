@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { normaliseContinentsOnce } from "./utils/normaliseContinents";
 import { ensurePoolCompetitors, ensureTeamCompetitors } from "./utils/competitors";
+import { migrateCareerStateOnce } from "./utils/migrateCareerState";
 
 const rawPort = process.env["PORT"];
 
@@ -45,6 +46,17 @@ try {
   }
 } catch (err) {
   logger.error({ err }, "competitor backfill failed");
+}
+
+// Snapshot global player/staff state into per-career state. Must run before the
+// mutable columns are dropped from players/staff. Idempotent.
+try {
+  const m = migrateCareerStateOnce();
+  if (m.careersMigrated > 0) {
+    logger.info(m, "career state snapshot taken");
+  }
+} catch (err) {
+  logger.error({ err }, "career state migration failed");
 }
 
 app.listen(port, (err) => {

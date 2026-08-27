@@ -280,6 +280,84 @@ export const playersTable = sqliteTable("players", {
 export type Player = typeof playersTable.$inferSelect;
 export const insertPlayerSchema = createInsertSchema(playersTable).omit({ id: true, createdAt: true });
 
+// ── Per-career mutable player state ──────────────────────────────────────────
+/**
+ * Everything about a player that ONE CAREER changes.
+ *
+ * `players` is the global reference pool — 196 seniors and 72 youth, shared by
+ * every save on the machine, as it must be: they are the world's athletes. But
+ * the columns a career mutates lived there too, so signing a player in career A
+ * removed them from career B's market permanently, and A's injuries, fitness,
+ * contracts and (once rollover lands) ages applied to B as well.
+ *
+ * Splitting it this way means `players` is genuinely immutable reference data
+ * and every career keeps its own copy of the parts that move. The mutable
+ * columns are DROPPED from `players` rather than merely abandoned, so a read
+ * that was never migrated is a compile error instead of a silently global value.
+ */
+export const careerPlayerStateTable = sqliteTable("career_player_state", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:     integer("player_id").notNull().references(() => playersTable.id),
+
+  // squad membership
+  teamId:       integer("team_id").references(() => teamsTable.id),
+  squadRole:    text("squad_role").notNull().default("reserve"),
+  isActive:     integer("is_active", { mode: "boolean" }).notNull().default(false),
+
+  // contract
+  salary:            real("salary").notNull().default(0),
+  contractEndDate:   text("contract_end_date"),
+  academyContractYears: integer("academy_contract_years"),
+
+  // condition
+  age:                    integer("age").notNull(),
+  fitness:                integer("fitness").notNull().default(100),
+  fatigue:                integer("fatigue").notNull().default(0),
+  morale:                 integer("morale").notNull().default(75),
+  injuryStatus:           text("injury_status").notNull().default("Healthy"),
+  injuryWeeksRemaining:   integer("injury_weeks_remaining").notNull().default(0),
+  isInjured:              integer("is_injured", { mode: "boolean" }).notNull().default(false),
+  consecutiveMatchesPlayed: integer("consecutive_matches_played").notNull().default(0),
+
+  // development and scouting
+  trainingPoints:   integer("training_points").notNull().default(0),
+  trainingFocus:    text("training_focus"),
+  focusXp:          integer("focus_xp").notNull().default(0),
+  scoutedPotential: text("scouted_potential"),
+  discoveredBy:     text("discovered_by"),
+
+  // career-long record
+  isRetired:        integer("is_retired", { mode: "boolean" }).notNull().default(false),
+  retiredSeasonYear: integer("retired_season_year"),
+  careerWins:       integer("career_wins").notNull().default(0),
+  isDraftPlayer:    integer("is_draft_player", { mode: "boolean" }).notNull().default(false),
+  outfitId:         integer("outfit_id"),
+
+  updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("career_player_state_unique").on(t.careerSaveId, t.playerId),
+]);
+
+export type CareerPlayerState = typeof careerPlayerStateTable.$inferSelect;
+
+/** Per-career mutable staff state. Same disease, same cure. */
+export const careerStaffStateTable = sqliteTable("career_staff_state", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  staffId:      integer("staff_id").notNull().references(() => staffTable.id),
+  teamId:       integer("team_id").references(() => teamsTable.id),
+  salary:       real("salary").notNull().default(0),
+  isAvailable:  integer("is_available", { mode: "boolean" }).notNull().default(true),
+  contractLength: integer("contract_length").notNull().default(12),
+  isScoutRevealed: integer("is_scout_revealed", { mode: "boolean" }).notNull().default(false),
+  updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("career_staff_state_unique").on(t.careerSaveId, t.staffId),
+]);
+
+export type CareerStaffState = typeof careerStaffStateTable.$inferSelect;
+
 export const contractsTable = sqliteTable("contracts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   playerId: integer("player_id").notNull().references(() => playersTable.id),
