@@ -18,7 +18,11 @@ const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 // Most of the external list is speculative ("in case we add it later") with
 // nothing installed to vendor; only list packages here once you've confirmed
 // (e.g. `grep` the actual imports in src/) that they're really used.
-const EXTERNAL_DEPS_TO_VENDOR = ["better-sqlite3", "@google-cloud/storage"];
+// @google-cloud/storage was dropped along with lib/objectStorage.ts and the
+// storage router (it built a GCS client at import time pointed at the Replit
+// sidecar, dead on a player machine). Vendoring a dependency that is no longer
+// installed fails the build.
+const EXTERNAL_DEPS_TO_VENDOR = ["better-sqlite3"];
 
 // IMPORTANT (native ABI): better-sqlite3's compiled addon must be built for
 // Electron's Node ABI, not the system Node used to run this build script.
