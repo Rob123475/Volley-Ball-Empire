@@ -17,6 +17,7 @@
  */
 
 import { db, matchesTable, matchLiveStateTable, playersTable, teamsTable } from "@workspace/db";
+import { sideRating, pointProbability, pointTarget as sharedPointTarget } from "./matchEngine.js";
 import { eq, and, inArray, isNull, notInArray, desc, sql } from "drizzle-orm";
 import { getWeatherEffects } from "../routes/matches.js";
 import { logger } from "../lib/logger.js";
@@ -31,7 +32,13 @@ const activeMatches = new Set<number>();
 
 type Side = "home" | "away";
 
-type RosterPlayer = { id: number; power: number; serve: number; defense: number; block: number };
+// speed/stamina included so the roster satisfies the shared engine's six-stat
+// rating. `select()` already returns full player rows, so nothing extra is
+// fetched — the type was simply narrower than the data.
+type RosterPlayer = {
+  id: number; power: number; serve: number; defense: number;
+  block: number; speed: number; stamina: number;
+};
 
 const overallExpr = sql<number>`(${playersTable.speed}+${playersTable.power}+${playersTable.defense}+${playersTable.serve}+${playersTable.block}+${playersTable.stamina})`;
 
@@ -65,14 +72,14 @@ async function loadFallbackPool(excludeIds: number[]): Promise<RosterPlayer[]> {
   return rows;
 }
 
+// Rating now comes from the shared engine (six-stat mean, the OVR the UI
+// shows). This file used a four-stat average while the instant sim used a
+// three-stat one, so the two engines disagreed about what a squad was worth.
 function sideAvg(roster: RosterPlayer[]): number {
-  if (roster.length === 0) return 60;
-  return roster.reduce((sum, p) => sum + p.power + p.serve + p.defense + p.block, 0) / (roster.length * 4);
+  return sideRating(roster);
 }
 
-function pointTarget(setNumber: number): number {
-  return setNumber >= 3 ? 15 : 21;
-}
+const pointTarget = sharedPointTarget;
 
 function isSetWon(a: number, b: number, target: number): boolean {
   return a >= target && a - b >= WIN_BY;
@@ -170,8 +177,13 @@ async function runLoop(
   let matchTimeSeconds = 0;
   let servingTeam: Side = Math.random() < 0.5 ? "home" : "away";
 
-  const homeStrength = Math.max(20, homeAvg * weatherFactor);
-  const awayStrength = Math.max(20, awayAvg * weatherFactor);
+  // weatherFactor is no longer a multiplier on strength — the shared model
+  // treats bad weather as compression toward a coin flip (more upsets) rather
+  // than as a penalty applied to both sides, which largely cancelled out.
+  const pHome = pointProbability(homeAvg, awayAvg, {
+    homeAdvantage:  true,
+    weatherPenalty: 1 - weatherFactor,
+  });
 
   while (setsWonHome < 2 && setsWonAway < 2) {
     const target = pointTarget(currentSet);
@@ -184,13 +196,11 @@ async function runLoop(
     });
     await sleep(TICK_MS);
 
-    // Decide the point. Base probability from relative strength, clamped so
-    // neither side is ever a lock, plus extra noise on chaotic weather.
-    let pHome = homeStrength / (homeStrength + awayStrength);
-    pHome = Math.min(0.75, Math.max(0.25, pHome));
-    const noise = (Math.random() - 0.5) * 0.08 * (1 + rallyRandomness);
-    pHome = Math.min(0.85, Math.max(0.15, pHome + noise));
-
+    // Same per-point probability the instant sim uses, so watching a match and
+    // simulating it are the same event statistically. The old ratio-of-strengths
+    // form here was far flatter than a rating difference should be: 70 vs 60
+    // gave 0.538, where the shared model gives 0.521 per point but compounds
+    // into a ~65% match — and it disagreed with the instant sim entirely.
     const winner: Side = Math.random() < pHome ? "home" : "away";
     const winnerRoster = winner === "home" ? homeRoster : awayRoster;
     const action = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];

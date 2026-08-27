@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import type { WorldTourEvent } from "../data/worldTour";
@@ -12,6 +12,10 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
 import { getGameDate } from "../utils/gameDate.js";
+import {
+  sideRating, pointProbability, simulateMatch,
+  opponentRatingFromTier, clampRating,
+} from "../utils/matchEngine.js";
 
 const router = Router();
 
@@ -432,6 +436,40 @@ async function getWorldFinalsSeedings(userTeamId: number, userTeamName: string):
  * bank the 500,000. Returns an error message, or null when the match may
  * proceed.
  */
+/**
+ * Strength of the side the player is facing.
+ *
+ * A World Tour fixture stores its opponent as a NAME only — away_team_id is
+ * the player's own team — so there is usually no opposing roster to load. In
+ * priority order:
+ *   1. a genuine opposing roster, when the fixture has a real second team
+ *   2. the AI club's stored rating, when the name matches a continental pool
+ *      team (those carry real ratings, 57-92)
+ *   3. the tier ladder plus a stable per-name offset
+ */
+async function resolveOpponentRating(
+  match: { awayTeamId: number | null; awayTeamName: string | null; tier: string | null },
+  playerTeamId: number,
+): Promise<number> {
+  const name = match.awayTeamName ?? "";
+
+  if (match.awayTeamId != null && match.awayTeamId !== playerTeamId) {
+    const roster = await db.select().from(playersTable)
+      .where(and(eq(playersTable.teamId, match.awayTeamId), eq(playersTable.isActive, true)));
+    if (roster.length > 0) return clampRating(sideRating(roster));
+  }
+
+  if (name) {
+    const [pool] = await db.select({ rating: continentalPoolTeamsTable.rating })
+      .from(continentalPoolTeamsTable)
+      .where(eq(continentalPoolTeamsTable.teamName, name))
+      .limit(1);
+    if (pool?.rating != null) return clampRating(Number(pool.rating));
+  }
+
+  return opponentRatingFromTier(match.tier, name || "Opponent");
+}
+
 async function bracketBlockReason(teamId: number, match: { tier: string | null; season: number }): Promise<string | null> {
   if (match.tier !== "World Final") return null;
 
@@ -798,15 +836,14 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
   const activePlayers = players.filter(p => p.isActive);
-  const avgStat = activePlayers.length > 0
-    ? activePlayers.reduce((acc, p) => acc + p.power + p.defense + p.serve, 0) / (activePlayers.length * 3)
-    : 65;
+  // Six-stat mean, the same OVR the UI shows. The old three-stat average here
+  // disagreed with the tick engine's four-stat one about what a squad is worth.
+  const squadRating = sideRating(activePlayers);
 
   // Weather impact on match difficulty
   const matchWindSpeed = Number(match.windSpeed ?? 0);
   const matchTemp      = Number(match.temperature ?? 25);
   const wx = getWeatherEffects(match.weather, matchWindSpeed, matchTemp);
-  const weatherFactor = 1 - wx.performancePenalty;
 
   const isFinal        = match.tier === "World Final";
   const isAllStar      = match.tier === "All-Star Match";
@@ -817,7 +854,15 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // Sports Psychology Camp: additional −3 while active
   const psychLevel         = facilityLevels.psychology_centre ?? 1;
   const psychBonusFromCamp = hasPsychCamp ? 3 : 0;
-  const statThreshold = isHighPressure ? Math.max(58, 70 - (psychLevel - 1) - psychBonusFromCamp) : 70;
+  // The Psychology Centre used to work by lowering a pass/fail stat threshold,
+  // which no longer exists. Its purpose is preserved as what it always meant:
+  // your squad performs closer to its true level when the pressure is on. In
+  // high-pressure matches only, it is worth up to +9 rating from the facility
+  // (L1-L10) plus +3 while a Sports Psychology Camp is active — comparable to
+  // the 12-15 points of threshold it used to buy.
+  const pressureRatingBonus = isHighPressure
+    ? (psychLevel - 1) + psychBonusFromCamp
+    : 0;
 
   // Score source: either the point-tick engine already played this match live
   // (body carries the real outcome) or we fall back to the instant random roll
@@ -825,16 +870,32 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
     req.body?.precomputedResult;
 
+  // Opponent strength is REAL. Priority: a genuine opposing roster if the
+  // fixture has one, then the AI club's stored rating if the name matches a
+  // continental pool team, then the tier ladder plus a stable per-name offset.
+  // World Tour fixtures carry the opponent as a name only — awayTeamId equals
+  // the player's own team — so for those the tier is the difficulty signal.
+  const opponentRating = await resolveOpponentRating(match, team.id);
+
   let homeScore: number;
   let awayScore: number;
+  let resolvedSets: Array<{ home: number; away: number }> | undefined;
+
   if (precomputed && Number.isInteger(precomputed.homeScore) && Number.isInteger(precomputed.awayScore)) {
+    // The live tick engine already played this match point by point.
     homeScore = precomputed.homeScore;
     awayScore = precomputed.awayScore;
+    resolvedSets = precomputed.sets;
   } else {
-    // Rally randomness: harsh weather = more chaos, perfect = consistent play
-    const baseRoll = Math.max(2, 3 + wx.rallyRandomness);
-    homeScore = Math.floor(Math.random() * baseRoll) + (avgStat * weatherFactor > statThreshold ? 2 : 1);
-    awayScore = Math.floor(Math.random() * baseRoll) + 1;
+    const pPoint = pointProbability(squadRating + pressureRatingBonus, opponentRating, {
+      homeAdvantage: true,
+      winStreak:     team.winStreak ?? 0,
+      weatherPenalty: wx.performancePenalty,
+    });
+    const result = simulateMatch(pPoint);
+    homeScore    = result.homeScore;   // sets won
+    awayScore    = result.awayScore;
+    resolvedSets = result.sets;
   }
   const homeWon = homeScore > awayScore;
 
@@ -880,7 +941,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     awayScore,
     status: "completed",
     highlights,
-    ...(precomputed?.sets ? { sets: precomputed.sets } : {}),
+    ...(resolvedSets ? { sets: resolvedSets } : {}),
   }).where(eq(matchesTable.id, id)).returning();
 
   // The live-tick scratch row has served its purpose once the match is over.
@@ -1316,8 +1377,11 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     res.status(400).json({ error: "Match is already completed" }); return;
   }
 
+  // home_score/away_score are SETS WON (the headline the UI prints), with the
+  // per-set point scores in `sets`. A forfeit is a straight-sets loss; this
+  // used to write 0-21, a point score, which rendered as "0 - 21".
   const homeScore = 0;
-  const awayScore = 21;
+  const awayScore = 2;
 
   const [updatedMatch] = await db
     .update(matchesTable)
