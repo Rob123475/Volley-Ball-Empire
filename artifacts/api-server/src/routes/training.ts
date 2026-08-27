@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
+import { loadPlayers, loadPlayer, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -161,6 +162,7 @@ const PRIMARY_THRESHOLD   = 100;
 const SECONDARY_THRESHOLD = 200;
 
 const applyFatigueAndStats = async (
+  careerSaveId: number,
   playerId: number,
   programType: string,
   coach?: StaffMember | null,
@@ -171,7 +173,7 @@ const applyFatigueAndStats = async (
   newRoleXpBonus = 1.0,
   newRoleFatigueReduction = 0,
 ) => {
-  const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, playerId) });
+  const player = await loadPlayer(careerSaveId, playerId);
   if (!player) return null;
 
   const programName = resolveProgram(programType);
@@ -422,7 +424,9 @@ router.post("/training/:id/complete", async (req, res) => {
   const nutritionFatigueRed      = ((nutritionLevel - 1) * (3 / 9));
   const newRoleFatigueReduction  = fitnessTrainerFatigueRed + nutritionFatigueRed;
 
-  const result = await applyFatigueAndStats(session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel, newRoleXpBonus, newRoleFatigueReduction);
+  const result = await applyFatigueAndStats(
+      requireCareerSaveId(req.activeCareerSaveId),
+      session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel, newRoleXpBonus, newRoleFatigueReduction);
   if (result) {
     const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect, ageModifier, philosophyMultiplier, programName } = result;
     // Young player development bonus — award manager rep when a player aged ≤22 gains a stat
@@ -460,7 +464,7 @@ router.get("/training/plan", async (req, res) => {
   const completedThisWeek = sessions.filter(s => s.status === "completed").length;
   const load = scheduled.length > 6 ? "peak" : scheduled.length > 4 ? "intense" : scheduled.length > 2 ? "moderate" : "light";
 
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const avgFitness = players.length > 0 ? players.reduce((acc, p) => acc + p.stamina, 0) / players.length : 80;
   const avgMorale  = players.length > 0 ? players.reduce((acc, p) => acc + p.morale,  0) / players.length : 80;
   const avgFatigue = players.length > 0 ? players.reduce((acc, p) => acc + p.fatigue, 0) / players.length : 0;

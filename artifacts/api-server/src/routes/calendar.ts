@@ -3,6 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
   calendarStateTable,
+  careerPlayerStateTable,
   matchesTable,
   seasonsTable,
   playersTable,
@@ -20,6 +21,7 @@ import {
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { requireCareerSaveId } from "../lib/playerDto.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -233,11 +235,14 @@ router.get("/calendar", async (req, res) => {
 
   // Team fitness summary
   const players = await db.select({
-    fitness:      playersTable.fitness,
-    fatigue:      playersTable.fatigue,
-    injuryStatus: playersTable.injuryStatus,
-    isActive:     playersTable.isActive,
-  }).from(playersTable).where(eq(playersTable.teamId, team.id));
+    fitness:      careerPlayerStateTable.fitness,
+    fatigue:      careerPlayerStateTable.fatigue,
+    injuryStatus: careerPlayerStateTable.injuryStatus,
+    isActive:     careerPlayerStateTable.isActive,
+  }).from(careerPlayerStateTable).where(and(
+    eq(careerPlayerStateTable.careerSaveId, requireCareerSaveId(req.activeCareerSaveId)),
+    eq(careerPlayerStateTable.teamId, team.id),
+  ));
 
   const active = players.filter(p => p.isActive);
   const avgFitness   = active.length ? Math.round(active.reduce((s, p) => s + p.fitness, 0) / active.length) : 0;
@@ -475,21 +480,31 @@ router.post("/calendar/advance", async (req, res) => {
   // is NULL handling (SQLite's MAX/MIN returns NULL if any arg is NULL,
   // GREATEST/LEAST would skip it), which can't occur here since both
   // `fatigue` and `fitness` are NOT NULL columns.
-  await db.update(playersTable)
+  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+  await db.update(careerPlayerStateTable)
     .set({ fatigue: sql`MAX(0, fatigue - 4)` })
-    .where(and(eq(playersTable.teamId, team.id), eq(playersTable.injuryStatus, "Healthy")));
+    .where(and(
+      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+      eq(careerPlayerStateTable.teamId, team.id),
+      eq(careerPlayerStateTable.injuryStatus, "Healthy"),
+    ));
 
   // 2. Fatigue recovery — injured players (slower, bed rest)
-  await db.update(playersTable)
+  await db.update(careerPlayerStateTable)
     .set({ fatigue: sql`MAX(0, fatigue - 2)` })
-    .where(and(eq(playersTable.teamId, team.id), ne(playersTable.injuryStatus, "Healthy")));
+    .where(and(
+      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+      eq(careerPlayerStateTable.teamId, team.id),
+      ne(careerPlayerStateTable.injuryStatus, "Healthy"),
+    ));
 
   // 3. Fitness recovery for well-rested healthy players
-  await db.update(playersTable)
+  await db.update(careerPlayerStateTable)
     .set({ fitness: sql`MIN(100, fitness + 1)` })
     .where(and(
-      eq(playersTable.teamId, team.id),
-      eq(playersTable.injuryStatus, "Healthy"),
+      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+      eq(careerPlayerStateTable.teamId, team.id),
+      eq(careerPlayerStateTable.injuryStatus, "Healthy"),
       sql`fatigue < 30`,
     ));
 

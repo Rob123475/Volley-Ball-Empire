@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db } from "@workspace/db";
+import { db, careerPlayerStateTable } from "@workspace/db";
 import { teamsTable, playersTable, seasonInjuryStatsTable, injuryHistoryTable, matchesTable, trainingSessionsTable } from "@workspace/db";
 import { eq, and, desc, gte } from "drizzle-orm";
+import { requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -126,9 +127,12 @@ router.get("/medical/injury-stats", async (req, res) => {
         eq(seasonInjuryStatsTable.seasonId, currentSeason),
       ))
       .limit(1),
-    db.select({ injuryStatus: playersTable.injuryStatus })
-      .from(playersTable)
-      .where(eq(playersTable.teamId, team.id)),
+    db.select({ injuryStatus: careerPlayerStateTable.injuryStatus })
+      .from(careerPlayerStateTable)
+      .where(and(
+        eq(careerPlayerStateTable.careerSaveId, requireCareerSaveId(req.activeCareerSaveId)),
+        eq(careerPlayerStateTable.teamId, team.id),
+      )),
   ]);
 
   const stat = statRow[0];

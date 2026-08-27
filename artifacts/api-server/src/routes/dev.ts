@@ -622,10 +622,6 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
         speed: stat(), power: stat(), defense: stat(),
         serve: stat(), block: stat(), stamina: stat(),
         height: Number((1.58 + Math.random() * 0.20).toFixed(1)),
-        injuryStatus: "Healthy",
-        morale: rand(65, 85),
-        fatigue: 0,
-        fitness: 100,
       });
     }
 

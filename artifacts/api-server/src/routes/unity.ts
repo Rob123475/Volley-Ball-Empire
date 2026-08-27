@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable } from "@workspace/db";
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
+import { loadPlayers, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -93,7 +94,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   //           get 2 per side even when the away team is an AI club with no DB rows.
   const lineupIds = match.lineup ?? [];
 
-  type PlayerRow = typeof playersTable.$inferSelect;
+  type PlayerRow = PlayerDTO;
   let homePlayers: PlayerRow[] = [];
   let awayPlayers: PlayerRow[] = [];
 
@@ -102,39 +103,27 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     const homeIds = lineupIds.slice(0, 2);
     const awayIds = lineupIds.slice(2, 4);
     [homePlayers, awayPlayers] = await Promise.all([
-      db.select().from(playersTable).where(inArray(playersTable.id, homeIds)),
-      db.select().from(playersTable).where(inArray(playersTable.id, awayIds)),
+      loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { includeRetired: true })
+        .then((all) => all.filter((p) => homeIds.includes(p.id))),
+      loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { includeRetired: true })
+        .then((all) => all.filter((p) => awayIds.includes(p.id))),
     ]);
   } else {
     // Path B — derive from team IDs
 
     // Home: top 2 active seniors on the home team
     if (match.homeTeamId) {
-      homePlayers = await db
-        .select()
-        .from(playersTable)
-        .where(and(
-          eq(playersTable.teamId,    match.homeTeamId),
-          eq(playersTable.isActive,  true),
-          eq(playersTable.playerType, "senior"),
-        ))
-        .orderBy(desc(overallExpr))
-        .limit(2);
+      homePlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
+        teamId: match.homeTeamId, isActive: true, playerType: "senior",
+      })).sort((x, y) => computeOverall(y) - computeOverall(x)).slice(0, 2);
     }
 
     // Away: top 2 active seniors on the away team, if it is a distinct DB team
     const awayIsDistinct = match.awayTeamId != null && match.awayTeamId !== match.homeTeamId;
     if (awayIsDistinct) {
-      awayPlayers = await db
-        .select()
-        .from(playersTable)
-        .where(and(
-          eq(playersTable.teamId,    match.awayTeamId!),
-          eq(playersTable.isActive,  true),
-          eq(playersTable.playerType, "senior"),
-        ))
-        .orderBy(desc(overallExpr))
-        .limit(2);
+      awayPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
+        teamId: match.awayTeamId!, isActive: true, playerType: "senior",
+      })).sort((x, y) => computeOverall(y) - computeOverall(x)).slice(0, 2);
     }
 
     // Fallback: AI opponent has no DB team — fill remaining slots from the
@@ -145,25 +134,14 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
         ...homePlayers.map((p) => p.id),
         ...awayPlayers.map((p) => p.id),
       ];
-      const fallbackWhere = excludeIds.length > 0
-        ? and(
-            isNull(playersTable.teamId),
-            eq(playersTable.playerType, "senior"),
-            eq(playersTable.isActive,   true),
-            notInArray(playersTable.id, excludeIds),
-          )
-        : and(
-            isNull(playersTable.teamId),
-            eq(playersTable.playerType, "senior"),
-            eq(playersTable.isActive,   true),
-          );
-
-      const fillPlayers = await db
-        .select()
-        .from(playersTable)
-        .where(fallbackWhere)
-        .orderBy(desc(overallExpr))
-        .limit(needed);
+      // Free agents in THIS career, filling the away side.
+      const freeAgents = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
+        freeAgents: true, playerType: "senior", isActive: true,
+      });
+      const fillPlayers = freeAgents
+        .filter((p) => !excludeIds.includes(p.id))
+        .sort((x, y) => computeOverall(y) - computeOverall(x))
+        .slice(0, needed);
 
       awayPlayers = [...awayPlayers, ...fillPlayers];
     }

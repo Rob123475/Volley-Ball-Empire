@@ -13,6 +13,7 @@ import { generateScoutingProspects } from "../utils/prospect-generator";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
+import { createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -247,31 +248,37 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   const endDate = contractEnd.toISOString().split("T")[0]!;
 
   // Insert the player into the youth squad (reserve role, not active)
-  const [newPlayer] = await db.insert(playersTable).values({
-    name:          prospect.name,
-    nationality,
-    age:           prospect.age,
-    height:        Number((1.60 + Math.random() * 0.18).toFixed(1)),
-    position,
-    teamId:        team.id,
-    continent:     prospect.continent,
-    isActive:      false,
-    squadRole:     "reserve",
-    isDraftPlayer: false,
-    isRetired:     false,
-    injuryStatus:  "Healthy",
-    potential:     prospect.potentialStars,
-    salary,
-    academyContractYears: 2.0,
-    morale:        75 + Math.floor(Math.random() * 16),
-    fatigue:       0,
-    fitness:       100,
-    discoveredBy:   prospect.discoveredBy   ?? undefined,
-    eliteEventType: prospect.eliteEventType ?? undefined,
-    ...stats,
-    imageUrl:    "/objects/youth-cards/youth-card.webp",
-    development: generateDevelopment(),
-  }).returning();
+  const newPlayer = await createCareerPlayer(
+    requireCareerSaveId(req.activeCareerSaveId),
+    {
+      name:          prospect.name,
+      nationality,
+      age:           prospect.age,
+      height:        Number((1.60 + Math.random() * 0.18).toFixed(1)),
+      position,
+      continent:     prospect.continent,
+      potential:     prospect.potentialStars,
+      eliteEventType: prospect.eliteEventType ?? undefined,
+      ...stats,
+      imageUrl:    "/objects/youth-cards/youth-card.webp",
+      development: generateDevelopment(),
+    },
+    {
+      age:           prospect.age,
+      teamId:        team.id,
+      isActive:      false,
+      squadRole:     "reserve",
+      isDraftPlayer: false,
+      isRetired:     false,
+      injuryStatus:  "Healthy",
+      salary,
+      academyContractYears: 2.0,
+      morale:        75 + Math.floor(Math.random() * 16),
+      fatigue:       0,
+      fitness:       100,
+      discoveredBy:  prospect.discoveredBy ?? null,
+    },
+  );
 
   // Contract (3-year youth deal)
   await db.insert(contractsTable).values({

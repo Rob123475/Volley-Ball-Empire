@@ -9,6 +9,8 @@ import {
 } from "@workspace/db";
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 import { teamsTable } from "@workspace/db";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
+import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 
 const router = Router();
 
@@ -211,16 +213,9 @@ const YOUTH_WEEKLY_WAGE_MAP: Record<string, number> = {
 };
 
 export async function tickAcademyContracts(teamId: number): Promise<{ totalWeeklyWages: number; playerCount: number }> {
-  const youthPlayers = await db.select()
-    .from(playersTable)
-    .where(
-      and(
-        eq(playersTable.teamId, teamId),
-        gte(playersTable.age, 14),
-        lte(playersTable.age, 18),
-        eq(playersTable.isRetired, false),
-      )
-    );
+  const ylCareerId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
+  const youthPlayers = (await loadPlayers(ylCareerId, { teamId }))
+    .filter((p) => p.age >= 14 && p.age <= 18);
 
   if (youthPlayers.length === 0) return { totalWeeklyWages: 0, playerCount: 0 };
 
@@ -265,16 +260,9 @@ const OPPOSITION_NAMES = [
 // ── simulateYouthLeague — called from match simulate tick ─────────────────────
 
 export async function simulateYouthLeague(teamId: number): Promise<void> {
-  const youthPlayers = await db.select()
-    .from(playersTable)
-    .where(
-      and(
-        eq(playersTable.teamId, teamId),
-        gte(playersTable.age, 14),
-        lte(playersTable.age, 18),
-        eq(playersTable.isRetired, false),
-      )
-    );
+  const ylCareerId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
+  const youthPlayers = (await loadPlayers(ylCareerId, { teamId }))
+    .filter((p) => p.age >= 14 && p.age <= 18);
 
   if (youthPlayers.length === 0) return;
 
@@ -351,7 +339,7 @@ export async function simulateYouthLeague(teamId: number): Promise<void> {
       }
     }
 
-    await db.update(playersTable).set(updates).where(eq(playersTable.id, player.id));
+    await updatePlayerState(ylCareerId, player.id, updates as Partial<CareerPlayerFields>);
 
     if (result === "win") playerWins++;
     else if (result === "loss") playerLosses++;

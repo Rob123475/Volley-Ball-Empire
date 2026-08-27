@@ -13,6 +13,8 @@ import {
 import { eq, and, gt, lte, desc } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 
 const router = Router();
 
@@ -60,10 +62,8 @@ async function checkAndApplyCamps(teamId: number, currentRound: number): Promise
   for (const camp of completedCamps) {
     const fx = camp.pendingEffects;
 
-    const activePlayers = await db
-      .select()
-      .from(playersTable)
-      .where(and(eq(playersTable.teamId, teamId), eq(playersTable.isActive, true)));
+    const campCareerId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
+    const activePlayers = await loadPlayers(campCareerId, { teamId, isActive: true });
 
     for (const player of activePlayers) {
       const updates: Record<string, unknown> = {};

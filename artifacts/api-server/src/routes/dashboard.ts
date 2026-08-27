@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { teamsTable, matchesTable, playersTable, financeTransactionsTable, seasonsTable, careerSavesTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -31,7 +32,7 @@ router.get("/dashboard", async (req, res) => {
   const monthIncome = allTx.filter(t => t.type === "income" && t.date.startsWith(monthStr)).reduce((a, t) => a + Number(t.amount), 0);
   const monthExpenses = allTx.filter(t => t.type === "expense" && t.date.startsWith(monthStr)).reduce((a, t) => a + Number(t.amount), 0);
 
-  const players = await db.select().from(playersTable).where(eq(playersTable.teamId, team.id));
+  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const topPlayers = players.sort((a, b) => (b.power + b.serve + b.defense) - (a.power + a.serve + a.defense))
     .slice(0, 5).map(p => ({ ...p, height: Number(p.height), salary: Number(p.salary) }));
   const injuredCount = players.filter(p => p.isInjured).length;

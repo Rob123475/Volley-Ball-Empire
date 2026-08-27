@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -47,9 +48,7 @@ router.get("/attention-items", async (req, res) => {
   const now = new Date();
 
   const [players, prospects, completedMissions, allFacilities] = await Promise.all([
-    db.select().from(playersTable).where(
-      and(eq(playersTable.teamId, team.id), eq(playersTable.isActive, true))
-    ),
+    loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true }),
     db.select().from(youthProspectsTable).where(
       and(eq(youthProspectsTable.teamId, team.id), eq(youthProspectsTable.status, "pending"))
     ),

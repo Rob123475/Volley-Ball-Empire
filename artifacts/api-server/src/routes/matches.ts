@@ -12,11 +12,13 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
 import { getGameDate } from "../utils/gameDate.js";
+import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import {
   sideRating, pointProbability, simulateMatch,
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -315,7 +317,7 @@ export type PlayerEvent = {
  */
 export async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false, windSpeed = 0, temperature = 25): Promise<PlayerEvent[]> {
   const [players, physioSkill] = await Promise.all([
-    db.select().from(playersTable).where(eq(playersTable.teamId, teamId)),
+    careerSaveIdForTeam(teamId).then((cid: number | null) => loadPlayers(requireCareerSaveId(cid ?? undefined), { teamId })),
     getBestMedicalSkill(teamId),
   ]);
 

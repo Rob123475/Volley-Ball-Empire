@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { playersTable, teamsTable, contractsTable, facilitiesTable } from "@workspace/db";
 import { eq, isNull, and, gte, ne } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
+import { createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -88,31 +89,37 @@ router.post("/draft/generate-class", async (req, res) => {
     const nationality = YOUTH_NATIONALITIES[Math.floor(Math.random() * YOUTH_NATIONALITIES.length)];
     const age = 17 + Math.floor(Math.random() * 4); // 17-20
 
-    const [player] = await db.insert(playersTable).values({
-      name,
-      nationality,
-      age,
-      height: Number((1.65 + Math.random() * 0.20).toFixed(2)),
-      position: ["setter", "spiker", "defender", "blocker", "all_rounder"][Math.floor(Math.random() * 5)],
-      speed:   randStat(),
-      power:   randStat(),
-      defense: randStat(),
-      serve:   randStat(),
-      block:   randStat(),
-      stamina: randStat(),
-      morale:  75 + Math.floor(Math.random() * 16),
-      fatigue: Math.floor(Math.random() * 15),
-      fitness: 85 + Math.floor(Math.random() * 15),
-      potential:   rollPotential(academyLevel),
-      salary:      5000 + Math.floor(Math.random() * 3001),
-      askingPrice: 40000 + Math.floor(Math.random() * 30001),
-      isDraftPlayer: true,
-      isActive:    false,
-      isRetired:   false,
-      injuryStatus: "Healthy",
-      imageUrl:    null,
-      development: generateDevelopment(),
-    }).returning();
+    const player = await createCareerPlayer(
+      requireCareerSaveId(req.activeCareerSaveId),
+      {
+        name,
+        nationality,
+        age,
+        height: Number((1.65 + Math.random() * 0.20).toFixed(2)),
+        position: ["setter", "spiker", "defender", "blocker", "all_rounder"][Math.floor(Math.random() * 5)],
+        speed:   randStat(),
+        power:   randStat(),
+        defense: randStat(),
+        serve:   randStat(),
+        block:   randStat(),
+        stamina: randStat(),
+        potential:   rollPotential(academyLevel),
+        askingPrice: 40000 + Math.floor(Math.random() * 30001),
+        imageUrl:    null,
+        development: generateDevelopment(),
+      },
+      {
+        age,
+        morale:  75 + Math.floor(Math.random() * 16),
+        fatigue: Math.floor(Math.random() * 15),
+        fitness: 85 + Math.floor(Math.random() * 15),
+        salary:  5000 + Math.floor(Math.random() * 3001),
+        isDraftPlayer: true,
+        isActive:    false,
+        isRetired:   false,
+        injuryStatus: "Healthy",
+      },
+    );
 
     newPlayers.push({ ...serializePlayer(player), available: true });
   }
