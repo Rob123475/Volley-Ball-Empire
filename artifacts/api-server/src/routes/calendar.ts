@@ -24,6 +24,11 @@ import {
 // weekly instalment actually charged.
 const WEEKS_PER_MONTH = 52 / 12;
 
+// Sponsor reputation pulls this fraction of the way back toward the baseline
+// every salary week. See the weekly economy block for why.
+const SPONSOR_REP_BASELINE = 50;
+const SPONSOR_REP_DECAY_PER_WEEK = 0.05;
+
 const router = Router();
 
 // Guard — all calendar routes require an authenticated session
@@ -514,7 +519,24 @@ router.post("/calendar/advance", async (req, res) => {
     const monthlySalary = teamPlayers.reduce((s, p) => s + Number(p.salary), 0);
     const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH);
     const weeklyStaff   = Math.round(weeklySalary * 0.2);
-    const sponsorRep    = teamRow[0]?.sponsorReputation ?? 50;
+    // ── Sponsor reputation: weekly decay toward the baseline ──────────────
+    // Reputation moves +1 per win and -1 per loss with only a hard floor at 0,
+    // so a club that loses more than it wins drifts down without limit and
+    // earns least exactly when it needs most — reaching 0, and $0/week, with
+    // no way back. Each week it now pulls 5% of the way back toward the
+    // starting baseline. Losing still costs reputation; it just stops being a
+    // one-way trip. A winning club is unaffected in practice: the pull toward
+    // 50 is negligible next to +1 per win once it is clear of the baseline.
+    const rawRep     = teamRow[0]?.sponsorReputation ?? SPONSOR_REP_BASELINE;
+    const decayedRep = rawRep + (SPONSOR_REP_BASELINE - rawRep) * SPONSOR_REP_DECAY_PER_WEEK;
+    const sponsorRep = Math.max(0, Math.min(100, Math.round(decayedRep)));
+
+    if (sponsorRep !== rawRep) {
+      await db.update(teamsTable)
+        .set({ sponsorReputation: sponsorRep })
+        .where(eq(teamsTable.id, team.id));
+    }
+
     const sponsorIncome = Math.round(sponsorRep * 200);
     const net           = sponsorIncome - weeklySalary - weeklyStaff;
 
