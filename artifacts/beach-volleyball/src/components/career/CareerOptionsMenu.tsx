@@ -6,7 +6,6 @@ import {
   FolderOpen,
   Home,
   XCircle,
-  Settings,
   X,
 } from "lucide-react";
 import { RetireModal } from "./RetireModal";
@@ -41,11 +40,6 @@ export function CareerOptionsMenu({ isOpen, onClose }: Props) {
     onClose();
   };
 
-  const handleGameSettings = () => {
-    toast({ title: "Game Settings", description: "Coming soon in a future update." });
-    onClose();
-  };
-
   const MENU_ITEMS = [
     {
       label: "Save Career",
@@ -70,14 +64,6 @@ export function CareerOptionsMenu({ isOpen, onClose }: Props) {
       iconColour: "text-violet-400",
       hoverBg: "hover:bg-violet-500/8",
       onClick: handleReturnToMain,
-    },
-    {
-      label: "Game Settings",
-      desc: "Audio, display & preferences",
-      icon: Settings,
-      iconColour: "text-white/40",
-      hoverBg: "hover:bg-white/5",
-      onClick: handleGameSettings,
     },
   ];
 

@@ -52,6 +52,18 @@ type ModalKey = "negotiate" | "budget" | "resign" | "break" | null;
 
 // ── Placeholder data (TODO: replace with contract API endpoint) ───────────────
 
+/**
+ * Placeholder contract data.
+ *
+ * `releaseFee` is NOT free-form: it is quoted to the player as a headline
+ * figure and on the confirm button ("Pay $25,000 & Leave") for a permanent,
+ * irreversible action, and the server charges BREAK_CONTRACT_FEE in
+ * routes/careers.ts. The two are equal today — keep them that way, or the
+ * game quotes one price and charges another.
+ *
+ * Everything else here (salary, term, objectives, fanApproval) is invented
+ * for layout and is not backed by any data model yet.
+ */
 const PLACEHOLDER_CONTRACT = {
   salary:         5_000,
   startSeason:    "Season 1",

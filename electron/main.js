@@ -8,6 +8,16 @@ const http = require("http");
 // process.resourcesPath only points into your packaged app once electron-builder
 // has run. In dev (electron:dev, unpackaged) it points inside Electron's own
 // install folder instead — so we resolve straight from the repo when unpackaged.
+// Must run before any app.getPath("userData") call below: Electron derives the
+// userData folder from the app name, which otherwise comes from the monorepo's
+// package.json "name" ("workspace") and put every player's save in a folder
+// called workspace. migrateLegacyUserData() below moves an existing one across.
+const APP_NAME = "Volley-Ball-Empire";
+const legacyUserDataPath = app.getPath("userData");
+app.setName(APP_NAME);
+const userDataPath = path.join(path.dirname(legacyUserDataPath), APP_NAME);
+app.setPath("userData", userDataPath);
+
 const isPackaged = app.isPackaged;
 const repoRoot = path.join(__dirname, ".."); // electron/ -> repo root
 
@@ -19,7 +29,29 @@ const bundledDbPath = isPackaged
 // Writable per-user location the app actually reads/writes from.
 // Copying the starter DB here on first launch means every subsequent launch
 // re-uses the player's saved progress instead of resetting to the bundled starter.
-const userDbPath = path.join(app.getPath("userData"), "volleyball-empire.sqlite");
+const userDbPath = path.join(userDataPath, "volleyball-empire.sqlite");
+
+// One-time move of a save written under the old "workspace" folder name.
+// Copies rather than renames so a failure leaves the original intact.
+function migrateLegacyUserData() {
+  if (legacyUserDataPath === userDataPath) return;
+  if (fs.existsSync(userDbPath)) return;
+
+  const legacyDb = path.join(legacyUserDataPath, "volleyball-empire.sqlite");
+  if (!fs.existsSync(legacyDb)) return;
+
+  try {
+    fs.mkdirSync(userDataPath, { recursive: true });
+    fs.copyFileSync(legacyDb, userDbPath);
+    for (const suffix of ["-wal", "-shm"]) {
+      const src = `${legacyDb}${suffix}`;
+      if (fs.existsSync(src)) fs.copyFileSync(src, `${userDbPath}${suffix}`);
+    }
+    console.log(`Migrated save data from ${legacyUserDataPath} to ${userDataPath}`);
+  } catch (err) {
+    console.error("Could not migrate legacy save data:", err);
+  }
+}
 
 // The compiled API server (bundled via extraResources: api-server/dist -> server/dist)
 const serverEntry = isPackaged
@@ -166,6 +198,7 @@ if (!gotTheLock) {
 
   app.whenReady().then(async () => {
     try {
+      migrateLegacyUserData();
       ensureUserDb();
       await startServer();
       createWindow();

@@ -3844,6 +3844,9 @@ components:
       properties:
         managerName:
           type: string
+        managerNationality:
+          type: string
+          nullable: true
         clubName:
           type: string
         season:

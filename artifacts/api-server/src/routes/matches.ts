@@ -438,7 +438,17 @@ router.post("/matches", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
-  const { awayTeamId, locationId, season, round, teamSize, scheduledAt, prizeAmount } = req.body;
+  // `awayTeamId` from the body is ignored: this codebase models an opponent as
+  // awayTeamId = the player's own team plus an awayTeamName label (see the
+  // fixture generator), so callers passing a magic id have no effect.
+  const { locationId, season, round, teamSize, scheduledAt, prizeAmount } = req.body;
+
+  // Fall back to the active season rather than trusting the caller. The
+  // friendlies UI hardcoded season 1, so those matches were written outside
+  // the 2026 season every query filters on and were never visible anywhere.
+  const [activeSeason] = await db.select().from(seasonsTable).where(eq(seasonsTable.status, "active")).limit(1);
+  const seasonNumber = Number(season) > 1 ? Number(season) : (activeSeason?.year ?? Number(season));
+
   const { weather, windSpeed, temperature } = generateWeather(Number(locationId));
   const [match] = await db.insert(matchesTable).values({
     homeTeamId: team.id,
@@ -447,7 +457,7 @@ router.post("/matches", async (req, res) => {
     weather,
     windSpeed,
     temperature,
-    season:    Number(season),
+    season:    seasonNumber,
     round:     Number(round),
     teamSize:  Number(teamSize),
     scheduledAt,

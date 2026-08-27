@@ -11,6 +11,8 @@ import {
   getGetDashboardQueryKey,
   getGetMyTeamQueryKey,
   getGetSponsorProgressQueryKey,
+  useGetCurrentSeason,
+  getGetCurrentSeasonQueryKey,
 } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -81,6 +83,17 @@ const tierColors: Record<string, string> = {
   "Continental Final":"text-emerald-700 border-emerald-400 bg-emerald-50 dark:text-emerald-400 dark:border-emerald-700 dark:bg-emerald-950/30",
 };
 
+/**
+ * The active season's year, for headings that used to hardcode "2026" — a
+ * player in their third season saw the wrong year on the front of the game.
+ */
+function useSeasonLabel(): string {
+  const { data } = useGetCurrentSeason({
+    query: { queryKey: getGetCurrentSeasonQueryKey(), retry: false },
+  });
+  return data?.year != null ? String(data.year) : "";
+}
+
 function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
 }
@@ -91,6 +104,7 @@ function formatCurrency(val: number) {
 }
 
 export default function Matches() {
+  const seasonLabel = useSeasonLabel();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -131,8 +145,11 @@ export default function Matches() {
         locationId: parseInt(scheduleForm.locationId),
         teamSize: parseInt(scheduleForm.teamSize),
         prizeAmount: parseInt(scheduleForm.prizeAmount),
-        awayTeamId: 999,
-        season: 1,
+        // The server models the opponent as the player's own team plus a name
+        // label and derives the season from the active season, so these are
+        // placeholders it overrides rather than a real team id and season.
+        awayTeamId: 0,
+        season: 0,
         round: 1,
         scheduledAt: now.toISOString(),
       }
@@ -271,7 +288,7 @@ export default function Matches() {
               {/* Season banner */}
               <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/5 to-transparent border border-primary/20 mb-6">
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-primary/60">2026 World Tour</div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-primary/60">{seasonLabel} World Tour</div>
                   <div className="text-xl font-black">Beach Volley World Tour</div>
                 </div>
                 <div className="text-right">
@@ -692,6 +709,7 @@ function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSim
   isSimulating: boolean;
   activePlayers: any[];
 }) {
+  const seasonLabel = useSeasonLabel();
   if (matches.length === 0) return null;
 
   const sf1       = matches.find(m => m.tier === "World Semi Final" && m.round === 73);
@@ -716,7 +734,7 @@ function WorldFinalsSection({ matches, nextMatchId, allContFinalsComplete, onSim
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-yellow-500/40" />
         <span className="text-[10px] font-black uppercase tracking-widest text-yellow-600 dark:text-yellow-400 px-2">
-          🏆 World Beach Pro Series Finals — 2026
+          🏆 World Beach Pro Series Finals — {seasonLabel}
         </span>
         <div className="h-px flex-1 bg-yellow-500/40" />
       </div>

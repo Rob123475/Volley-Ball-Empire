@@ -45,7 +45,8 @@
       }
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "electron/icons/volleyball-empire.ico"
     },
     "nsis": {
       "oneClick": false,

@@ -3,6 +3,8 @@ import {
   useGetCurrentAuthUser, 
   useGetMyTeam,
   getGetMyTeamQueryKey,
+  useGetCurrentSeason,
+  getGetCurrentSeasonQueryKey,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Activity, Loader2, Play } from "lucide-react";
@@ -32,6 +34,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const needsTeam  = !!user && slot === "absent";
   const teamFailed = !!user && slot === "unknown";
   const isLoading  = authLoading || (!!user && teamLoading);
+
+  // The season year was hardcoded to 2026 here, so a player in their third
+  // season saw the wrong year on the front of the game.
+  const { data: currentSeason } = useGetCurrentSeason({
+    query: { queryKey: getGetCurrentSeasonQueryKey(), retry: false },
+  });
+  const seasonYear = currentSeason?.year ?? null;
 
   const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
 
@@ -77,7 +86,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur px-3 py-1.5 rounded-full border border-white/20">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-white/70 text-xs font-semibold uppercase tracking-wide">Season 2026</span>
+            <span className="text-white/70 text-xs font-semibold uppercase tracking-wide">
+              {seasonYear ? `Season ${seasonYear}` : "Beach Volley Pro"}
+            </span>
           </div>
         </div>
 
@@ -130,7 +141,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           {[
             { label: "World Tour Stops", value: "11" },
             { label: "Countries",        value: "9"  },
-            { label: "Grand Final Prize",value: "$50k"},
+            { label: "Grand Final Prize",value: "$500k"},
           ].map((s) => (
             <div key={s.label} className="bg-black/50 backdrop-blur border border-white/10 rounded-xl px-5 py-3 text-right">
               <div className="text-white font-black text-2xl">{s.value}</div>

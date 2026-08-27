@@ -3,7 +3,6 @@ import {
   useGetDashboard,
   useGetCurrentSeason,
   useGetSeasonLadder,
-  useGetProfile,
   useGetClubRating,
   useGetAttentionItems,
   useGetFacilities,
@@ -13,7 +12,6 @@ import {
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
-  getGetProfileQueryKey,
   getGetClubRatingQueryKey,
   getGetAttentionItemsQueryKey,
   getGetFacilitiesQueryKey,
@@ -305,10 +303,6 @@ export default function Dashboard() {
   const { data: season, isLoading: seasonLoading } = useGetCurrentSeason({
     query: { queryKey: getGetCurrentSeasonQueryKey() },
   });
-  const { data: profile } = useGetProfile({
-    query: { queryKey: getGetProfileQueryKey() },
-  });
-
   const seasonId = season?.id ?? 1;
   const { data: ladder } = useGetSeasonLadder(seasonId, {
     query: { enabled: !!season, queryKey: getGetSeasonLadderQueryKey(seasonId) },

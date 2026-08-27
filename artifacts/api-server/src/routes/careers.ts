@@ -35,6 +35,9 @@ async function buildCareerSummary(teamId: number, userId: string) {
 
   return {
     managerName:          save?.managerName ?? "Unknown",
+    // The wizard collects a nationality and the API stores it, but nothing
+    // ever sent it back, so the profile page hardcoded "Not set".
+    managerNationality:   save?.managerNationality ?? null,
     clubName:             save?.clubName    ?? "Unknown",
     season:               save?.season      ?? "Season 1",
     worldRanking:         save?.worldRanking ?? null,
@@ -455,6 +458,9 @@ router.delete("/careers/:id", async (req, res) => {
 
 // ── Shared constant: release clause (matches frontend placeholder) ─────────────
 
+// Quoted to the player before they commit — pages/manager-contract.tsx shows
+// this figure as the release clause and on the confirm button. Keep the two in
+// sync, or the game charges a price it did not quote.
 const BREAK_CONTRACT_FEE = 25_000;
 
 // ── POST /careers/apply-job — apply for a job market position ─────────────────

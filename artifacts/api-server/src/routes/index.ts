@@ -37,7 +37,6 @@ import historyRouter from "./history";
 import gameApiRouter from "./game-api";
 import calendarRouter from "./calendar";
 import devRouter from "./dev";
-import storageRouter from "./storage";
 import unityRouter from "./unity";
 import regionalLeagueRouter from "./regional-league";
 
@@ -88,7 +87,6 @@ if (process.env.NODE_ENV !== "production") {
   router.use(devRouter);
 }
 router.use(calendarRouter);
-router.use(storageRouter);
 router.use(regionalLeagueRouter);
 
 export default router;

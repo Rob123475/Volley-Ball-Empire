@@ -205,6 +205,9 @@ export default function ManagerProfile() {
   // ── Data (real or safe placeholder) ──
   const managerName    = summary?.managerName   ?? "Manager";
   const clubName       = summary?.clubName      ?? "No Club";
+  // Collected by the new-career wizard and stored as managerNationality; this
+  // page used to hardcode "Not set" and throw the player's choice away.
+  const managerNationality = summary?.managerNationality ?? null;
   const season         = summary?.season        ?? "Season 1";
   const worldRanking   = summary?.worldRanking  ?? null;
   const totalWins      = summary?.totalWins     ?? 0;
@@ -215,9 +218,10 @@ export default function ManagerProfile() {
   const seasonsManaged = records?.seasonsManaged ?? 0;
   const careerEarnings = records?.mostPrizeMoney ?? "0";
 
-  // TODO: expose reputation (0–100) from team record via API
-  const PLACEHOLDER_REPUTATION = 50;
-  const stars = repToStars(PLACEHOLDER_REPUTATION);
+  // managerReputation is already on the career summary — no need for a
+  // placeholder that showed every manager as a flat 50.
+  const managerReputation = summary?.managerReputation ?? 50;
+  const stars = repToStars(managerReputation);
 
   // TODO: expose manager salary from contracts table via API
   const PLACEHOLDER_SALARY = "$5,000 / season";
@@ -285,8 +289,8 @@ export default function ManagerProfile() {
         <IdentityChip
           icon={Globe}
           label="Nationality"
-          value="Not set"
-          isPlaceholder
+          value={managerNationality ?? "Not set"}
+          isPlaceholder={!managerNationality}
         />
         <IdentityChip
           icon={Building2}

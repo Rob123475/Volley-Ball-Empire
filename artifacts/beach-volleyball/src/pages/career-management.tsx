@@ -261,6 +261,20 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
 
   const isCustomised     = selectedClub !== null && customClubName.trim() !== "" && customClubName.trim() !== selectedClub.name;
 
+  // One payload for both the Enter-key and the click path. They used to be
+  // written out separately and had drifted: the Enter path omitted the club
+  // colours, so pressing Enter instead of clicking silently discarded the
+  // player's colour choice. Both fields are optional, so it typechecked.
+  const buildSavePayload = (club: NonNullable<typeof selectedClub>) => ({
+    slotNumber,
+    managerName:      managerName.trim(),
+    clubName:         customClubName.trim() || club.name,
+    originalClubName: club.name,
+    budget:           club.startingBudget,
+    primaryColor:     club.primaryColor,
+    secondaryColor:   club.secondaryColor,
+  });
+
   const STEP_LABELS: Record<number, string> = {
     1: "Step 1 of 3 — Your manager name",
     2: "Step 2 of 3 — Select your club",
@@ -396,13 +410,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   autoFocus
                   value={customClubName}
                   onChange={e => setCustomClubName(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && canSave && !isSaving && selectedClub && onSave({
-                    slotNumber,
-                    managerName:      managerName.trim(),
-                    clubName:         customClubName.trim() || selectedClub.name,
-                    originalClubName: selectedClub.name,
-                    budget:           selectedClub.startingBudget,
-                  })}
+                  onKeyDown={e => e.key === "Enter" && canSave && !isSaving && selectedClub && onSave(buildSavePayload(selectedClub))}
                   placeholder={selectedClub.name}
                   maxLength={100}
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
@@ -485,15 +493,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
-                onClick={() => selectedClub && onSave({
-                  slotNumber,
-                  managerName:      managerName.trim(),
-                  clubName:         customClubName.trim() || selectedClub.name,
-                  originalClubName: selectedClub.name,
-                  budget:           selectedClub.startingBudget,
-                  primaryColor:     selectedClub.primaryColor,
-                  secondaryColor:   selectedClub.secondaryColor,
-                })}
+                onClick={() => selectedClub && onSave(buildSavePayload(selectedClub))}
                 disabled={!canSave || isSaving}
                 className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-2.5 text-sm font-black text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >

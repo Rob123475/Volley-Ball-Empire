@@ -1534,6 +1534,7 @@ export interface CareerSaveSlot {
 
 export interface CareerSummary {
   managerName: string;
+  managerNationality?: string | null;
   clubName: string;
   season: string;
   worldRanking?: number | null;
