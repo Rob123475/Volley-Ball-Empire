@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { normaliseContinentsOnce } from "./utils/normaliseContinents";
+import { ensurePoolCompetitors, ensureTeamCompetitors } from "./utils/competitors";
 
 const rawPort = process.env["PORT"];
 
@@ -32,6 +33,18 @@ try {
 } catch (err) {
   // Never block startup on a data migration; the game is still playable.
   logger.error({ err }, "continent normalisation failed");
+}
+
+// Competitor identity rows for the 60 AI pool clubs and any existing player
+// clubs. Idempotent, and cheap when there is nothing to do.
+try {
+  const pools = ensurePoolCompetitors();
+  const teams = ensureTeamCompetitors();
+  if (pools + teams > 0) {
+    logger.info({ poolCompetitors: pools, teamCompetitors: teams }, "competitor rows created");
+  }
+} catch (err) {
+  logger.error({ err }, "competitor backfill failed");
 }
 
 app.listen(port, (err) => {

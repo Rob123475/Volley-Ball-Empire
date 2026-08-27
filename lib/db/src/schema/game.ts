@@ -1,4 +1,5 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, check, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./auth";
@@ -684,6 +685,61 @@ export const continentalScoutingMissionsTable = sqliteTable("continental_scoutin
 });
 
 export type ContinentalScoutingMission = typeof continentalScoutingMissionsTable.$inferSelect;
+
+// ── Competitors ──────────────────────────────────────────────────────────────
+/**
+ * One row per entity that can appear in a ranking table or a set of standings.
+ *
+ * Identity ONLY. Name and rating are read through the join to whichever parent
+ * is set, never copied here, so there is nothing to keep in sync.
+ *
+ * Exactly one parent is set: `teamId` for a player's club, `poolTeamId` for one
+ * of the 60 AI clubs. This is deliberately NOT solved by making teams.user_id
+ * nullable — that column is a structural guarantee that a teams row belongs to a
+ * person, and every existing read of teams that forgets a filter would silently
+ * start including AI clubs. Nor by a polymorphic type+id key, which cannot carry
+ * referential integrity. One FK target per parent, both enforced.
+ */
+export const competitorsTable = sqliteTable("competitors", {
+  id:         integer("id").primaryKey({ autoIncrement: true }),
+  teamId:     integer("team_id").references(() => teamsTable.id),
+  poolTeamId: integer("pool_team_id").references(() => continentalPoolTeamsTable.id),
+  createdAt:  integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  // Exactly one parent, never both, never neither.
+  check("competitor_exactly_one_parent",
+    sql`(${t.teamId} IS NULL) <> (${t.poolTeamId} IS NULL)`),
+  uniqueIndex("competitors_team_id_unique").on(t.teamId),
+  uniqueIndex("competitors_pool_team_id_unique").on(t.poolTeamId),
+]);
+
+export type Competitor = typeof competitorsTable.$inferSelect;
+
+/**
+ * Ranking points and season record, per competitor, PER CAREER.
+ *
+ * Career-scoped, not merely season-scoped, because `seasons` is global: it has
+ * no user or career column and career creation reuses whatever active season
+ * already exists. Two careers on one machine would otherwise share a ranking
+ * table, and under tier qualification one career's points would gate another's
+ * tier access. The competitor identity is global; its RESULTS are per career.
+ */
+export const competitorRankingsTable = sqliteTable("competitor_rankings", {
+  id:            integer("id").primaryKey({ autoIncrement: true }),
+  competitorId:  integer("competitor_id").notNull().references(() => competitorsTable.id),
+  careerSaveId:  integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:    integer("season_year").notNull(),
+  rankingPoints: integer("ranking_points").notNull().default(0),
+  eventsEntered: integer("events_entered").notNull().default(0),
+  wins:          integer("wins").notNull().default(0),
+  losses:        integer("losses").notNull().default(0),
+  updatedAt:     integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("competitor_rankings_unique")
+    .on(t.competitorId, t.careerSaveId, t.seasonYear),
+]);
+
+export type CompetitorRanking = typeof competitorRankingsTable.$inferSelect;
 
 export const clubTemplatesTable = sqliteTable("club_templates", {
   id:             integer("id").primaryKey({ autoIncrement: true }),

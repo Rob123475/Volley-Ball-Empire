@@ -176,6 +176,55 @@ measured figures.
   not be so wealthy that spending decisions no longer matter. Report the end-of-
   arc balance for a strong career and show that squad cost is still a constraint.
 
+## Build phases
+
+Dependency order. Each phase states what it builds and what it measures.
+
+- **Phase 0 — Competitor entity.** `competitors` identity table (nullable
+  team_id and pool_team_id, exactly one set); per-career season rankings FK'd to
+  it; World Tour field drawn from real pool clubs instead of name strings;
+  ranking-point accrual; fix the broken season_final_standings writer. Fold
+  regionalSeason and youth-league results into matchEngine. Measures I7.
+- **Phase 1 — Season rollover (§6).** Boundary handler terminal at season five;
+  age, retire, promote youth; carry balance/standings/history/HoF; fixtures
+  parameterised by year and tier. Also scope seasons per career. Measures that a
+  five-season career runs end to end.
+- **Phase 2 — Tier qualification (§1).** Ranking thresholds, finals
+  qualification from standings, push-out rule. Measures I1 against gating ALONE
+  (wage curve untouched unless I1 still fails) and I5.
+- **Phase 3 — Prize and Finals week (§2).** Purses re-scaled by tier; World Tour
+  Finals as group stage plus semi plus final. Measures I3, I4.
+- **Phase 4 — Policies and sponsorship (§4).** COMPETENT and INCOMPETENT in the
+  harness; sponsorship retune. Measures I6. Gate: the policies must diverge — if
+  they do not, report it.
+- **Phase 5 — Fail state (§5).** Wire isJobAtRisk and the escalation ladder.
+  Measures I2 against INCOMPETENT.
+- **Phase 6 — Start modes and career score.** UNDERDOG/ESTABLISHED, career-end
+  result, score and bands. Measures I8, I9.
+- **Phase 7 — Full invariant sweep.** Re-run ALL NINE invariants against one
+  single final build and report them together. Every earlier phase measures its
+  invariants against a different codebase state — phase 3 re-scales prizes,
+  invalidating I1 and I5 as measured in phase 2; phase 4 moves everything.
+  Measuring nine things at nine points in time and calling it nine passes is not
+  a pass. Only the phase 7 numbers count.
+- **Phase 8 — Make it visible.** Phases 0-6 touch no frontend. A management game
+  whose management systems are invisible is the same as not having them. See UI
+  scope below.
+
+## UI scope (Phase 8)
+What the player must be able to see, by stage:
+
+| Area | Screen | Must show |
+|---|---|---|
+| Ranking | new Rankings screen | Current ranking points, world position, the table around the player, points earned per event |
+| Qualification | Matches/fixture | Per event: qualified / not qualified / above tier, the threshold, and the gap. Why a club did or did not qualify must be legible, never silent |
+| Tier status | Dashboard | Current tier, points to the next threshold, what unlocks |
+| Finals | new Finals screen | Group stage table, bracket, qualification path |
+| Fail state | Dashboard + Finances | The escalation ladder as a visible state: warning, spending blocked, forced sales pending, sacked. The player must always see it coming |
+| Season end | new Season Review | Standings, tier movement, prize summary, what changed |
+| Career end | new Career Result | Trophies, peak ranking, progression, final balance, career score and rank band |
+| Start | New career | UNDERDOG vs ESTABLISHED choice with a plain description of the difference |
+
 ## What is being kept (do not rewrite)
 - finances table and the atomic, guarded prize payment transaction
 - ledger and /finances/summary endpoints (now paged)
