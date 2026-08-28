@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
+import { shiftDateToYear } from "../utils/seasonRollover.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
@@ -398,8 +399,15 @@ export async function applyPostMatchEffects(teamId: number, weather: string, fac
 // The 4-match World Finals (rounds 73–76) are handled separately.
 const FINALS_TIERS = new Set(["World Semi Final", "All-Star Match", "World Final"]);
 
-function generateSeasonFixture(): WorldTourEvent[] {
-  return WORLD_TOUR.filter(e => !FINALS_TIERS.has(e.tier));
+/**
+ * The season's events, with the schedule's hardcoded 2026 dates shifted onto
+ * the year actually being played. Season 2 used to generate fixtures dated
+ * 2026 while the calendar sat in 2027, so nothing was ever "today".
+ */
+function generateSeasonFixture(year: number): WorldTourEvent[] {
+  return WORLD_TOUR
+    .filter(e => !FINALS_TIERS.has(e.tier))
+    .map(e => ({ ...e, date: shiftDateToYear(e.date, year) }));
 }
 
 // ── World Finals rival team names (fallback when DB has no other teams) ────────
@@ -590,8 +598,10 @@ router.get("/matches/fixture", async (req, res) => {
 
   if (existing.length === 0) {
     // Full fresh fixture: 72 regular/continental events + 4 World Finals
-    const regularEvents = generateSeasonFixture();
-    const worldFinalsEvents = WORLD_TOUR.filter(e => FINALS_TIERS.has(e.tier));
+    const regularEvents = generateSeasonFixture(seasonYear);
+    const worldFinalsEvents = WORLD_TOUR
+      .filter(e => FINALS_TIERS.has(e.tier))
+      .map(e => ({ ...e, date: shiftDateToYear(e.date, seasonYear) }));
     const finalLocIds = Object.keys(LOCATION_WEATHER_POOLS).map(Number);
     const finalLocId = finalLocIds[Math.floor(Math.random() * finalLocIds.length)];
     const [finalLoc] = await db.select().from(locationsTable).where(eq(locationsTable.id, finalLocId));

@@ -40,17 +40,17 @@ function runSuite(name, file) {
 // The guards run FIRST. If a guard has gone inert, every check after it is
 // reporting on a net with a hole in it, and the run should say so before
 // anything else claims to have passed.
-console.log("\n########## 1/4  GUARD SELF-TEST ##########");
+console.log("\n########## 1/5  GUARD SELF-TEST ##########");
 runSuite("guard self-test", path.join(REPO, "harness", "guard-selftest.mjs"));
 
-console.log("\n########## 2/4  MIGRATION FIXTURES ##########");
+console.log("\n########## 2/5  MIGRATION FIXTURES ##########");
 runSuite("migration fixtures", path.join(REPO, "harness", "migration-fixtures.mjs"));
 
-console.log("\n########## 3/4  FRESH INSTALL CHAIN ##########");
+console.log("\n########## 3/5  FRESH INSTALL CHAIN ##########");
 runSuite("fresh install", path.join(REPO, "harness", "fresh-install.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
-console.log("\n########## 4/4  GAMEPLAY SMOKE ##########");
+console.log("\n########## 4/5  GAMEPLAY SMOKE ##########");
 {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-smoke-"));
   const db = path.join(work, "smoke.sqlite");
@@ -87,6 +87,21 @@ console.log("\n########## 4/4  GAMEPLAY SMOKE ##########");
     results.push({
       name: "gameplay smoke", ok: r.status === 0,
       secs: ((Date.now() - started) / 1000).toFixed(1),
+    });
+
+    // Rollover reuses the same server: it walks a fresh career through all five
+    // season boundaries, which is slow but is the only way to prove the arc
+    // actually completes rather than compiling.
+    console.log("\n########## 5/5  SEASON ROLLOVER ##########");
+    const rollStart = Date.now();
+    const rr = spawnSync(
+      process.execPath,
+      [path.join(REPO, "harness", "rollover.mjs"), `http://localhost:${port}`],
+      { stdio: "inherit", cwd: REPO },
+    );
+    results.push({
+      name: "season rollover", ok: rr.status === 0,
+      secs: ((Date.now() - rollStart) / 1000).toFixed(1),
     });
   }
 

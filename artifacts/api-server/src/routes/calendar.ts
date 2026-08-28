@@ -23,6 +23,9 @@ import {
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, updateTeamPlayerState } from "../lib/playerDto.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
+import {
+  rolloverSeason, yearForSeasonNumber, type RolloverResult,
+} from "../utils/seasonRollover.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -622,7 +625,32 @@ router.post("/calendar/advance", async (req, res) => {
   const isQuietDay    = events.length === 0;
   const atSeasonEnd   = nextDate >= season.endDate;
 
-  res.json({ newDate: nextDate, events, isQuietDay, atSeasonEnd });
+  // 8. Season boundary. `atSeasonEnd` was computed and returned here long
+  // before anything acted on it: the date simply advanced past endDate and the
+  // career ran off the end of season one forever.
+  let rollover: RolloverResult = { kind: "none" };
+  if (atSeasonEnd) {
+    try {
+      rollover = rolloverSeason(requireCareerSaveId(req.activeCareerSaveId), team.id);
+      if (rollover.kind === "rolled") {
+        events.push(`Season ${rollover.fromSeason} complete — Season ${rollover.toSeason} begins`);
+      } else if (rollover.kind === "career-complete") {
+        events.push(`Season ${rollover.finalSeason} complete — your career has ended`);
+      }
+    } catch (err) {
+      // A failed rollover must not eat the day the player just advanced.
+      req.log.error({ err }, "season rollover failed");
+    }
+  }
+
+  res.json({
+    newDate: rollover.kind === "rolled" ? `${yearForSeasonNumber(rollover.toSeason)}-01-01` : nextDate,
+    events,
+    isQuietDay,
+    atSeasonEnd,
+    seasonRollover: rollover,
+    careerComplete: rollover.kind === "career-complete",
+  });
 });
 
 // ── POST /api/calendar/dismiss-match ──────────────────────────────────────
