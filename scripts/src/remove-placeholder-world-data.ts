@@ -9,8 +9,8 @@
  */
 
 import { db } from "@workspace/db";
-import { playersTable, staffTable } from "@workspace/db/schema";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { playersTable, staffTable, careerPlayerStateTable } from "@workspace/db/schema";
+import { and, eq, inArray, isNull, isNotNull, notExists, sql } from "drizzle-orm";
 
 // Exact names from seed-world-data.ts
 const PLACEHOLDER_PLAYER_NAMES = [
@@ -31,12 +31,21 @@ const PLACEHOLDER_STAFF_NAMES = [
 async function main() {
   console.log("=== Removing placeholder world-data seed rows ===\n");
 
+  // "Not on a team" is career state now, not a column on the reference row, so
+  // the guard is: no career anywhere has this player signed to a club.
   const deletedPlayers = await db
     .delete(playersTable)
     .where(
       and(
         inArray(playersTable.name, PLACEHOLDER_PLAYER_NAMES),
-        isNull(playersTable.teamId),
+        notExists(
+          db.select({ one: sql`1` })
+            .from(careerPlayerStateTable)
+            .where(and(
+              eq(careerPlayerStateTable.playerId, playersTable.id),
+              isNotNull(careerPlayerStateTable.teamId),
+            )),
+        ),
       ),
     )
     .returning({ id: playersTable.id, name: playersTable.name });

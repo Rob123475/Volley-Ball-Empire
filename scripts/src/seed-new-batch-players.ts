@@ -753,15 +753,12 @@ async function main() {
       block:           player.stats.block,
       stamina:         player.stats.stamina,
       potential:       player.potential,
-      salary:          player.salary,
       askingPrice:     player.askingPrice,
       continent:       player.continent,
       imageUrl,
-      teamId:          null,
       isDraftPlayer:   false,
       isRetired:       false,
       playerType:      "senior",
-      contractEndDate: `${endYear}-06-30`,
     });
 
     console.log(`[${n}/${total}] ✓ ${player.name} (${player.nationality}) — OVR ${overall}, ${player.potential}`);

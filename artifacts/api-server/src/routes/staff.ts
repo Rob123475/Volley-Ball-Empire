@@ -164,7 +164,7 @@ router.patch("/staff/:id", async (req, res) => {
   if (!member) { res.status(404).json({ error: "Staff not found" }); return; }
   if (member.teamId !== team.id) { res.status(403).json({ error: "Not your staff" }); return; }
   const { name, nationality, attributes, personality, specialty, specialTrait } = req.body;
-  const updates: any = {};
+  const updates: Partial<typeof staffTable.$inferInsert> = {};
   if (name        !== undefined) updates.name        = name;
   if (nationality !== undefined) updates.nationality = nationality;
   if (attributes  !== undefined) updates.attributes  = attributes;

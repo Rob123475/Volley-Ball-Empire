@@ -151,7 +151,7 @@ function buildV4(p: {
   stamina: number; morale: number; fatigue: number; fitness: number;
   injuryStatus: string; isInjured: boolean; scoutedPotential: string | null;
   potential: string; imageUrl: string | null; height: string;
-  teamId: number | null; contractEndDate: string | null; salary: string;
+  salary: string;
 }) {
   const pos   = p.position as keyof typeof SPECIALITIES;
   const pot   = p.potential;
@@ -393,10 +393,13 @@ function buildV4(p: {
     legend_status:  "None",
   };
 
-  // contract data
+  // Contract data. The V4 card is REFERENCE data — one blob shared by every
+  // career — so it cannot carry who the player is signed to: that is career
+  // state and differs per save. The card records the pristine starting
+  // position every career begins from, which is unsigned.
   const salary = Number(p.salary);
-  const contractStatus = p.teamId ? "Signed" : playerType === "Draft" ? "Draft Eligible" : "Free Agent";
-  const contractYrs    = p.contractEndDate ? 1 : playerType === "Draft" ? 0 : 0;
+  const contractStatus = playerType === "Draft" ? "Draft Eligible" : "Free Agent";
+  const contractYrs    = 0;
 
   return {
     schema_version: "players_v4_ultimate_dynasty",
@@ -405,11 +408,11 @@ function buildV4(p: {
     position:       pos,
     overall_rating: ovr,
     status: {
-      active:         !p.isDraftPlayer && !!p.teamId,
+      active:         false,
       retired:        false,
       draft_eligible: p.isDraftPlayer,
       youth_player:   p.playerType === "youth",
-      free_agent:     !p.teamId && !p.isDraftPlayer,
+      free_agent:     !p.isDraftPlayer,
       injured:        p.isInjured,
       suspended:      false,
     },
@@ -471,18 +474,11 @@ async function main() {
     serve:           playersTable.serve,
     block:           playersTable.block,
     stamina:         playersTable.stamina,
-    morale:          playersTable.morale,
-    fatigue:         playersTable.fatigue,
-    fitness:         playersTable.fitness,
-    injuryStatus:    playersTable.injuryStatus,
-    isInjured:       playersTable.isInjured,
     scoutedPotential:playersTable.scoutedPotential,
     potential:       playersTable.potential,
     imageUrl:        playersTable.imageUrl,
     height:          playersTable.height,
-    teamId:          playersTable.teamId,
-    contractEndDate: playersTable.contractEndDate,
-    salary:          playersTable.salary,
+    askingPrice:     playersTable.askingPrice,
   })
   .from(playersTable)
   .where(eq(playersTable.isRetired, false)));
@@ -505,14 +501,17 @@ async function main() {
           const v4 = buildV4({
             ...p,
             isDraftPlayer:   p.isDraftPlayer ?? false,
-            morale:          p.morale ?? 80,
-            fatigue:         p.fatigue ?? 0,
-            fitness:         p.fitness ?? 100,
-            injuryStatus:    p.injuryStatus ?? "Healthy",
-            isInjured:       p.isInjured ?? false,
+            // Condition is career state and no longer lives on the reference
+            // row. A V4 card is reference data, so it is built at the pristine
+            // starting condition every career begins from, not a live reading.
+            morale:          80,
+            fatigue:         0,
+            fitness:         100,
+            injuryStatus:    "Healthy",
+            isInjured:       false,
             potential:       p.potential ?? "Average",
             height:          String(p.height ?? "175"),
-            salary:          String(p.salary ?? "5000"),
+            salary:          String(Math.round(Number(p.askingPrice ?? 60000) / 12)),
           });
 
           await db.update(playersTable)

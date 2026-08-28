@@ -311,7 +311,7 @@ const applyFatigueAndStats = async (
 
   // Training results are career state. This wrote to the reference table via an
   // untyped Record, which the compiler could not catch.
-  await updatePlayerState(careerSaveId, playerId, updates as Partial<CareerPlayerFields>);
+  await updatePlayerState(careerSaveId, playerId, updates);
   const newPlayer = await loadPlayer(careerSaveId, playerId);
 
   const nextMilestone = (newPrimaryMilestone + 1) * PRIMARY_THRESHOLD;

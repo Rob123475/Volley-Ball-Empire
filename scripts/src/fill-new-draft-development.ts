@@ -165,7 +165,8 @@ async function main() {
     const pot = player.potential as Potential;
     const age = player.age;
     const ht = Number(player.height);
-    const sal = Number(player.salary);
+    // salary moved to career state; askingPrice is the reference equivalent.
+    const sal = Number(player.askingPrice ?? 0) / 12;
 
     const flag = FLAG_MAP[player.nationality] ?? { code: "??", flag: "🏐" };
     const overall = overallRating(player.speed, player.power, player.defense, player.serve, player.block, player.stamina);

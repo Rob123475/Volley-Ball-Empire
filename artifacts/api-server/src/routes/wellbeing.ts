@@ -13,7 +13,7 @@ import {
 import { eq, and, gt, lte, desc } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, requireCareerSaveId, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 
 const router = Router();
@@ -72,7 +72,7 @@ async function checkAndApplyCamps(teamId: number, currentRound: number): Promise
       if (fx.fitnessChange !== 0)   updates.fitness        = Math.min(100, Math.max(0, (player.fitness as number ?? 100) + fx.fitnessChange));
       if (fx.trainingPtBonus > 0)   updates.trainingPoints = (player.trainingPoints ?? 0) + fx.trainingPtBonus;
       if (Object.keys(updates).length > 0) {
-        await db.update(playersTable).set(updates).where(eq(playersTable.id, player.id));
+        await updatePlayerState(campCareerId, player.id, updates);
       }
     }
 

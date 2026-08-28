@@ -21,7 +21,7 @@ import {
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, updateTeamPlayerState } from "../lib/playerDto.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -481,32 +481,19 @@ router.post("/calendar/advance", async (req, res) => {
   // GREATEST/LEAST would skip it), which can't occur here since both
   // `fatigue` and `fitness` are NOT NULL columns.
   const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
-  await db.update(careerPlayerStateTable)
-    .set({ fatigue: sql`MAX(0, fatigue - 4)` })
-    .where(and(
-      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
-      eq(careerPlayerStateTable.teamId, team.id),
-      eq(careerPlayerStateTable.injuryStatus, "Healthy"),
-    ));
+  await updateTeamPlayerState(careerSaveId, team.id,
+    { fatigue: sql`MAX(0, fatigue - 4)` },
+    eq(careerPlayerStateTable.injuryStatus, "Healthy"));
 
   // 2. Fatigue recovery — injured players (slower, bed rest)
-  await db.update(careerPlayerStateTable)
-    .set({ fatigue: sql`MAX(0, fatigue - 2)` })
-    .where(and(
-      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
-      eq(careerPlayerStateTable.teamId, team.id),
-      ne(careerPlayerStateTable.injuryStatus, "Healthy"),
-    ));
+  await updateTeamPlayerState(careerSaveId, team.id,
+    { fatigue: sql`MAX(0, fatigue - 2)` },
+    ne(careerPlayerStateTable.injuryStatus, "Healthy"));
 
   // 3. Fitness recovery for well-rested healthy players
-  await db.update(careerPlayerStateTable)
-    .set({ fitness: sql`MIN(100, fitness + 1)` })
-    .where(and(
-      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
-      eq(careerPlayerStateTable.teamId, team.id),
-      eq(careerPlayerStateTable.injuryStatus, "Healthy"),
-      sql`fatigue < 30`,
-    ));
+  await updateTeamPlayerState(careerSaveId, team.id,
+    { fitness: sql`MIN(100, fitness + 1)` },
+    and(eq(careerPlayerStateTable.injuryStatus, "Healthy"), sql`fatigue < 30`)!);
 
   // 4. Weekly salary & sponsor income (every 7 calendar days)
   const lastSalary = calendar.lastSalaryDate ?? season.startDate;

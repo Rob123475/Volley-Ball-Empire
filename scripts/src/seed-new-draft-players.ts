@@ -454,10 +454,8 @@ async function main() {
       block: player.block,
       stamina: player.stamina,
       potential: player.potential,
-      salary: player.salary,
       askingPrice: player.askingPrice,
       imageUrl,
-      teamId: null,
       isDraftPlayer: true,
       isRetired: false,
     });

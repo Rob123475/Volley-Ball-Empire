@@ -61,7 +61,7 @@ router.patch("/team", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const { name, locationId, logoColor, crestShapeIndex, trainingPhilosophy } = req.body;
-  const updates: any = {};
+  const updates: Partial<typeof teamsTable.$inferInsert> = {};
   if (name !== undefined) updates.name = name;
   if (locationId !== undefined) updates.locationId = Number(locationId);
   if (logoColor !== undefined) updates.logoColor = logoColor;
@@ -159,10 +159,11 @@ router.patch("/players/:id/training-focus", async (req, res) => {
   }
 
   const newFocus = focus && VALID_FOCUSES.includes(focus) ? focus : null;
-  const [updated] = await db.update(playersTable)
-    .set({ trainingFocus: newFocus })
-    .where(eq(playersTable.id, playerId))
-    .returning();
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, {
+    trainingFocus: newFocus,
+  });
+  const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
+  if (!updated) { res.status(404).json({ error: "Player not found" }); return; }
 
   res.json({ ...updated, height: Number(updated.height), salary: Number(updated.salary) });
 });

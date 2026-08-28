@@ -109,6 +109,16 @@ async function vendorExternalDeps(distDir) {
   }
 }
 
+import { execFileSync } from "node:child_process";
+
+// The write-boundary guard runs before the bundle is produced: a build that
+// ships a raw untyped write is worse than a build that fails.
+function checkWriteBoundaries() {
+  execFileSync(process.execPath,
+    [path.join(import.meta.dirname, "..", "..", "scripts", "check-write-boundaries.cjs")],
+    { stdio: "inherit" });
+}
+
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
@@ -218,6 +228,7 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     },
   });
 
+  checkWriteBoundaries();
   await vendorExternalDeps(distDir);
 }
 

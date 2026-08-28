@@ -22,9 +22,13 @@ router.get("/contracts", async (req, res) => {
   const contracts = await db.select().from(contractsTable).where(
     and(eq(contractsTable.teamId, team.id), eq(contractsTable.status, "active"))
   );
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
   const withPlayers = await Promise.all(contracts.map(async (c) => {
-    const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, c.playerId) });
-    return { ...serializeContract(c), player: player ? { ...player, height: Number(player.height), salary: Number(player.salary) } : null };
+    const player = await loadPlayer(cid, c.playerId);
+    return {
+      ...serializeContract(c),
+      player: player ? { ...player, height: Number(player.height), salary: Number(player.salary) } : null,
+    };
   }));
   res.json(withPlayers);
 });

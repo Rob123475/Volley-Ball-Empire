@@ -101,7 +101,9 @@ const SPECIALITIES: Record<string, string[]> = {
 
 function buildDevelopment(player: {
   name: string; nationality: string; age: number; height: number;
-  position: string; potential: string; salary: number; speed: number;
+  // Wage comes from askingPrice now: salary moved to career state, and the
+  // development card is reference data derived from what a player COSTS.
+  position: string; potential: string; askingPrice: number | null; speed: number;
   power: number; defense: number; serve: number; block: number; stamina: number;
   playerType: string; existingDev?: Record<string, unknown> | null;
 }, regenerationSeed: string) {
@@ -109,7 +111,7 @@ function buildDevelopment(player: {
   const pot = player.potential as Potential;
   const age = player.age;
   const ht = Number(player.height);
-  const sal = Number(player.salary);
+  const sal = Number(player.askingPrice ?? 0) / 12;
   const flag = FLAG_MAP[player.nationality] ?? { code: "??", flag: "🏐" };
   const overall = overallRating(player.speed, player.power, player.defense, player.serve, player.block, player.stamina);
   const pool = SPECIALITIES[pos] ?? SPECIALITIES["all_rounder"];

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
@@ -73,20 +73,21 @@ router.get("/players", async (req, res) => {
 router.post("/players", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const { name, nationality, age, height, position, speed, power, defense, serve, block, stamina, salary } = req.body;
-  const [player] = await db.insert(playersTable).values({
+  const created = await createCareerPlayer(
+    requireCareerSaveId(req.activeCareerSaveId),
+    {
     name, nationality,
     age: Number(age), height: Number(height),
     position,
     speed: Number(speed), power: Number(power),
     defense: Number(defense), serve: Number(serve),
     block: Number(block), stamina: Number(stamina),
-    salary: Number(salary),
     potential:   assignPotential(),
     development: generateDevelopment(),
-  }).returning();
-  // A reference row with no career state is invisible to every career.
-  const dto = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), player!.id);
-  res.status(201).json(dto ? serializePlayer(dto) : null);
+  },
+    { age: Number(age), salary: Number(salary) },
+  );
+  res.status(201).json(serializePlayer(created));
 });
 
 router.get("/players/free-agents", async (req, res) => {
@@ -312,9 +313,7 @@ router.patch("/players/:id", async (req, res) => {
   if (position !== undefined) refUpdates.position = position;
   if (potential !== undefined) refUpdates.potential = potential;
   if (continent !== undefined) refUpdates.continent = continent;
-  if (Object.keys(refUpdates).length > 0) {
-    await db.update(playersTable).set(refUpdates).where(eq(playersTable.id, id));
-  }
+  await updatePlayerReference(id, refUpdates);
 
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, updates);
   const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);

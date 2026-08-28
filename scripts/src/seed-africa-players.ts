@@ -227,11 +227,9 @@ async function main() {
       block: player.stats.block,
       stamina: player.stats.stamina,
       potential: player.potential,
-      salary: player.salary,
       askingPrice: player.askingPrice,
       continent: "Africa & Middle East",
       imageUrl,
-      teamId: null,
       isDraftPlayer: true,
       isRetired: false,
     });

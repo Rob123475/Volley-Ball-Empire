@@ -384,7 +384,7 @@ export async function applyPostMatchEffects(teamId: number, weather: string, fac
       await updatePlayerState(
         await careerSaveIdForTeamOrThrow(teamId),
         player.id,
-        updates as Partial<CareerPlayerFields>,
+        updates,
       );
     }
   }

@@ -16,8 +16,8 @@ import { readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { db } from "@workspace/db";
-import { playersTable } from "@workspace/db/schema";
-import { isNull, like, or, and, eq } from "drizzle-orm";
+import { playersTable, careerPlayerStateTable } from "@workspace/db/schema";
+import { isNull, like, or, and, eq, isNotNull, notExists, sql } from "drizzle-orm";
 
 const __dirname  = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE  = resolve(__dirname, "../../");
@@ -197,7 +197,16 @@ async function main() {
     .delete(playersTable)
     .where(
       and(
-        isNull(playersTable.teamId),
+        // Team membership is career state now — exclude any player some
+        // career has signed to a club.
+        notExists(
+          db.select({ one: sql`1` })
+            .from(careerPlayerStateTable)
+            .where(and(
+              eq(careerPlayerStateTable.playerId, playersTable.id),
+              isNotNull(careerPlayerStateTable.teamId),
+            )),
+        ),
         eq(playersTable.isDraftPlayer, false),
         eq(playersTable.isRetired, false),
         or(
@@ -249,15 +258,12 @@ async function main() {
       block:          player.stats.block,
       stamina:        player.stats.stamina,
       potential:      player.potential,
-      salary:         player.salary,
       askingPrice:    player.askingPrice,
       continent:      player.continent,
       imageUrl,
-      teamId:         null,
       isDraftPlayer:  false,
       isRetired:      false,
       playerType:     "senior",
-      contractEndDate: `${2026 + contractYears(player.age)}-06-30`,
     });
 
     console.log(`  ✓ inserted (OVR ${overall})\n`);

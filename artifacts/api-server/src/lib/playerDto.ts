@@ -187,6 +187,49 @@ export async function updatePlayerState(
 }
 
 /**
+ * Bulk career-state update across a team, for the weekly condition pass.
+ * A per-player loop would be 12+ round trips a week for no benefit, so this is
+ * the sanctioned bulk path — still career-scoped, still typed.
+ */
+export async function updateTeamPlayerState(
+  careerSaveId: number,
+  teamId: number,
+  patch: Partial<CareerPlayerFields> | Record<string, SQL>,
+  extra?: SQL,
+): Promise<void> {
+  const conds: SQL[] = [
+    eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+    eq(careerPlayerStateTable.teamId, teamId),
+  ];
+  if (extra) conds.push(extra);
+  await db.update(careerPlayerStateTable)
+    .set({ ...(patch as Partial<CareerPlayerFields>), updatedAt: new Date() })
+    .where(and(...conds));
+}
+
+/**
+ * The ONLY sanctioned write to the athlete reference row.
+ *
+ * Reference fields are what a player starts with — name, portrait, base stats,
+ * nationality, position, potential. Anything a player ACHIEVES belongs in
+ * career state and must go through updatePlayerState instead. Keeping both
+ * behind typed functions is what makes `any` and `as` harmless: there is no
+ * untyped path to a raw write left to exploit.
+ */
+export type PlayerReferenceFields = Partial<Pick<PlayerReference,
+  "name" | "nationality" | "position" | "height" | "imageUrl" |
+  "continent" | "potential" | "askingPrice" | "eliteEventType" | "development"
+>>;
+
+export async function updatePlayerReference(
+  playerId: number,
+  patch: PlayerReferenceFields,
+): Promise<void> {
+  if (Object.keys(patch).length === 0) return;
+  await db.update(playersTable).set(patch).where(eq(playersTable.id, playerId));
+}
+
+/**
  * Create a new athlete: the immutable reference row AND this career's state for
  * them. Both halves or neither — a reference row with no state is invisible to
  * every career, and state without a reference cannot be joined.

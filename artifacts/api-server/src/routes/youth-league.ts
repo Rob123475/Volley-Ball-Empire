@@ -220,9 +220,9 @@ export async function tickAcademyContracts(teamId: number): Promise<{ totalWeekl
 
     const newYears = Math.max(0, currentYears - 1 / 52);
 
-    await db.update(playersTable)
-      .set({ academyContractYears: Number(newYears.toFixed(2)) })
-      .where(eq(playersTable.id, player.id));
+    await updatePlayerState(ylCareerId, player.id, {
+      academyContractYears: Number(newYears.toFixed(2)),
+    });
 
     totalWeeklyWages += YOUTH_WEEKLY_WAGE_MAP[player.potential] ?? 75;
   }
@@ -329,7 +329,7 @@ export async function simulateYouthLeague(teamId: number): Promise<void> {
       }
     }
 
-    await updatePlayerState(ylCareerId, player.id, updates as Partial<CareerPlayerFields>);
+    await updatePlayerState(ylCareerId, player.id, updates);
 
     if (result === "win") playerWins++;
     else if (result === "loss") playerLosses++;
