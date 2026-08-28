@@ -356,7 +356,7 @@ router.post("/calendar/advance", async (req, res) => {
         // Auto-simulate this regional round across all continents
         let totalFixtures = 0;
         try {
-          const summary = await simulateRegionalRound(round);
+          const summary = await simulateRegionalRound(round, requireCareerSaveId(req.activeCareerSaveId));
           totalFixtures = summary.reduce((s, c) => s + c.simulated, 0);
           if (totalFixtures > 0) {
             events.push(`Regional Round ${round}: ${totalFixtures} continental fixtures auto-simulated`);
@@ -395,7 +395,7 @@ router.post("/calendar/advance", async (req, res) => {
           const resolvedContinents: string[] = [];
           for (const rs of activeSeasons) {
             try {
-              await resolveRegionalSeason(rs.id);
+              await resolveRegionalSeason(rs.id, requireCareerSaveId(req.activeCareerSaveId));
               resolvedContinents.push(rs.continent);
             } catch {
               // Skip continents whose season cannot yet be resolved (incomplete fixtures)

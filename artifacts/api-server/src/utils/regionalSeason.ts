@@ -5,6 +5,8 @@
  */
 
 import { db } from "@workspace/db";
+import { careerPoolTeamStateTable } from "@workspace/db";
+import { withCareerStateTx } from "../lib/playerDto.js";
 import {
   regionalLeagueSeasonsTable,
   regionalLeagueFixturesTable,
@@ -233,7 +235,16 @@ export async function computeLadderForSeason(seasonId: number): Promise<Ladder> 
  *  - Generate and insert 30 new fixtures for the next season
  *  - Mark the resolved season as 'completed'
  */
-export async function resolveRegionalSeason(seasonId: number): Promise<void> {
+/**
+ * @param careerSaveId Promotion and relegation are per-career now: relegating a
+ *   club used to relegate it in every other save's league too. Threaded as a
+ *   parameter rather than read off the season because seasons are not scoped
+ *   until 0.6d, and an explicit argument makes the compiler check every caller.
+ */
+export async function resolveRegionalSeason(
+  seasonId: number,
+  careerSaveId: number,
+): Promise<void> {
   // ── 1. Load and validate season ───────────────────────────────────────────
   const [season] = await db
     .select()
@@ -268,7 +279,7 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
   // in a bare `catch {}`, which will hide it completely (writes still land,
   // but non-atomically, as individually auto-committed statements outside
   // any real transaction).
-  db.transaction((tx) => {
+  withCareerStateTx(({ tx, setPoolTeamState }) => {
     // Insert World Tour qualification rows for top 3
     for (let i = 0; i < Math.min(3, ladder.length); i++) {
       tx.insert(worldTourQualificationsTable).values({
@@ -282,38 +293,40 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
     // Relegate 6th-place team
     const sixthEntry = ladder[5];
     if (sixthEntry) {
-      const sixth = getTeamTx(tx, sixthEntry.poolTeamId);
-      tx
-        .update(continentalPoolTeamsTable)
-        .set({ isActiveInLeague: false, relegationCount: sixth.relegationCount + 1 })
-        .where(eq(continentalPoolTeamsTable.id, sixthEntry.poolTeamId))
-        .run();
+      const sixth = getPoolStateTx(tx, careerSaveId, sixthEntry.poolTeamId);
+      setPoolTeamState(careerSaveId, sixthEntry.poolTeamId, {
+        isActiveInLeague: false,
+        relegationCount:  sixth.relegationCount + 1,
+      });
     }
 
     // Promote top bench team (lowest poolRanking among bench for this continent,
     // excluding the just-relegated team)
     const sixthId = ladder[5]?.poolTeamId ?? null;
     const benchTeams = tx
-      .select()
-      .from(continentalPoolTeamsTable)
+      .select({ reference: continentalPoolTeamsTable, state: careerPoolTeamStateTable })
+      .from(careerPoolTeamStateTable)
+      .innerJoin(continentalPoolTeamsTable,
+        eq(continentalPoolTeamsTable.id, careerPoolTeamStateTable.poolTeamId))
       .where(
         and(
+          eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
           eq(continentalPoolTeamsTable.continent, season.continent),
-          eq(continentalPoolTeamsTable.isActiveInLeague, false),
+          eq(careerPoolTeamStateTable.isActiveInLeague, false),
         ),
       )
-      .all();
+      .all()
+      .map(r => ({ ...r.reference, ...r.state, id: r.reference.id }));
     const candidates = benchTeams
       .filter(t => t.id !== sixthId)
       .sort((a, b) => a.poolRanking - b.poolRanking);
 
     const promoted = candidates[0] ?? null;
     if (promoted) {
-      tx
-        .update(continentalPoolTeamsTable)
-        .set({ isActiveInLeague: true, promotionCount: promoted.promotionCount + 1 })
-        .where(eq(continentalPoolTeamsTable.id, promoted.id))
-        .run();
+      setPoolTeamState(careerSaveId, promoted.id, {
+        isActiveInLeague: true,
+        promotionCount:   promoted.promotionCount + 1,
+      });
     }
 
     // Build next-season roster: replace relegated slot with promoted team
@@ -375,6 +388,7 @@ export async function resolveRegionalSeason(seasonId: number): Promise<void> {
  */
 export async function simulateRegionalRound(
   roundNumber: number,
+  careerSaveId: number,
 ): Promise<Array<{ continent: string; simulated: number }>> {
   // Load all active seasons (one per continent, in lockstep)
   const activeSeasons = await db
@@ -460,6 +474,20 @@ function getTeamTx(tx: DbTx, id: number) {
   const [t] = tx.select().from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, id)).all();
   if (!t) throw new Error(`Pool team ${id} not found`);
   return t;
+}
+
+/** This career's mutable half of a pool club. */
+function getPoolStateTx(tx: DbTx, careerSaveId: number, poolTeamId: number) {
+  const [s] = tx
+    .select()
+    .from(careerPoolTeamStateTable)
+    .where(and(
+      eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
+      eq(careerPoolTeamStateTable.poolTeamId, poolTeamId),
+    ))
+    .all();
+  if (!s) throw new Error(`No career ${careerSaveId} state for pool team ${poolTeamId}`);
+  return s;
 }
 
 // ── AI match simulation ───────────────────────────────────────────────────────

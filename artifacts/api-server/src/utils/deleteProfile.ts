@@ -34,6 +34,7 @@ import {
   poachingOffersTable,
   careerPlayerStateTable,
   careerStaffStateTable,
+  careerPoolTeamStateTable,
   competitorRankingsTable,
   seasonsTable,
   worldTourQualificationsTable,
@@ -158,6 +159,7 @@ export function deleteProfileCascade(userId: string): void {
       tx.delete(seasonsTable).where(inArray(seasonsTable.careerSaveId, saveIds)).run();
       // Both scoped in the staff-split pass while still empty. Handled here on
       // the same day rather than left for whoever populates them.
+      tx.delete(careerPoolTeamStateTable).where(inArray(careerPoolTeamStateTable.careerSaveId, saveIds)).run();
       tx.delete(worldTourQualificationsTable).where(inArray(worldTourQualificationsTable.careerSaveId, saveIds)).run();
       tx.delete(aiManagersTable).where(inArray(aiManagersTable.careerSaveId, saveIds)).run();
     }

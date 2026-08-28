@@ -332,8 +332,10 @@ router.post("/dev/ensure-continental-pool-extension", async (_req, res) => {
         .values({
           continent: teamDef.continent, stableId: teamDef.stableId, teamName: teamDef.teamName,
           rating: teamDef.rating, form: teamDef.form, fitness: 100, fatigue: 0,
-          poolRanking: teamDef.poolRanking, promotionCount: 0, relegationCount: 0,
-          isActiveInLeague: false,
+          poolRanking: teamDef.poolRanking,
+          // promotionCount/relegationCount are career state and default to 0
+          // there; startsInLeague is the reference seed for league membership.
+          startsInLeague: false,
         })
         .returning({ id: continentalPoolTeamsTable.id });
 

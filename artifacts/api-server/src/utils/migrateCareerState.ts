@@ -5,6 +5,7 @@ import {
   careerSavesTable,
   careerPlayerStateTable,
   careerStaffStateTable,
+  careerPoolTeamStateTable,
 } from "@workspace/db";
 import { sql } from "drizzle-orm";
 
@@ -71,6 +72,9 @@ const SEED_REFERENCE_COLUMNS = [
 
 /** What a NEW career copies off the staff reference row. */
 const SEED_STAFF_REFERENCE_COLUMNS = ["id", "salary", "base_salary"] as const;
+
+/** What a NEW career copies off the pool-club reference row. */
+const SEED_POOL_REFERENCE_COLUMNS = ["id", "starts_in_league", "is_active_in_league"] as const;
 
 /**
  * Narrow a wish-list of columns to the ones this database actually has.
@@ -183,6 +187,59 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
 }
 
 /**
+ * Snapshot pool-club league state into per-career state.
+ *
+ * Separate from the player/staff snapshot and separately guarded: a save can
+ * already have player and staff state while predating the pool split, so
+ * folding it into the same early-return would skip it forever on exactly the
+ * databases that need it.
+ */
+export function migratePoolTeamStateOnce(): { careersMigrated: number; rowsCreated: number } {
+  const result = { careersMigrated: 0, rowsCreated: 0 };
+
+  // is_active_in_league is the sentinel: it is the column the split removes,
+  // and unlike a foreign-key-bound column it can actually be dropped, so this
+  // check clears once the migration is done.
+  if (!tableHasColumn("continental_pool_teams", "is_active_in_league")) return result;
+
+  db.transaction((tx) => {
+    const saves = tx.select({ id: careerSavesTable.id }).from(careerSavesTable).all();
+    if (saves.length === 0) return;
+
+    const pools = tx.all<any>(sql.raw(
+      `SELECT ${presentColumns("continental_pool_teams", POOL_SNAPSHOT_COLUMNS)} ` +
+      `FROM continental_pool_teams`));
+
+    for (const save of saves) {
+      const [already] = tx.all<{ n: number }>(sql.raw(
+        `SELECT COUNT(*) AS n FROM career_pool_team_state WHERE career_save_id = ${save.id}`));
+      if (Number(already?.n ?? 0) > 0) continue;
+
+      for (const t of pools) {
+        tx.insert(careerPoolTeamStateTable).values({
+          careerSaveId: save.id,
+          poolTeamId:   t.id,
+          isActiveInLeague: t.is_active_in_league == null
+            ? !!t.starts_in_league
+            : !!t.is_active_in_league,
+          promotionCount:  Number(t.promotion_count ?? 0),
+          relegationCount: Number(t.relegation_count ?? 0),
+        }).onConflictDoNothing().run();
+        result.rowsCreated++;
+      }
+      result.careersMigrated++;
+    }
+  });
+
+  return result;
+}
+
+const POOL_SNAPSHOT_COLUMNS = [
+  "id", "is_active_in_league", "starts_in_league",
+  "promotion_count", "relegation_count",
+] as const;
+
+/**
  * Columns that have moved to career state. Once the snapshot above has run they
  * are dead weight on the reference row, and worse: a raw query that still reads
  * one keeps returning a stale value instead of failing.
@@ -216,6 +273,11 @@ const MOVED_PLAYER_COLUMNS = [
  */
 /** continental_pool_players: the rename's old name, dropped once base_age exists. */
 const MOVED_POOL_PLAYER_COLUMNS: readonly string[] = ["age"];
+
+/** continental_pool_teams: the three career-state columns plus the old name. */
+const MOVED_POOL_TEAM_COLUMNS: readonly string[] = [
+  "is_active_in_league", "promotion_count", "relegation_count",
+];
 
 const MOVED_STAFF_COLUMNS: readonly string[] = [
   "team_id", "is_available", "contract_length", "is_scout_revealed",
@@ -282,6 +344,16 @@ export function dropMovedColumns(): { dropped: string[] } {
     }
   }
 
+  // continental_pool_teams.is_active_in_league -> starts_in_league. The
+  // reference seed for who BEGINS in the league; the live value lives in
+  // career_pool_team_state and is seeded from it.
+  if (!tableHasColumn("continental_pool_teams", "starts_in_league")) {
+    db.run(sql.raw(`ALTER TABLE continental_pool_teams ADD COLUMN starts_in_league integer NOT NULL DEFAULT 1`));
+    if (tableHasColumn("continental_pool_teams", "is_active_in_league")) {
+      db.run(sql.raw(`UPDATE continental_pool_teams SET starts_in_league = is_active_in_league`));
+    }
+  }
+
   // continental_pool_players.age -> base_age. Pure reference data, never
   // mutated, so the rename is the whole migration for that table.
   if (!tableHasColumn("continental_pool_players", "base_age")) {
@@ -302,6 +374,7 @@ export function dropMovedColumns(): { dropped: string[] } {
     ["players", MOVED_PLAYER_COLUMNS],
     ["staff",   MOVED_STAFF_COLUMNS],
     ["continental_pool_players", MOVED_POOL_PLAYER_COLUMNS],
+    ["continental_pool_teams", MOVED_POOL_TEAM_COLUMNS],
   ] as const) {
     for (const column of columns) {
       if (!tableHasColumn(table, column)) continue;
@@ -372,6 +445,21 @@ export function seedCareerState(careerSaveId: number): void {
         isDraftPlayer: !!refs.get(p.id)?.is_draft_player,
       }).onConflictDoNothing().run();
     }
+    // Pool clubs: seed this career's league membership from the reference
+    // startsInLeague flag. 36 of the 60 begin in the league; without this a new
+    // career gets the column default and the regional league is empty.
+    const poolTeams = tx.all<any>(sql.raw(
+      `SELECT ${presentColumns("continental_pool_teams", SEED_POOL_REFERENCE_COLUMNS)} ` +
+      `FROM continental_pool_teams`));
+    for (const t of poolTeams) {
+      tx.insert(careerPoolTeamStateTable).values({
+        careerSaveId, poolTeamId: t.id,
+        isActiveInLeague: t.starts_in_league == null
+          ? !!t.is_active_in_league
+          : !!t.starts_in_league,
+      }).onConflictDoNothing().run();
+    }
+
     for (const st of staff) {
       // Seed the live wage from base_salary. Leaving it at the column default
       // gave every new career a staff market where every hire was free — a

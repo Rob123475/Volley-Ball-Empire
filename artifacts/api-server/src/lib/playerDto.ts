@@ -1,5 +1,6 @@
-import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateTable } from "@workspace/db";
-import type { CareerPlayerState, CareerStaffState } from "@workspace/db";
+import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateTable,
+  continentalPoolTeamsTable, careerPoolTeamStateTable } from "@workspace/db";
+import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
 import { and, eq, isNull, isNotNull, type SQL } from "drizzle-orm";
 
 /**
@@ -373,6 +374,7 @@ export async function createCareerStaff(
 export type CareerStateTx = {
   setStaffState(careerSaveId: number, staffId: number, patch: Partial<CareerStaffFields>): void;
   setPlayerState(careerSaveId: number, playerId: number, patch: Partial<CareerPlayerFields>): void;
+  setPoolTeamState(careerSaveId: number, poolTeamId: number, patch: Partial<CareerPoolTeamFields>): void;
   /** For non-career-state tables in the same transaction (teams, finance, ...). */
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0];
 };
@@ -398,6 +400,15 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         ))
         .run();
     },
+    setPoolTeamState(careerSaveId, poolTeamId, patch) {
+      tx.update(careerPoolTeamStateTable)
+        .set({ ...patch, updatedAt: new Date() })
+        .where(and(
+          eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
+          eq(careerPoolTeamStateTable.poolTeamId, poolTeamId),
+        ))
+        .run();
+    },
   }));
 }
 
@@ -411,6 +422,82 @@ export async function countTeamStaff(careerSaveId: number, teamId: number): Prom
       eq(careerStaffStateTable.teamId, teamId),
     ));
   return rows.length;
+}
+
+// ── AI pool clubs, same shape ────────────────────────────────────────────────
+
+export type PoolTeamReference = typeof continentalPoolTeamsTable.$inferSelect;
+
+export type CareerPoolTeamFields = {
+  isActiveInLeague: boolean;
+  promotionCount: number;
+  relegationCount: number;
+};
+
+export type PoolTeamDTO = PoolTeamReference & CareerPoolTeamFields;
+
+export function assemblePoolTeam(
+  reference: PoolTeamReference,
+  state: CareerPoolTeamState,
+): PoolTeamDTO {
+  return {
+    ...reference,
+    isActiveInLeague: state.isActiveInLeague,
+    promotionCount:   state.promotionCount,
+    relegationCount:  state.relegationCount,
+  };
+}
+
+export async function loadPoolTeams(
+  careerSaveId: number,
+  filter: { continent?: string; activeOnly?: boolean } = {},
+): Promise<PoolTeamDTO[]> {
+  const conds: SQL[] = [eq(careerPoolTeamStateTable.careerSaveId, careerSaveId)];
+  if (filter.continent) conds.push(eq(continentalPoolTeamsTable.continent, filter.continent));
+  if (filter.activeOnly) conds.push(eq(careerPoolTeamStateTable.isActiveInLeague, true));
+
+  const rows = await db
+    .select({ reference: continentalPoolTeamsTable, state: careerPoolTeamStateTable })
+    .from(careerPoolTeamStateTable)
+    .innerJoin(continentalPoolTeamsTable,
+      eq(continentalPoolTeamsTable.id, careerPoolTeamStateTable.poolTeamId))
+    .where(and(...conds));
+
+  return rows.map((r) => assemblePoolTeam(r.reference, r.state));
+}
+
+export async function updatePoolTeamState(
+  careerSaveId: number,
+  poolTeamId: number,
+  patch: Partial<CareerPoolTeamFields>,
+): Promise<void> {
+  await db.update(careerPoolTeamStateTable)
+    .set({ ...patch, updatedAt: new Date() })
+    .where(and(
+      eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
+      eq(careerPoolTeamStateTable.poolTeamId, poolTeamId),
+    ));
+}
+
+/**
+ * Create a pool club: reference row AND this career's state.
+ *
+ * The live league membership is seeded from startsInLeague. Getting that wrong
+ * is not a visible error — it is a league with the wrong number of clubs in it.
+ */
+export async function createCareerPoolTeam(
+  careerSaveId: number,
+  reference: typeof continentalPoolTeamsTable.$inferInsert,
+): Promise<PoolTeamDTO> {
+  const [created] = await db.insert(continentalPoolTeamsTable).values(reference).returning();
+  const [st] = await db.insert(careerPoolTeamStateTable)
+    .values({
+      careerSaveId,
+      poolTeamId: created!.id,
+      isActiveInLeague: created!.startsInLeague,
+    })
+    .returning();
+  return assemblePoolTeam(created!, st!);
 }
 
 /**

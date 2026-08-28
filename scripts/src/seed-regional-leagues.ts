@@ -152,9 +152,9 @@ async function main() {
             fitness:          80,
             fatigue:          0,
             poolRanking:      teamDef.poolRanking,
-            promotionCount:   0,
-            relegationCount:  0,
-            isActiveInLeague: teamDef.isActiveInLeague,
+            // promotion/relegation are career state; startsInLeague is the
+            // reference seed for who begins in the league.
+            startsInLeague:   teamDef.isActiveInLeague,
           })
           .returning();
         teamId = inserted!.id;

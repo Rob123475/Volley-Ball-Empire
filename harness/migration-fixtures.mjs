@@ -25,6 +25,7 @@ const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
 const ELECTRON = path.join(REPO, "node_modules", "electron", "dist", "electron.exe");
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-migration-"));
 
+const NEWLINE = String.fromCharCode(10);
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
   checks++;
@@ -562,6 +563,49 @@ console.log("\n9. POOL PLAYER RENAME (age -> base_age)");
   check("every pool age carried across, none defaulted",
     rows.length > 0 && rows.every((row) => row.base_age === ages.get(row.id)),
     `${rows.filter((row) => row.base_age === ages.get(row.id)).length}/${rows.length}`);
+  check("no unhandled error", !/career state migration failed/.test(r.log));
+}
+
+// 10. A save that predates the pool-team split.
+console.log(NEWLINE + "10. POOL TEAM SPLIT (league state per career)");
+{
+  const file = makePreSplit("pool-team");
+  const db = new DatabaseSync(file);
+  const starts = new Map(
+    db.prepare("SELECT id, starts_in_league FROM continental_pool_teams").all()
+      .map((r) => [r.id, r.starts_in_league]));
+  db.exec("ALTER TABLE continental_pool_teams ADD COLUMN is_active_in_league integer NOT NULL DEFAULT 0");
+  db.exec("ALTER TABLE continental_pool_teams ADD COLUMN promotion_count integer NOT NULL DEFAULT 0");
+  db.exec("ALTER TABLE continental_pool_teams ADD COLUMN relegation_count integer NOT NULL DEFAULT 0");
+  db.exec("UPDATE continental_pool_teams SET is_active_in_league = starts_in_league");
+  // A career that has already had a promotion, to prove counts carry across.
+  db.exec("UPDATE continental_pool_teams SET promotion_count = 2 WHERE id = (SELECT MIN(id) FROM continental_pool_teams)");
+  db.exec("ALTER TABLE continental_pool_teams DROP COLUMN starts_in_league");
+  db.exec("DROP TABLE IF EXISTS career_pool_team_state");
+  db.close();
+
+  const r = await bootServer(file);
+  const d2 = new DatabaseSync(file, { readOnly: true });
+  const names = d2.prepare("PRAGMA table_info(continental_pool_teams)").all().map((c) => c.name);
+  const rows = d2.prepare("SELECT id, starts_in_league FROM continental_pool_teams").all();
+  const stateActive = d2.prepare(
+    "SELECT COUNT(*) n FROM career_pool_team_state WHERE is_active_in_league = 1").get().n;
+  const stateRows = d2.prepare("SELECT COUNT(*) n FROM career_pool_team_state").get().n;
+  const promo = d2.prepare(
+    "SELECT MAX(promotion_count) n FROM career_pool_team_state").get().n;
+  d2.close();
+
+  check("server started", r.listening);
+  check("starts_in_league created, three columns dropped",
+    names.includes("starts_in_league") &&
+    !["is_active_in_league", "promotion_count", "relegation_count"].some((c) => names.includes(c)));
+  check("no pool clubs lost", rows.length === starts.size, starts.size + " -> " + rows.length);
+  check("league membership carried to the reference seed",
+    rows.every((row) => row.starts_in_league === starts.get(row.id)),
+    rows.filter((row) => row.starts_in_league === starts.get(row.id)).length + "/" + rows.length);
+  check("career state rebuilt with the right league size",
+    stateRows > 0 && stateActive === 36, stateActive + " active of " + stateRows);
+  check("promotion counts carried across, not reset", promo === 2, "max promotion_count " + promo);
   check("no unhandled error", !/career state migration failed/.test(r.log));
 }
 

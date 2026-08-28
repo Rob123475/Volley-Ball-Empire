@@ -87,6 +87,18 @@ const NEW_TABLES: ReadonlyArray<readonly [string, string]> = [
       FOREIGN KEY (\`staff_id\`) REFERENCES \`staff\`(\`id\`),
       FOREIGN KEY (\`team_id\`) REFERENCES \`teams\`(\`id\`)
     )`],
+  ["career_pool_team_state", `
+    CREATE TABLE IF NOT EXISTS \`career_pool_team_state\` (
+      \`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+      \`career_save_id\` integer NOT NULL,
+      \`pool_team_id\` integer NOT NULL,
+      \`is_active_in_league\` integer DEFAULT false NOT NULL,
+      \`promotion_count\` integer DEFAULT 0 NOT NULL,
+      \`relegation_count\` integer DEFAULT 0 NOT NULL,
+      \`updated_at\` integer NOT NULL,
+      FOREIGN KEY (\`career_save_id\`) REFERENCES \`career_saves\`(\`id\`),
+      FOREIGN KEY (\`pool_team_id\`) REFERENCES \`continental_pool_teams\`(\`id\`)
+    )`],
   ["competitors", `
     CREATE TABLE IF NOT EXISTS \`competitors\` (
       \`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -117,6 +129,7 @@ const NEW_TABLES: ReadonlyArray<readonly [string, string]> = [
 const NEW_INDEXES: readonly string[] = [
   "CREATE UNIQUE INDEX IF NOT EXISTS `career_player_state_unique` ON `career_player_state` (`career_save_id`,`player_id`)",
   "CREATE UNIQUE INDEX IF NOT EXISTS `career_staff_state_unique` ON `career_staff_state` (`career_save_id`,`staff_id`)",
+  "CREATE UNIQUE INDEX IF NOT EXISTS `career_pool_team_state_unique` ON `career_pool_team_state` (`career_save_id`,`pool_team_id`)",
   "CREATE UNIQUE INDEX IF NOT EXISTS `competitors_team_id_unique` ON `competitors` (`team_id`)",
   "CREATE UNIQUE INDEX IF NOT EXISTS `competitors_pool_team_id_unique` ON `competitors` (`pool_team_id`)",
   "CREATE UNIQUE INDEX IF NOT EXISTS `competitor_rankings_unique` ON `competitor_rankings` (`competitor_id`,`career_save_id`,`season_year`)",

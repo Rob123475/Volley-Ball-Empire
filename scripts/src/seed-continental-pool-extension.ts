@@ -335,9 +335,7 @@ async function main() {
         fitness:          teamDef.fitness,
         fatigue:          teamDef.fatigue,
         poolRanking:      teamDef.poolRanking,
-        promotionCount:   0,
-        relegationCount:  0,
-        isActiveInLeague: false,
+        startsInLeague:   false,
       })
       .returning({ id: continentalPoolTeamsTable.id });
 
@@ -388,7 +386,7 @@ async function main() {
   const allTeams = await db
     .select({
       continent:        continentalPoolTeamsTable.continent,
-      isActiveInLeague: continentalPoolTeamsTable.isActiveInLeague,
+      startsInLeague: continentalPoolTeamsTable.startsInLeague,
     })
     .from(continentalPoolTeamsTable)
     .orderBy(continentalPoolTeamsTable.continent);
@@ -397,7 +395,7 @@ async function main() {
   for (const t of allTeams) {
     const entry = byContinent.get(t.continent) ?? { total: 0, active: 0, bench: 0 };
     entry.total++;
-    if (t.isActiveInLeague) entry.active++; else entry.bench++;
+    if (t.startsInLeague) entry.active++; else entry.bench++;
     byContinent.set(t.continent, entry);
   }
 

@@ -2,7 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { normaliseContinentsOnce } from "./utils/normaliseContinents";
 import { ensurePoolCompetitors, ensureTeamCompetitors } from "./utils/competitors";
-import { migrateCareerStateOnce, dropMovedColumns } from "./utils/migrateCareerState";
+import { migrateCareerStateOnce, migratePoolTeamStateOnce, dropMovedColumns } from "./utils/migrateCareerState";
 import { ensureSchema } from "./utils/ensureSchema";
 
 const rawPort = process.env["PORT"];
@@ -70,6 +70,10 @@ try {
     logger.info(m, "career state snapshot taken");
   }
   // Only now that every career owns its state can the source columns go.
+  const pool = migratePoolTeamStateOnce();
+  if (pool.careersMigrated > 0) {
+    logger.info(pool, "pool team state snapshot taken");
+  }
   const d = dropMovedColumns();
   if (d.dropped.length > 0) {
     logger.info({ dropped: d.dropped }, "moved columns dropped from reference tables");

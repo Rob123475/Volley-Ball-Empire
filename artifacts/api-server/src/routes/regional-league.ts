@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
+import { loadPoolTeams, requireCareerSaveId } from "../lib/playerDto.js";
 import {
   continentalPoolTeamsTable,
   continentalPoolPlayersTable,
@@ -267,7 +268,7 @@ router.post("/regional-league/:continent/simulate-all", async (req, res) => {
     simulated++;
   }
 
-  await resolveRegionalSeason(season.id);
+  await resolveRegionalSeason(season.id, requireCareerSaveId(req.activeCareerSaveId));
 
   res.json({
     ok: true,
@@ -294,11 +295,11 @@ router.get("/regional-league/:continent/pools", async (req, res) => {
     return;
   }
 
-  const poolTeams = await db
-    .select()
-    .from(continentalPoolTeamsTable)
-    .where(eq(continentalPoolTeamsTable.continent, continent))
-    .orderBy(continentalPoolTeamsTable.poolRanking);
+  // Career-scoped: promotion/relegation state differs per save, so a shared
+  // read would show one career's league table in another's.
+  const poolTeams = (await loadPoolTeams(
+    requireCareerSaveId(req.activeCareerSaveId), { continent },
+  )).sort((a, b) => a.poolRanking - b.poolRanking);
 
   if (poolTeams.length === 0) {
     res.json({ continent, poolTeams: [] });

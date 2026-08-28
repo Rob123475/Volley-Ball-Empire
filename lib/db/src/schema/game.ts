@@ -355,6 +355,27 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
 export type CareerPlayerState = typeof careerPlayerStateTable.$inferSelect;
 
 /** Per-career mutable staff state. Same disease, same cure. */
+/**
+ * Per-career state for the AI pool clubs.
+ *
+ * continental_pool_teams is a shared reference pool of 60 clubs, but promotion
+ * and relegation mutated it in place, so relegating a club in one career
+ * relegated it in every other career's league too — the same disease as players
+ * and staff. Only these three columns are ever written; the rest of the pool
+ * row is identity.
+ */
+export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
+  id:              integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:    integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  poolTeamId:      integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  isActiveInLeague:integer("is_active_in_league", { mode: "boolean" }).notNull().default(false),
+  promotionCount:  integer("promotion_count").notNull().default(0),
+  relegationCount: integer("relegation_count").notNull().default(0),
+  updatedAt:       integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("career_pool_team_state_unique").on(t.careerSaveId, t.poolTeamId),
+]);
+
 export const careerStaffStateTable = sqliteTable("career_staff_state", {
   id:           integer("id").primaryKey({ autoIncrement: true }),
   careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
@@ -370,6 +391,7 @@ export const careerStaffStateTable = sqliteTable("career_staff_state", {
 ]);
 
 export type CareerStaffState = typeof careerStaffStateTable.$inferSelect;
+export type CareerPoolTeamState = typeof careerPoolTeamStateTable.$inferSelect;
 
 export const contractsTable = sqliteTable("contracts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -1012,10 +1034,22 @@ export const continentalPoolTeamsTable = sqliteTable("continental_pool_teams", {
   form:           integer("form").notNull().default(50),
   fitness:        integer("fitness").notNull().default(80),
   fatigue:        integer("fatigue").notNull().default(0),
+  // NOT WRITTEN BY ANYTHING. Seeded and then frozen for the whole five-season
+  // arc. Left as reference deliberately rather than moved on a prediction, and
+  // recorded in docs/economy-design.md as a Phase 2 requirement: it is displayed
+  // beside the live competitor_rankings that gate tier qualification, so the
+  // player sees two rankings and only one of them moves.
   poolRanking:    integer("pool_ranking").notNull().default(0),
-  promotionCount: integer("promotion_count").notNull().default(0),
-  relegationCount:integer("relegation_count").notNull().default(0),
-  isActiveInLeague:integer("is_active_in_league", { mode: "boolean" }).notNull().default(true),
+
+  // REFERENCE: which clubs START in the league. 36 of the 60 pool clubs are in
+  // (6 per continent); the other 24 are reserves waiting for promotion. Nothing
+  // else records that split, so dropping this would have left every new career
+  // with a league of all 60 or none — the same trap as players.is_draft_player
+  // and staff.base_salary.
+  //
+  // career_pool_team_state.is_active_in_league holds the LIVE value that
+  // promotion and relegation move, seeded from this.
+  startsInLeague: integer("starts_in_league", { mode: "boolean" }).notNull().default(true),
   createdAt:      integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
