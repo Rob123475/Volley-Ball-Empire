@@ -110,6 +110,18 @@ async function advanceToBoundary(api, maxDays = 500) {
   check("a history entry per completed season", seasonEntries.length === 5,
     `${seasonEntries.length} season_completed entries`);
 
+  // Retirement: nobody left alive may be at or past the threshold, and the
+  // arc must actually retire somebody — a rule that fires zero times is not a
+  // rule, it is dead code.
+  const alive = (await A("GET", "/players/market-all?playerType=senior")).data;
+  const aliveList = Array.isArray(alive) ? alive : [];
+  const tooOld = aliveList.filter((p) => p.age >= 34);
+  check("no active player is at or past the retirement age", tooOld.length === 0,
+    `${tooOld.length} over-age still active`);
+  const mentions = seasonEntries.filter((e) => /retired/.test(e.description ?? ""));
+  check("the arc retired somebody", mentions.length > 0,
+    mentions.map((e) => e.description.match(/(\d+) players? retired/)?.[1] ?? "?").join(", ") + " per season");
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   process.exit(failures > 0 ? 1 : 0);
 })().catch((err) => { console.error(err); process.exit(1); });

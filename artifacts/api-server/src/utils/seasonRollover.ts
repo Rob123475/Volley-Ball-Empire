@@ -21,6 +21,21 @@ import { withCareerStateTx } from "../lib/playerDto.js";
 export const FINAL_SEASON = 5;
 
 /**
+ * Retirement age.
+ *
+ * Chosen from the shipped roster rather than picked: the senior pool peaks at
+ * 22-25, so retirement is inherently back-loaded over a five-season arc. At 34
+ * the arc retires [0, 0, 2, 1, 5] players per season — a handful, never a
+ * cliff. At 33 it would be [0, 2, 1, 5, 11], and eleven in the final season is
+ * not a handful. At 35 it is [0, 0, 0, 2, 1], which is barely anything.
+ *
+ * Deliberately a flat threshold and not a probability curve: the spec asks for
+ * "a handful per season, not a system", and a bounded five-season arc does not
+ * need decline modelling.
+ */
+export const RETIREMENT_AGE = 34;
+
+/**
  * Seasons are numbered from their year. Career creation starts at 2026, so
  * 2026 is season 1 and 2030 is season 5. Keeping the mapping in one place stops
  * "season 3" meaning two different things in two files.
@@ -48,7 +63,7 @@ export type RolloverResult =
  * more than once — advancing several days at a time crosses it in one step.
  */
 export function rolloverSeason(careerSaveId: number, teamId: number): RolloverResult {
-  return withCareerStateTx(({ tx, ageAllPlayers }) => {
+  return withCareerStateTx(({ tx, ageAllPlayers, retireAgedPlayers }) => {
     const [season] = tx
       .select()
       .from(seasonsTable)
@@ -67,6 +82,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // five-season career finished with the squad ages it started with.
     const agedCount = ageAllPlayers(careerSaveId);
     void agedCount;
+
+    // Retire AFTER ageing, so the threshold is applied to the age a player has
+    // reached rather than the one they are leaving behind.
+    const retired = retireAgedPlayers(careerSaveId, RETIREMENT_AGE, season.year);
 
     tx.update(seasonsTable)
       .set({ status: "completed" })
@@ -114,7 +133,9 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
           season:       `Season ${current}`,
           description:
             `Season ${current} complete — ${team.wins}W ${team.losses}L, ` +
-            `balance $${Math.round(Number(team.budget)).toLocaleString()}.`,
+            `balance $${Math.round(Number(team.budget)).toLocaleString()}` +
+            (retired.length > 0 ? `, ${retired.length} player${retired.length > 1 ? "s" : ""} retired` : "") +
+            `.`,
         }).run();
       }
     }

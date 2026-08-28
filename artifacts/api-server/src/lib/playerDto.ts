@@ -3,7 +3,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
   regionalLeagueResultsTable } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
-import { and, eq, isNull, isNotNull, sql, type SQL } from "drizzle-orm";
+import { and, eq, gte, isNull, isNotNull, sql, type SQL } from "drizzle-orm";
 
 /**
  * The single place a player is assembled from its two halves.
@@ -396,6 +396,14 @@ export type CareerStateTx = {
    * 24 in one save and 27 in another is correct, not a bug.
    */
   ageAllPlayers(careerSaveId: number): number;
+  /**
+   * Retire everyone at or past the age threshold, returning who went. They also
+   * leave their club, so the squad slot is free for the youth promotion that
+   * follows in the same boundary.
+   */
+  retireAgedPlayers(careerSaveId: number, minAge: number, seasonYear: number): Array<{
+    playerId: number; teamId: number | null; age: number;
+  }>;
   insertLeagueResult(careerSaveId: number, values: {
     fixtureId: number; winnerId: number | null;
     homeSets: number; awaySets: number;
@@ -469,6 +477,40 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);
+    },
+    retireAgedPlayers(careerSaveId, minAge, seasonYear) {
+      const going = tx.select({
+        playerId: careerPlayerStateTable.playerId,
+        teamId:   careerPlayerStateTable.teamId,
+        age:      careerPlayerStateTable.age,
+      })
+        .from(careerPlayerStateTable)
+        .where(and(
+          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+          eq(careerPlayerStateTable.isRetired, false),
+          gte(careerPlayerStateTable.age, minAge),
+        ))
+        .all();
+
+      if (going.length > 0) {
+        tx.update(careerPlayerStateTable)
+          .set({
+            isRetired: true,
+            retiredSeasonYear: seasonYear,
+            // Leaving the club frees the squad slot; a retired player holding a
+            // roster place would quietly shrink the squad every season.
+            teamId: null,
+            isActive: false,
+            updatedAt: new Date(),
+          })
+          .where(and(
+            eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+            eq(careerPlayerStateTable.isRetired, false),
+            gte(careerPlayerStateTable.age, minAge),
+          ))
+          .run();
+      }
+      return going;
     },
     insertLeagueResult(careerSaveId, values) {
       tx.insert(regionalLeagueResultsTable).values({ ...values, careerSaveId }).run();
