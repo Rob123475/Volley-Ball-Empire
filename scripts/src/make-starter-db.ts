@@ -238,9 +238,9 @@ function main() {
     // foreign key depends on it), so a reset here would have written to a
     // column nothing reads, which is worse than an error.
 
-    if (actualTables.includes("staff")) {
-      db.prepare(`UPDATE staff SET team_id = NULL, is_available = 1`).run();
-    }
+    // `staff` needs no reset either, for the same reason `players` does not:
+    // team_id and is_available moved to career_staff_state, which is cleared
+    // wholesale above. What remains on the reference row is who the person is.
 
     const hasSqliteSequence = (
       db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'").get()

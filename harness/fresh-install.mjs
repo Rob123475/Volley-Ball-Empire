@@ -170,6 +170,20 @@ check("free agents have stats", free.every((p) => Number(p.speed) > 0), "all non
 const withState = inspect(userDb);
 check("career state seeded", withState.state > 0, `${withState.state} rows`);
 
+// The staff market is the isDraftPlayer-shaped trap for the staff split: the
+// wage lives on the reference row as base_salary and is copied into career
+// state at creation. Miss that and every hire in a new career is free, which
+// looks like a working game rather than a bug.
+const market = await api("GET", "/staff/market");
+const staffMarket = Array.isArray(market.data) ? market.data : [];
+check("staff market is populated", staffMarket.length > 0, `${staffMarket.length} available`);
+check("every staff member has a wage",
+  staffMarket.length > 0 && staffMarket.every((s) => Number(s.salary) > 0),
+  `${staffMarket.filter((s) => Number(s.salary) > 0).length}/${staffMarket.length} priced`);
+check("staff carry a base age",
+  staffMarket.every((s) => Number(s.baseAge) > 0),
+  `${staffMarket.filter((s) => Number(s.baseAge) > 0).length}/${staffMarket.length}`);
+
 child.kill("SIGKILL");
 await new Promise((r) => setTimeout(r, 600));
 try { fs.closeSync(out); } catch {}

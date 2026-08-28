@@ -9,7 +9,7 @@
  */
 
 import { db } from "@workspace/db";
-import { playersTable, staffTable, careerPlayerStateTable } from "@workspace/db/schema";
+import { playersTable, staffTable, careerPlayerStateTable, careerStaffStateTable } from "@workspace/db/schema";
 import { and, eq, inArray, isNull, isNotNull, notExists, sql } from "drizzle-orm";
 
 // Exact names from seed-world-data.ts
@@ -56,9 +56,18 @@ async function main() {
   const deletedStaff = await db
     .delete(staffTable)
     .where(
+      // "Not hired" is career state now, same as for players: no career
+      // anywhere may have this staff member signed to a club.
       and(
         inArray(staffTable.name, PLACEHOLDER_STAFF_NAMES),
-        isNull(staffTable.teamId),
+        notExists(
+          db.select({ one: sql`1` })
+            .from(careerStaffStateTable)
+            .where(and(
+              eq(careerStaffStateTable.staffId, staffTable.id),
+              isNotNull(careerStaffStateTable.teamId),
+            )),
+        ),
       ),
     )
     .returning({ id: staffTable.id, name: staffTable.name });

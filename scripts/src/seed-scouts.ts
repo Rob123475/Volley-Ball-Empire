@@ -213,9 +213,9 @@ async function main() {
       name: s.name,
       role: "Scout",
       nationality: s.nationality,
-      age: s.age,
+      baseAge: s.age,
       skillLevel: s.skillLevel,
-      salary: s.salary,
+      baseSalary: s.salary,
       imageUrl,
       attributes: {
         regenerationSeed: SEED,

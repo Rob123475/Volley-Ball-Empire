@@ -4,7 +4,7 @@ import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession } from "@workspace/db";
 
 const router = Router();
@@ -16,7 +16,7 @@ const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: 
 const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
 
 async function getBestMedicalSkill(teamId: number): Promise<number> {
-  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
+  const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
   const medics = staff.filter(s => MEDICAL_ROLES.includes(s.role));
   return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
 }
@@ -417,7 +417,7 @@ router.post("/training/:id/complete", async (req, res) => {
   const medCentreLevel      = facilityLevels.medical_centre    ?? 1;
   const nutritionLevel      = facilityLevels.nutrition_centre  ?? 1;
 
-  const teamStaffAll = await db.select().from(staffTable).where(eq(staffTable.teamId, session.teamId));
+  const teamStaffAll = await loadStaff(await careerSaveIdForTeamOrThrow(session.teamId), { teamId: session.teamId });
   const headCoachStaff = teamStaffAll.find(s => s.role === "head_coach");
   const assistantCoachStaff = teamStaffAll.find(s => s.role === "assistant_coach");
   const fitnessTrainerStaff = teamStaffAll.find(s => s.role === "fitness_trainer");

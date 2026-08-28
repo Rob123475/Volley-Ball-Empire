@@ -178,9 +178,9 @@ async function main() {
       name: m.name,
       role: "Promotional Manager",
       nationality: m.nationality,
-      age: m.age,
+      baseAge: m.age,
       skillLevel: m.skillLevel,
-      salary: m.salary,
+      baseSalary: m.salary,
       imageUrl,
       attributes: {
         regenerationSeed: SEED,

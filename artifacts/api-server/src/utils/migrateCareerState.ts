@@ -54,7 +54,8 @@ const PLAYER_SNAPSHOT_COLUMNS = [
 ] as const;
 
 const STAFF_SNAPSHOT_COLUMNS = [
-  "id", "team_id", "salary", "is_available", "contract_length", "is_scout_revealed",
+  "id", "team_id", "salary", "base_salary",
+  "is_available", "contract_length", "is_scout_revealed",
 ] as const;
 
 /** What a NEW career copies off the reference row when it is created. */
@@ -67,6 +68,9 @@ const SEED_REFERENCE_COLUMNS = [
   // default (false) for all 268 athletes and the draft pool is empty.
   "is_draft_player",
 ] as const;
+
+/** What a NEW career copies off the staff reference row. */
+const SEED_STAFF_REFERENCE_COLUMNS = ["id", "salary", "base_salary"] as const;
 
 /**
  * Narrow a wish-list of columns to the ones this database actually has.
@@ -91,8 +95,11 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
   };
 
   // If the legacy columns are already gone the snapshot has been taken.
-  const legacyPlayers = tableHasColumn("players", "team_id");
-  const legacyStaff   = tableHasColumn("staff", "team_id");
+  // Key the check on columns SQLite can actually DROP. staff.team_id and
+  // players.outfit_id both carry foreign keys and survive the drop forever, so
+  // testing those would leave this running its full scan on every boot.
+  const legacyPlayers = tableHasColumn("players", "squad_role");
+  const legacyStaff   = tableHasColumn("staff", "is_available");
   if (!legacyPlayers && !legacyStaff) return result;
 
   db.transaction((tx) => {
@@ -160,7 +167,7 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
           careerSaveId: save.id,
           staffId:      st.id,
           teamId:       st.team_id ?? null,
-          salary:       Number(st.salary ?? 0),
+          salary:       Number(st.salary ?? st.base_salary ?? 0),
           isAvailable:  st.is_available == null ? true : !!st.is_available,
           contractLength: Number(st.contract_length ?? 12),
           isScoutRevealed: !!st.is_scout_revealed,
@@ -207,7 +214,13 @@ const MOVED_PLAYER_COLUMNS = [
  * when the staff chunk lands, not before. The rule this encodes: a column may
  * only be dropped once the schema has already stopped declaring it.
  */
-const MOVED_STAFF_COLUMNS: readonly string[] = [];
+const MOVED_STAFF_COLUMNS: readonly string[] = [
+  "team_id", "is_available", "contract_length", "is_scout_revealed",
+  // salary and age are RENAMED, not moved: base_salary / base_age replace them
+  // on the reference row. The old names go once those exist to carry the value,
+  // which the backfill below guarantees.
+  "salary", "age",
+];
 
 /**
  * Drop the moved columns. MUST run after migrateCareerStateOnce() — it reads
@@ -250,6 +263,22 @@ export function dropMovedColumns(): { dropped: string[] } {
   // A DEFAULT is required: SQLite cannot add a NOT NULL column to a populated
   // table without one. The model declares base_age without a default, which the
   // starter-DB drift check tolerates because it compares column names.
+  // Staff renames, same shape as players.age -> base_age. base_salary is the
+  // isDraftPlayer-shaped trap here: all 120 staff carry a wage and nothing else
+  // records it, so losing it would make every new career's staff market free.
+  if (!tableHasColumn("staff", "base_salary")) {
+    db.run(sql.raw(`ALTER TABLE staff ADD COLUMN base_salary real NOT NULL DEFAULT 3000`));
+    if (tableHasColumn("staff", "salary")) {
+      db.run(sql.raw(`UPDATE staff SET base_salary = salary WHERE salary IS NOT NULL`));
+    }
+  }
+  if (!tableHasColumn("staff", "base_age")) {
+    db.run(sql.raw(`ALTER TABLE staff ADD COLUMN base_age integer NOT NULL DEFAULT 35`));
+    if (tableHasColumn("staff", "age")) {
+      db.run(sql.raw(`UPDATE staff SET base_age = age WHERE age IS NOT NULL`));
+    }
+  }
+
   if (!tableHasColumn("players", "base_age")) {
     db.run(sql.raw(`ALTER TABLE players ADD COLUMN base_age integer NOT NULL DEFAULT 20`));
     if (tableHasColumn("players", "age")) {
@@ -307,6 +336,15 @@ export function seedCareerState(careerSaveId: number): void {
       )).map((r) => [r.id, r]),
     );
 
+    // The same problem for staff: base_salary is the only record of what a
+    // staff member costs, and seeding at the column default made every hire in
+    // a new career free.
+    const staffRefs = new Map(
+      tx.all<any>(sql.raw(
+        `SELECT ${presentColumns("staff", SEED_STAFF_REFERENCE_COLUMNS)} FROM staff`,
+      )).map((r) => [r.id, r]),
+    );
+
     for (const p of players) {
       tx.insert(careerPlayerStateTable).values({
         careerSaveId, playerId: p.id,
@@ -322,8 +360,12 @@ export function seedCareerState(careerSaveId: number): void {
       }).onConflictDoNothing().run();
     }
     for (const st of staff) {
+      // Seed the live wage from base_salary. Leaving it at the column default
+      // gave every new career a staff market where every hire was free — a
+      // latent bug the split would otherwise have exposed as a feature.
       tx.insert(careerStaffStateTable).values({
         careerSaveId, staffId: st.id,
+        salary: Number(staffRefs.get(st.id)?.base_salary ?? staffRefs.get(st.id)?.salary ?? 0),
       }).onConflictDoNothing().run();
     }
   });

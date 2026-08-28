@@ -18,7 +18,7 @@ import {
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, requireCareerSaveId, updatePlayerState, careerSaveIdForTeamOrThrow, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, careerSaveIdForTeamOrThrow, type CareerPlayerFields, loadStaff } from "../lib/playerDto.js";
 import type { Match } from "@workspace/db";
 
 const router = Router();
@@ -257,7 +257,7 @@ export const serializeMatch = (m: Match) => ({
 const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
 
 async function getBestMedicalSkill(teamId: number): Promise<number> {
-  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
+  const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
   const medics = staff.filter(s => MEDICAL_ROLES.includes(s.role));
   return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
 }

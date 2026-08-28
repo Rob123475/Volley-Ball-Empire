@@ -55,10 +55,10 @@ async function upload(localFile: string, entityId: string): Promise<string> {
 const findExistingStmt = sqlite.prepare(`SELECT id FROM staff WHERE name = ? AND role = ?`);
 const insertStmt = sqlite.prepare(`
   INSERT INTO staff (
-    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
-    is_available, age, overall_rating, contract_length, coach_speciality, personality,
-    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    name, role, specialty, base_salary, skill_level, nationality, image_url,
+    base_age, overall_rating, coach_speciality, personality,
+    attributes, special_trait, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 // Idempotent: skip a trainer that's already in the DB rather than inserting a
@@ -79,18 +79,14 @@ function insertIfMissing(row: {
     row.specialty,
     row.salary,
     row.skillLevel,
-    null,
     row.nationality,
     row.imageUrl,
-    1,
     row.age,
     row.skillLevel,
-    12,
     row.coachSpeciality,
     row.personality,
     JSON.stringify(row.attributes),
     row.specialTrait,
-    0,
     row.scoutingRating,
     Math.floor(Date.now() / 1000),
   );

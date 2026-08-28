@@ -83,10 +83,10 @@ const SCIENTISTS = [
 
 const insertStmt = sqlite.prepare(`
   INSERT INTO staff (
-    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
-    is_available, age, overall_rating, contract_length, coach_speciality, personality,
-    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    name, role, specialty, base_salary, skill_level, nationality, image_url,
+    base_age, overall_rating, coach_speciality, personality,
+    attributes, special_trait, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 async function main() {
@@ -126,18 +126,14 @@ async function main() {
       s.specialty,
       medicalSalaryFromSkill(s.skill),
       s.skill,
-      null,
       s.nationality,
       imageUrl,
-      1,
       s.age,
       s.skill,
-      12,
       s.coachSpeciality,
       "Analytical",
       JSON.stringify(attributes),
       s.specialty,
-      0,
       s.skill - 5,
       Math.floor(Date.now() / 1000),
     );

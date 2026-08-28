@@ -2,7 +2,11 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable } from "@workspace/db";
-import { eq, isNull, count } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import {
+  loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
+  createCareerStaff, requireCareerSaveId, type StaffDTO,
+} from "../lib/playerDto.js";
 import {
   generateMedicalMarket,
   generateMedicalAttributesForRole,
@@ -10,7 +14,6 @@ import {
   MEDICAL_ROLES,
   type MedicalRole,
 } from "../utils/medical-staff-generator";
-import type { StaffDTO } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -42,14 +45,14 @@ const serializeStaff = (s: StaffDTO) => ({
 });
 
 
-async function backfillMedicalAttributes(staffList: any[]): Promise<void> {
+// attributes / specialTrait are REFERENCE fields, same as in staff.ts.
+async function backfillMedicalAttributes(staffList: StaffDTO[]): Promise<void> {
   const empty = staffList.filter(s => !s.attributes || Object.keys(s.attributes).length === 0);
   if (empty.length === 0) return;
-  await Promise.all(empty.map(s => {
-    const attributes  = generateMedicalAttributesForRole(s.role, s.skillLevel ?? 70);
-    const specialTrait = s.specialTrait || pickMedicalTraitForRole(s.role);
-    return db.update(staffTable).set({ attributes, specialTrait }).where(eq(staffTable.id, s.id));
-  }));
+  await Promise.all(empty.map(s => updateStaffReference(s.id, {
+    attributes:   generateMedicalAttributesForRole(s.role, s.skillLevel ?? 70),
+    specialTrait: s.specialTrait || pickMedicalTraitForRole(s.role),
+  })));
 }
 
 router.get("/medical-staff", async (req, res) => {
@@ -57,7 +60,7 @@ router.get("/medical-staff", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
 
-  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const medStaff = staff.filter(s => MEDICAL_ROLE_SET.has(s.role));
   await backfillMedicalAttributes(medStaff);
 
@@ -74,7 +77,8 @@ router.post("/medical-staff", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const allStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const allStaff = await loadStaff(cid, { teamId: team.id });
   const medCount = allStaff.filter(s => MEDICAL_ROLE_SET.has(s.role)).length;
 
   if (medCount >= MAX_MEDICAL_STAFF) {
@@ -83,28 +87,27 @@ router.post("/medical-staff", async (req, res) => {
   }
 
   const { staffId } = req.body;
-  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, Number(staffId)) });
+  const member = await loadStaffMember(cid, Number(staffId));
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (!MEDICAL_ROLE_SET.has(member.role)) { res.status(400).json({ error: "Not a medical staff member" }); return; }
   if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
-  const [updated] = await db.update(staffTable)
-    .set({ teamId: team.id, isAvailable: false })
-    .where(eq(staffTable.id, Number(staffId)))
-    .returning();
-  res.status(201).json(serializeStaff(updated));
+  await updateStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false });
+  res.status(201).json(serializeStaff({ ...member, teamId: team.id, isAvailable: false }));
 });
 
 router.get("/medical-staff/market", async (req, res) => {
   const { role, search } = req.query as Record<string, string>;
 
-  let available = await db.select().from(staffTable).where(isNull(staffTable.teamId));
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  let available = await loadStaff(cid, { unhired: true });
   let medAvailable = available.filter(s => MEDICAL_ROLE_SET.has(s.role));
 
   if (medAvailable.length < 15) {
-    const fresh = generateMedicalMarket(30);
-    await db.insert(staffTable).values(fresh as any);
-    available = await db.select().from(staffTable).where(isNull(staffTable.teamId));
+    for (const fresh of generateMedicalMarket(30)) {
+      await createCareerStaff(cid, fresh as typeof staffTable.$inferInsert);
+    }
+    available = await loadStaff(cid, { unhired: true });
     medAvailable = available.filter(s => MEDICAL_ROLE_SET.has(s.role));
   }
 
@@ -130,12 +133,12 @@ router.get("/medical-staff/market", async (req, res) => {
 
 router.delete("/medical-staff/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
   const id = parseInt(req.params.id);
-  const [updated] = await db.update(staffTable)
-    .set({ teamId: null, isAvailable: true })
-    .where(eq(staffTable.id, id))
-    .returning();
-  res.json(serializeStaff(updated));
+  const member = await loadStaffMember(cid, id);
+  if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
+  await updateStaffState(cid, id, { teamId: null, isAvailable: true });
+  res.json(serializeStaff({ ...member, teamId: null, isAvailable: true }));
 });
 
 export default router;

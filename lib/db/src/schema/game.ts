@@ -390,20 +390,28 @@ export const staffTable = sqliteTable("staff", {
   name: text("name").notNull(),
   role: text("role").notNull(),
   specialty: text("specialty").notNull().default("General"),
-  salary: real("salary").notNull().default(3000),
+  // REFERENCE: what this staff member ASKS for. Never mutated in a career —
+  // hiring reads it for the signing cost and firing for the termination fee.
+  // career_staff_state.salary is the live wage, seeded from this, so a future
+  // renegotiation has somewhere to write that is not shared between careers.
+  //
+  // Renamed rather than dropped: this is the isDraftPlayer-shaped trap. All 120
+  // staff carry a wage (4,800-280,000) and nothing else records it, so dropping
+  // it outright would have given every new career a free staff market.
+  baseSalary: real("base_salary").notNull().default(3000),
   skillLevel: integer("skill_level").notNull().default(60),
-  teamId: integer("team_id").references(() => teamsTable.id),
   nationality: text("nationality"),
   imageUrl: text("image_url"),
-  isAvailable: integer("is_available", { mode: "boolean" }).notNull().default(true),
-  age: integer("age").notNull().default(35),
+  // REFERENCE, and never mutated: staff do not age in a career today. Renamed
+  // anyway so no table has a bare `age` meaning something different from
+  // another's — that shared name is what let a bulk transform match on shape
+  // and reach staff and pool-player files during the players rename.
+  baseAge: integer("base_age").notNull().default(35),
   overallRating: integer("overall_rating").notNull().default(70),
-  contractLength: integer("contract_length").notNull().default(12),
   coachSpeciality: text("coach_speciality").notNull().default("General"),
   personality: text("personality").notNull().default("Motivator"),
   attributes: text("attributes", { mode: "json" }).$type<Record<string, unknown>>().notNull().default({}),
   specialTrait: text("special_trait").notNull().default(""),
-  isScoutRevealed: integer("is_scout_revealed", { mode: "boolean" }).notNull().default(false),
   scoutingRating: integer("scouting_rating").notNull().default(50),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
@@ -929,6 +937,10 @@ export type InsertPoachingOffer = typeof poachingOffersTable.$inferInsert;
 
 export const aiManagersTable = sqliteTable("ai_managers", {
   id:                    integer("id").primaryKey({ autoIncrement: true }),
+  // Same reasoning as world_tour_qualifications: 0 rows today, self-bootstraps
+  // via seedIfEmpty() on first request, and rival managers are per-career the
+  // moment anything writes to them.
+  careerSaveId:          integer("career_save_id").references(() => careerSavesTable.id),
   name:                  text("name").notNull(),
   reputation:            integer("reputation").notNull().default(50),
   currentClub:           text("current_club"),
@@ -1079,6 +1091,10 @@ export type InsertRegionalLeagueResult = typeof regionalLeagueResultsTable.$infe
 // Season-end World Tour qualification records
 export const worldTourQualificationsTable = sqliteTable("world_tour_qualifications", {
   id:                integer("id").primaryKey({ autoIncrement: true }),
+  // Scoped now, while the table is empty and this costs nothing. Phase 2
+  // populates it; after that every unscoped row is cross-career bleed and the
+  // fix needs a data migration instead of a column add.
+  careerSaveId:      integer("career_save_id").references(() => careerSavesTable.id),
   seasonYear:        integer("season_year").notNull(),
   continent:         text("continent").notNull(),
   poolTeamId:        integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),

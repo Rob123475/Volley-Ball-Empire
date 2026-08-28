@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -76,7 +76,7 @@ router.get("/team/roster", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const staff   = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
   res.json(buildRosterResponse(team, players, staff));
 });
 
@@ -134,7 +134,7 @@ router.patch("/team/roster/:id/role", async (req, res) => {
   }
 
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const staff   = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
   res.json(buildRosterResponse(team, players, staff));
 });
 
@@ -229,7 +229,7 @@ router.post("/team/swap-player", async (req, res) => {
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), Number(playerOutId), { isActive: false, squadRole: "reserve"  });
 
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const staff   = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
   res.json(buildRosterResponse(team, players, staff));
 });
 

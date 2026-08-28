@@ -6,7 +6,7 @@ import { eq, and, desc, sql, count } from "drizzle-orm";
 import { generateOfferBatch } from "../utils/sponsor-generator.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
-import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import { loadPlayers, careerSaveIdForTeamOrThrow, loadStaff } from "../lib/playerDto.js";
 import type { FinanceTransaction, PromoDeal } from "@workspace/db";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
@@ -46,7 +46,7 @@ async function computeStaffWageBill(teamId: number) {
   // (a head coach is ~9,800 on a 12-month contract) and how the staff market
   // labels it ("/mo"). Reading it as weekly and multiplying by 4.33 overstated
   // the staff wage bill by 4.33x on the finances page.
-  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, teamId));
+  const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
   const roster = staff.map(s => ({
     id:            s.id,
     name:          s.name,
@@ -318,7 +318,7 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   const deal = await db.query.promoDealsTable.findFirst({ where: eq(promoDealsTable.id, id) });
   if (!deal) { res.status(404).json({ error: "Deal not found" }); return; }
 
-  const teamStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const teamStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
   const promoMgr = teamStaff.find(s => s.role === "promotions_manager");
   const promoBonus = promoMgr
     ? 1.0 + Math.max(0, promoMgr.skillLevel - 50) * (0.18 / 45)

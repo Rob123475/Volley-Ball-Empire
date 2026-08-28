@@ -194,10 +194,10 @@ const PHYSIOS = [
 
 const insertStmt = sqlite.prepare(`
   INSERT INTO staff (
-    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
-    is_available, age, overall_rating, contract_length, coach_speciality, personality,
-    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    name, role, specialty, base_salary, skill_level, nationality, image_url,
+    base_age, overall_rating, coach_speciality, personality,
+    attributes, special_trait, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 async function main() {
@@ -256,18 +256,14 @@ async function main() {
       p.specialty,
       salary,
       skill,
-      null,
       p.nationality,
       imageUrl,
-      1,
       p.age,
       skill,
-      12,
       p.coachSpeciality,
       "Caring",
       JSON.stringify(attributes),
       p.specialties[0],
-      0,
       skill - 5,
       Math.floor(Date.now() / 1000),
     );

@@ -3,7 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable, trophiesTable, matchesTable } from "@workspace/db";
 import { eq, desc, and, or } from "drizzle-orm";
-import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -343,12 +343,12 @@ router.get("/news/world-tour", async (req, res) => {
     }
 
     // Real event: recent staff signings
-    const recentStaff = await db
-      .select()
-      .from(staffTable)
-      .where(eq(staffTable.teamId, team.id))
-      .orderBy(desc(staffTable.createdAt))
-      .limit(1);
+    // Squad membership is career state, so the newest signing is found by
+    // sorting this career's staff rather than by a WHERE on the reference row.
+    const careerStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
+    const recentStaff = [...careerStaff]
+      .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+      .slice(0, 1);
 
     for (const staff of recentStaff) {
       userItems.push({

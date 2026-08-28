@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
@@ -423,7 +423,7 @@ router.post("/players/:id/scout", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team)  { res.status(404).json({ error: "No team found" }); return; }
 
-  const allStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const allStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
   const scouts   = allStaff.filter(s =>
     ["head_coach", "assistant_coach", "scout"].includes(s.role)
   );

@@ -125,6 +125,9 @@ const NEW_INDEXES: readonly string[] = [
 /** Columns added to pre-existing tables after this project started shipping. */
 const NEW_COLUMNS: ReadonlyArray<readonly [string, string, string]> = [
   ["seasons", "career_save_id", "integer"],
+  // Scoped during the staff split while both tables were still empty.
+  ["ai_managers", "career_save_id", "integer"],
+  ["world_tour_qualifications", "career_save_id", "integer"],
 ];
 
 function tableExists(name: string): boolean {

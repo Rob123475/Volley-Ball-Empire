@@ -1998,10 +1998,10 @@ const ALL_BATCHES: StaffBatch[] = [
 const findExistingStmt = sqlite.prepare(`SELECT id FROM staff WHERE name = ? AND role = ?`);
 const insertStmt = sqlite.prepare(`
   INSERT INTO staff (
-    name, role, specialty, salary, skill_level, team_id, nationality, image_url,
-    is_available, age, overall_rating, contract_length, coach_speciality, personality,
-    attributes, special_trait, is_scout_revealed, scouting_rating, created_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    name, role, specialty, base_salary, skill_level, nationality, image_url,
+    base_age, overall_rating, coach_speciality, personality,
+    attributes, special_trait, scouting_rating, created_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 async function main() {
@@ -2041,18 +2041,14 @@ async function main() {
         member.specialty,
         member.salary,
         member.skillLevel,
-        null,
         member.nationality,
         imageUrl,
-        1,
         member.age,
         member.overallRating,
-        12,
         member.coachSpeciality,
         member.personality,
         JSON.stringify(member.attributes),
         member.specialTrait,
-        0,
         member.scoutingRating,
         Math.floor(Date.now() / 1000),
       );

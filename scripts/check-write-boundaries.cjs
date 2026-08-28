@@ -122,6 +122,25 @@ const RULES = [
     msg: "raw SQL reading players.team_id - squad membership moved to " +
          "career_player_state; the reference column no longer exists",
   },
+  {
+    // Raw SQL naming a column that has moved off `staff`.
+    //
+    // Seven seeders had `INSERT INTO staff (... salary, team_id, is_available,
+    // age, contract_length, is_scout_revealed ...)` and TypeScript could not see
+    // any of it. `age` and `salary` are renamed rather than dropped, so those
+    // are matched only next to `staff` to avoid flagging the many other tables
+    // that legitimately still have them.
+    re: new RegExp(
+      "(?:INTO|FROM|UPDATE|JOIN)\\s+`?staff`?\\b[^;]{0,600}?" +
+      "\\b(?:is_available|contract_length|is_scout_revealed|team_id|\\bage\\b|\\bsalary\\b)" +
+      "|\\b(?:is_available|contract_length|is_scout_revealed)\\b[^;]{0,300}?" +
+      "(?:INTO|FROM|UPDATE|JOIN)\\s+`?staff`?\\b",
+      "gi",
+    ),
+    msg: "raw SQL naming a column that has moved off `staff` - salary is now " +
+         "base_salary and age is base_age (both REFERENCE); team_id, " +
+         "is_available, contract_length and is_scout_revealed are career state",
+  },
 ];
 
 const NL = String.fromCharCode(10);

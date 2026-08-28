@@ -178,9 +178,9 @@ async function main() {
       name: t.name,
       role: "Massage Therapist",
       nationality: t.nationality,
-      age: t.age,
+      baseAge: t.age,
       skillLevel: t.skillLevel,
-      salary: t.salary,
+      baseSalary: t.salary,
       imageUrl,
       attributes: {
         regenerationSeed: SEED,

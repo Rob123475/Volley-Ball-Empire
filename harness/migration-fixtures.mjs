@@ -204,7 +204,11 @@ function makeCareerWithoutState(name) {
   const file = copyPlayed(name);
   const db = new DatabaseSync(file);
   for (const [col, decl] of OLD_PLAYER_COLUMNS) {
-    if (col === "team_id") continue;             // stays dropped, on purpose
+    // squad_role is the sentinel migrateCareerStateOnce keys its "is this save
+    // pre-split?" check on — it was team_id until team_id turned out to be
+    // FK-bound and undroppable. Leaving it out is what makes the snapshot
+    // decline to rebuild, which is the state this fixture is for.
+    if (col === "squad_role") continue;
     if (!cols(db, "players").includes(col)) {
       db.exec(`ALTER TABLE players ADD COLUMN ${col} ${decl}`);
     }
@@ -213,11 +217,11 @@ function makeCareerWithoutState(name) {
   const careers = db.prepare("SELECT COUNT(*) n FROM career_saves").get().n;
   const state = db.prepare("SELECT COUNT(*) n FROM career_player_state").get().n;
   const hasSalary = cols(db, "players").includes("salary");
-  const hasTeamId = cols(db, "players").includes("team_id");
+  const hasSquadRole = cols(db, "players").includes("squad_role");
   db.close();
-  if (careers === 0 || state !== 0 || !hasSalary || hasTeamId) {
+  if (careers === 0 || state !== 0 || !hasSalary || hasSquadRole) {
     throw new Error(
-      `fixture invalid: ${careers} careers, ${state} state, salary=${hasSalary}, team_id=${hasTeamId}`);
+      `fixture invalid: ${careers} careers, ${state} state, salary=${hasSalary}, squad_role=${hasSquadRole}`);
   }
   return file;
 }
@@ -484,6 +488,52 @@ console.log("\n7. RENAMED COLUMN (age -> base_age)");
     rows.every((row) => row.base_age === ages.get(row.id)),
     `${rows.filter((row) => row.base_age === ages.get(row.id)).length}/${rows.length} match`);
   check("career state took the age too", after.state > 0, `${after.state} rows`);
+  check("no unhandled error", !/career state migration failed/.test(r.log));
+}
+
+// 8. A save that predates the staff split.
+console.log("\n8. STAFF SPLIT (salary/age renamed, four columns moved)");
+{
+  const file = makePreSplit("staff-split");
+  const db = new DatabaseSync(file);
+  const wages = new Map(db.prepare("SELECT id, base_salary FROM staff").all().map((r) => [r.id, r.base_salary]));
+  const ages  = new Map(db.prepare("SELECT id, base_age FROM staff").all().map((r) => [r.id, r.base_age]));
+  // Put staff back in the pre-split shape.
+  db.exec("ALTER TABLE staff ADD COLUMN salary real NOT NULL DEFAULT 0");
+  db.exec("ALTER TABLE staff ADD COLUMN age integer NOT NULL DEFAULT 35");
+  db.exec("ALTER TABLE staff ADD COLUMN is_available integer NOT NULL DEFAULT 1");
+  db.exec("ALTER TABLE staff ADD COLUMN contract_length integer NOT NULL DEFAULT 12");
+  db.exec("ALTER TABLE staff ADD COLUMN is_scout_revealed integer NOT NULL DEFAULT 0");
+  db.exec("UPDATE staff SET salary = base_salary, age = base_age");
+  db.exec("ALTER TABLE staff DROP COLUMN base_salary");
+  db.exec("ALTER TABLE staff DROP COLUMN base_age");
+  // career_staff_state is already gone: makePreSplit drops it, which is
+  // exactly what a pre-split save looks like. ensureSchema recreates it.
+  db.close();
+
+  const r = await bootServer(file);
+  const d2 = new DatabaseSync(file, { readOnly: true });
+  const names = d2.prepare("PRAGMA table_info(staff)").all().map((c) => c.name);
+  const rows = d2.prepare("SELECT id, base_salary, base_age FROM staff").all();
+  const stateWages = d2.prepare(
+    "SELECT COUNT(*) n FROM career_staff_state WHERE salary > 0").get().n;
+  const stateRows = d2.prepare("SELECT COUNT(*) n FROM career_staff_state").get().n;
+  d2.close();
+
+  check("server started", r.listening);
+  check("base_salary and base_age created", names.includes("base_salary") && names.includes("base_age"));
+  check("four career-state columns dropped",
+    !["salary", "age", "is_available", "contract_length", "is_scout_revealed"].some((c) => names.includes(c)),
+    ["salary", "age", "is_available", "contract_length", "is_scout_revealed"].filter((c) => names.includes(c)).join(", ") || "all gone");
+  check("no staff lost", rows.length === wages.size, `${wages.size} -> ${rows.length}`);
+  check("every wage carried across, none defaulted",
+    rows.every((row) => row.base_salary === wages.get(row.id)),
+    `${rows.filter((row) => row.base_salary === wages.get(row.id)).length}/${rows.length}`);
+  check("every age carried across",
+    rows.every((row) => row.base_age === ages.get(row.id)),
+    `${rows.filter((row) => row.base_age === ages.get(row.id)).length}/${rows.length}`);
+  check("career staff state rebuilt with a WAGE, not zero",
+    stateRows > 0 && stateWages === stateRows, `${stateWages}/${stateRows} priced`);
   check("no unhandled error", !/career state migration failed/.test(r.log));
 }
 

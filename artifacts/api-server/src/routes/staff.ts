@@ -2,10 +2,14 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
-import { eq, isNull, and, ilike, count } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 import { getGameDate } from "../utils/gameDate.js";
-import type { StaffDTO } from "../lib/playerDto.js";
+import {
+  loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
+  createCareerStaff, countTeamStaff, requireCareerSaveId, withCareerStateTx,
+  type StaffDTO, type StaffReferenceFields,
+} from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -20,21 +24,22 @@ const serializeStaff = (s: StaffDTO) => ({
 
 const MAX_STAFF = 8;
 
-async function backfillStaffAttributes(staffList: any[]): Promise<void> {
+// attributes and specialTrait are REFERENCE fields — what a staff member is,
+// identical in every career — so this backfill writes the reference row.
+async function backfillStaffAttributes(staffList: StaffDTO[]): Promise<void> {
   const empty = staffList.filter(s => !s.attributes || Object.keys(s.attributes).length === 0);
   if (empty.length === 0) return;
-  await Promise.all(empty.map(s => {
-    const attributes = generateAttributesForRole(s.role, s.skillLevel ?? 70);
-    const specialTrait = s.specialTrait || pickTraitForRole(s.role);
-    return db.update(staffTable).set({ attributes, specialTrait }).where(eq(staffTable.id, s.id));
-  }));
+  await Promise.all(empty.map(s => updateStaffReference(s.id, {
+    attributes:   generateAttributesForRole(s.role, s.skillLevel ?? 70),
+    specialTrait: s.specialTrait || pickTraitForRole(s.role),
+  })));
 }
 
 router.get("/staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
-  const staff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   await backfillStaffAttributes(staff);
   const refreshed = staff.map(s =>
     Object.keys(s.attributes ?? {}).length === 0
@@ -49,18 +54,16 @@ router.post("/staff", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const [{ staffCount }] = await db
-    .select({ staffCount: count() })
-    .from(staffTable)
-    .where(eq(staffTable.teamId, team.id));
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const staffCount = await countTeamStaff(cid, team.id);
 
-  if (Number(staffCount) >= MAX_STAFF) {
+  if (staffCount >= MAX_STAFF) {
     res.status(400).json({ error: `You can only have ${MAX_STAFF} staff members. Fire one before hiring another.` });
     return;
   }
 
   const { staffId } = req.body;
-  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, Number(staffId)) });
+  const member = await loadStaffMember(cid, Number(staffId));
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
@@ -76,12 +79,9 @@ router.post("/staff", async (req, res) => {
     return;
   }
 
-  const updated = db.transaction((tx) => {
-    const [row] = tx.update(staffTable)
-      .set({ teamId: team.id, isAvailable: false })
-      .where(eq(staffTable.id, Number(staffId)))
-      .returning()
-      .all();
+  // One transaction: the hire and the money move together or not at all.
+  withCareerStateTx(({ tx, setStaffState }) => {
+    setStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false });
 
     tx.update(teamsTable)
       .set({ budget: Number(team.budget) - signingCost })
@@ -96,22 +96,25 @@ router.post("/staff", async (req, res) => {
       category:    "staff_salary",
       date:        signingDate,
     }).run();
-
-    return row;
   });
 
-  res.status(201).json(serializeStaff(updated));
+  res.status(201).json(serializeStaff({ ...member, teamId: team.id, isAvailable: false }));
 });
 
 router.get("/staff/market", async (req, res) => {
   const { role, search } = req.query as Record<string, string>;
 
-  let available = await db.select().from(staffTable).where(isNull(staffTable.teamId));
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  let available = await loadStaff(cid, { unhired: true });
 
   if (available.length < 20) {
-    const fresh = generateStaffMarket(30);
-    await db.insert(staffTable).values(fresh as any);
-    available = await db.select().from(staffTable).where(isNull(staffTable.teamId));
+    // createCareerStaff writes the reference row AND this career's state,
+    // seeding the live wage from baseSalary. A bare insert into `staff` would
+    // add someone no career can see, and with no wage if it could.
+    for (const fresh of generateStaffMarket(30)) {
+      await createCareerStaff(cid, fresh as typeof staffTable.$inferInsert);
+    }
+    available = await loadStaff(cid, { unhired: true });
   }
 
   // Massage Therapist moved to the Medical Market — no longer listed here.
@@ -151,7 +154,7 @@ router.get("/staff/market", async (req, res) => {
 });
 
 router.get("/staff/available", async (req, res) => {
-  const staff = await db.select().from(staffTable).where(isNull(staffTable.teamId));
+  const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { unhired: true });
   res.json(staff.map(serializeStaff));
 });
 
@@ -159,19 +162,24 @@ router.patch("/staff/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
   const id = parseInt(req.params.id);
-  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, id) });
+  const member = await loadStaffMember(cid, id);
   if (!member) { res.status(404).json({ error: "Staff not found" }); return; }
   if (member.teamId !== team.id) { res.status(403).json({ error: "Not your staff" }); return; }
   const { name, nationality, attributes, personality, specialty, specialTrait } = req.body;
-  const updates: Partial<typeof staffTable.$inferInsert> = {};
+  // Every editable field here is REFERENCE data — who the person is, not what
+  // this career has done with them — so it goes to the athlete row.
+  const updates: StaffReferenceFields = {};
   if (name        !== undefined) updates.name        = name;
   if (nationality !== undefined) updates.nationality = nationality;
   if (attributes  !== undefined) updates.attributes  = attributes;
   if (personality !== undefined) updates.personality = personality;
   if (specialty   !== undefined) updates.specialty   = specialty;
   if (specialTrait !== undefined) updates.specialTrait = specialTrait;
-  const [updated] = await db.update(staffTable).set(updates).where(eq(staffTable.id, id)).returning();
+  await updateStaffReference(id, updates);
+  const updated = await loadStaffMember(cid, id);
+  if (!updated) { res.status(404).json({ error: "Staff not found" }); return; }
   res.json(serializeStaff(updated));
 });
 
@@ -180,8 +188,9 @@ router.delete("/staff/:id", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
   const id = parseInt(req.params.id, 10);
-  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, id) });
+  const member = await loadStaffMember(cid, id);
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (member.teamId !== team.id) { res.status(403).json({ error: "Staff member does not belong to your team" }); return; }
 
@@ -205,11 +214,9 @@ router.delete("/staff/:id", async (req, res) => {
     .set({ budget: teamBudget - terminationFee })
     .where(eq(teamsTable.id, team.id));
 
-  // Release the staff member back to the market
-  const [updated] = await db.update(staffTable)
-    .set({ teamId: null, isAvailable: true })
-    .where(eq(staffTable.id, id))
-    .returning();
+  // Release the staff member back to THIS career's market
+  await updateStaffState(cid, id, { teamId: null, isAvailable: true });
+  const updated: StaffDTO = { ...member, teamId: null, isAvailable: true };
 
   // Finance transaction — staff termination expense
   const today = await getGameDate(team.id);
@@ -250,11 +257,12 @@ router.post("/staff/:id/scout", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const member = await db.query.staffTable.findFirst({ where: eq(staffTable.id, id) });
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const member = await loadStaffMember(cid, id);
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (member.isScoutRevealed) { res.status(400).json({ error: "Already revealed" }); return; }
 
-  const teamStaff = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));
+  const teamStaff = await loadStaff(cid, { teamId: team.id });
   // Roles are stored as Title Case ("Head Coach", "Scout") — normalise before comparing.
   const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
   const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
@@ -275,11 +283,10 @@ router.post("/staff/:id/scout", async (req, res) => {
     .set({ budget: currentBudget - STAFF_SCOUT_COST })
     .where(eq(teamsTable.id, team.id));
 
-  const [updated] = await db.update(staffTable)
-    .set({ isScoutRevealed: true })
-    .where(eq(staffTable.id, id))
-    .returning();
-  res.json(serializeStaff(updated));
+  // Scouting is per-career knowledge: revealing someone in one save must not
+  // reveal them in another.
+  await updateStaffState(cid, id, { isScoutRevealed: true });
+  res.json(serializeStaff({ ...member, isScoutRevealed: true }));
 });
 
 export default router;

@@ -190,9 +190,9 @@ async function main() {
       name: c.name,
       role: "Assistant Coach",
       nationality: c.nationality,
-      age: c.age,
+      baseAge: c.age,
       skillLevel: c.skillLevel,
-      salary: c.salary,
+      baseSalary: c.salary,
       imageUrl,
       attributes: {
         regenerationSeed: SEED,

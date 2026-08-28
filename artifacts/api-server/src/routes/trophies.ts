@@ -11,7 +11,7 @@ import {
   trophiesTable,
 } from "@workspace/db";
 import { eq, desc, sql, and } from "drizzle-orm";
-import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, loadStaff } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -56,10 +56,7 @@ router.get("/trophies/cabinet", async (req, res) => {
 
   const teamPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
-  const teamStaff = await db
-    .select()
-    .from(staffTable)
-    .where(eq(staffTable.teamId, team.id));
+  const teamStaff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
   const completedMatches = await db
     .select()

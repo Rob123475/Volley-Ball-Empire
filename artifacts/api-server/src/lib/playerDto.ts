@@ -288,6 +288,23 @@ export async function loadStaff(
   return rows.map((r) => assembleStaff(r.reference, r.state));
 }
 
+/** One staff member, career-scoped. Null when this career has no state row. */
+export async function loadStaffMember(
+  careerSaveId: number,
+  staffId: number,
+): Promise<StaffDTO | null> {
+  const [row] = await db
+    .select({ reference: staffTable, state: careerStaffStateTable })
+    .from(careerStaffStateTable)
+    .innerJoin(staffTable, eq(staffTable.id, careerStaffStateTable.staffId))
+    .where(and(
+      eq(careerStaffStateTable.careerSaveId, careerSaveId),
+      eq(careerStaffStateTable.staffId, staffId),
+    ))
+    .limit(1);
+  return row ? assembleStaff(row.reference, row.state) : null;
+}
+
 export async function updateStaffState(
   careerSaveId: number,
   staffId: number,
@@ -299,6 +316,101 @@ export async function updateStaffState(
       eq(careerStaffStateTable.careerSaveId, careerSaveId),
       eq(careerStaffStateTable.staffId, staffId),
     ));
+}
+
+/**
+ * The ONLY sanctioned write to the staff reference row. Same rule as players:
+ * these are the fields a staff member IS, not what a career has done with them.
+ */
+export type StaffReferenceFields = Partial<Pick<StaffReference,
+  "name" | "nationality" | "role" | "specialty" | "imageUrl" | "personality" |
+  "attributes" | "specialTrait" | "coachSpeciality" | "skillLevel" |
+  "overallRating" | "scoutingRating" | "baseSalary" | "baseAge"
+>>;
+
+export async function updateStaffReference(
+  staffId: number,
+  patch: StaffReferenceFields,
+): Promise<void> {
+  if (Object.keys(patch).length === 0) return;
+  await db.update(staffTable).set(patch).where(eq(staffTable.id, staffId));
+}
+
+/**
+ * Create a staff member: reference row AND this career's state for them.
+ *
+ * The live wage is seeded from baseSalary. Getting that wrong is not a visible
+ * error — it is a market where every hire is free — so it is done here rather
+ * than left to each caller.
+ */
+export async function createCareerStaff(
+  careerSaveId: number,
+  reference: typeof staffTable.$inferInsert,
+  state: Partial<CareerStaffFields> = {},
+): Promise<StaffDTO> {
+  const [created] = await db.insert(staffTable).values(reference).returning();
+  const [st] = await db.insert(careerStaffStateTable)
+    .values({
+      careerSaveId,
+      staffId: created!.id,
+      salary: Number(created!.baseSalary),
+      ...state,
+    })
+    .returning();
+  return assembleStaff(created!, st!);
+}
+
+/**
+ * Run a synchronous transaction that needs to write career state alongside
+ * other tables — hiring a staff member moves money and assigns the staff in one
+ * atomic step, and splitting those leaves a window where the budget is spent
+ * and the hire never happened.
+ *
+ * The raw career-state write stays inside this file; the caller gets a typed
+ * setter plus the transaction handle for everything else. That keeps the write
+ * boundary intact instead of exempting each route that needs a transaction.
+ */
+export type CareerStateTx = {
+  setStaffState(careerSaveId: number, staffId: number, patch: Partial<CareerStaffFields>): void;
+  setPlayerState(careerSaveId: number, playerId: number, patch: Partial<CareerPlayerFields>): void;
+  /** For non-career-state tables in the same transaction (teams, finance, ...). */
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0];
+};
+
+export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
+  return db.transaction((tx) => fn({
+    tx,
+    setStaffState(careerSaveId, staffId, patch) {
+      tx.update(careerStaffStateTable)
+        .set({ ...patch, updatedAt: new Date() })
+        .where(and(
+          eq(careerStaffStateTable.careerSaveId, careerSaveId),
+          eq(careerStaffStateTable.staffId, staffId),
+        ))
+        .run();
+    },
+    setPlayerState(careerSaveId, playerId, patch) {
+      tx.update(careerPlayerStateTable)
+        .set({ ...patch, updatedAt: new Date() })
+        .where(and(
+          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+          eq(careerPlayerStateTable.playerId, playerId),
+        ))
+        .run();
+    },
+  }));
+}
+
+/** How many staff this career has signed to a team. */
+export async function countTeamStaff(careerSaveId: number, teamId: number): Promise<number> {
+  const rows = await db
+    .select({ id: careerStaffStateTable.id })
+    .from(careerStaffStateTable)
+    .where(and(
+      eq(careerStaffStateTable.careerSaveId, careerSaveId),
+      eq(careerStaffStateTable.teamId, teamId),
+    ));
+  return rows.length;
 }
 
 /**

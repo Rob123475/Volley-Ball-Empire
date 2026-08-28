@@ -36,6 +36,8 @@ import {
   careerStaffStateTable,
   competitorRankingsTable,
   seasonsTable,
+  worldTourQualificationsTable,
+  aiManagersTable,
 } from "@workspace/db";
 import { eq, inArray, or } from "drizzle-orm";
 
@@ -154,6 +156,10 @@ export function deleteProfileCascade(userId: string): void {
       // 200 and left the row behind. Both are career-scoped and must go.
       tx.delete(competitorRankingsTable).where(inArray(competitorRankingsTable.careerSaveId, saveIds)).run();
       tx.delete(seasonsTable).where(inArray(seasonsTable.careerSaveId, saveIds)).run();
+      // Both scoped in the staff-split pass while still empty. Handled here on
+      // the same day rather than left for whoever populates them.
+      tx.delete(worldTourQualificationsTable).where(inArray(worldTourQualificationsTable.careerSaveId, saveIds)).run();
+      tx.delete(aiManagersTable).where(inArray(aiManagersTable.careerSaveId, saveIds)).run();
     }
 
     tx.delete(poachingOffersTable).where(eq(poachingOffersTable.userId, userId)).run();
