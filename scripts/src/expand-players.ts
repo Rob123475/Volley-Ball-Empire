@@ -207,8 +207,8 @@ async function main() {
   const insertSenior = sqlite.prepare(`
     INSERT INTO players
        (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
-        asking_price, continent, player_type, potential, image_url, is_retired)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'senior',?,?,false)
+        asking_price, continent, player_type, potential, image_url)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'senior',?,?)
   `);
   for (const p of NEW_SENIORS) {
     const st = stats(p.ovr, p.pos);
@@ -230,8 +230,8 @@ async function main() {
   const insertYouth = sqlite.prepare(`
     INSERT INTO players
        (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
-        continent, player_type, potential, image_url, is_retired)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'youth',?,?,false)
+        continent, player_type, potential, image_url)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'youth',?,?)
   `);
   for (const p of NEW_YOUTH) {
     const yOvr = 45 + Math.round((p.age - 14) * 3 + Math.random() * 12);
@@ -249,13 +249,13 @@ async function main() {
   const counts = sqlite.prepare(`
     SELECT player_type, continent, COUNT(*) AS n
     FROM players
-    WHERE is_retired = false
+
     GROUP BY player_type, continent
     ORDER BY player_type, continent
   `).all();
   const totals = sqlite.prepare(`
     SELECT player_type, COUNT(*) AS n
-    FROM players WHERE is_retired = false
+    FROM players
     GROUP BY player_type ORDER BY player_type
   `).all();
   console.table(counts);
@@ -265,7 +265,7 @@ async function main() {
   const ageViolations = sqlite.prepare(`
     SELECT id, name, age, player_type
     FROM players
-    WHERE is_retired = false
+
       AND (
         (player_type = 'senior' AND (age < 18 OR age > 40))
         OR (player_type = 'youth' AND (age < 14 OR age > 18))

@@ -276,11 +276,18 @@ function main() {
       console.warn("WARNING: players table is empty.");
     }
 
+    // Squad membership is career state now, so "still on a team" is a question
+    // about career_player_state, not about players.team_id — which no longer
+    // exists. This used to read the reference column and threw once it went.
     const stillOnTeam = (
-      db.prepare("SELECT COUNT(*) as n FROM players WHERE team_id IS NOT NULL").get() as { n: number }
+      db
+        .prepare(
+          "SELECT COUNT(*) as n FROM career_player_state WHERE team_id IS NOT NULL",
+        )
+        .get() as { n: number }
     ).n;
     if (stillOnTeam > 0) {
-      console.warn(`WARNING: ${stillOnTeam} player(s) still have a non-null team_id.`);
+      console.warn(`WARNING: ${stillOnTeam} career-state row(s) still have a non-null team_id.`);
     }
 
     const noImage = (

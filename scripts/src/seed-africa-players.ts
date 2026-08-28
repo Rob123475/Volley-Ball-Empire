@@ -231,7 +231,6 @@ async function main() {
       continent: "Africa & Middle East",
       imageUrl,
       isDraftPlayer: true,
-      isRetired: false,
     });
 
     console.log(`  inserted → imageUrl=${imageUrl}\n`);

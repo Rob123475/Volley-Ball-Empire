@@ -223,7 +223,6 @@ async function main() {
       continent: "Asia",
       imageUrl,
       isDraftPlayer: true,
-      isRetired: false,
     });
 
     console.log(`  inserted → imageUrl=${imageUrl}\n`);

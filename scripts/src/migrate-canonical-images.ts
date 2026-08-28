@@ -284,7 +284,7 @@ async function main() {
   const existing = await db
     .select({ id: playersTable.id, imageUrl: playersTable.imageUrl })
     .from(playersTable)
-    .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)));
+    .where(eq(playersTable.playerType, "senior"));
 
   const count = existing.length;
   console.log(`  Active senior player count: ${count}`);
@@ -364,7 +364,6 @@ async function main() {
       askingPrice:     starAskingPrice(np.stars),
       imageUrl:        null,
       isDraftPlayer:   false,
-      isRetired:       false,
       playerType:      "senior",
     });
 
@@ -389,7 +388,7 @@ async function main() {
     const currentPlayers = await db
       .select()
       .from(playersTable)
-      .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)))
+      .where(eq(playersTable.playerType, "senior"))
       .orderBy(playersTable.id);
 
     let syntheticId = -1;
@@ -402,8 +401,7 @@ async function main() {
           nationality: np.nationality,
           imageUrl: null,
           playerType: "senior",
-          isRetired: false,
-        } as typeof playersTable.$inferSelect)
+            } as typeof playersTable.$inferSelect)
       );
 
     allPlayers = [...currentPlayers, ...synthetic];
@@ -414,7 +412,7 @@ async function main() {
     allPlayers = await db
       .select()
       .from(playersTable)
-      .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)))
+      .where(eq(playersTable.playerType, "senior"))
       .orderBy(playersTable.id);
 
     if (allPlayers.length !== startingCount + NEW_PLAYERS.length) {
@@ -691,7 +689,7 @@ async function main() {
   const finalPlayers = await db
     .select({ id: playersTable.id, name: playersTable.name, nationality: playersTable.nationality, imageUrl: playersTable.imageUrl })
     .from(playersTable)
-    .where(and(eq(playersTable.playerType, "senior"), eq(playersTable.isRetired, false)))
+    .where(eq(playersTable.playerType, "senior"))
     .orderBy(playersTable.id);
 
   const totalCount = finalPlayers.length;

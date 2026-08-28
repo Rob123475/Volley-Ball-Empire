@@ -94,12 +94,33 @@ const RULES = [
       "\\b(?:p\\.|players\\.)?(?:squad_role|is_active|contract_end_date|" +
       "academy_contract_years|outfit_id|injury_weeks_remaining|" +
       "consecutive_matches_played|doctor_quality|training_points|" +
-      "training_focus|focus_xp|scouted_potential|discovered_by)\\b",
+      "training_focus|focus_xp|scouted_potential|discovered_by|" +
+      // chunk 6. is_draft_player is NOT here: it stays on `players` as the
+      // reference seed for who starts in the draft pool.
+      "is_retired|retired_season_year|career_wins)\\b",
       "gi",
     ),
     msg: "raw SQL naming a column that has moved to career_player_state - " +
          "TypeScript cannot check inside a SQL string, and two of these columns " +
          "still physically exist holding stale data. Read through loadPlayers().",
+  },
+  {
+    // players.team_id specifically.
+    //
+    // team_id is deliberately absent from the list above because staff.team_id
+    // is still live and declared — banning the bare name would flag every
+    // legitimate staff query. But players.team_id IS gone, and leaving it out
+    // entirely left a hole: make-starter-db.ts had
+    // `SELECT ... FROM players WHERE team_id IS NOT NULL` in a sanity check that
+    // the broader rule could not see, and it threw the moment the column went.
+    // So match it only when `players` is named in the same statement.
+    re: new RegExp(
+      "(?:FROM|UPDATE|INTO|JOIN)\\s+`?players`?\\b[^;]{0,300}?\\bteam_id\\b" +
+      "|\\bteam_id\\b[^;]{0,300}?(?:FROM|UPDATE|INTO|JOIN)\\s+`?players`?\\b",
+      "gi",
+    ),
+    msg: "raw SQL reading players.team_id - squad membership moved to " +
+         "career_player_state; the reference column no longer exists",
   },
 ];
 
@@ -158,6 +179,50 @@ for (const { file, scope } of scanned) {
         line,
         msg: rule.msg,
         snippet: (lines[line - 1] || "").trim().slice(0, 90),
+      });
+    }
+  }
+}
+
+// ── Cascade drift: every career-scoped table must be handled on delete ──────
+//
+// deleteProfileCascade enumerates tables by hand. That list went stale exactly
+// the way the snapshot's column list did: `seasons` and `competitor_rankings`
+// both gained career_save_id during this work and neither was cleaned, so
+// deleting a profile returned 200 and left orphans behind. seasons has no
+// foreign key on that column (deliberately, so pre-migration rows survive), so
+// nothing failed loudly to reveal it.
+//
+// Rather than trust the next person to remember, derive the requirement from
+// the schema: any table declaring careerSaveId must be named in deleteProfile.
+{
+  const schemaDir = path.join(REPO, "lib", "db", "src", "schema");
+  const deleteProfile = path.join(SRC, "utils", "deleteProfile.ts");
+
+  if (fs.existsSync(schemaDir) && fs.existsSync(deleteProfile)) {
+    const cascadeSrc = fs.readFileSync(deleteProfile, "utf8");
+    let schema = "";
+    for (const f of fs.readdirSync(schemaDir)) {
+      if (f.endsWith(".ts")) schema += fs.readFileSync(path.join(schemaDir, f), "utf8") + NL;
+    }
+
+    // export const fooTable = sqliteTable("foo", { ... careerSaveId ... })
+    const decl = /export const (\w+)\s*=\s*sqliteTable\(\s*"([a-z_]+)"\s*,\s*\{/g;
+    let d;
+    while ((d = decl.exec(schema)) !== null) {
+      const [, exportName, tableName] = d;
+      // Body runs to the next top-level `export const`, which is close enough
+      // to bound one table declaration.
+      const rest = schema.slice(d.index + d[0].length);
+      const end = rest.search(/\nexport const /);
+      const body = end === -1 ? rest : rest.slice(0, end);
+      if (!/\bcareerSaveId\b/.test(body)) continue;
+      if (cascadeSrc.includes(exportName)) continue;
+      violations.push({
+        file: "artifacts/api-server/src/utils/deleteProfile.ts",
+        line: 1,
+        msg: `${tableName} is career-scoped (declares careerSaveId) but deleteProfileCascade never deletes from it - deleting a profile would leave orphans`,
+        snippet: `missing: ${exportName}`,
       });
     }
   }

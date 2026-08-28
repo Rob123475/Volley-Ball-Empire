@@ -57,6 +57,15 @@ const STAFF_SNAPSHOT_COLUMNS = [
   "id", "team_id", "salary", "is_available", "contract_length", "is_scout_revealed",
 ] as const;
 
+/** What a NEW career copies off the reference row when it is created. */
+const SEED_REFERENCE_COLUMNS = [
+  "id", "age", "asking_price",
+  "speed", "power", "defense", "serve", "block", "stamina",
+  // Who starts in the draft pool. Without this a new career sees the column
+  // default (false) for all 268 athletes and the draft pool is empty.
+  "is_draft_player",
+] as const;
+
 /**
  * Narrow a wish-list of columns to the ones this database actually has.
  *
@@ -181,6 +190,9 @@ const MOVED_PLAYER_COLUMNS = [
   // chunk 5 — development and scouting
   "training_points", "training_focus", "focus_xp",
   "scouted_potential", "discovered_by",
+  // chunk 6 — retirement. is_draft_player is NOT here: it stays on `players`
+  // as the reference seed for who starts in the draft pool.
+  "is_retired", "retired_season_year", "career_wins",
 ] as const;
 
 /**
@@ -262,10 +274,17 @@ export function seedCareerState(careerSaveId: number): void {
     // here would throw the moment the migration completes. asking_price is
     // reference data — what the player COSTS — and asking_price = salary * 12
     // holds across the shipped data.
+    // Same rule as the snapshot: name only columns this database HAS.
+    //
+    // This list is the more dangerous of the two, because it runs on EVERY
+    // career creation rather than once per save. `age` is the next column
+    // scheduled to move; with a fixed list, the chunk that moves it silently
+    // breaks the creation of every new career. Every field is read with a
+    // fallback, so an absent column takes its default instead.
     const refs = new Map(
-      tx.all<any>(
-        sql.raw(`SELECT id, age, asking_price, speed, power, defense, serve, block, stamina FROM players`),
-      ).map((r) => [r.id, r]),
+      tx.all<any>(sql.raw(
+        `SELECT ${presentColumns("players", SEED_REFERENCE_COLUMNS)} FROM players`,
+      )).map((r) => [r.id, r]),
     );
 
     for (const p of players) {
@@ -279,6 +298,7 @@ export function seedCareerState(careerSaveId: number): void {
         serve:   Number(refs.get(p.id)?.serve   ?? 70),
         block:   Number(refs.get(p.id)?.block   ?? 70),
         stamina: Number(refs.get(p.id)?.stamina ?? 70),
+        isDraftPlayer: !!refs.get(p.id)?.is_draft_player,
       }).onConflictDoNothing().run();
     }
     for (const st of staff) {

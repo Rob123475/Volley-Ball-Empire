@@ -1,4 +1,7 @@
-import type { Player } from "@workspace/db";
+// PlayerDTO, not Player: playerType is reference data but age and isRetired are
+// career state, so no single table row carries all three any more. The DTO is
+// the merged view and is what every caller already has.
+import type { PlayerDTO } from "../lib/playerDto.js";
 
 /**
  * Senior vs youth classification.
@@ -14,7 +17,7 @@ import type { Player } from "@workspace/db";
  * warning, so the age range stays useful as a *validation* rule. It just must
  * not be used to decide who is a youth player.
  */
-export type ClassifiablePlayer = Pick<Player, "playerType" | "age" | "isRetired">;
+export type ClassifiablePlayer = Pick<PlayerDTO, "playerType" | "age" | "isRetired">;
 
 /** Academy player. Authoritative. */
 export function isYouthPlayer(p: ClassifiablePlayer): boolean {

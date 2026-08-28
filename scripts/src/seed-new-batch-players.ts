@@ -757,7 +757,6 @@ async function main() {
       continent:       player.continent,
       imageUrl,
       isDraftPlayer:   false,
-      isRetired:       false,
       playerType:      "senior",
     });
 

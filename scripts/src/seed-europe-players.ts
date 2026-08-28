@@ -227,7 +227,6 @@ async function main() {
       continent: "Europe",
       imageUrl,
       isDraftPlayer: true,
-      isRetired: false,
     });
 
     console.log(`  inserted → imageUrl=${imageUrl}\n`);

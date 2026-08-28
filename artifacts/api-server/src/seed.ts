@@ -50,6 +50,9 @@ async function main() {
     const imageUrl = getPlayerImageUrl(player.name);
     const updates: Record<string, unknown> = { imageUrl };
 
+    // players.isDraftPlayer is the reference seed for who STARTS in the draft
+    // pool, which is exactly the right thing to read here: this is the seeder
+    // assigning a draft-age to those athletes, not a live status check.
     if (player.isDraftPlayer) {
       updates.age = Math.floor(Math.random() * 4) + 17;
     }

@@ -34,6 +34,8 @@ import {
   poachingOffersTable,
   careerPlayerStateTable,
   careerStaffStateTable,
+  competitorRankingsTable,
+  seasonsTable,
 } from "@workspace/db";
 import { eq, inArray, or } from "drizzle-orm";
 
@@ -146,6 +148,12 @@ export function deleteProfileCascade(userId: string): void {
     if (saveIds.length > 0) {
       tx.delete(careerPlayerStateTable).where(inArray(careerPlayerStateTable.careerSaveId, saveIds)).run();
       tx.delete(careerStaffStateTable).where(inArray(careerStaffStateTable.careerSaveId, saveIds)).run();
+      // competitor_rankings FKs career_saves; seasons does NOT (career_save_id
+      // is deliberately unreferenced so pre-migration rows survive). That means
+      // an orphaned season did not fail loudly — deleting a profile returned
+      // 200 and left the row behind. Both are career-scoped and must go.
+      tx.delete(competitorRankingsTable).where(inArray(competitorRankingsTable.careerSaveId, saveIds)).run();
+      tx.delete(seasonsTable).where(inArray(seasonsTable.careerSaveId, saveIds)).run();
     }
 
     tx.delete(poachingOffersTable).where(eq(poachingOffersTable.userId, userId)).run();

@@ -208,7 +208,6 @@ async function main() {
             )),
         ),
         eq(playersTable.isDraftPlayer, false),
-        eq(playersTable.isRetired, false),
         or(
           like(playersTable.imageUrl, "/players/%"),
           isNull(playersTable.imageUrl),
@@ -262,7 +261,6 @@ async function main() {
       continent:      player.continent,
       imageUrl,
       isDraftPlayer:  false,
-      isRetired:      false,
       playerType:     "senior",
     });
 

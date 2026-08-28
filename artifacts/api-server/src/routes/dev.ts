@@ -423,10 +423,10 @@ const ADJECTIVE_NATIONALITY_CONTINENT: Record<string, string> = {
 router.post("/dev/fix-youth-data", async (_req, res) => {
   try {
     const youth = await db.select().from(playersTable)
-      .where(and(
-        eq(playersTable.playerType, "youth"),
-        eq(playersTable.isRetired, false),
-      ));
+      // Retirement is career state and cannot filter a reference-row query.
+      // These routes repair reference data on the athletes themselves, where
+      // retirement in any one career is irrelevant.
+      .where(eq(playersTable.playerType, "youth"));
 
     let continentFixed = 0;
     let ageFixed = 0;
@@ -552,10 +552,10 @@ const YOUTH_REPLENISH_NAMES: Record<string, string[]> = {
 router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
   try {
     const allYouth = await db.select().from(playersTable)
-      .where(and(
-        eq(playersTable.playerType, "youth"),
-        eq(playersTable.isRetired, false),
-      ));
+      // Retirement is career state and cannot filter a reference-row query.
+      // These routes repair reference data on the athletes themselves, where
+      // retirement in any one career is irrelevant.
+      .where(eq(playersTable.playerType, "youth"));
 
     const currentCount = allYouth.length;
     const vacancies = Math.max(0, GLOBAL_YOUTH_TARGET - currentCount);
@@ -614,7 +614,6 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
         position,
         potential,
         playerType: "youth",
-        isDraftPlayer: false,
         imageUrl: YOUTH_POOL_IMAGE,
         speed: stat(), power: stat(), defense: stat(),
         serve: stat(), block: stat(), stamina: stat(),

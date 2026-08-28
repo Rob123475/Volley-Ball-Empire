@@ -284,7 +284,6 @@ async function main() {
       COUNT(*) as total,
       COUNT(CASE WHEN development->>'regenerationSeed' IS NOT NULL THEN 1 END) as has_seed
     FROM players
-    WHERE is_retired = false
     GROUP BY 1
     ORDER BY 1
   `).all() as any[];

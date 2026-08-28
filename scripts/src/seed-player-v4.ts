@@ -481,8 +481,7 @@ async function main() {
     height:          playersTable.height,
     askingPrice:     playersTable.askingPrice,
   })
-  .from(playersTable)
-  .where(eq(playersTable.isRetired, false)));
+  .from(playersTable));
 
   console.log(`✅  Found ${active.length} players to process.`);
 
@@ -532,8 +531,7 @@ async function main() {
   // ── validation pass ─────────────────────────────────────────────────────────
   console.log("\n🔍  Validating seeded records…");
   const sample = await db.select({ id: playersTable.id, playerV4: playersTable.playerV4 as any })
-    .from(playersTable)
-    .where(eq(playersTable.isRetired, false));
+    .from(playersTable);
 
   let nullCount  = 0;
   let validCount = 0;

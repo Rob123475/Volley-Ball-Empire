@@ -457,7 +457,6 @@ async function main() {
       askingPrice: player.askingPrice,
       imageUrl,
       isDraftPlayer: true,
-      isRetired: false,
     });
 
     console.log(`  inserted → imageUrl=${imageUrl}\n`);

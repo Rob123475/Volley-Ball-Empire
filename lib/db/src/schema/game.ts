@@ -237,14 +237,22 @@ export const playersTable = sqliteTable("players", {
   imageUrl: text("image_url"),
   continent: text("continent"),
   playerType: text("player_type").notNull().default("senior"),
-  isDraftPlayer: integer("is_draft_player", { mode: "boolean" }).notNull().default(false),
   askingPrice: real("asking_price"),
+  // REFERENCE, and deliberately kept while isRetired/careerWins go.
+  //
+  // This is what a player STARTS as — one of the 94 athletes in the opening
+  // draft pool — not what a career has done with them. career_player_state
+  // owns the live value and seedCareerState copies this into it; draft.ts
+  // clears the career one when a player is signed. Dropping this would have
+  // left every new career with an empty draft pool, since nothing else records
+  // who began there.
+  //
+  // Read the CAREER value through loadPlayers(). The write-boundary guard bans
+  // reads of playersTable.isDraftPlayer outside the seed path for that reason.
+  isDraftPlayer: integer("is_draft_player", { mode: "boolean" }).notNull().default(false),
   potential: text("potential").notNull().default("Average"),
   eliteEventType: text("elite_event_type"),
-  isRetired: integer("is_retired", { mode: "boolean" }).notNull().default(false),
-  retiredSeasonYear: integer("retired_season_year"),
   careerSeasons: integer("career_seasons"),
-  careerWins: integer("career_wins"),
   careerTitles: integer("career_titles"),
   continentalTitles: integer("continental_titles"),
   worldTitles: integer("world_titles"),
