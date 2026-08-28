@@ -454,6 +454,51 @@ What the player must be able to see, by stage:
 | Career end | new Career Result | Trophies, peak ranking, progression, final balance, career score and rank band |
 | Start | New career | UNDERDOG vs ESTABLISHED choice with a plain description of the difference |
 
+### Phase 8 scoping — surveyed 2026-08-28
+
+Measured against the actual frontend, not estimated. `artifacts/beach-volleyball`
+has 38 page files and the World Tour hub already carries eight tabs (Overview,
+Calendar, Fixtures, Results, Standings, World Finals, All-Star, History).
+
+**The finding: NONE of the eight rows above is visible anywhere today.**
+`rankingPoints` appears ZERO times in the whole frontend. Every "qualif" match in
+the source is Olympic qualification, which is a different system. `rankBand` in
+`competition/wt-ladder.tsx` is a ladder-position colour, not the career-score
+band. `manager-contract.tsx` contains no `isJobAtRisk` or board-confidence
+reference at all.
+
+So Phase 8 is not "surface some new numbers on existing screens" — for six of
+the eight rows there is no host screen and no data binding whatsoever.
+
+**Build vs extend, per row:**
+
+| Row | Host | Verdict |
+|---|---|---|
+| Ranking | — | NEW screen. `GET /seasons/ranking` exists (Phase 2.1); nothing consumes it |
+| Qualification | `competition/wt-fixtures.tsx` | EXTEND. The fixtures list renders no tier and no prize today, so it needs both before it can show a threshold or a gap |
+| Tier status | `dashboard.tsx` | EXTEND. Dashboard already hosts widgets; add one |
+| Finals | `competition/world-finals.tsx` | EXTEND. Tab exists; group stage and bracket do not |
+| Fail state | `dashboard.tsx` + `manager-contract.tsx` | EXTEND both. `manager-contract.tsx` is the natural home and currently shows none of it |
+| Season end | — | NEW screen. Nothing renders at a season boundary; the rollover returns `seasonRollover` and `careerComplete` and the client ignores both |
+| Career end | — | NEW screen. `careerComplete` is returned and unused |
+| Start modes | `new-career.tsx` | EXTEND |
+
+**Two things Phase 8 must not repeat.** The frozen `poolRanking` and the empty
+`competitor_rankings` were both invisible for a whole phase because nothing
+rendered them — a value nothing displays is indistinguishable from one nothing
+writes. Every number Phase 8 surfaces should be reachable from a screen the
+player normally visits, not only from a detail view they may never open.
+
+And the qualification row is the one that carries the design: "why a club did or
+did not qualify must be legible, never silent." A fixture the player cannot
+enter must say what it needs and how far away they are, in the fixtures list —
+not fail on click. That is a Phase 2 API requirement as much as a Phase 8 one:
+the eligibility reason has to come back with the fixture, not only on rejection.
+
+**Dependency:** rows 1-4 need Phase 2 (thresholds, push-out), row 5 needs
+Phase 5 (fail state), rows 7-8 need Phase 6 (career score, start modes). Row 6
+(Season Review) is buildable NOW — rollover already returns everything it needs.
+
 ## What is being kept (do not rewrite)
 - finances table and the atomic, guarded prize payment transaction
 - ledger and /finances/summary endpoints (now paged)
