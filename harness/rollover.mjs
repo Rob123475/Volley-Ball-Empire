@@ -62,6 +62,10 @@ async function advanceToBoundary(api, maxDays = 500) {
   const A = session();
   await newCareer(A, "RollA");
 
+  // Ages before any boundary, so the +1 per season can be checked against them.
+  const roster0 = (await A("GET", "/players/market-all?playerType=senior")).data;
+  const ages0 = new Map((Array.isArray(roster0) ? roster0 : []).map((p) => [p.id, p.age]));
+
   const s0 = (await A("GET", "/seasons/current")).data;
   check("career starts in season 1", s0 && Number(s0.year) === 2026,
     `year ${s0?.year}, name ${s0?.name}`);
@@ -80,6 +84,15 @@ async function advanceToBoundary(api, maxDays = 500) {
       Number(s?.year) === 2026 + hit.roll.toSeason - 1,
       `now year ${s?.year}, name ${s?.name}, ${hit.days} days`);
   }
+
+  // Ageing: everyone should be exactly one year older per boundary crossed.
+  const rosterN = (await A("GET", "/players/market-all?playerType=senior")).data;
+  const list = Array.isArray(rosterN) ? rosterN : [];
+  const boundaries = seen.length + (complete ? 1 : 0);
+  const correct = list.filter((p) => ages0.has(p.id) && p.age === ages0.get(p.id) + boundaries);
+  check("every player aged exactly one year per season boundary",
+    list.length > 0 && correct.length === list.length,
+    `${correct.length}/${list.length} after ${boundaries} boundaries`);
 
   check("rolled through four boundaries", seen.length === 4,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));

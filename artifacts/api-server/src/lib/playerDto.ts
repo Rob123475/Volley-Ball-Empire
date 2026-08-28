@@ -3,7 +3,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
   regionalLeagueResultsTable } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
-import { and, eq, isNull, isNotNull, type SQL } from "drizzle-orm";
+import { and, eq, isNull, isNotNull, sql, type SQL } from "drizzle-orm";
 
 /**
  * The single place a player is assembled from its two halves.
@@ -390,6 +390,12 @@ export type CareerStateTx = {
     round: number; homePoolTeamId: number; awayPoolTeamId: number; status: string;
   }>): void;
   setLeagueSeasonStatus(careerSaveId: number, seasonId: number, status: string): void;
+  /**
+   * Age every living athlete in this career by a year, at the season boundary.
+   * A bulk pass rather than 268 round trips, and career-scoped: a player who is
+   * 24 in one save and 27 in another is correct, not a bug.
+   */
+  ageAllPlayers(careerSaveId: number): number;
   insertLeagueResult(careerSaveId: number, values: {
     fixtureId: number; winnerId: number | null;
     homeSets: number; awaySets: number;
@@ -453,6 +459,16 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           eq(regionalLeagueSeasonsTable.id, seasonId),
         ))
         .run();
+    },
+    ageAllPlayers(careerSaveId) {
+      const r = tx.update(careerPlayerStateTable)
+        .set({ age: sql`${careerPlayerStateTable.age} + 1`, updatedAt: new Date() })
+        .where(and(
+          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+          eq(careerPlayerStateTable.isRetired, false),
+        ))
+        .run();
+      return Number((r as { changes?: number }).changes ?? 0);
     },
     insertLeagueResult(careerSaveId, values) {
       tx.insert(regionalLeagueResultsTable).values({ ...values, careerSaveId }).run();

@@ -1,5 +1,6 @@
 import { db, seasonsTable, careerSavesTable, calendarStateTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
+import { withCareerStateTx } from "../lib/playerDto.js";
 
 /**
  * Season rollover.
@@ -44,7 +45,7 @@ export type RolloverResult =
  * more than once — advancing several days at a time crosses it in one step.
  */
 export function rolloverSeason(careerSaveId: number, teamId: number): RolloverResult {
-  return db.transaction((tx) => {
+  return withCareerStateTx(({ tx, ageAllPlayers }) => {
     const [season] = tx
       .select()
       .from(seasonsTable)
@@ -58,6 +59,11 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     if (!season) return { kind: "none" } as const;
 
     const current = seasonNumberForYear(season.year);
+
+    // Everyone this career owns gets a year older. Nothing did this before: a
+    // five-season career finished with the squad ages it started with.
+    const agedCount = ageAllPlayers(careerSaveId);
+    void agedCount;
 
     tx.update(seasonsTable)
       .set({ status: "completed" })
