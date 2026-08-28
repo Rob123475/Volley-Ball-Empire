@@ -123,6 +123,29 @@ const RULES = [
          "career_player_state; the reference column no longer exists",
   },
   {
+    // Raw SQL naming a column that has moved off the pool tables.
+    //
+    // There is no raw SQL on these tables today. The rule goes up BEFORE the
+    // migration rather than after it, so the first raw query written against a
+    // moved pool column fails the build instead of returning a stale value —
+    // which is the order every earlier chunk had to learn the hard way.
+    re: new RegExp(
+      "(?:INTO|FROM|UPDATE|JOIN)\\s+`?continental_pool_teams`?\\b[^;]{0,600}?" +
+      "\\b(?:is_active_in_league|promotion_count|relegation_count)\\b" +
+      "|\\b(?:is_active_in_league|promotion_count|relegation_count)\\b[^;]{0,300}?" +
+      "(?:INTO|FROM|UPDATE|JOIN)\\s+`?continental_pool_teams`?\\b" +
+      "|(?:INTO|FROM|UPDATE|JOIN)\\s+`?continental_pool_players`?\\b[^;]{0,600}?\\bage\\b" +
+      // `SELECT age FROM continental_pool_players` puts the column BEFORE the
+      // table, so the forward direction alone missed it. (`base_age` cannot
+      // match: the underscore is a word character, so there is no \b before it.)
+      "|\\bage\\b[^;]{0,300}?(?:INTO|FROM|UPDATE|JOIN)\\s+`?continental_pool_players`?\\b",
+      "gi",
+    ),
+    msg: "raw SQL naming a column that has moved off a pool table - " +
+         "is_active_in_league/promotion_count/relegation_count are career state; " +
+         "continental_pool_players.age is now base_age",
+  },
+  {
     // Raw SQL naming a column that has moved off `staff`.
     //
     // Seven seeders had `INSERT INTO staff (... salary, team_id, is_available,
