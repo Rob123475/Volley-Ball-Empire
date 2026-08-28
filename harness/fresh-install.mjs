@@ -180,6 +180,19 @@ check("staff market is populated", staffMarket.length > 0, `${staffMarket.length
 check("every staff member has a wage",
   staffMarket.length > 0 && staffMarket.every((s) => Number(s.salary) > 0),
   `${staffMarket.filter((s) => Number(s.salary) > 0).length}/${staffMarket.length} priced`);
+// The general market deliberately excludes Massage Therapists (moved to the
+// Medical Market), which is why this is 110 and not 120. Assert the whole
+// population is priced so the count is explained rather than merely observed.
+const medMarket = await api("GET", "/medical-staff/market");
+const medical = Array.isArray(medMarket.data) ? medMarket.data : [];
+check("medical market is populated", medical.length > 0, `${medical.length} available`);
+check("every medical staff member has a wage",
+  medical.length > 0 && medical.every((s) => Number(s.salary) > 0),
+  `${medical.filter((s) => Number(s.salary) > 0).length}/${medical.length} priced`);
+check("general + medical markets cover all 120 staff",
+  staffMarket.length + medical.length >= 120,
+  `${staffMarket.length} general + ${medical.length} medical`);
+
 check("staff carry a base age",
   staffMarket.every((s) => Number(s.baseAge) > 0),
   `${staffMarket.filter((s) => Number(s.baseAge) > 0).length}/${staffMarket.length}`);

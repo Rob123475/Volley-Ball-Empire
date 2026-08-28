@@ -16,7 +16,9 @@ import { loadPlayers, requireCareerSaveId, loadStaff } from "../lib/playerDto.js
 
 const router = Router();
 
-const MEDICAL_ROLES = ["team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "Sports Scientist"];
+// Was a local snake_case list that matched 10 of the 60 medical staff and
+// scored the other 50 as coaching. Use the shared set.
+import { MEDICAL_ROLE_NAMES } from "../utils/medical-staff-generator";
 
 const FACILITY_TYPES = [
   "training_complex",
@@ -243,8 +245,8 @@ router.get("/club-rating", async (req, res) => {
 
   const facilityMap = Object.fromEntries(facilities.map(f => [f.type, f.level]));
 
-  const coachingStaff = allStaff.filter(s => !MEDICAL_ROLES.includes(s.role));
-  const medicalStaff  = allStaff.filter(s => MEDICAL_ROLES.includes(s.role));
+  const coachingStaff = allStaff.filter(s => !MEDICAL_ROLE_NAMES.has(s.role));
+  const medicalStaff  = allStaff.filter(s => MEDICAL_ROLE_NAMES.has(s.role));
 
   const playerScore = allPlayers.length > 0
     ? Math.round(allPlayers.reduce((sum, p) => {

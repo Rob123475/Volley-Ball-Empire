@@ -111,6 +111,26 @@ export const MEDICAL_ROLES: MedicalRole[] = [
   "massage_therapist",
 ];
 
+/**
+ * Every spelling of a medical role, snake_case AND Title Case.
+ *
+ * Roles are stored Title Case by the seeders and snake_case by the market
+ * auto-refill, so any check against MEDICAL_ROLES alone silently matches half
+ * the data. Three files kept their own local list and facilities.ts got it
+ * wrong: its list was snake_case apart from "Sports Scientist", so of the 60
+ * medical staff in the shipped data it classified 10 as medical and scored the
+ * other 50 as COACHING — both halves of a club rating that weights staff and
+ * medical at 15 each.
+ *
+ * One exported set so there is nothing to keep in sync.
+ */
+export const MEDICAL_ROLE_NAMES: ReadonlySet<string> = new Set<string>([
+  ...MEDICAL_ROLES,
+  "Doctor", "Team Doctor", "Medical Specialist", "Physiotherapist",
+  "Nutritionist", "Sports Scientist", "Massage Therapist",
+  "sports_chemist", // legacy rows already migrated; guard against stragglers
+]);
+
 const ROLE_ATTRIBUTES: Record<MedicalRole, string[]> = {
   team_doctor:        ["Diagnosis Accuracy", "Treatment Efficacy", "Emergency Response"],
   medical_specialist: ["Specialist Knowledge", "Clinical Precision", "Recovery Protocol"],

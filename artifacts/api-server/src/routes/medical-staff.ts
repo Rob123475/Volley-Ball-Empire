@@ -12,17 +12,15 @@ import {
   generateMedicalAttributesForRole,
   pickMedicalTraitForRole,
   MEDICAL_ROLES,
+  MEDICAL_ROLE_NAMES,
   type MedicalRole,
 } from "../utils/medical-staff-generator";
 
 const router = Router();
 
 // Include both legacy snake_case names and current Title Case DB names
-const MEDICAL_ROLE_SET = new Set<string>([
-  ...MEDICAL_ROLES,
-  "Doctor", "Medical Specialist", "Physiotherapist", "Nutritionist", "Sports Scientist", "Massage Therapist",
-  "sports_chemist", // legacy rows already migrated but guard against stragglers
-]);
+// The shared set; this file used to keep its own copy.
+const MEDICAL_ROLE_SET = MEDICAL_ROLE_NAMES;
 
 // Map snake_case filter pill values → Title Case DB role names
 const ROLE_FILTER_MAP: Record<string, string> = {
