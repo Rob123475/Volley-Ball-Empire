@@ -176,6 +176,83 @@ measured figures.
   not be so wealthy that spending decisions no longer matter. Report the end-of-
   arc balance for a strong career and show that squad cost is still a constraint.
 
+## Pre-economy baseline — measured 2026-08-28
+
+Phases 2-4 are judged against these numbers. Without a baseline "better" is
+unmeasurable. Produced by `harness/invariants.mjs`; re-run it to reproduce.
+
+Basis, stated because it matters: I3 is pure configuration analysis of the
+shipped schedule. I1 and I4 run the REAL match engine over the REAL shipped
+prize table with REAL squads from the shipped database — but NOT through a
+played season, because season rollover does not exist yet. They are the engine
+and the data, not a career.
+
+**I7 ONE ENGINE — PASS.** This is a Phase 0 acceptance test and it FAILED when
+first measured. `simulateFixtureResult` was a separate model: a `>` comparison
+with uniform noise, sets by coin flip, and point totals from `Math.random()*18+3`
+that ignored team strength entirely. It diverged from the shared engine by up to
+26.9pp and produced a GUARANTEED win at +25 rating, which the engine design
+rules out. Now delegates to the shared engine; max divergence 0.4pp.
+
+  | rating gap | shared | regional | delta |
+  |---|---|---|---|
+  | +0  | 52.1% | 52.2% | 0.1pp |
+  | +5  | 60.7% | 60.7% | 0.0pp |
+  | +10 | 67.8% | 67.4% | 0.4pp |
+  | +25 | 85.7% | 85.5% | 0.2pp |
+
+  NOT covered: the youth league, which does not have a second engine — it has
+  none. AI academy ladder records are seeded from `Math.random()` and the
+  championship is a coin flip with no rating involved. See the Phase 1
+  requirement below.
+
+**I3 NO SINGLE-MATCH LOTTERY — VIOLATED, 35.0% (target <= 15%).**
+62 events, $1,430,000 total achievable prize money.
+
+  | tier | events | total |
+  |---|---|---|
+  | World Semi Final | 1 | $150,000 |
+  | Silver | 16 | $215,000 |
+  | Bronze | 30 | $217,000 |
+  | Gold | 14 | $348,000 |
+  | World Final | 1 | $500,000 |
+
+  The single World Final is 35% of the entire season and more than double the
+  30-event Bronze tier combined.
+
+**I1 MONOTONIC RETURN — VIOLATED, return multiple falls as squad quality rises.**
+
+  | squad | rating | season wages | expected prize | return |
+  |---|---|---|---|---|
+  | cheapest | 66.2 | $132,000 | $465,654 | 3.53x |
+  | lower-mid | 69.7 | $204,000 | $519,656 | 2.55x |
+  | upper-mid | 72.2 | $252,000 | $543,339 | 2.16x |
+  | best | 76.3 | $360,000 | $663,604 | 1.84x |
+
+  Spending more earns more in absolute terms but less per dollar, every step of
+  the way. Assumes every squad enters every event, which is what the game
+  currently allows with no tier gating — so absolute income is an upper bound
+  and the RATIO is the finding.
+
+**I4 PREDICTABILITY — VIOLATED, 83.9% max deviation (target <= 25%).**
+Same squad, five runs of the full schedule:
+$458,000 / $939,500 / $337,500 / $431,000 / $388,000, mean $510,800.
+
+  The spread is dominated by whether the $500,000 final is won, so I3 and I4 are
+  the same defect measured two ways. Fixing the prize distribution should move
+  both.
+
+**Not measured** — blocker on record, deliberately not run:
+
+  - I2 FAILURE IS POSSIBLE — no fail state; `isJobAtRisk` has zero consumers and
+    there is no sacking path. Phase 5.
+  - I5 CLIMBING PAYS — no tier structure; no boundary to measure a delta across.
+    Phases 2 and 3.
+  - I6 UNDERDOG IS TIGHT — no start modes and no fail state. Phases 5 and 6.
+  - I8 THE ARC COMPLETES — no season rollover; a career cannot pass season one.
+    Phase 1.
+  - I9 MONEY STAYS MEANINGFUL — no season rollover. Phase 1.
+
 ## Build phases
 
 Dependency order. Each phase states what it builds and what it measures.
@@ -225,6 +302,13 @@ Dependency order. Each phase states what it builds and what it measures.
   age, retire, promote youth; carry balance/standings/history/HoF; fixtures
   parameterised by year and tier. Also scope seasons per career. Measures that a
   five-season career runs end to end.
+  - **REQUIRED: give the youth league an engine.** The AI academy ladder is
+    seeded from `Math.random()` and the youth championship is a coin flip; no
+    squad rating is involved at any point, so youth results are unrelated to the
+    academy the player builds. This is not a second engine competing with the
+    shared one (I7) — it is the absence of one. It needs AI academy strength to
+    exist before it can use matchEngine, which is why it belongs with rollover
+    rather than with the engine unification.
   - **REQUIRED: AI clubs must progress.** `continental_pool_teams.rating` is
     written by nothing today — it is seeded and then frozen for the whole arc.
     The match engine takes opponent rating as its input, so a frozen rating means

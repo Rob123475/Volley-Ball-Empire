@@ -166,11 +166,17 @@ export async function simulateYouthLeagueChampionship(teamId: number, season: nu
   const qualifiers = ladder.slice(0, 4).map(e => ({ name: e.competitorName, isPlayer: e.isPlayer }));
 
   // Simulate knockout: SF1 (1v4), SF2 (2v3)
-  const winnerOf = (a: { name: string; isPlayer: boolean }, b: { name: string; isPlayer: boolean }) => {
-    // Player gets a slight advantage based on ladder position
-    const rand = Math.random();
-    return rand < 0.5 ? a : b;
-  };
+  // NOTE: this is a coin flip. The comment here used to claim "player gets a
+  // slight advantage based on ladder position", which the code never did — the
+  // ladder position is not read and no squad rating is involved.
+  //
+  // It is not a second match engine (invariant I7); it is the ABSENCE of one.
+  // The AI academies are name strings with no strength, so there is nothing to
+  // feed the shared engine. Giving them ratings is a design decision recorded
+  // in docs/economy-design.md as a Phase 1 requirement, not something to invent
+  // inside a migration phase.
+  const winnerOf = (a: { name: string; isPlayer: boolean }, b: { name: string; isPlayer: boolean }) =>
+    (Math.random() < 0.5 ? a : b);
 
   if (qualifiers.length < 2) {
     // Fallback: player's team wins if only 1 qualifier
