@@ -197,18 +197,55 @@ Dependency order. Each phase states what it builds and what it measures.
   ride-along. regional_league_seasons/_fixtures/_results are keyed by season with
   no career scope, and continental_pool_teams mixes immutable identity with
   mutable per-career state (is_active_in_league, promotion_count,
-  relegation_count) — the same disease as players. Sized at ~105 code references
+  relegation_count) — the same disease as players. Sized at ~155 code references
   across 863 lines plus a new state table plus per-career seeding of 6 seasons
   and 180 fixtures, which is comparable to the player migration itself. The two
   free column-adds (world_tour_qualifications, ai_managers — both empty today,
   both populated by later phases) fold into a Phase 0.5 chunk instead.
+
+  Measurement narrowed the split considerably. `continental_pool_players` is
+  never updated anywhere — it is pure reference data and needs only the
+  `age` -> `base_age` rename. Of the 13 columns on `continental_pool_teams` only
+  THREE are ever written (`is_active_in_league`, `promotion_count`,
+  `relegation_count`, all from promotion/relegation).
+
+  The other five — `rating`, `pool_ranking`, `form`, `fitness`, `fatigue` — are
+  read and displayed but written by nothing. They are left as reference rather
+  than moved on a prediction that something will one day write them. `rating` and
+  `pool_ranking` are now Phase 1 and Phase 2 requirements respectively (above),
+  because both are dependencies of already-specified work. `form`, `fitness` and
+  `fatigue` are simply unimplemented: they render as live AI-club condition in
+  the regional-league UI and never change. No action until something needs them.
+
+  Per-career seeding generates the league at career creation rather than shipping
+  a pre-built one in the starter database. Season rollover needs a fixture
+  generator for seasons 2-5 regardless, so building it here means every new save
+  exercises it and a bug surfaces immediately instead of at the first rollover.
 - **Phase 1 — Season rollover (§6).** Boundary handler terminal at season five;
   age, retire, promote youth; carry balance/standings/history/HoF; fixtures
   parameterised by year and tier. Also scope seasons per career. Measures that a
   five-season career runs end to end.
+  - **REQUIRED: AI clubs must progress.** `continental_pool_teams.rating` is
+    written by nothing today — it is seeded and then frozen for the whole arc.
+    The match engine takes opponent rating as its input, so a frozen rating means
+    every AI club stays exactly as strong in season five as in season one while
+    the player's squad improves. The game gets monotonically easier by
+    construction and **I8 cannot hold**: "a well-run club reaches the Grand Final"
+    becomes true for any club that merely survives. Rollover must move AI ratings
+    — drift toward their tier, reward promotion, penalise relegation — and the
+    Phase 1 measurement must show AI strength changing across five seasons, not
+    only that the career completes.
 - **Phase 2 — Tier qualification (§1).** Ranking thresholds, finals
   qualification from standings, push-out rule. Measures I1 against gating ALONE
   (wage curve untouched unless I1 still fails) and I5.
+  - **REQUIRED: resolve the two rankings.** Tier qualification gates on Ranking
+    Points, which `competitor_rankings` now holds per career and per season. But
+    `continental_pool_teams.pool_ranking` is also displayed in the regional-league
+    UI and is written by nothing — it is frozen at its seeded value. Shipping both
+    gives the player two rankings side by side, one of which never moves, and no
+    way to tell which one gates their progression. Phase 2 must pick one:
+    pool_ranking is SUPERSEDED (delete the column and the UI field) or it is
+    DISTINCT (say what it means, and make it live). Not both.
 - **Phase 3 — Prize and Finals week (§2).** Purses re-scaled by tier; World Tour
   Finals as group stage plus semi plus final. Measures I3, I4.
 - **Phase 4 — Policies and sponsorship (§4).** COMPETENT and INCOMPETENT in the
