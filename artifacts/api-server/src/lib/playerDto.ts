@@ -3,7 +3,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
   regionalLeagueResultsTable } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
-import { and, eq, gte, isNull, isNotNull, sql, type SQL } from "drizzle-orm";
+import { and, eq, gte, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
 
 /**
  * The single place a player is assembled from its two halves.
@@ -61,6 +61,7 @@ export type CareerPlayerFields = {
   yearsActive: string | null;
   legendScore: number;
   isDraftPlayer: boolean;
+  isPromoted: boolean;
   outfitId: number | null;
 };
 
@@ -117,6 +118,7 @@ export function assemblePlayer(
     yearsActive:          state.yearsActive,
     legendScore:          state.legendScore,
     isDraftPlayer:        state.isDraftPlayer,
+    isPromoted:           state.isPromoted,
     outfitId:             state.outfitId,
   };
 }
@@ -146,7 +148,21 @@ export async function loadPlayers(
   if (filter.teamId != null)   conds.push(eq(careerPlayerStateTable.teamId, filter.teamId));
   if (filter.freeAgents)       conds.push(isNull(careerPlayerStateTable.teamId));
   if (filter.isActive != null) conds.push(eq(careerPlayerStateTable.isActive, filter.isActive));
-  if (filter.playerType)       conds.push(eq(playersTable.playerType, filter.playerType));
+  // "Senior" means player_type = 'senior' OR promoted out of the academy in
+  // THIS career; "youth" means the reverse. Filtering on player_type alone
+  // would leave every promoted player counted as youth forever — the academy
+  // screen listing first-team players, and youth-only endpoints picking them.
+  if (filter.playerType === "senior") {
+    conds.push(or(
+      eq(playersTable.playerType, "senior"),
+      eq(careerPlayerStateTable.isPromoted, true),
+    )!);
+  } else if (filter.playerType === "youth") {
+    conds.push(and(
+      eq(playersTable.playerType, "youth"),
+      eq(careerPlayerStateTable.isPromoted, false),
+    )!);
+  }
   if (!filter.includeRetired)  conds.push(eq(careerPlayerStateTable.isRetired, false));
 
   const rows = await db
@@ -404,6 +420,12 @@ export type CareerStateTx = {
   retireAgedPlayers(careerSaveId: number, minAge: number, seasonYear: number): Array<{
     playerId: number; teamId: number | null; age: number;
   }>;
+  /**
+   * Promote academy players who have aged out of the youth band into the first
+   * team. Returns who went up. Promotion is career state: players.player_type
+   * stays 'youth' forever because it is shared by every save.
+   */
+  promoteAgedYouth(careerSaveId: number, minAge: number): Array<{ playerId: number; age: number }>;
   insertLeagueResult(careerSaveId: number, values: {
     fixtureId: number; winnerId: number | null;
     homeSets: number; awaySets: number;
@@ -507,6 +529,33 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
             eq(careerPlayerStateTable.careerSaveId, careerSaveId),
             eq(careerPlayerStateTable.isRetired, false),
             gte(careerPlayerStateTable.age, minAge),
+          ))
+          .run();
+      }
+      return going;
+    },
+    promoteAgedYouth(careerSaveId, minAge) {
+      const going = tx.select({
+        playerId: careerPlayerStateTable.playerId,
+        age:      careerPlayerStateTable.age,
+      })
+        .from(careerPlayerStateTable)
+        .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+        .where(and(
+          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+          eq(careerPlayerStateTable.isRetired, false),
+          eq(careerPlayerStateTable.isPromoted, false),
+          eq(playersTable.playerType, "youth"),
+          gte(careerPlayerStateTable.age, minAge),
+        ))
+        .all();
+
+      for (const g of going) {
+        tx.update(careerPlayerStateTable)
+          .set({ isPromoted: true, updatedAt: new Date() })
+          .where(and(
+            eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+            eq(careerPlayerStateTable.playerId, g.playerId),
           ))
           .run();
       }

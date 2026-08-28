@@ -17,16 +17,31 @@ import type { PlayerDTO } from "../lib/playerDto.js";
  * warning, so the age range stays useful as a *validation* rule. It just must
  * not be used to decide who is a youth player.
  */
-export type ClassifiablePlayer = Pick<PlayerDTO, "playerType" | "age" | "isRetired">;
+export type ClassifiablePlayer =
+  Pick<PlayerDTO, "playerType" | "age" | "isRetired" | "isPromoted">;
 
-/** Academy player. Authoritative. */
+/**
+ * Academy player, in THIS career.
+ *
+ * players.player_type is reference data shared by every save, so a promoted
+ * player keeps player_type = 'youth' forever. Promotion is career state, and
+ * these two predicates are the only place the combination is interpreted.
+ */
 export function isYouthPlayer(p: ClassifiablePlayer): boolean {
-  return p.playerType === "youth";
+  return p.playerType === "youth" && !p.isPromoted;
 }
 
-/** Senior (first-team) player. Authoritative. */
+/**
+ * Senior (first-team) player.
+ *
+ * This used to be `playerType !== "youth"` — an inversion, and the sharp edge
+ * of the promotion change: a promoted academy player is still player_type
+ * 'youth', so the negation would have reported them as NOT senior while the
+ * positive test reported them as youth. Both wrong, in opposite directions.
+ * Defined in terms of isYouthPlayer so the two can never disagree.
+ */
 export function isSeniorPlayer(p: ClassifiablePlayer): boolean {
-  return p.playerType !== "youth";
+  return !isYouthPlayer(p);
 }
 
 /** Youth players who are still on the books (not retired). */

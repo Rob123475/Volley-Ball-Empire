@@ -52,6 +52,7 @@ const NEW_TABLES: ReadonlyArray<readonly [string, string]> = [
       \`retired_season_year\` integer,
       \`career_wins\` integer DEFAULT 0 NOT NULL,
       \`is_draft_player\` integer DEFAULT false NOT NULL,
+      \`is_promoted\` integer DEFAULT false NOT NULL,
       \`outfit_id\` integer,
       \`updated_at\` integer NOT NULL,
       \`speed\` integer DEFAULT 70 NOT NULL,
@@ -146,6 +147,8 @@ const NEW_COLUMNS: ReadonlyArray<readonly [string, string, string]> = [
   ["regional_league_seasons", "career_save_id", "integer"],
   ["regional_league_fixtures", "career_save_id", "integer"],
   ["regional_league_results", "career_save_id", "integer"],
+  // Phase 1.5. Academy promotion is per career; player_type is not.
+  ["career_player_state", "is_promoted", "integer NOT NULL DEFAULT 0"],
 ];
 
 function tableExists(name: string): boolean {

@@ -63,8 +63,15 @@ async function advanceToBoundary(api, maxDays = 500) {
   await newCareer(A, "RollA");
 
   // Ages before any boundary, so the +1 per season can be checked against them.
+  // Baseline BOTH pools: promotion moves 72 academy players into the senior
+  // list during the arc, so a senior-only baseline would report them as wrong
+  // simply for not having existed in it at the start.
   const roster0 = (await A("GET", "/players/market-all?playerType=senior")).data;
-  const ages0 = new Map((Array.isArray(roster0) ? roster0 : []).map((p) => [p.id, p.age]));
+  const youth0 = (await A("GET", "/players/youth-pool")).data;
+  const ages0 = new Map([
+    ...(Array.isArray(roster0) ? roster0 : []),
+    ...(Array.isArray(youth0) ? youth0 : (youth0?.players ?? [])),
+  ].map((p) => [p.id, p.age]));
 
   const s0 = (await A("GET", "/seasons/current")).data;
   check("career starts in season 1", s0 && Number(s0.year) === 2026,
@@ -89,10 +96,13 @@ async function advanceToBoundary(api, maxDays = 500) {
   const rosterN = (await A("GET", "/players/market-all?playerType=senior")).data;
   const list = Array.isArray(rosterN) ? rosterN : [];
   const boundaries = seen.length + (complete ? 1 : 0);
-  const correct = list.filter((p) => ages0.has(p.id) && p.age === ages0.get(p.id) + boundaries);
+  const known = list.filter((p) => ages0.has(p.id));
+  const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
   check("every player aged exactly one year per season boundary",
-    list.length > 0 && correct.length === list.length,
-    `${correct.length}/${list.length} after ${boundaries} boundaries`);
+    known.length > 0 && correct.length === known.length,
+    `${correct.length}/${known.length} with a baseline, after ${boundaries} boundaries`);
+  check("every senior has a baseline (nobody appeared from nowhere)",
+    known.length === list.length, `${known.length}/${list.length} traceable`);
 
   check("rolled through four boundaries", seen.length === 4,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));
@@ -118,6 +128,25 @@ async function advanceToBoundary(api, maxDays = 500) {
   const tooOld = aliveList.filter((p) => p.age >= 34);
   check("no active player is at or past the retirement age", tooOld.length === 0,
     `${tooOld.length} over-age still active`);
+  // Promotion. All 72 youth cross 19 during the arc, so the academy should be
+  // largely emptied into the senior pool and the two views must AGREE — a
+  // player counted in both, or in neither, is the failure this chunk is about.
+  const seniorsNow = (await A("GET", "/players/market-all?playerType=senior")).data;
+  const youthNow = (await A("GET", "/players/youth-pool")).data;
+  const seniorList = Array.isArray(seniorsNow) ? seniorsNow : [];
+  const youthList = Array.isArray(youthNow) ? youthNow : (youthNow?.players ?? []);
+  const promotedInSenior = seniorList.filter((p) => p.isPromoted);
+  check("the academy promoted players into the senior pool",
+    promotedInSenior.length > 0, `${promotedInSenior.length} promoted seniors`);
+
+  const seniorIds = new Set(seniorList.map((p) => p.id));
+  const bothLists = youthList.filter((p) => seniorIds.has(p.id));
+  check("no player appears as BOTH youth and senior", bothLists.length === 0,
+    `${bothLists.length} in both`);
+  const youthStillPromoted = youthList.filter((p) => p.isPromoted);
+  check("no promoted player is still listed as youth", youthStillPromoted.length === 0,
+    `${youthStillPromoted.length} promoted but still in the academy`);
+
   const mentions = seasonEntries.filter((e) => /retired/.test(e.description ?? ""));
   check("the arc retired somebody", mentions.length > 0,
     mentions.map((e) => e.description.match(/(\d+) players? retired/)?.[1] ?? "?").join(", ") + " per season");

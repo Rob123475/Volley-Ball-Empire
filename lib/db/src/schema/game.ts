@@ -345,6 +345,18 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   yearsActive:        text("years_active"),
   legendScore:        integer("legend_score").notNull().default(0),
   isDraftPlayer:    integer("is_draft_player", { mode: "boolean" }).notNull().default(false),
+  /**
+   * Promoted out of the academy into the first team, in THIS career.
+   *
+   * players.player_type is reference data shared by every save, so promotion
+   * cannot flip it: that would promote the athlete in every career at once —
+   * the exact cross-career bleed this whole phase removed. All 72 youth age
+   * into seniority across a five-season arc, so this is not an edge case; by
+   * season five a large part of the senior squad is promoted academy players.
+   *
+   * "Senior" therefore means player_type = 'senior' OR is_promoted, everywhere.
+   */
+  isPromoted:       integer("is_promoted", { mode: "boolean" }).notNull().default(false),
   outfitId:         integer("outfit_id"),
 
   updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),

@@ -36,6 +36,15 @@ export const FINAL_SEASON = 5;
 export const RETIREMENT_AGE = 34;
 
 /**
+ * Academy players graduate the season after they pass the youth age band.
+ *
+ * The shipped academy is 14-18 (YOUTH_AGE_MAX), so 19 is the first age that is
+ * no longer youth. All 72 of them cross it during a five-season arc — which is
+ * exactly why the spec deletes senior generation: the academy IS the pipeline.
+ */
+export const PROMOTION_AGE = 19;
+
+/**
  * Seasons are numbered from their year. Career creation starts at 2026, so
  * 2026 is season 1 and 2030 is season 5. Keeping the mapping in one place stops
  * "season 3" meaning two different things in two files.
@@ -63,7 +72,7 @@ export type RolloverResult =
  * more than once — advancing several days at a time crosses it in one step.
  */
 export function rolloverSeason(careerSaveId: number, teamId: number): RolloverResult {
-  return withCareerStateTx(({ tx, ageAllPlayers, retireAgedPlayers }) => {
+  return withCareerStateTx(({ tx, ageAllPlayers, retireAgedPlayers, promoteAgedYouth }) => {
     const [season] = tx
       .select()
       .from(seasonsTable)
@@ -86,6 +95,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // Retire AFTER ageing, so the threshold is applied to the age a player has
     // reached rather than the one they are leaving behind.
     const retired = retireAgedPlayers(careerSaveId, RETIREMENT_AGE, season.year);
+
+    // Promote after retiring, so a squad slot freed this boundary can be filled
+    // at the same one rather than sitting empty for a season.
+    const promoted = promoteAgedYouth(careerSaveId, PROMOTION_AGE);
 
     tx.update(seasonsTable)
       .set({ status: "completed" })
@@ -135,6 +148,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
             `Season ${current} complete — ${team.wins}W ${team.losses}L, ` +
             `balance $${Math.round(Number(team.budget)).toLocaleString()}` +
             (retired.length > 0 ? `, ${retired.length} player${retired.length > 1 ? "s" : ""} retired` : "") +
+            (promoted.length > 0 ? `, ${promoted.length} promoted from the academy` : "") +
             `.`,
         }).run();
       }

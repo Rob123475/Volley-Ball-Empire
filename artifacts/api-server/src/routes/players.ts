@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import {
+  isSeniorPlayer, isYouthPlayer, YOUTH_AGE_MIN, YOUTH_AGE_MAX,
+} from "../utils/playerClassification.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
@@ -95,7 +98,7 @@ router.get("/players/free-agents", async (req, res) => {
   // Senior free agents only — youth players have their own pool endpoint
   res.json(
     freeAgents
-      .filter(p => !p.isDraftPlayer && p.academyContractYears == null && p.playerType === "senior")
+      .filter(p => !p.isDraftPlayer && p.academyContractYears == null && isSeniorPlayer(p))
       .map(serializePlayer)
   );
 });
@@ -143,7 +146,7 @@ router.get("/players/transfer-window", async (req, res) => {
 router.get("/players/youth-pool", async (req, res) => {
   const { continent } = req.query;
   const youth = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { freeAgents: true });
-  let result = youth.filter(p => p.playerType === "youth" && p.academyContractYears == null);
+  let result = youth.filter(p => isYouthPlayer(p) && p.academyContractYears == null);
   if (continent && typeof continent === "string") {
     result = result.filter(p => p.continent === continent);
   }
@@ -154,8 +157,8 @@ router.get("/players/youth-pool", async (req, res) => {
 router.get("/players/validation", async (req, res) => {
   const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId));
 
-  const seniors = all.filter(p => p.playerType === "senior");
-  const youth   = all.filter(p => p.playerType === "youth");
+  const seniors = all.filter(p => isSeniorPlayer(p));
+  const youth   = all.filter(p => isYouthPlayer(p));
 
   const CONTINENTS = ["Africa & Middle East", "Asia", "Europe", "North America", "South America", "Oceania"];
 
@@ -167,9 +170,14 @@ router.get("/players/validation", async (req, res) => {
   );
 
   const ageViolations = all.filter(p =>
-    (p.playerType === "senior" && (p.age < 18 || p.age > 40)) ||
-    (p.playerType === "youth"  && (p.age < 14 || p.age > 18))
-  ).map(p => ({ id: p.id, name: p.name, age: p.age, playerType: p.playerType }));
+    (isSeniorPlayer(p) && (p.age < 18 || p.age > 40)) ||
+    (isYouthPlayer(p)  && (p.age < YOUTH_AGE_MIN || p.age > YOUTH_AGE_MAX))
+  ).map(p => ({
+    id: p.id, name: p.name, age: p.age,
+    // The EFFECTIVE type, not the reference one: reporting a promoted player
+    // as "youth" here is what made the mismatch invisible in the first place.
+    playerType: isYouthPlayer(p) ? "youth" : "senior",
+  }));
 
   const errors: string[] = [];
   if (seniors.length !== 60) errors.push(`Senior count is ${seniors.length}, expected 60`);
