@@ -6,6 +6,9 @@
 
 import { db } from "@workspace/db";
 import { careerPoolTeamStateTable } from "@workspace/db";
+import {
+  loadFixtures, loadResultsForFixtures, loadLeagueSeason, loadLeagueSeasons,
+} from "../lib/regionalLeague.js";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import {
   regionalLeagueSeasonsTable,
@@ -157,7 +160,7 @@ export function computeRegionalLadder(
 
 // ── Fetch helpers ─────────────────────────────────────────────────────────────
 
-async function fetchLadderData(seasonId: number): Promise<{
+async function fetchLadderData(seasonId: number, careerSaveId: number): Promise<{
   fixtures: Array<{
     id: number;
     homePoolTeamId: number;
@@ -174,31 +177,11 @@ async function fetchLadderData(seasonId: number): Promise<{
   }>;
   poolRankings: Map<number, number>;
 }> {
-  const fixtures = await db
-    .select({
-      id:             regionalLeagueFixturesTable.id,
-      homePoolTeamId: regionalLeagueFixturesTable.homePoolTeamId,
-      awayPoolTeamId: regionalLeagueFixturesTable.awayPoolTeamId,
-      status:         regionalLeagueFixturesTable.status,
-    })
-    .from(regionalLeagueFixturesTable)
-    .where(eq(regionalLeagueFixturesTable.regionalLeagueSeasonId, seasonId));
+  const fixtures = await loadFixtures(careerSaveId, { seasonId });
 
   const fixtureIds = fixtures.map(f => f.id);
 
-  const results = fixtureIds.length > 0
-    ? await db
-        .select({
-          fixtureId:       regionalLeagueResultsTable.fixtureId,
-          winnerId:        regionalLeagueResultsTable.winnerId,
-          homeSets:        regionalLeagueResultsTable.homeSets,
-          awaySets:        regionalLeagueResultsTable.awaySets,
-          homeMatchPoints: regionalLeagueResultsTable.homeMatchPoints,
-          awayMatchPoints: regionalLeagueResultsTable.awayMatchPoints,
-        })
-        .from(regionalLeagueResultsTable)
-        .where(inArray(regionalLeagueResultsTable.fixtureId, fixtureIds))
-    : [];
+  const results = await loadResultsForFixtures(careerSaveId, fixtureIds);
 
   // Collect all participating team IDs
   const allTeamIds = Array.from(new Set([
@@ -219,8 +202,11 @@ async function fetchLadderData(seasonId: number): Promise<{
 }
 
 // Public: compute ladder from DB for a given season
-export async function computeLadderForSeason(seasonId: number): Promise<Ladder> {
-  const { fixtures, results, poolRankings } = await fetchLadderData(seasonId);
+export async function computeLadderForSeason(
+  seasonId: number,
+  careerSaveId: number,
+): Promise<Ladder> {
+  const { fixtures, results, poolRankings } = await fetchLadderData(seasonId, careerSaveId);
   return computeRegionalLadder(fixtures, results, poolRankings);
 }
 
@@ -246,14 +232,11 @@ export async function resolveRegionalSeason(
   careerSaveId: number,
 ): Promise<void> {
   // ── 1. Load and validate season ───────────────────────────────────────────
-  const [season] = await db
-    .select()
-    .from(regionalLeagueSeasonsTable)
-    .where(eq(regionalLeagueSeasonsTable.id, seasonId));
+  const season = await loadLeagueSeason(careerSaveId, seasonId);
   if (!season) throw new Error(`Season ${seasonId} not found`);
   if (season.status === "completed") throw new Error(`Season ${seasonId} is already completed`);
 
-  const { fixtures, results, poolRankings } = await fetchLadderData(seasonId);
+  const { fixtures, results, poolRankings } = await fetchLadderData(seasonId, careerSaveId);
 
   // ── 2. Completion guard: all 30 fixtures must be completed ────────────────
   const totalFixtures = fixtures.length;
@@ -279,7 +262,7 @@ export async function resolveRegionalSeason(
   // in a bare `catch {}`, which will hide it completely (writes still land,
   // but non-atomically, as individually auto-committed statements outside
   // any real transaction).
-  withCareerStateTx(({ tx, setPoolTeamState }) => {
+  withCareerStateTx(({ tx, setPoolTeamState, insertLeagueSeason, insertLeagueFixtures, setLeagueSeasonStatus }) => {
     // Insert World Tour qualification rows for top 3
     for (let i = 0; i < Math.min(3, ladder.length); i++) {
       tx.insert(worldTourQualificationsTable).values({
@@ -337,36 +320,23 @@ export async function resolveRegionalSeason(
     }
 
     // Create next-season record
-    const [nextSeason] = tx
-      .insert(regionalLeagueSeasonsTable)
-      .values({
-        seasonYear: season.seasonYear + 1,
-        continent:  season.continent,
-        teamIds:    nextTeamIds,
-        status:     "active",
-      })
-      .returning()
-      .all();
+    const nextSeasonId = insertLeagueSeason(careerSaveId, {
+      seasonYear: season.seasonYear + 1,
+      continent:  season.continent,
+      teamIds:    nextTeamIds,
+      status:     "active",
+    });
 
-    if (nextSeason) {
-      const fixtureSlots = generateDoubleRoundRobin(nextTeamIds);
-      tx.insert(regionalLeagueFixturesTable).values(
-        fixtureSlots.map(s => ({
-          regionalLeagueSeasonId: nextSeason.id,
-          round:          s.round,
-          homePoolTeamId: s.home,
-          awayPoolTeamId: s.away,
-          status:         "scheduled" as const,
-        })),
-      ).run();
-    }
+    insertLeagueFixtures(careerSaveId, nextSeasonId,
+      generateDoubleRoundRobin(nextTeamIds).map(s => ({
+        round:          s.round,
+        homePoolTeamId: s.home,
+        awayPoolTeamId: s.away,
+        status:         "scheduled",
+      })));
 
     // Mark current season completed
-    tx
-      .update(regionalLeagueSeasonsTable)
-      .set({ status: "completed" })
-      .where(eq(regionalLeagueSeasonsTable.id, seasonId))
-      .run();
+    setLeagueSeasonStatus(careerSaveId, seasonId, "completed");
   });
 }
 
@@ -391,10 +361,7 @@ export async function simulateRegionalRound(
   careerSaveId: number,
 ): Promise<Array<{ continent: string; simulated: number }>> {
   // Load all active seasons (one per continent, in lockstep)
-  const activeSeasons = await db
-    .select()
-    .from(regionalLeagueSeasonsTable)
-    .where(eq(regionalLeagueSeasonsTable.status, "active"));
+  const activeSeasons = await loadLeagueSeasons(careerSaveId, { status: "active" });
 
   if (activeSeasons.length === 0) return [];
 
@@ -409,16 +376,9 @@ export async function simulateRegionalRound(
   );
 
   // Load all scheduled fixtures for this round across all active seasons
-  const fixtures = await db
-    .select()
-    .from(regionalLeagueFixturesTable)
-    .where(
-      and(
-        inArray(regionalLeagueFixturesTable.regionalLeagueSeasonId, seasonIds),
-        eq(regionalLeagueFixturesTable.round, roundNumber),
-        eq(regionalLeagueFixturesTable.status, "scheduled"),
-      ),
-    );
+  const fixtures = await loadFixtures(careerSaveId, {
+    seasonIds, round: roundNumber, status: "scheduled",
+  });
 
   if (fixtures.length === 0) return [];
 
@@ -427,7 +387,7 @@ export async function simulateRegionalRound(
 
   // Synchronous callback — see the note on the transaction in
   // resolveRegionalSeason() above for why (better-sqlite3 requirement).
-  db.transaction((tx) => {
+  withCareerStateTx(({ insertLeagueResult, setFixtureResult }) => {
     for (const fixture of fixtures) {
       const homeRating = ratingByTeamId.get(fixture.homePoolTeamId) ?? 70;
       const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId) ?? 70;
@@ -436,20 +396,18 @@ export async function simulateRegionalRound(
       const winnerId =
         result.winnerId === "home" ? fixture.homePoolTeamId : fixture.awayPoolTeamId;
 
-      tx.insert(regionalLeagueResultsTable).values({
+      insertLeagueResult(careerSaveId, {
         fixtureId:       fixture.id,
         winnerId,
         homeSets:        result.homeSets,
         awaySets:        result.awaySets,
         homeMatchPoints: result.homeMatchPoints,
         awayMatchPoints: result.awayMatchPoints,
-      }).run();
+      });
 
-      tx
-        .update(regionalLeagueFixturesTable)
-        .set({ status: "completed", homeScore: result.homeSets, awayScore: result.awaySets })
-        .where(eq(regionalLeagueFixturesTable.id, fixture.id))
-        .run();
+      setFixtureResult(careerSaveId, fixture.id, {
+        status: "completed", homeScore: result.homeSets, awayScore: result.awaySets,
+      });
 
       // Track per-season continent for summary
       const season = activeSeasons.find(s => s.id === fixture.regionalLeagueSeasonId);

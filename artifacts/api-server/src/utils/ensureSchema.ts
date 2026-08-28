@@ -141,6 +141,11 @@ const NEW_COLUMNS: ReadonlyArray<readonly [string, string, string]> = [
   // Scoped during the staff split while both tables were still empty.
   ["ai_managers", "career_save_id", "integer"],
   ["world_tour_qualifications", "career_save_id", "integer"],
+  // Phase 0.6d. The regional league was keyed by season alone, so two careers
+  // shared one league and each other's results.
+  ["regional_league_seasons", "career_save_id", "integer"],
+  ["regional_league_fixtures", "career_save_id", "integer"],
+  ["regional_league_results", "career_save_id", "integer"],
 ];
 
 function tableExists(name: string): boolean {

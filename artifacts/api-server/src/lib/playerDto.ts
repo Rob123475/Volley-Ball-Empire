@@ -1,5 +1,7 @@
 import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateTable,
-  continentalPoolTeamsTable, careerPoolTeamStateTable } from "@workspace/db";
+  continentalPoolTeamsTable, careerPoolTeamStateTable,
+  regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
+  regionalLeagueResultsTable } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
 import { and, eq, isNull, isNotNull, type SQL } from "drizzle-orm";
 
@@ -375,6 +377,27 @@ export type CareerStateTx = {
   setStaffState(careerSaveId: number, staffId: number, patch: Partial<CareerStaffFields>): void;
   setPlayerState(careerSaveId: number, playerId: number, patch: Partial<CareerPlayerFields>): void;
   setPoolTeamState(careerSaveId: number, poolTeamId: number, patch: Partial<CareerPoolTeamFields>): void;
+  /**
+   * League rollover creates next season and its fixtures in the SAME
+   * transaction as the promotion/relegation that decides who is in it, so these
+   * live here rather than in regionalLeague.ts — splitting them would leave a
+   * window with a promoted club and no season to play in.
+   */
+  insertLeagueSeason(careerSaveId: number, values: {
+    seasonYear: number; continent: string; teamIds: number[]; status: string;
+  }): number;
+  insertLeagueFixtures(careerSaveId: number, seasonId: number, rows: Array<{
+    round: number; homePoolTeamId: number; awayPoolTeamId: number; status: string;
+  }>): void;
+  setLeagueSeasonStatus(careerSaveId: number, seasonId: number, status: string): void;
+  insertLeagueResult(careerSaveId: number, values: {
+    fixtureId: number; winnerId: number | null;
+    homeSets: number; awaySets: number;
+    homeMatchPoints: number; awayMatchPoints: number;
+  }): void;
+  setFixtureResult(careerSaveId: number, fixtureId: number, patch: {
+    status: string; homeScore: number; awayScore: number;
+  }): void;
   /** For non-career-state tables in the same transaction (teams, finance, ...). */
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0];
 };
@@ -406,6 +429,40 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         .where(and(
           eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
           eq(careerPoolTeamStateTable.poolTeamId, poolTeamId),
+        ))
+        .run();
+    },
+    insertLeagueSeason(careerSaveId, values) {
+      const [created] = tx.insert(regionalLeagueSeasonsTable)
+        .values({ ...values, careerSaveId })
+        .returning()
+        .all();
+      return created!.id;
+    },
+    insertLeagueFixtures(careerSaveId, seasonId, rows) {
+      if (rows.length === 0) return;
+      tx.insert(regionalLeagueFixturesTable)
+        .values(rows.map((r) => ({ ...r, careerSaveId, regionalLeagueSeasonId: seasonId })))
+        .run();
+    },
+    setLeagueSeasonStatus(careerSaveId, seasonId, status) {
+      tx.update(regionalLeagueSeasonsTable)
+        .set({ status })
+        .where(and(
+          eq(regionalLeagueSeasonsTable.careerSaveId, careerSaveId),
+          eq(regionalLeagueSeasonsTable.id, seasonId),
+        ))
+        .run();
+    },
+    insertLeagueResult(careerSaveId, values) {
+      tx.insert(regionalLeagueResultsTable).values({ ...values, careerSaveId }).run();
+    },
+    setFixtureResult(careerSaveId, fixtureId, patch) {
+      tx.update(regionalLeagueFixturesTable)
+        .set(patch)
+        .where(and(
+          eq(regionalLeagueFixturesTable.careerSaveId, careerSaveId),
+          eq(regionalLeagueFixturesTable.id, fixtureId),
         ))
         .run();
     },

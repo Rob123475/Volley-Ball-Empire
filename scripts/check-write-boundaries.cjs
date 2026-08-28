@@ -35,6 +35,11 @@ const SCRIPT_SRC = path.join(REPO, "scripts", "src");
 // Files permitted to write these tables directly.
 const ALLOWED = new Set([
   path.join(SRC, "lib", "playerDto.ts"),          // the sanctioned write path
+  path.join(SRC, "lib", "regionalLeague.ts"),     // the sanctioned league path
+  // The cascade deletes from EVERY career-scoped table by definition; routing
+  // it through per-domain helpers would just move the enumeration somewhere
+  // less visible. The cascade-drift check below is what keeps it honest.
+  path.join(SRC, "utils", "deleteProfile.ts"),
   path.join(SRC, "utils", "migrateCareerState.ts"), // performs the migration itself
   // Bulk one-shot boot migration over a genuine REFERENCE field (continent is
   // derived from nationality and is the same in every career). Allowed for the
@@ -128,6 +133,22 @@ const RULES = [
     ),
     msg: "raw SQL reading players.team_id - squad membership moved to " +
          "career_player_state; the reference column no longer exists",
+  },
+  {
+    // The regional league must be read and written through lib/regionalLeague.ts.
+    //
+    // This rule exists because adding career_save_id to the three league tables
+    // produced ZERO compile errors — a nullable column addition is invisible to
+    // TypeScript, so all 17 existing queries kept compiling and kept returning
+    // every career's rows. There was no error to fix and nothing to notice.
+    //
+    // The enforcement is therefore structural rather than a type: careerSaveId
+    // is a required parameter of every helper, and this bans going around them.
+    re: /(?:db|tx)\.(?:select|insert|update|delete)\([^)]*\)?\s*(?:\.from\()?\s*regionalLeague(?:Seasons|Fixtures|Results)Table/g,
+    msg: "raw query against a regional_league table - use lib/regionalLeague.ts, " +
+         "where careerSaveId is a required parameter. A nullable career_save_id " +
+         "makes an unscoped query compile cleanly and silently span every career.",
+    scope: "api",
   },
   {
     // Raw SQL naming a column that has moved off the pool tables.

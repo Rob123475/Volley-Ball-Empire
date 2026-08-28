@@ -35,6 +35,9 @@ import {
   careerPlayerStateTable,
   careerStaffStateTable,
   careerPoolTeamStateTable,
+  regionalLeagueSeasonsTable,
+  regionalLeagueFixturesTable,
+  regionalLeagueResultsTable,
   competitorRankingsTable,
   seasonsTable,
   worldTourQualificationsTable,
@@ -160,6 +163,12 @@ export function deleteProfileCascade(userId: string): void {
       // Both scoped in the staff-split pass while still empty. Handled here on
       // the same day rather than left for whoever populates them.
       tx.delete(careerPoolTeamStateTable).where(inArray(careerPoolTeamStateTable.careerSaveId, saveIds)).run();
+      // Results before fixtures before seasons: results FK fixtures, fixtures
+      // FK seasons. defer_foreign_keys makes the order non-load-bearing, but
+      // getting it right costs nothing and survives that pragma changing.
+      tx.delete(regionalLeagueResultsTable).where(inArray(regionalLeagueResultsTable.careerSaveId, saveIds)).run();
+      tx.delete(regionalLeagueFixturesTable).where(inArray(regionalLeagueFixturesTable.careerSaveId, saveIds)).run();
+      tx.delete(regionalLeagueSeasonsTable).where(inArray(regionalLeagueSeasonsTable.careerSaveId, saveIds)).run();
       tx.delete(worldTourQualificationsTable).where(inArray(worldTourQualificationsTable.careerSaveId, saveIds)).run();
       tx.delete(aiManagersTable).where(inArray(aiManagersTable.careerSaveId, saveIds)).run();
     }

@@ -2,6 +2,9 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { loadPoolTeams, requireCareerSaveId } from "../lib/playerDto.js";
 import {
+  loadLeagueSeasons, loadFixtures, loadResultsForFixtures, insertLeagueResult, updateFixture,
+} from "../lib/regionalLeague.js";
+import {
   continentalPoolTeamsTable,
   continentalPoolPlayersTable,
   regionalLeagueSeasonsTable,
@@ -30,18 +33,9 @@ export const CONTINENTS = [
 export type Continent = (typeof CONTINENTS)[number];
 
 // ── Helper: get the current active season for a continent ─────────────────────
-async function getActiveSeason(continent: string) {
-  const [season] = await db
-    .select()
-    .from(regionalLeagueSeasonsTable)
-    .where(
-      and(
-        eq(regionalLeagueSeasonsTable.continent, continent),
-        eq(regionalLeagueSeasonsTable.status, "active"),
-      ),
-    )
-    .orderBy(desc(regionalLeagueSeasonsTable.seasonYear))
-    .limit(1);
+async function getActiveSeason(continent: string, careerSaveId: number) {
+  const seasons = await loadLeagueSeasons(careerSaveId, { continent, status: "active" });
+  const season = [...seasons].sort((a, b) => b.seasonYear - a.seasonYear)[0];
   return season ?? null;
 }
 
@@ -114,28 +108,21 @@ router.get("/regional-league/:continent", async (req, res) => {
     return;
   }
 
-  const season = await getActiveSeason(continent);
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const season = await getActiveSeason(continent, cid);
   if (!season) {
     res.status(404).json({ error: "No active season for this continent" });
     return;
   }
 
-  const fixtures = await db
-    .select()
-    .from(regionalLeagueFixturesTable)
-    .where(eq(regionalLeagueFixturesTable.regionalLeagueSeasonId, season.id))
-    .orderBy(regionalLeagueFixturesTable.round);
+  const fixtures = (await loadFixtures(cid, { seasonId: season.id }))
+    .sort((a, b) => a.round - b.round);
 
   const completedIds = fixtures.filter(f => f.status === "completed").map(f => f.id);
-  const results = completedIds.length > 0
-    ? await db
-        .select()
-        .from(regionalLeagueResultsTable)
-        .where(inArray(regionalLeagueResultsTable.fixtureId, completedIds))
-    : [];
+  const results = await loadResultsForFixtures(cid, completedIds);
   const resultMap = new Map(results.map(r => [r.fixtureId, r]));
 
-  const ladder = await computeLadderForSeason(season.id);
+  const ladder = await computeLadderForSeason(season.id, cid);
 
   // Enrich ladder with team names
   const poolIds = ladder.map(e => e.poolTeamId);
@@ -207,22 +194,15 @@ router.post("/regional-league/:continent/simulate-all", async (req, res) => {
     return;
   }
 
-  const season = await getActiveSeason(continent);
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const season = await getActiveSeason(continent, cid);
   if (!season) {
     res.status(404).json({ error: "No active season for this continent" });
     return;
   }
 
   // Get all scheduled fixtures and team ratings
-  const fixtures = await db
-    .select()
-    .from(regionalLeagueFixturesTable)
-    .where(
-      and(
-        eq(regionalLeagueFixturesTable.regionalLeagueSeasonId, season.id),
-        eq(regionalLeagueFixturesTable.status, "scheduled"),
-      ),
-    );
+  const fixtures = await loadFixtures(cid, { seasonId: season.id, status: "scheduled" });
 
   const teamIds = Array.from(new Set([
     ...fixtures.map(f => f.homePoolTeamId),
@@ -247,7 +227,7 @@ router.post("/regional-league/:continent/simulate-all", async (req, res) => {
     const sim = simulateFixtureResult(homeRating, awayRating);
     const winnerId = sim.winnerId === "home" ? fixture.homePoolTeamId : fixture.awayPoolTeamId;
 
-    await db.insert(regionalLeagueResultsTable).values({
+    await insertLeagueResult(cid, {
       fixtureId:       fixture.id,
       winnerId,
       homeSets:        sim.homeSets,

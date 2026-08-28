@@ -103,6 +103,26 @@ export function bad() {
 }
 `,
   },
+  {
+    // The rule that exists because adding a nullable career_save_id produced
+    // ZERO compile errors — there was no type error to catch this class.
+    id: "raw query against a regional_league table",
+    file: `${API}/routes/bad-league-read.ts`,
+    body: `import { db, regionalLeagueSeasonsTable } from "@workspace/db";
+export async function bad() {
+  return db.select().from(regionalLeagueSeasonsTable);
+}
+`,
+  },
+  {
+    id: "raw write to a regional_league table",
+    file: `${API}/routes/bad-league-write.ts`,
+    body: `import { db, regionalLeagueFixturesTable } from "@workspace/db";
+export async function bad() {
+  await db.update(regionalLeagueFixturesTable).set({ status: "completed" });
+}
+`,
+  },
   // ── raw SQL, BOTH orders per table ──────────────────────────────────────
   // Column-before-table missed once already, so every table is tested in both
   // directions rather than only the one that happened to be written first.

@@ -1084,6 +1084,11 @@ export type InsertContinentalPoolPlayer = typeof continentalPoolPlayersTable.$in
 // One season record per continent per season year
 export const regionalLeagueSeasonsTable = sqliteTable("regional_league_seasons", {
   id:         integer("id").primaryKey({ autoIncrement: true }),
+  // The AUTHORITY for who owns a regional league. Fixtures and results carry
+  // the same id so every query can filter without a join, but this is the row
+  // that decides. Nullable so pre-scoping rows survive the migration, exactly
+  // as seasons.career_save_id is.
+  careerSaveId: integer("career_save_id").references(() => careerSavesTable.id),
   seasonYear: integer("season_year").notNull(),
   continent:  text("continent").notNull(),
   teamIds:    text("team_ids", { mode: "json" }).notNull().default([]),
@@ -1097,6 +1102,10 @@ export type InsertRegionalLeagueSeason = typeof regionalLeagueSeasonsTable.$infe
 // Double round-robin: 10 rounds × 3 matches = 30 fixtures per season per continent
 export const regionalLeagueFixturesTable = sqliteTable("regional_league_fixtures", {
   id:                    integer("id").primaryKey({ autoIncrement: true }),
+  // Denormalised from the season it belongs to: simulateRegionalRound queries
+  // fixtures by round across every continent at once, and a join per round is
+  // the wrong shape for that. The season remains the authority.
+  careerSaveId:          integer("career_save_id").references(() => careerSavesTable.id),
   regionalLeagueSeasonId:integer("regional_league_season_id").notNull().references(() => regionalLeagueSeasonsTable.id),
   round:                 integer("round").notNull(),
   homePoolTeamId:        integer("home_pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
@@ -1113,6 +1122,9 @@ export type InsertRegionalLeagueFixture = typeof regionalLeagueFixturesTable.$in
 // Match result for each fixture
 export const regionalLeagueResultsTable = sqliteTable("regional_league_results", {
   id:              integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:    integer("career_save_id").references(() => careerSavesTable.id),
+  // NOTE: unique on fixture_id, and fixtures are per-career, so this stays
+  // correct without a composite key — two careers never share a fixture row.
   fixtureId:       integer("fixture_id").notNull().unique().references(() => regionalLeagueFixturesTable.id),
   winnerId:        integer("winner_id").references(() => continentalPoolTeamsTable.id),
   homeSets:        integer("home_sets").notNull().default(0),

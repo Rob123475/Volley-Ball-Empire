@@ -22,6 +22,7 @@ import {
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, updateTeamPlayerState } from "../lib/playerDto.js";
+import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -387,10 +388,8 @@ router.post("/calendar/advance", async (req, res) => {
           // it by season.year (2026) matched nothing, so the six continental
           // seasons never resolved and nobody ever qualified. Match on
           // status alone, exactly as simulateRegionalRound() does.
-          const activeSeasons = await db
-            .select({ id: regionalLeagueSeasonsTable.id, continent: regionalLeagueSeasonsTable.continent })
-            .from(regionalLeagueSeasonsTable)
-            .where(eq(regionalLeagueSeasonsTable.status, "active"));
+          const activeSeasons = await loadLeagueSeasons(
+            requireCareerSaveId(req.activeCareerSaveId), { status: "active" });
 
           const resolvedContinents: string[] = [];
           for (const rs of activeSeasons) {

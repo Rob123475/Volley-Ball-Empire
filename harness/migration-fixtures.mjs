@@ -609,6 +609,65 @@ console.log(NEWLINE + "10. POOL TEAM SPLIT (league state per career)");
   check("no unhandled error", !/career state migration failed/.test(r.log));
 }
 
+// 11. Two careers sharing one globally-seeded regional league.
+console.log(NEWLINE + "11. LEAGUE ATTRIBUTION (multi-career)");
+{
+  const file = copyPlayed("league-attrib");
+  const db = new DatabaseSync(file);
+
+  // A SECOND career on the same save, made by copying the first career row.
+  // Two careers sharing one league is the case the attribution has to answer.
+  db.exec(`INSERT INTO career_saves
+    (user_id, team_id, slot_number, manager_name, manager_nationality, club_name,
+     original_club_name, season, manager_reputation, last_played_at, created_at)
+    SELECT user_id, NULL, 2, manager_name || ' II', manager_nationality,
+           club_name || ' II', original_club_name, season, manager_reputation,
+           last_played_at, created_at
+    FROM career_saves LIMIT 1`);
+
+  // Put the league back in its pre-scoping shape: rows owned by nobody.
+  db.exec("UPDATE regional_league_seasons SET career_save_id = NULL");
+  db.exec("UPDATE regional_league_fixtures SET career_save_id = NULL");
+  db.exec("UPDATE regional_league_results SET career_save_id = NULL");
+
+  const careers = db.prepare("SELECT id FROM career_saves ORDER BY id").all().map((r) => r.id);
+  const seasonsBefore = db.prepare("SELECT COUNT(*) n FROM regional_league_seasons").get().n;
+  const fixturesBefore = db.prepare("SELECT COUNT(*) n FROM regional_league_fixtures").get().n;
+  db.close();
+
+  check("fixture has two careers and an unowned league", careers.length === 2,
+    careers.length + " careers, " + seasonsBefore + " seasons, " + fixturesBefore + " fixtures");
+
+  const r = await bootServer(file);
+  const d2 = new DatabaseSync(file, { readOnly: true });
+  const per = d2.prepare(
+    "SELECT career_save_id, COUNT(*) n FROM regional_league_seasons GROUP BY 1 ORDER BY 1").all();
+  const fixPer = d2.prepare(
+    "SELECT career_save_id, COUNT(*) n FROM regional_league_fixtures GROUP BY 1 ORDER BY 1").all();
+  const orphanSeasons = d2.prepare(
+    "SELECT COUNT(*) n FROM regional_league_seasons WHERE career_save_id IS NULL").get().n;
+  const orphanFixtures = d2.prepare(
+    "SELECT COUNT(*) n FROM regional_league_fixtures WHERE career_save_id IS NULL").get().n;
+  // No fixture may be shared between two careers.
+  const shared = d2.prepare(
+    "SELECT COUNT(*) n FROM (SELECT regional_league_season_id FROM regional_league_fixtures " +
+    "GROUP BY regional_league_season_id HAVING COUNT(DISTINCT career_save_id) > 1)").get().n;
+  d2.close();
+
+  check("server started", r.listening);
+  check("both careers own a complete 6-season league",
+    per.length === 2 && per.every((x) => x.n === seasonsBefore),
+    per.map((x) => "career " + x.career_save_id + ": " + x.n).join(", "));
+  check("both careers own a complete 180-fixture league",
+    fixPer.length === 2 && fixPer.every((x) => x.n === fixturesBefore),
+    fixPer.map((x) => "career " + x.career_save_id + ": " + x.n).join(", "));
+  check("zero orphaned league rows",
+    orphanSeasons === 0 && orphanFixtures === 0,
+    orphanSeasons + " seasons, " + orphanFixtures + " fixtures unowned");
+  check("no season's fixtures are shared between careers", shared === 0);
+  check("no unhandled error", !/career state migration failed/.test(r.log));
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);

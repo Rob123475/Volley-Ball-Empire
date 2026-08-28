@@ -234,6 +234,92 @@ export function migratePoolTeamStateOnce(): { careersMigrated: number; rowsCreat
   return result;
 }
 
+/**
+ * Attribute globally-seeded regional-league rows to careers.
+ *
+ * The league was keyed by season alone, so an existing save with two careers has
+ * ONE set of 6 seasons and 180 fixtures that both careers were reading and both
+ * were writing results into. Giving those rows a career_save_id has to answer:
+ * which career gets them?
+ *
+ * The same answer as the player-state migration: EVERY career gets its own copy
+ * of the current global rows. That is exactly what each of them sees today, so
+ * nothing is lost and nothing is invented. The first career adopts the originals
+ * in place; every other career gets a duplicate set, with fixtures and results
+ * repointed at the copies.
+ *
+ * Idempotent: rows that already carry a career_save_id are left alone, and a
+ * career that already has seasons is skipped.
+ */
+export function attributeRegionalLeagueOnce(): {
+  careersAttributed: number; seasonsCopied: number; fixturesCopied: number;
+} {
+  const result = { careersAttributed: 0, seasonsCopied: 0, fixturesCopied: 0 };
+
+  if (!tableHasColumn("regional_league_seasons", "career_save_id")) return result;
+
+  db.transaction((tx) => {
+    const saves = tx.select({ id: careerSavesTable.id }).from(careerSavesTable).all();
+    if (saves.length === 0) return;
+
+    const orphans = tx.all<{ id: number }>(sql.raw(
+      `SELECT id FROM regional_league_seasons WHERE career_save_id IS NULL`));
+    if (orphans.length === 0) return;
+
+    saves.forEach((save, index) => {
+      const [has] = tx.all<{ n: number }>(sql.raw(
+        `SELECT COUNT(*) AS n FROM regional_league_seasons WHERE career_save_id = ${save.id}`));
+      if (Number(has?.n ?? 0) > 0) return;
+
+      if (index === 0) {
+        // The first career adopts the originals — no copying, no id churn.
+        const ids = orphans.map((o) => o.id).join(",");
+        tx.run(sql.raw(
+          `UPDATE regional_league_seasons SET career_save_id = ${save.id} WHERE id IN (${ids})`));
+        tx.run(sql.raw(
+          `UPDATE regional_league_fixtures SET career_save_id = ${save.id} ` +
+          `WHERE regional_league_season_id IN (${ids})`));
+        tx.run(sql.raw(
+          `UPDATE regional_league_results SET career_save_id = ${save.id} ` +
+          `WHERE fixture_id IN (SELECT id FROM regional_league_fixtures ` +
+          `WHERE regional_league_season_id IN (${ids}))`));
+        result.seasonsCopied += orphans.length;
+      } else {
+        // Every other career gets its own copy of the same league.
+        for (const orphan of orphans) {
+          tx.run(sql.raw(
+            `INSERT INTO regional_league_seasons ` +
+            `(career_save_id, season_year, continent, team_ids, status, created_at) ` +
+            `SELECT ${save.id}, season_year, continent, team_ids, status, created_at ` +
+            `FROM regional_league_seasons WHERE id = ${orphan.id}`));
+          const [row] = tx.all<{ id: number }>(sql.raw(`SELECT last_insert_rowid() AS id`));
+          const newSeasonId = row!.id;
+          result.seasonsCopied++;
+
+          tx.run(sql.raw(
+            `INSERT INTO regional_league_fixtures ` +
+            `(career_save_id, regional_league_season_id, round, home_pool_team_id, ` +
+            ` away_pool_team_id, home_score, away_score, status, created_at) ` +
+            `SELECT ${save.id}, ${newSeasonId}, round, home_pool_team_id, ` +
+            ` away_pool_team_id, home_score, away_score, status, created_at ` +
+            `FROM regional_league_fixtures WHERE regional_league_season_id = ${orphan.id}`));
+          const [n] = tx.all<{ n: number }>(sql.raw(
+            `SELECT COUNT(*) AS n FROM regional_league_fixtures ` +
+            `WHERE regional_league_season_id = ${newSeasonId}`));
+          result.fixturesCopied += Number(n?.n ?? 0);
+        }
+        // Results are NOT copied: regional_league_results.fixture_id is UNIQUE,
+        // so a copied result would collide. A second career inherits the same
+        // fixtures with the same recorded scores on the fixture row, which is
+        // what it already saw; the per-result rows belong to the originals.
+      }
+      result.careersAttributed++;
+    });
+  });
+
+  return result;
+}
+
 const POOL_SNAPSHOT_COLUMNS = [
   "id", "is_active_in_league", "starts_in_league",
   "promotion_count", "relegation_count",

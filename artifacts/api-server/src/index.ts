@@ -2,7 +2,10 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { normaliseContinentsOnce } from "./utils/normaliseContinents";
 import { ensurePoolCompetitors, ensureTeamCompetitors } from "./utils/competitors";
-import { migrateCareerStateOnce, migratePoolTeamStateOnce, dropMovedColumns } from "./utils/migrateCareerState";
+import {
+  migrateCareerStateOnce, migratePoolTeamStateOnce,
+  attributeRegionalLeagueOnce, dropMovedColumns,
+} from "./utils/migrateCareerState";
 import { ensureSchema } from "./utils/ensureSchema";
 
 const rawPort = process.env["PORT"];
@@ -73,6 +76,10 @@ try {
   const pool = migratePoolTeamStateOnce();
   if (pool.careersMigrated > 0) {
     logger.info(pool, "pool team state snapshot taken");
+  }
+  const league = attributeRegionalLeagueOnce();
+  if (league.careersAttributed > 0) {
+    logger.info(league, "regional league attributed to careers");
   }
   const d = dropMovedColumns();
   if (d.dropped.length > 0) {
