@@ -1,5 +1,8 @@
-import { db, seasonsTable, careerSavesTable, calendarStateTable } from "@workspace/db";
-import { and, eq } from "drizzle-orm";
+import {
+  db, seasonsTable, careerSavesTable, calendarStateTable, teamsTable,
+  seasonFinalStandingsTable, careerHistoryEntriesTable,
+} from "@workspace/db";
+import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
 
 /**
@@ -69,6 +72,52 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       .set({ status: "completed" })
       .where(eq(seasonsTable.id, season.id))
       .run();
+
+    // ── Carry the season's record forward ──────────────────────────────────
+    //
+    // The standings snapshot used to be written from matches.ts and ONLY on
+    // isChampionshipWin — so a career that did not win the World Final never
+    // recorded a final table at all, for any season. Every season ends, won or
+    // not, so the snapshot belongs at the boundary.
+    const [team] = tx.select().from(teamsTable).where(eq(teamsTable.id, teamId)).limit(1).all();
+    if (team) {
+      const already = tx.all<{ n: number }>(sql.raw(
+        `SELECT COUNT(*) AS n FROM season_final_standings ` +
+        `WHERE team_id = ${teamId} AND season_year = ${season.year}`))[0];
+
+      if (Number(already?.n ?? 0) === 0) {
+        const allTeams = tx.select().from(teamsTable).all();
+        const sorted = [...allTeams].sort((a, b) => b.wins * 3 - a.wins * 3);
+        tx.insert(seasonFinalStandingsTable).values(
+          sorted.map((t, i) => ({
+            teamId,
+            seasonYear:     season.year,
+            rank:           i + 1,
+            competitorName: t.name,
+            isPlayer:       t.id === teamId,
+            wins:           t.wins,
+            losses:         t.losses,
+            points:         t.wins * 3,
+            setDiff:        t.wins - t.losses,
+          })),
+        ).run();
+      }
+
+      const [save] = tx.select().from(careerSavesTable)
+        .where(eq(careerSavesTable.id, careerSaveId)).limit(1).all();
+      if (save) {
+        tx.insert(careerHistoryEntriesTable).values({
+          userId:       save.userId,
+          careerSaveId,
+          type:         "season_completed",
+          clubName:     team.name,
+          season:       `Season ${current}`,
+          description:
+            `Season ${current} complete — ${team.wins}W ${team.losses}L, ` +
+            `balance $${Math.round(Number(team.budget)).toLocaleString()}.`,
+        }).run();
+      }
+    }
 
     if (current >= FINAL_SEASON) {
       // Terminal. Phase 6 renders the career-end result and score; this only

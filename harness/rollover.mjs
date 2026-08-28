@@ -103,6 +103,13 @@ async function advanceToBoundary(api, maxDays = 500) {
     check("careerComplete flag returned", complete.body.careerComplete === true);
   }
 
+  // ── Carry-forward: history and standings ────────────────────────────────
+  const hist = (await A("GET", "/careers/history")).data;
+  const entries = Array.isArray(hist) ? hist : (hist?.entries ?? []);
+  const seasonEntries = entries.filter((e) => e.type === "season_completed");
+  check("a history entry per completed season", seasonEntries.length === 5,
+    `${seasonEntries.length} season_completed entries`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   process.exit(failures > 0 ? 1 : 0);
 })().catch((err) => { console.error(err); process.exit(1); });
