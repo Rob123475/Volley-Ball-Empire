@@ -37,14 +37,20 @@ function runSuite(name, file) {
   return r.status === 0;
 }
 
-console.log("\n########## 1/3  MIGRATION FIXTURES ##########");
+// The guards run FIRST. If a guard has gone inert, every check after it is
+// reporting on a net with a hole in it, and the run should say so before
+// anything else claims to have passed.
+console.log("\n########## 1/4  GUARD SELF-TEST ##########");
+runSuite("guard self-test", path.join(REPO, "harness", "guard-selftest.mjs"));
+
+console.log("\n########## 2/4  MIGRATION FIXTURES ##########");
 runSuite("migration fixtures", path.join(REPO, "harness", "migration-fixtures.mjs"));
 
-console.log("\n########## 2/3  FRESH INSTALL CHAIN ##########");
+console.log("\n########## 3/4  FRESH INSTALL CHAIN ##########");
 runSuite("fresh install", path.join(REPO, "harness", "fresh-install.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
-console.log("\n########## 3/3  GAMEPLAY SMOKE ##########");
+console.log("\n########## 4/4  GAMEPLAY SMOKE ##########");
 {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-smoke-"));
   const db = path.join(work, "smoke.sqlite");

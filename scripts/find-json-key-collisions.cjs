@@ -25,13 +25,18 @@
 const fs = require("fs");
 const path = require("path");
 
-const REPO = path.join(__dirname, "..");
+// `--root <dir>` — see check-write-boundaries.cjs; used by the guard self-test.
+const rootFlag = process.argv.indexOf("--root");
+const REPO = rootFlag !== -1 && process.argv[rootFlag + 1]
+  ? path.resolve(process.argv[rootFlag + 1])
+  : path.join(__dirname, "..");
 const ROOTS = [
   path.join(REPO, "artifacts", "api-server", "src"),
   path.join(REPO, "scripts", "src"),
 ];
 
-const KEYS = process.argv.slice(2);
+const KEYS = process.argv.slice(2).filter((a, i, all) =>
+  a !== "--root" && all[i - 1] !== "--root");
 if (KEYS.length === 0) {
   console.error("Usage: node scripts/find-json-key-collisions.cjs <key> [<key> ...]");
   process.exit(1);
@@ -165,7 +170,11 @@ console.log(bar);
 // the exclusions are produced before the edit rather than reviewed after it.
 const excl = rows.filter((r) => r.kind !== "COLUMN").map((r) => `${r.file}:${r.line}`);
 fs.writeFileSync(
-  path.join(REPO, "scripts", ".json-key-exclusions.txt"),
+  // Default is unchanged (scripts/.json-key-exclusions.txt); under --root the
+  // fixture tree has no scripts/ dir to write into, so it goes at its root.
+  rootFlag !== -1
+    ? path.join(REPO, ".json-key-exclusions.txt")
+    : path.join(__dirname, ".json-key-exclusions.txt"),
   excl.join(NL) + NL,
 );
 console.log(`  exclusion list -> scripts/.json-key-exclusions.txt (${excl.length} lines)`);

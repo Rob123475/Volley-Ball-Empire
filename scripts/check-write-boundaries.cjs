@@ -19,7 +19,14 @@
 const fs = require("fs");
 const path = require("path");
 
-const REPO = path.join(__dirname, "..");
+// `--root <dir>` points every path below at another tree. That exists so the
+// guard self-test can run this against a directory of deliberately bad files
+// without those files sitting in the real source tree, where they would fail
+// the very build they are meant to protect.
+const rootFlag = process.argv.indexOf("--root");
+const REPO = rootFlag !== -1 && process.argv[rootFlag + 1]
+  ? path.resolve(process.argv[rootFlag + 1])
+  : path.join(__dirname, "..");
 const SRC = path.join(REPO, "artifacts", "api-server", "src");
 // scripts/src is scanned too: make-starter-db.ts was writing raw SQL to columns
 // that no longer exist, and nothing was looking there.

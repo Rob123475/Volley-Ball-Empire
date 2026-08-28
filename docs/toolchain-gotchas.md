@@ -123,3 +123,34 @@ node -e "try{process.dlopen({exports:{}},require('path').resolve(process.argv[1]
 console.log('ABI 137 (system node)')}catch(e){console.log('ABI 128 (Electron)')}" \
   artifacts/api-server/dist/node_modules/better-sqlite3/build/Release/better_sqlite3.node
 ```
+
+---
+
+## Escape sequences must go through the Edit tool, never a shell heredoc
+
+**Standing rule: any edit containing a regex or an escape sequence is applied
+with the Edit tool. Never through a `python - <<'EOF'` heredoc, `sed -i`, or any
+other shell path.**
+
+Backslashes cross three layers on the way to a file — shell, Python string, then
+JavaScript string — and each one may consume a level. The failures are silent:
+
+- A guard rule emitted `\s` where `\s` was meant. In JavaScript `"\s"` is just
+  `"s"`, so the pattern matched nothing. The guard printed **OK** and the build
+  passed. It shipped inert and was caught only because each branch was tested by
+  hand that day.
+- A fixture's `\n` became a literal newline inside a string, producing
+  `SyntaxError: Invalid or unexpected token`. Loud, but only at run time.
+- Three separate attempts to *deliberately* break a rule for testing silently
+  did nothing, because the search string never matched what was actually in the
+  file — twice reported as "the self-test missed it" before the real cause was
+  found.
+
+That last one is the point: the escaping problem also corrupts the tooling you
+build to detect the escaping problem. The Edit tool passes strings through
+unchanged and fails loudly when the old text does not match, which is the
+property that matters.
+
+Related: `harness/guard-selftest.mjs` exists because a guard that goes inert
+fails silently. Every guard now has a committed known-bad input it must reject,
+asserted on every build.
