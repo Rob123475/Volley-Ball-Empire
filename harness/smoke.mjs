@@ -157,6 +157,21 @@ const roster = async (api) => {
   check("B's pool unchanged throughout", marketB2.length === marketB0.length,
     `B ${marketB0.length} -> ${marketB2.length}`);
 
+  // ── 6. Ranking points accrue from results ────────────────────────────────
+  // competitor_rankings existed since Phase 0 with nothing writing to it, so
+  // the value tier qualification is meant to gate on was always zero. A value
+  // nothing can observe is indistinguishable from one nothing writes.
+  console.log("\n6. RANKING POINTS");
+  const rank = await A("GET", "/seasons/ranking");
+  check("ranking endpoint responds", rank.status === 200, `HTTP ${rank.status}`);
+  if (rank.status === 200) {
+    check("events entered were counted", (rank.data?.eventsEntered ?? 0) > 0,
+      `${rank.data?.eventsEntered} entered, ${rank.data?.wins}W ${rank.data?.losses}L`);
+    check("points accrued whenever a match was won",
+      (rank.data?.wins ?? 0) === 0 || (rank.data?.rankingPoints ?? 0) > 0,
+      `${rank.data?.rankingPoints} points from ${rank.data?.wins} wins`);
+  }
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

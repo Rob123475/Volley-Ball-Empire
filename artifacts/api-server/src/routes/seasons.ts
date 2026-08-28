@@ -3,6 +3,9 @@ import { db } from "@workspace/db";
 import { seasonsTable, matchesTable, teamsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { requireCareerSaveId } from "../lib/playerDto.js";
+import { currentRanking, TIER_RANKING_POINTS } from "../utils/rankingPoints.js";
 
 const router = Router();
 
@@ -19,6 +22,32 @@ router.post("/seasons", async (req, res) => {
     startDate, endDate, status: "active", currentRound: 1,
   }).returning();
   res.status(201).json(season);
+});
+
+/**
+ * This career's ranking for the active season.
+ *
+ * Exists so ranking points are OBSERVABLE before anything gates on them.
+ * competitor_rankings sat empty and unread since Phase 0; a value nothing can
+ * see is indistinguishable from a value that is not being written, which is
+ * how it stayed empty for so long.
+ */
+router.get("/seasons/ranking", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const season = await getActiveSeason(req);
+  if (!season) { res.status(404).json({ error: "No active season" }); return; }
+
+  const ranking = await currentRanking(
+    requireCareerSaveId(req.activeCareerSaveId), team.id, season.year,
+  );
+  res.json({
+    seasonYear: season.year,
+    ...ranking,
+    // Named so the UI does not have to know the weights.
+    pointsByTier: TIER_RANKING_POINTS,
+  });
 });
 
 router.get("/seasons/current", async (req, res) => {

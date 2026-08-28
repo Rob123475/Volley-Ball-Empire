@@ -5,6 +5,7 @@ import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locat
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import { shiftDateToYear, seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
+import { creditRankingPoints } from "../utils/rankingPoints.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
@@ -965,6 +966,24 @@ router.post("/matches/:id/simulate", async (req, res) => {
     highlights,
     ...(resolvedSets ? { sets: resolvedSets } : {}),
   }).where(eq(matchesTable.id, id)).returning();
+
+  // Ranking points. competitor_rankings existed since Phase 0 with nothing
+  // writing to it — the table tier qualification gates on was always empty.
+  // Exhibitions are excluded: they pay no prize and award no ranking either.
+  if (!isAllStar) {
+    try {
+      await creditRankingPoints({
+        careerSaveId: requireCareerSaveId(req.activeCareerSaveId),
+        teamId:       team.id,
+        seasonYear:   match.season,
+        tier:         match.tier,
+        won:          homeWon,
+      });
+    } catch (err) {
+      // A ranking write must never cost the player the match they just played.
+      req.log.error({ err }, "ranking point accrual failed");
+    }
+  }
 
   // The live-tick scratch row has served its purpose once the match is over.
   // Leaving it behind pinned the match row in place and broke any later
