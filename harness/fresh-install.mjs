@@ -49,6 +49,13 @@ function inspect(file) {
     })(),
     poolTeams: n("continental_pool_teams"),
     leagueSeasons: n("regional_league_seasons"),
+    leagueFixtures: n("regional_league_fixtures"),
+    orphanSeasons: (() => {
+      try {
+        return db.prepare(
+          "SELECT COUNT(*) n FROM regional_league_seasons WHERE career_save_id IS NULL").get().n;
+      } catch { return -1; }
+    })(),
     state: n("career_player_state"),
     playerCols: cols("players"),
     integrity: (() => {
@@ -85,8 +92,12 @@ check("starter DB copied", fs.existsSync(userDb));
 check("roster present: 268 players", before.players === 268, `${before.players}`);
 check("roster present: 120 staff", before.staff === 120, `${before.staff}`);
 check("every player has an image", before.images === before.players, `${before.images}/${before.players}`);
-check("regional league seeded", before.poolTeams === 60 && before.leagueSeasons === 6,
-  `${before.poolTeams} pool teams, ${before.leagueSeasons} seasons`);
+check("pool clubs shipped", before.poolTeams === 60, `${before.poolTeams} pool teams`);
+// The league is GENERATED at career creation now, so the shipped artifact must
+// carry none. A shipped one would be inherited by every career and owned by no
+// career.
+check("no regional league shipped", before.leagueSeasons === 0,
+  `${before.leagueSeasons} seasons in the artifact`);
 check("no career state yet", before.state === 0, `${before.state}`);
 
 const staleBefore = MOVED.filter((c) => before.playerCols.includes(c));
@@ -129,7 +140,7 @@ check("moved columns dropped at boot", staleAfter.length === 0, staleAfter.join(
 check("no roster lost", after.players === before.players && after.staff === before.staff,
   `${after.players} players, ${after.staff} staff`);
 check("images intact", after.images === before.images, `${after.images}`);
-check("regional league intact", after.poolTeams === 60 && after.leagueSeasons === 6);
+check("pool clubs intact after boot", after.poolTeams === 60);
 check("database integrity ok", after.integrity === "ok", after.integrity);
 check("no migration error logged", !/migration failed|schema ensure failed/.test(bootLog));
 
@@ -169,6 +180,13 @@ check("free agents have stats", free.every((p) => Number(p.speed) > 0), "all non
 
 const withState = inspect(userDb);
 check("career state seeded", withState.state > 0, `${withState.state} rows`);
+// The league the career just generated for itself.
+check("career generated its own 6-season league", withState.leagueSeasons === 6,
+  `${withState.leagueSeasons} seasons`);
+check("career generated its own 180 fixtures", withState.leagueFixtures === 180,
+  `${withState.leagueFixtures} fixtures`);
+check("no orphaned league rows", withState.orphanSeasons === 0,
+  `${withState.orphanSeasons} unowned`);
 
 // The staff market is the isDraftPlayer-shaped trap for the staff split: the
 // wage lives on the reference row as base_salary and is copied into career

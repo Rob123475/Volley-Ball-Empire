@@ -6,21 +6,26 @@
  *
  * Default dest: lib/db/volleyball-empire.sqlite
  *
- * REQUIRED TWO-STEP PIPELINE — running this script alone is not enough.
- * It clears continental_pool_teams/continental_pool_players (mutated by
- * promotion/relegation) and regional_league_seasons/regional_league_fixtures
- * (mutated by day-advancement) along with everything else career-specific.
- * Nothing in the api-server auto-bootstraps those tables for a new career —
- * POST /careers doesn't touch them, and the regional-league read routes have
- * no lazy-create-if-missing fallback — so without step 2 the output has a
- * non-functional regional league (no pool teams, no season, no fixtures).
+ * THE OLD STEP 2 IS GONE — read this before re-adding it.
  *
- *   step 1: make-starter-db.ts <live save> -> lib/db/volleyball-empire.sqlite
- *   step 2: re-run seed-regional-leagues, then seed-continental-pool-extension,
- *           against lib/db/volleyball-empire.sqlite
+ * This used to require a second pass re-running seed-regional-leagues and
+ * seed-continental-pool-extension, because the starter database had to ship a
+ * pre-built regional league: nothing bootstrapped one for a new career.
  *
- * (ai_managers doesn't need a step 2 — it self-bootstraps via seedIfEmpty()
- * in routes/ai-managers.ts the first time anything hits that route.)
+ * That is no longer true. seedCareerState() now GENERATES the league at career
+ * creation — one season per continent plus its 30 fixtures, built from that
+ * career's own pool membership. The starter database must therefore ship with
+ * regional_league_* EMPTY, and check-starter-db.cjs fails the build if it does
+ * not: a shipped league would be inherited by every new career, owned by none.
+ *
+ * continental_pool_teams and continental_pool_players are still KEEP tables —
+ * they are the reference identity of the 60 AI clubs. What used to be mutated
+ * on them (is_active_in_league, promotion_count, relegation_count) now lives in
+ * career_pool_team_state, which is CLEAR and seeded per career.
+ *
+ *   step 1 (and only step): make-starter-db.ts <live save> -> lib/db/...sqlite
+ *
+ * (ai_managers self-bootstraps via seedIfEmpty() in routes/ai-managers.ts.)
  *
  * The shared better-sqlite3 native build in this workspace is compiled for
  * Electron's Node ABI (rebuilt via @electron/rebuild so the desktop app
@@ -78,6 +83,8 @@ const CLEAR_TABLES = [
   // state rows either. seedCareerState() builds them when a career is created.
   "career_player_state",
   "career_staff_state",
+  // Pool league membership is per career and seeded at creation.
+  "career_pool_team_state",
   // Competitor identity is rebuilt at boot by ensurePoolCompetitors() /
   // ensureTeamCompetitors(); rankings are career-scoped.
   "competitors",

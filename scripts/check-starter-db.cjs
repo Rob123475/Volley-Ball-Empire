@@ -81,6 +81,14 @@ function readDb(file) {
     users: count("users"),
     careers: count("career_saves"),
     teams: count("teams"),
+    // The regional league is GENERATED at career creation now, not shipped.
+    // A starter database carrying league rows means either the artifact was
+    // built from a played save, or someone re-ran the old seeder — and every
+    // new career would then inherit a league it did not build.
+    leagueSeasons: count("regional_league_seasons"),
+    leagueFixtures: count("regional_league_fixtures"),
+    leagueResults: count("regional_league_results"),
+    poolTeamState: count("career_pool_team_state"),
   };
   db.close();
   return { tables, counts };
@@ -137,6 +145,23 @@ if (counts.careers > 0) problems.push(`starter database has ${counts.careers} ca
 if (counts.teams > 0)   problems.push(`starter database has ${counts.teams} team(s) — it must be pristine`);
 if (counts.players <= 0) problems.push(`starter database has no players`);
 if (counts.staff <= 0)   problems.push(`starter database has no staff`);
+
+// The league is built per career at creation; shipping one means every new
+// career inherits rows it did not generate, owned by no career.
+for (const [label, n] of [
+  ["regional_league_seasons", counts.leagueSeasons],
+  ["regional_league_fixtures", counts.leagueFixtures],
+  ["regional_league_results", counts.leagueResults],
+  ["career_pool_team_state", counts.poolTeamState],
+]) {
+  if (n > 0) {
+    problems.push(
+      `starter database carries ${n} ${label} row(s) — the regional league and ` +
+      `pool state are GENERATED at career creation, not shipped. See ` +
+      `docs/packaging.md; make-starter-db no longer needs the old step 2.`,
+    );
+  }
+}
 
 if (problems.length === 0) {
   console.log(

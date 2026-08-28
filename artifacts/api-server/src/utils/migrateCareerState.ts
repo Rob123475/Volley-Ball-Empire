@@ -6,8 +6,16 @@ import {
   careerPlayerStateTable,
   careerStaffStateTable,
   careerPoolTeamStateTable,
+  regionalLeagueSeasonsTable,
+  regionalLeagueFixturesTable,
 } from "@workspace/db";
 import { sql } from "drizzle-orm";
+import { generateDoubleRoundRobin } from "./fixtures.js";
+
+/** A regional league is six clubs playing a double round-robin. */
+const LEAGUE_SIZE = 6;
+
+type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /**
  * Snapshot the CURRENT global player/staff state into per-career state, once
@@ -75,6 +83,65 @@ const SEED_STAFF_REFERENCE_COLUMNS = ["id", "salary", "base_salary"] as const;
 
 /** What a NEW career copies off the pool-club reference row. */
 const SEED_POOL_REFERENCE_COLUMNS = ["id", "starts_in_league", "is_active_in_league"] as const;
+
+/** Season 1. Regional league years are league-local, not calendar years. */
+const FIRST_LEAGUE_SEASON_YEAR = 1;
+
+/**
+ * Build one career's regional league from the clubs that career has in it.
+ *
+ * Reads career_pool_team_state, which the caller has just populated in this
+ * same transaction, so the league is built from THIS career's league membership
+ * rather than from the shared reference flag. If a career ever starts with a
+ * different set of clubs, its league follows automatically.
+ *
+ * A continent without exactly 6 active clubs is skipped with a warning rather
+ * than throwing: a broken league in one continent should not stop a career from
+ * being created at all.
+ */
+function seedRegionalLeagueTx(tx: DbTx, careerSaveId: number): void {
+  const rows = tx.all<{ continent: string; pool_team_id: number }>(sql.raw(`
+    SELECT p.continent AS continent, s.pool_team_id AS pool_team_id
+    FROM career_pool_team_state s
+    JOIN continental_pool_teams p ON p.id = s.pool_team_id
+    WHERE s.career_save_id = ${careerSaveId} AND s.is_active_in_league = 1
+    ORDER BY p.continent, p.pool_ranking
+  `));
+
+  const byContinent = new Map<string, number[]>();
+  for (const r of rows) {
+    const list = byContinent.get(r.continent) ?? [];
+    list.push(r.pool_team_id);
+    byContinent.set(r.continent, list);
+  }
+
+  for (const [continent, teamIds] of byContinent) {
+    if (teamIds.length !== LEAGUE_SIZE) {
+      console.warn(
+        `[seed] ${continent} has ${teamIds.length} active clubs, expected ${LEAGUE_SIZE} — league skipped`);
+      continue;
+    }
+
+    const [season] = tx.insert(regionalLeagueSeasonsTable).values({
+      careerSaveId,
+      seasonYear: FIRST_LEAGUE_SEASON_YEAR,
+      continent,
+      teamIds,
+      status: "active",
+    }).returning().all();
+
+    tx.insert(regionalLeagueFixturesTable).values(
+      generateDoubleRoundRobin(teamIds).map((f) => ({
+        careerSaveId,
+        regionalLeagueSeasonId: season!.id,
+        round:          f.round,
+        homePoolTeamId: f.home,
+        awayPoolTeamId: f.away,
+        status:         "scheduled",
+      })),
+    ).run();
+  }
+}
 
 /**
  * Narrow a wish-list of columns to the ones this database actually has.
@@ -545,6 +612,15 @@ export function seedCareerState(careerSaveId: number): void {
           : !!t.starts_in_league,
       }).onConflictDoNothing().run();
     }
+
+    // Build this career's regional league: one season per continent plus its
+    // 30 fixtures, 6 x 30 = 180.
+    //
+    // Generated rather than shipped. Season rollover needs a fixture generator
+    // for seasons 2-5 regardless, so using it at career creation means every
+    // new save exercises it and a bug surfaces on the next career rather than
+    // at the first rollover, months in.
+    seedRegionalLeagueTx(tx, careerSaveId);
 
     for (const st of staff) {
       // Seed the live wage from base_salary. Leaving it at the column default
