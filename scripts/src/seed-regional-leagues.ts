@@ -176,7 +176,7 @@ async function main() {
             stableId:    playerStableId,
             name:        p.name,
             nationality: p.nationality,
-            age:         p.age,
+            baseAge:     p.age,
             speed:       p.speed,
             power:       p.power,
             defense:     p.defense,

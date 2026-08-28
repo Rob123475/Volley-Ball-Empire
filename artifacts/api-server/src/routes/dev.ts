@@ -347,7 +347,7 @@ router.post("/dev/ensure-continental-pool-extension", async (_req, res) => {
           if (!ep) {
             await db.insert(continentalPoolPlayersTable).values({
               poolTeamId: inserted.id, stableId: p.stableId, name: p.name,
-              nationality: p.nationality, age: p.age, speed: p.speed, power: p.power,
+              nationality: p.nationality, baseAge: p.age, speed: p.speed, power: p.power,
               defense: p.defense, serve: p.serve, block: p.block, stamina: p.stamina,
               imageUrl: p.imageUrl,
             });

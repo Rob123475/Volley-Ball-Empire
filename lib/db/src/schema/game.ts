@@ -1029,7 +1029,11 @@ export const continentalPoolPlayersTable = sqliteTable("continental_pool_players
   stableId:    text("stable_id").notNull().unique(),
   name:        text("name").notNull(),
   nationality: text("nationality").notNull().default(""),
-  age:         integer("age").notNull().default(22),
+  // REFERENCE, and never mutated: nothing in the codebase updates a pool
+  // player. Renamed so no table is left with a bare `age` meaning something
+  // different from another's — the shared name is what let two bulk transforms
+  // match on shape and reach files they had no business touching.
+  baseAge:     integer("base_age").notNull().default(22),
   speed:       integer("speed").notNull().default(60),
   power:       integer("power").notNull().default(60),
   defense:     integer("defense").notNull().default(60),

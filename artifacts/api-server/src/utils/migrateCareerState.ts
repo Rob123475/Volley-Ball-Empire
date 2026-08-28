@@ -214,6 +214,9 @@ const MOVED_PLAYER_COLUMNS = [
  * when the staff chunk lands, not before. The rule this encodes: a column may
  * only be dropped once the schema has already stopped declaring it.
  */
+/** continental_pool_players: the rename's old name, dropped once base_age exists. */
+const MOVED_POOL_PLAYER_COLUMNS: readonly string[] = ["age"];
+
 const MOVED_STAFF_COLUMNS: readonly string[] = [
   "team_id", "is_available", "contract_length", "is_scout_revealed",
   // salary and age are RENAMED, not moved: base_salary / base_age replace them
@@ -279,6 +282,15 @@ export function dropMovedColumns(): { dropped: string[] } {
     }
   }
 
+  // continental_pool_players.age -> base_age. Pure reference data, never
+  // mutated, so the rename is the whole migration for that table.
+  if (!tableHasColumn("continental_pool_players", "base_age")) {
+    db.run(sql.raw(`ALTER TABLE continental_pool_players ADD COLUMN base_age integer NOT NULL DEFAULT 22`));
+    if (tableHasColumn("continental_pool_players", "age")) {
+      db.run(sql.raw(`UPDATE continental_pool_players SET base_age = age WHERE age IS NOT NULL`));
+    }
+  }
+
   if (!tableHasColumn("players", "base_age")) {
     db.run(sql.raw(`ALTER TABLE players ADD COLUMN base_age integer NOT NULL DEFAULT 20`));
     if (tableHasColumn("players", "age")) {
@@ -289,6 +301,7 @@ export function dropMovedColumns(): { dropped: string[] } {
   for (const [table, columns] of [
     ["players", MOVED_PLAYER_COLUMNS],
     ["staff",   MOVED_STAFF_COLUMNS],
+    ["continental_pool_players", MOVED_POOL_PLAYER_COLUMNS],
   ] as const) {
     for (const column of columns) {
       if (!tableHasColumn(table, column)) continue;

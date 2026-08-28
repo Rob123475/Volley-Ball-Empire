@@ -334,7 +334,7 @@ router.get("/regional-league/:continent/pools", async (req, res) => {
         id:          p.id,
         name:        p.name,
         nationality: p.nationality,
-        age:         p.age,
+        age:         p.baseAge,
         speed:       p.speed,
         power:       p.power,
         defense:     p.defense,

@@ -537,6 +537,34 @@ console.log("\n8. STAFF SPLIT (salary/age renamed, four columns moved)");
   check("no unhandled error", !/career state migration failed/.test(r.log));
 }
 
+// 9. A save that predates the pool-player rename.
+console.log("\n9. POOL PLAYER RENAME (age -> base_age)");
+{
+  const file = makePreSplit("pool-age");
+  const db = new DatabaseSync(file);
+  const ages = new Map(
+    db.prepare("SELECT id, base_age FROM continental_pool_players").all().map((r) => [r.id, r.base_age]));
+  db.exec("ALTER TABLE continental_pool_players ADD COLUMN age integer NOT NULL DEFAULT 0");
+  db.exec("UPDATE continental_pool_players SET age = base_age");
+  db.exec("ALTER TABLE continental_pool_players DROP COLUMN base_age");
+  db.close();
+
+  const r = await bootServer(file);
+  const d2 = new DatabaseSync(file, { readOnly: true });
+  const names = d2.prepare("PRAGMA table_info(continental_pool_players)").all().map((c) => c.name);
+  const rows = d2.prepare("SELECT id, base_age FROM continental_pool_players").all();
+  d2.close();
+
+  check("server started", r.listening);
+  check("base_age created, age dropped",
+    names.includes("base_age") && !names.includes("age"));
+  check("no pool players lost", rows.length === ages.size, `${ages.size} -> ${rows.length}`);
+  check("every pool age carried across, none defaulted",
+    rows.length > 0 && rows.every((row) => row.base_age === ages.get(row.id)),
+    `${rows.filter((row) => row.base_age === ages.get(row.id)).length}/${rows.length}`);
+  check("no unhandled error", !/career state migration failed/.test(r.log));
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
