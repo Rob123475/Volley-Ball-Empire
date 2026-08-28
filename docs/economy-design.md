@@ -89,11 +89,46 @@ Wages scale with player rating (already correct: monthly figure, weekly drip at
 salary ÷ 4.333). Staff and facilities scale with ambition. Costs must rise as you
 climb, but slower than income does (see I5).
 
-### 4. Sponsorship
+### 4. Sponsorship, and where money goes
 Reputation-linked, option B decay toward 50 at 5%/week already implemented.
 Re-tune: ±1/match was calibrated against a broken 33–40% win band. At real win
 rates most clubs now gain reputation, so the decay is pulling rep down from above
 50 rather than rescuing it. Sponsorship must not make Bronze survival comfortable.
+
+**REFRAMED — Phase 4's real job is money SINKS, not squad prices.**
+
+The Phase 1 measurement showed the affordable squad hits the roster ceiling in
+season two and never moves again: three of five seasons have no spending
+decision left. The obvious reading is "the best players are too cheap", and it
+is the wrong one.
+
+This is 2v2 beach volleyball. A squad is two to four players. However expensive
+the market is, a club that earns steadily will saturate it within a season or
+two — there is nothing left to buy, because there are only so many slots. Raising
+prices moves the saturation point from season two to season three. It does not
+remove it, and it cannot: the sink is bounded by the format.
+
+The actual defect is that **players are the only money sink in the game.**
+Everything else that should compete for the budget already exists and none of it
+is a decision:
+
+- **Staff.** 120 of them across 12 roles, with a hiring cost and a termination
+  fee, and no reason to hire a better one over a cheaper one.
+- **Medical.** A separate market of 60, same problem.
+- **Facilities.** Levels exist and feed a club rating; upgrading is not a
+  meaningful call.
+- **The academy.** The pipeline now works, but investing in it costs nothing and
+  returns nothing distinguishable.
+- **Scouting missions.** Elective, cheap, and the only thing that restocks the
+  academy — currently a footnote rather than a budget line.
+
+So Phase 4 is: give money somewhere else to go, so that a club with $2,000,000
+in season four still has decisions to make. Concretely, that means each of those
+systems needs a cost that scales and a benefit that is legible, and the tuning
+target is that a rich club can still spend itself into trouble.
+
+Success is measured by I9, and I9 should be read as "are there still decisions",
+not "is the balance small".
 
 ### 5. Fail state
 Board confidence driven by finances, results, and tier expectations. Sustained
@@ -381,9 +416,16 @@ Dependency order. Each phase states what it builds and what it measures.
     DISTINCT (say what it means, and make it live). Not both.
 - **Phase 3 — Prize and Finals week (§2).** Purses re-scaled by tier; World Tour
   Finals as group stage plus semi plus final. Measures I3, I4.
-- **Phase 4 — Policies and sponsorship (§4).** COMPETENT and INCOMPETENT in the
-  harness; sponsorship retune. Measures I6. Gate: the policies must diverge — if
-  they do not, report it.
+- **Phase 4 — Policies, sponsorship, and money sinks (§4).** COMPETENT and
+  INCOMPETENT in the harness; sponsorship retune. Measures I6. Gate: the policies
+  must diverge — if they do not, report it.
+  - **REQUIRED: money must have somewhere to go.** See the reframing in §4. The
+    squad is two to four players, so the transfer market saturates within a
+    season or two whatever it costs — raising prices delays the problem rather
+    than fixing it. Staff, medical, facilities, the academy and scouting all
+    exist and none is a spending decision. Phase 4 makes at least two of them
+    into real budget lines, and I9 is judged on whether a rich club still has
+    decisions in season four, not on whether the balance is small.
 - **Phase 5 — Fail state (§5).** Wire isJobAtRisk and the escalation ladder.
   Measures I2 against INCOMPETENT.
 - **Phase 6 — Start modes and career score.** UNDERDOG/ESTABLISHED, career-end
