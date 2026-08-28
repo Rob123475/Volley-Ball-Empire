@@ -287,23 +287,36 @@ router.patch("/players/:id", async (req, res) => {
     potential, scoutedPotential,
     isActive, morale,
   } = req.body;
-  const updates: any = {};
-  if (name            !== undefined) updates.name            = name;
-  if (nationality     !== undefined) updates.nationality     = nationality;
-  if (continent       !== undefined) updates.continent       = continent;
+  const updates: Partial<CareerPlayerFields> = {};
+
+
   if (age             !== undefined) updates.age             = Number(age);
-  if (position        !== undefined) updates.position        = position;
+
   if (speed           !== undefined) updates.speed           = Number(speed);
   if (power           !== undefined) updates.power           = Number(power);
   if (defense         !== undefined) updates.defense         = Number(defense);
   if (serve           !== undefined) updates.serve           = Number(serve);
   if (block           !== undefined) updates.block           = Number(block);
   if (stamina         !== undefined) updates.stamina         = Number(stamina);
-  if (potential       !== undefined) updates.potential       = potential;
   if (scoutedPotential !== undefined) updates.scoutedPotential = scoutedPotential ?? null;
   if (isActive        !== undefined) updates.isActive        = isActive;
   if (morale          !== undefined) updates.morale          = morale;
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, updates as Partial<CareerPlayerFields>);
+
+  // Reference fields go to the athlete, career fields to this career's state.
+  // These used to share one object cast `as Partial<CareerPlayerFields>` — the
+  // cast defeated the check and let reference fields through into a
+  // career-state write.
+  const refUpdates: Partial<typeof playersTable.$inferInsert> = {};
+  if (name        !== undefined) refUpdates.name        = name;
+  if (nationality !== undefined) refUpdates.nationality = nationality;
+  if (position !== undefined) refUpdates.position = position;
+  if (potential !== undefined) refUpdates.potential = potential;
+  if (continent !== undefined) refUpdates.continent = continent;
+  if (Object.keys(refUpdates).length > 0) {
+    await db.update(playersTable).set(refUpdates).where(eq(playersTable.id, id));
+  }
+
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, updates);
   const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!updated) { res.status(404).json({ error: "Player not found" }); return; }
   res.json({ ...serializePlayer(updated), potential: updated.potential, scoutedPotential: updated.scoutedPotential });
@@ -381,8 +394,7 @@ router.post("/players/:id/retire", async (req, res) => {
     contractEndDate: null,
     careerWins: team.wins,
     retiredSeasonYear,
-  });
-  await db.update(playersTable).set({
+    // Achieved inside THIS career, counted from THIS career's trophies.
     peakOverallRating,
     careerTitles,
     continentalTitles,
@@ -390,7 +402,8 @@ router.post("/players/:id/retire", async (req, res) => {
     olympicMedalsCount,
     legendScore,
     careerSeasons: 1,
-  }).where(eq(playersTable.id, id));
+  });
+
   const retired = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!retired) { res.status(404).json({ error: "Player not found" }); return; }
   res.json(serializePlayer(retired));

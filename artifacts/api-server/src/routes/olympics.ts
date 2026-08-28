@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { playersTable, olympicSelectionsTable, seasonsTable } from "@workspace/db";
 import type { OlympicPlayerData } from "@workspace/db";
 import { and, eq, desc } from "drizzle-orm";
+import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -159,11 +160,7 @@ router.get("/olympics/countries", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   // Senior players only — youth players must not count toward Olympic eligibility
-  const allPlayers = await db.select().from(playersTable)
-    .where(and(
-      eq(playersTable.isActive, true),
-      eq(playersTable.playerType, "senior"),
-    ));
+  const allPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { isActive: true, playerType: "senior" });
 
   const byNationality = new Map<string, typeof allPlayers>();
   for (const p of allPlayers) {
@@ -333,20 +330,10 @@ const CONTINENT_SPOTS: Record<string, number> = {
 const CONTINENT_ORDER = ["Europe", "Asia", "North America", "South America", "Africa & Middle East", "Oceania"];
 
 /** Compute per-nationality team ratings from the player table. */
-async function buildQualifierStandings() {
-  const allPlayers = await db.select({
-    nationality: playersTable.nationality,
-    continent:   playersTable.continent,
-    name:        playersTable.name,
-    imageUrl:    playersTable.imageUrl,
-    speed:   playersTable.speed,
-    power:   playersTable.power,
-    defense: playersTable.defense,
-    serve:   playersTable.serve,
-    block:   playersTable.block,
-    stamina: playersTable.stamina,
-  }).from(playersTable)
-    .where(and(eq(playersTable.isActive, true), eq(playersTable.playerType, "senior")));
+async function buildQualifierStandings(careerSaveId: number) {
+  // Stats are career-scoped now, so qualifier ratings must be read per career:
+  // another save's training would otherwise change this save's standings.
+  const allPlayers = await loadPlayers(careerSaveId, { isActive: true, playerType: "senior" });
 
   // Group by nationality
   const byNat = new Map<string, { continent: string; players: { name: string; rating: number; imageUrl: string | null }[] }>();
@@ -398,7 +385,7 @@ async function getOlympicsYear(): Promise<{ gameYear: number; olympicsYear: numb
 // Live per-continent qualification standings based on player ratings.
 
 router.get("/olympics/qualifiers", async (_req, res) => {
-  const continents = await buildQualifierStandings();
+  const continents = await buildQualifierStandings(requireCareerSaveId(_req.activeCareerSaveId));
   const { olympicsYear } = await getOlympicsYear();
   res.json({ olympicsYear, totalSpots: 12, continents });
 });
@@ -408,7 +395,7 @@ router.get("/olympics/qualifiers", async (_req, res) => {
 // Non-Olympic years → projected (no results). Olympic years → simulated results.
 
 router.get("/olympics/schedule", async (_req, res) => {
-  const continents = await buildQualifierStandings();
+  const continents = await buildQualifierStandings(requireCareerSaveId(_req.activeCareerSaveId));
   const { olympicsYear, isOlympicYear } = await getOlympicsYear();
 
   // Collect the 12 qualified teams (top N per continent)

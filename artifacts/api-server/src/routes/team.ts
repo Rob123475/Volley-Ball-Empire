@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, loadPlayer, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -117,13 +117,11 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     (role === "starter" || role === "interchange") &&
     promotedPlayer?.academyContractYears != null;
 
-  await db.update(playersTable)
-    .set({
-      squadRole: role,
-      isActive,
-      ...(endsAcademyContract ? { academyContractYears: null } : {}),
-    })
-    .where(eq(playersTable.id, playerId));
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, {
+    squadRole: role,
+    isActive,
+    ...(endsAcademyContract ? { academyContractYears: null } : {}),
+  });
 
   // Track youth promotions for achievements
   if (isYouthPromotion) {
@@ -226,8 +224,8 @@ router.post("/team/swap-player", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   const { playerInId, playerOutId } = req.body;
-  await db.update(playersTable).set({ isActive: true,  squadRole: "starter" }).where(eq(playersTable.id, Number(playerInId)));
-  await db.update(playersTable).set({ isActive: false, squadRole: "reserve"  }).where(eq(playersTable.id, Number(playerOutId)));
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), Number(playerInId),  { isActive: true,  squadRole: "starter" });
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), Number(playerOutId), { isActive: false, squadRole: "reserve"  });
 
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const staff   = await db.select().from(staffTable).where(eq(staffTable.teamId, team.id));

@@ -237,9 +237,6 @@ export const playersTable = sqliteTable("players", {
   trainingPoints: integer("training_points").notNull().default(0),
   salary: real("salary").notNull().default(5000),
   outfitId: integer("outfit_id").references(() => outfitsTable.id),
-  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
-  squadRole: text("squad_role").notNull().default("reserve"),
-  doctorQuality: integer("doctor_quality").notNull().default(3),
   imageUrl: text("image_url"),
   continent: text("continent"),
   playerType: text("player_type").notNull().default("senior"),
@@ -329,10 +326,21 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   scoutedPotential: text("scouted_potential"),
   discoveredBy:     text("discovered_by"),
 
-  // career-long record
+  // career-long record. What a player ACHIEVES is per career: honours are
+  // counted from this career's trophies table and derived from this career's
+  // stats, so leaving them on the shared reference row meant one career's
+  // five-time champion showed up as a five-time champion in every other save.
   isRetired:        integer("is_retired", { mode: "boolean" }).notNull().default(false),
   retiredSeasonYear: integer("retired_season_year"),
   careerWins:       integer("career_wins").notNull().default(0),
+  careerSeasons:      integer("career_seasons").notNull().default(0),
+  careerTitles:       integer("career_titles").notNull().default(0),
+  continentalTitles:  integer("continental_titles").notNull().default(0),
+  worldTitles:        integer("world_titles").notNull().default(0),
+  olympicMedalsCount: integer("olympic_medals_count").notNull().default(0),
+  peakOverallRating:  integer("peak_overall_rating").notNull().default(0),
+  yearsActive:        text("years_active"),
+  legendScore:        integer("legend_score").notNull().default(0),
   isDraftPlayer:    integer("is_draft_player", { mode: "boolean" }).notNull().default(false),
   outfitId:         integer("outfit_id"),
 

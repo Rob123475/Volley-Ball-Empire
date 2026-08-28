@@ -49,6 +49,14 @@ export type CareerPlayerFields = {
   isRetired: boolean;
   retiredSeasonYear: number | null;
   careerWins: number;
+  careerSeasons: number;
+  careerTitles: number;
+  continentalTitles: number;
+  worldTitles: number;
+  olympicMedalsCount: number;
+  peakOverallRating: number;
+  yearsActive: string | null;
+  legendScore: number;
   isDraftPlayer: boolean;
   outfitId: number | null;
 };
@@ -97,6 +105,14 @@ export function assemblePlayer(
     isRetired:            state.isRetired,
     retiredSeasonYear:    state.retiredSeasonYear,
     careerWins:           state.careerWins,
+    careerSeasons:        state.careerSeasons,
+    careerTitles:         state.careerTitles,
+    continentalTitles:    state.continentalTitles,
+    worldTitles:          state.worldTitles,
+    olympicMedalsCount:   state.olympicMedalsCount,
+    peakOverallRating:    state.peakOverallRating,
+    yearsActive:          state.yearsActive,
+    legendScore:          state.legendScore,
     isDraftPlayer:        state.isDraftPlayer,
     outfitId:             state.outfitId,
   };
