@@ -351,7 +351,7 @@ async function main() {
       name:            np.name,
       nationality:     np.nationality,
       continent:       np.continent,
-      age:             np.age,
+      baseAge:             np.age,
       height:          np.heightCm,
       position:        np.position,
       speed:           stats.speed,

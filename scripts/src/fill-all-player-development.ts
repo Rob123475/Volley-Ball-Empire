@@ -100,7 +100,8 @@ const SPECIALITIES: Record<string, string[]> = {
 };
 
 function buildDevelopment(player: {
-  name: string; nationality: string; age: number; height: number;
+  // baseAge: the age the athlete STARTS at. The living age is career state.
+  name: string; nationality: string; baseAge: number; height: number;
   // Wage comes from askingPrice now: salary moved to career state, and the
   // development card is reference data derived from what a player COSTS.
   position: string; potential: string; askingPrice: number | null; speed: number;
@@ -109,7 +110,7 @@ function buildDevelopment(player: {
 }, regenerationSeed: string) {
   const pos = player.position;
   const pot = player.potential as Potential;
-  const age = player.age;
+  const age = player.baseAge;
   const ht = Number(player.height);
   const sal = Number(player.askingPrice ?? 0) / 12;
   const flag = FLAG_MAP[player.nationality] ?? { code: "??", flag: "🏐" };

@@ -45,7 +45,7 @@ function tableHasColumn(table: string, column: string): boolean {
 /** Everything the player snapshot would like to read, newest additions last. */
 const PLAYER_SNAPSHOT_COLUMNS = [
   "id", "team_id", "squad_role", "is_active", "salary", "contract_end_date",
-  "academy_contract_years", "age", "fitness", "fatigue", "morale",
+  "academy_contract_years", "age", "base_age", "fitness", "fatigue", "morale",
   "speed", "power", "defense", "serve", "block", "stamina",
   "injury_status", "injury_weeks_remaining", "is_injured",
   "consecutive_matches_played", "training_points", "training_focus",
@@ -59,7 +59,9 @@ const STAFF_SNAPSHOT_COLUMNS = [
 
 /** What a NEW career copies off the reference row when it is created. */
 const SEED_REFERENCE_COLUMNS = [
-  "id", "age", "asking_price",
+  // Both names: an old save still calls it `age`, a current one `base_age`.
+  // presentColumns() keeps whichever this database actually has.
+  "id", "age", "base_age", "asking_price",
   "speed", "power", "defense", "serve", "block", "stamina",
   // Who starts in the draft pool. Without this a new career sees the column
   // default (false) for all 268 athletes and the draft pool is empty.
@@ -125,7 +127,7 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
           salary:       Number(p.salary ?? 0),
           contractEndDate:      p.contract_end_date ?? null,
           academyContractYears: p.academy_contract_years ?? null,
-          age:          Number(p.age ?? 20),
+          age:          Number(p.base_age ?? p.age ?? 20),
           speed:        Number(p.speed   ?? 70),
           power:        Number(p.power   ?? 70),
           defense:      Number(p.defense ?? 70),
@@ -193,6 +195,9 @@ const MOVED_PLAYER_COLUMNS = [
   // chunk 6 — retirement. is_draft_player is NOT here: it stays on `players`
   // as the reference seed for who starts in the draft pool.
   "is_retired", "retired_season_year", "career_wins",
+  // chunk 7 — the living age. Dropped only once base_age exists to carry the
+  // starting value; dropMovedColumns checks that below.
+  "age",
 ] as const;
 
 /**
@@ -235,6 +240,21 @@ export function dropMovedColumns(): { dropped: string[] } {
       UPDATE players SET asking_price = salary * 12
       WHERE asking_price IS NULL AND salary IS NOT NULL AND salary > 0
     `));
+  }
+
+  // `age` is about to go the same way, but unlike salary it has no existing
+  // reference column to land in — base_age is new. Create it and carry the
+  // value across BEFORE the drop, or every athlete in an upgrading save loses
+  // the age they started at.
+  //
+  // A DEFAULT is required: SQLite cannot add a NOT NULL column to a populated
+  // table without one. The model declares base_age without a default, which the
+  // starter-DB drift check tolerates because it compares column names.
+  if (!tableHasColumn("players", "base_age")) {
+    db.run(sql.raw(`ALTER TABLE players ADD COLUMN base_age integer NOT NULL DEFAULT 20`));
+    if (tableHasColumn("players", "age")) {
+      db.run(sql.raw(`UPDATE players SET base_age = age WHERE age IS NOT NULL`));
+    }
   }
 
   for (const [table, columns] of [
@@ -290,7 +310,7 @@ export function seedCareerState(careerSaveId: number): void {
     for (const p of players) {
       tx.insert(careerPlayerStateTable).values({
         careerSaveId, playerId: p.id,
-        age:     refs.get(p.id)?.age ?? 20,
+        age:     Number(refs.get(p.id)?.base_age ?? refs.get(p.id)?.age ?? 20),
         salary:  Math.round(Number(refs.get(p.id)?.asking_price ?? 0) / 12),
         speed:   Number(refs.get(p.id)?.speed   ?? 70),
         power:   Number(refs.get(p.id)?.power   ?? 70),

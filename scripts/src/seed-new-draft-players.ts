@@ -444,7 +444,7 @@ async function main() {
       name: player.name,
       nationality: player.nationality,
       continent: player.continent,
-      age: player.age,
+      baseAge: player.age,
       height: player.heightCm,
       position: player.position,
       speed: player.speed,

@@ -451,6 +451,42 @@ console.log("\n6. OLDER SCHEMA STILL MISSING NEWER COLUMNS");
   check("no unhandled error", !/career state migration failed/.test(r.log));
 }
 
+// 7. A save that predates the age -> base_age rename.
+console.log("\n7. RENAMED COLUMN (age -> base_age)");
+{
+  const file = makePreSplit("age-rename");
+  const db = new DatabaseSync(file);
+  // Put the save back in the pre-rename shape: `age` present, `base_age` gone.
+  // Unlike every other chunk this was a RENAME, so the value has nowhere to
+  // land unless the migration creates the new column and copies it across
+  // before dropping the old one.
+  const ages = new Map(db.prepare("SELECT id, base_age FROM players").all().map((r) => [r.id, r.base_age]));
+  db.exec("ALTER TABLE players ADD COLUMN age integer NOT NULL DEFAULT 0");
+  db.exec("UPDATE players SET age = base_age");
+  db.exec("ALTER TABLE players DROP COLUMN base_age");
+  const cols = () => db.prepare("PRAGMA table_info(players)").all().map((c) => c.name);
+  const preOk = cols().includes("age") && !cols().includes("base_age");
+  db.close();
+  check("fixture is in the pre-rename shape", preOk);
+
+  const r = await bootServer(file);
+  const after = opens(file);
+  const d2 = new DatabaseSync(file, { readOnly: true });
+  const names = d2.prepare("PRAGMA table_info(players)").all().map((c) => c.name);
+  const rows = d2.prepare("SELECT id, base_age FROM players").all();
+  d2.close();
+
+  check("server started", r.listening);
+  check("base_age created, age dropped",
+    names.includes("base_age") && !names.includes("age"));
+  check("no players lost", after.players === ages.size, `${ages.size} -> ${after.players}`);
+  check("every starting age carried across, none defaulted",
+    rows.every((row) => row.base_age === ages.get(row.id)),
+    `${rows.filter((row) => row.base_age === ages.get(row.id)).length}/${rows.length} match`);
+  check("career state took the age too", after.state > 0, `${after.state} rows`);
+  check("no unhandled error", !/career state migration failed/.test(r.log));
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);

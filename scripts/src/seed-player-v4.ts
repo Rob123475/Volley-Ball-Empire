@@ -146,7 +146,7 @@ const ANIMATION_STYLES: Record<string, string> = {
 
 function buildV4(p: {
   id: number; name: string; nationality: string; continent: string | null;
-  age: number; position: string; playerType: string; isDraftPlayer: boolean;
+  baseAge: number; position: string; playerType: string; isDraftPlayer: boolean;
   speed: number; power: number; defense: number; serve: number; block: number;
   stamina: number; morale: number; fatigue: number; fitness: number;
   injuryStatus: string; isInjured: boolean;
@@ -155,7 +155,7 @@ function buildV4(p: {
 }) {
   const pos   = p.position as keyof typeof SPECIALITIES;
   const pot   = p.potential;
-  const age   = p.age;
+  const age   = p.baseAge;
   const ovr   = Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
   const kit   = kitFor(p.nationality, p.continent);
   const flag  = FLAG_MAP[p.nationality] ?? "XX";
@@ -466,7 +466,7 @@ async function main() {
     name:            playersTable.name,
     nationality:     playersTable.nationality,
     continent:       playersTable.continent,
-    age:             playersTable.age,
+    baseAge:             playersTable.baseAge,
     position:        playersTable.position,
     playerType:      playersTable.playerType,
     isDraftPlayer:   playersTable.isDraftPlayer,

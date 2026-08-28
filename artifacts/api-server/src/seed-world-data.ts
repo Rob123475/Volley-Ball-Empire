@@ -55,7 +55,7 @@ function makeFreeAgentPlayer(name: string, i: number) {
   return {
     name,
     nationality: nationalities[i % nationalities.length],
-    age: randomInt(18, 33),
+    baseAge: randomInt(18, 33),
     height: Number((170 + randomInt(0, 25)).toFixed(1)),
     position: positions[i % positions.length],
     speed:   base + randomInt(-8, 8),

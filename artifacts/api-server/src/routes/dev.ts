@@ -446,9 +446,10 @@ router.post("/dev/fix-youth-data", async (_req, res) => {
         }
       }
 
-      // Cap age at 18
-      if (p.age > 18) {
-        updates.age = 18;
+      // Cap the STARTING age at 18. The living age is career state; this
+      // route repairs the reference row an academy prospect begins from.
+      if (p.baseAge > 18) {
+        updates.baseAge = 18;
         ageFixed++;
       }
 
@@ -609,7 +610,7 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
       await db.insert(playersTable).values({
         name,
         nationality,
-        age,
+        baseAge: age,
         continent,
         position,
         potential,

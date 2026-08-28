@@ -77,7 +77,7 @@ router.post("/players", async (req, res) => {
     requireCareerSaveId(req.activeCareerSaveId),
     {
     name, nationality,
-    age: Number(age), height: Number(height),
+    baseAge: Number(age), height: Number(height),
     position,
     speed: Number(speed), power: Number(power),
     defense: Number(defense), serve: Number(serve),

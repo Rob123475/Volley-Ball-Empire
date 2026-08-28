@@ -163,7 +163,7 @@ async function main() {
   for (const player of rows) {
     const pos = player.position as Position;
     const pot = player.potential as Potential;
-    const age = player.age;
+    const age = player.baseAge;
     const ht = Number(player.height);
     // salary moved to career state; askingPrice is the reference equivalent.
     const sal = Number(player.askingPrice ?? 0) / 12;

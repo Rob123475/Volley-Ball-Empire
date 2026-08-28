@@ -246,7 +246,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     {
       name:          prospect.name,
       nationality,
-      age:           prospect.age,
+      baseAge:       prospect.age,
       height:        Number((1.60 + Math.random() * 0.18).toFixed(1)),
       position,
       continent:     prospect.continent,

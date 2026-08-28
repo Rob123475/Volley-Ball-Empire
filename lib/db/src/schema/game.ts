@@ -225,7 +225,11 @@ export const playersTable = sqliteTable("players", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   nationality: text("nationality").notNull(),
-  age: integer("age").notNull(),
+  // REFERENCE: the age this athlete STARTS at. The living age — which ticks
+  // over each season — is career state, so the reference column is renamed to
+  // make a stale read impossible rather than merely wrong. seedCareerState
+  // copies this into career_player_state.age when a career begins.
+  baseAge: integer("base_age").notNull(),
   height: real("height").notNull().default(175),
   position: text("position").notNull().default("universal"),
   speed: integer("speed").notNull().default(70),

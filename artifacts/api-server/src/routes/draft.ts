@@ -96,7 +96,7 @@ router.post("/draft/generate-class", async (req, res) => {
       {
         name,
         nationality,
-        age,
+        baseAge: age,
         height: Number((1.65 + Math.random() * 0.20).toFixed(2)),
         position: ["setter", "spiker", "defender", "blocker", "all_rounder"][Math.floor(Math.random() * 5)],
         speed:   randStat(),

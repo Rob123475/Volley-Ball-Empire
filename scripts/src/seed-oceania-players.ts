@@ -221,7 +221,7 @@ async function main() {
     await db.insert(playersTable).values({
       name: player.name,
       nationality: player.nationality,
-      age: player.age,
+      baseAge: player.age,
       height: player.heightCm,
       position: player.position,
       speed: player.stats.speed,
