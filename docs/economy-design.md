@@ -253,6 +253,55 @@ $458,000 / $939,500 / $337,500 / $431,000 / $388,000, mean $510,800.
     Phase 1.
   - I9 MONEY STAYS MEANINGFUL — no season rollover. Phase 1.
 
+## Phase 1 measurements — added 2026-08-28
+
+**Academy supply.** The shipped academy was banded 15-19, five cohorts, which
+four season boundaries clear — leaving it empty from season five. Shifted down
+one year to 14-18 (still inside the valid youth band) so it stays populated for
+the whole arc with no generator and no new intake system:
+
+  season 1: 72   season 2: 63   season 3: 48   season 4: 29   season 5: 14
+
+Promotion was already correctly age-gated at 19 and already staggered; the band
+was simply one year too narrow.
+
+**Youth scouting created seniors.** `youth-scouting.ts` never set `playerType`,
+which defaults to `"senior"`, so every scouted 16-year-old was created as a
+senior on an academy contract and never entered the youth pool. Fixed. Note that
+scouting is still elective and produces nothing passively: a player who never
+runs a mission has only the shipped 72.
+
+**AI difficulty was the wrong dial.** Pool-club ratings drive the regional
+league, which the player never plays in. Every player match resolves through
+`opponentRatingFromTier`, and of 11 distinct World Tour opponents, ZERO match a
+pool-club name — so the lookup always falls through to `TIER_BASE_RATING`, which
+was constant across all five seasons. `TIER_RATING_PER_SEASON = 2` now stiffens
+every tier by 2 a season: Bronze 64 -> 72, World Final 86 -> 94.
+
+**Player vs tier, measured across a real five-season career:**
+
+  | season | balance | affordable squad | Gold tier | gap |
+  |---|---|---|---|---|
+  | 1 | $500,000 | 75.0 | 76 | -1.0 |
+  | 2 | $1,020,000 | 89.5 | 78 | +11.5 |
+  | 3 | $1,540,000 | 89.5 | 80 | +9.5 |
+  | 4 | $2,060,000 | 89.5 | 82 | +7.5 |
+  | 5 | $2,580,000 | 89.5 | 84 | +5.5 |
+
+k=2 works: the gap NARROWS from season two rather than widening. The curve has
+stopped flattening.
+
+It has NOT been solved, and a green I8 must not be read as if it had. Two things
+this does not touch:
+
+  - Nothing stops a club entering 30 Bronze events a season forever. That is
+    tier qualification gating — Phase 2, and it is what I1 and I5 measure.
+  - The affordability curve is over by season two. $1,020,000 already buys the
+    two best players in the game, and the affordable squad never moves again.
+    Three of the five seasons have no spending decision left. I9 VIOLATED, with
+    two causes: passive income of $520,000 a season unrelated to results, and a
+    roster ceiling reachable on one season's earnings.
+
 ## Build phases
 
 Dependency order. Each phase states what it builds and what it measures.

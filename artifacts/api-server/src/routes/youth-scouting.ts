@@ -246,6 +246,10 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     {
       name:          prospect.name,
       nationality,
+      // player_type defaults to "senior", so omitting it created every scouted
+      // 16-year-old as a SENIOR with an academy contract — they never entered
+      // the youth pool at all, and the academy had no pipeline whatsoever.
+      playerType:    "youth",
       baseAge:       prospect.age,
       height:        Number((1.60 + Math.random() * 0.18).toFixed(1)),
       position,

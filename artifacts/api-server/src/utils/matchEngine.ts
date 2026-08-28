@@ -90,9 +90,31 @@ const TIER_BASE_RATING: Record<string, number> = {
   "World Final":       86,
 };
 
-export function opponentRatingFromTier(tier: string | null | undefined, opponentName: string): number {
+/**
+ * How much every tier stiffens per season.
+ *
+ * TIER_BASE_RATING was constant across the whole arc, so every tier stayed at
+ * its season-one difficulty while the player's ceiling rose — the senior pool
+ * ends the arc able to field an 89.5 squad against a Bronze field rated 64.
+ * The game got monotonically easier by construction, and I8 could not hold.
+ *
+ * k = 2 takes Bronze 64 -> 72 and the World Final 86 -> 94 across five seasons.
+ * Still favours a well-run club; it just stops the curve flattening.
+ *
+ * NOTE: this fixes EASING, not farming. Nothing here stops a club entering 30
+ * Bronze events a season forever — that is tier qualification gating, which is
+ * Phase 2. A green I8 is not evidence the difficulty curve is solved.
+ */
+export const TIER_RATING_PER_SEASON = 2;
+
+export function opponentRatingFromTier(
+  tier: string | null | undefined,
+  opponentName: string,
+  seasonNumber = 1,
+): number {
   const base = TIER_BASE_RATING[tier ?? ""] ?? 70;
-  return clampRating(base + nameVariance(opponentName));
+  const progression = (Math.max(1, seasonNumber) - 1) * TIER_RATING_PER_SEASON;
+  return clampRating(base + progression + nameVariance(opponentName));
 }
 
 export function clampRating(r: number): number {

@@ -4,7 +4,7 @@ import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
-import { shiftDateToYear } from "../utils/seasonRollover.js";
+import { shiftDateToYear, seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
@@ -464,7 +464,7 @@ async function getWorldFinalsSeedings(userTeamId: number, userTeamName: string):
  *   3. the tier ladder plus a stable per-name offset
  */
 async function resolveOpponentRating(
-  match: { awayTeamId: number | null; awayTeamName: string | null; tier: string | null },
+  match: { awayTeamId: number | null; awayTeamName: string | null; tier: string | null; season?: number },
   playerTeamId: number,
 ): Promise<number> {
   const name = match.awayTeamName ?? "";
@@ -482,7 +482,12 @@ async function resolveOpponentRating(
     if (pool?.rating != null) return clampRating(Number(pool.rating));
   }
 
-  return opponentRatingFromTier(match.tier, name || "Opponent");
+  // matches.season carries the calendar year (2026..2030); the engine wants
+  // the season NUMBER, so the tier stiffens once per season rather than by
+  // two thousand.
+  return opponentRatingFromTier(
+    match.tier, name || "Opponent", seasonNumberForYear(match.season ?? FIRST_SEASON_YEAR),
+  );
 }
 
 async function bracketBlockReason(teamId: number, match: { tier: string | null; season: number }): Promise<string | null> {

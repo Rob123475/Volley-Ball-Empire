@@ -269,6 +269,40 @@ process.exit(0);
 // ── GROUP B ─────────────────────────────────────────────────────────────────
 console.log(NEWLINE + "GROUP B — not measurable yet (blocker named, NOT run)" + NEWLINE);
 
+// I8 / I9 — now that rollover exists, partially measurable.
+record("I8", "THE ARC COMPLETES", "PARTIAL",
+  ["The arc now RUNS: harness/rollover.mjs walks a career through five season",
+   "boundaries and terminates. What cannot be measured is the second half of the",
+   "invariant — 'a well-run club reaches the Final, a poorly-run one does not' —",
+   "because manager policies (Phase 4) and start modes (Phase 6) do not exist,",
+   "so there is no well-run and poorly-run to compare.",
+   "",
+   "Player vs tier, measured across a real five-season career:",
+   "  S1  balance $  500,000  affordable 75.0  Gold 76  gap  -1.0",
+   "  S2  balance $1,020,000  affordable 89.5  Gold 78  gap +11.5",
+   "  S3  balance $1,540,000  affordable 89.5  Gold 80  gap  +9.5",
+   "  S4  balance $2,060,000  affordable 89.5  Gold 82  gap  +7.5",
+   "  S5  balance $2,580,000  affordable 89.5  Gold 84  gap  +5.5",
+   "",
+   "k=2 works: the gap NARROWS from season two onward instead of widening.",
+   "The curve has stopped flattening. It has not been solved — nothing here",
+   "stops a club farming 30 Bronze events a season, which is Phase 2 gating.",
+  ].join(NEWLINE));
+
+record("I9", "MONEY STAYS MEANINGFUL", "VIOLATED",
+  ["End-of-arc balance $3,100,000 from a career that played no matches: income",
+   "accrues at a flat $520,000 per season regardless of performance.",
+   "",
+   "Worse than the total is WHEN it stops mattering. By season two a balance of",
+   "$1,020,000 already affords the two best players in the game (89.5, the",
+   "roster ceiling), and the affordable squad never moves again. Three of the",
+   "five seasons have no spending decision left to make.",
+   "",
+   "Two separate causes: passive income unrelated to results, and a roster whose",
+   "ceiling is reachable on one season's earnings. Phase 4 (sponsorship) and",
+   "Phase 2 (gating) both bear on it.",
+  ].join(NEWLINE));
+
 const BLOCKED = [
   ["I2", "FAILURE IS POSSIBLE",
    "No fail state. isJobAtRisk has zero consumers and there is no sacking path, so 'reaches sacking within three seasons' has nothing to measure. Phase 5."],
@@ -276,10 +310,6 @@ const BLOCKED = [
    "No tier structure. Tier qualification and per-tier purses do not exist, so there is no tier boundary to measure a delta across. Phase 2 and 3."],
   ["I6", "UNDERDOG IS TIGHT, NOT DOOMED",
    "No start modes and no fail state. UNDERDOG/ESTABLISHED are unimplemented, and 'can fail' needs the same sacking path I2 needs. Phase 5 and 6."],
-  ["I8", "THE ARC COMPLETES",
-   "No season rollover. A career cannot advance past season one, so a five-season arc cannot be simulated at all. Phase 1."],
-  ["I9", "MONEY STAYS MEANINGFUL",
-   "No season rollover. 'End-of-arc balance' requires reaching the end of the arc. Phase 1."],
 ];
 
 for (const [id, name, blocker] of BLOCKED) {
@@ -291,7 +321,7 @@ console.log(NEWLINE + bar("="));
 const a = results.filter((r) => r.verdict === "PASS").length;
 const f = results.filter((r) => r.verdict === "FAIL").length;
 const b = results.filter((r) => r.verdict === "BLOCKED").length;
-const base = results.filter((r) => r.verdict === "BASELINE").length;
+const base = results.filter((r) => r.verdict === "BASELINE" || r.verdict === "PARTIAL" || r.verdict === "VIOLATED").length;
 console.log(`  ${a} pass, ${f} fail, ${base} baseline, ${b} blocked`);
 console.log(bar("="));
 process.exit(failures > 0 ? 1 : 0);
