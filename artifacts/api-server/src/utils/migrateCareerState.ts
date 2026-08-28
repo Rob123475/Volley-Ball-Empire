@@ -23,7 +23,12 @@ import { sql } from "drizzle-orm";
  * the schema no longer declares them — this function has to survive the very
  * migration it performs.
  *
- * Idempotent: a career that already has state is skipped.
+ * Idempotent: a career that already has state is skipped. The per-career skip
+ * counts career_player_state only, so a save holding staff state without player
+ * state used to collide on the staff insert and abort the WHOLE transaction —
+ * permanently, on every boot, with the save never migrating. Both inserts are
+ * onConflictDoNothing for that reason; the skip is the fast path, not the
+ * guarantee.
  */
 export type CareerStateMigrationResult = {
   careersMigrated: number;
@@ -35,6 +40,38 @@ export type CareerStateMigrationResult = {
 function tableHasColumn(table: string, column: string): boolean {
   const rows = db.all<{ name: string }>(sql.raw(`PRAGMA table_info(${table})`));
   return rows.some((r) => r.name === column);
+}
+
+/** Everything the player snapshot would like to read, newest additions last. */
+const PLAYER_SNAPSHOT_COLUMNS = [
+  "id", "team_id", "squad_role", "is_active", "salary", "contract_end_date",
+  "academy_contract_years", "age", "fitness", "fatigue", "morale",
+  "speed", "power", "defense", "serve", "block", "stamina",
+  "injury_status", "injury_weeks_remaining", "is_injured",
+  "consecutive_matches_played", "training_points", "training_focus",
+  "focus_xp", "scouted_potential", "discovered_by", "is_retired",
+  "retired_season_year", "career_wins", "is_draft_player", "outfit_id",
+] as const;
+
+const STAFF_SNAPSHOT_COLUMNS = [
+  "id", "team_id", "salary", "is_available", "contract_length", "is_scout_revealed",
+] as const;
+
+/**
+ * Narrow a wish-list of columns to the ones this database actually has.
+ *
+ * `id` is the one column that must exist; without it there is nothing to key
+ * the state row on, and a save missing it is not a save we can migrate.
+ */
+function presentColumns(table: string, wanted: readonly string[]): string {
+  const have = new Set(
+    db.all<{ name: string }>(sql.raw(`PRAGMA table_info(${table})`)).map((r) => r.name),
+  );
+  const usable = wanted.filter((c) => have.has(c));
+  if (!usable.includes("id")) {
+    throw new Error(`${table} has no id column — cannot snapshot this database`);
+  }
+  return usable.join(", ");
 }
 
 export function migrateCareerStateOnce(): CareerStateMigrationResult {
@@ -51,23 +88,18 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
     const saves = tx.select({ id: careerSavesTable.id }).from(careerSavesTable).all();
     if (saves.length === 0) return;
 
-    const players = legacyPlayers
-      ? tx.all<any>(sql.raw(`
-          SELECT id, team_id, squad_role, is_active, salary, contract_end_date,
-                 academy_contract_years, age, fitness, fatigue, morale,
-                 speed, power, defense, serve, block, stamina,
-                 injury_status, injury_weeks_remaining, is_injured,
-                 consecutive_matches_played, training_points, training_focus,
-                 focus_xp, scouted_potential, discovered_by, is_retired,
-                 retired_season_year, career_wins, is_draft_player, outfit_id
-          FROM players`))
-      : [];
+    // Select only the columns this database actually HAS.
+    //
+    // A fixed column list is a trap here: this runs against saves written by
+    // builds we cannot enumerate, and naming one column an old schema never had
+    // throws and takes the whole snapshot with it — the save then never
+    // migrates, on every boot, forever. Every field below is read with a
+    // fallback, so a column that is absent simply takes its default.
+    const players = legacyPlayers ? tx.all<any>(sql.raw(
+      `SELECT ${presentColumns("players", PLAYER_SNAPSHOT_COLUMNS)} FROM players`)) : [];
 
-    const staff = legacyStaff
-      ? tx.all<any>(sql.raw(`
-          SELECT id, team_id, salary, is_available, contract_length, is_scout_revealed
-          FROM staff`))
-      : [];
+    const staff = legacyStaff ? tx.all<any>(sql.raw(
+      `SELECT ${presentColumns("staff", STAFF_SNAPSHOT_COLUMNS)} FROM staff`)) : [];
 
     for (const save of saves) {
       const already = tx.all<{ n: number }>(sql.raw(
@@ -108,7 +140,7 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
           careerWins:       Number(p.career_wins ?? 0),
           isDraftPlayer:    !!p.is_draft_player,
           outfitId:         p.outfit_id ?? null,
-        }).run();
+        }).onConflictDoNothing().run();
         result.playerRowsCreated++;
       }
 
@@ -121,7 +153,7 @@ export function migrateCareerStateOnce(): CareerStateMigrationResult {
           isAvailable:  st.is_available == null ? true : !!st.is_available,
           contractLength: Number(st.contract_length ?? 12),
           isScoutRevealed: !!st.is_scout_revealed,
-        }).run();
+        }).onConflictDoNothing().run();
         result.staffRowsCreated++;
       }
 
@@ -146,6 +178,9 @@ const MOVED_PLAYER_COLUMNS = [
   "salary", "contract_end_date", "academy_contract_years", "outfit_id",
   "fitness", "fatigue", "morale", "injury_status", "injury_weeks_remaining",
   "is_injured", "consecutive_matches_played", "doctor_quality",
+  // chunk 5 — development and scouting
+  "training_points", "training_focus", "focus_xp",
+  "scouted_potential", "discovered_by",
 ] as const;
 
 /**

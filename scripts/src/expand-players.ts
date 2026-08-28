@@ -26,10 +26,9 @@ function potential(): string {
   return "Generational";
 }
 
-function salary(ovr: number): number {
-  return Math.round((ovr - 60) * 150 + 5000 + Math.random() * 800);
-}
-
+// salary() lived here and is gone: the wage is career state now and is derived
+// from asking_price. Leaving it would have been an invitation to reintroduce a
+// reference-row salary.
 function askingPrice(ovr: number): number {
   return Math.round((ovr - 60) * 800 + 15000 + Math.random() * 5000);
 }
@@ -201,21 +200,23 @@ async function main() {
 
   // 3. Insert new senior free agents
   console.log(`\nInserting ${NEW_SENIORS.length} new senior players…`);
+  // salary, is_active, squad_role, is_injured, fitness, morale and fatigue have
+  // all moved to career_player_state, so a reference-row INSERT can no longer
+  // name them — this statement would have failed with "no such column: salary".
+  // asking_price stays and is what the starting wage is derived from.
   const insertSenior = sqlite.prepare(`
     INSERT INTO players
        (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
-        salary, asking_price, continent, player_type, potential, image_url,
-        is_active, squad_role, is_retired, is_injured, fitness, morale, fatigue)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'senior',?,?,false,'reserve',false,false,100,80,0)
+        asking_price, continent, player_type, potential, image_url, is_retired)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,'senior',?,?,false)
   `);
   for (const p of NEW_SENIORS) {
     const st = stats(p.ovr, p.pos);
-    const sal = salary(p.ovr);
     const ap  = askingPrice(p.ovr);
     insertSenior.run(
       p.name, p.nationality, p.age, p.height, p.pos,
       st.speed, st.power, st.defense, st.serve, st.block, st.stamina,
-      sal, ap, p.continent,
+      ap, p.continent,
       potential(), dice(p.name, "b6e3f4"),
     );
     console.log(`  ✓ ${p.name} (${p.continent}, OVR ${p.ovr})`);
@@ -223,12 +224,14 @@ async function main() {
 
   // 4. Insert youth players
   console.log(`\nInserting ${NEW_YOUTH.length} new youth players…`);
+  // Same as the senior insert above. Youth carry no asking_price and every
+  // youth in the shipped data sits at salary 0, so nothing is lost by dropping
+  // the literal 1500 rather than moving it.
   const insertYouth = sqlite.prepare(`
     INSERT INTO players
        (name, nationality, age, height, position, speed, power, defense, serve, block, stamina,
-        salary, continent, player_type, potential, image_url,
-        is_active, squad_role, is_retired, is_injured, fitness, morale, fatigue)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,1500,?,'youth',?,?,false,'reserve',false,false,100,80,0)
+        continent, player_type, potential, image_url, is_retired)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,'youth',?,?,false)
   `);
   for (const p of NEW_YOUTH) {
     const yOvr = 45 + Math.round((p.age - 14) * 3 + Math.random() * 12);

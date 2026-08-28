@@ -149,7 +149,7 @@ function buildV4(p: {
   age: number; position: string; playerType: string; isDraftPlayer: boolean;
   speed: number; power: number; defense: number; serve: number; block: number;
   stamina: number; morale: number; fatigue: number; fitness: number;
-  injuryStatus: string; isInjured: boolean; scoutedPotential: string | null;
+  injuryStatus: string; isInjured: boolean;
   potential: string; imageUrl: string | null; height: string;
   salary: string;
 }) {
@@ -363,16 +363,18 @@ function buildV4(p: {
     unity_material_rule:    "Apply primary colours to kit during matches. Never use default grey clothing.",
   };
 
-  // scouting
+  // Scouting. What a career has DISCOVERED about a player is career state —
+  // scouted_potential and discovered_by moved to career_player_state in chunk
+  // 5 — so the reference card records the unscouted starting position that
+  // every career begins from. Baking one career's scouting into shared
+  // reference data would have shown every save the same "known" potential.
   const scouting = {
-    scouted_accuracy:    p.scoutedPotential ? rand(55, 90) : null,
-    known_potential:     !!p.scoutedPotential,
-    hidden_gem:          !p.scoutedPotential && pot === "Elite" && ovr < 78,
+    scouted_accuracy:    null,
+    known_potential:     false,
+    hidden_gem:          pot === "Elite" && ovr < 78,
     risk_level:          pot === "Elite" ? "Low" : pot === "High" ? "Medium" : "Medium-High",
-    scout_summary:       p.scoutedPotential
-      ? `Rated ${p.scoutedPotential} potential. Strong ${pos} profile.`
-      : `Unassessed. Appears to be a ${pot.toLowerCase()} ceiling ${pos}.`,
-    scout_confidence:    p.scoutedPotential ? rand(60, 88) : null,
+    scout_summary:       `Unassessed. Appears to be a ${pot.toLowerCase()} ceiling ${pos}.`,
+    scout_confidence:    null,
     false_positive_risk: rand(5, 20),
     false_negative_risk: rand(3, 15),
   };
@@ -474,7 +476,6 @@ async function main() {
     serve:           playersTable.serve,
     block:           playersTable.block,
     stamina:         playersTable.stamina,
-    scoutedPotential:playersTable.scoutedPotential,
     potential:       playersTable.potential,
     imageUrl:        playersTable.imageUrl,
     height:          playersTable.height,

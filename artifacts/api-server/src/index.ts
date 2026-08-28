@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { normaliseContinentsOnce } from "./utils/normaliseContinents";
 import { ensurePoolCompetitors, ensureTeamCompetitors } from "./utils/competitors";
 import { migrateCareerStateOnce, dropMovedColumns } from "./utils/migrateCareerState";
+import { ensureSchema } from "./utils/ensureSchema";
 
 const rawPort = process.env["PORT"];
 
@@ -16,6 +17,19 @@ const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+// FIRST: create anything a save predating it will not have. There is no
+// migration runner here and electron/main.js never overwrites an existing save,
+// so an upgrading player's database is whatever schema they first installed.
+// Every migration below assumes its tables exist, so this has to lead.
+try {
+  const s = ensureSchema();
+  if (s.tablesCreated.length > 0 || s.columnsAdded.length > 0) {
+    logger.info(s, "schema brought forward for an older save");
+  }
+} catch (err) {
+  logger.error({ err }, "schema ensure failed");
 }
 
 // Data migration: collapse the three continent spellings onto the canonical

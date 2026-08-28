@@ -74,6 +74,14 @@ const CLEAR_TABLES = [
   "calendar_state",
   "career_history_entries",
   "career_saves",
+  // Career-scoped state: a starter database has no careers, so it must have no
+  // state rows either. seedCareerState() builds them when a career is created.
+  "career_player_state",
+  "career_staff_state",
+  // Competitor identity is rebuilt at boot by ensurePoolCompetitors() /
+  // ensureTeamCompetitors(); rankings are career-scoped.
+  "competitors",
+  "competitor_rankings",
   "continental_pool_players",
   "continental_pool_teams",
   "continental_scouting_missions",
@@ -219,21 +227,16 @@ function main() {
       db.prepare(`DELETE FROM \`${t}\``).run();
     }
 
-    if (actualTables.includes("players")) {
-      db.prepare(
-        `UPDATE players SET
-           team_id = NULL,
-           squad_role = 'reserve',
-           fitness = 100,
-           fatigue = 0,
-           morale = 80,
-           is_injured = 0,
-           injury_status = 'Healthy',
-           injury_weeks_remaining = 0,
-           consecutive_matches_played = 0,
-           outfit_id = NULL`,
-      ).run();
-    }
+    // `players` needs no reset any more. Every column this used to clear —
+    // team_id, squad_role, condition, outfit_id — moved to career_player_state,
+    // which is cleared wholesale above. What is left on the reference row is
+    // what a player STARTS with, and a starter database is supposed to keep it.
+    //
+    // This UPDATE was not merely redundant: after the columns were dropped it
+    // would have thrown "no such column: team_id" and taken the whole script
+    // with it. outfit_id physically survives the drop (SQLite refuses it — a
+    // foreign key depends on it), so a reset here would have written to a
+    // column nothing reads, which is worse than an error.
 
     if (actualTables.includes("staff")) {
       db.prepare(`UPDATE staff SET team_id = NULL, is_available = 1`).run();

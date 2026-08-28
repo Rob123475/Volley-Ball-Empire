@@ -164,8 +164,6 @@ async function main() {
       playerType: "youth",
       isDraftPlayer: false,
       potential: potentialLabel(p.potentialStars),
-      scoutedPotential: scoutedPotentialLabel(p.potentialStars),
-      trainingPoints: 0,
     });
     count++;
     const half = p.currentStars % 1 === 0.5 ? "½" : "";
