@@ -79,12 +79,14 @@ async function advanceToBoundary(api, maxDays = 500) {
 
   // ── Walk every boundary to the terminal one ──────────────────────────────
   const seen = [];
+  const seenBodies = [];
   let complete = null;
   for (let season = 1; season <= 6; season++) {
     const hit = await advanceToBoundary(A);
     if (!hit) { check(`reached boundary ${season}`, false, "never rolled over"); break; }
     if (hit.roll.kind === "career-complete") { complete = hit; break; }
     seen.push(hit.roll);
+    seenBodies.push(hit.body);
 
     const s = (await A("GET", "/seasons/current")).data;
     check(`season ${hit.roll.fromSeason} -> ${hit.roll.toSeason}`,
@@ -111,6 +113,29 @@ async function advanceToBoundary(api, maxDays = 500) {
   if (complete) {
     check("terminal season is 5", complete.roll.finalSeason === 5);
     check("careerComplete flag returned", complete.body.careerComplete === true);
+    check("the final season is reviewable too",
+      complete.body.reviewYear === 2026 + complete.roll.finalSeason - 1,
+      `reviewYear ${complete.body.reviewYear}`);
+  }
+
+  // The season review has to REACH the client. The rollover returned
+  // seasonRollover and careerComplete for weeks and the client read neither, so
+  // asserting the rollover happened is not the same as asserting it is visible.
+  // reviewYear is what opens the screen; without it the dialog never fires.
+  const withYear = seenBodies.filter((b) => Number.isFinite(b?.reviewYear));
+  check("every rollover names the season to review",
+    withYear.length === seenBodies.length,
+    `${withYear.length}/${seenBodies.length} carry reviewYear`);
+  check("reviewYear is the season that ENDED, not the one starting",
+    seen.every((r, i) => seenBodies[i]?.reviewYear === 2026 + r.fromSeason - 1),
+    seen.map((r, i) => `${r.fromSeason}->${seenBodies[i]?.reviewYear}`).join(", "));
+
+  if (withYear.length > 0) {
+    const y = withYear[0].reviewYear;
+    const rev = await A("GET", `/seasons/${y}/review`);
+    check("the year the client is handed actually resolves",
+      rev.status === 200 && rev.data?.seasonYear === y,
+      `GET /seasons/${y}/review -> HTTP ${rev.status}`);
   }
 
   // ── Carry-forward: history and standings ────────────────────────────────

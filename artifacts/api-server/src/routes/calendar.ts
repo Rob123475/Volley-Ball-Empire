@@ -650,6 +650,13 @@ router.post("/calendar/advance", async (req, res) => {
     atSeasonEnd,
     seasonRollover: rollover,
     careerComplete: rollover.kind === "career-complete",
+    // The YEAR of the season that just ended, so the client can open its review
+    // without re-deriving the season-number-to-year mapping. That mapping lives
+    // in seasonRollover.ts and duplicating it in the client is how the two drift.
+    reviewYear:
+      rollover.kind === "rolled"          ? yearForSeasonNumber(rollover.fromSeason)
+    : rollover.kind === "career-complete" ? yearForSeasonNumber(rollover.finalSeason)
+    : null,
   });
 });
 

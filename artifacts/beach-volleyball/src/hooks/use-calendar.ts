@@ -83,6 +83,15 @@ export type AdvanceResult = {
   blocked?: "pending_match" | "season_end";
   pendingMatchId?: number;
   currentDate?: string;
+  // The season boundary. All three have been returned by the server since the
+  // rollover was built and nothing in the client read any of them.
+  seasonRollover?:
+    | { kind: "none" }
+    | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number }
+    | { kind: "career-complete"; finalSeason: number };
+  careerComplete?: boolean;
+  /** Year of the season that just ended, or null. Server-derived on purpose. */
+  reviewYear?: number | null;
 };
 
 export const SPEED_MS: Record<CalendarSpeed, number | null> = {

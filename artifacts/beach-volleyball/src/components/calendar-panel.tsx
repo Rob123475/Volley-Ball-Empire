@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCalendar, type CalendarSpeed, SPEED_MS } from "@/hooks/use-calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { SeasonReviewDialog } from "@/components/season-review-dialog";
 import {
   Pause,
   Clock,
@@ -37,10 +38,24 @@ function VDiv() {
 export function CalendarPanel() {
   const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed, advanceMutation } = useCalendar();
   const tickingRef = useRef(false);
+  // A season boundary is an event, not a place: it has to interrupt. Opening
+  // the review also pauses the clock, otherwise the ticker keeps advancing days
+  // behind the dialog and the player reads a review of a season they have
+  // already left.
+  const [reviewYear, setReviewYear] = useState<number | null>(null);
   // A failing advance never changes the date, so the ticker would otherwise
   // retry forever — at Fast speed that is five failing requests a second, in
   // silence. Give up after a few consecutive failures and pause the clock.
   const failuresRef = useRef(0);
+
+  // Open the season review whenever an advance crossed a season boundary —
+  // from the ticker OR from the manual Advance Day button, which goes through
+  // useCalendar's own mutate() and has no callback of its own. Keyed on the
+  // mutation's last result so both paths land here and neither can miss it.
+  const lastReviewYear = advanceMutation.data?.reviewYear ?? null;
+  useEffect(() => {
+    if (lastReviewYear != null) setReviewYear(lastReviewYear);
+  }, [lastReviewYear]);
 
   // Auto-advance ticker — lives here (and only here) so only one interval ever runs
   useEffect(() => {
@@ -63,6 +78,8 @@ export function CalendarPanel() {
           // useCalendar pauses the clock and tells the player; just stop the
           // ticker so it does not keep polling a finished season.
           if (result?.blocked === "season_end") clearInterval(timer);
+          // The effect below opens the review; the ticker only has to stop.
+          if (result?.reviewYear != null) { clearInterval(timer); setSpeed("pause"); }
         },
         onError:   () => {
           failuresRef.current += 1;
@@ -226,6 +243,8 @@ export function CalendarPanel() {
           </div>
         </>
       )}
+
+      <SeasonReviewDialog year={reviewYear} onClose={() => setReviewYear(null)} />
     </div>
   );
 }

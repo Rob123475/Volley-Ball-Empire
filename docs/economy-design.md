@@ -669,7 +669,7 @@ What the player must be able to see, by stage:
 | Tier status | Dashboard | Current tier, points to the next threshold, what unlocks |
 | Finals | new Finals screen | Group stage table, bracket, qualification path |
 | Fail state | Dashboard + Finances | The escalation ladder as a visible state: warning, spending blocked, forced sales pending, sacked. The player must always see it coming |
-| Season end | new Season Review | Standings, tier movement, prize summary, what changed |
+| Season end | **BUILT** — `season-review-dialog.tsx` | Record, ranking points, balance, retirements, final table |
 | Career end | new Career Result | Trophies, peak ranking, progression, final balance, career score and rank band |
 | Start | New career | UNDERDOG vs ESTABLISHED choice with a plain description of the difference |
 
@@ -738,6 +738,22 @@ the eligibility reason has to come back with the fixture, not only on rejection.
 **Dependency:** rows 1-4 need Phase 2 (thresholds, push-out), row 5 needs
 Phase 5 (fail state), rows 7-8 need Phase 6 (career score, start modes). Row 6
 (Season Review) is buildable NOW — rollover already returns everything it needs.
+
+**Built.** `components/season-review-dialog.tsx`, opened from `calendar-panel`
+when an advance crosses a season boundary. A dialog rather than a route: a
+season boundary is an event, not a place, and it has to interrupt the
+auto-advance ticker rather than wait to be navigated to. Opening it pauses the
+clock, or the ticker advances days behind the dialog and the player reads a
+review of a season they have already left.
+
+The client no longer derives season-number-to-year itself: `/calendar/advance`
+returns `reviewYear`, the year of the season that just ENDED. Duplicating that
+mapping in the client is how the two drift. `harness/rollover.mjs` asserts every
+rollover carries it, that it names the season that ended rather than the one
+starting, and that the year the client is handed actually resolves to a review —
+because the rollover returned `seasonRollover` and `careerComplete` for weeks
+while the client read neither, and "the rollover happened" is not the same
+assertion as "the player can see it".
 
 ## What is being kept (do not rewrite)
 - finances table and the atomic, guarded prize payment transaction
