@@ -255,6 +255,20 @@ buildAll().then(
     console.error("");
     console.error(err && err.stack ? err.stack : String(err));
     console.error("");
+    // A locked native addon is not a build bug, and the raw EPERM does not say
+    // so. dist/ is wiped on every build; if the app is running it holds
+    // better_sqlite3.node open and Windows refuses the unlink. Say that,
+    // rather than leaving an errno to be searched for.
+    if (String(err && err.code) === "EPERM" || /EPERM/.test(String(err && err.message))) {
+      console.error("  This is a FILE LOCK, not a compile error.");
+      console.error("");
+      console.error("  Something is running the built server and holding");
+      console.error("  dist/node_modules/better-sqlite3 open - usually the app");
+      console.error("  itself. Close it and build again:");
+      console.error("");
+      console.error("    taskkill /IM electron.exe /F");
+      console.error("");
+    }
     console.error(line);
     console.error("  BUILD FAILED - exiting 1");
     console.error(line);

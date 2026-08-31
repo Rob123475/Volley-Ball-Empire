@@ -202,6 +202,50 @@ Wages scale with player rating (already correct: monthly figure, weekly drip at
 salary ÷ 4.333). Staff and facilities scale with ambition. Costs must rise as you
 climb, but slower than income does (see I5).
 
+#### The wage curve — flattened above $100k (shipped, and it does NOT fix I1)
+
+Measured across the shipped roster, price and capability scale at wildly
+different rates:
+
+| | cheapest starter | best starter | ratio |
+|---|---|---|---|
+| asking price | $66,000 | $180,000 | **2.7x** |
+| overall rating | 66.2 | 76.3 | **1.15x** |
+| expected season income | — | — | **1.39x** |
+
+Price rises 2.7x for a 15% capability gain, while income rises 1.39x. That is
+the I1 inversion in one line: the best squad grosses most and nets least.
+
+`utils/wageCurve.ts` flattens the top end — asking price below a $100k knee is
+untouched, above it each dollar contributes 40c of wage. Elite players stay the
+most expensive; they stop costing multiples of what they return.
+
+**It fixes the elite pathology and does not fix I1.** Sweeping the compression
+from 1.0 (old linear curve) to 0.0 (total flattening), by season-2 net:
+
+| compression | cheapest | lower-mid | upper-mid | best | I1 monotonic |
+|---|---|---|---|---|---|
+| 1.00 (before) | $127,949 | $92,593 | $105,565 | **$62,105** | FAIL |
+| 0.40 (shipped) | $127,949 | $94,993 | $136,765 | **$158,105** | FAIL |
+| 0.00 (maximum) | $127,949 | $96,601 | $157,573 | **$222,113** | FAIL |
+
+What it bought: the best squad went from netting the **least** of the four to
+netting the **most** of the top three ($62k → $158k). Real, and worth keeping.
+
+Why it cannot finish the job: **the surviving inversion is between `cheapest`
+($127,949) and `lower-mid` ($96,601) — both below the $100k knee, where the
+curve never applies.** Flattening the top end is structurally incapable of
+reaching it. At compression 0.00 the top three converge and rise monotonically
+among themselves and `cheapest` still beats `lower-mid`. Income is computed
+independently of wages, so cost is the only lever this change has, and it has
+no reach below the knee.
+
+The sub-knee inversion is a *prize* problem, not a wage problem: a $66k player
+and a $102k player differ 55% in price and ~3.5 rating points, which buys ~14%
+more income. Closing that is prize scaling — deliberately **not** done here,
+because I3 is already 35% against a 15% target (the single World Final is 35%
+of season prize money). **I1 is deferred to Phase 3.**
+
 ### 4. Sponsorship, and where money goes
 Reputation-linked, option B decay toward 50 at 5%/week already implemented.
 Re-tune: ±1/match was calibrated against a broken 33–40% win band. At real win

@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
+import { monthlyWage } from "./wageCurve.js";
 
 /** A regional league is six clubs playing a double round-robin. */
 const LEAGUE_SIZE = 6;
@@ -588,7 +589,7 @@ export function seedCareerState(careerSaveId: number): void {
       tx.insert(careerPlayerStateTable).values({
         careerSaveId, playerId: p.id,
         age:     Number(refs.get(p.id)?.base_age ?? refs.get(p.id)?.age ?? 20),
-        salary:  Math.round(Number(refs.get(p.id)?.asking_price ?? 0) / 12),
+        salary:  monthlyWage(refs.get(p.id)?.asking_price),
         speed:   Number(refs.get(p.id)?.speed   ?? 70),
         power:   Number(refs.get(p.id)?.power   ?? 70),
         defense: Number(refs.get(p.id)?.defense ?? 70),
