@@ -81,9 +81,34 @@ Remove-Item -Recurse -Force artifacts/api-server/dist/public
 #    to forget.
 pnpm run electron:build
 
-# 5. If you need the standalone dev server again afterward, restore step 2's copy.
-Copy-Item -Recurse artifacts/beach-volleyball/public/* artifacts/api-server/dist/public/
+# 5. Nothing to restore. `pnpm run build` runs scripts/sync-public.cjs after
+#    every workspace build, which copies artifacts/beach-volleyball/dist/public
+#    into artifacts/api-server/dist/public and FAILS the build if the frontend
+#    is not there.
 ```
+
+### Why that step used to exist, and why it does not now
+
+`artifacts/api-server/build.mjs` wipes its entire `dist/` on every build, and
+nothing put `dist/public` back. In an unpackaged run `electron/main.js` points
+`PUBLIC_DIR` at `artifacts/api-server/dist/public`, so after any api-server
+build the app started cleanly, logged nothing wrong, and served Express's own
+`Cannot GET /` — a 404 that reads like a routing bug rather than a missing
+directory. It cost real time more than once.
+
+That is the silent-success pattern this project has spent weeks removing, so it
+now fails the build instead:
+
+- `scripts/sync-public.cjs` runs AFTER all workspace builds — not inside
+  `build.mjs`, because `pnpm -r` does not guarantee the frontend builds first,
+  and copying from inside `build.mjs` would either deadlock a clean checkout or
+  silently copy a stale frontend.
+- It verifies the RESULT rather than the copy: `index.html` present, and more
+  than one file, because an index with no assets is not an app.
+- `harness/fresh-install.mjs` then boots a server in `NODE_ENV=production` —
+  `app.ts` only mounts `express.static` under production, so checking the
+  development server would pass while proving nothing — and asserts `GET /`
+  returns 200, is not `Cannot GET`, and contains the app shell.
 
 `win-unpacked` (a runnable, unsigned build — good for quick local testing)
 lands in `C:\build\vbe\win-unpacked`; the NSIS installer lands next to it as

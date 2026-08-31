@@ -219,6 +219,57 @@ child.kill("SIGKILL");
 await new Promise((r) => setTimeout(r, 600));
 try { fs.closeSync(out); } catch {}
 
+// ── 4. The app is actually served at / ──────────────────────────────────────
+//
+// build.mjs wipes dist/ on every build and nothing put dist/public back, so the
+// server started cleanly and served Express's own "Cannot GET /" — a 404 that
+// reads like a routing bug rather than a missing directory. It cost real time
+// more than once.
+//
+// This MUST run in NODE_ENV=production: app.ts only mounts express.static under
+// production, so asserting against the development server above would pass
+// while proving nothing.
+console.log("\n4. THE APP IS SERVED AT /");
+{
+  const pubDir = path.join(REPO, "artifacts", "api-server", "dist", "public");
+  check("built frontend is in place for the server",
+    fs.existsSync(path.join(pubDir, "index.html")),
+    fs.existsSync(pubDir) ? "dist/public present" : "dist/public MISSING");
+
+  const port = 4407;
+  const out2 = fs.openSync(path.join(WORK, "static.log"), "w");
+  const child2 = spawn(ELECTRON, [SERVER], {
+    env: {
+      ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: userDb,
+      PORT: String(port), NODE_ENV: "production",
+      PUBLIC_DIR: pubDir, SESSION_SECRET: "fresh-install-secret",
+    },
+    stdio: ["ignore", out2, out2],
+  });
+
+  let ready = false;
+  const dl = Date.now() + 30000;
+  while (Date.now() < dl) {
+    try { await fetch(`http://localhost:${port}/api/health`); ready = true; break; }
+    catch { await new Promise((r) => setTimeout(r, 250)); }
+  }
+  check("production server started", ready);
+
+  if (ready) {
+    const res = await fetch(`http://localhost:${port}/`);
+    const body = await res.text();
+    check("GET / returns 200", res.status === 200, `HTTP ${res.status}`);
+    check("GET / is NOT Express's 404", !/Cannot GET/i.test(body),
+      /Cannot GET/i.test(body) ? 'served "Cannot GET /"' : "no 404 marker");
+    check("GET / returns the app shell", /<div id="root"|<script/i.test(body),
+      `${body.length} bytes`);
+  }
+
+  try { child2.kill("SIGKILL"); } catch {}
+  await new Promise((r) => setTimeout(r, 400));
+  try { fs.closeSync(out2); } catch {}
+}
+
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 if (failures > 0) {
   console.log(`\nLogs kept: ${WORK}`);
