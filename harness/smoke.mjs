@@ -172,6 +172,32 @@ const roster = async (api) => {
       `${rank.data?.rankingPoints} points from ${rank.data?.wins} wins`);
   }
 
+  // ── 7. Tier qualification is visible on every fixture ────────────────────
+  // Eligibility travels WITH the fixture. A rejection on click is too late —
+  // the player has already chosen by then.
+  console.log("\n7. TIER QUALIFICATION");
+  const fixtures = await A("GET", "/matches");
+  const fx = Array.isArray(fixtures.data) ? fixtures.data : [];
+  check("fixtures carry eligibility", fx.length > 0 && fx.every((m) => m.eligibility),
+    `${fx.filter((m) => m.eligibility).length}/${fx.length}`);
+
+  const bronze = fx.filter((m) => m.tier === "Bronze");
+  const gold   = fx.filter((m) => m.tier === "Gold");
+  check("Bronze is open to a new club",
+    bronze.length === 0 || bronze.every((m) => m.eligibility.eligible),
+    `${bronze.length} Bronze fixtures`);
+  check("Gold is locked, with the threshold and gap stated",
+    gold.length === 0 || gold.every((m) =>
+      !m.eligibility.eligible
+      && m.eligibility.reason === "below_threshold"
+      && m.eligibility.threshold === 40
+      && typeof m.eligibility.gap === "number"),
+    gold.length ? `gap ${gold[0].eligibility.gap} to ${gold[0].eligibility.threshold}` : "no Gold fixtures");
+  const finals = fx.filter((m) => m.tier === "World Final");
+  check("finals are qualification-gated, not ranking-gated",
+    finals.length === 0 || finals.every((m) => m.eligibility.reason === "qualification"),
+    `${finals.length} finals`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

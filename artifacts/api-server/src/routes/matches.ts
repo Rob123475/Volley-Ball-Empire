@@ -5,7 +5,8 @@ import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locat
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import { shiftDateToYear, seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
-import { creditRankingPoints } from "../utils/rankingPoints.js";
+import { creditRankingPoints, currentRanking } from "../utils/rankingPoints.js";
+import { eligibilityFor, PUSHED_OUT_PRIZE_MULTIPLIER } from "../utils/tierQualification.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
@@ -518,7 +519,20 @@ router.get("/matches", async (req, res) => {
   const matches = await db.select().from(matchesTable)
     .where(eq(matchesTable.homeTeamId, team.id))
     .orderBy(desc(matchesTable.createdAt)).limit(50);
-  res.json(matches.map(serializeMatch));
+
+  // Eligibility travels WITH each fixture, never only on rejection.
+  // "Why a club did or did not qualify must be legible, never silent" cannot be
+  // built from a rejection on click — by then the player has already chosen.
+  // The list has to be able to show the threshold and the gap without asking.
+  const season = await getActiveSeason(req);
+  const ranking = season
+    ? await currentRanking(requireCareerSaveId(req.activeCareerSaveId), team.id, season.year)
+    : { rankingPoints: 0, eventsEntered: 0, wins: 0, losses: 0 };
+
+  res.json(matches.map((m) => ({
+    ...serializeMatch(m),
+    eligibility: eligibilityFor(m.tier, ranking.rankingPoints),
+  })));
 });
 
 router.post("/matches", async (req, res) => {
@@ -957,7 +971,23 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // Pay exactly what the fixture advertises. The `|| 5000` fallback here meant
   // a match with a zero/absent purse displayed "$0" on the fixture card but
   // still credited $5,000 — the paid figure has to be the quoted figure.
-  const prizeEarned = (homeWon && !isAllStar) ? Number(match.prizeAmount ?? 0) : 0;
+  // The ranking as it stood BEFORE this result — the ranking the club had when
+  // it entered, which is what the gate must be judged against.
+  const rankingBeforeMatch = (await currentRanking(
+    requireCareerSaveId(req.activeCareerSaveId), team.id, match.season,
+  )).rankingPoints;
+
+  // D4(b): a club above a tier may still enter, but the purse is sharply
+  // reduced and no ranking points are awarded. Keeping the fixture enterable is
+  // what stops the calendar emptying out; the reduction is what stops it being
+  // worth farming. Under cumulative eligibility a club is never above a tier it
+  // has cleared, so in normal play this multiplier does not fire — it is the
+  // rule, not a routine path.
+  const entryEligibility = eligibilityFor(match.tier, rankingBeforeMatch);
+  const prizeMultiplier = entryEligibility.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER;
+  const prizeEarned = (homeWon && !isAllStar)
+    ? Math.round(Number(match.prizeAmount ?? 0) * prizeMultiplier)
+    : 0;
 
   const [updatedMatch] = await db.update(matchesTable).set({
     homeScore,

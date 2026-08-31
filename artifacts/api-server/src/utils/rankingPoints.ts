@@ -1,6 +1,7 @@
 import { db, competitorRankingsTable } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { competitorIdForTeam } from "./competitors.js";
+import { eligibilityFor } from "./tierQualification.js";
 
 /**
  * Ranking points.
@@ -43,6 +44,24 @@ export function rankingPointsFor(tier: string | null | undefined, won: boolean):
 }
 
 /**
+ * Points actually awarded, after the tier gate.
+ *
+ * A club pushed out of a tier scores nothing there (D4b) — that is the rule
+ * that stops a strong club farming Bronze, and it has to be applied where the
+ * points are credited rather than trusted to the entry check, because a fixture
+ * can be entered by a club whose ranking has moved since it was scheduled.
+ */
+export function awardedPoints(
+  tier: string | null | undefined,
+  won: boolean,
+  currentPoints: number,
+): number {
+  if (!won) return 0;
+  const elig = eligibilityFor(tier, currentPoints);
+  return elig.scores ? rankingPointsFor(tier, won) : 0;
+}
+
+/**
  * Credit a result to this career's season ranking.
  *
  * Upserts, so the first result of a season creates the row. Wins and losses are
@@ -56,8 +75,12 @@ export async function creditRankingPoints(args: {
   tier: string | null;
   won: boolean;
 }): Promise<number> {
-  const points = rankingPointsFor(args.tier, args.won);
   const competitorId = await competitorIdForTeam(args.teamId);
+
+  // The gate is applied against the ranking as it stands BEFORE this result,
+  // which is the ranking the club had when it entered.
+  const before = await currentRanking(args.careerSaveId, args.teamId, args.seasonYear);
+  const points = awardedPoints(args.tier, args.won, before.rankingPoints);
 
   const [existing] = await db.select().from(competitorRankingsTable).where(and(
     eq(competitorRankingsTable.competitorId, competitorId),
