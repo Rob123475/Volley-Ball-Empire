@@ -80,6 +80,55 @@ yields sharply reduced prize and zero ranking points. A strong club must not be
 able to farm Bronze. This is what makes investment pay off.
 Thresholds are tuned to produce the arc above — not hardcoded to a season number.
 
+#### Ranking points: RESET per season (decided, modelled)
+
+The implementation already resets — `competitor_rankings` is keyed on
+(competitor, career, season_year), so each season creates a fresh row at zero.
+That was not a decision anyone had made, so it was modelled against the real
+schedule and engine before being kept.
+
+Modelled with the agreed weights (D1) and thresholds (Silver 15, Gold 40), with a
+squad following the measured Phase 1 curve (75.0 in season one, then the 89.5
+ceiling):
+
+| policy | S1 | S2 | S3 | S4 | S5 | dead fixtures/season |
+|---|---|---|---|---|---|---|
+| **reset** | Silver 29 | **Gold 41** | Silver 39 | Silver 39 | Silver 36 | 31-33 |
+| accumulate | Silver 30 | Gold 76 | Gold 122 | Gold 165 | Gold 208 | 44-46 |
+| carry 50% | Silver 29 | Gold 57 | Gold 67 | Gold 78 | Gold 81 | 41-46 |
+
+**RESET is the only policy with tension in it.** The club reaches Gold in season
+two and then oscillates on the boundary — 41, 39, 39, 36 against a threshold of
+40 — so holding Gold is a live question every season. That is the demotion
+pressure the ladder is supposed to create.
+
+Both carry-over policies ratchet. Under accumulate the club is permanently Gold
+from season two and 46 of 62 fixtures are dead. Carry-50% only slows it: the
+carried figure alone climbs 15 -> 29 -> 34 -> 39 and is effectively at the Gold
+threshold by season five, so it converges to the same permanent-Gold state.
+
+The worry that a reset lets one bad run erase three good ones does not
+materialise, because nothing that represents progress is stored in the ranking.
+Squad, balance, trophies, standings and history all persist across the boundary.
+The ranking is a season's competitive standing, like a real tour ranking, and
+resetting it is what makes the season mean something.
+
+**Thresholds were checked, not assumed.** Silver 20 / Gold 55 was modelled as an
+alternative and never reaches Gold at all across the whole arc (peak 41), which
+fails I8's "a well-run club reaches the Grand Final within the arc". Silver 15 /
+Gold 40 stands.
+
+**Deliberate deviation from the arc, accepted.** §1's arc implies Silver in
+season two and Gold in season three. The measured curve is one season ahead:
+Silver in season one, Gold in season two. Recorded here as a deviation rather
+than left as drift — three seasons of contested Gold beats two seasons of
+climbing, and I8 is the judge of whether that is right.
+
+**Half the calendar is dead, by construction.** Exactly one tier is live at a
+time — below a threshold is ineligible, above your band is pushed out — so 31 to
+33 of 62 fixtures score nothing in any season. That is a direct consequence of
+D4(b) and it is a UI problem, not a modelling error. See the Phase 8 scope.
+
 ### 2. Prize structure
 Prize scales steeply by tier, so tier ACCESS — not win rate within a tier — is
 the dominant income lever. No single match may dominate a season (see I3).
@@ -482,6 +531,27 @@ the eight rows there is no host screen and no data binding whatsoever.
 | Season end | — | NEW screen. Nothing renders at a season boundary; the rollover returns `seasonRollover` and `careerComplete` and the client ignores both |
 | Career end | — | NEW screen. `careerComplete` is returned and unused |
 | Start modes | `new-career.tsx` | EXTEND |
+
+**Push-out fixtures must be collapsed, not merely labelled.** D4(b) keeps the
+calendar full deliberately, which means a season-four club scrolls past ~30
+fixtures that pay a reduced prize and score zero ranking points. Labelling each
+one is not enough at that volume: the fixtures list must collapse or
+de-emphasise them into a foldable group ("28 events below your tier"), so the
+live fixtures are what the player actually sees.
+
+**The eligibility reason is a Phase 2 API shape, not a Phase 8 one.** "Why a
+club did or did not qualify must be legible, never silent" cannot be built from
+a rejection on click — by then the player has already chosen. Every fixture in
+the list must carry its own eligibility with it:
+
+    { eligible: boolean,
+      reason: "open" | "below_threshold" | "above_tier" | "not_qualified",
+      threshold: number | null,     // what this tier requires
+      currentPoints: number,        // what the club has
+      gap: number | null }          // how far away, when below
+
+Settled now so it is designed into the Phase 2 endpoint rather than discovered
+when the screen is built.
 
 **Two things Phase 8 must not repeat.** The frozen `poolRanking` and the empty
 `competitor_rankings` were both invisible for a whole phase because nothing
