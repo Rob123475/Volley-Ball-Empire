@@ -151,6 +151,31 @@ async function advanceToBoundary(api, maxDays = 500) {
   check("the arc retired somebody", mentions.length > 0,
     mentions.map((e) => e.description.match(/(\d+) players? retired/)?.[1] ?? "?").join(", ") + " per season");
 
+  // ── Season Review (Phase 8 row 6) ────────────────────────────────────────
+  // The rollover has returned seasonRollover and careerComplete since 1.1 and
+  // nothing consumed either, so five boundaries passed with nothing to show.
+  const review = await A("GET", "/seasons/2027/review");
+  check("season review responds for a completed season", review.status === 200,
+    `HTTP ${review.status}`);
+  if (review.status === 200) {
+    const r = review.data;
+    check("review knows which season it is", r.seasonNumber === 2,
+      `season ${r.seasonNumber} (${r.seasonYear})`);
+    check("review carries a final table",
+      Array.isArray(r.standings) && r.standings.length > 0,
+      `${r.standings?.length} rows, player rank ${r.playerRank}`);
+    check("review carries the ranking", r.ranking !== undefined,
+      `${r.ranking?.rankingPoints} pts, ${r.ranking?.eventsEntered} entered`);
+    check("review carries a written summary",
+      typeof r.summary === "string" && r.summary.length > 0,
+      r.summary ? r.summary.slice(0, 55) : "none");
+    check("review reports retirements", Array.isArray(r.retired),
+      `${r.retired?.length} retired that season`);
+  }
+  const finalReview = await A("GET", "/seasons/2030/review");
+  check("final season is flagged as final",
+    finalReview.status === 200 && finalReview.data?.isFinalSeason === true);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   process.exit(failures > 0 ? 1 : 0);
 })().catch((err) => { console.error(err); process.exit(1); });
