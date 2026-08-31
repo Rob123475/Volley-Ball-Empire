@@ -97,6 +97,13 @@ ceiling):
 | accumulate | Silver 30 | Gold 76 | Gold 122 | Gold 165 | Gold 208 | 44-46 |
 | carry 50% | Silver 29 | Gold 57 | Gold 67 | Gold 78 | Gold 81 | 41-46 |
 
+**SETTLED: reset per season.** The deciding reason is that nothing which
+represents progress lives in the ranking. Squad, balance, trophies, standings,
+history and hall of fame all persist across the boundary; the ranking is a
+season's competitive standing and nothing else. Resetting it therefore erases no
+achievement — it only asks the club to prove itself again, which is what makes a
+season mean something.
+
 **RESET is the only policy with tension in it.** The club reaches Gold in season
 two and then oscillates on the boundary — 41, 39, 39, 36 against a threshold of
 40 — so holding Gold is a live question every season. That is the demotion
@@ -124,10 +131,67 @@ Silver in season one, Gold in season two. Recorded here as a deviation rather
 than left as drift — three seasons of contested Gold beats two seasons of
 climbing, and I8 is the judge of whether that is right.
 
-**Half the calendar is dead, by construction.** Exactly one tier is live at a
-time — below a threshold is ineligible, above your band is pushed out — so 31 to
-33 of 62 fixtures score nothing in any season. That is a direct consequence of
-D4(b) and it is a UI problem, not a modelling error. See the Phase 8 scope.
+#### Tier eligibility: CUMULATIVE (modelled, against both our leans)
+
+The question was whether one-tier-live was intended or merely what D4(b)
+implies. Modelled both against I1 and I5 before the gate was built.
+
+**Exclusive FAILS I5 outright.** Same squad, income by band:
+
+  | mode | Bronze | Silver | Gold |
+  |---|---|---|---|
+  | exclusive | $538,833 (32 ev) | **$510,810 (18 ev)** | $576,543 (16 ev) |
+  | cumulative | $522,973 (32 ev) | $694,145 (48 ev) | $939,995 (62 ev) |
+
+Under exclusivity a club that climbs to Silver earns LESS than it did in Bronze.
+Climbing costs you money. That is not a tuning miss that a prize rescale fixes —
+it is structural: promotion trades 32 Bronze events for 18 Silver ones, and no
+plausible per-event prize covers an event count falling faster than the purse
+rises. "Climbing pays" is the whole point of §1, so exclusivity contradicts it.
+
+Cumulative passes cleanly and monotonically, because the calendar GROWS as you
+rise: 32 -> 48 -> 62 events.
+
+It also dissolves the dead-fixture problem. Under exclusivity 31-33 of 62
+fixtures score nothing every season; under cumulative a Gold club has 62 live
+fixtures and none dead. The Phase 8 requirement to collapse push-out events
+shrinks to a much smaller case — only tiers the club has not yet unlocked, which
+are genuinely not available rather than pointedly worthless.
+
+**Legibility, which was the case for exclusivity, survives.** "You have unlocked
+Bronze, Silver and Gold" is not harder to state than "you are in Silver"; the
+fixture list simply shows what is open. D4(b)'s push-out still applies to any
+tier a club is above — there just are not any, because cumulative means a club
+is never above a tier it has cleared.
+
+**I1 FAILS under BOTH, and gating is not what fixes it.**
+
+  | mode | cheapest | lower-mid | upper-mid | best |
+  |---|---|---|---|---|
+  | exclusive | 1.91x | 1.34x | 1.29x | 1.03x |
+  | cumulative | 2.19x | 1.59x | 1.37x | 1.11x |
+
+Gating narrows the inversion substantially — the pre-gating baseline spanned
+3.53x to 1.84x, a spread of 1.69x, against 1.08x under cumulative — but the
+direction is still wrong, and net result falls too ($157k down to $40k). The
+best squad grosses the most and nets the least, because a $360,000 wage bill
+eats the difference.
+
+That is the wage curve, not the gate, and §1's own escape clause anticipated it:
+"Measures I1 against gating ALONE (wage curve untouched unless I1 still fails)."
+It still fails. The wage curve is therefore in scope for Phase 2.
+
+**Caveat on these numbers.** The $500,000 World Final is always eligible
+(qualification-based, not ranking-gated) and dominates every band's income,
+which is why the exclusive Bronze figure looks so high. I3 is contaminating I5's
+measurement. Re-measure both after Phase 3 rescales the purses.
+
+**Superseded by the cumulative decision above.** Under the exclusive model that
+was first assumed, 31-33 of 62 fixtures scored nothing every season. Cumulative
+eligibility removes that: a club sees the tiers it has cleared plus the ones it
+has not yet unlocked, and nothing it has cleared is ever worthless. Kept here
+because the Phase 8 scope still needs to handle not-yet-unlocked tiers, just far
+fewer of them.
 
 ### 2. Prize structure
 Prize scales steeply by tier, so tier ACCESS — not win rate within a tier — is
