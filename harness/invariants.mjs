@@ -178,6 +178,9 @@ console.log(JSON.stringify({ events: WORLD_TOUR.length, total, biggest, byTier }
   const d = probe(`
 import { WORLD_TOUR } from "./data/worldTour.js";
 import { pointProbability, simulateMatch, sideRating, opponentRatingFromTier } from "./utils/matchEngine.js";
+import { monthlyWage } from "./utils/wageCurve.js";
+import { eligibilityFor, currentTier, PUSHED_OUT_PRIZE_MULTIPLIER } from "./utils/tierQualification.js";
+import { rankingPointsFor } from "./utils/rankingPoints.js";
 import { db, playersTable } from "@workspace/db";
 
 // Real athletes, ordered by what they cost.
@@ -201,22 +204,47 @@ for (const squad of SQUADS) {
     speed: p.speed, power: p.power, defense: p.defense,
     serve: p.serve, block: p.block, stamina: p.stamina,
   })));
-  // Monthly wage = askingPrice / 12, the same relation seedCareerState uses.
-  const monthlyWage = squad.players.reduce((s: number, p: any) => s + Number(p.askingPrice) / 12, 0);
-  const seasonWage = monthlyWage * 12;
+  // The REAL wage relation, imported rather than restated — a model that
+  // recomputes the formula stops measuring the game the moment one of them moves.
+  const seasonWage = squad.players.reduce((s: number, p: any) => s + monthlyWage(p.askingPrice), 0) * 12;
 
-  // Expected prize income: sum over every event of P(win) x prize.
-  let expected = 0;
-  for (const e of WORLD_TOUR) {
-    const opp = opponentRatingFromTier(e.tier, e.opponent);
-    const p = pointProbability(rating, opp, { homeAdvantage: false });
-    // Probability of WINNING the event, not one match.
-    let wins = 0;
-    const TRIALS = 400;
-    for (let i = 0; i < TRIALS; i++) if (simulateMatch(p).homeWon) wins++;
-    expected += (wins / TRIALS) * e.prize;
+  // A GATED season, walked in schedule order.
+  //
+  // This can no longer be a per-event expectation. Eligibility depends on
+  // ranking points the club has actually banked BY THAT POINT in the season, so
+  // whether an event can be entered at all depends on realised earlier results.
+  // Averaging whole ordered seasons is the only way to measure that; averaging
+  // per-event win probabilities would silently assume the club was eligible for
+  // everything, which is the assumption the old model carried and gating exists
+  // to remove.
+  const schedule = [...WORLD_TOUR].sort((a: any, b: any) => a.round - b.round);
+  const SEASONS = 200;
+  let expected = 0, entered = 0, scored = 0, endPoints = 0;
+
+  for (let run = 0; run < SEASONS; run++) {
+    let points = 0, income = 0, n = 0, sc = 0;
+    for (const e of schedule) {
+      const elig = eligibilityFor(e.tier, points);
+      // Below the threshold the club cannot enter at all. Above its band it may
+      // enter for a token purse and no points (D4b).
+      if (!elig.eligible) continue;
+      n++;
+      const opp = opponentRatingFromTier(e.tier, e.opponent);
+      const p = pointProbability(rating, opp, { homeAdvantage: false });
+      const won = simulateMatch(p).homeWon;
+      if (won) {
+        income += e.prize * (elig.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER);
+        if (elig.scores) { points += rankingPointsFor(e.tier, true); sc++; }
+      }
+    }
+    expected += income; entered += n; scored += sc; endPoints += points;
   }
-  out.squads.push({ label: squad.label, rating, seasonWage, expected, net: expected - seasonWage });
+
+  expected /= SEASONS; entered /= SEASONS; scored /= SEASONS; endPoints /= SEASONS;
+  out.squads.push({
+    label: squad.label, rating, seasonWage, expected, net: expected - seasonWage,
+    entered, scored, endPoints, tier: currentTier(endPoints),
+  });
 }
 
 // I4: the SAME squad, five independent stochastic runs of the whole schedule.
@@ -240,20 +268,61 @@ process.exit(0);
 
   const rows = d.squads.map((s) =>
     `  ${s.label.padEnd(10)} rating ${s.rating.toFixed(1).padStart(5)}   ` +
+    `${s.tier.padEnd(6)} ${s.endPoints.toFixed(1).padStart(5)}pts   ` +
+    `${s.entered.toFixed(0).padStart(2)} entered   ` +
     `wages $${Math.round(s.seasonWage).toLocaleString().padStart(9)}   ` +
-    `expected $${Math.round(s.expected).toLocaleString().padStart(9)}   ` +
+    `net $${Math.round(s.net).toLocaleString().padStart(9)}   ` +
     `return ${(s.expected / s.seasonWage).toFixed(2)}x`);
   const ratios = d.squads.map((s) => s.expected / s.seasonWage);
   const monotonic = ratios.every((r, i) => i === 0 || r >= ratios[i - 1] - 1e-9);
-  record("I1", "MONOTONIC RETURN", "BASELINE",
+  record("I1", "MONOTONIC RETURN", monotonic ? "PASS" : "VIOLATED",
     [...rows,
      `return multiple ${monotonic ? "rises" : "FALLS"} with squad quality` +
      `   (${ratios.map((r) => r.toFixed(2) + "x").join(" -> ")})`,
      `TARGET: a better squad must earn a better net result`,
-     `ASSUMES every squad enters every event on the schedule — there is no tier`,
-     `gating yet, so that is what the game currently allows. The absolute income`,
-     `is therefore an upper bound; the RATIO between squads is the finding.`,
+     ``,
+     `PROVISIONAL — superseded by the post-Phase-3 sweep. I3 is 35% against a`,
+     `15% target (the single $500,000 World Final is 35% of all prize money), so`,
+     `that one event dominates every band's income and contaminates this ratio.`,
+     `Phase 3 rescales the purses; re-measure then. This run is a DIRECTIONAL`,
+     `check on the wage curve, not the verdict on I1.`,
+     ``,
+     `The wage curve moved this in the right direction and did not fix it: the`,
+     `surviving inversion sits BELOW the $100,000 knee, which flattening the top`,
+     `end cannot reach. See docs/economy-design.md.`,
     ].join(NEWLINE));
+
+  // I5 — climbing pays. Unblocked by 2.1-2.3: there are tier boundaries now.
+  const byTier = new Map();
+  for (const s of d.squads) byTier.set(s.tier, [...(byTier.get(s.tier) ?? []), s]);
+  const tiersReached = [...byTier.keys()];
+  const i5rows = d.squads.map((s) =>
+    `  ${s.label.padEnd(10)} reached ${s.tier.padEnd(6)} on ${s.endPoints.toFixed(1)} pts   ` +
+    `${s.entered.toFixed(0)} entered / ${s.scored.toFixed(1)} scored   ` +
+    `income $${Math.round(s.expected).toLocaleString()}`);
+  if (tiersReached.length < 2) {
+    record("I5", "CLIMBING PAYS", "VIOLATED",
+      [...i5rows,
+       ``,
+       `All four squads finish in the SAME band (${tiersReached[0]}), so there is no`,
+       `tier boundary between a ${d.squads[0].rating.toFixed(1)}-rated squad and a` +
+       ` ${d.squads[d.squads.length - 1].rating.toFixed(1)}-rated one.`,
+       `The gate is not separating them. That is a THRESHOLD question, not a`,
+       `prize question: Silver 15 / Gold 40 were set to make Gold reachable`,
+       `across the arc (I8), and the same setting makes it reachable by everyone`,
+       `in season one. Needs re-tuning once Phase 3 fixes the purses.`,
+      ].join(NEWLINE));
+  } else {
+    const order = ["Bronze", "Silver", "Gold"];
+    const sorted = [...d.squads].sort((x, y) => order.indexOf(x.tier) - order.indexOf(y.tier));
+    const pays = sorted.every((s, i) => i === 0 || s.expected >= sorted[i - 1].expected - 1e-9);
+    record("I5", "CLIMBING PAYS", pays ? "PASS" : "VIOLATED",
+      [...i5rows,
+       ``,
+       `${tiersReached.length} bands reached; income ${pays ? "rises" : "does NOT rise"} with tier.`,
+       `PROVISIONAL — same Phase 3 caveat as I1.`,
+      ].join(NEWLINE));
+  }
 
   const mean = d.runs.reduce((a, b) => a + b, 0) / d.runs.length;
   const lo = Math.min(...d.runs), hi = Math.max(...d.runs);
@@ -306,8 +375,6 @@ record("I9", "MONEY STAYS MEANINGFUL", "VIOLATED",
 const BLOCKED = [
   ["I2", "FAILURE IS POSSIBLE",
    "No fail state. isJobAtRisk has zero consumers and there is no sacking path, so 'reaches sacking within three seasons' has nothing to measure. Phase 5."],
-  ["I5", "CLIMBING PAYS",
-   "No tier structure. Tier qualification and per-tier purses do not exist, so there is no tier boundary to measure a delta across. Phase 2 and 3."],
   ["I6", "UNDERDOG IS TIGHT, NOT DOOMED",
    "No start modes and no fail state. UNDERDOG/ESTABLISHED are unimplemented, and 'can fail' needs the same sacking path I2 needs. Phase 5 and 6."],
 ];

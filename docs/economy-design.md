@@ -246,6 +246,68 @@ more income. Closing that is prize scaling — deliberately **not** done here,
 because I3 is already 35% against a 15% target (the single World Final is 35%
 of season prize money). **I1 is deferred to Phase 3.**
 
+#### 2.5 — I1 and I5 measured under gating (PROVISIONAL, superseded by Phase 3)
+
+First measurement with tier gating and the wage curve both live. The model now
+walks the schedule **in order**, accruing ranking points and re-checking
+eligibility per event, because under gating what a club may enter depends on
+what it has already won. Averaged over 200 seasons per squad.
+
+| squad | rating | tier | pts | entered | wages | **net** | return |
+|---|---|---|---|---|---|---|---|
+| cheapest | 66.2 | Silver | 22.7 | 35 | $132,000 | $105,515 | 1.80x |
+| lower-mid | 69.7 | Silver | 28.3 | 37 | $201,600 | $108,190 | 1.54x |
+| upper-mid | 72.2 | Silver | 31.7 | 38 | $220,800 | $121,745 | 1.55x |
+| best | 76.3 | Silver | 37.1 | 39 | $264,000 | **$163,410** | 1.62x |
+
+**I1 VIOLATED — but narrowly, and the shape has changed.** From `lower-mid`
+onward the return multiple now rises monotonically (1.54 → 1.55 → 1.62). The
+only remaining inversion is `cheapest` → `lower-mid`, the sub-knee gap the wage
+curve cannot reach.
+
+**Worth a decision: net income rises monotonically at every step**
+($105,515 → $108,190 → $121,745 → $163,410). I1 is written as a *return
+multiple*, and on that measure the cheapest squad wins purely because its
+denominator is small — a $132,000 wage bill turning $237,515. If the invariant
+is meant to say "a better squad earns a better net result", it already passes.
+If it is meant to say "a better squad is more capital-efficient", it fails and
+probably always will at the bottom of the market. **Which of those I1 means is
+open** — see the decision list.
+
+**I5 VIOLATED — all four squads finish in the same band.** A 66.2-rated squad
+and a 76.3-rated one both land in Silver (22.7 vs 37.1 points, threshold 15,
+Gold 40). The gate does not separate them, so there is no tier boundary to
+measure a delta across. This is a **threshold** question, not a prize question:
+Silver 15 / Gold 40 were chosen to make Gold reachable across the arc (I8), and
+the same setting makes Silver reachable by everyone in season one.
+
+Both are **provisional and explicitly superseded by the post-Phase-3 sweep**.
+I3 is 35% against a 15% target — the single $500,000 World Final is 35% of all
+prize money — so that one event dominates every band's income and contaminates
+both ratios. Re-measure after Phase 3 rescales the purses.
+
+#### 2.4 — finals qualification: BLOCKED, not built
+
+D5 decided finals qualify as "top 4 by ranking points as of the semi round".
+That cannot be implemented, because **there is no field to rank**:
+
+- `competitor_rankings` is only ever written for the player's club.
+- World-tour opponents are not entities. `dev.ts` seeds every tour match with
+  `awayTeamId: team.id` and `awayTeamName: event.opponent` — the opponent is a
+  **string from static data**, with no competitor row, no rating, no results.
+- The AI clubs that *do* have simulated results (`continental_pool_teams`) play
+  **regional leagues**, which have no tier and never touch ranking points. The
+  player is not in them and they are not on the world tour.
+
+So a "top 4" would be a field of one, and the gate would pass unconditionally
+while appearing to work — the silent-success pattern this project exists to
+remove. Deciding where AI ranking points come from is a modelling decision, not
+a mechanical one. Not built. See the decision list.
+
+`bracketBlockReason` already enforces the half of the bracket that IS
+well-defined: the World Final requires the World Semi Final to have been played
+and won.
+
 ### 4. Sponsorship, and where money goes
 Reputation-linked, option B decay toward 50 at 5%/week already implemented.
 Re-tune: ±1/match was calibrated against a broken 33–40% win band. At real win
