@@ -395,6 +395,83 @@ $98,885 / $95,056 / $92,928 across the four bands, comparable to the pre-Phase-3
 baseline. Re-scaling the whole table is share-neutral, so I3 is unaffected by
 this correction: 11.8% either way.
 
+#### Is tier access the I1 lever? Tested, and NO (2026-09-01)
+
+Phase 3 left I1 violated and pointed at tier access as the remaining lever. That
+was an inference, so it was tested before anything was tuned on the strength of
+it. Three findings, in the order they matter.
+
+**1. The harness measures ONE season, and that is the right window anyway.**
+`SEASONS = 200` in `harness/invariants.mjs` is 200 INDEPENDENT single seasons
+averaged, each starting from zero points — not a five-season career. That looks
+like the wrong window for an arc where Gold arrives in season two or three.
+
+It is not, because **ranking resets every season** (settled above). A club climbs
+from zero every year, so season three is not a longer runway than season one. The
+arc's route to Gold is not accumulated points, it is a better squad: the Phase 1
+curve is 75.0 in season one rising to an 89.5 ceiling. The harness's four squads
+are drawn from the shipped roster and top out at 76.3, so no amount of extra
+seasons would have produced a Gold club. **Extending the harness in time was the
+wrong fix; extending it in squad quality was the right one.**
+
+A fifth squad now ships in the sweep: `developed`, the same athletes as `best`
+trained to the 89.5 ceiling, on the same wages (a contract does not re-price when
+a player improves), measured against season-3 opposition since
+`opponentRatingFromTier` adds +2 rating per season and everything else in the
+sweep faces season-1 opponents.
+
+**2. It clears Gold on merit — 48.7 points against a threshold of 40.** So the
+threshold is reachable and does not need lowering. I5 CLIMBING PAYS now PASSES
+for the first time: two bands reached, and income rises with tier
+($276,300 / $298,054 / $319,809 / $353,120 / $417,835).
+
+**3. Tier access still does not fix I1.** Two tests:
+
+- **Gold granted to every squad from round one** (all 62 events enterable, all 14
+  Gold events played): return still falls, 5.47x -> 3.74x -> 3.52x -> 3.09x.
+  Equal access cannot separate squads — obvious in hindsight, and worth having on
+  the record.
+- **Gold earned, so access is unequal**: separates only the ENDS. The developed
+  squad on Gold returns 1.58x against cheapest's 2.09x — so cheapest STILL beats
+  it, and beats every squad in between.
+
+The surviving inversion is `cheapest` vs `lower-mid`, and **both sit in Silver
+with identical access under every variant tested**. It is a pricing relation, not
+a gate:
+
+| | cheapest | lower-mid | change |
+|---|---|---|---|
+| season wages | $132,000 | $201,600 | **+52.7%** |
+| season income | $276,300 | $298,054 | **+7.9%** |
+
+Until a dollar of wage buys more than eight cents of income, no threshold setting
+can make I1 monotonic. **Silver 15 / Gold 40 stay as they are.** They are not
+what is wrong, and they were set against I8, which is still unmeasurable until
+manager policies and start modes land.
+
+**4. A finding that came out of this, and needs its own work: Gold is
+unreachable IN TIME.** The `developed` squad clears the gate and still enters
+only **0.6 of the 14 Gold events on the card**. Every other squad enters zero.
+
+Because ranking resets annually, a club climbs from zero each season and crosses
+40 points late — by which time almost the whole Gold calendar has already been
+played. Gold now holds **44.1% of the season's prize money** after the Phase 3
+re-scale, so the largest block of money in the game is behind a gate that opens
+after the events it guards.
+
+This is a SCHEDULING problem, not a threshold one, and moving the threshold would
+paper over it. Options, none of them chosen yet:
+
+- Weight the Gold events later in the calendar so qualification precedes them.
+- Raise the ranking points earned per win so 40 arrives sooner in the season.
+- Qualify on the PREVIOUS season's final ranking rather than the current one,
+  which would give Gold a full season of use — but reintroduces the ratchet the
+  reset decision above deliberately rejected.
+
+Recorded rather than fixed. It is Phase 3 scope only because Phase 3 is what
+concentrated the money there; the pre-Phase-3 table had the same defect on 24.3%
+of the purse instead of 44.1%.
+
 ### 4. Sponsorship, and where money goes
 Reputation-linked, option B decay toward 50 at 5%/week already implemented.
 Re-tune: ±1/match was calibrated against a broken 33–40% win band. At real win

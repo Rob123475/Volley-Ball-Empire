@@ -191,23 +191,55 @@ const seniors = all
   .sort((a: any, b: any) => Number(a.askingPrice) - Number(b.askingPrice));
 
 const pick = (from: number) => seniors.slice(from, from + 2);
-const SQUADS: Array<{ label: string; players: any[] }> = [
-  { label: "cheapest",  players: pick(0) },
-  { label: "lower-mid", players: pick(Math.floor(seniors.length * 0.33)) },
-  { label: "upper-mid", players: pick(Math.floor(seniors.length * 0.66)) },
-  { label: "best",      players: seniors.slice(-2) },
+const rate = (ps: any[]) => sideRating(ps.map((p: any) => ({
+  speed: p.speed, power: p.power, defense: p.defense,
+  serve: p.serve, block: p.block, stamina: p.stamina,
+})));
+
+/** The same athletes with attributes scaled so the side rating hits a target. */
+const developed = (ps: any[], target: number) => {
+  const k = target / rate(ps);
+  return ps.map((p: any) => ({
+    ...p,
+    speed: p.speed * k, power: p.power * k, defense: p.defense * k,
+    serve: p.serve * k, block: p.block * k, stamina: p.stamina * k,
+  }));
+};
+
+const BEST = seniors.slice(-2);
+
+// A FIFTH squad, and the only one that can reach Gold.
+//
+// The four purchasable squads are drawn from the shipped roster, so the
+// strongest of them rates 76.3 and tops out around 38 ranking points against a
+// Gold threshold of 40. Measuring tier access with a field that cannot cross the
+// gate measures nothing: every squad lands in Silver by construction, and I5's
+// "climbing pays" has no boundary to pay across.
+//
+// The arc's route to Gold is NOT accumulated ranking points - those reset every
+// season. It is squad development: docs/economy-design.md models the Phase 1
+// curve as 75.0 in season one rising to an 89.5 ceiling. So 'developed' is the
+// SAME athletes as 'best', trained to that ceiling, on the SAME wages, because a
+// contract does not re-price when a player improves. Season 3 so the opponents
+// are at season-3 strength too - opponentRatingFromTier adds +2 rating a season
+// and every other squad here is measured against season-1 opposition.
+const SQUADS: Array<{ label: string; players: any[]; wageFrom: any[]; season: number }> = [
+  { label: "cheapest",  players: pick(0), wageFrom: pick(0), season: 1 },
+  { label: "lower-mid", players: pick(Math.floor(seniors.length * 0.33)), wageFrom: pick(Math.floor(seniors.length * 0.33)), season: 1 },
+  { label: "upper-mid", players: pick(Math.floor(seniors.length * 0.66)), wageFrom: pick(Math.floor(seniors.length * 0.66)), season: 1 },
+  { label: "best",      players: BEST, wageFrom: BEST, season: 1 },
+  { label: "developed", players: developed(BEST, 89.5), wageFrom: BEST, season: 3 },
 ];
 
 const out: any = { squads: [], runs: [] };
 
 for (const squad of SQUADS) {
-  const rating = sideRating(squad.players.map((p: any) => ({
-    speed: p.speed, power: p.power, defense: p.defense,
-    serve: p.serve, block: p.block, stamina: p.stamina,
-  })));
+  const rating = rate(squad.players);
   // The REAL wage relation, imported rather than restated — a model that
   // recomputes the formula stops measuring the game the moment one of them moves.
-  const seasonWage = squad.players.reduce((s: number, p: any) => s + monthlyWage(p.askingPrice), 0) * 12;
+  // Wages come from the SIGNED players, not the developed ratings: training a
+  // player does not re-open his contract.
+  const seasonWage = squad.wageFrom.reduce((s: number, p: any) => s + monthlyWage(p.askingPrice), 0) * 12;
 
   // A GATED season, walked in schedule order.
   //
@@ -220,30 +252,34 @@ for (const squad of SQUADS) {
   // to remove.
   const schedule = [...WORLD_TOUR].sort((a: any, b: any) => a.round - b.round);
   const SEASONS = 200;
-  let expected = 0, entered = 0, scored = 0, endPoints = 0;
+  const goldOnCard = schedule.filter((e: any) => e.tier === "Gold").length;
+  let expected = 0, entered = 0, scored = 0, endPoints = 0, goldIn = 0;
 
   for (let run = 0; run < SEASONS; run++) {
-    let points = 0, income = 0, n = 0, sc = 0;
+    let points = 0, income = 0, n = 0, sc = 0, gold = 0;
     for (const e of schedule) {
       const elig = eligibilityFor(e.tier, points);
       // Below the threshold the club cannot enter at all. Above its band it may
       // enter for a token purse and no points (D4b).
       if (!elig.eligible) continue;
       n++;
-      const opp = opponentRatingFromTier(e.tier, e.opponent);
+      if (e.tier === "Gold") gold++;
+      const opp = opponentRatingFromTier(e.tier, e.opponent, squad.season);
       const p = pointProbability(rating, opp, { homeAdvantage: false });
       const won = simulateMatch(p).homeWon;
       // Both finishers are paid — the split is imported, never restated here.
       income += prizeFor(e.prize, won, elig.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER);
       if (won && elig.scores) { points += rankingPointsFor(e.tier, true); sc++; }
     }
-    expected += income; entered += n; scored += sc; endPoints += points;
+    expected += income; entered += n; scored += sc; endPoints += points; goldIn += gold;
   }
 
   expected /= SEASONS; entered /= SEASONS; scored /= SEASONS; endPoints /= SEASONS;
+  goldIn /= SEASONS;
   out.squads.push({
     label: squad.label, rating, seasonWage, expected, net: expected - seasonWage,
     entered, scored, endPoints, tier: currentTier(endPoints),
+    goldIn, goldOnCard, season: squad.season,
   });
 }
 
@@ -289,13 +325,20 @@ process.exit(0);
      ``,
      `What is left is NOT a prize problem. Income already rises with quality;`,
      `wages just rise faster (cheapest -> best is 2.00x wages against 1.32x`,
-     `income). The design's lever for that is tier ACCESS, and it is not firing:`,
-     `I5 below shows all four squads finishing in the SAME band, so every squad`,
-     `enters the same events and the steep per-tier pricing never separates them.`,
+     `income).`,
      ``,
-     `The gap is small and specific — the best squad ends on 38.3 points against`,
-     `a Gold threshold of 40. Re-tuning that threshold is the next lever, and it`,
-     `is a Phase 2 setting, not a Phase 3 one. See docs/economy-design.md.`,
+     `TIER ACCESS IS NOT THE ANSWER EITHER — tested directly, 2026-09-01.`,
+     `Granting Gold to EVERY squad from the first round (all 62 events enterable,`,
+     `all 14 Gold events played) leaves the return still falling:`,
+     `5.47x -> 3.74x -> 3.52x -> 3.09x. Equal access cannot separate squads, and`,
+     `unequal access only separates the ENDS: the developed squad on Gold beats`,
+     `cheapest on Silver, but cheapest still beats every squad between them.`,
+     ``,
+     `The surviving inversion is cheapest vs lower-mid, and BOTH sit in Silver`,
+     `with identical access either way. It is a pricing relation, not a gate:`,
+     `+52.7% wages ($132,000 -> $201,600) buys +9.6% income. Until a dollar of`,
+     `wage buys more than that, no threshold setting can make I1 monotonic.`,
+     `Do NOT lower the Gold threshold to chase this — it is not what is wrong.`,
     ].join(NEWLINE));
 
   // I5 — climbing pays. Unblocked by 2.1-2.3: there are tier boundaries now.
@@ -305,6 +348,7 @@ process.exit(0);
   const i5rows = d.squads.map((s) =>
     `  ${s.label.padEnd(10)} reached ${s.tier.padEnd(6)} on ${s.endPoints.toFixed(1)} pts   ` +
     `${s.entered.toFixed(0)} entered / ${s.scored.toFixed(1)} scored   ` +
+    `Gold ${s.goldIn.toFixed(1)}/${s.goldOnCard}   ` +
     `income $${Math.round(s.expected).toLocaleString()}`);
   if (tiersReached.length < 2) {
     record("I5", "CLIMBING PAYS", "VIOLATED",
@@ -326,7 +370,15 @@ process.exit(0);
       [...i5rows,
        ``,
        `${tiersReached.length} bands reached; income ${pays ? "rises" : "does NOT rise"} with tier.`,
-       `PROVISIONAL — same Phase 3 caveat as I1.`,
+       ``,
+       `READ THE Gold COLUMN BEFORE BELIEVING THIS. Reaching Gold and PLAYING`,
+       `Gold are not the same thing. Ranking resets every season, so a club`,
+       `climbs from zero each year and crosses 40 points late — by which time`,
+       `most of the 14 Gold events on the card have already been and gone. The`,
+       `Gold tier holds 44.1% of the season's prize money and is entered a`,
+       `fraction of a time per season even by a squad that clears the gate.`,
+       `Qualifying in time to spend it is a SCHEDULING problem, and it is not`,
+       `solved by moving the threshold.`,
       ].join(NEWLINE));
   }
 

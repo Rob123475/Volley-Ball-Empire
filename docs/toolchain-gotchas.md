@@ -125,6 +125,39 @@ both directions: building must succeed without `PORT`, and serving must still
 refuse without it. Testing only the permissive direction would let someone
 satisfy the guard by deleting the requirement outright.
 
+## 7. Running the harness can leave Electron behind, and the NEXT build fails
+
+Symptom, and it does not name the cause:
+
+```
+  CLOSE THE APP FIRST - build not started
+  node_modules\better-sqlite3\build\Release\better_sqlite3.node is locked (EBUSY).
+  Something is running the built server and holding it open, usually the game itself.
+```
+
+"Usually the game itself" is what makes this one expensive: the message sends you
+looking for a window that is not open. `harness/invariants.mjs` boots Electron
+per probe and `harness/run-all.mjs` boots one for the smoke server, and a run can
+leave processes behind that outlive the run that spawned them. They keep the
+native module open, and the next build refuses to start.
+
+The guard is doing its job — it aborts BEFORE touching anything, so nothing is
+half-written. Do not work around it by deleting `dist/`.
+
+**Check what is actually holding it, before killing anything:**
+
+```powershell
+Get-Process electron | Select-Object Id, StartTime, Path
+```
+
+A `Path` under the repo's `node_modules` and a `StartTime` matching your last
+harness run is a leftover probe. A `Path` under `C:\build\vbe` or an install
+directory is the real game, and someone may be using it. `taskkill /IM
+electron.exe /F` cannot tell the difference, which is why the check comes first.
+
+**Verify by:** re-running the build. The guard is not sticky — once the handle is
+released it proceeds normally.
+
 ## Native module ABI, in one place
 
 `better-sqlite3` can only be built for one runtime at a time.
