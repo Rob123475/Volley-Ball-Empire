@@ -91,6 +91,40 @@ if it fails.
 
 ---
 
+## 6. A failing `pnpm -r` takes the REST of the chain with it
+
+The build is a chain, and only the first link is a compile:
+
+```
+build = typecheck && pnpm -r run build && sync:public && test:harness
+                                          ^^^^^^^^^^^    ^^^^^^^^^^^^
+```
+
+`pnpm -r` stops at the first workspace project that fails, and `&&` then skips
+everything after it. So a failure in ANY artifact — including
+`artifacts/mockup-sandbox`, which ships nothing — means the frontend is never
+copied to where the server serves it from, and the five-suite harness never
+runs. Neither omission is mentioned in the output. You get a stack trace about
+whatever broke and nothing about the two steps that silently did not happen.
+
+This is how `pnpm run build` came to be unrunnable as documented for an unknown
+stretch of time. Both vite configs demanded a `PORT` environment variable at
+module load — a value only the dev server uses, that nothing in the repo
+supplies (there is no `.env`). Anyone whose shell had `PORT` set never saw it;
+anyone else got a hard failure before the harness could run.
+
+**Verify by:** `ALL HARNESSES PASSED` as the final line. That string is the only
+proof the chain reached the end. A build that stops early and a build that
+passed are the same exit code away from each other only if you never look.
+
+**Guarded by:** `scripts/check-build-env.mjs`, wired into `typecheck` so it runs
+first. It deletes `PORT` from the environment before loading each vite config,
+so the check behaves identically for a developer who has `PORT` exported and one
+who does not — the ambient environment cannot hide the regression. It asserts
+both directions: building must succeed without `PORT`, and serving must still
+refuse without it. Testing only the permissive direction would let someone
+satisfy the guard by deleting the requirement outright.
+
 ## Native module ABI, in one place
 
 `better-sqlite3` can only be built for one runtime at a time.

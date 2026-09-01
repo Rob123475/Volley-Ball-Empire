@@ -8,11 +8,12 @@
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build && pnpm run sync:public && pnpm run test:harness",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run check:writes && pnpm run check:starter-db && pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "typecheck": "pnpm run check:writes && pnpm run check:starter-db && pnpm run check:build-env && pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "electron:dev": "electron .",
     "electron:build": "electron-builder",
     "check:writes": "node scripts/check-write-boundaries.cjs",
     "check:starter-db": "node scripts/check-starter-db.cjs",
+    "check:build-env": "node scripts/check-build-env.mjs",
     "test:harness": "node harness/run-all.mjs",
     "sync:public": "node scripts/sync-public.cjs"
   },
