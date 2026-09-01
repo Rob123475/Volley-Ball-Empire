@@ -61,3 +61,11 @@ artifacts/mockup-sandbox/src/.generated/
 lib/db/*.sqlite-wal
 lib/db/*.sqlite-shm
 PR_BODY.md
+
+# Replit's attached-assets drop box. The 1242 files already committed stay
+# tracked - .gitignore only affects UNTRACKED files - so the seed scripts in
+# scripts/src keep resolving and clone size is unchanged. This only stops NEW
+# pastes from being staged, which is where the 2.4 GB came from.
+# Untracking the existing files (git rm --cached) is a separate, unmade
+# decision: it would break the seed scripts on a fresh clone.
+attached_assets/
