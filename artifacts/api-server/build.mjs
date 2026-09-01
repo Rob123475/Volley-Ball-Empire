@@ -171,6 +171,34 @@ function assertDistUnlocked(distDir) {
   }
 }
 
+/**
+ * Put back a build that was interrupted rather than failed.
+ *
+ * The invariant this relies on: dist.prev only ever exists while a build is in
+ * flight. A successful build deletes it; a failed build renames it back. So
+ * finding one at startup means the previous run was killed part-way, and
+ * whatever sits in dist/ right now is at best half-written — esbuild may have
+ * emitted some of its output, vendoring may have copied some of the tree.
+ *
+ * That is why this restores whenever the backup exists, rather than only when
+ * dist/ is missing. Testing "dist/ is absent" would handle a process killed
+ * early and silently keep a truncated build for one killed later, which is the
+ * worse of the two outcomes: it looks like a build and does not run.
+ */
+async function recoverInterrupted(distDir, backupDir) {
+  if (!existsSync(backupDir)) return;
+
+  console.warn("");
+  console.warn("  Previous build was interrupted - restoring dist/ from dist.prev");
+  if (existsSync(distDir)) {
+    console.warn("  (discarding the partial dist/ it left behind)");
+    await rm(distDir, { recursive: true, force: true });
+  }
+  await rename(backupDir, distDir);
+  console.warn("  Restored. Continuing with this build.");
+  console.warn("");
+}
+
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
   // dist/ used to be wiped as the FIRST step, so any later failure — a lock, a
@@ -188,8 +216,15 @@ async function buildAll() {
   // So the build still happens at the real path, and it is the PREVIOUS build
   // that moves aside. On success the backup is dropped; on any failure it is
   // put back, leaving dist/ exactly as it was.
+  //
+  // The catch handler covers a build that FAILS. It cannot cover a build that
+  // is never allowed to finish — Ctrl-C, a crash, the machine going off. Kill
+  // the process in the window below and dist/ is gone while dist.prev holds
+  // the only copy, with nothing to put it back. Hence recoverInterrupted()
+  // below, which runs before anything else touches either directory.
   const backupDir = path.resolve(artifactDir, "dist.prev");
 
+  await recoverInterrupted(distDir, backupDir);
   assertDistUnlocked(distDir);
   await rm(backupDir, { recursive: true, force: true });
   const hadPrevious = existsSync(distDir);
