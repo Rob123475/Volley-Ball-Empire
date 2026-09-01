@@ -82,3 +82,7 @@ PR_BODY.md
 # which protects locally-created, never-pushed objects even under --force.
 # Delete them from the store by hand; do not waste time re-running prune.
 attached_assets/
+
+# The api-server build moves the previous dist/ aside before rebuilding and
+# restores it if anything fails. Only survives a build killed mid-flight.
+dist.prev/

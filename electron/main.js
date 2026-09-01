@@ -293,7 +293,52 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-app.on("before-quit", () => {
+// Shutdown. The old version was one line — `serverProcess.kill()` — which
+// fires the signal and then trusts it. It never checked whether the signal
+// landed, never waited for the child to actually go, and left the fork's IPC
+// channel open. Any one of those failing leaves the main process resident
+// after its last window is gone: still holding better_sqlite3.node and still
+// bound to SERVER_PORT. The player sees a game that closed fine and then will
+// not start again, and nothing short of Task Manager fixes it.
+//
+// No SIGKILL escalation here on purpose. Windows is the only platform we ship,
+// and there child.kill() ignores the signal and calls TerminateProcess either
+// way — escalating would be ceremony, not force.
+const SHUTDOWN_GRACE_MS = 2000;
+let shuttingDown = false;
+
+app.on("before-quit", (event) => {
   isQuitting = true;
-  if (serverProcess) serverProcess.kill();
+
+  const child = serverProcess;
+  if (shuttingDown || !child) return; // second pass, or nothing to wait for
+  shuttingDown = true;
+
+  // Hold the quit open just long enough to reap the child ourselves.
+  event.preventDefault();
+
+  // kill() returns false when the handle is already gone — the child died
+  // earlier and we would otherwise wait the full grace period for an "exit"
+  // that can never arrive.
+  const signalled = child.kill();
+  if (!signalled) console.warn("[shutdown] server handle already gone, nothing to signal");
+
+  // An open IPC channel is a live handle on this process's event loop, so it
+  // can keep the parent alive on its own even once the child is dead.
+  try { child.disconnect(); } catch { /* never connected, or already gone */ }
+
+  let timer = null;
+  const finish = (why) => {
+    if (timer) clearTimeout(timer);
+    console.log(`[shutdown] ${why}`);
+    // Unconditional backstop. Whatever handles are still pending — sockets,
+    // the fork channel, a wedged child — this line ends the parent.
+    app.exit(0);
+  };
+
+  child.once("exit", () => finish("server child exited, quitting"));
+  timer = setTimeout(
+    () => finish(`server child did not exit within ${SHUTDOWN_GRACE_MS}ms, forcing`),
+    SHUTDOWN_GRACE_MS,
+  );
 });

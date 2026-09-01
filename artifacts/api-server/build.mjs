@@ -3,8 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm, cp, mkdir, realpath, readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { rm, cp, mkdir, realpath, readFile, rename } from "node:fs/promises";
+import { openSync, closeSync, existsSync, readdirSync } from "node:fs";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -119,10 +119,95 @@ function checkWriteBoundaries() {
     { stdio: "inherit" });
 }
 
+/**
+ * Refuse to start while something is running the built server.
+ *
+ * Windows keeps a loaded native addon open, so any attempt to replace dist/
+ * fails with EPERM partway through — after the old build is already gone. We
+ * used to discover that by wiping dist/ and then hitting the error. It is one
+ * check, and it costs nothing to do it first.
+ *
+ * Opening the .node for WRITE is the test that actually works: a loaded addon
+ * is mapped in a way that permits further readers, so "r" succeeds even while
+ * the app holds it and would tell us nothing. "r+" throws EBUSY. Nothing is
+ * written — the handle is closed immediately — and no rename/unlink trick is
+ * needed, so there is no state to restore if this process dies mid-check.
+ */
+function assertDistUnlocked(distDir) {
+  const nodeModules = path.join(distDir, "node_modules");
+  if (!existsSync(nodeModules)) return; // nothing vendored yet, nothing to lock
+
+  const addons = [];
+  (function walk(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".node")) addons.push(full);
+    }
+  })(nodeModules);
+
+  for (const addon of addons) {
+    try {
+      closeSync(openSync(addon, "r+"));
+    } catch (err) {
+      if (err.code !== "EBUSY" && err.code !== "EPERM" && err.code !== "EACCES") throw err;
+      const line = "!".repeat(64);
+      console.error("");
+      console.error(line);
+      console.error("  CLOSE THE APP FIRST - build not started");
+      console.error(line);
+      console.error("");
+      console.error(`  ${path.relative(distDir, addon)} is locked (${err.code}).`);
+      console.error("  Something is running the built server and holding it open,");
+      console.error("  usually the game itself. Nothing has been changed.");
+      console.error("");
+      console.error("    taskkill /IM electron.exe /F");
+      console.error("");
+      console.error("  Closing the window is normally enough; use the command above");
+      console.error("  if the process outlived it.");
+      console.error(line);
+      process.exit(1);
+    }
+  }
+}
+
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
-  await rm(distDir, { recursive: true, force: true });
+  // dist/ used to be wiped as the FIRST step, so any later failure — a lock, a
+  // bad vendor resolve, a compile error — left no server bundle and no frontend
+  // at all, and the app was less runnable after a failed build than before it.
+  // A failure must cost nothing.
+  //
+  // The obvious fix, building into dist.building/ and renaming it into place,
+  // does NOT work here: esbuild-plugin-pino bakes the ABSOLUTE path of its
+  // worker files into the bundle, so after the rename the server starts and
+  // dies on "Cannot find module .../dist.building/thread-stream-worker.mjs".
+  // Anything that embeds its own output path rules out a build-elsewhere-then-
+  // move strategy.
+  //
+  // So the build still happens at the real path, and it is the PREVIOUS build
+  // that moves aside. On success the backup is dropped; on any failure it is
+  // put back, leaving dist/ exactly as it was.
+  const backupDir = path.resolve(artifactDir, "dist.prev");
 
+  assertDistUnlocked(distDir);
+  await rm(backupDir, { recursive: true, force: true });
+  const hadPrevious = existsSync(distDir);
+  if (hadPrevious) await rename(distDir, backupDir);
+
+  try {
+    await buildInto(distDir);
+  } catch (err) {
+    // Roll back to the previous build, then let the failure surface.
+    await rm(distDir, { recursive: true, force: true });
+    if (hadPrevious) await rename(backupDir, distDir);
+    throw err;
+  }
+
+  await rm(backupDir, { recursive: true, force: true });
+}
+
+async function buildInto(distDir) {
   await esbuild({
     entryPoints: [path.resolve(artifactDir, "src/index.ts")],
     platform: "node",
@@ -256,9 +341,9 @@ buildAll().then(
     console.error(err && err.stack ? err.stack : String(err));
     console.error("");
     // A locked native addon is not a build bug, and the raw EPERM does not say
-    // so. dist/ is wiped on every build; if the app is running it holds
-    // better_sqlite3.node open and Windows refuses the unlink. Say that,
-    // rather than leaving an errno to be searched for.
+    // so. assertDistUnlocked() should now catch this before any work starts,
+    // so reaching here means a process took the lock DURING the build — the
+    // swap at the end hit it rather than the preflight. Still worth naming.
     if (String(err && err.code) === "EPERM" || /EPERM/.test(String(err && err.message))) {
       console.error("  This is a FILE LOCK, not a compile error.");
       console.error("");

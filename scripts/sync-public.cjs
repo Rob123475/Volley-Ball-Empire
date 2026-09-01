@@ -43,11 +43,15 @@ if (!fs.existsSync(path.join(SRC, "index.html"))) {
   fail([
     `No built frontend at ${path.relative(REPO, SRC)}`,
     "",
-    "The frontend build produces it. vite needs PORT and BASE_PATH even for a",
-    "one-shot build (see docs/packaging.md), so a bare `pnpm -r run build`",
-    "without them leaves this missing:",
+    "The frontend build produces it. vite still needs PORT even for a one-shot",
+    "build (see docs/packaging.md), so a bare `pnpm -r run build` without it",
+    "leaves this missing:",
     "",
-    "  PORT=5173 BASE_PATH=/ pnpm run build",
+    "  PORT=5173 pnpm run build",
+    "",
+    "BASE_PATH is optional now and defaults to /. Do not pass BASE_PATH=/ from",
+    "Git Bash on Windows: MSYS rewrites it and the build emits unreachable",
+    "asset URLs.",
   ]);
 }
 
@@ -72,6 +76,45 @@ let files = 0;
 
 if (files < 2) {
   fail([`Only ${files} file(s) copied — an index.html with no assets is not an app.`]);
+}
+
+// Verify that what index.html ASKS FOR is actually here.
+//
+// Counting files only proved the directory was populated. It did not prove the
+// files were the ones the page references, and a build with a wrong `base`
+// emits an index.html whose asset URLs point somewhere that does not exist.
+// Every request for them then falls through to the server's SPA catch-all,
+// which returns index.html with content-type text/html; the browser will not
+// execute an HTML document as a module or a stylesheet, so the app renders as
+// a white screen while every check here passes and the build exits 0.
+//
+// Local URLs only — the page also links Google Fonts, which is not ours to
+// resolve and is not what breaks.
+const html = fs.readFileSync(index, "utf8");
+const referenced = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
+  .map((m) => m[1])
+  .filter((u) => u.startsWith("/") && !u.startsWith("//"));
+
+const missing = referenced.filter(
+  (u) => !fs.existsSync(path.join(DEST, decodeURIComponent(u.split("?")[0]))),
+);
+
+if (missing.length) {
+  fail([
+    "index.html references files that are not in the served directory.",
+    "The app would load, request these, be handed index.html by the SPA",
+    "catch-all, and render a white screen.",
+    "",
+    ...missing.map((u) => `  MISSING  ${u}`),
+    "",
+    "Usually a wrong `base` at frontend build time. In Git Bash on Windows,",
+    'MSYS rewrites a bare BASE_PATH=/ into "/Program Files/Git/" — leave',
+    "BASE_PATH unset (it defaults to /) or prefix with MSYS_NO_PATHCONV=1.",
+  ]);
+}
+
+if (!referenced.length) {
+  fail(["index.html references no local assets at all — that is not a built app."]);
 }
 
 console.log(
