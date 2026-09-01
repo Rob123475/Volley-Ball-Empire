@@ -7,6 +7,7 @@ import { WORLD_TOUR } from "../data/worldTour";
 import { shiftDateToYear, seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import { creditRankingPoints, currentRanking } from "../utils/rankingPoints.js";
 import { eligibilityFor, PUSHED_OUT_PRIZE_MULTIPLIER } from "../utils/tierQualification.js";
+import { prizeFor } from "../utils/prizeDistribution.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
@@ -985,9 +986,18 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // rule, not a routine path.
   const entryEligibility = eligibilityFor(match.tier, rankingBeforeMatch);
   const prizeMultiplier = entryEligibility.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER;
-  const prizeEarned = (homeWon && !isAllStar)
-    ? Math.round(Number(match.prizeAmount ?? 0) * prizeMultiplier)
-    : 0;
+
+  // Both finishers are paid. The purse used to go entirely to the winner, which
+  // made every event an all-or-nothing coin flip and was the mechanical cause of
+  // I4 failing at 41.5% deviation. See utils/prizeDistribution.ts for why the
+  // runner-up share is the design rather than a softening of it.
+  //
+  // An All-Star exhibition still pays nothing to either side: it awards no
+  // ranking points either, and a fixture that pays for turning up with nothing
+  // at stake is exactly the thing worth farming.
+  const prizeEarned = isAllStar
+    ? 0
+    : prizeFor(Number(match.prizeAmount ?? 0), homeWon, prizeMultiplier);
 
   const [updatedMatch] = await db.update(matchesTable).set({
     homeScore,
@@ -1104,12 +1114,33 @@ router.post("/matches/:id/simulate", async (req, res) => {
   } else {
     // Sponsor reputation: -1 per loss, clamped at 0
     const newSponsorRep = Math.max(0, (team.sponsorReputation ?? 50) - 1);
-    await db.update(teamsTable).set({
-      losses:            team.losses + 1,
-      winStreak:         0,
-      sponsorReputation: newSponsorRep,
-      boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
-    }).where(eq(teamsTable.id, team.id));
+    const today = await getGameDate(team.id);
+
+    // A loss still pays the runner-up share. Credited in ONE transaction with
+    // the result, for the same reason the win branch is: two separate awaits
+    // either banked money with no record of it or logged income that was never
+    // banked. The budget moves by a SQL expression rather than a
+    // read-modify-write so an overlapping auto-advance tick cannot drop it.
+    db.transaction((tx) => {
+      tx.update(teamsTable).set({
+        losses:            team.losses + 1,
+        budget:            sql`${teamsTable.budget} + ${prizeEarned}`,
+        winStreak:         0,
+        sponsorReputation: newSponsorRep,
+        boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
+      }).where(eq(teamsTable.id, team.id)).run();
+
+      if (prizeEarned > 0) {
+        tx.insert(financeTransactionsTable).values({
+          teamId:      team.id,
+          type:        "income",
+          amount:      prizeEarned,
+          description: `Runner-up prize: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
+          category:    "prize_money",
+          date:        today,
+        }).run();
+      }
+    });
   }
 
   const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);

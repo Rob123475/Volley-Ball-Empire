@@ -308,6 +308,93 @@ a mechanical one. Not built. See the decision list.
 well-defined: the World Final requires the World Semi Final to have been played
 and won.
 
+#### Phase 3 — purses re-scaled and the purse SPLIT (DONE, measured 2026-09-01)
+
+Two changes. Only the first was in the original scope; the second turned out to
+be the one that mattered.
+
+**1. Purses re-scaled by tier.** Per-tier multipliers preserve the intra-tier
+variation (a $5,000 Bronze stop still costs less than a $9,000 one) while moving
+each tier's level. The two showpiece events were set to absolute values, because
+being absolute outliers was their entire problem.
+
+| tier | n | was | now | per-event | share |
+|---|---|---|---|---|---|
+| Gold | 14 | $348,000 | $712,500 | $45,000-$59,500 | 44.1% |
+| Silver | 16 | $215,000 | $366,000 | $18,500-$30,500 | 22.7% |
+| Bronze | 30 | $217,000 | $231,500 | $5,000-$9,000 | 14.3% |
+| World Final | 1 | $500,000 | $190,000 | $190,000 | 11.8% |
+| World Semi Final | 1 | $150,000 | $115,000 | $115,000 | 7.1% |
+| **total** | 62 | $1,430,000 | $1,615,000 | | |
+
+Per-event means now run Bronze $7,717 -> Silver $22,875 (3.0x) -> Gold $50,893
+(6.6x Bronze). That is the "scales steeply by tier" the section above asks for,
+and it is what makes tier access worth having once the gate separates clubs.
+
+**2. The purse is no longer winner-takes-all.** 70% winner / 30% runner-up, in
+`utils/prizeDistribution.ts`, imported by both the server and the harness so the
+two cannot drift.
+
+This was not in the phase's stated scope and is the change that fixed I4. The
+old payout was `prizeEarned = won ? purse : 0`, which made every event an
+all-or-nothing coin flip. **No amount of re-pricing can fix that** — the spread
+is a property of the payout SHAPE, not of the numbers being paid. Re-scaling
+alone moved I4 from 41.5% to roughly 30%; the split took it to 7.6%.
+
+It is also what the section above already asked for: "tier ACCESS - not win rate
+within a tier - is the dominant income lever." Winner-takes-all made win rate the
+dominant lever, which is the opposite of the stated design.
+
+**Results.**
+
+| invariant | before | after | target | verdict |
+|---|---|---|---|---|
+| I3 no single-match lottery | 35.0% | **11.8%** | <= 15% | **WITHIN** |
+| I4 predictability | 41.5% | **7.6%** | <= 25% | **WITHIN** |
+| I1 monotonic return | 2.06 -> 1.63x | 2.05 -> 1.35x | rising | still VIOLATED |
+| I5 climbing pays | all Silver | all Silver | separation | still VIOLATED |
+
+I4's five runs of the same schedule now read $731,700 / $745,700 / $836,700 /
+$773,700 / $846,500 against a mean of $786,860. The old spread was $380,500 to
+$896,500.
+
+**I1 got slightly worse, and that was expected.** Paying the loser compresses the
+income gap between a strong squad and a weak one: income per event goes from
+`purse * w` to `purse * (0.30 + 0.40 * w)`, so a squad winning 70% against one
+winning 55% earns 1.27x as much before the change and 1.12x after. The split was
+set at 70/30 rather than 65/35 for exactly this reason — both land I4 with room
+to spare, so the shallower runner-up share is chosen because it gives back the
+most win-rate separation for the least cost to predictability.
+
+**What I1 actually needs, stated precisely.** It is not a prize problem any more.
+Income already rises with squad quality; wages simply rise faster:
+
+| | cheapest | best | ratio |
+|---|---|---|---|
+| season wages | $132,000 | $264,000 | **2.00x** |
+| season income | $270,602 | $356,928 | **1.32x** |
+
+The design's lever for closing that is tier access, and it is not firing: all
+four test squads finish in the SAME band, so every squad enters the same events
+and the steep per-tier pricing above never gets to separate them.
+
+The gap is small and specific. **The best squad ends the season on 38.3 ranking
+points against a Gold threshold of 40** — it misses the band it is supposed to
+reach by 1.7 points. That is a Phase 2 threshold setting, not a Phase 3 prize
+setting, which is why it is not changed here: Silver 15 / Gold 40 were chosen to
+pace Gold across the arc (I8), and I8 cannot yet be measured because manager
+policies (Phase 4) and start modes (Phase 6) do not exist. Moving the threshold
+to chase I1 while the invariant that justifies its current value is unmeasurable
+would be tuning against the one number nobody can see.
+
+**Note on the economy's absolute level.** The first re-scale attempt cut the
+total purse to $1,267,000 and, combined with the runner-up split, left the best
+squad netting $5,064 against a $264,000 wage bill — arithmetically fine, and an
+unplayable game. The shipped multipliers are set so nets land at $138,602 /
+$98,885 / $95,056 / $92,928 across the four bands, comparable to the pre-Phase-3
+baseline. Re-scaling the whole table is share-neutral, so I3 is unaffected by
+this correction: 11.8% either way.
+
 ### 4. Sponsorship, and where money goes
 Reputation-linked, option B decay toward 50 at 5%/week already implemented.
 Re-tune: ±1/match was calibrated against a broken 33–40% win band. At real win
@@ -635,6 +722,17 @@ Dependency order. Each phase states what it builds and what it measures.
     DISTINCT (say what it means, and make it live). Not both.
 - **Phase 3 — Prize and Finals week (§2).** Purses re-scaled by tier; World Tour
   Finals as group stage plus semi plus final. Measures I3, I4.
+  - **Purses: DONE 2026-09-01.** Re-scaled by tier, and the payout changed from
+    winner-takes-all to a 70/30 winner/runner-up split. I3 35.0% -> 11.8% and
+    I4 41.5% -> 7.6%, both now within target. Full numbers in the Phase 3
+    section above. I1 and I5 are untouched by this and remain violated; what
+    they need is a tier threshold that separates squads, which is a Phase 2
+    setting — the specific gap is 38.3 points against a Gold threshold of 40.
+  - **Finals week: NOT BUILT.** The group-stage/semi/final restructure is the
+    other half of this phase and has not been started. The schedule still has
+    two finals slots (71 semi, 72 final) as `data/worldTour.ts` describes.
+    Blocked on the same thing as 2.4: a group stage needs a FIELD to rank, and
+    world-tour opponents are still static strings with no competitor rows.
 - **Phase 4 — Policies, sponsorship, and money sinks (§4).** COMPETENT and
   INCOMPETENT in the harness; sponsorship retune. Measures I6. Gate: the policies
   must diverge — if they do not, report it.

@@ -180,6 +180,7 @@ import { WORLD_TOUR } from "./data/worldTour.js";
 import { pointProbability, simulateMatch, sideRating, opponentRatingFromTier } from "./utils/matchEngine.js";
 import { monthlyWage } from "./utils/wageCurve.js";
 import { eligibilityFor, currentTier, PUSHED_OUT_PRIZE_MULTIPLIER } from "./utils/tierQualification.js";
+import { prizeFor } from "./utils/prizeDistribution.js";
 import { rankingPointsFor } from "./utils/rankingPoints.js";
 import { db, playersTable } from "@workspace/db";
 
@@ -232,10 +233,9 @@ for (const squad of SQUADS) {
       const opp = opponentRatingFromTier(e.tier, e.opponent);
       const p = pointProbability(rating, opp, { homeAdvantage: false });
       const won = simulateMatch(p).homeWon;
-      if (won) {
-        income += e.prize * (elig.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER);
-        if (elig.scores) { points += rankingPointsFor(e.tier, true); sc++; }
-      }
+      // Both finishers are paid — the split is imported, never restated here.
+      income += prizeFor(e.prize, won, elig.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER);
+      if (won && elig.scores) { points += rankingPointsFor(e.tier, true); sc++; }
     }
     expected += income; entered += n; scored += sc; endPoints += points;
   }
@@ -258,7 +258,7 @@ for (let run = 0; run < ${RUNS}; run++) {
   for (const e of WORLD_TOUR) {
     const opp = opponentRatingFromTier(e.tier, e.opponent);
     const p = pointProbability(fixedRating, opp, { homeAdvantage: false });
-    if (simulateMatch(p).homeWon) income += e.prize;
+    income += prizeFor(e.prize, simulateMatch(p).homeWon);
   }
   out.runs.push(income);
 }
@@ -281,15 +281,21 @@ process.exit(0);
      `   (${ratios.map((r) => r.toFixed(2) + "x").join(" -> ")})`,
      `TARGET: a better squad must earn a better net result`,
      ``,
-     `PROVISIONAL — superseded by the post-Phase-3 sweep. I3 is 35% against a`,
-     `15% target (the single $500,000 World Final is 35% of all prize money), so`,
-     `that one event dominates every band's income and contaminates this ratio.`,
-     `Phase 3 rescales the purses; re-measure then. This run is a DIRECTIONAL`,
-     `check on the wage curve, not the verdict on I1.`,
+     `Phase 3 is DONE and did not fix this — as predicted, not as a surprise.`,
+     `The purse re-scale and the runner-up split were aimed at I3 and I4 and`,
+     `landed both (35.0% -> 11.8%, 41.5% -> 7.6%). Neither can move I1, and the`,
+     `split works mildly AGAINST it: paying the loser compresses the income gap`,
+     `between a strong squad and a weak one. See utils/prizeDistribution.ts.`,
      ``,
-     `The wage curve moved this in the right direction and did not fix it: the`,
-     `surviving inversion sits BELOW the $100,000 knee, which flattening the top`,
-     `end cannot reach. See docs/economy-design.md.`,
+     `What is left is NOT a prize problem. Income already rises with quality;`,
+     `wages just rise faster (cheapest -> best is 2.00x wages against 1.32x`,
+     `income). The design's lever for that is tier ACCESS, and it is not firing:`,
+     `I5 below shows all four squads finishing in the SAME band, so every squad`,
+     `enters the same events and the steep per-tier pricing never separates them.`,
+     ``,
+     `The gap is small and specific — the best squad ends on 38.3 points against`,
+     `a Gold threshold of 40. Re-tuning that threshold is the next lever, and it`,
+     `is a Phase 2 setting, not a Phase 3 one. See docs/economy-design.md.`,
     ].join(NEWLINE));
 
   // I5 — climbing pays. Unblocked by 2.1-2.3: there are tier boundaries now.
