@@ -76,4 +76,9 @@ PR_BODY.md
 # would only surface later as blank portraits in the UI. Seeding
 # successfully-but-wrong is worse than not seeding at all, so the 1242
 # files stay tracked.
+#
+# If anyone LFS-migrates this directory again and abandons it: the orphaned
+# objects left in .git/lfs/objects can NEVER be reclaimed by `git lfs prune`,
+# which protects locally-created, never-pushed objects even under --force.
+# Delete them from the store by hand; do not waste time re-running prune.
 attached_assets/
