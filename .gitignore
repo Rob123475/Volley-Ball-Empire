@@ -66,6 +66,14 @@ PR_BODY.md
 # tracked - .gitignore only affects UNTRACKED files - so the seed scripts in
 # scripts/src keep resolving and clone size is unchanged. This only stops NEW
 # pastes from being staged, which is where the 2.4 GB came from.
-# Untracking the existing files (git rm --cached) is a separate, unmade
-# decision: it would break the seed scripts on a fresh clone.
+#
+# Do NOT follow this with `git rm --cached attached_assets/`. That was
+# considered and rejected. The scripts in scripts/src resolve these files
+# through localImageUrl(), which on a miss logs a warning and returns null
+# (scripts/src/lib/local-image.ts:27-29) instead of throwing. So on a fresh
+# clone with the files untracked, a seed run would not fail - it would
+# succeed while writing players and staff with no image, and the damage
+# would only surface later as blank portraits in the UI. Seeding
+# successfully-but-wrong is worse than not seeding at all, so the 1242
+# files stay tracked.
 attached_assets/
