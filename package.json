@@ -39,7 +39,8 @@
     "extraResources": [
       {
         "from": "artifacts/api-server/dist",
-        "to": "server/dist"
+        "to": "server/dist",
+        "filter": ["**/*", "!public/**"]
       },
       {
         "from": "artifacts/beach-volleyball/dist/public",
