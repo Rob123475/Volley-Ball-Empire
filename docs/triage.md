@@ -1,108 +1,117 @@
 # Triage — open items
 
-Compiled 2 September 2026, at the end of the continent-key / roster-cleanup
-work. Branch `fix/continent-keys-and-roster-cleanup` (4 commits) is pushed and
-**not yet merged to main**.
+Refreshed 3 September 2026. Branch `fix/continent-keys-and-roster-cleanup`,
+**8 commits, pushed, not yet merged to main.** Working tree clean.
 
-The database is clean as of now: 192 seniors at exactly three per nationality,
-72 youth at twelve per region across ten nations each and all aged 14–17, 12
-parked spares, 120 staff over twelve roles of ten. No duplicate names, no
-picture shared between two active rows, every nationality matching its region.
-All five harness suites pass.
+## Where things stand
 
----
+```
+[check-continents]  OK — every continent value is a canonical key
+[check-roster]      OK — the database matches the declared world
+harness             5/5 suites, 39 smoke checks, 32 guard self-tests
+```
 
-## 1. Artwork — captions that name the wrong person
+| | |
+|---|---|
+| seniors | 192 — every core nation on exactly 3 |
+| youth | 72 — 12 per region, all core nations, all aged 14–17 |
+| spares | 12 parked, nothing deleted |
+| staff | 120 — 12 roles × 10, every one its own face |
+| squad rule | 2 starters + 1 interchange + 1 youth, enforced and tested |
+| world roster | declared as data in `continents.ts`, guarded by `check-roster.cjs` |
+| installer | 686 MB (was 1,780 MB) |
 
-**The single most important thing learned this week: a filename is not
-evidence. Only the caption printed inside a card says who it is.** Four
-independent cases were found, and there is no reason to believe they are the
-last.
-
-### 1a. Mere Bainivalu's card — BLOCKED ON YOU
-`attached_assets/player_senior_png_01.png` is captioned **"10. AMIRA EL
-MANSOURI · Papua New Guinea · 21 yrs · 190cm"**. Everything but the name is
-Mere Bainivalu: PNG kit, PNG flag, her age and height, footer
-`player_senior_oceania_10_png.webp`. Amira is Moroccan, 26, 171cm — she cannot
-be a 190cm Papua New Guinean. **Needs re-captioning as "Mere Bainivalu"**, then
-importing. Not imported: it would put a Moroccan's name on a Papua New Guinean.
-
-### 1b. Kiriwina Tau's card — optional tidy
-Her portrait (`png_02`) is captioned correctly but is derived from an
-`asia_01` render re-kitted as PNG. `attached_assets/player_senior_png_09.webp`
-is byte-identical to `player_senior_oceania_09` — the *genuine* Kiriwina Tau
-render. Swapping it in would make PNG fully authentic.
-
-### 1c. Full caption audit of all 205 senior images — RECOMMENDED NEXT
-Mislabelling has been confirmed in Morocco, Venezuela, Papua New Guinea and
-**all ten fitness trainers**. The trainers were a perfect reversal
-(`_01`↔`_10`, `_02`↔`_09`, …), which no amount of filename inspection would
-have caught. The work is mechanical: read each caption, compare with the
-assigned row, report mismatches. It is the only way to know the true state.
-
-### 1d. Zineb Ouadi — parked, no action needed
-Shares Salma El Idrissi's picture. She is `player_type='spare'` and is never
-displayed, so this is inert. It becomes real only if she is ever unparked.
+**Closed yesterday:** continent keys across 8 vocabularies · both club pickers ·
+the Player Market continent filter · Europe's 9 missing players · Lucía
+Martínez's misfiling · Amira El Mansouri's and Mere Bainivalu's portraits · all
+10 fitness trainer portraits · Venezuela's shared card · 4 duplicate staff
+names · 36 male-named youth · squad size · the 15 off-roster youth ·
+double-packaged Unity build.
 
 ---
 
-## 2. Youth flags on Windows
+## 1. Artwork — the one class still open
 
-Youth cards render the flag of the player's country (no photographs of minors —
-deliberate). **Windows ships no country-flag emoji**, so Chromium falls back to
-drawing the two letters: Fiji shows as `FJ`, Vanuatu as `VU`. Since the game is
-Electron on Windows, that is what every player sees.
+**A filename is not evidence. Only the caption inside a card says who it is.**
+Proven wrong four separate times: Morocco, Venezuela, Papua New Guinea, and all
+ten fitness trainers (a perfect `_01`↔`_10` reversal).
 
-It reads acceptably — country code, country name, ACADEMY, on the continent
-colour — but it is not flags. Decision needed:
+### 1a. Caption audit of all 205 senior images — BIGGEST REMAINING UNKNOWN
+Every mislabelling so far was found by opening an image, never by inspecting a
+name. Four separate areas were wrong; there is no reason to believe the rest are
+right. Mechanical: read each caption, compare to the assigned row, report
+mismatches. **This is the item I would start with** — everything else is known
+work, this is the one that could still surprise us.
 
-- **keep it** (zero work), or
-- **bundle SVG flags** — ~60 small files under `public/images/flags/`, keyed on
-  the ISO code `countryCode()` already returns. One-line change in
-  `player-portrait.tsx`; works offline and on every platform.
+### 1b. Kiriwina Tau's portrait — cosmetic
+Correctly captioned, but built from an `asia_01` render re-kitted as PNG.
+`attached_assets/player_senior_png_09.webp` is byte-identical to
+`player_senior_oceania_09` — her genuine original. Swap if you want PNG fully
+authentic. No functional impact.
 
----
+### 1c. Four `.png` files among 200 `.webp`
+Camila Pérez, Sofía Mendoza, Amira El Mansouri, Mere Bainivalu — the corrected
+sources you supplied were PNGs and there is no webp encoder on this machine
+(no sharp, no ImageMagick). They work; they are ~15% larger. Re-export those
+four as webp and I will swap them in.
 
-## 3. Youth nations vs the senior ten
-
-Asia, North America and South America now draw their youth from your canonical
-ten. **Europe and Africa do not** — Europe's youth are Croatian, Danish,
-Icelandic, Polish, Russian, Ukrainian, Bulgarian; Africa's include Senegal,
-Guinea, Burkina Faso, Jordan, Oman.
-
-The spread is even (max two per nation), so this is not a balance problem. It
-matters because **a promoted youth becomes a senior of that nationality** —
-promote the Croatian and Europe gains an eleventh nation, breaking the 10 × 3
-rule. Either align them or accept that promotion widens the nation list.
-
----
-
-## 4. Data-shape leftovers
-
-- **`/players/validation` is stale.** It asserts 60 seniors and 60 youth at ten
-  per continent. Reality is 192 and 72. It has been reporting against a world a
-  third of the size, which is part of why none of this surfaced. Rewrite it
-  against the real rule (10 nations × 3 per region, youth 12 per region, ages
-  14–17) and it becomes a live guard rather than noise.
-- **Staff nationality format is mixed.** ~55 distinct values, some country
-  names (`Brazil`, `Canada`), some demonyms (`Australian`, `Italian`). Only the
-  three fitness trainers were normalised. Players are fully on country names.
-- **Unused image files.** `player_senior_venezuela_02.webp` / `_03.webp` are
-  superseded by the `.png` imports, and 13 senior images are unreferenced (the
-  12 spares plus `peru_04`). Harmless, but they ship.
-- **Possibly dead asset folders.** `images/staff/medical_physiotherapist`
-  (9 files) and `images/staff/medical_science` (8 files) are not referenced —
-  the database uses `physiotherapist` and `sports_scientist`. Confirm before
-  deleting.
+### 1d. Zineb Ouadi shares Salma El Idrissi's picture — parked, inert
+She is `player_type='spare'` and never displayed. Only matters if unparked.
 
 ---
 
-## 5. Phase 8 — exercise the screens
+## 2. Data-shape leftovers
 
-Recorded in full in `economy-design.md`. The short version: **no guard renders
-a screen**, and every bug this week lived between a correct API response and
-what the player saw. The club picker returned all ten clubs on every build and
-drew seven.
+- **`/players/validation` is stale.** Asserts 60 seniors and 60 youth at ten per
+  continent; reality is 192 and 72. It has been reporting against a world a
+  third of the size. Rewritten against the real rule it becomes a live guard
+  instead of noise — and it now has `check-roster.cjs` to borrow its shape from.
+- **Staff nationalities are mixed format** — 56 distinct values, 19 of them
+  demonyms (`Australian`, `Italian`) against country names elsewhere. Players
+  are fully on country names. Only the three fitness trainers were normalised.
+- **15 unused senior images ship** — the 12 spares, plus `peru_04`, plus the two
+  superseded Venezuela `.webp`s.
+- **Two possibly-dead asset folders**: `images/staff/medical_physiotherapist`
+  (9 files) and `images/staff/medical_science` (8 files). The database uses
+  `physiotherapist` and `sports_scientist`. Confirm before deleting.
+
+---
+
+## 3. Design questions you raised, still open
+
+### 3a. Do the AI clubs need a reserve?
+The squad rule is 2 + 1 + 1 for **your** club. The 60 AI pool teams still carry
+**2 athletes each** in a separate table. That is fine for match simulation —
+beach volleyball is played two-a-side — but if AI clubs should mirror the
+player's squad, that is **+60 athletes** (one reserve each). They are never
+rendered as cards, so it is generation, not art.
+
+### 3b. A qualifying competition into the continental game
+You already have a ladder: 24 promotion-pool teams (4 per region) sit under the
+36 league teams, and `resolveRegionalSeason` promotes the top pool team while
+relegating the bottom league team each season. The open question is whether you
+want a qualifying tournament **in front of** that, or whether
+promotion/relegation is enough.
+
+### 3c. The cheapest expansion is already built
+**Maldives, Malta, Russia and Ireland** each hold a full trio and are declared
+in `RESERVE_NATIONS`. Moving them into `CORE_NATIONS` makes them playable with
+no new players and no new art — Asia to 11 nations, Europe to 13. Monaco has 1
+player and would need 2 more.
+
+Adding thirty players for a DLC is ten nations appended to `CORE_NATIONS` plus
+their players. `check-roster.cjs` follows the declaration, so nothing else
+changes — and a half-landed expansion fails the build naming the shortfall.
+
+---
+
+## 4. Phase 8 — exercise the screens
+
+Recorded in full in `economy-design.md`. **No guard renders a screen**, and
+every bug this week lived between a correct API response and what the player
+saw. The club picker returned all ten clubs on every build and drew seven. The
+picker existed **twice**; fixing one changed nothing visible. That was found by
+opening the app, not by any check.
 
 1. **Component tests** (Vitest + Testing Library) over `NewCareerModal` — the
    cheapest, catches this exact class. ~1 day, no new infrastructure.
@@ -111,19 +120,18 @@ drew seven.
    2–3 days.
 3. **Route-mounting smoke pass** — nearly free once (2) exists.
 
-The picker existed **twice** (`career-management.tsx` and `new-career.tsx`,
-the latter being the one the title screen actually reaches). Fixing one changed
-nothing a player could see. That was found by opening the app, not by any check.
-
 ---
 
-## 6. Housekeeping
+## 5. Housekeeping
 
-- **Merge `fix/continent-keys-and-roster-cleanup` to main** (4 commits, pushed).
-- **Desktop installer rebuilt**: `C:\build\vbe\Volleyball Empire Setup 1.0.0.exe`,
-  **686 MB**, down from 1,780 MB. Not yet installed or launched — worth doing
-  once to confirm the packaged app still boots.
-- **Unity `.data` is 636 MB raw / 526 MB brotli.** `before-pack.cjs` strips the
-  raw copies and `precompressedUnityAssets.ts` serves the `.br` with
-  `Content-Encoding: br`, so this is already handled. Any further size work
-  means a smaller Unity build, not packaging changes.
+- **Merge the branch to main** — 8 commits, pushed, green.
+- **Install and launch the new 686 MB installer once.** It has been built and
+  its contents verified, but never run. A packaged app that boots is not proven
+  until someone boots it.
+- **Youth flags: settled — keep the letters.** Windows ships no country-flag
+  emoji, so `🇫🇯` renders as `FJ`. The Olympics and job-market screens have the
+  same fallback, so letters are at least consistent. Real flags means bundling
+  ~60 SVGs across every screen, as its own job.
+- **Unity sizing is done.** `before-pack.cjs` strips the raw payloads,
+  `precompressedUnityAssets.ts` serves the `.br`. Further savings mean a smaller
+  Unity export, not packaging changes.
