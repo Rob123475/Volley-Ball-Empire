@@ -265,6 +265,46 @@ const roster = async (api) => {
     console.log(`  NOTE  ${grouped.size}/${CANONICAL.length} regions have a club — none in: ${emptyRegions.join(", ")}`);
   }
 
+  // ── 9. Squad size is enforced ────────────────────────────────────────────
+  // Two on the sand, one interchange, one in the academy. A limit that has
+  // never been shown to refuse anything is not a limit, so this signs right up
+  // to each cap and requires the next signing to be REJECTED - and to say why,
+  // because "422" on its own leaves the player guessing.
+  console.log("\n9. SQUAD SIZE");
+  const C = session();
+  await newCareer(C, "SmokeC");
+  const poolC = (await market(C)).filter((p) => (p.age ?? 99) >= 19);
+  const signC = (p, squadRole) =>
+    C("POST", "/contracts", {
+      playerId: p.id, salary: p.salary ?? 8000, endDate: "2026-12-31",
+      bonusPerWin: 0, squadRole,
+    });
+
+  check("enough free agents to test the cap", poolC.length >= 5, `${poolC.length} seniors free`);
+
+  const s1 = await signC(poolC[0], "starter");
+  const s2 = await signC(poolC[1], "starter");
+  check("two starters can be signed", s1.status < 400 && s2.status < 400,
+    `${s1.status}, ${s2.status}`);
+
+  const s3 = await signC(poolC[2], "starter");
+  check("a THIRD starter is refused", s3.status === 422, `HTTP ${s3.status}`);
+  check("the refusal names the starter limit",
+    typeof s3.data?.error === "string" && /starter/i.test(s3.data.error),
+    JSON.stringify(s3.data?.error ?? null).slice(0, 90));
+
+  const i1 = await signC(poolC[2], "interchange");
+  check("one interchange can be signed", i1.status < 400, `HTTP ${i1.status}`);
+
+  const i2 = await signC(poolC[3], "interchange");
+  check("a fourth senior is refused", i2.status === 422, `HTTP ${i2.status}`);
+  check("the refusal says the squad is full",
+    typeof i2.data?.error === "string" && /full/i.test(i2.data.error),
+    JSON.stringify(i2.data?.error ?? null).slice(0, 90));
+
+  const squadC = await roster(C);
+  check("squad settled at 3 seniors", squadC.length === 3, `${squadC.length} signed`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });
