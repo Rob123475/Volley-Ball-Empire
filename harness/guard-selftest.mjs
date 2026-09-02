@@ -338,6 +338,47 @@ console.log("\n5. CONTINENT GUARD — a non-canonical continent value");
     rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
 }
 
+
+// ── World roster guard ──────────────────────────────────────────────────────
+console.log("\n6. ROSTER GUARD — an off-roster player, and a half-landed expansion");
+{
+  const shipped = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+  // (a) a youth from a nation outside her region's roster. This is the exact
+  //     season-two trap: promotion turns her into a senior of that nation,
+  //     widening the world months after the save was made.
+  const strayYouth = path.join(WORK, "stray-youth.sqlite");
+  fs.copyFileSync(shipped, strayYouth);
+  {
+    const db = new DatabaseSync(strayYouth);
+    db.exec(`UPDATE players SET nationality = 'Croatia'
+              WHERE player_type = 'youth' AND continent = 'europe'
+              AND id = (SELECT MIN(id) FROM players WHERE player_type='youth' AND continent='europe')`);
+    db.close();
+  }
+  const rYouth = runGuard("check-roster.cjs", [strayYouth]);
+  check("a youth from an undeclared nation is rejected", rYouth.status !== 0,
+    rYouth.status !== 0 ? "" : "guard accepted an off-roster youth");
+
+  // (b) a nation left one player short - a partially applied expansion.
+  const short = path.join(WORK, "short-nation.sqlite");
+  fs.copyFileSync(shipped, short);
+  {
+    const db = new DatabaseSync(short);
+    db.exec(`DELETE FROM players WHERE player_type='senior' AND nationality='Fiji'
+              AND id = (SELECT MAX(id) FROM players WHERE player_type='senior' AND nationality='Fiji')`);
+    db.close();
+  }
+  const rShort = runGuard("check-roster.cjs", [short]);
+  check("a nation one player short is rejected", rShort.status !== 0,
+    rShort.status !== 0 ? "" : "guard accepted an incomplete nation");
+
+  // (c) negative control: the real shipped artifact must pass.
+  const rGood = runGuard("check-roster.cjs", [shipped]);
+  check("the real starter DB is accepted", rGood.status === 0,
+    rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
+}
+
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 if (failures > 0) console.log(`\nFixtures kept: ${WORK}`);
 else { try { fs.rmSync(WORK, { recursive: true, force: true }); } catch {} }

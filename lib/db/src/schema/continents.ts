@@ -344,3 +344,90 @@ export function countryFlag(nationality: string | null | undefined): string {
   if (!code) return "\u{1F30D}";
   return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
 }
+
+// ── The world roster ────────────────────────────────────────────────────────
+
+/**
+ * The nations that make up the world, and how deep each one is.
+ *
+ * ── This is the expansion knob ──────────────────────────────────────────────
+ * The shape of the world is DATA, not code. Ten nations per region, three
+ * players each, is the shipped v1 world - but nothing anywhere hardcodes
+ * "ten". `scripts/check-roster.cjs` validates the database against whatever is
+ * declared here, so growing the game is:
+ *
+ *   1. add the nation to CORE_NATIONS for its region
+ *   2. add PLAYERS_PER_NATION players with that nationality
+ *   3. run the build - the guard adapts, nothing else changes
+ *
+ * A DLC adding thirty players is ten new nations appended to these lists. A
+ * version 2 with deeper squads is one edit to PLAYERS_PER_NATION. Neither
+ * needs a code change, and neither can half-land: the guard fails the build if
+ * the data and this declaration disagree.
+ */
+export const CORE_NATIONS: Record<ContinentKey, readonly string[]> = {
+  north_america: [
+    "USA", "Canada", "Mexico", "Cuba", "Puerto Rico",
+    "Costa Rica", "Jamaica", "Dominican Republic", "Panama", "Bahamas",
+  ],
+  south_america: [
+    "Chile", "Argentina", "Peru", "Guyana", "Brazil",
+    "Ecuador", "Bolivia", "Colombia", "Venezuela", "Uruguay",
+  ],
+  europe: [
+    "Greece", "England", "Germany", "Sweden", "Italy",
+    "Spain", "Portugal", "Netherlands", "France", "Switzerland",
+  ],
+  asia: [
+    "China", "Vietnam", "Philippines", "Japan", "Laos",
+    "Thailand", "Taiwan", "Malaysia", "Indonesia", "India",
+  ],
+  africa_middle_east: [
+    "Egypt", "Tunisia", "South Africa", "Nigeria", "Kenya",
+    "Mozambique", "Morocco", "Madagascar", "Tanzania", "Zimbabwe",
+  ],
+  oceania: [
+    "Australia", "New Zealand", "Cook Islands", "Papua New Guinea", "Samoa",
+    "Solomon Islands", "Tonga", "Fiji", "Tahiti", "Vanuatu",
+  ],
+};
+
+/**
+ * Nations that exist in the data but are deliberately NOT part of the
+ * competitive world - built, kept, and excluded from the per-nation count.
+ * They are the obvious first candidates for an expansion: each already has a
+ * full trio of players and only needs moving into CORE_NATIONS.
+ */
+export const RESERVE_NATIONS: readonly string[] = [
+  "Maldives", "Malta", "Russia", "Ireland", "Monaco",
+];
+
+/**
+ * Players per nation: two on the sand plus one in reserve. Raising this is how
+ * squads get deeper in a later version; the guard reads it rather than
+ * assuming three.
+ */
+export const PLAYERS_PER_NATION = 3;
+
+const CORE_SET: ReadonlySet<string> = new Set(
+  Object.values(CORE_NATIONS).flatMap((list) => list),
+);
+const RESERVE_SET: ReadonlySet<string> = new Set(RESERVE_NATIONS);
+
+/** Nations of one region, or an empty list for an unknown region. */
+export function coreNationsFor(continent: string | null | undefined): readonly string[] {
+  return isContinentKey(continent) ? CORE_NATIONS[continent] : [];
+}
+
+/** Is this nation part of the competitive world? */
+export function isCoreNation(nationality: string | null | undefined): boolean {
+  return !!nationality && CORE_SET.has(nationality);
+}
+
+/** Built and kept, but out of the competitive world on purpose. */
+export function isReserveNation(nationality: string | null | undefined): boolean {
+  return !!nationality && RESERVE_SET.has(nationality);
+}
+
+/** Every nation the world knows about, core and reserve. */
+export const ALL_NATIONS: readonly string[] = [...CORE_SET, ...RESERVE_SET];
