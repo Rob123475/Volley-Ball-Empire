@@ -1,3 +1,4 @@
+import { continentKeyFrom, continentLabel, type ContinentKey } from "@shared/continents";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,14 +33,21 @@ const STATUS_CONFIG = {
   not_qualified:{ label: "Out",          badge: "bg-muted text-muted-foreground border-muted",                dot: "bg-muted-foreground/30" },
 };
 
-const CONTINENT_FLAG: Record<string, string> = {
-  "Europe":              "🌍",
-  "Asia":                "🌏",
-  "North America":       "🌎",
-  "South America":       "🌎",
-  "Africa & Middle East":"🌍",
-  "Oceania":             "🌊",
+// Keyed by ContinentKey so a spelling change cannot quietly blank the flags.
+const CONTINENT_FLAG: Record<ContinentKey, string> = {
+  europe:             "🌍",
+  asia:               "🌏",
+  north_america:      "🌎",
+  south_america:      "🌎",
+  africa_middle_east: "🌍",
+  oceania:            "🌊",
 };
+
+/** Flag for any continent value, canonical or not — an unknown one still renders. */
+function continentFlag(value: string | null | undefined): string {
+  const key = continentKeyFrom(value);
+  return key ? CONTINENT_FLAG[key] : "🌍";
+}
 
 export default function OlympicQualifiers() {
   const { data, isLoading } = useQuery<QualData>({
@@ -105,8 +113,8 @@ export default function OlympicQualifiers() {
             {/* Continent header */}
             <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
               <div className="flex items-center gap-2">
-                <span className="text-base">{CONTINENT_FLAG[cont.continent] ?? "🌍"}</span>
-                <span className="font-bold text-sm">{cont.continent}</span>
+                <span className="text-base">{continentFlag(cont.continent)}</span>
+                <span className="font-bold text-sm">{continentLabel(cont.continent)}</span>
               </div>
               <Badge variant="outline" className="text-[11px]">
                 <Trophy className="h-2.5 w-2.5 mr-1 text-amber-400" />

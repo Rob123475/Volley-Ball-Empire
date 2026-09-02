@@ -1,3 +1,4 @@
+import { CONTINENT_COUNT } from "@workspace/db";
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
@@ -715,7 +716,7 @@ router.get("/calendar/season-structure", (_req, res) => {
   res.json({
     totalSlots: TOTAL_SLOTS,
     phases: [
-      { name: "Regional Period",      slots: `${REGIONAL_START}–${REGIONAL_END}`,     count: 10, description: "All 6 continents play one round per slot" },
+      { name: "Regional Period",      slots: `${REGIONAL_START}–${REGIONAL_END}`,     count: 10, description: `All ${CONTINENT_COUNT} continents play one round per slot` },
       { name: "World Tour",           slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: 60, description: "60 events, 10 per continent" },
       { name: "World Finals",         slots: `${FINALS_START}–${FINALS_END}`,          count: 2,  description: "Semifinals + World Final" },
       { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,       count: 6,  description: "Rest & preparation for next season" },

@@ -1,3 +1,4 @@
+import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/continents";
 import {
   useSignContract,
   useScoutPlayer,
@@ -56,11 +57,17 @@ import { cn } from "@/lib/utils";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const CONTINENTS = ["ALL", "Africa & Middle East", "Asia", "Europe", "North America", "South America", "Oceania"] as const;
+// Filter values are canonical KEYS, matched against players.continent, which is
+// also a key. This list used to be display labels ("Africa & Middle East",
+// "Oceania") compared with `p.continent === continent` — so once the data moved
+// to keys every one of these buttons matched nothing and returned an empty
+// list. Labels are rendered via continentLabel(), never matched on.
+const CONTINENTS = ["ALL", ...CONTINENT_KEYS] as const;
 type ContinentFilter = typeof CONTINENTS[number];
 
-const CONTINENT_FLAG: Record<string, string> = {
-  "Africa & Middle East": "🌍", Asia: "🌏", Europe: "🌍", "North America": "🌎", "South America": "🌎", Oceania: "🌊",
+const CONTINENT_FLAG: Record<ContinentKey, string> = {
+  africa_middle_east: "🌍", asia: "🌏", europe: "🌍",
+  north_america: "🌎", south_america: "🌎", oceania: "🌊",
 };
 
 const POSITIONS = ["ALL", "setter", "spiker", "defender", "blocker", "all_rounder"] as const;
@@ -891,7 +898,7 @@ export default function PlayerMarket() {
             <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
             {CONTINENTS.map((c) => (
               <Button key={c} variant={continent === c ? "default" : "outline"} size="sm" onClick={() => setContinent(c)}>
-                {c === "ALL" ? "All Continents" : `${CONTINENT_FLAG[c]} ${c}`}
+                {c === "ALL" ? "All Continents" : `${CONTINENT_FLAG[c]} ${continentLabel(c)}`}
               </Button>
             ))}
           </div>
@@ -1030,7 +1037,7 @@ export default function PlayerMarket() {
             <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
             {CONTINENTS.map((c) => (
               <Button key={c} variant={continent === c ? "default" : "outline"} size="sm" onClick={() => setContinent(c)}>
-                {c === "ALL" ? "All Continents" : `${CONTINENT_FLAG[c]} ${c}`}
+                {c === "ALL" ? "All Continents" : `${CONTINENT_FLAG[c]} ${continentLabel(c)}`}
               </Button>
             ))}
           </div>

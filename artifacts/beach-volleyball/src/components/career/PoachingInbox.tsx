@@ -1,3 +1,4 @@
+import { continentLabel, continentKeyFrom } from "@shared/continents";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ClubCrest } from "@/components/club-crest";
@@ -102,7 +103,7 @@ function OfferCard({ offer, onDone }: { offer: PoachingOffer; onDone: () => void
           </p>
           <p className="text-[11px] text-white/40 mt-0.5 flex items-center gap-1">
             <MapPin className="h-3 w-3 shrink-0" />
-            {offer.country} · {offer.continent}
+            {offer.country} · {continentLabel(offer.continent)}
           </p>
         </div>
 

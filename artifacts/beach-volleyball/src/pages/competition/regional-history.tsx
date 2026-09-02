@@ -1,12 +1,16 @@
+import { CONTINENT_KEYS, continentLabel } from "@shared/continents";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { FolderOpen, Trophy, AlertCircle } from "lucide-react";
 
-const CONTINENTS = [
-  "Europe", "Asia", "North America", "South America",
-  "Africa and Middle East", "Australia and Pacific Islands",
-] as const;
+/**
+ * Driven by the canonical KEYS. Each of these screens used to declare its own
+ * array of continent LABELS; the copies drifted, and any screen whose spelling
+ * did not match the data silently rendered nothing for that region. Labels are
+ * looked up at render time via continentLabel().
+ */
+const CONTINENTS = CONTINENT_KEYS;
 
 type Qualification = {
   id: number;
@@ -89,14 +93,14 @@ export default function RegionalHistory() {
                 const quals = byContinent.get(continent) ?? [];
                 if (quals.length === 0) return (
                   <div key={continent} className="rounded-xl border bg-card p-4">
-                    <h3 className="font-semibold text-sm mb-3">{continent}</h3>
+                    <h3 className="font-semibold text-sm mb-3">{continentLabel(continent)}</h3>
                     <p className="text-sm text-muted-foreground italic">No qualifiers yet</p>
                   </div>
                 );
                 return (
                   <div key={continent} className="rounded-xl border bg-card overflow-hidden">
                     <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
-                      <h3 className="font-semibold text-sm">{continent}</h3>
+                      <h3 className="font-semibold text-sm">{continentLabel(continent)}</h3>
                       <Badge variant="secondary">{quals.length} qualifier{quals.length !== 1 ? "s" : ""}</Badge>
                     </div>
                     <div className="divide-y">

@@ -1,3 +1,10 @@
+import {
+  continentKeyFrom,
+  continentKeyForNationality,
+  continentLabel,
+  countryFlag,
+  type ContinentKey,
+} from "@shared/continents";
 /**
  * PlayerPortrait — player image with a graceful initials fallback.
  *
@@ -12,45 +19,28 @@ import { useLightbox } from "@/components/image-lightbox";
 
 // ── Portrait URL helpers (also used by server routes) ────────────────────────
 
-export const CONTINENT_SLUG: Record<string, string> = {
-  "Africa":        "africa",
-  "Asia":          "asia",
-  "Europe":        "europe",
-  "North America": "northam",
-  "South America": "southam",
-  "Oceania":       "oceania",
+/**
+ * Continent KEY -> portrait asset slug.
+ *
+ * The slug VALUES are filenames on disk and must not change. The KEYS used to
+ * be display labels ("Africa", "Oceania") which stopped matching the database
+ * once it moved to "Africa and Middle East" / "Australia and Pacific Islands",
+ * so every African and Oceanian player silently fell back to a European
+ * portrait. Keyed by ContinentKey now, so a mismatch is a compile error.
+ */
+export const CONTINENT_SLUG: Record<ContinentKey, string> = {
+  africa_middle_east: "africa",
+  asia:               "asia",
+  europe:             "europe",
+  north_america:      "northam",
+  south_america:      "southam",
+  oceania:            "oceania",
 };
 
-/** nationality → continent (used when continent field is absent) */
-export const NATIONALITY_CONTINENT: Record<string, string> = {
-  // Asia
-  Japan: "Asia", "South Korea": "Asia", China: "Asia", India: "Asia",
-  Thailand: "Asia", Indonesia: "Asia", Philippines: "Asia", Vietnam: "Asia",
-  Malaysia: "Asia", Maldives: "Asia",
-  // Europe
-  Germany: "Europe", France: "Europe", Italy: "Europe", Spain: "Europe",
-  Norway: "Europe", Sweden: "Europe", Denmark: "Europe", Netherlands: "Europe",
-  Switzerland: "Europe", Poland: "Europe", Greece: "Europe", Portugal: "Europe",
-  Austria: "Europe", Belgium: "Europe", Russia: "Europe", Czech: "Europe",
-  Finland: "Europe", Croatia: "Europe", Serbia: "Europe", Ukraine: "Europe",
-  England: "Europe", Monaco: "Europe",
-  // North America
-  USA: "North America", Canada: "North America", Mexico: "North America",
-  "United States": "North America", Jamaica: "North America",
-  "Costa Rica": "North America", Cuba: "North America",
-  // South America
-  Brazil: "South America", Argentina: "South America", Colombia: "South America",
-  Chile: "South America", Peru: "South America", Venezuela: "South America",
-  Ecuador: "South America", Bolivia: "South America", Uruguay: "South America",
-  // Africa
-  Nigeria: "Africa", Ghana: "Africa", Kenya: "Africa", Egypt: "Africa",
-  "South Africa": "Africa", Ethiopia: "Africa", Senegal: "Africa",
-  Tanzania: "Africa", Uganda: "Africa", Cameroon: "Africa", Ivory: "Africa",
-  Morocco: "Africa", Algeria: "Africa", Tunisia: "Africa",
-  // Oceania
-  Australia: "Oceania", "New Zealand": "Oceania", Fiji: "Oceania",
-  Samoa: "Oceania", Tahiti: "Oceania", "Papua New Guinea": "Oceania",
-};
+// nationality -> continent now comes from the shared module. This file used
+// to carry its own copy keyed by country name and spelled "Africa"/"Oceania",
+// which stopped matching the database and sent 85 players to a European
+// portrait without a word.
 
 /** Deterministic hash → 0–9 */
 function nameHash(name: string): number {
@@ -69,11 +59,11 @@ export function getPortraitUrl(
   playerType: string | null | undefined,
   nationality?: string | null,
 ): string {
-  const resolved =
-    continent ??
-    (nationality ? NATIONALITY_CONTINENT[nationality] : null) ??
-    "Europe";
-  const slug   = CONTINENT_SLUG[resolved] ?? "europe";
+  const resolved: ContinentKey =
+    continentKeyFrom(continent) ??
+    continentKeyForNationality(nationality) ??
+    "europe";
+  const slug   = CONTINENT_SLUG[resolved];
   const prefix = playerType === "youth" ? "y" : "s";
   const index  = nameHash(name) + 1;
   return `/players/${prefix}-${slug}-${String(index).padStart(2, "0")}.png`;
@@ -107,13 +97,13 @@ export function resolvePortraitSrc(
 
 // ── Continent placeholder colours ─────────────────────────────────────────────
 
-const CONTINENT_COLORS: Record<string, { bg: string; text: string }> = {
-  Africa:            { bg: "#78350f", text: "#fcd34d" },
-  Asia:              { bg: "#7f1d1d", text: "#fca5a5" },
-  Europe:            { bg: "#1e3a5f", text: "#93c5fd" },
-  "North America":   { bg: "#14532d", text: "#86efac" },
-  "South America":   { bg: "#365314", text: "#bef264" },
-  Oceania:           { bg: "#164e63", text: "#67e8f9" },
+const CONTINENT_COLORS: Record<ContinentKey, { bg: string; text: string }> = {
+  africa_middle_east: { bg: "#78350f", text: "#fcd34d" },
+  asia:               { bg: "#7f1d1d", text: "#fca5a5" },
+  europe:             { bg: "#1e3a5f", text: "#93c5fd" },
+  north_america:      { bg: "#14532d", text: "#86efac" },
+  south_america:      { bg: "#365314", text: "#bef264" },
+  oceania:            { bg: "#164e63", text: "#67e8f9" },
 };
 const DEFAULT_COLOR = { bg: "#3b0764", text: "#d8b4fe" };
 
@@ -152,14 +142,46 @@ export function PlayerPortrait({
   const { open } = useLightbox();
   const triggerRef = useRef<HTMLDivElement>(null);
 
-  const resolved =
-    continent ??
-    (nationality ? NATIONALITY_CONTINENT[nationality] : null) ??
-    "Europe";
+  const resolved: ContinentKey =
+    continentKeyFrom(continent) ??
+    continentKeyForNationality(nationality) ??
+    "europe";
   const colors = CONTINENT_COLORS[resolved] ?? DEFAULT_COLOR;
   const ini    = initials(name);
 
   const src = resolvePortraitSrc(imageUrl, name, playerType);
+
+  // ── Academy players are never depicted ────────────────────────────────────
+  // Youth players are minors. The game deliberately ships no photographs of
+  // them — a beachwear portrait of a 14-to-18-year-old is not something this
+  // project will put on screen, and every youth row points at the same blank
+  // card for exactly that reason. The flag of their country stands in: it
+  // identifies the player without picturing her.
+  //
+  // Rendered from the nationality rather than from any image, so there is no
+  // asset to mislabel and nothing to swap in later by accident.
+  if (playerType === "youth") {
+    return (
+      <div
+        className={`w-full ${heightClass} flex flex-col items-center justify-center select-none ${className}`}
+        style={{ backgroundColor: colors.bg }}
+        aria-label={nationality ? `${name} — ${nationality}` : name}
+      >
+        <div className="leading-none" style={{ fontSize: "3.5rem" }} aria-hidden="true">
+          {countryFlag(nationality)}
+        </div>
+        <div
+          className="mt-3 text-[11px] font-black uppercase tracking-widest text-center px-2"
+          style={{ color: colors.text }}
+        >
+          {nationality ?? continentLabel(resolved)}
+        </div>
+        <div className="mt-1 text-[9px] font-bold uppercase tracking-widest opacity-50" style={{ color: colors.text }}>
+          Academy
+        </div>
+      </div>
+    );
+  }
 
   if (failed) {
     // Initials placeholder — not zoomable (no real image)
@@ -175,7 +197,7 @@ export function PlayerPortrait({
           {ini}
         </div>
         <div className="mt-2 text-[10px] font-bold uppercase tracking-widest opacity-60" style={{ color: colors.text }}>
-          {resolved}
+          {continentLabel(resolved)}
         </div>
       </div>
     );
@@ -241,10 +263,10 @@ export function AvatarPortrait({
 }: AvatarPortraitProps) {
   const [failed, setFailed] = useState(false);
 
-  const resolved =
-    continent ??
-    (nationality ? NATIONALITY_CONTINENT[nationality] : null) ??
-    "Europe";
+  const resolved: ContinentKey =
+    continentKeyFrom(continent) ??
+    continentKeyForNationality(nationality) ??
+    "europe";
   const colors = CONTINENT_COLORS[resolved] ?? DEFAULT_COLOR;
   const ini    = initials(name);
   const src    = resolvePortraitSrc(imageUrl, name, playerType);

@@ -1,3 +1,4 @@
+import { CONTINENT_COUNT } from "@workspace/db";
 import type { Team, CareerStats } from "@workspace/db";
 
 export type AchievementCategory = "career" | "finance" | "youth" | "competition" | "legacy";
@@ -159,10 +160,15 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     key: "world_traveller",
     name: "World Traveller",
-    description: "Manage teams on all 6 continents.",
+    // Target derived, not typed: this said "6" in three places while the club
+    // picker was showing four, and nothing could tell which was right.
+    description: `Manage teams on all ${CONTINENT_COUNT} continents.`,
     category: "legacy",
-    check: (_t, stats) => stats.continentsVisited.length >= 6,
-    progress: (_t, stats) => ({ current: Math.min(stats.continentsVisited.length, 6), target: 6 }),
+    check: (_t, stats) => stats.continentsVisited.length >= CONTINENT_COUNT,
+    progress: (_t, stats) => ({
+      current: Math.min(stats.continentsVisited.length, CONTINENT_COUNT),
+      target:  CONTINENT_COUNT,
+    }),
   },
   {
     key: "hall_of_fame",

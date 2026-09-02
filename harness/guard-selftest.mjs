@@ -299,6 +299,45 @@ export async function seed(db: any, t: any, p: { age: number }) {
     /COLUMN/.test(out2) ? "" : out2.split("\n").slice(-8).join(" | "));
 }
 
+
+// ── Continent canonicalisation guard ────────────────────────────────────────
+console.log("\n5. CONTINENT GUARD — a non-canonical continent value");
+{
+  const shipped = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+  // (a) a club carrying a display label instead of a key. This is the exact
+  //     shape of the bug: the picker grouped by label, the label did not match,
+  //     and three clubs silently disappeared from character creation.
+  const drifted = path.join(WORK, "drifted.sqlite");
+  fs.copyFileSync(shipped, drifted);
+  {
+    const db = new DatabaseSync(drifted);
+    db.exec(`UPDATE club_templates SET continent = 'Oceania' WHERE continent = 'oceania'`);
+    db.close();
+  }
+  const rDrift = runGuard("check-continents.cjs", [drifted]);
+  check("a display label in club_templates is rejected", rDrift.status !== 0,
+    rDrift.status !== 0 ? "" : "guard accepted a non-canonical continent");
+
+  // (b) an outright unknown value in a different table, to prove the guard is
+  //     discovering columns rather than only ever checking club_templates.
+  const alien = path.join(WORK, "alien.sqlite");
+  fs.copyFileSync(shipped, alien);
+  {
+    const db = new DatabaseSync(alien);
+    db.exec(`UPDATE players SET continent = 'Antarctica' WHERE id = (SELECT MIN(id) FROM players)`);
+    db.close();
+  }
+  const rAlien = runGuard("check-continents.cjs", [alien]);
+  check("an unknown continent in players is rejected", rAlien.status !== 0,
+    rAlien.status !== 0 ? "" : "guard only checks club_templates");
+
+  // (c) negative control: the real shipped artifact must pass.
+  const rGood = runGuard("check-continents.cjs", [shipped]);
+  check("the real starter DB is accepted", rGood.status === 0,
+    rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
+}
+
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 if (failures > 0) console.log(`\nFixtures kept: ${WORK}`);
 else { try { fs.rmSync(WORK, { recursive: true, force: true }); } catch {} }

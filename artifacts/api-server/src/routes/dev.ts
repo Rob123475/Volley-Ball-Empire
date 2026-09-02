@@ -2,6 +2,7 @@ import { Router } from "express";
 import { generateStaffMember, type StaffRole } from "../utils/staff-generator.js";
 import { generateMedicalStaffMember, type MedicalRole, MEDICAL_ROLES } from "../utils/medical-staff-generator.js";
 import { db } from "@workspace/db";
+import { CONTINENT_KEYS, type ContinentKey } from "@workspace/db";
 import {
   matchesTable, seasonsTable, calendarStateTable, teamsTable,
   continentalPoolTeamsTable, continentalPoolPlayersTable,
@@ -478,31 +479,31 @@ router.post("/dev/fix-youth-data", async (_req, res) => {
 
 // ── Country-name nationality pools by DB continent (for new youth generation) ─
 // Drawn from the canonical NATIONALITY_CONTINENT registry in olympics.ts.
-const YOUTH_POOL_BY_CONTINENT: Record<string, string[]> = {
-  Europe: [
+const YOUTH_POOL_BY_CONTINENT: Record<ContinentKey, string[]> = {
+  europe: [
     "Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Denmark",
     "Netherlands", "Switzerland", "Poland", "Greece", "Portugal", "Austria",
     "Belgium", "Russia", "Czech Republic", "Finland", "Croatia", "Serbia",
     "Ukraine", "Hungary", "England", "Ireland", "Malta", "Monaco",
   ],
-  "North America": [
+  north_america: [
     "USA", "Canada", "Mexico", "Cuba", "Jamaica", "Dominican Republic",
     "Puerto Rico", "Panama", "Costa Rica", "Bahamas",
   ],
-  "South America": [
+  south_america: [
     "Brazil", "Argentina", "Colombia", "Chile", "Peru", "Venezuela",
     "Ecuador", "Bolivia", "Uruguay", "Guyana",
   ],
-  Asia: [
+  asia: [
     "Japan", "China", "South Korea", "India", "Thailand", "Indonesia",
     "Philippines", "Vietnam", "Malaysia", "Taiwan", "Laos", "Maldives",
   ],
-  "Africa & Middle East": [
+  africa_middle_east: [
     "Nigeria", "Egypt", "Kenya", "Morocco", "Tunisia", "South Africa",
     "Tanzania", "Zimbabwe", "Mozambique", "Madagascar", "Ghana", "Senegal",
     "Cameroon", "Algeria", "Burkina Faso", "Ivory Coast", "Guinea",
   ],
-  Oceania: [
+  oceania: [
     "Australia", "New Zealand", "Fiji", "Samoa", "Tahiti",
     "Papua New Guinea", "Tonga", "Vanuatu",
   ],
@@ -513,34 +514,34 @@ const YOUTH_POOL_IMAGE = "/objects/youth-cards/youth-card.webp";
 const YOUTH_POSITIONS = ["setter", "spiker", "defender", "blocker", "all_rounder"] as const;
 const YOUTH_POTENTIALS = ["Below Average", "Average", "Average", "High", "High", "Elite"] as const;
 
-const YOUTH_REPLENISH_NAMES: Record<string, string[]> = {
-  Europe: [
+const YOUTH_REPLENISH_NAMES: Record<ContinentKey, string[]> = {
+  europe: [
     "Emma Müller", "Sofia Rossi", "Lena Andersen", "Maja Karlsson", "Klara Novak",
     "Ingrid Berg", "Elena Petrova", "Marta Kowalski", "Anna Horváth", "Laura Becker",
     "Julia Braun", "Marie Dupont", "Chiara Ferrari", "Astrid Larsen", "Petra Kováč",
     "Hanna Schulz", "Saoirse Murphy", "Sofia Alves", "Valentina Gruber", "Nia Žanić",
   ],
-  "North America": [
+  north_america: [
     "Avery Thompson", "Riley Anderson", "Taylor Mitchell", "Morgan Wilson",
     "Jordan Davis", "Brooke Sullivan", "Paige Harris", "Sydney Clark",
     "Kayla Lewis", "Alexis Walker", "Maya Torres", "Isabella Reyes",
   ],
-  "South America": [
+  south_america: [
     "Valentina García", "Camila Rodríguez", "Isabela Costa", "Lucía Fernández",
     "Sofía López", "Mariana Santos", "Gabriela Moreno", "Ana Lima",
     "Daniela Ruiz", "Paula Herrera", "Natalia Castro", "Andrea Vargas",
   ],
-  Asia: [
+  asia: [
     "Yuki Tanaka", "Mei Lin", "Sakura Ito", "Ji-Young Park", "Priya Sharma",
     "Ananya Patel", "Nguyen Thi Mai", "Siti Rahma", "Yuna Kim", "Rin Sato",
     "Divya Nair", "Hana Suzuki", "Miku Yamamoto", "Aisyah Binti Ahmad",
   ],
-  "Africa & Middle East": [
+  africa_middle_east: [
     "Amina Diallo", "Fatou Koné", "Aisha Okafor", "Nkechi Eze", "Abena Asante",
     "Nadia Hassan", "Layla Omar", "Zainab Musa", "Chiamaka Obi", "Efua Mensah",
     "Sara Ben Ammar", "Yasmin Traoré", "Fatoumata Bah", "Miriam Wanjiru",
   ],
-  Oceania: [
+  oceania: [
     "Zoe Harrison", "Chloe Martin", "Emma Wilson", "Lily Thompson",
     "Grace Anderson", "Mia Cooper", "Ella Davis", "Sophie Evans",
     "Aroha Tane", "Kezia Ratu",
@@ -569,12 +570,12 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
     }
 
     // Count existing youth per continent to distribute vacancies fairly
-    const continents = Object.keys(YOUTH_POOL_BY_CONTINENT);
+    const continents = [...CONTINENT_KEYS];
     const countByCont: Record<string, number> = Object.fromEntries(
       continents.map(c => [c, allYouth.filter(p => p.continent === c).length])
     );
 
-    const toAdd: Array<{ nationality: string; continent: string }> = [];
+    const toAdd: Array<{ nationality: string; continent: ContinentKey }> = [];
 
     // Fill each continent up to its fair share (target / 6) first
     const perContinent = Math.floor(GLOBAL_YOUTH_TARGET / continents.length);
@@ -602,7 +603,7 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
     // Insert players
     const rand = (lo: number, hi: number) => lo + Math.floor(Math.random() * (hi - lo + 1));
     for (const { nationality, continent } of toAdd) {
-      const namePool = YOUTH_REPLENISH_NAMES[continent] ?? YOUTH_REPLENISH_NAMES["Europe"]!;
+      const namePool = YOUTH_REPLENISH_NAMES[continent];
       const name = namePool[Math.floor(Math.random() * namePool.length)]!;
       const age = rand(14, 18);
       const position = YOUTH_POSITIONS[Math.floor(Math.random() * YOUTH_POSITIONS.length)]!;

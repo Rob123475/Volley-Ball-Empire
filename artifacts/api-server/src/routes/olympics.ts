@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { playersTable, olympicSelectionsTable, seasonsTable } from "@workspace/db";
 import type { OlympicPlayerData } from "@workspace/db";
+import { continentKeyForNationality } from "@workspace/db";
 import { and, eq, desc } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 
@@ -99,52 +100,10 @@ const COUNTRY_FLAGS: Record<string, string> = {
   "Solomon Islands":"🇸🇧",
 };
 
-// ── Continent mapping ─────────────────────────────────────────────────────────
-// Keyed by nationality (same values that live in playersTable.nationality).
-
-const NATIONALITY_CONTINENT: Record<string, string> = {
-  // Asia
-  Japan: "Asia", China: "Asia", "South Korea": "Asia", India: "Asia",
-  Thailand: "Asia", Indonesia: "Asia", Philippines: "Asia", Vietnam: "Asia",
-  Malaysia: "Asia", Taiwan: "Asia", Laos: "Asia", Maldives: "Asia",
-  // Europe
-  Germany: "Europe", France: "Europe", Italy: "Europe", Spain: "Europe",
-  Norway: "Europe", Sweden: "Europe", Denmark: "Europe", Netherlands: "Europe",
-  Switzerland: "Europe", Poland: "Europe", Greece: "Europe", Portugal: "Europe",
-  Austria: "Europe", Belgium: "Europe", Russia: "Europe", "Czech Republic": "Europe",
-  Finland: "Europe", Croatia: "Europe", Serbia: "Europe", Ukraine: "Europe",
-  Hungary: "Europe", England: "Europe", Ireland: "Europe", Malta: "Europe",
-  Monaco: "Europe",
-  // North America
-  USA: "North America", Canada: "North America", Mexico: "North America",
-  Cuba: "North America", Jamaica: "North America", "Costa Rica": "North America",
-  "Dominican Republic": "North America", "Puerto Rico": "North America",
-  Panama: "North America", Bahamas: "North America",
-  // South America
-  Brazil: "South America", Argentina: "South America", Colombia: "South America",
-  Chile: "South America", Peru: "South America", Venezuela: "South America",
-  Ecuador: "South America", Bolivia: "South America", Uruguay: "South America",
-  Guyana: "South America",
-  // Africa and Middle East
-  Nigeria: "Africa and Middle East", Egypt: "Africa and Middle East",
-  Kenya: "Africa and Middle East", Morocco: "Africa and Middle East",
-  Tunisia: "Africa and Middle East", "South Africa": "Africa and Middle East",
-  Tanzania: "Africa and Middle East", Zimbabwe: "Africa and Middle East",
-  Mozambique: "Africa and Middle East", Madagascar: "Africa and Middle East",
-  Ghana: "Africa and Middle East", Senegal: "Africa and Middle East",
-  Cameroon: "Africa and Middle East", Algeria: "Africa and Middle East",
-  // Australia and Pacific Islands
-  Australia: "Australia and Pacific Islands",
-  "New Zealand": "Australia and Pacific Islands",
-  Fiji: "Australia and Pacific Islands",
-  Samoa: "Australia and Pacific Islands",
-  Tahiti: "Australia and Pacific Islands",
-  "Papua New Guinea": "Australia and Pacific Islands",
-  Tonga: "Australia and Pacific Islands",
-  Vanuatu: "Australia and Pacific Islands",
-  "Cook Islands": "Australia and Pacific Islands",
-  "Solomon Islands": "Australia and Pacific Islands",
-};
+// Nationality -> continent now comes from @workspace/db. This file used to
+// carry its own 45-entry copy; it was one of the seven vocabularies that
+// drifted, and the "Other" fallback below meant a nationality it had never
+// heard of was quietly bucketed instead of reported.
 
 // ── Eligibility constants ─────────────────────────────────────────────────────
 
@@ -182,7 +141,7 @@ router.get("/olympics/countries", async (req, res) => {
 
   for (const [nationality, players] of byNationality.entries()) {
     const eligible = players.length >= MIN_PLAYERS;
-    const continent = NATIONALITY_CONTINENT[nationality] ?? "Other";
+    const continent = continentKeyForNationality(nationality) ?? "unknown";
 
     // Sort best players first by average rating
     const scored = [...players].sort((a, b) => {

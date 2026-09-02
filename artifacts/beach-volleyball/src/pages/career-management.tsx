@@ -35,6 +35,14 @@ import {
   Zap,
 } from "lucide-react";
 
+import {
+  CONTINENTS,
+  CONTINENT_COUNT,
+  continentLabel,
+  isContinentKey,
+  type ContinentKey,
+} from "@shared/continents";
+
 type SaveSlot      = import("@workspace/api-client-react").CareerSaveSlot;
 type ClubTemplate  = import("@workspace/api-client-react").ClubTemplate;
 
@@ -63,16 +71,35 @@ function formatDate(iso: string): string {
 
 // ── Continent config ─────────────────────────────────────────────────────────
 
-const CONTINENT_META: Record<string, { emoji: string; color: string; bg: string; border: string; ring: string }> = {
-  "Europe":        { emoji: "🌍", color: "text-blue-300",    bg: "bg-blue-500/10",    border: "border-blue-500/25",    ring: "ring-blue-500/50"    },
-  "Asia":          { emoji: "🌏", color: "text-amber-300",   bg: "bg-amber-500/10",   border: "border-amber-500/25",   ring: "ring-amber-500/50"   },
-  "Africa":        { emoji: "🌍", color: "text-orange-300",  bg: "bg-orange-500/10",  border: "border-orange-500/25",  ring: "ring-orange-500/50"  },
-  "North America": { emoji: "🌎", color: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-500/25", ring: "ring-emerald-500/50" },
-  "South America": { emoji: "🌎", color: "text-green-300",   bg: "bg-green-500/10",   border: "border-green-500/25",   ring: "ring-green-500/50"   },
-  "Oceania":       { emoji: "🌊", color: "text-cyan-300",    bg: "bg-cyan-500/10",    border: "border-cyan-500/25",    ring: "ring-cyan-500/50"    },
+type ContinentStyle = { emoji: string; color: string; bg: string; border: string; ring: string };
+
+/**
+ * Presentation only — keyed by the canonical KEY, never by a display string.
+ *
+ * This map used to be keyed by label and to carry its own ordering list, with
+ * "Africa" and "Oceania" spelled the way this file happened to spell them. The
+ * database said "Australia and Pacific Islands", nothing matched, and the three
+ * Oceania clubs were dropped from the picker without a word. `Record<
+ * ContinentKey, …>` makes that a compile error instead: add a continent and
+ * this file will not build until it has a style.
+ */
+const CONTINENT_STYLE: Record<ContinentKey, ContinentStyle> = {
+  europe:             { emoji: "🌍", color: "text-blue-300",    bg: "bg-blue-500/10",    border: "border-blue-500/25",    ring: "ring-blue-500/50"    },
+  asia:               { emoji: "🌏", color: "text-amber-300",   bg: "bg-amber-500/10",   border: "border-amber-500/25",   ring: "ring-amber-500/50"   },
+  africa_middle_east: { emoji: "🌍", color: "text-orange-300",  bg: "bg-orange-500/10",  border: "border-orange-500/25",  ring: "ring-orange-500/50"  },
+  north_america:      { emoji: "🌎", color: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-500/25", ring: "ring-emerald-500/50" },
+  south_america:      { emoji: "🌎", color: "text-green-300",   bg: "bg-green-500/10",   border: "border-green-500/25",   ring: "ring-green-500/50"   },
+  oceania:            { emoji: "🌊", color: "text-cyan-300",    bg: "bg-cyan-500/10",    border: "border-cyan-500/25",    ring: "ring-cyan-500/50"    },
 };
 
-const CONTINENT_ORDER = ["Europe", "Asia", "Africa", "North America", "South America", "Oceania"];
+/** Style for the bucket that catches clubs with a continent we do not know. */
+const UNRECOGNISED_STYLE: ContinentStyle = {
+  emoji: "⚠️", color: "text-red-300", bg: "bg-red-500/10",
+  border: "border-red-500/40", ring: "ring-red-500/50",
+};
+
+const styleFor = (key: string): ContinentStyle =>
+  isContinentKey(key) ? CONTINENT_STYLE[key] : UNRECOGNISED_STYLE;
 
 // ── Rating bar ────────────────────────────────────────────────────────────────
 
@@ -101,7 +128,7 @@ function ClubCard({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const meta = CONTINENT_META[club.continent] ?? CONTINENT_META["Europe"];
+  const meta = styleFor(club.continent);
 
   return (
     <button
@@ -152,19 +179,22 @@ function ClubCard({
 // ── Continent group ────────────────────────────────────────────────────────────
 
 function ContinentGroup({
-  continent,
+  label,
+  meta,
+  warning,
   clubs,
   selectedId,
   onSelect,
   defaultOpen,
 }: {
-  continent: string;
+  label: string;
+  meta: ContinentStyle;
+  warning?: string;
   clubs: ClubTemplate[];
   selectedId: number | null;
   onSelect: (c: ClubTemplate) => void;
   defaultOpen: boolean;
 }) {
-  const meta = CONTINENT_META[continent] ?? CONTINENT_META["Europe"];
   const [open, setOpen] = useState(defaultOpen);
   const hasSelection = clubs.some(c => c.id === selectedId);
 
@@ -180,7 +210,7 @@ function ContinentGroup({
       >
         <div className="flex items-center gap-2.5">
           <span className="text-lg leading-none">{meta.emoji}</span>
-          <span className={cn("text-sm font-black", meta.color)}>{continent}</span>
+          <span className={cn("text-sm font-black", meta.color)}>{label}</span>
           <span className="text-[10px] text-white/30 font-semibold">{clubs.length} clubs</span>
           {hasSelection && (
             <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black border", meta.bg, meta.border, meta.color)}>
@@ -193,6 +223,10 @@ function ContinentGroup({
           : <ChevronRight className="h-4 w-4 text-white/30" />
         }
       </button>
+
+      {warning && (
+        <p className="px-4 pb-2 text-[11px] text-red-300/90 leading-relaxed">{warning}</p>
+      )}
 
       {open && (
         <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 border-t border-white/6">
@@ -237,14 +271,40 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     query: { queryKey: getListClubTemplatesQueryKey() },
   });
 
-  const grouped = useMemo(() => {
-    const clubs = templatesData?.clubs ?? [];
-    const map = new Map<string, ClubTemplate[]>();
-    for (const c of clubs) {
-      if (!map.has(c.continent)) map.set(c.continent, []);
-      map.get(c.continent)!.push(c);
+  /**
+   * Partition the clubs so that EVERY club lands in exactly one bucket.
+   *
+   * The old version built a Map keyed by the raw continent string and the
+   * render walked a hardcoded list of six labels, so a club whose continent
+   * was not one of those six matched no group and was never drawn — silently.
+   * Three Oceania clubs disappeared that way and the screen looked complete.
+   *
+   * The partition below is total by construction: anything that is not a
+   * canonical key goes to `unrecognised`, which the UI renders in red rather
+   * than skipping. `shown` is derived from the buckets, not counted
+   * separately, so it cannot disagree with what is on screen.
+   */
+  const { groups, unrecognised, clubs, shown } = useMemo(() => {
+    const all = templatesData?.clubs ?? [];
+    const byKey = new Map<ContinentKey, ClubTemplate[]>();
+    const strays: ClubTemplate[] = [];
+
+    for (const c of all) {
+      if (isContinentKey(c.continent)) {
+        const list = byKey.get(c.continent);
+        if (list) list.push(c);
+        else byKey.set(c.continent, [c]);
+      } else {
+        strays.push(c);
+      }
     }
-    return map;
+
+    const ordered = CONTINENTS
+      .map(({ key, label }) => ({ key, label, clubs: byKey.get(key) ?? [] }))
+      .filter(g => g.clubs.length > 0);
+
+    const drawn = ordered.reduce((n, g) => n + g.clubs.length, 0) + strays.length;
+    return { groups: ordered, unrecognised: strays, clubs: all, shown: drawn };
   }, [templatesData]);
 
   // Pre-fill club name when club is selected and we advance to step 3
@@ -363,26 +423,55 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                       <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-black text-white truncate">{selectedClub.name}</div>
-                        <div className="text-[11px] text-white/45">{selectedClub.continent} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
+                        <div className="text-[11px] text-white/45">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
                       </div>
                     </div>
                   )}
+                  {/* The counts are on screen on purpose. A picker that drops
+                      rows looks exactly like a picker with fewer rows, which is
+                      why nothing caught the three missing clubs for weeks. */}
+                  <div className="flex items-center justify-between px-1 pb-1">
+                    <span className="text-[11px] text-white/35">
+                      {clubs.length} club{clubs.length === 1 ? "" : "s"} · {groups.length} of {CONTINENT_COUNT} regions
+                    </span>
+                    {shown !== clubs.length && (
+                      <span className="text-[11px] font-black text-red-300">
+                        {clubs.length - shown} not shown
+                      </span>
+                    )}
+                  </div>
+
                   <div className="space-y-2">
-                    {CONTINENT_ORDER.map(continent => {
-                      const clubs = grouped.get(continent);
-                      if (!clubs || clubs.length === 0) return null;
-                      const isSelectedContinent = selectedClub?.continent === continent;
-                      return (
-                        <ContinentGroup
-                          key={continent}
-                          continent={continent}
-                          clubs={clubs}
-                          selectedId={selectedClub?.id ?? null}
-                          onSelect={c => { setSelectedClub(c); setCustomClubName(c.name); }}
-                          defaultOpen={isSelectedContinent}
-                        />
-                      );
-                    })}
+                    {groups.map(({ key, label, clubs: groupClubs }) => (
+                      <ContinentGroup
+                        key={key}
+                        label={label}
+                        meta={CONTINENT_STYLE[key]}
+                        clubs={groupClubs}
+                        selectedId={selectedClub?.id ?? null}
+                        onSelect={c => { setSelectedClub(c); setCustomClubName(c.name); }}
+                        defaultOpen={selectedClub?.continent === key}
+                      />
+                    ))}
+
+                    {/* Never silently dropped. A club whose continent is not one
+                        of the canonical six is still selectable, and says so. */}
+                    {unrecognised.length > 0 && (
+                      <ContinentGroup
+                        label="Unrecognised region"
+                        meta={UNRECOGNISED_STYLE}
+                        warning={
+                          `${unrecognised.length} club${unrecognised.length === 1 ? " carries a continent" : "s carry continents"} ` +
+                          `outside the canonical six: ` +
+                          `${[...new Set(unrecognised.map(c => c.continent ?? "(none)"))].join(", ")}. ` +
+                          `These are still playable — but the data needs fixing.`
+                        }
+                        clubs={unrecognised}
+                        selectedId={selectedClub?.id ?? null}
+                        onSelect={c => { setSelectedClub(c); setCustomClubName(c.name); }}
+                        defaultOpen
+                      />
+                    )}
                   </div>
                 </>
               )}
@@ -395,10 +484,10 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
 
               {/* Selected club summary */}
               <div className="rounded-xl border border-white/8 bg-white/4 px-4 py-3 flex items-center gap-3">
-                <div className="text-2xl leading-none">{CONTINENT_META[selectedClub.continent]?.emoji ?? "🏐"}</div>
+                <div className="text-2xl leading-none">{styleFor(selectedClub.continent).emoji}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-black text-white truncate">{selectedClub.name}</div>
-                  <div className="text-[11px] text-white/40">{selectedClub.continent} · Rating {selectedClub.rating} · Rep {selectedClub.reputation}</div>
+                  <div className="text-[11px] text-white/40">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · Rep {selectedClub.reputation}</div>
                 </div>
                 <div className="text-sm font-black text-emerald-400">{formatBudget(selectedClub.startingBudget)}</div>
               </div>

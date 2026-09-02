@@ -5,6 +5,8 @@ import {
   loadLeagueSeasons, loadFixtures, loadResultsForFixtures, insertLeagueResult, updateFixture,
 } from "../lib/regionalLeague.js";
 import {
+  CONTINENT_KEYS,
+  continentKeyFrom,
   continentalPoolTeamsTable,
   continentalPoolPlayersTable,
   regionalLeagueSeasonsTable,
@@ -21,16 +23,10 @@ import {
 
 const router = Router();
 
-export const CONTINENTS = [
-  "Europe",
-  "Asia",
-  "North America",
-  "South America",
-  "Africa and Middle East",
-  "Australia and Pacific Islands",
-] as const;
-
-export type Continent = (typeof CONTINENTS)[number];
+// The canonical six live in @workspace/db. This module used to keep its own
+// copy, which is how "Africa and Middle East" here and "Africa & Middle East"
+// in routes/players.ts drifted apart while both looked authoritative.
+export { CONTINENT_KEYS, type ContinentKey } from "@workspace/db";
 
 // ── Helper: get the current active season for a continent ─────────────────────
 async function getActiveSeason(continent: string, careerSaveId: number) {
@@ -102,9 +98,10 @@ router.get("/regional-league/:continent", async (req, res) => {
     return;
   }
 
-  const continent = decodeURIComponent(req.params.continent);
-  if (!CONTINENTS.includes(continent as Continent)) {
-    res.status(400).json({ error: "Unknown continent", valid: CONTINENTS });
+  // Accept a key or any historical label — everything downstream is the key.
+  const continent = continentKeyFrom(decodeURIComponent(req.params.continent));
+  if (!continent) {
+    res.status(400).json({ error: "Unknown continent", valid: CONTINENT_KEYS });
     return;
   }
 
@@ -188,9 +185,10 @@ router.post("/regional-league/:continent/simulate-all", async (req, res) => {
     return;
   }
 
-  const continent = decodeURIComponent(req.params.continent);
-  if (!CONTINENTS.includes(continent as Continent)) {
-    res.status(400).json({ error: "Unknown continent", valid: CONTINENTS });
+  // Accept a key or any historical label — everything downstream is the key.
+  const continent = continentKeyFrom(decodeURIComponent(req.params.continent));
+  if (!continent) {
+    res.status(400).json({ error: "Unknown continent", valid: CONTINENT_KEYS });
     return;
   }
 
@@ -269,9 +267,10 @@ router.get("/regional-league/:continent/pools", async (req, res) => {
     return;
   }
 
-  const continent = decodeURIComponent(req.params.continent);
-  if (!CONTINENTS.includes(continent as Continent)) {
-    res.status(400).json({ error: "Unknown continent", valid: CONTINENTS });
+  // Accept a key or any historical label — everything downstream is the key.
+  const continent = continentKeyFrom(decodeURIComponent(req.params.continent));
+  if (!continent) {
+    res.status(400).json({ error: "Unknown continent", valid: CONTINENT_KEYS });
     return;
   }
 

@@ -32,6 +32,19 @@ export function isYouthPlayer(p: ClassifiablePlayer): boolean {
 }
 
 /**
+ * Parked player — built, kept, but deliberately out of the active game.
+ *
+ * `player_type = 'spare'` is the "spare players" shelf: surplus fourth players
+ * for a nationality, and nations that are not part of the canonical six-region
+ * roster. Nothing is deleted — a spare is one UPDATE away from being active
+ * again — but a spare must not appear in the market, a squad, or an Olympic
+ * nationality count.
+ */
+export function isSparePlayer(p: ClassifiablePlayer): boolean {
+  return p.playerType === "spare";
+}
+
+/**
  * Senior (first-team) player.
  *
  * This used to be `playerType !== "youth"` — an inversion, and the sharp edge
@@ -39,9 +52,14 @@ export function isYouthPlayer(p: ClassifiablePlayer): boolean {
  * 'youth', so the negation would have reported them as NOT senior while the
  * positive test reported them as youth. Both wrong, in opposite directions.
  * Defined in terms of isYouthPlayer so the two can never disagree.
+ *
+ * Spares are excluded EXPLICITLY rather than by the old negation. `loadPlayers`
+ * filters on player_type = 'senior' in SQL, so a spare never reaches most
+ * callers — but an unfiltered load returns every row, and `!isYouthPlayer`
+ * would have quietly counted every parked player as first-team.
  */
 export function isSeniorPlayer(p: ClassifiablePlayer): boolean {
-  return !isYouthPlayer(p);
+  return !isYouthPlayer(p) && !isSparePlayer(p);
 }
 
 /** Youth players who are still on the books (not retired). */

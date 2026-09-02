@@ -15,19 +15,24 @@ import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
 import { loadPlayers, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
 import type { Team, YouthProspect } from "@workspace/db";
+import {
+  CONTINENT_KEYS, continentKeyFrom, continentLabel, isContinentKey, type ContinentKey,
+} from "@workspace/db";
 
 const router = Router();
 
-const CONTINENTS = ["Africa", "Asia", "Europe", "North America", "South America", "Oceania"] as const;
-type Continent = typeof CONTINENTS[number];
-
-const TALENT_LEVEL: Record<Continent, string> = {
-  Africa:          "High",
-  Asia:            "Average",
-  Europe:          "Elite",
-  "North America": "High",
-  "South America": "High",
-  Oceania:         "Average",
+// Keyed by the canonical continent KEY. This file used to spell Africa
+// "Africa" while the database said "Africa and Middle East", so scouting there
+// silently fell through to "Unknown" talent and an empty nationality pool.
+// `Record<ContinentKey, ...>` means a missing or misspelt key is now a compile
+// error rather than an undefined at runtime.
+const TALENT_LEVEL: Record<ContinentKey, string> = {
+  africa_middle_east: "High",
+  asia:               "Average",
+  europe:             "Elite",
+  north_america:      "High",
+  south_america:      "High",
+  oceania:            "Average",
 };
 
 const SCOUTING_WEEKS = 4;
@@ -35,22 +40,22 @@ export const SCOUTING_COST = 15_000;
 
 // ── Nationality pools by continent ────────────────────────────────────────
 
-const NATIONALITIES: Record<string, string[]> = {
-  Europe:          ["Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands",
-                    "Poland", "Denmark", "Switzerland", "Greece", "Portugal", "Austria", "Belgium",
-                    "Russia", "Czech Republic", "Finland", "Croatia", "Serbia", "Ukraine",
-                    "Hungary", "England", "Ireland", "Malta", "Monaco"],
-  Africa:          ["Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco",
-                    "Tunisia", "Tanzania", "Zimbabwe", "Mozambique", "Madagascar", "Cameroon",
-                    "Algeria", "Burkina Faso", "Ivory Coast", "Guinea"],
-  "North America": ["USA", "Canada", "Mexico", "Cuba", "Jamaica", "Dominican Republic",
-                    "Puerto Rico", "Panama", "Costa Rica", "Bahamas"],
-  "South America": ["Brazil", "Colombia", "Argentina", "Chile", "Peru", "Venezuela",
-                    "Ecuador", "Bolivia", "Uruguay", "Guyana"],
-  Asia:            ["Japan", "South Korea", "China", "India", "Thailand", "Indonesia",
-                    "Philippines", "Vietnam", "Malaysia", "Taiwan", "Laos", "Maldives"],
-  Oceania:         ["Australia", "New Zealand", "Fiji", "Samoa", "Tahiti",
-                    "Papua New Guinea", "Tonga", "Vanuatu"],
+const NATIONALITIES: Record<ContinentKey, string[]> = {
+  europe:             ["Germany", "France", "Italy", "Spain", "Norway", "Sweden", "Netherlands",
+                       "Poland", "Denmark", "Switzerland", "Greece", "Portugal", "Austria", "Belgium",
+                       "Russia", "Czech Republic", "Finland", "Croatia", "Serbia", "Ukraine",
+                       "Hungary", "England", "Ireland", "Malta", "Monaco"],
+  africa_middle_east: ["Ghana", "Nigeria", "Kenya", "South Africa", "Senegal", "Egypt", "Morocco",
+                       "Tunisia", "Tanzania", "Zimbabwe", "Mozambique", "Madagascar", "Cameroon",
+                       "Algeria", "Burkina Faso", "Ivory Coast", "Guinea"],
+  north_america:      ["USA", "Canada", "Mexico", "Cuba", "Jamaica", "Dominican Republic",
+                       "Puerto Rico", "Panama", "Costa Rica", "Bahamas"],
+  south_america:      ["Brazil", "Colombia", "Argentina", "Chile", "Peru", "Venezuela",
+                       "Ecuador", "Bolivia", "Uruguay", "Guyana"],
+  asia:               ["Japan", "South Korea", "China", "India", "Thailand", "Indonesia",
+                       "Philippines", "Vietnam", "Malaysia", "Taiwan", "Laos", "Maldives"],
+  oceania:            ["Australia", "New Zealand", "Fiji", "Samoa", "Tahiti",
+                       "Papua New Guinea", "Tonga", "Vanuatu"],
 };
 
 // ── Speciality → primary stat boost ─────────────────────────────────────
@@ -88,7 +93,7 @@ const serializeMission = (team: Team) => ({
   continent:           team.youthScoutingContinent  ?? null,
   weeksRemaining:      team.youthScoutingWeeksRemaining ?? 0,
   expectedTalentLevel: team.youthScoutingContinent
-    ? (TALENT_LEVEL[team.youthScoutingContinent as Continent] ?? "Unknown")
+    ? (TALENT_LEVEL[team.youthScoutingContinent as ContinentKey] ?? "Unknown")
     : null,
   scoutingCost: SCOUTING_COST,
 });
@@ -125,8 +130,9 @@ router.post("/youth-scouting/start", async (req, res) => {
   }
 
   const { continent } = req.body as { continent: string };
-  if (!CONTINENTS.includes(continent as Continent)) {
-    res.status(400).json({ error: `continent must be one of: ${CONTINENTS.join(", ")}` });
+  const continentKey = continentKeyFrom(continent);
+  if (!continentKey) {
+    res.status(400).json({ error: `continent must be one of: ${CONTINENT_KEYS.join(", ")}` });
     return;
   }
 
@@ -139,7 +145,7 @@ router.post("/youth-scouting/start", async (req, res) => {
   const today = await getGameDate(team.id);
 
   const [updated] = await db.update(teamsTable).set({
-    youthScoutingContinent:      continent,
+    youthScoutingContinent:      continentKey,
     youthScoutingStatus:         "active",
     youthScoutingWeeksRemaining: SCOUTING_WEEKS,
     budget:                      budget - SCOUTING_COST,
@@ -149,7 +155,7 @@ router.post("/youth-scouting/start", async (req, res) => {
     teamId:      team.id,
     type:        "expense",
     amount:      SCOUTING_COST,
-    description: `Youth scouting — ${continent}`,
+    description: `Youth scouting — ${continentLabel(continentKey)}`,
     category:    "youth_academy",
     date:        today,
   });
@@ -223,7 +229,9 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   const stats = buildStats(prospect.currentRating, prospect.speciality);
 
   // Pick nationality from continent pool
-  const natPool    = NATIONALITIES[prospect.continent] ?? ["USA"];
+  const natPool    = isContinentKey(prospect.continent)
+    ? NATIONALITIES[prospect.continent]
+    : ["USA"];
   const nationality = natPool[Math.floor(Math.random() * natPool.length)]!;
 
   // Position: Setters favour serve/defense; Spikers favour power/speed/block

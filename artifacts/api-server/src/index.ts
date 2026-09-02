@@ -35,17 +35,36 @@ try {
   logger.error({ err }, "schema ensure failed");
 }
 
-// Data migration: collapse the three continent spellings onto the canonical
-// six and backfill players that never had one. Idempotent, so it is safe on
-// every boot — and existing saves need it as much as the shipped database.
+// Data migration: move every continent column onto the canonical KEYS and
+// backfill players that never had one. Idempotent, so it is safe on every
+// boot — and existing saves need it as much as the shipped database.
 try {
   const migrated = normaliseContinentsOnce();
-  const touched = Object.values(migrated).reduce((a, b) => a + b, 0);
-  if (touched > 0) logger.info(migrated, "continent normalisation applied");
+  const touched = migrated.valuesNormalised + migrated.playersBackfilled;
+  if (touched > 0) {
+    logger.info(
+      {
+        columnsScanned:    migrated.columnsScanned,
+        valuesNormalised:  migrated.valuesNormalised,
+        playersBackfilled: migrated.playersBackfilled,
+        after:             migrated.after,
+      },
+      "continent normalisation applied",
+    );
+  }
   if (migrated.playersUnresolved > 0) {
     logger.warn(
       { unresolved: migrated.playersUnresolved },
       "players still have no continent — nationality not in the lookup",
+    );
+  }
+  // An unknown spelling is left in the data on purpose. It must be loud:
+  // it will fail the build gate and show up in the picker's unrecognised
+  // bucket, and neither is any use if the server said nothing about it.
+  if (migrated.unresolved.length > 0) {
+    logger.error(
+      { unresolved: migrated.unresolved },
+      "continent values outside the canonical set — rows will surface as unrecognised",
     );
   }
 } catch (err) {

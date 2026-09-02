@@ -3763,7 +3763,12 @@ components:
           type: string
         continent:
           type: string
-          enum: [Europe, Asia, Africa, North America, South America, Oceania]
+          # Canonical continent KEY, not a display label. The client renders the
+          # label from lib/db/src/schema/continents.ts. This enum used to list
+          # display strings — and spelled two of them differently from the
+          # database, so the picker silently dropped every club it could not
+          # match. Keys are stable; labels are free to change.
+          enum: [north_america, south_america, europe, asia, africa_middle_east, oceania]
         town:
           type: string
         rating:

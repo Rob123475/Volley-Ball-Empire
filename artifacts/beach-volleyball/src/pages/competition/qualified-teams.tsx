@@ -1,13 +1,20 @@
+import { CONTINENT_COUNT, CONTINENT_KEYS, continentLabel } from "@shared/continents";
+
+/** Top N of each regional ladder go through — see rules.tsx and regional-league.ts. */
+const QUALIFIERS_PER_CONTINENT = 3;
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Star, Lock, Globe, AlertCircle, CheckCircle2 } from "lucide-react";
 
-const CONTINENTS = [
-  "Europe", "Asia", "North America", "South America",
-  "Africa and Middle East", "Australia and Pacific Islands",
-] as const;
+/**
+ * Driven by the canonical KEYS. Each of these screens used to declare its own
+ * array of continent LABELS; the copies drifted, and any screen whose spelling
+ * did not match the data silently rendered nothing for that region. Labels are
+ * looked up at render time via continentLabel().
+ */
+const CONTINENTS = CONTINENT_KEYS;
 
 type Qualification = {
   id: number;
@@ -60,7 +67,7 @@ export default function QualifiedTeams() {
       <div>
         <h1 className="text-2xl font-bold">World Tour Qualified Teams</h1>
         <p className="text-muted-foreground mt-1">
-          18 teams (3 per continent) advance from regional leagues to the World Tour
+          {QUALIFIERS_PER_CONTINENT * CONTINENT_COUNT} teams ({QUALIFIERS_PER_CONTINENT} per continent) advance from regional leagues to the World Tour
         </p>
       </div>
 
@@ -80,7 +87,7 @@ export default function QualifiedTeams() {
           <div>
             <p className="text-sm font-medium">
               {allComplete
-                ? "All 18 qualifiers confirmed — World Tour is open"
+                ? `All ${QUALIFIERS_PER_CONTINENT * CONTINENT_COUNT} qualifiers confirmed — World Tour is open`
                 : `${totalQualified} / 18 qualifiers confirmed`}
             </p>
             {!allComplete && (
@@ -125,7 +132,7 @@ export default function QualifiedTeams() {
                 <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold text-sm">{continent}</h3>
+                    <h3 className="font-semibold text-sm">{continentLabel(continent)}</h3>
                   </div>
                   <Badge
                     variant={filled >= 3 ? "default" : "outline"}

@@ -29,16 +29,16 @@ const locations = [
 // ── Club templates ──────────────────────────────────────────────────────────
 
 const clubTemplates = [
-  { name: "Rio Storm Volleyball",      continent: "South America", town: "Rio de Janeiro", rating: 68, startingBudget: 450000, reputation: 55, primaryColor: "#00A651", secondaryColor: "#FFDF00" },
-  { name: "Sydney Riptide",            continent: "Oceania",       town: "Sydney",          rating: 62, startingBudget: 400000, reputation: 48, primaryColor: "#0072CE", secondaryColor: "#FFFFFF" },
-  { name: "Cancún Marlins",            continent: "North America", town: "Cancún",          rating: 58, startingBudget: 380000, reputation: 42, primaryColor: "#00B4D8", secondaryColor: "#F4A261" },
-  { name: "Barcelona Onada",           continent: "Europe",        town: "Barcelona",       rating: 71, startingBudget: 520000, reputation: 60, primaryColor: "#A6192E", secondaryColor: "#FFC72C" },
-  { name: "Miami SandStorm",           continent: "North America", town: "Miami",           rating: 65, startingBudget: 430000, reputation: 50, primaryColor: "#FF6EC7", secondaryColor: "#00D9C0" },
-  { name: "Honolulu Wave Riders",      continent: "Oceania",       town: "Honolulu",        rating: 55, startingBudget: 350000, reputation: 38, primaryColor: "#FF8C42", secondaryColor: "#2A9D8F" },
-  { name: "Phuket Monsoon",            continent: "Asia",          town: "Phuket",          rating: 52, startingBudget: 320000, reputation: 35, primaryColor: "#5C2A9D", secondaryColor: "#F4E04D" },
-  { name: "Gold Coast Breakers",       continent: "Oceania",       town: "Gold Coast",      rating: 60, startingBudget: 400000, reputation: 45, primaryColor: "#003366", secondaryColor: "#FFD700" },
-  { name: "Ibiza Sunset FC",           continent: "Europe",        town: "Ibiza",           rating: 66, startingBudget: 460000, reputation: 52, primaryColor: "#FF4500", secondaryColor: "#4B0082" },
-  { name: "Maldives Coral Kings",      continent: "Asia",          town: "Malé",            rating: 50, startingBudget: 300000, reputation: 30, primaryColor: "#00CED1", secondaryColor: "#FFFFFF" },
+  { name: "Rio Storm Volleyball",      continent: "south_america", town: "Rio de Janeiro", rating: 68, startingBudget: 450000, reputation: 55, primaryColor: "#00A651", secondaryColor: "#FFDF00" },
+  { name: "Sydney Riptide",            continent: "oceania",       town: "Sydney",          rating: 62, startingBudget: 400000, reputation: 48, primaryColor: "#0072CE", secondaryColor: "#FFFFFF" },
+  { name: "Cancún Marlins",            continent: "north_america", town: "Cancún",          rating: 58, startingBudget: 380000, reputation: 42, primaryColor: "#00B4D8", secondaryColor: "#F4A261" },
+  { name: "Barcelona Onada",           continent: "europe",        town: "Barcelona",       rating: 71, startingBudget: 520000, reputation: 60, primaryColor: "#A6192E", secondaryColor: "#FFC72C" },
+  { name: "Miami SandStorm",           continent: "north_america", town: "Miami",           rating: 65, startingBudget: 430000, reputation: 50, primaryColor: "#FF6EC7", secondaryColor: "#00D9C0" },
+  { name: "Honolulu Wave Riders",      continent: "oceania",       town: "Honolulu",        rating: 55, startingBudget: 350000, reputation: 38, primaryColor: "#FF8C42", secondaryColor: "#2A9D8F" },
+  { name: "Phuket Monsoon",            continent: "asia",          town: "Phuket",          rating: 52, startingBudget: 320000, reputation: 35, primaryColor: "#5C2A9D", secondaryColor: "#F4E04D" },
+  { name: "Gold Coast Breakers",       continent: "oceania",       town: "Gold Coast",      rating: 60, startingBudget: 400000, reputation: 45, primaryColor: "#003366", secondaryColor: "#FFD700" },
+  { name: "Ibiza Sunset FC",           continent: "europe",        town: "Ibiza",           rating: 66, startingBudget: 460000, reputation: 52, primaryColor: "#FF4500", secondaryColor: "#4B0082" },
+  { name: "Maldives Coral Kings",      continent: "asia",          town: "Malé",            rating: 50, startingBudget: 300000, reputation: 30, primaryColor: "#00CED1", secondaryColor: "#FFFFFF" },
 ];
 
 // ── Free-agent players (unassigned, teamId null) ────────────────────────────

@@ -930,6 +930,93 @@ because the rollover returned `seasonRollover` and `careerComplete` for weeks
 while the client read neither, and "the rollover happened" is not the same
 assertion as "the player can see it".
 
+### Phase 8 addition — exercise the screens, not only the API beneath them
+
+**Why this is now in scope.** Three bugs surfaced in ten minutes of play; all
+three were on screens, and no harness caught any of them. That is not bad luck,
+it is a gap in where the tests stop. Every suite in `harness/` drives the HTTP
+service layer and asserts on the JSON that comes back. Not one of them renders a
+component, so a defect that lives strictly between a correct API response and
+what the player sees is invisible to the whole net.
+
+The club picker is the worked example. `/club-templates` returned all ten clubs,
+correctly, on every build. The picker grouped them by a display string, walked a
+hardcoded list of six labels, and drew nothing for anything not on that list —
+so three Oceania clubs never reached the screen. Character creation offered
+seven clubs across four regions. Every guard passed, the smoke test passed, and
+the bug survived for weeks. The failure was total and completely silent, because
+**no guard renders a screen.**
+
+The same shape hid two more: player portraits fell back to a European asset for
+85 African and Oceanian players, and the youth-scouting talent table read
+"Unknown" for Africa. All three were one class of bug — a client keeping its own
+copy of a vocabulary the server had moved on from — and none of them could have
+been caught by asserting harder on JSON.
+
+Worth recording separately, because it nearly cost the fix: the club picker
+exists TWICE. `pages/career-management.tsx` has it as a modal, and
+`pages/new-career.tsx` has a near-identical copy, which is the one the title
+screen's START NEW CAREER actually reaches. Repairing the modal alone changed
+nothing a player would see. The duplicate was found by opening the app and
+walking the flow, not by any check — which is the argument for (2) below in one
+sentence.
+
+**What the fix already covers, and what it does not.** Storing continent KEYS and
+typing every client map as `Record<ContinentKey, …>` turns the *specific* class
+into a compile error, and `scripts/check-continents.cjs` fails the build on bad
+data. `harness/smoke.mjs` §8 now repeats the picker's own partition and asserts
+that every club the API returns is drawn. That is a real improvement, but note
+what it is: a *reimplementation* of the screen's logic in the harness. It proves
+the partition reconciles; it cannot prove the component actually mounted, that
+the group is expandable, or that the click path completes. The next bug of this
+family that is not about a vocabulary will still get through.
+
+**What it would take — proposal.**
+
+*1. Component-level tests over the real components.* Vitest + Testing Library,
+running `NewCareerModal` against a mocked `/club-templates`. Cheap (no browser,
+no server, runs in the existing typecheck job) and it catches the exact class:
+render with all ten fixtures, assert ten club names are in the document. The
+strongest single assertion available is a *conservation* one — every row the API
+returns appears somewhere on screen — because it needs no list of expected
+values and so cannot itself drift. Roughly a day, including wiring Vitest into a
+project that currently has no test runner at all.
+
+*2. One end-to-end pass over the career creation flow.* Playwright, driving the
+built app against a real server on a throwaway copy of the shipped DB — the
+harness already does exactly this setup in `run-all.mjs`, so the fixture work is
+mostly done. Scope it to the one flow that every player must pass through and
+that has no alternative route: name → pick a club → name the club → land in the
+dashboard. Assert the club counts on the way through, and that the club chosen
+is the club the career starts with. This is the suite that would have caught the
+picker on day one. Two to three days including CI shape, and it is the only
+option that tests the actual rendered screen rather than a model of it.
+
+*3. A route-mounting smoke pass.* Every route in `App.tsx` mounted in turn
+against a seeded career, failing on a thrown error or an empty render. It would
+not have caught the picker — that screen rendered fine, just short — but it is
+close to free once (2) exists, and it covers the "white screen after a refactor"
+failure that has bitten this project before.
+
+**Sequencing.** (1) first: it is the cheapest, it covers the class that has
+actually been biting, and it needs no new infrastructure. (2) next, scoped hard
+to career creation — one flow that genuinely works beats five flaky ones. (3)
+last, as a by-product of (2).
+
+**The rule worth carrying forward.** A value nothing renders is indistinguishable
+from a value nothing writes — already recorded above for `poolRanking`. The
+picker adds its converse, which is sharper: *a screen that silently drops rows
+is indistinguishable from a screen with fewer rows.* Neither can be detected
+from the API side. Both need something that looks at what the player sees.
+
+Two habits fall out of that, worth applying before any of the above lands:
+- **Screens should reconcile, visibly.** The picker now prints "10 clubs · 5 of
+  6 regions" and renders anything it cannot classify in a red bucket rather than
+  skipping it. A screen that can drop rows should say so on its own face.
+- **Partitions must be total.** Grouping by lookup-and-skip is the defect;
+  grouping into known buckets plus an explicit `unrecognised` bucket makes the
+  same mistake loud instead of silent.
+
 ## What is being kept (do not rewrite)
 - finances table and the atomic, guarded prize payment transaction
 - ledger and /finances/summary endpoints (now paged)

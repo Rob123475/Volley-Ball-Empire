@@ -1,3 +1,4 @@
+import { CONTINENT_COUNT } from "@shared/continents";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -84,7 +85,7 @@ const COMP_TIERS = [
     bg: "bg-amber-500/10",
     border: "border-amber-500/25",
     points: [
-      "3 qualifying teams from each of the 6 continental regions",
+      `3 qualifying teams from each of the ${CONTINENT_COUNT} continental regions`,
       "Europe, Asia, North America, South America, Africa & Middle East, Australia & Pacific Islands",
     ],
   },

@@ -1,13 +1,17 @@
+import { CONTINENT_KEYS, continentLabel } from "@shared/continents";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ArrowUpDown, ArrowUp, ArrowDown, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 
-const CONTINENTS = [
-  "Europe", "Asia", "North America", "South America",
-  "Africa and Middle East", "Australia and Pacific Islands",
-] as const;
+/**
+ * Driven by the canonical KEYS. Each of these screens used to declare its own
+ * array of continent LABELS; the copies drifted, and any screen whose spelling
+ * did not match the data silently rendered nothing for that region. Labels are
+ * looked up at render time via continentLabel().
+ */
+const CONTINENTS = CONTINENT_KEYS;
 
 type LadderEntry = {
   position: number;
@@ -93,7 +97,7 @@ function ContinentCard({ continent }: { continent: string }) {
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
-        <h3 className="font-semibold text-sm">{continent}</h3>
+        <h3 className="font-semibold text-sm">{continentLabel(continent)}</h3>
         <div className="flex items-center gap-2">
           {isComplete ? (
             <Badge className="text-xs bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20">

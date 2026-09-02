@@ -6,6 +6,7 @@ import {
 } from "../utils/playerClassification.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
+import { CONTINENT_KEYS, CONTINENT_LABEL } from "@workspace/db";
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
@@ -160,13 +161,15 @@ router.get("/players/validation", async (req, res) => {
   const seniors = all.filter(p => isSeniorPlayer(p));
   const youth   = all.filter(p => isYouthPlayer(p));
 
-  const CONTINENTS = ["Africa & Middle East", "Asia", "Europe", "North America", "South America", "Oceania"];
-
+  // Counted per canonical KEY. This endpoint used to carry its own list of
+  // label strings — one of the seven vocabularies that drifted apart — so a
+  // player stored as "Africa and Middle East" counted zero against
+  // "Africa & Middle East" and the validator reported a phantom shortfall.
   const seniorByCont = Object.fromEntries(
-    CONTINENTS.map(c => [c, seniors.filter(p => p.continent === c).length])
+    CONTINENT_KEYS.map(c => [c, seniors.filter(p => p.continent === c).length])
   );
   const youthByCont = Object.fromEntries(
-    CONTINENTS.map(c => [c, youth.filter(p => p.continent === c).length])
+    CONTINENT_KEYS.map(c => [c, youth.filter(p => p.continent === c).length])
   );
 
   const ageViolations = all.filter(p =>
@@ -182,9 +185,10 @@ router.get("/players/validation", async (req, res) => {
   const errors: string[] = [];
   if (seniors.length !== 60) errors.push(`Senior count is ${seniors.length}, expected 60`);
   if (youth.length   !== 60) errors.push(`Youth count is ${youth.length}, expected 60`);
-  CONTINENTS.forEach(c => {
-    if (seniorByCont[c] !== 10) errors.push(`Senior ${c}: ${seniorByCont[c]} (expected 10)`);
-    if (youthByCont[c]  !== 10) errors.push(`Youth ${c}: ${youthByCont[c]} (expected 10)`);
+  CONTINENT_KEYS.forEach(c => {
+    const label = CONTINENT_LABEL[c];
+    if (seniorByCont[c] !== 10) errors.push(`Senior ${label}: ${seniorByCont[c]} (expected 10)`);
+    if (youthByCont[c]  !== 10) errors.push(`Youth ${label}: ${youthByCont[c]} (expected 10)`);
   });
   if (ageViolations.length > 0) errors.push(`${ageViolations.length} age violation(s)`);
 
