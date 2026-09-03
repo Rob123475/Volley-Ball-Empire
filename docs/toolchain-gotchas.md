@@ -87,6 +87,42 @@ substitute a stale cached binary and still report success. That guard loads the
 exact file that will ship, under the real Electron runtime, and aborts packaging
 if it fails.
 
+Seen again on 3 September 2026 on a Linux box: after deleting every
+`better_sqlite3.node`, `pnpm exec electron-rebuild -f -w better-sqlite3` printed
+`✔ Rebuild Complete` over a file still dated **May 2025**. The harness then died
+with `NODE_MODULE_VERSION 127. This version of Node.js requires 128` — Node's
+ABI where Electron's was needed.
+
+### The fast way out: fetch the prebuilt Electron-ABI binary
+
+Faster than driving `node-gyp`, and it cannot silently no-op — it either
+downloads a binary or fails:
+
+```bash
+cd node_modules/.pnpm/better-sqlite3@<version>/node_modules/better-sqlite3
+pnpm exec prebuild-install --runtime=electron --target=$(node -p "require('electron/package.json').version") --arch=x64
+cd -
+pnpm --filter @workspace/api-server run build   # re-vendor it into dist/node_modules
+node scripts/verify-native-abi.cjs
+```
+
+`prebuild-install` names the exact artifact it wants
+(`better-sqlite3-v11.10.0-electron-v128-linux-x64.tar.gz`), so a miss is a loud
+404 rather than a stale success. Re-vendoring afterwards is not optional:
+`artifacts/api-server/build.mjs` copies whatever is in the pnpm store at build
+time, so a rebuild that stops at `node_modules/` leaves the shipped copy wrong.
+
+### Why `node-gyp` may not be an option
+
+The documented fallback — driving `node-gyp` directly with
+`--runtime=electron --dist-url=https://electronjs.org/headers` — needs Electron's
+header tarballs, and those are served **only** from `electronjs.org` /
+`artifacts.electronjs.org`. They are not GitHub release assets. On a network that
+blocks those hosts (a locked-down CI runner or sandbox) the build fails at
+`configure` with a bare `Error: Request was cancelled.` that says nothing about
+DNS or policy. `prebuild-install` above comes from GitHub releases instead, which
+is usually still reachable.
+
 **Verify by:** `node scripts/verify-native-abi.cjs`.
 
 ---
