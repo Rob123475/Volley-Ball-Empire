@@ -80,6 +80,23 @@ function copyShipped(name) {
  */
 let PLAYED_SAVE = null;
 
+/** A fetch wrapper that carries whatever session cookie the server hands back. */
+function makeApi(base) {
+  let cookie = "";
+  return async (method, p, body) => {
+    const res = await fetch(base + p, {
+      method,
+      headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const sc = res.headers.get("set-cookie");
+    if (sc) cookie = sc.split(";")[0];
+    const text = await res.text();
+    let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+    return { status: res.status, data };
+  };
+}
+
 async function buildPlayedSave() {
   if (PLAYED_SAVE) return PLAYED_SAVE;
   const file = copyShipped("played-base");
@@ -96,19 +113,7 @@ async function buildPlayedSave() {
   });
 
   const base = `http://localhost:${port}/api`;
-  let cookie = "";
-  const api = async (method, p, body) => {
-    const res = await fetch(base + p, {
-      method,
-      headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    const sc = res.headers.get("set-cookie");
-    if (sc) cookie = sc.split(";")[0];
-    const text = await res.text();
-    let data = null; try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-    return { status: res.status, data };
-  };
+  const api = makeApi(base);
 
   const deadline = Date.now() + 25000;
   for (;;) {
@@ -666,6 +671,73 @@ console.log(NEWLINE + "11. LEAGUE ATTRIBUTION (multi-career)");
     orphanSeasons + " seasons, " + orphanFixtures + " fixtures unowned");
   check("no season's fixtures are shared between careers", shared === 0);
   check("no unhandled error", !/career state migration failed/.test(r.log));
+}
+
+// 12. A save missing a column ensureSchema derives from the drizzle schema,
+// not a hand-typed NEW_COLUMNS entry (R-01: teams.crest_shape_index broke every
+// pre-1-Sep save's GET /api/team until it was added to that list by hand).
+//
+// bootServer() kills the process shortly after it starts listening, so this
+// spawns its own server directly (same shape as buildPlayedSave above) instead
+// of reusing bootServer — it needs the process alive to log in and call
+// GET /api/team afterward.
+console.log(NEWLINE + "12. SCHEMA DRIFT (derived column, not hand-typed)");
+{
+  const file = copyPlayed("schema-drift");
+  const db = new DatabaseSync(file);
+  const before = db.prepare("PRAGMA table_info(teams)").all().map((c) => c.name);
+  if (!before.includes("crest_shape_index")) {
+    throw new Error("fixture invalid: crest_shape_index already absent before the drop");
+  }
+  db.exec("ALTER TABLE teams DROP COLUMN crest_shape_index");
+  db.close();
+
+  const port = portCounter++;
+  const logFile = path.join(WORK, `boot-${port}.log`);
+  const out = fs.openSync(logFile, "w");
+  const child = spawn(ELECTRON, [SERVER], {
+    env: {
+      ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: file,
+      PORT: String(port), NODE_ENV: "development",
+      SESSION_SECRET: "migration-fixture-secret",
+    },
+    stdio: ["ignore", out, out],
+  });
+
+  const base = `http://localhost:${port}/api`;
+  let listening = false;
+  {
+    const deadline = Date.now() + 25000;
+    while (Date.now() < deadline) {
+      try { await fetch(`${base}/health`); listening = true; break; }
+      catch { await new Promise((r) => setTimeout(r, 250)); }
+    }
+  }
+
+  const api = makeApi(base);
+  const profiles = listening ? await api("GET", "/profiles") : { status: -1, data: null };
+  const profileId = profiles.data?.profiles?.[0]?.id;
+  let teamStatus = -1;
+  if (profileId) {
+    await api("POST", `/profiles/${profileId}/select`);
+    teamStatus = (await api("GET", "/team")).status;
+  }
+
+  child.kill("SIGKILL");
+  await new Promise((r) => setTimeout(r, 400));
+  let log = ""; try { log = fs.readFileSync(logFile, "utf8"); } catch {}
+  try { fs.closeSync(out); } catch {}
+
+  const d2 = new DatabaseSync(file, { readOnly: true });
+  const after = d2.prepare("PRAGMA table_info(teams)").all().map((c) => c.name);
+  d2.close();
+
+  check("server started", listening);
+  check("dropped column was brought back by the derived schema check", after.includes("crest_shape_index"));
+  check("schema check logged the repair", /schema brought forward for an older save/.test(log));
+  check("fixture still has its manager profile", !!profileId, JSON.stringify(profiles.data));
+  check("GET /api/team returns 2xx once the column is back",
+    teamStatus >= 200 && teamStatus < 300, `status ${teamStatus}`);
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

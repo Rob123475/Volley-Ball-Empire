@@ -442,6 +442,22 @@ const MOVED_STAFF_COLUMNS: readonly string[] = [
 ];
 
 /**
+ * Columns dropMovedColumns() below creates itself, with a real value copied
+ * from the old column it replaces — not the schema's bare default. ensureSchema's
+ * generic column-diff (utils/ensureSchema.ts) must skip these: if it created one
+ * first, the `tableHasColumn` guard below would see it already present, skip
+ * the copy, and every renamed row would keep the schema default (age 35,
+ * $3000/wk, etc.) instead of the value it actually had.
+ */
+export const RENAME_MANAGED_COLUMNS: ReadonlyArray<readonly [string, string]> = [
+  ["staff", "base_salary"],
+  ["staff", "base_age"],
+  ["continental_pool_teams", "starts_in_league"],
+  ["continental_pool_players", "base_age"],
+  ["players", "base_age"],
+];
+
+/**
  * Drop the moved columns. MUST run after migrateCareerStateOnce() — it reads
  * them. Safe to call every boot: a column that is already gone is skipped.
  *

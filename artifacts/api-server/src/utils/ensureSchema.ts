@@ -1,5 +1,8 @@
 import { db } from "@workspace/db";
-import { sql } from "drizzle-orm";
+import * as schema from "@workspace/db";
+import { sql, is, isTable, getTableColumns, getTableName, SQL } from "drizzle-orm";
+import { logger } from "../lib/logger";
+import { RENAME_MANAGED_COLUMNS } from "./migrateCareerState";
 
 /**
  * Create tables and columns that a save predating them will not have.
@@ -18,9 +21,14 @@ import { sql } from "drizzle-orm";
  * Everything here is CREATE ... IF NOT EXISTS or a guarded ADD COLUMN, so it is
  * a no-op on a current database and safe to run on every boot.
  *
- * The DDL is copied verbatim from the shipped database's sqlite_master, which
- * drizzle-kit push generated, so an old save converges on exactly the schema a
- * fresh install gets rather than a hand-written approximation of it.
+ * Tables are still hand-written DDL, copied verbatim from the shipped
+ * database's sqlite_master (which drizzle-kit push generated) — deriving a
+ * full CREATE TABLE (constraints, FKs, composite indexes) from the drizzle
+ * schema at runtime is a real migration-generator, not boot-time repair, so
+ * that stays out of scope here. Columns are the part that actually broke a
+ * save in production (teams.crest_shape_index, added by hand on 1 Sep because
+ * this file didn't know about it) and are derived below instead of hand-typed,
+ * so the next column the schema grows doesn't repeat that.
  */
 
 const NEW_TABLES: ReadonlyArray<readonly [string, string]> = [
@@ -136,20 +144,83 @@ const NEW_INDEXES: readonly string[] = [
   "CREATE UNIQUE INDEX IF NOT EXISTS `competitor_rankings_unique` ON `competitor_rankings` (`competitor_id`,`career_save_id`,`season_year`)",
 ];
 
-/** Columns added to pre-existing tables after this project started shipping. */
-const NEW_COLUMNS: ReadonlyArray<readonly [string, string, string]> = [
-  ["seasons", "career_save_id", "integer"],
-  // Scoped during the staff split while both tables were still empty.
-  ["ai_managers", "career_save_id", "integer"],
-  ["world_tour_qualifications", "career_save_id", "integer"],
-  // Phase 0.6d. The regional league was keyed by season alone, so two careers
-  // shared one league and each other's results.
-  ["regional_league_seasons", "career_save_id", "integer"],
-  ["regional_league_fixtures", "career_save_id", "integer"],
-  ["regional_league_results", "career_save_id", "integer"],
-  // Phase 1.5. Academy promotion is per career; player_type is not.
-  ["career_player_state", "is_promoted", "integer NOT NULL DEFAULT 0"],
-];
+/** The runtime shape drizzle exposes for one column, for the fields this file reads. */
+interface SchemaColumn {
+  name: string;
+  notNull: boolean;
+  hasDefault: boolean;
+  default: unknown;
+  defaultFn: unknown;
+  columnType: string;
+  mode?: string;
+  getSQLType(): string;
+  mapToDriverValue(value: unknown): unknown;
+}
+
+function sqlLiteral(value: unknown): string {
+  if (value === null) return "NULL";
+  if (typeof value === "number" || typeof value === "bigint") return String(value);
+  if (typeof value === "string") return `'${value.replace(/'/g, "''")}'`;
+  throw new Error(`ensureSchema: don't know how to render a SQL literal for a ${typeof value}: ${JSON.stringify(value)}`);
+}
+
+/**
+ * A DB-side DEFAULT for an ADD COLUMN, or null if the column can be added
+ * bare. Throws rather than guessing when a NOT NULL column has no safe value
+ * to backfill existing rows with — that is "fail boot with a clear error",
+ * not a silent skip; the caller in index.ts already logs and carries on.
+ */
+function columnDefaultSql(table: string, column: SchemaColumn): string | null {
+  if (column.hasDefault && column.default !== undefined) {
+    if (is(column.default, SQL)) {
+      throw new Error(
+        `ensureSchema: ${table}.${column.name} has a raw SQL default — extend columnDefaultSql to render it explicitly, don't guess.`,
+      );
+    }
+    return sqlLiteral(column.mapToDriverValue(column.default));
+  }
+
+  if (column.defaultFn !== undefined) {
+    // The only shape this project uses today: `.$defaultFn(() => new Date())`
+    // on a timestamp column. That default is computed in JS on insert, which
+    // ALTER TABLE cannot see — so a NOT NULL timestamp column needs an actual
+    // DB-side stand-in or every existing row fails the constraint.
+    if (column.columnType === "SQLiteTimestamp") {
+      const seconds = column.mode !== "timestamp_ms";
+      const value = seconds ? "(unixepoch())" : "(unixepoch() * 1000)";
+      logger.warn(
+        { table, column: column.name },
+        "column has only a runtime default (timestamp) — backfilling existing rows with the current time",
+      );
+      return value;
+    }
+    if (!column.notNull) return null;
+    throw new Error(
+      `ensureSchema: ${table}.${column.name} is NOT NULL with only a runtime default (${column.columnType}) — no DB-side default to derive; add one to the schema.`,
+    );
+  }
+
+  if (column.notNull) {
+    throw new Error(
+      `ensureSchema: ${table}.${column.name} is NOT NULL with no default at all — cannot safely add this column to an existing save.`,
+    );
+  }
+
+  return null;
+}
+
+/** Every table the drizzle schema declares — the source of truth for derived columns. */
+function schemaTables(): Array<{ name: string; columns: Record<string, SchemaColumn> }> {
+  const tables: Array<{ name: string; columns: Record<string, SchemaColumn> }> = [];
+  for (const value of Object.values(schema)) {
+    if (!isTable(value)) continue;
+    tables.push({
+      name: getTableName(value),
+      columns: getTableColumns(value) as unknown as Record<string, SchemaColumn>,
+    });
+  }
+  return tables;
+}
 
 function tableExists(name: string): boolean {
   const rows = db.all<{ n: number }>(
@@ -184,10 +255,32 @@ export function ensureSchema(): EnsureSchemaResult {
     try { db.run(sql.raw(ddl)); } catch { /* index already present or table absent */ }
   }
 
-  for (const [table, column, type] of NEW_COLUMNS) {
-    if (!tableExists(table) || columnExists(table, column)) continue;
-    db.run(sql.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`));
-    columnsAdded.push(`${table}.${column}`);
+  const knownNewTables = new Set(NEW_TABLES.map(([name]) => name));
+  const renameManaged = new Set(RENAME_MANAGED_COLUMNS.map(([t, c]) => `${t}.${c}`));
+  for (const table of schemaTables()) {
+    if (!tableExists(table.name)) {
+      // Created above if it's a known NEW_TABLES entry; anything else is a
+      // genuine gap — a table the schema declares that no boot path creates.
+      if (!knownNewTables.has(table.name)) {
+        logger.error(
+          { table: table.name },
+          "schema declares a table that does not exist in this database and ensureSchema has no CREATE for it — add one to NEW_TABLES",
+        );
+      }
+      continue;
+    }
+    for (const column of Object.values(table.columns)) {
+      if (columnExists(table.name, column.name)) continue;
+      // Owned by dropMovedColumns()'s rename-and-backfill logic, which must be
+      // the one to create it — see RENAME_MANAGED_COLUMNS for why.
+      if (renameManaged.has(`${table.name}.${column.name}`)) continue;
+      const defaultSql = columnDefaultSql(table.name, column);
+      const ddl = `ALTER TABLE ${table.name} ADD COLUMN ${column.name} ${column.getSQLType()}` +
+        (column.notNull ? " NOT NULL" : "") +
+        (defaultSql !== null ? ` DEFAULT ${defaultSql}` : "");
+      db.run(sql.raw(ddl));
+      columnsAdded.push(`${table.name}.${column.name}`);
+    }
   }
 
   return { tablesCreated, columnsAdded };

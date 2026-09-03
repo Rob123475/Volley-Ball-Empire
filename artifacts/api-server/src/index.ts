@@ -28,6 +28,10 @@ if (Number.isNaN(port) || port <= 0) {
 // Every migration below assumes its tables exist, so this has to lead.
 try {
   const s = ensureSchema();
+  logger.info(
+    { tablesMissing: s.tablesCreated.length, columnsMissing: s.columnsAdded.length },
+    "schema check ran",
+  );
   if (s.tablesCreated.length > 0 || s.columnsAdded.length > 0) {
     logger.info(s, "schema brought forward for an older save");
   }
