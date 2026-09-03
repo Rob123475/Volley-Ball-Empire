@@ -379,6 +379,59 @@ console.log("\n6. ROSTER GUARD — an off-roster player, and a half-landed expan
     rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
 }
 
+// ── Caption guard ───────────────────────────────────────────────────────────
+console.log("\n7. CAPTION GUARD — a renamed player, and swapped artwork");
+{
+  const shipped = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+  // (a) a row renamed away from the name printed on its card. This is the whole
+  //     point of the guard: the card is the evidence, the row must follow it.
+  const renamed = path.join(WORK, "renamed-player.sqlite");
+  fs.copyFileSync(shipped, renamed);
+  {
+    const db = new DatabaseSync(renamed);
+    db.exec(`UPDATE players SET name='Not Her Name'
+              WHERE image_url='/images/players/seniors/player_senior_brazil_01.webp'`);
+    db.close();
+  }
+  const rName = runGuard("check-captions.cjs", [renamed]);
+  check("a row renamed away from its card is rejected", rName.status !== 0,
+    rName.status !== 0 ? "" : "guard accepted a name that contradicts the printed caption");
+
+  // (b) a stat drifting from the card. Age and height are printed too, and an
+  //     edit to either leaves the picture describing someone the row is not.
+  const restat = path.join(WORK, "restat-player.sqlite");
+  fs.copyFileSync(shipped, restat);
+  {
+    const db = new DatabaseSync(restat);
+    db.exec(`UPDATE players SET base_age = base_age + 4
+              WHERE image_url='/images/players/seniors/player_senior_brazil_01.webp'`);
+    db.close();
+  }
+  const rStat = runGuard("check-captions.cjs", [restat]);
+  check("an age that contradicts the card is rejected", rStat.status !== 0,
+    rStat.status !== 0 ? "" : "guard accepted an age the card disagrees with");
+
+  // (c) a row pointing at art nobody has read. New portraits must be opened and
+  //     recorded, never trusted because the filename looks right.
+  const unread = path.join(WORK, "unread-art.sqlite");
+  fs.copyFileSync(shipped, unread);
+  {
+    const db = new DatabaseSync(unread);
+    db.exec(`UPDATE players SET image_url='/images/players/seniors/player_senior_peru_04.webp'
+              WHERE image_url='/images/players/seniors/player_senior_brazil_01.webp'`);
+    db.close();
+  }
+  const rUnread = runGuard("check-captions.cjs", [unread]);
+  check("a row pointing at unaudited art is rejected", rUnread.status !== 0,
+    rUnread.status !== 0 ? "" : "guard accepted art that has never been read");
+
+  // (d) negative control: the real shipped artifact must pass.
+  const rGood = runGuard("check-captions.cjs", [shipped]);
+  check("the real starter DB is accepted", rGood.status === 0,
+    rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
+}
+
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 if (failures > 0) console.log(`\nFixtures kept: ${WORK}`);
 else { try { fs.rmSync(WORK, { recursive: true, force: true }); } catch {} }

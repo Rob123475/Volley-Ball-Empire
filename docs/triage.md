@@ -39,30 +39,39 @@ double-packaged Unity build.
 Proven wrong four separate times: Morocco, Venezuela, Papua New Guinea, and all
 ten fitness trainers (a perfect `_01`↔`_10` reversal).
 
-### 1a. Caption audit — DONE, 3 September 2026. See `docs/caption-audit.md`.
+### 1a. Caption audit — DONE and GUARDED. See `docs/caption-audit.md`.
 All 204 senior and spare cards were opened and read against their row.
-**200 correct, 4 wrong, 3 of them new:**
+**200 were correct; 2 of the 4 faults are now fixed, 2 need new art.**
 
-- **`indonesia_02`** — Novi Anggraini's slot shows Sinta Wulandari's card.
-  Novi has no card at all; Sinta appears twice. Two *different* renders with
-  the same caption, so no hash scan would ever have caught it.
-- **`laos_02`** — same shape: Bouavanh Sisouvanh's slot shows Keovilay
-  Phommachanh. Bouavanh has no card.
-- **`greece_03`** — row says *Elena* Papadopoulou, card says *Eleni*, which is
-  `greece_01`'s name. Photo is right (23/190/Spiker all match); needs a
-  decision, not a fix — see the audit doc.
-- **`morocco_02`** — already known (§1d), confirmed by hash, still inert.
+Fixed in the database and in the seed scripts, so a re-seed cannot undo them:
 
-Both new failures are a country's **`_02` slot filled with a second render of
-`_01`** — the same fault as Venezuela and Morocco, and now found four times.
-Treat any regenerated `_02` as suspect until its card is read.
+- **`greece_03`** — row renamed `Elena` → **`Eleni Papadopoulou`**, matching
+  her card. Deliberately restores two Greek players of that name; they have
+  different ages and heights, and nothing keys off name.
+- **`papua_new_guinea_03`** — Mere Bainivalu's position `spiker` →
+  **`all_rounder`**, matching her card.
 
-Also found: three cards (`portugal_03`, `spain_02`, `spain_03`) print no
-age/height line, and `papua_new_guinea_03`'s position contradicts its row.
+Still open, and **not fixable from inside this repo**:
 
-**Do not build a guard that compares card position to row position** — the
-cards use FIVB names (Outside Hitter, Libero, Middle Blocker) that do not map
-onto the four database values. It would fire on ~30 correct cards.
+- **`indonesia_02`** — shows Sinta Wulandari; Novi Anggraini has no card.
+- **`laos_02`** — shows Keovilay Phommachanh; Bouavanh Sisouvanh has no card.
+
+The unshipped originals in `attached_assets` carry the same wrong captions and
+the seed scripts assign exactly those files, so the art was generated wrong at
+source. Renaming the rows to match would put two identically-named players in
+one nation with conflicting stats, which is worse. **These need two new
+renders.** `morocco_02` (Zineb Ouadi, spare) stays parked and inert.
+
+**A build guard now holds all of this: `scripts/check-captions.cjs`**, in
+`pnpm typecheck`. It pins each card's sha1 to the identity read off it, so
+regenerating or swapping a portrait fails the build until the new card is read.
+The three known-wrong cards are recorded as such and asserted to still be
+exactly that problem. Four self-test cases in `harness/guard-selftest.mjs`
+(now 36/36).
+
+**Do not add a card-vs-row position comparison** — the cards use FIVB names
+(Outside Hitter, Libero, Middle Blocker) that do not map onto the database
+values. It would fire on ~30 correct cards.
 
 ### 1b. Kiriwina Tau's portrait — cosmetic
 Correctly captioned, but built from an `asia_01` render re-kitted as PNG.
