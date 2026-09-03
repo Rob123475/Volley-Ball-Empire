@@ -32,21 +32,21 @@ nothing displays them.
 
 ## The four wrong cards
 
-### 1. `indonesia_02` — Novi Anggraini has no card *(new)*
+### 1. `indonesia_02` — Dewi Lestari has no card *(new)*
 
 | | |
 |---|---|
-| database row | Novi Anggraini · Indonesia · 23 · 168cm · setter |
+| database row | Dewi Lestari · Indonesia · 23 · 168cm · setter |
 | card actually reads | **1. SINTA WULANDARI** · Indonesia · 21 yrs · 165cm · Defender |
 
 That is `indonesia_01`'s identity — Sinta Wulandari's own row is correct and
-sits on `indonesia_01`. So Sinta appears twice in the Player Market and Novi
-Anggraini never appears at all.
+sits on `indonesia_01`. So Sinta appears twice in the Player Market and Dewi
+Lestari never appears at all.
 
 The two files are **not** byte-identical (`94e43fb7…` vs `42cd5d88…`) — they
 are two different renders of the same woman carrying the same caption, which
 is why a duplicate-hash scan never caught it. Fixing it needs a new render for
-Novi, not a file swap.
+Dewi, not a file swap.
 
 ### 2. `laos_02` — Bouavanh Sisouvanh has no card *(new)*
 
@@ -93,7 +93,7 @@ displayed. Only matters if she is ever unparked.
 
 ---
 
-## There is no correct art for Novi or Bouavanh — checked three ways
+## There is no correct art for Dewi or Bouavanh — checked three ways
 
 Before renaming any row to match wrong art, the repo was searched for a card
 that *does* show them. There is none:
@@ -103,7 +103,7 @@ that *does* show them. There is none:
    opened: both print the `_01` player's name. The art was generated wrong at
    source, not broken during packaging.
 2. **The seed scripts assigned exactly those files.**
-   `seed-new-batch-players.ts:220` gives Novi Anggraini
+   `seed-new-batch-players.ts:220` gives Dewi Lestari
    `player_senior_indonesian_02_1784380742425.webp`, and `:275` gives Bouavanh
    Sisouvanh `player_senior_laos_02_1784380742430.webp`. Both point at the
    miscaptioned renders, so re-seeding reproduces the fault exactly.

@@ -53,7 +53,7 @@ Fixed in the database and in the seed scripts, so a re-seed cannot undo them:
 
 Still open, and **not fixable from inside this repo**:
 
-- **`indonesia_02`** — shows Sinta Wulandari; Novi Anggraini has no card.
+- **`indonesia_02`** — shows Sinta Wulandari; Dewi Lestari has no card.
 - **`laos_02`** — shows Keovilay Phommachanh; Bouavanh Sisouvanh has no card.
 
 The unshipped originals in `attached_assets` carry the same wrong captions and

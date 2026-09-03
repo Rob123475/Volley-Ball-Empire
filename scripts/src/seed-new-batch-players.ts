@@ -213,7 +213,7 @@ const PLAYERS: PlayerDef[] = [
     imageFile: "player_senior_indonesian_01_1784380628813.webp", continent: "Asia",
   },
   {
-    name: "Novi Anggraini", nationality: "Indonesia", age: 23, heightCm: 168,
+    name: "Dewi Lestari", nationality: "Indonesia", age: 23, heightCm: 168,
     position: "setter", potential: "Average",
     stats: { speed: 72, power: 63, defense: 71, serve: 80, block: 57, stamina: 73 },
     salary: 8000, askingPrice: 96000,
