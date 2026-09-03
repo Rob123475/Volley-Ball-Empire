@@ -1,7 +1,10 @@
 # Triage — open items
 
 Refreshed 3 September 2026. Branch `fix/continent-keys-and-roster-cleanup`,
-**8 commits, pushed, not yet merged to main.** Working tree clean.
+pushed, not yet merged to main. Working tree clean.
+
+Since the last refresh: attached_assets deduplicated (1236 files -> 558,
+2.38 GB -> 1.01 GB) and the §1a caption audit completed across all 204 cards.
 
 ## Where things stand
 
@@ -36,12 +39,30 @@ double-packaged Unity build.
 Proven wrong four separate times: Morocco, Venezuela, Papua New Guinea, and all
 ten fitness trainers (a perfect `_01`↔`_10` reversal).
 
-### 1a. Caption audit of all 205 senior images — BIGGEST REMAINING UNKNOWN
-Every mislabelling so far was found by opening an image, never by inspecting a
-name. Four separate areas were wrong; there is no reason to believe the rest are
-right. Mechanical: read each caption, compare to the assigned row, report
-mismatches. **This is the item I would start with** — everything else is known
-work, this is the one that could still surprise us.
+### 1a. Caption audit — DONE, 3 September 2026. See `docs/caption-audit.md`.
+All 204 senior and spare cards were opened and read against their row.
+**200 correct, 4 wrong, 3 of them new:**
+
+- **`indonesia_02`** — Novi Anggraini's slot shows Sinta Wulandari's card.
+  Novi has no card at all; Sinta appears twice. Two *different* renders with
+  the same caption, so no hash scan would ever have caught it.
+- **`laos_02`** — same shape: Bouavanh Sisouvanh's slot shows Keovilay
+  Phommachanh. Bouavanh has no card.
+- **`greece_03`** — row says *Elena* Papadopoulou, card says *Eleni*, which is
+  `greece_01`'s name. Photo is right (23/190/Spiker all match); needs a
+  decision, not a fix — see the audit doc.
+- **`morocco_02`** — already known (§1d), confirmed by hash, still inert.
+
+Both new failures are a country's **`_02` slot filled with a second render of
+`_01`** — the same fault as Venezuela and Morocco, and now found four times.
+Treat any regenerated `_02` as suspect until its card is read.
+
+Also found: three cards (`portugal_03`, `spain_02`, `spain_03`) print no
+age/height line, and `papua_new_guinea_03`'s position contradicts its row.
+
+**Do not build a guard that compares card position to row position** — the
+cards use FIVB names (Outside Hitter, Libero, Middle Blocker) that do not map
+onto the four database values. It would fire on ~30 correct cards.
 
 ### 1b. Kiriwina Tau's portrait — cosmetic
 Correctly captioned, but built from an `asia_01` render re-kitted as PNG.
