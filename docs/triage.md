@@ -79,11 +79,38 @@ Correctly captioned, but built from an `asia_01` render re-kitted as PNG.
 `player_senior_oceania_09` — her genuine original. Swap if you want PNG fully
 authentic. No functional impact.
 
-### 1c. Four `.png` files among 200 `.webp`
-Camila Pérez, Sofía Mendoza, Amira El Mansouri, Mere Bainivalu — the corrected
-sources you supplied were PNGs and there is no webp encoder on this machine
-(no sharp, no ImageMagick). They work; they are ~15% larger. Re-export those
-four as webp and I will swap them in.
+### 1c. PNG content in the images tree — DONE, 3 September 2026
+The note said "four `.png` files among 200 `.webp`" and that there was no webp
+encoder on this machine. Both turned out to be wrong.
+
+`pnpm install` provides **sharp** (a devDependency of `@workspace/scripts`), so
+there is an encoder. And a format audit found **25** files carrying PNG bytes,
+not four: the four honest `.png`, a stray unreferenced `hero-women-volleyball.png`,
+and **twenty wearing a `.webp` extension over a PNG header** — nine senior
+cards, all ten fitness trainers and a youth card. Together 52.2 MB of a 71 MB
+tree, each about 2 MB where the same picture as real WebP is under 200 KB.
+
+Nothing looked broken, which is why it survived: browsers and Electron sniff
+content rather than trusting the extension, so every picture rendered. The only
+symptom was an installer far heavier than it needed to be.
+
+All 25 re-encoded at q=82 — chosen by measurement, not taste: the 402 cards
+already shipping as real WebP sit at 0.92–0.94 bits per pixel and q=82
+reproduces 0.93 bpp on these sources. Dimensions untouched; downscaling is a
+visual decision and was not made. **`public/images`: 71 MB → 21 MB.**
+
+The four `.png` seniors were renamed to `.webp` with `image_url`, the seed
+scripts and `captions.json` updated together, and **all 13 changed senior cards
+were re-opened and their captions re-read** before the guard was re-pinned —
+a changed sha1 means the recorded reading no longer describes the file, and
+re-pinning without looking would defeat the guard entirely. Two of those writes
+also replaced the superseded, unreferenced `venezuela_02/03.webp`.
+
+**Guarded by `scripts/check-image-formats.cjs`**, wired into `pnpm typecheck`.
+It reads magic numbers directly — no image library, so the guard cannot rot
+behind a dependency — and fails if any extension disagrees with its content.
+Three self-test cases in `harness/guard-selftest.mjs` (now 39/39).
+`scripts/normalise-image-formats.cjs --write` is the fixer.
 
 ### 1d. Zineb Ouadi shares Salma El Idrissi's picture — parked, inert
 She is `player_type='spare'` and never displayed. Only matters if unparked.
@@ -99,8 +126,9 @@ She is `player_type='spare'` and never displayed. Only matters if unparked.
 - **Staff nationalities are mixed format** — 56 distinct values, 19 of them
   demonyms (`Australian`, `Italian`) against country names elsewhere. Players
   are fully on country names. Only the three fitness trainers were normalised.
-- **15 unused senior images ship** — the 12 spares, plus `peru_04`, plus the two
-  superseded Venezuela `.webp`s.
+- **13 unused senior images ship** — the 12 spares, plus `peru_04`. The two
+  superseded Venezuela `.webp`s are gone: the §1c conversion wrote the correct
+  `.png` sources over them.
 - **Two possibly-dead asset folders**: `images/staff/medical_physiotherapist`
   (9 files) and `images/staff/medical_science` (8 files). The database uses
   `physiotherapist` and `sports_scientist`. Confirm before deleting.

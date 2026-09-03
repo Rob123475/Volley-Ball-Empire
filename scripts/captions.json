@@ -458,7 +458,7 @@
     "name": "Georgia Mears",
     "nationality": "England"
    },
-   "sha1": "02004c5fcc8cd3f504fe929815eaab1d8ae30505"
+   "sha1": "4016f996f8a6db91abc2df6e15a87fac1ed9005b"
   },
   "player_senior_england_03.webp": {
    "caption": {
@@ -467,7 +467,7 @@
     "name": "Emily Harrison",
     "nationality": "England"
    },
-   "sha1": "a021b3e955cf3ef4cc554461500f351848f93747"
+   "sha1": "daffef7e40022cb888eeca65bc24cc42910ff4d9"
   },
   "player_senior_fiji_01.webp": {
    "caption": {
@@ -548,7 +548,7 @@
     "name": "Lena Schneider",
     "nationality": "Germany"
    },
-   "sha1": "6329e0dcf00329e31ecb8d12ebbf96f224b878b3"
+   "sha1": "7b6fce189cb59263b8f9a31e3bf518a6d183656a"
   },
   "player_senior_germany_03.webp": {
    "caption": {
@@ -557,7 +557,7 @@
     "name": "Leonie Müller",
     "nationality": "Germany"
    },
-   "sha1": "51d9f950991b023f650153479333afaf62c0010e"
+   "sha1": "d235e8b4c088e131402526878f920f958438c64d"
   },
   "player_senior_greece_01.webp": {
    "caption": {
@@ -1000,14 +1000,14 @@
    },
    "sha1": "fc0806ecba6fd692703d036061158ffb8debbe52"
   },
-  "player_senior_morocco_03.png": {
+  "player_senior_morocco_03.webp": {
    "caption": {
     "age": 26,
     "height": 171.0,
     "name": "Amira El Mansouri",
     "nationality": "Morocco"
    },
-   "sha1": "8453bdc6706e5c6f1b2cbf288157be839794cd27"
+   "sha1": "5cf9b9433eb6c47ec261938b0d475105cd068648"
   },
   "player_senior_morocco_04.webp": {
    "caption": {
@@ -1061,7 +1061,7 @@
     "name": "Sanne Keizer",
     "nationality": "Netherlands"
    },
-   "sha1": "550a389896fd7550cdc3c0f970ca47b60bf78d37"
+   "sha1": "317c99520c3c3d147ea09df92a3321ff98a743c3"
   },
   "player_senior_netherlands_03.webp": {
    "caption": {
@@ -1070,7 +1070,7 @@
     "name": "Lieke Jansen",
     "nationality": "Netherlands"
    },
-   "sha1": "566d57185905cda5e8a7017d935096f0baf77e58"
+   "sha1": "5a123597b5e312c17238df10a591bdbca05ea51d"
   },
   "player_senior_new_zealand_01.webp": {
    "caption": {
@@ -1171,14 +1171,14 @@
    },
    "sha1": "ef1ae37a75dcc1df2fa37ba6d585c8c763abeae4"
   },
-  "player_senior_papua_new_guinea_03.png": {
+  "player_senior_papua_new_guinea_03.webp": {
    "caption": {
     "age": 21,
     "height": 190.0,
     "name": "Mere Bainivalu",
     "nationality": "Papua New Guinea"
    },
-   "sha1": "e07e3a0a7e34f69ee5238a601d8bde39e5a42ade"
+   "sha1": "5e6cbdf791104fa5fba3c87b0b9eff7bf6bdd99a"
   },
   "player_senior_papua_new_guinea_04.webp": {
    "caption": {
@@ -1267,7 +1267,7 @@
     "nationality": "Portugal"
    },
    "captionOmitsAgeHeight": true,
-   "sha1": "cc98705083a4f785d761548d9b0ccdfb6e26c7bf"
+   "sha1": "06fe173a270ab64da3c87bf5d47b225eec4a65c3"
   },
   "player_senior_puerto_rico_01.webp": {
    "caption": {
@@ -1428,7 +1428,7 @@
     "nationality": "Spain"
    },
    "captionOmitsAgeHeight": true,
-   "sha1": "4014bf588ae77bb3f65a3818b6ee2d38b3e4a41f"
+   "sha1": "5b816a9fc3d61dcb1af65c0b89f4d50679451275"
   },
   "player_senior_spain_03.webp": {
    "caption": {
@@ -1436,7 +1436,7 @@
     "nationality": "Spain"
    },
    "captionOmitsAgeHeight": true,
-   "sha1": "8ffc673fb4bfdb26d76ab692fc9fa27bb49c3db8"
+   "sha1": "1d5d3f0112e1e86a0b1e1165145d2760590fdf96"
   },
   "player_senior_sweden_01.webp": {
    "caption": {
@@ -1771,23 +1771,23 @@
    },
    "sha1": "b5745e0a47b1ae9521373f0795ec767df38ff312"
   },
-  "player_senior_venezuela_02.png": {
+  "player_senior_venezuela_02.webp": {
    "caption": {
     "age": 21,
     "height": 170.0,
     "name": "Camila Pérez",
     "nationality": "Venezuela"
    },
-   "sha1": "86a1c13e7b74adb5da21d1511e85a519e27e3f97"
+   "sha1": "36c128da2db91ededea55b175b5ad6d8d553d81f"
   },
-  "player_senior_venezuela_03.png": {
+  "player_senior_venezuela_03.webp": {
    "caption": {
     "age": 26,
     "height": 180.0,
     "name": "Sofía Mendoza",
     "nationality": "Venezuela"
    },
-   "sha1": "e66d151cea19fc0443fa6a8ba3995f6b81ae383a"
+   "sha1": "23e3d59c0db1473672f99a6ad2497d8b4435501d"
   },
   "player_senior_vietnam_01.webp": {
    "caption": {

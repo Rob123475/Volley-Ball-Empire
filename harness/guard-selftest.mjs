@@ -432,6 +432,37 @@ console.log("\n7. CAPTION GUARD — a renamed player, and swapped artwork");
     rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
 }
 
+// ── Image format guard ──────────────────────────────────────────────────────
+console.log("\n8. IMAGE FORMAT GUARD — a PNG wearing a .webp extension");
+{
+  // The exact shape of the real bug: 20 shipped files were PNG bytes under a
+  // .webp name, rendered fine because browsers sniff, and quietly cost 42 MB.
+  const tree = path.join(WORK, "images-mislabelled");
+  fs.mkdirSync(path.join(tree, "players"), { recursive: true });
+  const PNG_MAGIC = Buffer.from("89504e470d0a1a0a", "hex");
+  const png = Buffer.concat([PNG_MAGIC, Buffer.alloc(64)]);
+  fs.writeFileSync(path.join(tree, "players", "liar.webp"), png);
+  const rLiar = runGuard("check-image-formats.cjs", [tree]);
+  check("a PNG named .webp is rejected", rLiar.status !== 0,
+    rLiar.status !== 0 ? "" : "guard accepted PNG bytes under a .webp name");
+
+  // Honestly named files of the same bytes must pass.
+  const ok = path.join(WORK, "images-honest");
+  fs.mkdirSync(ok, { recursive: true });
+  fs.writeFileSync(path.join(ok, "honest.png"), png);
+  const RIFF = Buffer.alloc(16);
+  RIFF.write("RIFF", 0, "latin1"); RIFF.write("WEBP", 8, "latin1");
+  fs.writeFileSync(path.join(ok, "real.webp"), RIFF);
+  const rOk = runGuard("check-image-formats.cjs", [ok]);
+  check("honestly-named images are accepted", rOk.status === 0,
+    rOk.status === 0 ? "" : (rOk.stdout || "") + (rOk.stderr || ""));
+
+  // Negative control: the real shipped tree.
+  const rReal = runGuard("check-image-formats.cjs", []);
+  check("the real images tree is accepted", rReal.status === 0,
+    rReal.status === 0 ? "" : (rReal.stdout || "") + (rReal.stderr || ""));
+}
+
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 if (failures > 0) console.log(`\nFixtures kept: ${WORK}`);
 else { try { fs.rmSync(WORK, { recursive: true, force: true }); } catch {} }
