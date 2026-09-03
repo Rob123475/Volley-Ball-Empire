@@ -51,7 +51,7 @@ const SCOUTS = [
   // --- Common Scouts ---
   {
     name: "Emma Thompson",
-    nationality: "Canadian", gender: "Female",
+    nationality: "Canada", gender: "Female",
     age: 34, stars: 2, experienceYears: 9,
     scoutTier: "Common Scout",
     description: "A Canadian scout who has spent nine years developing her talent identification and data scouting skills across North American and European circuits. Emma Thompson is a diligent and analytical professional whose opponent analysis work adds real value, though she is still building the international network and evaluation depth needed to reach the elite tier.",
@@ -107,7 +107,7 @@ const SCOUTS = [
   },
   {
     name: "Olivia Martin",
-    nationality: "Australian", gender: "Female",
+    nationality: "Australia", gender: "Female",
     age: 31, stars: 3, experienceYears: 7,
     scoutTier: "Common Scout",
     description: "An Australian scout who has built a solid reputation over seven years through consistent talent identification, player evaluation, and game strategy analysis. Olivia Martin's recruitment strategy instincts are above average for her experience level, and her data scouting approach is methodical and reliable, making her a dependable addition to any club's scouting department.",
@@ -133,7 +133,7 @@ const SCOUTS = [
   },
   {
     name: "Isabella Rodriguez",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 29, stars: 4, experienceYears: 6,
     scoutTier: "Common Scout",
     description: "A young Spanish scout who has made a rapid impact on the World Tour through sharp talent identification and exceptional youth recruitment work. Isabella Rodriguez's tactical scouting instincts and data analysis skills are well beyond her years, and her emerging international network suggests she has the potential to develop into a truly elite-level scouting professional.",
@@ -146,7 +146,7 @@ const SCOUTS = [
   },
   {
     name: "Sofia Petrova",
-    nationality: "Bulgarian", gender: "Female",
+    nationality: "Bulgaria", gender: "Female",
     age: 33, stars: 4, experienceYears: 8,
     scoutTier: "Common Scout",
     description: "A Bulgarian scout who has combined a sharp eye for talent with strong team analysis and international scouting credentials over eight years on the circuit. Sofia Petrova's recruitment strategy work and ability to evaluate players across multiple Eastern European and Central Asian markets gives her a distinctive profile that makes her particularly effective for clubs targeting non-traditional talent pools.",
@@ -159,7 +159,7 @@ const SCOUTS = [
   },
   {
     name: "Anna Kowalska",
-    nationality: "Polish", gender: "Female",
+    nationality: "Poland", gender: "Female",
     age: 37, stars: 4, experienceYears: 11,
     scoutTier: "Common Scout",
     description: "A Polish scout with 11 years of experience and a well-rounded profile across player evaluation, technical analysis, and youth development. Anna Kowalska is particularly valued for her opponent scouting work and her ability to identify technically gifted young players before they reach the wider market, making her a consistent and reliable presence in any club's scouting operation.",
@@ -172,7 +172,7 @@ const SCOUTS = [
   },
   {
     name: "Valentina Moretti",
-    nationality: "Italian", gender: "Female",
+    nationality: "Italy", gender: "Female",
     age: 32, stars: 5, experienceYears: 13,
     scoutTier: "Super Scout",
     description: "An elite Italian scouting specialist whose 13 years of work have established her as one of the most coveted Super Scouts in global beach volleyball. Valentina Moretti combines elite talent development instincts with high performance analysis, tactical intelligence scouting, and world-class multicultural communication to deliver consistently exceptional results across every major global market. Her global transfer strategy expertise and sports psychology insights give any club that employs her a decisive advantage in the most competitive transfer windows.",

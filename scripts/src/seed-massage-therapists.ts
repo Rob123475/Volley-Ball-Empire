@@ -71,7 +71,7 @@ const THERAPISTS = [
   },
   {
     name: "Jessica Moreau",
-    nationality: "French", gender: "Female",
+    nationality: "France", gender: "Female",
     age: 31, stars: 4, experienceYears: 7,
     description: "A French massage therapist whose exceptional technical range sets her apart from her peers. Jessica Moreau combines deep tissue expertise with lymphatic drainage, postural alignment, and sports recovery protocols, bringing a holistic and highly effective approach to athlete maintenance at the elite level.",
     specialties: ["Deep Tissue Massage", "Lymphatic Drainage", "Postural Alignment"],
@@ -93,7 +93,7 @@ const THERAPISTS = [
   },
   {
     name: "Mikaela Sato",
-    nationality: "Australian", gender: "Female",
+    nationality: "Australia", gender: "Female",
     age: 27, stars: 3, experienceYears: 4,
     description: "A young Australian massage therapist of Japanese heritage who blends Eastern and Western recovery techniques. Mikaela Sato has quickly established herself on the World Tour circuit for her skillful Swedish massage, lymphatic drainage, and post-competition recovery sessions that help athletes bounce back faster.",
     specialties: ["Sports Massage", "Lymphatic Drainage", "Post Competition Recovery"],
@@ -115,7 +115,7 @@ const THERAPISTS = [
   },
   {
     name: "Sofia Martinez",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 31, stars: 3, experienceYears: 6,
     description: "A Spanish massage therapist who combines deep tissue and sports massage with a proactive approach to injury prevention. Sofia Martinez is valued for her stretch therapy protocols and her ability to identify muscular tension patterns before they develop into injuries, keeping athletes performing consistently across long tournament schedules.",
     specialties: ["Deep Tissue Massage", "Stretch Therapy", "Injury Prevention"],
@@ -126,7 +126,7 @@ const THERAPISTS = [
   },
   {
     name: "Priya Desai",
-    nationality: "Indian", gender: "Female",
+    nationality: "India", gender: "Female",
     age: 28, stars: 3, experienceYears: 5,
     description: "An Indian massage therapist who draws on a rich tradition of therapeutic bodywork to deliver effective sports massage, trigger point therapy, and mobility support. Priya Desai's empathetic and professional manner earns strong trust from athletes, and her attention to detail in deep tissue work shows steady promise at the elite level.",
     specialties: ["Sports Massage", "Trigger Point Therapy", "Mobility & Flexibility"],
@@ -137,7 +137,7 @@ const THERAPISTS = [
   },
   {
     name: "Lucas Moreau",
-    nationality: "French", gender: "Male",
+    nationality: "France", gender: "Male",
     age: 34, stars: 4, experienceYears: 9,
     description: "A French massage therapist with nine years of elite-level experience and a comprehensive technical repertoire that covers sports massage, myofascial release, postural alignment, and rehabilitation massage. Lucas Moreau is recognised as one of the most effective practitioners on the World Tour, consistently helping athletes maintain peak physical condition across demanding competition schedules.",
     specialties: ["Sports Massage", "Myofascial Release", "Rehabilitation Massage"],

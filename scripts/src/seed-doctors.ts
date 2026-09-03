@@ -93,7 +93,7 @@ function attrs(
 
 const DOCTORS = [
   {
-    name: "Dr. Alessandro Bianchi", nationality: "Italian", gender: "Male",
+    name: "Dr. Alessandro Bianchi", nationality: "Italy", gender: "Male",
     age: 42, stars: 4, experienceYears: 15,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -103,7 +103,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_01_1783428250581.webp", slot: "staff-01",
   },
   {
-    name: "Dr. Sofia Petrova", nationality: "Bulgarian", gender: "Female",
+    name: "Dr. Sofia Petrova", nationality: "Bulgaria", gender: "Female",
     age: 38, stars: 4, experienceYears: 12,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -113,7 +113,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_02_1783428260713.webp", slot: "staff-02",
   },
   {
-    name: "Dr. Hiroshi Tanaka", nationality: "Japanese", gender: "Male",
+    name: "Dr. Hiroshi Tanaka", nationality: "Japan", gender: "Male",
     age: 51, stars: 4, experienceYears: 20,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -123,7 +123,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_03_1783428264232.webp", slot: "staff-03",
   },
   {
-    name: "Dr. Anna Kowalska", nationality: "Polish", gender: "Female",
+    name: "Dr. Anna Kowalska", nationality: "Poland", gender: "Female",
     age: 46, stars: 4, experienceYears: 18,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -133,7 +133,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_04_1783428268278.webp", slot: "staff-04",
   },
   {
-    name: "Dr. Karim Hassan", nationality: "Egyptian", gender: "Male",
+    name: "Dr. Karim Hassan", nationality: "Egypt", gender: "Male",
     age: 57, stars: 4, experienceYears: 25,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -143,7 +143,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_05_1783428289569.webp", slot: "staff-05",
   },
   {
-    name: "Dr. Sarah Mitchell", nationality: "Australian", gender: "Female",
+    name: "Dr. Sarah Mitchell", nationality: "Australia", gender: "Female",
     age: 38, stars: 4, experienceYears: 12,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -153,7 +153,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_06_1783428292716.webp", slot: "staff-06",
   },
   {
-    name: "Dr. James O'Connor", nationality: "Australian", gender: "Male",
+    name: "Dr. James O'Connor", nationality: "Australia", gender: "Male",
     age: 45, stars: 4, experienceYears: 17,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -163,7 +163,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_07_1783428305309.webp", slot: "staff-07",
   },
   {
-    name: "Dr. Emily Harrison", nationality: "British", gender: "Female",
+    name: "Dr. Emily Harrison", nationality: "United Kingdom", gender: "Female",
     age: 43, stars: 4, experienceYears: 14,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -173,7 +173,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_08_1783428307486.webp", slot: "staff-08",
   },
   {
-    name: "Dr. Priya Sharma", nationality: "Indian", gender: "Female",
+    name: "Dr. Priya Sharma", nationality: "India", gender: "Female",
     age: 39, stars: 4, experienceYears: 11,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
@@ -183,7 +183,7 @@ const DOCTORS = [
     imageFile: "staff_medical_doctor_09_1783428316377.webp", slot: "staff-09",
   },
   {
-    name: "Dr. Michael Anderson", nationality: "American", gender: "Male",
+    name: "Dr. Michael Anderson", nationality: "USA", gender: "Male",
     age: 54, stars: 4, experienceYears: 22,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",

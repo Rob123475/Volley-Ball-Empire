@@ -429,5 +429,52 @@ export function isReserveNation(nationality: string | null | undefined): boolean
   return !!nationality && RESERVE_SET.has(nationality);
 }
 
+/**
+ * Demonyms that have appeared in a nationality column, and the country each one
+ * means.
+ *
+ * Nationality is stored as a COUNTRY NAME everywhere - "Australia", not
+ * "Australian". That was true of players and quietly untrue of everything else:
+ * on 3 September 2026 the staff table held 19 demonyms among 56 values, and
+ * continental_pool_players held 14 more. The harm is not cosmetic. The same
+ * country appeared under two spellings at once - Norway and Norwegian, Poland
+ * and Polish, Singapore and Singaporean - so anything grouping or counting by
+ * nationality silently saw two nations where there is one.
+ *
+ * Normalising collapsed staff from 56 distinct values to 39. This map is kept
+ * as DATA rather than thrown away because check-continents.cjs reads it to fail
+ * the build if any of these ever reappears, and because it records what each
+ * one was taken to mean.
+ */
+export const DEMONYM_TO_COUNTRY: Record<string, string> = {
+  "American": "USA",
+  "Australian": "Australia",
+  "Brazilian": "Brazil",
+  "British": "United Kingdom",
+  "Bulgarian": "Bulgaria",
+  "Canadian": "Canada",
+  "Egyptian": "Egypt",
+  "French": "France",
+  "Indian": "India",
+  "Italian": "Italy",
+  "Japanese": "Japan",
+  "New Zealander": "New Zealand",
+  "Norwegian": "Norway",
+  "Polish": "Poland",
+  "Russian": "Russia",
+  "Singaporean": "Singapore",
+  "South African": "South Africa",
+  "Spanish": "Spain",
+  "Thai": "Thailand",
+  "United States": "USA",
+};
+
+const DEMONYM_SET: ReadonlySet<string> = new Set(Object.keys(DEMONYM_TO_COUNTRY));
+
+/** Is this a demonym rather than a country name? Nationality columns store countries. */
+export function isDemonym(value: string | null | undefined): boolean {
+  return !!value && DEMONYM_SET.has(value);
+}
+
 /** Every nation the world knows about, core and reserve. */
 export const ALL_NATIONS: readonly string[] = [...CORE_SET, ...RESERVE_SET];

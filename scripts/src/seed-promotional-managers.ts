@@ -71,7 +71,7 @@ const MANAGERS = [
   },
   {
     name: "Isabella Costa",
-    nationality: "Brazilian", gender: "Female",
+    nationality: "Brazil", gender: "Female",
     age: 34, stars: 2, experienceYears: 8,
     description: "A Brazilian promotional manager who brings Latin American energy and creativity to her marketing and sponsor relations work. Isabella Costa has an eye for digital campaigns and brand development, and her understanding of event promotion in South American and European markets gives her a useful cross-cultural perspective.",
     specialties: ["Event Promotion", "Brand Development", "Digital Campaigns"],
@@ -82,7 +82,7 @@ const MANAGERS = [
   },
   {
     name: "James Walker",
-    nationality: "British", gender: "Male",
+    nationality: "United Kingdom", gender: "Male",
     age: 36, stars: 2, experienceYears: 9,
     description: "A British promotional manager who has built his career on thorough event promotion and reliable sponsor relations. James Walker is a dependable commercial operator whose media planning skills and brand development work produce steady results, though his conservative approach means he rarely delivers the kind of breakout commercial moments that top clubs require.",
     specialties: ["Event Promotion", "Sponsor Relations", "Media Planning"],
@@ -93,7 +93,7 @@ const MANAGERS = [
   },
   {
     name: "Maria Sanchez",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 33, stars: 2, experienceYears: 7,
     description: "A Spanish promotional manager whose enthusiasm and community engagement skills have helped her carve out a niche in event promotion and marketing strategy. Maria Sanchez is particularly effective at building local fan bases and grassroots sponsor relationships, though her experience at the elite international level remains limited.",
     specialties: ["Event Promotion", "Brand Development", "Community Engagement"],
@@ -104,7 +104,7 @@ const MANAGERS = [
   },
   {
     name: "Kenji Tanaka",
-    nationality: "Japanese", gender: "Male",
+    nationality: "Japan", gender: "Male",
     age: 35, stars: 2, experienceYears: 8,
     description: "A Japanese promotional manager who brings a disciplined, detail-oriented approach to marketing strategy and digital marketing. Kenji Tanaka's work ethic and professionalism are beyond question, and his sponsorship relations skills show promise, though he is still developing the creative instinct needed to generate standout campaigns at the elite level.",
     specialties: ["Event Promotion", "Brand Development", "Digital Marketing"],
@@ -115,7 +115,7 @@ const MANAGERS = [
   },
   {
     name: "Lucas Moreau",
-    nationality: "French", gender: "Male",
+    nationality: "France", gender: "Male",
     age: 37, stars: 2, experienceYears: 9,
     description: "A French promotional manager with nine years of experience across event promotion, sponsor relations, and public relations. Lucas Moreau is a well-rounded commercial professional whose calm, strategic demeanour and solid marketing instincts make him a reliable addition to any club's commercial department, though he lacks the elite-level impact of the very top performers.",
     specialties: ["Event Promotion", "Sponsor Relations", "Public Relations"],
@@ -126,7 +126,7 @@ const MANAGERS = [
   },
   {
     name: "Alexander Petrov",
-    nationality: "Russian", gender: "Male",
+    nationality: "Russia", gender: "Male",
     age: 34, stars: 2, experienceYears: 8,
     description: "A Russian promotional manager whose eight years in sports marketing have given him a solid grounding in event promotion, brand development, and sponsor relations. Alexander Petrov's communications skills and marketing strategy work are dependable, and his ambition suggests he has more to offer as he continues to develop his commercial profile.",
     specialties: ["Event Promotion", "Brand Development", "Communications"],
@@ -137,7 +137,7 @@ const MANAGERS = [
   },
   {
     name: "Matthew Anderson",
-    nationality: "American", gender: "Male",
+    nationality: "USA", gender: "Male",
     age: 39, stars: 2, experienceYears: 11,
     description: "An American promotional manager with 11 years of experience and a particular strength in building global partnerships and marketing strategy. Matthew Anderson's World Tour network is extensive, and his sponsor relations and brand development work carry the credibility of a long career, though he has never quite translated that experience into a top-tier commercial impact.",
     specialties: ["Sponsor Relations", "Brand Development", "Global Partnerships"],
@@ -148,7 +148,7 @@ const MANAGERS = [
   },
   {
     name: "Victoria Lawson",
-    nationality: "American", gender: "Female",
+    nationality: "USA", gender: "Female",
     age: 36, stars: 2, experienceYears: 9,
     description: "An American promotional manager whose nine years in sports marketing have been built around event promotion, media partnerships, and brand development. Victoria Lawson's marketing strategy skills and ability to manage sponsor relations make her a consistent commercial contributor, and her communication style is well suited to the collaborative environment of a professional beach volleyball club.",
     specialties: ["Event Promotion", "Brand Development", "Media Partnerships"],

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Build gate for continent values.
+ * Build gate for the two vocabularies a screen groups by: continent, and
+ * nationality.
  *
  * A club whose continent the UI does not recognise used to vanish from the club
  * picker in silence: the picker walked a hardcoded list of six labels and drew
@@ -17,6 +18,19 @@
  * that list in this file would be the eighth vocabulary and exactly the bug
  * being guarded against. The columns are discovered from the database's own
  * schema, so a table added later is covered without anyone remembering.
+ *
+ * ── The nationality half, added 3 September 2026 ────────────────────────────
+ * Nationality is stored as a COUNTRY NAME everywhere - "Australia", not
+ * "Australian". That was true of players and quietly untrue of everything else:
+ * staff held 19 demonyms among 56 values, and continental_pool_players held 14
+ * more. Norway and Norwegian, Poland and Polish, Singapore and Singaporean all
+ * existed at once, so anything grouping or counting by nationality saw two
+ * nations where there is one. Normalising took staff from 56 distinct values
+ * to 39.
+ *
+ * Same derivation rule as above: the demonyms are parsed out of
+ * DEMONYM_TO_COUNTRY in continents.ts, and the nationality columns are
+ * discovered from the database's own schema.
  *
  * Run: node scripts/check-continents.cjs [path-to-db]
  */
@@ -38,6 +52,34 @@ try {
 const REPO = path.join(__dirname, "..");
 const CONTINENTS_TS = path.join(REPO, "lib", "db", "src", "schema", "continents.ts");
 const DB = process.argv[2] || path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+// ── The demonyms, read from the same single source of truth ─────────────────
+//
+// Nationality is stored as a COUNTRY NAME everywhere - "Australia", not
+// "Australian". Staff held 19 demonyms among 56 values and the AI pool held 14
+// more, so the same country existed under two spellings at once (Norway and
+// Norwegian, Poland and Polish, Singapore and Singaporean) and anything
+// grouping by nationality saw two nations where there is one.
+//
+// Parsed rather than restated, for the same reason the continent keys are.
+function readDemonyms() {
+  const src = fs.readFileSync(CONTINENTS_TS, "utf8");
+  const m = src.match(/export const DEMONYM_TO_COUNTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
+  if (!m) {
+    console.error(
+      `[check-continents] FAILED: could not find DEMONYM_TO_COUNTRY in ${CONTINENTS_TS}.`,
+    );
+    process.exit(1);
+  }
+  const map = Object.fromEntries(
+    [...m[1].matchAll(/"([^"]+)"\s*:\s*"([^"]+)"/g)].map((e) => [e[1], e[2]]),
+  );
+  if (Object.keys(map).length === 0) {
+    console.error("[check-continents] FAILED: DEMONYM_TO_COUNTRY parsed as empty.");
+    process.exit(1);
+  }
+  return map;
+}
 
 // ── The canonical keys, read from the single source of truth ────────────────
 function readCanonicalKeys() {
@@ -140,6 +182,48 @@ function main() {
     }
   }
 
+  // ── Nationality columns must hold country names, never demonyms ───────────
+  const demonyms = readDemonyms();
+  const natColumns = [];
+  for (const { name: table } of db.prepare(
+    "SELECT name FROM sqlite_master WHERE type='table'").all()) {
+    for (const col of db.prepare(`PRAGMA table_info(${table})`).all()) {
+      if (/nationality/i.test(col.name)) natColumns.push({ table, column: col.name });
+    }
+  }
+  const demonymHits = [];
+  for (const { table, column } of natColumns) {
+    for (const row of db.prepare(
+      `SELECT ${column} AS value, COUNT(*) AS rows FROM ${table}
+        WHERE ${column} IS NOT NULL GROUP BY ${column}`).all()) {
+      if (demonyms[row.value]) {
+        demonymHits.push({ table, column, value: row.value, means: demonyms[row.value], rows: row.rows });
+      }
+    }
+  }
+  console.log(
+    `[check-continents] ${natColumns.length} nationality column(s), ` +
+      `${Object.keys(demonyms).length} known demonym(s)`,
+  );
+  if (demonymHits.length > 0) {
+    console.error(
+      `\n[check-continents] FAILED: ${demonymHits.length} nationality value(s) are demonyms, not country names.`,
+    );
+    for (const h of demonymHits) {
+      console.error(
+        `  ${h.table}.${h.column} = ${JSON.stringify(h.value)} -> should be ` +
+          `${JSON.stringify(h.means)}  (${h.rows} row(s))`,
+      );
+    }
+    console.error(
+      "\n  The same country then exists under two spellings at once, so anything\n" +
+        "  grouping or counting by nationality sees two nations where there is one.\n" +
+        "\n  Fix: store the country name. DEMONYM_TO_COUNTRY in continents.ts says\n" +
+        "  what each one means.",
+    );
+    process.exit(1);
+  }
+
   if (violations.length > 0) {
     console.error(
       `\n[check-continents] FAILED: ${violations.length} continent value(s) outside the canonical set.`,
@@ -157,7 +241,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log("\n[check-continents] OK — every continent value is a canonical key.");
+  console.log("\n[check-continents] OK — every continent value is a canonical key,\n                   and every nationality is a country name.");
 }
 
 main();

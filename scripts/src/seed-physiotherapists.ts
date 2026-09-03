@@ -78,7 +78,7 @@ function medicalSalaryFromSkill(skill: number): number {
 const PHYSIOS = [
   {
     name: "Dr. Isabella Conti",
-    nationality: "Italian", gender: "Female",
+    nationality: "Italy", gender: "Female",
     age: 38, stars: 4, experienceYears: 10,
     specialty: "Injury & Rehab Specialist",
     coachSpeciality: "Injury Rehabilitation",
@@ -89,7 +89,7 @@ const PHYSIOS = [
   },
   {
     name: "Dr. Sipho Dlamini",
-    nationality: "South African", gender: "Male",
+    nationality: "South Africa", gender: "Male",
     age: 37, stars: 4, experienceYears: 12,
     specialty: "Team Physiotherapist",
     coachSpeciality: "Team Physiotherapy",
@@ -100,7 +100,7 @@ const PHYSIOS = [
   },
   {
     name: "Dr. Anastasia Ivanova",
-    nationality: "Russian", gender: "Female",
+    nationality: "Russia", gender: "Female",
     age: 42, stars: 4, experienceYears: 17,
     specialty: "Team Physiotherapist",
     coachSpeciality: "Team Physiotherapy",
@@ -111,7 +111,7 @@ const PHYSIOS = [
   },
   {
     name: "Dr. Nattaya Somboon",
-    nationality: "Thai", gender: "Female",
+    nationality: "Thailand", gender: "Female",
     age: 29, stars: 4, experienceYears: 7,
     specialty: "Team Physiotherapist",
     coachSpeciality: "Team Physiotherapy",
@@ -122,7 +122,7 @@ const PHYSIOS = [
   },
   {
     name: "Dr. Anita Sharma",
-    nationality: "Indian", gender: "Female",
+    nationality: "India", gender: "Female",
     age: 52, stars: 4, experienceYears: 23,
     specialty: "Team Physiotherapist",
     coachSpeciality: "Team Physiotherapy",
@@ -133,7 +133,7 @@ const PHYSIOS = [
   },
   {
     name: "Dr. Emily Harrison",
-    nationality: "Australian", gender: "Female",
+    nationality: "Australia", gender: "Female",
     age: 31, stars: 4, experienceYears: 6,
     specialty: "Musculoskeletal Specialist",
     coachSpeciality: "Musculoskeletal Physiotherapy",
@@ -145,7 +145,7 @@ const PHYSIOS = [
   {
     // ★2 — lower tier
     name: "Irina Morozova",
-    nationality: "Russian", gender: "Female",
+    nationality: "Russia", gender: "Female",
     age: 29, stars: 2, experienceYears: 7,
     specialty: "Movement. Recovery. Performance.",
     coachSpeciality: "Sports Rehabilitation",
@@ -157,7 +157,7 @@ const PHYSIOS = [
   {
     // ★5 — top tier
     name: "Alexei Mironov",
-    nationality: "Russian", gender: "Male",
+    nationality: "Russia", gender: "Male",
     age: 34, stars: 5, experienceYears: 9,
     specialty: "Rehabilitate. Restore. Perform.",
     coachSpeciality: "Sports Injury Rehabilitation",
@@ -169,7 +169,7 @@ const PHYSIOS = [
   {
     // ★4
     name: "Mei Ling Tan",
-    nationality: "Singaporean", gender: "Female",
+    nationality: "Singapore", gender: "Female",
     age: 27, stars: 4, experienceYears: 5,
     specialty: "Move Well. Recover Stronger.",
     coachSpeciality: "Sports Rehabilitation",
@@ -181,7 +181,7 @@ const PHYSIOS = [
   {
     // ★5 Extra Specialist
     name: "Nikita Belyakov",
-    nationality: "Russian", gender: "Male",
+    nationality: "Russia", gender: "Male",
     age: 31, stars: 5, experienceYears: 7,
     specialty: "Restore. Rehabilitate. Perform.",
     coachSpeciality: "Sports Injury Rehabilitation",

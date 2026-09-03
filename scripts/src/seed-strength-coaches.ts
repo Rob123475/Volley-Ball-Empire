@@ -49,7 +49,7 @@ const SEED = "BVM_STRENGTH_AND_CONDITIONING_COACH_V2_2026_07_07";
 const COACHES = [
   {
     name: "Alexander Reed",
-    nationality: "American", gender: "Male",
+    nationality: "USA", gender: "Male",
     age: 48, stars: 4, experienceYears: 18,
     description: "The most experienced strength coach in the pool, Alexander Reed has spent 18 years building championship-level physical foundations for elite beach volleyball athletes. His programme design philosophy integrates power, conditioning, and injury prevention in a system that consistently produces peak performers.",
     specialties: ["Strength Training", "Power Development", "Program Design"],
@@ -71,7 +71,7 @@ const COACHES = [
   },
   {
     name: "Rafael Oliveira",
-    nationality: "Brazilian", gender: "Male",
+    nationality: "Brazil", gender: "Male",
     age: 34, stars: 4, experienceYears: 9,
     description: "A Brazilian strength coach who blends South American athleticism philosophy with European periodisation methods. Rafael Oliveira is known for his ability to rapidly develop conditioning levels and bring players to physical peak at tournament time.",
     specialties: ["Strength Training", "Power Development", "Athlete Performance"],
@@ -82,7 +82,7 @@ const COACHES = [
   },
   {
     name: "Emily Harrison",
-    nationality: "Canadian", gender: "Female",
+    nationality: "Canada", gender: "Female",
     age: 31, stars: 4, experienceYears: 7,
     description: "A Canadian strength and conditioning coach who brings a holistic approach to athlete preparation. Emily Harrison integrates strength work with mobility, recovery protocols, and nutrition support to ensure players perform at their physical best across the full competitive season.",
     specialties: ["Strength Training", "Mobility & Recovery", "Nutrition Support"],
@@ -93,7 +93,7 @@ const COACHES = [
   },
   {
     name: "Leilani Kalei",
-    nationality: "American", gender: "Female",
+    nationality: "USA", gender: "Female",
     age: 28, stars: 4, experienceYears: 6,
     description: "A Hawaiian-born strength coach who specialises in explosive movement and speed and agility development. Leilani Kalei brings a background in Pacific Islander athletic traditions and modern sports science, with a particular talent for movement optimisation and rehabilitation protocols.",
     specialties: ["Explosive Power", "Speed & Agility", "Movement Optimization"],
@@ -115,7 +115,7 @@ const COACHES = [
   },
   {
     name: "Maria González",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 33, stars: 4, experienceYears: 8,
     description: "A Spanish strength and conditioning coach whose comprehensive approach encompasses movement efficiency, sports nutrition, and recovery optimisation alongside traditional strength programming. Maria González is widely regarded as one of the most well-rounded physical performance specialists on the Tour.",
     specialties: ["Power Development", "Movement Efficiency", "Recovery Optimization"],
@@ -126,7 +126,7 @@ const COACHES = [
   },
   {
     name: "James Morrison",
-    nationality: "Australian", gender: "Male",
+    nationality: "Australia", gender: "Male",
     age: 38, stars: 4, experienceYears: 13,
     description: "An Australian strength and conditioning coach with 13 years of high-performance experience across beach volleyball and other elite sports. James Morrison is known for producing exceptional speed and agility gains without compromising injury prevention protocols.",
     specialties: ["Strength Training", "Speed & Agility", "Athlete Performance"],
@@ -137,7 +137,7 @@ const COACHES = [
   },
   {
     name: "Darius Coleman",
-    nationality: "American", gender: "Male",
+    nationality: "USA", gender: "Male",
     age: 32, stars: 4, experienceYears: 9,
     description: "An American strength coach who combines explosive power training with a sophisticated understanding of athlete nutrition strategy and performance analytics. Darius Coleman's ability to identify and close physical performance gaps makes him a sought-after specialist on the World Tour.",
     specialties: ["Explosive Power", "Nutrition Strategy", "Performance Analytics"],
@@ -148,7 +148,7 @@ const COACHES = [
   },
   {
     name: "Renato Araújo",
-    nationality: "Brazilian", gender: "Male",
+    nationality: "Brazil", gender: "Male",
     age: 35, stars: 4, experienceYears: 10,
     description: "A Brazilian strength and conditioning specialist with a decade of World Tour experience and a particular focus on injury prevention, recovery, and rehabilitation. Renato Araújo has earned a reputation for extending athlete careers through meticulous physical management and progressive load programming.",
     specialties: ["Power Development", "Injury Prevention", "Recovery & Rehab"],

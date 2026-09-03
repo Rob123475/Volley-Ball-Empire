@@ -93,7 +93,7 @@ function attrs(stars: number, exp: number, overrides: Partial<Record<AttrKey, nu
 const NUTRITIONISTS = [
   {
     // 01 — ★4, 9 yrs
-    name: "Dr. Lucy Mitchell", nationality: "Australian", gender: "Female",
+    name: "Dr. Lucy Mitchell", nationality: "Australia", gender: "Female",
     age: 34, stars: 4, experienceYears: 9,
     specialty: "Team Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -104,7 +104,7 @@ const NUTRITIONISTS = [
   },
   {
     // 02 — ★4, 14 yrs
-    name: "Dr. James O'Connor", nationality: "Australian", gender: "Male",
+    name: "Dr. James O'Connor", nationality: "Australia", gender: "Male",
     age: 41, stars: 4, experienceYears: 14,
     specialty: "Team Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -115,7 +115,7 @@ const NUTRITIONISTS = [
   },
   {
     // 03 — ★4, 8 yrs
-    name: "Dr. Ingrid Nilsen", nationality: "Norwegian", gender: "Female",
+    name: "Dr. Ingrid Nilsen", nationality: "Norway", gender: "Female",
     age: 33, stars: 4, experienceYears: 8,
     specialty: "Team Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -126,7 +126,7 @@ const NUTRITIONISTS = [
   },
   {
     // 04 — ★2, 6 yrs
-    name: "Dr. Anastasia Petrova", nationality: "Russian", gender: "Female",
+    name: "Dr. Anastasia Petrova", nationality: "Russia", gender: "Female",
     age: 33, stars: 2, experienceYears: 6,
     specialty: "Team Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -137,7 +137,7 @@ const NUTRITIONISTS = [
   },
   {
     // 05 — ★2 Extra Specialities, 7 yrs
-    name: "Dr. Sipho Ndlovu", nationality: "South African", gender: "Male",
+    name: "Dr. Sipho Ndlovu", nationality: "South Africa", gender: "Male",
     age: 35, stars: 2, experienceYears: 7,
     specialty: "Team Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -148,7 +148,7 @@ const NUTRITIONISTS = [
   },
   {
     // 06 — ★5, 15+ yrs — Head of Performance Nutrition
-    name: "Dr. Elena Sokolova", nationality: "Russian", gender: "Female",
+    name: "Dr. Elena Sokolova", nationality: "Russia", gender: "Female",
     age: 42, stars: 5, experienceYears: 16,
     specialty: "Head of Performance Nutrition",
     coachSpeciality: "Performance Nutrition",
@@ -159,7 +159,7 @@ const NUTRITIONISTS = [
   },
   {
     // 07 — ★3.5, 4 yrs
-    name: "Larissa Mendes", nationality: "Brazilian", gender: "Female",
+    name: "Larissa Mendes", nationality: "Brazil", gender: "Female",
     age: 27, stars: 3.5, experienceYears: 4,
     specialty: "Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -170,7 +170,7 @@ const NUTRITIONISTS = [
   },
   {
     // 08 — ★4, 13 yrs
-    name: "Sophie Nguyen", nationality: "Canadian", gender: "Female",
+    name: "Sophie Nguyen", nationality: "Canada", gender: "Female",
     age: 42, stars: 4, experienceYears: 13,
     specialty: "Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -181,7 +181,7 @@ const NUTRITIONISTS = [
   },
   {
     // 09 — ★4.5, 6 yrs
-    name: "Emilie Dupont", nationality: "French", gender: "Female",
+    name: "Emilie Dupont", nationality: "France", gender: "Female",
     age: 29, stars: 4.5, experienceYears: 6,
     specialty: "Nutritionist",
     coachSpeciality: "Sports Nutrition",
@@ -192,7 +192,7 @@ const NUTRITIONISTS = [
   },
   {
     // 10 — ★5 Extra Specialist, 18 yrs
-    name: "Isabella Moretti", nationality: "Italian", gender: "Female",
+    name: "Isabella Moretti", nationality: "Italy", gender: "Female",
     age: 46, stars: 5, experienceYears: 18,
     specialty: "Nutritionist",
     coachSpeciality: "Performance Nutrition",

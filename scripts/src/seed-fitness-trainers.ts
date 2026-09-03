@@ -48,7 +48,7 @@ const SEED = "BVM_FITNESS_TRAINER_V2_2026_07_07";
 const TRAINERS = [
   {
     name: "Lucas Anderson",
-    nationality: "Australian", gender: "Male",
+    nationality: "Australia", gender: "Male",
     age: 32, stars: 4.5, experienceYears: 8,
     description: "An elite Australian fitness trainer who combines strength programming with injury prevention science. Lucas Anderson's athletes consistently maintain peak physical condition throughout the gruelling World Tour season.",
     specialty: "Strength & Conditioning",
@@ -60,7 +60,7 @@ const TRAINERS = [
   },
   {
     name: "Lauren Johnson",
-    nationality: "American", gender: "Female",
+    nationality: "USA", gender: "Female",
     age: 27, stars: 2, experienceYears: 5,
     description: "A young American fitness trainer who is still finding her footing on the World Tour. Lauren Johnson brings enthusiasm and modern training methods but lacks the elite experience needed for consistent top-level results.",
     specialty: "Strength Training",
@@ -72,7 +72,7 @@ const TRAINERS = [
   },
   {
     name: "Emily Carter",
-    nationality: "Australian", gender: "Female",
+    nationality: "Australia", gender: "Female",
     age: 32, stars: 4, experienceYears: 6,
     description: "A well-rounded Australian fitness trainer known for her comprehensive approach to physical preparation. Emily Carter's strength and flexibility programmes have helped several athletes extend their careers on the World Tour.",
     specialty: "Strength Training",
@@ -84,7 +84,7 @@ const TRAINERS = [
   },
   {
     name: "Sofia Bianchi",
-    nationality: "Italian", gender: "Female",
+    nationality: "Italy", gender: "Female",
     age: 29, stars: 4, experienceYears: 4,
     description: "An Italian fitness trainer who has quickly built a reputation for innovative HIIT protocols and core strength development. Sofia Bianchi's recovery and rehabilitation programmes keep athletes in peak condition across long tournament runs.",
     specialty: "HIIT Training",
@@ -108,7 +108,7 @@ const TRAINERS = [
   },
   {
     name: "Lucía Martínez",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 28, stars: 4, experienceYears: 5,
     description: "A Spanish fitness trainer who specialises in mobility-focused strength work and functional performance testing. Lucía Martínez's holistic approach to physical preparation has made her a sought-after conditioner on the European circuit.",
     specialty: "Strength Training",
@@ -120,7 +120,7 @@ const TRAINERS = [
   },
   {
     name: "Natalie Thompson",
-    nationality: "Canadian", gender: "Female",
+    nationality: "Canada", gender: "Female",
     age: 34, stars: 4, experienceYears: 8,
     description: "A Canadian fitness trainer who brings a complete physical development package to any team. Natalie Thompson's strength and nutrition expertise, combined with her rehabilitation knowledge, makes her one of the most versatile conditioners on tour.",
     specialty: "Strength & Conditioning",
@@ -132,7 +132,7 @@ const TRAINERS = [
   },
   {
     name: "Isabella Rodriguez",
-    nationality: "Brazilian", gender: "Female",
+    nationality: "Brazil", gender: "Female",
     age: 30, stars: 4, experienceYears: 6,
     description: "A Brazilian fitness trainer who combines her country's tradition of athletic dynamism with modern strength science. Isabella Rodriguez excels at building fast, mobile athletes who can sustain high-intensity output throughout long tournaments.",
     specialty: "Strength Training",
@@ -156,7 +156,7 @@ const TRAINERS = [
   },
   {
     name: "Sophie Martin",
-    nationality: "French", gender: "Female",
+    nationality: "France", gender: "Female",
     age: 28, stars: 4, experienceYears: 5,
     description: "A French fitness trainer who brings a disciplined, science-based approach to physical conditioning. Sophie Martin's structured strength and nutrition programmes have helped emerging athletes make the step up to consistent World Tour performance.",
     specialty: "Strength Training",

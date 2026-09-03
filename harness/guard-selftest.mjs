@@ -332,7 +332,21 @@ console.log("\n5. CONTINENT GUARD — a non-canonical continent value");
   check("an unknown continent in players is rejected", rAlien.status !== 0,
     rAlien.status !== 0 ? "" : "guard only checks club_templates");
 
-  // (c) negative control: the real shipped artifact must pass.
+  // (c) a demonym in a nationality column. Staff held 19 of these and the AI
+  //     pool 14 more, so the same country existed under two spellings at once.
+  const demonym = path.join(WORK, "demonym-nationality.sqlite");
+  fs.copyFileSync(shipped, demonym);
+  {
+    const db = new DatabaseSync(demonym);
+    db.exec(`UPDATE staff SET nationality='Australian'
+              WHERE id = (SELECT MIN(id) FROM staff)`);
+    db.close();
+  }
+  const rDemonym = runGuard("check-continents.cjs", [demonym]);
+  check("a demonym in a nationality column is rejected", rDemonym.status !== 0,
+    rDemonym.status !== 0 ? "" : "guard accepted 'Australian' where 'Australia' belongs");
+
+  // (d) negative control: the real shipped artifact must pass.
   const rGood = runGuard("check-continents.cjs", [shipped]);
   check("the real starter DB is accepted", rGood.status === 0,
     rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));

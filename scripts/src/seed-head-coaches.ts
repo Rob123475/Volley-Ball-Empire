@@ -49,7 +49,7 @@ const SEED = "BVM_HEAD_COACH_V2_2026_07_07";
 const COACHES = [
   {
     name: "James Whitmore",
-    nationality: "Australian", gender: "Male",
+    nationality: "Australia", gender: "Male",
     age: 41, stars: 4, experienceYears: 15,
     description: "A commanding Australian head coach with 15 years of World Tour experience. James Whitmore is renowned for building elite tactical structures and instilling a culture of relentless performance standards in every squad he leads.",
     specialties: ["Leadership", "Strategy", "Elite Performance"],
@@ -60,7 +60,7 @@ const COACHES = [
   },
   {
     name: "Marco Ricci",
-    nationality: "Italian", gender: "Male",
+    nationality: "Italy", gender: "Male",
     age: 52, stars: 4, experienceYears: 21,
     description: "A veteran Italian head coach whose tactical sophistication has been forged over two decades on the World Tour. Marco Ricci combines deep strategic knowledge with the ability to command respect from even the most experienced athletes.",
     specialties: ["Leadership", "Strategy", "Elite Performance"],
@@ -71,7 +71,7 @@ const COACHES = [
   },
   {
     name: "Tomasz Kowalski",
-    nationality: "Polish", gender: "Male",
+    nationality: "Poland", gender: "Male",
     age: 45, stars: 3, experienceYears: 17,
     description: "A Polish head coach with a deep tactical mind and a proven record in player development. Tomasz Kowalski is respected for his ability to read the game and build cohesive systems, though his inconsistency in high-pressure moments has limited his top-level success.",
     specialties: ["Tactical Expert", "Game Intelligence", "Player Development"],
@@ -82,7 +82,7 @@ const COACHES = [
   },
   {
     name: "Sarah Mitchell",
-    nationality: "New Zealander", gender: "Female",
+    nationality: "New Zealand", gender: "Female",
     age: 45, stars: 3, experienceYears: 12,
     description: "A New Zealand head coach who has built her reputation on motivating players and developing game intelligence across her squads. Sarah Mitchell's supportive leadership style creates strong team environments but she is still developing her elite tactical credentials.",
     specialties: ["Development", "Motivation", "Game Intelligence"],
@@ -104,7 +104,7 @@ const COACHES = [
   },
   {
     name: "Laura Martínez",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 49, stars: 4, experienceYears: 16,
     description: "A seasoned Spanish head coach celebrated for her exceptional communication skills and ability to build powerful team cultures. Laura Martínez has guided multiple clubs to continental honours through her inclusive and demanding leadership philosophy.",
     specialties: ["Leadership", "Communication", "Team Culture"],
@@ -148,7 +148,7 @@ const COACHES = [
   },
   {
     name: "Massimo Bianchi",
-    nationality: "Italian", gender: "Male",
+    nationality: "Italy", gender: "Male",
     age: 52, stars: 4.5, experienceYears: 20,
     description: "The standout head coach in this pool, Massimo Bianchi combines elite tactical acumen with exceptional motivational skills honed over 20 years at the top of the game. His record of building championship-winning cultures and developing world-class athletes is virtually unmatched.",
     specialties: ["Leadership", "Tactics", "Motivation"],

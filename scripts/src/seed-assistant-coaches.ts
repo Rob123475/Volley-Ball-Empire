@@ -50,7 +50,7 @@ const SEED = "BVM_ASSISTANT_COACH_V2_2026_07_07";
 const COACHES = [
   {
     name: "Luca Bardi",
-    nationality: "Australian", gender: "Male",
+    nationality: "Australia", gender: "Male",
     age: 38, stars: 4, experienceYears: 9,
     description: "An Australian assistant coach with a sharp offensive mind. Luca Bardi is renowned for crafting attacking patterns that put opponents under constant pressure from serve reception to the final swing.",
     specialties: ["Offense Strategy", "Attack Combinations", "Game Planning"],
@@ -62,7 +62,7 @@ const COACHES = [
   },
   {
     name: "Marcos Silva",
-    nationality: "Brazilian", gender: "Male",
+    nationality: "Brazil", gender: "Male",
     age: 46, stars: 2, experienceYears: 17,
     description: "A veteran Brazilian assistant coach whose experience exceeds his current rating. Marcos Silva has dedicated his career to long-term player development, shaping raw talent into consistent performers.",
     specialties: ["Player Development", "Technical Fundamentals", "Mentoring"],
@@ -74,7 +74,7 @@ const COACHES = [
   },
   {
     name: "Sofia Martinez",
-    nationality: "Spanish", gender: "Female",
+    nationality: "Spain", gender: "Female",
     age: 34, stars: 2, experienceYears: 8,
     description: "A determined Spanish assistant coach who brings defensive grit and discipline to every session. Sofia Martinez is steadily building a reputation as a defensive systems specialist on the World Tour.",
     specialties: ["Defensive Strategy", "Block Organisation", "Defensive Patterns"],
@@ -86,7 +86,7 @@ const COACHES = [
   },
   {
     name: "Emma Watson",
-    nationality: "Australian", gender: "Female",
+    nationality: "Australia", gender: "Female",
     age: 42, stars: 3, experienceYears: 14,
     description: "An experienced Australian assistant coach who has built a career around defensive structure and resilience. Emma Watson's methodical approach has helped multiple teams tighten their back-court and limit opponent scoring.",
     specialties: ["Defensive Strategy", "Resilience Coaching", "Team Organisation"],
@@ -110,7 +110,7 @@ const COACHES = [
   },
   {
     name: "Jessica De Groot",
-    nationality: "Australian", gender: "Female",
+    nationality: "Australia", gender: "Female",
     age: 38, stars: 4.5, experienceYears: 11,
     description: "One of the most tactically astute assistant coaches on the World Tour. Jessica De Groot combines elite setting knowledge with advanced game-film analysis to give her teams a consistent edge in match preparation.",
     specialties: ["Setting & Game Analysis", "Video Analysis", "Match Preparation"],
@@ -122,7 +122,7 @@ const COACHES = [
   },
   {
     name: "Isabella Ricci",
-    nationality: "Italian", gender: "Female",
+    nationality: "Italy", gender: "Female",
     age: 34, stars: 4, experienceYears: 8,
     description: "An Italian assistant coach who has made defensive excellence and court positioning her calling card. Isabella Ricci's players consistently rank among the best in defensive efficiency on tour.",
     specialties: ["Defense & Court Positioning", "Block Timing", "Defensive Reads"],
@@ -146,7 +146,7 @@ const COACHES = [
   },
   {
     name: "Mei-Ling Tan",
-    nationality: "Singaporean", gender: "Female",
+    nationality: "Singapore", gender: "Female",
     age: 31, stars: 4.5, experienceYears: 7,
     description: "A prodigiously talented Singaporean assistant coach who has risen quickly through the coaching ranks. Mei-Ling Tan's technical precision in serve development and skill refinement is exceptional for her age.",
     specialties: ["Technical Skills & Serve", "Serve Development", "Skill Refinement"],

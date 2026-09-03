@@ -69,16 +69,16 @@ function medicalSalaryFromSkill(skill: number): number {
 }
 
 const SCIENTISTS = [
-  { name: "Dr. Matthew Anderson",  nationality: "Australian",    age: 38, exp: 12, specialty: "Team Sports Scientist",        coachSpeciality: "Performance Analysis",    skill: 85, imageFile: "staff_medical_science_01_1783426769412.webp",  slot: "staff-01" },
-  { name: "Dr. Emma Clarke",       nationality: "Australian",    age: 33, exp:  8, specialty: "Team Sports Scientist",        coachSpeciality: "Athlete Monitoring",      skill: 80, imageFile: "staff_medical_science_02_1783426774476.webp",  slot: "staff-02" },
-  { name: "Dr. Zandile Mokwena",   nationality: "South African", age: 36, exp: 11, specialty: "Team Sports Scientist",        coachSpeciality: "Performance Analysis",    skill: 84, imageFile: "staff_medical_science_03_1783426780943.webp",  slot: "staff-03" },
-  { name: "Dr. Luca Moretti",      nationality: "Italian",       age: 33, exp:  8, specialty: "Team Sports Scientist",        coachSpeciality: "Strength & Conditioning", skill: 80, imageFile: "staff_medical_science_04_1783426790962.webp",  slot: "staff-04" },
-  { name: "Dr. Marta García",      nationality: "Spanish",       age: 31, exp:  7, specialty: "Performance Analyst",          coachSpeciality: "Data Analysis",           skill: 78, imageFile: "staff_medical_science_05_1783426793545.webp",  slot: "staff-05" },
-  { name: "Dr. James O'Connor",    nationality: "Australian",    age: 34, exp:  9, specialty: "Performance Specialist",       coachSpeciality: "Athletic Performance",    skill: 82, imageFile: "staff_medical_science_06_1783426805383.webp",  slot: "staff-06" },
-  { name: "Dr. Takashi Mori",      nationality: "Japanese",      age: 38, exp: 12, specialty: "Biomechanics Specialist",      coachSpeciality: "Biomechanics",            skill: 85, imageFile: "staff_medical_science_07_1783426808116.webp",  slot: "staff-07" },
-  { name: "Dr. Emily Thompson",    nationality: "Canadian",      age: 29, exp:  6, specialty: "Exercise Physiologist",        coachSpeciality: "Exercise Physiology",     skill: 77, imageFile: "staff_medical_science_08_1783426831041.webp",  slot: "staff-08" },
-  { name: "Dr. Larissa Almeida",   nationality: "Brazilian",     age: 28, exp:  5, specialty: "Human Performance Specialist", coachSpeciality: "Human Performance",       skill: 75, imageFile: "staff_medical_science_09_1783426833952.webp",  slot: "staff-09" },
-  { name: "Dr. Andrea Bianchi",    nationality: "Italian",       age: 42, exp: 14, specialty: "Data & Analytics Specialist",  coachSpeciality: "Sports Analytics",        skill: 88, imageFile: "staff_medical_science_10_1783426836339.webp",  slot: "staff-10" },
+  { name: "Dr. Matthew Anderson",  nationality: "Australia",    age: 38, exp: 12, specialty: "Team Sports Scientist",        coachSpeciality: "Performance Analysis",    skill: 85, imageFile: "staff_medical_science_01_1783426769412.webp",  slot: "staff-01" },
+  { name: "Dr. Emma Clarke",       nationality: "Australia",    age: 33, exp:  8, specialty: "Team Sports Scientist",        coachSpeciality: "Athlete Monitoring",      skill: 80, imageFile: "staff_medical_science_02_1783426774476.webp",  slot: "staff-02" },
+  { name: "Dr. Zandile Mokwena",   nationality: "South Africa", age: 36, exp: 11, specialty: "Team Sports Scientist",        coachSpeciality: "Performance Analysis",    skill: 84, imageFile: "staff_medical_science_03_1783426780943.webp",  slot: "staff-03" },
+  { name: "Dr. Luca Moretti",      nationality: "Italy",       age: 33, exp:  8, specialty: "Team Sports Scientist",        coachSpeciality: "Strength & Conditioning", skill: 80, imageFile: "staff_medical_science_04_1783426790962.webp",  slot: "staff-04" },
+  { name: "Dr. Marta García",      nationality: "Spain",       age: 31, exp:  7, specialty: "Performance Analyst",          coachSpeciality: "Data Analysis",           skill: 78, imageFile: "staff_medical_science_05_1783426793545.webp",  slot: "staff-05" },
+  { name: "Dr. James O'Connor",    nationality: "Australia",    age: 34, exp:  9, specialty: "Performance Specialist",       coachSpeciality: "Athletic Performance",    skill: 82, imageFile: "staff_medical_science_06_1783426805383.webp",  slot: "staff-06" },
+  { name: "Dr. Takashi Mori",      nationality: "Japan",      age: 38, exp: 12, specialty: "Biomechanics Specialist",      coachSpeciality: "Biomechanics",            skill: 85, imageFile: "staff_medical_science_07_1783426808116.webp",  slot: "staff-07" },
+  { name: "Dr. Emily Thompson",    nationality: "Canada",      age: 29, exp:  6, specialty: "Exercise Physiologist",        coachSpeciality: "Exercise Physiology",     skill: 77, imageFile: "staff_medical_science_08_1783426831041.webp",  slot: "staff-08" },
+  { name: "Dr. Larissa Almeida",   nationality: "Brazil",     age: 28, exp:  5, specialty: "Human Performance Specialist", coachSpeciality: "Human Performance",       skill: 75, imageFile: "staff_medical_science_09_1783426833952.webp",  slot: "staff-09" },
+  { name: "Dr. Andrea Bianchi",    nationality: "Italy",       age: 42, exp: 14, specialty: "Data & Analytics Specialist",  coachSpeciality: "Sports Analytics",        skill: 88, imageFile: "staff_medical_science_10_1783426836339.webp",  slot: "staff-10" },
 ];
 
 const insertStmt = sqlite.prepare(`

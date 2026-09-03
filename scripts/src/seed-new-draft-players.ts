@@ -49,7 +49,7 @@ const PLAYERS: PlayerDef[] = [
   // ── BATCH 1 ──────────────────────────────────────────────────────────────
   {
     name: "Jessica Madison",
-    nationality: "United States",
+    nationality: "USA",
     continent: "North America",
     age: 29, heightCm: 173, position: "all_rounder", potential: "High",
     speed: 78, power: 77, defense: 74, serve: 76, block: 68, stamina: 75,

@@ -92,7 +92,7 @@ function attrs(stars: number, exp: number, overrides: Partial<Record<AttrKey, nu
 
 const SPECIALISTS = [
   {
-    name: "Dr. James Carter", nationality: "British", gender: "Male",
+    name: "Dr. James Carter", nationality: "United Kingdom", gender: "Male",
     age: 52, stars: 4, experienceYears: 20,
     specialty: "Back Specialist",
     coachSpeciality: "Spinal & Back Medicine",
@@ -102,7 +102,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_01_1783428591843.webp", slot: "staff-01",
   },
   {
-    name: "Dr. Sarah Mitchell", nationality: "Australian", gender: "Female",
+    name: "Dr. Sarah Mitchell", nationality: "Australia", gender: "Female",
     age: 48, stars: 4, experienceYears: 18,
     specialty: "Shoulder Specialist",
     coachSpeciality: "Shoulder & Upper Limb Medicine",
@@ -112,7 +112,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_02_1783428594971.webp", slot: "staff-02",
   },
   {
-    name: "Dr. David Thompson", nationality: "Canadian", gender: "Male",
+    name: "Dr. David Thompson", nationality: "Canada", gender: "Male",
     age: 46, stars: 4, experienceYears: 17,
     specialty: "Ankle Specialist",
     coachSpeciality: "Ankle & Lower Limb Medicine",
@@ -122,7 +122,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_03_1783428597295.webp", slot: "staff-03",
   },
   {
-    name: "Dr. Benjamin Harris", nationality: "British", gender: "Male",
+    name: "Dr. Benjamin Harris", nationality: "United Kingdom", gender: "Male",
     age: 50, stars: 4, experienceYears: 19,
     specialty: "Hand Specialist",
     coachSpeciality: "Hand & Wrist Medicine",
@@ -132,7 +132,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_04_1783428599354.webp", slot: "staff-04",
   },
   {
-    name: "Dr. Andrew Wilson", nationality: "Australian", gender: "Male",
+    name: "Dr. Andrew Wilson", nationality: "Australia", gender: "Male",
     age: 45, stars: 4, experienceYears: 18,
     specialty: "Knee Specialist",
     coachSpeciality: "Knee & Lower Limb Medicine",
@@ -143,7 +143,7 @@ const SPECIALISTS = [
   },
   {
     // ★5
-    name: "Dr. Meera Kapoor", nationality: "Indian", gender: "Female",
+    name: "Dr. Meera Kapoor", nationality: "India", gender: "Female",
     age: 53, stars: 5, experienceYears: 21,
     specialty: "Neck Specialist",
     coachSpeciality: "Cervical & Neck Medicine",
@@ -154,7 +154,7 @@ const SPECIALISTS = [
   },
   {
     // ★3 — younger, lower tier
-    name: "Dr. Sofia Martinez", nationality: "Spanish", gender: "Female",
+    name: "Dr. Sofia Martinez", nationality: "Spain", gender: "Female",
     age: 27, stars: 3, experienceYears: 4,
     specialty: "Sports Scientist",
     coachSpeciality: "Performance Analysis",
@@ -164,7 +164,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_07_1783428616973.webp", slot: "staff-07",
   },
   {
-    name: "Dr. Daniel Thompson", nationality: "Australian", gender: "Male",
+    name: "Dr. Daniel Thompson", nationality: "Australia", gender: "Male",
     age: 41, stars: 4, experienceYears: 13,
     specialty: "Orthopaedic Specialist",
     coachSpeciality: "Orthopaedic Medicine",
@@ -174,7 +174,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_08_1783428619535.webp", slot: "staff-08",
   },
   {
-    name: "Dr. Alessandro Rossi", nationality: "Italian", gender: "Male",
+    name: "Dr. Alessandro Rossi", nationality: "Italy", gender: "Male",
     age: 35, stars: 4, experienceYears: 10,
     specialty: "Cardiology Specialist",
     coachSpeciality: "Cardiology & Performance Medicine",
@@ -184,7 +184,7 @@ const SPECIALISTS = [
     imageFile: "staff_medical_specialist_09_1783428650582.webp", slot: "staff-09",
   },
   {
-    name: "Dr. Nathaniel Goodwin", nationality: "New Zealander", gender: "Male",
+    name: "Dr. Nathaniel Goodwin", nationality: "New Zealand", gender: "Male",
     age: 46, stars: 4, experienceYears: 16,
     specialty: "Neurology Specialist",
     coachSpeciality: "Neurology & Brain Medicine",

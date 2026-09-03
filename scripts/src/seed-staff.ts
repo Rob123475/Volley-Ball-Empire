@@ -514,7 +514,7 @@ const FITNESS_TRAINERS: StaffDef[] = [
   },
   {
     name: "Lauren Johnson",
-    nationality: "United States",
+    nationality: "USA",
     age: 27,
     role: "Fitness Trainer",
     specialty: "Nutrition & Injury Prevention",
@@ -1814,7 +1814,7 @@ const PROMOTIONAL_MANAGERS: StaffDef[] = [
 const STRENGTH_CONDITIONERS: StaffDef[] = [
   {
     name: "Jake Morrison",
-    nationality: "United States",
+    nationality: "USA",
     age: 42,
     role: "Strength Coach",
     specialty: "Olympic Weightlifting & Power",

@@ -10,7 +10,7 @@ import { eq } from "drizzle-orm";
 const SCIENTISTS = [
   {
     name: "Dr. Matthew Anderson",
-    nationality: "Australian",
+    nationality: "Australia",
     age: 38, gender: "Male", stars: 4, experienceYears: 12,
     salary: 5800,
     specialties: ["Team Sports Science", "Performance Monitoring", "Athlete Conditioning"],
@@ -19,7 +19,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Emma Clarke",
-    nationality: "Australian",
+    nationality: "Australia",
     age: 33, gender: "Female", stars: 4, experienceYears: 8,
     salary: 5200,
     specialties: ["Athlete Monitoring", "Fatigue Management", "Recovery Science"],
@@ -28,7 +28,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Zandile Mokwena",
-    nationality: "South African",
+    nationality: "South Africa",
     age: 36, gender: "Female", stars: 4, experienceYears: 11,
     salary: 5600,
     specialties: ["Performance Science", "Load Management", "Athlete Wellbeing"],
@@ -37,7 +37,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Luca Moretti",
-    nationality: "Italian",
+    nationality: "Italy",
     age: 33, gender: "Male", stars: 4, experienceYears: 8,
     salary: 5200,
     specialties: ["Strength & Conditioning Science", "Movement Analysis", "Recovery Protocols"],
@@ -46,7 +46,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Marta García",
-    nationality: "Spanish",
+    nationality: "Spain",
     age: 31, gender: "Female", stars: 4, experienceYears: 7,
     salary: 5000,
     specialties: ["Performance Analysis", "Video Analytics", "Statistical Modelling"],
@@ -55,7 +55,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. James O'Connor",
-    nationality: "Australian",
+    nationality: "Australia",
     age: 34, gender: "Male", stars: 4, experienceYears: 9,
     salary: 5400,
     specialties: ["Athletic Performance", "Speed & Power Development", "Periodisation"],
@@ -64,7 +64,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Takashi Mori",
-    nationality: "Japanese",
+    nationality: "Japan",
     age: 38, gender: "Male", stars: 4, experienceYears: 12,
     salary: 5800,
     specialties: ["Biomechanics", "Movement Efficiency", "Injury Prevention"],
@@ -73,7 +73,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Emily Thompson",
-    nationality: "Canadian",
+    nationality: "Canada",
     age: 29, gender: "Female", stars: 4, experienceYears: 6,
     salary: 4800,
     specialties: ["Exercise Physiology", "Cardiovascular Conditioning", "Endurance Science"],
@@ -82,7 +82,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Larissa Almeida",
-    nationality: "Brazilian",
+    nationality: "Brazil",
     age: 28, gender: "Female", stars: 4, experienceYears: 5,
     salary: 4600,
     specialties: ["Human Performance", "Athlete Profiling", "Nutrition Science"],
@@ -91,7 +91,7 @@ const SCIENTISTS = [
   },
   {
     name: "Dr. Andrea Bianchi",
-    nationality: "Italian",
+    nationality: "Italy",
     age: 42, gender: "Male", stars: 4, experienceYears: 14,
     salary: 6200,
     specialties: ["Data & Analytics", "AI-Assisted Performance", "Statistical Research"],

@@ -159,13 +159,13 @@ const NEW_TEAMS: TeamDef[] = [
     players: [
       {
         stableId: "AUS_10_P1",
-        name: "Zoe Walker", nationality: "New Zealander", age: 25,
+        name: "Zoe Walker", nationality: "New Zealand", age: 25,
         speed: 68, power: 82, defense: 67, serve: 64, block: 86, stamina: 73,
         imageUrl: "/images/players/seniors/player_senior_new_zealand_01.webp",
       },
       {
         stableId: "AUS_10_P2",
-        name: "Lily Mackenzie", nationality: "New Zealander", age: 23,
+        name: "Lily Mackenzie", nationality: "New Zealand", age: 23,
         speed: 84, power: 59, defense: 85, serve: 66, block: 53, stamina: 82,
         imageUrl: "/images/players/seniors/player_senior_new_zealand_02.webp",
       },

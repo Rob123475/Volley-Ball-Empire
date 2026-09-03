@@ -144,15 +144,38 @@ She is `player_type='spare'` and never displayed. Only matters if unparked.
   oldest being 31. Her card says 37, so the age matches the artwork rather than
   being a typo. Reported as `activePastRetirementAge`, not failed, because the
   season boundary retires her by design. Open question in §3.
-- **Staff nationalities are mixed format** — 56 distinct values, 19 of them
-  demonyms (`Australian`, `Italian`) against country names elsewhere. Players
-  are fully on country names. Only the three fitness trainers were normalised.
+- **Staff nationalities — DONE, 3 September 2026.** 19 demonyms among 56 values,
+  and the same disease was in `continental_pool_players` (14 more), which this
+  note did not know about. The harm was not cosmetic: Norway *and* Norwegian,
+  Poland *and* Polish, Singapore *and* Singaporean all existed at once, so
+  anything grouping or counting by nationality saw two nations where there is
+  one. 91 rows normalised across the two tables; staff went from 56 distinct
+  values to 39. Fixed in the database and in 19 seed scripts, several of which
+  would have reintroduced demonyms — and off-roster nations — on a re-seed.
+  `DEMONYM_TO_COUNTRY` in `continents.ts` records what each one was taken to
+  mean, and **`check-continents.cjs` now fails the build on any of them**,
+  discovering nationality columns from the schema so a new table is covered
+  without anyone remembering. Negative fixture added (40/40).
 - **13 unused senior images ship** — the 12 spares, plus `peru_04`. The two
   superseded Venezuela `.webp`s are gone: the §1c conversion wrote the correct
   `.png` sources over them.
-- **Two possibly-dead asset folders**: `images/staff/medical_physiotherapist`
-  (9 files) and `images/staff/medical_science` (8 files). The database uses
-  `physiotherapist` and `sports_scientist`. Confirm before deleting.
+- **Two dead asset folders — DONE, 3 September 2026.** Confirmed dead and
+  deleted: nothing in the database, frontend, api-server or electron referenced
+  `images/staff/medical_physiotherapist` or `images/staff/medical_science`, and
+  every file in them was byte-identical to one in the live `physiotherapist` /
+  `sports_scientist` folders (9/9 and 8/8). Nothing regenerates them —
+  `local-image.ts` only ever writes under `images/players/`.
+
+- **79 loose staff images at the root of `images/staff/` — NOT deleted, needs a
+  decision.** Found while confirming the above. They sit outside the role
+  subfolders the database points at, so nothing references them, but unlike the
+  dead folders they are **unique content**: 600x400 landscape crops where the
+  referenced files are 600x800 portrait, and no copy exists in
+  `attached_assets` by hash. 2.3 MB. Deleting is reversible through git
+  history, but it is the only copy in the tree, so it is a call rather than
+  a cleanup — they may be intended for a landscape staff card that does not
+  exist yet. `player_senior_peru_04.webp` is the one unreferenced senior image
+  in the same position.
 
 ---
 
