@@ -181,6 +181,75 @@ She is `player_type='spare'` and never displayed. Only matters if unparked.
 
 ## 3. Design questions you raised, still open
 
+### 3w. The academy never refills — checked 3 September 2026, NOT fixed
+Asked for directly: "check that there are new players spawned in youth each
+year as we need to replace retiring players." **There is no youth intake.**
+
+`rolloverSeason` does exactly three things to the roster at a boundary:
+**age → retire → promote**. Nothing creates a youth player. The only code in
+the server that inserts `player_type: 'youth'` is in `routes/dev.ts`, a test
+route.
+
+So the academy is a fixed pool that drains and never refills:
+
+| | start | end of a 5-season arc |
+|---|---|---|
+| academy (youth) | 72 | **0** |
+| seniors | 192 | ~263 (192 + 72 promoted − 1 retired) |
+
+The starter youth are 14–17 and `PROMOTION_AGE` is 19, so every one of the 72
+crosses it inside the arc — the rollover harness already reports "72 promoted
+seniors". After that the pipeline the design leans on is empty.
+
+**The draft is not the answer as it stands.** `POST /draft/generate-class`
+does generate 30 players, but:
+
+- it is **manual** — nothing in the season boundary calls it, and no frontend
+  caller for `generate-class` was found
+- every generated player has **`imageUrl: null`**, so they are faceless in a
+  game whose whole player identity is the portrait card
+- ages are 17–20, straddling the youth/senior line rather than feeding the
+  academy
+- nationalities come from a hardcoded `YOUTH_NATIONALITIES` list **duplicated
+  verbatim in `routes/dev.ts`** — a ninth vocabulary — and it contains
+  off-roster nations (South Korea, Ghana, Denmark, Norway, Sweden). That is
+  the stranded-nation trap `check-roster.cjs` guards against in the starter
+  data, reintroduced at runtime.
+
+Decisions needed before this can be built: does intake feed the **academy**
+(youth, ageing in) or the **draft pool**? How many per season? Where do their
+portraits come from — the 12 parked spares are the only unused real cards, and
+they run out immediately. Until portraits are solved, any intake ships faceless
+players.
+
+### 3x. Seniors cannot retire before the age cap — NOT implemented
+Stated as intent: "senior players can also retire before 40, they just can't
+play on after 40." Today 40 is the *only* automatic retirement. There are
+exactly three paths that set `isRetired`:
+
+1. `retireAgedPlayers` at the boundary — the hard age cap, nothing else
+2. a manual retire endpoint in `routes/players.ts` — manager-initiated
+3. `routes/draft.ts` using `isRetired: true` as a **tombstone** for stale
+   unclaimed draft players, which is a misuse of the flag rather than a
+   retirement
+
+Nothing retires a senior early for form, injury, morale or choice. Combined
+with the cap at 40 (§3z), the shipped world retires **one** player across a
+five-season career. If early retirement is wanted, it needs a trigger — and
+the `isDraftPlayer` tombstone in (3) should stop borrowing the same flag, or
+early-retirement logic will pick up stale draft rows as retirees.
+
+### 3y. Do skin tone and kit colour follow the team in Unity? — TO CHECK
+Rob's note, no hurry, flagged for a later pass. The 2D card art is fixed per
+player, but the Unity live-match view renders athletes separately. Worth
+confirming that a player keeps her own skin tone when she changes club, and
+that the bikini/kit colour follows the **team** she is playing for rather than
+being baked into the model. A player who changes skin tone on transfer, or a
+whole court in one nation's kit, is the kind of thing that only shows up in a
+real match and never in a guard. Unity-side, so it needs the WebGL build
+running, not a database query.
+
+
 ### 3z. Martha Kera vs the retirement age — RESOLVED 3 September 2026
 Found by the rewritten `/players/validation`: she shipped at 37 against
 `RETIREMENT_AGE = 34`, the only senior at or past it, with the next oldest at
