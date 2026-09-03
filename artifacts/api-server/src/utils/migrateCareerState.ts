@@ -449,6 +449,49 @@ const MOVED_STAFF_COLUMNS: readonly string[] = [
  * table for each DROP COLUMN, and a half-applied drop set is recoverable — the
  * next boot finishes it — whereas a rolled-back snapshot is not.
  */
+/**
+ * Carry a renamed column's data across, creating the target if it is not there.
+ *
+ * ── Why this is a function and not five copies of an if-block ───────────────
+ * These five renames used to be written as:
+ *
+ *     if (!tableHasColumn(t, to)) { ALTER ... ADD to; UPDATE t SET to = from; }
+ *
+ * which nests the BACKFILL inside the "column is absent" test. That was fine
+ * while the only thing that ever created `to` was this function. R-01 made
+ * ensureSchema derive every column from the schema and run FIRST at boot, so
+ * `to` now already exists by the time this runs — the guard is false, the whole
+ * block is skipped, and the backfill silently never happens. Every staff member
+ * and player in an upgrading save keeps the zero the new column was created
+ * with instead of the age and wage they actually had. The schema looked
+ * perfect and the numbers were gone.
+ *
+ * Creating a column and populating it are two different jobs, so they are two
+ * different tests here. The backfill is gated on the SOURCE still existing,
+ * which is the only thing that actually means "this data has not moved yet" —
+ * `from` is dropped immediately afterwards, so it is idempotent and can never
+ * run twice.
+ */
+function carryColumn(
+  table: string,
+  from: string,
+  to: string,
+  sqlType: string,
+  fallback: string,
+): void {
+  // Source already dropped: the move happened on an earlier boot.
+  if (!tableHasColumn(table, from)) return;
+
+  if (!tableHasColumn(table, to)) {
+    // Only reached if ensureSchema did not already make it. Its default is the
+    // sensible one for this column rather than a type zero, and it is what
+    // rows with a NULL source keep.
+    db.run(sql.raw(`ALTER TABLE ${table} ADD COLUMN ${to} ${sqlType} NOT NULL DEFAULT ${fallback}`));
+  }
+
+  db.run(sql.raw(`UPDATE ${table} SET ${to} = ${from} WHERE ${from} IS NOT NULL`));
+}
+
 export function dropMovedColumns(): { dropped: string[] } {
   const dropped: string[] = [];
 
@@ -485,44 +528,19 @@ export function dropMovedColumns(): { dropped: string[] } {
   // Staff renames, same shape as players.age -> base_age. base_salary is the
   // isDraftPlayer-shaped trap here: all 120 staff carry a wage and nothing else
   // records it, so losing it would make every new career's staff market free.
-  if (!tableHasColumn("staff", "base_salary")) {
-    db.run(sql.raw(`ALTER TABLE staff ADD COLUMN base_salary real NOT NULL DEFAULT 3000`));
-    if (tableHasColumn("staff", "salary")) {
-      db.run(sql.raw(`UPDATE staff SET base_salary = salary WHERE salary IS NOT NULL`));
-    }
-  }
-  if (!tableHasColumn("staff", "base_age")) {
-    db.run(sql.raw(`ALTER TABLE staff ADD COLUMN base_age integer NOT NULL DEFAULT 35`));
-    if (tableHasColumn("staff", "age")) {
-      db.run(sql.raw(`UPDATE staff SET base_age = age WHERE age IS NOT NULL`));
-    }
-  }
+  carryColumn("staff", "salary", "base_salary", "real", "3000");
+  carryColumn("staff", "age", "base_age", "integer", "35");
 
   // continental_pool_teams.is_active_in_league -> starts_in_league. The
   // reference seed for who BEGINS in the league; the live value lives in
   // career_pool_team_state and is seeded from it.
-  if (!tableHasColumn("continental_pool_teams", "starts_in_league")) {
-    db.run(sql.raw(`ALTER TABLE continental_pool_teams ADD COLUMN starts_in_league integer NOT NULL DEFAULT 1`));
-    if (tableHasColumn("continental_pool_teams", "is_active_in_league")) {
-      db.run(sql.raw(`UPDATE continental_pool_teams SET starts_in_league = is_active_in_league`));
-    }
-  }
+  carryColumn("continental_pool_teams", "is_active_in_league", "starts_in_league", "integer", "1");
 
   // continental_pool_players.age -> base_age. Pure reference data, never
   // mutated, so the rename is the whole migration for that table.
-  if (!tableHasColumn("continental_pool_players", "base_age")) {
-    db.run(sql.raw(`ALTER TABLE continental_pool_players ADD COLUMN base_age integer NOT NULL DEFAULT 22`));
-    if (tableHasColumn("continental_pool_players", "age")) {
-      db.run(sql.raw(`UPDATE continental_pool_players SET base_age = age WHERE age IS NOT NULL`));
-    }
-  }
+  carryColumn("continental_pool_players", "age", "base_age", "integer", "22");
 
-  if (!tableHasColumn("players", "base_age")) {
-    db.run(sql.raw(`ALTER TABLE players ADD COLUMN base_age integer NOT NULL DEFAULT 20`));
-    if (tableHasColumn("players", "age")) {
-      db.run(sql.raw(`UPDATE players SET base_age = age WHERE age IS NOT NULL`));
-    }
-  }
+  carryColumn("players", "age", "base_age", "integer", "20");
 
   for (const [table, columns] of [
     ["players", MOVED_PLAYER_COLUMNS],

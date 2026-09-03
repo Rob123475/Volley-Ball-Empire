@@ -28,9 +28,20 @@ if (Number.isNaN(port) || port <= 0) {
 // Every migration below assumes its tables exist, so this has to lead.
 try {
   const s = ensureSchema();
-  if (s.tablesCreated.length > 0 || s.columnsAdded.length > 0) {
+  if (s.tablesCreated.length > 0 || s.columnsAdded.length > 0 || s.indexesCreated.length > 0) {
     logger.info(s, "schema brought forward for an older save");
+  } else {
+    // Said on every clean boot on purpose. R-01's failure mode was a schema
+    // repair that ran and quietly did not cover the missing column, so "it ran
+    // and found nothing" has to be visible, not inferred from silence.
+    logger.info(
+      { tablesChecked: s.tablesChecked, columnsChecked: s.columnsChecked },
+      "schema check: save is up to date, 0 missing columns",
+    );
   }
+  // Never folded into the line above: a stand-in value for a NOT NULL column is
+  // a decision the repair made on someone's behalf and must be seen.
+  for (const p of s.problems) logger.warn({ schemaRepair: p }, "schema repair needs a human");
 } catch (err) {
   logger.error({ err }, "schema ensure failed");
 }
