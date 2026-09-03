@@ -2,11 +2,19 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import {
-  isSeniorPlayer, isYouthPlayer, YOUTH_AGE_MIN, YOUTH_AGE_MAX,
+  isSeniorPlayer, isYouthPlayer, isSparePlayer, YOUTH_AGE_MIN, YOUTH_AGE_MAX,
 } from "../utils/playerClassification.js";
+import { RETIREMENT_AGE } from "../utils/seasonRollover.js";
 import { db } from "@workspace/db";
 import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
-import { CONTINENT_KEYS, CONTINENT_LABEL } from "@workspace/db";
+import {
+  CONTINENT_KEYS, CONTINENT_LABEL, RESERVE_NATIONS, PLAYERS_PER_NATION,
+  coreNationsFor, isCoreNation, isReserveNation, isContinentKey, type ContinentKey,
+} from "@workspace/db";
+
+// The youngest a senior may be. Not in continents.ts because it is a gameplay
+// rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
+const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
@@ -154,12 +162,46 @@ router.get("/players/youth-pool", async (req, res) => {
   res.json(result.map(serializePlayer));
 });
 
-// Validation endpoint — checks all 120-player rules
+/**
+ * World integrity check for THIS career.
+ *
+ * ── What was wrong with the old version ─────────────────────────────────────
+ * It asserted 60 seniors, 60 youth, and ten of each per continent. Reality is
+ * 192 and 72, so it reported a world a third of the size and had been failing
+ * against nothing for as long as anyone had bothered to call it — which,
+ * judging by the frontend, is never. It was noise wearing a validator's name.
+ *
+ * The numbers were not merely stale, they were the wrong KIND of assertion.
+ * This endpoint runs against a career in progress, where seniors retire, youth
+ * are promoted into the senior pool, and everyone ages a year at each boundary.
+ * Totals are SUPPOSED to move. A fixed expected count could only ever be right
+ * on the first day of a new save.
+ *
+ * ── What it asserts now ─────────────────────────────────────────────────────
+ * Only things that must hold at every point in a career, every one of them
+ * derived from what lib/db/src/schema/continents.ts DECLARES rather than
+ * restated here. Nothing below hardcodes "ten" or "three"; adding a nation or
+ * changing squad depth needs no edit to this file.
+ *
+ *   - every continent value is a canonical key
+ *   - every nationality belongs to the declared world (core or reserve)
+ *   - a youth's nationality is a core nation OF HER OWN REGION. This is the
+ *     season-two trap check-roster.cjs exists for: promotion turns her into a
+ *     senior of that nationality, silently widening the world and stranding
+ *     her without team-mates, months after the save was made.
+ *   - ages sit in their band, and no ACTIVE senior is at or past RETIREMENT_AGE
+ *
+ * Counts are REPORTED, not asserted, for the reason above. A nation dropping
+ * below PLAYERS_PER_NATION after a retirement is normal, so it surfaces as an
+ * observation rather than an error — the starter database is where that has to
+ * be exact, and scripts/check-roster.cjs already holds it there on every build.
+ */
 router.get("/players/validation", async (req, res) => {
   const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId));
 
   const seniors = all.filter(p => isSeniorPlayer(p));
   const youth   = all.filter(p => isYouthPlayer(p));
+  const spares  = all.filter(p => isSparePlayer(p));
 
   // Counted per canonical KEY. This endpoint used to carry its own list of
   // label strings — one of the seven vocabularies that drifted apart — so a
@@ -172,34 +214,111 @@ router.get("/players/validation", async (req, res) => {
     CONTINENT_KEYS.map(c => [c, youth.filter(p => p.continent === c).length])
   );
 
-  const ageViolations = all.filter(p =>
-    (isSeniorPlayer(p) && (p.age < 18 || p.age > 40)) ||
-    (isYouthPlayer(p)  && (p.age < YOUTH_AGE_MIN || p.age > YOUTH_AGE_MAX))
-  ).map(p => ({
-    id: p.id, name: p.name, age: p.age,
-    // The EFFECTIVE type, not the reference one: reporting a promoted player
-    // as "youth" here is what made the mismatch invisible in the first place.
-    playerType: isYouthPlayer(p) ? "youth" : "senior",
-  }));
-
   const errors: string[] = [];
-  if (seniors.length !== 60) errors.push(`Senior count is ${seniors.length}, expected 60`);
-  if (youth.length   !== 60) errors.push(`Youth count is ${youth.length}, expected 60`);
-  CONTINENT_KEYS.forEach(c => {
-    const label = CONTINENT_LABEL[c];
-    if (seniorByCont[c] !== 10) errors.push(`Senior ${label}: ${seniorByCont[c]} (expected 10)`);
-    if (youthByCont[c]  !== 10) errors.push(`Youth ${label}: ${youthByCont[c]} (expected 10)`);
-  });
-  if (ageViolations.length > 0) errors.push(`${ageViolations.length} age violation(s)`);
+  const where = (p: PlayerDTO) => `${p.name} (#${p.id})`;
+
+  // ── invariant: continent is a canonical key ───────────────────────────────
+  for (const p of all) {
+    if (!isContinentKey(p.continent)) {
+      errors.push(`${where(p)}: continent "${p.continent}" is not a canonical key`);
+    }
+  }
+
+  // ── invariant: nationality belongs to the declared world ──────────────────
+  for (const p of all) {
+    if (!isCoreNation(p.nationality) && !isReserveNation(p.nationality)) {
+      errors.push(
+        `${where(p)}: nationality "${p.nationality}" is in neither CORE_NATIONS ` +
+        `nor RESERVE_NATIONS`
+      );
+    }
+  }
+
+  // ── invariant: a youth belongs to a core nation of HER OWN region ─────────
+  for (const p of youth) {
+    const core = coreNationsFor(p.continent);
+    if (!core.includes(p.nationality)) {
+      errors.push(
+        `${where(p)}: youth from ${p.nationality}, which is not a core nation of ` +
+        `${CONTINENT_LABEL[p.continent as ContinentKey] ?? p.continent}. On promotion ` +
+        `she becomes a senior of that nation with no team-mates.`
+      );
+    }
+  }
+
+  // ── invariant: ages sit in their band ─────────────────────────────────────
+  //
+  // Being at or past RETIREMENT_AGE is deliberately NOT in here. The season
+  // boundary retires those players by design, so a veteran in the starter data
+  // is a one-season character rather than a broken row. It is reported below
+  // instead, because it is still worth seeing.
+  const ageViolations = all
+    .filter(p =>
+      (isSeniorPlayer(p) && p.age < SENIOR_AGE_MIN) ||
+      (isYouthPlayer(p)  && (p.age < YOUTH_AGE_MIN || p.age > YOUTH_AGE_MAX))
+    )
+    .map(p => ({
+      id: p.id, name: p.name, age: p.age,
+      // The EFFECTIVE type, not the reference one: reporting a promoted player
+      // as "youth" here is what made the mismatch invisible in the first place.
+      playerType: isYouthPlayer(p) ? "youth" : "senior",
+      isRetired: p.isRetired,
+    }));
+  for (const v of ageViolations) {
+    errors.push(
+      `${v.name} (#${v.id}): ${v.playerType} aged ${v.age} is outside the permitted band`
+    );
+  }
+
+  // ── observations: counts move legitimately, so they only ever report ──────
+  const activeSeniors = seniors.filter(p => !p.isRetired);
+  // Active, and already old enough that the next boundary retires them. Normal
+  // mid-career; in the STARTER data it means a nation loses a player at the end
+  // of season one. Martha Kera (Solomon Islands, 37) is the shipped example —
+  // six years older than any other senior, and her card says 37, so the age is
+  // what the artwork claims rather than a typo. Reported, not failed: whether
+  // she is a deliberate one-season veteran is a design question.
+  const activePastRetirementAge = seniors
+    .filter(p => !p.isRetired && p.age >= RETIREMENT_AGE)
+    .map(p => ({ id: p.id, name: p.name, nationality: p.nationality, age: p.age }));
+
+  const shortNations = CONTINENT_KEYS.flatMap(c =>
+    coreNationsFor(c)
+      .map(nation => ({
+        continent: c,
+        nation,
+        active: activeSeniors.filter(p => p.nationality === nation).length,
+      }))
+      .filter(n => n.active < PLAYERS_PER_NATION)
+  );
 
   res.json({
     valid: errors.length === 0,
+    // What the world is DECLARED to be, so a caller can see the rule rather
+    // than having to know it.
+    declared: {
+      continents: CONTINENT_KEYS.length,
+      coreNationsPerContinent: Object.fromEntries(
+        CONTINENT_KEYS.map(c => [c, coreNationsFor(c).length])
+      ),
+      reserveNations: RESERVE_NATIONS.length,
+      playersPerNation: PLAYERS_PER_NATION,
+      retirementAge: RETIREMENT_AGE,
+      youthAgeBand: [YOUTH_AGE_MIN, YOUTH_AGE_MAX],
+    },
     totalPlayers: all.length,
     seniorCount:  seniors.length,
+    activeSeniorCount: activeSeniors.length,
     youthCount:   youth.length,
+    spareCount:   spares.length,
     seniorByCont,
     youthByCont,
     ageViolations,
+    // Not errors: the season boundary handles both by design.
+    activePastRetirementAge,
+    // Not an error: retirement legitimately takes a nation below full strength
+    // mid-career. The starter database is held exact by check-roster.cjs.
+    nationsBelowFullStrength: shortNations,
     errors,
   });
 });

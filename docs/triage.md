@@ -119,10 +119,31 @@ She is `player_type='spare'` and never displayed. Only matters if unparked.
 
 ## 2. Data-shape leftovers
 
-- **`/players/validation` is stale.** Asserts 60 seniors and 60 youth at ten per
-  continent; reality is 192 and 72. It has been reporting against a world a
-  third of the size. Rewritten against the real rule it becomes a live guard
-  instead of noise — and it now has `check-roster.cjs` to borrow its shape from.
+- **`/players/validation` — DONE, 3 September 2026.** It asserted 60 seniors and
+  60 youth at ten per continent against a world of 192 and 72, so it reported a
+  phantom failure. Nothing in the frontend calls it, which is why nobody noticed.
+
+  The numbers were not just stale, they were the wrong *kind* of assertion: the
+  endpoint runs against a career in progress, where seniors retire, youth are
+  promoted and everyone ages at each boundary. Totals are supposed to move, so a
+  fixed expected count could only ever be right on day one of a new save.
+
+  Rewritten to assert only what holds at every point in a career, all of it
+  derived from what `continents.ts` declares rather than restated — nothing
+  hardcodes "ten" or "three": canonical continent keys, nationalities inside the
+  declared world, a youth's nationality being a core nation *of her own region*
+  (the promotion trap), and ages within band. Counts are **reported**, not
+  asserted, alongside the `declared` shape they were checked against.
+
+  Six assertions in `harness/fresh-install.mjs` now run it on a real career
+  every build. The rules themselves already have negative fixtures via
+  `check-roster.cjs`; what was missing was anything exercising them live.
+
+  **It immediately found something.** Martha Kera (Solomon Islands) ships at 37
+  with `RETIREMENT_AGE = 34` — six years older than any other senior, the next
+  oldest being 31. Her card says 37, so the age matches the artwork rather than
+  being a typo. Reported as `activePastRetirementAge`, not failed, because the
+  season boundary retires her by design. Open question in §3.
 - **Staff nationalities are mixed format** — 56 distinct values, 19 of them
   demonyms (`Australian`, `Italian`) against country names elsewhere. Players
   are fully on country names. Only the three fitness trainers were normalised.
@@ -136,6 +157,23 @@ She is `player_type='spare'` and never displayed. Only matters if unparked.
 ---
 
 ## 3. Design questions you raised, still open
+
+### 3z. Martha Kera is 37 and the retirement age is 34
+Found by the rewritten `/players/validation`. She is the only senior at or past
+`RETIREMENT_AGE`; the next oldest in the world is 31. Her card reads 37, so the
+database matches the artwork — this is not a typo to correct quietly.
+
+As shipped she is playable for season one and retired at the first boundary,
+which takes Solomon Islands to two seniors until the academy backfills. Three
+ways out, and it is a design call:
+
+- **Leave it.** She is a deliberate veteran, one season of an Elite blocker
+  before she goes. Costs Solomon Islands a player at the first boundary.
+- **Raise `RETIREMENT_AGE`.** 38 would keep her for four seasons, but it changes
+  the career arc for all 192 players.
+- **Regenerate her card** at an age under 34, which is the only option that
+  needs new art.
+
 
 ### 3a. Do the AI clubs need a reserve?
 The squad rule is 2 + 1 + 1 for **your** club. The 60 AI pool teams still carry

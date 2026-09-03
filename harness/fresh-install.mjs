@@ -225,6 +225,45 @@ check("staff carry a base age",
   staffMarket.every((s) => Number(s.baseAge) > 0),
   `${staffMarket.filter((s) => Number(s.baseAge) > 0).length}/${staffMarket.length}`);
 
+// ── /players/validation — world integrity on a real career ──────────────────
+//
+// This endpoint used to assert 60 seniors and 60 youth against a world of 192
+// and 72, so it reported a phantom failure and nothing called it. Rewritten
+// against what continents.ts declares, it is a live guard - but only if
+// something actually runs it, which is what these checks are for.
+const val = (await api("GET", "/players/validation")).data;
+
+check("world validation passes on a fresh career", val?.valid === true,
+  val?.valid === true ? "" : JSON.stringify(val?.errors?.slice(0, 4) ?? val));
+
+check("validation counted the real world, not a stale expectation",
+  val?.seniorCount > 100 && val?.youthCount > 50,
+  `${val?.seniorCount} seniors, ${val?.youthCount} youth, ${val?.spareCount} spares`);
+
+check("validation reports the declared shape it checked against",
+  val?.declared?.playersPerNation > 0 && val?.declared?.retirementAge > 0,
+  `${val?.declared?.continents} continents, ${val?.declared?.playersPerNation}/nation, ` +
+  `retire at ${val?.declared?.retirementAge}`);
+
+check("no nation starts below full strength",
+  Array.isArray(val?.nationsBelowFullStrength) && val.nationsBelowFullStrength.length === 0,
+  val?.nationsBelowFullStrength?.length
+    ? val.nationsBelowFullStrength.map((n) => `${n.nation}=${n.active}`).join(" ")
+    : "");
+
+check("no age violations on a fresh career",
+  Array.isArray(val?.ageViolations) && val.ageViolations.length === 0,
+  val?.ageViolations?.length ? JSON.stringify(val.ageViolations.slice(0, 3)) : "");
+
+// Reported, not fatal: the season boundary retires these by design. The shipped
+// world has exactly one (Martha Kera, 37), so this records the known state and
+// will speak up if a second appears.
+check("veterans already past retirement age are reported, not hidden",
+  Array.isArray(val?.activePastRetirementAge),
+  val?.activePastRetirementAge?.length
+    ? val.activePastRetirementAge.map((p) => `${p.name} ${p.age}`).join(", ")
+    : "none");
+
 child.kill("SIGKILL");
 await new Promise((r) => setTimeout(r, 600));
 try { fs.closeSync(out); } catch {}
