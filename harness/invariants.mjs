@@ -24,8 +24,10 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
 
+import { requireElectronBinary } from "./electron-binary.mjs";
+
 const REPO = path.join(import.meta.dirname, "..");
-const ELECTRON = path.join(REPO, "node_modules", "electron", "dist", "electron.exe");
+const ELECTRON = requireElectronBinary(REPO);
 const TSX = path.join(REPO, "node_modules", ".pnpm", "tsx@4.21.0",
   "node_modules", "tsx", "dist", "cli.mjs");
 
