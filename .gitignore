@@ -62,10 +62,20 @@ lib/db/*.sqlite-wal
 lib/db/*.sqlite-shm
 PR_BODY.md
 
-# Replit's attached-assets drop box. The 1242 files already committed stay
-# tracked - .gitignore only affects UNTRACKED files - so the seed scripts in
-# scripts/src keep resolving and clone size is unchanged. This only stops NEW
-# pastes from being staged, which is where the 2.4 GB came from.
+# Replit's attached-assets drop box. The files already committed stay tracked
+# - .gitignore only affects UNTRACKED files - so the seed scripts in
+# scripts/src keep resolving. This only stops NEW pastes from being staged,
+# which is where the 2.4 GB came from.
+#
+# 2026-09-03: 678 byte-identical duplicate files were deleted, taking the
+# directory from 1236 files / 2.38 GB to 558 files / 1.01 GB. Only 408
+# distinct images were ever in there; the rest were re-pastes of the same
+# picture under a new timestamp. Every one of those 408 contents is still
+# present, and every filename named by a script in scripts/src still exists
+# - both asserted before the delete. 150 duplicate copies REMAIN on purpose:
+# identical bytes committed under several names because different seed
+# scripts each name a different one. Removing those means repointing the
+# scripts at a canonical name first, not deleting the files.
 #
 # Do NOT follow this with `git rm --cached attached_assets/`. That was
 # considered and rejected. The scripts in scripts/src resolve these files
@@ -74,7 +84,7 @@ PR_BODY.md
 # clone with the files untracked, a seed run would not fail - it would
 # succeed while writing players and staff with no image, and the damage
 # would only surface later as blank portraits in the UI. Seeding
-# successfully-but-wrong is worse than not seeding at all, so the 1242
+# successfully-but-wrong is worse than not seeding at all, so the surviving
 # files stay tracked.
 #
 # If anyone LFS-migrates this directory again and abandons it: the orphaned
