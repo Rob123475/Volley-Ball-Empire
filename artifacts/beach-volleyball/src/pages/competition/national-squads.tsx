@@ -1,3 +1,4 @@
+import { continentLabel, continentKeyFrom } from "@shared/continents";
 /**
  * National Squads — Olympic eligibility overview.
  *
@@ -110,7 +111,7 @@ function CountryRow({ entry }: { entry: CountryEntry }) {
         <div className="font-semibold text-sm truncate">{entry.country}</div>
         <div className="flex items-center gap-1.5 mt-0.5">
           <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
-          <span className="text-xs text-muted-foreground">{entry.continent}</span>
+          <span className="text-xs text-muted-foreground">{continentLabel(entry.continent)}</span>
         </div>
       </div>
 

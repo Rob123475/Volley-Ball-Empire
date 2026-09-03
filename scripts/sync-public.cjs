@@ -19,6 +19,13 @@
  * inside build.mjs would either deadlock a clean checkout or silently copy a
  * stale frontend, which is worse than copying none.
  *
+ * This copy is DEV-ONLY. electron/main.js points PUBLIC_DIR here only when
+ * unpackaged; a packaged app is given resources/public instead, filled from
+ * beach-volleyball/dist/public. package.json's extraResources therefore
+ * excludes public/** from the api-server/dist entry - without that filter the
+ * whole frontend, Unity build and all, ships twice and the second copy is
+ * never opened. If you remove the filter, the installer roughly doubles.
+ *
  * Run: node scripts/sync-public.cjs
  */
 const fs = require("fs");

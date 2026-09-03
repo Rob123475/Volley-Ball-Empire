@@ -18,6 +18,22 @@ controls what electron-builder copies into `resources/`:
 | `artifacts/beach-volleyball/dist/public` | → | `resources/public` | the built frontend + everything from `beach-volleyball/public/` (Vite copies `public/` into `dist/public/` automatically on build) |
 | `lib/db/volleyball-empire.sqlite` | → | `resources/starter-db` | first-launch starter DB, copied to per-user `userData` on first run |
 
+### Why `api-server/dist` ships with `"filter": ["**/*", "!public/**"]`
+
+`scripts/sync-public.cjs` copies the built frontend into
+`artifacts/api-server/dist/public`, because `electron/main.js` sets
+`PUBLIC_DIR` there **when unpackaged**. A packaged app is given
+`resources/public` instead, filled from the second row of the table above.
+
+That copy is therefore dev-only, and without the filter it is packaged as well —
+the entire frontend, Unity build included, shipping twice with the second copy
+never opened. It cost **1,094 MB**: the installer was 1,780 MB and is 686 MB
+with the filter in place.
+
+Do not remove the filter, and do not add a `"//"` comment key next to it —
+electron-builder validates its config against a schema and rejects unknown
+properties, so the build fails before it starts.
+
 `electron/main.js` picks paths based on `app.isPackaged`:
 - **Packaged**: `PUBLIC_DIR = process.resourcesPath/public`, server entry =
   `process.resourcesPath/server/dist/index.mjs`.

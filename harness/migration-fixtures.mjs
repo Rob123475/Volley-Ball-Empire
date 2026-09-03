@@ -19,10 +19,12 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
+import { requireElectronBinary } from "./electron-binary.mjs";
+
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
 const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
-const ELECTRON = path.join(REPO, "node_modules", "electron", "dist", "electron.exe");
+const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-migration-"));
 
 const NEWLINE = String.fromCharCode(10);

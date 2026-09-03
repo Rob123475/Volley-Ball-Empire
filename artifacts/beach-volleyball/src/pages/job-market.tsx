@@ -1,3 +1,4 @@
+import { continentLabel, continentKeyFrom } from "@shared/continents";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -228,12 +229,15 @@ function tierConfig(tier: JobOffer["tier"]) {
   }
 }
 
-function continentFlag(continent: string) {
-  switch (continent) {
-    case "South America": case "North America": return "🌎";
-    case "Europe": case "Africa":               return "🌍";
-    case "Asia":   case "Oceania":              return "🌏";
-    default:                                    return "🌐";
+// Matched on the canonical KEY. This switch used to compare display strings
+// and spelled Africa "Africa" and Oceania "Oceania", so both fell through to
+// the "unknown" globe once the data moved on.
+function continentFlag(continent: string | null | undefined) {
+  switch (continentKeyFrom(continent)) {
+    case "south_america": case "north_america":      return "🌎";
+    case "europe":        case "africa_middle_east": return "🌍";
+    case "asia":          case "oceania":            return "🌏";
+    default:                                         return "🌐";
   }
 }
 
@@ -638,7 +642,7 @@ function ViewClubModal({ job, managerReputation, onApply, onClose }: {
         <StatRow icon={ShieldCheck} label="Min. Reputation" value={job.requiredReputation === 0 ? "None required" : `${job.requiredReputation} pts`} />
         <StatRow icon={Flame}       label="Club Reputation" value={`${job.clubReputation} / 100`}   valueColour="text-amber-400"   />
         <StatRow icon={Users}       label="Squad Strength"  value={`${job.squadStrength} / 100`} />
-        <StatRow icon={MapPin}      label="Region"          value={`${continentFlag(job.continent)} ${job.continent}`} />
+        <StatRow icon={MapPin}      label="Region"          value={`${continentFlag(job.continent)} ${continentLabel(job.continent)}`} />
       </div>
       <DialogFooter className="gap-2">
         <DialogClose asChild>

@@ -299,6 +299,139 @@ export async function seed(db: any, t: any, p: { age: number }) {
     /COLUMN/.test(out2) ? "" : out2.split("\n").slice(-8).join(" | "));
 }
 
+
+// ── Continent canonicalisation guard ────────────────────────────────────────
+console.log("\n5. CONTINENT GUARD — a non-canonical continent value");
+{
+  const shipped = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+  // (a) a club carrying a display label instead of a key. This is the exact
+  //     shape of the bug: the picker grouped by label, the label did not match,
+  //     and three clubs silently disappeared from character creation.
+  const drifted = path.join(WORK, "drifted.sqlite");
+  fs.copyFileSync(shipped, drifted);
+  {
+    const db = new DatabaseSync(drifted);
+    db.exec(`UPDATE club_templates SET continent = 'Oceania' WHERE continent = 'oceania'`);
+    db.close();
+  }
+  const rDrift = runGuard("check-continents.cjs", [drifted]);
+  check("a display label in club_templates is rejected", rDrift.status !== 0,
+    rDrift.status !== 0 ? "" : "guard accepted a non-canonical continent");
+
+  // (b) an outright unknown value in a different table, to prove the guard is
+  //     discovering columns rather than only ever checking club_templates.
+  const alien = path.join(WORK, "alien.sqlite");
+  fs.copyFileSync(shipped, alien);
+  {
+    const db = new DatabaseSync(alien);
+    db.exec(`UPDATE players SET continent = 'Antarctica' WHERE id = (SELECT MIN(id) FROM players)`);
+    db.close();
+  }
+  const rAlien = runGuard("check-continents.cjs", [alien]);
+  check("an unknown continent in players is rejected", rAlien.status !== 0,
+    rAlien.status !== 0 ? "" : "guard only checks club_templates");
+
+  // (c) negative control: the real shipped artifact must pass.
+  const rGood = runGuard("check-continents.cjs", [shipped]);
+  check("the real starter DB is accepted", rGood.status === 0,
+    rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
+}
+
+
+// ── World roster guard ──────────────────────────────────────────────────────
+console.log("\n6. ROSTER GUARD — an off-roster player, and a half-landed expansion");
+{
+  const shipped = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+  // (a) a youth from a nation outside her region's roster. This is the exact
+  //     season-two trap: promotion turns her into a senior of that nation,
+  //     widening the world months after the save was made.
+  const strayYouth = path.join(WORK, "stray-youth.sqlite");
+  fs.copyFileSync(shipped, strayYouth);
+  {
+    const db = new DatabaseSync(strayYouth);
+    db.exec(`UPDATE players SET nationality = 'Croatia'
+              WHERE player_type = 'youth' AND continent = 'europe'
+              AND id = (SELECT MIN(id) FROM players WHERE player_type='youth' AND continent='europe')`);
+    db.close();
+  }
+  const rYouth = runGuard("check-roster.cjs", [strayYouth]);
+  check("a youth from an undeclared nation is rejected", rYouth.status !== 0,
+    rYouth.status !== 0 ? "" : "guard accepted an off-roster youth");
+
+  // (b) a nation left one player short - a partially applied expansion.
+  const short = path.join(WORK, "short-nation.sqlite");
+  fs.copyFileSync(shipped, short);
+  {
+    const db = new DatabaseSync(short);
+    db.exec(`DELETE FROM players WHERE player_type='senior' AND nationality='Fiji'
+              AND id = (SELECT MAX(id) FROM players WHERE player_type='senior' AND nationality='Fiji')`);
+    db.close();
+  }
+  const rShort = runGuard("check-roster.cjs", [short]);
+  check("a nation one player short is rejected", rShort.status !== 0,
+    rShort.status !== 0 ? "" : "guard accepted an incomplete nation");
+
+  // (c) negative control: the real shipped artifact must pass.
+  const rGood = runGuard("check-roster.cjs", [shipped]);
+  check("the real starter DB is accepted", rGood.status === 0,
+    rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
+}
+
+// ── Caption guard ───────────────────────────────────────────────────────────
+console.log("\n7. CAPTION GUARD — a renamed player, and swapped artwork");
+{
+  const shipped = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
+
+  // (a) a row renamed away from the name printed on its card. This is the whole
+  //     point of the guard: the card is the evidence, the row must follow it.
+  const renamed = path.join(WORK, "renamed-player.sqlite");
+  fs.copyFileSync(shipped, renamed);
+  {
+    const db = new DatabaseSync(renamed);
+    db.exec(`UPDATE players SET name='Not Her Name'
+              WHERE image_url='/images/players/seniors/player_senior_brazil_01.webp'`);
+    db.close();
+  }
+  const rName = runGuard("check-captions.cjs", [renamed]);
+  check("a row renamed away from its card is rejected", rName.status !== 0,
+    rName.status !== 0 ? "" : "guard accepted a name that contradicts the printed caption");
+
+  // (b) a stat drifting from the card. Age and height are printed too, and an
+  //     edit to either leaves the picture describing someone the row is not.
+  const restat = path.join(WORK, "restat-player.sqlite");
+  fs.copyFileSync(shipped, restat);
+  {
+    const db = new DatabaseSync(restat);
+    db.exec(`UPDATE players SET base_age = base_age + 4
+              WHERE image_url='/images/players/seniors/player_senior_brazil_01.webp'`);
+    db.close();
+  }
+  const rStat = runGuard("check-captions.cjs", [restat]);
+  check("an age that contradicts the card is rejected", rStat.status !== 0,
+    rStat.status !== 0 ? "" : "guard accepted an age the card disagrees with");
+
+  // (c) a row pointing at art nobody has read. New portraits must be opened and
+  //     recorded, never trusted because the filename looks right.
+  const unread = path.join(WORK, "unread-art.sqlite");
+  fs.copyFileSync(shipped, unread);
+  {
+    const db = new DatabaseSync(unread);
+    db.exec(`UPDATE players SET image_url='/images/players/seniors/player_senior_peru_04.webp'
+              WHERE image_url='/images/players/seniors/player_senior_brazil_01.webp'`);
+    db.close();
+  }
+  const rUnread = runGuard("check-captions.cjs", [unread]);
+  check("a row pointing at unaudited art is rejected", rUnread.status !== 0,
+    rUnread.status !== 0 ? "" : "guard accepted art that has never been read");
+
+  // (d) negative control: the real shipped artifact must pass.
+  const rGood = runGuard("check-captions.cjs", [shipped]);
+  check("the real starter DB is accepted", rGood.status === 0,
+    rGood.status === 0 ? "" : (rGood.stdout || "") + (rGood.stderr || ""));
+}
+
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 if (failures > 0) console.log(`\nFixtures kept: ${WORK}`);
 else { try { fs.rmSync(WORK, { recursive: true, force: true }); } catch {} }

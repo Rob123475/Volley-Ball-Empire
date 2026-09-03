@@ -194,7 +194,7 @@ const PLAYERS: PlayerDef[] = [
   // ── BATCH 2 ──────────────────────────────────────────────────────────────
   {
     // renamed from Eleni to avoid duplicate
-    name: "Elena Papadopoulou",
+    name: "Eleni Papadopoulou",  // same name as greece_01 by design: her card reads ELENI
     nationality: "Greece",
     continent: "Europe",
     age: 23, heightCm: 190, position: "spiker", potential: "Elite",

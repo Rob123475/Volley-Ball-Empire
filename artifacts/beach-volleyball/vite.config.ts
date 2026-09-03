@@ -141,6 +141,14 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
+      // The canonical continents are defined ONCE, in lib/db, and the client
+      // reads that same file rather than keeping a copy. Three stale client
+      // copies of this vocabulary are what hid three clubs from the picker.
+      // Aliased to the exact file, not the schema directory: everything else
+      // in there imports drizzle and must never reach the browser bundle.
+      "@shared/continents": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "continents.ts",
+      ),
     },
     dedupe: ["react", "react-dom"],
   },
@@ -156,6 +164,9 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
     allowedHosts: true,
     fs: {
       strict: true,
+      // The aliased continents module lives at the repo root, outside this
+      // project's root, so the dev server has to be allowed to serve it.
+      allow: [path.resolve(import.meta.dirname, "..", "..")],
     },
   },
   preview: {

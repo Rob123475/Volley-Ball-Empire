@@ -7,7 +7,10 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "generate:mockups": "node generateMockupModule.mjs",
+    "pretypecheck": "pnpm run generate:mockups",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prebuild": "pnpm run generate:mockups"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

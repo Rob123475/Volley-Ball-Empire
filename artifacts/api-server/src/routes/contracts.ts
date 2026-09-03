@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { refusalReason } from "../utils/squadRules.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
@@ -39,19 +40,9 @@ router.post("/contracts", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const { playerId, salary, endDate, bonusPerWin, squadRole: rawSquadRole } = req.body;
 
-  // Youth academy capacity check (max 6 players aged 14–18)
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
   if (!player) { res.status(404).json({ error: "Player not found." }); return; }
   const isYouth = player.age >= 14 && player.age <= 18;
-
-  if (isYouth) {
-    const existingYouths = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
-      .filter((p) => p.age >= 14 && p.age <= 18);
-    if (existingYouths.length >= 6) {
-      res.status(422).json({ error: "Youth Academy is full (6/6). Promote, draft, sell, or release a youth player before signing another." });
-      return;
-    }
-  }
 
   // Resolve squad role: validate and apply age guards
   const validRoles = ["starter", "interchange", "reserve"] as const;
@@ -69,6 +60,26 @@ router.post("/contracts", async (req, res) => {
   if (!isYouth && squadRole === "reserve") {
     res.status(422).json({ error: "Players aged 19 or older cannot be assigned to the Youth Team." });
     return;
+  }
+
+  // ── Squad size ──────────────────────────────────────────────────────────
+  // Two on the sand, one interchange, one in the academy. The limits live in
+  // utils/squadRules.ts so the numbers are stated once; this route only counts
+  // what is already signed and asks whether one more is allowed.
+  {
+    const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
+    const youthNow = squad.filter((p) => p.age >= 14 && p.age <= 18);
+    const seniorNow = squad.filter((p) => !(p.age >= 14 && p.age <= 18));
+    const refusal = refusalReason(
+      {
+        starters:    seniorNow.filter((p) => p.squadRole === "starter").length,
+        interchange: seniorNow.filter((p) => p.squadRole === "interchange").length,
+        seniors:     seniorNow.length,
+        youth:       youthNow.length,
+      },
+      { isYouth, squadRole },
+    );
+    if (refusal) { res.status(422).json({ error: refusal }); return; }
   }
 
   // Transfer window enforcement — if player is already contracted to another team,

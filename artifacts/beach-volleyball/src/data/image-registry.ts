@@ -1,3 +1,4 @@
+import { CONTINENT_LABEL, continentKeyFrom, type ContinentKey } from "@shared/continents";
 /**
  * Image Registry
  *
@@ -51,14 +52,21 @@ const DICEBEAR_STAFF = (seed: string) =>
 
 // ── Registry generation ───────────────────────────────────────────────────────
 
-const CONTINENTS = ["africa", "asia", "europe", "northam", "southam", "oceania"] as const;
-const CONTINENT_LABEL: Record<string, string> = {
-  africa:  "Africa",
-  asia:    "Asia",
-  europe:  "Europe",
-  northam: "North America",
-  southam: "South America",
-  oceania: "Oceania",
+// Asset slugs are a SEPARATE vocabulary from continent keys: they are baked
+// into portrait filenames on disk and cannot be renamed. So the slug maps to a
+// canonical key, and the human-readable name comes from the shared module —
+// this file used to keep its own labels, which is how "Africa" here drifted
+// from "Africa & Middle East" everywhere else.
+const ASSET_SLUGS = ["africa", "asia", "europe", "northam", "southam", "oceania"] as const;
+type AssetSlug = (typeof ASSET_SLUGS)[number];
+
+const KEY_FOR_SLUG: Record<AssetSlug, ContinentKey> = {
+  africa:  "africa_middle_east",
+  asia:    "asia",
+  europe:  "europe",
+  northam: "north_america",
+  southam: "south_america",
+  oceania: "oceania",
 };
 
 const STAFF_ROLE_GROUPS: { key: string; role: string; count: number }[] = [
@@ -74,7 +82,7 @@ const STAFF_ROLE_GROUPS: { key: string; role: string; count: number }[] = [
 function buildPlayerRegistry(): Record<string, PlayerImageEntry> {
   const out: Record<string, PlayerImageEntry> = {};
 
-  for (const slug of CONTINENTS) {
+  for (const slug of ASSET_SLUGS) {
     for (let i = 1; i <= 10; i++) {
       const idx = String(i).padStart(2, "0");
 
@@ -84,7 +92,7 @@ function buildPlayerRegistry(): Record<string, PlayerImageEntry> {
         imageKey:  sk,
         imageUrl:  `/images/players/seniors/${sk}.png`,
         type:      "senior",
-        continent: CONTINENT_LABEL[slug] ?? slug,
+        continent: CONTINENT_LABEL[KEY_FOR_SLUG[slug]],
         style:     "realistic",
       };
 
@@ -94,7 +102,7 @@ function buildPlayerRegistry(): Record<string, PlayerImageEntry> {
         imageKey:  yk,
         imageUrl:  `/images/players/youth/${yk}.png`,
         type:      "youth",
-        continent: CONTINENT_LABEL[slug] ?? slug,
+        continent: CONTINENT_LABEL[KEY_FOR_SLUG[slug]],
         style:     "cartoon",
       };
     }
@@ -154,7 +162,7 @@ export function playerImageKey(
   playerType: "senior" | "youth" | string | null | undefined,
   continent:  string | null | undefined,
 ): string {
-  const slug   = continentSlug(continent ?? "Europe");
+  const slug   = continentSlug(continent);
   const prefix = playerType === "youth" ? "py" : "ps";
   const idx    = String((nameHash(name) % 10) + 1).padStart(2, "0");
   return `${prefix}_${slug}_${idx}`;
@@ -201,17 +209,19 @@ export function resolveStaffImageUrl(
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
-const SLUG_MAP: Record<string, string> = {
-  "Africa":        "africa",
-  "Asia":          "asia",
-  "Europe":        "europe",
-  "North America": "northam",
-  "South America": "southam",
-  "Oceania":       "oceania",
+// Continent KEY -> asset slug. Slug values are filenames and must not change;
+// the keys were display labels and stopped matching the database.
+const SLUG_MAP: Record<ContinentKey, string> = {
+  africa_middle_east: "africa",
+  asia:               "asia",
+  europe:             "europe",
+  north_america:      "northam",
+  south_america:      "southam",
+  oceania:            "oceania",
 };
 
-function continentSlug(continent: string): string {
-  return SLUG_MAP[continent] ?? "europe";
+function continentSlug(continent: string | null | undefined): string {
+  return SLUG_MAP[continentKeyFrom(continent) ?? "europe"];
 }
 
 function nameHash(name: string): number {

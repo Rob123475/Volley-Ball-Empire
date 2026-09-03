@@ -1,3 +1,10 @@
+import {
+  CONTINENTS,
+  CONTINENT_COUNT,
+  continentLabel,
+  isContinentKey,
+  type ContinentKey,
+} from "@shared/continents";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import {
@@ -81,18 +88,29 @@ const COLOR_PRESETS = [
 
 // ── Continent helpers ─────────────────────────────────────────────────────────
 
-const CONTINENT_ORDER = [
-  "North America", "South America", "Europe", "Asia", "Oceania", "Africa",
-];
+type ContinentStyle = { emoji: string; colour: string };
 
-const CONTINENT_META: Record<string, { emoji: string; colour: string }> = {
-  "North America": { emoji: "🌎", colour: "text-sky-400"    },
-  "South America": { emoji: "🌎", colour: "text-amber-400"  },
-  "Europe":        { emoji: "🌍", colour: "text-indigo-400" },
-  "Asia":          { emoji: "🌏", colour: "text-rose-400"   },
-  "Oceania":       { emoji: "🌏", colour: "text-teal-400"   },
-  "Africa":        { emoji: "🌍", colour: "text-orange-400" },
+/**
+ * Presentation only, keyed by the canonical KEY. This file is the live career
+ * creation flow (the title screen's START NEW CAREER lands here) and it carried
+ * its own copy of the continent vocabulary spelled "Oceania"/"Africa". The
+ * database said otherwise, the render below skipped anything it could not
+ * match, and three Oceania clubs never appeared. Record<ContinentKey, …> makes
+ * that a compile error.
+ */
+const CONTINENT_STYLE: Record<ContinentKey, ContinentStyle> = {
+  north_america:      { emoji: "🌎", colour: "text-sky-400"    },
+  south_america:      { emoji: "🌎", colour: "text-amber-400"  },
+  europe:             { emoji: "🌍", colour: "text-indigo-400" },
+  asia:               { emoji: "🌏", colour: "text-rose-400"   },
+  oceania:            { emoji: "🌏", colour: "text-teal-400"   },
+  africa_middle_east: { emoji: "🌍", colour: "text-orange-400" },
 };
+
+const UNRECOGNISED_STYLE: ContinentStyle = { emoji: "⚠️", colour: "text-red-300" };
+
+const styleFor = (key: string): ContinentStyle =>
+  isContinentKey(key) ? CONTINENT_STYLE[key] : UNRECOGNISED_STYLE;
 
 function formatBudget(v: string | null | undefined) {
   if (!v) return "—";
@@ -229,20 +247,24 @@ function ShapePicker({
 }
 
 function ContinentGroup({
-  continent,
+  label,
+  meta,
+  warning,
   clubs,
   selectedId,
   onSelect,
   defaultOpen,
 }: {
-  continent: string;
+  label: string;
+  meta: ContinentStyle;
+  warning?: string;
   clubs: ClubTemplate[];
   selectedId: number | null;
   onSelect: (c: ClubTemplate) => void;
   defaultOpen: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const meta = CONTINENT_META[continent] ?? { emoji: "🌍", colour: "text-white" };
+
 
   return (
     <div className="rounded-xl border border-white/8 overflow-hidden">
@@ -253,11 +275,14 @@ function ContinentGroup({
       >
         <div className="flex items-center gap-2">
           <span className="text-base leading-none">{meta.emoji}</span>
-          <span className={cn("text-xs font-black uppercase tracking-widest", meta.colour)}>{continent}</span>
+          <span className={cn("text-xs font-black uppercase tracking-widest", meta.colour)}>{label}</span>
           <span className="text-xs text-white/30">({clubs.length})</span>
         </div>
         {open ? <ChevronDown className="h-3.5 w-3.5 text-white/30" /> : <ChevronRight className="h-3.5 w-3.5 text-white/30" />}
       </button>
+      {warning && (
+        <p className="px-4 pb-2 pt-1 text-[11px] text-red-300/90 leading-relaxed">{warning}</p>
+      )}
       {open && (
         <div className="divide-y divide-white/5">
           {clubs.map(c => (
@@ -277,7 +302,7 @@ function ContinentGroup({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-black text-white truncate">{c.name}</div>
-                <div className="text-[11px] text-white/40">{c.continent} · Rating {c.rating} · {formatBudget(c.startingBudget)} budget</div>
+                <div className="text-[11px] text-white/40">{continentLabel(c.continent)} · Rating {c.rating} · {formatBudget(c.startingBudget)} budget</div>
               </div>
               {selectedId === c.id && <Check className="h-4 w-4 text-secondary shrink-0" />}
             </button>
@@ -350,14 +375,27 @@ export default function NewCareer() {
     query: { queryKey: getListClubTemplatesQueryKey() },
   });
 
-  const grouped = useMemo(() => {
-    const clubs = templatesData?.clubs ?? [];
-    const map = new Map<string, ClubTemplate[]>();
-    for (const c of clubs) {
-      if (!map.has(c.continent)) map.set(c.continent, []);
-      map.get(c.continent)!.push(c);
+  /**
+   * Total partition: every club lands in exactly one bucket, so nothing can be
+   * dropped by failing to match. See career-management.tsx — same fix, and the
+   * fact that this logic existed twice is why fixing it once was not enough.
+   */
+  const { groups, unrecognised, allClubs } = useMemo(() => {
+    const all = templatesData?.clubs ?? [];
+    const byKey = new Map<ContinentKey, ClubTemplate[]>();
+    const strays: ClubTemplate[] = [];
+    for (const c of all) {
+      if (isContinentKey(c.continent)) {
+        const list = byKey.get(c.continent);
+        if (list) list.push(c); else byKey.set(c.continent, [c]);
+      } else {
+        strays.push(c);
+      }
     }
-    return map;
+    const ordered = CONTINENTS
+      .map(({ key, label }) => ({ key, label, clubs: byKey.get(key) ?? [] }))
+      .filter(g => g.clubs.length > 0);
+    return { groups: ordered, unrecognised: strays, allClubs: all };
   }, [templatesData]);
 
   const filteredNats = NATIONALITIES.filter(n =>
@@ -630,7 +668,7 @@ export default function NewCareer() {
                   <ClubCrest name={selectedClub.name} primaryColor={selectedClub.primaryColor} secondaryColor={selectedClub.secondaryColor} size={32} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-black text-white">{selectedClub.name}</div>
-                    <div className="text-[11px] text-white/45">{selectedClub.continent} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
+                    <div className="text-[11px] text-white/45">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
                   </div>
                   <Check className="h-4 w-4 text-secondary shrink-0" />
                 </div>
@@ -643,20 +681,43 @@ export default function NewCareer() {
                     <span className="text-sm">Loading clubs…</span>
                   </div>
                 ) : (
-                  CONTINENT_ORDER.map(continent => {
-                    const clubs = grouped.get(continent);
-                    if (!clubs?.length) return null;
-                    return (
+                  <>
+                    <div className="flex items-center justify-between px-1 pb-1">
+                      <span className="text-[11px] text-white/35">
+                        {allClubs.length} club{allClubs.length === 1 ? "" : "s"} · {groups.length} of {CONTINENT_COUNT} regions
+                      </span>
+                    </div>
+
+                    {groups.map(({ key, label, clubs }) => (
                       <ContinentGroup
-                        key={continent}
-                        continent={continent}
+                        key={key}
+                        label={label}
+                        meta={CONTINENT_STYLE[key]}
                         clubs={clubs}
                         selectedId={selectedClub?.id ?? null}
                         onSelect={c => setSelectedClub(c)}
-                        defaultOpen={selectedClub?.continent === continent}
+                        defaultOpen={selectedClub?.continent === key}
                       />
-                    );
-                  })
+                    ))}
+
+                    {/* Never silently dropped — see career-management.tsx. */}
+                    {unrecognised.length > 0 && (
+                      <ContinentGroup
+                        label="Unrecognised region"
+                        meta={UNRECOGNISED_STYLE}
+                        warning={
+                          `${unrecognised.length} club${unrecognised.length === 1 ? " carries a continent" : "s carry continents"} ` +
+                          `outside the canonical six: ` +
+                          `${[...new Set(unrecognised.map(c => c.continent ?? "(none)"))].join(", ")}. ` +
+                          `Still playable — but the data needs fixing.`
+                        }
+                        clubs={unrecognised}
+                        selectedId={selectedClub?.id ?? null}
+                        onSelect={c => setSelectedClub(c)}
+                        defaultOpen
+                      />
+                    )}
+                  </>
                 )}
               </div>
 

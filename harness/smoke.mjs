@@ -11,6 +11,9 @@
  * Usage: node harness/smoke.mjs [baseUrl]
  * Exits non-zero on any failed assertion.
  */
+import fs from "node:fs";
+import path from "node:path";
+
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
 let failures = 0, checks = 0;
@@ -197,6 +200,110 @@ const roster = async (api) => {
   check("finals are qualification-gated, not ranking-gated",
     finals.length === 0 || finals.every((m) => m.eligibility.reason === "qualification"),
     `${finals.length} finals`);
+
+  // ── 8. The club picker actually renders every club ──────────────────────
+  // This suite used to stop at the API. The picker read /club-templates
+  // correctly and then dropped three of the ten clubs on the floor, because it
+  // grouped by a display string it did not recognise — a screen-only failure
+  // that every API-level assertion passed straight through.
+  //
+  // So this asserts on what the PICKER would draw, not on what the DB holds:
+  // it repeats the screen's own partition (canonical key -> group, everything
+  // else -> "unrecognised") and requires the two to reconcile.
+  console.log("\n8. CLUB PICKER COVERAGE");
+
+  // Parsed from the single source of truth rather than restated here — a second
+  // copy of this list inside the harness would be the very bug under test.
+  const continentsSrc = fs.readFileSync(
+    path.join(import.meta.dirname, "..", "lib", "db", "src", "schema", "continents.ts"),
+    "utf8",
+  );
+  const keyBlock = continentsSrc.match(/export const CONTINENT_KEYS = \[([\s\S]*?)\] as const;/);
+  const CANONICAL = keyBlock ? [...keyBlock[1].matchAll(/"([a-z_]+)"/g)].map((m) => m[1]) : [];
+  check("canonical continent keys parsed from lib/db", CANONICAL.length > 0,
+    `${CANONICAL.length} keys: ${CANONICAL.join(", ")}`);
+
+  const templates = await A("GET", "/club-templates");
+  const clubs = templates.data?.clubs ?? [];
+  check("club-templates responds", templates.status === 200, `HTTP ${templates.status}`);
+
+  // The picker's partition, repeated exactly: every club lands in one bucket.
+  const canonSet = new Set(CANONICAL);
+  const grouped = new Map();
+  const unrecognised = [];
+  for (const c of clubs) {
+    if (canonSet.has(c.continent)) grouped.set(c.continent, [...(grouped.get(c.continent) ?? []), c]);
+    else unrecognised.push(c);
+  }
+  const drawn = [...grouped.values()].reduce((n, g) => n + g.length, 0) + unrecognised.length;
+
+  check("every club the API returns is drawn by the picker", drawn === clubs.length,
+    `${drawn} drawn of ${clubs.length} returned`);
+  check("no club falls into the unrecognised bucket", unrecognised.length === 0,
+    unrecognised.length
+      ? `${unrecognised.length}: ${[...new Set(unrecognised.map((c) => JSON.stringify(c.continent)))].join(", ")}`
+      : "all continents canonical");
+
+  // The regression that started this: three Oceania clubs vanished, leaving 7
+  // clubs in 4 groups where the database held 10.
+  check("all 10 club templates reach the picker", clubs.length === 10, `${clubs.length} clubs`);
+  check("oceania clubs are present and grouped",
+    (grouped.get("oceania") ?? []).length === 3,
+    `${(grouped.get("oceania") ?? []).length} oceania clubs`);
+
+  // Groups the picker will actually show, compared against the regions present
+  // in the data rather than against the canonical six: a region with no club is
+  // a content gap, and asserting 6 here would fail for a reason that has
+  // nothing to do with the picker dropping rows.
+  const distinctInData = new Set(clubs.map((c) => c.continent)).size;
+  check("picker shows a group for every region that has clubs",
+    grouped.size === distinctInData,
+    `${grouped.size} groups, ${distinctInData} regions in data`);
+
+  const emptyRegions = CANONICAL.filter((k) => !grouped.has(k));
+  if (emptyRegions.length > 0) {
+    console.log(`  NOTE  ${grouped.size}/${CANONICAL.length} regions have a club — none in: ${emptyRegions.join(", ")}`);
+  }
+
+  // ── 9. Squad size is enforced ────────────────────────────────────────────
+  // Two on the sand, one interchange, one in the academy. A limit that has
+  // never been shown to refuse anything is not a limit, so this signs right up
+  // to each cap and requires the next signing to be REJECTED - and to say why,
+  // because "422" on its own leaves the player guessing.
+  console.log("\n9. SQUAD SIZE");
+  const C = session();
+  await newCareer(C, "SmokeC");
+  const poolC = (await market(C)).filter((p) => (p.age ?? 99) >= 19);
+  const signC = (p, squadRole) =>
+    C("POST", "/contracts", {
+      playerId: p.id, salary: p.salary ?? 8000, endDate: "2026-12-31",
+      bonusPerWin: 0, squadRole,
+    });
+
+  check("enough free agents to test the cap", poolC.length >= 5, `${poolC.length} seniors free`);
+
+  const s1 = await signC(poolC[0], "starter");
+  const s2 = await signC(poolC[1], "starter");
+  check("two starters can be signed", s1.status < 400 && s2.status < 400,
+    `${s1.status}, ${s2.status}`);
+
+  const s3 = await signC(poolC[2], "starter");
+  check("a THIRD starter is refused", s3.status === 422, `HTTP ${s3.status}`);
+  check("the refusal names the starter limit",
+    typeof s3.data?.error === "string" && /starter/i.test(s3.data.error),
+    JSON.stringify(s3.data?.error ?? null).slice(0, 90));
+
+  const i1 = await signC(poolC[2], "interchange");
+  check("one interchange can be signed", i1.status < 400, `HTTP ${i1.status}`);
+
+  const i2 = await signC(poolC[3], "interchange");
+  check("a fourth senior is refused", i2.status === 422, `HTTP ${i2.status}`);
+  check("the refusal says the squad is full",
+    typeof i2.data?.error === "string" && /full/i.test(i2.data.error),
+    JSON.stringify(i2.data?.error ?? null).slice(0, 90));
+
+  const squadC = await roster(C);
+  check("squad settled at 3 seniors", squadC.length === 3, `${squadC.length} signed`);
 
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }

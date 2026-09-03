@@ -1,3 +1,4 @@
+import { continentLabel, continentKeyFrom } from "@shared/continents";
 import { ClubCrest } from "@/components/club-crest";
 import {
   useGetDashboard,
@@ -252,7 +253,7 @@ function OlympicDashboardWidget() {
                   onClick={() => navigate("/olympics?tab=qualifying")}
                 >
                   <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 truncate mb-1.5">
-                    {cont.continent}
+                    {continentLabel(cont.continent)}
                   </div>
                   {top && (
                     <div className="flex items-center gap-1.5 mb-1">

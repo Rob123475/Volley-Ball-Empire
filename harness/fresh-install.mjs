@@ -20,10 +20,12 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
+import { requireElectronBinary } from "./electron-binary.mjs";
+
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
 const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
-const ELECTRON = path.join(REPO, "node_modules", "electron", "dist", "electron.exe");
+const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-fresh-"));
 
 let failures = 0, checks = 0;
@@ -88,9 +90,17 @@ for (const suffix of ["-wal", "-shm"]) {
 }
 
 const before = inspect(userDb);
+const shipped = inspect(SHIPPED);
 check("starter DB copied", fs.existsSync(userDb));
-check("roster present: 268 players", before.players === 268, `${before.players}`);
-check("roster present: 120 staff", before.staff === 120, `${before.staff}`);
+// Counted from the shipped artifact, not typed in. This used to assert `=== 268`
+// and broke the build the first time the roster legitimately changed — a guard
+// that fails on correct work teaches people to edit the guard, which is how a
+// guard stops guarding. What matters is that the copy is FAITHFUL: every row
+// that ships reaches userData.
+check("roster copied intact: players", before.players === shipped.players,
+  `${before.players} of ${shipped.players} shipped`);
+check("roster copied intact: staff", before.staff === shipped.staff,
+  `${before.staff} of ${shipped.staff} shipped`);
 check("every player has an image", before.images === before.players, `${before.images}/${before.players}`);
 check("pool clubs shipped", before.poolTeams === 60, `${before.poolTeams} pool teams`);
 // The league is GENERATED at career creation now, so the shipped artifact must

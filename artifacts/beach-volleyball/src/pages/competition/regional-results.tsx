@@ -1,3 +1,4 @@
+import { CONTINENT_KEYS, continentLabel } from "@shared/continents";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -5,10 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
-const CONTINENTS = [
-  "Europe", "Asia", "North America", "South America",
-  "Africa and Middle East", "Australia and Pacific Islands",
-] as const;
+/**
+ * Driven by the canonical KEYS. Each of these screens used to declare its own
+ * array of continent LABELS; the copies drifted, and any screen whose spelling
+ * did not match the data silently rendered nothing for that region. Labels are
+ * looked up at render time via continentLabel().
+ */
+const CONTINENTS = CONTINENT_KEYS;
 
 type RegionalFixture = {
   id: number;
@@ -94,7 +98,7 @@ export default function RegionalResults() {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {CONTINENTS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          {CONTINENTS.map(c => <SelectItem key={c} value={c}>{continentLabel(c)}</SelectItem>)}
         </SelectContent>
       </Select>
 
@@ -107,7 +111,7 @@ export default function RegionalResults() {
       {isError && (
         <div className="flex items-center gap-2 text-destructive text-sm p-3 rounded-lg border border-destructive/30 bg-destructive/5">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          Failed to load results for {continent}.
+          Failed to load results for {continentLabel(continent)}.
         </div>
       )}
 
@@ -116,7 +120,7 @@ export default function RegionalResults() {
           {completed.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <CheckCircle2 className="h-8 w-8 mx-auto mb-3 opacity-30" />
-              <p>No completed matches in {continent} yet.</p>
+              <p>No completed matches in {continentLabel(continent)} yet.</p>
             </div>
           ) : (
             <div className="space-y-4">

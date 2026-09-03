@@ -1,3 +1,4 @@
+import { continentKeyFrom, continentLabel, type ContinentKey } from "@shared/continents";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -63,13 +64,13 @@ import {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const REGION_GRADIENTS: Record<string, string> = {
-  "Europe":        "from-blue-950/60 to-indigo-950/60 border-blue-700/30",
-  "Asia":          "from-emerald-950/60 to-teal-950/60 border-emerald-700/30",
-  "Africa":        "from-orange-950/60 to-amber-950/60 border-orange-700/30",
-  "North America": "from-violet-950/60 to-purple-950/60 border-violet-700/30",
-  "South America": "from-yellow-950/60 to-lime-950/60 border-yellow-700/30",
-  "Oceania":       "from-cyan-950/60 to-sky-950/60 border-cyan-700/30",
+const REGION_GRADIENTS: Record<ContinentKey, string> = {
+  europe:             "from-blue-950/60 to-indigo-950/60 border-blue-700/30",
+  asia:               "from-emerald-950/60 to-teal-950/60 border-emerald-700/30",
+  africa_middle_east: "from-orange-950/60 to-amber-950/60 border-orange-700/30",
+  north_america:      "from-violet-950/60 to-purple-950/60 border-violet-700/30",
+  south_america:      "from-yellow-950/60 to-lime-950/60 border-yellow-700/30",
+  oceania:            "from-cyan-950/60 to-sky-950/60 border-cyan-700/30",
 };
 
 const ELITE_EVENT_CONFIG: Record<string, {
@@ -99,13 +100,13 @@ const ELITE_EVENT_CONFIG: Record<string, {
   },
 };
 
-const REGION_ACCENT: Record<string, string> = {
-  "Europe":        "text-blue-400",
-  "Asia":          "text-emerald-400",
-  "Africa":        "text-orange-400",
-  "North America": "text-violet-400",
-  "South America": "text-yellow-400",
-  "Oceania":       "text-cyan-400",
+const REGION_ACCENT: Record<ContinentKey, string> = {
+  europe:             "text-blue-400",
+  asia:               "text-emerald-400",
+  africa_middle_east: "text-orange-400",
+  north_america:      "text-violet-400",
+  south_america:      "text-yellow-400",
+  oceania:            "text-cyan-400",
 };
 
 const DURATION_OPTIONS = [
@@ -285,8 +286,11 @@ function RegionCard({
   isCancelling: boolean;
   disabled: boolean;
 }) {
-  const gradient = REGION_GRADIENTS[region.id] ?? "from-muted/20 to-muted/40 border-border";
-  const accent   = REGION_ACCENT[region.id]    ?? "text-primary";
+  // region.id arrives as a continent key from the API. Anything unrecognised
+  // still renders, in neutral colours, rather than vanishing.
+  const regionKey = continentKeyFrom(region.id);
+  const gradient  = regionKey ? REGION_GRADIENTS[regionKey] : "from-muted/20 to-muted/40 border-border";
+  const accent    = regionKey ? REGION_ACCENT[regionKey]    : "text-primary";
   const mission  = region.activeMission;
 
   const isIdle      = !mission;

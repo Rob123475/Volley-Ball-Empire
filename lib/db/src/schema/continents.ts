@@ -1,132 +1,433 @@
 /**
- * The canonical six continents.
+ * The canonical six continents — the single source of truth for the whole
+ * repo, server and client.
  *
- * These exact strings are what the competition structure already uses —
- * `regional_league_seasons.continent` and `continental_pool_teams.continent`
- * — and `simulateRegionalRound` / `resolveRegionalSeason` match on them. They
- * are therefore the set everything else must conform to, not the other way
- * around.
+ * ── Why keys, not display strings ──────────────────────────────────────────
+ * Everything used to match on the LABEL, and seven vocabularies grew up
+ * independently:
  *
- * Before this was pinned down, three spellings were live at once:
- *   players.continent          "Africa & Middle East", "Oceania"
- *   club_templates.continent   "Oceania"  (and no Africa row at all)
- *   regional/pool              "Africa and Middle East", "Australia and Pacific Islands"
- * so any group-by continent split the same region across two buckets.
+ *   lib/db (previous canonical)  "Africa and Middle East"  "Australia and Pacific Islands"
+ *   routes/regional-league.ts    "Africa and Middle East"  "Australia and Pacific Islands"
+ *   routes/players.ts            "Africa & Middle East"    "Oceania"
+ *   routes/youth-scouting.ts     "Africa"                  "Oceania"
+ *   data/worldTour.ts            "Africa & Middle East"    "Australia & Pacific"
+ *   client/career-management     "Africa"                  "Oceania"
+ *   client/player-portrait       "Africa"                  "Oceania"
+ *
+ * Any group-by continent therefore split one region across several buckets, and
+ * a screen that grouped by a label it did not recognise dropped those rows on
+ * the floor without a word. That is what hid three Oceania clubs from the club
+ * picker.
+ *
+ * A display string is the wrong join key. It gets re-punctuated ("&" vs "and"),
+ * HTML-escaped, translated or title-cased, and every one of those silently
+ * breaks equality. So the stored value is now an opaque snake_case KEY that is
+ * never shown to anyone, and the label is looked up from here at render time.
+ * Labels can change freely; the data does not move.
+ *
+ * Anything that reads or writes a continent goes through this module.
  */
-export const CONTINENTS = [
-  "Europe",
-  "Asia",
-  "North America",
-  "South America",
-  "Africa and Middle East",
-  "Australia and Pacific Islands",
+
+// ── The canonical six, in display order ─────────────────────────────────────
+export const CONTINENT_KEYS = [
+  "north_america",
+  "south_america",
+  "europe",
+  "asia",
+  "africa_middle_east",
+  "oceania",
 ] as const;
 
-export type Continent = (typeof CONTINENTS)[number];
+export type ContinentKey = (typeof CONTINENT_KEYS)[number];
 
-export const CONTINENT_SET: ReadonlySet<string> = new Set(CONTINENTS);
+/**
+ * The only place a continent's human-readable name is written down.
+ * `Record<ContinentKey, string>` on purpose: adding a key to CONTINENT_KEYS
+ * without giving it a label is a compile error, not a runtime `undefined`.
+ */
+export const CONTINENT_LABEL: Record<ContinentKey, string> = {
+  north_america:      "North America",
+  south_america:      "South America",
+  europe:             "Europe",
+  asia:               "Asia",
+  africa_middle_east: "Africa & Middle East",
+  oceania:            "Oceania",
+};
 
-export function isContinent(value: unknown): value is Continent {
-  return typeof value === "string" && CONTINENT_SET.has(value);
+/** Key + label pairs in display order — what a UI usually wants to map over. */
+export const CONTINENTS: ReadonlyArray<{ key: ContinentKey; label: string }> =
+  CONTINENT_KEYS.map((key) => ({ key, label: CONTINENT_LABEL[key] }));
+
+export const CONTINENT_COUNT = CONTINENT_KEYS.length;
+
+export const CONTINENT_KEY_SET: ReadonlySet<string> = new Set(CONTINENT_KEYS);
+
+export function isContinentKey(value: unknown): value is ContinentKey {
+  return typeof value === "string" && CONTINENT_KEY_SET.has(value);
 }
 
-/** Spellings that have appeared in the data, mapped to the canonical form. */
-const CONTINENT_ALIASES: Record<string, Continent> = {
-  "africa & middle east":          "Africa and Middle East",
-  "africa and middle east":        "Africa and Middle East",
-  "africa":                        "Africa and Middle East",
-  "middle east":                   "Africa and Middle East",
-  "oceania":                       "Australia and Pacific Islands",
-  "australia and pacific islands": "Australia and Pacific Islands",
-  "australia & pacific islands":   "Australia and Pacific Islands",
-  "australia":                     "Australia and Pacific Islands",
-  "europe":                        "Europe",
-  "asia":                          "Asia",
-  "north america":                 "North America",
-  "south america":                 "South America",
+/** Label for a key. Falls back to the raw value so a bad one is VISIBLE, not blank. */
+export function continentLabel(key: string | null | undefined): string {
+  if (!key) return "Unknown region";
+  return isContinentKey(key) ? CONTINENT_LABEL[key] : key;
+}
+
+// ── Coercion from any spelling that has ever been in the data ───────────────
+
+/**
+ * Collapse a value so punctuation drift cannot cause a miss: case, surrounding
+ * space, "&" vs "and", and underscores/hyphens vs spaces all fold together.
+ */
+function fold(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[\s_-]+/g, " ")
+    .trim();
+}
+
+/**
+ * Every spelling this project has stored, folded, mapped to its key. Both
+ * "africa and middle east" and "africa middle east" appear because the fold of
+ * the old LABEL and the fold of the new KEY differ by the word "and".
+ */
+const KEY_ALIASES: Record<string, ContinentKey> = {
+  // north_america
+  "north america": "north_america",
+  "northam": "north_america",
+  // south_america
+  "south america": "south_america",
+  "southam": "south_america",
+  // europe
+  "europe": "europe",
+  "european": "europe",
+  // asia
+  "asia": "asia",
+  "asian": "asia",
+  // africa_middle_east — "Africa", "Africa & Middle East", "Africa and Middle East", key form
+  "africa": "africa_middle_east",
+  "middle east": "africa_middle_east",
+  "africa and middle east": "africa_middle_east",
+  "africa middle east": "africa_middle_east",
+  // oceania — "Oceania", "Australia and Pacific Islands", "Australia & Pacific", key form
+  "oceania": "oceania",
+  "australia": "oceania",
+  "australia and pacific islands": "oceania",
+  "australia pacific islands": "oceania",
+  "australia and pacific": "oceania",
+  "australia pacific": "oceania",
+  "pacific": "oceania",
 };
 
 /**
- * Coerce any known spelling to the canonical one. Returns null for values that
- * are not recognised, so callers can decide whether to reject or backfill
- * rather than silently writing a fourth spelling.
+ * Coerce any known spelling — old label, new key, or punctuation variant — to
+ * the canonical key. Returns null for anything unrecognised, so callers must
+ * decide to reject, backfill or surface it rather than silently inventing an
+ * eighth spelling.
  */
-export function normaliseContinent(value: string | null | undefined): Continent | null {
+export function continentKeyFrom(value: string | null | undefined): ContinentKey | null {
   if (!value) return null;
-  return CONTINENT_ALIASES[value.trim().toLowerCase()] ?? null;
+  return KEY_ALIASES[fold(value)] ?? null;
+}
+
+// ── Nationality backfill ────────────────────────────────────────────────────
+
+/**
+ * Nationality to continent key.
+ *
+ * players.nationality holds a MIX of country names ("Australia", "Brazil") and
+ * demonyms ("Australian", "Brazilian") — both are live in the shipped database
+ * — so both are listed. Lookup is folded, so case and spacing do not matter.
+ */
+const NATIONALITY_TO_KEY: Record<string, ContinentKey> = {};
+
+function nat(key: ContinentKey, names: string[]): void {
+  for (const n of names) NATIONALITY_TO_KEY[fold(n)] = key;
+}
+
+nat("europe", [
+  "Austria", "Austrian", "Belgium", "Belgian", "Britain", "British", "Bulgaria", "Bulgarian",
+  "Croatia", "Croatian", "Czech", "Czech Republic", "Denmark", "Danish", "England", "English",
+  "Estonia", "Estonian", "Finland", "Finnish", "France", "French", "Germany", "German",
+  "Greece", "Greek", "Hungary", "Hungarian", "Iceland", "Icelandic", "Ireland", "Irish",
+  "Italy", "Italian", "Latvia", "Latvian", "Lithuania", "Lithuanian", "Malta", "Maltese",
+  "Monaco", "Netherlands", "Dutch", "Norway", "Norwegian", "Poland", "Polish", "Portugal",
+  "Portuguese", "Romania", "Romanian", "Russia", "Russian", "Scotland", "Scottish", "Serbia",
+  "Serbian", "Slovakia", "Slovak", "Slovenia", "Slovenian", "Spain", "Spanish", "Sweden",
+  "Swedish", "Switzerland", "Swiss", "Ukraine", "Ukrainian", "Wales", "Welsh",
+]);
+
+nat("asia", [
+  "China", "Chinese", "India", "Indian", "Indonesia", "Indonesian", "Japan", "Japanese",
+  "Kazakhstan", "Kazakh", "Laos", "Laotian", "Malaysia", "Malaysian", "Maldives", "Maldivian",
+  "Mongolia", "Mongolian", "Nepal", "Nepali", "Pakistan", "Pakistani", "Philippines", "Filipino",
+  "Singapore", "Singaporean", "South Korea", "South Korean", "Sri Lanka", "Sri Lankan",
+  "Taiwan", "Taiwanese", "Thailand", "Thai", "Uzbekistan", "Uzbek", "Vietnam", "Vietnamese",
+]);
+
+nat("north_america", [
+  "USA", "United States", "American", "Bahamas", "Bahamian", "Barbados", "Barbadian",
+  "Canada", "Canadian", "Costa Rica", "Costa Rican", "Cuba", "Cuban", "Dominica",
+  "Dominican", "Dominican Republic", "El Salvador", "Salvadoran", "Guatemala", "Guatemalan",
+  "Haiti", "Haitian", "Honduras", "Honduran", "Jamaica", "Jamaican", "Mexico", "Mexican",
+  "Nicaragua", "Nicaraguan", "Panama", "Panamanian", "Puerto Rico", "Puerto Rican",
+  "Trinidad and Tobago", "Trinidadian",
+]);
+
+nat("south_america", [
+  "Argentina", "Argentine", "Argentinian", "Bolivia", "Bolivian", "Brazil", "Brazilian",
+  "Chile", "Chilean", "Colombia", "Colombian", "Ecuador", "Ecuadorian", "Guyana", "Guyanese",
+  "Paraguay", "Paraguayan", "Peru", "Peruvian", "Suriname", "Surinamese", "Uruguay",
+  "Uruguayan", "Venezuela", "Venezuelan",
+]);
+
+nat("africa_middle_east", [
+  "Algeria", "Algerian", "Angola", "Angolan", "Bahrain", "Bahraini", "Burkina Faso", "Burkinabe",
+  "Cameroon", "Cameroonian", "Congo", "Congolese", "Egypt", "Egyptian", "Ethiopia", "Ethiopian",
+  "Gabon", "Gabonese", "Ghana", "Ghanaian", "Guinea", "Guinean", "Iran", "Iranian", "Iraq", "Iraqi",
+  "Israel", "Israeli", "Ivory Coast", "Ivorian", "Jordan", "Jordanian", "Kenya", "Kenyan",
+  "Kuwait", "Kuwaiti", "Lebanon", "Lebanese", "Libya", "Libyan", "Madagascar", "Malagasy",
+  "Mali", "Malian", "Morocco", "Moroccan", "Mozambique", "Mozambican", "Namibia", "Namibian",
+  "Nigeria", "Nigerian", "Oman", "Omani", "Qatar", "Qatari", "Rwanda", "Rwandan",
+  "Saudi Arabia", "Saudi", "Senegal", "Senegalese", "South Africa", "South African",
+  "Sudan", "Sudanese", "Syria", "Syrian", "Tanzania", "Tanzanian", "Tunisia", "Tunisian",
+  "UAE", "United Arab Emirates", "Emirati", "Uganda", "Ugandan", "Zambia", "Zambian",
+  "Zimbabwe", "Zimbabwean",
+]);
+
+nat("oceania", [
+  "Australia", "Australian", "Cook Islands", "Cook Islander", "Fiji", "Fijian",
+  "New Zealand", "New Zealander", "Papua New Guinea", "Papua New Guinean",
+  "Samoa", "Samoan", "Solomon Islands", "Solomon Islander", "Tahiti", "Tahitian",
+  "Tonga", "Tongan", "Vanuatu", "Ni-Vanuatu",
+]);
+
+/** Best-effort continent key for a nationality. Null when unknown. */
+export function continentKeyForNationality(
+  nationality: string | null | undefined,
+): ContinentKey | null {
+  if (!nationality) return null;
+  return NATIONALITY_TO_KEY[fold(nationality)] ?? null;
+}
+
+// ── Country flags ───────────────────────────────────────────────────────────
+
+/**
+ * Nationality to ISO 3166-1 alpha-2, folded the same way as the continent
+ * lookup so "Australia" and "Australian" both resolve. Staff rows still store a
+ * mix of country names and demonyms, so both forms have to work.
+ *
+ * The flag itself is DERIVED from the code rather than typed out: an emoji flag
+ * is just the two letters as regional-indicator symbols. That means no table of
+ * 100 pasted emoji to get subtly wrong, and adding a country is one line.
+ */
+const ISO2: Record<string, string> = {};
+
+function iso(code: string, names: string[]): void {
+  for (const n of names) ISO2[fold(n)] = code;
+}
+
+iso("AR", ["Argentina", "Argentine", "Argentinian"]);
+iso("AU", ["Australia", "Australian"]);
+iso("BS", ["Bahamas", "Bahamian"]);
+iso("BE", ["Belgium", "Belgian"]);
+iso("BO", ["Bolivia", "Bolivian"]);
+iso("BR", ["Brazil", "Brazilian"]);
+iso("BG", ["Bulgaria", "Bulgarian"]);
+iso("BF", ["Burkina Faso", "Burkinabe"]);
+iso("CA", ["Canada", "Canadian"]);
+iso("CL", ["Chile", "Chilean"]);
+iso("CN", ["China", "Chinese"]);
+iso("CO", ["Colombia", "Colombian"]);
+iso("CK", ["Cook Islands", "Cook Islander"]);
+iso("CR", ["Costa Rica", "Costa Rican"]);
+iso("HR", ["Croatia", "Croatian"]);
+iso("CU", ["Cuba", "Cuban"]);
+iso("CZ", ["Czech", "Czech Republic"]);
+iso("DK", ["Denmark", "Danish"]);
+iso("DO", ["Dominican Republic", "Dominican"]);
+iso("EC", ["Ecuador", "Ecuadorian"]);
+iso("EG", ["Egypt", "Egyptian"]);
+iso("FJ", ["Fiji", "Fijian"]);
+iso("FI", ["Finland", "Finnish"]);
+iso("FR", ["France", "French"]);
+iso("DE", ["Germany", "German"]);
+iso("GH", ["Ghana", "Ghanaian"]);
+iso("GR", ["Greece", "Greek"]);
+iso("GN", ["Guinea", "Guinean"]);
+iso("GY", ["Guyana", "Guyanese"]);
+iso("IS", ["Iceland", "Icelandic"]);
+iso("IN", ["India", "Indian"]);
+iso("ID", ["Indonesia", "Indonesian"]);
+iso("IE", ["Ireland", "Irish"]);
+iso("IT", ["Italy", "Italian"]);
+iso("CI", ["Ivory Coast", "Ivorian"]);
+iso("JM", ["Jamaica", "Jamaican"]);
+iso("JP", ["Japan", "Japanese"]);
+iso("JO", ["Jordan", "Jordanian"]);
+iso("KE", ["Kenya", "Kenyan"]);
+iso("LA", ["Laos", "Laotian"]);
+iso("LB", ["Lebanon", "Lebanese"]);
+iso("MG", ["Madagascar", "Malagasy"]);
+iso("MY", ["Malaysia", "Malaysian"]);
+iso("MV", ["Maldives", "Maldivian"]);
+iso("MT", ["Malta", "Maltese"]);
+iso("MX", ["Mexico", "Mexican"]);
+iso("MC", ["Monaco", "Monegasque"]);
+iso("MA", ["Morocco", "Moroccan"]);
+iso("MZ", ["Mozambique", "Mozambican"]);
+iso("NL", ["Netherlands", "Dutch"]);
+iso("NZ", ["New Zealand", "New Zealander"]);
+iso("NG", ["Nigeria", "Nigerian"]);
+iso("NO", ["Norway", "Norwegian"]);
+iso("OM", ["Oman", "Omani"]);
+iso("PA", ["Panama", "Panamanian"]);
+iso("PG", ["Papua New Guinea", "Papua New Guinean"]);
+iso("PE", ["Peru", "Peruvian"]);
+iso("PH", ["Philippines", "Filipino"]);
+iso("PL", ["Poland", "Polish"]);
+iso("PT", ["Portugal", "Portuguese"]);
+iso("PR", ["Puerto Rico", "Puerto Rican"]);
+iso("QA", ["Qatar", "Qatari"]);
+iso("RU", ["Russia", "Russian"]);
+iso("WS", ["Samoa", "Samoan"]);
+iso("SN", ["Senegal", "Senegalese"]);
+iso("SG", ["Singapore", "Singaporean"]);
+iso("SB", ["Solomon Islands", "Solomon Islander"]);
+iso("ZA", ["South Africa", "South African"]);
+iso("KR", ["South Korea", "South Korean"]);
+iso("ES", ["Spain", "Spanish"]);
+iso("SD", ["Sudan", "Sudanese"]);
+iso("SE", ["Sweden", "Swedish"]);
+iso("CH", ["Switzerland", "Swiss"]);
+iso("PF", ["Tahiti", "Tahitian"]);           // French Polynesia
+iso("TW", ["Taiwan", "Taiwanese"]);
+iso("TZ", ["Tanzania", "Tanzanian"]);
+iso("TH", ["Thailand", "Thai"]);
+iso("TO", ["Tonga", "Tongan"]);
+iso("TN", ["Tunisia", "Tunisian"]);
+iso("UA", ["Ukraine", "Ukrainian"]);
+iso("UY", ["Uruguay", "Uruguayan"]);
+iso("US", ["USA", "United States", "American"]);
+iso("VU", ["Vanuatu", "Ni-Vanuatu", "Vanuatuan"]);
+iso("VE", ["Venezuela", "Venezuelan"]);
+iso("VN", ["Vietnam", "Vietnamese"]);
+iso("GB", ["United Kingdom", "Britain", "British"]);
+iso("ZW", ["Zimbabwe", "Zimbabwean"]);
+
+/** England, Scotland and Wales are subdivisions — they have their own flags. */
+const SUBDIVISION_FLAG: Record<string, string> = {
+  england:  "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}",
+  scotland: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}",
+  wales:    "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}",
+  english:  "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}",
+  scottish: "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}",
+  welsh:    "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}",
+};
+
+/** ISO 3166-1 alpha-2 for a nationality, or null when unknown. */
+export function countryCode(nationality: string | null | undefined): string | null {
+  if (!nationality) return null;
+  return ISO2[fold(nationality)] ?? null;
 }
 
 /**
- * Nationality (a demonym, as stored in players.nationality) to continent.
- * Used to backfill rows whose continent was never set.
+ * Flag emoji for a nationality. Falls back to a globe rather than empty space,
+ * so an unrecognised value is visible instead of silently blank.
  */
-const NATIONALITY_TO_CONTINENT: Record<string, Continent> = {
-  // Europe
-  Austrian:"Europe", Belgian:"Europe", British:"Europe", Bulgarian:"Europe", Croatian:"Europe",
-  Czech:"Europe", Danish:"Europe", Dutch:"Europe", English:"Europe", Estonian:"Europe",
-  Finnish:"Europe", French:"Europe", German:"Europe", Greek:"Europe", Hungarian:"Europe",
-  Icelandic:"Europe", Irish:"Europe", Italian:"Europe", Latvian:"Europe", Lithuanian:"Europe",
-  Norwegian:"Europe", Polish:"Europe", Portuguese:"Europe", Romanian:"Europe", Russian:"Europe",
-  Scottish:"Europe", Serbian:"Europe", Slovak:"Europe", Slovenian:"Europe", Spanish:"Europe",
-  Swedish:"Europe", Swiss:"Europe", Ukrainian:"Europe", Welsh:"Europe",
+export function countryFlag(nationality: string | null | undefined): string {
+  if (!nationality) return "\u{1F30D}";
+  const sub = SUBDIVISION_FLAG[fold(nationality)];
+  if (sub) return sub;
+  const code = countryCode(nationality);
+  if (!code) return "\u{1F30D}";
+  return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
 
-  // Asia
-  Chinese:"Asia", Filipino:"Asia", Indian:"Asia", Indonesian:"Asia", Japanese:"Asia",
-  Kazakh:"Asia", Malaysian:"Asia", Mongolian:"Asia", Nepali:"Asia", Pakistani:"Asia",
-  Singaporean:"Asia", "South Korean":"Asia", "Sri Lankan":"Asia", Taiwanese:"Asia",
-  Thai:"Asia", Uzbek:"Asia", Vietnamese:"Asia",
+// ── The world roster ────────────────────────────────────────────────────────
 
-  // North America (incl. Central America and the Caribbean)
-  American:"North America", Bahamian:"North America", Barbadian:"North America",
-  Canadian:"North America", "Costa Rican":"North America", Cuban:"North America",
-  Dominican:"North America", Guatemalan:"North America", Haitian:"North America",
-  Honduran:"North America", Jamaican:"North America", Mexican:"North America",
-  Nicaraguan:"North America", Panamanian:"North America", "Puerto Rican":"North America",
-  Salvadoran:"North America", "Trinidadian":"North America",
-
-  // South America
-  Argentine:"South America", Argentinian:"South America", Bolivian:"South America",
-  Brazilian:"South America", Chilean:"South America", Colombian:"South America",
-  Ecuadorian:"South America", Guyanese:"South America", Paraguayan:"South America",
-  Peruvian:"South America", Surinamese:"South America", Uruguayan:"South America",
-  Venezuelan:"South America",
-
-  // Africa and Middle East
-  Algerian:"Africa and Middle East", Angolan:"Africa and Middle East",
-  Bahraini:"Africa and Middle East", Burkinabe:"Africa and Middle East",
-  Cameroonian:"Africa and Middle East", Congolese:"Africa and Middle East",
-  Egyptian:"Africa and Middle East", Emirati:"Africa and Middle East",
-  Ethiopian:"Africa and Middle East", Gabonese:"Africa and Middle East",
-  Ghanaian:"Africa and Middle East", Guinean:"Africa and Middle East",
-  Iranian:"Africa and Middle East", Iraqi:"Africa and Middle East",
-  Israeli:"Africa and Middle East", Ivorian:"Africa and Middle East",
-  Jordanian:"Africa and Middle East", Kenyan:"Africa and Middle East",
-  Kuwaiti:"Africa and Middle East", Lebanese:"Africa and Middle East",
-  Libyan:"Africa and Middle East", Malian:"Africa and Middle East",
-  Moroccan:"Africa and Middle East", Mozambican:"Africa and Middle East",
-  Namibian:"Africa and Middle East", Nigerian:"Africa and Middle East",
-  Omani:"Africa and Middle East", Qatari:"Africa and Middle East",
-  Rwandan:"Africa and Middle East", Saudi:"Africa and Middle East",
-  Senegalese:"Africa and Middle East", "South African":"Africa and Middle East",
-  Sudanese:"Africa and Middle East", Syrian:"Africa and Middle East",
-  Tanzanian:"Africa and Middle East", Tunisian:"Africa and Middle East",
-  Ugandan:"Africa and Middle East", Zambian:"Africa and Middle East",
-  Zimbabwean:"Africa and Middle East",
-
-  // Australia and Pacific Islands
-  Australian:"Australia and Pacific Islands", Fijian:"Australia and Pacific Islands",
-  "Cook Islander":"Australia and Pacific Islands", "New Zealander":"Australia and Pacific Islands",
-  "Papua New Guinean":"Australia and Pacific Islands", Samoan:"Australia and Pacific Islands",
-  Tahitian:"Australia and Pacific Islands", Tongan:"Australia and Pacific Islands",
-  "Ni-Vanuatu":"Australia and Pacific Islands", "Solomon Islander":"Australia and Pacific Islands",
+/**
+ * The nations that make up the world, and how deep each one is.
+ *
+ * ── This is the expansion knob ──────────────────────────────────────────────
+ * The shape of the world is DATA, not code. Ten nations per region, three
+ * players each, is the shipped v1 world - but nothing anywhere hardcodes
+ * "ten". `scripts/check-roster.cjs` validates the database against whatever is
+ * declared here, so growing the game is:
+ *
+ *   1. add the nation to CORE_NATIONS for its region
+ *   2. add PLAYERS_PER_NATION players with that nationality
+ *   3. run the build - the guard adapts, nothing else changes
+ *
+ * A DLC adding thirty players is ten new nations appended to these lists. A
+ * version 2 with deeper squads is one edit to PLAYERS_PER_NATION. Neither
+ * needs a code change, and neither can half-land: the guard fails the build if
+ * the data and this declaration disagree.
+ */
+export const CORE_NATIONS: Record<ContinentKey, readonly string[]> = {
+  north_america: [
+    "USA", "Canada", "Mexico", "Cuba", "Puerto Rico",
+    "Costa Rica", "Jamaica", "Dominican Republic", "Panama", "Bahamas",
+  ],
+  south_america: [
+    "Chile", "Argentina", "Peru", "Guyana", "Brazil",
+    "Ecuador", "Bolivia", "Colombia", "Venezuela", "Uruguay",
+  ],
+  europe: [
+    "Greece", "England", "Germany", "Sweden", "Italy",
+    "Spain", "Portugal", "Netherlands", "France", "Switzerland",
+  ],
+  asia: [
+    "China", "Vietnam", "Philippines", "Japan", "Laos",
+    "Thailand", "Taiwan", "Malaysia", "Indonesia", "India",
+  ],
+  africa_middle_east: [
+    "Egypt", "Tunisia", "South Africa", "Nigeria", "Kenya",
+    "Mozambique", "Morocco", "Madagascar", "Tanzania", "Zimbabwe",
+  ],
+  oceania: [
+    "Australia", "New Zealand", "Cook Islands", "Papua New Guinea", "Samoa",
+    "Solomon Islands", "Tonga", "Fiji", "Tahiti", "Vanuatu",
+  ],
 };
 
-/** Best-effort continent for a nationality demonym. Null when unknown. */
-export function continentForNationality(nationality: string | null | undefined): Continent | null {
-  if (!nationality) return null;
-  const key = nationality.trim();
-  if (NATIONALITY_TO_CONTINENT[key]) return NATIONALITY_TO_CONTINENT[key];
-  const ci = Object.keys(NATIONALITY_TO_CONTINENT)
-    .find(k => k.toLowerCase() === key.toLowerCase());
-  return ci ? NATIONALITY_TO_CONTINENT[ci]! : null;
+/**
+ * Nations that exist in the data but are deliberately NOT part of the
+ * competitive world - built, kept, and excluded from the per-nation count.
+ * They are the obvious first candidates for an expansion: each already has a
+ * full trio of players and only needs moving into CORE_NATIONS.
+ */
+export const RESERVE_NATIONS: readonly string[] = [
+  "Maldives", "Malta", "Russia", "Ireland", "Monaco",
+];
+
+/**
+ * Players per nation: two on the sand plus one in reserve. Raising this is how
+ * squads get deeper in a later version; the guard reads it rather than
+ * assuming three.
+ */
+export const PLAYERS_PER_NATION = 3;
+
+const CORE_SET: ReadonlySet<string> = new Set(
+  Object.values(CORE_NATIONS).flatMap((list) => list),
+);
+const RESERVE_SET: ReadonlySet<string> = new Set(RESERVE_NATIONS);
+
+/** Nations of one region, or an empty list for an unknown region. */
+export function coreNationsFor(continent: string | null | undefined): readonly string[] {
+  return isContinentKey(continent) ? CORE_NATIONS[continent] : [];
 }
+
+/** Is this nation part of the competitive world? */
+export function isCoreNation(nationality: string | null | undefined): boolean {
+  return !!nationality && CORE_SET.has(nationality);
+}
+
+/** Built and kept, but out of the competitive world on purpose. */
+export function isReserveNation(nationality: string | null | undefined): boolean {
+  return !!nationality && RESERVE_SET.has(nationality);
+}
+
+/** Every nation the world knows about, core and reserve. */
+export const ALL_NATIONS: readonly string[] = [...CORE_SET, ...RESERVE_SET];

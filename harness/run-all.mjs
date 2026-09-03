@@ -18,10 +18,12 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
+import { requireElectronBinary } from "./electron-binary.mjs";
+
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
 const SERVER = path.join(REPO, "artifacts", "api-server", "dist", "index.mjs");
-const ELECTRON = path.join(REPO, "node_modules", "electron", "dist", "electron.exe");
+const ELECTRON = requireElectronBinary(REPO);
 
 if (!fs.existsSync(SERVER)) {
   console.error(`[harness] FAILED: ${SERVER} not built. Run the api-server build first.`);

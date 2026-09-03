@@ -1,13 +1,17 @@
+import { CONTINENT_KEYS, continentLabel } from "@shared/continents";
 import { useQueries } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { BarChart2, AlertCircle } from "lucide-react";
 
-const CONTINENTS = [
-  "Europe", "Asia", "North America", "South America",
-  "Africa and Middle East", "Australia and Pacific Islands",
-] as const;
+/**
+ * Driven by the canonical KEYS. Each of these screens used to declare its own
+ * array of continent LABELS; the copies drifted, and any screen whose spelling
+ * did not match the data silently rendered nothing for that region. Labels are
+ * looked up at render time via continentLabel().
+ */
+const CONTINENTS = CONTINENT_KEYS;
 
 type LadderEntry = {
   position: number;
@@ -60,7 +64,7 @@ function ContinentLadder({ continent, data }: { continent: string; data: Regiona
       <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart2 className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold text-sm">{continent}</h3>
+          <h3 className="font-semibold text-sm">{continentLabel(continent)}</h3>
         </div>
         <Badge variant="outline" className="text-xs">
           {round === 0 ? "Pre-season" : round >= 10 ? "Complete" : `Round ${round}/10`}
@@ -199,7 +203,7 @@ export default function RegionalLadders() {
             const r = results[idx];
             if (!r?.data) return (
               <div key={continent} className="rounded-xl border bg-card p-6 text-center text-muted-foreground text-sm">
-                {continent} — No active season data
+                {continentLabel(continent)} — No active season data
               </div>
             );
             return <ContinentLadder key={continent} continent={continent} data={r.data} />;
