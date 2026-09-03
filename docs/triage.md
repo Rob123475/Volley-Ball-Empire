@@ -158,22 +158,32 @@ She is `player_type='spare'` and never displayed. Only matters if unparked.
 
 ## 3. Design questions you raised, still open
 
-### 3z. Martha Kera is 37 and the retirement age is 34
-Found by the rewritten `/players/validation`. She is the only senior at or past
-`RETIREMENT_AGE`; the next oldest in the world is 31. Her card reads 37, so the
-database matches the artwork — this is not a typo to correct quietly.
+### 3z. Martha Kera vs the retirement age — RESOLVED 3 September 2026
+Found by the rewritten `/players/validation`: she shipped at 37 against
+`RETIREMENT_AGE = 34`, the only senior at or past it, with the next oldest at
+31. Her card reads 37, so the database matched the artwork.
 
-As shipped she is playable for season one and retired at the first boundary,
-which takes Solomon Islands to two seniors until the academy backfills. Three
-ways out, and it is a design call:
+**Resolved by raising `RETIREMENT_AGE` to 40** (Rob's call). Recorded here
+because it is a mechanic change, not a tuning tweak, and the cost is real:
 
-- **Leave it.** She is a deliberate veteran, one season of an Elite blocker
-  before she goes. Costs Solomon Islands a player at the first boundary.
-- **Raise `RETIREMENT_AGE`.** 38 would keep her for four seasons, but it changes
-  the career arc for all 192 players.
-- **Regenerate her card** at an age under 34, which is the only option that
-  needs new art.
+| threshold | seniors retiring per season, 5-season arc | total |
+|---|---|---|
+| 34 (was) | 1, 0, 2, 1, 5 | 9 |
+| 38 | 1, 0, 0, 0, 0 | 1 |
+| **40 (now)** | **0, 0, 1, 0, 0** | **1** |
 
+The one retirement at 40 *is* Martha Kera, in season three. Nobody else in the
+world ever reaches the threshold, so retirement is effectively off for a
+five-season career. `retireAgedPlayers` still runs at every boundary and is
+still tested — it just has almost nothing to act on.
+
+If retirement should bite again without moving the number back, the lever is
+the roster's age spread rather than the threshold: the world would need seniors
+in their mid-to-late thirties instead of one outlier at 37.
+
+`harness/rollover.mjs` no longer hardcodes the threshold — it reads
+`declared.retirementAge` from `/players/validation`, so moving the constant can
+no longer leave the harness asserting the old rule and still passing.
 
 ### 3a. Do the AI clubs need a reserve?
 The squad rule is 2 + 1 + 1 for **your** club. The 60 AI pool teams still carry

@@ -150,9 +150,16 @@ async function advanceToBoundary(api, maxDays = 500) {
   // rule, it is dead code.
   const alive = (await A("GET", "/players/market-all?playerType=senior")).data;
   const aliveList = Array.isArray(alive) ? alive : [];
-  const tooOld = aliveList.filter((p) => p.age >= 34);
+  // The threshold is READ, not restated. This line used to hardcode 34, so
+  // moving RETIREMENT_AGE would have left the harness asserting the old rule
+  // and still passing - the exact drift this project keeps finding. The
+  // validation endpoint reports the value the server actually compiled with.
+  const declaredAge = (await A("GET", "/players/validation")).data?.declared?.retirementAge;
+  check("the harness knows the real retirement age", Number.isFinite(declaredAge),
+    `retirementAge=${declaredAge}`);
+  const tooOld = aliveList.filter((p) => p.age >= declaredAge);
   check("no active player is at or past the retirement age", tooOld.length === 0,
-    `${tooOld.length} over-age still active`);
+    `${tooOld.length} over-age still active (threshold ${declaredAge})`);
   // Promotion. All 72 youth cross 19 during the arc, so the academy should be
   // largely emptied into the senior pool and the two views must AGREE — a
   // player counted in both, or in neither, is the failure this chunk is about.

@@ -23,17 +23,31 @@ export const FINAL_SEASON = 5;
 /**
  * Retirement age.
  *
- * Chosen from the shipped roster rather than picked: the senior pool peaks at
- * 22-25, so retirement is inherently back-loaded over a five-season arc. At 34
- * the arc retires [0, 0, 2, 1, 5] players per season — a handful, never a
- * cliff. At 33 it would be [0, 2, 1, 5, 11], and eleven in the final season is
- * not a handful. At 35 it is [0, 0, 0, 2, 1], which is barely anything.
+ * Set to 40 on 3 September 2026, on Rob's call. It was 34, and that number had
+ * been chosen from the shipped roster rather than picked: the senior pool peaks
+ * at 22-25, so retirement is back-loaded, and 34 retired [1, 0, 2, 1, 5] over a
+ * five-season arc — a handful per season, never a cliff.
+ *
+ * ── What 40 costs, measured against the shipped roster ──────────────────────
+ * The oldest senior in the world is 37 and the next oldest is 31, so at 40 the
+ * same arc retires [0, 0, 1, 0, 0]: ONE player across five seasons, and that
+ * player is Martha Kera, the 37-year-old this change was made to accommodate.
+ * Nobody else ever reaches the threshold.
+ *
+ * So retirement is now effectively off for a five-season career. That is a real
+ * loss of a mechanic, not a tuning tweak, and it is recorded here rather than
+ * discovered later: `retireAgedPlayers` still runs every boundary, the rule is
+ * still live and still tested, it just has almost nothing to act on.
+ *
+ * If retirement should bite again without moving this number back, the lever is
+ * the roster's age spread, not the threshold — the world would need seniors in
+ * their mid-to-late thirties rather than one outlier at 37.
  *
  * Deliberately a flat threshold and not a probability curve: the spec asks for
  * "a handful per season, not a system", and a bounded five-season arc does not
  * need decline modelling.
  */
-export const RETIREMENT_AGE = 34;
+export const RETIREMENT_AGE = 40;
 
 /**
  * Academy players graduate the season after they pass the youth age band.
