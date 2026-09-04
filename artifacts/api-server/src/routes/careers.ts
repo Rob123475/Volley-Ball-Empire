@@ -7,12 +7,12 @@ import {
   achievementsTable,
   hallOfFameTable,
   careerHistoryEntriesTable,
-  poachingOffersTable,
   seasonsTable,
 } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
+import { deleteCareerSave } from "../utils/deleteCareerSave.js";
 
 const router = Router();
 
@@ -157,23 +157,12 @@ router.post("/careers", async (req, res) => {
 
   if (existing) {
     // Overwriting a slot must only remove save-slot-owned data, the same
-    // scope as DELETE /careers/:id below: career_history_entries and
-    // poaching_offers reference career_saves without ON DELETE CASCADE, so
-    // they must be deleted first, inside a transaction. The old team is
-    // GLOBAL world data (referenced by 25 other tables) and must NOT be
-    // deleted — it's left orphaned, same as DELETE /careers/:id does.
+    // scope as DELETE /careers/:id below — deleteCareerSave is the one place
+    // that knows every table with a non-cascading FK to career_saves. The old
+    // team is GLOBAL world data (referenced by 25 other tables) and must NOT
+    // be deleted — it's left orphaned, same as DELETE /careers/:id does.
     try {
-      db.transaction((tx) => {
-        tx.delete(poachingOffersTable)
-          .where(eq(poachingOffersTable.careerSaveId, existing.id))
-          .run();
-        tx.delete(careerHistoryEntriesTable)
-          .where(eq(careerHistoryEntriesTable.careerSaveId, existing.id))
-          .run();
-        tx.delete(careerSavesTable)
-          .where(eq(careerSavesTable.id, existing.id))
-          .run();
-      });
+      deleteCareerSave(existing.id);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       req.log.error({ err, saveId: existing.id, userId: req.user.id }, "POST /careers overwrite failed");
@@ -418,32 +407,10 @@ router.delete("/careers/:id", async (req, res) => {
   req.log.info({ saveId: id, userId: req.user.id, slotNumber: save.slotNumber }, "DELETE /careers/:id — starting");
 
   try {
-    // Synchronous callback — better-sqlite3 transactions must not be async
-    // (see the note in utils/regionalSeason.ts). A bare `catch {}` around
-    // one hides the resulting "Transaction function cannot return a
-    // promise" TypeError entirely; this one at least surfaces it via
-    // req.log.error below, but was still silently never deleting anything.
-    db.transaction((tx) => {
-      // Step 1: poaching_offers — NOT NULL FK to career_saves, must go first
-      req.log.info({ saveId: id }, "step 1: deleting poaching_offers");
-      tx.delete(poachingOffersTable)
-        .where(eq(poachingOffersTable.careerSaveId, id))
-        .run();
-
-      // Step 2: career_history_entries — nullable FK to career_saves
-      req.log.info({ saveId: id }, "step 2: deleting career_history_entries");
-      tx.delete(careerHistoryEntriesTable)
-        .where(eq(careerHistoryEntriesTable.careerSaveId, id))
-        .run();
-
-      // Step 3: career_saves row itself
-      // Teams, players, facilities, matches, finances, etc. are GLOBAL world data
-      // and must not be touched. Only the career save row is deleted.
-      req.log.info({ saveId: id }, "step 3: deleting career_saves row");
-      tx.delete(careerSavesTable)
-        .where(eq(careerSavesTable.id, id))
-        .run();
-    });
+    // Teams, players, facilities, matches, finances, etc. are GLOBAL world
+    // data and must not be touched — deleteCareerSave only removes rows that
+    // reference this career save, then the career_saves row itself.
+    deleteCareerSave(id);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     req.log.error({ err, saveId: id, userId: req.user.id }, "DELETE /careers/:id failed");
@@ -453,7 +420,7 @@ router.delete("/careers/:id", async (req, res) => {
 
   req.log.info({ saveId: id }, "DELETE /careers/:id — success");
 
-  // Step 4: clear session if this save's team was the active one
+  // Clear session if this save's team was the active one
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);

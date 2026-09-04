@@ -305,6 +305,38 @@ const roster = async (api) => {
   const squadC = await roster(C);
   check("squad settled at 3 seniors", squadC.length === 3, `${squadC.length} signed`);
 
+  // ── 10. Career save cascade (R-03) ────────────────────────────────────────
+  // career_player_state, career_staff_state and career_pool_team_state are
+  // seeded the moment a career is created (NOT NULL FKs to career_saves), and
+  // competitor_rankings gains a row the moment a match is played. Overwriting
+  // or deleting a slot with rows in all four must not 500.
+  console.log("\n10. CAREER SAVE CASCADE (OVERWRITE + DELETE)");
+  const D = session();
+  await newCareer(D, "SmokeD");
+
+  await D("GET", "/matches/fixture");
+  await D("PATCH", "/calendar/speed", { speed: "pause" });
+  let playedD = 0;
+  for (let d = 0; d < 120 && playedD < 1; d++) {
+    const r = await D("POST", "/calendar/advance", {});
+    if (r.status >= 400 || r.data?.blocked === "season_end") break;
+    const mid = r.data?.pendingMatchId ?? r.data?.matchDay?.id;
+    if (mid) { await D("POST", `/matches/${mid}/simulate`, {}); playedD++; await D("POST", "/calendar/dismiss-match", {}); }
+  }
+  check("R-03 setup: a match was played before overwrite", playedD > 0, `${playedD} matches`);
+
+  const overwriteRes = await D("POST", "/careers", {
+    slotNumber: 1, managerName: "SmokeD2", managerNationality: "Australia",
+    clubName: "SmokeD2 FC", originalClubName: "SmokeD2 FC", season: "Season 1",
+    budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
+  });
+  check("R-03: overwriting a played slot returns 2xx", overwriteRes.status < 300,
+    `HTTP ${overwriteRes.status} ${JSON.stringify(overwriteRes.data)}`);
+
+  const deleteRes = await D("DELETE", `/careers/${overwriteRes.data?.id}`);
+  check("R-03: deleting that slot returns 2xx", deleteRes.status < 300,
+    `HTTP ${deleteRes.status} ${JSON.stringify(deleteRes.data)}`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

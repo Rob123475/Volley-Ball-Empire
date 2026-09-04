@@ -30,20 +30,17 @@ import {
   olympicSelectionsTable,
   userProfilesTable,
   careerSavesTable,
-  careerHistoryEntriesTable,
-  poachingOffersTable,
   careerPlayerStateTable,
   careerStaffStateTable,
-  careerPoolTeamStateTable,
   regionalLeagueSeasonsTable,
   regionalLeagueFixturesTable,
   regionalLeagueResultsTable,
-  competitorRankingsTable,
   seasonsTable,
   worldTourQualificationsTable,
   aiManagersTable,
 } from "@workspace/db";
 import { eq, inArray, or } from "drizzle-orm";
+import { deleteCareerSave } from "./deleteCareerSave.js";
 
 /**
  * Delete a local profile and everything that belongs to it.
@@ -152,17 +149,20 @@ export function deleteProfileCascade(userId: string): void {
       .all()
       .map((r) => r.id);
     if (saveIds.length > 0) {
-      tx.delete(careerPlayerStateTable).where(inArray(careerPlayerStateTable.careerSaveId, saveIds)).run();
-      tx.delete(careerStaffStateTable).where(inArray(careerStaffStateTable.careerSaveId, saveIds)).run();
-      // competitor_rankings FKs career_saves; seasons does NOT (career_save_id
-      // is deliberately unreferenced so pre-migration rows survive). That means
-      // an orphaned season did not fail loudly — deleting a profile returned
-      // 200 and left the row behind. Both are career-scoped and must go.
-      tx.delete(competitorRankingsTable).where(inArray(competitorRankingsTable.careerSaveId, saveIds)).run();
+      // deleteCareerSave deletes careerPlayerStateTable, careerStaffStateTable,
+      // careerPoolTeamStateTable, competitorRankingsTable, poachingOffersTable,
+      // careerHistoryEntriesTable and the careerSavesTable row itself — the
+      // same shared cascade the career-slot routes use. Passing our own `tx`
+      // keeps this part of the one profile-deletion transaction rather than
+      // opening a nested one.
+      for (const saveId of saveIds) {
+        deleteCareerSave(saveId, tx);
+      }
+      // seasons does NOT FK career_saves (career_save_id is deliberately
+      // unreferenced so pre-migration rows survive), so it never blocked a
+      // delete — but it's still career-scoped and must go, or an orphaned
+      // season silently survives a profile deletion that returns 200.
       tx.delete(seasonsTable).where(inArray(seasonsTable.careerSaveId, saveIds)).run();
-      // Both scoped in the staff-split pass while still empty. Handled here on
-      // the same day rather than left for whoever populates them.
-      tx.delete(careerPoolTeamStateTable).where(inArray(careerPoolTeamStateTable.careerSaveId, saveIds)).run();
       // Results before fixtures before seasons: results FK fixtures, fixtures
       // FK seasons. defer_foreign_keys makes the order non-load-bearing, but
       // getting it right costs nothing and survives that pragma changing.
@@ -172,10 +172,6 @@ export function deleteProfileCascade(userId: string): void {
       tx.delete(worldTourQualificationsTable).where(inArray(worldTourQualificationsTable.careerSaveId, saveIds)).run();
       tx.delete(aiManagersTable).where(inArray(aiManagersTable.careerSaveId, saveIds)).run();
     }
-
-    tx.delete(poachingOffersTable).where(eq(poachingOffersTable.userId, userId)).run();
-    tx.delete(careerHistoryEntriesTable).where(eq(careerHistoryEntriesTable.userId, userId)).run();
-    tx.delete(careerSavesTable).where(eq(careerSavesTable.userId, userId)).run();
 
     // ── Remaining direct references to the user ────────────────────────────
     tx.delete(managerSeasonSummaryTable).where(eq(managerSeasonSummaryTable.userId, userId)).run();
