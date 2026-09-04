@@ -628,52 +628,61 @@ router.get("/matches/fixture", async (req, res) => {
     const [finalLoc] = await db.select().from(locationsTable).where(eq(locationsTable.id, finalLocId));
     const finalsLocationName = finalLoc ? `${finalLoc.name} • ${finalLoc.country}` : "Copacabana Beach • Brazil";
 
-    for (const f of regularEvents) {
-      const { weather, windSpeed, temperature } = generateWeather(f.locId);
-      await db.insert(matchesTable).values({
-        homeTeamId:   team.id,
-        awayTeamId:   team.id,
-        locationId:   f.locId,
-        locationName: f.locName,
-        homeTeamName: team.name,
-        awayTeamName: f.opponent,
-        weather,
-        windSpeed,
-        temperature,
-        season:      seasonYear,
-        round:       f.round,
-        teamSize:    2,
-        scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount:  f.prize,
-        status:      "scheduled",
-        continent:   f.continent,
-        tier:        f.tier,
-      });
-    }
+    // All 76 inserts (72 regular/continental + 4 World Finals) in one
+    // transaction: these were sequential awaits with no transaction, so a
+    // failure partway through (e.g. a disk error on insert 40) left a
+    // half-built season — some rounds scheduled, the rest silently missing,
+    // and no error surfaced to the player. A synchronous callback is
+    // required here (better-sqlite3 transactions cannot be async), so this
+    // uses `tx.insert(...).run()` rather than `await db.insert(...)`.
+    db.transaction((tx) => {
+      for (const f of regularEvents) {
+        const { weather, windSpeed, temperature } = generateWeather(f.locId);
+        tx.insert(matchesTable).values({
+          homeTeamId:   team.id,
+          awayTeamId:   team.id,
+          locationId:   f.locId,
+          locationName: f.locName,
+          homeTeamName: team.name,
+          awayTeamName: f.opponent,
+          weather,
+          windSpeed,
+          temperature,
+          season:      seasonYear,
+          round:       f.round,
+          teamSize:    2,
+          scheduledAt: `${f.date}T14:00:00.000Z`,
+          prizeAmount:  f.prize,
+          status:      "scheduled",
+          continent:   f.continent,
+          tier:        f.tier,
+        }).run();
+      }
 
-    for (const f of worldFinalsEvents) {
-      const { weather, windSpeed, temperature } = generateWeather(finalLocId);
-      const isAllStar = f.tier === "All-Star Match";
-      await db.insert(matchesTable).values({
-        homeTeamId:   team.id,
-        awayTeamId:   team.id,
-        locationId:   finalLocId,
-        locationName: finalsLocationName,
-        homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
-        awayTeamName: f.opponent,
-        weather,
-        windSpeed,
-        temperature,
-        season:      seasonYear,
-        round:       f.round,
-        teamSize:    2,
-        scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount:  f.prize,
-        status:      "scheduled",
-        continent:   f.continent,
-        tier:        f.tier,
-      });
-    }
+      for (const f of worldFinalsEvents) {
+        const { weather, windSpeed, temperature } = generateWeather(finalLocId);
+        const isAllStar = f.tier === "All-Star Match";
+        tx.insert(matchesTable).values({
+          homeTeamId:   team.id,
+          awayTeamId:   team.id,
+          locationId:   finalLocId,
+          locationName: finalsLocationName,
+          homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
+          awayTeamName: f.opponent,
+          weather,
+          windSpeed,
+          temperature,
+          season:      seasonYear,
+          round:       f.round,
+          teamSize:    2,
+          scheduledAt: `${f.date}T14:00:00.000Z`,
+          prizeAmount:  f.prize,
+          status:      "scheduled",
+          continent:   f.continent,
+          tier:        f.tier,
+        }).run();
+      }
+    });
 
     existing = await db.select().from(matchesTable)
       .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
@@ -686,29 +695,33 @@ router.get("/matches/fixture", async (req, res) => {
     const [finalLoc] = await db.select().from(locationsTable).where(eq(locationsTable.id, finalLocId));
     const finalsLocationName = finalLoc ? `${finalLoc.name} • ${finalLoc.country}` : "Copacabana Beach • Brazil";
 
-    for (const f of worldFinalsEvents) {
-      const { weather, windSpeed, temperature } = generateWeather(finalLocId);
-      const isAllStar = f.tier === "All-Star Match";
-      await db.insert(matchesTable).values({
-        homeTeamId:   team.id,
-        awayTeamId:   team.id,
-        locationId:   finalLocId,
-        locationName: finalsLocationName,
-        homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
-        awayTeamName: f.opponent,
-        weather,
-        windSpeed,
-        temperature,
-        season:      seasonYear,
-        round:       f.round,
-        teamSize:    2,
-        scheduledAt: `${f.date}T14:00:00.000Z`,
-        prizeAmount:  f.prize,
-        status:      "scheduled",
-        continent:   f.continent,
-        tier:        f.tier,
-      });
-    }
+    // Same reasoning as the fresh-fixture branch above: one transaction so a
+    // mid-way failure doesn't leave a partial set of World Finals matches.
+    db.transaction((tx) => {
+      for (const f of worldFinalsEvents) {
+        const { weather, windSpeed, temperature } = generateWeather(finalLocId);
+        const isAllStar = f.tier === "All-Star Match";
+        tx.insert(matchesTable).values({
+          homeTeamId:   team.id,
+          awayTeamId:   team.id,
+          locationId:   finalLocId,
+          locationName: finalsLocationName,
+          homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
+          awayTeamName: f.opponent,
+          weather,
+          windSpeed,
+          temperature,
+          season:      seasonYear,
+          round:       f.round,
+          teamSize:    2,
+          scheduledAt: `${f.date}T14:00:00.000Z`,
+          prizeAmount:  f.prize,
+          status:      "scheduled",
+          continent:   f.continent,
+          tier:        f.tier,
+        }).run();
+      }
+    });
 
     existing = await db.select().from(matchesTable)
       .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
