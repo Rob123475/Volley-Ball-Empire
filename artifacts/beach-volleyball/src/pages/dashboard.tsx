@@ -1801,6 +1801,7 @@ const PRIORITY_META = {
 };
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  Squad:          <Users className="h-3.5 w-3.5" />,
   Medical:        <HeartPulse className="h-3.5 w-3.5" />,
   Contract:       <KeyRound className="h-3.5 w-3.5" />,
   Finances:       <DollarSign className="h-3.5 w-3.5" />,

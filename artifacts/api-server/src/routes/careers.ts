@@ -13,6 +13,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
 import { deleteCareerSave } from "../utils/deleteCareerSave.js";
+import { seedStartingSquad } from "../utils/seedStartingSquad.js";
 
 const router = Router();
 
@@ -215,6 +216,11 @@ router.post("/careers", async (req, res) => {
   // career_player_state, so its transfer market is empty and nothing can be
   // signed — players are global reference data and the career half must exist.
   seedCareerState(inserted!.id);
+
+  // A startup squad so the manager isn't staring at zero players (R-04). The
+  // difficulty choice (R-11) that would size this properly isn't built yet;
+  // this is the minimum viable squad from existing free agents only.
+  await seedStartingSquad(inserted!.id, newTeam.id, "2026-12-31");
 
   // This career's own season timeline. Previously one global season row was
   // created on the first career and every later career reused it, so a second

@@ -71,6 +71,31 @@ const roster = async (api) => {
   const teamB = await newCareer(B, "SmokeB");
   console.log(`careers: A team ${teamA.id}, B team ${teamB.id}\n`);
 
+  // ── 0. A fresh career starts with a squad it can actually field (R-04) ─────
+  // Beach volleyball is played two-a-side (squadRules.ts MAX_STARTERS = 2) —
+  // a career that starts with zero players can't play a match at all.
+  console.log("0. STARTING SQUAD");
+  const rosterA0 = await A("GET", "/team/roster");
+  check("a fresh career has at least a legal match-day squad (2 starters)",
+    (rosterA0.data?.starters?.length ?? 0) >= 2,
+    `${rosterA0.data?.starters?.length ?? 0} starters`);
+  check("the starting squad is existing free agents, not invented players",
+    (rosterA0.data?.starters ?? []).every(p => typeof p.id === "number" && p.name),
+    JSON.stringify((rosterA0.data?.starters ?? []).map(p => p.name)));
+
+  const attentionA0 = await A("GET", "/attention-items");
+  const squadItem = (attentionA0.data?.items ?? []).find(i => i.category === "Squad");
+  check("first session tells the manager what to do next, with a button to the market",
+    squadItem?.navigateTo === "/players",
+    JSON.stringify(squadItem ?? null));
+
+  // Release A's seeded squad so the rest of this suite — signing, training,
+  // playing matches with a specific tracked player — still walks up from an
+  // empty roster exactly as it did before R-04 seeded one at creation.
+  for (const p of [...(rosterA0.data?.starters ?? []), ...(rosterA0.data?.interchanges ?? [])]) {
+    await A("POST", `/players/${p.id}/release`, {});
+  }
+
   // ── 1. Sign a free agent ──────────────────────────────────────────────────
   console.log("1. SIGN A FREE AGENT");
   const marketA0 = await market(A);
@@ -273,6 +298,13 @@ const roster = async (api) => {
   console.log("\n9. SQUAD SIZE");
   const C = session();
   await newCareer(C, "SmokeC");
+
+  // A fresh career now starts with a seeded squad (R-04, section 0) — release
+  // it first so this test can still walk the cap from empty to full.
+  for (const p of await roster(C)) {
+    await C("POST", `/players/${p.id}/release`, {});
+  }
+
   const poolC = (await market(C)).filter((p) => (p.age ?? 99) >= 19);
   const signC = (p, squadRole) =>
     C("POST", "/contracts", {

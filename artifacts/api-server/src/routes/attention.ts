@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { MAX_STARTERS, MAX_SENIORS } from "../utils/squadRules.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -62,6 +63,39 @@ router.get("/attention-items", async (req, res) => {
   ]);
 
   const items: AttentionItem[] = [];
+
+  // ── No legal match-day squad yet (red) — the first thing a new career needs ──
+  // A new club can't play a match with fewer than MAX_STARTERS players signed.
+  // This is what a brand-new career sees before its first visit to the market.
+  const startersSigned = players.filter(p => p.squadRole === "starter").length;
+  if (startersSigned < MAX_STARTERS) {
+    items.push({
+      id: "squad-incomplete",
+      priority: "red",
+      category: "Squad",
+      title: startersSigned === 0 ? "Build Your Squad" : "Squad Incomplete",
+      description: startersSigned === 0
+        ? "You have no players signed — visit the Player Market to sign your first starters."
+        : `Only ${startersSigned}/${MAX_STARTERS} starters signed — visit the Player Market to fill your squad.`,
+      navigateTo: "/players",
+    });
+  }
+
+  // ── Still at the auto-seeded starting squad (blue) ───────────────────────────
+  // A new career is seeded with just enough to field a match (R-04) — that's a
+  // startup club, not a finished one. This nudges a first session toward the
+  // market rather than the red item above, which is reserved for a squad that
+  // literally cannot play.
+  else if (players.length <= MAX_SENIORS) {
+    items.push({
+      id: "grow-your-squad",
+      priority: "blue",
+      category: "Squad",
+      title: "Grow Your Squad",
+      description: "You're starting with the bare minimum to compete — visit the Player Market to sign more players.",
+      navigateTo: "/players",
+    });
+  }
 
   // ── Injured players (red) ────────────────────────────────────────────────────
   for (const p of players.filter(p => p.isInjured)) {
