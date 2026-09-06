@@ -369,6 +369,42 @@ const roster = async (api) => {
   check("R-03: deleting that slot returns 2xx", deleteRes.status < 300,
     `HTTP ${deleteRes.status} ${JSON.stringify(deleteRes.data)}`);
 
+  // ── 11. Delete a profile with a played career (R-19) ──────────────────────
+  // The Select Manager screen's new Delete control calls DELETE /api/profiles/:id
+  // directly — this proves that endpoint still succeeds for a profile that has
+  // actually played (contracts signed, a match simulated, career state and
+  // competitor_rankings populated), not just a freshly created one.
+  console.log("\n11. DELETE PROFILE WITH A PLAYED CAREER (R-19)");
+  const E = session();
+  const profRes = await E("POST", "/profiles", { name: "SmokeE" });
+  const profileId = profRes.data.id;
+  await E("POST", `/profiles/${profileId}/select`);
+  await E("POST", "/careers", {
+    slotNumber: 1, managerName: "SmokeE", managerNationality: "Australia",
+    clubName: "SmokeE FC", originalClubName: "SmokeE FC", season: "Season 1",
+    budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
+  });
+
+  await E("GET", "/matches/fixture");
+  await E("PATCH", "/calendar/speed", { speed: "pause" });
+  let playedE = 0;
+  for (let d = 0; d < 120 && playedE < 1; d++) {
+    const r = await E("POST", "/calendar/advance", {});
+    if (r.status >= 400 || r.data?.blocked === "season_end") break;
+    const mid = r.data?.pendingMatchId ?? r.data?.matchDay?.id;
+    if (mid) { await E("POST", `/matches/${mid}/simulate`, {}); playedE++; await E("POST", "/calendar/dismiss-match", {}); }
+  }
+  check("R-19 setup: the profile's career has actually been played", playedE > 0, `${playedE} matches`);
+
+  const deleteProfileRes = await E("DELETE", `/profiles/${profileId}`);
+  check("R-19: deleting a played profile returns 2xx", deleteProfileRes.status < 300,
+    `HTTP ${deleteProfileRes.status} ${JSON.stringify(deleteProfileRes.data)}`);
+
+  const profilesAfter = await E("GET", "/profiles");
+  check("R-19: the deleted profile no longer appears in the list",
+    !(profilesAfter.data?.profiles ?? []).some(p => p.id === profileId),
+    `${profilesAfter.data?.profiles?.length ?? 0} profiles remain`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

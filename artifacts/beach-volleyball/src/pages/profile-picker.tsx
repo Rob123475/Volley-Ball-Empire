@@ -1,7 +1,19 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, User, Plus, Play } from "lucide-react";
+import { Loader2, User, Plus, Play, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Profile = { id: string; name: string; profileImage: string | null };
 
@@ -60,8 +72,19 @@ export default function ProfilePicker() {
     onError: () => setActionError("Could not create that profile. Please try again."),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete profile");
+      return res.json();
+    },
+    onMutate: () => setActionError(null),
+    onSuccess: () => { refetch(); },
+    onError: () => setActionError("Could not delete that manager. Please try again."),
+  });
+
   const profiles = data?.profiles ?? [];
-  const busy = selectMutation.isPending || createMutation.isPending;
+  const busy = selectMutation.isPending || createMutation.isPending || deleteMutation.isPending;
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
@@ -95,19 +118,53 @@ export default function ProfilePicker() {
             <div className="py-8 px-4 text-center text-sm text-white/30">No profiles yet — create one below.</div>
           ) : (
             profiles.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                disabled={busy}
-                onClick={() => selectMutation.mutate(p.id)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/6 transition-colors disabled:opacity-40"
-              >
-                <div className="h-9 w-9 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
-                  <User className="h-4 w-4 text-secondary" />
-                </div>
-                <span className="flex-1 text-sm font-bold text-white">{p.name}</span>
-                <Play className="h-4 w-4 text-white/30" />
-              </button>
+              <div key={p.id} className="w-full flex items-center gap-1 pr-2">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => selectMutation.mutate(p.id)}
+                  className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/6 transition-colors disabled:opacity-40"
+                >
+                  <div className="h-9 w-9 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                    <User className="h-4 w-4 text-secondary" />
+                  </div>
+                  <span className="flex-1 text-sm font-bold text-white truncate">{p.name}</span>
+                  <Play className="h-4 w-4 text-white/30 shrink-0" />
+                </button>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={busy}
+                      title="Delete manager"
+                      data-testid={`button-delete-profile-${p.id}`}
+                      className="shrink-0 text-white/30 hover:text-red-400 hover:bg-red-400/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete {p.name}?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {p.name}'s career will be permanently deleted. This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteMutation.mutate(p.id)}
+                        className="bg-destructive text-destructive-foreground"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             ))
           )}
         </div>

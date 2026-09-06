@@ -32,6 +32,7 @@ import {
   careerSavesTable,
   careerPlayerStateTable,
   careerStaffStateTable,
+  competitorsTable,
   regionalLeagueSeasonsTable,
   regionalLeagueFixturesTable,
   regionalLeagueResultsTable,
@@ -107,7 +108,14 @@ export function deleteProfileCascade(userId: string): void {
       }
 
       // ── Children of teams ─────────────────────────────────────────────────
+      // competitorsTable is the one non-obvious entry: it's a lazily-created,
+      // one-row-per-team identity (utils/competitors.ts competitorIdForTeam),
+      // made the first time any match is scored — not seeded at career
+      // creation, so a profile that never played a match never has one. Miss
+      // it and deleting `teams` below fails at COMMIT (defer_foreign_keys)
+      // with a bare "FOREIGN KEY constraint failed", naming no table.
       for (const table of [
+        competitorsTable,
         contractsTable,
         injuryHistoryTable,
         trainingSessionsTable,
