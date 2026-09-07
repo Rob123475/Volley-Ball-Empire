@@ -90,15 +90,45 @@ whose save predates a future reference-data addition, the same way R-01 existed 
 Until one of those happens, the dashboard 500s for any existing career with zero matches on
 this specific live save (currently: R04 Check).
 
-### R-25 — New-career wizard saves the wrong manager name
+### R-25 — INVESTIGATED, NO CODE BUG FOUND (7 Sep, 2cabc5a)
 Found during R-20. `career_saves.manager_name` for "R04 Check" is literally the string `"r"`
 (the dashboard club banner shows it as the manager badge). The row is the right row; the value
 was wrong at write time. Most likely the wizard field sends a stale/partial value or the wrong
 field. Related: R-13 says the save-slot screen drops `managerNationality` and `crestShapeIndex`
 — check both wizard paths (`pages/new-career.tsx` and `pages/career-management.tsx`) while here,
 because they are near-duplicates (see economy-design.md "the club picker exists TWICE").
-**Proof:** create a career named "R25 Check" through the title-screen wizard; SQL on the live
-save shows `manager_name = 'R25 Check'`; the club banner shows it. Screenshot.
+
+**What was found:** every step of the write path is correct. `new-career.tsx` and
+`career-management.tsx` (`NewCareerModal`) are both plain controlled inputs
+(`value`/`onChange`, no stale state, no wrong field), submitted as `managerName.trim()`.
+`useUpsertCareerSave` (generated API client) is a pure passthrough. `POST /careers` stores
+`req.body.managerName.trim()` unmodified. Confirmed on the live save: attempted to create
+"R25 Check" through the exact request shape the wizard sends; the request failed (same
+location-data gap R-26 found — see below), but the `career_saves` row it managed to write
+before that failure shows `manager_name = 'R25 Check'`, exactly as sent.
+
+R-13's part of this (career-management.tsx dropping `managerNationality`/`crestShapeIndex`) is
+worse than a dropped payload field — that modal never collects them at all (no state, no UI).
+Fixing it means adding a nationality picker and a crest-shape picker to that screen, a real UI
+feature. Left open under R-13, not attempted here.
+
+**Fix applied:** `autoComplete="off"` added to both manager-name inputs — a defensive measure
+against browser-level form autofill (the only plausible non-code explanation left), not
+presented as a confirmed fix, since no code defect was found to fix.
+
+**Harness (done):** `smoke.mjs` section 15 asserts `POST /careers` echoes the exact manager
+name sent and `GET /dashboard` reads it back unchanged. This does not fail on the prior commit
+— the server-side behaviour never changed, and a server-driven harness cannot exercise a
+client-side `autoComplete` attribute. It stands as a permanent regression guard, and as the
+evidence that the write path is correct. Full harness: 7/7 suites green.
+
+**Live-save proof: BLOCKED, same root cause as R-26.** Creating any new career on this live
+save — including "R25 Check" — currently fails at the fixture-generation step (missing
+`locations` rows 9-11). See R-26's entry. The profile "R25 Check" and its half-created career
+(team 7, `career_saves` id 7 — correct `manager_name`, no fixtures, never reached the
+dashboard) are left in place. Once R-26's live-save blocker is resolved, re-attempt this
+proof: create "R25 Check" cleanly and confirm the club banner shows it — that will also be the
+first real end-to-end confirmation this was never a code bug.
 
 ### R-21 — Profile with no career lands on a dead dashboard
 Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club
