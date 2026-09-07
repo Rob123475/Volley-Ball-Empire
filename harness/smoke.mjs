@@ -545,6 +545,28 @@ const roster = async (api) => {
   check("R-25: the dashboard reads back the same manager name that was stored",
     dashJ.data?.managerName === distinctiveName, JSON.stringify(dashJ.data?.managerName));
 
+  // ── 16. A profile whose only career is retired reads as "no career" (R-21) ─
+  // Reported repro: "mary" (one retired career, no active one) opened the
+  // picker straight into a dead dashboard instead of the title screen. The
+  // register's own theory was that this is the exact case R-20 already
+  // fixed: getActiveTeam used to fall back to "the most recently created
+  // team for this user" whenever activeTeamId was unset — for a profile
+  // whose only team belongs to a RETIRED career, that fallback returned the
+  // retired team as if it were active, so GET /api/team returned 200 (not
+  // the 404 the title screen's AuthGuard needs to redirect on). This case
+  // reproduces mary's exact shape (one career, retired, no other) and
+  // proves /api/team 404s rather than resolving the retired team — the one
+  // signal AuthGuard's needsTeam/isNoCareerError logic depends on.
+  console.log("\n16. RETIRED-ONLY PROFILE READS AS NO CAREER (R-21)");
+  const K = session();
+  await newCareer(K, "SmokeK");
+  const endRes = await K("POST", "/careers/end", {});
+  check("R-21 setup: the only career was retired", endRes.status < 300, `HTTP ${endRes.status}`);
+
+  const teamK = await K("GET", "/team");
+  check("R-21: /api/team 404s for a profile whose only career is retired, not 200 with stale data",
+    teamK.status === 404, `HTTP ${teamK.status} ${JSON.stringify(teamK.data)}`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });
