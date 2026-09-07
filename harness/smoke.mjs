@@ -490,6 +490,31 @@ const roster = async (api) => {
     cal1.data?.seasonRound === round0 && cal1.data?.currentDate === date0,
     `round ${round0} -> ${cal1.data?.seasonRound}, date ${date0} -> ${cal1.data?.currentDate}`);
 
+  // ── 14. A new career has fixtures and a next match immediately (R-26) ─────
+  // Fixture generation used to run only from GET /matches/fixture, called
+  // only by the Fixtures page. newCareer() here never visits it — POST
+  // /careers itself must generate the season, and GET /dashboard must be
+  // able to show a real next match and a populated ladder without the
+  // player ever having opened Fixtures.
+  console.log("\n14. FIXTURES AND LADDER READY AT CREATION (R-26)");
+  const I = session();
+  await newCareer(I, "SmokeI");
+
+  const dashI = await I("GET", "/dashboard");
+  check("R-26: the dashboard shows a real next match, no Fixtures visit needed",
+    dashI.data?.nextMatch != null, JSON.stringify(dashI.data?.nextMatch));
+
+  const matchesI = await I("GET", "/matches");
+  check("R-26: matches exist for the team immediately after creation",
+    Array.isArray(matchesI.data) && matchesI.data.length > 0,
+    `${matchesI.data?.length ?? 0} matches`);
+
+  const seasonI  = await I("GET", "/seasons/current");
+  const ladderI  = await I("GET", `/seasons/${seasonI.data?.id}/ladder`);
+  check("R-26: the ladder is populated (the player's own team) before any match is played",
+    (ladderI.data ?? []).length > 0 && (ladderI.data ?? []).some(e => e.teamId === dashI.data?.team?.id),
+    JSON.stringify(ladderI.data));
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

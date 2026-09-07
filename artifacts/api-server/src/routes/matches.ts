@@ -579,16 +579,20 @@ router.get("/matches/upcoming", async (req, res) => {
   res.json(matches.filter(m => m.status === "scheduled").map(serializeMatch));
 });
 
-// Full season fixture — fixed 76-event schedule (72 regular/cont + 4 world finals)
-router.get("/matches/fixture", async (req, res) => {
-  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getActiveTeam(req);
-  if (!team) { res.json([]); return; }
-
-  const activeSeason = await getActiveSeason(req);
-  if (!activeSeason) { res.status(400).json({ error: "No active season" }); return; }
-  const seasonYear = activeSeason.year;
-
+/**
+ * Ensure a team has its full 76-event season fixture (72 regular/continental
+ * + 4 World Finals) for the given year, generating whatever is missing.
+ *
+ * R-26: this used to run only from GET /matches/fixture, called only by the
+ * Fixtures page — a career could sit with zero matches, "No match — Schedule
+ * one" on the dashboard and an empty ladder, until the player happened to
+ * open that one page. Extracted so POST /careers can call it eagerly at
+ * creation and GET /dashboard can call it defensively (idempotent — a
+ * career that already has its fixture returns immediately), so any career,
+ * new or pre-existing, gets one the moment anything asks. One generator,
+ * three callers, not three generators.
+ */
+export async function ensureSeasonFixture(team: { id: number; name: string }, seasonYear: number) {
   let existing = await db.select().from(matchesTable)
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
     .orderBy(matchesTable.round);
@@ -727,6 +731,21 @@ router.get("/matches/fixture", async (req, res) => {
       .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, seasonYear)))
       .orderBy(matchesTable.round);
   }
+
+  return existing;
+}
+
+// Full season fixture — fixed 76-event schedule (72 regular/cont + 4 world finals)
+router.get("/matches/fixture", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.json([]); return; }
+
+  const activeSeason = await getActiveSeason(req);
+  if (!activeSeason) { res.status(400).json({ error: "No active season" }); return; }
+  const seasonYear = activeSeason.year;
+
+  let existing = await ensureSeasonFixture(team, seasonYear);
 
   // ── Lazy seeding resolution ────────────────────────────────────────────────
   // Resolve the World Semi Final opponent once this team's regular World Tour

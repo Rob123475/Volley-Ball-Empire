@@ -36,6 +36,13 @@
  * Confirmed against the OLD (un-transacted) code before this fix: the same
  * trigger left 30 orphaned rows behind. Against the fix: 0.
  *
+ * R-26 update: fixture generation moved from lazy (GET /matches/fixture,
+ * called only by the Fixtures page) to eager — POST /careers now generates
+ * the season itself. So the sabotage trigger now fires DURING career
+ * creation, not during a later GET, and POST /careers is what returns the
+ * failure. The transaction guarantee under test is unchanged; only which
+ * request surfaces it moved.
+ *
  * Usage: node harness/fixture-transaction.mjs
  */
 import { spawn } from "node:child_process";
@@ -128,25 +135,30 @@ if (!up) {
 try {
   const profileRes = await api("POST", "/profiles", { name: "FixtureTx" });
   await api("POST", `/profiles/${profileRes.data.id}/select`);
+  // R-26: fixture generation is now eager, inside POST /careers itself, so
+  // the sabotaged insert fails career creation — there is no longer a
+  // separate successful-creation-then-failing-GET step.
   const careerRes = await api("POST", "/careers", {
     slotNumber: 1, managerName: "FixtureTx", managerNationality: "Australia",
     clubName: "FixtureTx FC", originalClubName: "FixtureTx FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
   });
-  check("career created", careerRes.status < 300, `HTTP ${careerRes.status}`);
-  const teamId = careerRes.data?.teamId;
-
-  const fixtureRes = await api("GET", "/matches/fixture");
-  check("the sabotaged fixture request fails, not succeeds",
-    fixtureRes.status >= 500, `HTTP ${fixtureRes.status}`);
+  check("the sabotaged career creation fails, not succeeds",
+    careerRes.status >= 500, `HTTP ${careerRes.status}`);
 
   child.kill("SIGKILL");
   await new Promise((r) => setTimeout(r, 600));
 
+  // careerRes never returned a teamId (creation failed before responding),
+  // so find the team the same way the DB does: by the club name this run
+  // used, unique within this throwaway database.
   const db = new DatabaseSync(dbFile, { readOnly: true });
+  const team = db.prepare("SELECT id FROM teams WHERE name = ?").get("FixtureTx FC");
+  check("the team row exists (creation got far enough to reach fixture generation)",
+    !!team, JSON.stringify(team));
   const { n } = db.prepare(
     "SELECT COUNT(*) as n FROM matches WHERE home_team_id = ?",
-  ).get(teamId);
+  ).get(team?.id ?? -1);
   db.close();
 
   check("zero fixture rows remain after the mid-sequence failure", n === 0, `${n} rows`);

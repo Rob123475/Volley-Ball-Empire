@@ -1,6 +1,7 @@
 import {
   db,
   competitorsTable,
+  competitorRankingsTable,
   continentalPoolTeamsTable,
   teamsTable,
 } from "@workspace/db";
@@ -76,6 +77,24 @@ export async function competitorIdForTeam(teamId: number): Promise<number> {
     .values({ teamId })
     .returning({ id: competitorsTable.id });
   return created!.id;
+}
+
+/**
+ * R-26: the season ladder is built from competitor_rankings, and that table
+ * only ever gained a row for a career the first time a match was actually
+ * played (creditRankingPoints, utils/rankingPoints.ts) — a schedule alone
+ * doesn't produce a ranking. So even with fixtures generated eagerly, a
+ * brand-new career's ladder stayed empty until its first result. Seeds a
+ * zero-everything row so the player's own team appears on their ladder from
+ * day one. Idempotent (onConflictDoNothing against the same unique index
+ * creditRankingPoints itself upserts against), so it's safe to call as a
+ * repair net for careers created before this existed.
+ */
+export async function ensureCompetitorRanking(teamId: number, careerSaveId: number, seasonYear: number): Promise<void> {
+  const competitorId = await competitorIdForTeam(teamId);
+  await db.insert(competitorRankingsTable)
+    .values({ competitorId, careerSaveId, seasonYear })
+    .onConflictDoNothing();
 }
 
 /** The competitor id for an AI pool club, creating it if absent. */

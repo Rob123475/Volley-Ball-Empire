@@ -14,6 +14,8 @@ import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
 import { deleteCareerSave } from "../utils/deleteCareerSave.js";
 import { seedStartingSquad } from "../utils/seedStartingSquad.js";
+import { ensureSeasonFixture } from "./matches.js";
+import { ensureCompetitorRanking } from "../utils/competitors.js";
 
 const router = Router();
 
@@ -243,6 +245,20 @@ router.post("/careers", async (req, res) => {
     isOlympicSeason:         false,
     regionalRoundsProcessed: 0,
   });
+
+  // R-26: fixture generation used to be lazy — only GET /matches/fixture ever
+  // called it, so a career had no schedule until the player happened to open
+  // the Fixtures page. Generated eagerly here so a career is never without
+  // one; GET /matches/fixture and GET /dashboard call the same function
+  // (idempotent — a career that already has its fixture returns immediately)
+  // as a repair net for saves created before this existed.
+  await ensureSeasonFixture(newTeam, 2026);
+
+  // R-26: the ladder is built from competitor_rankings, which only ever
+  // gained a row on a career's first PLAYED match — a schedule alone
+  // doesn't rank you. Seed a zero row so the player appears on their own
+  // ladder from day one instead of the ladder staying empty until then.
+  await ensureCompetitorRanking(newTeam.id, inserted!.id, 2026);
 
   const sid = getSessionId(req);
   if (sid) {

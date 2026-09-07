@@ -6,6 +6,8 @@ import { eq, desc, and } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { ensureSeasonFixture } from "./matches.js";
+import { ensureCompetitorRanking } from "../utils/competitors.js";
 
 const router = Router();
 
@@ -15,6 +17,18 @@ router.get("/dashboard", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const cid = requireCareerSaveId(req.activeCareerSaveId);
+
+  // R-26: a career could reach the dashboard with zero matches — fixture
+  // generation was only ever triggered by the Fixtures page. POST /careers
+  // now generates it eagerly for new careers; this call is the repair net
+  // for any career (like ones created before this fix) that still doesn't
+  // have one — idempotent, returns immediately once the fixture exists.
+  const activeSeason = await getActiveSeasonForCareer(cid);
+  if (activeSeason) {
+    await ensureSeasonFixture(team, activeSeason.year);
+    // Same repair net for the ladder — see utils/competitors.ts.
+    await ensureCompetitorRanking(team.id, cid, activeSeason.year);
+  }
 
   const recentMatches = await db.select().from(matchesTable)
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "completed")))
@@ -45,7 +59,6 @@ router.get("/dashboard", async (req, res) => {
   // not even playing is not a rank. Rank now comes from competitor_rankings,
   // the same source and the same (career_save_id, season_year) scope as the
   // season ladder — this career's own standing, nothing else's.
-  const activeSeason = await getActiveSeasonForCareer(cid);
   const rankedCompetitors = activeSeason
     ? await db.select({ teamId: competitorsTable.teamId, points: competitorRankingsTable.rankingPoints })
         .from(competitorRankingsTable)

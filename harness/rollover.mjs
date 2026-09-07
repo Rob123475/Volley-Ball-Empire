@@ -46,11 +46,26 @@ async function newCareer(api, label) {
   return (await api("GET", "/team")).data;
 }
 
-/** Advance until the season rolls over, or give up. Returns the roll event. */
+/**
+ * Advance until the season rolls over, or give up. Returns the roll event.
+ *
+ * R-26: fixture generation moved from lazy (never triggered here, since this
+ * harness never calls GET /matches/fixture) to eager at career creation, so
+ * this career now has real scheduled matches from round 11 on. Advance
+ * blocks with `blocked: "pending_match"` on a match day until it's
+ * resolved — skip-match resolves it with a quick random result and moves
+ * the date forward one day, which is all this harness needs; it asserts on
+ * season/date/age progression, not match outcomes.
+ */
 async function advanceToBoundary(api, maxDays = 500) {
   for (let i = 0; i < maxDays; i++) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed: ${JSON.stringify(r.data)}`);
+    if (r.data?.blocked === "pending_match") {
+      const skip = await api("POST", "/calendar/skip-match", {});
+      if (skip.status >= 400) throw new Error(`skip-match failed: ${JSON.stringify(skip.data)}`);
+      continue;
+    }
     const roll = r.data?.seasonRollover;
     if (roll && roll.kind !== "none") return { roll, days: i + 1, body: r.data };
   }
