@@ -181,10 +181,18 @@ async function getOrCreateCalendar(teamId: number, season: typeof seasonsTable.$
   const startRound = Math.min(Math.max(1, season.currentRound), season.totalRounds);
   const initDate   = roundToDate(season.startDate, season.endDate, startRound, season.totalRounds);
 
+  // R-24: this used to default to "medium" — the sole place a calendar_state
+  // row is ever created (checked: exactly one `insert(calendarStateTable)`
+  // in this file). getOrCreateCalendar runs from GET /calendar, which the
+  // dashboard calls on every load, so the moment a brand-new career opened
+  // the dashboard its clock started running on its own — the ticker in
+  // calendar-panel.tsx correctly does nothing while speed is "pause", it was
+  // simply never given the chance to see "pause". A career must start
+  // stopped; the player chooses when time moves.
   const [created] = await db.insert(calendarStateTable).values({
     teamId,
     currentDate:   initDate,
-    calendarSpeed: "medium",
+    calendarSpeed: "pause",
     lastSalaryDate: season.startDate,
   }).returning();
   return created!;
@@ -889,7 +897,9 @@ router.get("/calendar/annual", async (req, res) => {
     seasonStart:     season?.startDate ?? null,
     seasonEnd:       season?.endDate   ?? null,
     currentDate,
-    calendarSpeed:   calState?.calendarSpeed ?? "medium",
+    // R-24: a calendar not yet created is not yet running — "medium" here
+    // implied a clock already ticking before one existed.
+    calendarSpeed:   calState?.calendarSpeed ?? "pause",
     isOlympicSeason: season?.isOlympicSeason ?? false,
     hasSeasonData,
     events,

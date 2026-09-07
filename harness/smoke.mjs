@@ -464,6 +464,32 @@ const roster = async (api) => {
     (ladderG.data ?? []).length > 0 && (ladderG.data ?? []).every(e => e.teamId === dashG.data?.team?.id),
     JSON.stringify(ladderG.data));
 
+  // ── 13. A new career's clock does not run by itself (R-24) ────────────────
+  // getOrCreateCalendar used to default a brand-new career to "medium", and
+  // GET /calendar (which the dashboard calls on every load) lazily creates
+  // that row — so just opening the dashboard started the season advancing
+  // with nobody having pressed anything. Polling GET endpoints, alone, must
+  // never move the round or the date.
+  console.log("\n13. NEW CAREER STAYS PAUSED (R-24)");
+  const H = session();
+  await newCareer(H, "SmokeH");
+
+  const cal0 = await H("GET", "/calendar");
+  check("R-24: a fresh career's calendar starts paused",
+    cal0.data?.calendarSpeed === "pause", `speed=${cal0.data?.calendarSpeed}`);
+  const round0 = cal0.data?.seasonRound;
+  const date0  = cal0.data?.currentDate;
+
+  for (let i = 0; i < 20; i++) {
+    await H("GET", "/calendar");
+    await H("GET", "/dashboard");
+  }
+
+  const cal1 = await H("GET", "/calendar");
+  check("R-24: 20 polls of /calendar and /dashboard never move the round or the date",
+    cal1.data?.seasonRound === round0 && cal1.data?.currentDate === date0,
+    `round ${round0} -> ${cal1.data?.seasonRound}, date ${date0} -> ${cal1.data?.currentDate}`);
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });
