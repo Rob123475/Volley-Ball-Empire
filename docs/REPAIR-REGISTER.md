@@ -130,14 +130,34 @@ dashboard) are left in place. Once R-26's live-save blocker is resolved, re-atte
 proof: create "R25 Check" cleanly and confirm the club banner shows it — that will also be the
 first real end-to-end confirmation this was never a code bug.
 
-### R-21 — Profile with no career lands on a dead dashboard
+### R-21 — VERIFIED ALREADY FIXED BY R-20 (7 Sep, b6d0af4)
 Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club
 Selected" (badge "NCS") and the top bar stuck on "Loading…" indefinitely (3+ minutes). A profile
 with no career must go to the title screen / START NEW CAREER wizard instead. Note R-20 deleted
 the `getActiveTeam` fallback, so "no active team" now surfaces as a 404 — the title screen's
 AuthGuard treats 404 from `/api/team` as "no career" (R-02 notes), so check why mary bypasses
 it. Keep the "mary" profile on the live save — it is the repro; do not delete it.
-**Proof:** open mary → title screen with START NEW CAREER. Screenshot.
+
+**What was found:** this is exactly the bug R-20 fixed, not a separate one. `getActiveTeam()`
+used to fall back to "the most recently created team for this user" whenever `req.activeTeamId`
+was unset. Mary's only team belongs to a RETIRED career (Rio Storm) — the fallback returned it
+as if active, so `GET /api/team` answered 200 with stale data instead of 404, and AuthGuard's
+`needsTeam` (which depends entirely on that 404) never fired. Confirmed directly: reverted
+`getActiveTeam.ts` to its pre-R-20 version, rebuilt — `GET /api/team` for a retired-only profile
+returned 200 with the retired team. Restored the current code — 404. Confirmed on the live save
+too: selecting "mary" against the current build now returns a clean 404 from `/api/team`.
+
+**Fix applied:** none needed — R-20 already made this correct.
+
+**Harness (done):** `smoke.mjs` section 16 reproduces mary's exact shape (one career, retired,
+no other) and asserts `GET /api/team` 404s. Verified by reverting `getActiveTeam.ts`: fails on
+the old code (200 with the retired team), passes on current. Full harness: 7/7 suites green.
+
+**Live-save proof: partial.** `GET /api/team` for mary correctly 404s against the live save on
+a freshly rebuilt server (verified directly, not blocked by R-26's location gap — opening mary
+creates nothing). This environment has no way to drive the actual Electron/React UI to confirm
+the title screen itself renders with START NEW CAREER — **Rob: please confirm visually** — open
+"mary" from the picker and watch for the title screen rather than a dashboard.
 
 ### R-23 — The game is called "Beach Volleyball Empire" everywhere
 Registered on Steam as **Beach Volleyball Empire**. Rob's decision (7 Sep): everywhere the name
