@@ -74,6 +74,24 @@ FK failure gone (venues 9-11 exist now), but the 76 inserts in `routes/matches.t
 ### R-06 — Leaderboard crowns a fresh save "Champion" (partial)
 Dashboard rank (`routes/dashboard.ts:40-47`) and ladder (`routes/seasons.ts:124-140`) fixed. `routes/leaderboard.ts:9-24` still ranks from `teams` with no results gate; `pages/leaderboard.tsx:125, 190-198` renders top row as Champion. Apply the same "no results yet" gate + empty state.
 
+### R-20 — Dashboard / top bar show another career's state (cross-career bleed)  ← DO THIS ONE
+Seen on the brand-new career "R04 Check" (Sydney Riptide), which has played zero matches and where Rob never pressed Advance:
+1. Dashboard header showed **Round 7/78 (9%)** on creation. A new career should be round 1.
+2. Season Ladder showed only **Rio Storm Volleyball** + Sydney Riptide. Rio Storm is not in this career.
+3. A few minutes later, on the Team page, the top bar read **Aug 7, 2026 · R47/78**. The dashboard had read Feb 3, 2026 · R7/78. Nothing was advanced.
+4. The club banner's manager badge shows **"r"** instead of the profile/manager name "R04 Check".
+5. Next Match card says **"No match — Schedule one"** even though R-05 generates fixtures up front.
+
+**Task:** find every query behind the dashboard, top bar (date/round), season ladder and next-match card and make each one scoped to the current `careerSaveId` (not "first career in the table", not matched by team name, not the most recently updated row). Report the exact file/line of each unscoped query found before changing it. Delete any fallback that picks a career when none is selected rather than papering over it.
+
+**Proof required:**
+- SQL against the live save showing which career_save row "R04 Check" points at, and that its round/date is round 1 / Feb 2026.
+- Launch the game on the live save, open "R04 Check": dashboard must show round 1, its own date, a ladder of only the teams in its competition, manager badge "R04 Check", and a real next match. Screenshot.
+- A harness case with two careers in one DB where career B's dashboard data must not contain anything from career A.
+
+### R-21 — Profile with no club/career lands on a dead dashboard (queue after R-20)
+Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club Selected" (badge "NCS") and the top bar stuck on "Loading…" indefinitely (3+ minutes). A profile with no career must go to the title screen / START NEW CAREER wizard instead. Keep the "mary" profile on the live save — it is the repro case; do not delete it.
+
 ---
 
 ## MEDIUM (game-completeness — do after the dashboard is reachable)

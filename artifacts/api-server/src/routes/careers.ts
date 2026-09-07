@@ -426,13 +426,18 @@ router.delete("/careers/:id", async (req, res) => {
 
   req.log.info({ saveId: id }, "DELETE /careers/:id — success");
 
-  // Clear session if this save's team was the active one
+  // Clear session if this save's team was the active one. R-20: this used to
+  // clear activeTeamId only — activeCareerSaveId was left pointing at the
+  // now-deleted row, and careerSessionRestored stayed true, so nothing would
+  // have restored a different career either. Cleared the same way
+  // /careers/end and /careers/quit do it, so the player lands back on
+  // career-management to choose explicitly rather than any code guessing.
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
     if (session?.activeTeamId === save.teamId) {
-      const { activeTeamId: _, ...rest } = session;
-      await updateSession(sid, rest);
+      const { activeTeamId: _, activeCareerSaveId: __, careerSessionRestored: ___, ...rest } = session;
+      await updateSession(sid, { ...rest, careerSessionRestored: true });
     }
   }
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable } from "@workspace/db";
+import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -121,21 +121,53 @@ router.get("/seasons/current", async (req, res) => {
   res.json(season);
 });
 
+/**
+ * R-20: this used to `db.select().from(teamsTable)` with no filter at all —
+ * `:id` was parsed and never used. Every team in the database, across every
+ * profile and every retired career, showed up on every career's ladder. A
+ * brand-new career with zero matches played showed a RETIRED career's team
+ * on its ladder because that was the only other row in the table.
+ *
+ * The ladder is now built from competitor_rankings, which is already
+ * correctly scoped per (career_save_id, season_year) — R-03/R-04's work.
+ * The :id is verified to belong to the requesting career before it's used,
+ * rather than trusted as-is: a bare numeric id in the URL is exactly the
+ * kind of thing that must be checked against the session, not assumed.
+ */
 router.get("/seasons/:id/ladder", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const seasonId = parseInt(req.params.id);
-  const teams = await db.select().from(teamsTable);
-  const ladder = teams.map((team, idx) => ({
-    rank: idx + 1,
-    teamId: team.id,
-    teamName: team.name,
-    wins: team.wins,
-    losses: team.losses,
-    points: team.wins * 3,
+  if (!Number.isFinite(seasonId)) { res.status(400).json({ error: "Bad season id" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+
+  const [season] = await db.select().from(seasonsTable).where(and(
+    eq(seasonsTable.id, seasonId),
+    eq(seasonsTable.careerSaveId, cid),
+  )).limit(1);
+  if (!season) { res.status(404).json({ error: "Season not found in this career" }); return; }
+
+  const rows = await db.select({
+    teamId: teamsTable.id,
+    teamName: teamsTable.name,
+    wins: competitorRankingsTable.wins,
+    losses: competitorRankingsTable.losses,
+    points: competitorRankingsTable.rankingPoints,
+  })
+    .from(competitorRankingsTable)
+    .innerJoin(competitorsTable, eq(competitorsTable.id, competitorRankingsTable.competitorId))
+    .innerJoin(teamsTable, eq(teamsTable.id, competitorsTable.teamId))
+    .where(and(
+      eq(competitorRankingsTable.careerSaveId, cid),
+      eq(competitorRankingsTable.seasonYear, season.year),
+    ));
+
+  const ladder = rows.map(e => ({
+    ...e,
     // Derived from the team's own record, not Math.random() — these were
     // regenerated on every request, so the numbers visibly changed as the
     // player watched the ladder.
-    goalsFor: team.wins * 2 + (team.id % 10),
-    goalsAgainst: team.losses * 2 + (team.id % 8),
+    goalsFor: e.wins * 2 + (e.teamId % 10),
+    goalsAgainst: e.losses * 2 + (e.teamId % 8),
   })).sort((a, b) => b.points - a.points).map((e, i) => ({ ...e, rank: i + 1 }));
   res.json(ladder);
 });

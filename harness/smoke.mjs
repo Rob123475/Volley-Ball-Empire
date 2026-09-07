@@ -405,6 +405,65 @@ const roster = async (api) => {
     !(profilesAfter.data?.profiles ?? []).some(p => p.id === profileId),
     `${profilesAfter.data?.profiles?.length ?? 0} profiles remain`);
 
+  // ── 12. No cross-career bleed on dashboard / ladder (R-20) ────────────────
+  // Two separate careers, each actually played, in the same database. Career
+  // G's dashboard, next match and season ladder must never contain anything
+  // that belongs to career F — not "first career in the table", not matched
+  // by team name, not the most recently updated row.
+  console.log("\n12. NO CROSS-CAREER BLEED (R-20)");
+  const F = session(), G = session();
+  await newCareer(F, "SmokeF");
+  await newCareer(G, "SmokeG");
+
+  async function playOneMatch(api) {
+    await api("GET", "/matches/fixture");
+    await api("PATCH", "/calendar/speed", { speed: "pause" });
+    let played = 0;
+    for (let d = 0; d < 120 && played < 1; d++) {
+      const r = await api("POST", "/calendar/advance", {});
+      if (r.status >= 400 || r.data?.blocked === "season_end") break;
+      const mid = r.data?.pendingMatchId ?? r.data?.matchDay?.id;
+      if (mid) { await api("POST", `/matches/${mid}/simulate`, {}); played++; await api("POST", "/calendar/dismiss-match", {}); }
+    }
+    return played;
+  }
+
+  const playedF = await playOneMatch(F);
+  const playedG = await playOneMatch(G);
+  check("R-20 setup: both careers have actually played", playedF > 0 && playedG > 0,
+    `F:${playedF} G:${playedG}`);
+
+  const dashF = await F("GET", "/dashboard");
+  const dashG = await G("GET", "/dashboard");
+
+  check("R-20: the two careers resolved to distinct teams",
+    dashF.data?.team?.id != null && dashF.data.team.id !== dashG.data?.team?.id,
+    `F team ${dashF.data?.team?.id}, G team ${dashG.data?.team?.id}`);
+  check("R-20: F's dashboard shows F's own club and manager, not G's",
+    dashF.data?.clubName === "SmokeF FC" && dashF.data?.managerName === "SmokeF",
+    JSON.stringify({ clubName: dashF.data?.clubName, managerName: dashF.data?.managerName }));
+  check("R-20: G's dashboard shows G's own club and manager, not F's",
+    dashG.data?.clubName === "SmokeG FC" && dashG.data?.managerName === "SmokeG",
+    JSON.stringify({ clubName: dashG.data?.clubName, managerName: dashG.data?.managerName }));
+  check("R-20: F's next match (if any) belongs to F's own team",
+    !dashF.data?.nextMatch || dashF.data.nextMatch.homeTeamId === dashF.data?.team?.id,
+    JSON.stringify(dashF.data?.nextMatch?.homeTeamId));
+  check("R-20: G's next match (if any) belongs to G's own team",
+    !dashG.data?.nextMatch || dashG.data.nextMatch.homeTeamId === dashG.data?.team?.id,
+    JSON.stringify(dashG.data?.nextMatch?.homeTeamId));
+
+  const seasonF = await F("GET", "/seasons/current");
+  const seasonG = await G("GET", "/seasons/current");
+  const ladderF = await F("GET", `/seasons/${seasonF.data?.id}/ladder`);
+  const ladderG = await G("GET", `/seasons/${seasonG.data?.id}/ladder`);
+
+  check("R-20: F's season ladder contains only F's own team",
+    (ladderF.data ?? []).length > 0 && (ladderF.data ?? []).every(e => e.teamId === dashF.data?.team?.id),
+    JSON.stringify(ladderF.data));
+  check("R-20: G's season ladder contains only G's own team",
+    (ladderG.data ?? []).length > 0 && (ladderG.data ?? []).every(e => e.teamId === dashG.data?.team?.id),
+    JSON.stringify(ladderG.data));
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

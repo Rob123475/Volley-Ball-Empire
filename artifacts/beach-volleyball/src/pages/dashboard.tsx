@@ -766,7 +766,10 @@ export default function Dashboard() {
         }).map((e, i) => ({ ...e, rank: i + 1 }));
 
         const top4 = sorted.slice(0, 4);
-        const myEntry = sorted.find(e => e.teamName === team?.name);
+        // R-20: was matched by team name, which breaks the moment two teams
+        // share a name and tells you nothing when they don't — teamId is the
+        // actual identity the ladder rows carry.
+        const myEntry = sorted.find(e => e.teamId === team?.id);
         const myRank = myEntry?.rank ?? null;
         const inTop4 = myRank != null && myRank <= 4;
 
@@ -816,7 +819,7 @@ export default function Dashboard() {
                   </thead>
                   <tbody>
                     {top4.map(e => (
-                      <LadderRow key={e.teamId} entry={e} isMe={e.teamName === team?.name} />
+                      <LadderRow key={e.teamId} entry={e} isMe={e.teamId === team?.id} />
                     ))}
                     {!inTop4 && myEntry && (
                       <>
