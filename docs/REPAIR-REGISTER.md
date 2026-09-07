@@ -1,143 +1,214 @@
-# Volleyball Empire — Repair Register (handoff brief for Claude Code)
+# Beach Volleyball Empire — Repair Register (handoff brief for Claude Code)
 
-Compiled 2 Sep 2026 against `main @ f8fe701` by a full code audit. This file is the working
-list. Work it top to bottom. It supersedes the 26 Aug Release Triage (that list is 25/33 fully
-fixed, 6 partial, 2 re-opened — the leftovers are folded in below).
+Refreshed 7 Sep 2026 against `main @ 2293606`. This file is the working list. Work it top to
+bottom within each band, HIGH before MEDIUM before LOW. Compiled 2 Sep from a full code audit;
+this refresh folds in what was verified on screen on 7 Sep and what R-20's investigation found.
+
+**Score: 7 closed and verified · 20 open** (6 HIGH · 8 MEDIUM · 6 LOW). One of the LOW items
+(R-18) may already be done and needs a look, not work.
 
 ## Rules of engagement (from Rob — non-negotiable)
 
 1. **No guessing.** If you don't know, read the file / query the DB / run the command.
-2. **One item at a time.** Finish it, verify it, report it, then move on. Do not batch.
-3. **Never say "done" without verification.** Show the command output or test that proves it.
+2. **One item at a time.** Finish it, verify it, report it, then STOP and wait. Auto mode OFF — never pick the next item yourself.
+3. **Never say "done" without verification.** Show the command output or test that proves it, plus the on-screen check the item asks for.
 4. **Demolish, don't patch.** If a pathway keeps failing, rebuild that part fresh. Delete dead code as you go. Never layer repair code on top of old rubbish.
-5. **Live save ≠ repo DB.** The DB the app actually uses is the one `electron/main.js` resolves:
+5. **Live save ≠ repo DB.** The DB the app actually uses is the one `electron/main.js` resolves — read main.js first, never trust a note:
    `C:\Users\rbonn\AppData\Roaming\Volleyball Empire\volleyball-empire.sqlite`
-   (a backup `volleyball-empire-BACKUP-pre-column-fix.sqlite` sits beside it). The repo copy at
-   `lib/db/volleyball-empire.sqlite` is the *starter* DB that ships in the installer. Don't confuse them.
-6. **Native module gotcha.** Running scripts/harness under system Node needs `pnpm rebuild better-sqlite3`;
-   launching the Electron app needs the Electron-ABI build (`pnpm exec electron-rebuild -f -w better-sqlite3`,
-   or node-gyp directly if electron-rebuild silently no-ops — see docs/toolchain-gotchas.md). They conflict; switch as needed.
-7. Commit after each verified item with a message that names the register item (e.g. `R-01: derive missing columns from schema at boot`).
-
----
-
-## BLOCKERS
-
-### R-01 — Saves fall behind the code, and nothing brings them up to date  ← START HERE
-
-**What's wrong.** `artifacts/api-server/src/utils/ensureSchema.ts` runs on every server boot
-(from `src/index.ts:29-36`) and is the only schema-repair step in the project (its own comment,
-lines 7-10: "There is no migration runner in this project"). It applies a **hand-typed list**
-`NEW_COLUMNS` (lines 140-152) of exactly 7 columns. `teams.crest_shape_index`
-(`lib/db/src/schema/game.ts:184`) was never added to that list, so every save created before that
-column existed crashed on `GET /api/team` until it was added by hand on 1 Sep. The next schema
-change will do the same thing again. `electron/main.js:145-156 ensureUserDb()` only copies the
-starter DB when no save exists; it never upgrades one. `harness/migration-fixtures.mjs` tests the
-per-career data migration, not schema drift, and would not have caught this.
-
-**Player sees.** After an update: title screen shows RETRY forever / "Could not load your career". Save is intact on disk but unreadable.
-
-**Fix (build this, don't extend the list):**
-1. At boot, for every table in the drizzle schema (`lib/db/src/schema/*`), compare `PRAGMA table_info(<table>)` against the schema's declared columns.
-2. For each missing column, `ALTER TABLE <t> ADD COLUMN <col> <sqlite type>` with the schema's default if it has one; if the schema says NOT NULL with no default, add it with a sensible default and log loudly (or fail boot with a clear error — never silently).
-3. Also create any missing table/index the schema declares (keep the existing CREATE IF NOT EXISTS behaviour, but derive it rather than hand-write it if practical).
-4. Delete the hand-typed `NEW_COLUMNS` list once the derived path covers it.
-5. **Harness:** add a case to `harness/migration-fixtures.mjs` (or a new `harness/schema-drift.mjs` wired into `run-all.mjs`) that takes the starter DB, drops a column that exists in the schema (e.g. `teams.crest_shape_index` via table-rebuild, since SQLite DROP COLUMN has limits), boots `dist/index.mjs` against it, and asserts the column is back and `GET /api/team` returns 2xx.
-6. **Verify on the live save:** launch via `pnpm electron:dev`, confirm boot log shows the schema check ran with 0 missing columns, and `GET http://localhost:4173/api/team` returns 200.
-
-**Evidence refs:** `utils/ensureSchema.ts:7-10, 26-152` · `src/index.ts:29-36, 70-90` · `electron/main.js:145-156` · `lib/db/src/schema/game.ts:184` · `utils/migrateCareerState.ts:452-536` (the only other DDL, fixed set) · `scripts/check-starter-db.cjs` (guards the starter DB only, never a player save).
-
-### R-02 — One real career has never reached the Dashboard
-
-**What's wrong.** ~20 launch attempts, none past the title screen. All harness/economy work has been done against a game nobody has played. Launch path (traced): app → `/login` ProfilePicker (`GET/POST /api/profiles`, `POST /api/profiles/:id/select` sets `sid` cookie, `secure:false`) → `/` AuthGuard title (`GET /api/auth/user`, `GET /api/team`; 404 = no career → "START NEW CAREER"; any other error → "RETRY") → `/new-career` (`GET /api/club-templates`, `POST /api/careers`, then `href="/"`) → `/` Dashboard (`GET /api/dashboard`, `/api/seasons/current`, ladder, calendar, etc.).
-
-**Bounce points:** (a) any 500 from `/api/team` → RETRY forever (R-01 causes this on a stale save — proven); (b) after `POST /careers`, if the session's `activeTeamId` isn't set (`routes/careers.ts:255`) AND `lib/getActiveTeam.ts:18-21` fallback finds nothing → bounced to title (possible, unconfirmed); (c) any 401 anywhere → `App.tsx:83-133` redirects to `/login` (possible if the cookie is dropped, unconfirmed on packaged build).
-
-**Fix.** After R-01: launch, tail the server log (`[server]` lines in the Electron console / `startup-error.log`), find the first non-2xx response, fix that one thing, relaunch. Repeat until the dashboard renders with the existing career (1 team, 268 players). Report the exact sequence of requests that succeeded.
-
-**Refs:** `App.tsx:83-133` · `components/layout/auth-guard.tsx:102-115, 209-241` · `pages/new-career.tsx:385-400, 418-455` · `routes/careers.ts:255` · `lib/getActiveTeam.ts:18-21` · `authMiddleware.ts:57-61, 70-99`.
+   The repo copy at `lib/db/volleyball-empire.sqlite` is the *starter* DB that ships in the installer.
+6. **Native module gotcha.** Anything touching the DB runs under Electron's runtime (`ELECTRON_RUN_AS_NODE=1`). Read-only inspection can use Node 24's `node:sqlite`. See docs/toolchain-gotchas.md.
+7. **Report what you found before changing anything.** If a symptom turns out to have a different root cause than the item says, say so, leave it, and let Rob re-file it (as R-20 did — that is the model).
+8. Commit after each verified item with a message that names the register item (e.g. `R-24: new careers start paused`). Push to main.
+9. Test profiles on the live save: **"mary"** (no career — the R-21 repro, do not delete) and **"R04 Check"** (Sydney Riptide, career_save id 5 — has auto-advanced to round 74 because of R-24; fine to use as a scratch career).
 
 ---
 
 ## HIGH
 
-### R-03 — Overwriting or deleting a played career fails on a foreign key (re-opened)
-The 26 Aug fix (`routes/careers.ts:158-183`) cleans `poaching_offers` + `career_history_entries` in a transaction before deleting `career_saves`. Since then four tables gained NOT NULL, non-cascading FKs to `career_saves`: `career_player_state`, `career_staff_state`, `career_pool_team_state`, `competitor_rankings` (`schema/game.ts:292, 381, 393, 869, 953`), and every new career seeds rows into them (`utils/migrateCareerState.ts:589-640`). Neither the overwrite path nor `DELETE /careers/:id` (`careers.ts:426-446`) cleans them. Only `utils/deleteProfile.ts:35-141` does it right.
-**Do:** reproduce first (create career → play one match → overwrite slot; then delete). Then route both paths through ONE shared career-cascade (extract it from deleteProfile's logic) — no second hand-maintained table list.
+### R-24 — A brand-new career's clock runs by itself  ← START HERE
+Found during R-20. `routes/calendar.ts:187 getOrCreateCalendar()` creates a new career's
+`calendar_state` with `calendar_speed = "medium"`, not `"pause"`. The moment anything polls
+`GET /api/calendar` (the dashboard does, on load) the season starts advancing on its own. Proof
+on the live save: "R04 Check" was created 7 Sep at round 1 / Feb 2026, Rob never touched
+Advance, and within minutes of opening the dashboard and Team page it read round 74/78,
+15 Dec 2026. A Steam player would start a career, look around the menus, and find the season
+over.
+**Do:** new careers must be created paused. Find every place a calendar row is created and make
+"pause" the only default. Then check whether *polling* the calendar can ever advance it — a GET
+must never move the clock; only an explicit advance/speed change may. If the advance is driven
+by a client-side ticker, confirm the ticker does nothing while speed is "pause".
+**Proof:** harness case: create a career, poll `/api/calendar` and `/api/dashboard` 20 times,
+assert round and date are unchanged. Then on the live save: new profile → new career → sit on
+the dashboard for two full minutes → screenshot shows round 1 and the start date. (Create it as
+profile "R24 Check"; leave it there.)
 
-### R-04 — New career starts with no squad and nothing pointing at the market (partial)
-Per-career state, regional league and season row are seeded (`careers.ts:225-228`, `migrateCareerState.ts:554-636`), but no player/staff is assigned to the new club (starter DB: `staff.team_id` NULL 120/120). Dashboard shows only "No players yet / Manage Squad" (`pages/dashboard.tsx:666, 1490`). Depends on R-11 for the difficulty choice; at minimum add a first-session prompt that sends the player to the market.
+### R-26 — New career has no fixtures until the Fixtures page is opened
+Found during R-20. Fixture generation is lazy: it only runs on `GET /matches/fixture`, which
+only the Fixtures page calls. So a new career's dashboard shows "No match — Schedule one", the
+ladder is empty (`GET /api/seasons/:id/ladder` returns `[]`), and R-05's transaction only
+matters if the player happens to visit that page. R-05 never made generation eager — the
+register's earlier claim that fixtures are generated "up front" was wrong.
+**Do:** generate the season's fixtures inside `POST /careers` (career creation), in the same
+transaction R-05 built, so a career is never without a schedule. Delete the lazy path in
+`GET /matches/fixture` if nothing else needs it — do not leave two generators.
+**Proof:** harness: create a career and assert `matches` has rows for the team and the dashboard
+returns a real `nextMatch` before any other request. Live save: the "R24 Check" career from
+above shows a real next match and a populated ladder on first dashboard load. Screenshot.
 
-### R-05 — Fixture generation isn't a transaction
-FK failure gone (venues 9-11 exist now), but the 76 inserts in `routes/matches.ts:631-676` are sequential awaits with no transaction → half-built season on any mid-way failure. Wrap in one transaction.
+### R-25 — New-career wizard saves the wrong manager name
+Found during R-20. `career_saves.manager_name` for "R04 Check" is literally the string `"r"`
+(the dashboard club banner shows it as the manager badge). The row is the right row; the value
+was wrong at write time. Most likely the wizard field sends a stale/partial value or the wrong
+field. Related: R-13 says the save-slot screen drops `managerNationality` and `crestShapeIndex`
+— check both wizard paths (`pages/new-career.tsx` and `pages/career-management.tsx`) while here,
+because they are near-duplicates (see economy-design.md "the club picker exists TWICE").
+**Proof:** create a career named "R25 Check" through the title-screen wizard; SQL on the live
+save shows `manager_name = 'R25 Check'`; the club banner shows it. Screenshot.
+
+### R-21 — Profile with no career lands on a dead dashboard
+Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club
+Selected" (badge "NCS") and the top bar stuck on "Loading…" indefinitely (3+ minutes). A profile
+with no career must go to the title screen / START NEW CAREER wizard instead. Note R-20 deleted
+the `getActiveTeam` fallback, so "no active team" now surfaces as a 404 — the title screen's
+AuthGuard treats 404 from `/api/team` as "no career" (R-02 notes), so check why mary bypasses
+it. Keep the "mary" profile on the live save — it is the repro; do not delete it.
+**Proof:** open mary → title screen with START NEW CAREER. Screenshot.
+
+### R-23 — The game is called "Beach Volleyball Empire" everywhere
+Registered on Steam as **Beach Volleyball Empire**. Rob's decision (7 Sep): everywhere the name
+is written or said it must read "Beach Volleyball Empire" — title page, window title bar,
+sidebar wordmark, installer name, `productName`, About/credits, docs, README, in-game text.
+Grep for `Volleyball Empire`, `Volley-Ball-Empire`, `volleyball-empire`, `VBE` and report every
+hit before changing anything; some are identifiers, not display strings.
+**The save folder needs care.** Electron's `userData` folder is named after `productName`
+(`C:\Users\rbonn\AppData\Roaming\Volleyball Empire`). Renaming `productName` moves the save
+folder. Do it, but make `ensureUserDb()` in `electron/main.js` move the old folder's contents to
+the new one on first launch if the new one is empty, and log it. No customer has a save yet, so
+this is the cheapest moment; it must still be proven, not assumed.
+Do R-18 (title-screen pills) in the same pass — same file, `auth-guard.tsx`.
+**Proof:** grep shows zero remaining display strings with the old name; launch on the live save
+→ title screen, window title bar, sidebar and About all read "Beach Volleyball Empire"; the
+profiles and careers are all still there after the folder move. Screenshots.
 
 ### R-06 — Leaderboard crowns a fresh save "Champion" (partial)
-Dashboard rank (`routes/dashboard.ts:40-47`) and ladder (`routes/seasons.ts:124-140`) fixed. `routes/leaderboard.ts:9-24` still ranks from `teams` with no results gate; `pages/leaderboard.tsx:125, 190-198` renders top row as Champion. Apply the same "no results yet" gate + empty state.
-
-### R-20 — Dashboard / top bar show another career's state (cross-career bleed)  ← DO THIS ONE
-Seen on the brand-new career "R04 Check" (Sydney Riptide), which has played zero matches and where Rob never pressed Advance:
-1. Dashboard header showed **Round 7/78 (9%)** on creation. A new career should be round 1.
-2. Season Ladder showed only **Rio Storm Volleyball** + Sydney Riptide. Rio Storm is not in this career.
-3. A few minutes later, on the Team page, the top bar read **Aug 7, 2026 · R47/78**. The dashboard had read Feb 3, 2026 · R7/78. Nothing was advanced.
-4. The club banner's manager badge shows **"r"** instead of the profile/manager name "R04 Check".
-5. Next Match card says **"No match — Schedule one"** even though R-05 generates fixtures up front.
-
-**Task:** find every query behind the dashboard, top bar (date/round), season ladder and next-match card and make each one scoped to the current `careerSaveId` (not "first career in the table", not matched by team name, not the most recently updated row). Report the exact file/line of each unscoped query found before changing it. Delete any fallback that picks a career when none is selected rather than papering over it.
-
-**Proof required:**
-- SQL against the live save showing which career_save row "R04 Check" points at, and that its round/date is round 1 / Feb 2026.
-- Launch the game on the live save, open "R04 Check": dashboard must show round 1, its own date, a ladder of only the teams in its competition, manager badge "R04 Check", and a real next match. Screenshot.
-- A harness case with two careers in one DB where career B's dashboard data must not contain anything from career A.
-
-### R-21 — Profile with no club/career lands on a dead dashboard (queue after R-20)
-Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club Selected" (badge "NCS") and the top bar stuck on "Loading…" indefinitely (3+ minutes). A profile with no career must go to the title screen / START NEW CAREER wizard instead. Keep the "mary" profile on the live save — it is the repro case; do not delete it.
+Dashboard rank and ladder were rebuilt in R-20 (scoped to `competitor_rankings`). Still open:
+`routes/leaderboard.ts:9-24` ranks from `teams` with no results gate and no career scope;
+`pages/leaderboard.tsx:125, 190-198` renders the top row as Champion. Apply the same
+`competitor_rankings` source + "no results yet" empty state.
+**Proof:** harness: two careers, leaderboard for each contains only its own competitors; a fresh
+career shows the empty state. Screenshot of a fresh career's leaderboard.
 
 ---
 
-## MEDIUM (game-completeness — do after the dashboard is reachable)
+## MEDIUM
+
+### R-22 — Skin tone and kit colour in the Unity court
+Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's
+bikini/kit colour** in the Unity 3D court, and this must match the management side. Today,
+launching from the desktop shortcut and pressing "3D Court" shows the same pale model in a grey
+kit for everyone. Rob believes the Unity project already has provisions for skin and kit
+colour, so this is first a **pathway trace**, not a build job:
+1. What does the management side hold per player (skin tone field? kit colour on team?) — report the columns.
+2. What does `/unity/match-state` actually send — dump one real payload.
+3. What does `UnityMatchDataLoader.cs` read from it, and does the Unity scene apply it?
+Report where the chain breaks before fixing. If a field does not exist on the management side,
+say so — that becomes a data job (per-player skin tone, per-team kit colour) and Rob decides.
+`pages/court.tsx` is the highest-churn file in the repo (R-17); do not "repair" it — if the
+integration needs rebuilding, say so and stop. Also confirm the triage note 3y: a player keeps
+her skin tone when she changes club, and kit colour follows the **team**.
+**Proof:** a real match in the Unity view with two visibly different players in their club's
+colours, plus the payload that produced it. Screenshot.
+
+### R-27 — Delete-cascade guard misses teamId-scoped tables
+Flagged by Claude Code during R-19: the schema-drift / cascade guard only checks tables keyed
+by `careerSaveId`; tables keyed by `teamId` (e.g. `competitors`) are not covered, so a future
+table could be orphaned by a career delete without the harness noticing.
+**Do:** extend the guard to every table that references a career directly or through its team.
+**Proof:** sabotage test — add a fake teamId-scoped table to a throwaway DB, delete the career,
+assert the guard reports the orphans.
 
 ### R-07 — Invariants: I1, I5 failing; I2, I6, I8, I9 hard-coded not measured
-`docs/economy-design.md:567-596`; `harness/invariants.mjs:313` (I1), `:344-383` (I5), `:400-437` (literal verdicts for I2/I6/I8/I9). I5: best squad 38.3 pts vs Gold threshold 40 — a settings DECISION for Rob, not a code change. I1: wages 2.00× vs income 1.32× worst→best squad. Last commit f8fe701 proved tier access is not the I1 lever. I2/I6/I8/I9 blocked on R-08/R-09/R-11.
+`docs/economy-design.md:567-596`; `harness/invariants.mjs:313` (I1), `:344-383` (I5),
+`:400-437` (literal verdicts for I2/I6/I8/I9). I5: best squad 38.3 pts vs Gold threshold 40 —
+a settings DECISION for Rob, not a code change. I1: wages 2.00× vs income 1.32×. I2/I6/I8/I9
+blocked on R-08/R-09/R-11.
 
 ### R-08 — Five-season harness never plays a match
-`harness/rollover.mjs` walks 5 seasons at 0W 0L. Make it simulate real fixtures for a strong and a weak squad across the whole arc so I8/I9 become measurable.
+`harness/rollover.mjs` walks 5 seasons at 0W 0L. Make it simulate real fixtures for a strong and
+a weak squad across the whole arc so I8/I9 become measurable.
 
 ### R-09 — Getting sacked is computed but never happens (partial)
-`isJobAtRisk` / `boardConfidence` computed server-side, zero frontend consumers. `pages/manager-contract.tsx:53-79, 342, 415-435, 518, 546, 662` still runs on `PLACEHOLDER_CONTRACT` (fee now matches server `BREAK_CONTRACT_FEE = 25_000`, `routes/careers.ts:474, 684`). Wire an at-risk banner + confidence meter to the dashboard, escalation ladder on the contract page, career ends at zero confidence; then replace the placeholder contract with a real endpoint.
+`isJobAtRisk` / `boardConfidence` computed server-side, zero frontend consumers.
+`pages/manager-contract.tsx` still runs on `PLACEHOLDER_CONTRACT`. Wire an at-risk banner +
+confidence meter to the dashboard, escalation ladder on the contract page, career ends at zero
+confidence; then replace the placeholder contract with a real endpoint.
 
 ### R-10 — Three design-doc screens don't exist
-`docs/economy-design.md:840-848, 868-878`: no Rankings page, no Career Result page, no Underdog/Established start choice. Qualification / Tier status / Finals bracket / Fail state are "extend existing page" — unverified whether done; open each and confirm.
+`docs/economy-design.md:840-848, 868-878`: no Rankings page, no Career Result page, no
+Underdog/Established start choice. Qualification / Tier status / Finals bracket / Fail state
+are "extend existing page" — open each and confirm whether done.
 
 ### R-11 — Career difficulty choice isn't in the game
-Design decided: scrappy underdog vs established mid-table club at career start. `pages/new-career.tsx:385-400` sends the same payload regardless; `routes/careers.ts:124-255` has no concept of it. Add to wizard → store on career save → seeding reads it (budget, tier lock, starting squad). R-04 and invariant I6 hang off this.
+Underdog vs established at career start. `pages/new-career.tsx` sends the same payload
+regardless; `routes/careers.ts` has no concept of it. Add to wizard → store on career save →
+seeding reads it (budget, tier lock, starting squad). Invariant I6 hangs off this.
 
 ---
 
 ## LOW
 
+### R-18 — Remove title-screen stat pills (CHECK FIRST — may already be done)
+Decided 2 Sep: remove the World Tour Stops / Countries / Grand Final Prize pills and the
+"Conquer X cities" tagline in `auth-guard.tsx` (~81-91). Keep "Build your dream team…" + START.
+Not in the 2 Sep register file, so status is unknown — look at the title screen before touching
+anything. Fold into R-23's pass.
+
 ### R-12 — Seven "coming in a future update" stubs still visible
-`pages/competition/medal-table.tsx:24` · `olympic-results.tsx:23` · `olympic-history.tsx:19,24` · `pages/job-market.tsx:408` · `components/career/PoachingInbox.tsx:235` · `pages/manager-contract.tsx:518, 546`. Build or remove from nav.
+`pages/competition/medal-table.tsx:24` · `olympic-results.tsx:23` · `olympic-history.tsx:19,24`
+· `pages/job-market.tsx:408` · `components/career/PoachingInbox.tsx:235` ·
+`pages/manager-contract.tsx:518, 546`. Build or remove from nav.
 
 ### R-13 — Save-slot screen drops nationality and crest shape (partial)
-`pages/career-management.tsx:264-276` payload omits `managerNationality` and `crestShapeIndex`; wizard sends them (`pages/new-career.tsx:388, 394`). Enter/click drift already fixed.
+`pages/career-management.tsx:264-276` payload omits `managerNationality` and `crestShapeIndex`;
+wizard sends them. Check alongside R-25.
 
 ### R-14 — Profile page hard-codes manager salary (partial)
-`pages/profile.tsx:226-227, 302-303, 379-380` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
+`pages/profile.tsx` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
 
-### R-15 — Dashboard "Game Settings" tile doesn't open settings (partial)
+### R-15 — Dashboard "Game Settings" tile doesn't open settings
 `pages/dashboard.tsx:927-931` — tile opens the career options menu. Relabel or remove.
 
 ### R-16 — Stray package.json inside server source
-`artifacts/api-server/src/package.json:12-13` still lists `@google-cloud/storage`; not a workspace package (`pnpm-workspace.yaml:37-41`). Delete it.
+`artifacts/api-server/src/package.json:12-13` still lists `@google-cloud/storage`. Delete it.
 
 ### R-17 — Unity court: scope, don't fix yet
-`pages/court.tsx` — 92 commits, highest churn in repo, one-endpoint integration (`/unity/match-state`) + iframe. The one "repaired instead of designed" area. Scope deliberately after R-02. Steam: 0 references anywhere — late, short step.
+`pages/court.tsx` — 92 commits, highest churn in repo, one-endpoint integration
+(`/unity/match-state`) + iframe. R-22's pathway trace is the scoping exercise for this. Steam:
+0 references anywhere — late, short step.
 
 ---
 
 ## Closed and verified (do NOT re-cover)
 
-26 Aug items 01-03 (blockers), 04-09 (high, except 03-class regression → R-03), 10-14, 16-19, 21 (medium), 22, 24, 27-30, 32, 33, 34 (low) are fully fixed — evidence per item is in the published Repair Register artifact. Still holding: native-ABI guard (`scripts/before-pack.cjs:7-13`), dev routes gated (`routes/index.ts:86-88`), CORS same-origin (`app.ts:39-43`), all 341 portrait refs resolve, PORT build hole guarded (`scripts/check-build-env.mjs`), `sync:public` in build chain.
+| Item | Closed | Proof |
+|---|---|---|
+| R-01 Saves fall behind the code | 2 Sep, adad32b | derived schema diff at boot; harness schema-drift; live save 0 missing |
+| R-02 One real career has never reached the Dashboard | 2 Sep | Rob reached the dashboard; full launch path verified on screen |
+| R-03 Overwrite/delete a played career fails on FK | 2 Sep, cc319d3 | one shared `deleteCareerSave` cascade; smoke case 10; live-save proof via R-19 |
+| R-04 New career starts with no squad / no prompt | 7113a3b, verified on screen 7 Sep | 2 starters + 1 interchange, "Grow Your Squad" prompt |
+| R-05 Fixture generation isn't a transaction | 3949ecd | `harness/fixture-transaction.mjs` sabotage test 30 orphans → 0 |
+| R-19 Delete button on Select Manager | 359d245, verified on live save 7 Sep | deleted "R02 Verify" and "r" through the UI |
+| R-20 Dashboard/ladder show another career's state | 7 Sep, 2293606 | ladder had no filter; fallbacks deleted; smoke case 12 proven by sabotage; 7/7 suites, 56/56 |
 
-## Live save facts (verified 2 Sep)
-Path above. `PRAGMA integrity_check` ok, WAL 0 bytes, `teams.crest_shape_index INTEGER` nullable present, 1 team, 268 players, all 50 schema tables present, zero columns missing vs schema at f8fe701. Live-only extra columns (`players.team_id`, `players.outfit_id`, `staff.team_id`) are deliberate leftovers from the career_player_state split — harmless.
+26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
+guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,
+`sync:public` in build chain, caption guard (204 cards), image-format guard.
+
+## Open design decisions (not repairs — Rob's call, tracked in docs/triage.md §3)
+Academy never refills (3w) · seniors cannot retire early (3x) · AI club reserves (3a) ·
+qualifying competition (3b) · I5 threshold (R-07) · real flag assets before any Olympic
+ceremony (ideas.md).
+
+## Live save facts (verified 7 Sep)
+Path above. Profiles: mary (no career), R04 Check (career_save 5, Sydney Riptide, team 5,
+season 7 — auto-advanced to round 74 by R-24). Schema check clean at 2293606.
