@@ -565,6 +565,7 @@ export default function NewCareer() {
                   </label>
                   <input
                     autoFocus
+                    autoComplete="off"
                     value={managerName}
                     onChange={e => setManagerName(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && canStep1 && setStep(2)}

@@ -394,6 +394,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                 <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Manager Name</label>
                 <input
                   autoFocus
+                  autoComplete="off"
                   value={managerName}
                   onChange={e => setManagerName(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && canProceedStep1 && setStep(2)}

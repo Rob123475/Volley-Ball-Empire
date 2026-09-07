@@ -515,6 +515,36 @@ const roster = async (api) => {
     (ladderI.data ?? []).length > 0 && (ladderI.data ?? []).some(e => e.teamId === dashI.data?.team?.id),
     JSON.stringify(ladderI.data));
 
+  // ── 15. POST /careers stores managerName exactly as sent (R-25) ───────────
+  // R-25 investigated "R04 Check"'s career_saves.manager_name being the
+  // literal string "r" on the live save. No code bug was found: new-
+  // career.tsx and career-management.tsx are both plain controlled inputs
+  // (value/onChange, no stale state or wrong field), the generated API
+  // client (useUpsertCareerSave) is a pure passthrough, and POST /careers
+  // stores req.body.managerName.trim() with no transformation — confirmed
+  // by reading every step of the path, not by this assertion alone. This
+  // case exists as a permanent regression guard for that path, and as
+  // evidence: it does not "fail on old code" because the server-side
+  // behaviour never changed — only autoComplete="off" was added to both
+  // inputs client-side (browser-autofill was the only plausible
+  // non-code-defect explanation left; harness can't drive a real browser to
+  // confirm or rule that out).
+  console.log("\n15. MANAGER NAME STORED EXACTLY AS SENT (R-25)");
+  const J = session();
+  const profJ = await J("POST", "/profiles", { name: "SmokeJ" });
+  await J("POST", `/profiles/${profJ.data.id}/select`);
+  const distinctiveName = "Zzyx Q. Manager-Name-Test";
+  const careerJ = await J("POST", "/careers", {
+    slotNumber: 1, managerName: distinctiveName, managerNationality: "Australia",
+    clubName: "SmokeJ FC", originalClubName: "SmokeJ FC", season: "Season 1",
+    budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
+  });
+  check("R-25: POST /careers response echoes the exact manager name sent",
+    careerJ.data?.managerName === distinctiveName, JSON.stringify(careerJ.data?.managerName));
+  const dashJ = await J("GET", "/dashboard");
+  check("R-25: the dashboard reads back the same manager name that was stored",
+    dashJ.data?.managerName === distinctiveName, JSON.stringify(dashJ.data?.managerName));
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });
