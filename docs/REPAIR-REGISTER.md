@@ -124,7 +124,7 @@ verification (a fresh career, different profile, `manager_name` echoed and store
 sent, HTTP 200) — a clean re-attempt of "R25 Check" itself was not repeated, since it would only
 re-confirm the same write path R-28's verification already exercised.
 
-### R-21 — VERIFIED ALREADY FIXED BY R-20 (7 Sep, b6d0af4)
+### R-21 — REOPENED 8 Sep, then RE-CLOSED: mary's live-save DATA changed, not the code (7 Sep, b6d0af4; re-investigated 8 Sep)
 Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club
 Selected" (badge "NCS") and the top bar stuck on "Loading…" indefinitely (3+ minutes). A profile
 with no career must go to the title screen / START NEW CAREER wizard instead. Note R-20 deleted
@@ -132,26 +132,70 @@ the `getActiveTeam` fallback, so "no active team" now surfaces as a 404 — the 
 AuthGuard treats 404 from `/api/team` as "no career" (R-02 notes), so check why mary bypasses
 it. Keep the "mary" profile on the live save — it is the repro; do not delete it.
 
-**What was found:** this is exactly the bug R-20 fixed, not a separate one. `getActiveTeam()`
-used to fall back to "the most recently created team for this user" whenever `req.activeTeamId`
-was unset. Mary's only team belongs to a RETIRED career (Rio Storm) — the fallback returned it
-as if active, so `GET /api/team` answered 200 with stale data instead of 404, and AuthGuard's
-`needsTeam` (which depends entirely on that 404) never fired. Confirmed directly: reverted
-`getActiveTeam.ts` to its pre-R-20 version, rebuilt — `GET /api/team` for a retired-only profile
-returned 200 with the retired team. Restored the current code — 404. Confirmed on the live save
-too: selecting "mary" against the current build now returns a clean 404 from `/api/team`.
+**What was found (7 Sep):** this was exactly the bug R-20 fixed, not a separate one.
+`getActiveTeam()` used to fall back to "the most recently created team for this user" whenever
+`req.activeTeamId` was unset. Mary's only team then belonged to a RETIRED career (Rio Storm,
+team id 4) — the fallback returned it as if active, so `GET /api/team` answered 200 with stale
+data instead of 404. Confirmed by reverting `getActiveTeam.ts`: 200 with the retired team on old
+code, 404 on current. `smoke.mjs` section 16 covers this. Left as **"Rob: please confirm
+visually — open mary and watch for the title screen."**
 
-**Fix applied:** none needed — R-20 already made this correct.
+**8 Sep — Rob reported "R-21 is NOT fixed": opening mary now lands on a full dashboard** (club
+"Sydney Riptide", manager "rob", budget $400,000, Jan 1 2026, ladder showing only that team).
+Re-investigated per Rob's 4-step brief: read the live save read-only, reproduce as mary through
+the real API path, find the real cause, fix it if there is one.
 
-**Harness (done):** `smoke.mjs` section 16 reproduces mary's exact shape (one career, retired,
-no other) and asserts `GET /api/team` 404s. Verified by reverting `getActiveTeam.ts`: fails on
-the old code (200 with the retired team), passes on current. Full harness: 7/7 suites green.
+**Read-only, before touching anything:** mary's `career_saves` rows are now just ONE —
+`id 8, team_id 8, slot_number 1, manager_name "rob", club_name "Sydney Riptide", budget 400000,
+retired_at NULL, created_at 2026-09-08T01:18:24Z`. The old retired career (team id 4, "Rio Storm
+Volleyball") no longer has ANY `career_saves` row at all — team 4 is now an orphaned historical
+row, consistent with R-03's overwrite-a-slot cascade (delete the old `career_saves` row, keep
+the team row as history). `career_history_entries` has zero rows for mary — no retirement audit
+trail either way. `users` has no `active_team_id`/`active_career_save_id` column; that state
+lives only in the server-side session (`lib/auth.ts`), not on the row.
 
-**Live-save proof: partial.** `GET /api/team` for mary correctly 404s against the live save on
-a freshly rebuilt server (verified directly, not blocked by R-26's location gap — opening mary
-creates nothing). This environment has no way to drive the actual Electron/React UI to confirm
-the title screen itself renders with START NEW CAREER — **Rob: please confirm visually** — open
-"mary" from the picker and watch for the title screen rather than a dashboard.
+**Reproduced through the real app path** (fresh cookie jar, exactly the client's own sequence):
+`POST /api/profiles/<mary>/select` → `{"ok":true}` → `GET /api/auth/user` → **200**,
+`"username":"mary"` → `GET /api/team` → **200**, team id 8, "Sydney Riptide" → `GET /api/dashboard`
+→ **200**, `clubName:"Sydney Riptide"`, `managerName:"rob"`. Traced the exact code that chose it:
+`authMiddleware.ts`'s session-restore query (line ~72) selects the career with
+`isNull(careerSavesTable.retiredAt)`, `orderBy(desc(lastPlayedAt))` — mary has exactly one
+non-retired row (id 8), so it correctly restores `activeTeamId = 8`. `getActiveTeam.ts` then
+returns team 8 for that id — no fallback, no guessing, exactly the R-20 fix working as designed.
+`dashboard.ts` reads `career_saves` id 8 by `(id = cid, userId = mary)` for the manager/club
+name — also exactly as designed.
+
+**Real cause: not a code defect. Mary's live-save data itself changed.** She no longer has "only
+a retired career" — she has one genuine, non-retired `career_saves` row, created 2026-09-08 at
+01:18:24 UTC. `POST /careers` requires a full body (`managerName`, `clubName`, `budget`,
+`locationId`, colors) submitted explicitly — nothing in this codebase can create that row from a
+GET request or any automatic backfill/repair path (checked `dashboard.ts`, `getActiveTeam.ts`,
+`ensureSeasonFixture`, `ensureCompetitorRanking` — none of them insert into `career_saves`).
+`manager_name = "rob"` is a real person's name, not a generated placeholder or template default.
+The creation timestamp (01:18:24) falls inside the exact window an `electron:dev` window was
+left open and running against this live save for R-28's live verification (01:16–01:20) — i.e.
+very likely Rob completed the START NEW CAREER wizard for mary himself, in the actual running
+game window, while going to confirm the "please confirm visually" note above — which the wizard
+appearing at all would already have proven correct. `slot_number 1` matches mary's only slot, so
+this reused/overwrote her original slot rather than adding a second one.
+
+Given that: `getActiveTeam`, `authMiddleware` and `dashboard.ts` are all doing exactly what
+R-21/R-20 designed them to do — serve a genuine non-retired career, 404 only when there truly is
+none. There is nothing to fix here; forcing a code change or a harness case against this would
+be asserting a bug that isn't there. **No commit made for this re-investigation** — consistent
+with R-25's "investigated, no code bug found" precedent.
+
+**Rob: your call on how to leave mary.** Per this brief's hard rule, her current career was NOT
+deleted, retired or renamed. If you want mary restored as a permanent "all-careers-retired"
+fixture for future regression testing, that needs an explicit decision — either retire this
+"Sydney Riptide" career (R-03's overwrite path) or use a different profile for that repro. Until
+then, mary genuinely has an active career and will correctly land on its dashboard.
+
+**Harness (unchanged, still valid):** `smoke.mjs` section 16 still reproduces the ORIGINAL
+retired-only shape synthetically (its own fixture, not mary's live row) and asserts
+`GET /api/team` 404s for it — this is unaffected by mary's live-save data changing and remains
+the permanent regression guard for the R-20/R-21 fix itself. Full harness: 8/8 suites green
+(unchanged by this investigation — no code was touched).
 
 ### R-23 — The game is called "Beach Volleyball Empire" everywhere
 Registered on Steam as **Beach Volleyball Empire**. Rob's decision (7 Sep): everywhere the name
