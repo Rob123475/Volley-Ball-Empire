@@ -630,7 +630,7 @@ wizard sends them. Check alongside R-25.
 ### R-14 — Profile page hard-codes manager salary (partial)
 `pages/profile.tsx` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
 
-### R-15 — CLOSED (9 Sep, <hash>)
+### R-15 — CLOSED (9 Sep, dc24df7)
 `pages/dashboard.tsx:927-931` — tile opens the career options menu. Relabel or remove.
 
 **Found:** all 4 "Career Options" tiles ("Save Career", "Load Different Career", "Return to Main
