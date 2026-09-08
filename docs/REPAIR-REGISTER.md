@@ -25,7 +25,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-24 — A brand-new career's clock runs by itself  ← START HERE
+### R-24 — CLOSED, VERIFIED ON SCREEN BY ROB 8 SEP (6cb7c27)
 Found during R-20. `routes/calendar.ts:187 getOrCreateCalendar()` creates a new career's
 `calendar_state` with `calendar_speed = "medium"`, not `"pause"`. The moment anything polls
 `GET /api/calendar` (the dashboard does, on load) the season starts advancing on its own. Proof
@@ -41,6 +41,8 @@ by a client-side ticker, confirm the ticker does nothing while speed is "pause".
 assert round and date are unchanged. Then on the live save: new profile → new career → sit on
 the dashboard for two full minutes → screenshot shows round 1 and the start date. (Create it as
 profile "R24 Check"; leave it there.)
+
+**Verified on screen by Rob, 8 Sep.**
 
 ### R-26 — CLOSED, LIVE-SAVE VERIFIED (7-8 Sep, 0a8ab28, unblocked by R-28 cb5373a)
 Found during R-20. Fixture generation is lazy: it only runs on `GET /matches/fixture`, which
@@ -80,6 +82,8 @@ schema repair but for reference ROWS instead of columns. Verified on this live s
 then `POST /api/profiles/8f275ed5-b85c-43d8-9567-3afc2ad1212e/select` + `GET /api/dashboard` for
 R04 Check returned HTTP 200 (was 500), and `POST /api/careers` for a fresh slot on that same
 profile returned HTTP 200 (was 500). R-26 itself is now fully proven live, not just in harness.
+
+**Verified on screen by Rob, 8 Sep.**
 
 ### R-25 — INVESTIGATED, NO CODE BUG FOUND (7 Sep, 2cabc5a)
 Found during R-20. `career_saves.manager_name` for "R04 Check" is literally the string `"r"`
@@ -124,7 +128,12 @@ verification (a fresh career, different profile, `manager_name` echoed and store
 sent, HTTP 200) — a clean re-attempt of "R25 Check" itself was not repeated, since it would only
 re-confirm the same write path R-28's verification already exercised.
 
-### R-21 — REOPENED 8 Sep, then RE-CLOSED: mary's live-save DATA changed, not the code (7 Sep, b6d0af4; re-investigated 8 Sep)
+**Verified on screen by Rob, 8 Sep.**
+
+### R-21 — CLOSED, VERIFIED ON SCREEN BY ROB 8 SEP (7 Sep, b6d0af4; re-investigated 8 Sep, 7479193)
+Mary reached the title screen and started a career from it, confirming the R-20/R-21 fix on
+screen. Commit `7479193` records the 8 Sep re-investigation (mary's live-save data had changed
+— a real career now exists for her — not a code regression); see that entry below in full.
 Opening the "mary" profile from the picker goes straight to the dashboard with club "No Club
 Selected" (badge "NCS") and the top bar stuck on "Loading…" indefinitely (3+ minutes). A profile
 with no career must go to the title screen / START NEW CAREER wizard instead. Note R-20 deleted
@@ -213,7 +222,7 @@ Do R-18 (title-screen pills) in the same pass — same file, `auth-guard.tsx`.
 → title screen, window title bar, sidebar and About all read "Beach Volleyball Empire"; the
 profiles and careers are all still there after the folder move. Screenshots.
 
-### R-06 — CODE CLOSED, LIVE-SAVE PROOF PARTIALLY BLOCKED (7 Sep, e2345e6)
+### R-06 — CLOSED, LIVE-SAVE VERIFIED (7-8 Sep, e2345e6)
 Dashboard rank and ladder were rebuilt in R-20 (scoped to `competitor_rankings`). Still open:
 `routes/leaderboard.ts:9-24` ranks from `teams` with no results gate and no career scope;
 `pages/leaderboard.tsx:125, 190-198` renders the top row as Champion. Apply the same
@@ -249,6 +258,9 @@ exactly that: a brand-new career ("R28 Verify", slot 2, on R04 Check's profile) 
 Check → slot 2 ("R28 Verify") and check the leaderboard shows it at 0-0-0 alongside R04 Check's
 own team, never another profile's**, for the visual confirmation this entry's harness proof
 already covers server-side.
+
+**Verified on screen by Rob, 8 Sep** (R28 Verify FC's standings row showed only its own team,
+0-0-0 — the 9:1 goal-differential display issue seen on that row is tracked separately as R-30).
 
 ### R-28 — CLOSED (8 Sep, cb5373a) — Reference data in a save falls behind the starter DB
 Found during R-26/R-25/R-06. The live save's `locations` table had only 8 rows (ids 1-8); the
@@ -294,6 +306,19 @@ itself ran entirely through the app's own boot code path, not a direct write.
 ---
 
 ## MEDIUM
+
+### R-29 — World Tour standings show only the player's club
+World Tour Standings reads "1 teams", the World Finals bracket auto-seeds the player as #1 with
+every other slot TBD, and the fixtures header says "18 qualified teams" while the ladder holds
+one. Root cause is already documented in `docs/economy-design.md` §2.4: World Tour opponents
+are name strings from static data, not competitor rows, so nothing else can hold ranking points.
+Needs Rob's design decision on where AI ranking points come from (Phase 0 "competitor entity").
+Registered 8 Sep — do not build it yet.
+
+### R-30 — "Goals +/- 9 : 1" on a club that has played zero matches
+Seen on R28 Verify FC's World Tour Standings row at 0-0-0. Find where the seeded
+`competitor_rankings` zero-row (R-26's `ensureCompetitorRanking`) or the standings page gets 9
+and 1 from and make a fresh row read 0 : 0. Small; queue after R-23. Registered 8 Sep.
 
 ### R-22 — Skin tone and kit colour in the Unity court
 Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's
