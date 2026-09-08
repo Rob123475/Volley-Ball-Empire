@@ -27,6 +27,34 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-32 — CLOSED (8 Sep, <hash>)
+`utils/match-tick-engine.ts:56` has the identical `freeAgents: true, isActive: true` filter
+combination R-22 found and fixed in `routes/unity.ts` — a free agent can never be `is_active`
+(only set true when a player is signed to a roster), so this fallback lookup returns zero rows,
+unconditionally, every time it runs.
+
+**Traced:** the loop never crashes and is not a numeric walkover — `sideRating([])` (in
+`matchEngine.ts`) defaults to a flat 60 for an empty roster, so `awayAvg` was a real, average
+value even with zero players, and `pointProbability(homeAvg, 60, ...)` gave a normal-looking
+contest. What actually broke: `pickPlayer([], stat)` returns `undefined` for an empty roster, so
+every point credited to "away" had `lastActionPlayerId: null` — a live-watched match had an
+opponent that could win points but never had a name, exactly the same symptom R-22 found in the
+Unity payload, just inside the live tick loop instead of the static payload.
+
+**Fix:** same as R-22 — dropped `isActive: true` from `loadFallbackPool`'s query. Only this one
+call site; `loadRoster` (for a team's own signed roster) correctly keeps `isActive: true` since a
+real team's bench players (signed but not in the starting 2) should not be pulled in.
+
+**Harness (done):** `harness/match-tick-fallback-roster.mjs` — creates a career (eager World Tour
+fixture, so `awayTeamId === homeTeamId` on every match), starts the live tick loop
+(`POST /matches/:id/watch`), and polls `GET /unity/match-state` until 2 distinct real player ids
+are credited with a point on the away side (home is asserted at 1+ only — its roster selection is
+unrelated to this fix and pickPlayer's stat-weighted randomness can easily favour one home player
+within the ~15-point window this runs in, so a stricter home bar would be flaky on behaviour this
+fix never touched). Confirmed against the pre-fix code: 0 distinct away scorers, zero points
+credited to any away player, in the same window. Wired into `run-all.mjs` as suite 7/12. Full
+harness green: 12/12 suites.
+
 ### R-31 — Database is never checkpointed or closed on quit
 `before-quit` in `electron/main.js` just kills the server (`child.kill()`, no signal a Windows
 process can catch, 2s grace then `app.exit(0)` regardless). Nothing runs `PRAGMA

@@ -53,7 +53,18 @@ async function loadRoster(teamId: number | null, excludeIds: number[]): Promise<
 }
 
 async function loadFallbackPool(fallbackCareerId: number, excludeIds: number[]): Promise<RosterPlayer[]> {
-  const rows = (await loadPlayers(fallbackCareerId, { freeAgents: true, playerType: "senior", isActive: true }))
+  // R-32: this used to also filter isActive: true, which a free agent can
+  // never be (only set true when a player is signed to a roster — confirmed
+  // 0 of 265 free agents have it on the live save; see R-22, which found the
+  // identical contradiction in routes/unity.ts). That made this query return
+  // zero rows unconditionally, so awayRoster stayed empty for every World
+  // Tour match (awayTeamId always equals homeTeamId — no real opposing team
+  // row ever exists, see R-29): sideRating([]) defaults to a flat 60, so the
+  // match itself wasn't a numeric walkover, but every point "Away" won had
+  // no real player behind it — pickPlayer([], stat) returns undefined, so
+  // lastActionPlayerId was always null for an away point. A live-watched
+  // match had a phantom, playerless opponent.
+  const rows = (await loadPlayers(fallbackCareerId, { freeAgents: true, playerType: "senior" }))
     .filter((p) => !excludeIds.includes(p.id))
     .sort((a, b) => sideRating([b]) - sideRating([a]))
     .slice(0, 2);
