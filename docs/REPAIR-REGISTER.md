@@ -453,7 +453,7 @@ are name strings from static data, not competitor rows, so nothing else can hold
 Needs Rob's design decision on where AI ranking points come from (Phase 0 "competitor entity").
 Registered 8 Sep — do not build it yet.
 
-### R-30 — CLOSED (8 Sep, <hash>)
+### R-30 — CLOSED (8 Sep, b366ff6)
 Seen on R28 Verify FC's World Tour Standings row at 0-0-0. Find where the seeded
 `competitor_rankings` zero-row (R-26's `ensureCompetitorRanking`) or the standings page gets 9
 and 1 from and make a fresh row read 0 : 0. Small; queue after R-23. Registered 8 Sep.
