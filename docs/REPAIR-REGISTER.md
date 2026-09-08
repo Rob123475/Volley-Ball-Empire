@@ -27,6 +27,22 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-31 — Database is never checkpointed or closed on quit
+`before-quit` in `electron/main.js` just kills the server (`child.kill()`, no signal a Windows
+process can catch, 2s grace then `app.exit(0)` regardless). Nothing runs `PRAGMA
+wal_checkpoint`, nothing calls `sqlite.close()` — confirmed by direct grep, no such call exists
+on the main `sqlite` export anywhere in the server. The last writes of a session can sit
+un-checkpointed in `volleyball-empire.sqlite-wal` indefinitely (SQLite's own auto-checkpoint is
+the only thing that ever runs), which breaks Steam Cloud sync: Cloud only uploads the file(s) it
+is told to sync, and a WAL-mode database's true state is split across `.sqlite` + `-wal` — syncing
+the main file alone can ship a save missing its most recent progress.
+**Do:** give the api-server a shutdown path `main.js` can trigger that runs `PRAGMA
+wal_checkpoint(TRUNCATE)`, closes the sqlite handle, and exits 0. Change `before-quit` to call it
+and wait for the child to exit, with the existing 2s kill as the fallback if it doesn't.
+**Proof:** harness: boot, write a row, trigger the shutdown, assert the `-wal` file is 0 bytes or
+absent and the row is present in the main `.sqlite` opened read-only. Live save: launch, quit via
+the window close button, report `volleyball-empire.sqlite-wal`'s size afterward.
+
 ### R-24 — CLOSED, VERIFIED ON SCREEN BY ROB 8 SEP (6cb7c27)
 Found during R-20. `routes/calendar.ts:187 getOrCreateCalendar()` creates a new career's
 `calendar_state` with `calendar_speed = "medium"`, not `"pause"`. The moment anything polls

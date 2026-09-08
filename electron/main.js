@@ -368,9 +368,9 @@ app.on("window-all-closed", () => {
 // bound to SERVER_PORT. The player sees a game that closed fine and then will
 // not start again, and nothing short of Task Manager fixes it.
 //
-// No SIGKILL escalation here on purpose. Windows is the only platform we ship,
-// and there child.kill() ignores the signal and calls TerminateProcess either
-// way — escalating would be ceremony, not force.
+// No SIGKILL escalation on the fallback kill, on purpose. Windows is the only
+// platform we ship, and there child.kill() ignores the signal and calls
+// TerminateProcess either way — escalating would be ceremony, not force.
 const SHUTDOWN_GRACE_MS = 2000;
 let shuttingDown = false;
 
@@ -384,16 +384,6 @@ app.on("before-quit", (event) => {
   // Hold the quit open just long enough to reap the child ourselves.
   event.preventDefault();
 
-  // kill() returns false when the handle is already gone — the child died
-  // earlier and we would otherwise wait the full grace period for an "exit"
-  // that can never arrive.
-  const signalled = child.kill();
-  if (!signalled) console.warn("[shutdown] server handle already gone, nothing to signal");
-
-  // An open IPC channel is a live handle on this process's event loop, so it
-  // can keep the parent alive on its own even once the child is dead.
-  try { child.disconnect(); } catch { /* never connected, or already gone */ }
-
   let timer = null;
   const finish = (why) => {
     if (timer) clearTimeout(timer);
@@ -404,8 +394,29 @@ app.on("before-quit", (event) => {
   };
 
   child.once("exit", () => finish("server child exited, quitting"));
-  timer = setTimeout(
-    () => finish(`server child did not exit within ${SHUTDOWN_GRACE_MS}ms, forcing`),
-    SHUTDOWN_GRACE_MS,
-  );
+
+  // R-31: ask the server to checkpoint its WAL and close the DB handle
+  // cleanly before it goes, rather than killing it outright — a WAL-mode
+  // database's true state is split across the .sqlite and .sqlite-wal files,
+  // and Steam Cloud only syncs whatever it's told to. The server listens for
+  // this on the fork's own IPC channel (index.ts) and calls process.exit(0)
+  // itself once done, which fires the "exit" handler above.
+  const sent = child.connected && child.send({ type: "shutdown" });
+  if (!sent) {
+    console.warn("[shutdown] IPC channel unavailable, killing directly");
+    const signalled = child.kill();
+    if (!signalled) console.warn("[shutdown] server handle already gone, nothing to signal");
+  }
+
+  // Same grace period as before, now the fallback for a graceful shutdown
+  // that never sent, never arrived, or never finished — not the only path.
+  timer = setTimeout(() => {
+    console.warn(`[shutdown] server child did not exit within ${SHUTDOWN_GRACE_MS}ms of the shutdown message, forcing`);
+    // An open IPC channel is a live handle on this process's event loop, so
+    // it can keep the parent alive on its own even once the child is dead.
+    try { child.disconnect(); } catch { /* never connected, or already gone */ }
+    const signalled = child.kill();
+    if (!signalled) console.warn("[shutdown] server handle already gone, nothing to signal");
+    finish(`server child did not exit within ${SHUTDOWN_GRACE_MS}ms, forcing`);
+  }, SHUTDOWN_GRACE_MS);
 });

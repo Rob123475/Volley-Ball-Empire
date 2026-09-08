@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { sqlite } from "@workspace/db";
 import { normaliseContinentsOnce } from "./utils/normaliseContinents";
 import { ensurePoolCompetitors, ensureTeamCompetitors } from "./utils/competitors";
 import {
@@ -7,6 +8,34 @@ import {
   attributeRegionalLeagueOnce, dropMovedColumns,
 } from "./utils/migrateCareerState";
 import { ensureSchema, ensureReferenceData } from "./utils/ensureSchema";
+
+// R-31: electron/main.js forks this process and already has a live IPC
+// channel to it (confirmed by its own pre-existing child.disconnect() call
+// at shutdown) — the same pattern every other cross-process signal in this
+// app already uses, so this reuses it rather than adding a second mechanism
+// (a localhost admin endpoint would also need to dodge NODE_ENV=production
+// gating devRouter, for no benefit over a channel that already exists).
+//
+// Registered first, before anything else in this file, so it is live for
+// the whole process lifetime — a WAL-mode database's true state is split
+// across the .sqlite and .sqlite-wal files, and Steam Cloud only syncs
+// whatever it's told to sync. Without this, main.js's before-quit just
+// killed the process and whatever was still sitting in the WAL at that
+// moment shipped nowhere. main.js still force-kills after its existing 2s
+// grace period if this message is never sent, never received, or never
+// finishes.
+process.on("message", (msg) => {
+  if (!(msg && typeof msg === "object" && "type" in msg && (msg as { type: unknown }).type === "shutdown")) return;
+  try {
+    sqlite.pragma("wal_checkpoint(TRUNCATE)");
+    sqlite.close();
+    logger.info("WAL checkpointed and database closed for shutdown");
+  } catch (err) {
+    logger.error({ err }, "checkpoint/close on shutdown failed");
+  } finally {
+    process.exit(0);
+  }
+});
 
 const rawPort = process.env["PORT"];
 
