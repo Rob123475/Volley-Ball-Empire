@@ -430,7 +430,7 @@ Seen on R28 Verify FC's World Tour Standings row at 0-0-0. Find where the seeded
 `competitor_rankings` zero-row (R-26's `ensureCompetitorRanking`) or the standings page gets 9
 and 1 from and make a fresh row read 0 : 0. Small; queue after R-23. Registered 8 Sep.
 
-### R-22 — CODE-SIDE PART CLOSED (8 Sep, <commit>); UNITY-SIDE PART: ROB'S DECISION, see below
+### R-22 — CODE-SIDE PART CLOSED (8 Sep, c84f1ea); UNITY-SIDE PART: ROB'S DECISION, see below
 Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's
 bikini/kit colour** in the Unity 3D court, and this must match the management side. Today,
 launching from the desktop shortcut and pressing "3D Court" shows the same pale model in a grey
