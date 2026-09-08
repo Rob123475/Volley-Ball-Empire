@@ -630,8 +630,28 @@ wizard sends them. Check alongside R-25.
 ### R-14 — Profile page hard-codes manager salary (partial)
 `pages/profile.tsx` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
 
-### R-15 — Dashboard "Game Settings" tile doesn't open settings
+### R-15 — CLOSED (9 Sep, <hash>)
 `pages/dashboard.tsx:927-931` — tile opens the career options menu. Relabel or remove.
+
+**Found:** all 4 "Career Options" tiles ("Save Career", "Load Different Career", "Return to Main
+Menu", "Game Settings") shared the exact same `onClick={() => setShowCareerOptions(true)}` —
+every one of them opened the identical `CareerOptionsMenu` modal, regardless of which was
+clicked. That modal genuinely contains "Save Career", "Load Different Career" and "Return to
+Main Menu" as real items, so those 3 tiles are honest (if redundant) shortcuts into it. "Game
+Settings" (described as "Audio, display & preferences") is not one of the modal's items — there
+is no audio/display/preferences screen anywhere in this codebase to open (grepped for a settings
+page/route: none exists). Clicking it silently delivered "Save Career / Load Different Career /
+Return to Main Menu" instead of what its own label and description promised.
+
+**Removed, not relabeled:** there is nothing real for it to correctly describe — the feature
+doesn't exist — and relabeling it honestly ("opens Career Options") would just duplicate the 3
+sibling tiles and the card's own header, which already says "Career Options — Save, load or
+manage your active career". Grid changed from `sm:grid-cols-4` to `sm:grid-cols-3` to match.
+
+**Proof:** frontend typecheck and build both clean; full harness unaffected (server-side only):
+12/12 suites. No new harness case — this is a pure frontend JSX removal with no server-observable
+behaviour to regression-test. **Rob: please confirm on screen** — the Career Options card now
+shows 3 tiles (Save Career / Load Different Career / Return to Main Menu), no Game Settings tile.
 
 ### R-16 — CLOSED (9 Sep, d001a23)
 `artifacts/api-server/src/package.json:12-13` still lists `@google-cloud/storage`. Delete it.

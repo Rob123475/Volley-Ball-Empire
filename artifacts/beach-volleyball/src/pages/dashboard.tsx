@@ -923,12 +923,11 @@ export default function Dashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {[
               { label: "Save Career",           desc: "Auto-saves after every action", icon: Save,      colour: "text-emerald-400", bg: "hover:bg-emerald-500/10 hover:border-emerald-500/30" },
               { label: "Load Different Career",  desc: "Switch to another save slot",  icon: FolderOpen, colour: "text-sky-400",     bg: "hover:bg-sky-500/10 hover:border-sky-500/30" },
               { label: "Return to Main Menu",    desc: "Go to career selection",       icon: Home,       colour: "text-violet-400",  bg: "hover:bg-violet-500/10 hover:border-violet-500/30" },
-              { label: "Game Settings",          desc: "Audio, display & preferences", icon: Settings,   colour: "text-white/50",    bg: "hover:bg-white/5 hover:border-white/15" },
             ].map(({ label, desc, icon: Icon, colour, bg }) => (
               <button
                 key={label}
