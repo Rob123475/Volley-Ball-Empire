@@ -206,6 +206,23 @@ old code shows all careers-worth of teams on every request, all 3 checks fail. F
 isn't blocked. "A fresh career's leaderboard" specifically is blocked by the same location-data
 gap R-26 and R-25 documented — can't create a fresh career on this live save to screenshot.
 
+### R-28 — Reference data in a save falls behind the starter DB — nothing backfills rows
+Found during R-26/R-25/R-06. The live save's `locations` table has only 8 rows (ids 1-8); the
+shipped starter DB has 11. Venues 9-11 were added to the starter DB at some point (R-05's note
+"venues 9-11 exist now") and nothing ever backfills that into an existing save — R-01's boot
+repair (`ensureSchema.ts`) only adds missing COLUMNS and TABLES, derived from the drizzle
+schema; it has no notion of missing ROWS in a static reference table, because row data isn't
+part of the schema declaration at all. World Tour fixture data references location id 11
+("Red Sea Beach, Hurghada"), so on this specific save `POST /careers` and `GET /dashboard`
+currently both 500 with `FOREIGN KEY constraint failed` the moment fixture generation runs —
+every existing career with no matches yet, and any brand-new career.
+**Do:** at boot, next to the R-01 schema check, compare reference tables against the shipped
+starter DB and insert any rows missing by primary key, logging each one. Never update or
+delete an existing row — this is additive-only, the same spirit as R-01's schema repair.
+**Proof:** harness: take the starter DB, delete locations 9-11, boot, assert they are back and
+`POST /careers` succeeds. Live save: boot log shows the 3 locations inserted, `GET /dashboard`
+for R04 Check returns 200, `POST /careers` succeeds.
+
 ---
 
 ## MEDIUM

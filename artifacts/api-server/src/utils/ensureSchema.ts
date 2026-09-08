@@ -1,4 +1,4 @@
-import { db } from "@workspace/db";
+import { db, sqlite } from "@workspace/db";
 import * as dbExports from "@workspace/db";
 import { sql, is } from "drizzle-orm";
 import {
@@ -6,6 +6,8 @@ import {
   SQLiteTable,
   type AnySQLiteColumn,
 } from "drizzle-orm/sqlite-core";
+import Database from "better-sqlite3";
+import fs from "node:fs";
 
 /**
  * Bring an older save up to the schema the running code expects.
@@ -277,4 +279,128 @@ export function ensureSchema(): EnsureSchemaResult {
     indexesCreated,
     problems,
   };
+}
+
+// ── R-28: reference data falls behind the starter DB too ────────────────────
+//
+// The above derives TABLES, COLUMNS and INDEXES from the drizzle schema — but
+// a schema declaration has no idea what ROWS a reference table is supposed to
+// contain. The live save's `locations` table had only 8 rows; the shipped
+// starter DB has 11. Venues 9-11 were added to the starter DB at some point
+// (see R-05's note "venues 9-11 exist now") and nothing ever backfilled that
+// into a save someone already had. World Tour fixture data references
+// location id 11, so on that save both POST /careers and GET /dashboard
+// 500'd with a bare FOREIGN KEY constraint failed the moment fixture
+// generation ran — the code was correct, checked against the shipped DB
+// (which has all 11 locations); the save's own reference data just never
+// caught up.
+//
+// ── Which tables ──────────────────────────────────────────────────────────
+// Not derivable from the schema either — nothing there says "this table is
+// pure reference data with no per-career shadow state". Chosen from
+// scripts/src/make-starter-db.ts's own KEEP_TABLES (rows kept as-is across a
+// starter-DB rebuild — the authoritative "this is reference data" list,
+// already hand-maintained there for a different reason, with a drift check
+// of its own ensuring every schema table is categorized KEEP or CLEAR):
+//
+//   KEEP_TABLES = players, staff, locations, club_templates, outfits
+//
+// `players` and `staff` are excluded here despite being in that list: both
+// ARE written by gameplay (updatePlayerReference / updateStaffReference in
+// lib/playerDto.ts — real UPDATE call sites, not hypothetical), and — more
+// importantly — a missing player/staff row needs a matching
+// career_player_state/career_staff_state row for every EXISTING career save,
+// which only seedCareerState() creates, only at career creation. Backfilling
+// the reference row alone would leave a player who exists nowhere any
+// existing career can see them: not in the market, not signable. That is a
+// different, larger problem than "a row is missing" and is not attempted
+// here. `locations`, `club_templates` and `outfits` have no such per-career
+// shadow — a missing row is simply missing, and inserting it by primary key
+// is completely self-contained.
+const REFERENCE_TABLES = ["locations", "club_templates", "outfits"] as const;
+
+export type EnsureReferenceDataResult = {
+  starterDbPath: string | null;
+  /** Why nothing was compared — no starter DB reference available. */
+  skipped?: string;
+  /** table name -> primary keys of the rows inserted. */
+  inserted: Record<string, Array<string | number>>;
+};
+
+function primaryKeyColumn(table: string): string | null {
+  const rows = db.all<{ name: string; pk: number }>(sql.raw(`PRAGMA table_info(\`${table}\`)`));
+  const pk = rows.filter((r) => r.pk > 0).sort((a, b) => a.pk - b.pk);
+  // Every REFERENCE_TABLES member has a single-column integer primary key.
+  // A composite key would need per-column matching this does not attempt —
+  // reported as skipped for that table rather than guessed at.
+  return pk.length === 1 ? pk[0]!.name : null;
+}
+
+/**
+ * Compare REFERENCE_TABLES against the shipped starter DB (path supplied via
+ * STARTER_DB_PATH — set by electron/main.js's startServer(), the same
+ * "resolve it in the process that actually knows, pass it down" pattern
+ * already used for serverEntry/publicDir, because process.resourcesPath
+ * resolves inconsistently inside this forked child). Absent in any context
+ * that doesn't set it (a bare `node dist/index.mjs`, most harness suites) —
+ * that is not an error, just nothing to compare against, and is reported as
+ * `skipped` rather than thrown.
+ *
+ * Additive only: every row this finds in the starter DB but not in the live
+ * one is INSERTed verbatim. An existing row — however far its OTHER columns
+ * may have drifted from the starter DB's — is never touched. Run after
+ * ensureSchema() so every REFERENCE_TABLES member is guaranteed to exist and
+ * have every declared column before rows are compared.
+ */
+export function ensureReferenceData(): EnsureReferenceDataResult {
+  const starterDbPath = process.env["STARTER_DB_PATH"];
+  const inserted: Record<string, Array<string | number>> = {};
+
+  if (!starterDbPath) {
+    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted };
+  }
+  if (!fs.existsSync(starterDbPath)) {
+    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted };
+  }
+
+  const starter = new Database(starterDbPath, { readonly: true, fileMustExist: true });
+  try {
+    for (const table of REFERENCE_TABLES) {
+      if (!tableExists(table)) continue; // ensureSchema() above already creates it if wholly missing
+
+      const pkCol = primaryKeyColumn(table);
+      if (!pkCol) continue;
+
+      const starterCols = new Set(
+        (starter.prepare(`PRAGMA table_info(\`${table}\`)`).all() as { name: string }[]).map((r) => r.name),
+      );
+      // Only columns both sides actually have. ensureSchema() already brought
+      // the live table's columns forward to match the drizzle schema; this
+      // does not also try to add columns, only rows.
+      const sharedCols = [...starterCols].filter((c) => existingColumns(table).has(c));
+      if (sharedCols.length === 0) continue;
+
+      const livePks = new Set(
+        db.all<Record<string, unknown>>(sql.raw(`SELECT \`${pkCol}\` AS pk FROM \`${table}\``)).map((r) => r.pk),
+      );
+
+      const starterRows = starter.prepare(`SELECT * FROM \`${table}\``).all() as Record<string, unknown>[];
+      const missing = starterRows.filter((r) => !livePks.has(r[pkCol]));
+      if (missing.length === 0) continue;
+
+      const colList = sharedCols.map((c) => `\`${c}\``).join(", ");
+      const placeholders = sharedCols.map(() => "?").join(", ");
+      const insertStmt = sqlite.prepare(`INSERT INTO \`${table}\` (${colList}) VALUES (${placeholders})`);
+
+      for (const row of missing) {
+        const values = sharedCols.map((c) => (row[c] === undefined ? null : row[c]));
+        insertStmt.run(...values);
+        inserted[table] = [...(inserted[table] ?? []), row[pkCol] as string | number];
+      }
+    }
+  } finally {
+    starter.close();
+  }
+
+  return { starterDbPath, inserted };
 }

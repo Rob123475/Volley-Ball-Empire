@@ -165,6 +165,12 @@ function startServer() {
         PORT: String(SERVER_PORT),
         DB_PATH: userDbPath,
         PUBLIC_DIR: publicDir,
+        // R-28: lets the server backfill reference rows (locations,
+        // club_templates, outfits) that a save made before a row was added
+        // to the starter DB never got. Same "resolve it here, pass it down"
+        // reason as PUBLIC_DIR above — process.resourcesPath is not reliable
+        // inside the forked child.
+        STARTER_DB_PATH: bundledDbPath,
       },
       silent: true,
     });

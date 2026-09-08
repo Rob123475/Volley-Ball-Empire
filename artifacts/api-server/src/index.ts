@@ -6,7 +6,7 @@ import {
   migrateCareerStateOnce, migratePoolTeamStateOnce,
   attributeRegionalLeagueOnce, dropMovedColumns,
 } from "./utils/migrateCareerState";
-import { ensureSchema } from "./utils/ensureSchema";
+import { ensureSchema, ensureReferenceData } from "./utils/ensureSchema";
 
 const rawPort = process.env["PORT"];
 
@@ -44,6 +44,26 @@ try {
   for (const p of s.problems) logger.warn({ schemaRepair: p }, "schema repair needs a human");
 } catch (err) {
   logger.error({ err }, "schema ensure failed");
+}
+
+// R-28: a save's own reference rows (locations, club_templates, outfits) can
+// also fall behind the shipped starter DB — a schema check has no notion of
+// this, since row data isn't part of the schema declaration at all. Additive
+// only: existing rows are never touched, only rows missing by primary key
+// are inserted. No-ops (skipped, logged) when STARTER_DB_PATH isn't set —
+// most harness suites and a bare `node dist/index.mjs` don't set it.
+try {
+  const r = ensureReferenceData();
+  const totalInserted = Object.values(r.inserted).reduce((n, ids) => n + ids.length, 0);
+  if (r.skipped) {
+    logger.info({ starterDbPath: r.starterDbPath, reason: r.skipped }, "reference data backfill skipped");
+  } else if (totalInserted > 0) {
+    logger.info({ starterDbPath: r.starterDbPath, inserted: r.inserted }, "reference data backfilled from starter DB");
+  } else {
+    logger.info({ starterDbPath: r.starterDbPath }, "reference data check: save is up to date, 0 rows missing");
+  }
+} catch (err) {
+  logger.error({ err }, "reference data backfill failed");
 }
 
 // Data migration: move every continent column onto the canonical KEYS and
