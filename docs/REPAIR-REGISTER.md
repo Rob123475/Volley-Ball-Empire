@@ -453,10 +453,27 @@ are name strings from static data, not competitor rows, so nothing else can hold
 Needs Rob's design decision on where AI ranking points come from (Phase 0 "competitor entity").
 Registered 8 Sep — do not build it yet.
 
-### R-30 — "Goals +/- 9 : 1" on a club that has played zero matches
+### R-30 — CLOSED (8 Sep, <hash>)
 Seen on R28 Verify FC's World Tour Standings row at 0-0-0. Find where the seeded
 `competitor_rankings` zero-row (R-26's `ensureCompetitorRanking`) or the standings page gets 9
 and 1 from and make a fresh row read 0 : 0. Small; queue after R-23. Registered 8 Sep.
+
+**Found:** `competitor_rankings` doesn't have goal columns at all — `GET /seasons/:id/ladder`
+(`routes/seasons.ts`) computes them itself, unconditionally: `goalsFor: wins*2 + (teamId % 10)`,
+`goalsAgainst: losses*2 + (teamId % 8)`. The comment above it already explained this was made
+deterministic (from a `Math.random()` original) so the number wouldn't visibly change on every
+request — it was never real per-match goal/set data, and there is no real per-match goal/set
+data tracked anywhere in this schema to source it from. R28 Verify FC is team id 9: `9 % 10 = 9`,
+`9 % 8 = 1` — exactly the "9 : 1" seen, regardless of the 0-0-0 record sitting right next to it.
+
+**Fix:** when a competitor has played zero matches (`wins + losses === 0`), `goalsFor`/
+`goalsAgainst` now read `0`. The teamId-derived formula is untouched for a team that has actually
+played — redesigning "goals" into something backed by real data is a bigger job (new columns,
+every match-completion write site) than this item asks for, and is not attempted here.
+
+**Harness (done):** `smoke.mjs` section 18 — a fresh 0-0-0 career's own ladder row reads
+`goalsFor: 0, goalsAgainst: 0`. Confirmed against the pre-fix code: the same fixture read
+`goalsFor: 3, goalsAgainst: 5` (teamId 13 mod 10 / mod 8). Full harness green: 12/12 suites.
 
 ### R-22 — CODE-SIDE PART CLOSED (8 Sep, c84f1ea); UNITY-SIDE PART: ROB'S DECISION, see below
 Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's

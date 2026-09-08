@@ -606,6 +606,23 @@ const roster = async (api) => {
     lbL.data.every(e => e.teamId === dashL.data?.team?.id && e.wins === 0 && e.losses === 0),
     JSON.stringify(lbL.data));
 
+  // ── 18. Fresh club's Goals +/- reads 0:0, not a teamId-derived offset (R-30) ──
+  // GET /seasons/:id/ladder used to compute goalsFor/goalsAgainst as
+  // `wins*2 + (teamId % 10)` / `losses*2 + (teamId % 8)` unconditionally —
+  // real for a played team in the sense of being deterministic (it used to
+  // be Math.random(), which was worse), but still fake, and for a team with
+  // ZERO matches played it showed a nonzero "Goals +/-" anyway (e.g. team id
+  // 9, 0-0-0, read "9 : 1" — exactly teamId % 10 and teamId % 8). Reuses L
+  // (SmokeL), the fresh 0-0-0 career from R-06's check just above.
+  console.log("\n18. FRESH CLUB'S GOALS +/- READS 0:0 (R-30)");
+  const seasonL = await L("GET", "/seasons/current");
+  const ladderL = await L("GET", `/seasons/${seasonL.data?.id}/ladder`);
+  const ownRowL = (ladderL.data ?? []).find(e => e.teamId === dashL.data?.team?.id);
+  check("R-30: a fresh club (0 wins, 0 losses) reads Goals +/- 0:0, not a teamId-derived offset",
+    !!ownRowL && ownRowL.wins === 0 && ownRowL.losses === 0 &&
+    ownRowL.goalsFor === 0 && ownRowL.goalsAgainst === 0,
+    JSON.stringify(ownRowL));
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

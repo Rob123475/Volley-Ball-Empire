@@ -161,14 +161,20 @@ router.get("/seasons/:id/ladder", async (req, res) => {
       eq(competitorRankingsTable.seasonYear, season.year),
     ));
 
-  const ladder = rows.map(e => ({
-    ...e,
+  const ladder = rows.map(e => {
     // Derived from the team's own record, not Math.random() — these were
     // regenerated on every request, so the numbers visibly changed as the
-    // player watched the ladder.
-    goalsFor: e.wins * 2 + (e.teamId % 10),
-    goalsAgainst: e.losses * 2 + (e.teamId % 8),
-  })).sort((a, b) => b.points - a.points).map((e, i) => ({ ...e, rank: i + 1 }));
+    // player watched the ladder. R-30: that still left a team with zero
+    // matches played showing a teamId-derived offset instead of 0:0 — a
+    // fresh club had never played a point, but the ladder showed it with a
+    // goal difference anyway.
+    const played = e.wins + e.losses > 0;
+    return {
+      ...e,
+      goalsFor:     played ? e.wins * 2 + (e.teamId % 10) : 0,
+      goalsAgainst: played ? e.losses * 2 + (e.teamId % 8) : 0,
+    };
+  }).sort((a, b) => b.points - a.points).map((e, i) => ({ ...e, rank: i + 1 }));
   res.json(ladder);
 });
 
