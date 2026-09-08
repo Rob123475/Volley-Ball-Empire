@@ -14,7 +14,9 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 3. **Never say "done" without verification.** Show the command output or test that proves it, plus the on-screen check the item asks for.
 4. **Demolish, don't patch.** If a pathway keeps failing, rebuild that part fresh. Delete dead code as you go. Never layer repair code on top of old rubbish.
 5. **Live save ≠ repo DB.** The DB the app actually uses is the one `electron/main.js` resolves — read main.js first, never trust a note:
-   `C:\Users\rbonn\AppData\Roaming\Volleyball Empire\volleyball-empire.sqlite`
+   `C:\Users\rbonn\AppData\Roaming\Beach Volleyball Empire\volleyball-empire.sqlite`
+   (moved here from `...\Roaming\Volleyball Empire\` by R-23's rename migration, 8 Sep — the old
+   folder still exists, emptied of the DB, as a breadcrumb; do not delete it either.)
    The repo copy at `lib/db/volleyball-empire.sqlite` is the *starter* DB that ships in the installer.
 6. **Native module gotcha.** Anything touching the DB runs under Electron's runtime (`ELECTRON_RUN_AS_NODE=1`). Read-only inspection can use Node 24's `node:sqlite`. See docs/toolchain-gotchas.md.
 7. **Report what you found before changing anything.** If a symptom turns out to have a different root cause than the item says, say so, leave it, and let Rob re-file it (as R-20 did — that is the model).
@@ -206,21 +208,113 @@ retired-only shape synthetically (its own fixture, not mary's live row) and asse
 the permanent regression guard for the R-20/R-21 fix itself. Full harness: 8/8 suites green
 (unchanged by this investigation — no code was touched).
 
-### R-23 — The game is called "Beach Volleyball Empire" everywhere
+### R-23 — CLOSED (8 Sep, bc06e91 + fix b14fb0f) — "Beach Volleyball Empire" everywhere (absorbs R-18)
 Registered on Steam as **Beach Volleyball Empire**. Rob's decision (7 Sep): everywhere the name
 is written or said it must read "Beach Volleyball Empire" — title page, window title bar,
 sidebar wordmark, installer name, `productName`, About/credits, docs, README, in-game text.
-Grep for `Volleyball Empire`, `Volley-Ball-Empire`, `volleyball-empire`, `VBE` and report every
-hit before changing anything; some are identifiers, not display strings.
 **The save folder needs care.** Electron's `userData` folder is named after `productName`
-(`C:\Users\rbonn\AppData\Roaming\Volleyball Empire`). Renaming `productName` moves the save
-folder. Do it, but make `ensureUserDb()` in `electron/main.js` move the old folder's contents to
-the new one on first launch if the new one is empty, and log it. No customer has a save yet, so
-this is the cheapest moment; it must still be proven, not assumed.
-Do R-18 (title-screen pills) in the same pass — same file, `auth-guard.tsx`.
-**Proof:** grep shows zero remaining display strings with the old name; launch on the live save
-→ title screen, window title bar, sidebar and About all read "Beach Volleyball Empire"; the
-profiles and careers are all still there after the folder move. Screenshots.
+(previously `C:\Users\rbonn\AppData\Roaming\Volleyball Empire`, now
+`...\Beach Volleyball Empire` — see rules of engagement §5 above, updated). Renaming
+`productName` moves the save folder; `ensureUserDb()` in `electron/main.js` must move the old
+folder's contents to the new one on first launch if the new one is empty, and log it.
+
+**Assets:** Rob supplied `bve-icon-256.png` (256×256 wordmark, white bg) and
+`bve-title-large.png` — reported as 1280×720 (wider than the 1232 Rob believed he had; used as
+supplied). Both copied under `artifacts/beach-volleyball/public/images/brand/`, plus a flood-fill
+knockout PNG (a global colour key would have eaten the wordmark's own white letters — only a
+black outline separates them from the white background) and a 6-size `.ico` (16-256) derived
+from the icon.
+
+**A. Name — grep report:**
+*Before* (case-insensitive, whole repo, excluding generated/binary): ~260 hits — the bulk (~200)
+were auto-generated `lib/api-zod`/`lib/api-client-react` banner comments (`* Volleyball Empire
+API`, from `openapi.yaml`'s `info.title`/`description`); the rest were real display strings
+(title screen, sidebar, dashboard footer, leaderboard/matches headers, career-management,
+achievement name, `index.html` title/meta, `docs/economy-design.md` heading,
+`docs/packaging.md` installer-filename references, the dev launcher `.bat`/shortcut scripts) plus
+correct identifiers (`appId: com.volleyballempire.desktop`, `volleyball-empire.sqlite`, the repo
+folder/GitHub remote, the pnpm workspace name `"workspace"`, `main.js`'s `LEGACY_APP_DIRS`).
+
+*Change list:* every display string above → "Beach Volleyball Empire". The ~200 generated banners
+were fixed by editing `openapi.yaml`'s `title`/`description` and rerunning `pnpm --filter
+@workspace/api-spec run codegen` — never hand-edited, since the next generation would have
+reverted them anyway.
+
+*Leave-alone list, with why:* `appId` (Steam/OS package identity, changing it breaks update
+continuity), `volleyball-empire.sqlite` (the DB filename — an identifier, not a display string),
+the repo folder and GitHub remote (out of scope, not asked for), the pnpm workspace name
+`"workspace"` (`main.js`'s own comment: renaming it would move the dev save folder as a side
+effect of a packaging change), `main.js`'s `LEGACY_APP_DIRS`/new `PREVIOUS_APP_NAME` (name OLD
+folders on purpose, for migration — see below), and two files judged out of scope as *historical
+record rather than live display text*: `attached_assets/*.txt` (a pasted prompt from early
+development) and `PR_BODY.md` (a past PR's own changelog describing what THAT PR did) — rewriting
+either would falsify a record of what was actually said/done at the time, not fix a display bug.
+
+*After:* re-grepped the same patterns — the only remaining hits are exactly the leave-alone list
+above (confirmed line by line) plus the two historical files, noted above, left alone on purpose.
+
+**B (= R-18) — title screen (`auth-guard.tsx`):** background is now `bve-title-large.png`
+(cover, centred; same gradient overlays kept, so the button stays legible). Removed the
+"VOLLEYBALL / EMPIRE" `<h1>` (the wordmark is in the artwork now) and the world-summary fetch +
+stat-pill rail that existed only to feed it (dead code once the pills are gone: `worldReady`,
+`statPills`, `formatPrize`, the `useQuery` call). No "Conquer X cities" text existed anywhere in
+the current codebase — grepped for it specifically, confirmed absent, not invented. Top-left
+small logo and the sidebar wordmark (`shell.tsx`) both use the **text** fallback, not the
+knocked-out icon: rendered the knockout at the ~28px it would actually show at, the 3-line
+stacked wordmark was illegible mush — exactly the case the brief's own fallback clause
+anticipated, decided from that evidence rather than a guess. Kept the ALL-WOMEN WORLD TOUR chip,
+the tagline, and the START/CONTINUE button exactly as they were.
+
+**C — icon/window:** `BrowserWindow` now sets `icon`/`title`; `package.json`'s `build.win.icon`
+repointed at the brand-folder `.ico`. Deleted `electron/icons/volleyball-empire.ico` (superseded,
+now dead) and a genuinely broken duplicate, `scripts/create-desktop-shortcut.ps1` (pointed at a
+`.bat` that never existed at its own relative path, under an even older product name) — demolished
+rather than patched to match the rename.
+
+**D — save folder migration:** new `migrateRenamedAppData()` in `electron/main.js`, MOVE
+semantics (`fs.renameSync`), scoped specifically to the one hand-off that matters
+("Volleyball Empire" → "Beach Volleyball Empire") — distinct from the existing
+`migrateLegacyUserData()`'s COPY semantics for several older, already-historical names, which is
+unchanged. Never overwrites an existing save at the new path; never deletes the old folder, only
+empties it.
+
+**A real bug, caught live, not in harness (fixed in b14fb0f):** the first live-save launch under
+the new name logged `Migrated save data from workspace to Beach Volleyball Empire` —
+`migrateLegacyUserData()` ran first and claimed the new folder with a stale, empty "workspace"
+save (a leftover from an old dev session) before `migrateRenamedAppData()` ever got to look at
+the real one. Rob's save was never at risk — `migrateLegacyUserData()` only copies, and
+"Volleyball Empire" isn't even in its list — but the new folder ended up with the wrong (empty)
+data. Manually removed the wrongly-created "Beach Volleyball Empire" folder (nothing in it but
+Chromium runtime cache and the empty decoy — verified before deleting), fixed the call order
+(`migrateRenamedAppData()` now runs first), and — because the original harness fixture had no
+decoy folder to compete for `userDbPath`, it passed 6/6 despite the ordering bug being live-broken
+— strengthened `harness/save-folder-migration.mjs` to seed exactly that decoy. Confirmed the
+strengthened harness now catches it (reverted just the ordering change: 4/7 fail, the 3
+assertions that matter); confirmed the fix again: 7/7.
+
+**Harness (done):** `harness/save-folder-migration.mjs` — the first suite to boot
+`electron/main.js` itself (every other suite boots only the built server via
+`ELECTRON_RUN_AS_NODE`), using `--user-data-dir` (a standard Electron/Chromium flag, more
+reliable than an `APPDATA` env override which Electron's Windows path service doesn't read back)
+to point a real app boot at a temp AppData layout. Seeds a save under the OLD folder name plus a
+decoy "workspace" folder, with real profile rows, and asserts: new folder has the moved DB, old
+folder still exists but is empty, the boot log names the move, the decoy is untouched, and both
+profiles are byte-exact. Wired into `run-all.mjs` as suite 4/9. Full harness green: **9/9
+suites**.
+
+**Live-save proof (done):** live save's `Volleyball Empire` folder confirmed fully intact (4
+profiles: mary, R04 Check, R24 Check, R25 Check) before every attempt. Launched `electron:dev`:
+boot log reads `Moved save data from "Volleyball Empire" to "Beach Volleyball Empire"
+(volleyball-empire.sqlite, volleyball-empire.sqlite-wal, volleyball-empire.sqlite-shm)`. Verified
+directly: the old folder's `volleyball-empire.sqlite`(+ sidecars) are gone, the folder itself
+still exists (Chromium runtime cache + two differently-named backup files from earlier repair
+work, untouched); the new folder has the moved DB; `GET /api/profiles` on the running app lists
+all 4 profiles, exactly as before. Window title bar confirmed via
+`Get-Process | Select MainWindowTitle` → **"Beach Volleyball Empire"**. `images/brand/bve-icon-
+256.ico` and `bve-title-large.png` both serve 200 from the running app. **Left running for Rob to
+screenshot** — title screen art, no pills, no cities/prize numbers, sidebar/top-bar wordmark and
+window icon are visual judgment calls this environment cannot make; Rob decides whether it looks
+right.
 
 ### R-06 — CLOSED, LIVE-SAVE VERIFIED (7-8 Sep, e2345e6)
 Dashboard rank and ladder were rebuilt in R-20 (scoped to `competitor_rankings`). Still open:
@@ -375,11 +469,12 @@ seeding reads it (budget, tier lock, starting squad). Invariant I6 hangs off thi
 
 ## LOW
 
-### R-18 — Remove title-screen stat pills (CHECK FIRST — may already be done)
+### R-18 — CLOSED, absorbed into R-23 (8 Sep, bc06e91)
 Decided 2 Sep: remove the World Tour Stops / Countries / Grand Final Prize pills and the
 "Conquer X cities" tagline in `auth-guard.tsx` (~81-91). Keep "Build your dream team…" + START.
-Not in the 2 Sep register file, so status is unknown — look at the title screen before touching
-anything. Fold into R-23's pass.
+Done as R-23 section B: pills and the dead `world-summary` fetch that fed them removed; no
+"Conquer X cities" text existed in the current codebase to remove (grepped, confirmed absent).
+See R-23's entry above for full detail.
 
 ### R-12 — Seven "coming in a future update" stubs still visible
 `pages/competition/medal-table.tsx:24` · `olympic-results.tsx:23` · `olympic-history.tsx:19,24`
