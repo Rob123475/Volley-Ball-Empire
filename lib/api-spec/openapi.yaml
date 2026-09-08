@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Volleyball Empire API
+  title: Beach Volleyball Empire API
   version: 0.1.0
-  description: Volleyball Empire API
+  description: Beach Volleyball Empire API
 servers:
   - url: /api
     description: Base API path

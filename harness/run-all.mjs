@@ -42,34 +42,41 @@ function runSuite(name, file) {
 // The guards run FIRST. If a guard has gone inert, every check after it is
 // reporting on a net with a hole in it, and the run should say so before
 // anything else claims to have passed.
-console.log("\n########## 1/8  GUARD SELF-TEST ##########");
+console.log("\n########## 1/9  GUARD SELF-TEST ##########");
 runSuite("guard self-test", path.join(REPO, "harness", "guard-selftest.mjs"));
 
 // Schema drift runs before the data migrations, for the same reason
 // ensureSchema runs before them at boot: every migration below assumes its
 // columns exist. A save that has fallen behind the code fails here first, with
 // the column named, rather than three suites later as a confusing data error.
-console.log("\n########## 2/8  SCHEMA DRIFT (R-01) ##########");
+console.log("\n########## 2/9  SCHEMA DRIFT (R-01) ##########");
 runSuite("schema drift", path.join(REPO, "harness", "schema-drift.mjs"));
 
 // Same reasoning, one layer down: ensureReferenceData() runs right after
 // ensureSchema() at boot, so its own drift check belongs right after schema
 // drift's here too — a save missing reference ROWS (not columns) fails here
 // first, with the row named, rather than as a confusing FK error later.
-console.log("\n########## 3/8  REFERENCE DATA BACKFILL (R-28) ##########");
+console.log("\n########## 3/9  REFERENCE DATA BACKFILL (R-28) ##########");
 runSuite("reference data backfill", path.join(REPO, "harness", "reference-data-backfill.mjs"));
 
-console.log("\n########## 4/8  MIGRATION FIXTURES ##########");
+// One layer up from both of the above: this is the only suite that boots
+// electron/main.js itself rather than just the server, because the R-23
+// save-folder rename migration is main.js's own logic, running before
+// ensureSchema/ensureReferenceData ever see the moved DB.
+console.log("\n########## 4/9  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
+runSuite("save folder migration", path.join(REPO, "harness", "save-folder-migration.mjs"));
+
+console.log("\n########## 5/9  MIGRATION FIXTURES ##########");
 runSuite("migration fixtures", path.join(REPO, "harness", "migration-fixtures.mjs"));
 
-console.log("\n########## 5/8  FRESH INSTALL CHAIN ##########");
+console.log("\n########## 6/9  FRESH INSTALL CHAIN ##########");
 runSuite("fresh install", path.join(REPO, "harness", "fresh-install.mjs"));
 
-console.log("\n########## 6/8  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
+console.log("\n########## 7/9  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
 runSuite("fixture transaction", path.join(REPO, "harness", "fixture-transaction.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
-console.log("\n########## 7/8  GAMEPLAY SMOKE ##########");
+console.log("\n########## 8/9  GAMEPLAY SMOKE ##########");
 {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-smoke-"));
   const db = path.join(work, "smoke.sqlite");
@@ -111,7 +118,7 @@ console.log("\n########## 7/8  GAMEPLAY SMOKE ##########");
     // Rollover reuses the same server: it walks a fresh career through all five
     // season boundaries, which is slow but is the only way to prove the arc
     // actually completes rather than compiling.
-    console.log("\n########## 8/8  SEASON ROLLOVER ##########");
+    console.log("\n########## 9/9  SEASON ROLLOVER ##########");
     const rollStart = Date.now();
     const rr = spawnSync(
       process.execPath,

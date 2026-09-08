@@ -128,7 +128,7 @@ now fails the build instead:
 
 `win-unpacked` (a runnable, unsigned build — good for quick local testing)
 lands in `C:\build\vbe\win-unpacked`; the NSIS installer lands next to it as
-`C:\build\vbe\Volley-Ball-Empire Setup <version>.exe` — 641.5 MB as of the
+`C:\build\vbe\Beach Volleyball Empire Setup <version>.exe` — 641.5 MB as of the
 2026-08-22 Brotli-precompression build, essentially unchanged from the
 pre-Brotli 641 MB baseline despite `resources/` dropping from 746 MB to
 592 MB — see [Brotli-precompressed Unity
@@ -294,7 +294,7 @@ re-verified since; treat it as unconfirmed rather than relying on it.
 ### NSIS installer
 
 `build.win.target: "nsis"` in `package.json` builds a real installer
-(`Volley-Ball-Empire Setup <version>.exe`), not just `win-unpacked`. **This
+(`Beach Volleyball Empire Setup <version>.exe`), not just `win-unpacked`. **This
 requires Bitdefender on-access-scan exclusions** for both:
 
 - `C:\build\vbe` (the electron-builder output dir — `build.directories.output`
@@ -339,7 +339,7 @@ npx electron-builder --win dir
 Note `pnpm run electron:build -- --dir` does **not** reliably do this — the
 CLI's bare `--dir` shortcut only applies when no target is configured, and
 `package.json` explicitly sets `win.target: "nsis"`, which wins. You must
-pass `--win dir` to override it. `win-unpacked/Volley-Ball-Empire.exe` runs
+pass `--win dir` to override it. `win-unpacked/Beach Volleyball Empire.exe` runs
 fine standalone and doesn't need the installer for local testing.
 
 ## Verifying a rebuilt package
@@ -352,12 +352,12 @@ every `win-unpacked` run on the machine, regardless of install path):
 
 ```powershell
 # Installer path:
-Start-Process -FilePath "C:\build\vbe\Volley-Ball-Empire Setup <version>.exe" `
+Start-Process -FilePath "C:\build\vbe\Beach Volleyball Empire Setup <version>.exe" `
   -ArgumentList "/S", "/D=C:\some-scratch-dir" -Wait
-Start-Process -FilePath "C:\some-scratch-dir\Volley-Ball-Empire.exe"
+Start-Process -FilePath "C:\some-scratch-dir\Beach Volleyball Empire.exe"
 
 # Or, for a quick unpacked-only check:
-Start-Process -FilePath "C:\build\vbe\win-unpacked\Volley-Ball-Empire.exe"
+Start-Process -FilePath "C:\build\vbe\win-unpacked\Beach Volleyball Empire.exe"
 ```
 
 Then against `http://localhost:4173` (the server's health check gates

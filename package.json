@@ -31,7 +31,7 @@
   },
   "build": {
     "appId": "com.volleyballempire.desktop",
-    "productName": "Volleyball Empire",
+    "productName": "Beach Volleyball Empire",
     "beforePack": "scripts/before-pack.cjs",
     "directories": {
       "output": "C:\\build\\vbe"
@@ -56,7 +56,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "electron/icons/volleyball-empire.ico"
+      "icon": "artifacts/beach-volleyball/public/images/brand/bve-icon-256.ico"
     },
     "nsis": {
       "oneClick": false,

@@ -12,7 +12,14 @@ const http = require("http");
 // userData folder from the app name, which otherwise comes from the monorepo's
 // package.json "name" ("workspace") and put every player's save in a folder
 // called workspace. migrateLegacyUserData() below moves an existing one across.
-const APP_NAME = "Volleyball Empire";
+const APP_NAME = "Beach Volleyball Empire";
+
+// The name this app shipped under immediately before R-23's rename. Kept
+// separate from LEGACY_APP_DIRS below: that list is COPY semantics for
+// several older, already-historical names, but this one specific hand-off
+// (Rob's real live save was under this exact name) gets MOVE semantics —
+// see migrateRenamedAppData() in ensureUserDb().
+const PREVIOUS_APP_NAME = "Volleyball Empire";
 
 // Electron derives userData from the app name, and the app name differs by how
 // the game was started: an unpackaged dev run takes it from the monorepo's root
@@ -99,7 +106,7 @@ function migrateLegacyUserData() {
     try {
       dialog.showErrorBox(
         "Could not move your existing save",
-        `Volleyball Empire found an earlier save in "${best.dir}" but could not ` +
+        `${APP_NAME} found an earlier save in "${best.dir}" but could not ` +
           `copy it to its new location.
 
 Your old save has NOT been changed — ` +
@@ -126,11 +133,54 @@ const publicDir = isPackaged
   ? path.join(process.resourcesPath, "public")
   : path.join(repoRoot, "artifacts", "api-server", "dist", "public");
 
+// R-23: same publicDir resolution as above — this file ships as part of the
+// frontend's own public/ folder (synced into publicDir by sync:public in
+// dev, and by the "public" extraResource when packaged), so no separate
+// packaged/dev branch is needed here.
+const windowIconPath = path.join(publicDir, "images", "brand", "bve-icon-256.ico");
+
 const SERVER_PORT = 4173;
 
 let serverProcess = null;
 let mainWindow = null;
 let isQuitting = false;
+
+// R-23: renaming productName moves userData to a new folder. migrateLegacyUserData()
+// above already handles several older, already-historical names via COPY (it has
+// for a while, and there is no reason to disturb those folders further). This one
+// hand-off is different on purpose: it is the name the app shipped under until
+// today, Rob's real save is under it right now, and Rob asked for it explicitly —
+// MOVE the save files into the new folder (so they are not left duplicated across
+// two folders going forward), but never delete the old folder itself, so what
+// used to be there is still visible on disk as an (empty) breadcrumb.
+function migrateRenamedAppData() {
+  if (fs.existsSync(userDbPath)) return; // new folder already has a save — never overwrite it
+
+  const oldDir = path.join(appDataRoot, PREVIOUS_APP_NAME);
+  if (oldDir === userDataPath) return; // APP_NAME didn't actually change
+  const oldDbPath = path.join(oldDir, "volleyball-empire.sqlite");
+  if (!fs.existsSync(oldDbPath)) return; // nothing under the old name to move
+
+  try {
+    fs.mkdirSync(userDataPath, { recursive: true });
+    const moved = [];
+    for (const suffix of ["", "-wal", "-shm"]) {
+      const src = `${oldDbPath}${suffix}`;
+      if (fs.existsSync(src)) {
+        fs.renameSync(src, `${userDbPath}${suffix}`);
+        moved.push(path.basename(src));
+      }
+    }
+    console.log(
+      `Moved save data from "${PREVIOUS_APP_NAME}" to "${APP_NAME}" (${moved.join(", ")}). ` +
+        `The old folder is left in place, empty: ${oldDir}`,
+    );
+  } catch (err) {
+    // Non-fatal: ensureUserDb() below falls back to copying the starter DB if
+    // nothing ended up at userDbPath, so the game still starts either way.
+    console.error(`Could not move save data from "${PREVIOUS_APP_NAME}":`, err);
+  }
+}
 
 // ── First-launch DB setup ────────────────────────────────────────────────────
 // Copies the -wal/-shm sidecars alongside the main file, if present, rather
@@ -143,6 +193,7 @@ let isQuitting = false;
 // the destination is opened, so the result is correct either way, but only
 // this way works regardless of whether the source is writable.
 function ensureUserDb() {
+  migrateRenamedAppData();
   if (!fs.existsSync(userDbPath)) {
     fs.mkdirSync(path.dirname(userDbPath), { recursive: true });
     fs.copyFileSync(bundledDbPath, userDbPath);
@@ -189,7 +240,7 @@ function startServer() {
       reject(new Error(`Server process stopped (${detail})`));
       if (mainWindow && !mainWindow.isDestroyed()) {
         dialog.showErrorBox(
-          "Volleyball Empire has lost its server",
+          `${APP_NAME} has lost its server`,
           `The game's local server stopped unexpectedly (${detail}).
 
 ` +
@@ -232,6 +283,8 @@ function createWindow() {
     width: 1400,
     height: 900,
     show: false, // avoid a flash of the small unmaximized window before it fills the screen
+    title: APP_NAME,
+    icon: windowIconPath,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -273,7 +326,7 @@ if (!gotTheLock) {
       // Show the player something they can actually report.
       console.error("Failed to start:", err);
       dialog.showErrorBox(
-        "Volleyball Empire could not start",
+        `${APP_NAME} could not start`,
         `The game's local server failed to start, so the game has to close.
 
 ` +

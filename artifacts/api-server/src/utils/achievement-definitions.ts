@@ -47,7 +47,7 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   },
   {
     key: "volleyball_empire",
-    name: "Volleyball Empire",
+    name: "Beach Volleyball Empire",
     description: "Win 10 championships.",
     category: "competition",
     check: (team) => team.titlesWon >= 10,

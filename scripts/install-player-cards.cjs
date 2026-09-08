@@ -99,8 +99,8 @@ function findLiveDb() {
         ? path.join(os.homedir(), "Library", "Application Support")
         : path.join(os.homedir(), ".config");
 
-  // Newest first, mirroring main.js's APP_NAME + LEGACY_APP_DIRS.
-  const dirs = ["Volleyball Empire", "Volley-Ball-Empire", "Volley-Ball Empire", "Volleyball-Empire", "workspace"];
+  // Newest first, mirroring main.js's APP_NAME + PREVIOUS_APP_NAME + LEGACY_APP_DIRS.
+  const dirs = ["Beach Volleyball Empire", "Volleyball Empire", "Volley-Ball-Empire", "Volley-Ball Empire", "Volleyball-Empire", "workspace"];
   const found = [];
   for (const d of dirs) {
     const p = path.join(appDataRoot, d, "volleyball-empire.sqlite");

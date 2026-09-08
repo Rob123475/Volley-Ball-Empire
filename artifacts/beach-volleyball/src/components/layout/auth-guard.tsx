@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { 
-  useGetCurrentAuthUser, 
+import {
+  useGetCurrentAuthUser,
   useGetMyTeam,
   getGetMyTeamQueryKey,
   useGetCurrentSeason,
@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Activity, Loader2, Play } from "lucide-react";
 import CareerManagement from "@/pages/career-management";
-import { useQuery } from "@tanstack/react-query";
 import { careerSlotStatus } from "@/lib/career-slot-status";
 
 
@@ -43,52 +42,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   });
   const seasonYear = currentSeason?.year ?? null;
 
-  // World-size figures are counted from the locations table rather than typed
-  // in. The originals ("11 cities across 9 countries") happened to be right
-  // when they were written, but they were seed-era numbers and nothing would
-  // have caught them drifting as venues were added.
-  const { data: world, isError: worldFailed } = useQuery({
-    queryKey: ["world-summary"],
-    retry: 1,
-    staleTime: Infinity,
-    queryFn: async () => {
-      const res = await fetch("/api/locations/world-summary");
-      if (!res.ok) throw new Error("Failed to load world summary");
-      return res.json() as Promise<{
-        venues: number; countries: number;
-        totalEvents: number; topPrize: number;
-      }>;
-    },
-  });
-
-  // The title screen is the first thing a player ever sees, and it now depends
-  // on a network call it never used to make. It must degrade to something
-  // presentable, never to zeros, NaN or a half-empty stat rail:
-  //   loading or failed -> drop the numeric pills entirely; the tagline and
-  //   the buttons stand on their own without them
-  // Keyed only on whether real data arrived — never on pending-vs-error. A
-  // stat rail that can get stuck showing filler is worse than one that stays
-  // empty, and the pending/error distinction is not worth betting the first
-  // screen of the game on.
-  const worldReady =
-    !worldFailed && !!world &&
-    Number.isFinite(world.venues) && Number.isFinite(world.countries) &&
-    Number.isFinite(world.topPrize) &&
-    world.venues > 0 && world.countries > 0;
-
-  const formatPrize = (n: number) => `$${Math.round(n / 1000).toLocaleString()}k`;
-
-  // The tagline carries no numbers at all now, so these pills are the only
-  // world-size claim on the title screen — and every one of them is counted
-  // server-side, so there is nothing left here that can silently go stale.
-  const statPills = worldReady
-    ? [
-        { label: "World Tour Stops",  value: String(world!.venues) },
-        { label: "Countries",         value: String(world!.countries) },
-        { label: "Grand Final Prize", value: formatPrize(world!.topPrize) },
-      ]
-    : [];
-
   const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
 
   const dismissTitle = () => {
@@ -118,8 +71,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       <div className="relative h-screen w-full overflow-hidden bg-black">
 
         <img
-          src={`${import.meta.env.BASE_URL}title-hero.webp`}
-          alt="Volleyball Empire"
+          src={`${import.meta.env.BASE_URL}images/brand/bve-title-large.png`}
+          alt="Beach Volleyball Empire"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
@@ -129,12 +82,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-6">
           <div className="flex items-center gap-3">
             <Activity className="h-7 w-7 text-secondary" />
-            <span className="text-white/80 font-bold text-sm uppercase tracking-widest">Volleyball Empire</span>
+            <span className="text-white/80 font-bold text-sm uppercase tracking-widest">Beach Volleyball Empire</span>
           </div>
           <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur px-3 py-1.5 rounded-full border border-white/20">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-white/70 text-xs font-semibold uppercase tracking-wide">
-              {seasonYear ? `Season ${seasonYear}` : "Volleyball Empire"}
+              {seasonYear ? `Season ${seasonYear}` : "Beach Volleyball Empire"}
             </span>
           </div>
         </div>
@@ -145,11 +98,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             <div className="mb-3 inline-flex items-center gap-2 bg-secondary/90 backdrop-blur px-3 py-1 rounded-full">
               <span className="text-white text-xs font-black uppercase tracking-widest">All-Women World Tour</span>
             </div>
-
-            <h1 className="text-6xl md:text-8xl font-black text-white leading-none tracking-tight drop-shadow-2xl">
-              VOLLEYBALL<br />
-              <span className="text-secondary drop-shadow-[0_0_30px_rgba(244,162,97,0.6)]">EMPIRE</span>
-            </h1>
 
             <p className="mt-4 text-white/60 text-base md:text-lg max-w-md leading-relaxed">
               Build your dream team. Create a legend. Claim the world championship.
@@ -180,16 +128,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 : "Select or create a manager profile to save your progress."}
             </p>
           </div>
-        </div>
-
-        {/* Right-side stat pills */}
-        <div className="hidden lg:flex absolute right-12 top-1/2 -translate-y-1/2 flex-col gap-3">
-          {statPills.map((s) => (
-            <div key={s.label} className="bg-black/50 backdrop-blur border border-white/10 rounded-xl px-5 py-3 text-right">
-              <div className="text-white font-black text-2xl">{s.value}</div>
-              <div className="text-white/40 text-xs uppercase tracking-wider">{s.label}</div>
-            </div>
-          ))}
         </div>
       </div>
     );

@@ -1,4 +1,4 @@
-# Volleyball Empire — Economy Design Spec
+# Beach Volleyball Empire — Economy Design Spec
 
 ## Design intent
 - A career is FIVE SEASONS. It ends, and it has a result.

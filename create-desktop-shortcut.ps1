@@ -1,12 +1,12 @@
 $WshShell = New-Object -ComObject WScript.Shell
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
-$Shortcut = $WshShell.CreateShortcut((Join-Path $DesktopPath "Volleyball Empire.lnk"))
-$Shortcut.TargetPath = Join-Path $PSScriptRoot "Launch Volleyball Empire.bat"
+$Shortcut = $WshShell.CreateShortcut((Join-Path $DesktopPath "Beach Volleyball Empire.lnk"))
+$Shortcut.TargetPath = Join-Path $PSScriptRoot "Launch Beach Volleyball Empire.bat"
 $Shortcut.WorkingDirectory = $PSScriptRoot
-$Shortcut.Description = "Launch Volleyball Empire (dev build)"
+$Shortcut.Description = "Launch Beach Volleyball Empire (dev build)"
 
 # Use the app's own icon
-$iconPath = Join-Path $PSScriptRoot "electron\icons\volleyball-empire.ico"
+$iconPath = Join-Path $PSScriptRoot "artifacts\beach-volleyball\public\images\brand\bve-icon-256.ico"
 if (Test-Path $iconPath) {
     $Shortcut.IconLocation = $iconPath
 } else {
@@ -14,4 +14,4 @@ if (Test-Path $iconPath) {
 }
 
 $Shortcut.Save()
-Write-Host "Shortcut created on your Desktop: 'Volleyball Empire'"
+Write-Host "Shortcut created on your Desktop: 'Beach Volleyball Empire'"

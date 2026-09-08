@@ -178,10 +178,10 @@ export function Sidebar() {
 
       {/* ── Logo ── */}
       <div className="px-5 py-5 pb-3 shrink-0">
-        <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
           <Activity className="h-5 w-5 text-sidebar-primary shrink-0" />
           <span className="truncate">
-            VOLLEYBALL <span className="text-sidebar-primary">EMPIRE</span>
+            BEACH VOLLEYBALL <span className="text-sidebar-primary">EMPIRE</span>
           </span>
         </h1>
       </div>
