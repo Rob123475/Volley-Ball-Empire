@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-32 — CLOSED (8 Sep, <hash>)
+### R-32 — CLOSED (8 Sep, 5dbe251)
 `utils/match-tick-engine.ts:56` has the identical `freeAgents: true, isActive: true` filter
 combination R-22 found and fixed in `routes/unity.ts` — a free agent can never be `is_active`
 (only set true when a player is signed to a roster), so this fallback lookup returns zero rows,
