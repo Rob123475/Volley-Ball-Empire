@@ -175,13 +175,36 @@ Do R-18 (title-screen pills) in the same pass — same file, `auth-guard.tsx`.
 → title screen, window title bar, sidebar and About all read "Beach Volleyball Empire"; the
 profiles and careers are all still there after the folder move. Screenshots.
 
-### R-06 — Leaderboard crowns a fresh save "Champion" (partial)
+### R-06 — CODE CLOSED, LIVE-SAVE PROOF PARTIALLY BLOCKED (7 Sep, e2345e6)
 Dashboard rank and ladder were rebuilt in R-20 (scoped to `competitor_rankings`). Still open:
 `routes/leaderboard.ts:9-24` ranks from `teams` with no results gate and no career scope;
 `pages/leaderboard.tsx:125, 190-198` renders the top row as Champion. Apply the same
 `competitor_rankings` source + "no results yet" empty state.
-**Proof:** harness: two careers, leaderboard for each contains only its own competitors; a fresh
-career shows the empty state. Screenshot of a fresh career's leaderboard.
+
+**What was done:** rebuilt `GET /leaderboard` on `competitor_rankings`, scoped to
+`(career_save_id, season_year)` — the same source and scope R-20 gave the season ladder.
+Joined through `career_saves` by `career_save_id` (not `team_id`, which is nullable once a
+manager resigns) so the "Manager" column reads the in-game manager name, consistent with
+`dashboard.ts` — the old code used the profile's local name, which R-25 found is a different
+value. `pages/leaderboard.tsx`'s `isUser` was matched by team name (four call sites) — same
+anti-pattern R-20 fixed on the ladder — changed to `teamId`. Added a "No results yet" empty
+state and hid the now-pointless empty rankings table.
+
+**Discovered mid-fix:** R-26 (earlier in this pass) seeds a zero-row `competitor_ranking` at
+career creation, so a fresh career's leaderboard is never actually empty through the normal
+creation path — it shows the player's own team at 0-0-0, day one, same as the ladder. The
+"fresh career shows the empty state" proof text no longer holds after that change; what it
+was actually guarding against (no cross-career data, no fake Champion) is what the harness
+proves instead. The empty-state UI still covers a save whose ranking predates R-26.
+
+**Harness (done):** `smoke.mjs` section 17 — two played careers each see only their own team;
+a brand-new career sees only its own team at 0-0-0, never another's. Verified by stash/revert:
+old code shows all careers-worth of teams on every request, all 3 checks fail. Full harness:
+7/7 suites green.
+
+**Live-save proof: PARTIALLY BLOCKED.** The cross-career-scoping half needs no new career and
+isn't blocked. "A fresh career's leaderboard" specifically is blocked by the same location-data
+gap R-26 and R-25 documented — can't create a fresh career on this live save to screenshot.
 
 ---
 
