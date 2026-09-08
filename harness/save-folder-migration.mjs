@@ -90,6 +90,20 @@ const SEEDED_USERS = [
   db.close();
 }
 
+// A decoy under "workspace" — an unrelated, older, empty save that exists on
+// Rob's real machine from a past dev session. This is the fixture that
+// caught the real bug: migrateLegacyUserData() (COPY, broad net over several
+// legacy names including "workspace") ran BEFORE migrateRenamedAppData()
+// (MOVE, the one specific hand-off that actually matters here) and claimed
+// userDbPath with this decoy first, so the real save under OLD_NAME never
+// got moved at all. A fixture with only OLD_NAME present cannot catch that
+// ordering bug — nothing else was competing for userDbPath.
+const decoyDir = path.join(WORK, "workspace");
+const decoyDb = path.join(decoyDir, "volleyball-empire.sqlite");
+fs.mkdirSync(decoyDir, { recursive: true });
+fs.copyFileSync(SHIPPED, decoyDb); // shipped starter DB — zero users, same as the real decoy was
+const decoyBytesBefore = fs.readFileSync(decoyDb);
+
 check("fixture really is seeded only under the OLD folder name",
   fs.existsSync(oldDb) && !fs.existsSync(newDb));
 
@@ -135,6 +149,14 @@ check("the old folder is now empty — moved, not copied, and never deleted",
 check("the boot log names the move",
   new RegExp(`Moved save data from "${OLD_NAME}" to "${NEW_NAME}"`).test(log),
   log.includes("Moved save data") ? "" : "no move line in the log");
+
+// The decoy must never be touched: migrateRenamedAppData() finding the real
+// save under OLD_NAME must claim userDbPath FIRST, so migrateLegacyUserData()
+// (which would otherwise happily copy this decoy in) has nothing left to do.
+const decoyBytesAfter = fs.existsSync(decoyDb) ? fs.readFileSync(decoyDb) : null;
+check("an unrelated decoy legacy folder (workspace) is left completely untouched",
+  decoyBytesAfter !== null && decoyBytesAfter.equals(decoyBytesBefore),
+  decoyBytesAfter === null ? "decoy file gone" : !decoyBytesAfter.equals(decoyBytesBefore) ? "decoy file changed" : "");
 
 if (fs.existsSync(newDb)) {
   const db = new DatabaseSync(newDb, { readOnly: true });

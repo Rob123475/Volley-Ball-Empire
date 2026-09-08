@@ -193,7 +193,16 @@ function migrateRenamedAppData() {
 // the destination is opened, so the result is correct either way, but only
 // this way works regardless of whether the source is writable.
 function ensureUserDb() {
+  // Priority order matters: migrateRenamedAppData() is the specific, most
+  // relevant hand-off (the name the app shipped under until today) and must
+  // get first refusal, before migrateLegacyUserData()'s broader net gets a
+  // chance to claim userDbPath with some older, less relevant folder — R-23
+  // found this the hard way: with the call order the other way round,
+  // migrateLegacyUserData() reached an unrelated empty "workspace" folder
+  // first and copied it in before migrateRenamedAppData() ever got to look
+  // at the real save.
   migrateRenamedAppData();
+  migrateLegacyUserData();
   if (!fs.existsSync(userDbPath)) {
     fs.mkdirSync(path.dirname(userDbPath), { recursive: true });
     fs.copyFileSync(bundledDbPath, userDbPath);
@@ -316,7 +325,6 @@ if (!gotTheLock) {
 
   app.whenReady().then(async () => {
     try {
-      migrateLegacyUserData();
       ensureUserDb();
       await startServer();
       createWindow();
