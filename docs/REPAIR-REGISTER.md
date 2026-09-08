@@ -623,7 +623,7 @@ See R-23's entry above for full detail.
 · `pages/job-market.tsx:408` · `components/career/PoachingInbox.tsx:235` ·
 `pages/manager-contract.tsx:518, 546`. Build or remove from nav.
 
-### R-13 — CLOSED (9 Sep, <hash>)
+### R-13 — CLOSED (9 Sep, 056b9d8)
 `pages/career-management.tsx:264-276` payload omits `managerNationality` and `crestShapeIndex`;
 wizard sends them. Check alongside R-25.
 
