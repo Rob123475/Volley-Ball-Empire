@@ -430,22 +430,86 @@ Seen on R28 Verify FC's World Tour Standings row at 0-0-0. Find where the seeded
 `competitor_rankings` zero-row (R-26's `ensureCompetitorRanking`) or the standings page gets 9
 and 1 from and make a fresh row read 0 : 0. Small; queue after R-23. Registered 8 Sep.
 
-### R-22 — Skin tone and kit colour in the Unity court
+### R-22 — CODE-SIDE PART CLOSED (8 Sep, <commit>); UNITY-SIDE PART: ROB'S DECISION, see below
 Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's
 bikini/kit colour** in the Unity 3D court, and this must match the management side. Today,
 launching from the desktop shortcut and pressing "3D Court" shows the same pale model in a grey
 kit for everyone. Rob believes the Unity project already has provisions for skin and kit
-colour, so this is first a **pathway trace**, not a build job:
-1. What does the management side hold per player (skin tone field? kit colour on team?) — report the columns.
-2. What does `/unity/match-state` actually send — dump one real payload.
-3. What does `UnityMatchDataLoader.cs` read from it, and does the Unity scene apply it?
-Report where the chain breaks before fixing. If a field does not exist on the management side,
-say so — that becomes a data job (per-player skin tone, per-team kit colour) and Rob decides.
-`pages/court.tsx` is the highest-churn file in the repo (R-17); do not "repair" it — if the
-integration needs rebuilding, say so and stop. Also confirm the triage note 3y: a player keeps
-her skin tone when she changes club, and kit colour follows the **team**.
-**Proof:** a real match in the Unity view with two visibly different players in their club's
-colours, plus the payload that produced it. Screenshot.
+colour, so this is first a **pathway trace**, not a build job.
+
+**Step 1 — management side.** `players.player_v4` (JSON) already carries exactly this, per
+player: `visual_identity.skin_tone/hair_style/hair_colour/body_type/height_scale/face_variant`
+and `visual_kit.top_primary_colour/...` (the latter's `kit_source: "card_image_colours"` —
+derived from the player's own card art, NOT her club; not actually used by the payload, see
+below). Coverage on the shipped DB: **252 of 276 players have a player_v4 block; 24 senior
+players have none at all** — a real content gap, not a code bug (list below). `teams.logoColor`/
+`secondaryLogoColor` is the TRUE club-kit source — collected from the manager at career creation,
+populated for every real team (confirmed: all 6 teams on the live save). `outfits` (5 preset
+templates) + `career_player_state.outfitId` (nullable, settable via `PATCH /players/:id/outfit`)
+is a separate, optional per-player cosmetic override, currently not read by the payload at all —
+untouched here, orthogonal to this requirement.
+
+**Step 2 — real payload.** Dumped `GET /unity/match-state?matchId=126` for R28 Verify FC's own
+career on the live save. It already computed `skinTone` from `player_v4.visual_identity` and
+`primaryColor`/`secondaryColor` from the player's **current** `teamId` → `teams.logoColor`/
+`secondaryLogoColor` at request time (not a stored per-player value) — correctly satisfying the
+triage note 3y (skin tone stays with the player; kit colour follows whichever team she's
+currently on) already, with no changes needed. But the payload held only **2 players total, both
+on the home side** — the away side was completely empty.
+
+**The break, found and fixed:** every match-generation site in this codebase sets
+`awayTeamId: team.id` — literally the home team's own id; there is no code path anywhere that
+ever creates a match with a genuinely distinct away team row (R-29 already documents this: World
+Tour opponents are name strings, not competitor rows). `/unity/match-state`'s fallback for that
+case — fill 2 away slots from the free-agent pool — filtered `freeAgents: true, isActive: true`.
+A free agent can never be `is_active` (that flag is set true only when a player is signed to a
+roster, in `seedStartingSquad.ts`; confirmed on the live save: 0 of 265 free agents have it, all
+3 signed players do), so the query returned zero rows, unconditionally, for every career, every
+time. The away side of the payload was empty for every match in the game.
+
+**Fix (entirely server/payload-side, no data field or Unity change needed):** dropped the
+`isActive: true` filter from that one free-agent query in `routes/unity.ts` — free agents don't
+need to be "active" (signed) to stand in as filler opponents. Payload now carries 4 players.
+
+**Sibling finding, NOT touched here (stay-scoped):** `utils/match-tick-engine.ts:56` has the
+identical `freeAgents: true, isActive: true` combination, in the actual match SIMULATION engine's
+own fallback-player lookup — a separate, more central concern than the Unity payload, worth its
+own register item and its own harness proof; flagging it here rather than silently fixing it
+under R-22's commit.
+
+**Step 3 — Unity side.** `UnityMatchDataLoader.cs` does not exist anywhere in this repo — grepped
+for every `.cs`/`.unity` file, none exist. `artifacts/beach-volleyball/public/unity-build/`
+holds only the compiled WebGL export (binary `Build/*.data`, `*.wasm` — 700+ MB, not
+meaningfully inspectable as source); `pages/court.tsx` only knows that path, with no reference
+anywhere to where the actual Unity Editor project/source lives. **This is the boundary — Rob:
+where does the Unity project live, and can you (or whoever has it open) confirm
+`UnityMatchDataLoader.cs` reads `skinTone`/`primaryColor`/`secondaryColor` from the JSON and
+applies them to the rendered models?** Nothing in this repo can answer that. `pages/court.tsx`
+was not touched — the payload fix needed nothing from it.
+
+**24 players with no `player_v4` — Rob's decision, not fixed here:** the field exists; the DATA
+doesn't, for these 24 (first 10 of 24, all `player_type = senior`): Valentina Reyes, Gabriela
+Santos, Yaritza Mendez, Amara James, Priya Persaud, Nia Campbell, Amara Odhiambo, Sofia Rivera,
+Isabela Cruz, Camila Santiago. Whatever content-generation process produced the other 252
+players' `visual_identity`/`visual_kit` blocks presumably needs to run for these 24 too — not a
+decision for this session to make unilaterally (assigning skin tone/hair/kit values to named
+characters is content, not logic). Until backfilled, one of these 24 can legitimately be drawn
+into a match's away-fill slots and show up with no skin tone data for Unity to use.
+
+**Harness (done):** `harness/unity-match-state-payload.mjs` — creates a career (eager World Tour
+fixture, so `awayTeamId === homeTeamId` on every match, the exact shape that was broken), hits
+`/unity/match-state` for one of its own matches, and asserts: 4 players (not 2); `skinTone` passes
+through exactly when the source `player_v4` has it — never dropped, never invented (a
+pass-through property, not "100% of players have data," since that 24-player gap is real and not
+mine to paper over); of the players with real skin tone data it genuinely differs; the 2 home
+players' kit colour matches their team's own `logoColor`/`secondaryLogoColor` exactly. Confirmed
+against the pre-fix code: fails at "4 players" (only 2). Wired into `run-all.mjs` as suite 6/11.
+Full harness green: 11/11 suites.
+
+**Proof status:** the code-side fix is verified server-side (payload dumped, harness green). The
+brief's actual proof line — "a real match in the Unity view with two visibly different players in
+their club's colours, plus the payload that produced it. Screenshot." — needs the Unity Editor
+project this repo does not contain, so it cannot be completed from here. `pages/court.tsx` untouched.
 
 ### R-27 — Delete-cascade guard misses teamId-scoped tables
 Flagged by Claude Code during R-19: the schema-drift / cascade guard only checks tables keyed

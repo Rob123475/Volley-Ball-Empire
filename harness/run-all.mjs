@@ -42,47 +42,50 @@ function runSuite(name, file) {
 // The guards run FIRST. If a guard has gone inert, every check after it is
 // reporting on a net with a hole in it, and the run should say so before
 // anything else claims to have passed.
-console.log("\n########## 1/10  GUARD SELF-TEST ##########");
+console.log("\n########## 1/11  GUARD SELF-TEST ##########");
 runSuite("guard self-test", path.join(REPO, "harness", "guard-selftest.mjs"));
 
 // Schema drift runs before the data migrations, for the same reason
 // ensureSchema runs before them at boot: every migration below assumes its
 // columns exist. A save that has fallen behind the code fails here first, with
 // the column named, rather than three suites later as a confusing data error.
-console.log("\n########## 2/10  SCHEMA DRIFT (R-01) ##########");
+console.log("\n########## 2/11  SCHEMA DRIFT (R-01) ##########");
 runSuite("schema drift", path.join(REPO, "harness", "schema-drift.mjs"));
 
 // Same reasoning, one layer down: ensureReferenceData() runs right after
 // ensureSchema() at boot, so its own drift check belongs right after schema
 // drift's here too — a save missing reference ROWS (not columns) fails here
 // first, with the row named, rather than as a confusing FK error later.
-console.log("\n########## 3/10  REFERENCE DATA BACKFILL (R-28) ##########");
+console.log("\n########## 3/11  REFERENCE DATA BACKFILL (R-28) ##########");
 runSuite("reference data backfill", path.join(REPO, "harness", "reference-data-backfill.mjs"));
 
 // One layer up from both of the above: this is the only suite that boots
 // electron/main.js itself rather than just the server, because the R-23
 // save-folder rename migration is main.js's own logic, running before
 // ensureSchema/ensureReferenceData ever see the moved DB.
-console.log("\n########## 4/10  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
+console.log("\n########## 4/11  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
 runSuite("save folder migration", path.join(REPO, "harness", "save-folder-migration.mjs"));
 
 // The other end of the same process lifecycle R-23 touches at boot: this one
 // is shutdown. A real fork(), not spawn() — the IPC channel the shutdown
 // message travels over only exists on a forked child.
-console.log("\n########## 5/10  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########");
+console.log("\n########## 5/11  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########");
 runSuite("wal checkpoint on shutdown", path.join(REPO, "harness", "wal-checkpoint-shutdown.mjs"));
 
-console.log("\n########## 6/10  MIGRATION FIXTURES ##########");
+console.log("\n########## 6/11  UNITY PAYLOAD SKIN TONE / KIT COLOUR (R-22) ##########");
+runSuite("unity match-state payload", path.join(REPO, "harness", "unity-match-state-payload.mjs"));
+
+console.log("\n########## 7/11  MIGRATION FIXTURES ##########");
 runSuite("migration fixtures", path.join(REPO, "harness", "migration-fixtures.mjs"));
 
-console.log("\n########## 7/10  FRESH INSTALL CHAIN ##########");
+console.log("\n########## 8/11  FRESH INSTALL CHAIN ##########");
 runSuite("fresh install", path.join(REPO, "harness", "fresh-install.mjs"));
 
-console.log("\n########## 8/10  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
+console.log("\n########## 9/11  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
 runSuite("fixture transaction", path.join(REPO, "harness", "fixture-transaction.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
-console.log("\n########## 9/10  GAMEPLAY SMOKE ##########");
+console.log("\n########## 10/11  GAMEPLAY SMOKE ##########");
 {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-smoke-"));
   const db = path.join(work, "smoke.sqlite");
@@ -124,7 +127,7 @@ console.log("\n########## 9/10  GAMEPLAY SMOKE ##########");
     // Rollover reuses the same server: it walks a fresh career through all five
     // season boundaries, which is slow but is the only way to prove the arc
     // actually completes rather than compiling.
-    console.log("\n########## 10/10  SEASON ROLLOVER ##########");
+    console.log("\n########## 11/11  SEASON ROLLOVER ##########");
     const rollStart = Date.now();
     const rr = spawnSync(
       process.execPath,

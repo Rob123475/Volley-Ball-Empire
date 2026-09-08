@@ -135,8 +135,20 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
         ...awayPlayers.map((p) => p.id),
       ];
       // Free agents in THIS career, filling the away side.
+      //
+      // R-22: this used to also filter isActive: true, which a free agent
+      // can never be — is_active is only ever set true when a player is
+      // signed to a roster (seedStartingSquad.ts; confirmed on the live
+      // save: 0 of 265 free agents have it, all 3 signed players do). That
+      // made this query return zero rows unconditionally, every time, for
+      // every career — which for World Tour matches (every awayTeamId
+      // equals the home team's own id; there is no real opposing team row
+      // to query in the first place — see R-29) meant the away side of the
+      // /unity/match-state payload was always completely empty. Unity was
+      // never shown a match with two clubs' colours because it was never
+      // sent two players at all.
       const freeAgents = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
-        freeAgents: true, playerType: "senior", isActive: true,
+        freeAgents: true, playerType: "senior",
       });
       const fillPlayers = freeAgents
         .filter((p) => !excludeIds.includes(p.id))
