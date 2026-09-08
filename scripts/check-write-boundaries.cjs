@@ -254,7 +254,7 @@ for (const { file, scope } of scanned) {
   }
 }
 
-// ── Cascade drift: every career-scoped table must be handled on delete ──────
+// ── Cascade drift: every table scoped to a career must be handled on delete ──
 //
 // deleteProfileCascade enumerates tables by hand. That list went stale exactly
 // the way the snapshot's column list did: `seasons` and `competitor_rankings`
@@ -264,7 +264,15 @@ for (const { file, scope } of scanned) {
 // nothing failed loudly to reveal it.
 //
 // Rather than trust the next person to remember, derive the requirement from
-// the schema: any table declaring careerSaveId must be named in deleteProfile.
+// the schema: any table declaring careerSaveId OR teamId must be named in
+// deleteProfile. teamId is scoped to a career one hop removed — a team
+// belongs to exactly one career_save (R-27) — and R-19 found `competitors`
+// was exactly this case: keyed by teamId, not careerSaveId, and missed by the
+// careerSaveId-only version of this check for that reason. It happened to
+// already be handled by the time this rule was written to catch it (checked
+// directly: every teamId-scoped table in the schema is named in
+// deleteProfile.ts today), so this is a preventive rule, not a fix — the
+// harness proof sabotages a throwaway schema copy to prove it actually fires.
 {
   const schemaDir = path.join(REPO, "lib", "db", "src", "schema");
   const deleteProfile = path.join(SRC, "utils", "deleteProfile.ts");
@@ -276,7 +284,7 @@ for (const { file, scope } of scanned) {
       if (f.endsWith(".ts")) schema += fs.readFileSync(path.join(schemaDir, f), "utf8") + NL;
     }
 
-    // export const fooTable = sqliteTable("foo", { ... careerSaveId ... })
+    // export const fooTable = sqliteTable("foo", { ... careerSaveId / teamId ... })
     const decl = /export const (\w+)\s*=\s*sqliteTable\(\s*"([a-z_]+)"\s*,\s*\{/g;
     let d;
     while ((d = decl.exec(schema)) !== null) {
@@ -286,12 +294,15 @@ for (const { file, scope } of scanned) {
       const rest = schema.slice(d.index + d[0].length);
       const end = rest.search(/\nexport const /);
       const body = end === -1 ? rest : rest.slice(0, end);
-      if (!/\bcareerSaveId\b/.test(body)) continue;
+      const scopedBy = /\bcareerSaveId\b/.test(body) ? "careerSaveId"
+        : /\bteamId\b/.test(body) ? "teamId"
+        : null;
+      if (!scopedBy) continue;
       if (cascadeSrc.includes(exportName)) continue;
       violations.push({
         file: "artifacts/api-server/src/utils/deleteProfile.ts",
         line: 1,
-        msg: `${tableName} is career-scoped (declares careerSaveId) but deleteProfileCascade never deletes from it - deleting a profile would leave orphans`,
+        msg: `${tableName} is career-scoped (declares ${scopedBy}) but deleteProfileCascade never deletes from it - deleting a profile would leave orphans`,
         snippet: `missing: ${exportName}`,
       });
     }

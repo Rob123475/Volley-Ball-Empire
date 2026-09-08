@@ -223,6 +223,36 @@ export const someScopedTable = sqliteTable("some_scoped", {
     r2.status === 0 ? "" : (r2.stdout || "") + (r2.stderr || ""));
 }
 
+// ── Cascade drift check — teamId (R-27) ─────────────────────────────────────
+// R-19 found `competitors` was exactly this shape: keyed by teamId, not
+// careerSaveId (a team belongs to one career_save, so teamId scopes it just
+// as tightly, one hop removed), and the careerSaveId-only version of this
+// check could not see it. Same fixture shape as the careerSaveId case above,
+// with teamId in place of careerSaveId, so a future table missed the same way
+// fails the build instead of shipping an orphan.
+console.log("\n2b. CASCADE DRIFT CHECK — teamId table missing from deleteProfile");
+{
+  write("lib/db/src/schema/game.ts", `
+export const someTeamScopedTable = sqliteTable("some_team_scoped", {
+  id: integer("id").primaryKey(),
+  teamId: integer("team_id").references(() => teamsTable.id),
+});
+`);
+  write(`${API}/utils/deleteProfile.ts`, "export function deleteProfileCascade() {}\n");
+  const r = runGuard("check-write-boundaries.cjs", ["--root", WORK]);
+  const out = (r.stdout || "") + (r.stderr || "");
+  check("unhandled team-scoped table is rejected",
+    r.status !== 0 && out.includes("some_team_scoped"),
+    r.status !== 0 ? "" : "guard accepted it");
+
+  // Negative control: naming the table in deleteProfile clears it.
+  write(`${API}/utils/deleteProfile.ts`,
+    "import { someTeamScopedTable } from '@workspace/db';\nexport function deleteProfileCascade() { someTeamScopedTable; }\n");
+  const r2 = runGuard("check-write-boundaries.cjs", ["--root", WORK]);
+  check("handled team-scoped table is accepted", r2.status === 0,
+    r2.status === 0 ? "" : (r2.stdout || "") + (r2.stderr || ""));
+}
+
 // ── Starter-DB drift check ──────────────────────────────────────────────────
 console.log("\n3. STARTER-DB DRIFT CHECK");
 {

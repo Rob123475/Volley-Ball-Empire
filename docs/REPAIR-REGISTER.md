@@ -556,13 +556,30 @@ brief's actual proof line — "a real match in the Unity view with two visibly d
 their club's colours, plus the payload that produced it. Screenshot." — needs the Unity Editor
 project this repo does not contain, so it cannot be completed from here. `pages/court.tsx` untouched.
 
-### R-27 — Delete-cascade guard misses teamId-scoped tables
+### R-27 — CLOSED (9 Sep, <hash>)
 Flagged by Claude Code during R-19: the schema-drift / cascade guard only checks tables keyed
 by `careerSaveId`; tables keyed by `teamId` (e.g. `competitors`) are not covered, so a future
 table could be orphaned by a career delete without the harness noticing.
-**Do:** extend the guard to every table that references a career directly or through its team.
-**Proof:** sabotage test — add a fake teamId-scoped table to a throwaway DB, delete the career,
-assert the guard reports the orphans.
+
+**Found:** the guard is `scripts/check-write-boundaries.cjs`'s static cascade-drift check — it
+scans the drizzle schema for any table declaring `careerSaveId`, and fails the build if that
+table's export name isn't named anywhere in `deleteProfile.ts`. Checked every table in the
+schema that declares `teamId` (24 declarations, 23 distinct tables) against `deleteProfile.ts`
+directly: **all 23 are already handled today** — this was a preventive gap, not a live bug, same
+as the register's own framing (R-19's `competitors` case already got fixed at the time; only the
+guard's COVERAGE stayed narrow).
+
+**Fix:** the drift check now also flags any table declaring `teamId` whose export name isn't in
+`deleteProfile.ts` — a team belongs to exactly one `career_save`, so `teamId` scopes a table to a
+career just as tightly as `careerSaveId`, one hop removed. One unified check now covers both
+fields rather than two separate passes.
+
+**Harness (done):** `guard-selftest.mjs` section 2b — a fake `some_team_scoped` table (declaring
+`teamId`) is synthesised into a throwaway schema copy; the guard must reject it while
+`deleteProfile.ts` doesn't mention it, and accept it once it does (negative control), mirroring
+the existing `careerSaveId` sabotage test exactly. Confirmed against the pre-fix guard: it
+silently accepted the unhandled `teamId` table. Full harness green: 12/12 suites (via the
+existing `guard-selftest.mjs` suite, already wired into `run-all.mjs` — no new suite needed).
 
 ### R-07 — Invariants: I1, I5 failing; I2, I6, I8, I9 hard-coded not measured
 `docs/economy-design.md:567-596`; `harness/invariants.mjs:313` (I1), `:344-383` (I5),
