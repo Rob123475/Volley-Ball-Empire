@@ -556,7 +556,7 @@ brief's actual proof line — "a real match in the Unity view with two visibly d
 their club's colours, plus the payload that produced it. Screenshot." — needs the Unity Editor
 project this repo does not contain, so it cannot be completed from here. `pages/court.tsx` untouched.
 
-### R-27 — CLOSED (9 Sep, <hash>)
+### R-27 — CLOSED (9 Sep, e3106f6)
 Flagged by Claude Code during R-19: the schema-drift / cascade guard only checks tables keyed
 by `careerSaveId`; tables keyed by `teamId` (e.g. `competitors`) are not covered, so a future
 table could be orphaned by a career delete without the harness noticing.
