@@ -633,8 +633,19 @@ wizard sends them. Check alongside R-25.
 ### R-15 — Dashboard "Game Settings" tile doesn't open settings
 `pages/dashboard.tsx:927-931` — tile opens the career options menu. Relabel or remove.
 
-### R-16 — Stray package.json inside server source
+### R-16 — CLOSED (9 Sep, <hash>)
 `artifacts/api-server/src/package.json:12-13` still lists `@google-cloud/storage`. Delete it.
+
+**Found:** a stray, stale duplicate of `artifacts/api-server/package.json` (the real one, one
+directory up) — same `name`, missing scripts the real one has (`check:*`), and listing
+`@google-cloud/storage`/`google-auth-library` as dependencies. `pnpm-workspace.yaml`'s
+`packages:` glob is `artifacts/*` (one level), so this file — two levels deep, inside `src/` —
+was never recognized as a workspace package at all; confirmed neither dependency is imported
+anywhere in the actual server source. Genuinely dead, not load-bearing anywhere.
+
+**Fix:** deleted. Full `pnpm run typecheck` and full harness both pass unchanged: 12/12 suites.
+No harness case added — there is no behaviour to regression-test for removing a file nothing
+referenced; the full typecheck/build/harness run itself is the proof nothing depended on it.
 
 ### R-17 — Unity court: scope, don't fix yet
 `pages/court.tsx` — 92 commits, highest churn in repo, one-endpoint integration
