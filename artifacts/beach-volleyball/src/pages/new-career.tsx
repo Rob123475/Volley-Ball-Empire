@@ -15,9 +15,15 @@ import {
   useListClubTemplates,
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
-import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
+import { ClubCrest } from "@/components/club-crest";
 import { careerSlotStatus } from "@/lib/career-slot-status";
 import { cn } from "@/lib/utils";
+import {
+  NATIONALITIES,
+  ColorPicker,
+  ShapePicker,
+  NationalityPicker,
+} from "@/components/career/career-wizard-fields";
 import {
   Loader2,
   User,
@@ -31,60 +37,6 @@ import {
 } from "lucide-react";
 
 type ClubTemplate = import("@workspace/api-client-react").ClubTemplate;
-
-// ── Nationality list ─────────────────────────────────────────────────────────
-
-const NATIONALITIES = [
-  { name: "Argentina",     flag: "🇦🇷" },
-  { name: "Australia",     flag: "🇦🇺" },
-  { name: "Austria",       flag: "🇦🇹" },
-  { name: "Belgium",       flag: "🇧🇪" },
-  { name: "Brazil",        flag: "🇧🇷" },
-  { name: "Bulgaria",      flag: "🇧🇬" },
-  { name: "Canada",        flag: "🇨🇦" },
-  { name: "China",         flag: "🇨🇳" },
-  { name: "Croatia",       flag: "🇭🇷" },
-  { name: "Cuba",          flag: "🇨🇺" },
-  { name: "Czech Republic",flag: "🇨🇿" },
-  { name: "Denmark",       flag: "🇩🇰" },
-  { name: "Finland",       flag: "🇫🇮" },
-  { name: "France",        flag: "🇫🇷" },
-  { name: "Germany",       flag: "🇩🇪" },
-  { name: "Great Britain", flag: "🇬🇧" },
-  { name: "Hungary",       flag: "🇭🇺" },
-  { name: "Italy",         flag: "🇮🇹" },
-  { name: "Japan",         flag: "🇯🇵" },
-  { name: "Kenya",         flag: "🇰🇪" },
-  { name: "Latvia",        flag: "🇱🇻" },
-  { name: "Mexico",        flag: "🇲🇽" },
-  { name: "Netherlands",   flag: "🇳🇱" },
-  { name: "New Zealand",   flag: "🇳🇿" },
-  { name: "Norway",        flag: "🇳🇴" },
-  { name: "Peru",          flag: "🇵🇪" },
-  { name: "Poland",        flag: "🇵🇱" },
-  { name: "Portugal",      flag: "🇵🇹" },
-  { name: "Russia",        flag: "🇷🇺" },
-  { name: "Slovakia",      flag: "🇸🇰" },
-  { name: "South Africa",  flag: "🇿🇦" },
-  { name: "South Korea",   flag: "🇰🇷" },
-  { name: "Spain",         flag: "🇪🇸" },
-  { name: "Sweden",        flag: "🇸🇪" },
-  { name: "Switzerland",   flag: "🇨🇭" },
-  { name: "Thailand",      flag: "🇹🇭" },
-  { name: "Turkey",        flag: "🇹🇷" },
-  { name: "Ukraine",       flag: "🇺🇦" },
-  { name: "United States", flag: "🇺🇸" },
-  { name: "Other",         flag: "🌍" },
-];
-
-// ── Colour presets ────────────────────────────────────────────────────────────
-
-const COLOR_PRESETS = [
-  "#E05A00", "#CC0000", "#0044CC", "#008800",
-  "#6600CC", "#CC9900", "#AA0044", "#004488",
-  "#44AAFF", "#44CC88", "#FF88CC", "#FFEE44",
-  "#222222", "#666666", "#AAAAAA", "#FFFFFF",
-];
 
 // ── Continent helpers ─────────────────────────────────────────────────────────
 
@@ -122,129 +74,6 @@ function formatBudget(v: string | null | undefined) {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-
-function ColorSwatch({
-  color,
-  selected,
-  onSelect,
-}: {
-  color: string;
-  selected: boolean;
-  onSelect: (c: string) => void;
-}) {
-  return (
-    <button
-      type="button"
-      title={color}
-      onClick={() => onSelect(color)}
-      style={{ backgroundColor: color }}
-      className={cn(
-        "h-8 w-8 rounded-lg border-2 transition-all flex items-center justify-center",
-        selected ? "border-white scale-110 shadow-lg" : "border-white/20 hover:border-white/50",
-      )}
-    >
-      {selected && <Check className="h-3.5 w-3.5" style={{ color: color === "#FFFFFF" ? "#000" : "#fff", filter: "drop-shadow(0 0 1px rgba(0,0,0,0.5))" }} />}
-    </button>
-  );
-}
-
-function ColorPicker({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (c: string) => void;
-}) {
-  return (
-    <div className="space-y-2.5">
-      <div className="flex items-center justify-between">
-        <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">{label}</label>
-        <div className="flex items-center gap-2">
-          <div className="h-5 w-5 rounded-md border border-white/20" style={{ backgroundColor: value }} />
-          <input
-            type="color"
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            className="h-5 w-12 cursor-pointer rounded border-0 bg-transparent p-0 opacity-0 absolute"
-            title="Custom colour"
-          />
-          <span className="text-xs font-mono text-white/50">{value}</span>
-          <input
-            type="color"
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            className="h-6 w-6 cursor-pointer rounded border border-white/20 bg-transparent p-0"
-            title="Custom colour"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-8 gap-1.5">
-        {COLOR_PRESETS.map(c => (
-          <ColorSwatch key={c} color={c} selected={value === c} onSelect={onChange} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ShapeSwatch({
-  index,
-  primaryColor,
-  secondaryColor,
-  selected,
-  onSelect,
-}: {
-  index: number;
-  primaryColor: string;
-  secondaryColor: string;
-  selected: boolean;
-  onSelect: (i: number) => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(index)}
-      className={cn(
-        "h-11 w-11 rounded-lg border-2 transition-all flex items-center justify-center bg-white/5",
-        selected ? "border-white scale-110 shadow-lg" : "border-white/20 hover:border-white/50",
-      )}
-    >
-      <ClubCrest name="" primaryColor={primaryColor} secondaryColor={secondaryColor} shapeIndex={index} size={28} />
-    </button>
-  );
-}
-
-function ShapePicker({
-  primaryColor,
-  secondaryColor,
-  value,
-  onChange,
-}: {
-  primaryColor: string;
-  secondaryColor: string;
-  value: number;
-  onChange: (i: number) => void;
-}) {
-  return (
-    <div className="space-y-2.5">
-      <label className="text-[11px] font-bold uppercase tracking-widest text-white/40">Crest Shape</label>
-      <div className="flex gap-2">
-        {Array.from({ length: CREST_SHAPE_COUNT }, (_, i) => (
-          <ShapeSwatch
-            key={i}
-            index={i}
-            primaryColor={primaryColor}
-            secondaryColor={secondaryColor}
-            selected={value === i}
-            onSelect={onChange}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function ContinentGroup({
   label,
@@ -361,8 +190,6 @@ export default function NewCareer() {
   const [step, setStep]               = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName] = useState("");
   const [nationality, setNationality] = useState("");
-  const [natSearch, setNatSearch]     = useState("");
-  const [natOpen, setNatOpen]         = useState(false);
   const [selectedClub, setSelectedClub]     = useState<ClubTemplate | null>(null);
   const [customClubName, setCustomClubName] = useState("");
   const [primaryColor, setPrimaryColor]     = useState("#E05A00");
@@ -398,9 +225,6 @@ export default function NewCareer() {
     return { groups: ordered, unrecognised: strays, allClubs: all };
   }, [templatesData]);
 
-  const filteredNats = NATIONALITIES.filter(n =>
-    n.name.toLowerCase().includes(natSearch.toLowerCase()),
-  );
   const selectedNat = NATIONALITIES.find(n => n.name === nationality);
 
   const canStep1 = managerName.trim().length > 0 && nationality.length > 0;
@@ -576,56 +400,15 @@ export default function NewCareer() {
                 </div>
 
                 {/* Nationality */}
-                <div className="space-y-1.5 relative">
-                  <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40">
+                <div>
+                  <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
                     <Globe className="h-3 w-3" /> Nationality
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => { setNatOpen(o => !o); setNatSearch(""); }}
-                    className="w-full flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white hover:bg-white/8 transition-all"
-                  >
-                    {selectedNat ? (
-                      <span className="flex items-center gap-2">
-                        <span className="text-lg leading-none">{selectedNat.flag}</span>
-                        <span className="font-semibold">{selectedNat.name}</span>
-                      </span>
-                    ) : (
-                      <span className="text-white/30">Select your nationality…</span>
-                    )}
-                    <ChevronDown className={cn("h-4 w-4 text-white/30 transition-transform", natOpen && "rotate-180")} />
-                  </button>
-
-                  {natOpen && (
-                    <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-xl border border-white/10 bg-slate-900 shadow-2xl overflow-hidden">
-                      <div className="p-2 border-b border-white/8">
-                        <input
-                          autoFocus
-                          value={natSearch}
-                          onChange={e => setNatSearch(e.target.value)}
-                          placeholder="Search…"
-                          className="w-full rounded-lg bg-white/5 px-3 py-1.5 text-sm text-white placeholder-white/30 outline-none focus:bg-white/8"
-                        />
-                      </div>
-                      <div className="max-h-56 overflow-y-auto py-1">
-                        {filteredNats.map(n => (
-                          <button
-                            key={n.name}
-                            type="button"
-                            onClick={() => { setNationality(n.name); setNatOpen(false); }}
-                            className={cn(
-                              "w-full flex items-center gap-2.5 px-4 py-2 text-sm hover:bg-white/8 transition-colors",
-                              nationality === n.name && "bg-secondary/15 text-secondary",
-                            )}
-                          >
-                            <span className="text-lg leading-none">{n.flag}</span>
-                            <span className={nationality === n.name ? "font-bold" : "text-white"}>{n.name}</span>
-                            {nationality === n.name && <Check className="ml-auto h-3.5 w-3.5" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <NationalityPicker
+                    value={nationality}
+                    onChange={setNationality}
+                    accentClassName="bg-secondary/15 text-secondary"
+                  />
                 </div>
               </div>
 

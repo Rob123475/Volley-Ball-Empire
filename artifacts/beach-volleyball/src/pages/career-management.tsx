@@ -11,6 +11,11 @@ import {
   getListClubTemplatesQueryKey,
 } from "@workspace/api-client-react";
 import { RetireModal } from "@/components/career/RetireModal";
+import {
+  ColorPicker,
+  ShapePicker,
+  NationalityPicker,
+} from "@/components/career/career-wizard-fields";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +33,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Star,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -250,13 +256,15 @@ interface NewCareerModalProps {
   slotNumber: number;
   onClose: () => void;
   onSave: (data: {
-    slotNumber:       number;
-    managerName:      string;
-    clubName:         string;
-    originalClubName: string;
-    budget:           string;
-    primaryColor?:    string;
-    secondaryColor?:  string;
+    slotNumber:          number;
+    managerName:         string;
+    managerNationality:  string;
+    clubName:            string;
+    originalClubName:    string;
+    budget:              string;
+    primaryColor:        string;
+    secondaryColor:      string;
+    crestShapeIndex:     number;
   }) => void;
   isSaving: boolean;
 }
@@ -264,8 +272,12 @@ interface NewCareerModalProps {
 function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModalProps) {
   const [step, setStep]                   = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName]     = useState("");
+  const [nationality, setNationality]     = useState("");
   const [selectedClub, setSelectedClub]   = useState<ClubTemplate | null>(null);
   const [customClubName, setCustomClubName] = useState("");
+  const [primaryColor, setPrimaryColor]     = useState("#E05A00");
+  const [secondaryColor, setSecondaryColor] = useState("#FFFFFF");
+  const [shapeIndex, setShapeIndex]         = useState(0);
 
   const { data: templatesData, isLoading: loadingClubs } = useListClubTemplates({
     query: { queryKey: getListClubTemplatesQueryKey() },
@@ -307,14 +319,20 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     return { groups: ordered, unrecognised: strays, clubs: all, shown: drawn };
   }, [templatesData]);
 
-  // Pre-fill club name when club is selected and we advance to step 3
+  // Pre-fill club name and colours when club is selected and we advance to
+  // step 3 — mirrors new-career.tsx's advanceToStep3, including seeding the
+  // colour pickers from the club's own colours rather than leaving them at
+  // the picker's hardcoded default.
   const goToStep3 = () => {
-    if (!customClubName && selectedClub) setCustomClubName(selectedClub.name);
-    else if (selectedClub && customClubName === "") setCustomClubName(selectedClub.name);
+    if (selectedClub) {
+      if (!customClubName) setCustomClubName(selectedClub.name);
+      setPrimaryColor(selectedClub.primaryColor ?? "#E05A00");
+      setSecondaryColor(selectedClub.secondaryColor ?? "#FFFFFF");
+    }
     setStep(3);
   };
 
-  const canProceedStep1  = managerName.trim().length > 0;
+  const canProceedStep1  = managerName.trim().length > 0 && nationality.length > 0;
   const canProceedStep2  = selectedClub !== null;
   const displayClubName  = customClubName.trim() || selectedClub?.name || "";
   const canSave          = canProceedStep1 && canProceedStep2 && displayClubName.length > 0;
@@ -325,14 +343,21 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
   // written out separately and had drifted: the Enter path omitted the club
   // colours, so pressing Enter instead of clicking silently discarded the
   // player's colour choice. Both fields are optional, so it typechecked.
+  //
+  // R-13: managerNationality and crestShapeIndex used to be entirely absent
+  // from this payload — this modal never collected them at all, unlike
+  // new-career.tsx's wizard for the exact same form. Both are real fields
+  // now, built the same shape new-career.tsx's handleSubmit sends.
   const buildSavePayload = (club: NonNullable<typeof selectedClub>) => ({
     slotNumber,
-    managerName:      managerName.trim(),
-    clubName:         customClubName.trim() || club.name,
-    originalClubName: club.name,
-    budget:           club.startingBudget,
-    primaryColor:     club.primaryColor,
-    secondaryColor:   club.secondaryColor,
+    managerName:         managerName.trim(),
+    managerNationality:  nationality,
+    clubName:            customClubName.trim() || club.name,
+    originalClubName:    club.name,
+    budget:              club.startingBudget,
+    primaryColor,
+    secondaryColor,
+    crestShapeIndex:     shapeIndex,
   });
 
   const STEP_LABELS: Record<number, string> = {
@@ -387,7 +412,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
         {/* Body — scrollable */}
         <div className="flex-1 overflow-y-auto">
 
-          {/* ── Step 1: Manager Name ── */}
+          {/* ── Step 1: Manager Name + Nationality ── */}
           {step === 1 && (
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
@@ -402,6 +427,12 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   maxLength={100}
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 transition-all"
                 />
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                  <Globe className="h-3 w-3" /> Nationality
+                </label>
+                <NationalityPicker value={nationality} onChange={setNationality} />
               </div>
               <p className="text-xs text-white/35">
                 This is the name that will appear on your manager profile throughout the game.
@@ -532,6 +563,32 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Colours + crest — R-13: this modal used to stop at the name
+                  field; new-career.tsx's wizard collects colours and crest
+                  shape for the exact same form, so this one now does too. */}
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
+                <div className="space-y-5">
+                  <ColorPicker label="Primary Colour" value={primaryColor} onChange={setPrimaryColor} />
+                  <ColorPicker label="Secondary Colour" value={secondaryColor} onChange={setSecondaryColor} />
+                  <ShapePicker
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                    value={shapeIndex}
+                    onChange={setShapeIndex}
+                  />
+                </div>
+                <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/3 p-4">
+                  <ClubCrest
+                    name={displayClubName}
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                    shapeIndex={shapeIndex}
+                    size={64}
+                  />
+                  <div className="text-[11px] font-semibold text-white/50 text-center max-w-[7rem] truncate">{displayClubName}</div>
+                </div>
               </div>
             </div>
           )}
@@ -842,16 +899,28 @@ export default function CareerManagement() {
   );
 
   const handleCreate = (body: {
-    slotNumber:       number;
-    managerName:      string;
-    clubName:         string;
-    originalClubName: string;
-    budget:           string;
-    primaryColor?:    string;
-    secondaryColor?:  string;
+    slotNumber:          number;
+    managerName:         string;
+    managerNationality:  string;
+    clubName:            string;
+    originalClubName:    string;
+    budget:               string;
+    primaryColor:        string;
+    secondaryColor:      string;
+    crestShapeIndex:     number;
   }) => {
     upsertMutation.mutate(
-      { data: { slotNumber: body.slotNumber, managerName: body.managerName, clubName: body.clubName, originalClubName: body.originalClubName, budget: body.budget, primaryColor: body.primaryColor, secondaryColor: body.secondaryColor } },
+      { data: {
+        slotNumber:          body.slotNumber,
+        managerName:         body.managerName,
+        managerNationality:  body.managerNationality,
+        clubName:            body.clubName,
+        originalClubName:    body.originalClubName,
+        budget:              body.budget,
+        primaryColor:        body.primaryColor,
+        secondaryColor:      body.secondaryColor,
+        crestShapeIndex:     body.crestShapeIndex,
+      } },
       {
         onSuccess: () => {
           void queryClient.invalidateQueries({ queryKey: getListCareerSavesQueryKey() });

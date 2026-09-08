@@ -623,6 +623,38 @@ const roster = async (api) => {
     ownRowL.goalsFor === 0 && ownRowL.goalsAgainst === 0,
     JSON.stringify(ownRowL));
 
+  // ── 19. managerNationality and crestShapeIndex round-trip (R-13) ────────────
+  // career-management.tsx's save-slot wizard (NewCareerModal) never collected
+  // either field — not a server bug, the API already accepted and stored
+  // both (managerNationality is sent by every career-creation call in this
+  // very harness file) — it was a UI gap: that modal had no nationality
+  // picker and no crest-shape picker at all. The fix added both, sharing the
+  // same picker components new-career.tsx already used, and now sends the
+  // same full payload shape. This proves the SERVER side of that payload is
+  // genuinely accepted and read back correctly — the actual UI collection
+  // can only be confirmed on screen, there is no browser harness here.
+  console.log("\n19. managerNationality AND crestShapeIndex ROUND-TRIP (R-13)");
+  const M = session();
+  const profM = await M("POST", "/profiles", { name: "SmokeM" });
+  await M("POST", `/profiles/${profM.data.id}/select`);
+  const careerM = await M("POST", "/careers", {
+    slotNumber: 1, managerName: "SmokeM", managerNationality: "New Zealand",
+    clubName: "SmokeM FC", originalClubName: "SmokeM FC", season: "Season 1",
+    budget: "500000", locationId: 1, primaryColor: "#123456", secondaryColor: "#abcdef",
+    crestShapeIndex: 3,
+  });
+  check("R-13: POST /careers accepts managerNationality and crestShapeIndex in one payload",
+    careerM.status === 200, `HTTP ${careerM.status} ${JSON.stringify(careerM.data)}`);
+
+  const summaryM = await M("GET", "/careers/summary");
+  check("R-13: managerNationality reads back exactly as sent",
+    summaryM.data?.managerNationality === "New Zealand", JSON.stringify(summaryM.data));
+
+  const listM = await M("GET", "/careers");
+  const ownSaveM = (listM.data?.saves ?? []).find(s => s.id === listM.data?.activeCareerSaveId);
+  check("R-13: crestShapeIndex reads back exactly as sent",
+    ownSaveM?.crestShapeIndex === 3, JSON.stringify(ownSaveM));
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

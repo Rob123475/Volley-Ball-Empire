@@ -623,9 +623,47 @@ See R-23's entry above for full detail.
 · `pages/job-market.tsx:408` · `components/career/PoachingInbox.tsx:235` ·
 `pages/manager-contract.tsx:518, 546`. Build or remove from nav.
 
-### R-13 — Save-slot screen drops nationality and crest shape (partial)
+### R-13 — CLOSED (9 Sep, <hash>)
 `pages/career-management.tsx:264-276` payload omits `managerNationality` and `crestShapeIndex`;
 wizard sends them. Check alongside R-25.
+
+**Found:** not a payload bug so much as a missing UI feature — `career-management.tsx`'s own
+wizard (`NewCareerModal`, ~360 lines) never had a nationality picker or a crest-shape/colour
+picker at all (confirmed by R-25's earlier investigation). It duplicated `new-career.tsx`'s club
+picker's continent-partition logic (both files' own comments already noted this: "the fact that
+this logic existed twice is why fixing it once was not enough").
+
+**Fix, per the register's stated preference — share, don't patch:** extracted the genuinely
+reusable, chrome-independent pieces — the nationality list + searchable picker, the colour preset
+list + picker, the crest-shape picker — into a new shared module,
+`components/career/career-wizard-fields.tsx`. `new-career.tsx` now imports from there too (its
+own inline copies of all five deleted) rather than each wizard carrying its own definitions that
+can drift again. `NationalityPicker` takes an `accentClassName` so each wizard keeps its own
+existing accent colour (`secondary` token vs. literal violet) — unifying colours was never part
+of this item.
+
+`career-management.tsx`'s `NewCareerModal` gained: a nationality picker in step 1 (now required
+to advance, matching `new-career.tsx`'s `canStep1`), colour pickers + crest-shape picker + a live
+crest preview in step 3 (seeded from the selected club's own colours, matching
+`new-career.tsx`'s `advanceToStep3`). `buildSavePayload` and `handleCreate`'s type signature both
+carry `managerNationality`/`crestShapeIndex` through to `POST /careers` now — the exact payload
+shape `new-career.tsx`'s `handleSubmit` already sent. The two wizards' outer chrome (full page
+with guard screens vs. modal, slot-1-only vs. multi-slot) were deliberately left as they were —
+genuinely different use contexts, not duplication, and unifying navigation/guard logic carried
+real regression risk to the first-career creation flow for no benefit this item asked for.
+
+**Harness (done):** `smoke.mjs` section 19 — `POST /careers` with the exact payload shape the
+fixed modal now sends (`managerNationality` + `crestShapeIndex` together) round-trips correctly
+through `GET /careers/summary` and `GET /careers`. This does **not** fail on the pre-fix code —
+the server already accepted and stored both fields correctly (`managerNationality` is sent by
+every career-creation call already in this harness file); the actual defect was purely in the
+frontend never collecting or sending them, which no suite here can regression-test — there is no
+browser-automation harness in this repo, the same limitation R-15 and R-18 already noted. Frontend
+typecheck and build both clean. Full harness: 12/12 suites.
+
+**Rob: please confirm on screen** — open Career Management, create a career in an empty slot: step
+1 now asks for nationality (required to continue), step 3 now offers primary/secondary colour and
+crest-shape pickers with a live preview, seeded from the selected club's own colours.
 
 ### R-14 — Profile page hard-codes manager salary (partial)
 `pages/profile.tsx` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
