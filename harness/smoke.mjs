@@ -567,6 +567,45 @@ const roster = async (api) => {
   check("R-21: /api/team 404s for a profile whose only career is retired, not 200 with stale data",
     teamK.status === 404, `HTTP ${teamK.status} ${JSON.stringify(teamK.data)}`);
 
+  // ── 17. Leaderboard is career-scoped, with a real empty state (R-06) ──────
+  // Used to be `db.select().from(teamsTable)` with no filter, no auth check,
+  // no results gate — every team in the database, ranked together. Rebuilt
+  // on competitor_rankings, the same source and scope as R-20's season
+  // ladder: each career's leaderboard must show only its own competitors,
+  // and a fresh career (no ranking row yet) must show nothing rather than
+  // whichever teams happened to exist in the table.
+  console.log("\n17. LEADERBOARD IS CAREER-SCOPED (R-06)");
+  const dashF2 = await F("GET", "/dashboard");
+  const dashG2 = await G("GET", "/dashboard");
+  const lbF = await F("GET", "/leaderboard");
+  const lbG = await G("GET", "/leaderboard");
+
+  check("R-06: F's leaderboard contains only F's own team",
+    (lbF.data ?? []).length > 0 && (lbF.data ?? []).every(e => e.teamId === dashF2.data?.team?.id),
+    JSON.stringify(lbF.data));
+  check("R-06: G's leaderboard contains only G's own team",
+    (lbG.data ?? []).length > 0 && (lbG.data ?? []).every(e => e.teamId === dashG2.data?.team?.id),
+    JSON.stringify(lbG.data));
+
+  // R-26 (earlier in this same pass) seeds a zero-row competitor_ranking at
+  // career creation, so the leaderboard is never truly empty for a career
+  // reachable through the normal creation path — it shows the player's own
+  // team at 0-0-0, the same day-one behaviour R-26 gave the season ladder.
+  // The register's literal "fresh career shows the empty state" no longer
+  // holds after that (earlier, in-this-pass) change; what actually matters —
+  // no cross-career data, no fake "Champion" on someone else's results — is
+  // what this proves. leaderboard.tsx's own empty-state UI (added here)
+  // still covers the real remaining case: a save whose ranking row predates
+  // R-26 and hasn't hit GET /dashboard's repair net yet.
+  const L = session();
+  await newCareer(L, "SmokeL");
+  const dashL = await L("GET", "/dashboard");
+  const lbL = await L("GET", "/leaderboard");
+  check("R-06: a fresh career's leaderboard shows only its own team (0-0-0), never another career's",
+    Array.isArray(lbL.data) && lbL.data.length > 0 &&
+    lbL.data.every(e => e.teamId === dashL.data?.team?.id && e.wins === 0 && e.losses === 0),
+    JSON.stringify(lbL.data));
+
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   if (failures > 0) { console.log(`${failures} FAILED`); process.exit(1); }
 })().catch(e => { console.error("SMOKE TEST ERROR:", e.message); process.exit(1); });

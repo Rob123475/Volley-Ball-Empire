@@ -121,7 +121,9 @@ export default function Leaderboard() {
     );
   }
 
-  const userTeam = dashboard?.team?.name;
+  // R-06: was matched by team name — teamId is the actual identity these
+  // entries carry, same fix as R-20 made to the season ladder.
+  const userTeamId = dashboard?.team?.id;
   const top3 = rankings?.slice(0, 3) ?? [];
   const rest = rankings?.slice(3) ?? [];
 
@@ -174,7 +176,7 @@ export default function Leaderboard() {
           {top3[1] && (
             <PodiumCard
               entry={top3[1]}
-              isUser={top3[1].teamName === userTeam}
+              isUser={top3[1].teamId === userTeamId}
               gradient="from-slate-700 to-slate-900"
               ringColor="ring-slate-400"
               iconBg="bg-slate-400/20"
@@ -189,7 +191,7 @@ export default function Leaderboard() {
           {/* 1st — centre / tallest */}
           <PodiumCard
             entry={top3[0]}
-            isUser={top3[0].teamName === userTeam}
+            isUser={top3[0].teamId === userTeamId}
             gradient="from-amber-500 to-orange-600"
             ringColor="ring-amber-400"
             iconBg="bg-amber-400/20"
@@ -205,7 +207,7 @@ export default function Leaderboard() {
           {top3[2] && (
             <PodiumCard
               entry={top3[2]}
-              isUser={top3[2].teamName === userTeam}
+              isUser={top3[2].teamId === userTeamId}
               gradient="from-orange-700 to-amber-900"
               ringColor="ring-orange-500"
               iconBg="bg-orange-500/20"
@@ -220,7 +222,21 @@ export default function Leaderboard() {
         </div>
       )}
 
+      {/* R-06: a fresh career has no ranking row until it has a result behind
+          it — say so plainly instead of rendering an empty podium and an
+          empty table with nothing to explain why. */}
+      {top3.length === 0 && (
+        <div className="rounded-2xl border border-border bg-card p-10 text-center space-y-2">
+          <Trophy className="h-8 w-8 mx-auto text-muted-foreground/40" />
+          <p className="text-sm font-bold text-foreground">No results yet</p>
+          <p className="text-sm text-muted-foreground">
+            The leaderboard fills in once your career's competitors have played their first matches.
+          </p>
+        </div>
+      )}
+
       {/* ── Full rankings table ──────────────────────────────────────── */}
+      {top3.length > 0 && (
       <div className="rounded-2xl border border-border overflow-hidden shadow-md bg-card">
         {/* coloured header */}
         <div className="px-5 py-3 bg-gradient-to-r from-primary to-sky-700 flex items-center gap-2">
@@ -244,7 +260,7 @@ export default function Leaderboard() {
           </thead>
           <tbody>
             {rankings?.map((entry) => {
-              const isUser = entry.teamName === userTeam;
+              const isUser = entry.teamId === userTeamId;
               const winRate =
                 entry.wins + entry.losses > 0
                   ? Math.round(
@@ -315,6 +331,7 @@ export default function Leaderboard() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* ── Info cards ───────────────────────────────────────────────── */}
       <div className="grid gap-4 md:grid-cols-3">
