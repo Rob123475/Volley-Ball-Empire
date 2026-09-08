@@ -633,7 +633,7 @@ wizard sends them. Check alongside R-25.
 ### R-15 — Dashboard "Game Settings" tile doesn't open settings
 `pages/dashboard.tsx:927-931` — tile opens the career options menu. Relabel or remove.
 
-### R-16 — CLOSED (9 Sep, <hash>)
+### R-16 — CLOSED (9 Sep, d001a23)
 `artifacts/api-server/src/package.json:12-13` still lists `@google-cloud/storage`. Delete it.
 
 **Found:** a stray, stale duplicate of `artifacts/api-server/package.json` (the real one, one
