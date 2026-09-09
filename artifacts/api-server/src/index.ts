@@ -75,24 +75,26 @@ try {
   logger.error({ err }, "schema ensure failed");
 }
 
-// R-28/R-33: a save's own reference rows (locations, club_templates, outfits,
-// and — R-33 — the reference-only columns of players/staff) can also fall
-// behind the shipped starter DB — a schema check has no notion of this, since
-// row data isn't part of the schema declaration at all. Rows missing by
-// primary key are inserted (locations/club_templates/outfits only — R-28);
-// rows both sides already have get their stale, gameplay-never-writes
-// columns brought forward to the starter DB's value (R-33). No-ops (skipped,
-// logged) when STARTER_DB_PATH isn't set — most harness suites and a bare
+// R-28/R-33/R-34: a save's own reference rows (locations, club_templates,
+// outfits, and — R-33 — the reference-only columns of players/staff) can also
+// fall behind the shipped starter DB — a schema check has no notion of this,
+// since row data isn't part of the schema declaration at all. Rows missing by
+// primary key are inserted (locations/club_templates/outfits — R-28; players
+// — R-34, which also seeds every existing career's state for them); rows both
+// sides already have get their stale, gameplay-never-writes columns brought
+// forward to the starter DB's value (R-33). No-ops (skipped, logged) when
+// STARTER_DB_PATH isn't set — most harness suites and a bare
 // `node dist/index.mjs` don't set it.
 try {
   const r = ensureReferenceData();
   const totalInserted = Object.values(r.inserted).reduce((n, ids) => n + ids.length, 0);
   const totalUpdated  = Object.values(r.updated).reduce((n, ids) => n + ids.length, 0);
+  const totalSeeded   = Object.values(r.seededIntoCareers).reduce((n, ids) => n + ids.length, 0);
   if (r.skipped) {
     logger.info({ starterDbPath: r.starterDbPath, reason: r.skipped }, "reference data backfill skipped");
-  } else if (totalInserted > 0 || totalUpdated > 0) {
+  } else if (totalInserted > 0 || totalUpdated > 0 || totalSeeded > 0) {
     logger.info(
-      { starterDbPath: r.starterDbPath, inserted: r.inserted, updated: r.updated },
+      { starterDbPath: r.starterDbPath, inserted: r.inserted, updated: r.updated, seededIntoCareers: r.seededIntoCareers },
       "reference data backfilled from starter DB",
     );
   } else {

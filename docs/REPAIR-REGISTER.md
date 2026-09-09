@@ -27,6 +27,84 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-34 — CLOSED (9 Sep, <pending-hash>)
+Players added to the starter DB after a save was created never appear in
+that save — R-28/R-33 deliberately skip player rows, so an updated game is
+short players (8 of the 24 Europe players were missing from Rob's live save).
+
+**Found:** R-28/R-33 (above) both only ever touch a row a save ALREADY HAS —
+by primary key for insert, by column for update. A player row that exists in
+the starter DB but not in a save at all was never inserted, and R-28's own
+comment explains why players were originally excluded: "a missing
+player/staff row needs a matching career_player_state row for every EXISTING
+career save, which only seedCareerState() creates, only at career creation."
+That's a real second problem, not just a missing-row problem — but it's one
+`utils/migrateCareerState.ts` already solves for a brand-new career, so R-34
+is "solve it the same way, one layer up," not a new mechanism.
+
+**Fix — reused the exact code path, no second list:** extracted the
+per-player `career_player_state`-row-seeding loop out of `seedCareerState()`
+into its own function, `seedPlayerStateRows(tx, careerSaveId, playerIds)` —
+same column defaults (age/salary/speed/power/defense/serve/block/stamina/
+isDraftPlayer), same `onConflictDoNothing` safety, now callable for a subset
+of players against ANY career, not just "every player, at creation."
+`seedCareerState()` itself now calls it too, so there is exactly one place
+this logic lives.
+
+`ensureReferenceData()` (utils/ensureSchema.ts) gained a Pass 3: insert
+missing `players` rows verbatim (same technique Pass 1 already uses for
+locations/club_templates/outfits), then for every row in `career_saves` —
+every existing career, not just the one this boot happens to be running for
+— call `seedPlayerStateRows()` with just the newly-inserted ids.
+
+**Deliberately NOT called: `seedCareerState()` itself, or its
+`seedRegionalLeagueTx()`.** Both unconditionally INSERT a fresh regional
+league season + 180 fixtures with no existence check — correct only at
+brand-new career creation. Calling either against an existing, mid-season
+career would have duplicated its league and fixtures. Confirmed by harness
+assertion E (below), not just by reading the code.
+
+**Spares stay parked, with no special case.** `player_type='spare'` rows are
+inserted and seeded exactly like every other player — `seedCareerState()`
+itself doesn't discriminate for a brand-new career either, so this matches.
+They stay invisible for the existing reason: `isSeniorPlayer()`
+(`utils/playerClassification.ts`) already excludes `player_type='spare'`
+everywhere the market/squad screens read it. A second, bespoke "skip spares
+here" rule would have been exactly the kind of second list this whole item
+exists to avoid.
+
+**Staff is out of scope.** The register item and its symptom (8 missing
+Europe *players*) are about `players` specifically; `staff` still has no
+insert-missing-rows path. Same gap, not fixed here — flag separately if
+wanted.
+
+**Harness (new, 15th suite):** `harness/reference-data-new-players.mjs`,
+wired into `run-all.mjs` as 5/15, next to R-28/R-33's own suites. Boots a
+save with one existing, already-played career, then reboots it against a
+starter DB carrying 3 extra senior players (+1 spare) it doesn't have.
+Asserts: (A) all 3 seniors appear as free agents for the career that already
+existed before this boot, via the real `GET /players/free-agents`; (B) their
+`player_v4` is copied byte-for-byte, not regenerated or left null; (C) the
+spare is NOT in the free-agents list; (D) `career_player_state` exists for
+all 4 (spare included), all free (`team_id` NULL); (E) the career's regional
+league season/fixture counts are unchanged — proving `seedRegionalLeagueTx()`
+was correctly not re-run. 9/9 checks pass. Full harness: 15/15 suites.
+
+**Live save: verified, not just asserted.** Backed up
+(`backup-r34-2026-09-09T04-45-04`), then booted directly against the repo
+starter DB. Boot log: `inserted.players = [299..306]`, `seededIntoCareers`
+lists all 8 ids under every one of the 5 existing career saves (ids 5, 6, 7,
+8, 9 — none retired, none touched otherwise). Confirmed after: 276 total
+players (was 268), all 8 have `player_v4`, all 5 careers show 8/8 new
+players in `career_player_state`. No profile or career was deleted, renamed
+or retired.
+
+**Rob: please confirm on screen** — open the Player Market on any of your
+existing careers (Sydney Riptide / R24 Check / R25 Check / rob / R28
+Verify): Georgia Mears, Emily Harrison, Marta Hernández, Inês Moreira, Sanne
+Keizer, Lieke Jansen, Lena Schneider and Leonie Müller should now all appear
+as signable free agents.
+
 ### R-33 — CLOSED (9 Sep, c3e0e22)
 R-28 only inserts missing rows, so renames and corrections to the starter DB (e.g. players 51 and
 187) leave every player's save stale.

@@ -1,4 +1,4 @@
-import { db, sqlite } from "@workspace/db";
+import { db, sqlite, careerSavesTable } from "@workspace/db";
 import * as dbExports from "@workspace/db";
 import { sql, is } from "drizzle-orm";
 import {
@@ -8,6 +8,7 @@ import {
 } from "drizzle-orm/sqlite-core";
 import Database from "better-sqlite3";
 import fs from "node:fs";
+import { seedPlayerStateRows } from "./migrateCareerState.js";
 
 /**
  * Bring an older save up to the schema the running code expects.
@@ -312,11 +313,14 @@ export function ensureSchema(): EnsureSchemaResult {
 // career_player_state/career_staff_state row for every EXISTING career save,
 // which only seedCareerState() creates, only at career creation. Backfilling
 // the reference row alone would leave a player who exists nowhere any
-// existing career can see them: not in the market, not signable. That is a
-// different, larger problem than "a row is missing" and is not attempted
-// here. `locations`, `club_templates` and `outfits` have no such per-career
-// shadow — a missing row is simply missing, and inserting it by primary key
-// is completely self-contained.
+// existing career can see them: not in the market, not signable. `locations`,
+// `club_templates` and `outfits` have no such per-career shadow — a missing
+// row is simply missing, and inserting it by primary key is completely
+// self-contained.
+//
+// R-34 closes exactly that gap for `players` (see the Pass 3 comment below on
+// ensureReferenceData) — `staff` still is not attempted; the register item
+// this closes was specifically about players missing from an existing save.
 const REFERENCE_TABLES = ["locations", "club_templates", "outfits"] as const;
 
 // ── R-33: reference-data UPDATES never reach an existing save ──────────────
@@ -391,6 +395,8 @@ export type EnsureReferenceDataResult = {
   inserted: Record<string, Array<string | number>>;
   /** table name -> primary keys of the rows updated (R-33). */
   updated: Record<string, Array<string | number>>;
+  /** career_save id -> player ids just seeded into it (R-34). */
+  seededIntoCareers: Record<number, number[]>;
 };
 
 function primaryKeyColumn(table: string): string | null {
@@ -430,12 +436,13 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
   const starterDbPath = process.env["STARTER_DB_PATH"];
   const inserted: Record<string, Array<string | number>> = {};
   const updated: Record<string, Array<string | number>> = {};
+  const seededIntoCareers: Record<number, number[]> = {};
 
   if (!starterDbPath) {
-    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated };
+    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated, seededIntoCareers };
   }
   if (!fs.existsSync(starterDbPath)) {
-    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated };
+    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated, seededIntoCareers };
   }
 
   const starter = new Database(starterDbPath, { readonly: true, fileMustExist: true });
@@ -502,11 +509,89 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
       const starterRows = starter.prepare(`SELECT * FROM \`${table}\``).all() as Record<string, unknown>[];
       updateExistingRows(table, pkCol, sharedCols, starterRows, updated);
     }
+
+    // ── Pass 3 (R-34): players — insert missing ROWS, then give every
+    // existing career state for them ──────────────────────────────────────
+    //
+    // "Players added to the starter DB after a save was created never appear
+    // in that save" — R-28/R-33 above only ever touch a row this save
+    // ALREADY HAS. A player added later (e.g. the 8 Europe seniors from
+    // seed-europe-players.ts, missing from Rob's live save) never gets
+    // inserted at all, so they can never appear anywhere: not the market, not
+    // signable, not on the Olympic squad count.
+    //
+    // Two steps, same reasoning as Pass 1 for the insert half:
+    //   1. INSERT missing player rows verbatim (every shared column) — same
+    //      technique as REFERENCE_TABLES' Pass 1, just applied to a table
+    //      that pass deliberately excludes.
+    //   2. For EACH row in career_saves — every existing career, not just the
+    //      active one this boot happens to be running for — give it opening
+    //      career_player_state for exactly the newly-inserted players via
+    //      seedPlayerStateRows() (utils/migrateCareerState.ts), the SAME
+    //      function seedCareerState() calls for a brand-new career. Not a
+    //      second hand-written column list: one function, two callers.
+    //      onConflictDoNothing makes it safe to call for a career that
+    //      already has some of these players (nothing to do here on a second
+    //      boot) without needing to track what was already seeded.
+    //
+    // Deliberately NOT called: seedCareerState() itself, or
+    // seedRegionalLeagueTx() — both unconditionally INSERT a fresh regional
+    // league season + 180 fixtures with no existence check, correct only at
+    // brand-new career creation. Calling either against an existing,
+    // mid-season career would duplicate its league and fixtures. Only the
+    // player-state half applies here.
+    //
+    // Spares (player_type='spare') are inserted and seeded exactly like every
+    // other player — no special case, matching seedCareerState()'s own
+    // behaviour for a brand-new career, which already does not discriminate.
+    // They stay invisible for the existing reason: isSeniorPlayer()
+    // (utils/playerClassification.ts) explicitly excludes player_type='spare'
+    // wherever the market/squad screens read it. Adding a second, bespoke
+    // "skip spares" rule here would be exactly the kind of second list this
+    // whole pass exists to avoid.
+    if (tableExists("players")) {
+      const pkCol = "id";
+      const starterCols = new Set(
+        (starter.prepare(`PRAGMA table_info(players)`).all() as { name: string }[]).map((r) => r.name),
+      );
+      const sharedCols = [...starterCols].filter((c) => existingColumns("players").has(c));
+
+      if (sharedCols.length > 0) {
+        const livePks = new Set(
+          db.all<Record<string, unknown>>(sql.raw(`SELECT \`${pkCol}\` AS pk FROM players`)).map((r) => r.pk),
+        );
+        const starterRows = starter.prepare(`SELECT * FROM players`).all() as Record<string, unknown>[];
+        const missing = starterRows.filter((r) => !livePks.has(r[pkCol]));
+
+        if (missing.length > 0) {
+          const colList = sharedCols.map((c) => `\`${c}\``).join(", ");
+          const placeholders = sharedCols.map(() => "?").join(", ");
+          const insertStmt = sqlite.prepare(`INSERT INTO players (${colList}) VALUES (${placeholders})`);
+          const newPlayerIds: number[] = [];
+
+          for (const row of missing) {
+            const values = sharedCols.map((c) => (row[c] === undefined ? null : row[c]));
+            insertStmt.run(...values);
+            const id = row[pkCol] as number;
+            inserted["players"] = [...(inserted["players"] ?? []), id];
+            newPlayerIds.push(id);
+          }
+
+          const careerIds = db.select({ id: careerSavesTable.id }).from(careerSavesTable).all().map((r) => r.id);
+          for (const careerSaveId of careerIds) {
+            db.transaction((tx) => {
+              seedPlayerStateRows(tx, careerSaveId, newPlayerIds);
+            });
+            seededIntoCareers[careerSaveId] = newPlayerIds;
+          }
+        }
+      }
+    }
   } finally {
     starter.close();
   }
 
-  return { starterDbPath, inserted, updated };
+  return { starterDbPath, inserted, updated, seededIntoCareers };
 }
 
 /**

@@ -16,7 +16,7 @@ import { monthlyWage } from "./wageCurve.js";
 /** A regional league is six clubs playing a double round-robin. */
 const LEAGUE_SIZE = 6;
 
-type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+export type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /**
  * Snapshot the CURRENT global player/staff state into per-career state, once
@@ -566,6 +566,52 @@ export function dropMovedColumns(): { dropped: string[] } {
 }
 
 /**
+ * Insert this career's opening career_player_state row for each of `playerIds`
+ * — copying the reference age, base stats and starting wage, exactly what a
+ * brand-new career does for every player it has. `onConflictDoNothing`, so
+ * calling this for players a career already has state for is a safe no-op:
+ * that's what lets R-34 reuse it to backfill just the NEW players into every
+ * EXISTING career, not only at career creation.
+ *
+ * The wage comes from asking_price, not from players.salary: salary has
+ * moved to career state and the column is dropped at boot, so reading it here
+ * would throw the moment the migration completes. asking_price is reference
+ * data — what the player COSTS — and asking_price = salary * 12 holds across
+ * the shipped data.
+ *
+ * This list is the more dangerous of the two `presentColumns` uses in this
+ * file, because it runs on every career this function is called for, not once
+ * per save. `age` is the next column scheduled to move; with a fixed list,
+ * the chunk that moves it silently breaks the creation of every new career.
+ * Every field is read with a fallback, so an absent column takes its default
+ * instead.
+ */
+export function seedPlayerStateRows(tx: DbTx, careerSaveId: number, playerIds: readonly number[]): void {
+  if (playerIds.length === 0) return;
+  const idList = playerIds.join(",");
+  const refs = new Map(
+    tx.all<any>(sql.raw(
+      `SELECT ${presentColumns("players", SEED_REFERENCE_COLUMNS)} FROM players WHERE id IN (${idList})`,
+    )).map((r) => [r.id, r]),
+  );
+
+  for (const id of playerIds) {
+    tx.insert(careerPlayerStateTable).values({
+      careerSaveId, playerId: id,
+      age:     Number(refs.get(id)?.base_age ?? refs.get(id)?.age ?? 20),
+      salary:  monthlyWage(refs.get(id)?.asking_price),
+      speed:   Number(refs.get(id)?.speed   ?? 70),
+      power:   Number(refs.get(id)?.power   ?? 70),
+      defense: Number(refs.get(id)?.defense ?? 70),
+      serve:   Number(refs.get(id)?.serve   ?? 70),
+      block:   Number(refs.get(id)?.block   ?? 70),
+      stamina: Number(refs.get(id)?.stamina ?? 70),
+      isDraftPlayer: !!refs.get(id)?.is_draft_player,
+    }).onConflictDoNothing().run();
+  }
+}
+
+/**
  * Create state rows for a brand-new career, copying the pristine reference
  * defaults. A new career starts with every player a free agent.
  */
@@ -573,26 +619,8 @@ export function seedCareerState(careerSaveId: number): void {
   db.transaction((tx) => {
     const players = tx.select({ id: playersTable.id }).from(playersTable).all();
     const staff   = tx.select({ id: staffTable.id }).from(staffTable).all();
-    // Copy the reference age, base stats, and starting wage. Seeding salary at
-    // the column default left every player in a new career priced at 0.
-    //
-    // The wage comes from asking_price, not from players.salary: salary has
-    // moved to career state and the column is dropped at boot, so reading it
-    // here would throw the moment the migration completes. asking_price is
-    // reference data — what the player COSTS — and asking_price = salary * 12
-    // holds across the shipped data.
-    // Same rule as the snapshot: name only columns this database HAS.
-    //
-    // This list is the more dangerous of the two, because it runs on EVERY
-    // career creation rather than once per save. `age` is the next column
-    // scheduled to move; with a fixed list, the chunk that moves it silently
-    // breaks the creation of every new career. Every field is read with a
-    // fallback, so an absent column takes its default instead.
-    const refs = new Map(
-      tx.all<any>(sql.raw(
-        `SELECT ${presentColumns("players", SEED_REFERENCE_COLUMNS)} FROM players`,
-      )).map((r) => [r.id, r]),
-    );
+
+    seedPlayerStateRows(tx, careerSaveId, players.map((p) => p.id));
 
     // The same problem for staff: base_salary is the only record of what a
     // staff member costs, and seeding at the column default made every hire in
@@ -603,20 +631,6 @@ export function seedCareerState(careerSaveId: number): void {
       )).map((r) => [r.id, r]),
     );
 
-    for (const p of players) {
-      tx.insert(careerPlayerStateTable).values({
-        careerSaveId, playerId: p.id,
-        age:     Number(refs.get(p.id)?.base_age ?? refs.get(p.id)?.age ?? 20),
-        salary:  monthlyWage(refs.get(p.id)?.asking_price),
-        speed:   Number(refs.get(p.id)?.speed   ?? 70),
-        power:   Number(refs.get(p.id)?.power   ?? 70),
-        defense: Number(refs.get(p.id)?.defense ?? 70),
-        serve:   Number(refs.get(p.id)?.serve   ?? 70),
-        block:   Number(refs.get(p.id)?.block   ?? 70),
-        stamina: Number(refs.get(p.id)?.stamina ?? 70),
-        isDraftPlayer: !!refs.get(p.id)?.is_draft_player,
-      }).onConflictDoNothing().run();
-    }
     // Pool clubs: seed this career's league membership from the reference
     // startsInLeague flag. 36 of the 60 begin in the league; without this a new
     // career gets the column default and the regional league is empty.
