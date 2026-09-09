@@ -829,7 +829,7 @@ an explanation; at zero confidence the next match or page load should land on a 
 Underdog/Established start choice. Qualification / Tier status / Finals bracket / Fail state
 are "extend existing page" — open each and confirm whether done.
 
-### R-11 — CLOSED (9 Sep, <pending-hash>)
+### R-11 — CLOSED (9 Sep, 6079343)
 Underdog vs established at career start. `pages/new-career.tsx` sends the same payload
 regardless; `routes/careers.ts` has no concept of it. Add to wizard → store on career save →
 seeding reads it (budget, tier lock, starting squad). Invariant I6 hangs off this.
