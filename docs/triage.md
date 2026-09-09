@@ -41,33 +41,39 @@ ten fitness trainers (a perfect `_01`↔`_10` reversal).
 
 ### 1a. Caption audit — DONE and GUARDED. See `docs/caption-audit.md`.
 All 204 senior and spare cards were opened and read against their row.
-**200 were correct; 2 of the 4 faults are now fixed, 2 need new art.**
+**All 204 are now correct — the last four faults were fixed 9 Sep 2026.**
 
 Fixed in the database and in the seed scripts, so a re-seed cannot undo them:
 
-- **`greece_03`** — row renamed `Elena` → **`Eleni Papadopoulou`**, matching
-  her card. Deliberately restores two Greek players of that name; they have
-  different ages and heights, and nothing keys off name.
+- **`greece_03`** — row renamed `Elena` → `Eleni Papadopoulou` on 3 Sep (a
+  stopgap matching the photo that was already there), then **9 Sep: replaced
+  with a genuinely different woman**, **Thalia Vasilakis** — a real new
+  photograph, not a second Eleni. No more duplicate-named Greek players.
 - **`papua_new_guinea_03`** — Mere Bainivalu's position `spiker` →
   **`all_rounder`**, matching her card.
+- **`indonesia_02`** — was Sinta Wulandari's own card duplicated; Dewi Lestari
+  had none. **9 Sep: a genuine new photograph of Dewi Lestari installed.**
+- **`laos_02`** — was Keovilay Phommachanh's own card duplicated; Bouavanh
+  Sisouvanh had none. **9 Sep: a genuine new photograph of Bouavanh Sisouvanh
+  installed.**
+- **`morocco_02`** — was byte-identical to `morocco_01` ("Salma El Idrissi").
+  **9 Sep: a genuine new photograph of Zineb Ouadi installed.** She is still
+  `player_type='spare'` in the repo starter DB (unrelated pre-existing
+  divergence from the live save, where she reads `senior` — see §1d) and so
+  still never displayed in game; having her own correct card doesn't change
+  that on its own.
 
-Still open, and **not fixable from inside this repo**:
+All four came from `playercards.zip`, installed via
+`scripts/install-player-cards.cjs --write` against both the repo starter DB
+and the live save, re-encoded to the standard 600×901 WebP senior-card format
+(`docs/packaging.md`), read and re-pinned in `scripts/captions.json` before
+the guard was trusted again — same discipline as §1c's re-encode.
 
-- **`indonesia_02`** — shows Sinta Wulandari; Dewi Lestari has no card.
-- **`laos_02`** — shows Keovilay Phommachanh; Bouavanh Sisouvanh has no card.
-
-The unshipped originals in `attached_assets` carry the same wrong captions and
-the seed scripts assign exactly those files, so the art was generated wrong at
-source. Renaming the rows to match would put two identically-named players in
-one nation with conflicting stats, which is worse. **These need two new
-renders.** `morocco_02` (Zineb Ouadi, spare) stays parked and inert.
-
-**A build guard now holds all of this: `scripts/check-captions.cjs`**, in
+**A build guard holds all of this: `scripts/check-captions.cjs`**, in
 `pnpm typecheck`. It pins each card's sha1 to the identity read off it, so
-regenerating or swapping a portrait fails the build until the new card is read.
-The three known-wrong cards are recorded as such and asserted to still be
-exactly that problem. Four self-test cases in `harness/guard-selftest.mjs`
-(now 36/36).
+regenerating or swapping a portrait fails the build until the new card is
+read. **Zero known-wrong cards remain** — the guard's "known-wrong" section
+now prints nothing. Self-test cases in `harness/guard-selftest.mjs`.
 
 **Do not add a card-vs-row position comparison** — the cards use FIVB names
 (Outside Hitter, Libero, Middle Blocker) that do not map onto the database
@@ -112,8 +118,12 @@ behind a dependency — and fails if any extension disagrees with its content.
 Three self-test cases in `harness/guard-selftest.mjs` (now 39/39).
 `scripts/normalise-image-formats.cjs --write` is the fixer.
 
-### 1d. Zineb Ouadi shares Salma El Idrissi's picture — parked, inert
-She is `player_type='spare'` and never displayed. Only matters if unparked.
+### 1d. Zineb Ouadi — has her own card now (§1a), still parked, inert
+No longer shares Salma El Idrissi's picture — see §1a, fixed 9 Sep 2026. She
+is still `player_type='spare'` in the repo starter DB and so still never
+displayed; only matters if she is ever unparked. (The live save already has
+her as `senior` — a pre-existing, unrelated divergence, not something this
+fix touched.)
 
 ---
 

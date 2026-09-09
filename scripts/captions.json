@@ -581,10 +581,10 @@
    "caption": {
     "age": 23,
     "height": 190.0,
-    "name": "Eleni Papadopoulou",
+    "name": "Thalia Vasilakis",
     "nationality": "Greece"
    },
-   "sha1": "9949372d579d060036624597be8bb150feb41d72"
+   "sha1": "3758295123624e29d4041f88c6844a56368a9069"
   },
   "player_senior_guyana_01.webp": {
    "caption": {
@@ -650,16 +650,13 @@
    "sha1": "ed36edd308e006de172c9664c33f47a675fc061e"
   },
   "player_senior_indonesia_02.webp": {
-   "artWrong": {
-    "cardShows": {
-     "age": 21,
-     "height": 165,
-     "name": "Sinta Wulandari",
-     "nationality": "Indonesia"
-    },
-    "why": "second render of indonesia_01; Dewi Lestari has no card. No correct art exists in the repo."
+   "caption": {
+    "age": 23,
+    "height": 168,
+    "name": "Dewi Lestari",
+    "nationality": "Indonesia"
    },
-   "sha1": "1d18903b5ba2383c59c0903eca2cd9fa0499e3dc"
+   "sha1": "c65c455e39025f67ba2637f7bf721f83f2360012"
   },
   "player_senior_indonesia_03.webp": {
    "caption": {
@@ -815,16 +812,13 @@
    "sha1": "b50cc6f636cc3eb9c43d0d46a44b2e5b6374e08b"
   },
   "player_senior_laos_02.webp": {
-   "artWrong": {
-    "cardShows": {
-     "age": 19,
-     "height": 158,
-     "name": "Keovilay Phommachanh",
-     "nationality": "Laos"
-    },
-    "why": "second render of laos_01; Bouavanh Sisouvanh has no card. No correct art exists in the repo."
+   "caption": {
+    "age": 24,
+    "height": 172,
+    "name": "Bouavanh Sisouvanh",
+    "nationality": "Laos"
    },
-   "sha1": "2c8bd56977251bb2feb442db4e5a4b35ae29533c"
+   "sha1": "5c157d76f58fb6490541b8e53383bda5faee90f6"
   },
   "player_senior_laos_03.webp": {
    "caption": {
@@ -989,16 +983,13 @@
    "sha1": "fc0806ecba6fd692703d036061158ffb8debbe52"
   },
   "player_senior_morocco_02.webp": {
-   "artWrong": {
-    "cardShows": {
-     "age": 24,
-     "height": 183,
-     "name": "Salma El Idrissi",
-     "nationality": "Morocco"
-    },
-    "why": "byte-identical to morocco_01; Zineb Ouadi is player_type=spare and never displayed."
+   "caption": {
+    "age": 22,
+    "height": 170,
+    "name": "Zineb Ouadi",
+    "nationality": "Morocco"
    },
-   "sha1": "fc0806ecba6fd692703d036061158ffb8debbe52"
+   "sha1": "2cb923f48d19c6b5c527f15fecee5489092fd6fd"
   },
   "player_senior_morocco_03.webp": {
    "caption": {

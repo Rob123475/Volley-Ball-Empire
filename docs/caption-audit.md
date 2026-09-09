@@ -12,10 +12,19 @@ treated as evidence — only the caption inside the card.
 **Result: 200 of 204 correct. Four wrong, three of them new.**
 
 **Status after the 3 Sep follow-up: 202 of 204 clean.** `greece_03` and
-`papua_new_guinea_03` are fixed in the database *and* in the seed scripts.
-The two remaining (`indonesia_02`, `laos_02`) cannot be fixed without new
-renders — proved below — and are now pinned by a build guard rather than
-left to be rediscovered. `morocco_02` stays parked and inert.
+`papua_new_guinea_03` were fixed in the database *and* in the seed scripts.
+The two remaining (`indonesia_02`, `laos_02`) could not be fixed without new
+renders — proved below — and were pinned by a build guard rather than left
+to be rediscovered. `morocco_02` stayed parked and inert.
+
+**Status after the 9 Sep replacement cards: 204 of 204 clean.** Four real
+photographs (`playercards.zip`, installed via `scripts/install-player-cards.cjs
+--write`) replaced `indonesia_02`, `laos_02`, `morocco_02` and — going one
+step further than the 3 Sep stopgap — `greece_03` with a genuinely different
+woman, **Thalia Vasilakis**, rather than continuing to duplicate Eleni's own
+photo. `player_type='spare'` is unrelated to this fix and was left alone —
+see the per-card sections below. **Nothing in this file is known-wrong any
+more; `scripts/check-captions.cjs` reports 204/204.**
 
 A guard enforces all of this: **`scripts/check-captions.cjs`**, wired into
 `pnpm typecheck`. It holds every row to the caption recorded here and pins each
@@ -30,99 +39,83 @@ nothing displays them.
 
 ---
 
-## The four wrong cards
+## The four wrong cards — all fixed 9 Sep 2026 with real replacement photos
 
-### 1. `indonesia_02` — Dewi Lestari has no card *(new)*
+### 1. `indonesia_02` — Dewi Lestari — *(FIXED 9 Sep 2026)*
 
 | | |
 |---|---|
 | database row | Dewi Lestari · Indonesia · 23 · 168cm · setter |
-| card actually reads | **1. SINTA WULANDARI** · Indonesia · 21 yrs · 165cm · Defender |
+| card previously read | **1. SINTA WULANDARI** · Indonesia · 21 yrs · 165cm · Defender — `indonesia_01`'s own identity, duplicated |
+| card now reads | **2. DEWI LESTARI** · Indonesia · 23 yrs · 168cm · Setter |
 
-That is `indonesia_01`'s identity — Sinta Wulandari's own row is correct and
-sits on `indonesia_01`. So Sinta appears twice in the Player Market and Dewi
-Lestari never appears at all.
+A genuine new photograph of Dewi Lestari (`playercards.zip`, installed via
+`scripts/install-player-cards.cjs --write`), re-encoded to the standard
+600×901 WebP senior-card format. Row and card now agree in every field. The
+old file this replaced was never byte-identical to `indonesia_01` — two
+different renders of the wrong woman carrying the same caption, which is why
+a duplicate-hash scan never caught it (kept as historical context, see "What
+this proved" below).
 
-The two files are **not** byte-identical (`94e43fb7…` vs `42cd5d88…`) — they
-are two different renders of the same woman carrying the same caption, which
-is why a duplicate-hash scan never caught it. Fixing it needs a new render for
-Dewi, not a file swap.
-
-### 2. `laos_02` — Bouavanh Sisouvanh has no card *(new)*
+### 2. `laos_02` — Bouavanh Sisouvanh — *(FIXED 9 Sep 2026)*
 
 | | |
 |---|---|
 | database row | Bouavanh Sisouvanh · Laos · 24 · 172cm · defender |
-| card actually reads | **1. KEOVILAY PHOMMACHANH** · Laos · 19 yrs · 158cm · Setter |
+| card previously read | **1. KEOVILAY PHOMMACHANH** · Laos · 19 yrs · 158cm · Setter — `laos_01`'s own identity, duplicated |
+| card now reads | **3. BOUAVANH SISOUVANH** · Laos · 24 yrs · 172cm · Defender |
 
-Identical shape to the Indonesia case: `laos_01` is the real Keovilay
-Phommachanh (20/165), and `laos_02` is a second, different render of her that
-also got her name. Two separate renders, so again not a hash duplicate.
-Bouavanh Sisouvanh needs a card of her own.
+Same fix, same source zip. **These two were the same failure mode as
+Venezuela and Morocco: a country's `_02` slot filled with a second render of
+`_01`.** Still worth assuming it can recur on any country whose `_02` was
+regenerated, and re-reading those cards before trusting them.
 
-**These two are the same failure mode as Venezuela and Morocco: a country's
-`_02` slot filled with a second render of `_01`.** It is worth assuming it can
-recur on any country whose `_02` was regenerated, and re-reading those cards
-before trusting them.
+### 3. `greece_03` — name collision, then a real second fix *(FIXED 3 Sep 2026, then properly resolved 9 Sep 2026)*
 
-### 3. `greece_03` — name collision *(FIXED 3 Sep 2026)*
+The 3 Sep fix was a stopgap: the row had been renamed `Eleni → Elena` to
+break a duplicate-name collision without regenerating the card, so it was
+renamed back to `Eleni Papadopoulou` to match the photo that was already
+there — correct, but it left two Greek players named Eleni Papadopoulou
+sharing one look between them in spirit even though the art itself wasn't
+shared.
+
+**9 Sep: replaced properly.** A genuine new photograph — a different woman
+entirely, **Thalia Vasilakis** — now occupies `greece_03`, installed the same
+way as the other three. Card reads **7. THALIA VASILAKIS · Greece · 23 yrs ·
+190cm · Spiker**, matching the row exactly (age/height/position happened to
+already be correct from the Eleni-era row — only the name and photo changed).
+There are no longer two identical-name Greek players — the 3 Sep fix's own
+"this deliberately restores two Eleni Papadopoulous" tradeoff no longer
+applies; `greece_03` is Thalia Vasilakis now, a distinct person.
+
+### 4. `morocco_02` — Zineb Ouadi — *(FIXED 9 Sep 2026)*
 
 | | |
 |---|---|
-| row said | **Elena** Papadopoulou · Greece · 23 · 190cm · spiker |
-| card reads | **ELENI** PAPADOPOULOU · Greece · 23 yrs · 190cm · Spiker |
+| database row | Zineb Ouadi · Morocco · 22 · 170cm · setter |
+| card previously read | byte-identical to `morocco_01` → "Salma El Idrissi" |
+| card now reads | **5. ZINEB OUADI** · Morocco · 22 yrs · 170cm · Setter |
 
-Age, height and position all matched, so the photo was the right person and only
-the given name disagreed, by one letter. Someone had renamed the row
-`Eleni → Elena` to break a duplicate without regenerating the card.
-
-**Resolved by renaming the row back to `Eleni Papadopoulou`** — the card is the
-evidence, so the database follows it. Changed in the starter database and in
-`scripts/src/seed-new-draft-players.ts:197`, so a re-seed cannot undo it.
-
-This deliberately restores two Greek players called Eleni Papadopoulou
-(26/178 and 23/190). They are different people with different stats, no guard
-requires unique names, and nothing in the game keys off name. A duplicate name
-is a smaller problem than a card that names the wrong woman.
-
-### 4. `morocco_02` — Zineb Ouadi *(already known, triage §1d)*
-
-Byte-identical to `morocco_01`, so her card reads "Salma El Idrissi". Confirmed
-by hash rather than re-read. Still inert: she is `player_type='spare'` and never
-displayed. Only matters if she is ever unparked.
+Same fix, same source zip. **Note: `player_type` is still `spare` in the repo
+starter DB** (it reads `senior` in the live save — the two had already
+diverged before this fix, unrelated to it). A spare player is never
+displayed, so having her own correct card now doesn't yet make her visible in
+game — that is a separate, unaddressed question (flagged, not decided here;
+see `docs/triage.md` §1d).
 
 ---
 
-## There is no correct art for Dewi or Bouavanh — checked three ways
+## What the "no correct art existed" search proved, and why it's now moot
 
-Before renaming any row to match wrong art, the repo was searched for a card
-that *does* show them. There is none:
-
-1. **The unshipped originals in `attached_assets` are wrong too.**
-   `player_senior_indonesian_02_…webp` and `player_senior_laos_02_…webp` were
-   opened: both print the `_01` player's name. The art was generated wrong at
-   source, not broken during packaging.
-2. **The seed scripts assigned exactly those files.**
-   `seed-new-batch-players.ts:220` gives Dewi Lestari
-   `player_senior_indonesian_02_1784380742425.webp`, and `:275` gives Bouavanh
-   Sisouvanh `player_senior_laos_02_1784380742430.webp`. Both point at the
-   miscaptioned renders, so re-seeding reproduces the fault exactly.
-3. **No other unshipped image shows them.** All 329 distinct unshipped contents
-   in `attached_assets` were enumerated; the only Indonesia and Laos candidates
-   are the three per country already accounted for.
-
-So these two cannot be fixed from inside the repo. The options are:
-
-- **regenerate two cards** (the only clean fix — needs the image pipeline)
-- **rename the rows to match the art** — rejected: it would put two identical
-  *Sinta Wulandari* and two identical *Keovilay Phommachanh* in the same
-  nation with conflicting ages and heights, which is worse than the current
-  state, where the row is at least a coherent person
-- leave them, guarded and visible — **this is what was done**
-
-`scripts/check-captions.cjs` now records all three as known-wrong art and
-asserts each is still exactly that problem, so they cannot quietly become a
-different one.
+Before the 9 Sep replacement cards existed, the repo was searched three ways
+for art that already showed Dewi or Bouavanh correctly, and found none — the
+unshipped originals in `attached_assets` were wrong too, the seed scripts
+pointed at exactly the miscaptioned renders, and no other unshipped image in
+the whole 329-file set showed either woman. That search is why the 3 Sep
+audit's only options were "regenerate" or "leave it guarded" — there was
+nothing to swap to. `playercards.zip` is that regeneration: four fresh
+photographs, sourced outside the repo, is what "no correct art exists in the
+repo" always meant it would take.
 
 ---
 
