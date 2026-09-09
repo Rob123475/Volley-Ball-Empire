@@ -10,6 +10,7 @@ import {
   useGetWorldTourNews,
   useGetUpcomingEvents,
   useGetAiManagerFeed,
+  useGetBoardConfidence,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
   getGetSeasonLadderQueryKey,
@@ -19,6 +20,7 @@ import {
   getGetWorldTourNewsQueryKey,
   getGetUpcomingEventsQueryKey,
   getGetAiManagerFeedQueryKey,
+  getGetBoardConfidenceQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,11 +67,12 @@ import {
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
 import { PoachingInbox } from "@/components/career/PoachingInbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useCalendar } from "@/hooks/use-calendar";
 import type { AttentionItem } from "@workspace/api-client-react";
+import { WarningBanner, BoardConfidenceBar } from "@/components/career/board-confidence-widgets";
 
 const weatherIcons: Record<string, string> = {
   sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
@@ -290,6 +293,7 @@ function OlympicDashboardWidget() {
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
   const [showCareerOptions, setShowCareerOptions] = useState(false);
   const [facilitiesOpen,   setFacilitiesOpen]   = useState(false);
   const [upcomingOpen,     setUpcomingOpen]     = useState(false);
@@ -327,6 +331,20 @@ export default function Dashboard() {
   const { data: aiManagerFeed } = useGetAiManagerFeed({
     query: { queryKey: getGetAiManagerFeedQueryKey() },
   });
+  const { data: confidence } = useGetBoardConfidence({
+    query: { queryKey: getGetBoardConfidenceQueryKey() },
+  });
+
+  // R-09: GET /board-confidence ends the career itself the instant it reads
+  // as "sacked" — the dashboard is where most sessions land, so it is often
+  // the first read to notice. Route to the dedicated end screen rather than
+  // silently re-rendering a dashboard for a career that no longer exists.
+  useEffect(() => {
+    if (confidence?.careerEnded) {
+      queryClient.clear();
+      window.location.href = "/career-end";
+    }
+  }, [confidence?.careerEnded, queryClient]);
 
   if (dashLoading || seasonLoading) {
     return (
@@ -402,6 +420,25 @@ export default function Dashboard() {
   return (
     <>
     <div className="space-y-5">
+
+      {/* ══════════════════════════════════════════════════════════════
+          BOARD CONFIDENCE — at-risk banner + meter (R-09, hidden once
+          in good standing so a healthy career doesn't carry a permanent
+          fixture at the top of its own dashboard)
+      ══════════════════════════════════════════════════════════════ */}
+      {confidence && confidence.stage !== "safe" && (
+        <div className="space-y-3">
+          {confidence.warning && <WarningBanner score={confidence.score} warning={confidence.warning} />}
+          <div className="rounded-2xl border border-white/10 bg-white/3 p-5">
+            <BoardConfidenceBar
+              score={confidence.score} label={confidence.label}
+              financeHealth={confidence.breakdown.financeHealth}
+              recentForm={confidence.breakdown.recentForm}
+              financeAdjustment={confidence.financeAdjustment}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           CLUB HERO BANNER

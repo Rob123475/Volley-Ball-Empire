@@ -19,4 +19,6 @@ export interface CareerSummary {
   totalWins: number;
   totalLosses: number;
   managerReputation: number;
+  /** Derived from manager reputation — computeManagerSalary(). */
+  managerSalary: number;
 }

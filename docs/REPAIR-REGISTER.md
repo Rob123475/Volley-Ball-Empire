@@ -591,11 +591,97 @@ blocked on R-08/R-09/R-11.
 `harness/rollover.mjs` walks 5 seasons at 0W 0L. Make it simulate real fixtures for a strong and
 a weak squad across the whole arc so I8/I9 become measurable.
 
-### R-09 — Getting sacked is computed but never happens (partial)
+### R-09 — CLOSED (9 Sep, <pending-hash>)
 `isJobAtRisk` / `boardConfidence` computed server-side, zero frontend consumers.
 `pages/manager-contract.tsx` still runs on `PLACEHOLDER_CONTRACT`. Wire an at-risk banner +
 confidence meter to the dashboard, escalation ladder on the contract page, career ends at zero
 confidence; then replace the placeholder contract with a real endpoint.
+
+**Found:** `utils/board-confidence.ts`'s `buildBoardConfidenceResult` computed `score`
+(`rawScore` + a finance adjustment from `team.budget`) and `isJobAtRisk` (`score < 15`) from
+`team.boardConfidence`, itself only ever written by `routes/matches.ts`'s win/loss deltas
+(+3/+5/+8 win, -5 loss). The one consumer was `GET /board-confidence` — and grepping the whole
+frontend for `board-confidence`/`boardConfidence`/`isJobAtRisk` found zero references. The number
+was computed correctly every match and read by nobody. `manager-contract.tsx` did already show a
+warning banner and a confidence bar (added in `68de3bd`, before this register item existed) but
+had no escalation ladder, no gate, and no career-ending consequence — and the dashboard had none
+of it. A partial, separate "fired" mechanic existed in `matches.ts`, gated to fire only after the
+season-ending Grand Final, and only *disconnected* the manager from the club (`career_saves.team_id
+= null`) rather than ending the career — the save stayed alive, re-appliable from the Job Market.
+That is not what "career ends at zero confidence" asks for.
+
+**Fix — escalation ladder, same score thresholds the warning text already drew (5/15/30):**
+`utils/board-confidence.ts` gained `stageForScore` (`safe` / `warning` / `spending_blocked` /
+`forced_sale_pending` / `sacked`) and `isSpendingBlocked`. `BoardConfidenceResult` now carries
+`stage` and `spendingBlocked`.
+
+- **Spending blocked:** `checkSpendingAllowed(team)` gates the three real spending actions —
+  `POST /contracts` (sign a player), `POST /staff` (hire), `POST /facilities/:type/upgrade`
+  (upgrade) — each refusing with 403 before touching the request body.
+- **Forced sale pending:** computed live in `GET /board-confidence` (not persisted) —
+  `forcedSaleTarget` picks the highest-salary senior in the squad and the response carries
+  `forcedSale: { pending, player }`. Deliberately visible-only ("pending"), not an auto-sell —
+  the ladder's own name says the sale hasn't happened yet, and forcing one player's sale
+  automatically raised more design questions (which player, what fee, can it be undone) than
+  R-09 asked to answer.
+- **Sacked:** `utils/careerLifecycle.ts` (new) extracts `buildCareerSummary` and adds
+  `endCareer` — archives to Hall of Fame, writes a `dismissal` history entry, sets
+  `career_saves.retired_at`, and clears the session. This is the same real termination
+  `POST /careers/end` (voluntary retirement) already did — `careers.ts` now calls the shared
+  `endCareer` too, so there is one way a career ends, not two. The old Grand-Final-only,
+  disconnect-only "fired" check in `matches.ts` is replaced: the sacked-check now runs after
+  **every** match result and every forfeit (not just the season finale — "sustained
+  underperformance ends the career early" per §5, not "only in December"), and calls the same
+  `endCareer`. `GET /board-confidence` performs the identical check on every read, so a career
+  ends the moment ANY page — dashboard, contract page, or a live match result — observes zero
+  confidence, rather than waiting for the player to stumble onto the right screen.
+
+**UI:** `WarningBanner` and `BoardConfidenceBar` extracted from `manager-contract.tsx` into
+`components/career/board-confidence-widgets.tsx` (shared, not duplicated — matches R-13's own
+"share, don't patch" precedent) plus a new `ConfidenceLadder` (four-step stepper, current stage
+highlighted). `dashboard.tsx` now shows both the banner and the meter whenever confidence is
+below "safe". `manager-contract.tsx` shows the meter plus the ladder always, banner when
+warranted.
+
+**PLACEHOLDER_CONTRACT replaced:** new `GET /careers/contract` returns `clubName`, `season`,
+`status`, `salary`, `releaseFee` — every field genuinely real. `releaseFee` was already real
+(`BREAK_CONTRACT_FEE`, quoted and charged identically). `salary` is new:
+`computeManagerSalary(managerReputation)` (`$2,000 + $80/rep point`) — this game has no
+contract-negotiation system to derive a real salary from (R-12 removed the stub UI for one), so
+rather than invent one, salary now moves with the one real per-career number that already stands
+in for a manager's standing. The placeholder's `startSeason`/`endSeason`/`yearsRemaining`/
+`fanApproval`/`objectives` are **removed**, not replaced — none of those are backed by any real
+data model, and R-09/§5 never asked for a contract-length or fan-approval system.
+
+**Career-end screen:** new `pages/career-end.tsx`, deliberately a **top-level route** (outside
+`AuthGuard`/`Shell`) — `AuthGuard` hard-redirects to `/` the instant it notices no active career,
+which would bounce a screen mounted inside it before the player ever saw it. Reads its own data
+(`GET /careers/history`, needs only the logged-in user) rather than depending on navigation
+state, so it renders correctly regardless of which page's read triggered the sacking.
+`matches.tsx`'s existing dismissal dialog and the forfeit handler now route here instead of
+`/career`.
+
+**Harness (new, 13th suite):** `harness/board-confidence-ladder.mjs`, wired into `run-all.mjs` as
+11/13. Same reasoning as `fixture-transaction.mjs`'s own sabotage approach — the ladder's stage
+boundaries are read-time arithmetic, so direct writes to `teams.board_confidence`/`budget` via
+`node:sqlite` land exactly on each boundary, deterministically, without a dozen-plus RNG-driven
+match simulations per stage. Drives and asserts every stage in order: safe → warning →
+spending_blocked (asserts `POST /contracts` refused 403) → forced_sale_pending (asserts a named
+forced-sale target is queued) → sacked, the last transition driven by a **real**
+`POST /matches/:id/forfeit` call (not a direct write) specifically to prove the fail state fires
+from live gameplay through `matches.ts`, not only from the read endpoint. Also proves a healthy
+budget alone cannot reach the worst two stages (the +5 finance adjustment floors the read-time
+score at 5). After sacking: confirms `GET /careers/summary` and `GET /board-confidence` both
+404 (no active career), `career_saves.retired_at` is set, a `dismissal` history entry exists, and
+the run was archived to Hall of Fame. 20/20 checks pass. Full harness: 13/13 suites.
+
+**Rob: please confirm on screen** — play (or forfeit) matches until board confidence drops: the
+dashboard should show an at-risk banner and confidence meter once it's below "safe"; Manager
+Contract should show the same plus the four-stage ladder with the current stage highlighted, and
+its Contract Terms should show a real salary (not "$5,000") with no fan-approval or season-goals
+section; attempting to sign/hire/upgrade while "Spending Blocked" or worse should be refused with
+an explanation; at zero confidence the next match or page load should land on a dedicated
+"You've Been Sacked" screen, not silently return to the dashboard.
 
 ### R-10 — Three design-doc screens don't exist
 `docs/economy-design.md:840-848, 868-878`: no Rankings page, no Career Result page, no
@@ -698,8 +784,24 @@ typecheck and build both clean. Full harness: 12/12 suites.
 1 now asks for nationality (required to continue), step 3 now offers primary/secondary colour and
 crest-shape pickers with a live preview, seeded from the selected club's own colours.
 
-### R-14 — Profile page hard-codes manager salary (partial)
+### R-14 — CLOSED (9 Sep, <pending-hash>)
 `pages/profile.tsx` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
+
+**Fix, alongside R-09:** `utils/careerLifecycle.ts`'s `buildCareerSummary` now includes
+`managerSalary` (`computeManagerSalary(managerReputation)`), so `GET /careers/summary` — already
+the source `profile.tsx` reads everything else from — carries a real, per-manager salary instead
+of the same hardcoded figure for every save. `profile.tsx`'s two `PLACEHOLDER_SALARY` usages
+(the identity strip and the career-highlights row, including its "Placeholder — contract data
+coming soon" caption) both replaced with the real value. No new endpoint needed — R-09's
+`GET /careers/contract` uses the same `computeManagerSalary` for consistency between the two
+pages.
+
+**Harness:** covered by R-09's `board-confidence-ladder.mjs` and `smoke.mjs` section 19, which
+already asserts `managerSalary` is present on `GET /careers/summary`'s response. No separate case
+needed — this is the same field, same formula, same endpoint. Full harness: 13/13 suites.
+
+**Rob: please confirm on screen** — Manager Profile's "Current Salary" (both the identity strip
+and the Career Highlights row) should show a real dollar figure with no "Placeholder" caption.
 
 ### R-15 — CLOSED (9 Sep, dc24df7)
 `pages/dashboard.tsx:927-931` — tile opens the career options menu. Relabel or remove.

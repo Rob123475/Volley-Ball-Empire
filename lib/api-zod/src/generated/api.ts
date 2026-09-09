@@ -9255,7 +9255,8 @@ export const SimulateMatchResponse = zod.object({
   "winner": zod.enum(['home', 'away', 'draw']),
   "prizeEarned": zod.number(),
   "isFinal": zod.boolean(),
-  "fired": zod.boolean().describe('True if the manager was dismissed after this Grand Final due to low board confidence'),
+  "fired": zod.boolean().describe('True if the manager was sacked as a result of this match (board confidence hit zero, R-09)'),
+  "careerEnded": zod.boolean().optional().describe('Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen'),
   "dismissalClubName": zod.string().nullish().describe('The club name that dismissed the manager (only set when fired is true)'),
   "mvp": zod.object({
   "id": zod.number(),
@@ -9868,6 +9869,17 @@ export const GetBoardConfidenceResponse = zod.object({
   "label": zod.string(),
   "warning": zod.string().nullish(),
   "isJobAtRisk": zod.boolean(),
+  "stage": zod.enum(['safe', 'warning', 'spending_blocked', 'forced_sale_pending', 'sacked']).describe('The escalation-ladder stage (docs\/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked.'),
+  "spendingBlocked": zod.boolean().describe('True at spending_blocked and every stage beyond it.'),
+  "forcedSale": zod.object({
+  "pending": zod.boolean(),
+  "player": zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "salary": zod.number()
+}).nullable()
+}).nullish(),
+  "careerEnded": zod.boolean().describe('True when this read itself just ended the career (stage was \"sacked\"). The client should route to the career-end screen.'),
   "breakdown": zod.object({
   "financeHealth": zod.string(),
   "recentForm": zod.string()
@@ -10562,7 +10574,20 @@ export const GetCareerSummaryResponse = zod.object({
   "totalAchievements": zod.number().optional(),
   "totalWins": zod.number(),
   "totalLosses": zod.number(),
-  "managerReputation": zod.number()
+  "managerReputation": zod.number(),
+  "managerSalary": zod.number().describe('Derived from manager reputation — computeManagerSalary().')
+})
+
+
+/**
+ * @summary Get real employment terms (salary, release fee) for the active career
+ */
+export const GetManagerContractResponse = zod.object({
+  "clubName": zod.string(),
+  "season": zod.string(),
+  "status": zod.enum(['Active']),
+  "salary": zod.number().describe('Derived from manager reputation — computeManagerSalary().'),
+  "releaseFee": zod.number().describe('Exact figure POST \/careers\/break-contract charges.')
 })
 
 

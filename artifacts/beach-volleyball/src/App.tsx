@@ -14,6 +14,7 @@ import Matches          from "@/pages/matches";
 import ThreeDCourt      from "@/pages/court";
 import Finances         from "@/pages/finances";
 import NewCareer        from "@/pages/new-career";
+import CareerEnd        from "@/pages/career-end";
 import ProfilePicker    from "@/pages/profile-picker";
 import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound         from "@/pages/not-found";
@@ -138,6 +139,10 @@ function Router() {
       <Route path="/dev/generation-test" component={DevGenerationTest} />
       <Route path="/login" component={ProfilePicker} />
       <Route path="/new-career" component={NewCareer} />
+      {/* R-09: reached only after a career has been fully retired by the
+          fail state — deliberately outside AuthGuard, which would otherwise
+          hard-redirect to "/" the instant it notices no active career. */}
+      <Route path="/career-end" component={CareerEnd} />
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>

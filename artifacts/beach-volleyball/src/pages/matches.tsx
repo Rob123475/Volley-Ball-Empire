@@ -195,6 +195,14 @@ export default function Matches() {
         toast({ title: "Forfeit failed", description: (err as any).error ?? "Unknown error", variant: "destructive" });
         return;
       }
+      const body = await res.json().catch(() => ({}));
+      if ((body as any).careerEnded) {
+        // R-09: a forfeit is still a loss — it can end the career at zero
+        // board confidence the same as any other match result.
+        queryClient.clear();
+        window.location.href = "/career-end";
+        return;
+      }
       toast({ title: "Match forfeited", description: "Recorded as a 0–21 loss.", variant: "destructive" });
       queryClient.invalidateQueries({ queryKey: getListUpcomingMatchesQueryKey() });
       queryClient.invalidateQueries({ queryKey: getListMatchesQueryKey() });
@@ -449,7 +457,8 @@ export default function Matches() {
         <Dialog open={!!simulationResult} onOpenChange={() => {
           if (simulationResult?.fired) {
             queryClient.clear();
-            navigate("/career");
+            window.location.href = "/career-end";
+            return;
           }
           setSimulationResult(null);
         }}>
@@ -530,7 +539,7 @@ export default function Matches() {
                 </Card>
               </div>
 
-              {/* ── Dismissal notice (only when fired after Grand Final) ── */}
+              {/* ── Dismissal notice: board confidence hit zero (R-09) ── */}
               {simulationResult.fired && (
                 <div className="rounded-xl border border-rose-500/30 bg-rose-500/8 p-5 space-y-3">
                   <div className="flex items-start gap-3">
@@ -539,20 +548,18 @@ export default function Matches() {
                     </div>
                     <div>
                       <p className="text-sm font-black text-rose-300 uppercase tracking-wide">
-                        You have been dismissed
+                        You have been sacked
                       </p>
                       <p className="text-sm text-rose-300/70 mt-1 leading-relaxed">
-                        Following the end-of-season board review,{" "}
                         <span className="font-bold text-rose-200">
-                          {simulationResult.dismissalClubName ?? "the club"}
+                          {simulationResult.dismissalClubName ?? "The board"}
                         </span>{" "}
-                        has decided to terminate your contract. Board confidence fell below the minimum threshold.
+                        has terminated your contract — board confidence collapsed to zero.
                       </p>
                     </div>
                   </div>
                   <div className="rounded-lg border border-rose-500/15 bg-rose-500/5 px-4 py-3 text-xs text-rose-300/60 leading-relaxed">
-                    Your career history has been updated. The club and your squad remain intact.
-                    You are now unemployed — return to your career saves to start fresh or wait for the Job Market.
+                    This career has ended and been archived to the Hall of Fame.
                   </div>
                 </div>
               )}
@@ -563,11 +570,11 @@ export default function Matches() {
                   onClick={() => {
                     queryClient.clear();
                     setSimulationResult(null);
-                    navigate("/career");
+                    window.location.href = "/career-end";
                   }}
                   className="w-full bg-rose-600 hover:bg-rose-500 text-white border border-rose-500"
                 >
-                  Return to Career Saves
+                  View Career Result
                 </Button>
               ) : (
                 <Button onClick={() => setSimulationResult(null)} className="w-full">Return to Office</Button>

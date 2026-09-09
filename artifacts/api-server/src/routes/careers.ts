@@ -3,9 +3,6 @@ import { db } from "@workspace/db";
 import {
   careerSavesTable,
   teamsTable,
-  trophiesTable,
-  achievementsTable,
-  hallOfFameTable,
   careerHistoryEntriesTable,
   seasonsTable,
 } from "@workspace/db";
@@ -16,44 +13,9 @@ import { deleteCareerSave } from "../utils/deleteCareerSave.js";
 import { seedStartingSquad } from "../utils/seedStartingSquad.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
+import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
 
 const router = Router();
-
-// ── Helper: compute career summary from active team ────────────────────────────
-
-async function buildCareerSummary(teamId: number, userId: string) {
-  const [save] = await db
-    .select()
-    .from(careerSavesTable)
-    .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, userId)));
-
-  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.id, teamId));
-
-  const trophies = await db.select().from(trophiesTable).where(eq(trophiesTable.teamId, teamId));
-  const unlocked = await db.select().from(achievementsTable).where(eq(achievementsTable.teamId, teamId));
-
-  const worldTitles  = trophies.filter(t => t.type === "world_championship").length;
-  const olympicMedals = trophies.filter(t => ["olympic_gold", "olympic_silver", "olympic_bronze"].includes(t.type)).length;
-
-  const TOTAL_ACHIEVEMENTS = 25;
-
-  return {
-    managerName:          save?.managerName ?? "Unknown",
-    // The wizard collects a nationality and the API stores it, but nothing
-    // ever sent it back, so the profile page hardcoded "Not set".
-    managerNationality:   save?.managerNationality ?? null,
-    clubName:             save?.clubName    ?? "Unknown",
-    season:               save?.season      ?? "Season 1",
-    worldRanking:         save?.worldRanking ?? null,
-    worldTitles,
-    olympicMedals,
-    achievementsCompleted: unlocked.length,
-    totalAchievements:    TOTAL_ACHIEVEMENTS,
-    totalWins:            team?.wins   ?? 0,
-    totalLosses:          team?.losses ?? 0,
-    managerReputation:    save?.managerReputation ?? 50,
-  };
-}
 
 // GET /careers — list save slots for current user
 router.get("/careers", async (req, res) => {
@@ -121,6 +83,37 @@ router.get("/careers/summary", async (req, res) => {
 
   const summary = await buildCareerSummary(teamId, req.user.id);
   res.json(summary);
+});
+
+// GET /careers/contract — employment terms for the active career (R-09/R-14).
+//
+// Everything here is real, derived from data that already exists: `releaseFee`
+// is the exact figure /careers/break-contract charges (BREAK_CONTRACT_FEE,
+// defined below), and `salary` is derived from manager reputation
+// (computeManagerSalary). There is no contract-length/negotiation system in
+// this game (R-12 removed the stub UI for one), so this deliberately does not
+// invent term dates, fan approval or objectives the way the old frontend
+// placeholder did — those aren't real data and showing them as if they were
+// would just move the placeholder problem, not fix it.
+router.get("/careers/contract", async (req, res) => {
+  if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const teamId = req.activeTeamId;
+  if (!teamId)   { res.status(404).json({ error: "No active career" }); return; }
+
+  const [save] = await db
+    .select()
+    .from(careerSavesTable)
+    .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, req.user.id)));
+
+  if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
+
+  res.json({
+    clubName:   save.clubName,
+    season:     save.season,
+    status:     "Active" as const,
+    salary:     computeManagerSalary(save.managerReputation ?? 50),
+    releaseFee: BREAK_CONTRACT_FEE,
+  });
 });
 
 // POST /careers — create or overwrite a slot
@@ -288,48 +281,17 @@ router.post("/careers/end", async (req, res) => {
   const teamId = req.activeTeamId;
 
   if (teamId) {
-    // Build summary and save to Hall of Fame before clearing
-    const summary = await buildCareerSummary(teamId, req.user.id);
-    await db.insert(hallOfFameTable).values({
-      userId:               req.user.id,
-      managerName:          summary.managerName,
-      clubName:             summary.clubName,
-      season:               summary.season,
-      worldRanking:         summary.worldRanking ?? null,
-      worldTitles:          summary.worldTitles,
-      olympicMedals:        summary.olympicMedals,
-      achievementsCompleted: summary.achievementsCompleted,
-      totalWins:            summary.totalWins,
-      totalLosses:          summary.totalLosses,
+    await endCareer(req, teamId, req.user.id, {
+      type: "retirement",
+      description: (s) =>
+        `${s.managerName} retired after a career spanning ${s.totalWins + s.totalLosses} matches, ${s.worldTitles} title${s.worldTitles !== 1 ? "s" : ""}, and ${s.olympicMedals} Olympic medal${s.olympicMedals !== 1 ? "s" : ""}.`,
     });
-
-    // Find the active career save to write a retirement history entry
-    const [activeSave] = await db
-      .select()
-      .from(careerSavesTable)
-      .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, req.user.id)));
-
-    if (activeSave) {
-      await db.insert(careerHistoryEntriesTable).values({
-        userId:       req.user.id,
-        careerSaveId: activeSave.id,
-        type:         "retirement",
-        clubName:     summary.clubName,
-        season:       summary.season,
-        description:  `${summary.managerName} retired after a career spanning ${summary.totalWins + summary.totalLosses} matches, ${summary.worldTitles} title${summary.worldTitles !== 1 ? "s" : ""}, and ${summary.olympicMedals} Olympic medal${summary.olympicMedals !== 1 ? "s" : ""}.`,
-      });
-    }
+    res.json({ ok: true });
+    return;
   }
 
-  // Mark the career save as retired so session restore doesn't pick it back up
-  if (teamId) {
-    await db
-      .update(careerSavesTable)
-      .set({ retiredAt: new Date() })
-      .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, req.user.id)));
-  }
-
-  // Clear active career from session
+  // No active team — still clear the session so a stale activeCareerSaveId
+  // (e.g. left over from a resign) doesn't linger past "end".
   const sid = getSessionId(req);
   if (sid) {
     const session = await getSession(sid);
@@ -460,11 +422,12 @@ router.delete("/careers/:id", async (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Shared constant: release clause (matches frontend placeholder) ─────────────
+// ── Shared constant: release clause ─────────────────────────────────────────────
 
-// Quoted to the player before they commit — pages/manager-contract.tsx shows
-// this figure as the release clause and on the confirm button. Keep the two in
-// sync, or the game charges a price it did not quote.
+// Quoted to the player before they commit — GET /careers/contract's
+// `releaseFee` and pages/manager-contract.tsx's confirm button both show this
+// exact figure. Keep the two in sync, or the game charges a price it did not
+// quote.
 const BREAK_CONTRACT_FEE = 25_000;
 
 // ── POST /careers/apply-job — apply for a job market position ─────────────────

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, careerSavesTable, careerHistoryEntriesTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import { shiftDateToYear, seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
@@ -13,7 +13,8 @@ import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
-import { getSession, getSessionId, updateSession } from "../lib/auth.js";
+import { buildBoardConfidenceResult } from "../utils/board-confidence.js";
+import { endCareer } from "../utils/careerLifecycle.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
@@ -1417,54 +1418,25 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // Auto-complete any continental scouting missions whose time has elapsed
   autoCompleteContinentalMissions(team.id).catch(() => {});
 
-  // ── End-of-season board review: fire manager if confidence < 5 ────────────
-  // Only triggered after the World Championship Final (the season-ending match).
+  // ── Fail state: sacked at zero board confidence (R-09, docs/economy-design.md §5) ──
+  // Checked after EVERY result, not just the season-ending Final — "sustained
+  // debt or underperformance ends the career early", not "only in December".
+  // Reads the freshly-committed team row (the win/loss transaction above has
+  // already landed) through the same buildBoardConfidenceResult the
+  // dashboard/contract page use, so "sacked" here means exactly what the
+  // player's own confidence meter would have shown them.
   let fired = false;
   let dismissalClubName: string | null = null;
 
-  if (isFinal && req.user?.id) {
-    const confWinDeltaCheck = 8;
-    const updatedConfidence = homeWon
-      ? Math.min(100, (team.boardConfidence ?? 60) + confWinDeltaCheck)
-      : Math.max(0,   (team.boardConfidence ?? 60) - 5);
-
-    if (updatedConfidence < 5) {
-      const [save] = await db
-        .select()
-        .from(careerSavesTable)
-        .where(and(
-          eq(careerSavesTable.teamId,  team.id),
-          eq(careerSavesTable.userId,  req.user.id),
-        ));
-
-      if (save) {
-        dismissalClubName = save.clubName;
-
-        await db.insert(careerHistoryEntriesTable).values({
-          userId:       req.user.id,
-          careerSaveId: save.id,
-          type:         "dismissal",
-          clubName:     save.clubName,
-          season:       save.season,
-          description:  `Fired by ${save.clubName} following the end-of-season board review`,
-        });
-
-        await db
-          .update(careerSavesTable)
-          .set({ teamId: null, lastPlayedAt: new Date() })
-          .where(eq(careerSavesTable.id, save.id));
-
-        const sid = getSessionId(req);
-        if (sid) {
-          const session = await getSession(sid);
-          if (session) {
-            const { activeTeamId: _, ...rest } = session;
-            await updateSession(sid, rest);
-          }
-        }
-
-        fired = true;
-      }
+  if (req.user?.id) {
+    const [freshTeam] = await db.select().from(teamsTable).where(eq(teamsTable.id, team.id));
+    if (freshTeam && buildBoardConfidenceResult(freshTeam).stage === "sacked") {
+      const summary = await endCareer(req, team.id, req.user.id, {
+        type: "dismissal",
+        description: (s) => `${s.managerName} was sacked by ${s.clubName} after board confidence collapsed to zero.`,
+      });
+      dismissalClubName = summary.clubName;
+      fired = true;
     }
   }
 
@@ -1478,6 +1450,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
     isFinal,
     fired,
+    careerEnded:  fired,
     dismissalClubName,
     weather:      match.weather,
     windSpeed:    matchWindSpeed,
@@ -1540,6 +1513,24 @@ router.post("/matches/:id/forfeit", async (req, res) => {
 
   await applyPostMatchEffects(team.id, match.weather ?? "sunny", facilityLevels, false, 0, 25);
 
+  // Fail state: a forfeit is still a loss — it must not be a loophole around
+  // getting sacked. Same check as /matches/:id/simulate; see the comment
+  // there for why this runs after every result, not just season-end.
+  let fired = false;
+  let dismissalClubName: string | null = null;
+
+  if (req.user?.id) {
+    const [freshTeam] = await db.select().from(teamsTable).where(eq(teamsTable.id, team.id));
+    if (freshTeam && buildBoardConfidenceResult(freshTeam).stage === "sacked") {
+      const summary = await endCareer(req, team.id, req.user.id, {
+        type: "dismissal",
+        description: (s) => `${s.managerName} was sacked by ${s.clubName} after board confidence collapsed to zero.`,
+      });
+      dismissalClubName = summary.clubName;
+      fired = true;
+    }
+  }
+
   res.json({
     ok:        true,
     matchId:   id,
@@ -1547,6 +1538,9 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     awayScore,
     forfeit:   true,
     match:     serializeMatch(updatedMatch),
+    fired,
+    careerEnded: fired,
+    dismissalClubName,
   });
 });
 

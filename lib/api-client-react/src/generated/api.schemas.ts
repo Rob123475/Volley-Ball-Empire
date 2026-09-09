@@ -1067,8 +1067,10 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;
-  /** True if the manager was dismissed after this Grand Final due to low board confidence */
+  /** True if the manager was sacked as a result of this match (board confidence hit zero, R-09) */
   fired: boolean;
+  /** Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen */
+  careerEnded?: boolean;
   /** The club name that dismissed the manager (only set when fired is true) */
   dismissalClubName?: string | null;
   mvp?: Player;
@@ -1199,6 +1201,33 @@ export interface StaffWageBill {
   staff: StaffWageBillMember[];
 }
 
+/**
+ * The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked.
+ */
+export type BoardConfidenceStage = typeof BoardConfidenceStage[keyof typeof BoardConfidenceStage];
+
+
+export const BoardConfidenceStage = {
+  safe: 'safe',
+  warning: 'warning',
+  spending_blocked: 'spending_blocked',
+  forced_sale_pending: 'forced_sale_pending',
+  sacked: 'sacked',
+} as const;
+
+/**
+ * @nullable
+ */
+export type BoardConfidenceForcedSale = {
+  pending: boolean;
+  /** @nullable */
+  player: {
+  id: number;
+  name: string;
+  salary: number;
+} | null;
+} | null;
+
 export interface BoardConfidenceBreakdown {
   financeHealth: string;
   recentForm: string;
@@ -1220,7 +1249,32 @@ export interface BoardConfidence {
   /** @nullable */
   warning?: string | null;
   isJobAtRisk: boolean;
+  /** The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked. */
+  stage: BoardConfidenceStage;
+  /** True at spending_blocked and every stage beyond it. */
+  spendingBlocked: boolean;
+  /** @nullable */
+  forcedSale?: BoardConfidenceForcedSale;
+  /** True when this read itself just ended the career (stage was "sacked"). The client should route to the career-end screen. */
+  careerEnded: boolean;
   breakdown: BoardConfidenceBreakdown;
+}
+
+export type ManagerContractStatus = typeof ManagerContractStatus[keyof typeof ManagerContractStatus];
+
+
+export const ManagerContractStatus = {
+  Active: 'Active',
+} as const;
+
+export interface ManagerContract {
+  clubName: string;
+  season: string;
+  status: ManagerContractStatus;
+  /** Derived from manager reputation — computeManagerSalary(). */
+  salary: number;
+  /** Exact figure POST /careers/break-contract charges. */
+  releaseFee: number;
 }
 
 export interface SponsorReputation {
@@ -1545,6 +1599,8 @@ export interface CareerSummary {
   totalWins: number;
   totalLosses: number;
   managerReputation: number;
+  /** Derived from manager reputation — computeManagerSalary(). */
+  managerSalary: number;
 }
 
 export interface CareerSaveList {

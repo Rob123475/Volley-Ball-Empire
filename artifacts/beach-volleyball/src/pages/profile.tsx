@@ -223,8 +223,9 @@ export default function ManagerProfile() {
   const managerReputation = summary?.managerReputation ?? 50;
   const stars = repToStars(managerReputation);
 
-  // TODO: expose manager salary from contracts table via API
-  const PLACEHOLDER_SALARY = "$5,000 / season";
+  // R-09/R-14: derived from managerReputation server-side
+  // (computeManagerSalary) — no longer a flat "$5,000" shown to everyone.
+  const managerSalary = `${fmtMoney(summary?.managerSalary ?? 0)} / season`;
 
   const seasonsLabel =
     seasonsManaged === 0
@@ -300,8 +301,7 @@ export default function ManagerProfile() {
         <IdentityChip
           icon={DollarSign}
           label="Current Salary"
-          value={PLACEHOLDER_SALARY}
-          isPlaceholder
+          value={managerSalary}
         />
         <IdentityChip
           icon={CalendarDays}
@@ -377,9 +377,8 @@ export default function ManagerProfile() {
         <HighlightRow
           icon={DollarSign}
           label="Current Salary"
-          value={PLACEHOLDER_SALARY}
+          value={managerSalary}
           iconColour="text-violet-400"
-          note="Placeholder — contract data coming soon"
         />
       </div>
 

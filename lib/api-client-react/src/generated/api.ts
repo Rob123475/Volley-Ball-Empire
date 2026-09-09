@@ -68,6 +68,7 @@ import type {
   LineupUpdate,
   LoadCareerSave200,
   Location,
+  ManagerContract,
   Match,
   MatchInput,
   MatchResult,
@@ -5797,6 +5798,83 @@ export function useGetCareerSummary<TData = Awaited<ReturnType<typeof getCareerS
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetCareerSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetManagerContractUrl = () => {
+
+
+
+
+  return `/api/careers/contract`
+}
+
+/**
+ * @summary Get real employment terms (salary, release fee) for the active career
+ */
+export const getManagerContract = async ( options?: RequestInit): Promise<ManagerContract> => {
+
+  return customFetch<ManagerContract>(getGetManagerContractUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetManagerContractQueryKey = () => {
+    return [
+    `/api/careers/contract`
+    ] as const;
+    }
+
+
+export const getGetManagerContractQueryOptions = <TData = Awaited<ReturnType<typeof getManagerContract>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getManagerContract>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetManagerContractQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getManagerContract>>> = ({ signal }) => getManagerContract({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getManagerContract>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetManagerContractQueryResult = NonNullable<Awaited<ReturnType<typeof getManagerContract>>>
+export type GetManagerContractQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get real employment terms (salary, release fee) for the active career
+ */
+
+export function useGetManagerContract<TData = Awaited<ReturnType<typeof getManagerContract>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getManagerContract>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetManagerContractQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

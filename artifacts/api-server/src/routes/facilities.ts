@@ -13,6 +13,7 @@ import { eq, and, isNotNull, lte, desc } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId, loadStaff } from "../lib/playerDto.js";
+import { checkSpendingAllowed } from "../utils/board-confidence.js";
 
 const router = Router();
 
@@ -162,6 +163,9 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
 
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
+
+  const spendingBlocked = checkSpendingAllowed(team);
+  if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
   await ensureFacilities(team.id);
 

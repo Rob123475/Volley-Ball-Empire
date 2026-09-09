@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { BoardConfidenceBreakdown } from './boardConfidenceBreakdown';
+import type { BoardConfidenceForcedSale } from './boardConfidenceForcedSale';
+import type { BoardConfidenceStage } from './boardConfidenceStage';
 
 export interface BoardConfidence {
   /**
@@ -23,5 +25,13 @@ export interface BoardConfidence {
   /** @nullable */
   warning?: string | null;
   isJobAtRisk: boolean;
+  /** The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked. */
+  stage: BoardConfidenceStage;
+  /** True at spending_blocked and every stage beyond it. */
+  spendingBlocked: boolean;
+  /** @nullable */
+  forcedSale?: BoardConfidenceForcedSale;
+  /** True when this read itself just ended the career (stage was "sacked"). The client should route to the career-end screen. */
+  careerEnded: boolean;
   breakdown: BoardConfidenceBreakdown;
 }

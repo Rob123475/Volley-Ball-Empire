@@ -10,6 +10,7 @@ import {
   createCareerStaff, countTeamStaff, requireCareerSaveId, withCareerStateTx,
   type StaffDTO, type StaffReferenceFields,
 } from "../lib/playerDto.js";
+import { checkSpendingAllowed } from "../utils/board-confidence.js";
 
 const router = Router();
 
@@ -53,6 +54,9 @@ router.post("/staff", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const spendingBlocked = checkSpendingAllowed(team);
+  if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const staffCount = await countTeamStaff(cid, team.id);

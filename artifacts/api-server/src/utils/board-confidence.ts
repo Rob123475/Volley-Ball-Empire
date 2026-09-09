@@ -58,6 +58,58 @@ function warningText(score: number): string | null {
   return null;
 }
 
+// ── Escalation ladder (docs/economy-design.md §5 "Fail state") ────────────────
+//
+// The four visible stages the board walks a manager through, in order. Each
+// stage's threshold reuses the exact score boundaries `warningText` already
+// drew (5 / 15 / 30) rather than inventing new ones, so the ladder and the
+// warning copy always describe the same board mood.
+
+export type ConfidenceStage =
+  | "safe"
+  | "warning"
+  | "spending_blocked"
+  | "forced_sale_pending"
+  | "sacked";
+
+export function stageForScore(score: number): ConfidenceStage {
+  if (score <= 0) return "sacked";
+  if (score <  5) return "forced_sale_pending";
+  if (score < 15) return "spending_blocked";
+  if (score < 30) return "warning";
+  return "safe";
+}
+
+/** Stages at and beyond which the board freezes new financial commitments. */
+export function isSpendingBlocked(stage: ConfidenceStage): boolean {
+  return stage === "spending_blocked" || stage === "forced_sale_pending" || stage === "sacked";
+}
+
+export const SPENDING_BLOCKED_MESSAGE =
+  "The board has frozen new spending until confidence improves. Win matches or improve finances to lift the freeze.";
+
+/**
+ * Returns the refusal message for a new signing/hire/upgrade, or null when
+ * spending is allowed. Call at the top of every route that commits new
+ * money — signing a player, hiring staff, upgrading a facility — so the
+ * "Spending Blocked" ladder stage is an actual gate, not just a label.
+ */
+export function checkSpendingAllowed(team: Team): string | null {
+  const { spendingBlocked } = buildBoardConfidenceResult(team);
+  return spendingBlocked ? SPENDING_BLOCKED_MESSAGE : null;
+}
+
+export const CONFIDENCE_LADDER: ReadonlyArray<{
+  stage: Exclude<ConfidenceStage, "safe">;
+  label: string;
+  description: string;
+}> = [
+  { stage: "warning",             label: "Warning",              description: "The board is concerned. Avoid further losses and improve finances." },
+  { stage: "spending_blocked",    label: "Spending Blocked",      description: "The board has frozen new signings, staff hires and facility upgrades." },
+  { stage: "forced_sale_pending", label: "Forced Sale Pending",   description: "The board is preparing to force the sale of a player to cut costs." },
+  { stage: "sacked",              label: "Sacked",                description: "The board has terminated your contract. Your career ends here." },
+];
+
 // ── Public result builder ─────────────────────────────────────────────────────
 
 export interface BoardConfidenceResult {
@@ -67,6 +119,8 @@ export interface BoardConfidenceResult {
   label: string;
   warning: string | null;
   isJobAtRisk: boolean;
+  stage: ConfidenceStage;
+  spendingBlocked: boolean;
   breakdown: {
     financeHealth: string;
     recentForm: string;
@@ -79,6 +133,7 @@ export function buildBoardConfidenceResult(team: Team): BoardConfidenceResult {
   const adj      = financeAdjustment(budget);
   const score    = Math.min(100, Math.max(0, rawScore + adj));
   const warning  = warningText(score);
+  const stage    = stageForScore(score);
 
   return {
     score,
@@ -87,9 +142,26 @@ export function buildBoardConfidenceResult(team: Team): BoardConfidenceResult {
     label:       confidenceLabel(score),
     warning,
     isJobAtRisk: score < 15,
+    stage,
+    spendingBlocked: isSpendingBlocked(stage),
     breakdown: {
       financeHealth: financeHealthLabel(budget),
       recentForm:    recentFormLabel(team.winStreak ?? 0, team.wins, team.losses),
     },
   };
+}
+
+/**
+ * The single player the board would force a sale of, or null if the squad
+ * has nobody sellable (the academy player is never a target — release fees
+ * come from wages, and an unpaid academy contract isn't a wage burden).
+ * Picks the highest-salary senior — same "biggest line item first" logic a
+ * real board would apply, and deterministic for the harness to assert on.
+ */
+export function forcedSaleTarget<T extends { id: number; name: string; salary: number; age: number }>(
+  squad: T[],
+): T | null {
+  const seniors = squad.filter(p => !(p.age >= 14 && p.age <= 18));
+  if (seniors.length === 0) return null;
+  return seniors.reduce((highest, p) => (p.salary > highest.salary ? p : highest));
 }

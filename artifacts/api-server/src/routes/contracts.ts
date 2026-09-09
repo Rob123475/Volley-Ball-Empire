@@ -6,6 +6,7 @@ import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 import type { Contract } from "@workspace/db";
+import { checkSpendingAllowed } from "../utils/board-confidence.js";
 
 const router = Router();
 
@@ -38,6 +39,10 @@ router.post("/contracts", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const spendingBlocked = checkSpendingAllowed(team);
+  if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
+
   const { playerId, salary, endDate, bonusPerWin, squadRole: rawSquadRole } = req.body;
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
