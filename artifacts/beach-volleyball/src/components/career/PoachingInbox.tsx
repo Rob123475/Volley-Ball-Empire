@@ -19,7 +19,6 @@ import {
   Star,
   X,
   Check,
-  MessageSquare,
   ChevronDown,
   ChevronUp,
   Loader2,
@@ -219,22 +218,6 @@ function OfferCard({ offer, onDone }: { offer: PoachingOffer; onDone: () => void
                 }
                 Decline
               </Button>
-
-              <Button
-                size="sm"
-                variant="ghost"
-                disabled={isBusy}
-                title="Negotiations are not available yet"
-                className="text-white/35 hover:text-white/50 cursor-not-allowed"
-                onClick={() => {}}
-              >
-                <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
-                Negotiate
-              </Button>
-
-              <span className="text-[9px] text-white/20 italic ml-1 hidden sm:inline">
-                Negotiate coming soon
-              </span>
             </div>
           )}
         </>

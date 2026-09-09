@@ -31,11 +31,8 @@ import {
   Heart,
   Target,
   CheckCircle2,
-  Handshake,
-  Wallet,
   LogOut,
   Scissors,
-  Info,
   AlertTriangle,
   AlertCircle,
   Flame,
@@ -48,7 +45,10 @@ import { cn } from "@/lib/utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type ModalKey = "negotiate" | "budget" | "resign" | "break" | null;
+// R-12: "negotiate" and "budget" removed — both actions opened a modal that
+// was itself the whole stub, a bare "coming in a future update" notice with
+// an OK button. Not built, deleted along with the buttons that opened them.
+type ModalKey = "resign" | "break" | null;
 
 // ── Placeholder data (TODO: replace with contract API endpoint) ───────────────
 
@@ -470,16 +470,6 @@ export default function ManagerContract() {
         <div className="space-y-3">
           <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold px-1">Actions</p>
           <ActionButton
-            icon={Handshake} label="Negotiate Contract"
-            sublabel="Propose improved salary or contract length to the board"
-            onClick={() => setOpenModal("negotiate")}
-          />
-          <ActionButton
-            icon={Wallet} label="Request More Budget"
-            sublabel="Ask the board to increase your transfer and wage budget"
-            onClick={() => setOpenModal("budget")}
-          />
-          <ActionButton
             icon={LogOut} label="Resign"
             sublabel="Leave your role voluntarily — no compensation paid"
             onClick={() => { setActionError(null); setOpenModal("resign"); }}
@@ -497,62 +487,6 @@ export default function ManagerContract() {
       {/* ── Modals ── */}
       <Dialog open={openModal !== null} onOpenChange={(o) => { if (!o) closeModal(); }}>
         <DialogContent className="max-w-md border-white/10 bg-[#0f1117]">
-
-          {/* ── Negotiate ── */}
-          {openModal === "negotiate" && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="h-10 w-10 shrink-0 rounded-xl border bg-emerald-500/15 border-emerald-500/20 flex items-center justify-center">
-                    <Handshake className="h-5 w-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-base font-black text-white leading-tight">Negotiate Contract</DialogTitle>
-                    <DialogDescription className="text-xs text-white/40 mt-0.5">Propose improved terms to the board.</DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
-              <div className="rounded-xl border border-white/8 bg-white/3 p-4 flex items-start gap-3 mt-1">
-                <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
-                <p className="text-sm text-white/60 leading-relaxed">
-                  Contract negotiations will be fully interactive in a future update. Your board will evaluate your win rate, board confidence, and season objectives.
-                </p>
-              </div>
-              <DialogFooter className="mt-2">
-                <DialogClose asChild>
-                  <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500">OK, understood</Button>
-                </DialogClose>
-              </DialogFooter>
-            </>
-          )}
-
-          {/* ── Budget ── */}
-          {openModal === "budget" && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="h-10 w-10 shrink-0 rounded-xl border bg-blue-500/15 border-blue-500/20 flex items-center justify-center">
-                    <Wallet className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-base font-black text-white leading-tight">Request More Budget</DialogTitle>
-                    <DialogDescription className="text-xs text-white/40 mt-0.5">Ask the board to increase your transfer and wage budget.</DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
-              <div className="rounded-xl border border-white/8 bg-white/3 p-4 flex items-start gap-3 mt-1">
-                <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
-                <p className="text-sm text-white/60 leading-relaxed">
-                  Budget requests are coming in a future update. Approval will depend on your board confidence level and overall financial position.
-                </p>
-              </div>
-              <DialogFooter className="mt-2">
-                <DialogClose asChild>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white border border-blue-500">OK, understood</Button>
-                </DialogClose>
-              </DialogFooter>
-            </>
-          )}
 
           {/* ── Resign ── */}
           {openModal === "resign" && (

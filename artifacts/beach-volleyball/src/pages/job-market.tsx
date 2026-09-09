@@ -37,7 +37,6 @@ import {
   Loader2,
   Star,
   Calendar,
-  HandCoins,
   ChevronRight,
 } from "lucide-react";
 
@@ -403,17 +402,6 @@ function JobCard({ job, managerReputation, onApply, onView }: {
         >
           <Building2 className="h-3.5 w-3.5 mr-1.5" />
           View Club
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled
-          className="flex-1 border border-white/8 bg-white/2 text-white/30 text-[11px] h-8 cursor-not-allowed"
-          title="Salary negotiation coming in a future update"
-        >
-          <HandCoins className="h-3.5 w-3.5 mr-1" />
-          Negotiate
-          <span className="ml-1 text-[8px] font-black uppercase tracking-wide text-white/20">Soon</span>
         </Button>
         <Button
           size="sm"

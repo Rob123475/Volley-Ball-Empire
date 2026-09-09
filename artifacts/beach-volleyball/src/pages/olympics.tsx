@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Flag, Star, Calendar, CheckCircle2, Medal, FolderOpen } from "lucide-react";
+import { Flag, Star, Calendar } from "lucide-react";
 import NationalSquads       from "@/pages/competition/national-squads";
 import OlympicQualifiers    from "@/pages/competition/olympic-qualifiers";
 import OlympicSchedule      from "@/pages/competition/olympic-schedule";
-import OlympicResults       from "@/pages/competition/olympic-results";
-import MedalTable           from "@/pages/competition/medal-table";
-import OlympicHistory       from "@/pages/competition/olympic-history";
 
-type Tab = "overview" | "qualifying" | "fixtures" | "results" | "medals" | "history";
+// R-12: Results / Medal Table / History tabs removed — each rendered a bare
+// "coming in a future update" stub. Not built, deleted.
+type Tab = "overview" | "qualifying" | "fixtures";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "overview",   label: "Overview",      icon: Flag        },
   { id: "qualifying", label: "Qualifying",    icon: Star        },
   { id: "fixtures",   label: "Fixtures",      icon: Calendar    },
-  { id: "results",    label: "Results",       icon: CheckCircle2 },
-  { id: "medals",     label: "Medal Table",   icon: Medal       },
-  { id: "history",    label: "History",       icon: FolderOpen  },
 ];
 
 export default function OlympicsHub() {
@@ -43,9 +39,6 @@ export default function OlympicsHub() {
       {tab === "overview"   && <NationalSquads />}
       {tab === "qualifying" && <OlympicQualifiers />}
       {tab === "fixtures"   && <OlympicSchedule />}
-      {tab === "results"    && <OlympicResults />}
-      {tab === "medals"     && <MedalTable />}
-      {tab === "history"    && <OlympicHistory />}
     </div>
   );
 }

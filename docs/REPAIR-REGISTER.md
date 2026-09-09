@@ -618,10 +618,43 @@ Done as R-23 section B: pills and the dead `world-summary` fetch that fed them r
 "Conquer X cities" text existed in the current codebase to remove (grepped, confirmed absent).
 See R-23's entry above for full detail.
 
-### R-12 — Seven "coming in a future update" stubs still visible
+### R-12 — CLOSED (9 Sep, <hash>)
 `pages/competition/medal-table.tsx:24` · `olympic-results.tsx:23` · `olympic-history.tsx:19,24`
 · `pages/job-market.tsx:408` · `components/career/PoachingInbox.tsx:235` ·
 `pages/manager-contract.tsx:518, 546`. Build or remove from nav.
+
+**Found, all 7 confirmed, none built — removed:**
+- `medal-table.tsx` / `olympic-results.tsx` / `olympic-history.tsx` — 3 whole-page stubs (each
+  file's entire body was the "coming in a future update" card), reachable **two** ways: standalone
+  sidebar routes (`App.tsx` + `shell.tsx`'s Olympics nav group) AND as 3 of `pages/olympics.tsx`'s
+  6 tabs. Both paths removed; all 3 files deleted (nothing else imported them).
+- `job-market.tsx:407-417` — a disabled "Negotiate" button per job card ("Salary negotiation
+  coming in a future update"). Removed; `HandCoins` import (only used there) removed with it.
+- `PoachingInbox.tsx:223-237` — a disabled "Negotiate" button + "Negotiate coming soon" caption
+  on each poaching offer (register cited the exact "coming in a future update" phrase; the actual
+  text here reads "Negotiations are not available yet" / "Negotiate coming soon" — same stub
+  pattern, different wording, same fix). Removed; `MessageSquare` import removed with it.
+- `manager-contract.tsx:518,546` — "Negotiate Contract" and "Request More Budget" were entire
+  stub *modals*: clicking either ActionButton opened a dialog whose only content was a "coming in
+  a future update" notice and an "OK, understood" button. Both ActionButtons and both modal
+  blocks removed (`ModalKey` narrowed to `"resign" | "break"`, the two real actions);
+  `Handshake`/`Wallet`/`Info` imports removed with them.
+
+**Deliberately left alone, not in the register's 7:** `manager-contract.tsx:415,435` ("contract
+system coming soon" / "full system coming soon" placeholder captions) and `profile.tsx:382`
+("Placeholder — contract data coming soon") — these belong to R-14 ("Profile page hard-codes
+manager salary... Resolves with R-09"), a different, unassigned register item tied to the R-07–
+R-11 economy work this session was explicitly told not to touch.
+
+**Proof:** frontend typecheck and build both clean (2245 modules, down from 2248 — the 3 deleted
+files); full harness unaffected (server-side only): 12/12 suites. No new harness case — pure
+frontend removal, nothing server-observable to regression-test, same as R-15/R-18.
+
+**Rob: please confirm on screen** — Olympics sidebar group now has 3 items (Qualification /
+National Squads / Schedule), `/olympics` has 3 tabs (Overview / Qualifying / Fixtures); Job
+Market cards have 2 action buttons (View Club / Apply), no Negotiate; a poaching offer has 2
+buttons (Accept / Decline), no Negotiate; Manager Contract's Actions list has 2 buttons (Resign /
+Break Contract), no Negotiate Contract / Request More Budget.
 
 ### R-13 — CLOSED (9 Sep, 056b9d8)
 `pages/career-management.tsx:264-276` payload omits `managerNationality` and `crestShapeIndex`;

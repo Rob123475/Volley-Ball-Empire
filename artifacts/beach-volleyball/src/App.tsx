@@ -74,11 +74,11 @@ import WtHistory      from "@/pages/competition/wt-history";
 import AnnualCalendar from "@/pages/annual-calendar";
 
 // Competition pages — Olympics
+// R-12: OlympicResults/MedalTable/OlympicHistory removed — each was a bare
+// "coming in a future update" stub, both as a standalone route here and as
+// a tab on OlympicsHub (pages/olympics.tsx). Not built, deleted.
 import NationalSquads   from "@/pages/competition/national-squads";
 import OlympicSchedule  from "@/pages/competition/olympic-schedule";
-import OlympicResults   from "@/pages/competition/olympic-results";
-import MedalTable       from "@/pages/competition/medal-table";
-import OlympicHistory   from "@/pages/competition/olympic-history";
 
 function isUnauthorized(error: unknown): boolean {
   return (error as { status?: number } | null)?.status === 401;
@@ -208,9 +208,6 @@ function Router() {
               {/* Competition — Olympics */}
               <Route path="/competition/national-squads"      component={NationalSquads}      />
               <Route path="/competition/olympic-schedule"     component={OlympicSchedule}     />
-              <Route path="/competition/olympic-results"      component={OlympicResults}      />
-              <Route path="/competition/medal-table"          component={MedalTable}          />
-              <Route path="/competition/olympic-history"      component={OlympicHistory}      />
 
               <Route path="/annual-calendar" component={AnnualCalendar} />
 
