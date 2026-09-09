@@ -75,21 +75,28 @@ try {
   logger.error({ err }, "schema ensure failed");
 }
 
-// R-28: a save's own reference rows (locations, club_templates, outfits) can
-// also fall behind the shipped starter DB — a schema check has no notion of
-// this, since row data isn't part of the schema declaration at all. Additive
-// only: existing rows are never touched, only rows missing by primary key
-// are inserted. No-ops (skipped, logged) when STARTER_DB_PATH isn't set —
-// most harness suites and a bare `node dist/index.mjs` don't set it.
+// R-28/R-33: a save's own reference rows (locations, club_templates, outfits,
+// and — R-33 — the reference-only columns of players/staff) can also fall
+// behind the shipped starter DB — a schema check has no notion of this, since
+// row data isn't part of the schema declaration at all. Rows missing by
+// primary key are inserted (locations/club_templates/outfits only — R-28);
+// rows both sides already have get their stale, gameplay-never-writes
+// columns brought forward to the starter DB's value (R-33). No-ops (skipped,
+// logged) when STARTER_DB_PATH isn't set — most harness suites and a bare
+// `node dist/index.mjs` don't set it.
 try {
   const r = ensureReferenceData();
   const totalInserted = Object.values(r.inserted).reduce((n, ids) => n + ids.length, 0);
+  const totalUpdated  = Object.values(r.updated).reduce((n, ids) => n + ids.length, 0);
   if (r.skipped) {
     logger.info({ starterDbPath: r.starterDbPath, reason: r.skipped }, "reference data backfill skipped");
-  } else if (totalInserted > 0) {
-    logger.info({ starterDbPath: r.starterDbPath, inserted: r.inserted }, "reference data backfilled from starter DB");
+  } else if (totalInserted > 0 || totalUpdated > 0) {
+    logger.info(
+      { starterDbPath: r.starterDbPath, inserted: r.inserted, updated: r.updated },
+      "reference data backfilled from starter DB",
+    );
   } else {
-    logger.info({ starterDbPath: r.starterDbPath }, "reference data check: save is up to date, 0 rows missing");
+    logger.info({ starterDbPath: r.starterDbPath }, "reference data check: save is up to date, 0 rows missing, 0 rows stale");
   }
 } catch (err) {
   logger.error({ err }, "reference data backfill failed");

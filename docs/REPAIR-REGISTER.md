@@ -27,6 +27,69 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-33 — CLOSED (9 Sep, <pending-hash>)
+R-28 only inserts missing rows, so renames and corrections to the starter DB (e.g. players 51 and
+187) leave every player's save stale.
+
+**Found — which columns gameplay writes, per table, checked not assumed:**
+`scripts/check-write-boundaries.cjs` enforces that `players`/`staff` can only be written through
+`lib/playerDto.ts`'s `updatePlayerReference()`/`updateStaffReference()` — "the ONLY sanctioned
+write" — so grepping their call sites in `routes/` is exhaustive, not a guess:
+
+- `PATCH /players/:id`, called from `pages/team.tsx`'s **"Edit" and "Change Nationality" buttons —
+  a real, always-visible, unguarded feature on every roster player, not a debug tool** — writes
+  `name, nationality, continent, position, potential`.
+- `PATCH /staff/:id`, called from `pages/staff.tsx`'s own "Edit", writes `name, nationality,
+  attributes, personality, specialty, specialTrait`.
+- `locations`, `club_templates`, `outfits`: zero runtime writes anywhere — the only
+  `update(...Table)` call site for any of the three is `seed.ts`, a one-time seed script, never a
+  route. Every shared column is safe.
+
+**This changes the fix, and the register's own example is not solved by it.** `name` — the exact
+column players 51/187 were corrected in — is gameplay-writable via Edit Player, so syncing it from
+the starter DB on every boot would silently erase a manager's own in-game rename the next time the
+app starts: the same cross-career-bleed failure mode the `career_player_state` split was built to
+prevent, reintroduced through a different door. So `name` (and `nationality`/`continent`/
+`position`/`potential` on players; `name`/`nationality`/`attributes`/`personality`/`specialty`/
+`specialTrait` on staff) are **excluded**. Concretely: **this fix does not make an existing save
+show "Dewi Lestari" or "Eleni Papadopoulou" for players 51/187** — those specific renames need a
+separate, one-off, targeted fix if still wanted on existing saves, not a blanket reference-sync
+rule. Reported per rule 7 rather than forced through.
+
+**Fix:** `utils/ensureSchema.ts`'s `ensureReferenceData()` gained a second pass. For
+`locations`/`club_templates`/`outfits` (already inserted for missing rows by R-28), existing rows
+now also get every shared column brought forward when it differs. For `players`/`staff` — never
+inserted, per R-28's own reasoning (a missing row needs `career_player_state`/`career_staff_state`
+too, not attempted here) — existing rows get ONLY the confirmed-safe columns synced:
+
+- `players`: `base_age, height, speed, power, defense, serve, block, stamina, image_url,
+  player_type, asking_price, is_draft_player, elite_event_type, career_seasons, career_titles,
+  continental_titles, world_titles, olympic_medals_count, peak_overall_rating, years_active,
+  legend_score, development, player_v4`
+- `staff`: `role, base_salary, skill_level, image_url, base_age, overall_rating,
+  coach_speciality, scouting_rating`
+
+Column-by-column, never row-by-row: a row with nothing changed runs zero `UPDATE` statements, and
+a row with one changed column writes exactly that one column, so a manager's own rename living
+next to a genuinely stale `height` is never at risk of the whole row round-tripping.
+
+**Harness (new):** `harness/reference-data-update.mjs`, wired into `run-all.mjs` as 4/14, next to
+R-28's own suite. Does NOT test renaming a player, despite that being the register's own example —
+see the harness file's own header comment for why. Proves, on one save with a real signed player
+and real training progress: (A) a stale safe column (`players.height`) catches up to the starter
+DB and the boot log names it; (B) `players.name`, stale in the exact same row, is left alone —
+proving the gameplay-writable exclusion holds in practice, not just in the column list; (C) that
+career's own `career_player_state.speed` (genuine gameplay-written state, unrelated storage
+entirely) is completely untouched. 6/6 checks pass. R-28's own suite
+(`reference-data-backfill.mjs`) still passes unchanged — its "existing row untouched" check
+compares a live copy against itself, so there is nothing for the new update pass to find different.
+Full harness: 14/14 suites.
+
+**Rob: please confirm on screen** — this one has no on-screen surface by design (it's a boot-time
+repair with no UI), so there is nothing to click through. If you want players 51/187's names fixed
+on an existing save specifically, say so and it'll be a small, separate, one-off change — not
+this mechanism.
+
 ### R-32 — CLOSED (8 Sep, 5dbe251)
 `utils/match-tick-engine.ts:56` has the identical `freeAgents: true, isActive: true` filter
 combination R-22 found and fixed in `routes/unity.ts` — a free agent can never be `is_active`

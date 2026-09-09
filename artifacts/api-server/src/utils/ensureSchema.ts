@@ -319,12 +319,78 @@ export function ensureSchema(): EnsureSchemaResult {
 // is completely self-contained.
 const REFERENCE_TABLES = ["locations", "club_templates", "outfits"] as const;
 
+// ── R-33: reference-data UPDATES never reach an existing save ──────────────
+//
+// R-28 (above) only ever INSERTs a row this save is missing. It never asked
+// whether a row the save ALREADY HAS has since been corrected in the starter
+// DB — so when players 51 and 187 were renamed (Novi Anggraini -> Dewi
+// Lestari, Elena Papadopoulou -> Eleni Papadopoulou; the caption-audit fixes),
+// every existing save kept showing the old, wrong name forever. This is that
+// second half: for columns confirmed never written by gameplay, bring an
+// existing row's VALUES forward to match the starter DB too.
+//
+// ── locations / club_templates / outfits: zero runtime writes, full sync ───
+// Grepping the whole api-server for `update(locationsTable)`,
+// `update(clubTemplatesTable)`, `update(outfitsTable)` finds exactly one
+// call site each: seed.ts, a one-time seed script, never a route. No player
+// action can ever change a row in these three tables, so every shared column
+// is safe to sync, the same set REFERENCE_TABLES already inserts with.
+//
+// ── players / staff: NOT a full sync — some columns ARE gameplay-writable ──
+// `players` and `staff` were deliberately excluded from REFERENCE_TABLES
+// above (see the comment on it) because unlike locations/club_templates/
+// outfits, a MISSING row needs career-scoped state too, which this file does
+// not attempt. But R-33 only asks about UPDATING rows that already exist,
+// which has a different, narrower danger: `lib/playerDto.ts`'s
+// updatePlayerReference()/updateStaffReference() are "the ONLY sanctioned
+// write" to these reference rows (enforced by scripts/check-write-boundaries.cjs),
+// so grepping their call sites in routes/ is exhaustive, not a guess:
+//
+//   PATCH /players/:id (pages/team.tsx's "Edit" and "Change Nationality"
+//   buttons on every roster player — a real, always-visible, unguarded
+//   feature, not a debug tool) writes: name, nationality, continent,
+//   position, potential.
+//
+//   PATCH /staff/:id (pages/staff.tsx's own "Edit") writes: name,
+//   nationality, attributes, personality, specialty, specialTrait.
+//
+// Those columns are EXCLUDED here — syncing them from the starter DB would
+// silently overwrite a manager's own in-game rename/re-nationalisation the
+// next time the app boots. Concretely, this means the register's own
+// motivating example — players 51/187's `name` — is NOT fixed by this
+// mechanism, because `name` fails "columns gameplay never writes." That is
+// reported, not routed around: forcing `name` through anyway would reopen
+// exactly the failure mode this filter exists to prevent, on every existing
+// save that has ever used the Edit-Player feature. A `name`-specific
+// correction (if still wanted for 51/187 specifically) needs a separate,
+// one-off, targeted fix — not a blanket reference-sync rule.
+//
+// Every other column on both tables is written ONLY by seed/import scripts
+// (scripts/src/*.ts) or by routes/dev.ts (dev-only, gated off in production,
+// and itself in check-write-boundaries.cjs's ALLOWED list) — never by a
+// route a real player can reach. Those are exactly what's listed below.
+const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
+  players: [
+    "base_age", "height", "speed", "power", "defense", "serve", "block", "stamina",
+    "image_url", "player_type", "asking_price", "is_draft_player", "elite_event_type",
+    "career_seasons", "career_titles", "continental_titles", "world_titles",
+    "olympic_medals_count", "peak_overall_rating", "years_active", "legend_score",
+    "development", "player_v4",
+  ],
+  staff: [
+    "role", "base_salary", "skill_level", "image_url", "base_age", "overall_rating",
+    "coach_speciality", "scouting_rating",
+  ],
+};
+
 export type EnsureReferenceDataResult = {
   starterDbPath: string | null;
   /** Why nothing was compared — no starter DB reference available. */
   skipped?: string;
   /** table name -> primary keys of the rows inserted. */
   inserted: Record<string, Array<string | number>>;
+  /** table name -> primary keys of the rows updated (R-33). */
+  updated: Record<string, Array<string | number>>;
 };
 
 function primaryKeyColumn(table: string): string | null {
@@ -346,25 +412,35 @@ function primaryKeyColumn(table: string): string | null {
  * that is not an error, just nothing to compare against, and is reported as
  * `skipped` rather than thrown.
  *
- * Additive only: every row this finds in the starter DB but not in the live
- * one is INSERTed verbatim. An existing row — however far its OTHER columns
- * may have drifted from the starter DB's — is never touched. Run after
- * ensureSchema() so every REFERENCE_TABLES member is guaranteed to exist and
+ * Two passes now (R-33 added the second):
+ *   1. INSERT — every row the starter DB has that this save doesn't, for
+ *      REFERENCE_TABLES (locations/club_templates/outfits). Unchanged from
+ *      R-28.
+ *   2. UPDATE — for a row BOTH sides already have, bring forward whichever
+ *      columns are safe to (see REFERENCE_UPDATE_ONLY's comment above for
+ *      exactly which, and why players/staff are a narrower list than
+ *      locations/club_templates/outfits). Only columns that actually differ
+ *      are written, and only when the value differs — a table with nothing
+ *      to update runs zero UPDATE statements.
+ *
+ * Run after ensureSchema() so every table involved is guaranteed to exist and
  * have every declared column before rows are compared.
  */
 export function ensureReferenceData(): EnsureReferenceDataResult {
   const starterDbPath = process.env["STARTER_DB_PATH"];
   const inserted: Record<string, Array<string | number>> = {};
+  const updated: Record<string, Array<string | number>> = {};
 
   if (!starterDbPath) {
-    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted };
+    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated };
   }
   if (!fs.existsSync(starterDbPath)) {
-    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted };
+    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated };
   }
 
   const starter = new Database(starterDbPath, { readonly: true, fileMustExist: true });
   try {
+    // ── Pass 1: insert missing rows (R-28, unchanged) — locations/club_templates/outfits only ──
     for (const table of REFERENCE_TABLES) {
       if (!tableExists(table)) continue; // ensureSchema() above already creates it if wholly missing
 
@@ -386,21 +462,82 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
 
       const starterRows = starter.prepare(`SELECT * FROM \`${table}\``).all() as Record<string, unknown>[];
       const missing = starterRows.filter((r) => !livePks.has(r[pkCol]));
-      if (missing.length === 0) continue;
 
-      const colList = sharedCols.map((c) => `\`${c}\``).join(", ");
-      const placeholders = sharedCols.map(() => "?").join(", ");
-      const insertStmt = sqlite.prepare(`INSERT INTO \`${table}\` (${colList}) VALUES (${placeholders})`);
+      if (missing.length > 0) {
+        const colList = sharedCols.map((c) => `\`${c}\``).join(", ");
+        const placeholders = sharedCols.map(() => "?").join(", ");
+        const insertStmt = sqlite.prepare(`INSERT INTO \`${table}\` (${colList}) VALUES (${placeholders})`);
 
-      for (const row of missing) {
-        const values = sharedCols.map((c) => (row[c] === undefined ? null : row[c]));
-        insertStmt.run(...values);
-        inserted[table] = [...(inserted[table] ?? []), row[pkCol] as string | number];
+        for (const row of missing) {
+          const values = sharedCols.map((c) => (row[c] === undefined ? null : row[c]));
+          insertStmt.run(...values);
+          inserted[table] = [...(inserted[table] ?? []), row[pkCol] as string | number];
+        }
       }
+
+      // ── Pass 2 (R-33), same table: update rows both sides already have ──
+      // Safe here for every shared column — nothing ever writes these three
+      // tables outside a one-time seed script (see REFERENCE_UPDATE_ONLY's
+      // comment above).
+      updateExistingRows(table, pkCol, sharedCols, starterRows, updated);
+    }
+
+    // ── Pass 2 (R-33): players/staff — update-only, whitelisted columns only ──
+    for (const [table, updateCols] of Object.entries(REFERENCE_UPDATE_ONLY)) {
+      if (!tableExists(table)) continue;
+
+      const pkCol = primaryKeyColumn(table);
+      if (!pkCol) continue;
+
+      const starterCols = new Set(
+        (starter.prepare(`PRAGMA table_info(\`${table}\`)`).all() as { name: string }[]).map((r) => r.name),
+      );
+      const live = existingColumns(table);
+      // Intersect the whitelist with what both DBs actually have — same
+      // caution R-28 already applies, so a column renamed or dropped on
+      // either side is silently skipped rather than throwing.
+      const sharedCols = updateCols.filter((c) => starterCols.has(c) && live.has(c));
+      if (sharedCols.length === 0) continue;
+
+      const starterRows = starter.prepare(`SELECT * FROM \`${table}\``).all() as Record<string, unknown>[];
+      updateExistingRows(table, pkCol, sharedCols, starterRows, updated);
     }
   } finally {
     starter.close();
   }
 
-  return { starterDbPath, inserted };
+  return { starterDbPath, inserted, updated };
+}
+
+/**
+ * Shared by both R-33 passes: for every starter row whose primary key also
+ * exists live, compare `cols` and UPDATE only the ones that differ — never a
+ * blanket overwrite, so a row with nothing changed runs zero statements, and
+ * a row with one changed column writes exactly one column.
+ */
+function updateExistingRows(
+  table: string,
+  pkCol: string,
+  cols: readonly string[],
+  starterRows: Record<string, unknown>[],
+  updated: Record<string, Array<string | number>>,
+): void {
+  const liveRows = db.all<Record<string, unknown>>(
+    sql.raw(`SELECT \`${pkCol}\`, ${cols.map((c) => `\`${c}\``).join(", ")} FROM \`${table}\``),
+  );
+  const liveByPk = new Map(liveRows.map((r) => [r[pkCol], r]));
+
+  for (const starterRow of starterRows) {
+    const pk = starterRow[pkCol] as string | number;
+    const liveRow = liveByPk.get(pk);
+    if (!liveRow) continue; // missing entirely — Pass 1's job (or not backfilled at all for players/staff), not this one
+
+    const changedCols = cols.filter((c) => (starterRow[c] ?? null) !== (liveRow[c] ?? null));
+    if (changedCols.length === 0) continue;
+
+    const setClause = changedCols.map((c) => `\`${c}\` = ?`).join(", ");
+    const values = changedCols.map((c) => (starterRow[c] === undefined ? null : starterRow[c]));
+    sqlite.prepare(`UPDATE \`${table}\` SET ${setClause} WHERE \`${pkCol}\` = ?`).run(...values, pk);
+    updated[table] = [...(updated[table] ?? []), pk];
+  }
 }
