@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-34 — CLOSED (9 Sep, <pending-hash>)
+### R-34 — CLOSED (9 Sep, 54f95d9)
 Players added to the starter DB after a save was created never appear in
 that save — R-28/R-33 deliberately skip player rows, so an updated game is
 short players (8 of the 24 Europe players were missing from Rob's live save).
