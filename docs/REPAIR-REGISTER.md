@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-33 — CLOSED (9 Sep, <pending-hash>)
+### R-33 — CLOSED (9 Sep, c3e0e22)
 R-28 only inserts missing rows, so renames and corrections to the starter DB (e.g. players 51 and
 187) leave every player's save stale.
 
