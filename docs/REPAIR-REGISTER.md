@@ -591,7 +591,7 @@ blocked on R-08/R-09/R-11.
 `harness/rollover.mjs` walks 5 seasons at 0W 0L. Make it simulate real fixtures for a strong and
 a weak squad across the whole arc so I8/I9 become measurable.
 
-### R-09 — CLOSED (9 Sep, <pending-hash>)
+### R-09 — CLOSED (9 Sep, 492b590)
 `isJobAtRisk` / `boardConfidence` computed server-side, zero frontend consumers.
 `pages/manager-contract.tsx` still runs on `PLACEHOLDER_CONTRACT`. Wire an at-risk banner +
 confidence meter to the dashboard, escalation ladder on the contract page, career ends at zero
@@ -784,7 +784,7 @@ typecheck and build both clean. Full harness: 12/12 suites.
 1 now asks for nationality (required to continue), step 3 now offers primary/secondary colour and
 crest-shape pickers with a live preview, seeded from the selected club's own colours.
 
-### R-14 — CLOSED (9 Sep, <pending-hash>)
+### R-14 — CLOSED (9 Sep, 492b590)
 `pages/profile.tsx` `PLACEHOLDER_SALARY = "$5,000 / season"`. Resolves with R-09.
 
 **Fix, alongside R-09:** `utils/careerLifecycle.ts`'s `buildCareerSummary` now includes
