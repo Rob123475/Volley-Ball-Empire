@@ -10532,6 +10532,7 @@ export const UpsertCareerSaveBody = zod.object({
   "season": zod.string().optional(),
   "worldRanking": zod.number().nullish(),
   "budget": zod.string().nullish(),
+  "difficulty": zod.enum(['underdog', 'established']).optional().describe('R-11 (docs\/economy-design.md): UNDERDOG is Bronze-locked with a tight starting budget; ESTABLISHED starts roughly one tier further along with a comfortable budget. Defaults to established when omitted.'),
   "locationId": zod.number().nullish(),
   "primaryColor": zod.string().nullish(),
   "secondaryColor": zod.string().nullish(),

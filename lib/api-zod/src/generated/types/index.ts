@@ -26,6 +26,7 @@ export * from './boardConfidenceBreakdown';
 export * from './boardConfidenceForcedSale';
 export * from './boardConfidenceStage';
 export * from './breakContractResult';
+export * from './careerDifficulty';
 export * from './careerHistoryEntry';
 export * from './careerHistoryEntryType';
 export * from './careerSaveList';

@@ -15,6 +15,8 @@ import {
   ColorPicker,
   ShapePicker,
   NationalityPicker,
+  DifficultyPicker,
+  type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -262,6 +264,7 @@ interface NewCareerModalProps {
     clubName:            string;
     originalClubName:    string;
     budget:              string;
+    difficulty:          CareerDifficulty;
     primaryColor:        string;
     secondaryColor:      string;
     crestShapeIndex:     number;
@@ -273,6 +276,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
   const [step, setStep]                   = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName]     = useState("");
   const [nationality, setNationality]     = useState("");
+  const [difficulty, setDifficulty]       = useState<CareerDifficulty | null>(null);
   const [selectedClub, setSelectedClub]   = useState<ClubTemplate | null>(null);
   const [customClubName, setCustomClubName] = useState("");
   const [primaryColor, setPrimaryColor]     = useState("#E05A00");
@@ -332,7 +336,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     setStep(3);
   };
 
-  const canProceedStep1  = managerName.trim().length > 0 && nationality.length > 0;
+  const canProceedStep1  = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null;
   const canProceedStep2  = selectedClub !== null;
   const displayClubName  = customClubName.trim() || selectedClub?.name || "";
   const canSave          = canProceedStep1 && canProceedStep2 && displayClubName.length > 0;
@@ -354,7 +358,11 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     managerNationality:  nationality,
     clubName:            customClubName.trim() || club.name,
     originalClubName:    club.name,
+    // R-11: starting budget is decided server-side from difficulty, not the
+    // club's own startingBudget — see careerDifficulty.ts. Sent for older
+    // callers; POST /careers overrides it once `difficulty` is present.
     budget:              club.startingBudget,
+    difficulty:          difficulty ?? "established",
     primaryColor,
     secondaryColor,
     crestShapeIndex:     shapeIndex,
@@ -433,6 +441,12 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   <Globe className="h-3 w-3" /> Nationality
                 </label>
                 <NationalityPicker value={nationality} onChange={setNationality} />
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                  <Trophy className="h-3 w-3" /> Career Difficulty
+                </label>
+                <DifficultyPicker value={difficulty} onChange={setDifficulty} />
               </div>
               <p className="text-xs text-white/35">
                 This is the name that will appear on your manager profile throughout the game.
@@ -905,6 +919,7 @@ export default function CareerManagement() {
     clubName:            string;
     originalClubName:    string;
     budget:               string;
+    difficulty:          CareerDifficulty;
     primaryColor:        string;
     secondaryColor:      string;
     crestShapeIndex:     number;
@@ -917,6 +932,7 @@ export default function CareerManagement() {
         clubName:            body.clubName,
         originalClubName:    body.originalClubName,
         budget:              body.budget,
+        difficulty:          body.difficulty,
         primaryColor:        body.primaryColor,
         secondaryColor:      body.secondaryColor,
         crestShapeIndex:     body.crestShapeIndex,

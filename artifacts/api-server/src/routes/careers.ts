@@ -14,6 +14,10 @@ import { seedStartingSquad } from "../utils/seedStartingSquad.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
+import {
+  isCareerDifficulty, startingBudgetFor, startingRankingPointsFor,
+  type CareerDifficulty,
+} from "../utils/careerDifficulty.js";
 
 const router = Router();
 
@@ -120,7 +124,7 @@ router.get("/careers/contract", async (req, res) => {
 router.post("/careers", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const { slotNumber, managerName, managerNationality, clubName, originalClubName, season, worldRanking, budget, locationId, primaryColor, secondaryColor, crestShapeIndex } = req.body as {
+  const { slotNumber, managerName, managerNationality, clubName, originalClubName, season, worldRanking, budget, difficulty: rawDifficulty, locationId, primaryColor, secondaryColor, crestShapeIndex } = req.body as {
     slotNumber:           number;
     managerName:          string;
     managerNationality?:  string | null;
@@ -129,6 +133,7 @@ router.post("/careers", async (req, res) => {
     season?:              string;
     worldRanking?:        number | null;
     budget?:              number | null;
+    difficulty?:          string | null;
     locationId?:          number | null;
     primaryColor?:        string | null;
     secondaryColor?:      string | null;
@@ -142,6 +147,11 @@ router.post("/careers", async (req, res) => {
   ) {
     res.status(400).json({ error: "Invalid body" }); return;
   }
+
+  // R-11: an unset or unrecognised difficulty defaults to "established" —
+  // the pre-R-11 behaviour (comfortable flat budget, no tier head start),
+  // rather than rejecting a caller that predates this field.
+  const difficulty: CareerDifficulty = isCareerDifficulty(rawDifficulty) ? rawDifficulty : "established";
 
   const [existing] = await db
     .select()
@@ -176,12 +186,17 @@ router.post("/careers", async (req, res) => {
   // where the linear round→date interpolation in calendar.ts expects them
   // (round 11 → 2026-02-17, round 72 → 2026-12-02).
 
+  // R-11: starting budget is decided by difficulty, not the club-selected
+  // figure the wizard still sends for older callers — see careerDifficulty.ts
+  // for why these are picked numbers, not derived from the design doc.
+  const startingBudget = startingBudgetFor(difficulty);
+
   const [newTeam] = await db
     .insert(teamsTable)
     .values({
       userId:             req.user.id,
       name:               clubName.trim(),
-      budget:             budget ?? 500000,
+      budget:             startingBudget,
       reputation:         50,
       ...(locationId   ? { locationId }                   : {}),
       ...(primaryColor ? { logoColor: primaryColor }      : {}),
@@ -202,7 +217,8 @@ router.post("/careers", async (req, res) => {
       originalClubName:    originalClubName?.trim() ?? null,
       season:              season ?? "Season 1",
       worldRanking:        worldRanking ?? null,
-      budget:              budget ?? null,
+      budget:              startingBudget,
+      difficulty,
       lastPlayedAt:        new Date(),
     })
     .returning();
@@ -212,10 +228,9 @@ router.post("/careers", async (req, res) => {
   // signed — players are global reference data and the career half must exist.
   seedCareerState(inserted!.id);
 
-  // A startup squad so the manager isn't staring at zero players (R-04). The
-  // difficulty choice (R-11) that would size this properly isn't built yet;
-  // this is the minimum viable squad from existing free agents only.
-  await seedStartingSquad(inserted!.id, newTeam.id, "2026-12-31");
+  // A startup squad so the manager isn't staring at zero players (R-04).
+  // R-11: quality now follows difficulty — see seedStartingSquad.ts.
+  await seedStartingSquad(inserted!.id, newTeam.id, "2026-12-31", difficulty);
 
   // This career's own season timeline. Previously one global season row was
   // created on the first career and every later career reused it, so a second
@@ -251,7 +266,9 @@ router.post("/careers", async (req, res) => {
   // gained a row on a career's first PLAYED match — a schedule alone
   // doesn't rank you. Seed a zero row so the player appears on their own
   // ladder from day one instead of the ladder staying empty until then.
-  await ensureCompetitorRanking(newTeam.id, inserted!.id, 2026);
+  // R-11: ESTABLISHED starts with a ranking-points head start (see
+  // careerDifficulty.ts) — "starts roughly one tier further along."
+  await ensureCompetitorRanking(newTeam.id, inserted!.id, 2026, startingRankingPointsFor(difficulty));
 
   const sid = getSessionId(req);
   if (sid) {

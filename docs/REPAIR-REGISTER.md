@@ -829,10 +829,72 @@ an explanation; at zero confidence the next match or page load should land on a 
 Underdog/Established start choice. Qualification / Tier status / Finals bracket / Fail state
 are "extend existing page" — open each and confirm whether done.
 
-### R-11 — Career difficulty choice isn't in the game
+### R-11 — CLOSED (9 Sep, <pending-hash>)
 Underdog vs established at career start. `pages/new-career.tsx` sends the same payload
 regardless; `routes/careers.ts` has no concept of it. Add to wizard → store on career save →
 seeding reads it (budget, tier lock, starting squad). Invariant I6 hangs off this.
+
+**Found:** confirmed exactly as stated — `new-career.tsx` and `career-management.tsx`'s
+`NewCareerModal` (R-13 already made them share nationality/crest fields via
+`career-wizard-fields.tsx`) both sent identical payloads regardless of any difficulty choice,
+because there was no field to choose one. `careerSavesTable` had no column for it.
+`seedStartingSquad.ts`'s own comment already named this: "the difficulty choice (R-11) that
+would size this properly isn't built yet, so this signs the weakest available free-agent
+seniors."
+
+**The doc gives no numbers — four picked, named constants, in `utils/careerDifficulty.ts`:**
+`docs/economy-design.md` states the FEEL ("tight from the first week... Bronze-locked" vs
+"comfortable but not rich... starts roughly one tier further along") but never a dollar figure
+or a ranking-points figure. Per the rule, these are invented and flagged, not derived:
+
+| Constant | Value | Why |
+|---|---|---|
+| `UNDERDOG_STARTING_BUDGET` | $150,000 | "tight from the first week" |
+| `ESTABLISHED_STARTING_BUDGET` | $500,000 | unchanged from the pre-R-11 flat default — already "comfortable" by every existing calibration in this repo |
+| `ESTABLISHED_STARTING_RANKING_POINTS` | 20 | clears Silver's threshold (15) without also clearing Gold's (40) — "one tier further, not two" |
+| UNDERDOG's ranking points | 0 (the column default) | naturally Bronze-only against the same thresholds — "Bronze-locked" falls out of the existing tier-gate system for free, no new gating code |
+
+Starting squad quality needed **no invented number**: `seedStartingSquad.ts` already picks from
+the free-agent pool sorted by overall rating. UNDERDOG keeps the existing weakest-first sort;
+ESTABLISHED sorts strongest-first. "Best available" vs "worst available" is exactly what the
+doc's contrast asks for, from a pool that already exists.
+
+**Fix:**
+- `career_saves.difficulty` (text, default `"established"` — existing saves keep the pre-R-11
+  feel they already had). Added to the drizzle schema; `ensureSchema.ts`'s derived boot-repair
+  and the shipped starter DB both carry it.
+- Both wizards gained a `DifficultyPicker` (new, in the shared `career-wizard-fields.tsx`) —
+  two cards, wording taken directly from the design doc's "What the player should feel," not
+  paraphrased. Required to advance past step 1, same as nationality.
+- `POST /careers` now **overrides** the client-sent `budget` with `startingBudgetFor(difficulty)`
+  — the club-selected `startingBudget` field on `club_templates` no longer determines a new
+  career's starting money once a difficulty is present. A deliberate simplification, not an
+  oversight: the design doc frames difficulty, not club choice, as the budget lever ("starts
+  roughly one tier further along, not with more time"). Flagged here in case club-varied budgets
+  were still wanted alongside this.
+- `ensureCompetitorRanking` gained an optional `initialRankingPoints` parameter (default 0 —
+  every other call site, including the dashboard.ts repair-net call, is unaffected).
+- `seedStartingSquad` gained a `difficulty` parameter (default `"established"` for any caller
+  that predates this).
+
+**Out of scope, deliberately:** the design doc's "Difficulty multiplier: UNDERDOG x1.5,
+ESTABLISHED x1.0" on career score is Phase 6/R-10 territory (the Career Result screen doesn't
+exist yet) — `difficulty` is stored and ready for it, not consumed by it here.
+
+**Harness (new):** `harness/career-difficulty.mjs`, wired into `run-all.mjs` as 13/16. Creates
+one UNDERDOG and one ESTABLISHED career in the same session (each sending a deliberately wrong
+client-side `budget` to prove the server ignores it and decides by difficulty instead). Asserts:
+budget is exactly the two named constants, not the client figure; `career_saves.difficulty`
+stored correctly for each; UNDERDOG's ranking points are 0 (Bronze-locked, below Silver's 15);
+ESTABLISHED's are ≥15 and <40 (Silver clear, Gold not); ESTABLISHED's starting squad average
+rating is strictly higher than UNDERDOG's (86.6 vs 62.3 in the run that produced this entry).
+12/12 checks pass. Full harness: 16/16 suites.
+
+**Rob: please confirm on screen** — open New Career (title screen) and Career Management's
+"+" on an empty slot: step 1 should now show an Underdog/Established choice with the two
+descriptions above, required before Choose Club is enabled. Creating one of each should show a
+visibly different (and, for Established, visibly stronger) starting squad and a different
+starting budget on the dashboard.
 
 ---
 

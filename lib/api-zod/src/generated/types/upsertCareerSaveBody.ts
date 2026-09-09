@@ -5,6 +5,7 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { CareerDifficulty } from './careerDifficulty';
 
 export interface UpsertCareerSaveBody {
   slotNumber: number;
@@ -15,6 +16,7 @@ export interface UpsertCareerSaveBody {
   season?: string;
   worldRanking?: number | null;
   budget?: string | null;
+  difficulty?: CareerDifficulty;
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;

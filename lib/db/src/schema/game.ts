@@ -922,6 +922,10 @@ export const careerSavesTable = sqliteTable("career_saves", {
   worldRanking: integer("world_ranking"),
   budget:       real("budget"),
   managerReputation: integer("manager_reputation").notNull().default(50),
+  // R-11: chosen at career start, never changes afterward. Existing saves
+  // (before this column existed) default to "established" — the pre-R-11
+  // behaviour (comfortable budget) is what they already got.
+  difficulty:   text("difficulty").notNull().default("established"),
   retiredAt:    integer("retired_at", { mode: "timestamp" }),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),

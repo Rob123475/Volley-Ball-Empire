@@ -3981,6 +3981,8 @@ components:
         budget:
           type: string
           nullable: true
+        difficulty:
+          $ref: "#/components/schemas/CareerDifficulty"
         locationId:
           type: integer
           nullable: true
@@ -3993,6 +3995,14 @@ components:
         crestShapeIndex:
           type: integer
           nullable: true
+
+    CareerDifficulty:
+      type: string
+      description: >-
+        R-11 (docs/economy-design.md): UNDERDOG is Bronze-locked with a tight
+        starting budget; ESTABLISHED starts roughly one tier further along
+        with a comfortable budget. Defaults to established when omitted.
+      enum: [underdog, established]
 
     UpcomingEventsFeed:
       type: object

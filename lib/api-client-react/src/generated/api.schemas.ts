@@ -1608,6 +1608,17 @@ export interface CareerSaveList {
   activeCareerSaveId?: number | null;
 }
 
+/**
+ * R-11 (docs/economy-design.md): UNDERDOG is Bronze-locked with a tight starting budget; ESTABLISHED starts roughly one tier further along with a comfortable budget. Defaults to established when omitted.
+ */
+export type CareerDifficulty = typeof CareerDifficulty[keyof typeof CareerDifficulty];
+
+
+export const CareerDifficulty = {
+  underdog: 'underdog',
+  established: 'established',
+} as const;
+
 export interface UpsertCareerSaveBody {
   slotNumber: number;
   managerName: string;
@@ -1617,6 +1628,7 @@ export interface UpsertCareerSaveBody {
   season?: string;
   worldRanking?: number | null;
   budget?: string | null;
+  difficulty?: CareerDifficulty;
   locationId?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;

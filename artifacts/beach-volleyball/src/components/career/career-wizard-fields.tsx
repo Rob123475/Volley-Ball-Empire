@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, Sprout, Building2 } from "lucide-react";
 
 export const NATIONALITIES = [
   { name: "Argentina",     flag: "🇦🇷" },
@@ -255,6 +255,76 @@ export function NationalityPicker({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── R-11: career difficulty ──────────────────────────────────────────────────
+// Wording drawn directly from docs/economy-design.md's "What the player
+// should feel" — the plain description Phase 8's UI scope calls for, not
+// paraphrased.
+
+export type CareerDifficulty = "underdog" | "established";
+
+export const DIFFICULTY_OPTIONS: ReadonlyArray<{
+  value: CareerDifficulty;
+  label: string;
+  tagline: string;
+  description: string;
+  icon: typeof Sprout;
+}> = [
+  {
+    value: "underdog",
+    label: "Underdog",
+    tagline: "Bronze-locked. Every signing hurts.",
+    description:
+      "Money is tight from the first week. Survival is an achievement — the climb is the game.",
+    icon: Sprout,
+  },
+  {
+    value: "established",
+    label: "Established",
+    tagline: "Competing in Silver/Gold from day one.",
+    description:
+      "Comfortable but not rich. The job is running a business well, not surviving.",
+    icon: Building2,
+  },
+];
+
+export function DifficultyPicker({
+  value,
+  onChange,
+  accentClassName = "border-secondary/60 bg-secondary/10",
+}: {
+  value: CareerDifficulty | null;
+  onChange: (d: CareerDifficulty) => void;
+  accentClassName?: string;
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {DIFFICULTY_OPTIONS.map((opt) => {
+        const Icon = opt.icon;
+        const selected = value === opt.value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              "text-left rounded-xl border p-4 transition-all hover:bg-white/8",
+              selected ? accentClassName : "border-white/10 bg-white/5",
+            )}
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <Icon className="h-4 w-4 text-white/70" />
+              <span className="font-black text-sm text-white">{opt.label}</span>
+              {selected && <Check className="ml-auto h-3.5 w-3.5 text-white" />}
+            </div>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-white/40 mb-1">{opt.tagline}</p>
+            <p className="text-xs text-white/55 leading-relaxed">{opt.description}</p>
+          </button>
+        );
+      })}
     </div>
   );
 }

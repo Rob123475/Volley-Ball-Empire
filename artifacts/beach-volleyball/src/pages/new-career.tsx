@@ -23,6 +23,8 @@ import {
   ColorPicker,
   ShapePicker,
   NationalityPicker,
+  DifficultyPicker,
+  type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
 import {
   Loader2,
@@ -190,6 +192,7 @@ export default function NewCareer() {
   const [step, setStep]               = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName] = useState("");
   const [nationality, setNationality] = useState("");
+  const [difficulty, setDifficulty]   = useState<CareerDifficulty | null>(null);
   const [selectedClub, setSelectedClub]     = useState<ClubTemplate | null>(null);
   const [customClubName, setCustomClubName] = useState("");
   const [primaryColor, setPrimaryColor]     = useState("#E05A00");
@@ -227,7 +230,7 @@ export default function NewCareer() {
 
   const selectedNat = NATIONALITIES.find(n => n.name === nationality);
 
-  const canStep1 = managerName.trim().length > 0 && nationality.length > 0;
+  const canStep1 = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null;
   const canStep2 = selectedClub !== null;
 
   const advanceToStep3 = () => {
@@ -240,7 +243,7 @@ export default function NewCareer() {
   };
 
   const handleSubmit = () => {
-    if (!selectedClub) return;
+    if (!selectedClub || !difficulty) return;
     const clubName = customClubName.trim() || selectedClub.name;
     upsertMutation.mutate(
       {
@@ -250,7 +253,12 @@ export default function NewCareer() {
           managerNationality:  nationality || null,
           clubName,
           originalClubName:    selectedClub.name,
+          // R-11: starting budget is now decided server-side from difficulty,
+          // not the club's own startingBudget — see careerDifficulty.ts. This
+          // field is still sent as the club's figure for older/other callers,
+          // but POST /careers overrides it once `difficulty` is present.
           budget:              selectedClub.startingBudget,
+          difficulty,
           primaryColor,
           secondaryColor,
           crestShapeIndex:     shapeIndex,
@@ -408,6 +416,18 @@ export default function NewCareer() {
                     value={nationality}
                     onChange={setNationality}
                     accentClassName="bg-secondary/15 text-secondary"
+                  />
+                </div>
+
+                {/* Difficulty (R-11) */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                    <Trophy className="h-3 w-3" /> Career Difficulty
+                  </label>
+                  <DifficultyPicker
+                    value={difficulty}
+                    onChange={setDifficulty}
+                    accentClassName="border-secondary/60 bg-secondary/10"
                   />
                 </div>
               </div>
