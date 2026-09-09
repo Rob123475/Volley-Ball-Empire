@@ -618,7 +618,7 @@ Done as R-23 section B: pills and the dead `world-summary` fetch that fed them r
 "Conquer X cities" text existed in the current codebase to remove (grepped, confirmed absent).
 See R-23's entry above for full detail.
 
-### R-12 — CLOSED (9 Sep, <hash>)
+### R-12 — CLOSED (9 Sep, 8c497c3)
 `pages/competition/medal-table.tsx:24` · `olympic-results.tsx:23` · `olympic-history.tsx:19,24`
 · `pages/job-market.tsx:408` · `components/career/PoachingInbox.tsx:235` ·
 `pages/manager-contract.tsx:518, 546`. Build or remove from nav.
