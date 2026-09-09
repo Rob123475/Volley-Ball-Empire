@@ -1,5 +1,5 @@
 /**
- * Populates the `player_v4` JSONB column for every non-retired player.
+ * Populates the `player_v4` JSONB column for every player missing it.
  * Preserves all existing visible data. Generates hidden values (DNA, development,
  * scouting, personality, regen seed, visual kit, career data) from sensible defaults.
  *
@@ -7,7 +7,7 @@
  */
 import { db } from "@workspace/db";
 import { playersTable } from "@workspace/db/schema";
-import { eq, isNull, or } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 
 // ── tiny helpers ──────────────────────────────────────────────────────────────
 
@@ -96,13 +96,22 @@ const KIT_COLOURS: Record<string, { top: string; bottom: string; trim: string }>
   "Fiji":            { top: "#68BFE5",  bottom: "#003087",  trim: "#CC0001" },
 };
 
+// Keyed by the CANONICAL continent key (lib/db/src/schema/continents.ts's
+// CONTINENT_KEYS — north_america, south_america, europe, asia,
+// africa_middle_east, oceania), not a human-readable label. players.continent
+// is normalised to exactly these snake_case keys at boot (utils/normaliseContinents.ts),
+// so a label like "Africa & Middle East" here NEVER matches any real row's
+// continent value — every nationality not already in KIT_COLOURS silently fell
+// through this map entirely and landed on the generic #1A56DB fallback below,
+// continent-appropriate or not. Fixed by keying on what the column actually
+// contains.
 const CONTINENT_KITS: Record<string, { top: string; bottom: string; trim: string }> = {
-  "Africa & Middle East": { top: "#C17F24", bottom: "#1A6B3C", trim: "#FFFFFF" },
-  "Asia":                 { top: "#CC0000", bottom: "#FFFFFF", trim: "#CC0000" },
-  "Europe":               { top: "#003DA5", bottom: "#FFFFFF", trim: "#003DA5" },
-  "North America":        { top: "#CC0000", bottom: "#003087", trim: "#FFFFFF" },
-  "South America":        { top: "#009C3B", bottom: "#FFD700", trim: "#FFFFFF" },
-  "Oceania":              { top: "#006AA7", bottom: "#00843D", trim: "#FFFFFF" },
+  "africa_middle_east": { top: "#C17F24", bottom: "#1A6B3C", trim: "#FFFFFF" },
+  "asia":               { top: "#CC0000", bottom: "#FFFFFF", trim: "#CC0000" },
+  "europe":             { top: "#003DA5", bottom: "#FFFFFF", trim: "#003DA5" },
+  "north_america":      { top: "#CC0000", bottom: "#003087", trim: "#FFFFFF" },
+  "south_america":      { top: "#009C3B", bottom: "#FFD700", trim: "#FFFFFF" },
+  "oceania":            { top: "#006AA7", bottom: "#00843D", trim: "#FFFFFF" },
 };
 
 function kitFor(nationality: string, continent: string | null) {
@@ -459,8 +468,13 @@ function buildV4(p: {
 // ── main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log("⏳  Fetching all non-retired players…");
+  console.log("⏳  Fetching players with no player_v4 block…");
 
+  // Was unfiltered — every run re-rolled ALL 276 players' player_v4 (fresh
+  // Math.random() DNA/kit/attributes each time, not idempotent), not just
+  // ones missing it. `isNull`/`or` were imported for exactly this filter and
+  // never wired in. Scoped to the 24 rows actually missing the block so this
+  // can run safely without touching the 252 already seeded.
   const active = (await db.select({
     id:              playersTable.id,
     name:            playersTable.name,
@@ -481,7 +495,8 @@ async function main() {
     height:          playersTable.height,
     askingPrice:     playersTable.askingPrice,
   })
-  .from(playersTable));
+  .from(playersTable)
+  .where(isNull(playersTable.playerV4)));
 
   console.log(`✅  Found ${active.length} players to process.`);
 
