@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-37 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+### R-37 — CLOSED (10 Sep, d0316c5)
 `match-tick-fallback-roster.mjs` asserts two DISTINCT away scorers, which is not what R-32
 guarantees — it depends on the engine picking different players, and it flakes.
 
