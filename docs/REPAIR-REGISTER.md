@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-36 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+### R-36 — CLOSED (10 Sep, 5dc9466)
 The harness SIGKILLs the server it booted, so the database is left with an un-checkpointed WAL and
 a read-only reader cannot open it. `reference-data-backfill` failed outright on this; three other
 suites carried a sleep that was the same bug half-covered.
