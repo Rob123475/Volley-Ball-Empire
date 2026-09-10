@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-35 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+### R-35 — CLOSED (10 Sep, 4a37f2c)
 Season rollover creates the new season but never generates its fixtures — they only appear when a
 page happens to ask (dashboard repairs it silently); harness and any headless path see an empty
 season.
@@ -770,7 +770,7 @@ a settings DECISION for Rob, not a code change. I1: wages 2.00× vs income 1.32�
 are blocked on nothing now — R-08, R-09 and R-11 are all closed, and R-08 leaves a
 measured five-season arc for a strong and a weak squad (see its table) to judge I8/I9 against.
 
-### R-08 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+### R-08 — CLOSED (10 Sep, 4a37f2c)
 `harness/rollover.mjs` walks 5 seasons at 0W 0L. Make it simulate real fixtures for a strong and
 a weak squad across the whole arc so I8/I9 become measurable.
 
