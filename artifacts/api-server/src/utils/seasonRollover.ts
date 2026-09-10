@@ -4,6 +4,7 @@ import {
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
+import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 
 /**
  * Season rollover.
@@ -66,11 +67,6 @@ export const PROMOTION_AGE = 19;
 export const FIRST_SEASON_YEAR = 2026;
 export const seasonNumberForYear = (year: number) => year - FIRST_SEASON_YEAR + 1;
 export const yearForSeasonNumber = (n: number) => FIRST_SEASON_YEAR + n - 1;
-
-/** Shift a hardcoded 2026 schedule date onto the season being played. */
-export function shiftDateToYear(date: string, year: number): string {
-  return `${year}${date.slice(4)}`;
-}
 
 export type RolloverResult =
   | { kind: "none" }
@@ -207,6 +203,23 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       .set({ currentDate: `${nextYear}-01-01`, updatedAt: new Date() })
       .where(eq(calendarStateTable.teamId, teamId))
       .run();
+
+    // R-35: build the new season's fixture here, in the same transaction that
+    // created the season. Before this, rollover opened a season with nothing in
+    // it, and the fixture appeared only when a page that calls
+    // ensureSeasonFixture (the dashboard, or the fixtures screen) happened to be
+    // opened — so the dashboard silently repaired the season for a player, while
+    // any path that never opens a page (the five-season harness, and any future
+    // headless or scripted run) saw an empty season and played no matches at
+    // all. A season and its fixture are one atomic thing.
+    //
+    // `team` is read above for the standings snapshot and is the same club the
+    // fixture belongs to. Guarded because that read is itself conditional: a
+    // career whose team row has gone is already in a state the standings
+    // snapshot skips, and there is nothing to schedule for it.
+    if (team) {
+      ensureSeasonFixtureRows(tx, { id: teamId, name: team.name }, nextYear);
+    }
 
     return {
       kind: "rolled",

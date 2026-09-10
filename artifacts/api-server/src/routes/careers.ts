@@ -241,7 +241,7 @@ router.post("/careers", async (req, res) => {
   // Bounds are chosen so the hardcoded World Tour dates (worldTour.ts) land
   // where calendar.ts's round->date interpolation expects them
   // (round 11 -> 2026-02-17, round 72 -> 2026-12-02).
-  await db.insert(seasonsTable).values({
+  const [season1] = await db.insert(seasonsTable).values({
     careerSaveId:            inserted!.id,
     year:                    2026,
     name:                    "Season 1",
@@ -252,7 +252,7 @@ router.post("/careers", async (req, res) => {
     endDate:                 "2026-12-31",
     isOlympicSeason:         false,
     regionalRoundsProcessed: 0,
-  });
+  }).returning();
 
   // R-26: fixture generation used to be lazy — only GET /matches/fixture ever
   // called it, so a career had no schedule until the player happened to open
@@ -260,7 +260,14 @@ router.post("/careers", async (req, res) => {
   // one; GET /matches/fixture and GET /dashboard call the same function
   // (idempotent — a career that already has its fixture returns immediately)
   // as a repair net for saves created before this existed.
-  await ensureSeasonFixture(newTeam, 2026);
+  //
+  // R-35: the year comes from the season row just created rather than a second
+  // hardcoded 2026. The fixture belongs to a season, so the season is what
+  // should say which year it is — two independent literals could disagree, and
+  // a fixture generated for a year the season is not in is invisible
+  // (ensureSeasonFixture filters by season year), which is the same empty-season
+  // failure R-35 fixes at the rollover end.
+  await ensureSeasonFixture(newTeam, season1!.year);
 
   // R-26: the ladder is built from competitor_rankings, which only ever
   // gained a row on a career's first PLAYED match — a schedule alone

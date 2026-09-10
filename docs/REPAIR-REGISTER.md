@@ -27,6 +27,47 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-35 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+Season rollover creates the new season but never generates its fixtures — they only appear when a
+page happens to ask (dashboard repairs it silently); harness and any headless path see an empty
+season.
+
+**Found:** `rolloverSeason` (`utils/seasonRollover.ts`) completed the old season, aged / retired /
+promoted, inserted the new `seasons` row, moved the calendar to 1 January — and stopped. It never
+created the new season's fixtures. Only three things ever called `ensureSeasonFixture`:
+`POST /careers` (hardcoded to 2026, so season 1 only) and the two read paths `GET /dashboard` and
+`GET /matches/fixture`, both of which call it defensively. So for a player the bug was invisible —
+opening the dashboard on 1 January silently built the missing fixture. For anything that never
+opens a page it was total: the season stayed empty.
+
+Found while verifying R-08, and it is R-08's root cause. The five-season harness advances the
+calendar and plays whatever is scheduled; it never opens the dashboard, so seasons 2-5 had nothing
+to play and walked through at 0W 0L. Proven by probe before any fix: after rolling into season 2
+the fixture was absent, then appeared in full (62 rows, all `scheduled`) the moment
+`/matches/fixture` was called.
+
+**Fix:** the rollover builds the fixture itself, in the same transaction that creates the season —
+a season and its fixture are one atomic thing, not a season plus whatever a later page visit
+repairs. That needed the generator callable from inside an existing better-sqlite3 transaction,
+which cannot `await`, so it moved to `utils/seasonFixture.ts` as the synchronous
+`ensureSeasonFixtureRows(tx, team, year)`. `ensureSeasonFixture` in `routes/matches.ts` is now a
+thin async wrapper opening a transaction around that same function, so its three existing callers
+are untouched — one generator, four callers, not four generators. It lives in `utils/` to keep the
+import graph one-directional (`seasonRollover` needs the generator, `matches.ts` needs
+`seasonRollover`'s season-number helpers — leaving it in `matches.ts` would have been a cycle), and
+the weather block it depends on moved with it to `utils/weather.ts`, byte-for-byte unchanged.
+
+`routes/careers.ts` no longer passes a hardcoded `2026`: the year comes from the season row it just
+inserted. Two independent literals could disagree, and a fixture generated for a year the season is
+not in is invisible — `ensureSeasonFixture` filters by season year — which is the same
+empty-season failure at the other end.
+
+**Harness:** `harness/rollover.mjs` now asserts, per season and for both squads, that the season
+arrived with its fixture already built. Read through `GET /matches`, which does NOT generate —
+deliberately not `/matches/fixture`, which does, and would have repaired the very bug the check
+exists to catch. Pre-fix that check fails for every season after the first; post-fix all 8 new
+checks pass (37/37 in the suite). See R-08 for the measured arc.
+
 ### R-34 — CLOSED (9 Sep, 54f95d9)
 Players added to the starter DB after a save was created never appear in
 that save — R-28/R-33 deliberately skip player rows, so an updated game is
@@ -726,11 +767,63 @@ existing `guard-selftest.mjs` suite, already wired into `run-all.mjs` — no new
 `docs/economy-design.md:567-596`; `harness/invariants.mjs:313` (I1), `:344-383` (I5),
 `:400-437` (literal verdicts for I2/I6/I8/I9). I5: best squad 38.3 pts vs Gold threshold 40 —
 a settings DECISION for Rob, not a code change. I1: wages 2.00× vs income 1.32×. I2/I6/I8/I9
-blocked on R-08/R-09/R-11.
+are blocked on nothing now — R-08, R-09 and R-11 are all closed, and R-08 leaves a
+measured five-season arc for a strong and a weak squad (see its table) to judge I8/I9 against.
 
-### R-08 — Five-season harness never plays a match
+### R-08 — CLOSED (10 Sep, HASH_PLACEHOLDER)
 `harness/rollover.mjs` walks 5 seasons at 0W 0L. Make it simulate real fixtures for a strong and
 a weak squad across the whole arc so I8/I9 become measurable.
+
+**Found:** two faults, one in the game and one in the harness.
+
+The game's is R-35 — the rollover never generated a season's fixtures, so seasons 2-5 had nothing
+to play. That is the whole of the "0W 0L": the harness was not failing to play matches, there were
+no matches to play.
+
+The harness's own fault was the measurement. The first cut asserted only "more than zero matches
+played", counting `status === "completed"` rows from `GET /matches` — which is `.limit(50)`
+(`routes/matches.ts`). The counter saturated at 50, both squads reported exactly "50 matches
+completed", and the section passed 32/32 while three of its four seasons ran completely empty. A
+count that cannot tell 50 from 62 from "capped" is not a measurement, and a check for "at least one
+season" cannot notice that the rest of the arc did nothing.
+
+**Fix:** R-35 on the game side. On the harness side, matches played per season now comes from the
+win/loss delta on `GET /team` — uncapped, non-generating and exact, because every completed
+fixture credits exactly one win or one loss, forfeits included. The season length it is measured
+against is read once from the season-1 fixture rather than hardcoded, so `worldTour.ts` stays the
+authority on how long a season is. Per season, for both squads, the harness asserts the fixture was
+already built before anything asked for it, the full fixture list was played, and no season was a
+walkover — plus that all four boundaries were measured, not "at least one".
+
+Every match is played through `POST /matches/:id/simulate`, the same engine the player uses, so
+wins, losses, ranking points and prize money all move for real. Forfeit is the fallback only for a
+World Final reached after losing the Semi, which `simulate` legitimately refuses and which a real
+squad in that position could not play either.
+
+**Measured — five-season arc, real fixtures, strong vs weak squad.** "Strong" and "weak" reuse
+R-11's difficulty mechanism rather than inventing a second one: ESTABLISHED signs the strongest
+available free agents, UNDERDOG the weakest (`utils/seedStartingSquad.ts`). Both squads played
+62/62 every season. The match engine is stochastic, so this is one run, not a fixed expectation —
+and per the item it is MEASUREMENT ONLY: nothing here is asserted against a target or tuned.
+
+| Season | Strong (ESTABLISHED) | Weak (UNDERDOG) |
+|---|---|---|
+| 1 (2026) | 48W 14L · 62/62 · 94 pts · Gold · $1,341,664 | 38W 24L · 62/62 · 33 pts · Silver · $835,015 |
+| 2 (2027) | 27W 35L · 62/62 · 14 pts · Bronze · $2,128,089 | 24W 38L · 62/62 · 18 pts · Silver · $1,617,715 |
+| 3 (2028) | 21W 41L · 62/62 · 11 pts · Bronze · $2,794,894 | 20W 42L · 62/62 · 12 pts · Bronze · $2,242,320 |
+| 4 (2029) | 18W 44L · 62/62 · 11 pts · Bronze · $3,398,639 | 21W 41L · 62/62 · 17 pts · Silver · $2,888,300 |
+
+Starting budgets: ESTABLISHED $500,000, UNDERDOG $150,000. Season 5 is terminal and has no review,
+so four seasons are measurable out of the five-season arc.
+
+**For Rob, not acted on here** (I8/I9 are R-07's to judge): both squads decline sharply after
+season 1 — strong 48W to 18W, weak 38W to 21W — while the balance rises every season
+regardless. Ranking points collapse from 94 to 11 for the strong squad, so a Gold-tier first season
+becomes Bronze for the rest of the arc. Whether that is the intended difficulty curve or an ageing /
+squad-refresh problem is a design call, and the numbers above are what it should be judged on.
+
+**Harness:** `harness/rollover.mjs`, 37/37 (29 pre-existing + 8 new). Full harness 15/16 suites —
+`reference-data-backfill` fails, which predates this work and is unrelated to it.
 
 ### R-09 — CLOSED (9 Sep, 492b590)
 `isJobAtRisk` / `boardConfidence` computed server-side, zero frontend consumers.
@@ -828,6 +921,15 @@ an explanation; at zero confidence the next match or page load should land on a 
 `docs/economy-design.md:840-848, 868-878`: no Rankings page, no Career Result page, no
 Underdog/Established start choice. Qualification / Tier status / Finals bracket / Fail state
 are "extend existing page" — open each and confirm whether done.
+
+**Also for this audit (found during R-08, not chased):** the code described a "76-event season
+fixture (72 regular/continental + 4 World Finals)", but `data/worldTour.ts` holds 62 events — 60
+non-finals plus exactly 2 finals (World Semi Final, World Final). There is no "All-Star Match" row
+at all, though `FINALS_TIERS` and the finals insert still special-case one. So a season is 62
+matches, not 76, and the comment figures were stale by 14. Whether 62 is the intended season
+length or 14 events went missing is a design question, which is why it sits here rather than being
+"fixed" either way. The stale comments in `routes/matches.ts` were corrected to stop naming a
+count; `FINALS_TIERS` and the All-Star branch were left alone pending this call.
 
 ### R-11 — CLOSED (9 Sep, 6079343)
 Underdog vs established at career start. `pages/new-career.tsx` sends the same payload
