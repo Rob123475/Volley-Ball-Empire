@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-38 — CLOSED (11 Sep, HASH_PLACEHOLDER)
+### R-38 — CLOSED (11 Sep, 39148cb)
 `GET /unity/match-state` is career-scoped but read the career from the session, which
 neither a WebGL iframe nor Unity Editor Play mode has — so the endpoint the Unity
 loader exists to call could never be called successfully by it.
