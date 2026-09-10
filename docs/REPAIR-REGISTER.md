@@ -27,6 +27,53 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-36 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+The harness SIGKILLs the server it booted, so the database is left with an un-checkpointed WAL and
+a read-only reader cannot open it. `reference-data-backfill` failed outright on this; three other
+suites carried a sleep that was the same bug half-covered.
+
+**Found:** every suite booted the server with `spawn(ELECTRON, [SERVER])` and stopped it with
+`child.kill("SIGKILL")`. SIGKILL gives the server no chance to run R-31's shutdown path, so the
+save is left in WAL mode with the session's last writes still in the `-wal` sidecar. A suite then
+opening that file with `new DatabaseSync(file, { readOnly: true })` fails outright: replaying a
+WAL requires creating the `-shm` index, which a read-only connection cannot do, and SQLite reports
+it as a bare `disk I/O error` with no mention of WAL or permissions.
+
+`reference-data-backfill.mjs:196` hit it every run on this machine — section D opens the database
+read-only immediately after stopping the server. Confirmed pre-existing and unrelated to the work
+it was found during (R-08/R-35): stashing that work, rebuilding and re-running reproduced the
+identical failure at the identical line on clean `main`.
+
+It was also already known about and worked around rather than fixed. `reference-data-update.mjs`,
+`career-difficulty.mjs` and `fixture-transaction.mjs` each carried a 600ms
+"a SIGKILL'd better-sqlite3 process can leave the -wal sidecar mid-write, give it a beat" sleep
+before their read-only open — a race they happened to win most of the time, on the same bug.
+
+**Fix:** the harness now quits the server the way the app does. R-31 already built that path — the
+server listens on the fork's IPC channel for `{ type: "shutdown" }`, runs
+`PRAGMA wal_checkpoint(TRUNCATE)`, closes the sqlite handle and exits 0 — and
+`wal-checkpoint-shutdown.mjs` already proved it works. It just was not what the other suites used.
+
+New `harness/server-harness.mjs` holds both halves: `forkServer()` (a real `fork()` with an `ipc`
+channel, since the shutdown message has nowhere to travel on a `spawn()`ed child) and
+`stopServer()` (sends the message, waits for the child's own exit, SIGKILL fallback if it never
+comes). The fallback reports itself on stdout when it fires rather than passing quietly, because a
+suite silently falling back to the old behaviour is how this stayed invisible. Ten suites plus
+`run-all.mjs` now use it, and the three settle sleeps are gone — the graceful path has already
+checkpointed the WAL away before `stop()` returns, so there is nothing to wait for.
+
+This also makes the suites a truer test: the database they inspect is now a single complete file
+with no sidecar, which is the state a player's save is actually left in after a real quit.
+
+SIGKILL is deliberately kept in two places. `migration-fixtures.mjs` kills on purpose to simulate
+a crashed process, and an orderly shutdown would destroy the thing it tests. And
+`career-difficulty.mjs` / `fixture-transaction.mjs` keep a `try { kill } catch {}` in their
+`finally` as a last-ditch cleanup after the graceful stop has already happened mid-test.
+
+**Harness:** full harness 16/16 suites, ALL HARNESSES PASSED — first time it has been green end to
+end. `reference-data-backfill` 8/8 on its own. The other nine converted suites were each run
+individually after conversion and are unchanged in what they assert.
+
 ### R-35 — CLOSED (10 Sep, 4a37f2c)
 Season rollover creates the new season but never generates its fixtures — they only appear when a
 page happens to ask (dashboard repairs it silently); harness and any headless path see an empty

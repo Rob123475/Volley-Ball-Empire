@@ -34,13 +34,13 @@
  *
  * Usage: node harness/schema-drift.mjs
  */
-import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
+import { forkServer, stopServer } from "./server-harness.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -68,7 +68,10 @@ async function boot(dbFile, label) {
   const port = portCounter++;
   const logFile = path.join(WORK, `${label}-${port}.log`);
   const out = fs.openSync(logFile, "w");
-  const child = spawn(ELECTRON, [SERVER], {
+  const child = forkServer({
+    server: SERVER,
+    electron: ELECTRON,
+    out,
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: "1",
@@ -77,7 +80,6 @@ async function boot(dbFile, label) {
       NODE_ENV: "development",
       SESSION_SECRET: "schema-drift-secret",
     },
-    stdio: ["ignore", out, out],
   });
 
   const base = `http://localhost:${port}/api`;
@@ -107,7 +109,14 @@ async function boot(dbFile, label) {
   return {
     api,
     log: () => (fs.existsSync(logFile) ? fs.readFileSync(logFile, "utf8") : ""),
-    stop: () => { try { child.kill("SIGKILL"); } catch {} try { fs.closeSync(out); } catch {} },
+    // R-36: quit through R-31's shutdown path so the WAL is checkpointed back
+    // into the main file. A SIGKILL left an un-checkpointed -wal, and a
+    // readOnly DatabaseSync cannot replay one (it cannot create the -shm
+    // index), which surfaces as a bare "disk I/O error".
+    stop: async () => {
+      await stopServer(child);
+      try { fs.closeSync(out); } catch { /* already closed */ }
+    },
   };
 }
 
@@ -140,7 +149,7 @@ console.log("\nA. AN EMPTY DATABASE, BUILT ENTIRELY BY THE DERIVED REPAIR");
   const srv = await boot(empty, "empty");
   const built = schemaShape(empty);
   const shipped = schemaShape(SHIPPED);
-  srv.stop();
+  await srv.stop();
 
   const shippedTables = Object.keys(shipped);
   const missingTables = shippedTables.filter((t) => !built[t]);
@@ -234,7 +243,7 @@ console.log("\nB. A REAL SAVE MISSING teams.crest_shape_index — THE 1 SEP BUG"
     /crest_shape_index/.test(log) && /schema brought forward/.test(log),
     /crest_shape_index/.test(log) ? "" : "log never mentions the column");
 
-  srv.stop();
+  await srv.stop();
 }
 
 // ── C. a clean save must be a no-op, and must say so ─────────────────────────
@@ -247,7 +256,7 @@ console.log("\nC. AN UP-TO-DATE SAVE — THE REPAIR MUST DO NOTHING, LOUDLY");
   const srv = await boot(clean, "clean");
   const team = await srv.api("GET", "/team");
   const log = srv.log();
-  srv.stop();
+  await srv.stop();
 
   check("schema is byte-for-byte unchanged by a boot", JSON.stringify(schemaShape(clean)) === shapeBefore);
   check("boot log proves the check RAN and found nothing",

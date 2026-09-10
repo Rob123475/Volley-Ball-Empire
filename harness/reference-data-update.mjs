@@ -43,13 +43,13 @@
  *
  * Usage: node harness/reference-data-update.mjs
  */
-import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
+import { forkServer, stopServer } from "./server-harness.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -76,12 +76,14 @@ async function boot(dbFile, label, extraEnv = {}) {
   const port = portCounter++;
   const logFile = path.join(WORK, `${label}-${port}.log`);
   const out = fs.openSync(logFile, "w");
-  const child = spawn(ELECTRON, [SERVER], {
+  const child = forkServer({
+    server: SERVER,
+    electron: ELECTRON,
+    out,
     env: {
       ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(port),
       NODE_ENV: "development", SESSION_SECRET: "ref-update-secret", ...extraEnv,
     },
-    stdio: ["ignore", out, out],
   });
 
   const base = `http://localhost:${port}/api`;
@@ -111,7 +113,14 @@ async function boot(dbFile, label, extraEnv = {}) {
   return {
     api,
     log: () => (fs.existsSync(logFile) ? fs.readFileSync(logFile, "utf8") : ""),
-    stop: () => { try { child.kill("SIGKILL"); } catch {} try { fs.closeSync(out); } catch {} },
+    // R-36: quit through R-31's shutdown path so the WAL is checkpointed back
+    // into the main file. A SIGKILL left an un-checkpointed -wal, and a
+    // readOnly DatabaseSync cannot replay one (it cannot create the -shm
+    // index), which surfaces as a bare "disk I/O error".
+    stop: async () => {
+      await stopServer(child);
+      try { fs.closeSync(out); } catch { /* already closed */ }
+    },
   };
 }
 
@@ -157,7 +166,7 @@ console.log("\nA/B/C. A SAVE WITH STALE REFERENCE DATA AND REAL CAREER PROGRESS"
     await srv.api("POST", "/contracts", {
       playerId: PLAYER_ID, salary: 9500, endDate: "2026-12-31", bonusPerWin: 0, squadRole: "interchange",
     });
-    srv.stop();
+    await srv.stop();
     await new Promise((r) => setTimeout(r, 600));
   }
 
@@ -200,11 +209,7 @@ console.log("\nA/B/C. A SAVE WITH STALE REFERENCE DATA AND REAL CAREER PROGRESS"
   // ── The actual boot under test ──────────────────────────────────────────
   const srv = await boot(dbFile, "stale-save-boot", { STARTER_DB_PATH: SHIPPED });
   const log = srv.log();
-  srv.stop();
-  // A SIGKILL'd better-sqlite3 process can leave the -wal sidecar mid-write
-  // for a moment; give it a beat before opening the file from another
-  // process (same settle time fixture-transaction.mjs uses after its own kill).
-  await new Promise((r) => setTimeout(r, 600));
+  await srv.stop();
 
   const after = new DatabaseSync(dbFile, { readOnly: true });
   const rowAfter = after.prepare("SELECT id, name, height FROM players WHERE id = ?").get(PLAYER_ID);

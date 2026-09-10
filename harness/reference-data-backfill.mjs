@@ -30,13 +30,13 @@
  *
  * Usage: node harness/reference-data-backfill.mjs
  */
-import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
+import { forkServer, stopServer } from "./server-harness.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -64,7 +64,10 @@ async function boot(dbFile, label, extraEnv = {}) {
   const port = portCounter++;
   const logFile = path.join(WORK, `${label}-${port}.log`);
   const out = fs.openSync(logFile, "w");
-  const child = spawn(ELECTRON, [SERVER], {
+  const child = forkServer({
+    server: SERVER,
+    electron: ELECTRON,
+    out,
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: "1",
@@ -74,7 +77,6 @@ async function boot(dbFile, label, extraEnv = {}) {
       SESSION_SECRET: "ref-backfill-secret",
       ...extraEnv,
     },
-    stdio: ["ignore", out, out],
   });
 
   const base = `http://localhost:${port}/api`;
@@ -104,7 +106,15 @@ async function boot(dbFile, label, extraEnv = {}) {
   return {
     api,
     log: () => (fs.existsSync(logFile) ? fs.readFileSync(logFile, "utf8") : ""),
-    stop: () => { try { child.kill("SIGKILL"); } catch {} try { fs.closeSync(out); } catch {} },
+    // R-36: quit through R-31's shutdown path so the WAL is checkpointed
+    // back into the main file. A SIGKILL here left an un-checkpointed -wal,
+    // and the readOnly DatabaseSync reads below then failed outright with
+    // "disk I/O error" — a read-only connection cannot build the -shm index
+    // a WAL replay needs.
+    stop: async () => {
+      await stopServer(child);
+      try { fs.closeSync(out); } catch { /* already closed */ }
+    },
   };
 }
 
@@ -169,7 +179,7 @@ console.log("\nA/B/C. A SAVE MISSING LOCATIONS 9-11 — THE ROOT CAUSE OF THE LI
   check("POST /careers succeeds once the missing locations are backfilled",
     careerRes.status >= 200 && careerRes.status < 300, `HTTP ${careerRes.status} ${JSON.stringify(careerRes.data).slice(0, 200)}`);
 
-  srv.stop();
+  await srv.stop();
 }
 
 // ── D. STARTER_DB_PATH unset — no starter DB to compare against, no crash ────
@@ -186,7 +196,7 @@ console.log("\nD. STARTER_DB_PATH NOT SET — MUST NO-OP, NOT CRASH");
   const srv = await boot(dbFile, "no-starter-path"); // no STARTER_DB_PATH in extraEnv
   const health = await srv.api("GET", "/healthz");
   const log = srv.log();
-  srv.stop();
+  await srv.stop();
 
   check("server still boots cleanly with no STARTER_DB_PATH", health.status === 200, `HTTP ${health.status}`);
   check("the boot log says the backfill was skipped, not silent",

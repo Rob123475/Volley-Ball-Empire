@@ -11,13 +11,13 @@
  *
  * Usage: node harness/career-difficulty.mjs
  */
-import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
+import { forkServer, stopServer } from "./server-harness.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -47,12 +47,14 @@ fs.copyFileSync(SHIPPED, dbFile);
 
 const logFile = path.join(WORK, "server.log");
 const out = fs.openSync(logFile, "w");
-const child = spawn(ELECTRON, [SERVER], {
+const child = forkServer({
+  server: SERVER,
+  electron: ELECTRON,
+  out,
   env: {
     ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT),
     NODE_ENV: "development", SESSION_SECRET: "career-difficulty-secret",
   },
-  stdio: ["ignore", out, out],
 });
 
 const base = `http://localhost:${PORT}/api`;
@@ -121,8 +123,11 @@ try {
   const establishedTeamId = establishedRes.data.teamId;
   const establishedCareerSaveId = establishedRes.data.id;
 
-  child.kill("SIGKILL");
-  await new Promise((r) => setTimeout(r, 600));
+  // R-36: stop through R-31's shutdown path, not SIGKILL. The kill left an
+  // un-checkpointed -wal that the readOnly DatabaseSync below cannot replay,
+  // and the 600ms sleep that used to sit here was only ever a race this
+  // suite happened to win most of the time.
+  await stopServer(child);
 
   const db = new DatabaseSync(dbFile, { readOnly: true });
 

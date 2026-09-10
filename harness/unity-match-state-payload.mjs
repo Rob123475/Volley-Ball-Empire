@@ -38,13 +38,13 @@
  *
  * Usage: node harness/unity-match-state-payload.mjs
  */
-import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
+import { forkServer, stopServer } from "./server-harness.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -75,12 +75,14 @@ fs.copyFileSync(SHIPPED, dbFile);
 
 const logFile = path.join(WORK, "server.log");
 const out = fs.openSync(logFile, "w");
-const child = spawn(ELECTRON, [SERVER], {
+const child = forkServer({
+  server: SERVER,
+  electron: ELECTRON,
+  out,
   env: {
     ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT),
     NODE_ENV: "development", SESSION_SECRET: "unity-payload-secret",
   },
-  stdio: ["ignore", out, out],
 });
 
 const base = `http://localhost:${PORT}/api`;
@@ -171,8 +173,10 @@ try {
       homeColorsMatch, JSON.stringify(homePlayers.map((p) => ({ name: p.name, primaryColor: p.primaryColor, secondaryColor: p.secondaryColor }))));
   }
 } finally {
-  child.kill("SIGKILL");
-  await new Promise((r) => setTimeout(r, 500));
+  // R-36: quit through R-31's shutdown path rather than SIGKILL, so the
+  // database is left checkpointed with no -wal sidecar. The settle sleep
+  // that used to follow the kill was only covering for that.
+  await stopServer(child);
   try { fs.closeSync(out); } catch { /* already closed */ }
 }
 
