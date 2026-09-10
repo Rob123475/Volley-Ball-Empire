@@ -27,6 +27,58 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-37 — CLOSED (10 Sep, HASH_PLACEHOLDER)
+`match-tick-fallback-roster.mjs` asserts two DISTINCT away scorers, which is not what R-32
+guarantees — it depends on the engine picking different players, and it flakes.
+
+**Found:** R-32's bug was `loadFallbackPool`'s `isActive: true` filter returning zero rows, leaving
+`awayRoster` empty. `pickPlayer([], stat)` then returns `undefined`, so every away point carried
+`lastActionPlayerId: null` — a phantom opponent that won points but never had a name. What the fix
+guarantees is that the away side is a real, staffed pair and its points are credited to one of
+them.
+
+The suite asserted something stronger: that 2 distinct away player ids were each credited with a
+point inside a ~15-point window. Which of the pair gets credited is `pickPlayer()`'s stat-weighted
+randomness, and it can favour one of them for a long run, so the assertion can fail with the engine
+behaving perfectly. The suite's own comment already said exactly this about the home side, and set
+the home bar at 1 for that reason — while leaving the away bar at 2 with identical exposure.
+
+It duly flaked during R-36: one full-harness run sat out the entire 55s poll waiting for a second
+distinct away scorer that never came, then failed. 3 runs alone and 2 further full runs passed.
+Confirmed not caused by the R-36 change: that diff touches only the import, the launch and the
+`finally` teardown, and the poll runs before any of the teardown.
+
+**Fix:** assert the two things R-32 does guarantee, both deterministic.
+
+1. The away side has two real players available to field. The roster the tick engine builds is
+   in-memory and never persisted, so this is asserted against the pool it fills from, through the
+   app's own `GET /players/free-agents` — the same `loadPlayers(..., { freeAgents: true })` that
+   `loadFallbackPool` calls — rather than a hand-copied SQL query. Pre-fix that pool was
+   unreachable behind the contradictory filter.
+2. Away scored at least one point and it was credited to a real named player from that pool, with a
+   separate check that NO away point was credited to nobody — naming the pre-fix symptom
+   (`lastActionPlayerId` null) directly rather than inferring it from a scorer count.
+
+The poll now waits for both sides to have a real scorer before asserting. An intermediate version
+stopped as soon as away scored, which can be the very first point of the match, and then the home
+sanity check failed on an empty set — one stochastic flake traded for another, caught in testing.
+Each side winning one point in ~15 is overwhelmingly likely, and far weaker than needing the engine
+to pick two different players on one side.
+
+Also tightened a check that passed vacuously: `[...awayScorers].every(...)` is true for an empty
+set, so "the away scorer is from the fallback pool" passed when there was no scorer at all. It now
+requires a scorer to exist as well as being a real one. A check that passes when nothing happened is
+how the original over-assertion sat here unnoticed.
+
+**Proof:** sabotaged the fix under test — re-added `isActive: true` to `loadFallbackPool`, rebuilt,
+and ran: 6/9, with "away scored at least one point, credited to a real named player" (7 away points,
+0 scorers), "no away point was credited to nobody" (7 nameless away points) and the pool check all
+failing. So the new assertions still catch the exact regression the old one did, and say plainly
+what went wrong. Sabotage reverted and rebuilt before committing.
+
+**Harness:** 9/9, run 6 times consecutively, 6-15s each (the flaky version ran up to 56s when it
+hit the full poll deadline). Full harness 16/16.
+
 ### R-36 — CLOSED (10 Sep, 5dc9466)
 The harness SIGKILLs the server it booted, so the database is left with an un-checkpointed WAL and
 a read-only reader cannot open it. `reference-data-backfill` failed outright on this; three other
@@ -276,11 +328,12 @@ real team's bench players (signed but not in the starting 2) should not be pulle
 
 **Harness (done):** `harness/match-tick-fallback-roster.mjs` — creates a career (eager World Tour
 fixture, so `awayTeamId === homeTeamId` on every match), starts the live tick loop
-(`POST /matches/:id/watch`), and polls `GET /unity/match-state` until 2 distinct real player ids
-are credited with a point on the away side (home is asserted at 1+ only — its roster selection is
-unrelated to this fix and pickPlayer's stat-weighted randomness can easily favour one home player
-within the ~15-point window this runs in, so a stricter home bar would be flaky on behaviour this
-fix never touched). Confirmed against the pre-fix code: 0 distinct away scorers, zero points
+(`POST /matches/:id/watch`), and polls `GET /unity/match-state` until both sides have a real
+scorer. **Amended by R-37:** it originally required 2 DISTINCT away scorers, which this fix does not
+guarantee — that needs pickPlayer's stat-weighted randomness to pick different players, and it
+flaked. It now asserts the away side has two real players to field (via `GET /players/free-agents`,
+the pool `loadFallbackPool` draws from) and that away points are credited to one of them, with no
+away point credited to nobody. Confirmed against the pre-fix code: 0 distinct away scorers, zero points
 credited to any away player, in the same window. Wired into `run-all.mjs` as suite 7/12. Full
 harness green: 12/12 suites.
 

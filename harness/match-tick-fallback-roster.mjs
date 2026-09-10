@@ -127,36 +127,96 @@ try {
     const watchRes = await api("POST", `/matches/${match.id}/watch`);
     check("the live tick loop starts", watchRes.status === 200 && watchRes.data?.ok, JSON.stringify(watchRes.data));
 
-    // Poll until 2 distinct real away-side player ids have been credited —
-    // that is the actual fix under test — or a bounded timeout.
-    // TICK_MS(1800) x 2 phases = ~3.6s/point, so this covers roughly 15
-    // points' worth of real time in the worst case. Home scorers are
-    // collected passively over the same window: home's own roster selection
-    // is unrelated to this fix (it already worked), and pickPlayer()'s
-    // stat-weighted randomness can easily favour one home player over the
-    // other within only ~15 points, so home is asserted as "at least 1 real
-    // scorer" (proves the roster is real, not empty) rather than "2" — a
-    // stricter home bar would make the test flaky on behaviour this fix
-    // never touched.
+    // ── What R-32 actually guarantees ─────────────────────────────────────
+    //
+    // R-37: this used to poll until 2 DISTINCT away player ids had each been
+    // credited with a point, and that is not something R-32 guarantees. The
+    // bug was `loadFallbackPool`'s `isActive: true` filter returning zero rows,
+    // so `awayRoster` was empty and `pickPlayer([], stat)` returned undefined —
+    // every away point carried `lastActionPlayerId: null`, a phantom opponent
+    // that won points but never had a name. The fix makes the away side a real,
+    // staffed pair. Which of those two players the engine credits on any given
+    // point is `pickPlayer()`'s stat-weighted randomness, and it can favour one
+    // of them for a long run — the suite's own note already said exactly that
+    // about the home side, and set the home bar at 1 for that reason, while
+    // leaving the away bar at 2 with the same exposure.
+    //
+    // It duly flaked: one full-harness run sat out the entire 55s poll waiting
+    // for a second distinct away scorer that never came, and failed. The engine
+    // was behaving correctly the whole time.
+    //
+    // So assert the two things the fix does guarantee, both deterministic:
+    //   1. the away side has two real players to field (the pool whose query
+    //      returned zero rows pre-fix), and
+    //   2. away points are credited to one of them, not to null.
+    //
+    // The roster the tick engine builds is in-memory and never persisted, so
+    // (1) is asserted against the pool it fills from, through the app's own
+    // endpoint rather than a hand-copied SQL query: GET /players/free-agents
+    // runs the same `loadPlayers(..., { freeAgents: true })` that
+    // `loadFallbackPool` does. Pre-fix that pool was unreachable behind the
+    // contradictory filter; an empty or one-player pool here means the away
+    // side cannot be staffed, which is the regression this must catch.
+    const freeAgentsRes = await api("GET", "/players/free-agents");
+    const freeAgents = Array.isArray(freeAgentsRes.data) ? freeAgentsRes.data : [];
+    const freeAgentIds = new Set(freeAgents.map((p) => p.id));
+    check("the away side has two real players available to field (the fallback pool the engine fills from)",
+      freeAgents.length >= 2, `${freeAgents.length} senior free agent(s) in the pool`);
+
+    // Poll until BOTH sides have a real scorer, or a bounded timeout.
+    // TICK_MS(1800) x 2 phases = ~3.6s/point, so 55s covers roughly 15 points'
+    // worth of real time — ample for each side to win one.
+    //
+    // Waiting on both matters: an earlier version of this stopped as soon as
+    // away scored, which can be the very first point of the match, and then the
+    // home sanity check failed on an empty set. One stochastic flake traded for
+    // another. Each side winning at least one point in ~15 is overwhelmingly
+    // likely, and is a far weaker demand than the two-distinct-scorers bar this
+    // replaced, which needed the engine to pick DIFFERENT players on one side.
     const homeScorers = new Set();
     const awayScorers = new Set();
+    const awayNullPoints = [];
+    let awayPoints = 0;
+    let lastSeen = null;
     const pollDeadline = Date.now() + 55000;
-    while (Date.now() < pollDeadline && awayScorers.size < 2) {
+    while (Date.now() < pollDeadline && (awayScorers.size < 1 || homeScorers.size < 1)) {
       const stateRes = await api("GET", `/unity/match-state?matchId=${match.id}`);
-      const { lastActionTeam, lastActionPlayer } = stateRes.data ?? {};
-      if (lastActionPlayer != null) {
-        if (lastActionTeam === "home") homeScorers.add(lastActionPlayer);
-        else if (lastActionTeam === "away") awayScorers.add(lastActionPlayer);
+      const { lastActionTeam, lastActionPlayer, lastAction } = stateRes.data ?? {};
+      // The same point stays on the endpoint across several polls; key on the
+      // action text so one point is not counted many times.
+      const key = `${lastActionTeam}|${lastActionPlayer}|${lastAction}`;
+      if (key !== lastSeen) {
+        lastSeen = key;
+        if (lastActionTeam === "away") {
+          awayPoints++;
+          // A null scorer on an away point IS the R-32 bug, so record it
+          // rather than skipping past it.
+          if (lastActionPlayer == null) awayNullPoints.push(lastAction ?? "(no action text)");
+          else awayScorers.add(lastActionPlayer);
+        } else if (lastActionTeam === "home" && lastActionPlayer != null) {
+          homeScorers.add(lastActionPlayer);
+        }
       }
       await new Promise((r) => setTimeout(r, 400));
     }
 
     check("at least 1 real player credited with a point on the HOME side (sanity — unaffected by this fix)",
       homeScorers.size >= 1, `[${[...homeScorers].join(", ")}]`);
-    check("at least 2 distinct real players credited with a point on the AWAY side (the actual fallback fix)",
-      awayScorers.size >= 2, `[${[...awayScorers].join(", ")}]`);
-    check("away genuinely contests points — not a walkover against a playerless ghost opponent",
-      awayScorers.size > 0, `${awayScorers.size} distinct away scorer(s) observed`);
+    check("away scored at least one point, credited to a real named player (the actual fallback fix)",
+      awayScorers.size >= 1, `${awayPoints} away point(s) seen, scorer(s) [${[...awayScorers].join(", ")}]`);
+    check("no away point was credited to nobody — the pre-fix symptom was lastActionPlayerId null",
+      awayNullPoints.length === 0,
+      awayNullPoints.length === 0 ? "every away point had a real scorer" : `${awayNullPoints.length} nameless away point(s)`);
+    // `every()` on an empty set is true, so this requires a scorer to exist as
+    // well as being a real one — a check that passes when nothing happened is
+    // the kind that let the original bug sit here unnoticed.
+    const allFromPool = awayScorers.size >= 1
+      && [...awayScorers].every((id) => freeAgentIds.has(id));
+    check("the away scorer is a player from the fallback pool, not a stray id",
+      allFromPool,
+      awayScorers.size === 0
+        ? "no away scorer to check"
+        : `scorer(s) [${[...awayScorers].join(", ")}] all in the pool: ${allFromPool}`);
   }
 } finally {
   // R-36: quit through R-31's shutdown path rather than SIGKILL, so the
