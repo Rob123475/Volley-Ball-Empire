@@ -27,6 +27,72 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-38 — CLOSED (11 Sep, HASH_PLACEHOLDER)
+`GET /unity/match-state` is career-scoped but read the career from the session, which
+neither a WebGL iframe nor Unity Editor Play mode has — so the endpoint the Unity
+loader exists to call could never be called successfully by it.
+
+**Found:** the handler is documented "No auth required — Unity connects as an external
+service", and then called `requireCareerSaveId(req.activeCareerSaveId)` in five places.
+`activeCareerSaveId` only exists on a browser session, so any session-less caller got a
+500 with `No active career. Player and staff state is career-scoped — this code path
+needs req.activeCareerSaveId.` Confirmed live against the running app on the live save:
+`GET /api/unity/match-state` returned HTTP 500 with that exact error in the server log.
+
+Not a curl artefact, which is what makes it a real bug rather than a test nuisance: the
+WebGL build runs in an iframe with no app session, and Editor Play mode has no cookie at
+all. Both of the only two callers that will ever exist were locked out.
+
+A second, quieter instance of the same fault sat in the match lookup: with no `matchId`
+it took the newest match by status with **no team filter**, so in a database holding two
+careers it could return whichever career's match happened to be most recent — the
+cross-career bleed R-20 was about.
+
+**Fix:** `?careerSaveId=N` wins; otherwise the session's active career; otherwise **400**
+naming the problem. It deliberately does **not** fall back to "the first career in the
+table" — guessing an owner is how R-20 showed one career another career's state, and a
+400 beats a plausible wrong answer. An id that does not exist is 404, not a silent
+fallback. The career is resolved once at the top and that value feeds all five
+`loadPlayers` calls. The match lookup is now scoped to the career's own team, in both the
+explicit-`matchId` and no-`matchId` paths.
+
+`pages/court.tsx` passes `careerSaveId` (from `useListCareerSaves`'s
+`activeCareerSaveId`) plus any `matchId` in the iframe URL, and waits for that query to
+settle before mounting the iframe — mounting first and adding the id afterwards would
+change `src` and reload the whole Unity build. This is the only management-side file the
+Unity work was scoped to touch.
+
+**Harness (done):** `harness/unity-career-scoping.mjs`, suite 9/17, 15/15. Two careers in
+one database: `?careerSaveId=A` and `=B` each return 200 **with no session at all**, each
+reporting its own club (`CareerA FC` vs `CareerB FC`) and its own match (ids 1 vs 63); no
+id and no session is 400 with a message naming the problem; an unknown id is 404; and a
+session with an active career still works with no id, resolving to the same career as the
+explicit form.
+
+Two of its assertions were wrong first and are worth recording, because both encoded a
+false idea of the data model rather than a bug:
+
+- It asserted A's and B's player **ids** were disjoint. They are not, and should not be:
+  `players` is global reference data shared by every career and only
+  `career_player_state` is career-scoped, so two careers seeded from the same starter
+  pool legitimately pick the same top-rated rows.
+- It then asserted all four returned players were on the career's team. Only two are. The
+  away pair is staffed from the free-agent pool because every match's `awayTeamId`
+  equals its own `homeTeamId` (R-29) and the true away side is an AI opponent (R-22);
+  free agents have `team_id` NULL.
+
+What it asserts now is the thing that actually proves scoping: every returned player has
+a `career_player_state` row for **that** career, with the home pair on that career's team
+and the away pair free agents.
+
+**Still open, separate item:** nothing on the Unity side feeds `MatchManager`. The brief
+assumed a `MatchManager.ReplitPlayerData` type; it does not exist in the Unity project
+(`MatchManager.cs` there is the 30 June version and that type died with the lost August
+work). `PlayerStatsData[]` is a live-stats accumulator MatchManager fills itself, so it is
+an output. The loader feeds each player's `PlayerStats` and the appearance controller
+instead. How ratings should reach `MatchManager` is a design question, not a defect.
+
+
 ### R-37 — CLOSED (10 Sep, d0316c5)
 `match-tick-fallback-roster.mjs` asserts two DISTINCT away scorers, which is not what R-32
 guarantees — it depends on the engine picking different players, and it flakes.

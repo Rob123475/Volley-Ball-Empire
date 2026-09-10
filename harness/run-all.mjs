@@ -43,79 +43,87 @@ function runSuite(name, file) {
 // The guards run FIRST. If a guard has gone inert, every check after it is
 // reporting on a net with a hole in it, and the run should say so before
 // anything else claims to have passed.
-console.log("\n########## 1/16  GUARD SELF-TEST ##########");
+console.log("\n########## 1/17  GUARD SELF-TEST ##########");
 runSuite("guard self-test", path.join(REPO, "harness", "guard-selftest.mjs"));
 
 // Schema drift runs before the data migrations, for the same reason
 // ensureSchema runs before them at boot: every migration below assumes its
 // columns exist. A save that has fallen behind the code fails here first, with
 // the column named, rather than three suites later as a confusing data error.
-console.log("\n########## 2/16  SCHEMA DRIFT (R-01) ##########");
+console.log("\n########## 2/17  SCHEMA DRIFT (R-01) ##########");
 runSuite("schema drift", path.join(REPO, "harness", "schema-drift.mjs"));
 
 // Same reasoning, one layer down: ensureReferenceData() runs right after
 // ensureSchema() at boot, so its own drift check belongs right after schema
 // drift's here too — a save missing reference ROWS (not columns) fails here
 // first, with the row named, rather than as a confusing FK error later.
-console.log("\n########## 3/16  REFERENCE DATA BACKFILL (R-28) ##########");
+console.log("\n########## 3/17  REFERENCE DATA BACKFILL (R-28) ##########");
 runSuite("reference data backfill", path.join(REPO, "harness", "reference-data-backfill.mjs"));
 
 // Same boot-time pass, the other half of it: R-28 inserts missing rows, R-33
 // updates stale ones. Sits right next to R-28's suite for the same reason.
-console.log("\n########## 4/16  REFERENCE DATA UPDATE (R-33) ##########");
+console.log("\n########## 4/17  REFERENCE DATA UPDATE (R-33) ##########");
 runSuite("reference data update", path.join(REPO, "harness", "reference-data-update.mjs"));
 
 // Same boot-time pass again: R-28/R-33 only touch rows a save already has —
 // this is what happens when the starter DB has a player row the save has
 // never seen at all.
-console.log("\n########## 5/16  REFERENCE DATA NEW PLAYERS (R-34) ##########");
+console.log("\n########## 5/17  REFERENCE DATA NEW PLAYERS (R-34) ##########");
 runSuite("reference data new players", path.join(REPO, "harness", "reference-data-new-players.mjs"));
 
 // One layer up from all of the above: this is the only suite that boots
 // electron/main.js itself rather than just the server, because the R-23
 // save-folder rename migration is main.js's own logic, running before
 // ensureSchema/ensureReferenceData ever see the moved DB.
-console.log("\n########## 6/16  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
+console.log("\n########## 6/17  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
 runSuite("save folder migration", path.join(REPO, "harness", "save-folder-migration.mjs"));
 
 // The other end of the same process lifecycle R-23 touches at boot: this one
 // is shutdown. A real fork(), not spawn() — the IPC channel the shutdown
 // message travels over only exists on a forked child.
-console.log("\n########## 7/16  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########");
+console.log("\n########## 7/17  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########");
 runSuite("wal checkpoint on shutdown", path.join(REPO, "harness", "wal-checkpoint-shutdown.mjs"));
 
-console.log("\n########## 8/16  UNITY PAYLOAD SKIN TONE / KIT COLOUR (R-22) ##########");
+console.log("\n########## 8/17  UNITY PAYLOAD SKIN TONE / KIT COLOUR (R-22) ##########");
 runSuite("unity match-state payload", path.join(REPO, "harness", "unity-match-state-payload.mjs"));
+
+// The same endpoint, one layer up: R-22 made the payload carry the right values,
+// R-38 made it possible to ASK for them at all. /unity/match-state read the
+// career from the session, which neither a WebGL iframe nor Editor Play mode has,
+// so the loader it exists to feed could never call it.
+console.log("
+########## 9/17  UNITY MATCH-STATE CAREER SCOPING (R-38) ##########");
+runSuite("unity career scoping", path.join(REPO, "harness", "unity-career-scoping.mjs"));
 
 // Same freeAgents/isActive contradiction R-22 fixed in the Unity payload,
 // found in the live match-simulation engine's own fallback roster lookup.
-console.log("\n########## 9/16  LIVE MATCH TICK FALLBACK ROSTER (R-32) ##########");
+console.log("\n########## 10/17  LIVE MATCH TICK FALLBACK ROSTER (R-32) ##########");
 runSuite("match tick fallback roster", path.join(REPO, "harness", "match-tick-fallback-roster.mjs"));
 
-console.log("\n########## 10/16  MIGRATION FIXTURES ##########");
+console.log("\n########## 11/17  MIGRATION FIXTURES ##########");
 runSuite("migration fixtures", path.join(REPO, "harness", "migration-fixtures.mjs"));
 
-console.log("\n########## 11/16  FRESH INSTALL CHAIN ##########");
+console.log("\n########## 12/17  FRESH INSTALL CHAIN ##########");
 runSuite("fresh install", path.join(REPO, "harness", "fresh-install.mjs"));
 
-console.log("\n########## 12/16  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
+console.log("\n########## 13/17  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
 runSuite("fixture transaction", path.join(REPO, "harness", "fixture-transaction.mjs"));
 
 // Own throwaway DB + server: creates one career of each difficulty in the
 // same session and diffs their starting budget, ranking points and squad —
 // there is no "correct number" to check against (the design doc gives none),
 // only that the two starts are actually different.
-console.log("\n########## 13/16  CAREER DIFFICULTY (R-11) ##########");
+console.log("\n########## 14/17  CAREER DIFFICULTY (R-11) ##########");
 runSuite("career difficulty", path.join(REPO, "harness", "career-difficulty.mjs"));
 
 // Own throwaway DB + server, same reasoning as fixture-transaction.mjs: the
 // ladder's stage boundaries are read-time arithmetic, so direct-DB sabotage
 // (not RNG-driven match simulation) is what actually proves each boundary.
-console.log("\n########## 14/16  BOARD CONFIDENCE ESCALATION LADDER (R-09) ##########");
+console.log("\n########## 15/17  BOARD CONFIDENCE ESCALATION LADDER (R-09) ##########");
 runSuite("board confidence ladder", path.join(REPO, "harness", "board-confidence-ladder.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
-console.log("\n########## 15/16  GAMEPLAY SMOKE ##########");
+console.log("\n########## 16/17  GAMEPLAY SMOKE ##########");
 {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-smoke-"));
   const db = path.join(work, "smoke.sqlite");
@@ -159,7 +167,7 @@ console.log("\n########## 15/16  GAMEPLAY SMOKE ##########");
     // Rollover reuses the same server: it walks a fresh career through all five
     // season boundaries, which is slow but is the only way to prove the arc
     // actually completes rather than compiling.
-    console.log("\n########## 16/16  SEASON ROLLOVER ##########");
+    console.log("\n########## 17/17  SEASON ROLLOVER ##########");
     const rollStart = Date.now();
     const rr = spawnSync(
       process.execPath,

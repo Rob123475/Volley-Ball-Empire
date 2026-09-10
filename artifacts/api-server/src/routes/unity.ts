@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable } from "@workspace/db";
+import { db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable } from "@workspace/db";
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
-import { loadPlayers, requireCareerSaveId, type PlayerDTO } from "../lib/playerDto.js";
+import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
 
 const router = Router();
 
@@ -26,31 +26,101 @@ function estimateCrowdSize(tier: string | null | undefined): number {
 }
 
 /**
- * GET /unity/match-state?matchId=123
+ * GET /unity/match-state?careerSaveId=5&matchId=123
  *
  * Read-only endpoint for Unity integration.
  * If matchId is given, returns that specific match (plus its live tick
  * state, if the point-tick engine has one running/finished for it).
- * If matchId is omitted, falls back to the previous behavior: the current
- * in-progress match, or the most recently completed one.
- * No auth required — Unity connects as an external service.
+ * If matchId is omitted: the career's current in-progress match, or its most
+ * recently completed one.
+ *
+ * ── Which career (R-38) ────────────────────────────────────────────────────
+ * `?careerSaveId=N` wins; otherwise the session's active career; otherwise 400.
+ *
+ * This endpoint is documented as needing no auth because Unity connects as an
+ * external service — but it then read `req.activeCareerSaveId`, which only
+ * exists on a browser session. So every session-less caller got
+ * "No active career ... needs req.activeCareerSaveId" as a 500. That is not
+ * only curl: a WebGL build in an iframe has no app session, and Unity Editor
+ * Play mode has no cookie at all, so the loader this endpoint exists to feed
+ * could never have called it successfully.
+ *
+ * It deliberately does NOT fall back to "the first career in the table".
+ * Guessing an owner is how R-20 showed one career another career's state; a
+ * 400 that names the problem is strictly better than a plausible wrong answer.
  */
 router.get("/unity/match-state", async (req, res): Promise<void> => {
   const matchIdParam = req.query.matchId != null ? parseInt(String(req.query.matchId)) : NaN;
 
+  // ── Resolve the career before anything else reads career-scoped state ──────
+  const careerIdParam =
+    req.query.careerSaveId != null ? parseInt(String(req.query.careerSaveId)) : NaN;
+
+  let careerSaveId: number;
+  let careerSource: string;
+
+  if (!isNaN(careerIdParam) && careerIdParam > 0) {
+    careerSaveId = careerIdParam;
+    careerSource = "query";
+  } else if (req.activeCareerSaveId != null) {
+    careerSaveId = req.activeCareerSaveId;
+    careerSource = "session";
+  } else {
+    res.status(400).json({
+      error: "No career specified",
+      detail:
+        "This endpoint is career-scoped. Pass ?careerSaveId=<id>, or call it " +
+        "with a session that has an active career. It will not guess a career.",
+    });
+    return;
+  }
+
+  // An id that does not exist is a 404, not a silent fallback.
+  const [career] = await db
+    .select({ id: careerSavesTable.id, teamId: careerSavesTable.teamId })
+    .from(careerSavesTable)
+    .where(eq(careerSavesTable.id, careerSaveId))
+    .limit(1);
+
+  if (!career) {
+    res.status(404).json({
+      error: "Career not found",
+      detail: `No career_save with id ${careerSaveId}.`,
+    });
+    return;
+  }
+
+  req.log?.info(
+    { careerSaveId, careerSource, teamId: career.teamId },
+    "unity/match-state career resolved",
+  );
+
   let match: typeof matchesTable.$inferSelect | null = null;
 
   if (!isNaN(matchIdParam)) {
-    const [row] = await db.select().from(matchesTable).where(eq(matchesTable.id, matchIdParam)).limit(1);
+    // Scoped to the career's own team: an explicit matchId from one career must
+    // not be able to read another career's match.
+    const [row] = await db
+      .select()
+      .from(matchesTable)
+      .where(
+        career.teamId != null
+          ? and(eq(matchesTable.id, matchIdParam), eq(matchesTable.homeTeamId, career.teamId))
+          : eq(matchesTable.id, matchIdParam),
+      )
+      .limit(1);
     match = row ?? null;
-  } else {
-    // Legacy fallback — prefer an in-progress match; fall back to the most recently completed one
+  } else if (career.teamId != null) {
+    // Prefer an in-progress match, then the most recent completed/scheduled one -
+    // all restricted to this career's team. Before R-38 this query had no team
+    // filter at all, so with two careers in one database it returned whichever
+    // match was newest regardless of who owned it.
     const statusPriority = ["in_progress", "completed", "scheduled"];
     for (const status of statusPriority) {
       const [row] = await db
         .select()
         .from(matchesTable)
-        .where(eq(matchesTable.status, status))
+        .where(and(eq(matchesTable.status, status), eq(matchesTable.homeTeamId, career.teamId)))
         .orderBy(desc(matchesTable.createdAt))
         .limit(1);
 
@@ -103,9 +173,9 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     const homeIds = lineupIds.slice(0, 2);
     const awayIds = lineupIds.slice(2, 4);
     [homePlayers, awayPlayers] = await Promise.all([
-      loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { includeRetired: true })
+      loadPlayers(careerSaveId, { includeRetired: true })
         .then((all) => all.filter((p) => homeIds.includes(p.id))),
-      loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { includeRetired: true })
+      loadPlayers(careerSaveId, { includeRetired: true })
         .then((all) => all.filter((p) => awayIds.includes(p.id))),
     ]);
   } else {
@@ -113,7 +183,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
 
     // Home: top 2 active seniors on the home team
     if (match.homeTeamId) {
-      homePlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
+      homePlayers = (await loadPlayers(careerSaveId, {
         teamId: match.homeTeamId, isActive: true, playerType: "senior",
       })).sort((x, y) => computeOverall(y) - computeOverall(x)).slice(0, 2);
     }
@@ -121,7 +191,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     // Away: top 2 active seniors on the away team, if it is a distinct DB team
     const awayIsDistinct = match.awayTeamId != null && match.awayTeamId !== match.homeTeamId;
     if (awayIsDistinct) {
-      awayPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
+      awayPlayers = (await loadPlayers(careerSaveId, {
         teamId: match.awayTeamId!, isActive: true, playerType: "senior",
       })).sort((x, y) => computeOverall(y) - computeOverall(x)).slice(0, 2);
     }
@@ -147,7 +217,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       // /unity/match-state payload was always completely empty. Unity was
       // never shown a match with two clubs' colours because it was never
       // sent two players at all.
-      const freeAgents = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
+      const freeAgents = await loadPlayers(careerSaveId, {
         freeAgents: true, playerType: "senior",
       });
       const fillPlayers = freeAgents

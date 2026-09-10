@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Monitor, UploadCloud, Loader2 } from "lucide-react";
+import {
+  useListCareerSaves,
+  getListCareerSavesQueryKey,
+} from "@workspace/api-client-react";
 
 type BuildState = "checking" | "available" | "unavailable";
 
@@ -9,9 +13,32 @@ export default function ThreeDCourt() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
-  // Unity itself should read this from its own iframe location and call
-  // GET /unity/match-state?matchId=<id> instead of the old no-param fallback.
+  // Unity reads this from its own iframe location and calls
+  // GET /unity/match-state?matchId=<id>.
   const matchId = new URLSearchParams(window.location.search).get("matchId");
+
+  // R-38: the build also needs the career id. /unity/match-state is career-scoped
+  // and used to read it from the session, which the Unity side never has - the
+  // WebGL build runs in an iframe with no app session, and Editor Play mode has no
+  // cookie at all. So the id travels in the URL, and Unity reads it back out of
+  // its own location.
+  const { data: savesData } = useListCareerSaves({
+    query: { queryKey: getListCareerSavesQueryKey() },
+  });
+  const careerSaveId = savesData?.activeCareerSaveId ?? null;
+
+  // Undefined means the query has not settled. Waiting matters: mounting the
+  // iframe before the id is known and then adding it would change src and reload
+  // the whole Unity build.
+  const careerSettled = savesData !== undefined;
+
+  const unityQuery = (() => {
+    const p = new URLSearchParams();
+    if (careerSaveId != null) p.set("careerSaveId", String(careerSaveId));
+    if (matchId) p.set("matchId", matchId);
+    const qs = p.toString();
+    return qs ? `?${qs}` : "";
+  })();
 
   useEffect(() => {
     const buildUrl = `${import.meta.env.BASE_URL}unity-build/index.html`;
@@ -31,13 +58,13 @@ export default function ThreeDCourt() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  if (buildState === "checking") {
+  if (buildState === "checking" || !careerSettled) {
     return (
       <div
         style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
         className="text-muted-foreground text-sm"
       >
-        Checking for Unity build…
+        {buildState === "checking" ? "Checking for Unity build…" : "Loading career…"}
       </div>
     );
   }
@@ -47,7 +74,7 @@ export default function ThreeDCourt() {
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
         <iframe
           ref={iframeRef}
-          src={`${import.meta.env.BASE_URL}unity-build/index.html${matchId ? `?matchId=${matchId}` : ""}`}
+          src={`${import.meta.env.BASE_URL}unity-build/index.html${unityQuery}`}
           title="Beach Volleyball 3D Court"
           allow="fullscreen"
           onLoad={() => {
