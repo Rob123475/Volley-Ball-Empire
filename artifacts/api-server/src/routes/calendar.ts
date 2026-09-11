@@ -16,6 +16,7 @@ import {
 } from "@workspace/db";
 import { eq, or, and, ne, sql, lte, inArray, isNotNull, desc } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
+import { advanceWorldTour, NOT_QUALIFIED } from "../utils/worldTour.js";
 import {
   isRegionalSlot, isLastRegionalSlot, getSlotType,
   TOTAL_SLOTS, REGIONAL_START, REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
@@ -103,70 +104,6 @@ function todayRoundsForDate(
     }
   }
   return rounds;
-}
-
-/**
- * Batch-simulate all scheduled AI-vs-NPC World Tour / Finals matches up to
- * (and including) maxRound.  The player's team matches are excluded.
- *
- * Uses a single batch SQL UPDATE for all matches, then per-team wins/losses
- * updates — typically ~18 DB calls even for a full retroactive catchup.
- */
-async function autoSimulateAIMatches(
-  seasonYear: number,
-  maxRound: number,
-  excludeTeamId: number,
-): Promise<number> {
-  const pending = await db
-    .select({ id: matchesTable.id, homeTeamId: matchesTable.homeTeamId })
-    .from(matchesTable)
-    .where(and(
-      eq(matchesTable.season, seasonYear),
-      eq(matchesTable.status, "scheduled"),
-      lte(matchesTable.round, maxRound),
-      ne(matchesTable.homeTeamId, excludeTeamId),
-    ));
-
-  if (pending.length === 0) return 0;
-
-  // Generate results: 55% home win probability, losers get 0 or 1 sets randomly
-  const results = pending.map(m => {
-    const homeWins = Math.random() < 0.55;
-    const loserSets = Math.random() < 0.40 ? 0 : 1;
-    return {
-      id:         m.id,
-      homeTeamId: m.homeTeamId,
-      homeScore:  homeWins ? 2 : loserSets,
-      awayScore:  homeWins ? loserSets : 2,
-    };
-  });
-
-  // Single batch SQL UPDATE — scores are integers 0-2, IDs are from our own DB query
-  const caseHS = results.map(r => `WHEN ${r.id} THEN ${r.homeScore}`).join(" ");
-  const caseAS = results.map(r => `WHEN ${r.id} THEN ${r.awayScore}`).join(" ");
-  const idList = results.map(r => r.id).join(",");
-  db.run(sql.raw(`
-    UPDATE matches
-    SET status     = 'completed',
-        home_score = CASE id ${caseHS} ELSE home_score END,
-        away_score = CASE id ${caseAS} ELSE away_score END
-    WHERE id IN (${idList})
-  `));
-
-  // Update wins / losses per AI home team (typically ≤16 unique teams)
-  const teamStats = new Map<number, { wins: number; losses: number }>();
-  for (const r of results) {
-    if (!teamStats.has(r.homeTeamId)) teamStats.set(r.homeTeamId, { wins: 0, losses: 0 });
-    const s = teamStats.get(r.homeTeamId)!;
-    if (r.homeScore > r.awayScore) s.wins++; else s.losses++;
-  }
-  for (const [teamId, stats] of teamStats) {
-    db.run(sql.raw(
-      `UPDATE teams SET wins = wins + ${stats.wins}, losses = losses + ${stats.losses} WHERE id = ${teamId}`
-    ));
-  }
-
-  return results.length;
 }
 
 async function getOrCreateCalendar(teamId: number, season: typeof seasonsTable.$inferSelect) {
@@ -424,24 +361,32 @@ router.post("/calendar/advance", async (req, res) => {
   }
 
   // ── World Tour / Finals match check ────────────────────────────────────
-  // Non-regional slots: auto-sim AI matches first, then pause if the player's
-  // team has a match today.
+  // Non-regional slots: move the rest of the World Tour first, then pause if
+  // the player's team has a match today.
   if (todayRounds.some(r => !isRegionalSlot(r))) {
     const wtRounds = todayRounds.filter(r => !isRegionalSlot(r));
     const maxAIRound = Math.max(...wtRounds);
 
-    // Auto-simulate all AI World Tour / Finals matches up to today's round.
-    // This also retroactively catches up any rounds that were missed on prior
-    // days (e.g. the first time the user reaches a WT round after season start).
-    try {
-      const simCount = await autoSimulateAIMatches(season.year, maxAIRound, team.id);
-      if (simCount > 0) {
-        events.push(
-          `${simCount} AI World Tour match${simCount === 1 ? "" : "es"} auto-simulated`
-        );
-      }
-    } catch {
-      // Non-fatal — never block calendar advance due to AI sim errors
+    // R-29: the rest of the World Tour moves with the calendar. The draw is
+    // made on the first World Tour day, every AI fixture due by today is played
+    // through the player's own engine, and the finals are seeded when their
+    // round arrives. This replaced autoSimulateAIMatches: a 55% coin flip over
+    // every OTHER team's scheduled matches in the database — other careers'
+    // fixtures included — writing their teams' wins and losses.
+    //
+    // Deliberately not wrapped in a bare catch: that is how the coin flip's
+    // cross-career writes stayed invisible. A World Tour that cannot move is a
+    // fault and should say so.
+    const wt = await advanceWorldTour({
+      careerSaveId:         requireCareerSaveId(req.activeCareerSaveId),
+      seasonYear:           season.year,
+      playerTeamId:         team.id,
+      upToRound:            maxAIRound,
+      allowRegionalCatchUp: true,
+    });
+    if (wt.blocked) req.log.warn({ round: maxAIRound, reason: wt.blocked }, "World Tour could not advance");
+    if (wt.aiPlayed > 0) {
+      events.push(`${wt.aiPlayed} World Tour match${wt.aiPlayed === 1 ? "" : "es"} played across the field`);
     }
 
     // Check whether the player's team has a match scheduled today
@@ -686,7 +631,7 @@ router.post("/calendar/dismiss-match", async (req, res) => {
 });
 
 // ── POST /api/calendar/skip-match ─────────────────────────────────────────
-// Auto-sim the pending match silently and advance past match day
+// Move past match day once the pending match has actually been played (R-29)
 
 router.post("/calendar/skip-match", async (req, res) => {
   const team = await getActiveTeam(req);
@@ -696,15 +641,19 @@ router.post("/calendar/skip-match", async (req, res) => {
   const calendar = rows[0];
   if (!calendar?.pendingMatchId) { res.json({ success: true }); return; }
 
-  // Mark match as simulated (simple win/loss result)
+  // R-29: this used to write a random 2-1 or 1-2 straight onto the match — no
+  // engine, no ranking points, no opponent credited — a result nobody played.
+  // "Skip for now (auto-sim in background)" now means exactly that: the client
+  // simulates through POST /matches/:id/simulate, the same engine as every
+  // other result, then calls this to move the day on.
   const matchRows = await db.select().from(matchesTable).where(eq(matchesTable.id, calendar.pendingMatchId)).limit(1);
   const match = matchRows[0];
-  if (match && match.status === "scheduled") {
-    const homeScore = Math.floor(Math.random() * 2) + 1;
-    const awayScore = homeScore === 2 ? 1 : 2;
-    await db.update(matchesTable)
-      .set({ status: "completed", homeScore, awayScore })
-      .where(eq(matchesTable.id, calendar.pendingMatchId));
+  if (match && match.status !== "completed" && match.status !== NOT_QUALIFIED) {
+    res.status(409).json({
+      error: "The pending match has not been played. Simulate it first — skipping no longer invents a result.",
+      pendingMatchId: calendar.pendingMatchId,
+    });
+    return;
   }
 
   // Advance date by 1, clear pending, restore pre-match speed

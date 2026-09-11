@@ -18,6 +18,7 @@ export interface Match {
   windSpeed?: number | null;
   /** @nullable */
   temperature?: number | null;
+  /** not_qualified (R-29): a World Finals match the club did not earn a place in. */
   status: MatchStatus;
   season: number;
   round: number;

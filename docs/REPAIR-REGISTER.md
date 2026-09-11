@@ -864,13 +864,135 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
-### R-29 — World Tour standings show only the player's club
-World Tour Standings reads "1 teams", the World Finals bracket auto-seeds the player as #1 with
-every other slot TBD, and the fixtures header says "18 qualified teams" while the ladder holds
-one. Root cause is already documented in `docs/economy-design.md` §2.4: World Tour opponents
-are name strings from static data, not competitor rows, so nothing else can hold ranking points.
-Needs Rob's design decision on where AI ranking points come from (Phase 0 "competitor entity").
-Registered 8 Sep — do not build it yet.
+### R-41 — CLOSED (12 Sep, with R-29): `harness/run-all.mjs` had not parsed since R-38
+From `39148cb` (R-38, 11 Sep) until R-29's commit, the full harness could not run at all. Suite 9's
+header held a real line break inside a JavaScript string (`console.log("` on one line,
+`########## 9/17 …");` on the next). `node harness/run-all.mjs` died with
+`SyntaxError: missing ) after argument list` before running a single suite.
+
+No register entry claimed a full run in that window — R-38 and R-40 each report only the suites they
+ran individually — so no false green was recorded. But nothing caught the break either.
+
+**Cause, found while repairing it:** text passed to the Bash tool has its double backslashes
+collapsed. A `\\n` meant to arrive as the two characters `\n` arrives as a real newline. The R-38
+change went through a shell heredoc, and my first three repair attempts failed for exactly the
+same reason: each "fixed" the line by writing the line break back in.
+
+**Fix:** repaired with the Edit tool; `node --check` clean. The full harness then ran green end to
+end: **18/18**.
+
+**Rule:** edit anything containing backslash escapes with Write/Edit, never through a shell
+command, and run `node --check` on a harness file after touching it.
+
+### R-42 — Nothing ever writes a trophy (found by R-10)
+No code in `artifacts/api-server` inserts into `trophies`; it is only read:
+`routes/trophies.ts`, `routes/history.ts:128,202`, `routes/players.ts:509`,
+`utils/careerLifecycle.ts:36`, `utils/check-achievements.ts:58`, `routes/news.ts`.
+
+So these are permanently empty: the Trophy Cabinet, "Titles Won", the trophy news items, the Hall
+of Fame archive's trophy count, and the `olympic_gold` achievement.
+
+R-29 now produces a real World Champion every season (`world_tour_fixtures`, round 72), which is
+the natural source for a world-championship trophy. Registered 12 Sep; not fixed this weekend.
+
+### R-43 — Invented content shown as real (found by R-10)
+Each of these is presented as a record of something that happened:
+- **World Tour News:** `routes/news.ts` `generateWorldNews`, a day-seeded RNG over hardcoded names
+  and tournaments, merged indistinguishably with the player's real items.
+- **Manager Movements:** `routes/ai-managers.ts`, randomly seeded managers and random moves.
+- **The youth league:** a hardcoded AI ladder with random W/L, hardcoded opposition names,
+  `Math.random` results, and a youth form strip from `mockForm`, a hash of the club name.
+- **Job Market:** listings hardcoded in `pages/job-market.tsx`.
+- **Leaderboard:** the "Reputation Bonus — Next tier at 2,500 REP" card, backed by nothing.
+
+File lines are in `docs/r10-audit.md` §1. Registered 12 Sep; not fixed. The youth league has the
+same shape R-29 fixed for seniors and should follow the same design.
+
+### R-29 — CLOSED (12 Sep, the commit carrying this entry): the World Tour is a real competition, per career
+World Tour Standings read "1 teams", the World Finals bracket seeded the player #1 with every other
+slot TBD, and the fixtures header said "18 qualified teams" while the ladder held one. Rob's decision
+(weekend brief) was one competitor per AI club per career, every AI fixture through the same
+engine, points from the same table, and standings and finals seeding read from those rows only.
+Design written and committed before any code: `docs/r29-design.md` (`b93e589`).
+
+**Found (beyond the note above):**
+- **The old AI-results path was a cross-career write.** `autoSimulateAIMatches` ran a 55% coin flip
+  over every *other* team's scheduled matches in the database — other careers' fixtures included —
+  and wrote those teams' wins and losses.
+- `POST /calendar/skip-match` wrote a random 2-1 or 1-2 onto the match: no engine, no ranking.
+- `world_tour_qualifications.career_save_id` was never written, and
+  `GET /regional-league/qualifications` returned every career's rows.
+- The regional league rated clubs `100 - (poolRanking - 1) * 8` (100 down to 28).
+- `resolveOpponentRating` looked pool clubs up by name, and no World Tour opponent name was ever a
+  pool club.
+- `getWorldFinalsSeedings` used every team in the database, by wins, padded with nine hardcoded
+  names.
+- Both final-standings snapshots (rollover and the World Final branch) ranked every team in the
+  database by `wins * 3`.
+- The ladder and leaderboard INNER JOINed `teams`, so an AI club could never appear.
+- On screen: the form strip was a hash of the club name; two screens re-sorted the ladder by their
+  own rule; there were invented quarter-final and round-of-16 bands, and a third-place playoff.
+
+**Built:**
+- `world_tour_fixtures`, one career-scoped table holding every World Tour result, AI and player
+  alike. The player's own games stay in `matches` and are linked by `match_id`.
+- `utils/worldTour.ts`:
+  - **field:** this career's 18 qualifiers + its club
+  - **draw:** rounds 11–70 up front; each club meets the player and rests 3–4 times a season
+  - **AI fixtures:** `pointProbability` → `simulateMatch`, with each club rated by `sideRating`
+    over its own two players
+  - **scoring:** a shared `creditCompetitorTx`, so AI clubs and the player are scored by one table
+    and one gate
+  - one standings function for every reader; finals seeded top 4 (1v4, 2v3); a gate used by
+    simulate, watch, forfeit and the Unity result route
+- The opponent is credited on every path a player match completes by, including forfeit, which
+  previously credited nobody in the ranking table.
+- Screens: WT Fixtures (every fixture, who rests), WT Standings, World Finals (real bracket and
+  champion), Leaderboard, League Ladders, Dashboard, the Matches finals cards, and skip
+  (simulate, then advance).
+- API spec and client regenerated. The starter DB carries the new table; a boot-and-diff showed it
+  and its two indexes as the only difference.
+
+**Behaviour to know about:**
+- A World Tour match cannot be played, watched, forfeited or reported before the field is drawn.
+  That returns a 409 with the reason, because the rules page decides the field after round 10.
+- A finals match the club did not reach is `not_qualified`: never played, never paid.
+- Before the draw the ladder is the player's own row (R-26 kept).
+- The dashboard's `seasonStanding.points` is now ranking points, not `wins * 3`.
+
+**Proof:**
+- `harness/world-tour-competitors.mjs` **38/38**, two careers × 12 rounds:
+  - a field of 19; 9 fixtures plus 1 rest per round; 108 legal results per career
+  - every one of 19 ranking rows' W/L and points equal to an independent recomputation (tier table
+    + gate, round order)
+  - standings order checked
+  - B's play wrote nothing to A's 62 matches
+  - **sabotage:** the one-row ladder and a +1 point were both caught
+- `rollover.mjs` R-08, Rob's pass condition — the player does not win every season by default:
+
+| Season | Established: record / rank / finals | Underdog: record / rank / finals |
+|---|---|---|
+| 1 | 34W 28L / #1 / **champion** | 25W 35L / #14 / did not qualify |
+| 2 | 19W 41L / #17 / did not qualify | 22W 38L / #16 / did not qualify |
+| 3 | 16W 44L / #19 / did not qualify | 15W 45L / #18 / did not qualify |
+| 4 | 13W 47L / #19 / did not qualify | 14W 46L / #17 / did not qualify |
+
+  Eight different real champions came from the field. The established squad's fall after season 1
+  is partly the harness's own doing (it never signs or trains) and is reported, not tuned — balance
+  is Rob's.
+- **Full harness 18/18** (first full run since R-38 — see R-41) and root typecheck clean.
+
+**Harness changes, deliberate:**
+- smoke R-20/R-06: "only F's own competitors — its club plus AI clubs, never another career's team".
+- rollover: plays before skipping; "every match the club was entitled to" (the fixture less finals it
+  did not reach); a finals table and the not-every-season check.
+- R-32 tick fallback and the R-09 board ladder walk the calendar to the first World Tour day first.
+
+**Not done (follow-ups):**
+- WT Results still lists only the player's own results.
+- The Unity away pair is still free agents rather than the drawn club's players.
+- The youth league (R-43).
+- Q1 for Rob (a field of 18 or 19) is in `docs/WEEKEND-STATUS.md`.
 
 ### R-30 — CLOSED (8 Sep, b366ff6)
 Seen on R28 Verify FC's World Tour Standings row at 0-0-0. Find where the seeded

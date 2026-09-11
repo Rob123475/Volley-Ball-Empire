@@ -120,7 +120,9 @@ export function ensureSeasonFixtureRows(
         locationId:   f.locId,
         locationName: f.locName,
         homeTeamName: team.name,
-        awayTeamName: f.opponent,
+        // R-29: drawn from the real field when the World Tour begins
+        // (utils/worldTour.ts); there is no opponent to name before then.
+        awayTeamName: "TBD",
         weather,
         windSpeed,
         temperature,
@@ -190,7 +192,7 @@ function insertWorldFinals(
       locationId:   finalLocId,
       locationName: finalsLocationName,
       homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
-      awayTeamName: f.opponent,
+      awayTeamName: "TBD",
       weather,
       windSpeed,
       temperature,

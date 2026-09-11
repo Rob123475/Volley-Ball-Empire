@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { teamsTable, careerSavesTable, competitorRankingsTable, competitorsTable } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { teamsTable, careerSavesTable } from "@workspace/db";
+import { eq, inArray } from "drizzle-orm";
 import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
+import { worldTourStandings } from "../utils/worldTour.js";
 
 const router = Router();
 
@@ -14,14 +15,14 @@ const router = Router();
  * (0-0) still "won" the top slot because nothing else was there — the
  * "Champion" crown on a career that had never played.
  *
- * Rebuilt on the same source and the same (career_save_id, season_year)
- * scope R-20 already uses for the season ladder: competitor_rankings.
- * "Leaderboard for each career contains only its own competitors" — a
- * fresh career's leaderboard is genuinely empty until it has a ranking
- * row (first match played, or R-26's zero-row seed at creation), and the
- * frontend's own `top3.length > 0` / `rankings.map(...)` guards already
- * render nothing for an empty array; this just stops it from ever being
- * fed cross-career data to render in the first place.
+ * R-29: rebuilt again, on the same standings function as the season ladder,
+ * the dashboard rank and the World Finals seeding (utils/worldTour.ts). The
+ * R-06 version was career-scoped but INNER JOINed `teams`, so the AI clubs of
+ * the World Tour could never appear and the table held exactly one row: the
+ * player's. A leaderboard of one is not a leaderboard.
+ *
+ * AI clubs have no manager, budget or reputation in this game, so those fields
+ * are null for them rather than invented.
  */
 router.get("/leaderboard", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -30,38 +31,37 @@ router.get("/leaderboard", async (req, res) => {
   const activeSeason = await getActiveSeasonForCareer(cid);
   if (!activeSeason) { res.json([]); return; }
 
-  const rows = await db.select({
-    teamId:       teamsTable.id,
-    teamName:     teamsTable.name,
-    userId:       careerSavesTable.userId,
-    managerName:  careerSavesTable.managerName,
-    wins:         competitorRankingsTable.wins,
-    losses:       competitorRankingsTable.losses,
-    reputation:   teamsTable.reputation,
-    budget:       teamsTable.budget,
-  })
-    .from(competitorRankingsTable)
-    .innerJoin(competitorsTable, eq(competitorsTable.id, competitorRankingsTable.competitorId))
-    .innerJoin(teamsTable, eq(teamsTable.id, competitorsTable.teamId))
-    .innerJoin(careerSavesTable, eq(careerSavesTable.id, competitorRankingsTable.careerSaveId))
-    .where(and(
-      eq(competitorRankingsTable.careerSaveId, cid),
-      eq(competitorRankingsTable.seasonYear, activeSeason.year),
-    ))
-    .orderBy(desc(competitorRankingsTable.rankingPoints));
+  const [save] = await db.select({ userId: careerSavesTable.userId, managerName: careerSavesTable.managerName })
+    .from(careerSavesTable)
+    .where(eq(careerSavesTable.id, cid))
+    .limit(1);
 
-  const entries = rows.map((r, idx) => ({
-    rank:       idx + 1,
-    teamId:     r.teamId,
-    teamName:   r.teamName,
-    userId:     r.userId,
-    username:   r.managerName || "Unknown",
-    wins:       r.wins,
-    losses:     r.losses,
-    earnings:   Number(r.budget),
-    reputation: r.reputation,
+  const standings = worldTourStandings(cid, activeSeason.year);
+  const teamIds = standings.flatMap((s) => (s.teamId != null ? [s.teamId] : []));
+  const teams = teamIds.length > 0
+    ? await db.select({ id: teamsTable.id, budget: teamsTable.budget, reputation: teamsTable.reputation })
+        .from(teamsTable)
+        .where(inArray(teamsTable.id, teamIds))
+    : [];
+  const teamById = new Map(teams.map((t) => [t.id, t]));
+
+  res.json(standings.map((s) => {
+    const team = s.teamId != null ? teamById.get(s.teamId) : undefined;
+    return {
+      rank:         s.rank,
+      competitorId: s.competitorId,
+      teamId:       s.teamId,
+      teamName:     s.name,
+      isPlayer:     s.isPlayer,
+      userId:       s.isPlayer ? (save?.userId ?? null) : null,
+      username:     s.isPlayer ? (save?.managerName || "Unknown") : null,
+      wins:         s.wins,
+      losses:       s.losses,
+      points:       s.points,
+      earnings:     team ? Number(team.budget) : null,
+      reputation:   team ? team.reputation : null,
+    };
   }));
-  res.json(entries);
 });
 
 export default router;

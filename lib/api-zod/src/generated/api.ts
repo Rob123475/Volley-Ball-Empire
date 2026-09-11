@@ -9153,7 +9153,7 @@ export const ListMatchesResponseItem = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled']),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9199,7 +9199,7 @@ export const GetMatchResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled']),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9235,7 +9235,7 @@ export const SimulateMatchResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled']),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9541,7 +9541,7 @@ export const UpdateMatchLineupResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled']),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9568,7 +9568,7 @@ export const ListUpcomingMatchesResponseItem = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled']),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9637,14 +9637,17 @@ export const GetSeasonLadderParams = zod.object({
 
 export const GetSeasonLadderResponseItem = zod.object({
   "rank": zod.number(),
-  "teamId": zod.number(),
+  "competitorId": zod.number(),
+  "teamId": zod.number().nullable().describe('The player\'s team id; null for an AI pool club.'),
   "teamName": zod.string(),
+  "isPlayer": zod.boolean(),
   "wins": zod.number(),
   "losses": zod.number(),
-  "points": zod.number(),
-  "goalsFor": zod.number(),
-  "goalsAgainst": zod.number()
-})
+  "points": zod.number().describe('Ranking points.'),
+  "goalsFor": zod.number().describe('Sets won in World Tour fixtures (the name is kept for compatibility).'),
+  "goalsAgainst": zod.number().describe('Sets lost in World Tour fixtures.'),
+  "form": zod.array(zod.enum(['W', 'L'])).describe('Last five World Tour results, most recent first.')
+}).describe('One competitor in this career\'s World Tour standings (R-29): the player\'s club or an AI pool club.')
 export const GetSeasonLadderResponse = zod.array(GetSeasonLadderResponseItem)
 
 
@@ -10790,15 +10793,18 @@ export const GetWorldTourNewsResponse = zod.object({
  */
 export const GetLeaderboardResponseItem = zod.object({
   "rank": zod.number(),
-  "teamId": zod.number(),
+  "competitorId": zod.number(),
+  "teamId": zod.number().nullable(),
   "teamName": zod.string(),
-  "userId": zod.string(),
-  "username": zod.string().optional(),
+  "isPlayer": zod.boolean(),
+  "userId": zod.string().nullable(),
+  "username": zod.string().nullish(),
   "wins": zod.number(),
   "losses": zod.number(),
-  "earnings": zod.number(),
-  "reputation": zod.number()
-})
+  "points": zod.number(),
+  "earnings": zod.number().nullable(),
+  "reputation": zod.number().nullable()
+}).describe('This career\'s World Tour standings (R-29). AI clubs have no manager, budget or reputation, so those are null.')
 export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem)
 
 
@@ -10842,7 +10848,7 @@ export const GetDashboardResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled']),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),

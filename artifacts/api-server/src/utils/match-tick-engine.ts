@@ -17,7 +17,8 @@
  */
 
 import { db, matchesTable, matchLiveStateTable, playersTable, teamsTable } from "@workspace/db";
-import { sideRating, pointProbability, pointTarget as sharedPointTarget } from "./matchEngine.js";
+import { sideRating, pointProbability, clampRating, pointTarget as sharedPointTarget } from "./matchEngine.js";
+import { fixtureForMatch, competitorRating } from "./worldTour.js";
 import { eq, and, inArray, isNull, notInArray, desc, sql } from "drizzle-orm";
 import { getWeatherEffects } from "../routes/matches.js";
 import { logger } from "../lib/logger.js";
@@ -128,7 +129,12 @@ export async function startMatchTick(matchId: number): Promise<{ ok: boolean; er
   }
 
   const homeAvg = sideAvg(homeRoster);
-  const awayAvg = sideAvg(awayRoster);
+  // R-29: a World Tour match is against a real drawn club, so the live engine
+  // rates the away side exactly as /simulate does — that club's own players —
+  // not the stand-in free agents who animate it on the court.
+  const fixture = fixtureForMatch(matchId);
+  const drawnRating = fixture ? competitorRating(fixture.awayCompetitorId) : null;
+  const awayAvg = drawnRating != null ? clampRating(drawnRating) : sideAvg(awayRoster);
   const wx = getWeatherEffects(
     match.weather,
     Number(match.windSpeed ?? 0),

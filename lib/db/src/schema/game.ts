@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, check, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, check, uniqueIndex, index } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -1170,3 +1170,42 @@ export const worldTourQualificationsTable = sqliteTable("world_tour_qualificatio
 
 export type WorldTourQualification       = typeof worldTourQualificationsTable.$inferSelect;
 export type InsertWorldTourQualification = typeof worldTourQualificationsTable.$inferInsert;
+
+/**
+ * R-29: every World Tour result for a career's season — AI clubs and the player
+ * alike — so "how many matches has this club played, with what scores" is one
+ * query over one table. Written by utils/worldTour.ts.
+ *
+ * The player's own games stay in `matches` (lineup, economy, Unity and the tick
+ * engine all read that row) and are LINKED here by match_id. AI-vs-AI games
+ * cannot live in `matches`: its team columns are foreign keys to `teams`, and
+ * pool clubs are not teams.
+ *
+ * status: scheduled | completed. home_seed/away_seed are set on the finals only.
+ */
+export const worldTourFixturesTable = sqliteTable("world_tour_fixtures", {
+  id:               integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:     integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:       integer("season_year").notNull(),
+  round:            integer("round").notNull(),
+  tier:             text("tier").notNull(),
+  homeCompetitorId: integer("home_competitor_id").notNull().references(() => competitorsTable.id),
+  awayCompetitorId: integer("away_competitor_id").notNull().references(() => competitorsTable.id),
+  homeSeed:         integer("home_seed"),
+  awaySeed:         integer("away_seed"),
+  matchId:          integer("match_id").references(() => matchesTable.id),
+  status:           text("status").notNull().default("scheduled"),
+  homeSets:         integer("home_sets"),
+  awaySets:         integer("away_sets"),
+  homePoints:       integer("home_points"),
+  awayPoints:       integer("away_points"),
+  sets:             text("sets", { mode: "json" }).$type<{ home: number; away: number }[]>(),
+  playedAt:         integer("played_at", { mode: "timestamp" }),
+  createdAt:        integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  // One fixture per player match; NULLs (AI games) are distinct in SQLite.
+  uniqueIndex("world_tour_fixtures_match_id_unique").on(t.matchId),
+  index("world_tour_fixtures_career_season_round").on(t.careerSaveId, t.seasonYear, t.round),
+]);
+
+export type WorldTourFixture = typeof worldTourFixturesTable.$inferSelect;

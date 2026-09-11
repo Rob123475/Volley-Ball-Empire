@@ -8,6 +8,7 @@ import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
+import { worldTourStandings } from "../utils/worldTour.js";
 
 const router = Router();
 
@@ -59,18 +60,13 @@ router.get("/dashboard", async (req, res) => {
   // not even playing is not a rank. Rank now comes from competitor_rankings,
   // the same source and the same (career_save_id, season_year) scope as the
   // season ladder — this career's own standing, nothing else's.
-  const rankedCompetitors = activeSeason
-    ? await db.select({ teamId: competitorsTable.teamId, points: competitorRankingsTable.rankingPoints })
-        .from(competitorRankingsTable)
-        .innerJoin(competitorsTable, eq(competitorsTable.id, competitorRankingsTable.competitorId))
-        .where(and(
-          eq(competitorRankingsTable.careerSaveId, cid),
-          eq(competitorRankingsTable.seasonYear, activeSeason.year),
-        ))
-        .orderBy(desc(competitorRankingsTable.rankingPoints))
-    : [];
+  // R-29: rank within this career's own World Tour standings — the same
+  // function the ladder reads, so the two can never disagree about position.
   const hasPlayed = (team.wins ?? 0) + (team.losses ?? 0) > 0;
-  const myRank = hasPlayed ? rankedCompetitors.findIndex(t => t.teamId === team.id) + 1 : 0;
+  const myStanding = hasPlayed && activeSeason
+    ? worldTourStandings(cid, activeSeason.year).find((s) => s.teamId === team.id) ?? null
+    : null;
+  const myRank = myStanding?.rank ?? 0;
 
   // Career save: the session-tracked save ID is the only source of truth —
   // R-20 removed the fallback that looked a career up by teamId when it was
@@ -109,7 +105,11 @@ router.get("/dashboard", async (req, res) => {
       temperature: m.temperature ? Number(m.temperature) : null,
     })),
     topPlayers,
-    seasonStanding: myRank > 0 ? { rank: myRank, wins: team.wins, losses: team.losses, points: team.wins * 3 } : null,
+    // R-29: this season's real standing; points were `team.wins * 3`, a number
+    // no table in the game awards.
+    seasonStanding: myStanding
+      ? { rank: myStanding.rank, wins: myStanding.wins, losses: myStanding.losses, points: myStanding.points }
+      : null,
     injuredCount,
   });
 });

@@ -322,7 +322,7 @@ export default function Leaderboard() {
                       )}
                     >
                       <Star className="h-3 w-3 fill-current" />
-                      {entry.reputation}
+                      {entry.reputation ?? "—"}
                     </span>
                   </td>
                 </tr>
@@ -338,9 +338,9 @@ export default function Leaderboard() {
         <InfoCard
           gradient="from-amber-500 to-orange-500"
           icon={<Trophy className="h-6 w-6 text-white" />}
-          label="World Series Finals"
-          sub="Qualification ends in 12 days"
-          detail="Top 8 qualify automatically"
+          label="World Finals"
+          sub="Seeded when World Tour round 70 is complete"
+          detail="The top 4 of these standings qualify"
         />
         <InfoCard
           gradient="from-sky-500 to-primary"
@@ -369,7 +369,7 @@ interface PodiumEntry {
   username?: string | null;
   wins: number;
   losses: number;
-  reputation: number;
+  reputation: number | null;
 }
 
 function PodiumCard({
@@ -458,7 +458,7 @@ function PodiumCard({
             {entry.teamName}
           </p>
           <p className={cn("text-xs", subtitleColor)}>
-            {entry.username ?? "AI Manager"}
+            {entry.username ?? "AI club"}
           </p>
         </div>
 
@@ -473,7 +473,7 @@ function PodiumCard({
             <p className="text-white/60 text-[10px] uppercase">Rate</p>
           </div>
           <div className="text-center">
-            <p className="text-white font-black text-lg leading-none">{entry.reputation}</p>
+            <p className="text-white font-black text-lg leading-none">{entry.reputation ?? "—"}</p>
             <p className="text-white/60 text-[10px] uppercase">Rep</p>
           </div>
         </div>

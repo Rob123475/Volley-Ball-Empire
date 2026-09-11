@@ -4,11 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Trophy, AlertCircle } from "lucide-react";
 
+// R-29: only the top 4 go anywhere — into the World Finals. The 5–8
+// "quarter-finals" and 9–12 "round of 16" bands described rounds that do not
+// exist in this game.
 function rankBand(rank: number) {
-  if (rank <= 4)  return { cls: "border-l-2 border-l-yellow-500 bg-yellow-500/5" };
-  if (rank <= 8)  return { cls: "border-l-2 border-l-blue-500 bg-blue-500/5" };
-  if (rank <= 12) return { cls: "border-l-2 border-l-muted-foreground/30" };
-  return { cls: "border-l-2 border-l-muted-foreground/20 opacity-70" };
+  if (rank <= 4) return { cls: "border-l-2 border-l-yellow-500 bg-yellow-500/5" };
+  return { cls: "border-l-2 border-l-muted-foreground/20" };
 }
 
 export default function WtLadder() {
@@ -24,7 +25,7 @@ export default function WtLadder() {
       <div>
         <h1 className="text-2xl font-bold">World Tour Standings</h1>
         <p className="text-muted-foreground mt-1">
-          Accumulated points from WT rounds determine World Finals seeding
+          Ranking points from every World Tour round decide the World Finals — the top 4 qualify
         </p>
       </div>
 
@@ -32,14 +33,6 @@ export default function WtLadder() {
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-1 rounded-full bg-yellow-500" />
           Top 4 — World Finals
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-1 rounded-full bg-blue-500" />
-          5–8 — Quarter-finals
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-1 rounded-full bg-muted-foreground" />
-          9–12 — Round of 16
         </span>
       </div>
 
@@ -75,7 +68,7 @@ export default function WtLadder() {
                 Season {season?.year} — World Tour Ladder
               </h3>
             </div>
-            <Badge variant="outline" className="text-xs">{ladder!.length} teams</Badge>
+            <Badge variant="outline" className="text-xs">{ladder!.length} clubs</Badge>
           </div>
 
           <div className="overflow-x-auto">
@@ -86,18 +79,15 @@ export default function WtLadder() {
                   <th className="h-8 px-3 text-left text-[10px] font-medium text-muted-foreground">Team</th>
                   <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-10">W</th>
                   <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-10">L</th>
-                  <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-20 hidden md:table-cell">Goals +/−</th>
+                  <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-20 hidden md:table-cell">Sets +/−</th>
                   <th className="h-8 px-3 text-right text-[10px] font-medium text-muted-foreground w-14">Pts</th>
                 </tr>
               </thead>
               <tbody>
                 {ladder!.map((entry, idx) => {
                   const band = rankBand(entry.rank);
-                  const isDivider = [4, 8, 12].includes(idx);
-                  const dividerLabel =
-                    idx === 4 ? "▲ World Finals (top 4)" :
-                    idx === 8 ? "Quarter-finals (5–8)" :
-                    "Round of 16 (9–12)";
+                  const isDivider = idx === 4;
+                  const dividerLabel = "▲ World Finals (top 4)";
                   return (
                     <>
                       {isDivider && (
@@ -110,21 +100,23 @@ export default function WtLadder() {
                         </tr>
                       )}
                       <tr
-                        key={entry.teamId}
-                        className={cn("border-b last:border-0 hover:bg-muted/30 transition-colors", band.cls)}
+                        key={entry.competitorId}
+                        className={cn("border-b last:border-0 hover:bg-muted/30 transition-colors", band.cls, entry.isPlayer && "font-semibold bg-primary/5")}
                       >
                         <td className="py-2.5 px-3 text-center">
                           <span className={cn(
                             "text-xs font-bold",
                             entry.rank <= 4 ? "text-yellow-600 dark:text-yellow-400" :
-                            entry.rank <= 8 ? "text-blue-600 dark:text-blue-400" :
                             "text-muted-foreground",
                           )}>
                             {entry.rank}
                           </span>
                         </td>
                         <td className="py-2.5 px-3">
-                          <span className="text-sm font-medium truncate max-w-[160px] block">{entry.teamName}</span>
+                          <span className="text-sm font-medium truncate max-w-[220px] block">
+                            {entry.teamName}
+                            {entry.isPlayer && <Badge variant="outline" className="ml-2 text-[10px] py-0">You</Badge>}
+                          </span>
                         </td>
                         <td className="py-2.5 px-2 text-center text-xs font-medium text-emerald-600 dark:text-emerald-400">{entry.wins}</td>
                         <td className="py-2.5 px-2 text-center text-xs font-medium text-red-500">{entry.losses}</td>

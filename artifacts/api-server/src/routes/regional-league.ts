@@ -44,10 +44,16 @@ router.get("/regional-league/qualifications", async (req, res) => {
     return;
   }
 
-  // Find the most recent season year that has any qualification rows
+  // R-29: this career's qualifiers only. There was no career filter here, and
+  // the writer never set career_save_id, so every career read one shared pile
+  // — the latest year across every save on the machine.
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+
+  // This career's most recent season year that has any qualification rows
   const latestRows = await db
     .select()
     .from(worldTourQualificationsTable)
+    .where(eq(worldTourQualificationsTable.careerSaveId, cid))
     .orderBy(desc(worldTourQualificationsTable.seasonYear))
     .limit(1);
 
@@ -61,7 +67,10 @@ router.get("/regional-league/qualifications", async (req, res) => {
   const qualifications = await db
     .select()
     .from(worldTourQualificationsTable)
-    .where(eq(worldTourQualificationsTable.seasonYear, latestYear))
+    .where(and(
+      eq(worldTourQualificationsTable.careerSaveId, cid),
+      eq(worldTourQualificationsTable.seasonYear, latestYear),
+    ))
     .orderBy(
       worldTourQualificationsTable.continent,
       worldTourQualificationsTable.qualifyingPosition,

@@ -20,6 +20,7 @@ import {
 import { eq, and, inArray } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
 import { pointProbability, simulateMatch } from "./matchEngine.js";
+import { poolClubRatings } from "./worldTour.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -267,6 +268,10 @@ export async function resolveRegionalSeason(
     // Insert World Tour qualification rows for top 3
     for (let i = 0; i < Math.min(3, ladder.length); i++) {
       tx.insert(worldTourQualificationsTable).values({
+        // R-29: scoped. Never written before, so every career's qualifiers
+        // landed in one shared pile that GET /regional-league/qualifications
+        // then read back for all of them.
+        careerSaveId,
         seasonYear:         season.seasonYear,
         continent:          season.continent,
         poolTeamId:         ladder[i]!.poolTeamId,
@@ -368,13 +373,12 @@ export async function simulateRegionalRound(
 
   const seasonIds = activeSeasons.map(s => s.id);
 
-  // Load ALL pool teams once (for rating lookup)
-  const allPoolTeams = await db
-    .select({ id: continentalPoolTeamsTable.id, poolRanking: continentalPoolTeamsTable.poolRanking })
-    .from(continentalPoolTeamsTable);
-  const ratingByTeamId = new Map(
-    allPoolTeams.map(t => [t.id, 100 - (t.poolRanking - 1) * 8]),
-  );
+  // R-29: the same strength the World Tour and the player's own opponent use —
+  // sideRating over each club's two real players. This was
+  // `100 - (poolRanking - 1) * 8`, a formula over a frozen seed ranking that
+  // rated a continent's top club 100 and its tenth 28, against players
+  // averaging 83 and 72.
+  const ratingByTeamId = poolClubRatings();
 
   // Load all scheduled fixtures for this round across all active seasons
   const fixtures = await loadFixtures(careerSaveId, {
@@ -390,8 +394,13 @@ export async function simulateRegionalRound(
   // resolveRegionalSeason() above for why (better-sqlite3 requirement).
   withCareerStateTx(({ insertLeagueResult, setFixtureResult }) => {
     for (const fixture of fixtures) {
-      const homeRating = ratingByTeamId.get(fixture.homePoolTeamId) ?? 70;
-      const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId) ?? 70;
+      const homeRating = ratingByTeamId.get(fixture.homePoolTeamId);
+      const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId);
+      // No invented 70: a club with no rated players is broken data, not an
+      // average side.
+      if (homeRating == null || awayRating == null) {
+        throw new Error(`Regional fixture ${fixture.id} has a club with no rated players`);
+      }
       const result = simulateFixtureResult(homeRating, awayRating);
 
       const winnerId =

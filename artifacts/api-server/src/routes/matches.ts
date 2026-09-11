@@ -18,6 +18,9 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { buildBoardConfidenceResult } from "../utils/board-confidence.js";
 import { endCareer } from "../utils/careerLifecycle.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
+import {
+  worldTourGate, recordPlayerMatchResult, fixtureForMatch, competitorRating, worldTourStandings,
+} from "../utils/worldTour.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import {
@@ -309,40 +312,6 @@ export async function applyPostMatchEffects(teamId: number, weather: string, fac
 }
 
 
-// ── World Finals rival team names (fallback when DB has no other teams) ────────
-const WORLD_FINALS_RIVALS = [
-  "Rio Diamonds FC", "Seoul Aces Elite", "Berlin Beach Masters",
-  "Lagos Surf Queens", "Cape Town Eagles", "Manila Bay Stars",
-  "Athens Olympians", "Dubai Desert Elite", "Sydney Thunderbirds",
-];
-
-async function getWorldFinalsSeedings(userTeamId: number, userTeamName: string): Promise<string[]> {
-  const others = await db
-    .select({ id: teamsTable.id, name: teamsTable.name, wins: teamsTable.wins })
-    .from(teamsTable)
-    .where(eq(teamsTable.id, userTeamId))
-    .limit(1);
-
-  const allTeams = await db
-    .select({ id: teamsTable.id, name: teamsTable.name, wins: teamsTable.wins })
-    .from(teamsTable)
-    .orderBy(desc(teamsTable.wins));
-
-  const rivalTeams = allTeams.filter(t => t.id !== userTeamId).slice(0, 3);
-  const rivals: string[] = rivalTeams.map(t => t.name);
-  while (rivals.length < 3) {
-    const idx = (userTeamId * 17 + rivals.length * 31) % WORLD_FINALS_RIVALS.length;
-    rivals.push(WORLD_FINALS_RIVALS[idx] ?? "World Select");
-  }
-  const userWins = others[0]?.wins ?? 0;
-  const rival0Wins = rivalTeams[0]?.wins ?? 0;
-
-  if (userWins >= rival0Wins) {
-    return [userTeamName, rivals[0]!, rivals[1]!, rivals[2]!];
-  }
-  return [rivals[0]!, userTeamName, rivals[1]!, rivals[2]!];
-}
-
 /**
  * Losing the World Semi Final eliminates you from the Grand Final.
  *
@@ -352,18 +321,19 @@ async function getWorldFinalsSeedings(userTeamId: number, userTeamName: string):
  * proceed.
  */
 /**
- * Strength of the side the player is facing.
- *
- * A World Tour fixture stores its opponent as a NAME only — away_team_id is
- * the player's own team — so there is usually no opposing roster to load. In
- * priority order:
+ * Strength of the side the player is facing. In priority order:
  *   1. a genuine opposing roster, when the fixture has a real second team
- *   2. the AI club's stored rating, when the name matches a continental pool
- *      team (those carry real ratings, 57-92)
- *   3. the tier ladder plus a stable per-name offset
+ *   2. R-29: the drawn World Tour opponent — the real pool club on this
+ *      match's world_tour_fixtures row, rated by sideRating over its own two
+ *      players, the function that rates the player's squad. This used to look
+ *      a pool club up BY NAME and read its stored rating column, which is off
+ *      from that club's own players by up to 14 points — and no World Tour
+ *      opponent name was ever a pool club, so it never matched at all.
+ *   3. the tier ladder plus a stable per-name offset — reachable only by a
+ *      match that is not a World Tour fixture (a friendly)
  */
 async function resolveOpponentRating(
-  match: { awayTeamId: number | null; awayTeamName: string | null; tier: string | null; season?: number },
+  match: { id: number; awayTeamId: number | null; awayTeamName: string | null; tier: string | null; season?: number },
   playerTeamId: number,
 ): Promise<number> {
   const name = match.awayTeamName ?? "";
@@ -373,12 +343,10 @@ async function resolveOpponentRating(
     if (roster.length > 0) return clampRating(sideRating(roster));
   }
 
-  if (name) {
-    const [pool] = await db.select({ rating: continentalPoolTeamsTable.rating })
-      .from(continentalPoolTeamsTable)
-      .where(eq(continentalPoolTeamsTable.teamName, name))
-      .limit(1);
-    if (pool?.rating != null) return clampRating(Number(pool.rating));
+  const fixture = fixtureForMatch(match.id);
+  if (fixture) {
+    const rating = competitorRating(fixture.awayCompetitorId);
+    if (rating != null) return clampRating(rating);
   }
 
   // matches.season carries the calendar year (2026..2030); the engine wants
@@ -508,78 +476,13 @@ router.get("/matches/fixture", async (req, res) => {
   if (!activeSeason) { res.status(400).json({ error: "No active season" }); return; }
   const seasonYear = activeSeason.year;
 
-  let existing = await ensureSeasonFixture(team, seasonYear);
+  const existing = await ensureSeasonFixture(team, seasonYear);
 
-  // ── Lazy seeding resolution ────────────────────────────────────────────────
-  // Resolve the World Semi Final opponent once this team's regular World Tour
-  // season (all non-finals fixtures, rounds 11-70) is complete. worldTour.ts
-  // no longer produces a "Continental Final" tier, and there is exactly one
-  // "World Semi Final" row per team's fixture (round 71, not 73/74 — that was
-  // a leftover from an older two-semifinal bracket design) — so this now
-  // gates on a signal the fixture can actually produce.
-  const regularEvents = existing.filter(m => !FINALS_TIERS.has(m.tier ?? ""));
-  const regularSeasonComplete = regularEvents.length > 0 && regularEvents.every(m => m.status === "completed");
-
-  if (regularSeasonComplete) {
-    const sf = existing.find(m => m.tier === "World Semi Final");
-
-    if (sf && sf.awayTeamName === "TBD") {
-      const seeds = await getWorldFinalsSeedings(team.id, team.name);
-      // seeds = [rank1, rank2, rank3, rank4]; player is seeded 1st or 2nd and
-      // faces the other of that pair in the semifinal.
-      const playerIdx = seeds.indexOf(team.name);
-      const sfAway = playerIdx === 0 ? seeds[1]! : seeds[0]!;
-
-      await db.update(matchesTable)
-        .set({ awayTeamName: sfAway })
-        .where(eq(matchesTable.id, sf.id));
-      sf.awayTeamName = sfAway;
-    }
-  }
-
-  // ── World Final opponent ────────────────────────────────────────────────
-  // Resolved once the semi final is decided. The fixture is per-team, so there
-  // is no second semi to read a winner from; seeds 3 and 4 are the other half
-  // of the bracket, and the higher-ranked of them takes the other final berth.
-  // A final against "TBD" is not a climax.
-  const wf = existing.find(m => m.tier === "World Final");
-  const semi = existing.find(m => m.tier === "World Semi Final");
-
-  if (wf && wf.awayTeamName === "TBD" && semi && semi.status === "completed") {
-    const seeds = await getWorldFinalsSeedings(team.id, team.name);
-    const playerWonSemi = (semi.homeScore ?? 0) > (semi.awayScore ?? 0);
-
-    // Seeds [rank1, rank2, rank3, rank4]; ranks 1-2 met in this semi, so the
-    // other finalist comes from the 3/4 pair — rank 3, the higher seed.
-    const otherHalfWinner = seeds[2] ?? "World Select";
-
-    const finalAway = playerWonSemi
-      ? otherHalfWinner
-      // Player is out. The final is still played and shown, but between the
-      // two clubs that earned it: whoever knocked the player out, versus the
-      // other half's winner.
-      : (semi.awayTeamName && semi.awayTeamName !== "TBD" ? semi.awayTeamName : (seeds[3] ?? "World Select"));
-
-    await db.update(matchesTable)
-      .set({
-        awayTeamName: finalAway,
-        // Losing the semi eliminates the player: the Grand Final is no longer
-        // theirs to contest, so the fixture stops being a player match and the
-        // home side becomes the club that beat them.
-        ...(playerWonSemi ? {} : {
-          homeTeamName: semi.awayTeamName && semi.awayTeamName !== "TBD"
-            ? semi.awayTeamName : otherHalfWinner,
-        }),
-      })
-      .where(eq(matchesTable.id, wf.id));
-
-    wf.awayTeamName = finalAway;
-    if (!playerWonSemi) {
-      wf.homeTeamName = semi.awayTeamName && semi.awayTeamName !== "TBD"
-        ? semi.awayTeamName : otherHalfWinner;
-    }
-  }
-
+  // R-29: the World Finals opponents used to be resolved here, lazily, by
+  // getWorldFinalsSeedings — every team in the database ranked by wins,
+  // padded with nine hardcoded rival names, the player always seeded 1st or
+  // 2nd. The finals are now seeded from this career's real standings by
+  // utils/worldTour.ts when round 71 arrives, so this route only reads.
   res.json(existing.map(serializeMatch));
 });
 
@@ -610,6 +513,9 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
   if (watchTeam) {
     const blocked = await bracketBlockReason(watchTeam.id, match);
     if (blocked) { res.status(409).json({ error: blocked }); return; }
+    // R-29: the live match needs its real drawn opponent before the first point.
+    const wtBlocked = await worldTourGate(requireCareerSaveId(req.activeCareerSaveId), watchTeam.id, match);
+    if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
   }
   const result = await startMatchTick(id);
   if (!result.ok) {
@@ -655,6 +561,16 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   const blocked = await bracketBlockReason(team.id, match);
   if (blocked) { res.status(409).json({ error: blocked }); return; }
+
+  // R-29: bring the World Tour up to this round first — the draw, the AI
+  // fixtures due, the finals seeding — so the opponent is a real drawn club
+  // and the whole field has played as far as the player has. Refuses a finals
+  // match the club did not qualify for.
+  const wtBlocked = await worldTourGate(requireCareerSaveId(req.activeCareerSaveId), team.id, match);
+  if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
+  // The gate may have just drawn this match's opponent; read the row again.
+  const drawnMatch = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
+  if (drawnMatch) Object.assign(match, drawnMatch);
 
   // Load all facility levels and active wellbeing effects for match bonuses
   const [facilityRows, wellbeingEffects] = await Promise.all([
@@ -703,11 +619,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
     req.body?.precomputedResult;
 
-  // Opponent strength is REAL. Priority: a genuine opposing roster if the
-  // fixture has one, then the AI club's stored rating if the name matches a
-  // continental pool team, then the tier ladder plus a stable per-name offset.
-  // World Tour fixtures carry the opponent as a name only — awayTeamId equals
-  // the player's own team — so for those the tier is the difficulty signal.
+  // Opponent strength is REAL — see resolveOpponentRating. For a World Tour
+  // match that is the drawn club's own players (R-29).
   const opponentRating = await resolveOpponentRating(match, team.id);
 
   let homeScore: number;
@@ -818,6 +731,21 @@ router.post("/matches/:id/simulate", async (req, res) => {
       // A ranking write must never cost the player the match they just played.
       req.log.error({ err }, "ranking point accrual failed");
     }
+  }
+
+  // R-29: the other half of this result belongs to a real club — recorded on
+  // its World Tour fixture and credited to the opponent from the same table.
+  try {
+    recordPlayerMatchResult({
+      careerSaveId: requireCareerSaveId(req.activeCareerSaveId),
+      matchId:      id,
+      playerWon:    homeWon,
+      homeSets:     homeScore,
+      awaySets:     awayScore,
+      sets:         resolvedSets ?? null,
+    });
+  } catch (err) {
+    req.log.error({ err }, "World Tour fixture result failed");
   }
 
   // The live-tick scratch row has served its purpose once the match is over.
@@ -1055,44 +983,15 @@ router.post("/matches/:id/simulate", async (req, res) => {
   if (isFinal && req.user?.id) {
     (async () => {
       try {
-        // Determine current season year
-        const [activeSeason] = await db
-          .select({ year: seasonsTable.year })
-          .from(seasonsTable)
-          .orderBy(desc(seasonsTable.year))
-          .limit(1);
-        const seasonYear = activeSeason?.year ?? new Date().getFullYear();
+        // The season this final belongs to. This used to read the latest season
+        // row in the whole database, which in a multi-career install could be
+        // another career's.
+        const seasonYear = match.season;
 
-        // Only snapshot once per team per year
-        const existing = await db
-          .select({ id: seasonFinalStandingsTable.id })
-          .from(seasonFinalStandingsTable)
-          .where(
-            and(
-              eq(seasonFinalStandingsTable.teamId, team.id),
-              eq(seasonFinalStandingsTable.seasonYear, seasonYear),
-            ),
-          )
-          .limit(1);
-
-        if (existing.length === 0) {
-          // Snapshot all teams sorted by points (wins × 3)
-          const allTeams = await db.select().from(teamsTable);
-          const sorted = [...allTeams].sort((a, b) => b.wins * 3 - a.wins * 3);
-          await db.insert(seasonFinalStandingsTable).values(
-            sorted.map((t, i) => ({
-              teamId: team.id,
-              seasonYear,
-              rank: i + 1,
-              competitorName: t.name,
-              isPlayer: t.id === team.id,
-              wins: t.wins,
-              losses: t.losses,
-              points: t.wins * 3,
-              setDiff: t.wins - t.losses,
-            })),
-          );
-        }
+        // R-29: the final standings snapshot is written once, at the season
+        // boundary (utils/seasonRollover.ts), from this career's World Tour
+        // standings. This branch wrote a second one — every team in the
+        // database ranked by wins * 3 — whenever the player reached a final.
 
         // Manager season summary — only once per user per year
         const existingSummary = await db
@@ -1110,17 +1009,9 @@ router.post("/matches/:id/simulate", async (req, res) => {
           // World result from this match
           const worldResult = homeWon ? "World Champion 🏆" : "Runner Up 🥈";
 
-          // Find player rank from snapshot
-          const [playerRow] = await db
-            .select({ rank: seasonFinalStandingsTable.rank })
-            .from(seasonFinalStandingsTable)
-            .where(
-              and(
-                eq(seasonFinalStandingsTable.teamId, team.id),
-                eq(seasonFinalStandingsTable.seasonYear, seasonYear),
-                eq(seasonFinalStandingsTable.isPlayer, true),
-              ),
-            );
+          // The player's World Tour position, from the standings every screen reads.
+          const playerRow = worldTourStandings(requireCareerSaveId(req.activeCareerSaveId), seasonYear)
+            .find((s) => s.isPlayer && s.teamId === team.id) ?? null;
 
           // Youth champion from this season
           const [youthChamp] = await db
@@ -1246,6 +1137,12 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     res.status(400).json({ error: "Match is already completed" }); return;
   }
 
+  // R-29: a forfeit is a result the whole field sees, so the World Tour must be
+  // up to this round and the match must have its real opponent.
+  const forfeitCid = requireCareerSaveId(req.activeCareerSaveId);
+  const wtBlocked = await worldTourGate(forfeitCid, team.id, match);
+  if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
+
   // home_score/away_score are SETS WON (the headline the UI prints), with the
   // per-set point scores in `sets`. A forfeit is a straight-sets loss; this
   // used to write 0-21, a point score, which rendered as "0 - 21".
@@ -1267,6 +1164,18 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     sponsorReputation: newSponsorRep,
     boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
   }).where(eq(teamsTable.id, team.id));
+
+  // R-29: a forfeit used to count in teams.losses only, so the ranking table and
+  // the club's own record disagreed, and the opponent was credited nothing.
+  // Exhibitions still score nothing.
+  if (match.tier !== "All-Star Match") {
+    await creditRankingPoints({
+      careerSaveId: forfeitCid, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false,
+    });
+    recordPlayerMatchResult({
+      careerSaveId: forfeitCid, matchId: id, playerWon: false, homeSets: homeScore, awaySets: awayScore, sets: null,
+    });
+  }
 
   const [facilityRows] = await Promise.all([
     db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),

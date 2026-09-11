@@ -21,6 +21,8 @@ import {
 } from "@workspace/db";
 import { eq, and, asc } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
+import { creditRankingPoints } from "../utils/rankingPoints.js";
+import { worldTourGate, recordPlayerMatchResult } from "../utils/worldTour.js";
 
 const router = Router();
 
@@ -309,10 +311,29 @@ router.post("/game/match-result", async (req, res) => {
     res.status(400).json({ error: "Match is already marked as completed" }); return;
   }
 
+  // R-29: a Unity-reported result is a result like any other for the World
+  // Tour — the tour must be up to this round, the match needs its real
+  // opponent, and both sides are credited from the ranking table. This route
+  // used to mark the match completed and credit nobody.
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const wtBlocked = await worldTourGate(cid, team.id, match);
+  if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
+
   await db
     .update(matchesTable)
     .set({ homeScore: Number(homeScore), awayScore: Number(awayScore), status: "completed" })
     .where(eq(matchesTable.id, Number(matchId)));
+
+  if (match.tier && match.tier !== "All-Star Match") {
+    const playerWon = Number(homeScore) > Number(awayScore);
+    await creditRankingPoints({
+      careerSaveId: cid, teamId: team.id, seasonYear: match.season, tier: match.tier, won: playerWon,
+    });
+    recordPlayerMatchResult({
+      careerSaveId: cid, matchId: match.id, playerWon,
+      homeSets: Number(homeScore), awaySets: Number(awayScore), sets: null,
+    });
+  }
 
   res.json({
     ok:        true,

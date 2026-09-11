@@ -5,6 +5,7 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
+import { worldTourStandingsTx } from "./worldTour.js";
 
 /**
  * Season rollover.
@@ -128,21 +129,25 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
         `WHERE team_id = ${teamId} AND season_year = ${season.year}`))[0];
 
       if (Number(already?.n ?? 0) === 0) {
-        const allTeams = tx.select().from(teamsTable).all();
-        const sorted = [...allTeams].sort((a, b) => b.wins * 3 - a.wins * 3);
-        tx.insert(seasonFinalStandingsTable).values(
-          sorted.map((t, i) => ({
-            teamId,
-            seasonYear:     season.year,
-            rank:           i + 1,
-            competitorName: t.name,
-            isPlayer:       t.id === teamId,
-            wins:           t.wins,
-            losses:         t.losses,
-            points:         t.wins * 3,
-            setDiff:        t.wins - t.losses,
-          })),
-        ).run();
+        // R-29: this career's World Tour standings — its own field of real
+        // clubs with real records. It used to snapshot every team in the
+        // database, every career's, ranked by wins * 3.
+        const standings = worldTourStandingsTx(tx, careerSaveId, season.year);
+        if (standings.length > 0) {
+          tx.insert(seasonFinalStandingsTable).values(
+            standings.map((s) => ({
+              teamId,
+              seasonYear:     season.year,
+              rank:           s.rank,
+              competitorName: s.name,
+              isPlayer:       s.isPlayer && s.teamId === teamId,
+              wins:           s.wins,
+              losses:         s.losses,
+              points:         s.points,
+              setDiff:        s.setsFor - s.setsAgainst,
+            })),
+          ).run();
+        }
       }
 
       const [save] = tx.select().from(careerSavesTable)

@@ -45,6 +45,10 @@ function teamColor(name: string): string {
   return COLORS[hash % COLORS.length];
 }
 
+// FAKE DATA — not results. The youth ladder's entries carry no match history,
+// so its form strip is generated from a hash of the club name. R-29 removed this
+// from the seniors ladder (which now shows real results); the youth ladder is out
+// of R-29's scope and is listed in docs/r10-audit.md instead of being changed here.
 function mockForm(name: string, wins: number, losses: number): ("W" | "L")[] {
   const total = wins + losses;
   if (total === 0) return ["L", "L", "L", "L", "L"];
@@ -126,14 +130,10 @@ function SeniorsLadder({ myTeamName }: { myTeamName: string }) {
     return <p className="text-muted-foreground text-sm">No ladder data available.</p>;
   }
 
-  const ladder = [...rawLadder]
-    .sort((a, b) => {
-      if (b.points !== a.points) return b.points - a.points;
-      const aDiff = (a.goalsFor ?? 0) - (a.goalsAgainst ?? 0);
-      const bDiff = (b.goalsFor ?? 0) - (b.goalsAgainst ?? 0);
-      return bDiff - aDiff;
-    })
-    .map((e, i) => ({ ...e, rank: i + 1 }));
+  // R-29: already in standings order, with the server's ranks and tie-breaks.
+  // Re-sorting here by a different rule made this screen and the World Tour
+  // standings disagree about who was where.
+  const ladder = rawLadder;
 
   return (
     <div>
@@ -155,15 +155,17 @@ function SeniorsLadder({ myTeamName }: { myTeamName: string }) {
           </thead>
           <tbody>
             {ladder.map((entry) => {
-              const isMe = entry.teamName === myTeamName;
+              const isMe = entry.isPlayer;
               const played = entry.wins + entry.losses;
               const setDiff = (entry.goalsFor ?? 0) - (entry.goalsAgainst ?? 0);
-              const form = mockForm(entry.teamName, entry.wins, entry.losses);
+              // R-29: the club's real last five. This was generated from a hash of
+              // the club's name, so a club with no results showed five losses.
+              const form = entry.form;
               const initials = teamInitials(entry.teamName);
               const color = teamColor(entry.teamName);
               return (
                 <tr
-                  key={entry.teamId}
+                  key={entry.competitorId}
                   className={cn(
                     "border-b last:border-0 transition-colors",
                     bandClass(entry.rank),

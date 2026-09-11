@@ -8,6 +8,7 @@ import { requireCareerSaveId } from "../lib/playerDto.js";
 import { currentRanking, TIER_RANKING_POINTS } from "../utils/rankingPoints.js";
 import { loadPlayers } from "../lib/playerDto.js";
 import { seasonNumberForYear, FINAL_SEASON } from "../utils/seasonRollover.js";
+import { worldTourStandings, worldFinalsSummary } from "../utils/worldTour.js";
 
 const router = Router();
 
@@ -95,6 +96,16 @@ router.get("/seasons/:year/review", async (req, res) => {
     eq(careerHistoryEntriesTable.season, `Season ${seasonNumberForYear(year)}`),
   )).limit(1);
 
+  // R-29: how much of the season's fixture was the club's to play. A finals
+  // match it did not qualify for is not an unplayed match; it was never its.
+  const seasonMatches = await db.select({ status: matchesTable.status }).from(matchesTable)
+    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.season, year)));
+  const fixture = {
+    total:        seasonMatches.length,
+    completed:    seasonMatches.filter((m) => m.status === "completed").length,
+    notQualified: seasonMatches.filter((m) => m.status === "not_qualified").length,
+  };
+
   res.json({
     seasonYear:   year,
     seasonNumber: seasonNumberForYear(year),
@@ -108,6 +119,8 @@ router.get("/seasons/:year/review", async (req, res) => {
     retired:      retiredThisSeason,
     summary:      history?.description ?? null,
     isFinalSeason: seasonNumberForYear(year) >= FINAL_SEASON,
+    fixture,
+    worldFinals:  worldFinalsSummary(cid, year, team.id),
   });
 });
 
@@ -146,35 +159,24 @@ router.get("/seasons/:id/ladder", async (req, res) => {
   )).limit(1);
   if (!season) { res.status(404).json({ error: "Season not found in this career" }); return; }
 
-  const rows = await db.select({
-    teamId: teamsTable.id,
-    teamName: teamsTable.name,
-    wins: competitorRankingsTable.wins,
-    losses: competitorRankingsTable.losses,
-    points: competitorRankingsTable.rankingPoints,
-  })
-    .from(competitorRankingsTable)
-    .innerJoin(competitorsTable, eq(competitorsTable.id, competitorRankingsTable.competitorId))
-    .innerJoin(teamsTable, eq(teamsTable.id, competitorsTable.teamId))
-    .where(and(
-      eq(competitorRankingsTable.careerSaveId, cid),
-      eq(competitorRankingsTable.seasonYear, season.year),
-    ));
-
-  const ladder = rows.map(e => {
-    // Derived from the team's own record, not Math.random() — these were
-    // regenerated on every request, so the numbers visibly changed as the
-    // player watched the ladder. R-30: that still left a team with zero
-    // matches played showing a teamId-derived offset instead of 0:0 — a
-    // fresh club had never played a point, but the ladder showed it with a
-    // goal difference anyway.
-    const played = e.wins + e.losses > 0;
-    return {
-      ...e,
-      goalsFor:     played ? e.wins * 2 + (e.teamId % 10) : 0,
-      goalsAgainst: played ? e.losses * 2 + (e.teamId % 8) : 0,
-    };
-  }).sort((a, b) => b.points - a.points).map((e, i) => ({ ...e, rank: i + 1 }));
+  // R-29: one standings function for every reader (utils/worldTour.ts). This
+  // used to INNER JOIN teams, so an AI club could never appear on it, and its
+  // "goals" were `wins * 2 + teamId % 10` — deterministic, but not data.
+  // goalsFor/goalsAgainst now carry real sets won and lost from
+  // world_tour_fixtures; the names stay so the API shape does not move.
+  const ladder = worldTourStandings(cid, season.year).map((s) => ({
+    rank:         s.rank,
+    competitorId: s.competitorId,
+    teamId:       s.teamId,
+    teamName:     s.name,
+    isPlayer:     s.isPlayer,
+    wins:         s.wins,
+    losses:       s.losses,
+    points:       s.points,
+    goalsFor:     s.setsFor,
+    goalsAgainst: s.setsAgainst,
+    form:         s.form,
+  }));
   res.json(ladder);
 });
 

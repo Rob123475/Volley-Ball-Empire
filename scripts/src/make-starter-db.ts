@@ -116,6 +116,7 @@ const CLEAR_TABLES = [
   "user_profiles",
   "wellbeing_effects",
   "world_tour_qualifications",
+  "world_tour_fixtures",
   "youth_championship_trophies",
   "youth_ladder",
   "youth_league_results",

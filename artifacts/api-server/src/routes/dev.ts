@@ -230,7 +230,7 @@ router.post("/dev/migrate-season-78", async (_req, res) => {
           homeTeamId:    team.id,
           awayTeamId:    team.id,
           homeTeamName:  team.name,
-          awayTeamName:  event.opponent,
+          awayTeamName:  "TBD",
           locationId:    event.locId,
           locationName:  event.locName,
           season:        season.year,

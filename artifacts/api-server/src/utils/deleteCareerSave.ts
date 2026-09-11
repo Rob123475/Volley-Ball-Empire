@@ -5,6 +5,7 @@ import {
   careerStaffStateTable,
   careerPoolTeamStateTable,
   competitorRankingsTable,
+  worldTourFixturesTable,
   poachingOffersTable,
   careerHistoryEntriesTable,
 } from "@workspace/db";
@@ -37,6 +38,8 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(careerStaffStateTable).where(eq(careerStaffStateTable.careerSaveId, careerSaveId)).run();
     t.delete(careerPoolTeamStateTable).where(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId)).run();
     t.delete(competitorRankingsTable).where(eq(competitorRankingsTable.careerSaveId, careerSaveId)).run();
+    // R-29: World Tour fixtures reference the save (NOT NULL) and its competitors.
+    t.delete(worldTourFixturesTable).where(eq(worldTourFixturesTable.careerSaveId, careerSaveId)).run();
     t.delete(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).run();
   };
 

@@ -98,6 +98,9 @@ async function advanceToBoundary(api, maxDays = 500) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed: ${JSON.stringify(r.data)}`);
     if (r.data?.blocked === "pending_match") {
+      // R-29: skip-match no longer invents a result. The match is played through
+      // the real engine first; skip then only moves the day on.
+      await playPendingMatch(api, r.data.pendingMatchId);
       const skip = await api("POST", "/calendar/skip-match", {});
       if (skip.status >= 400) throw new Error(`skip-match failed: ${JSON.stringify(skip.data)}`);
       continue;
@@ -393,11 +396,17 @@ async function advanceToBoundary(api, maxDays = 500) {
         rankingPoints,
         tier: rankingPoints !== null ? tierReached(rankingPoints) : "?",
         balance: Number(team.budget),
+        // R-29: where the club finished in a real field, and how the finals went.
+        rank: review.data?.playerRank ?? null,
+        finals: review.data?.worldFinals?.playerResult ?? "?",
+        champion: review.data?.worldFinals?.champion ?? "?",
+        notQualified: review.data?.fixture?.notQualified ?? null,
       };
       seasons.push(row);
       console.log(
         `    season ${row.season} (${row.year}): ${row.record}  ·  ${row.played}/${fixtureSize} played  ·  ` +
-        `${row.rankingPoints ?? "?"} ranking pts  ·  ${row.tier} tier  ·  $${row.balance.toLocaleString()} balance`,
+        `${row.rankingPoints ?? "?"} ranking pts  ·  ${row.tier} tier  ·  $${row.balance.toLocaleString()} balance  ·  ` +
+        `#${row.rank ?? "?"} in the field  ·  finals: ${row.finals}  ·  champion: ${row.champion}`,
       );
     }
 
@@ -426,12 +435,15 @@ async function advanceToBoundary(api, maxDays = 500) {
         : `empty fixture at start of season(s) ${unready.map((r) => r.season).join(", ")}`);
 
     // The actual R-08 requirement: real matches, every season, the whole list.
-    const short = arc.seasons.filter((r) => r.played !== arc.fixtureSize);
-    check(`${arc.label}: every season played its full ${arc.fixtureSize}-match fixture`,
+    // R-29: finals the club did not qualify for are marked not_qualified and are
+    // not the club's to play, so a full season is the fixture less those. The
+    // count comes from the season review, which reads the club's match rows.
+    const short = arc.seasons.filter((r) => r.notQualified == null || r.played !== arc.fixtureSize - r.notQualified);
+    check(`${arc.label}: every season played every match it was entitled to (${arc.fixtureSize}-match fixture less finals not qualified for)`,
       short.length === 0,
       short.length === 0
-        ? `${arc.seasons.length} x ${arc.fixtureSize} matches played`
-        : short.map((r) => `season ${r.season} played ${r.played}`).join("; "));
+        ? arc.seasons.map((r) => `${r.played}/${arc.fixtureSize}`).join(" | ")
+        : short.map((r) => `season ${r.season} played ${r.played}, not qualified for ${r.notQualified}`).join("; "));
 
     check(`${arc.label}: no season was a 0W 0L walkover`,
       arc.seasons.every((r) => r.played > 0),
@@ -440,18 +452,33 @@ async function advanceToBoundary(api, maxDays = 500) {
 
 
   console.log("\n  ── Summary table (for I8/I9 — report only, nothing tuned here) ──");
-  console.log("  Season | Strong: record / played / pts / tier / balance   | Weak: record / played / pts / tier / balance");
+  console.log("  Season | Strong: record / played / pts / tier / balance / rank / finals          | Weak: record / played / pts / tier / balance / rank / finals");
   const maxSeasons = Math.max(strong.seasons.length, weak.seasons.length);
   for (let i = 0; i < maxSeasons; i++) {
     const s = strong.seasons[i];
     const w = weak.seasons[i];
     const fmt = (row, size) => row
-      ? `${row.record} / ${row.played}/${size} / ${row.rankingPoints ?? "?"} / ${row.tier} / $${row.balance.toLocaleString()}`
+      ? `${row.record} / ${row.played}/${size} / ${row.rankingPoints ?? "?"} / ${row.tier} / $${row.balance.toLocaleString()} / #${row.rank ?? "?"} / ${row.finals}`
       : "—";
     console.log(
-      `  ${(i + 1).toString().padStart(6)} | ${fmt(s, strong.fixtureSize).padEnd(46)} | ${fmt(w, weak.fixtureSize)}`,
+      `  ${(i + 1).toString().padStart(6)} | ${fmt(s, strong.fixtureSize).padEnd(80)} | ${fmt(w, weak.fixtureSize)}`,
     );
   }
+
+  // R-29, Rob's pass condition: the player must NOT win every season by default.
+  // With a real field and real seeding the title is an outcome, not a given.
+  console.log("\n  ── World Finals, per season ──");
+  for (const arc of [strong, weak]) {
+    for (const r of arc.seasons) {
+      console.log(`  ${arc.label.padEnd(10)} season ${r.season}: finished #${r.rank ?? "?"}, finals: ${r.finals}, champion: ${r.champion}`);
+    }
+    const titles = arc.seasons.filter((r) => r.finals === "champion").length;
+    check(`${arc.label}: did not win the World Final every season by default`,
+      titles < arc.seasons.length, `${titles} title(s) in ${arc.seasons.length} seasons`);
+  }
+  const champions = [...strong.seasons, ...weak.seasons].map((r) => r.champion);
+  check("every measured season crowned a real champion from the field",
+    champions.length > 0 && champions.every((c) => c && c !== "?"), champions.join(" | "));
 
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   process.exit(failures > 0 ? 1 : 0);

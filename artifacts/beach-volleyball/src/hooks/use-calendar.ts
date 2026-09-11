@@ -166,8 +166,14 @@ export function useCalendar() {
     onSuccess:  () => queryClient.invalidateQueries({ queryKey: ["calendar"] }),
   });
 
-  const skipMatchMutation = useMutation({
-    mutationFn: () => apiFetch("/api/calendar/skip-match", { method: "POST" }),
+  // R-29: "Skip for now (auto-sim in background)" plays the match through the
+  // real engine first — the server no longer invents a result on skip — and
+  // then moves the day on.
+  const skipMatchMutation = useMutation<unknown, Error, number>({
+    mutationFn: async (matchId) => {
+      await apiFetch(`/api/matches/${matchId}/simulate`, { method: "POST" });
+      return apiFetch("/api/calendar/skip-match", { method: "POST" });
+    },
     onSuccess:  () => queryClient.invalidateQueries({ queryKey: ["calendar"] }),
   });
 
@@ -202,7 +208,7 @@ export function useCalendar() {
     advance:           () => advanceMutation.mutate(),
     setSpeed:          (speed: CalendarSpeed) => setSpeedMutation.mutate(speed),
     dismissMatch:      () => dismissMatchMutation.mutate(),
-    skipMatch:         () => skipMatchMutation.mutate(),
+    skipMatch:         (matchId: number) => skipMatchMutation.mutate(matchId),
     simulateMatch:     (matchId: number) => simulateMatchMutation.mutate(matchId),
     watchMatch:        (matchId: number) => watchMatchMutation.mutateAsync(matchId),
     lastAdvanceResult: advanceMutation.data,

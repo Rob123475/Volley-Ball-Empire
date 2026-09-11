@@ -732,6 +732,10 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
   // longer produces, so none of these cards ever rendered.
   const semiFinal  = matches.find(m => m.tier === "World Semi Final");
   const worldFinal = matches.find(m => m.tier === "World Final");
+  // R-29: a finals match the club did not earn is marked not_qualified by the
+  // server when the finals are seeded from the World Tour standings.
+  const semiNotQualified  = semiFinal?.status === "not_qualified";
+  const finalNotQualified = worldFinal?.status === "not_qualified";
 
   const semiDone   = semiFinal?.status === "completed";
   // Losing the semi eliminates you — the Grand Final unlocks on WINNING it,
@@ -757,7 +761,7 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4 flex items-center gap-3">
           <Lock className="h-4 w-4 shrink-0 text-yellow-500/70" />
           <span className="text-sm text-muted-foreground">
-            Complete your World Tour season to unlock the Finals and reveal your semi final opponent.
+            Complete your World Tour season. The top 4 of the standings are seeded into the semi finals.
           </span>
         </div>
       )}
@@ -766,10 +770,12 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
       {semiFinal && (
         <WorldFinalsMatchCard
           label="World Semi Final"
-          subtitle="Top 4 seeds · winner advances to the Grand Final"
+          subtitle={semiNotQualified
+            ? "Did not qualify — only the top 4 of the World Tour standings go through"
+            : "Top 4 seeds · winner advances to the Grand Final"}
           match={semiFinal}
-          locked={!worldFinalsUnlocked}
-          isPlayable={worldFinalsUnlocked && semiFinal.id === nextMatchId}
+          locked={!worldFinalsUnlocked || semiNotQualified}
+          isPlayable={worldFinalsUnlocked && !semiNotQualified && semiFinal.id === nextMatchId}
           onSimulate={onSimulate}
           isSimulating={isSimulating}
           activePlayers={activePlayers}
@@ -789,13 +795,15 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
           <WorldFinalsMatchCard
             label="World Championship Final"
             subtitle={
-              semiDone && !semiWon
-                ? `Eliminated in the semi final — ${semiWinner} contests the title`
-                : semiWinner ? `${semiWinner} contests the title` : "Semi Final winner"
+              semiNotQualified
+                ? "Did not qualify for the World Finals"
+                : semiDone && !semiWon
+                  ? `Eliminated in the semi final — ${semiWinner} contests the title`
+                  : semiWinner ? `${semiWinner} contests the title` : "Semi Final winner"
             }
             match={worldFinal}
-            locked={!semiWon}
-            isPlayable={semiWon && worldFinal.id === nextMatchId}
+            locked={!semiWon || finalNotQualified}
+            isPlayable={semiWon && !finalNotQualified && worldFinal.id === nextMatchId}
             onSimulate={onSimulate}
             isSimulating={isSimulating}
             activePlayers={activePlayers}

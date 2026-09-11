@@ -7,6 +7,29 @@ import {
 } from "@workspace/db";
 import { eq, isNotNull, isNull } from "drizzle-orm";
 
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Synchronous forms of competitorIdForTeam / competitorIdForPoolTeam, for code
+ * that runs inside a better-sqlite3 transaction and cannot await (R-29's World
+ * Tour draw and fixture results). Same behaviour: find, or create.
+ */
+export function competitorIdForTeamTx(tx: Tx, teamId: number): number {
+  const existing = tx.select({ id: competitorsTable.id }).from(competitorsTable)
+    .where(eq(competitorsTable.teamId, teamId)).get();
+  if (existing) return existing.id;
+  return tx.insert(competitorsTable).values({ teamId })
+    .returning({ id: competitorsTable.id }).get()!.id;
+}
+
+export function competitorIdForPoolTeamTx(tx: Tx, poolTeamId: number): number {
+  const existing = tx.select({ id: competitorsTable.id }).from(competitorsTable)
+    .where(eq(competitorsTable.poolTeamId, poolTeamId)).get();
+  if (existing) return existing.id;
+  return tx.insert(competitorsTable).values({ poolTeamId })
+    .returning({ id: competitorsTable.id }).get()!.id;
+}
+
 /**
  * Competitor identity.
  *

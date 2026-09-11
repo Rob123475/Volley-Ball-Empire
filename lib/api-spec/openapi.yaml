@@ -3051,7 +3051,8 @@ components:
           type: ["number", "null"]
         status:
           type: string
-          enum: [scheduled, in_progress, completed, cancelled]
+          description: "not_qualified (R-29): a World Finals match the club did not earn a place in."
+          enum: [scheduled, in_progress, completed, cancelled, not_qualified]
         season:
           type: integer
         round:
@@ -3198,24 +3199,39 @@ components:
 
     LadderEntry:
       type: object
-      required: [rank, teamId, teamName, wins, losses, points, goalsFor, goalsAgainst]
+      description: "One competitor in this career's World Tour standings (R-29): the player's club or an AI pool club."
+      required: [rank, competitorId, teamId, teamName, isPlayer, wins, losses, points, goalsFor, goalsAgainst, form]
       properties:
         rank:
           type: integer
-        teamId:
+        competitorId:
           type: integer
+        teamId:
+          type: ["integer", "null"]
+          description: "The player's team id; null for an AI pool club."
         teamName:
           type: string
+        isPlayer:
+          type: boolean
         wins:
           type: integer
         losses:
           type: integer
         points:
           type: integer
+          description: "Ranking points."
         goalsFor:
           type: integer
+          description: "Sets won in World Tour fixtures (the name is kept for compatibility)."
         goalsAgainst:
           type: integer
+          description: "Sets lost in World Tour fixtures."
+        form:
+          type: array
+          description: "Last five World Tour results, most recent first."
+          items:
+            type: string
+            enum: [W, L]
 
     FinanceTransaction:
       type: object
@@ -4290,26 +4306,33 @@ components:
 
     LeaderboardEntry:
       type: object
-      required: [rank, teamId, teamName, userId, wins, losses, earnings, reputation]
+      description: "This career's World Tour standings (R-29). AI clubs have no manager, budget or reputation, so those are null."
+      required: [rank, competitorId, teamId, teamName, isPlayer, userId, wins, losses, points, earnings, reputation]
       properties:
         rank:
           type: integer
-        teamId:
+        competitorId:
           type: integer
+        teamId:
+          type: ["integer", "null"]
         teamName:
           type: string
+        isPlayer:
+          type: boolean
         userId:
-          type: string
+          type: ["string", "null"]
         username:
-          type: string
+          type: ["string", "null"]
         wins:
           type: integer
         losses:
           type: integer
-        earnings:
-          type: number
-        reputation:
+        points:
           type: integer
+        earnings:
+          type: ["number", "null"]
+        reputation:
+          type: ["integer", "null"]
 
     InjuryHistoryEntry:
       type: object

@@ -980,6 +980,9 @@ export const MatchWeather = {
   perfect: 'perfect',
 } as const;
 
+/**
+ * not_qualified (R-29): a World Finals match the club did not earn a place in.
+ */
 export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
 
 
@@ -988,6 +991,7 @@ export const MatchStatus = {
   in_progress: 'in_progress',
   completed: 'completed',
   cancelled: 'cancelled',
+  not_qualified: 'not_qualified',
 } as const;
 
 export interface Match {
@@ -1000,6 +1004,7 @@ export interface Match {
   windSpeed?: number | null;
   /** @nullable */
   temperature?: number | null;
+  /** not_qualified (R-29): a World Finals match the club did not earn a place in. */
   status: MatchStatus;
   season: number;
   round: number;
@@ -1110,15 +1115,37 @@ export interface SeasonInput {
   endDate: string;
 }
 
+export type LadderEntryFormItem = typeof LadderEntryFormItem[keyof typeof LadderEntryFormItem];
+
+
+export const LadderEntryFormItem = {
+  W: 'W',
+  L: 'L',
+} as const;
+
+/**
+ * One competitor in this career's World Tour standings (R-29): the player's club or an AI pool club.
+ */
 export interface LadderEntry {
   rank: number;
-  teamId: number;
+  competitorId: number;
+  /**
+     * The player's team id; null for an AI pool club.
+     * @nullable
+     */
+  teamId: number | null;
   teamName: string;
+  isPlayer: boolean;
   wins: number;
   losses: number;
+  /** Ranking points. */
   points: number;
+  /** Sets won in World Tour fixtures (the name is kept for compatibility). */
   goalsFor: number;
+  /** Sets lost in World Tour fixtures. */
   goalsAgainst: number;
+  /** Last five World Tour results, most recent first. */
+  form: LadderEntryFormItem[];
 }
 
 export type FinanceTransactionType = typeof FinanceTransactionType[keyof typeof FinanceTransactionType];
@@ -1773,16 +1800,27 @@ export interface HallOfFameEntry {
   legendScore: number;
 }
 
+/**
+ * This career's World Tour standings (R-29). AI clubs have no manager, budget or reputation, so those are null.
+ */
 export interface LeaderboardEntry {
   rank: number;
-  teamId: number;
+  competitorId: number;
+  /** @nullable */
+  teamId: number | null;
   teamName: string;
-  userId: string;
-  username?: string;
+  isPlayer: boolean;
+  /** @nullable */
+  userId: string | null;
+  /** @nullable */
+  username?: string | null;
   wins: number;
   losses: number;
-  earnings: number;
-  reputation: number;
+  points: number;
+  /** @nullable */
+  earnings: number | null;
+  /** @nullable */
+  reputation: number | null;
 }
 
 export interface InjuryHistoryEntry {

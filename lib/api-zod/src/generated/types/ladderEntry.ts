@@ -5,14 +5,29 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { LadderEntryFormItem } from './ladderEntryFormItem';
 
+/**
+ * One competitor in this career's World Tour standings (R-29): the player's club or an AI pool club.
+ */
 export interface LadderEntry {
   rank: number;
-  teamId: number;
+  competitorId: number;
+  /**
+     * The player's team id; null for an AI pool club.
+     * @nullable
+     */
+  teamId: number | null;
   teamName: string;
+  isPlayer: boolean;
   wins: number;
   losses: number;
+  /** Ranking points. */
   points: number;
+  /** Sets won in World Tour fixtures (the name is kept for compatibility). */
   goalsFor: number;
+  /** Sets lost in World Tour fixtures. */
   goalsAgainst: number;
+  /** Last five World Tour results, most recent first. */
+  form: LadderEntryFormItem[];
 }

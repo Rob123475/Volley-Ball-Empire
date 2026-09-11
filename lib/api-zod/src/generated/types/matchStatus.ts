@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+/**
+ * not_qualified (R-29): a World Finals match the club did not earn a place in.
+ */
 export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
 
 
@@ -14,4 +17,5 @@ export const MatchStatus = {
   in_progress: 'in_progress',
   completed: 'completed',
   cancelled: 'cancelled',
+  not_qualified: 'not_qualified',
 } as const;

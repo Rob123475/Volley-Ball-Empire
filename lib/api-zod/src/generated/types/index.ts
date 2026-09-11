@@ -85,6 +85,7 @@ export * from './historyTrophyEntry';
 export * from './historyYouthRow';
 export * from './injuryHistoryEntry';
 export * from './ladderEntry';
+export * from './ladderEntryFormItem';
 export * from './leaderboardEntry';
 export * from './lineupUpdate';
 export * from './loadCareerSave200';

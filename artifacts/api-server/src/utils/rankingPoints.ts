@@ -1,6 +1,6 @@
 import { db, competitorRankingsTable } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
-import { competitorIdForTeam } from "./competitors.js";
+import { competitorIdForTeam, competitorIdForTeamTx } from "./competitors.js";
 import { eligibilityFor } from "./tierQualification.js";
 
 /**
@@ -75,33 +75,57 @@ export async function creditRankingPoints(args: {
   tier: string | null;
   won: boolean;
 }): Promise<number> {
-  const competitorId = await competitorIdForTeam(args.teamId);
+  return db.transaction((tx) => creditCompetitorTx(tx, {
+    careerSaveId: args.careerSaveId,
+    seasonYear:   args.seasonYear,
+    competitorId: competitorIdForTeamTx(tx, args.teamId),
+    tier:         args.tier,
+    won:          args.won,
+  }));
+}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * The one place a result becomes ranking points, for ANY competitor — the
+ * player's club through creditRankingPoints above, and every AI club in the
+ * World Tour (R-29, utils/worldTour.ts). One table, one gate, one write, so an
+ * AI club and the player cannot be scored by different rules.
+ *
+ * Synchronous and transaction-bound: AI fixtures are played inside the World
+ * Tour's own transaction, which better-sqlite3 cannot await.
+ */
+export function creditCompetitorTx(tx: Tx, args: {
+  careerSaveId: number;
+  seasonYear: number;
+  competitorId: number;
+  tier: string | null;
+  won: boolean;
+}): number {
+  const existing = tx.select().from(competitorRankingsTable).where(and(
+    eq(competitorRankingsTable.competitorId, args.competitorId),
+    eq(competitorRankingsTable.careerSaveId, args.careerSaveId),
+    eq(competitorRankingsTable.seasonYear, args.seasonYear),
+  )).get();
 
   // The gate is applied against the ranking as it stands BEFORE this result,
   // which is the ranking the club had when it entered.
-  const before = await currentRanking(args.careerSaveId, args.teamId, args.seasonYear);
-  const points = awardedPoints(args.tier, args.won, before.rankingPoints);
-
-  const [existing] = await db.select().from(competitorRankingsTable).where(and(
-    eq(competitorRankingsTable.competitorId, competitorId),
-    eq(competitorRankingsTable.careerSaveId, args.careerSaveId),
-    eq(competitorRankingsTable.seasonYear, args.seasonYear),
-  )).limit(1);
+  const points = awardedPoints(args.tier, args.won, existing?.rankingPoints ?? 0);
 
   if (!existing) {
-    await db.insert(competitorRankingsTable).values({
-      competitorId,
+    tx.insert(competitorRankingsTable).values({
+      competitorId:  args.competitorId,
       careerSaveId:  args.careerSaveId,
       seasonYear:    args.seasonYear,
       rankingPoints: points,
       eventsEntered: 1,
       wins:          args.won ? 1 : 0,
       losses:        args.won ? 0 : 1,
-    }).onConflictDoNothing();
+    }).run();
     return points;
   }
 
-  await db.update(competitorRankingsTable)
+  tx.update(competitorRankingsTable)
     .set({
       rankingPoints: sql`${competitorRankingsTable.rankingPoints} + ${points}`,
       eventsEntered: sql`${competitorRankingsTable.eventsEntered} + 1`,
@@ -109,7 +133,8 @@ export async function creditRankingPoints(args: {
       losses:        sql`${competitorRankingsTable.losses} + ${args.won ? 0 : 1}`,
       updatedAt:     new Date(),
     })
-    .where(eq(competitorRankingsTable.id, existing.id));
+    .where(eq(competitorRankingsTable.id, existing.id))
+    .run();
 
   return points;
 }

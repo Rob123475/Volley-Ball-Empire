@@ -115,10 +115,22 @@ try {
   });
   check("career created (eager fixture generation)", careerRes.status === 200, `HTTP ${careerRes.status}`);
 
-  const matchesRes = await api("GET", "/matches/fixture");
-  const matches = Array.isArray(matchesRes.data) ? matchesRes.data : [];
-  const match = matches[0] ?? null;
-  check("a real fixture match exists to test against", !!match, JSON.stringify(match)?.slice(0, 200));
+  // R-29: a World Tour match has no opponent until the field is drawn, which
+  // happens when the calendar reaches the World Tour after the regional
+  // leagues finish (round 10). Watching the first fixture straight after career
+  // creation is now refused with a 409 that says exactly that, so walk the
+  // calendar to the first World Tour match day and watch that match instead.
+  let pendingMatchId = null;
+  for (let day = 0; day < 200 && pendingMatchId == null; day++) {
+    const adv = await api("POST", "/calendar/advance", {});
+    if (adv.status >= 400) break;
+    pendingMatchId = adv.data?.matchDay?.matchId
+      ?? (adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : null);
+  }
+  const matchRes = pendingMatchId != null ? await api("GET", `/matches/${pendingMatchId}`) : { data: null };
+  const match = matchRes.data?.id ? matchRes.data : null;
+  check("the calendar reaches a real World Tour match day to test against", !!match,
+    JSON.stringify(match)?.slice(0, 200));
 
   if (match) {
     check("the fixture's away side is the World Tour shape this bug needs (awayTeamId === homeTeamId)",

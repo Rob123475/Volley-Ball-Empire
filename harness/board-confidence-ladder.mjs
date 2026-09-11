@@ -161,10 +161,21 @@ try {
     `stage=${healthyFloor.data?.stage} score=${healthyFloor.data?.score}`);
 
   // ── Stage 4: sacked — driven by a REAL forfeit, not a direct write ───────
+  // R-29: a World Tour match can only be forfeited once it has a real drawn
+  // opponent, and the field is drawn when the calendar reaches the World Tour
+  // after the regional leagues finish. Walk the calendar to the first World
+  // Tour match day — no match falls due on the way, so nothing is played — then
+  // set the confidence state and forfeit that match.
+  let pendingMatchId = null;
+  for (let day = 0; day < 200 && pendingMatchId == null; day++) {
+    const adv = await api("POST", "/calendar/advance", {});
+    if (adv.status >= 400) break;
+    pendingMatchId = adv.data?.matchDay?.matchId
+      ?? (adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : null);
+  }
   setTeamState(teamId, 5, 200_000); // score=5 (spending_blocked); one more loss reaches zero
-  const upcoming = await api("GET", "/matches/upcoming");
-  const nextMatch = Array.isArray(upcoming.data) ? upcoming.data[0] : null;
-  check("an upcoming fixture exists to forfeit", !!nextMatch, JSON.stringify(upcoming.data?.[0] ?? upcoming.data));
+  const nextMatch = pendingMatchId != null ? { id: pendingMatchId } : null;
+  check("the calendar reaches a World Tour match day to forfeit", !!nextMatch, `pendingMatchId=${pendingMatchId}`);
 
   const forfeitRes = await api("POST", `/matches/${nextMatch?.id}/forfeit`);
   check("forfeit request succeeds", forfeitRes.status === 200, `HTTP ${forfeitRes.status} ${JSON.stringify(forfeitRes.data)}`);

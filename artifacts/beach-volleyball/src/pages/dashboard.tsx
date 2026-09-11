@@ -793,20 +793,15 @@ export default function Dashboard() {
           SEASON LADDER
       ══════════════════════════════════════════════════════════════ */}
       {ladder && ladder.length > 0 && (() => {
-        // Sort: points desc → match diff desc → set diff desc
-        const sorted = [...ladder].sort((a, b) => {
-          if (b.points !== a.points) return b.points - a.points;
-          const aMd = (a.wins ?? 0) - (a.losses ?? 0);
-          const bMd = (b.wins ?? 0) - (b.losses ?? 0);
-          if (bMd !== aMd) return bMd - aMd;
-          return 0;
-        }).map((e, i) => ({ ...e, rank: i + 1 }));
+        // R-29: already in standings order and ranked by the server — the same
+        // order and ranks as the World Tour standings screen.
+        const sorted = [...ladder];
 
         const top4 = sorted.slice(0, 4);
         // R-20: was matched by team name, which breaks the moment two teams
         // share a name and tells you nothing when they don't — teamId is the
         // actual identity the ladder rows carry.
-        const myEntry = sorted.find(e => e.teamId === team?.id);
+        const myEntry = sorted.find(e => e.isPlayer);
         const myRank = myEntry?.rank ?? null;
         const inTop4 = myRank != null && myRank <= 4;
 
@@ -819,7 +814,7 @@ export default function Dashboard() {
 
         const LadderRow = ({ entry, isMe }: { entry: typeof sorted[0]; isMe: boolean }) => (
           <tr
-            data-testid={`row-ladder-${entry.teamId}`}
+            data-testid={`row-ladder-${entry.competitorId}`}
             className={cn(
               "border-b transition-colors hover:bg-muted/50",
               isMe && "bg-primary/5 border-l-4 border-l-primary font-semibold"
@@ -840,7 +835,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Season Ladder</CardTitle>
-              <CardDescription>{season?.name} — World Rankings</CardDescription>
+              <CardDescription>{season?.name} — World Tour standings</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="relative w-full overflow-auto">
@@ -856,7 +851,7 @@ export default function Dashboard() {
                   </thead>
                   <tbody>
                     {top4.map(e => (
-                      <LadderRow key={e.teamId} entry={e} isMe={e.teamId === team?.id} />
+                      <LadderRow key={e.competitorId} entry={e} isMe={e.isPlayer} />
                     ))}
                     {!inTop4 && myEntry && (
                       <>

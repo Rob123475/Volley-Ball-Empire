@@ -6,14 +6,25 @@
  * OpenAPI spec version: 0.1.0
  */
 
+/**
+ * This career's World Tour standings (R-29). AI clubs have no manager, budget or reputation, so those are null.
+ */
 export interface LeaderboardEntry {
   rank: number;
-  teamId: number;
+  competitorId: number;
+  /** @nullable */
+  teamId: number | null;
   teamName: string;
-  userId: string;
-  username?: string;
+  isPlayer: boolean;
+  /** @nullable */
+  userId: string | null;
+  /** @nullable */
+  username?: string | null;
   wins: number;
   losses: number;
-  earnings: number;
-  reputation: number;
+  points: number;
+  /** @nullable */
+  earnings: number | null;
+  /** @nullable */
+  reputation: number | null;
 }

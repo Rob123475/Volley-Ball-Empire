@@ -86,7 +86,7 @@ export function MatchDayModal() {
 
   const handleSkipForNow = () => {
     setActionError(null);
-    skipMatchMutation.mutate(undefined, {
+    skipMatchMutation.mutate(match.id, {
       onError: (err) => setActionError(describe(err) || "The match could not be skipped."),
     });
   };

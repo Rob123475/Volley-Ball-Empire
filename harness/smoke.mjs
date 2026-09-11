@@ -457,12 +457,17 @@ const roster = async (api) => {
   const ladderF = await F("GET", `/seasons/${seasonF.data?.id}/ladder`);
   const ladderG = await G("GET", `/seasons/${seasonG.data?.id}/ladder`);
 
-  check("R-20: F's season ladder contains only F's own team",
-    (ladderF.data ?? []).length > 0 && (ladderF.data ?? []).every(e => e.teamId === dashF.data?.team?.id),
-    JSON.stringify(ladderF.data));
-  check("R-20: G's season ladder contains only G's own team",
-    (ladderG.data ?? []).length > 0 && (ladderG.data ?? []).every(e => e.teamId === dashG.data?.team?.id),
-    JSON.stringify(ladderG.data));
+  // R-29: once a career has played a World Tour match its ladder is the whole
+  // field — its own club plus AI clubs, which have no team (teamId null). What
+  // R-20 protects is unchanged: no row may be ANOTHER career's team, and
+  // exactly one row is this career's own club.
+  const ownCompetitorsOnly = (rows, ownTeamId) => (rows ?? []).length > 0
+    && (rows ?? []).every(e => e.teamId === null || e.teamId === ownTeamId)
+    && (rows ?? []).filter(e => e.teamId === ownTeamId).length === 1;
+  check("R-20: F's season ladder holds only F's own competitors (its club + AI clubs)",
+    ownCompetitorsOnly(ladderF.data, dashF.data?.team?.id), `${ladderF.data?.length} rows`);
+  check("R-20: G's season ladder holds only G's own competitors (its club + AI clubs)",
+    ownCompetitorsOnly(ladderG.data, dashG.data?.team?.id), `${ladderG.data?.length} rows`);
 
   // ── 13. A new career's clock does not run by itself (R-24) ────────────────
   // getOrCreateCalendar used to default a brand-new career to "medium", and
@@ -580,12 +585,11 @@ const roster = async (api) => {
   const lbF = await F("GET", "/leaderboard");
   const lbG = await G("GET", "/leaderboard");
 
-  check("R-06: F's leaderboard contains only F's own team",
-    (lbF.data ?? []).length > 0 && (lbF.data ?? []).every(e => e.teamId === dashF2.data?.team?.id),
-    JSON.stringify(lbF.data));
-  check("R-06: G's leaderboard contains only G's own team",
-    (lbG.data ?? []).length > 0 && (lbG.data ?? []).every(e => e.teamId === dashG2.data?.team?.id),
-    JSON.stringify(lbG.data));
+  // R-29: same shape as the R-20 ladder check above — own club + AI clubs.
+  check("R-06: F's leaderboard holds only F's own competitors (its club + AI clubs)",
+    ownCompetitorsOnly(lbF.data, dashF2.data?.team?.id), `${lbF.data?.length} rows`);
+  check("R-06: G's leaderboard holds only G's own competitors (its club + AI clubs)",
+    ownCompetitorsOnly(lbG.data, dashG2.data?.team?.id), `${lbG.data?.length} rows`);
 
   // R-26 (earlier in this same pass) seeds a zero-row competitor_ranking at
   // career creation, so the leaderboard is never truly empty for a career

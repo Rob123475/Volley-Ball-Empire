@@ -57,8 +57,40 @@ so nothing was lost, but the claim was wrong.
 
 ## R-29 — honest AI competitors
 
-*In progress.* Design written first: `docs/r29-design.md` (what exists today, the design, every
-screen and query that changes, and the harness).
+**DONE.** Design first (`docs/r29-design.md`, `b93e589`), then the build. The full write-up is
+register R-29.
+
+- **The field:** each career's World Tour is its own 18 regional qualifiers plus your club. Every
+  round every AI club plays its fixture through the same engine and ranking table as yours: 9
+  fixtures and 1 rest per round. The results are stored in `world_tour_fixtures`.
+- **Standings, leaderboard, dashboard rank, World Finals seeding and the season snapshot** all read
+  one standings function. There are no fake ladders and no invented points.
+- **Removed on the way:** a 55% coin flip that wrote *other careers'* match results, a random
+  result on "skip", unscoped qualifiers, and finals seeded from every team in the database padded
+  with nine made-up names.
+- **Proof:**
+  - `harness/world-tour-competitors.mjs` 38/38, two careers × 12 rounds: every AI club played its
+    rounds minus rests, results legal, W/L and points reconcile against an independent
+    recomputation, standings ordered, no cross-career rows.
+  - Two sabotaged copies (the old one-row ladder; one point off) are both caught.
+- **R-08 five-season sim** — the player does **not** win every season:
+
+| Season | Established | Underdog |
+|---|---|---|
+| 1 | 34W 28L, #1, **World Champion** | 25W 35L, #14, did not qualify |
+| 2 | 19W 41L, #17, did not qualify | 22W 38L, #16, did not qualify |
+| 3 | 16W 44L, #19, did not qualify | 15W 45L, #18, did not qualify |
+| 4 | 13W 47L, #19, did not qualify | 14W 46L, #17, did not qualify |
+
+  Eight different real champions came from the field. The established squad collapses after season
+  1, partly because the harness never signs or trains anyone — worth a look when you judge balance.
+- **Full harness 18/18**; root typecheck clean. It hadn't been runnable since R-38, because
+  `run-all.mjs` didn't parse (register R-41).
+- **Behaviour change you'll notice:** a World Tour match can't be played before the regional
+  leagues finish and the field is drawn. You get a clear 409 message saying so, which matches the
+  rules page.
+- **Also found and registered, not fixed:** R-42 (nothing ever writes a trophy) and R-43 (invented
+  news, manager moves and youth league).
 
 ## R-10 — design-screens audit
 
