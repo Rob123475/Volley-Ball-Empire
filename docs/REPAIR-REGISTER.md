@@ -1173,10 +1173,28 @@ section; attempting to sign/hire/upgrade while "Spending Blocked" or worse shoul
 an explanation; at zero confidence the next match or page load should land on a dedicated
 "You've Been Sacked" screen, not silently return to the dashboard.
 
-### R-10 — Three design-doc screens don't exist
+### R-10 — AUDITED (12 Sep): full report in `docs/r10-audit.md`; three design-doc rows still missing
 `docs/economy-design.md:840-848, 868-878`: no Rankings page, no Career Result page, no
 Underdog/Established start choice. Qualification / Tier status / Finals bracket / Fail state
 are "extend existing page" — open each and confirm whether done.
+
+**Audit done, read-only; no code changed for this item.** `docs/r10-audit.md` covers every page
+file: what it shows, what feeds it, and what is dead, duplicated or fake. Design-doc rows:
+
+| Row | State |
+|---|---|
+| Finals | **Built** — R-29 made it a real bracket (seeds, both semis, final, champion) |
+| Season end | **Built** — `season-review-dialog.tsx` |
+| Start (Underdog / Established) | **Built** — R-11 |
+| Ranking screen | **Not built.** `GET /seasons/ranking` has no frontend consumer. R-29's standings show every club's points and position; nothing shows points per event |
+| Qualification per event | **Not built.** `GET /matches` sends `eligibility` with every fixture; nothing renders it |
+| Tier status | **Not built** |
+| Career Result | **Not built.** `career-end.tsx` is the sacked screen only; a completed five-season career has no result screen |
+| Fail state | **Partly, not verified stage by stage** — board confidence is read by `dashboard.tsx` and `manager-contract.tsx`, not `finances.tsx` |
+
+The audit's own findings that are repairs are registered below as their own items. Those that are
+design calls (the 76-vs-62 season length and All-Star remnants; the Olympic qualification rule
+disagreeing with the rules page) are questions for Rob in `docs/WEEKEND-STATUS.md`.
 
 **Also for this audit (found during R-08, not chased):** the code described a "76-event season
 fixture (72 regular/continental + 4 World Finals)", but `data/worldTour.ts` holds 62 events — 60

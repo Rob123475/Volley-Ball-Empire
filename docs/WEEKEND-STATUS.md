@@ -62,7 +62,26 @@ screen and query that changes, and the harness).
 
 ## R-10 — design-screens audit
 
-*Not started.*
+**DONE — read-only report: `docs/r10-audit.md`.** No code changed for this item.
+
+- Every page file: what it shows, what feeds it (hooks and endpoints), and what is dead,
+  duplicated, mislabelled or fake. There is also a navigation map and a design-doc screen table.
+- **Design-doc screens:** Finals, Season end and Start are built. Ranking screen, per-event
+  Qualification, Tier status and Career Result are **not**. Fail state is partial and not
+  verified stage by stage.
+- **Worst findings** (registered as repairs, not fixed this weekend):
+  1. **Nothing ever writes a trophy.** The Trophy Cabinet, "Titles Won" and the trophy news
+     read a table no code inserts into.
+  2. **World Tour News is mostly invented** (seeded RNG over hardcoded names), mixed
+     indistinguishably with real items.
+  3. **Manager Movements are random.** The **youth league** has the same one-club, random-result
+     problem R-29 just fixed for seniors, including a fake form strip.
+  4. **Job Market listings are hardcoded**, under a coming-soon notice.
+  5. **The All-Star page can never show a match.**
+  6. **`/dev/generation-test` ships in the desktop build** with its API unmounted.
+  7. **Club tabs are mislabelled:** "Hall of Fame" shows the leaderboard.
+  8. **Unlinked duplicate routes:** `/world-tour`, `/continental` and `/youth-results`.
+- The 76-vs-62 season length is in §5 of the report, with the questions in Q2 below.
 
 ## Unity items
 
@@ -90,3 +109,22 @@ exactly N minus its scheduled rests, and that exactly one club rests per round.
 If you want an even field, two options:
 - **(a)** your club takes one of the 18 places: 17 qualifiers + you;
 - **(b)** a 19th qualifier, e.g. the best 4th-placed regional club: 19 + you = 20.
+
+**Q2 — R-10: is a season 62 matches, and is there an All-Star match?** Not blocking; nothing
+was changed either way.
+
+`data/worldTour.ts` schedules 62 events: 60 World Tour rounds plus the semi final and final.
+Older code and comments described 76. Remnants of an All-Star match are still in place:
+- a tier in `FINALS_TIERS`
+- a special case in the finals insert
+- a whole page that can only ever say "Not Yet Scheduled"
+
+but no All-Star event exists. Is 62 the intended season, with the All-Star remnants to be removed?
+Or were the extra events, the All-Star match among them, meant to exist?
+
+**Q3 — R-10: how should Olympic qualification work?** Not blocking.
+
+The rules page says "Top 12 World Tour teams qualify". The code ranks **countries** by their top
+two players' ratings, with a fixed number of spots per continent. Olympic results are rolled on
+every page load, so the same tournament's scores can differ between two visits. Which rule is
+intended? The fix follows from the answer.
