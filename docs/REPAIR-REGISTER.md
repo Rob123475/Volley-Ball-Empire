@@ -27,6 +27,77 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-40 — CLOSED (12 Sep; Unity ea6eb5e, game repo: the commit carrying this entry)
+Brief step 8 failed on screen: the eebb029 WebGL build loaded and the sim ran — score,
+commentary, weather HUD, court lines and net pole all drew — but the sand, the venue, the
+crowd and all four players were invisible. July's build had rendered everything.
+
+**Reproduced first, on both GL paths.** Headless Chrome driven over the DevTools Protocol
+(Playwright is not installed on this machine), the api-server in production mode against a
+**copy** of the live save, `unity-build/index.html?careerSaveId=9`, screenshot 8s after the
+loader's `applied 4 of 4 player(s)` line. The eebb029 build, pulled back out of LFS at
+`6b65af6`, gives exactly Rob's screen on SwiftShader and on the real GPU
+(`WebGL2 | ANGLE (NVIDIA GeForce RTX 5080 … Direct3D11)`): 58.5% of the frame sky-blue,
+0.0% sand-like, bottom half mean RGB (148,186,216).
+
+**The suspected cause was tested and ruled out.** Rob's hypothesis was the editor-applied URP
+migration committed as `1075031`, with Forward+ unsupported on WebGL.
+- `PC_Renderer.asset` has `m_RenderingMode: 2` (Forward+) at both `766ebc1` and `1075031`, so
+  the rendering path never changed. The strip flags (`m_StripUnusedVariants`,
+  `m_StripUnusedPostProcessingVariants`, `m_ExportShaderVariants`) are 1 at both.
+- The entire delta was eleven `m_Prefilter*` flags on `PC_RPAsset.asset`, a populated RID list
+  in `UniversalRenderPipelineGlobalSettings.asset`, and field additions in
+  `DefaultVolumeProfile.asset`.
+- Option 1 — revert those three assets to `766ebc1` and rebuild — turned out to be a
+  **no-op**. URP's pre-build prefilter pass rewrote all three back to the `1075031` values at
+  07:30:56, before a single shader compiled (PC_RPAsset re-imported at log lines 8478/8534,
+  URP/Lit compiled at 13956). After the build the three files are byte-identical to
+  `1075031`. **The build that works was built with exactly the settings under suspicion.**
+
+**What actually differs: the URP/Lit variant set.** Same scene, same 170 shaders compiled.
+`Universal Render Pipeline/Lit`, pass ForwardLit, full variant space 181,193,932,800 in both:
+
+| build | after settings filtering | after built-in stripping | shipped |
+|---|---|---|---|
+| eebb029 (`step7.log`, 11 Sep) | 1,228,800 | 4,800 | **160** |
+| rebuild (`r40_build1.log`, 12 Sep) | 307,200 | 1,200 | **240** |
+
+The broken build shipped a different keyword set for ForwardLit. Every Lit surface — sand,
+venue, crowd, the Beach Girl materials — had no variant for the keywords the runtime asked for
+and drew nothing, while Unlit geometry (court lines, UI) drew normally. *Why* the 11 Sep
+build's keyword prefilter came out differently is **not proven**: both logs show the pre-build
+pass re-importing PC_RPAsset. The likeliest explanation is that the 11 Sep batch build ran
+while the Editor's migration state was still settling (it was committed as `1075031` only after
+that build), but that is inference, not measurement.
+
+**Which change fixed it: rebuilding from the current project state** (`1075031` plus the
+settings the build derives). Not the `766ebc1` revert, which Unity undid before compiling, and
+**not Forward (mode 0)**: the first rebuild rendered, so that fallback was never needed and the
+renderer stays Forward+.
+
+**Proof (new build, same harness as the control):**
+- Real GPU: bottom half 0.6% sky-blue / 43.6% sand-like, mean RGB (207,188,164).
+- SwiftShader: 0.6% / 43.5%, mean RGB (207,187,164).
+- Loader, all four runs: `careerSaveId 9 (from page URL)`, four per-player `<-` lines with
+  four skin bands, `applied 4 of 4 player(s)`. **0 console errors.**
+- Screenshots: `proof/webgl_court.png`, `proof/webgl_court_gpu.png`,
+  `proof/webgl_court_eebb029_control.png`, `proof/webgl_court_eebb029_control_gpu.png` in the
+  Unity checkout. That folder is **gitignored by design** (as with the band renders), so
+  they exist on this machine only. `ea6eb5e`'s message says it carries the screenshots; it
+  does not.
+- Build: `.data` 267,139,548 bytes (`.br` 215,452,766), `.wasm` 51,443,814 (`.br` 8,955,403).
+- Harness: unity-match-state-payload 9/9, unity-career-scoping 15/15, fresh-install 40/40.
+
+Unity `ea6eb5e` also commits what the build derived for itself (Mobile_RPAsset prefilter flags,
+plus the WebGL batching entry and scripting defines in ProjectSettings), so the repo matches
+what produced the working build. Left uncommitted: batch mode flipped
+`UnityConnectSettings.m_Enabled` from 1 to 0 — a batch-mode side effect, not a decision.
+
+**Rule going forward: a Web build is not done until it has passed the render proof.** A build
+can load and run the sim while drawing nothing. The tooling is now in `scripts/webgl-proof/`:
+`run.mjs` (boots the server against a save copy and drives Chrome; `R40_GPU=1` selects the
+real GPU, `R40_PUBLIC_DIR` serves a control), `proof.mjs` and `stats.py`.
+
 ### R-38 — CLOSED (11 Sep, 39148cb)
 `GET /unity/match-state` is career-scoped but read the career from the session, which
 neither a WebGL iframe nor Unity Editor Play mode has — so the endpoint the Unity
