@@ -40,8 +40,9 @@ so nothing was lost, but the claim was wrong.
   prefilter came out differently is not proven — recorded as inference, not fact.
 - **Hypothesis correction:** the suspected migration commit `1075031` is not the cause;
   the working build was built with exactly those settings.
-- Commits: Unity `ea6eb5e` (the settings the build derived; the three URP assets are
-  unchanged from `1075031`).
+- Commits: game repo `195e769` (build + `scripts/webgl-proof/` + register), Unity `ea6eb5e`
+  (the settings the build derived; the three URP assets are unchanged from `1075031`) and
+  `9c823c9` (UNITY-STATUS). All pushed.
 - Proof screenshots: `proof/webgl_court.png` (+ `_gpu`, and the
   `webgl_court_eebb029_control*.png` pair) in the Unity checkout. `proof/` is gitignored
   there by design, so they are **on this machine only**. `ea6eb5e`'s commit message wrongly
@@ -56,7 +57,8 @@ so nothing was lost, but the claim was wrong.
 
 ## R-29 — honest AI competitors
 
-*Not started.*
+*In progress.* Design written first: `docs/r29-design.md` (what exists today, the design, every
+screen and query that changes, and the harness).
 
 ## R-10 — design-screens audit
 
@@ -72,4 +74,19 @@ so nothing was lost, but the claim was wrong.
 
 *(game-design decisions only)*
 
-None yet.
+**Q1 — R-29: is the World Tour field 18 or 19?** Not blocking: built one way, and changing it
+is a single function (`worldTourField`).
+
+The rules page says the World Tour is "18 teams total — 3 qualifying teams from each of the 6
+continental regions", and your club plays every World Tour round on top of that. So the field
+is **19**, and with an odd field one club has to sit out each round.
+
+**Built as:** the 18 qualifiers + your club. One AI club rests per round, rotating, so each
+rests 3 or 4 times across the 60 rounds; your club never rests, because the 62-match fixture is
+already the contract. This means your harness line "after N rounds every AI club has played N
+matches" cannot be literally true. The harness asserts instead that every AI club has played
+exactly N minus its scheduled rests, and that exactly one club rests per round.
+
+If you want an even field, two options:
+- **(a)** your club takes one of the 18 places: 17 qualifiers + you;
+- **(b)** a 19th qualifier, e.g. the best 4th-placed regional club: 19 + you = 20.
