@@ -1036,6 +1036,14 @@ Still open on the Unity side: brief steps 6—8 (texture budget, WebGL export in
 repo, and the in-game proof). `MatchManager` still receives no squad data — see the
 note in R-38.
 
+**Update 12 Sep (weekend Unity items):**
+- **Steps 6–8 are done.** R-40 made the WebGL court render, and it was rebuilt again for 3a.
+- **The squad-data gap above is closed.** MatchManager reads `PlayerStats` live, and the loader
+  fills those fields. The remaining fault was that the match started before the fetch returned; it
+  now waits for the data. A batch Play-mode proof and the WebGL build both log four distinct
+  rating sets in play. Unity commits: `8ea5905` (3a), `0b8288d` (scene archive), and the Web
+  rebuild commit.
+
 Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's
 bikini/kit colour** in the Unity 3D court, and this must match the management side. Today,
 launching from the desktop shortcut and pressing "3D Court" shows the same pale model in a grey

@@ -117,7 +117,75 @@ register R-29.
 
 ## Unity items
 
-*Not started.*
+**3a — MatchManager ratings ingestion: DONE** (Unity `8ea5905`).
+
+- **What I read:** MatchManager reads `PlayerStats` live via `GetComponent<PlayerStats>()` at
+  every serve, spike, dig and block. PlayerAI reads no rating at all; its `speed = 6` is walking
+  speed. `UnityMatchDataLoader.ApplyStats` already wrote overall, power, speed, defense, serve,
+  block, stamina and morale into those exact fields, so the wiring was right.
+- **The real bug was timing.** `MatchManager.Start()` began the rally on frame one, before the
+  HTTP request came back, so the opening points were played on prefab default ratings.
+- **Fix:** the match now holds until the loader reports all four players applied, or reports that
+  it finished without them, or 20 s pass. It then logs the ratings in play through its own read
+  path. The loader now logs all eight values per player.
+- **Proof** (batch Play mode, api-server on a *copy* of the live save, scene never saved; career 9):
+  `match starts after 3.7s: match data applied`. After 25 s of play, the four PlayerStats read
+  back through MatchManager's own references:
+
+| Player | ovr | pwr | spd | def | srv | blk | sta | mor |
+|---|---|---|---|---|---|---|---|---|
+| Aishath Nazeema | 64 | 50 | 77 | 78 | 61 | 45 | 75 | 75 |
+| Fathimath Shiuna | 63 | 49 | 76 | 77 | 60 | 44 | 74 | 75 |
+| Yaritza Mendez | 90 | 96 | 80 | 88 | 88 | 99 | 88 | 75 |
+| Nyasha Ncube | 89 | 96 | 82 | 88 | 85 | 98 | 86 | 75 |
+
+  4 distinct rating sets → PASS. Score at that point was 0–3 to the stronger away pair.
+
+**3b — scene archive: DONE.**
+
+- **21 scenes moved** to `Assets/_Archive/Scenes/` (each with its `.meta`, every GUID checked and
+  kept):
+  - Beach Volleyball V12, Beach Volleyball V14, Beach Volleyball v8a
+  - BeachVolleyball 17, V12.5, V12, V13, V15, v11, v2, v6, v7, v8, v9
+  - BeachVolleyball_v1, Berach Volleyball v10, beach volleyball 11.5
+  - beachVolleyball v3, beachvolleyball V16, beachvolleyballcourt, recoveryn v1
+- **Left at the root:** BeachVolleyball V18, BeachVolleyball V19. The build scene list is unchanged
+  (V19 only).
+- The spaced "Beach Volleyball V19" copy was already gone, removed in `53a82d9`.
+
+**3c — Web rebuild: DONE**, because 3a changed runtime behaviour. The R-40 path was repeated
+exactly:
+
+- **Build:** Unity batch build succeeded; `.data` 267,141,147 bytes (`.br` 215,496,503), `.wasm`
+  51,445,891 bytes (`.br` 9,004,850). URP/Lit ForwardLit still ships 240 variants.
+- **Pipeline:** copied under the repo's filenames, compressed, frontend built, `sync:public` done.
+- **Harness:** unity-match-state-payload 9/9, unity-career-scoping 15/15, fresh-install 40/40.
+- **Render proof** on the real GPU (RTX 5080, ANGLE D3D11), against a copy of the live save:
+  - the court renders — bottom half 0.6% sky-blue / 43.5% sand
+  - **0 console errors**
+  - the WebGL build logs `[MatchManager] match starts after 4.0s: match data applied`, then the
+    same four rating sets as the Editor proof
+  - screenshot: `proof/webgl_court_3c_gpu.png` in the Unity checkout (the folder is gitignored)
+
+---
+
+## STOP — end of the weekend batch
+
+Everything asked for is done, committed and pushed:
+
+| Item | Commits |
+|---|---|
+| R-40 WebGL empty court | game `195e769`, Unity `ea6eb5e` `9c823c9` |
+| R-29 honest AI competitors (+ R-41 run-all.mjs) | game `b93e589` (design), `5a91525` |
+| R-10 design-screens audit | game `a17cbe2` |
+| Unity 3a ratings ingestion | Unity `8ea5905` |
+| Unity 3b scene archive | Unity `0b8288d` |
+| Unity 3c Web rebuild | game + Unity: the commits carrying this section |
+
+**Open questions for Rob are Q1–Q3 below.** None blocked the work. Also worth your eye: the
+R-08 table under R-29 (a squad that never signs or trains collapses after season 1), and the new
+repair items R-42 (trophies never written) and R-43 (invented news, manager moves and youth
+league).
 
 ---
 

@@ -121,9 +121,10 @@ const shot = await send("Page.captureScreenshot", { format: "png" });
 fs.writeFileSync(outPng, Buffer.from(shot.result.data, "base64"));
 
 console.log(`waited ${((Date.now() - started) / 1000).toFixed(0)}s, loader player lines seen: ${sawPlayers}`);
-console.log("--- console (UnityMatchDataLoader + errors) ---");
+console.log("--- console (UnityMatchDataLoader, MatchManager match start + errors) ---");
 for (const l of console_) {
-  if (l.includes("UnityMatchDataLoader") || l.startsWith("[error]") || l.startsWith("[warning]")) console.log("  " + l);
+  if (l.includes("UnityMatchDataLoader") || l.includes("[MatchManager] match starts") || l.includes("[MatchManager] ratings in play")
+      || l.startsWith("[error]") || l.startsWith("[warning]")) console.log("  " + l);
 }
 console.log(`--- errors (${errors.length}) ---`);
 for (const e of errors.slice(0, 40)) console.log("  " + e);
