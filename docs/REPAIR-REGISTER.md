@@ -824,6 +824,25 @@ every match-completion write site) than this item asks for, and is not attempted
 `goalsFor: 3, goalsAgainst: 5` (teamId 13 mod 10 / mod 8). Full harness green: 12/12 suites.
 
 ### R-22 — CODE-SIDE PART CLOSED (8 Sep, c84f1ea); UNITY-SIDE PART: ROB'S DECISION, see below
+
+**Unity side, editor proof PASSED ON SCREEN (11 Sep).** Brief step 5 is done and
+Rob verified it himself in the Editor on `BeachVolleyball V19.unity`: four players,
+**four different skin tones**, the home pair in the club's own `#0a0` green and the
+away pair in the red fallback, **animating in a live rally**. The loader fetched
+career 9 over HTTP from an api-server Rob ran in his own cmd window.
+
+That closes the loop this whole strand was about. The August symptom was "white
+girls in grey bikinis" because skin and swimsuit were one mesh on one material; the
+chain that now works end to end is: `player_v4.visual_identity.skin_tone` (a named
+band) — `GET /unity/match-state?careerSaveId=9` (R-38) — `UnityMatchDataLoader`
+— `BeachGirlAppearanceController` — a MaterialPropertyBlock per renderer on
+multiply-tinted URP Lit materials. Four players, four tones, two kit colours, one
+shared material each, no per-renderer material clones.
+
+Still open on the Unity side: brief steps 6—8 (texture budget, WebGL export into the
+repo, and the in-game proof). `MatchManager` still receives no squad data — see the
+note in R-38.
+
 Rob's requirement (7 Sep): every player must appear with **her own skin tone** and **her club's
 bikini/kit colour** in the Unity 3D court, and this must match the management side. Today,
 launching from the desktop shortcut and pressing "3D Court" shows the same pale model in a grey
@@ -1167,6 +1186,44 @@ starting budget on the dashboard.
 ---
 
 ## LOW
+
+### R-39 — electron:dev launched from a Claude Code background task dies within minutes
+Not to be fixed now; recorded so nobody loses an afternoon to it again.
+
+`pnpm run electron:dev` started as a Claude Code background task runs correctly for a
+few minutes — serving pages, answering API calls — and then exits **cleanly** on its
+own. Observed four times in one session, with run lengths from about a minute up to
+853s. Every exit was orderly, never a crash:
+
+```
+[server] WAL checkpointed and database closed for shutdown
+[shutdown] server child exited, quitting
+[exited with code 0]
+```
+
+That `[shutdown]` line is `electron/main.js`'s own `before-quit` handler, so something
+is *asking* Electron to quit rather than it dying — and R-31's checkpoint runs every
+time, so the live save is never left with an un-checkpointed WAL. No SIGTERM, crash or
+error appears anywhere in the logs.
+
+The cost is real: it reads as a working server, then the next thing that needs it gets
+`ConnectionError (0) Cannot connect to destination host`. That is exactly what
+happened to the first Unity Play-mode attempt — the loader did everything right,
+logged `careerSaveId 9 (from editorCareerSaveId Inspector field)` and the correct URL,
+and failed on a port that had gone quiet minutes earlier. Step 5 only passed once Rob
+ran the server in his own cmd window.
+
+Most likely the background task's process group is reclaimed once the harness treats
+the task as finished, which would make this a harness-lifetime quirk rather than an
+app bug. Unproven from inside the session.
+
+**Rule of engagement until fixed:** anything that needs the app alive while a human
+looks at a screen — Rob starts it in his own terminal, and confirms
+`http://localhost:4173/api/health` answers before pressing Play or taking a
+screenshot. Claude may still launch it for short, self-contained API checks, but must
+re-verify it is alive immediately before any measurement and never report "left
+running".
+
 
 ### R-18 — CLOSED, absorbed into R-23 (8 Sep, bc06e91)
 Decided 2 Sep: remove the World Tour Stops / Countries / Grand Final Prize pills and the
