@@ -7,8 +7,17 @@ import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@w
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 import type { Contract } from "@workspace/db";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
+import { getGameDate } from "../utils/gameDate.js";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
 
 const router = Router();
+
+/** One year after a `YYYY-MM-DD` date; 29 February lands on 28 February. */
+function addOneYear(date: string): string {
+  const [y, m, d] = date.split("-");
+  const day = m === "02" && d === "29" ? "28" : d;
+  return `${Number(y) + 1}-${m}-${day}`;
+}
 
 const serializeContract = (c: Contract) => ({
   ...c,
@@ -112,10 +121,11 @@ router.post("/contracts", async (req, res) => {
       .where(and(eq(contractsTable.playerId, player.id), eq(contractsTable.status, "active")));
   }
 
-  const today = new Date().toISOString().split("T")[0];
-  const maxEnd = new Date();
-  maxEnd.setFullYear(maxEnd.getFullYear() + 1);
-  const maxEndStr = maxEnd.toISOString().split("T")[0];
+  // R-51: dated on the GAME clock. `new Date()` stamped a contract with the
+  // computer's date and capped it a year after THAT, so a contract signed in an
+  // in-game season could start and end in whatever year the machine was in.
+  const today = await getGameDate(team.id);
+  const maxEndStr = addOneYear(today);
   const actualEnd = endDate > maxEndStr ? maxEndStr : endDate;
 
   const [contract] = await db.insert(contractsTable).values({
@@ -137,6 +147,67 @@ router.post("/contracts", async (req, res) => {
   });
 
   res.status(201).json(serializeContract(contract));
+});
+
+/**
+ * R-51: renew a contract for one more season, on the same terms.
+ *
+ * There was no renewal anywhere: signing a player already in the squad was
+ * refused with "use the Contracts page to renew", and that page could only
+ * terminate. A squad could therefore only ever run out of contract.
+ *
+ * - allowed once the contract ends within the current season (its final
+ *   season), so renewals cannot be stacked years ahead
+ * - the new end date is one year after the old one; salary and bonus unchanged
+ * - renewing commits the club to wages, so the board's spending gate applies
+ *   exactly as it does to signing
+ */
+router.post("/contracts/:id/renew", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) { res.status(400).json({ error: "Invalid contract id" }); return; }
+
+  const contract = await db.query.contractsTable.findFirst({ where: eq(contractsTable.id, id) });
+  if (!contract || contract.teamId !== team.id) { res.status(404).json({ error: "Contract not found" }); return; }
+  if (contract.status !== "active") {
+    res.status(409).json({ error: "Only an active contract can be renewed." });
+    return;
+  }
+
+  const spendingBlocked = checkSpendingAllowed(team);
+  if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
+
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const player = await loadPlayer(cid, contract.playerId);
+  if (!player || player.teamId !== team.id) {
+    res.status(409).json({ error: "This player is no longer in your squad." });
+    return;
+  }
+  if (player.academyContractYears != null) {
+    res.status(403).json({ error: "Academy contracts are managed by the youth academy, not renewed here." });
+    return;
+  }
+
+  const season = await getActiveSeason(req);
+  if (!season) { res.status(409).json({ error: "No active season" }); return; }
+  if (contract.endDate > season.endDate) {
+    res.status(409).json({
+      error: `This contract already runs past this season (to ${contract.endDate}). It can be renewed in its final season.`,
+    });
+    return;
+  }
+
+  const newEnd = addOneYear(contract.endDate);
+  const [renewed] = await db.update(contractsTable)
+    .set({ endDate: newEnd })
+    .where(eq(contractsTable.id, id))
+    .returning();
+  await updatePlayerState(cid, contract.playerId, { contractEndDate: newEnd });
+
+  res.json(serializeContract(renewed));
 });
 
 router.get("/contracts/:id", async (req, res) => {

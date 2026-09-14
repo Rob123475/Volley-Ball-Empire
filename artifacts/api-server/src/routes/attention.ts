@@ -11,6 +11,7 @@ import {
   continentalScoutingMissionsTable,
 } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -111,11 +112,15 @@ router.get("/attention-items", async (req, res) => {
   }
 
   // ── Player contracts expiring (red ≤14 days, orange ≤30 days) ───────────────
+  // R-51: counted on the GAME clock. This compared an in-game end date with the
+  // computer's clock, so the warning appeared, or never did, regardless of where
+  // the season actually was — and a squad could lapse with no notice at all.
+  const gameToday = new Date(`${await getGameDate(team.id)}T00:00:00Z`);
   for (const p of players) {
     if (!p.contractEndDate) continue;
-    const end = new Date(p.contractEndDate);
+    const end = new Date(`${p.contractEndDate}T00:00:00Z`);
     if (isNaN(end.getTime())) continue;
-    const daysLeft = Math.round((end.getTime() - now.getTime()) / 86_400_000);
+    const daysLeft = Math.round((end.getTime() - gameToday.getTime()) / 86_400_000);
     if (daysLeft < 0 || daysLeft > 30) continue;
 
     items.push({
@@ -124,8 +129,8 @@ router.get("/attention-items", async (req, res) => {
       category: "Contract",
       title: `Contract Expiring: ${p.name}`,
       description: daysLeft <= 14
-        ? `Only ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left — renew immediately`
-        : `${daysLeft} days remaining — review contract`,
+        ? `Only ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left — renew on the Contracts page before the player leaves`
+        : `${daysLeft} days remaining — renew on the Contracts page`,
       navigateTo: "/contracts",
     });
   }

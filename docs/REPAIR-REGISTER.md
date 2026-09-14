@@ -27,6 +27,57 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-51 — CLOSED (14 Sep, R51_COMMIT_HASH): an expiring contract was neither warned about in game time nor renewable
+**Found (Rob's R-48 item 2: does the game warn the manager, with enough notice, and is there a renew action?):**
+- **No renew action existed anywhere.**
+  - `POST /contracts` refused a player already in the squad with "Use the Contracts page to renew
+    their contract".
+  - `pages/contracts.tsx` offered only Terminate.
+  - Neither the routes nor the OpenAPI spec had a renew endpoint.
+- **The warning existed, but on the wrong clock.**
+  - `routes/attention.ts` "Contract Expiring" is orange at ≤30 days and red at ≤14. It appears in
+    the dashboard's attention panel and is counted in the header bell.
+  - But it computed days left from `new Date()`, the computer's clock, against in-game end dates.
+    It appeared, or never did, regardless of where the season was.
+  - The Contracts page's "Days Remaining" did the same.
+- **Signing used the computer's clock too:** `POST /contracts` started a contract on the machine's
+  date and capped it a year after that.
+- **Expiry was only reported after the fact.** The calendar says "N contracts expired — players
+  returned to free agency" (`calendar.ts:562`), and no inbox or news item comes before it.
+
+**Rob's decision (14 Sep):** build renewal now; the R-48 empty-squad forfeit ships with it.
+
+**What changed:**
+- **`POST /contracts/:id/renew`:**
+  - one more season on the same terms: the new end is one year after the old one, same salary and
+    bonus
+  - allowed only in the contract's final season (end ≤ the active season's end), so renewals cannot
+    be stacked
+  - the board's spending gate applies (403)
+  - another club's contract is a 404; an academy contract is a 403
+  - career state carries the new end date
+- **`routes/attention.ts`:** days left are counted on the game clock (`getGameDate`), and the item
+  says to renew on the Contracts page.
+- **`POST /contracts`:** start date and one-year cap use the game date.
+- **`pages/contracts.tsx`:** "Days Remaining" is counted from the game date, and a "Renew +1 season"
+  button shows for contracts in their final season.
+- **OpenAPI:** `renewContract`, with the client regenerated.
+
+**Harness: new `harness/contract-renewal.mjs`, 18/18:**
+- renewal to 2027-12-31, same salary, in the contracts table and career state
+- a second renewal is 409, a cross-career contract 404, unauthenticated 401, spending blocked 403
+- with the game clock at 1 Jan: no warning
+- at 10 Dec: two orange (21 days), the renewed contract silent
+- at 20 Dec: two red (11 days) saying renew
+- on the machine's clock (14 Sep 2026) those contracts were 108 days away, so the warnings are the
+  game clock's
+- a signing on game day 20 Dec starts that day and is capped at 2027-12-20
+- the page source renews and counts game days
+
+The first run of this suite failed 3 checks. The harness set the game date on a calendar row that
+did not exist yet: `GET /calendar` creates it, and `current_date` is also SQLite's CURRENT_DATE
+keyword. Scene writes now open the calendar first, quote the column, and must change exactly one row.
+
 ### R-48 — OPEN, INVESTIGATED, AWAITING ROB (14 Sep): the Strong arc collapses at the first season boundary
 **Symptom (final run, 14 Sep):** RollStrong (established) finished season 1 at 42W 14L, #1, World
 Champion. In season 2 it went 10W 44L, #19, with no signings and no training. The weak arc also sat
@@ -2026,6 +2077,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-51 Contract renewal; expiry warned and dated on the game clock | 14 Sep, R51_COMMIT_HASH | contract-renewal 18/18: renew one season in its final season, refusals 409/404/401/403, warnings at 21/11 game days, signing dated on the game clock |
 | R-47 R-08 arc reports sackings | 14 Sep, 04f7830 | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI

@@ -2361,6 +2361,76 @@ export const useTerminateContract = <TError = ErrorType<unknown>,
       return useMutation(getTerminateContractMutationOptions(options));
     }
 
+export const getRenewContractUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/renew`
+}
+
+/**
+ * @summary R-51: renew a contract for one more season on the same terms (game clock; only in its final season)
+ */
+export const renewContract = async (id: number, options?: RequestInit): Promise<Contract> => {
+
+  return customFetch<Contract>(getRenewContractUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRenewContractMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['renewContract'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof renewContract>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  renewContract(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RenewContractMutationResult = NonNullable<Awaited<ReturnType<typeof renewContract>>>
+
+    export type RenewContractMutationError = ErrorType<void>
+
+    /**
+ * @summary R-51: renew a contract for one more season on the same terms (game clock; only in its final season)
+ */
+export const useRenewContract = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof renewContract>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRenewContractMutationOptions(options));
+    }
+
 export const getListStaffUrl = () => {
 
 

@@ -581,6 +581,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Contract"
 
+  /contracts/{id}/renew:
+    post:
+      operationId: renewContract
+      tags: [contracts]
+      summary: "R-51: renew a contract for one more season on the same terms (game clock; only in its final season)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contract renewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "403":
+          description: Spending blocked by the board, or an academy contract
+        "404":
+          description: No such contract in this club
+        "409":
+          description: Not active, the player has left, or the contract already runs past this season
+
   /staff:
     get:
       operationId: listStaff
