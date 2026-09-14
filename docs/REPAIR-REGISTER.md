@@ -27,7 +27,11 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-40 — CLOSED (12 Sep; Unity ea6eb5e, game repo: the commit carrying this entry)
+### R-40 — CLOSED, VERIFIED ON SCREEN BY ROB 14 SEP (game 195e769, rebuilt 417cdcd; Unity ea6eb5e)
+
+**Verified on screen by Rob, 14 Sep:** the Electron 3D Court on career 9 shows the full venue and
+all four players, with four distinct skin tones — the home pair in `#0a0` green, the away pair in
+red. That is brief step 8, passed.
 Brief step 8 failed on screen: the eebb029 WebGL build loaded and the sim ran — score,
 commentary, weather HUD, court lines and net pole all drew — but the sand, the venue, the
 crowd and all four players were invisible. July's build had rendered everything.
@@ -474,7 +478,14 @@ away point credited to nobody. Confirmed against the pre-fix code: 0 distinct aw
 credited to any away player, in the same window. Wired into `run-all.mjs` as suite 7/12. Full
 harness green: 12/12 suites.
 
-### R-31 — Database is never checkpointed or closed on quit
+### R-31 — CLOSED, VERIFIED ON THE LIVE SAVE 14 SEP (877557c)
+**Verified on the live save, 14 Sep:** Rob closed the game with the window's X. Afterwards the
+live save folder holds only `volleyball-empire.sqlite` (2,064,384 bytes, modified 14 Sep
+10:23): **no `volleyball-empire.sqlite-wal`**, no `-shm`, and no Electron process left running.
+The quit went through the checkpoint-and-close path. Harness proof since `877557c`:
+`harness/wal-checkpoint-shutdown.mjs`, 7/7 in the 12 Sep full run.
+
+Original entry:
 `before-quit` in `electron/main.js` just kills the server (`child.kill()`, no signal a Windows
 process can catch, 2s grace then `app.exit(0)` regardless). Nothing runs `PRAGMA
 wal_checkpoint`, nothing calls `sqlite.close()` — confirmed by direct grep, no such call exists
@@ -1016,7 +1027,16 @@ every match-completion write site) than this item asks for, and is not attempted
 `goalsFor: 0, goalsAgainst: 0`. Confirmed against the pre-fix code: the same fixture read
 `goalsFor: 3, goalsAgainst: 5` (teamId 13 mod 10 / mod 8). Full harness green: 12/12 suites.
 
-### R-22 — CODE-SIDE PART CLOSED (8 Sep, c84f1ea); UNITY-SIDE PART: ROB'S DECISION, see below
+### R-22 — CLOSED, BOTH HALVES: code side 8 Sep (c84f1ea); Unity side VERIFIED ON SCREEN BY ROB 14 SEP
+
+**Unity side verified on screen by Rob, 14 Sep (brief step 8):** the Electron 3D Court on career 9
+shows the full venue and four players with **four distinct skin tones** — the home pair in the
+club's `#0a0` green, the away pair in red. The Unity half is closed.
+
+Commits:
+- **Unity:** `32fc43f`, `ac5a741`, `19559c8`, `fe1de86`, `5b7f670`, `2ea24d6`, `53a82d9`,
+  `806956d`, `55cd210`, `561bde2`, `a133643`, `8ebeb5d`, `715bd1f`, `1075031`, `ea6eb5e`, `8ea5905`
+- **Game:** `39148cb` (R-38), `eebb029`, `195e769`, `417cdcd`
 
 **Unity side, editor proof PASSED ON SCREEN (11 Sep).** Brief step 5 is done and
 Rob verified it himself in the Editor on `BeachVolleyball V19.unity`: four players,
@@ -1587,7 +1607,21 @@ anywhere in the actual server source. Genuinely dead, not load-bearing anywhere.
 No harness case added — there is no behaviour to regression-test for removing a file nothing
 referenced; the full typecheck/build/harness run itself is the proof nothing depended on it.
 
-### R-17 — Unity court: scope, don't fix yet
+### R-17 — CLOSED, VERIFIED ON SCREEN BY ROB 14 SEP (game 417cdcd; Unity 32fc43f to 6370636)
+**Verified on screen by Rob, 14 Sep:** the Unity court works end to end inside the game — the
+Electron 3D Court on career 9 shows the full venue and four players, with four tones and both
+kits.
+
+The scoping this entry asked for became R-22's pathway trace and the Unity brief. It was
+delivered through:
+- R-38 (`39148cb`): the career-scoped match-state endpoint the court iframe calls
+- Unity brief steps 1–7 (Unity `32fc43f` to `1075031`, game `eebb029`)
+- R-40 (game `195e769`, Unity `ea6eb5e`)
+- weekend Unity item 3 (Unity `8ea5905`, `0b8288d`; game `417cdcd`)
+
+Steam is untouched (the note below still holds): a separate, later step.
+
+Original entry:
 `pages/court.tsx` — 92 commits, highest churn in repo, one-endpoint integration
 (`/unity/match-state`) + iframe. R-22's pathway trace is the scoping exercise for this. Steam:
 0 references anywhere — late, short step.
@@ -1605,6 +1639,10 @@ referenced; the full typecheck/build/harness run itself is the proof nothing dep
 | R-05 Fixture generation isn't a transaction | 3949ecd | `harness/fixture-transaction.mjs` sabotage test 30 orphans → 0 |
 | R-19 Delete button on Select Manager | 359d245, verified on live save 7 Sep | deleted "R02 Verify" and "r" through the UI |
 | R-20 Dashboard/ladder show another career's state | 7 Sep, 2293606 | ladder had no filter; fallbacks deleted; smoke case 12 proven by sabotage; 7/7 suites, 56/56 |
+| R-17 Unity court | game 417cdcd, Unity to 6370636; verified on screen 14 Sep | Rob: Electron 3D Court on career 9, full venue, four players |
+| R-22 Unity half (skin tone + kit colour) | Unity 32fc43f to 8ea5905; verified on screen 14 Sep | Rob: four distinct tones, home `#0a0` green, away red |
+| R-31 DB checkpointed and closed on quit | 877557c; verified on live save 14 Sep | closed via X: no `-wal`, no `-shm`; harness wal-checkpoint-shutdown 7/7 |
+| R-40 WebGL build rendered an empty court | 195e769, rebuilt 417cdcd; verified on screen 14 Sep | Rob: full venue and four players in the Electron 3D Court |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,
