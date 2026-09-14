@@ -1136,6 +1136,86 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
+### R-54 — OPEN, REPORTED (14 Sep, Rob: MEDIUM; report, do not fix): ranking points versus tier look miscalibrated
+**Symptom (R-52 final run):**
+- RollStrong (established) earned 63 points and Gold in season 1 at 31W 24L, with the 20-point head
+  start.
+- It then earned 22-30 points and only Silver at 37W 18L and 41W 14L, while finishing #3-#4 in the
+  field.
+
+Other established clubs ended Bronze while finishing high:
+- RollStrong3: S3, #6, 14 points
+- RollStrong2: S3, #10, 13 points
+- R-48 run 2 RollStrong: S2, #7, 14 points
+
+**What the tier is calibrated to:**
+- Silver 15 and Gold 40 were set in `docs/economy-design.md` (ranking reset, lines 83-132), modelled
+  on:
+  - a 62-event season
+  - a squad on the Phase 1 curve (75.0 in S1, rising to 89.5)
+  - opponents rated by tier (`opponentRatingFromTier`, +2 per season)
+- The target was I8, "a well-run club reaches the Grand Final within the arc". Silver 20 / Gold 55
+  never reached Gold in that model.
+- The model predates:
+  - R-29: real opponents, clubs rated 68.7-88.5
+  - R-44: 57 events
+  - R-11: the established head start of 20 points, season 1 only
+- The same doc (lines 457-475) already recorded "Gold is unreachable IN TIME". The ranking resets
+  each season, so the gate opens after most Gold events are played. It was noted as a scheduling
+  problem and left open.
+
+**How the gate works:**
+- A win scores Bronze 1, Silver 2, Gold 4.
+- A win at a gated tier scores 0 unless the club already holds that tier's threshold (15 or 40),
+  and pays 10% of the purse (`awardedPoints` in `utils/rankingPoints.ts`, `eligibilityFor` in
+  `utils/tierQualification.ts`).
+- The season's 57 events, in calendar order:
+  `BBBBBSSGGGBBBBBSSSGGBBBBBSSGGGBBBBSSSGGBBBBSSSGGBBBBSSSGG`. Each continent block plays its Bronze
+  first.
+
+**Modelled over the real schedule** (`scripts/r54-gate-model.mjs`: deterministic, finals excluded,
+independent win probability per match):
+- **Winning every regular match from 0 points (every season after season 1):** 57 points.
+  - Silver opens only after event 25, and Gold after event 49 of 57.
+  - 17 of the 57 wins score nothing.
+- **Winning every match from 20 points (established, season 1):** 123 points.
+  - Silver is open from the start, and Gold after event 18.
+- **By win rate:**
+
+  | win rate | from 0: mean pts | P(Silver) | P(Gold) | from 20: mean pts | P(Gold) |
+  |---|---|---|---|---|---|
+  | 35% | 9.7 | 2.8% | 0.0% | 44.0 | 62.9% |
+  | 45% | 13.1 | 21.2% | 0.0% | 54.7 | 94.8% |
+  | 55% | 18.0 | 58.9% | 0.0% | 66.0 | 99.8% |
+  | 65% | 24.3 | 90.7% | 0.3% | 77.6 | 100.0% |
+  | 75% | 31.4 | 99.4% | 4.4% | 89.8 | 100.0% |
+  | 85% | 40.4 | 100.0% | 37.3% | 101.2 | 100.0% |
+
+**What that means:**
+1. **The tier measures when a club crossed a gate, not how good it is.**
+   - A club starting at 0 needs 15 Bronze wins before any Silver or Gold win counts, and there are
+     only 27 Bronze events.
+   - Most of its best results against the strongest opposition score 0.
+2. **The head start is worth more than skill.**
+   - An established season-1 club winning 35% reaches Gold 63% of the time.
+   - A club starting at 0 reaches Gold 4.4% of the time winning 75%, and 37% winning 85%.
+   - This matches the run: 31W 24L gave Gold; 41W 14L gave Silver.
+3. **A top-4 club can be Bronze.**
+   - From 0 points at 55% wins, a club finishes Bronze 41% of the time.
+   - The real field has produced top-4 finishes at 55-75% win rates, and established clubs at #6,
+     #7 and #10 finished Bronze.
+   - No top-4 club was Bronze in the final run, but nothing prevents it. Whether a top-4 club should
+     ever be Bronze is Rob's call: the tier and the standings currently answer different questions.
+4. **I8's calibration no longer holds.** The model it was set against is gone: real opponents, 57
+   events, the head start.
+
+**Options (not applied):**
+- tiers qualified on the previous season's final standing or ranking (the ratchet the reset decision
+  rejected)
+- wins count toward points at every tier, with the gate applying only to the purse
+- thresholds proportional to events played so far
+- the head start applied every season, or never
+
 ### R-53 — OPEN, INVESTIGATED (14 Sep, Rob: MEDIUM; understand it before touching balance): board confidence reacts to the wrong things
 **Symptom (R-48 full run 2):**
 - RollWeak2 and RollWeak3 went 0W 54L in seasons 3 and 4, with $1.06M-$1.50M in the bank, and were
