@@ -2385,6 +2385,11 @@ export interface HistoryHofResponse {
   managerEntries: HistoryHofManagerEntry[];
 }
 
+export type RenewContractBody = {
+  /** Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending. */
+  salary?: number;
+};
+
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;

@@ -159,8 +159,12 @@ router.post("/contracts", async (req, res) => {
  * - allowed once the contract ends within the current season (its final
  *   season), so renewals cannot be stacked years ahead
  * - the new end date is one year after the old one; salary and bonus unchanged
- * - renewing commits the club to wages, so the board's spending gate applies
- *   exactly as it does to signing
+ * - R-52: a spending freeze blocks NEW spending, not keeping the squad you
+ *   have on the same terms. Renewing at the current salary (the default) or
+ *   less goes through a freeze; a raise is new spending and needs the board,
+ *   exactly as a signing does. (It used to gate every renewal, so a frozen
+ *   club with money in the bank lost its whole squad at the next boundary
+ *   and forfeited season after season.)
  */
 router.post("/contracts/:id/renew", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -177,8 +181,21 @@ router.post("/contracts/:id/renew", async (req, res) => {
     return;
   }
 
-  const spendingBlocked = checkSpendingAllowed(team);
-  if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
+  const currentSalary = Number(contract.salary);
+  const rawSalary = (req.body ?? {}).salary;
+  const newSalary = rawSalary == null ? currentSalary : Number(rawSalary);
+  if (!Number.isFinite(newSalary) || newSalary < 0) {
+    res.status(400).json({ error: "salary must be a non-negative number" });
+    return;
+  }
+  // R-52: only a raise is new spending, so only a raise meets the freeze.
+  if (newSalary > currentSalary) {
+    const spendingBlocked = checkSpendingAllowed(team);
+    if (spendingBlocked) {
+      res.status(403).json({ error: `${spendingBlocked} A renewal on the same terms is still allowed.` });
+      return;
+    }
+  }
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const player = await loadPlayer(cid, contract.playerId);
@@ -202,10 +219,10 @@ router.post("/contracts/:id/renew", async (req, res) => {
 
   const newEnd = addOneYear(contract.endDate);
   const [renewed] = await db.update(contractsTable)
-    .set({ endDate: newEnd })
+    .set({ endDate: newEnd, salary: newSalary })
     .where(eq(contractsTable.id, id))
     .returning();
-  await updatePlayerState(cid, contract.playerId, { contractEndDate: newEnd });
+  await updatePlayerState(cid, contract.playerId, { contractEndDate: newEnd, salary: newSalary });
 
   res.json(serializeContract(renewed));
 });

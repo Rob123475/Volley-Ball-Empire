@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-52 — OPEN (found 14 Sep during R-48, Rob's call): the board's spending freeze blocks contract renewal, so a solvent club can lose its squad and forfeit whole seasons
+### R-52 — CLOSED (14 Sep, R52_COMMIT_HASH): a spending freeze blocked contract renewal, so a solvent club could lose its squad and forfeit whole seasons
 **What happens:**
 - R-51's renewal applies the board's spending gate, the same gate as signing.
 - A club in the `spending_blocked` stage therefore cannot renew. Its squad lapses at the next season
@@ -52,6 +52,52 @@ forfeited" for every refused season, where a refusal lapses the squad at the NEX
 - Renewal at unchanged terms is exempt from the spending freeze, since it is not new spending.
 - The freeze leaves renewals open but caps them.
 - Leave it as is: the freeze bites and the board never ends a solvent career.
+
+**Rob's decision (14 Sep):** exempt renewals at unchanged terms from the spending freeze. A freeze
+blocks new spending, not keeping the squad you have on the same terms.
+
+**What changed (R52_COMMIT_HASH):**
+- **`POST /contracts/:id/renew`** takes an optional `salary`, and omitted means unchanged.
+  - Only a raise (above the current salary) meets the board's spending gate, with a 403 that
+    says a same-terms renewal is still allowed.
+  - Renewing at the current salary, or less, goes through a freeze.
+  - The contract and career state carry the salary.
+- **Signing is unchanged:** still refused while frozen.
+- **OpenAPI:** an optional request body, with the client regenerated.
+- **Harness:**
+  - `contract-renewal` gained a frozen-club section.
+  - `rollover.mjs` now requires every season's renewal to go through with none refused.
+  - Its report line for a refused renewal now says the squad lapses at the following boundary
+    (the imprecision noted above).
+
+**Harness: `contract-renewal` 23/23.** Club B, frozen (spending_blocked, score 10):
+- a raise is refused (403) and changes nothing
+- the same salary, named or omitted, renews to 2027-12-31
+- signing is refused (403)
+
+Club A's renewal, refusals, game-clock warnings and signing checks are unchanged.
+
+**Full harness: 24/24 suites passed; season rollover 66/66.** Renewals refused in the arc: none.
+
+Five-season table and sackings, as the run printed them:
+
+```
+  Season | Strong: record / played / pts / tier / balance / rank / finals          | Weak: record / played / pts / tier / balance / rank / finals
+       1 | 31W 24L / 55/59 / 63 / Gold / $1,109,559 / #1 / semi-finalist                    | 26W 28L / 54/59 / 13 / Bronze / $532,420 / #8 / did not qualify
+       2 | 37W 18L / 55/59 / 22 / Silver / $1,533,058 / #4 / semi-finalist                  | 22W 32L / 54/59 / 10 / Bronze / $861,040 / #15 / did not qualify
+       3 | 41W 14L / 55/59 / 22 / Silver / $1,974,077 / #4 / semi-finalist                  | 12W 42L / 54/59 / 7 / Bronze / $1,120,200 / #19 / did not qualify
+       4 | 41W 14L / 55/59 / 30 / Silver / $2,460,851 / #3 / semi-finalist                  | 18W 36L / 54/59 / 7 / Bronze / $1,398,580 / #18 / did not qualify
+
+── Sackings per arc (R-47: a legitimate result — reported, not failed; 3 careers each) ──
+  Strong (established): sacked in 0 of 3 careers (0%)
+    RollStrong   31W 24L | 37W 18L | 41W 14L | 41W 14L  ->  career complete
+    RollStrong2  35W 21L | 33W 23L | 30W 24L | 40W 15L  ->  career complete
+    RollStrong3  36W 20L | 32W 22L | 33W 21L | 33W 22L  ->  career complete
+  Weak (underdog): sacked in 1 of 3 careers (33%)
+    RollWeak     26W 28L | 22W 32L | 12W 42L | 18W 36L  ->  career complete
+    RollWeak2    22W 32L | 17W 37L | 19W 35L | 11W 43L  ->  career complete
+    RollWeak3    (no full season)  ->  SACKED in season 1 after 3W 14L
+```
 
 ### R-50 — OPEN (registered 14 Sep, Rob: HIGH, do not fix yet): injuries and fitness play no part in selection or match strength
 **Found during R-48's diagnosis:**
@@ -2245,6 +2291,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, R52_COMMIT_HASH | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
 | R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + dc8fbc6 | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |
 | R-51 Contract renewal; expiry warned and dated on the game clock | 14 Sep, c41cad2 | contract-renewal 18/18: renew one season in its final season, refusals 409/404/401/403, warnings at 21/11 game days, signing dated on the game clock |
 | R-47 R-08 arc reports sackings | 14 Sep, 04f7830 | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |

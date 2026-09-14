@@ -155,6 +155,7 @@ export * from './positionStrength';
 export * from './prizeMoneyCategory';
 export * from './prizeMoneySummary';
 export * from './promoDeal';
+export * from './renewContractBody';
 export * from './resignResult';
 export * from './runCampInput';
 export * from './scoutingResult';

@@ -14,7 +14,10 @@
  *             same salary, in the contracts table and in career state
  *   limits    a contract already past this season cannot be renewed again (409);
  *             another career's contract is not found (404); unauthenticated is
- *             401; a club whose board has blocked spending cannot renew (403)
+ *             401
+ *   freeze    R-52: a club whose board has frozen spending CAN renew at the
+ *             same salary (named or omitted), CANNOT renew at a raise and
+ *             CANNOT sign a player
  *   warning   with the game date at 1 Jan nothing warns; at 10 Dec the two
  *             unrenewed contracts warn orange (21 days) and the renewed one does
  *             not; at 20 Dec they warn red (11 days) — on the machine's clock the
@@ -164,10 +167,37 @@ try {
   check("another career's contract is not found", cross.status === 404, `HTTP ${cross.status}`);
   const noAuth = await fetch(`${BASE}/contracts/${first?.id}/renew`, { method: "POST" });
   check("unauthenticated renewal is refused", noAuth.status === 401, `HTTP ${noAuth.status}`);
-  writeOne(`UPDATE teams SET board_confidence = 5 WHERE id = ?`, a.teamId);
-  const blocked = await A("POST", `/contracts/${contractsA[1]?.id}/renew`);
-  check("with the board blocking spending, renewal is refused", blocked.status === 403, `HTTP ${blocked.status} ${JSON.stringify(blocked.data)}`);
-  writeOne(`UPDATE teams SET board_confidence = 60 WHERE id = ?`, a.teamId);
+
+  console.log("\n2b. A FROZEN CLUB KEEPS ITS SQUAD ON THE SAME TERMS, BUT CANNOT SPEND (R-52)");
+  // Club B, so club A keeps two unrenewed contracts for the warning checks below.
+  writeOne(`UPDATE teams SET board_confidence = 5 WHERE id = ?`, b.teamId);
+  const frozen = await B("GET", "/board-confidence");
+  check("club B's board has frozen spending", frozen.data?.spendingBlocked === true,
+    `stage ${frozen.data?.stage}, score ${frozen.data?.score}`);
+  const contractsB = (await B("GET", "/contracts")).data ?? [];
+  const [b1, b2] = contractsB;
+  const raise = await B("POST", `/contracts/${b1?.id}/renew`, { salary: Number(b1?.salary) + 1000 });
+  check("renewing at a raise is refused: a raise is new spending", raise.status === 403,
+    `HTTP ${raise.status} ${JSON.stringify(raise.data)}`);
+  const afterRaise = ((await B("GET", "/contracts")).data ?? []).find((c) => c.id === b1?.id);
+  check("the refused raise changed nothing", afterRaise?.endDate === b1?.endDate && Number(afterRaise?.salary) === Number(b1?.salary),
+    `${afterRaise?.endDate}, ${afterRaise?.salary}`);
+  const same = await B("POST", `/contracts/${b1?.id}/renew`, { salary: Number(b1?.salary) });
+  check("renewing at the same salary goes through the freeze",
+    same.status === 200 && same.data?.endDate === "2027-12-31" && Number(same.data?.salary) === Number(b1?.salary),
+    `HTTP ${same.status} ${same.data?.endDate} ${same.data?.salary}`);
+  const unnamed = await B("POST", `/contracts/${b2?.id}/renew`);
+  check("renewing with no salary named means the same terms, and goes through too",
+    unnamed.status === 200 && unnamed.data?.endDate === "2027-12-31" && Number(unnamed.data?.salary) === Number(b2?.salary),
+    `HTTP ${unnamed.status} ${unnamed.data?.endDate} ${unnamed.data?.salary}`);
+  const marketB = (await B("GET", "/players/market-all?playerType=senior")).data ?? [];
+  const freeAgent = (Array.isArray(marketB) ? marketB : []).find((p) => p.teamId == null && p.age >= 19);
+  const signFrozen = await B("POST", "/contracts", {
+    playerId: freeAgent?.id, salary: freeAgent?.salary ?? 5000, endDate: "2026-12-31", bonusPerWin: 0, squadRole: "interchange",
+  });
+  check("signing a player is refused while frozen", signFrozen.status === 403,
+    `HTTP ${signFrozen.status} ${JSON.stringify(signFrozen.data)}`);
+  writeOne(`UPDATE teams SET board_confidence = 60 WHERE id = ?`, b.teamId);
 
   console.log("\n3. THE EXPIRY WARNING RUNS ON THE GAME CLOCK");
   const realToday = new Date().toISOString().slice(0, 10);

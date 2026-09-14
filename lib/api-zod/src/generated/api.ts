@@ -7722,10 +7722,14 @@ export const TerminateContractResponse = zod.object({
 
 
 /**
- * @summary R-51: renew a contract for one more season on the same terms (game clock; only in its final season)
+ * @summary R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
  */
 export const RenewContractParams = zod.object({
   "id": zod.coerce.number()
+})
+
+export const RenewContractBody = zod.object({
+  "salary": zod.number().optional().describe('Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending.')
 })
 
 export const renewContractResponsePlayerDoctorQualityMax = 5;

@@ -507,17 +507,13 @@ async function advanceToBoundary(api, maxDays = 500) {
         ? arc.seasons.map((r) => `${r.played}/${arc.fixtureSize}`).join(" | ")
         : short.map((r) => `season ${r.season} played ${r.played}, byes ${r.byes}, not qualified for ${r.notQualified}`).join("; "));
 
-    // R-48: the squad is renewed through the real route at the start of every
-    // season; the only acceptable refusal is the board blocking spending.
-    const badRefusals = arc.renewals.flatMap((r) => r.refused.filter((x) => x.status !== 403)
-      .map((x) => `season ${r.season}: ${x.status} ${x.error}`));
-    // A season with nothing left to renew is right only once the squad has
-    // lapsed, i.e. after the board refused an earlier season's renewal.
-    const emptyWithoutCause = arc.renewals.filter((r, i) => r.renewed + r.refused.length === 0
-      && !arc.renewals.slice(0, i).some((p) => p.refused.length > 0));
-    check(`${arc.label}: its expiring contracts were renewed every season (refused only by a spending block; nothing left only after one)`,
-      arc.renewals.length > 0 && emptyWithoutCause.length === 0 && badRefusals.length === 0,
-      badRefusals.join("; ") || arc.renewals.map((r) => `S${r.season} ${r.renewed} renewed${r.refused.length ? `, ${r.refused.length} refused (spending blocked)` : ""}`).join(" | "));
+    // R-48/R-52: the squad is renewed through the real route at the start of
+    // every season, on the same terms. A spending freeze no longer blocks that,
+    // so no renewal may be refused and every season renews someone.
+    const refusals = arc.renewals.flatMap((r) => r.refused.map((x) => `season ${r.season}: ${x.status} ${x.error}`));
+    check(`${arc.label}: its contracts were renewed at the start of every season, none refused`,
+      arc.renewals.length > 0 && arc.renewals.every((r) => r.renewed > 0) && refusals.length === 0,
+      refusals.join("; ") || arc.renewals.map((r) => `S${r.season} ${r.renewed} renewed`).join(" | "));
 
     check(`${arc.label}: no season was a 0W 0L walkover`,
       arc.seasons.every((r) => r.played > 0),
@@ -549,10 +545,10 @@ async function advanceToBoundary(api, maxDays = 500) {
     for (const r of runs) {
       const seasonsText = r.seasons.map((x) => x.record).join(" | ");
       console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED in season ${r.sacked.season} after ${r.sacked.record}` : "  ->  career complete"}`);
-      // R-48: a renewal the board refused means the squad lapsed and that season was forfeited.
+      // R-48: a refused renewal lapses the squad at the FOLLOWING season boundary.
       const refusedSeasons = (r.renewals ?? []).filter((x) => x.refused.length > 0).map((x) => x.season);
       if (refusedSeasons.length > 0) {
-        console.log(`      renewal refused by the board's spending block at the start of season(s) ${refusedSeasons.join(", ")}: the squad lapsed and its matches were forfeited`);
+        console.log(`      renewal refused at the start of season(s) ${refusedSeasons.join(", ")}: the squad lapses at the following season boundary`);
       }
     }
   }

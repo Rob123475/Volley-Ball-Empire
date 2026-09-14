@@ -86,6 +86,7 @@ import type {
   PoachingOffersResponse,
   PrizeMoneySummary,
   PromoDeal,
+  RenewContractBody,
   ResignResult,
   RunCampInput,
   ScoutingResult,
@@ -2370,16 +2371,18 @@ export const getRenewContractUrl = (id: number,) => {
 }
 
 /**
- * @summary R-51: renew a contract for one more season on the same terms (game clock; only in its final season)
+ * @summary R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
  */
-export const renewContract = async (id: number, options?: RequestInit): Promise<Contract> => {
+export const renewContract = async (id: number,
+    renewContractBody?: RenewContractBody, options?: RequestInit): Promise<Contract> => {
 
   return customFetch<Contract>(getRenewContractUrl(id),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      renewContractBody,)
   }
 );}
 
@@ -2387,8 +2390,8 @@ export const renewContract = async (id: number, options?: RequestInit): Promise<
 
 
 export const getRenewContractMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number;data?: BodyType<RenewContractBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number;data?: BodyType<RenewContractBody>}, TContext> => {
 
 const mutationKey = ['renewContract'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -2400,10 +2403,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof renewContract>>, {id: number}> = (props) => {
-          const {id} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof renewContract>>, {id: number;data?: BodyType<RenewContractBody>}> = (props) => {
+          const {id,data} = props ?? {};
 
-          return  renewContract(id,requestOptions)
+          return  renewContract(id,data,requestOptions)
         }
 
 
@@ -2414,18 +2417,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type RenewContractMutationResult = NonNullable<Awaited<ReturnType<typeof renewContract>>>
-
+    export type RenewContractMutationBody = BodyType<RenewContractBody> | undefined
     export type RenewContractMutationError = ErrorType<void>
 
     /**
- * @summary R-51: renew a contract for one more season on the same terms (game clock; only in its final season)
+ * @summary R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
  */
 export const useRenewContract = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number;data?: BodyType<RenewContractBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof renewContract>>,
         TError,
-        {id: number},
+        {id: number;data?: BodyType<RenewContractBody>},
         TContext
       > => {
       return useMutation(getRenewContractMutationOptions(options));
