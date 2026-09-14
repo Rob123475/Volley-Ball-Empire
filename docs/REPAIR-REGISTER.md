@@ -120,7 +120,7 @@ The first run of this suite failed 3 checks. The harness set the game date on a 
 did not exist yet: `GET /calendar` creates it, and `current_date` is also SQLite's CURRENT_DATE
 keyword. Scene writes now open the calendar first, quote the column, and must change exactly one row.
 
-### R-48 — CLOSED (14 Sep, R48_COMMIT_HASH): the Strong arc collapsed at the first season boundary — squads walked out and clubs played on as phantoms
+### R-48 — CLOSED (14 Sep, dc8fbc6): the Strong arc collapsed at the first season boundary — squads walked out and clubs played on as phantoms
 **Symptom (final run, 14 Sep):** RollStrong (established) finished season 1 at 42W 14L, #1, World
 Champion. In season 2 it went 10W 44L, #19, with no signings and no training. The weak arc also sat
 at #19 from season 2 on.
@@ -194,7 +194,7 @@ plus:
 - **(2) found no renew action and a warning on the computer's clock.** That became R-51 (`c41cad2`):
   renewal route and button, game-clock warning and signing. Harness `contract-renewal` 18/18.
 - **(3)** R-50 registered (`e90bef6`).
-- **Forfeit (R48_COMMIT_HASH):**
+- **Forfeit (dc8fbc6):**
   - A club with fewer than 2 contracted active players forfeits instead of playing as a flat-60
     phantom side.
   - `/simulate` records the forfeit through the same code as `POST /matches/:id/forfeit`, now shared
@@ -205,7 +205,7 @@ plus:
     opponent credit and ranking loss; a full-squad control plays a real best-of-three.
   - The smoke suite signs a partner for its tracked player so its matches are played, and asserts
     none were forfeited.
-- **Harness renewal (R48_COMMIT_HASH):**
+- **Harness renewal (dc8fbc6):**
   - `rollover.mjs` renews every contract ending this season through `POST /contracts/:id/renew`
     before each season, in both the rollover walk and the R-08 arc.
   - Refusals are reported, and the check accepts only the board's spending block (403).
@@ -2182,7 +2182,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + R48_COMMIT_HASH | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |
+| R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + dc8fbc6 | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |
 | R-51 Contract renewal; expiry warned and dated on the game clock | 14 Sep, c41cad2 | contract-renewal 18/18: renew one season in its final season, refusals 409/404/401/403, warnings at 21/11 game days, signing dated on the game clock |
 | R-47 R-08 arc reports sackings | 14 Sep, 04f7830 | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
 
