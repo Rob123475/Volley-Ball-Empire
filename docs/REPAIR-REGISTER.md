@@ -1123,7 +1123,7 @@ On the same build, run-all's suites 19+20 were reproduced twice on one server:
 
 No All-Star code path can run (no All-Star match exists), so the sacking is not caused by R-45.
 
-### R-47 — OPEN (found 14 Sep during R-45): the R-08 arc harness dies when the underdog squad is sacked — Rob's call
+### R-47 — CLOSED (14 Sep, R47_COMMIT_HASH): the R-08 arc treats a sacking as a legitimate result and reports the sack rate per arc
 **What happens:**
 - `harness/rollover.mjs`'s R-08 section walks an established and an underdog career through five
   seasons.
@@ -1150,6 +1150,31 @@ No All-Star code path can run (no All-Star match exists), so the sacking is not 
 - **If no:** the R-09/R-11 balance changes.
 
 Until decided, a full harness run can fail on this by chance. Nothing was changed for it.
+
+**Decision (Rob, 14 Sep):** the harness treats a sacking as a legitimate result and reports the sack
+rate per arc. Board-confidence balance is NOT to change yet.
+
+**What changed (`harness/rollover.mjs` only; nothing in the game):**
+- `advanceToBoundaryPlaying` stops at a result that comes back `fired: true`. The season's record is
+  counted from the results themselves, because after a sacking the career's session has no team to
+  read.
+- Each arc runs `ARC_CAREERS` = 3 careers, each to the end of the arc or to its sacking.
+  - The first career is still the one the summary table shows.
+  - That table prints "SACKED after …" in the season it happened.
+- The checks apply to every career:
+  - every season it played is measured: all 4, or every season before its sacking
+  - the entitled-matches, walkover, World Final and champion checks run over every full season
+- A new report, "Sackings per arc", gives sacked-of-3 careers per arc, with each career's records.
+
+**Verified: full harness 21/21; season rollover 60/60 in 233.5 s (was 113 s).** The sacking path ran
+in this run: RollWeak was sacked in season 1 after 4W 15L, and it was reported, not failed.
+
+| arc | sacked | careers (season records) |
+|---|---|---|
+| Strong (established) | 0 of 3 | 38-17, 8-46, 19-35, 10-44 · 34-21, 17-37, 11-43, 14-40 · 39-16, 19-35, 13-41, 13-41 |
+| Weak (underdog) | 1 of 3 | sacked S1 after 4-15 · 15-39, 15-39, 14-40, 9-45 · 22-32, 13-41, 19-35, 9-45 |
+
+Every established career went from #1 in season 1 to #16-#19 from season 2 on: that is R-48.
 
 ### R-46 — CLOSED (14 Sep, 93ba82b): Olympic qualification on this season's World Tour ranking points (Rob's decision on WEEKEND-STATUS Q3)
 **Decision (Rob):**
@@ -2001,6 +2026,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-47 R-08 arc reports sackings | 14 Sep, R47_COMMIT_HASH | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,

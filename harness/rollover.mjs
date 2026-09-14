@@ -67,13 +67,26 @@ async function playPendingMatch(api, matchId) {
   return forfeit;
 }
 
-/** Same shape as advanceToBoundary, but plays every pending match for real. */
+/**
+ * Same shape as advanceToBoundary, but plays every pending match for real.
+ *
+ * R-47: a sacking is a result, not a harness failure. When the board ends the
+ * career on a result (R-09's fail state: the result comes back `fired: true`),
+ * the season stops there and is returned as `sacked`. The career's session no
+ * longer has an active team, so the season's record is counted here from the
+ * results themselves rather than read from GET /team afterwards.
+ */
 async function advanceToBoundaryPlaying(api, maxDays = 500) {
+  let wins = 0, losses = 0;
   for (let i = 0; i < maxDays; i++) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed: ${JSON.stringify(r.data)}`);
     if (r.data?.blocked === "pending_match") {
-      await playPendingMatch(api, r.data.pendingMatchId);
+      const played = await playPendingMatch(api, r.data.pendingMatchId);
+      if ((played.data?.homeScore ?? 0) > (played.data?.awayScore ?? 0)) wins++; else losses++;
+      if (played.data?.fired) {
+        return { sacked: { club: played.data.dismissalClubName ?? null, record: `${wins}W ${losses}L` }, days: i + 1 };
+      }
       continue;
     }
     const roll = r.data?.seasonRollover;
@@ -353,6 +366,7 @@ async function advanceToBoundary(api, maxDays = 500) {
     );
 
     const seasons = [];
+    let sacked = null;
     let prevWins = team.wins, prevLosses = team.losses;
 
     for (let season = 1; season <= 6; season++) {
@@ -364,6 +378,13 @@ async function advanceToBoundary(api, maxDays = 500) {
 
       const hit = await advanceToBoundaryPlaying(api);
       if (!hit) { console.log(`    season ${season}: never reached a boundary — stopping`); break; }
+
+      // R-47: sacked by the board — the career ends here, and that is the result.
+      if (hit.sacked) {
+        sacked = { season, year: activeYear, record: hit.sacked.record, club: hit.sacked.club };
+        console.log(`    season ${season} (${activeYear}): SACKED after ${hit.sacked.record} (board confidence reached zero, R-09) — career over`);
+        break;
+      }
 
       if (hit.roll.kind === "career-complete") {
         console.log(`    career complete after season ${hit.roll.finalSeason}`);
@@ -411,20 +432,33 @@ async function advanceToBoundary(api, maxDays = 500) {
       );
     }
 
-    return { label, difficulty, seasons, fixtureSize };
+    return { label, difficulty, seasons, fixtureSize, sacked };
   }
 
-  const strong = await runArc("RollStrong", "established");
-  const weak   = await runArc("RollWeak", "underdog");
+  // R-47: a sacking is a legitimate result, so one career per arc could only say
+  // "sacked" or "not sacked". Each arc runs ARC_CAREERS careers, each to the end
+  // of the arc or to its sacking, and reports how many were sacked. The first
+  // career of each arc is the one the summary table shows.
+  const ARC_CAREERS = 3;
+  const strongRuns = [], weakRuns = [];
+  for (let i = 1; i <= ARC_CAREERS; i++) strongRuns.push(await runArc(i === 1 ? "RollStrong" : `RollStrong${i}`, "established"));
+  for (let i = 1; i <= ARC_CAREERS; i++) weakRuns.push(await runArc(i === 1 ? "RollWeak" : `RollWeak${i}`, "underdog"));
+  const strong = strongRuns[0];
+  const weak   = weakRuns[0];
 
   // The arc has to actually cover the arc: four boundaries means four measured
   // seasons, so "at least one" is not good enough — that is precisely what let
   // the first version of this section pass with seasons 2-5 empty.
   const EXPECTED_SEASONS = 4;
-  for (const arc of [strong, weak]) {
-    check(`${arc.label} (${arc.difficulty}) measured all ${EXPECTED_SEASONS} seasons of the arc`,
-      arc.seasons.length === EXPECTED_SEASONS,
-      `${arc.seasons.length} season(s) measured`);
+  for (const arc of [...strongRuns, ...weakRuns]) {
+    // R-47: every season the career played is measured — all four, or every
+    // season before the one it was sacked in.
+    const sackedAfterMeasured = !!arc.sacked && arc.sacked.season === arc.seasons.length + 1;
+    check(`${arc.label} (${arc.difficulty}) measured every season it played: all ${EXPECTED_SEASONS}, or up to its sacking`,
+      arc.seasons.length === EXPECTED_SEASONS || sackedAfterMeasured,
+      arc.sacked
+        ? `${arc.seasons.length} full season(s), sacked in season ${arc.sacked.season}`
+        : `${arc.seasons.length} season(s) measured`);
 
     // R-35 regression: every season, not just season 1, must arrive with its
     // fixture already built — no page visit required.
@@ -456,32 +490,45 @@ async function advanceToBoundary(api, maxDays = 500) {
 
   console.log("\n  ── Summary table (for I8/I9 — report only, nothing tuned here) ──");
   console.log("  Season | Strong: record / played / pts / tier / balance / rank / finals          | Weak: record / played / pts / tier / balance / rank / finals");
-  const maxSeasons = Math.max(strong.seasons.length, weak.seasons.length);
+  const span = (arc) => arc.seasons.length + (arc.sacked ? 1 : 0);
+  const maxSeasons = Math.max(span(strong), span(weak));
   for (let i = 0; i < maxSeasons; i++) {
-    const s = strong.seasons[i];
-    const w = weak.seasons[i];
-    const fmt = (row, size) => row
-      ? `${row.record} / ${row.played}/${size} / ${row.rankingPoints ?? "?"} / ${row.tier} / $${row.balance.toLocaleString()} / #${row.rank ?? "?"} / ${row.finals}`
-      : "—";
-    console.log(
-      `  ${(i + 1).toString().padStart(6)} | ${fmt(s, strong.fixtureSize).padEnd(80)} | ${fmt(w, weak.fixtureSize)}`,
-    );
+    const fmt = (arc) => {
+      const row = arc.seasons[i];
+      if (row) {
+        return `${row.record} / ${row.played}/${arc.fixtureSize} / ${row.rankingPoints ?? "?"} / ${row.tier} / $${row.balance.toLocaleString()} / #${row.rank ?? "?"} / ${row.finals}`;
+      }
+      if (arc.sacked && arc.sacked.season === i + 1) return `SACKED after ${arc.sacked.record}`;
+      return "—";
+    };
+    console.log(`  ${(i + 1).toString().padStart(6)} | ${fmt(strong).padEnd(80)} | ${fmt(weak)}`);
+  }
+
+  // R-47: the sack rate per arc, over every career it ran.
+  console.log(`\n  ── Sackings per arc (R-47: a legitimate result — reported, not failed; ${ARC_CAREERS} careers each) ──`);
+  for (const [label, runs] of [["Strong (established)", strongRuns], ["Weak (underdog)", weakRuns]]) {
+    const sackedRuns = runs.filter((r) => r.sacked);
+    console.log(`  ${label}: sacked in ${sackedRuns.length} of ${runs.length} careers (${Math.round(100 * sackedRuns.length / runs.length)}%)`);
+    for (const r of runs) {
+      const seasonsText = r.seasons.map((x) => x.record).join(" | ");
+      console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED in season ${r.sacked.season} after ${r.sacked.record}` : "  ->  career complete"}`);
+    }
   }
 
   // R-29, Rob's pass condition: the player must NOT win every season by default.
   // With a real field and real seeding the title is an outcome, not a given.
   console.log("\n  ── World Finals, per season ──");
-  for (const arc of [strong, weak]) {
+  for (const arc of [...strongRuns, ...weakRuns]) {
     for (const r of arc.seasons) {
-      console.log(`  ${arc.label.padEnd(10)} season ${r.season}: finished #${r.rank ?? "?"}, finals: ${r.finals}, champion: ${r.champion}`);
+      console.log(`  ${arc.label.padEnd(12)} season ${r.season}: finished #${r.rank ?? "?"}, finals: ${r.finals}, champion: ${r.champion}`);
     }
     const titles = arc.seasons.filter((r) => r.finals === "champion").length;
     check(`${arc.label}: did not win the World Final every season by default`,
-      titles < arc.seasons.length, `${titles} title(s) in ${arc.seasons.length} seasons`);
+      arc.seasons.length === 0 || titles < arc.seasons.length, `${titles} title(s) in ${arc.seasons.length} seasons`);
   }
-  const champions = [...strong.seasons, ...weak.seasons].map((r) => r.champion);
+  const champions = [...strongRuns, ...weakRuns].flatMap((arc) => arc.seasons.map((r) => r.champion));
   check("every measured season crowned a real champion from the field",
-    champions.length > 0 && champions.every((c) => c && c !== "?"), champions.join(" | "));
+    champions.length > 0 && champions.every((c) => c && c !== "?"), `${champions.length} seasons: ${champions.join(" | ")}`);
 
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   process.exit(failures > 0 ? 1 : 0);
