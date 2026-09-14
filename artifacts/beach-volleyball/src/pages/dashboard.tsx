@@ -391,6 +391,32 @@ export default function Dashboard() {
           club was "safe", so a manager never saw what the board wanted
           until it was already unhappy.
       ══════════════════════════════════════════════════════════════ */}
+      {/* R-58: the club's tier this season and where it stands against the
+          board — both exactly as the server states them. */}
+      {(dashboard?.ranking || confidence?.standing) && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/3 px-5 py-3">
+          {dashboard?.ranking && (
+            <span
+              data-testid="tier-badge"
+              title={`Full purses this season up to ${dashboard.ranking.purseAccessTier} events`}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-black uppercase tracking-widest",
+                dashboard.ranking.tier === "Gold"   ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-300"
+                : dashboard.ranking.tier === "Silver" ? "border-slate-300/40 bg-slate-300/10 text-slate-200"
+                : "border-amber-700/40 bg-amber-700/10 text-amber-500",
+              )}
+            >
+              <Trophy className="h-3.5 w-3.5" />
+              {dashboard.ranking.tier} tier · {dashboard.ranking.points} pts
+            </span>
+          )}
+          {confidence?.standing && (
+            <span data-testid="board-standing" className="text-sm font-semibold text-white/80">
+              {confidence.standing}
+            </span>
+          )}
+        </div>
+      )}
       {confidence && <BoardStatusCard board={confidence} />}
 
       {/* ══════════════════════════════════════════════════════════════

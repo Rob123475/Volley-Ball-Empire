@@ -55,6 +55,21 @@ export interface BoardConfidence {
      */
   projectedGrade: string | null;
   /**
+     * R-58 — the club's standings rank right now, once it has a World Tour result; null before.
+     * @nullable
+     */
+  currentFinish: number | null;
+  /**
+     * R-58 — met, below or failed, for that rank by the board's bands.
+     * @nullable
+     */
+  currentGrade: string | null;
+  /**
+     * R-58 — the band in plain words, e.g. "Board expects: top 4 · Currently: 3rd · On track"; null before the draw.
+     * @nullable
+     */
+  standing: string | null;
+  /**
      * The most recent season review.
      * @nullable
      */

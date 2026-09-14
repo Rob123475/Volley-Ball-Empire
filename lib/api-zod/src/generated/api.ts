@@ -10115,6 +10115,9 @@ export const GetBoardConfidenceResponse = zod.object({
   "strikes": zod.number().describe('Failed seasons carried into this one (a met season clears them; two sack).'),
   "projectedFinish": zod.number().nullable().describe('The club\'s standings rank at the board\'s last monthly check.'),
   "projectedGrade": zod.string().nullable().describe('met, below or failed at the last monthly check.'),
+  "currentFinish": zod.number().nullable().describe('R-58 — the club\'s standings rank right now, once it has a World Tour result; null before.'),
+  "currentGrade": zod.string().nullable().describe('R-58 — met, below or failed, for that rank by the board\'s bands.'),
+  "standing": zod.string().nullable().describe('R-58 — the band in plain words, e.g. \"Board expects: top 4 · Currently: 3rd · On track\"; null before the draw.'),
   "lastReview": zod.object({
   "seasonYear": zod.number(),
   "finish": zod.number(),
@@ -11271,6 +11274,11 @@ export const GetDashboardResponse = zod.object({
   "points": zod.number().optional()
 }).nullable(),
   "injuredCount": zod.number(),
+  "ranking": zod.object({
+  "points": zod.number(),
+  "tier": zod.enum(['Bronze', 'Silver', 'Gold']),
+  "purseAccessTier": zod.enum(['Bronze', 'Silver', 'Gold'])
+}).nullish().describe('R-58 — this season\'s ranking points and the tier they reach (R-54), and the tier whose purses the club is paid in full this season.'),
   "nextMatchSelection": zod.object({
   "players": zod.array(zod.object({
   "id": zod.number(),

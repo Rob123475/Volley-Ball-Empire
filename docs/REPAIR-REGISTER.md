@@ -2652,6 +2652,35 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-58 — CLOSED (14 Sep, PENDING-R58): the dashboard shows the club's tier and where it stands against the board
+**Rob's brief (overnight batch item 5):** the club's current tier badge and the board's expectation
+band in plain words, e.g. "Board expects: top 4 · Currently: 3rd · On track".
+
+**Fix — one rule, stated by the server:**
+- `GET /board-confidence` gains `currentFinish` (the club's World Tour standings rank now, once it
+  has a result), `currentGrade` (that rank through the board's own `gradeFor`) and `standing`:
+  "Board expects: top 4 · Currently: 3rd · On track" / "Below expectations" / "Failing
+  expectations"; "Board expects: top 4 · No World Tour result yet" between the draw and the first
+  result; null before the draw. The monthly check's projection can be a month old; this is today.
+- `GET /dashboard` gains `ranking`: this season's ranking points, the tier they reach (R-54: Silver
+  55, Gold 63) and `purseAccessTier`, the tier paid full purses this season (last season's tier).
+- The dashboard shows both above the board card — "Silver tier · 58 pts" (hover: full purses up to
+  the access tier) and the standing line — exactly as the server sends them; the page grades nothing.
+
+**Harness (new):** `harness/dashboard-standing.mjs`, run-all 26/28. 11/11: the page renders both
+from the API with no band arithmetic of its own; before the draw no standing, a new established
+career Bronze on 0 points with Silver purses; at the draw "Board expects: top 4 · No World Tour result
+yet"; after 8 match days the board's current finish is the dashboard's standings rank (7th, below,
+from strength #1) and the line says exactly that; an underdog 17th reads "Below expectations" from
+strength #13 and "Failing expectations" from #9; the badge's points and tier are the ranking row's.
+First run 10/11: the suite's own band case could not move 3rd out of "On track" (no rank above #1),
+rebuilt on a club 9th or worse.
+
+**Final full harness: 28/28, ALL HARNESSES PASSED** (dashboard standing 11/11, condition 27/27,
+board review 58/58, migration fixtures 62/62, invented content removed 11/11, trophies 14/14,
+rollover 78/78). Five-season table: established 0 of 3 sacked, underdog 0 of 3; every season
+crowned a champion from the field. Written up in `docs/RELEASE-STATUS.md`.
+
 ### R-59 — CLOSED (14 Sep, 92d928e): condition.mjs makes its rest-day player fit first
 **Fix:** section 5 sets C `Healthy` (not injured, 0 weeks) before setting her to 50 / 40, instead of
 assuming the matches before it left her unhurt. A's check already reads A's injury state first.
@@ -3002,6 +3031,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, PENDING-R58 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
 | R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, 92d928e | migration-fixtures 62/62; six mid-migration kills all recovered |
 | R-56 invariants economy probe plays a real career's draw | 14 Sep, 92d928e | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |

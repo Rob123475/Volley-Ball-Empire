@@ -3214,7 +3214,7 @@ components:
         The board's view of the season (R-53, docs/r53-design.md): what it expects, its verdict so
         far and its last season review, in plain words with the numbers behind them. Reading it
         never ends a career.
-      required: [seasonYear, confidence, stage, spendingBlocked, expectation, verdict, target, failedFrom, strengthRank, strikes, projectedFinish, projectedGrade, lastReview]
+      required: [seasonYear, confidence, stage, spendingBlocked, expectation, verdict, target, failedFrom, strengthRank, strikes, projectedFinish, projectedGrade, currentFinish, currentGrade, standing, lastReview]
       properties:
         seasonYear:
           type: integer
@@ -3261,6 +3261,15 @@ components:
         projectedGrade:
           type: ["string", "null"]
           description: met, below or failed at the last monthly check.
+        currentFinish:
+          type: ["integer", "null"]
+          description: R-58 — the club's standings rank right now, once it has a World Tour result; null before.
+        currentGrade:
+          type: ["string", "null"]
+          description: R-58 — met, below or failed, for that rank by the board's bands.
+        standing:
+          type: ["string", "null"]
+          description: 'R-58 — the band in plain words, e.g. "Board expects: top 4 · Currently: 3rd · On track"; null before the draw.'
         lastReview:
           type: ["object", "null"]
           description: The most recent season review.
@@ -4483,6 +4492,19 @@ components:
             points: { type: integer }
         injuredCount:
           type: integer
+        ranking:
+          type: ["object", "null"]
+          description: R-58 — this season's ranking points and the tier they reach (R-54), and the tier whose purses the club is paid in full this season.
+          required: [points, tier, purseAccessTier]
+          properties:
+            points:
+              type: integer
+            tier:
+              type: string
+              enum: [Bronze, Silver, Gold]
+            purseAccessTier:
+              type: string
+              enum: [Bronze, Silver, Gold]
         nextMatchSelection:
           type: ["object", "null"]
           description: >-

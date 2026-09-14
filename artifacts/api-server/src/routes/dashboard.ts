@@ -10,6 +10,7 @@ import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { worldTourStandings, BYE } from "../utils/worldTour.js";
 import { selectPair, isAvailable, fitnessFactor, PAIR_SIZE } from "../utils/condition.js";
+import { currentRanking, purseAccessTierFor } from "../utils/rankingPoints.js";
 
 const router = Router();
 
@@ -101,6 +102,15 @@ router.get("/dashboard", async (req, res) => {
     : null;
   const myRank = myStanding?.rank ?? 0;
 
+  // R-58: the tier badge — this season's ranking points and the tier they reach
+  // (R-54), and the tier whose purses the club is paid in full this season.
+  const ranking = activeSeason
+    ? {
+        ...(({ rankingPoints, tier }) => ({ points: rankingPoints, tier }))(await currentRanking(cid, team.id, activeSeason.year)),
+        purseAccessTier: await purseAccessTierFor(cid, team.id, activeSeason.year),
+      }
+    : null;
+
   // Career save: the session-tracked save ID is the only source of truth —
   // R-20 removed the fallback that looked a career up by teamId when it was
   // missing, which could return a DIFFERENT career for the same team (a team
@@ -146,6 +156,7 @@ router.get("/dashboard", async (req, res) => {
       ? { rank: myStanding.rank, wins: myStanding.wins, losses: myStanding.losses, points: myStanding.points }
       : null,
     injuredCount,
+    ranking,
   });
 });
 

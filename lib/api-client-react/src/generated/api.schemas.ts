@@ -1307,6 +1307,21 @@ export interface BoardConfidence {
      */
   projectedGrade: string | null;
   /**
+     * R-58 — the club's standings rank right now, once it has a World Tour result; null before.
+     * @nullable
+     */
+  currentFinish: number | null;
+  /**
+     * R-58 — met, below or failed, for that rank by the board's bands.
+     * @nullable
+     */
+  currentGrade: string | null;
+  /**
+     * R-58 — the band in plain words, e.g. "Board expects: top 4 · Currently: 3rd · On track"; null before the draw.
+     * @nullable
+     */
+  standing: string | null;
+  /**
      * The most recent season review.
      * @nullable
      */
@@ -2073,6 +2088,16 @@ export type DashboardSeasonStanding = {
 } | null;
 
 /**
+ * R-58 — this season's ranking points and the tier they reach (R-54), and the tier whose purses the club is paid in full this season.
+ * @nullable
+ */
+export type DashboardRanking = {
+  points: number;
+  tier: 'Bronze' | 'Silver' | 'Gold';
+  purseAccessTier: 'Bronze' | 'Silver' | 'Gold';
+} | null;
+
+/**
  * R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.
  * @nullable
  */
@@ -2104,6 +2129,11 @@ export interface Dashboard {
   topPlayers: Player[];
   seasonStanding: DashboardSeasonStanding;
   injuredCount: number;
+  /**
+     * R-58 — this season's ranking points and the tier they reach (R-54), and the tier whose purses the club is paid in full this season.
+     * @nullable
+     */
+  ranking?: DashboardRanking;
   /**
      * R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.
      * @nullable

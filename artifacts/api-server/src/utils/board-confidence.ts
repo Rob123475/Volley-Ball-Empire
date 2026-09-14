@@ -264,6 +264,17 @@ export function targetWords(metLine: number): string {
   return metLine >= FIELD_CLUBS ? "any finish" : `a top-${metLine} finish`;
 }
 
+/** R-58: the dashboard's short form — "top 4", "any finish". */
+function expectsShort(metLine: number): string {
+  return metLine >= FIELD_CLUBS ? "any finish" : `top ${metLine}`;
+}
+
+const STANDING_WORDS: Record<Grade, string> = {
+  met: "On track",
+  below: "Below expectations",
+  failed: "Failing expectations",
+};
+
 /** "5th-8th is below expectations, a warning with no strike; 9th or worse fails the season". */
 export function bandWords(b: Bands): string {
   if (b.belowFrom == null) return "no finish counts against you";
@@ -584,6 +595,12 @@ export type BoardStatus = {
   strikes: number;
   projectedFinish: number | null;
   projectedGrade: string | null;
+  /** R-58: the club's standings rank right now, once it has a World Tour result; null before. */
+  currentFinish: number | null;
+  /** R-58: that rank graded by the board's bands. */
+  currentGrade: Grade | null;
+  /** R-58: "Board expects: top 4 · Currently: 3rd · On track"; null before the draw. */
+  standing: string | null;
   lastReview: {
     seasonYear: number; finish: number; target: number; grade: string; outcome: Outcome;
     confidenceBefore: number; confidenceAfter: number; text: string;
@@ -608,6 +625,18 @@ export function boardStatus(careerSaveId: number, seasonYear: number, teamId: nu
       : row.projectedGrade != null && row.projectedGrade !== "met" ? "warning"
       : "safe";
 
+    // R-58: where the club stands right now, against the same bands the review
+    // will use — the monthly check's projection can be up to a month old.
+    const mine = row.strengthRank != null
+      ? worldTourStandingsTx(tx, careerSaveId, seasonYear).find((r) => r.isPlayer && r.teamId === teamId) ?? null
+      : null;
+    const currentFinish = mine != null && mine.wins + mine.losses > 0 ? mine.rank : null;
+    const currentGrade = currentFinish != null && row.strengthRank != null ? gradeFor(row.strengthRank, currentFinish).grade : null;
+    const standing = row.strengthRank == null ? null
+      : `Board expects: ${expectsShort(bandsFor(row.strengthRank).metLine)} · ${currentFinish == null || currentGrade == null
+        ? "No World Tour result yet"
+        : `Currently: ${ordinal(currentFinish)} · ${STANDING_WORDS[currentGrade]}`}`;
+
     return {
       seasonYear,
       confidence,
@@ -621,6 +650,9 @@ export function boardStatus(careerSaveId: number, seasonYear: number, teamId: nu
       strikes,
       projectedFinish: row.projectedFinish,
       projectedGrade: row.projectedGrade,
+      currentFinish,
+      currentGrade,
+      standing,
       lastReview: reviewed ? {
         seasonYear: reviewed.seasonYear,
         finish: reviewed.finish ?? FIELD_CLUBS,
