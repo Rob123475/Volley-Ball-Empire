@@ -913,23 +913,23 @@ export type PlayerRankingPoints = typeof playerRankingPointsTable.$inferSelect;
 /**
  * R-53: the board's view of one season of one career (docs/r53-design.md).
  *
- * Created when the season opens, with the balance it opened on. The target is
- * set once the World Tour is drawn; the monthly check writes the projection and
- * the spending freeze; forfeits and an unfieldable squad are tracked as they
- * happen; the review fields are written once, at the season boundary. The
- * carried confidence itself stays on teams.board_confidence, which only the
- * review moves.
+ * Created when the season opens, with the balance it opened on. The expectation
+ * is set once the World Tour is drawn: the pair's strength rank in the field and
+ * `target`, the worst finish that meets expectations (R-55: bands relative to
+ * that rank). The monthly check writes the projection and the spending freeze;
+ * forfeits and an unfieldable squad are tracked as they happen; the review
+ * fields are written once, at the season boundary. Strikes are derived from the
+ * reviewed grades, not stored. The carried confidence itself stays on
+ * teams.board_confidence, which only the review moves.
  */
 export const boardSeasonsTable = sqliteTable("board_seasons", {
   id:                 integer("id").primaryKey({ autoIncrement: true }),
   careerSaveId:       integer("career_save_id").notNull().references(() => careerSavesTable.id),
   seasonYear:         integer("season_year").notNull(),
   seasonStartBalance: real("season_start_balance").notNull().default(0),
-  // the target, set at the draw
+  // the expectation, set at the draw
   pairRating:         real("pair_rating"),
   strengthRank:       integer("strength_rank"),
-  allowance:          integer("allowance"),
-  moneyPlaces:        integer("money_places"),
   target:             integer("target"),
   // during the season
   projectedOn:        text("projected_on"),

@@ -3375,7 +3375,7 @@ components:
         The board's view of the season (R-53, docs/r53-design.md): what it expects, its verdict so
         far and its last season review, in plain words with the numbers behind them. Reading it
         never ends a career.
-      required: [seasonYear, confidence, stage, spendingBlocked, expectation, verdict, target, strengthRank, projectedFinish, projectedGrade, lastReview]
+      required: [seasonYear, confidence, stage, spendingBlocked, expectation, verdict, target, failedFrom, strengthRank, strikes, projectedFinish, projectedGrade, lastReview]
       properties:
         seasonYear:
           type: integer
@@ -3387,8 +3387,9 @@ components:
         stage:
           type: string
           description: >-
-            safe; warning (confidence + projected grade at or below 45); spending_freeze (at or
-            below 30, lifted above 35); final_warning (last season's review gave one).
+            safe; warning (the last monthly check projects below expectations or a failed
+            season); spending_freeze (confidence + projected grade at or below 30, lifted above
+            35); final_warning (the club carries a strike, or last season's review gave one).
           enum: [safe, warning, spending_freeze, final_warning]
         spendingBlocked:
           type: boolean
@@ -3403,16 +3404,24 @@ components:
           description: The board's verdict so far this season (or its review, once held), in plain words.
         target:
           type: ["integer", "null"]
-          description: The target finish in the World Tour standings, set at the draw; null before it.
+          description: >-
+            The worst finish that meets expectations (R-55: 3 places below the pair's strength
+            rank), set at the draw; null before it.
+        failedFrom:
+          type: ["integer", "null"]
+          description: The first finish that fails the season (8 places below the strength rank), or null when none can.
         strengthRank:
           type: ["integer", "null"]
           description: Where the club's best contracted pair ranks in the drawn field.
+        strikes:
+          type: integer
+          description: Failed seasons carried into this one (a met season clears them; two sack).
         projectedFinish:
           type: ["integer", "null"]
           description: The club's standings rank at the board's last monthly check.
         projectedGrade:
           type: ["string", "null"]
-          description: far_exceeded, exceeded, met, missed, failed or failed_badly at the last monthly check.
+          description: met, below or failed at the last monthly check.
         lastReview:
           type: ["object", "null"]
           description: The most recent season review.
@@ -3428,7 +3437,7 @@ components:
               type: string
             outcome:
               type: string
-              enum: [safe, final_warning, sacked, verdict]
+              enum: [safe, warning, final_warning, sacked, verdict]
             confidenceBefore:
               type: integer
             confidenceAfter:

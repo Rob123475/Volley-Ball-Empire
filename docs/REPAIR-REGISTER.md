@@ -27,6 +27,85 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-55 — CLOSED AS SPECIFIED (14 Sep, R55HASH); ROB TO DECIDE: the "near 0%" target is not met: the board's expectation is a band, not a rank
+**Symptom (R-54):** established clubs were sacked by ordinary results variance. The strongest pair
+finished 6th-10th in 5 of 26 seasons, and two such seasons in a row sacked against R-53's #2 target.
+
+**Rob's rule:**
+- **Established:** top 4 met; 5th-8th below expectations (a warning, no strike); 9th or worse
+  failed.
+- **Strikes:** two failed seasons in a row sack. A warning season resets nothing and adds nothing.
+- **Underdogs** get the same band logic at their level.
+- **Asked:** your example underdog bands (top-10 / 11-15 / 16+) would sack nearly every harness
+  underdog by season 2: those clubs finished 16th or worse in 32 of 36 measured seasons.
+- **Rob chose bands relative to squad strength.**
+
+**Fixed (docs/r53-design.md, amendment R-55):**
+- **`utils/board-confidence.ts`:** bands from the pair's strength rank R at the draw.
+  - met: finish ≤ R+3, confidence +5, clears strikes
+  - below: R+4 to R+7, confidence 0, strikes unchanged, review outcome `warning`
+  - failed: R+8 or worse, or half the season forfeited; confidence −25, a strike
+  - An established starting pair (R = 1) is exactly top 4 / 5th-8th / 9th+. A #19 squad cannot fail
+    on position.
+- **Sacking at a review:** a second strike, or confidence ≤ 20. The rest of R-53 stands.
+- **Strikes** are derived from the reviewed grades, not stored.
+- **Monthly check:** a projected below or failed season warns; freeze thresholds unchanged.
+- **Deleted:** R-53's difficulty allowance, money places, `targetFinish` and the six-step grade.
+- **`board_seasons`:** lost `allowance` and `money_places`. `target` is now the met line.
+  - The starter DB's empty table was rebuilt: only board_seasons changed.
+  - Saves created since this morning's R-53 build keep the two unused, nullable columns, because
+    ensureSchema only adds columns.
+- **Spec:**
+  - `BoardConfidence` gains `failedFrom` and `strikes`
+  - the review outcome gains `warning`
+  - projected grades are now met / below / failed
+- **Player-facing:** the expectation reads "The board expects a top-4 finish this season: 5th-8th is
+  below expectations, a warning with no strike; 9th or worse fails the season". The contract page's
+  rules explainer is rewritten to match.
+- **Harness:**
+  - `board-review.mjs` re-judges the design's six careers and §5.1 cases under the bands, and adds
+    R-55's own cases (6th, 7th, 8th, 5th is four warnings; two failed in a row sack; a below season
+    between them resets nothing; a met season clears the strike; an underdog judged at a #10 squad's
+    level). Its source scan now also catches R-53's rank target.
+  - `rollover.mjs`: RollA is back to an established club.
+  - `scripts/r55-sack-rate.mjs` measures sack rates over more careers than the arcs.
+
+**Verified:**
+- **Suites:** board-review 58/58. Full harness 24/24, rollover 78/78: RollA (established) crossed all
+  five boundaries.
+- **Arcs (3 careers each):** established sacked 0 of 3, underdog 0 of 3.
+  - RollStrong finished #3, #6 (warning), #2, #1.
+  - RollStrong2 finished #4, #4, #1, #3.
+  - RollStrong3 finished #1, #1, #1, #3.
+  - Every underdog season (#14-#19) met expectations.
+- **Larger sample** (`scripts/r55-sack-rate.mjs`, 10 careers per difficulty, four reviews each):
+  - **Established: sacked in 1 of 10.**
+    - Est3 went #1, #7 (warning), #10 (failed), #9 (failed).
+    - Across 40 seasons: 27 met, 5 below, 8 failed. The failed finishes were #9 four times, #10,
+      #12 twice and #14.
+  - **Underdog:** 0 of 10; all 40 seasons met (#13-#19).
+
+**Why established clubs still fail (diagnosis on that run's DB, nothing changed):**
+- **No bug found.**
+  - The pair was rated 89.5 and ranked #1 in every season.
+  - No forfeits.
+  - The drawn fields were equally strong every season (mean 77.7-80.6).
+- **Failed seasons were weaker seasons:** 29.3 wins on average against 36.5 in met seasons.
+- **The standings rank by tier-weighted points, which magnifies that.** Est3's season 3 went 33W 21L
+  and finished 10th on 58 points; Est8's season 3 went 26W 29L and finished 3rd on 62.
+- **Season timing is noise:** season 4's four failures sit within this sample's noise (same field
+  strength).
+- **Model check:** per season, failed 20% and below 12.5%. The chance of two failed seasons in a row
+  within four reviews is then about 11%, which matches 1 in 10.
+
+**Rob to decide, not applied (a game-design change):** with the bands as specified, an established
+club that makes no signings is sacked in roughly 1 career in 10. Options:
+1. **Failed from 11th (R+10) instead of 9th.** 3 of the 40 measured seasons finished 11th or worse,
+   which projects to about 2% over four reviews: near 0%, not immune.
+2. **Rank the standings by wins before points.** The variance comes from which tier's events a club
+   wins, not how many.
+3. **Require low confidence as well as two strikes to sack.**
+
 ### R-52 — CLOSED (14 Sep, 696a4e5): a spending freeze blocked contract renewal, so a solvent club could lose its squad and forfeit whole seasons
 **What happens:**
 - R-51's renewal applies the board's spending gate, the same gate as signing.
@@ -2349,6 +2428,28 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-56 — OPEN (registered 14 Sep, Rob: LOW, do not fix now): `harness/invariants.mjs`'s economy probe has been broken since R-29
+**What happens:**
+- `node harness/invariants.mjs` is the Phase 7 invariant sweep. It is standalone, not part of
+  `run-all`.
+- Its second probe (I1 MONOTONIC RETURN, I5 CLIMBING PAYS, I4 PREDICTABILITY) dies with
+  `TypeError: Cannot read properties of undefined (reading 'length')` in `nameVariance`
+  (`utils/matchEngine.ts:74`). I7 ONE ENGINE still passes.
+
+**Cause:**
+- The probe rates opponents with `opponentRatingFromTier(e.tier, e.opponent)` over the `WORLD_TOUR`
+  schedule.
+- Since R-29 (5a91525) the schedule has no fixed opponents: they are drawn per career from real pool
+  clubs (`utils/worldTour.ts`). So `e.opponent` is undefined.
+- The file was last changed before R-29.
+
+**Found:** while verifying R-54, 14 Sep. R-54 switched the probe's tier model to the new rules and
+made its probes read a temp copy of the starter DB; they used to open the committed file in place.
+The opponent model was left alone.
+
+**Fix direction:** rebuild the probe's opponents on real drawn clubs, rated as the World Tour draw
+rates them (`sideRating` over each pool club's own players).
+
 ### R-49 — OPEN (registered 14 Sep): the "logged the drop" check in migration-fixtures is flaky
 `harness/migration-fixtures.mjs:364` asserts `/moved columns dropped/` against the server log.
 
@@ -2585,6 +2686,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, R55HASH | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
 | R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, 8bc38c2 | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |
 | R-53 The board reviews seasons against expectations (target at the draw, monthly check, season review, abandonment) | 14 Sep, 393cbac | board-review 50/50: all §5/§5.1 rows match the design, win/loss/forfeit leave confidence unchanged, old code absent (planted lines caught), freeze 403/200, abandonment day 33, review sacking; full harness 24/24, rollover 72/72, 0 of 6 sacked |
 | R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, 696a4e5 | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |

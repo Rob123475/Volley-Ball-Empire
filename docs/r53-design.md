@@ -6,6 +6,33 @@ allowances and money places stand, sacking stays at ≤ 20 or two failed seasons
 abandonment rule stays, the forced-sale label is deleted, and season 5 stays a verdict that cannot
 sack. `harness/board-review.mjs` asserts every row of §5 and §5.1.
 
+> **Amended by R-55 (14 Sep 2026): the expectation is a band, not a rank.** §4.1's target and §4.2's
+> six grades are replaced. The rest stands: carried confidence, honours, money, the forfeited-half
+> rule, the monthly check and freeze thresholds, abandonment, and the season-5 verdict.
+>
+> **Why:** the strongest pair in the field finished 6th-10th in 5 of 26 established seasons by
+> ordinary results variance. Against a #2 target, two such seasons in a row sacked an established
+> club.
+>
+> **Bands**, set at the draw from the pair's strength rank R (Rob chose "relative to squad
+> strength"):
+> - **Met:** a finish no worse than R+3. Confidence +5; clears any strike.
+> - **Below expectations:** R+4 to R+7. Confidence 0; a warning with no strike; strikes stay as they
+>   are.
+> - **Failed:** R+8 or worse, or at least half the season's matches forfeited. Confidence −25; a
+>   strike.
+>
+> What that means for the starting squads:
+> - An established starting pair (R = 1): top 4 met, 5th-8th below, 9th or worse failed.
+> - A #19 underdog squad cannot fail on position.
+> - An underdog that builds a #10 squad: top 13 met, 14th-17th below, 18th or worse failed.
+>
+> **Sacked** at a review with a second strike (two failed seasons in a row), or confidence ≤ 20.
+>
+> **Deleted:** the difficulty allowance, the money places (money no longer shifts expectations) and
+> the six-step grade. §5 and §5.1 below keep their original R-53 numbers as history;
+> `harness/board-review.mjs` asserts the same inputs re-judged under R-55.
+
 ## 1. Why the current board is wrong
 
 What it measures today, from `docs/REPAIR-REGISTER.md` R-53:

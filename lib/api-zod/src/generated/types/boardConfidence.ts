@@ -19,7 +19,7 @@ export interface BoardConfidence {
      * @maximum 100
      */
   confidence: number;
-  /** safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season's review gave one). */
+  /** safe; warning (the last monthly check projects below expectations or a failed season); spending_freeze (confidence + projected grade at or below 30, lifted above 35); final_warning (the club carries a strike, or last season's review gave one). */
   stage: BoardConfidenceStage;
   /** New signings, staff hires, facility upgrades and renewals at a raise are refused. Renewing on the same terms is still allowed (R-52). */
   spendingBlocked: boolean;
@@ -28,22 +28,29 @@ export interface BoardConfidence {
   /** The board's verdict so far this season (or its review, once held), in plain words. */
   verdict: string;
   /**
-     * The target finish in the World Tour standings, set at the draw; null before it.
+     * The worst finish that meets expectations (R-55: 3 places below the pair's strength rank), set at the draw; null before it.
      * @nullable
      */
   target: number | null;
+  /**
+     * The first finish that fails the season (8 places below the strength rank), or null when none can.
+     * @nullable
+     */
+  failedFrom: number | null;
   /**
      * Where the club's best contracted pair ranks in the drawn field.
      * @nullable
      */
   strengthRank: number | null;
+  /** Failed seasons carried into this one (a met season clears them; two sack). */
+  strikes: number;
   /**
      * The club's standings rank at the board's last monthly check.
      * @nullable
      */
   projectedFinish: number | null;
   /**
-     * far_exceeded, exceeded, met, missed, failed or failed_badly at the last monthly check.
+     * met, below or failed at the last monthly check.
      * @nullable
      */
   projectedGrade: string | null;

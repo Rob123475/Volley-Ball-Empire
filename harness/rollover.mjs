@@ -155,17 +155,11 @@ async function advanceToBoundary(api, maxDays = 500) {
 (async () => {
   console.log("\n=== SEASON ROLLOVER ===\n");
   const A = session();
-  // R-53/R-54: an UNDERDOG, so the board cannot end this walk before its
-  // season-5 verdict. The walk plays real matches, and an established club
-  // (target #2) finishes #6-#10 in about a quarter of seasons; two such seasons
-  // running are a legitimate sacking (it happened in the R-54 full run: #7, #7).
-  // An underdog's target is #19 in season 1 and #18 in season 2, which any
-  // finish meets, and the money places the arc's balances allow keep season 3's
-  // worst case at "missed" — so at most one failed season (season 4), and
-  // confidence no lower than 60+5+5-10-25 = 35. Ageing, retirement, promotion
-  // and the reviews below do not depend on difficulty. The arcs measure both
-  // difficulties' sack rates.
-  await newCareer(A, "RollA", "underdog");
+  // Established, the default. R-54 briefly made this walk an underdog after an
+  // established club finishing #7, #7 was sacked against R-53's #2 target;
+  // R-55's bands (top-4 met, 5th-8th a warning, 9th or worse a strike) fixed
+  // the rule instead, so the walk is back to the club it always was.
+  await newCareer(A, "RollA");
 
   // Ages before any boundary, so the +1 per season can be checked against them.
   // Baseline BOTH pools: promotion moves 72 academy players into the senior

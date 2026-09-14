@@ -7,7 +7,7 @@
  */
 
 /**
- * safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season's review gave one).
+ * safe; warning (the last monthly check projects below expectations or a failed season); spending_freeze (confidence + projected grade at or below 30, lifted above 35); final_warning (the club carries a strike, or last season's review gave one).
  */
 export type BoardConfidenceStage = typeof BoardConfidenceStage[keyof typeof BoardConfidenceStage];
 

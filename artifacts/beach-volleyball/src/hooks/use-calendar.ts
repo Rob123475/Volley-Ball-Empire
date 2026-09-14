@@ -80,7 +80,7 @@ export type BoardReview = {
   target: number;
   finish: number;
   grade: string;
-  outcome: "safe" | "final_warning" | "sacked" | "verdict";
+  outcome: "safe" | "warning" | "final_warning" | "sacked" | "verdict";
   confidenceBefore: number;
   confidenceAfter: number;
   text: string;

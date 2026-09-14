@@ -81,9 +81,9 @@ export function BoardRulesExplainer() {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/3 p-5 space-y-2 text-xs text-white/50 leading-relaxed">
       <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold">How the board judges you</p>
-      <p>When the World Tour field is drawn, the board sets a target finish from how your best pair ranks against the field. Established clubs get 1 place of slack, underdogs 3, and money you could have spent on a better squad raises the bar.</p>
+      <p>When the World Tour field is drawn, the board ranks your best pair against it. Finishing within 3 places of that rank meets expectations; 4 to 7 places below is below expectations; 8 or more below is a failed season. With the strongest pair in the field that means: top 4 met, 5th to 8th below, 9th or worse failed.</p>
       <p>Results never cost you your job mid-season. A month into the World Tour, and every month after, the board checks the standings: a poor projection brings a warning or freezes new signings, hires and upgrades.</p>
-      <p>At the end of each season it reviews your finish against the target, plus any World Finals honours; debt or a collapsing balance counts against you. A season spent forfeiting counts as failed badly. Confidence of 20 or less, or two failed seasons in a row, ends your time at the club.</p>
+      <p>At the end of each season it reviews your finish, plus any World Finals honours; debt or a collapsing balance counts against you. A season below expectations is a warning, not a strike. A failed season, or one spent forfeiting, is a strike, and a season that meets expectations clears it. Two strikes in a row, or confidence of 20 or less, ends your time at the club.</p>
       <p>The one exception: if you cannot put two contracted players on the sand for 30 days, you are sacked at your next forfeit. Season 5's review is the verdict on your career.</p>
     </div>
   );
