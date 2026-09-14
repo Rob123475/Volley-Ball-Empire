@@ -197,20 +197,19 @@ function CollapsiblePanel({
 }
 
 // ── Olympic Dashboard Widget ───────────────────────────────────────────────────
-type OlympicQualContinent = {
-  continent: string;
-  spots: number;
-  teams: { country: string; flag: string; teamRating: number; rank: number; qualStatus: string }[];
-};
-type OlympicQualData = { olympicsYear: number; totalSpots: number; continents: OlympicQualContinent[] };
+// R-46: national qualifying on this season's World Tour ranking points.
+type OlympicQualCountry = { rank: number; country: string; flag: string; points: number; qualified: boolean };
+type OlympicQualData = { olympicsYear: number; seasonYear: number; totalSpots: number; countries: OlympicQualCountry[] };
 
 function OlympicDashboardWidget() {
   const [, navigate] = useLocation();
   const { data, isLoading } = useQuery<OlympicQualData>({
     queryKey: ["olympic-qualifiers-widget"],
     queryFn: () => fetch("/api/olympics/qualifiers").then(r => r.json()),
-    staleTime: 300_000,
+    staleTime: 60_000,
   });
+  const countries = Array.isArray(data?.countries) ? data!.countries : [];
+  const qualified = countries.filter(c => c.qualified);
 
   return (
     <Card className="overflow-hidden border-amber-500/20 bg-gradient-to-br from-amber-950/20 via-card to-card">
@@ -225,7 +224,7 @@ function OlympicDashboardWidget() {
                 {data ? `${data.olympicsYear} Olympic Qualifying` : "Olympic Qualifying"}
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Off-season — national teams competing for {data?.totalSpots ?? 12} spots
+                National teams — the top {data?.totalSpots ?? 12} countries on this season's World Tour ranking points
               </p>
             </div>
           </div>
@@ -244,47 +243,28 @@ function OlympicDashboardWidget() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-16 rounded-lg" />)}
           </div>
-        ) : data ? (
+        ) : qualified.length === 0 ? (
+          <p className="text-xs text-muted-foreground">
+            No World Tour ranking points earned yet this season. Qualifying starts with the first World Tour match.
+          </p>
+        ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {data.continents.map(cont => {
-              const qualified = cont.teams.filter(t => t.qualStatus === "qualified");
-              const top = cont.teams[0];
-              return (
-                <div
-                  key={cont.continent}
-                  className="rounded-lg border bg-muted/20 p-2.5 cursor-pointer hover:bg-muted/40 transition-colors"
-                  onClick={() => navigate("/olympics?tab=qualifying")}
-                >
-                  <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 truncate mb-1.5">
-                    {continentLabel(cont.continent)}
-                  </div>
-                  {top && (
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-base leading-none">{top.flag}</span>
-                      <span className="text-xs font-semibold truncate">{top.country}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1 mt-1">
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: cont.spots }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            "h-1.5 w-3 rounded-full",
-                            i < qualified.length ? "bg-emerald-400" : "bg-muted-foreground/20"
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[10px] text-muted-foreground ml-1">
-                      {qualified.length}/{cont.spots}
-                    </span>
-                  </div>
+            {qualified.map(c => (
+              <div
+                key={c.country}
+                className="rounded-lg border bg-muted/20 p-2.5 cursor-pointer hover:bg-muted/40 transition-colors"
+                onClick={() => navigate("/olympics?tab=qualifying")}
+              >
+                <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 mb-1">#{c.rank}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base leading-none">{c.flag}</span>
+                  <span className="text-xs font-semibold truncate">{c.country}</span>
                 </div>
-              );
-            })}
+                <div className="text-[10px] text-muted-foreground mt-1 tabular-nums">{c.points} pts</div>
+              </div>
+            ))}
           </div>
-        ) : null}
+        )}
       </CardContent>
     </Card>
   );

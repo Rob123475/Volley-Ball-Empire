@@ -224,7 +224,11 @@ export function continentKeyForNationality(
  */
 const ISO2: Record<string, string> = {};
 
+/** ISO code -> the nation's name: the FIRST name each iso() line gives. */
+const ISO2_NAME: Record<string, string> = {};
+
 function iso(code: string, names: string[]): void {
+  if (!(code in ISO2_NAME) && names[0]) ISO2_NAME[code] = names[0];
   for (const n of names) ISO2[fold(n)] = code;
 }
 
@@ -244,7 +248,7 @@ iso("CK", ["Cook Islands", "Cook Islander"]);
 iso("CR", ["Costa Rica", "Costa Rican"]);
 iso("HR", ["Croatia", "Croatian"]);
 iso("CU", ["Cuba", "Cuban"]);
-iso("CZ", ["Czech", "Czech Republic"]);
+iso("CZ", ["Czech Republic", "Czech"]);
 iso("DK", ["Denmark", "Danish"]);
 iso("DO", ["Dominican Republic", "Dominican"]);
 iso("EC", ["Ecuador", "Ecuadorian"]);
@@ -309,12 +313,17 @@ iso("TO", ["Tonga", "Tongan"]);
 iso("TN", ["Tunisia", "Tunisian"]);
 iso("UA", ["Ukraine", "Ukrainian"]);
 iso("UY", ["Uruguay", "Uruguayan"]);
-iso("US", ["USA", "United States", "American"]);
+// R-46: Hawaii is a US state, so its athletes (the Honolulu pool club's pair)
+// represent the USA at the Olympics.
+iso("US", ["USA", "United States", "American", "Hawaiian"]);
 iso("VU", ["Vanuatu", "Ni-Vanuatu", "Vanuatuan"]);
 iso("VE", ["Venezuela", "Venezuelan"]);
 iso("VN", ["Vietnam", "Vietnamese"]);
 iso("GB", ["United Kingdom", "Britain", "British"]);
 iso("ZW", ["Zimbabwe", "Zimbabwean"]);
+// R-46: pool clubs in Dubai and Riyadh store these two demonyms.
+iso("AE", ["UAE", "United Arab Emirates", "Emirati"]);
+iso("SA", ["Saudi Arabia", "Saudi"]);
 
 /** England, Scotland and Wales are subdivisions — they have their own flags. */
 const SUBDIVISION_FLAG: Record<string, string> = {
@@ -343,6 +352,31 @@ export function countryFlag(nationality: string | null | undefined): string {
   const code = countryCode(nationality);
   if (!code) return "\u{1F30D}";
   return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
+
+/** England, Scotland and Wales compete as nations of their own. */
+const SUBDIVISION_NATION: Record<string, string> = {
+  england: "England", english: "England",
+  scotland: "Scotland", scottish: "Scotland",
+  wales: "Wales", welsh: "Wales",
+};
+
+/**
+ * R-46: the NATION a nationality belongs to, whatever spelling the column holds.
+ *
+ * Senior players store country names ("Germany"); pool players store demonyms
+ * ("German"). Olympic qualification sums a country's players, so both have to
+ * land on one nation — named by the first name its iso() line gives. Null when
+ * the value is not a known nation: callers show it under its own spelling
+ * rather than guess.
+ */
+export function nationName(nationality: string | null | undefined): string | null {
+  if (!nationality) return null;
+  const folded = fold(nationality);
+  const sub = SUBDIVISION_NATION[folded];
+  if (sub) return sub;
+  const code = ISO2[folded];
+  return code ? ISO2_NAME[code] ?? null : null;
 }
 
 // ── The world roster ────────────────────────────────────────────────────────

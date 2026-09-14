@@ -93,12 +93,15 @@ const COMP_TIERS = [
   },
   {
     title: "Olympics",
-    badge: "12 teams",
+    badge: "12 national teams",
     color: "text-yellow-400",
     bg: "bg-yellow-500/10",
     border: "border-yellow-500/25",
     points: [
-      "Top 12 World Tour teams qualify",
+      "The Olympics are for national teams, not clubs",
+      "A country qualifies on the World Tour ranking points its players earned this season: the sum across all of that country's players, whichever club they play for",
+      "The top 12 countries qualify; ties are broken by the best single-player total",
+      "Player ratings play no part in qualifying",
       "Group stage (4 groups, days 1–4) → Quarterfinals (day 5) → Semifinals (day 6) → Gold & Bronze medal matches (day 7)",
     ],
   },

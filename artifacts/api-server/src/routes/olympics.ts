@@ -5,6 +5,8 @@ import type { OlympicPlayerData } from "@workspace/db";
 import { continentKeyForNationality } from "@workspace/db";
 import { and, eq, desc } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
+import { olympicQualification, OLYMPIC_SPOTS } from "../utils/olympicQualification.js";
 
 const router = Router();
 
@@ -277,98 +279,50 @@ router.delete("/olympics/selection", async (req, res) => {
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
-/** Spots per continent in the Olympic tournament (12 total). */
-const CONTINENT_SPOTS: Record<string, number> = {
-  "Europe":              3,
-  "Asia":                2,
-  "North America":       2,
-  "South America":       2,
-  "Africa & Middle East":2,
-  "Oceania":             1,
-};
-const CONTINENT_ORDER = ["Europe", "Asia", "North America", "South America", "Africa & Middle East", "Oceania"];
-
-/** Compute per-nationality team ratings from the player table. */
-async function buildQualifierStandings(careerSaveId: number) {
-  // Stats are career-scoped now, so qualifier ratings must be read per career:
-  // another save's training would otherwise change this save's standings.
-  const allPlayers = await loadPlayers(careerSaveId, { isActive: true, playerType: "senior" });
-
-  // Group by nationality
-  const byNat = new Map<string, { continent: string; players: { name: string; rating: number; imageUrl: string | null }[] }>();
-  for (const p of allPlayers) {
-    if (!p.nationality) continue;
-    const rating = Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
-    if (!byNat.has(p.nationality)) byNat.set(p.nationality, { continent: p.continent ?? "Unknown", players: [] });
-    byNat.get(p.nationality)!.players.push({ name: p.name, rating, imageUrl: p.imageUrl ?? null });
-  }
-
-  // Compute team rating (avg of top-2 best players) and group by continent
-  const continentMap = new Map<string, { country: string; flag: string; teamRating: number; topPlayers: {name:string;rating:number;imageUrl:string|null}[] }[]>();
-  for (const [country, { continent, players }] of byNat.entries()) {
-    if (players.length < 2) continue;
-    const sorted = [...players].sort((a, b) => b.rating - a.rating);
-    const top2 = sorted.slice(0, 2);
-    const teamRating = Math.round((top2[0]!.rating + top2[1]!.rating) / 2);
-    if (!continentMap.has(continent)) continentMap.set(continent, []);
-    continentMap.get(continent)!.push({ country, flag: COUNTRY_FLAGS[country] ?? "🌍", teamRating, topPlayers: top2 });
-  }
-
-  // Sort within each continent and apply qualification status
-  return CONTINENT_ORDER.map(name => {
-    const teams = [...(continentMap.get(name) ?? [])].sort((a, b) => b.teamRating - a.teamRating);
-    const spots = CONTINENT_SPOTS[name] ?? 1;
-    return {
-      continent: name,
-      spots,
-      teams: teams.map((t, i) => ({
-        ...t,
-        rank: i + 1,
-        qualStatus: i < spots ? "qualified" : i < spots + 2 ? "bubble" : "not_qualified",
-      })),
-    };
-  }).filter(c => c.teams.length > 0);
-}
-
-async function getOlympicsYear(): Promise<{ gameYear: number; olympicsYear: number; isOlympicYear: boolean }> {
-  const rows = await db.select({ year: seasonsTable.year, isOlympicSeason: seasonsTable.isOlympicSeason })
-    .from(seasonsTable).orderBy(desc(seasonsTable.year)).limit(1);
-  const gameYear = rows[0]?.year ?? 2026;
-  const isOlympicYear = rows[0]?.isOlympicSeason ?? (gameYear % 4 === 0);
+/**
+ * The season qualification is decided on, and the Olympics it leads to, for
+ * THIS career. This used to read the newest season row in the whole database,
+ * so a second career on the same machine saw the first one's year.
+ */
+async function getOlympicsYear(careerSaveId: number): Promise<{ gameYear: number; olympicsYear: number; isOlympicYear: boolean }> {
+  const season = await getActiveSeasonForCareer(careerSaveId);
+  const gameYear = season?.year ?? 2026;
+  const isOlympicYear = season?.isOlympicSeason ?? (gameYear % 4 === 0);
   let olympicsYear = gameYear;
   if (!isOlympicYear) while (olympicsYear % 4 !== 0) olympicsYear++;
   return { gameYear, olympicsYear, isOlympicYear };
 }
 
 // ── Route: GET /olympics/qualifiers ──────────────────────────────────────────
-// Live per-continent qualification standings based on player ratings.
+// R-46: national qualification on this season's World Tour ranking points —
+// see utils/olympicQualification.ts. Player ratings play no part. This replaced
+// per-continent spots decided by the average rating of each nation's best two.
 
-router.get("/olympics/qualifiers", async (_req, res) => {
-  const continents = await buildQualifierStandings(requireCareerSaveId(_req.activeCareerSaveId));
-  const { olympicsYear } = await getOlympicsYear();
-  res.json({ olympicsYear, totalSpots: 12, continents });
+router.get("/olympics/qualifiers", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const { gameYear, olympicsYear } = await getOlympicsYear(cid);
+  const q = olympicQualification(cid, gameYear);
+  res.json({ olympicsYear, seasonYear: q.seasonYear, totalSpots: q.spots, countries: q.countries });
 });
 
 // ── Route: GET /olympics/schedule ────────────────────────────────────────────
 // Olympic tournament bracket: group draw + knockout rounds.
 // Non-Olympic years → projected (no results). Olympic years → simulated results.
 
-router.get("/olympics/schedule", async (_req, res) => {
-  const continents = await buildQualifierStandings(requireCareerSaveId(_req.activeCareerSaveId));
-  const { olympicsYear, isOlympicYear } = await getOlympicsYear();
+router.get("/olympics/schedule", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const { gameYear, olympicsYear, isOlympicYear } = await getOlympicsYear(cid);
 
-  // Collect the 12 qualified teams (top N per continent)
-  const qualified: { country: string; flag: string; continent: string; teamRating: number }[] = [];
-  for (const cont of continents) {
-    for (const t of cont.teams.filter(t => t.qualStatus === "qualified")) {
-      qualified.push({ country: t.country, flag: t.flag, continent: cont.continent, teamRating: t.teamRating });
-    }
-  }
-  // Sort by rating (highest-rated seeded first)
-  qualified.sort((a, b) => b.teamRating - a.teamRating);
-  // Pad to 12 if needed
-  while (qualified.length < 12) {
-    qualified.push({ country: "TBD", flag: "🏳️", continent: "TBD", teamRating: 0 });
+  // The qualified nations in qualifying order (R-46): seeded by the same World
+  // Tour points that qualified them, never by ratings.
+  const qualified: { country: string; flag: string; continent: string; points: number }[] =
+    olympicQualification(cid, gameYear).countries
+      .filter((c) => c.qualified)
+      .map((c) => ({ country: c.country, flag: c.flag, continent: c.continent ?? "unknown", points: c.points }));
+  while (qualified.length < OLYMPIC_SPOTS) {
+    qualified.push({ country: "TBD", flag: "🏳️", continent: "TBD", points: 0 });
   }
 
   // Serpentine group draw: A-B-C-D-D-C-B-A-A-B-C-D
@@ -382,7 +336,7 @@ router.get("/olympics/schedule", async (_req, res) => {
     groups[g]!.teams.push(t);
   });
 
-  // Simulate match result: higher-rated team wins 70% of the time
+  // Simulate match result: the side with more World Tour points wins 70% of the time
   function simResult(a: number, b: number, seed: number): [number, number] {
     const rand = ((seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
     const aWins = rand < (a > b ? 0.70 : 0.30);
@@ -402,7 +356,7 @@ router.get("/olympics/schedule", async (_req, res) => {
       matches.forEach((m, mi) => {
         const homeTeam = g.teams.find(t => t.country === m.home);
         const awayTeam = g.teams.find(t => t.country === m.away);
-        const [hs, as_] = simResult(homeTeam?.teamRating ?? 70, awayTeam?.teamRating ?? 70, gi * 10 + mi);
+        const [hs, as_] = simResult(homeTeam?.points ?? 0, awayTeam?.points ?? 0, gi * 10 + mi);
         m.homeScore = hs; m.awayScore = as_; m.status = "completed";
       });
     }

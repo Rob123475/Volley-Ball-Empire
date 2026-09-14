@@ -179,7 +179,8 @@ export function deleteProfileCascade(userId: string): void {
       tx.delete(regionalLeagueSeasonsTable).where(inArray(regionalLeagueSeasonsTable.careerSaveId, saveIds)).run();
       tx.delete(worldTourQualificationsTable).where(inArray(worldTourQualificationsTable.careerSaveId, saveIds)).run();
       // worldTourFixturesTable (R-29) is cleared per save by deleteCareerSave
-      // above, before that save's career_saves row goes.
+      // above, before that save's career_saves row goes. playerRankingPointsTable
+      // (R-46) is cleared there too.
       tx.delete(aiManagersTable).where(inArray(aiManagersTable.careerSaveId, saveIds)).run();
     }
 

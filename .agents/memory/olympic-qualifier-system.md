@@ -1,23 +1,26 @@
 ---
 name: Olympic qualifier system
-description: How the Olympic qualifiers and schedule endpoints are structured, and CalendarState gotcha
+description: How Olympic qualification and the schedule endpoints work (R-46: national, on this season's World Tour ranking points), and a CalendarState gotcha
 ---
 
 ## Endpoints
-Both routes live on the existing `olympicsRouter` (mounted at `/api`, no prefix) inside `artifacts/api-server/src/routes/olympics.ts`:
+Both routes live on `olympicsRouter` (mounted at `/api`, no prefix) in `artifacts/api-server/src/routes/olympics.ts`, and both read the ACTIVE CAREER's season:
 
-- `GET /api/olympics/qualifiers` — per-continent standings. Calls shared `buildQualifierStandings()`.
-- `GET /api/olympics/schedule` — full bracket. Calls both helpers then builds groups + knockout.
+- `GET /api/olympics/qualifiers` — `{ olympicsYear, seasonYear, totalSpots: 12, countries }`, from `olympicQualification()` in `utils/olympicQualification.ts`.
+- `GET /api/olympics/schedule` — full bracket: the 12 qualified nations in qualifying order, then groups + knockout.
 
-## Qualification logic
-- Spot allocation: Europe=3, Asia=2, North America=2, South America=2, Africa & Middle East=2, Oceania=1 (12 total)
-- Team rating = avg of top-2 players' `(speed+power+defense+serve+block+stamina)/6`
-- `qualStatus`: `"qualified"` | `"bubble"` (next 2 after spots) | `"not_qualified"`
+## Qualification logic (R-46, Rob's rule, 14 Sep 2026)
+- The Olympics are NATIONAL teams. A country qualifies on the World Tour ranking points its players earned THIS SEASON — the sum across that country's players, whichever club they play for.
+- Top 12 countries qualify. Ties broken by best single-player total (then country name, only for a stable table).
+- Player ratings play NO part. (The old rule — per-continent spots by the top-2 player rating average — is gone.)
+- Points per player live in `player_ranking_points` (per career, season, club, player), written by `creditCompetitorTx` in `utils/rankingPoints.ts` on every credited result: an AI club's two pool players, or the player's club's two `squad_role = 'starter'` players.
+- Nation identity: `nationName()` in `lib/db/src/schema/continents.ts` — pool players store demonyms ("German"), seniors country names ("Germany"). Hawaiian resolves to USA.
+- Rules page text is asserted by `harness/olympic-qualification.mjs`.
 
 ## Schedule structure
-- 12 qualified teams sorted by rating, assigned to 4 groups via serpentine seeding (order [0,1,2,3,3,2,1,0,0,1,2,3])
+- The 12 qualified nations in qualifying order, assigned to 4 groups via serpentine seeding (order [0,1,2,3,3,2,1,0,0,1,2,3])
 - Non-Olympic year: all matches `status: "projected"`, no scores
-- Olympic year (`isOlympicYear`): scores simulated via deterministic pseudo-random based on ratings
+- Olympic year (`isOlympicYear`): scores simulated, the side with more World Tour points favoured
 
 ## CalendarState gotcha
 `CalendarState` (in `use-calendar.ts`) does **not** include `isOlympicSeason` — that field is on the DB table but not in the hook's returned type. To check for an Olympic year in frontend code, use:

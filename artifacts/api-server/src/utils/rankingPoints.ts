@@ -1,4 +1,11 @@
-import { db, competitorRankingsTable } from "@workspace/db";
+import {
+  db,
+  competitorRankingsTable,
+  competitorsTable,
+  continentalPoolPlayersTable,
+  careerPlayerStateTable,
+  playerRankingPointsTable,
+} from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { competitorIdForTeam, competitorIdForTeamTx } from "./competitors.js";
 import { eligibilityFor } from "./tierQualification.js";
@@ -120,6 +127,7 @@ export function creditCompetitorTx(tx: Tx, args: {
       wins:          args.won ? 1 : 0,
       losses:        args.won ? 0 : 1,
     }).run();
+    creditPlayersTx(tx, { careerSaveId: args.careerSaveId, seasonYear: args.seasonYear, competitorId: args.competitorId, points });
     return points;
   }
 
@@ -134,7 +142,85 @@ export function creditCompetitorTx(tx: Tx, args: {
     .where(eq(competitorRankingsTable.id, existing.id))
     .run();
 
+  creditPlayersTx(tx, { careerSaveId: args.careerSaveId, seasonYear: args.seasonYear, competitorId: args.competitorId, points });
   return points;
+}
+
+/**
+ * R-46: the same result, credited to the players who played it.
+ *
+ * Olympic qualification counts the World Tour ranking points a country's
+ * PLAYERS earned this season, whichever club they play for. So every result a
+ * club is credited with is also written against its pair on the sand: an AI
+ * club's two pool players (they never change club), or the player's club's two
+ * starters at the moment of the result. Same points as the club, after the
+ * same gate; matches count even when the points are zero.
+ */
+function creditPlayersTx(tx: Tx, args: {
+  careerSaveId: number;
+  seasonYear: number;
+  competitorId: number;
+  points: number;
+}): void {
+  const competitor = tx.select({ teamId: competitorsTable.teamId, poolTeamId: competitorsTable.poolTeamId })
+    .from(competitorsTable)
+    .where(eq(competitorsTable.id, args.competitorId))
+    .get();
+  if (!competitor) return;
+
+  const pair: Array<{ playerId: number | null; poolPlayerId: number | null }> =
+    competitor.poolTeamId != null
+      ? tx.select({ id: continentalPoolPlayersTable.id })
+          .from(continentalPoolPlayersTable)
+          .where(eq(continentalPoolPlayersTable.poolTeamId, competitor.poolTeamId))
+          .all()
+          .map((p) => ({ playerId: null, poolPlayerId: p.id }))
+      : competitor.teamId != null
+        ? tx.select({ id: careerPlayerStateTable.playerId })
+            .from(careerPlayerStateTable)
+            .where(and(
+              eq(careerPlayerStateTable.careerSaveId, args.careerSaveId),
+              eq(careerPlayerStateTable.teamId, competitor.teamId),
+              eq(careerPlayerStateTable.squadRole, "starter"),
+            ))
+            .all()
+            .map((p) => ({ playerId: p.id, poolPlayerId: null }))
+        : [];
+
+  for (const who of pair) {
+    const existing = tx.select({ id: playerRankingPointsTable.id })
+      .from(playerRankingPointsTable)
+      .where(and(
+        eq(playerRankingPointsTable.careerSaveId, args.careerSaveId),
+        eq(playerRankingPointsTable.seasonYear, args.seasonYear),
+        eq(playerRankingPointsTable.competitorId, args.competitorId),
+        who.playerId != null
+          ? eq(playerRankingPointsTable.playerId, who.playerId)
+          : eq(playerRankingPointsTable.poolPlayerId, who.poolPlayerId!),
+      ))
+      .get();
+
+    if (existing) {
+      tx.update(playerRankingPointsTable)
+        .set({
+          rankingPoints: sql`${playerRankingPointsTable.rankingPoints} + ${args.points}`,
+          matches:       sql`${playerRankingPointsTable.matches} + 1`,
+          updatedAt:     new Date(),
+        })
+        .where(eq(playerRankingPointsTable.id, existing.id))
+        .run();
+    } else {
+      tx.insert(playerRankingPointsTable).values({
+        careerSaveId:  args.careerSaveId,
+        seasonYear:    args.seasonYear,
+        competitorId:  args.competitorId,
+        playerId:      who.playerId,
+        poolPlayerId:  who.poolPlayerId,
+        rankingPoints: args.points,
+        matches:       1,
+      }).run();
+    }
+  }
 }
 
 /** This career's ranking for a season. Zero when nothing has been played. */

@@ -880,6 +880,36 @@ export const competitorRankingsTable = sqliteTable("competitor_rankings", {
 
 export type CompetitorRanking = typeof competitorRankingsTable.$inferSelect;
 
+/**
+ * R-46: World Tour ranking points per PLAYER, per career and season.
+ *
+ * Olympic qualification is national: a country's total is the points its
+ * players earned this season, whichever club they play for. competitor_rankings
+ * holds only the club's total, so every credited result is also written here
+ * against the pair who played it — an AI club's two pool players, or the
+ * player's club's two starters at that moment. Keyed by club as well as player,
+ * so a player who changes club mid-season keeps what they earned at each.
+ *
+ * Exactly one of player_id (players) / pool_player_id (continental_pool_players).
+ */
+export const playerRankingPointsTable = sqliteTable("player_ranking_points", {
+  id:            integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:  integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:    integer("season_year").notNull(),
+  competitorId:  integer("competitor_id").notNull().references(() => competitorsTable.id),
+  playerId:      integer("player_id").references(() => playersTable.id),
+  poolPlayerId:  integer("pool_player_id").references(() => continentalPoolPlayersTable.id),
+  rankingPoints: integer("ranking_points").notNull().default(0),
+  matches:       integer("matches").notNull().default(0),
+  updatedAt:     integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  check("player_ranking_points_exactly_one_player",
+    sql`(${t.playerId} IS NULL) <> (${t.poolPlayerId} IS NULL)`),
+  index("player_ranking_points_career_season").on(t.careerSaveId, t.seasonYear),
+]);
+
+export type PlayerRankingPoints = typeof playerRankingPointsTable.$inferSelect;
+
 export const clubTemplatesTable = sqliteTable("club_templates", {
   id:             integer("id").primaryKey({ autoIncrement: true }),
   name:           text("name").notNull(),

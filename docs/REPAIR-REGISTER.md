@@ -1077,8 +1077,11 @@ No All-Star code path can run (no All-Star match exists), so the sacking is not 
 - RollWeak FC: 6W 16L, `board_confidence` 0, `retired_at` set.
 - History: "RollWeak was sacked by RollWeak FC after board confidence collapsed to zero."
 - Last match: round 33, lost 0-2.
-- Seen in 2 of 4 rollover runs on 14 Sep (the R-45 full run, diagnostic run 2). Passed in the R-44
-  full run and diagnostic run 1.
+- Seen in 4 of 7 rollover runs on 14 Sep: the R-45 and R-46 full runs, and run 2 of each two-run
+  reproduction. Passed in the R-44 full run and run 1 of each reproduction.
+- Both failures whose databases were kept were this sacking in season 1: 6W 16L (R-45 build) and
+  5W 15L (R-46 build), board confidence 0. run-all deletes its own copy, so its two failures were
+  matched by signature only (the underdog arc's advance → "No active team" after RollStrong completed).
 
 **Not measured:** whether the sacking rate changed with R-29 (real opponents) or R-44 (57 rounds).
 
@@ -1088,6 +1091,113 @@ No All-Star code path can run (no All-Star match exists), so the sacking is not 
 - **If no:** the R-09/R-11 balance changes.
 
 Until decided, a full harness run can fail on this by chance. Nothing was changed for it.
+
+### R-46 — CLOSED (14 Sep, the commit carrying this entry): Olympic qualification on this season's World Tour ranking points (Rob's decision on WEEKEND-STATUS Q3)
+**Decision (Rob):**
+- The Olympics are NATIONAL teams.
+- A country qualifies on the World Tour ranking points its players earned THIS SEASON: the sum
+  across that country's players, whichever club they play for.
+- The top 12 countries qualify; ties are broken by best single-player total.
+- Player ratings play no part in qualifying.
+- The in-game rules page must say exactly this.
+- Harness: two seasons where a high-rated country earns few points and a low-rated country many; the
+  low-rated one qualifies and the high-rated one doesn't; the rules text is asserted.
+
+**Found (read before designing):**
+- `routes/olympics.ts` `buildQualifierStandings` gave per-continent spots (Europe 3, Asia 2, North
+  America 2, South America 2, Africa & Middle East 2, Oceania 1), ranked by the average rating of each
+  nation's two best players. Ranking points played no part.
+- `getOlympicsYear` read the newest season row in the whole database, not the career's.
+- No per-player points existed: `competitor_rankings` holds a club's total only.
+- One country had two spellings. Pool players (the AI clubs' 120 players) store demonyms ("German",
+  "Argentine", 42 values), while seniors store country names. `DEMONYM_TO_COUNTRY` covers 20 staff
+  demonyms. The country-code table in continents.ts resolves all but "Hawaiian", "Emirati" and "Saudi".
+
+**Design:**
+- **New table `player_ranking_points`** (career, season, club, player or pool player, points,
+  matches), written by `creditCompetitorTx` on every credited result.
+  - An AI club credits its two pool players; the player's club credits its two starters
+    (`squad_role = 'starter'`).
+  - The same points after the same tier gate, so the players' points are the club's.
+- **Nations:** `nationName()` in continents.ts resolves every spelling to one nation.
+  - Hawaiian → USA (Hawaii is a US state).
+  - Emirati → UAE and Saudi → Saudi Arabia get country codes.
+  - An unresolved value is shown under its own spelling, never dropped.
+- **Qualification:** new `utils/olympicQualification.ts`.
+  - Order: total points, then best single player, then country name (only so an exact tie gives one
+    stable table).
+  - Top 12 qualify.
+  - The schedule draws the 12 in qualifying order and simulates by points; ratings are no longer used
+    anywhere in the Olympics.
+- **Rules page, Olympics card:**
+  - "The Olympics are for national teams, not clubs"
+  - "A country qualifies on the World Tour ranking points its players earned this season: the sum
+    across all of that country's players, whichever club they play for"
+  - "The top 12 countries qualify; ties are broken by the best single-player total"
+  - "Player ratings play no part in qualifying"
+
+**What changed:**
+- **Schema:** `player_ranking_points`. The starter DB carries it: a boot-and-diff on a copy showed the
+  table and its index as the only difference, and check-starter-db now reads 52 tables.
+- **`utils/rankingPoints.ts`:** `creditPlayersTx`, called from `creditCompetitorTx` on both its
+  branches.
+- **`lib/db/src/schema/continents.ts`:**
+  - `nationName()`
+  - Hawaiian → US; Emirati → AE; Saudi → SA
+  - the CZ name order, so the nation is "Czech Republic"
+- **New `utils/olympicQualification.ts`.**
+- **`routes/olympics.ts`:**
+  - qualifiers and schedule rewritten
+  - both now refuse an unauthenticated request and read the career's own season
+  - `buildQualifierStandings`, `CONTINENT_SPOTS` and `CONTINENT_ORDER` deleted
+- **`deleteCareerSave`:** now clears the new table.
+- **Frontend:**
+  - Olympic Qualifying is one national table with the qualification line, each nation's points, best
+    single player, and players with their clubs
+  - the dashboard widget shows the top 12 by points
+  - the schedule type and the rules page Olympics card are updated
+- **`.agents/memory/olympic-qualifier-system.md`** rewritten.
+
+**Harness: new `harness/olympic-qualification.mjs`, 29/29:**
+- **Real play:** World Tour rounds 11-16 through the calendar.
+  - Each of the 18 AI clubs' two players holds exactly the club's points and matches.
+  - The player's two starters each hold what the club earned (25 incl. a head start of 20 → 5 each)
+    and its 6 matches.
+  - 38 rows, nobody else.
+- **Nations:** 312 players resolve to 69 nations, none twice. German + Germany are one country, and
+  Hawaii's pair is in USA.
+- **Season 2026:**
+  - Malaysia (rated 69.4) earns 25 at its pool club + 20 at the player's club = 45 and qualifies,
+    rank 1.
+  - Brazil (rated 88.5) earns 5: rank 14, out.
+  - Malaysia is in only through the sum: best single 25 < 12th place 40.
+  - Argentina, tied on 40 with best 20, is out at 13th behind eleven 40s with best 40.
+  - The schedule draws exactly the 12.
+  - Sabotage S1: ranking by rating would have put Brazil in and Malaysia out.
+- **Ratings:** Brazil's players set to 99 and Malaysia's to 40 leave the table byte-identical.
+- **Season 2027:** Venezuela (70.3) earns 60 and qualifies, rank 1. Brazil (3) is out at 13.
+  Malaysia's 2026 points do not carry (0, rank 33).
+- **Rules:** the four lines are in `rules.tsx` and in the shipped bundle, and "Top 12 World Tour
+  teams qualify" is gone from both.
+
+Seasons 2026/2027's point rows are written directly into a DB copy (the only way to make the scenario
+exact). The real-play section proves play writes the same rows.
+
+**Full harness: 20 of 21 suites passed**, olympic-qualification included. Season rollover failed on
+R-47 again: RollWeak got "No active team" after RollStrong completed its arc.
+
+On the same build, run-all's suites 20+21 were reproduced twice on one server:
+- **Run 1:** smoke 72/72, rollover 40/40. Both arcs covered all four measured seasons, and every
+  season played every match it was entitled to.
+- **Run 2:** RollWeak sacked in season 1 (5W 15L, board confidence 0, dismissal entry, retired_at).
+  Up to the sacking that career held 38 `player_ranking_points` rows. Its two starters held 3 points
+  over 20 matches each, exactly the club's 3 points and 5W 15L, so R-46's credit path ran on every
+  result.
+
+**Left as is:**
+- Screen check is Rob's (R-39).
+- `/olympics/countries` (the squad picker) still groups senior players by stored nationality. It
+  plays no part in qualifying.
 
 ### R-29 — CLOSED (12 Sep, the commit carrying this entry): the World Tour is a real competition, per career
 World Tour Standings read "1 teams", the World Finals bracket seeded the player #1 with every other
@@ -1814,7 +1924,8 @@ Original entry:
 | R-31 DB checkpointed and closed on quit | 877557c; verified on live save 14 Sep | closed via X: no `-wal`, no `-shm`; harness wal-checkpoint-shutdown 7/7 |
 | R-40 WebGL build rendered an empty court | 195e769, rebuilt 417cdcd; verified on screen 14 Sep | Rob: full venue and four players in the Electron 3D Court |
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
-| R-45 All-Star events removed | 14 Sep, the R-45 commit | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
+| R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
+| R-46 Olympic qualification on World Tour points | 14 Sep, the R-46 commit | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,

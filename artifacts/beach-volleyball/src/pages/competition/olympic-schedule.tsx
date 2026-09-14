@@ -35,7 +35,7 @@ type GroupData = {
 
 type GroupStage = {
   name: string;
-  teams: { country: string; flag: string; continent: string; teamRating: number }[];
+  teams: { country: string; flag: string; continent: string; points: number }[];
   matches: GSMatch[];
 };
 
