@@ -153,7 +153,7 @@ router.get("/history/seasons/:year/summary", async (req, res) => {
   let worldResult: string | null =
     byType("world_championship") ? "World Champion 🏆"
     : byType("runner_up")       ? "Runner Up 🥈"
-    : byType("bronze")          ? "3rd Place 🥉"
+    : byType("bronze")          ? "World Finals semi-finalist 🥉"
     : byType("grand_final")     ? "4th Place 🏅"
     : (managerRow?.worldResult ?? null);
 

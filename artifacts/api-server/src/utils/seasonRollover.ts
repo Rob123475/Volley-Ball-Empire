@@ -7,6 +7,7 @@ import { withCareerStateTx } from "../lib/playerDto.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-confidence.js";
+import { awardSeasonTrophiesTx } from "./seasonTrophies.js";
 
 /**
  * Season rollover.
@@ -179,6 +180,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // route ends the career once this commits. Season 5's review is the
     // career verdict and cannot sack.
     const review = boardReviewTx(tx, careerSaveId, season.year, teamId, current >= FINAL_SEASON);
+    // R-42: the season's honours are the club's whatever the board decided —
+    // written once, here, from the finals and the season's ranking points.
+    awardSeasonTrophiesTx(tx, careerSaveId, season.year, current, teamId);
+
     if (review.outcome === "sacked") {
       return { kind: "sacked", fromSeason: current, review } as const;
     }

@@ -284,7 +284,8 @@ export default function TrophyCabinet() {
                 <CardDescription>World championships and continental glory</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <HonourRow icon={Trophy} label="World Tour Championships" count={honours.worldChampionships.length} colour="text-yellow-500" items={honours.worldChampionships} />
+                <HonourRow icon={Trophy} label="World Champions (World Final wins)" count={honours.worldChampionships.length} colour="text-yellow-500" items={honours.worldChampionships} />
+                <HonourRow icon={Star}   label="World Tour Silver / Gold tier seasons" count={honours.worldTourTiers.length} colour="text-sky-500" items={honours.worldTourTiers} />
                 <HonourRow icon={Globe}  label="Continental Championships" count={honours.continentalChampionships.length} colour="text-blue-500" items={honours.continentalChampionships} />
                 <HonourRow icon={Star}   label="World Grand Final Wins"   count={honours.grandFinals.length}           colour="text-purple-500" items={honours.grandFinals} />
               </CardContent>
@@ -299,8 +300,8 @@ export default function TrophyCabinet() {
                 <CardDescription>Runner-up and bronze finishes</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <HonourRow icon={Award}  label="Tournament Runner-Ups" count={honours.runnerUps.length} colour="text-zinc-400" items={honours.runnerUps} />
-                <HonourRow icon={Medal}  label="Bronze Finishes"        count={honours.bronzes.length}  colour="text-amber-700" items={honours.bronzes} />
+                <HonourRow icon={Award}  label="World Final Runner-Ups"   count={honours.runnerUps.length} colour="text-zinc-400" items={honours.runnerUps} />
+                <HonourRow icon={Medal}  label="World Finals Semi-Finals" count={honours.bronzes.length}  colour="text-amber-700" items={honours.bronzes} />
               </CardContent>
             </Card>
 

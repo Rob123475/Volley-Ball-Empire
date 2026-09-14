@@ -11640,6 +11640,16 @@ export const GetHallOfFameResponse = zod.array(GetHallOfFameResponseItem)
  */
 export const GetTrophyCabinetResponse = zod.object({
   "honours": zod.object({
+  "worldTourTiers": zod.array(zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "name": zod.string(),
+  "season": zod.number().nullish(),
+  "year": zod.number().nullish(),
+  "continent": zod.string().nullish(),
+  "locationName": zod.string().nullish(),
+  "notes": zod.string().nullish()
+})).describe('R-42 — seasons that finished at the Silver or Gold tier, written at the season boundary.'),
   "worldChampionships": zod.array(zod.object({
   "id": zod.number(),
   "type": zod.string(),

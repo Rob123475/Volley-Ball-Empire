@@ -3755,7 +3755,13 @@ components:
         - grandFinals
         - runnerUps
         - bronzes
+        - worldTourTiers
       properties:
+        worldTourTiers:
+          type: array
+          description: R-42 — seasons that finished at the Silver or Gold tier, written at the season boundary.
+          items:
+            $ref: "#/components/schemas/TrophyRecord"
         worldChampionships:
           type: array
           items:

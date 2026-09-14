@@ -1692,7 +1692,56 @@ end: **18/18**.
 **Rule:** edit anything containing backslash escapes with Write/Edit, never through a shell
 command, and run `node --check` on a harness file after touching it.
 
-### R-42 — Nothing ever writes a trophy (found by R-10)
+### R-42 — CLOSED (14 Sep, PENDING-HASH): trophies are written at the season boundary
+**Rob's brief (overnight batch item 2):** trophies written at season end — World Tour tier titles,
+World Finals placings, Olympics — into the trophies table, shown on the club page and the season
+review. Harness: a champion season produces exactly the right rows; a fresh career has none.
+
+**Fix:** `utils/seasonTrophies.ts`, called once inside `rolloverSeason`'s transaction right after
+the board review (the honours stand whatever the board decided; idempotent per team and year):
+
+| Happened | type | name |
+|---|---|---|
+| Won the World Final | `world_championship` | World Champions 2026 |
+| Lost the World Final | `runner_up` | World Final runner-up 2026 |
+| Lost a World Semi Final | `bronze` | World Finals semi-finalist 2026 |
+| Season finished Silver / Gold on ranking points (R-54) | `world_tour_tier` | World Tour Gold tier 2026 (notes: the points) |
+
+The placings come from `worldFinalsSummaryTx` (the real round 71/72 fixtures), the tier from the
+season's `competitor_rankings` row through `tierForPoints`. Bronze is where every club starts, so it
+earns nothing.
+- Club page (Trophy Cabinet tab): new row "World Tour Silver / Gold tier seasons"
+  (`honours.worldTourTiers`, spec `ClubHonours`); the existing rows relabelled to what they now hold
+  — "World Champions (World Final wins)", "World Final Runner-Ups", "World Finals Semi-Finals".
+- Season review: `/seasons/:year/review` returns `trophies`; the dialog shows "Honours won".
+- `history.ts` season summary: `bronze` now reads "World Finals semi-finalist", not "3rd Place".
+- Every other reader filters by type (`careerLifecycle`, `players.ts` legend score,
+  `check-achievements`), so tier rows inflate no title count.
+
+**Olympics: NOT written — no real source.** This build plays no Olympic tournament:
+`/olympics/schedule` re-rolls its "results" with `Math.random` on every read. Awarding a medal from
+that would be R-43's fabrication in trophy form. The Olympic cabinet row and the `olympic_gold`
+achievement stay at zero until a real Olympic tournament exists (listed in RELEASE-STATUS).
+
+**Harness (new):** `harness/trophies.mjs`, run-all 24/26 (smoke 25/26, rollover 26/26). 10/10:
+fresh career 0 rows and every cabinet row empty; real established season-1 careers each get exactly
+their earned rows (Trophy1 did not qualify, 59 pts → Silver tier only; Trophy2 champion, 92 pts →
+World Champions 2026 + Gold tier); the season review and cabinet show the same rows. Runner-up and
+semi-finalist are covered by the same rule function but did not occur live in this run.
+
+**Full harness: 24/26.** Neither failure is R-42:
+- board review 57/58 — R-57, the section-5 clock start (registered with the evidence).
+- save folder migration 3/7 — the run was launched with `ELECTRON_RUN_AS_NODE=1` in the parent
+  environment, and the R-23 suite hands its environment to REAL Electron: `electron/main.js:34`
+  "Cannot read properties of undefined (reading 'getPath')". Rerun standalone without it: 7/7.
+  **Rule:** launch `run-all` without `ELECTRON_RUN_AS_NODE`; every server suite sets it for its own child.
+
+Rollover 78/78; season trophies 20/20 in the full run. Five-season table: every season crowned a
+champion from the field; established 0 of 3 sacked (season-1 champions RollStrong, RollStrong2,
+RollStrong3; RollStrong3 champion again in season 4), underdog 0 of 3 (#16–#19 every season,
+Bronze).
+
+Original entry:
 No code in `artifacts/api-server` inserts into `trophies`; it is only read:
 `routes/trophies.ts`, `routes/history.ts:128,202`, `routes/players.ts:509`,
 `utils/careerLifecycle.ts:36`, `utils/check-achievements.ts:58`, `routes/news.ts`.
@@ -2528,6 +2577,24 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-57 — OPEN (registered 14 Sep): board-review's "first monthly check comes 30 game days after the draw" reads the wrong clock start
+`harness/board-review.mjs` section 5 takes `clockStart` from `board_seasons.projected_on` when
+section 5 begins, then plays until the first monthly check and asserts ≥ 30 days between the two.
+
+**Problem:** `projected_on` is the draw date only until the first check runs; after that it is the
+check date. Sections 3 and 4 play the underdog career forward (a win, a loss, a forfeit, five results
+at confidence 0). If those cover 30 game days — which depends on where that career's draw put its
+byes (R-44) — the check has already happened, `clockStart` is the check date, the loop does not run,
+and the assertion compares the check with itself: 0 days.
+
+**Observed:** the R-42 full run, 14 Sep: "clock started 2026-03-20, checked 2026-03-20 (0 days): #14
+met". Every other line of that section passed (the freeze, the refused signing, the renewal), and
+the suite passed 58/58 in the R-50 and R-55 runs. R-42 does not touch the monthly check; it writes
+trophies at the season boundary.
+
+**Fix direction:** read the clock start at the draw (section 2), before any match is played, and
+assert the first check's date is 30 or more days after it.
+
 ### R-56 — OPEN (registered 14 Sep, Rob: LOW, do not fix now): `harness/invariants.mjs`'s economy probe has been broken since R-29
 **What happens:**
 - `node harness/invariants.mjs` is the Phase 7 invariant sweep. It is standalone, not part of
@@ -2786,6 +2853,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, PENDING-HASH | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
 | R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, 56c40ba | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |
 | R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
 | R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, 8bc38c2 | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |

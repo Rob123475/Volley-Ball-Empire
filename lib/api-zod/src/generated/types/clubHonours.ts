@@ -9,6 +9,8 @@ import type { ClubHonoursContinentalFinalsByContinent } from './clubHonoursConti
 import type { TrophyRecord } from './trophyRecord';
 
 export interface ClubHonours {
+  /** R-42 — seasons that finished at the Silver or Gold tier, written at the season boundary. */
+  worldTourTiers: TrophyRecord[];
   worldChampionships: TrophyRecord[];
   continentalChampionships: TrophyRecord[];
   continentalFinalsByContinent: ClubHonoursContinentalFinalsByContinent;

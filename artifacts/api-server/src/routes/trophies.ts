@@ -35,6 +35,8 @@ router.get("/trophies/cabinet", async (req, res) => {
   const grandFinals              = byType("grand_final");
   const runnerUps                = byType("runner_up");
   const bronzes                  = byType("bronze");
+  // R-42: a Silver or Gold season tier, written at the season boundary.
+  const worldTourTiers           = byType("world_tour_tier");
   const continentalFinals        = byType("continental_final");
   const olympicGold              = byType("olympic_gold");
   const olympicSilver            = byType("olympic_silver");
@@ -290,6 +292,7 @@ router.get("/trophies/cabinet", async (req, res) => {
       grandFinals,
       runnerUps,
       bronzes,
+      worldTourTiers,
     },
     olympicMedals: {
       gold: olympicGold.length,

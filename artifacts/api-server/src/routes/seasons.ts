@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable } from "@workspace/db";
+import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable, trophiesTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -125,6 +125,11 @@ router.get("/seasons/:year/review", async (req, res) => {
     isFinalSeason: seasonNumberForYear(year) >= FINAL_SEASON,
     fixture,
     worldFinals:  worldFinalsSummary(cid, year, team.id),
+    // R-42: the honours this season earned, as the rollover wrote them.
+    trophies:     (await db.select().from(trophiesTable).where(and(
+      eq(trophiesTable.teamId, team.id),
+      eq(trophiesTable.year, year),
+    ))).map((t) => ({ id: t.id, type: t.type, name: t.name, notes: t.notes ?? null })),
   });
 });
 

@@ -1502,6 +1502,8 @@ export interface TrophyRecord {
 export type ClubHonoursContinentalFinalsByContinent = {[key: string]: number};
 
 export interface ClubHonours {
+  /** R-42 — seasons that finished at the Silver or Gold tier, written at the season boundary. */
+  worldTourTiers: TrophyRecord[];
   worldChampionships: TrophyRecord[];
   continentalChampionships: TrophyRecord[];
   continentalFinalsByContinent: ClubHonoursContinentalFinalsByContinent;

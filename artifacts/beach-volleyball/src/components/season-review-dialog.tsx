@@ -34,6 +34,8 @@ export type SeasonReview = {
   retired: Array<{ id: number; name: string | null; age: number | null }>;
   summary: string | null;
   isFinalSeason: boolean;
+  /** R-42: honours this season earned, written at the season boundary. */
+  trophies?: Array<{ id: number; type: string; name: string; notes: string | null }>;
 };
 
 const money = (n: number) =>
@@ -113,6 +115,22 @@ export function SeasonReviewDialog({ year, onClose }: { year: number | null; onC
                 hint={data.retired.length ? "Left the game this season" : "Nobody retired"}
               />
             </div>
+
+            {data.trophies && data.trophies.length > 0 ? (
+              <>
+                <Separator className="my-4" />
+                <div className="mb-2 text-sm font-medium" data-testid="season-review-trophies">Honours won</div>
+                <ul className="space-y-1 text-sm">
+                  {data.trophies.map((t) => (
+                    <li key={t.id} className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4 shrink-0 text-yellow-500" />
+                      <span>{t.name}</span>
+                      {t.notes ? <span className="text-muted-foreground">· {t.notes}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
 
             {data.summary ? (
               <>
