@@ -2661,7 +2661,7 @@ starting budget on the dashboard.
 
 ## LOW
 
-### R-60 — CLOSED (15 Sep, PENDING-R60): Resign and Break Contract end the career; no save is left without a club
+### R-60 — CLOSED (15 Sep, 3267c4b): Resign and Break Contract end the career; no save is left without a club
 **Rob's decision (15 Sep):** for this release both END the career — a confirmation dialog that says
 plainly "This ends your career at <club>. There is no job market yet.", then the career goes to the
 finished state (the same path as a sacking, with its own reason). No save may ever be left with no
@@ -3072,7 +3072,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, PENDING-R60 | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |
+| R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, 3267c4b | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |
 | R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, bb37664 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
 | R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, 92d928e | migration-fixtures 62/62; six mid-migration kills all recovered |
