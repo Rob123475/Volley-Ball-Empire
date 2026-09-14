@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-55 — CLOSED AS SPECIFIED (14 Sep, R55HASH); ROB TO DECIDE: the "near 0%" target is not met: the board's expectation is a band, not a rank
+### R-55 — CLOSED AS SPECIFIED (14 Sep, 51f83ab); ROB TO DECIDE: the "near 0%" target is not met: the board's expectation is a band, not a rank
 **Symptom (R-54):** established clubs were sacked by ordinary results variance. The strongest pair
 finished 6th-10th in 5 of 26 seasons, and two such seasons in a row sacked against R-53's #2 target.
 
@@ -2686,7 +2686,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, R55HASH | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
+| R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
 | R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, 8bc38c2 | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |
 | R-53 The board reviews seasons against expectations (target at the draw, monthly check, season review, abandonment) | 14 Sep, 393cbac | board-review 50/50: all §5/§5.1 rows match the design, win/loss/forfeit leave confidence unchanged, old code absent (planted lines caught), freeze 403/200, abandonment day 33, review sacking; full harness 24/24, rollover 72/72, 0 of 6 sacked |
 | R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, 696a4e5 | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
