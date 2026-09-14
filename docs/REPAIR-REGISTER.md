@@ -1090,6 +1090,69 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
+### R-53 — OPEN, INVESTIGATED (14 Sep, Rob: MEDIUM; understand it before touching balance): board confidence reacts to the wrong things
+**Symptom (R-48 full run 2):**
+- RollWeak2 and RollWeak3 went 0W 54L in seasons 3 and 4, with $1.06M-$1.50M in the bank, and were
+  never sacked.
+- RollWeak was sacked at 7W 17L in season 1; earlier runs sacked underdogs at 4W 15L, 5W 15L and
+  6W 16L.
+
+**What board confidence actually measures (read from the code, nothing changed):**
+- **Stored value:** `teams.board_confidence`, default 60 (`lib/db/src/schema/game.ts:189`), clamped
+  0-100.
+- **It is written in exactly three places, all results:**
+  - **Win:** +3, or +8 for a Grand Final (`routes/matches.ts:813`, `winConfidenceDelta`). The +5
+    "Continental Final" branch is dead: that tier is no longer on the schedule.
+  - **Loss:** −5 (`routes/matches.ts:844`).
+  - **Forfeit:** −5 (`recordForfeit` in `routes/matches.ts`).
+- **The score shown and acted on is computed when read:** `clamp(stored + financeAdjustment(budget))`
+  (`utils/board-confidence.ts:130-136`). The finance adjustment is:
+  - +5 at $300k or more
+  - 0 at $100k or more
+  - −5 at $50k or more
+  - −15 at $0 or more
+  - −25 in debt
+- **Stages** (`stageForScore`):
+  - ≤0 sacked
+  - <5 "forced sale pending"
+  - <15 spending blocked
+  - <30 warning
+- **Sacking** is checked only after a result (`/simulate`, `/forfeit`).
+- **The forced sale is never carried out.** The only code that touches it (`routes/board-confidence.ts:26-46`)
+  names a target for display.
+
+**What that means:**
+1. **Money above $300k makes sacking impossible.**
+   - The stored value floors at 0, and +5 lifts the score to 5: spending blocked, never sacked, at
+     any record.
+   - That is why RollWeak2 and RollWeak3 survived. Their season-1 results (15-39, 23-31) drove the
+     stored value to 0, but they ended season 1 at $451,680 and $480,260.
+   - The board-confidence-ladder suite asserts it as a property: "a healthy budget alone cannot reach
+     forced_sale_pending or sacked".
+2. **Under $300k an underdog's survival is a race between prize money and losses.**
+   - An underdog starts at $150k (adjustment 0) and stored 60.
+   - 7W 17L is 60 + 21 − 85 < 0, so the club was sacked at that result, still under $300k.
+   - A similar record that banks $300k first cannot be sacked at all.
+3. **The break-even win rate is 62.5%.** A win is +3 and a loss −5, so a club must win 5 of every 8
+   matches just to hold steady.
+   - This ignores difficulty, squad strength, tier, opponent, ranking and finishing position.
+   - An established club finishing #7 at 32W 22L loses confidence (96 − 110 = −14).
+   - An underdog doing better than anyone could expect of it still sinks.
+4. **Nothing else is measured:**
+   - no expectations by difficulty or tier
+   - no season objective or season-end review
+   - no trend, no decay or recovery over time
+   - no weight for titles beyond a Grand Final win, and none for prize money or balance except the
+     four absolute budget brackets (the same for underdog and established)
+5. **A forfeit costs the same −5 as a lost match.** With the floor in point 1, a solvent club with no
+   squad forfeits indefinitely with no consequence from the board.
+
+**Not changed.** Rob: investigate before touching balance. Any fix is a design choice, for example:
+- confidence measured against expectations (difficulty, tier, ranking)
+- an end-of-season review
+- removing the budget floor's sacking immunity
+- a forfeit weighted differently
+
 ### R-41 — CLOSED (12 Sep, with R-29): `harness/run-all.mjs` had not parsed since R-38
 From `39148cb` (R-38, 11 Sep) until R-29's commit, the full harness could not run at all. Suite 9's
 header held a real line break inside a JavaScript string (`console.log("` on one line,
