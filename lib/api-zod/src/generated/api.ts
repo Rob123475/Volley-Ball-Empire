@@ -354,8 +354,7 @@ export const ListPlayersResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -637,8 +636,7 @@ export const ListFreeAgentsResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -901,8 +899,7 @@ export const ListTransferWindowResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -1169,8 +1166,7 @@ export const GetPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -1454,8 +1450,7 @@ export const UpdatePlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -1725,8 +1720,7 @@ export const UpdatePlayerOutfitResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -1992,8 +1986,7 @@ export const ReleasePlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -2259,8 +2252,7 @@ export const RetirePlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -2530,8 +2522,7 @@ export const SetPlayerTrainingFocusResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -2798,8 +2789,7 @@ export const ScoutPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -3170,8 +3160,7 @@ export const GetTeamRosterResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -3424,8 +3413,7 @@ export const GetTeamRosterResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -3678,8 +3666,7 @@ export const GetTeamRosterResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -3932,8 +3919,7 @@ export const GetTeamRosterResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -4186,8 +4172,7 @@ export const GetTeamRosterResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -4502,8 +4487,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -4756,8 +4740,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -5010,8 +4993,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -5264,8 +5246,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -5518,8 +5499,7 @@ export const SwapTeamPlayerResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -5837,8 +5817,7 @@ export const SetPlayerRoleResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -6091,8 +6070,7 @@ export const SetPlayerRoleResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -6345,8 +6323,7 @@ export const SetPlayerRoleResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -6599,8 +6576,7 @@ export const SetPlayerRoleResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -6853,8 +6829,7 @@ export const SetPlayerRoleResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -7163,8 +7138,7 @@ export const ListContractsResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -7454,8 +7428,7 @@ export const GetContractResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -7732,8 +7705,7 @@ export const TerminateContractResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -8200,8 +8172,7 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -8517,8 +8488,7 @@ export const CompleteTrainingResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -8802,8 +8772,7 @@ export const CompleteTrainingResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -9102,8 +9071,7 @@ export const GetTrainingPlanResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -9499,8 +9467,7 @@ export const SimulateMatchResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -10214,8 +10181,7 @@ export const GetDraftPoolResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -10455,8 +10421,7 @@ export const GenerateDraftClassResponseItem = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),
@@ -11108,8 +11073,7 @@ export const GetDashboardResponse = zod.object({
   "errors": zod.number().optional(),
   "tournament_wins": zod.number().optional(),
   "championships": zod.number().optional(),
-  "mvp_awards": zod.number().optional(),
-  "all_star_selections": zod.number().optional()
+  "mvp_awards": zod.number().optional()
 }).optional(),
   "hall_of_fame": zod.object({
   "eligible": zod.boolean().optional(),

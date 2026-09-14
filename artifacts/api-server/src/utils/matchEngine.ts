@@ -86,7 +86,6 @@ const TIER_BASE_RATING: Record<string, number> = {
   "Gold":              76,
   "Continental Final": 80,
   "World Semi Final":  82,
-  "All-Star Match":    84,
   "World Final":       86,
 };
 

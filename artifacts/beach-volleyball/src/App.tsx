@@ -69,7 +69,6 @@ import WtFixtures     from "@/pages/competition/wt-fixtures";
 import WtResults      from "@/pages/competition/wt-results";
 import WtLadder       from "@/pages/competition/wt-ladder";
 import WorldFinals    from "@/pages/competition/world-finals";
-import AllStar        from "@/pages/competition/all-star";
 import WtHistory      from "@/pages/competition/wt-history";
 
 import AnnualCalendar from "@/pages/annual-calendar";
@@ -207,7 +206,6 @@ function Router() {
               <Route path="/competition/wt-results"           component={WtResults}           />
               <Route path="/competition/wt-ladder"            component={WtLadder}            />
               <Route path="/competition/world-finals"         component={WorldFinals}         />
-              <Route path="/competition/all-star"             component={AllStar}             />
               <Route path="/competition/wt-history"           component={WtHistory}           />
 
               {/* Competition — Olympics */}

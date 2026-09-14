@@ -32,14 +32,13 @@ export type Tier =
   | "Elite"
   | "Continental Final"
   | "World Semi Final"
-  | "All-Star Match"
   | "World Final";
 
 export interface WorldTourEvent {
   round:       number;
   /**
    * Canonical continent KEY, or "world" for the two events that belong to no
-   * region (the All-Star match and the World Final). Typed rather than `string`
+   * region (the World Semi Final and the World Final). Typed rather than `string`
    * so a stray label cannot creep back in — this file used to say
    * "Australia & Pacific", an eighth spelling nothing else recognised.
    */

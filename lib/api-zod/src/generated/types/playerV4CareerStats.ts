@@ -18,5 +18,4 @@ export type PlayerV4CareerStats = {
   tournament_wins?: number;
   championships?: number;
   mvp_awards?: number;
-  all_star_selections?: number;
 };

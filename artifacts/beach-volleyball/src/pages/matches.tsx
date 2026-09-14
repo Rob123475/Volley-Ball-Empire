@@ -311,7 +311,7 @@ export default function Matches() {
               </div>
 
               {(() => {
-                const WORLD_FINALS_TIERS = new Set(["World Semi Final", "All-Star Match", "World Final"]);
+                const WORLD_FINALS_TIERS = new Set(["World Semi Final", "World Final"]);
                 const regularFixture = fixture?.filter(m => !WORLD_FINALS_TIERS.has(m.tier ?? "")) ?? [];
                 const finalsMatches  = fixture?.filter(m => WORLD_FINALS_TIERS.has(m.tier ?? "")) ?? [];
                 // The World Finals unlock when the regular World Tour season is
@@ -747,9 +747,9 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
   if (matches.length === 0) return null;
 
   // worldTour.ts schedules exactly one semi final (slot 71) and one final
-  // (slot 72). This looked for two semis at rounds 73/74 and an "All-Star
-  // Match" — all leftovers from an older bracket design that the schedule no
-  // longer produces, so none of these cards ever rendered.
+  // (slot 72). This looked for two semis at rounds 73/74 — leftovers from an
+  // older bracket design that the schedule no longer produces, so none of
+  // these cards ever rendered.
   const semiFinal  = matches.find(m => m.tier === "World Semi Final");
   const worldFinal = matches.find(m => m.tier === "World Final");
   // R-29: a finals match the club did not earn is marked not_qualified by the
@@ -836,10 +836,10 @@ function WorldFinalsSection({ matches, nextMatchId, worldFinalsUnlocked, onSimul
 }
 
 // ── Individual World Finals match card ────────────────────────────────────────
-function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSimulate, isSimulating, activePlayers, isAutoMatch, isExhibition, isFinalMatch }: {
+function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSimulate, isSimulating, activePlayers, isAutoMatch, isFinalMatch }: {
   label: string; subtitle: string; match: any; locked: boolean; isPlayable: boolean;
   onSimulate: (matchId: number, ids: number[]) => void; isSimulating: boolean; activePlayers: any[];
-  isAutoMatch?: boolean; isExhibition?: boolean; isFinalMatch?: boolean;
+  isAutoMatch?: boolean; isFinalMatch?: boolean;
 }) {
   const [selected, setSelected] = useState<number[]>([]);
   const [lineupOpen, setLineupOpen] = useState(false);
@@ -874,28 +874,22 @@ function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSi
       <div className={cn(
         "px-4 py-3 flex items-center justify-between",
         isFinalMatch  ? "bg-gradient-to-r from-yellow-500 via-yellow-400 to-amber-500" :
-        isExhibition  ? "bg-gradient-to-r from-blue-600/80 to-indigo-600/80" :
                         "bg-muted/40"
       )}>
         <div className="flex items-center gap-2">
           {isFinalMatch
             ? <Trophy className="h-5 w-5 text-yellow-900" />
-            : isExhibition
-              ? <Star className="h-5 w-5 text-white" />
-              : <Swords className="h-5 w-5 text-muted-foreground" />}
+            : <Swords className="h-5 w-5 text-muted-foreground" />}
           <div>
             <div className={cn("text-xs font-black uppercase tracking-widest",
-              isFinalMatch ? "text-yellow-900/70" : isExhibition ? "text-white/70" : "text-muted-foreground"
+              isFinalMatch ? "text-yellow-900/70" : "text-muted-foreground"
             )}>{label}</div>
             <div className={cn("text-sm font-bold",
-              isFinalMatch ? "text-yellow-900" : isExhibition ? "text-white" : "text-foreground"
+              isFinalMatch ? "text-yellow-900" : "text-foreground"
             )}>{subtitle}</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isExhibition && (
-            <Badge className="bg-white/20 text-white border-0 text-[10px]">Exhibition</Badge>
-          )}
           {Number(match.prizeAmount) > 0 && (
             <div className={cn("text-right", isFinalMatch ? "text-yellow-900" : "")}>
               <div className="text-base font-black">{formatCurrency(match.prizeAmount ?? 0)}</div>
@@ -958,11 +952,9 @@ function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSi
         {/* Action area */}
         {isPlayable && !isCompleted && (
           <div className="mt-4 pt-3 border-t border-border/30">
-            {isAutoMatch || isExhibition ? (
+            {isAutoMatch ? (
               <Button
-                className={cn("w-full gap-2 font-bold",
-                  isExhibition ? "bg-blue-600 hover:bg-blue-700 text-white" : ""
-                )}
+                className="w-full gap-2 font-bold"
                 disabled={isSimulating || activePlayers.length === 0}
                 onClick={autoSimulate}
                 data-testid={`button-simulate-${match.id}`}
@@ -970,7 +962,7 @@ function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSi
                 {isSimulating
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Play className="h-4 w-4" />}
-                {isExhibition ? "Watch All-Star Match" : "Simulate Result"}
+                Simulate Result
               </Button>
             ) : !lineupOpen ? (
               <MatchActionButtons

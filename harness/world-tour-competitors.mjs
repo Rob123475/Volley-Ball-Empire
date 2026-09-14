@@ -60,7 +60,7 @@ const FIELD = QUALIFIERS + 1;          // + the player's club
 // agrees with any bug in it.
 const TIER_POINTS = {
   "Bronze": 1, "Silver": 2, "Gold": 4, "Continental Final": 6,
-  "World Semi Final": 8, "World Final": 15, "All-Star Match": 0,
+  "World Semi Final": 8, "World Final": 15,
 };
 const TIER_THRESHOLD = { "Bronze": 0, "Silver": 15, "Gold": 40 };
 function awarded(tier, won, pointsBefore) {

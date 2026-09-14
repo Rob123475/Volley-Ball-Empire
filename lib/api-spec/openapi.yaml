@@ -4954,7 +4954,6 @@ components:
             tournament_wins: { type: integer }
             championships: { type: integer }
             mvp_awards: { type: integer }
-            all_star_selections: { type: integer }
         hall_of_fame:
           type: object
           properties:

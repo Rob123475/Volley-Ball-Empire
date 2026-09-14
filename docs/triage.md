@@ -343,3 +343,16 @@ opening the app, not by any check.
 - **Unity sizing is done.** `before-pack.cjs` strips the raw payloads,
   `precompressedUnityAssets.ts` serves the `.br`. Further savings mean a smaller
   Unity export, not packaging changes.
+
+---
+
+## 6. V2 ideas
+
+Not repairs and not scheduled — parked so they are not lost.
+
+- **All-Star events.** Removed on 14 September 2026 (R-45, Rob's decision). No event
+  on the schedule ever produced one: the All-Star page could only say "not yet
+  scheduled", while the fixture, prize, ranking, eligibility and forfeit code carried
+  special cases for a match that never existed. If it returns it should be designed
+  as its own event — who is selected (players across clubs, not one club), when it is
+  played, and whether it pays or ranks — not restored from the removed branches.

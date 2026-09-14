@@ -22,7 +22,6 @@ import {
   CheckCircle2,
   BarChart2,
   ArrowUpDown,
-  Sparkles,
 } from "lucide-react";
 import { GameplayHeader } from "@/components/gameplay-header";
 import { MatchDayModal } from "@/components/match-day-modal";
@@ -104,7 +103,6 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/competition/wt-results",           label: "WT Results",          icon: CheckCircle2 },
       { href: "/competition/wt-ladder",            label: "WT Standings",        icon: BarChart2    },
       { href: "/competition/world-finals",         label: "World Finals",        icon: Trophy       },
-      { href: "/competition/all-star",             label: "All-Star Match",      icon: Sparkles     },
       { href: "/competition/wt-history",           label: "WT History",          icon: FolderOpen   },
       // ── OLYMPICS ─────────────────────────────────────────────────────────
       // R-12: Results / Medal Table / History removed — each was a bare

@@ -40,7 +40,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 // ── Season fixture ────────────────────────────────────────────────────────────
 // Every non-finals event is the regular World Tour season; the World Finals
 // events are scheduled together at a single venue picked per season.
-export const FINALS_TIERS = new Set(["World Semi Final", "All-Star Match", "World Final"]);
+export const FINALS_TIERS = new Set(["World Semi Final", "World Final"]);
 
 /** Shift a hardcoded 2026 schedule date onto the season being played. */
 export function shiftDateToYear(date: string, year: number): string {
@@ -185,13 +185,12 @@ function insertWorldFinals(
 
   for (const f of events) {
     const { weather, windSpeed, temperature } = generateWeather(finalLocId);
-    const isAllStar = f.tier === "All-Star Match";
     tx.insert(matchesTable).values({
       homeTeamId:   team.id,
       awayTeamId:   team.id,
       locationId:   finalLocId,
       locationName: finalsLocationName,
-      homeTeamName: isAllStar ? "Europe / Asia / Oceania All-Stars" : team.name,
+      homeTeamName: team.name,
       awayTeamName: "TBD",
       weather,
       windSpeed,

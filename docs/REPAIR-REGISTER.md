@@ -1002,6 +1002,93 @@ Left as is:
 - A season already drawn before this change keeps its bye-less draw.
 - Screen check is Rob's (R-39).
 
+### R-45 — CLOSED (14 Sep, the commit carrying this entry): All-Star events removed (Rob's decision on WEEKEND-STATUS Q2)
+**Decision (Rob):** delete every remnant of the All-Star events: fixture generation, events,
+tables/columns used only for them, UI references. Report the list before deleting and the new season
+length, and park "All-Star events" in docs/triage.md under V2 ideas.
+
+**Found:**
+- No All-Star event has been on the schedule since the 78-slot season (`data/worldTour.ts` holds
+  none), so no fixture ever contained one.
+- The remnants were special cases for a match that could not exist, the page that waited for it
+  forever, and a player stat nothing could raise.
+- No table or column existed only for it.
+
+**Deleted (the list was reported before deleting):**
+- **Server:**
+  - `data/worldTour.ts`: the `Tier` entry and its comment
+  - `seasonFixture.ts`: the `FINALS_TIERS` entry and the "Europe / Asia / Oceania All-Stars" home-side branch
+  - `routes/matches.ts`: the `isAllStar` flag, its crowd highlight, the zero-prize case, the
+    ranking-credit guard, the whole All-Star early-return result, and the forfeit guard
+  - `game-api.ts`: the Unity result route's guard
+  - `utils/worldTour.ts`: the `worldTourGate` pass-through
+  - `rankingPoints.ts`: `"All-Star Match": 0`
+  - `tierQualification.ts`: `EXHIBITION_TIERS` and the `"exhibition"` eligibility reason
+  - `matchEngine.ts`: tier rating 84
+  - `prizeDistribution.ts`: the "exhibition" comment
+- **Frontend:**
+  - `pages/competition/all-star.tsx` (the file), its `App.tsx` route, the shell nav item, and the
+    World Tour hub tab
+  - `matches.tsx`: the `WORLD_FINALS_TIERS` entry, plus `WorldFinalsMatchCard`'s `isExhibition`
+    styling, badge and "Watch All-Star Match" button
+- **Data:** `players.player_v4` `career_stats.all_star_selections`, 0 for all 276 players.
+  - Removed from the schema type, the OpenAPI spec (clients regenerated), `seed-player-v4.ts`, and
+    the shipped starter DB.
+  - In the starter DB, `json_remove` ran on 276 rows. Each row was verified inside the transaction
+    to differ by that key only, and the WAL was checkpointed into the file.
+  - Existing saves lose the key on their next launch through R-33's reference update, which copies
+    `player_v4`. That was proven on a copy; the live save was not opened.
+- **Scripts/harness:** `migrate-season-78.ts`'s `Tier` type; the world-tour-competitors mirror entry.
+- **Docs:** `docs/triage.md` §6 "V2 ideas: All-Star events"; a note on economy-design's hub tab list.
+  `r10-audit.md`, `WEEKEND-STATUS.md` and this register are left as dated records.
+
+**Season length:** 59 = 57 World Tour rounds (R-44) + World Semi Final + World Final. R-45 does not
+change it, because the fixture never had an All-Star row.
+
+**Harness: new `harness/all-star-removed.mjs`, 12/12:**
+- a fresh career has 59 fixtures and 0 All-Star, through the API and in the DB
+- no line of source, schema, spec, generated client, script or harness mentions an All-Star (only
+  the suite itself and run-all's registration line are exempt)
+- the built server bundle and the served frontend are clean
+- no table, column or value in the shipped starter DB mentions one
+- a pre-R-45 save (the key restored on a copy) loses it on boot through R-33, with every
+  `player_v4` then byte-identical to the shipped one
+- sabotage S1–S3 fail as they must
+
+**Full harness: 19 of 20 suites passed.** Season rollover failed: RollWeak (underdog) was legitimately
+sacked mid-season 1, and the arc harness cannot continue past a sacking (R-47 below).
+
+On the same build, run-all's suites 19+20 were reproduced twice on one server:
+- run 1: smoke 72/72, rollover 40/40
+- run 2: the same sacking
+
+No All-Star code path can run (no All-Star match exists), so the sacking is not caused by R-45.
+
+### R-47 — OPEN (found 14 Sep during R-45): the R-08 arc harness dies when the underdog squad is sacked — Rob's call
+**What happens:**
+- `harness/rollover.mjs`'s R-08 section walks an established and an underdog career through five
+  seasons.
+- When the underdog's losses drive board confidence to zero, the R-09 fail state correctly ends the
+  career on that result (`fired: true`, a dismissal history entry, the session cleared).
+- The harness ignores `fired` and fails on its next advance with an opaque
+  `advance failed: {"error":"No active team"}`.
+
+**Evidence (kept diagnostic DB copy):**
+- RollWeak FC: 6W 16L, `board_confidence` 0, `retired_at` set.
+- History: "RollWeak was sacked by RollWeak FC after board confidence collapsed to zero."
+- Last match: round 33, lost 0-2.
+- Seen in 2 of 4 rollover runs on 14 Sep (the R-45 full run, diagnostic run 2). Passed in the R-44
+  full run and diagnostic run 1.
+
+**Not measured:** whether the sacking rate changed with R-29 (real opponents) or R-44 (57 rounds).
+
+**Decision needed (game design):** is an underdog squad being sacked in season 1 this often intended?
+- **If yes:** the R-08 arc has to treat a sacking as an outcome, and the weak arc then cannot measure
+  five seasons.
+- **If no:** the R-09/R-11 balance changes.
+
+Until decided, a full harness run can fail on this by chance. Nothing was changed for it.
+
 ### R-29 — CLOSED (12 Sep, the commit carrying this entry): the World Tour is a real competition, per career
 World Tour Standings read "1 teams", the World Finals bracket seeded the player #1 with every other
 slot TBD, and the fixtures header said "18 qualified teams" while the ladder held one. Rob's decision
@@ -1726,7 +1813,8 @@ Original entry:
 | R-22 Unity half (skin tone + kit colour) | Unity 32fc43f to 8ea5905; verified on screen 14 Sep | Rob: four distinct tones, home `#0a0` green, away red |
 | R-31 DB checkpointed and closed on quit | 877557c; verified on live save 14 Sep | closed via X: no `-wal`, no `-shm`; harness wal-checkpoint-shutdown 7/7 |
 | R-40 WebGL build rendered an empty court | 195e769, rebuilt 417cdcd; verified on screen 14 Sep | Rob: full venue and four players in the Electron 3D Court |
-| R-44 World Tour byes (57 rounds) | 14 Sep, the R-44 commit | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
+| R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
+| R-45 All-Star events removed | 14 Sep, the R-45 commit | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,

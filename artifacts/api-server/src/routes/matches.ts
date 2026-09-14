@@ -595,7 +595,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const wx = getWeatherEffects(match.weather, matchWindSpeed, matchTemp);
 
   const isFinal        = match.tier === "World Final";
-  const isAllStar      = match.tier === "All-Star Match";
   const isWorldSemiFinal = match.tier === "World Semi Final";
   const isHighPressure = isFinal || isWorldSemiFinal || match.tier === "Continental Final";
 
@@ -666,7 +665,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     "A pinpoint drop shot catches everyone off guard!",
     weatherHighlights[match.weather] ?? "The crowd erupts — what a match!",
     isFinal ? "The crowd erupts as the championship is decided!" : isWorldSemiFinal ? "A place in the Final is on the line!" : "The home crowd goes wild!",
-    isFinal ? "History is made on the sands!" : isWorldSemiFinal ? "One step from the World Final!" : isAllStar ? "The All-Star crowd is electric!" : "A defining moment in the season!",
+    isFinal ? "History is made on the sands!" : isWorldSemiFinal ? "One step from the World Final!" : "A defining moment in the season!",
   ];
   const highlights = Array.from({ length: 4 }, () =>
     highlightTemplates[Math.floor(Math.random() * highlightTemplates.length)]
@@ -676,7 +675,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
     ? activePlayers.reduce((best, p) => (p.power + p.serve) > (best.power + best.serve) ? p : best, activePlayers[0])
     : null;
 
-  // All-Star match is an exhibition: prize is always 0 for standings purposes.
   // Pay exactly what the fixture advertises. The `|| 5000` fallback here meant
   // a match with a zero/absent purse displayed "$0" on the fixture card but
   // still credited $5,000 — the paid figure has to be the quoted figure.
@@ -699,13 +697,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // made every event an all-or-nothing coin flip and was the mechanical cause of
   // I4 failing at 41.5% deviation. See utils/prizeDistribution.ts for why the
   // runner-up share is the design rather than a softening of it.
-  //
-  // An All-Star exhibition still pays nothing to either side: it awards no
-  // ranking points either, and a fixture that pays for turning up with nothing
-  // at stake is exactly the thing worth farming.
-  const prizeEarned = isAllStar
-    ? 0
-    : prizeFor(Number(match.prizeAmount ?? 0), homeWon, prizeMultiplier);
+  const prizeEarned = prizeFor(Number(match.prizeAmount ?? 0), homeWon, prizeMultiplier);
 
   const [updatedMatch] = await db.update(matchesTable).set({
     homeScore,
@@ -717,20 +709,17 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   // Ranking points. competitor_rankings existed since Phase 0 with nothing
   // writing to it — the table tier qualification gates on was always empty.
-  // Exhibitions are excluded: they pay no prize and award no ranking either.
-  if (!isAllStar) {
-    try {
-      await creditRankingPoints({
-        careerSaveId: requireCareerSaveId(req.activeCareerSaveId),
-        teamId:       team.id,
-        seasonYear:   match.season,
-        tier:         match.tier,
-        won:          homeWon,
-      });
-    } catch (err) {
-      // A ranking write must never cost the player the match they just played.
-      req.log.error({ err }, "ranking point accrual failed");
-    }
+  try {
+    await creditRankingPoints({
+      careerSaveId: requireCareerSaveId(req.activeCareerSaveId),
+      teamId:       team.id,
+      seasonYear:   match.season,
+      tier:         match.tier,
+      won:          homeWon,
+    });
+  } catch (err) {
+    // A ranking write must never cost the player the match they just played.
+    req.log.error({ err }, "ranking point accrual failed");
   }
 
   // R-29: the other half of this result belongs to a real club — recorded on
@@ -752,31 +741,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // Leaving it behind pinned the match row in place and broke any later
   // fixture rebuild with a FOREIGN KEY failure.
   await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, id));
-
-  // All-Star exhibition: no standings updates (wins/losses/prize/board confidence unchanged).
-  if (isAllStar) {
-    const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
-    res.json({
-      match:        serializeMatch(updatedMatch),
-      highlights,
-      homeScore,
-      awayScore,
-      winner:       homeWon ? "home" : "away",
-      prizeEarned:  0,
-      mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
-      isFinal:      false,
-      fired:        false,
-      dismissalClubName: null,
-      weather:      match.weather,
-      windSpeed:    matchWindSpeed,
-      temperature:  matchTemp,
-      locationName: match.locationName,
-      weatherImpact: wx.performancePenalty > 0.05 ? match.weather : null,
-      playerEvents,
-      isAllStar:    true,
-    });
-    return;
-  }
 
   if (homeWon) {
     const isChampionship = isFinal && homeWon;
@@ -1167,15 +1131,12 @@ router.post("/matches/:id/forfeit", async (req, res) => {
 
   // R-29: a forfeit used to count in teams.losses only, so the ranking table and
   // the club's own record disagreed, and the opponent was credited nothing.
-  // Exhibitions still score nothing.
-  if (match.tier !== "All-Star Match") {
-    await creditRankingPoints({
-      careerSaveId: forfeitCid, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false,
-    });
-    recordPlayerMatchResult({
-      careerSaveId: forfeitCid, matchId: id, playerWon: false, homeSets: homeScore, awaySets: awayScore, sets: null,
-    });
-  }
+  await creditRankingPoints({
+    careerSaveId: forfeitCid, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false,
+  });
+  recordPlayerMatchResult({
+    careerSaveId: forfeitCid, matchId: id, playerWon: false, homeSets: homeScore, awaySets: awayScore, sets: null,
+  });
 
   const [facilityRows] = await Promise.all([
     db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),

@@ -28,7 +28,7 @@
  * already controls.
  *
  * It is also how real tour purses work. Beach volleyball events pay down the
- * finishing order; only an exhibition pays nothing for turning up.
+ * finishing order.
  *
  * ── The cost, stated up front ──────────────────────────────────────────────
  *

@@ -857,7 +857,8 @@ What the player must be able to see, by stage:
 
 Measured against the actual frontend, not estimated. `artifacts/beach-volleyball`
 has 38 page files and the World Tour hub already carries eight tabs (Overview,
-Calendar, Fixtures, Results, Standings, World Finals, All-Star, History).
+Calendar, Fixtures, Results, Standings, World Finals, All-Star, History; the All-Star tab
+was removed with every other All-Star remnant on 14 Sep, R-45).
 
 **The finding: NONE of the eight rows above is visible anywhere today.**
 `rankingPoints` appears ZERO times in the whole frontend. Every "qualif" match in

@@ -34,8 +34,6 @@ export const TIER_RANKING_POINTS: Record<string, number> = {
   "Continental Final": 6,
   "World Semi Final":  8,
   "World Final":       15,
-  // Exhibition. Deliberately zero — it awards no prize either.
-  "All-Star Match":    0,
 };
 
 export function rankingPointsFor(tier: string | null | undefined, won: boolean): number {

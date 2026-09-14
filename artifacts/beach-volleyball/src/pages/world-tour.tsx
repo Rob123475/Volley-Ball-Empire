@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Globe, Calendar, LayoutList, CheckCircle2, BarChart2, Trophy, Sparkles, FolderOpen, Star } from "lucide-react";
+import { Globe, Calendar, LayoutList, CheckCircle2, BarChart2, Trophy, FolderOpen, Star } from "lucide-react";
 import QualifiedTeams   from "@/pages/competition/qualified-teams";
 import Matches          from "@/pages/matches";
 import WtFixtures       from "@/pages/competition/wt-fixtures";
 import WtResults        from "@/pages/competition/wt-results";
 import WtLadder         from "@/pages/competition/wt-ladder";
 import WorldFinals      from "@/pages/competition/world-finals";
-import AllStar          from "@/pages/competition/all-star";
 import WtHistory        from "@/pages/competition/wt-history";
 
-type Tab = "overview" | "calendar" | "fixtures" | "results" | "standings" | "finals" | "allstar" | "history";
+type Tab = "overview" | "calendar" | "fixtures" | "results" | "standings" | "finals" | "history";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "overview",  label: "Overview",     icon: Globe       },
@@ -19,7 +18,6 @@ const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "results",   label: "Results",      icon: CheckCircle2 },
   { id: "standings", label: "Standings",    icon: BarChart2   },
   { id: "finals",    label: "World Finals", icon: Trophy      },
-  { id: "allstar",   label: "All-Star",     icon: Sparkles    },
   { id: "history",   label: "History",      icon: FolderOpen  },
 ];
 
@@ -50,7 +48,6 @@ export default function WorldTourHub() {
       {tab === "results"   && <WtResults />}
       {tab === "standings" && <WtLadder />}
       {tab === "finals"    && <WorldFinals />}
-      {tab === "allstar"   && <AllStar />}
       {tab === "history"   && <WtHistory />}
     </div>
   );

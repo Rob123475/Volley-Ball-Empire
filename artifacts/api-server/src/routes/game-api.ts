@@ -324,7 +324,7 @@ router.post("/game/match-result", async (req, res) => {
     .set({ homeScore: Number(homeScore), awayScore: Number(awayScore), status: "completed" })
     .where(eq(matchesTable.id, Number(matchId)));
 
-  if (match.tier && match.tier !== "All-Star Match") {
+  if (match.tier) {
     const playerWon = Number(homeScore) > Number(awayScore);
     await creditRankingPoints({
       careerSaveId: cid, teamId: team.id, seasonYear: match.season, tier: match.tier, won: playerWon,

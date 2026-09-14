@@ -14,7 +14,7 @@ function quickWeather() {
 }
 
 // Inline WT data — same 62-entry structure as worldTour.ts
-type Tier = "Bronze" | "Silver" | "Gold" | "Elite" | "Continental Final" | "World Semi Final" | "All-Star Match" | "World Final";
+type Tier = "Bronze" | "Silver" | "Gold" | "Elite" | "Continental Final" | "World Semi Final" | "World Final";
 interface WTEvent {
   round: number; continent: string; country: string; city: string;
   beachName: string; displayName: string; date: string; locId: number;

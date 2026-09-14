@@ -392,7 +392,7 @@ function buildV4(p: {
   const career_stats = {
     matches_played:   0, wins: 0, losses: 0, aces: 0, blocks: 0,
     kills: 0, digs: 0, errors: 0, tournament_wins: 0, championships: 0,
-    mvp_awards: 0, all_star_selections: 0,
+    mvp_awards: 0,
   };
 
   // hall of fame

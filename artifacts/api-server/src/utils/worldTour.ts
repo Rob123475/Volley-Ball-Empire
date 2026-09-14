@@ -798,8 +798,7 @@ export const NOT_QUALIFIED_MESSAGE = "Your club did not qualify for this World F
  * by Unity: bring the tour up to its round and make sure the match has a real,
  * drawn opponent. Returns a message for a 409, or null when it may proceed.
  *
- * Friendlies (no tier) and the All-Star exhibition are not World Tour fixtures
- * and pass straight through.
+ * Friendlies (no tier) are not World Tour fixtures and pass straight through.
  */
 export async function worldTourGate(
   careerSaveId: number,
@@ -808,7 +807,7 @@ export async function worldTourGate(
 ): Promise<string | null> {
   if (match.status === NOT_QUALIFIED) return NOT_QUALIFIED_MESSAGE;
   if (match.status === BYE) return BYE_MESSAGE;
-  if (!match.tier || match.tier === "All-Star Match") return null;
+  if (!match.tier) return null;
   if (match.round < WORLD_TOUR_START || match.round > FINALS_END) return null;
 
   const wt = await advanceWorldTour({

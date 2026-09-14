@@ -141,7 +141,7 @@ export type PlayerV4 = {
   career_stats: {
     matches_played: number; wins: number; losses: number; aces: number;
     blocks: number; kills: number; digs: number; errors: number;
-    tournament_wins: number; championships: number; mvp_awards: number; all_star_selections: number;
+    tournament_wins: number; championships: number; mvp_awards: number;
   };
   hall_of_fame: {
     eligible: boolean; score: number; legacy_rating: number;

@@ -36,15 +36,11 @@ const QUALIFICATION_TIERS = new Set([
   "Continental Final", "World Semi Final", "World Final",
 ]);
 
-/** Exhibition: no prize, no ranking, no gate. */
-const EXHIBITION_TIERS = new Set(["All-Star Match"]);
-
 export type EligibilityReason =
   | "open"              // this tier is unlocked
   | "below_threshold"   // not enough ranking points yet
   | "above_tier"        // pushed out: D4(b), scores nothing
-  | "qualification"     // finals — decided by standings, not ranking
-  | "exhibition";
+  | "qualification";    // finals — decided by standings, not ranking
 
 export type Eligibility = {
   eligible: boolean;
@@ -69,9 +65,6 @@ export type Eligibility = {
 export function eligibilityFor(tier: string | null | undefined, points: number): Eligibility {
   const t = tier ?? "";
 
-  if (EXHIBITION_TIERS.has(t)) {
-    return { eligible: true, reason: "exhibition", threshold: null, currentPoints: points, gap: null, scores: false };
-  }
   if (QUALIFICATION_TIERS.has(t)) {
     return { eligible: true, reason: "qualification", threshold: null, currentPoints: points, gap: null, scores: true };
   }
