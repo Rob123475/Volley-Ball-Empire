@@ -27,7 +27,7 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-52 — CLOSED (14 Sep, R52_COMMIT_HASH): a spending freeze blocked contract renewal, so a solvent club could lose its squad and forfeit whole seasons
+### R-52 — CLOSED (14 Sep, 696a4e5): a spending freeze blocked contract renewal, so a solvent club could lose its squad and forfeit whole seasons
 **What happens:**
 - R-51's renewal applies the board's spending gate, the same gate as signing.
 - A club in the `spending_blocked` stage therefore cannot renew. Its squad lapses at the next season
@@ -56,7 +56,7 @@ forfeited" for every refused season, where a refusal lapses the squad at the NEX
 **Rob's decision (14 Sep):** exempt renewals at unchanged terms from the spending freeze. A freeze
 blocks new spending, not keeping the squad you have on the same terms.
 
-**What changed (R52_COMMIT_HASH):**
+**What changed (696a4e5):**
 - **`POST /contracts/:id/renew`** takes an optional `salary`, and omitted means unchanged.
   - Only a raise (above the current salary) meets the board's spending gate, with a 403 that
     says a same-terms renewal is still allowed.
@@ -2291,7 +2291,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, R52_COMMIT_HASH | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
+| R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, 696a4e5 | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
 | R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + dc8fbc6 | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |
 | R-51 Contract renewal; expiry warned and dated on the game clock | 14 Sep, c41cad2 | contract-renewal 18/18: renew one season in its final season, refusals 409/404/401/403, warnings at 21/11 game days, signing dated on the game clock |
 | R-47 R-08 arc reports sackings | 14 Sep, 04f7830 | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
