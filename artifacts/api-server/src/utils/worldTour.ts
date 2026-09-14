@@ -836,35 +836,40 @@ export type WorldFinalsSummary = {
 export function worldFinalsSummary(
   careerSaveId: number, seasonYear: number, playerTeamId: number,
 ): WorldFinalsSummary {
-  return db.transaction((tx): WorldFinalsSummary => {
-    const semis = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_START);
-    if (semis.length === 0) {
-      return { seeded: false, playerQualified: null, playerResult: null, champion: null, runnerUp: null };
-    }
-    const player = competitorIdForTeamTx(tx, playerTeamId);
-    const inSemis = semis.some((s) => s.homeCompetitorId === player || s.awayCompetitorId === player);
-    const final = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_END)[0];
+  return db.transaction((tx) => worldFinalsSummaryTx(tx, careerSaveId, seasonYear, playerTeamId));
+}
 
-    let championId: number | null = null;
-    let runnerUpId: number | null = null;
-    if (final && final.status === "completed") {
-      const homeWon = (final.homeSets ?? 0) > (final.awaySets ?? 0);
-      championId = homeWon ? final.homeCompetitorId : final.awayCompetitorId;
-      runnerUpId = homeWon ? final.awayCompetitorId : final.homeCompetitorId;
-    }
-    const decided = championId != null;
-    const playerResult: WorldFinalsSummary["playerResult"] = !inSemis ? "did not qualify"
-      : championId === player ? "champion"
-      : runnerUpId === player ? "runner-up"
-      : decided ? "semi-finalist"
-      : null;
+/** The same, inside the caller's transaction — R-53's board review runs in the rollover's. */
+export function worldFinalsSummaryTx(
+  tx: Tx, careerSaveId: number, seasonYear: number, playerTeamId: number,
+): WorldFinalsSummary {
+  const semis = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_START);
+  if (semis.length === 0) {
+    return { seeded: false, playerQualified: null, playerResult: null, champion: null, runnerUp: null };
+  }
+  const player = competitorIdForTeamTx(tx, playerTeamId);
+  const inSemis = semis.some((s) => s.homeCompetitorId === player || s.awayCompetitorId === player);
+  const final = roundFixturesTx(tx, careerSaveId, seasonYear, FINALS_END)[0];
 
-    return {
-      seeded: true,
-      playerQualified: inSemis,
-      playerResult,
-      champion: championId != null ? competitorNameTx(tx, championId) : null,
-      runnerUp: runnerUpId != null ? competitorNameTx(tx, runnerUpId) : null,
-    };
-  });
+  let championId: number | null = null;
+  let runnerUpId: number | null = null;
+  if (final && final.status === "completed") {
+    const homeWon = (final.homeSets ?? 0) > (final.awaySets ?? 0);
+    championId = homeWon ? final.homeCompetitorId : final.awayCompetitorId;
+    runnerUpId = homeWon ? final.awayCompetitorId : final.homeCompetitorId;
+  }
+  const decided = championId != null;
+  const playerResult: WorldFinalsSummary["playerResult"] = !inSemis ? "did not qualify"
+    : championId === player ? "champion"
+    : runnerUpId === player ? "runner-up"
+    : decided ? "semi-finalist"
+    : null;
+
+  return {
+    seeded: true,
+    playerQualified: inSemis,
+    playerResult,
+    champion: championId != null ? competitorNameTx(tx, championId) : null,
+    runnerUp: runnerUpId != null ? competitorNameTx(tx, runnerUpId) : null,
+  };
 }

@@ -14,6 +14,7 @@ import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad
 import { FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
+import { ensureBoardSeason } from "../utils/board-confidence.js";
 import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
 import {
   isCareerDifficulty, startingBudgetFor, startingRankingPointsFor,
@@ -254,6 +255,10 @@ router.post("/careers", async (req, res) => {
     isOlympicSeason:         false,
     regionalRoundsProcessed: 0,
   }).returning();
+
+  // R-53: the board's first season, opened on the starting budget — the
+  // balance season 1's money places are measured from.
+  ensureBoardSeason(inserted!.id, season1!.year, newTeam.id);
 
   // A startup squad so the manager isn't staring at zero players (R-04).
   // R-11: quality now follows difficulty — see seedStartingSquad.ts.

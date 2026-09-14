@@ -91,11 +91,13 @@ async function renewExpiringContracts(api) {
 /**
  * Same shape as advanceToBoundary, but plays every pending match for real.
  *
- * R-47: a sacking is a result, not a harness failure. When the board ends the
- * career on a result (R-09's fail state: the result comes back `fired: true`),
- * the season stops there and is returned as `sacked`. The career's session no
- * longer has an active team, so the season's record is counted here from the
- * results themselves rather than read from GET /team afterwards.
+ * R-47: a sacking is a result, not a harness failure. R-53: the board sacks in
+ * two places only — at the season review (the boundary comes back as
+ * `seasonRollover.kind === "sacked"` with the review), or for abandonment at a
+ * forfeit (`fired: true`). Either way the season stops there and is returned as
+ * `sacked`. The career's session no longer has an active team, so the season's
+ * record is counted here from the results themselves rather than read from
+ * GET /team afterwards.
  */
 async function advanceToBoundaryPlaying(api, maxDays = 500) {
   const renewal = await renewExpiringContracts(api);
@@ -107,11 +109,14 @@ async function advanceToBoundaryPlaying(api, maxDays = 500) {
       const played = await playPendingMatch(api, r.data.pendingMatchId);
       if ((played.data?.homeScore ?? 0) > (played.data?.awayScore ?? 0)) wins++; else losses++;
       if (played.data?.fired) {
-        return { sacked: { club: played.data.dismissalClubName ?? null, record: `${wins}W ${losses}L` }, days: i + 1, renewal };
+        return { sacked: { club: played.data.dismissalClubName ?? null, record: `${wins}W ${losses}L`, why: "abandonment" }, days: i + 1, renewal };
       }
       continue;
     }
     const roll = r.data?.seasonRollover;
+    if (roll?.kind === "sacked") {
+      return { sacked: { club: r.data.dismissalClubName ?? null, record: `${wins}W ${losses}L`, why: "review", review: roll.review }, days: i + 1, renewal };
+    }
     if (roll && roll.kind !== "none") return { roll, days: i + 1, body: r.data, renewal };
   }
   return null;
@@ -174,6 +179,12 @@ async function advanceToBoundary(api, maxDays = 500) {
   for (let season = 1; season <= 6; season++) {
     const hit = await advanceToBoundary(A);
     if (!hit) { check(`reached boundary ${season}`, false, "never rolled over"); break; }
+    // R-53: a sacking at the review is a legitimate board result, but this walk
+    // exists to cross all five boundaries, so it cannot continue past one.
+    if (hit.roll.kind === "sacked") {
+      check(`RollA crossed boundary ${season}`, false, `sacked at the season ${hit.roll.fromSeason} review: ${hit.roll.review?.text}`);
+      break;
+    }
     if (hit.roll.kind === "career-complete") { complete = hit; break; }
     seen.push(hit.roll);
     seenBodies.push(hit.body);
@@ -390,6 +401,7 @@ async function advanceToBoundary(api, maxDays = 500) {
 
     const seasons = [];
     let sacked = null;
+    let verdict = null;
     const renewals = [];
     let prevWins = team.wins, prevLosses = team.losses;
 
@@ -406,13 +418,16 @@ async function advanceToBoundary(api, maxDays = 500) {
       // R-47: sacked by the board — the career ends here, and that is the result.
       renewals.push({ season, ...hit.renewal });
       if (hit.sacked) {
-        sacked = { season, year: activeYear, record: hit.sacked.record, club: hit.sacked.club };
-        console.log(`    season ${season} (${activeYear}): SACKED after ${hit.sacked.record} (board confidence reached zero, R-09) — career over`);
+        sacked = { season, year: activeYear, record: hit.sacked.record, club: hit.sacked.club, why: hit.sacked.why, review: hit.sacked.review ?? null };
+        console.log(hit.sacked.why === "review"
+          ? `    season ${season} (${activeYear}): SACKED at the season review after ${hit.sacked.record} — ${hit.sacked.review?.text}`
+          : `    season ${season} (${activeYear}): SACKED for abandonment after ${hit.sacked.record} — 30 game days without two contracted players`);
         break;
       }
 
       if (hit.roll.kind === "career-complete") {
-        console.log(`    career complete after season ${hit.roll.finalSeason}`);
+        verdict = hit.roll.review ?? null;
+        console.log(`    career complete after season ${hit.roll.finalSeason} — ${verdict?.text}`);
         break;
       }
 
@@ -448,6 +463,8 @@ async function advanceToBoundary(api, maxDays = 500) {
         champion: review.data?.worldFinals?.champion ?? "?",
         notQualified: review.data?.fixture?.notQualified ?? null,
         byes: review.data?.fixture?.byes ?? null,
+        // R-53: the board's review of this season, as the rollover returned it.
+        board: hit.roll.review ?? null,
       };
       seasons.push(row);
       console.log(
@@ -455,9 +472,10 @@ async function advanceToBoundary(api, maxDays = 500) {
         `${row.rankingPoints ?? "?"} ranking pts  ·  ${row.tier} tier  ·  $${row.balance.toLocaleString()} balance  ·  ` +
         `#${row.rank ?? "?"} in the field  ·  finals: ${row.finals}  ·  champion: ${row.champion}`,
       );
+      console.log(`      board: ${row.board?.text ?? "NO REVIEW"}`);
     }
 
-    return { label, difficulty, seasons, fixtureSize, sacked, renewals };
+    return { label, difficulty, seasons, fixtureSize, sacked, renewals, verdict };
   }
 
   // R-47: a sacking is a legitimate result, so one career per arc could only say
@@ -518,6 +536,14 @@ async function advanceToBoundary(api, maxDays = 500) {
     check(`${arc.label}: no season was a 0W 0L walkover`,
       arc.seasons.every((r) => r.played > 0),
       arc.seasons.map((r) => r.record).join(" | "));
+
+    // R-53: every season the board closed carries its review — each measured
+    // season, the season a review sacked in, and the season-5 verdict.
+    const reviews = [...arc.seasons.map((r) => r.board), ...(arc.sacked?.why === "review" ? [arc.sacked.review] : []), ...(arc.verdict ? [arc.verdict] : [])];
+    const expectedReviews = arc.seasons.length + (arc.sacked?.why === "review" ? 1 : 0) + (arc.sacked ? 0 : 1);
+    check(`${arc.label}: the board reviewed every season it closed`,
+      reviews.length === expectedReviews && reviews.every((v) => v && typeof v.text === "string" && v.outcome),
+      `${reviews.filter(Boolean).length}/${expectedReviews} reviews`);
   }
 
 
@@ -531,7 +557,7 @@ async function advanceToBoundary(api, maxDays = 500) {
       if (row) {
         return `${row.record} / ${row.played}/${arc.fixtureSize} / ${row.rankingPoints ?? "?"} / ${row.tier} / $${row.balance.toLocaleString()} / #${row.rank ?? "?"} / ${row.finals}`;
       }
-      if (arc.sacked && arc.sacked.season === i + 1) return `SACKED after ${arc.sacked.record}`;
+      if (arc.sacked && arc.sacked.season === i + 1) return `SACKED (${arc.sacked.why}) after ${arc.sacked.record}`;
       return "—";
     };
     console.log(`  ${(i + 1).toString().padStart(6)} | ${fmt(strong).padEnd(80)} | ${fmt(weak)}`);
@@ -544,13 +570,25 @@ async function advanceToBoundary(api, maxDays = 500) {
     console.log(`  ${label}: sacked in ${sackedRuns.length} of ${runs.length} careers (${Math.round(100 * sackedRuns.length / runs.length)}%)`);
     for (const r of runs) {
       const seasonsText = r.seasons.map((x) => x.record).join(" | ");
-      console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED in season ${r.sacked.season} after ${r.sacked.record}` : "  ->  career complete"}`);
+      console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED (${r.sacked.why}) in season ${r.sacked.season} after ${r.sacked.record}` : "  ->  career complete"}`);
       // R-48: a refused renewal lapses the squad at the FOLLOWING season boundary.
       const refusedSeasons = (r.renewals ?? []).filter((x) => x.refused.length > 0).map((x) => x.season);
       if (refusedSeasons.length > 0) {
         console.log(`      renewal refused at the start of season(s) ${refusedSeasons.join(", ")}: the squad lapses at the following season boundary`);
       }
     }
+  }
+
+  // R-53: the board's review of every season, in its own words.
+  console.log("\n  ── Board reviews, per season (R-53) ──");
+  for (const arc of [...strongRuns, ...weakRuns]) {
+    const lines = [
+      ...arc.seasons.map((r) => r.board?.text ?? `Season ${r.season}: NO REVIEW`),
+      ...(arc.sacked?.why === "review" ? [arc.sacked.review?.text] : []),
+      ...(arc.sacked?.why === "abandonment" ? [`Season ${arc.sacked.season}: sacked for abandonment after ${arc.sacked.record}`] : []),
+      ...(arc.verdict ? [arc.verdict.text] : []),
+    ];
+    for (const line of lines) console.log(`  ${arc.label.padEnd(12)} ${line}`);
   }
 
   // R-29, Rob's pass condition: the player must NOT win every season by default.

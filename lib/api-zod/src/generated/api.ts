@@ -9504,7 +9504,7 @@ export const SimulateMatchResponse = zod.object({
   "winner": zod.enum(['home', 'away', 'draw']),
   "prizeEarned": zod.number(),
   "isFinal": zod.boolean(),
-  "fired": zod.boolean().describe('True if the manager was sacked as a result of this match (board confidence hit zero, R-09)'),
+  "fired": zod.boolean().optional().describe('Only on a forfeit. True if the board sacked the manager for abandonment: the club had been unable to field two contracted players for 30 game days (R-53). No match result sacks a manager; the board judges the season at its review.'),
   "careerEnded": zod.boolean().optional().describe('Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen'),
   "dismissalClubName": zod.string().nullish().describe('The club name that dismissed the manager (only set when fired is true)'),
   "mvp": zod.object({
@@ -10103,39 +10103,35 @@ export const GetSponsorReputationResponse = zod.object({
 
 
 /**
- * @summary Get current board confidence score, label and warnings
+ * @summary The board's expectation for this season, its verdict so far and its last review (R-53)
  */
-export const getBoardConfidenceResponseScoreMin = 0;
-export const getBoardConfidenceResponseScoreMax = 100;
-
-export const getBoardConfidenceResponseRawScoreMin = 0;
-export const getBoardConfidenceResponseRawScoreMax = 100;
+export const getBoardConfidenceResponseConfidenceMin = 0;
+export const getBoardConfidenceResponseConfidenceMax = 100;
 
 
 
 export const GetBoardConfidenceResponse = zod.object({
-  "score": zod.number().min(getBoardConfidenceResponseScoreMin).max(getBoardConfidenceResponseScoreMax),
-  "rawScore": zod.number().min(getBoardConfidenceResponseRawScoreMin).max(getBoardConfidenceResponseRawScoreMax),
-  "financeAdjustment": zod.number(),
-  "label": zod.string(),
-  "warning": zod.string().nullish(),
-  "isJobAtRisk": zod.boolean(),
-  "stage": zod.enum(['safe', 'warning', 'spending_blocked', 'forced_sale_pending', 'sacked']).describe('The escalation-ladder stage (docs\/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked.'),
-  "spendingBlocked": zod.boolean().describe('True at spending_blocked and every stage beyond it.'),
-  "forcedSale": zod.object({
-  "pending": zod.boolean(),
-  "player": zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "salary": zod.number()
-}).nullable()
-}).nullish(),
-  "careerEnded": zod.boolean().describe('True when this read itself just ended the career (stage was \"sacked\"). The client should route to the career-end screen.'),
-  "breakdown": zod.object({
-  "financeHealth": zod.string(),
-  "recentForm": zod.string()
-})
-})
+  "seasonYear": zod.number(),
+  "confidence": zod.number().min(getBoardConfidenceResponseConfidenceMin).max(getBoardConfidenceResponseConfidenceMax).describe('Carried from season to season, starting at 60. Only the season review moves it.'),
+  "stage": zod.enum(['safe', 'warning', 'spending_freeze', 'final_warning']).describe('safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season\'s review gave one).'),
+  "spendingBlocked": zod.boolean().describe('New signings, staff hires, facility upgrades and renewals at a raise are refused. Renewing on the same terms is still allowed (R-52).'),
+  "expectation": zod.string().describe('What the board expects this season, in plain words.'),
+  "verdict": zod.string().describe('The board\'s verdict so far this season (or its review, once held), in plain words.'),
+  "target": zod.number().nullable().describe('The target finish in the World Tour standings, set at the draw; null before it.'),
+  "strengthRank": zod.number().nullable().describe('Where the club\'s best contracted pair ranks in the drawn field.'),
+  "projectedFinish": zod.number().nullable().describe('The club\'s standings rank at the board\'s last monthly check.'),
+  "projectedGrade": zod.string().nullable().describe('far_exceeded, exceeded, met, missed, failed or failed_badly at the last monthly check.'),
+  "lastReview": zod.object({
+  "seasonYear": zod.number(),
+  "finish": zod.number(),
+  "target": zod.number(),
+  "grade": zod.string(),
+  "outcome": zod.enum(['safe', 'final_warning', 'sacked', 'verdict']),
+  "confidenceBefore": zod.number(),
+  "confidenceAfter": zod.number(),
+  "text": zod.string()
+}).nullable().describe('The most recent season review.')
+}).describe('The board\'s view of the season (R-53, docs\/r53-design.md): what it expects, its verdict so far and its last season review, in plain words with the numbers behind them. Reading it never ends a career.')
 
 
 /**

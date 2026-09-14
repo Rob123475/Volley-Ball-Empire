@@ -524,6 +524,12 @@ debt or underperformance ends the career early. isJobAtRisk currently has zero
 consumers — wire it. Escalate visibly: warnings → blocked spending → forced
 player sales → sacked. The player must always see it coming.
 
+> **Superseded by R-53 (14 Sep 2026): `docs/r53-design.md`.** The board now sets
+> a target finish at the World Tour draw from squad strength, difficulty and
+> money; watches the standings monthly (warning, spending freeze); and judges
+> the season at a review, sacking only there (or for abandonment). The forced
+> sale was deleted. The per-result meter described above no longer exists.
+
 ### 6. Season rollover — MINIMAL, because the arc is bounded
 Over five seasons the world does not need to regenerate itself:
 - Age players by one year at the season boundary. (Currently zero code does this.)

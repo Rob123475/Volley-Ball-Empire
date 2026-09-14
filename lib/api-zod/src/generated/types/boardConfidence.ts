@@ -5,33 +5,51 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
-import type { BoardConfidenceBreakdown } from './boardConfidenceBreakdown';
-import type { BoardConfidenceForcedSale } from './boardConfidenceForcedSale';
+import type { BoardConfidenceLastReview } from './boardConfidenceLastReview';
 import type { BoardConfidenceStage } from './boardConfidenceStage';
 
+/**
+ * The board's view of the season (R-53, docs/r53-design.md): what it expects, its verdict so far and its last season review, in plain words with the numbers behind them. Reading it never ends a career.
+ */
 export interface BoardConfidence {
+  seasonYear: number;
   /**
+     * Carried from season to season, starting at 60. Only the season review moves it.
      * @minimum 0
      * @maximum 100
      */
-  score: number;
-  /**
-     * @minimum 0
-     * @maximum 100
-     */
-  rawScore: number;
-  financeAdjustment: number;
-  label: string;
-  /** @nullable */
-  warning?: string | null;
-  isJobAtRisk: boolean;
-  /** The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked. */
+  confidence: number;
+  /** safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season's review gave one). */
   stage: BoardConfidenceStage;
-  /** True at spending_blocked and every stage beyond it. */
+  /** New signings, staff hires, facility upgrades and renewals at a raise are refused. Renewing on the same terms is still allowed (R-52). */
   spendingBlocked: boolean;
-  /** @nullable */
-  forcedSale?: BoardConfidenceForcedSale;
-  /** True when this read itself just ended the career (stage was "sacked"). The client should route to the career-end screen. */
-  careerEnded: boolean;
-  breakdown: BoardConfidenceBreakdown;
+  /** What the board expects this season, in plain words. */
+  expectation: string;
+  /** The board's verdict so far this season (or its review, once held), in plain words. */
+  verdict: string;
+  /**
+     * The target finish in the World Tour standings, set at the draw; null before it.
+     * @nullable
+     */
+  target: number | null;
+  /**
+     * Where the club's best contracted pair ranks in the drawn field.
+     * @nullable
+     */
+  strengthRank: number | null;
+  /**
+     * The club's standings rank at the board's last monthly check.
+     * @nullable
+     */
+  projectedFinish: number | null;
+  /**
+     * far_exceeded, exceeded, met, missed, failed or failed_badly at the last monthly check.
+     * @nullable
+     */
+  projectedGrade: string | null;
+  /**
+     * The most recent season review.
+     * @nullable
+     */
+  lastReview: BoardConfidenceLastReview;
 }

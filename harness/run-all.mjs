@@ -115,11 +115,12 @@ runSuite("fixture transaction", path.join(REPO, "harness", "fixture-transaction.
 console.log("\n########## 14/24  CAREER DIFFICULTY (R-11) ##########");
 runSuite("career difficulty", path.join(REPO, "harness", "career-difficulty.mjs"));
 
-// Own throwaway DB + server, same reasoning as fixture-transaction.mjs: the
-// ladder's stage boundaries are read-time arithmetic, so direct-DB sabotage
-// (not RNG-driven match simulation) is what actually proves each boundary.
-console.log("\n########## 15/24  BOARD CONFIDENCE ESCALATION LADDER (R-09) ##########");
-runSuite("board confidence ladder", path.join(REPO, "harness", "board-confidence-ladder.mjs"));
+// Own throwaway DB + server. R-53 replaced R-09's per-result ladder: the
+// review rules over the design's own career tables, the target at the draw,
+// the monthly freeze, abandonment and a sacking at the season review, plus
+// proof the old +3/-5 path is gone.
+console.log("\n########## 15/24  BOARD SEASON REVIEW (R-53) ##########");
+runSuite("board review", path.join(REPO, "harness", "board-review.mjs"));
 
 // R-29: two careers, a dozen real World Tour rounds each, every AI result and
 // ranking point reconciled against its fixtures, plus sabotaged copies the

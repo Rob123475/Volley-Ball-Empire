@@ -12,8 +12,9 @@
  *             says matches are forfeited
  *   watch     the live match refuses to start (409, squadIncomplete)
  *   simulate  the match is a forfeit: 0-2, completed, the result says why, one
- *             more loss, board confidence down 5, the opponent credited on the
- *             World Tour fixture, the ranking row carries the loss
+ *             more loss, board confidence unchanged and the forfeit counted for
+ *             the board's review (R-53), the opponent credited on the World Tour
+ *             fixture, the ranking row carries the loss
  *   control   a club with its full squad plays the same kind of match for real:
  *             not a forfeit, a legal best-of-three with set scores
  *
@@ -148,6 +149,7 @@ try {
     `HTTP ${watch.status} ${JSON.stringify(watch.data)}`);
 
   const teamBefore = read(`SELECT losses, board_confidence FROM teams WHERE id = ?`, a.teamId)[0];
+  const boardBefore = read(`SELECT forfeits FROM board_seasons WHERE career_save_id = ? AND season_year = 2026`, a.careerSaveId)[0];
   const sim = await A("POST", `/matches/${matchA}/simulate`, {});
   check("simulating it is a forfeit, and says why",
     sim.status === 200 && sim.data?.forfeit === true && sim.data?.squadIncomplete === true && /Contracts page/.test(sim.data?.reason ?? ""),
@@ -156,9 +158,11 @@ try {
   check("the match is completed 0-2 with no sets played", matchRow?.status === "completed" && matchRow.home_score === 0 && matchRow.away_score === 2 && matchRow.sets == null,
     JSON.stringify(matchRow));
   const teamAfter = read(`SELECT losses, board_confidence FROM teams WHERE id = ?`, a.teamId)[0];
-  check("one more loss and board confidence down 5, as a manual forfeit",
-    teamAfter.losses === teamBefore.losses + 1 && teamAfter.board_confidence === Math.max(0, teamBefore.board_confidence - 5),
-    `losses ${teamBefore.losses}->${teamAfter.losses}, confidence ${teamBefore.board_confidence}->${teamAfter.board_confidence}`);
+  const boardAfter = read(`SELECT forfeits FROM board_seasons WHERE career_save_id = ? AND season_year = 2026`, a.careerSaveId)[0];
+  check("one more loss; board confidence unchanged and the board counts the forfeit, as a manual forfeit (R-53)",
+    teamAfter.losses === teamBefore.losses + 1 && teamAfter.board_confidence === teamBefore.board_confidence
+      && boardAfter?.forfeits === (boardBefore?.forfeits ?? -1) + 1,
+    `losses ${teamBefore.losses}->${teamAfter.losses}, confidence ${teamBefore.board_confidence}->${teamAfter.board_confidence}, board forfeits ${boardBefore?.forfeits}->${boardAfter?.forfeits}`);
   const fixture = read(`SELECT status, home_sets, away_sets FROM world_tour_fixtures WHERE match_id = ?`, matchA)[0];
   check("the World Tour fixture records the opponent's win", fixture?.status === "completed" && fixture.home_sets === 0 && fixture.away_sets === 2,
     JSON.stringify(fixture));

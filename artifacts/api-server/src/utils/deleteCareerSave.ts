@@ -7,6 +7,7 @@ import {
   competitorRankingsTable,
   worldTourFixturesTable,
   playerRankingPointsTable,
+  boardSeasonsTable,
   poachingOffersTable,
   careerHistoryEntriesTable,
 } from "@workspace/db";
@@ -43,6 +44,8 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(worldTourFixturesTable).where(eq(worldTourFixturesTable.careerSaveId, careerSaveId)).run();
     // R-46: per-player World Tour points reference the save (NOT NULL).
     t.delete(playerRankingPointsTable).where(eq(playerRankingPointsTable.careerSaveId, careerSaveId)).run();
+    // R-53: the board's season rows reference the save (NOT NULL).
+    t.delete(boardSeasonsTable).where(eq(boardSeasonsTable.careerSaveId, careerSaveId)).run();
     t.delete(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).run();
   };
 

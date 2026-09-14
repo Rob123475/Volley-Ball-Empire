@@ -6,6 +6,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 import { worldTourStandingsTx } from "./worldTour.js";
+import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-confidence.js";
 
 /**
  * Season rollover.
@@ -69,10 +70,12 @@ export const FIRST_SEASON_YEAR = 2026;
 export const seasonNumberForYear = (year: number) => year - FIRST_SEASON_YEAR + 1;
 export const yearForSeasonNumber = (n: number) => FIRST_SEASON_YEAR + n - 1;
 
+/** Every closed season carries the board's review of it (R-53). */
 export type RolloverResult =
   | { kind: "none" }
-  | { kind: "career-complete"; finalSeason: number }
-  | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number };
+  | { kind: "career-complete"; finalSeason: number; review: SeasonReview }
+  | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: SeasonReview }
+  | { kind: "sacked"; fromSeason: number; review: SeasonReview };
 
 /**
  * Close the active season and open the next one, or end the career.
@@ -169,6 +172,17 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       }
     }
 
+    // ── R-53: the board's season review ────────────────────────────────────
+    // Finish against the target set at the draw, honours, money. In the same
+    // transaction as the season closing, so no season closes without its
+    // verdict. A sacking closes this season and opens no other: the calendar
+    // route ends the career once this commits. Season 5's review is the
+    // career verdict and cannot sack.
+    const review = boardReviewTx(tx, careerSaveId, season.year, teamId, current >= FINAL_SEASON);
+    if (review.outcome === "sacked") {
+      return { kind: "sacked", fromSeason: current, review } as const;
+    }
+
     if (current >= FINAL_SEASON) {
       // Terminal. Phase 6 renders the career-end result and score; this only
       // records that the arc is over so nothing keeps advancing.
@@ -176,7 +190,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
         .set({ retiredAt: new Date() })
         .where(eq(careerSavesTable.id, careerSaveId))
         .run();
-      return { kind: "career-complete", finalSeason: current } as const;
+      return { kind: "career-complete", finalSeason: current, review } as const;
     }
 
     const nextNumber = current + 1;
@@ -226,11 +240,16 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       ensureSeasonFixtureRows(tx, { id: teamId, name: team.name }, nextYear);
     }
 
+    // R-53: the board's row for the new season, opened on the balance the
+    // club carries into it — what next season's money places are measured from.
+    ensureBoardSeasonTx(tx, careerSaveId, nextYear, teamId);
+
     return {
       kind: "rolled",
       fromSeason: current,
       toSeason: nextNumber,
       newSeasonId: created!.id,
+      review,
     } as const;
   });
 }

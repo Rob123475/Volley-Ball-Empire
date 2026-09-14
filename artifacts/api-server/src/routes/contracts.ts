@@ -49,7 +49,7 @@ router.post("/contracts", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const spendingBlocked = checkSpendingAllowed(team);
+  const spendingBlocked = await checkSpendingAllowed(requireCareerSaveId(req.activeCareerSaveId));
   if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
   const { playerId, salary, endDate, bonusPerWin, squadRole: rawSquadRole } = req.body;
@@ -190,7 +190,7 @@ router.post("/contracts/:id/renew", async (req, res) => {
   }
   // R-52: only a raise is new spending, so only a raise meets the freeze.
   if (newSalary > currentSalary) {
-    const spendingBlocked = checkSpendingAllowed(team);
+    const spendingBlocked = await checkSpendingAllowed(requireCareerSaveId(req.activeCareerSaveId));
     if (spendingBlocked) {
       res.status(403).json({ error: `${spendingBlocked} A renewal on the same terms is still allowed.` });
       return;

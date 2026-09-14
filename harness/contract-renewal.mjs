@@ -27,9 +27,10 @@
  *             capped a year later, whatever the machine's date
  *   ui        the Contracts page renews and counts days on the game clock
  *
- * Scene-setting writes (game date, board confidence) go straight to the running
- * server's database, as board-confidence-ladder does, and must change exactly
- * one row — a write that silently changes nothing would fake the scenario.
+ * Scene-setting writes (game date, the board's spending freeze) go straight to
+ * the running server's database and must change exactly one row — a write that
+ * silently changes nothing would fake the scenario. The freeze is set directly
+ * here; board-review.mjs proves the monthly check sets it for real (R-53).
  *
  * Usage: node harness/contract-renewal.mjs
  */
@@ -170,10 +171,10 @@ try {
 
   console.log("\n2b. A FROZEN CLUB KEEPS ITS SQUAD ON THE SAME TERMS, BUT CANNOT SPEND (R-52)");
   // Club B, so club A keeps two unrenewed contracts for the warning checks below.
-  writeOne(`UPDATE teams SET board_confidence = 5 WHERE id = ?`, b.teamId);
+  writeOne(`UPDATE board_seasons SET spending_frozen = 1 WHERE career_save_id = ? AND season_year = 2026`, b.careerSaveId);
   const frozen = await B("GET", "/board-confidence");
   check("club B's board has frozen spending", frozen.data?.spendingBlocked === true,
-    `stage ${frozen.data?.stage}, score ${frozen.data?.score}`);
+    `stage ${frozen.data?.stage}, confidence ${frozen.data?.confidence}`);
   const contractsB = (await B("GET", "/contracts")).data ?? [];
   const [b1, b2] = contractsB;
   const raise = await B("POST", `/contracts/${b1?.id}/renew`, { salary: Number(b1?.salary) + 1000 });
@@ -197,7 +198,7 @@ try {
   });
   check("signing a player is refused while frozen", signFrozen.status === 403,
     `HTTP ${signFrozen.status} ${JSON.stringify(signFrozen.data)}`);
-  writeOne(`UPDATE teams SET board_confidence = 60 WHERE id = ?`, b.teamId);
+  writeOne(`UPDATE board_seasons SET spending_frozen = 0 WHERE career_save_id = ? AND season_year = 2026`, b.careerSaveId);
 
   console.log("\n3. THE EXPIRY WARNING RUNS ON THE GAME CLOCK");
   const realToday = new Date().toISOString().slice(0, 10);

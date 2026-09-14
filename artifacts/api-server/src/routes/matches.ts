@@ -16,7 +16,7 @@ import { generateScoutingProspects } from "../utils/prospect-generator";
 import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
-import { buildBoardConfidenceResult } from "../utils/board-confidence.js";
+import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
 import { endCareer } from "../utils/careerLifecycle.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
@@ -792,9 +792,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
     const sponsorRepGain = 1 + sponsorTierBonus + sponsorDealBonus;
     const newSponsorRep  = Math.min(100, (team.sponsorReputation ?? 50) + sponsorRepGain);
 
-    // Board confidence: +3 normal, +5 cont/semi final, +8 world final
-    const confWinDelta     = isFinal ? 8 : (isContFinal || isWorldSemiFinal) ? 5 : 3;
-
     const today = await getGameDate(team.id);
 
     // Credit and record in ONE transaction: these were two separate awaits, so
@@ -810,7 +807,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
         winStreak:         newStreak,
         managerRepPoints:  (team.managerRepPoints ?? 0) + repGain,
         sponsorReputation: newSponsorRep,
-        boardConfidence:   Math.min(100, (team.boardConfidence ?? 60) + confWinDelta),
         ...(isChampionship ? { titlesWon: team.titlesWon + 1 } : {}),
       }).where(eq(teamsTable.id, team.id)).run();
 
@@ -841,7 +837,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
         budget:            sql`${teamsTable.budget} + ${prizeEarned}`,
         winStreak:         0,
         sponsorReputation: newSponsorRep,
-        boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
       }).where(eq(teamsTable.id, team.id)).run();
 
       if (prizeEarned > 0) {
@@ -1062,28 +1057,11 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // Auto-complete any continental scouting missions whose time has elapsed
   autoCompleteContinentalMissions(team.id).catch(() => {});
 
-  // ── Fail state: sacked at zero board confidence (R-09, docs/economy-design.md §5) ──
-  // Checked after EVERY result, not just the season-ending Final — "sustained
-  // debt or underperformance ends the career early", not "only in December".
-  // Reads the freshly-committed team row (the win/loss transaction above has
-  // already landed) through the same buildBoardConfidenceResult the
-  // dashboard/contract page use, so "sacked" here means exactly what the
-  // player's own confidence meter would have shown them.
-  let fired = false;
-  let dismissalClubName: string | null = null;
-
-  if (req.user?.id) {
-    const [freshTeam] = await db.select().from(teamsTable).where(eq(teamsTable.id, team.id));
-    if (freshTeam && buildBoardConfidenceResult(freshTeam).stage === "sacked") {
-      const summary = await endCareer(req, team.id, req.user.id, {
-        type: "dismissal",
-        description: (s) => `${s.managerName} was sacked by ${s.clubName} after board confidence collapsed to zero.`,
-      });
-      dismissalClubName = summary.clubName;
-      fired = true;
-    }
-  }
-
+  // R-53: no result sacks a manager, and no result moves board confidence. The
+  // board judges the season at its review (utils/seasonRollover.ts); the one
+  // mid-season sacking is abandonment, in recordForfeit. R-09 moved confidence
+  // +3/+8 on a win and -5 on a loss above, and sacked here at a read-time score
+  // of zero after every result.
   res.json({
     match:        serializeMatch(updatedMatch),
     highlights,
@@ -1093,9 +1071,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
     prizeEarned,
     mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
     isFinal,
-    fired,
-    careerEnded:  fired,
-    dismissalClubName,
     weather:      match.weather,
     windSpeed:    matchWindSpeed,
     temperature:  matchTemp,
@@ -1107,9 +1082,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
 // ─── POST /api/matches/:id/forfeit ───────────────────────────────────────────
 /**
- * Forfeit a scheduled match — records it as a 0–21 loss, applies
- * the standard loss-side team penalties (losses, board confidence,
- * sponsor reputation, win-streak reset) and post-match player effects.
+ * Forfeit a scheduled match — records it as a straight-sets loss, applies
+ * the standard loss-side team penalties (losses, sponsor reputation,
+ * win-streak reset) and post-match player effects, and counts it for the
+ * board's season review (R-53).
  */
 router.post("/matches/:id/forfeit", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -1143,8 +1119,8 @@ const SQUAD_INCOMPLETE =
 
 /**
  * Record a forfeit: a straight-sets loss with the standard loss-side team
- * penalties (losses, board confidence, sponsor reputation, win streak), ranking
- * credit to both sides, post-match effects and the sacking check.
+ * penalties (losses, sponsor reputation, win streak), ranking credit to both
+ * sides, post-match effects, the board's forfeit count and its abandonment rule.
  *
  * Shared by POST /matches/:id/forfeit and by R-48's empty-squad rule in
  * /simulate, so a forfeit means exactly one thing wherever it comes from. The
@@ -1177,7 +1153,6 @@ async function recordForfeit(
     losses:            team.losses + 1,
     winStreak:         0,
     sponsorReputation: newSponsorRep,
-    boardConfidence:   Math.max(0, (team.boardConfidence ?? 60) - 5),
   }).where(eq(teamsTable.id, team.id));
 
   // R-29: a forfeit used to count in teams.losses only, so the ranking table and
@@ -1196,22 +1171,23 @@ async function recordForfeit(
 
   await applyPostMatchEffects(team.id, match.weather ?? "sunny", facilityLevels, false, 0, 25);
 
-  // Fail state: a forfeit is still a loss — it must not be a loophole around
-  // getting sacked. Same check as /matches/:id/simulate; see the comment
-  // there for why this runs after every result, not just season-end.
+  // R-53: the board counts the forfeit for its season review, and applies the
+  // one mid-season sacking there is — abandonment: a club that has been unable
+  // to field a side for ABANDONMENT_DAYS game days is sacked at its next
+  // forfeit. A forfeit no longer costs confidence (R-09's -5).
+  const board = recordBoardForfeit(careerSaveId, match.season, team.id, match.round, await getGameDate(team.id));
   let fired = false;
   let dismissalClubName: string | null = null;
 
-  if (req.user?.id) {
-    const [freshTeam] = await db.select().from(teamsTable).where(eq(teamsTable.id, team.id));
-    if (freshTeam && buildBoardConfidenceResult(freshTeam).stage === "sacked") {
-      const summary = await endCareer(req, team.id, req.user.id, {
-        type: "dismissal",
-        description: (s) => `${s.managerName} was sacked by ${s.clubName} after board confidence collapsed to zero.`,
-      });
-      dismissalClubName = summary.clubName;
-      fired = true;
-    }
+  if (req.user?.id && board.abandonedDays != null && board.abandonedDays >= ABANDONMENT_DAYS) {
+    const days = board.abandonedDays;
+    const summary = await endCareer(req, team.id, req.user.id, {
+      type: "dismissal",
+      description: (s) =>
+        `${s.managerName} was sacked by ${s.clubName}: the club went ${days} days without two contracted players to put on the sand.`,
+    });
+    dismissalClubName = summary.clubName;
+    fired = true;
   }
 
   return {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import {
   useGetCareerSummary,
@@ -34,7 +34,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { WarningBanner, BoardConfidenceBar, ConfidenceLadder } from "@/components/career/board-confidence-widgets";
+import { BoardStatusCard, BoardRulesExplainer } from "@/components/career/board-confidence-widgets";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -139,17 +139,6 @@ export default function ManagerContract() {
     query: { queryKey: getGetManagerContractQueryKey() },
   });
 
-  // R-09: GET /board-confidence ends the career itself the instant it reads
-  // as "sacked" (see routes/board-confidence.ts) — this is the client
-  // noticing that already happened and routing to the dedicated end screen,
-  // not the client deciding to end it.
-  useEffect(() => {
-    if (confidence?.careerEnded) {
-      queryClient.clear();
-      window.location.href = "/career-end";
-    }
-  }, [confidence?.careerEnded, queryClient]);
-
   const resignMutation = useResignCareer({
     mutation: {
       onSuccess: () => {
@@ -176,14 +165,6 @@ export default function ManagerContract() {
   const salary     = contract?.salary     ?? 0;
   const releaseFee = contract?.releaseFee ?? 25_000;
   const status     = contract?.status     ?? "Active";
-
-  const confScore     = confidence?.score              ?? 60;
-  const confLabel     = confidence?.label              ?? "Good";
-  const confWarning   = confidence?.warning            ?? null;
-  const confAdj       = confidence?.financeAdjustment  ?? 0;
-  const confStage     = confidence?.stage              ?? "safe";
-  const financeHealth = confidence?.breakdown?.financeHealth ?? "Stable";
-  const recentForm    = confidence?.breakdown?.recentForm    ?? "—";
 
   function closeModal() {
     setOpenModal(null);
@@ -215,9 +196,6 @@ export default function ManagerContract() {
           <p className="text-sm text-white/50 mt-1">Your current employment terms and board expectations.</p>
         </div>
 
-        {/* ── Warning banner ── */}
-        {confWarning && <WarningBanner score={confScore} warning={confWarning} />}
-
         {/* ── Status banner ── */}
         <div className="rounded-2xl border border-white/10 bg-white/3 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="h-14 w-14 shrink-0 rounded-2xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center">
@@ -245,18 +223,9 @@ export default function ManagerContract() {
           <ContractRow icon={ShieldAlert} label="Release Clause" value={fmtFee(releaseFee)}    iconColour="text-rose-400" />
         </div>
 
-        {/* ── Board sentiment ── */}
-        <div className="rounded-2xl border border-white/10 bg-white/3 p-6 space-y-6">
-          <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold -mb-2">Sentiment</p>
-          <BoardConfidenceBar
-            score={confScore} label={confLabel}
-            financeHealth={financeHealth} recentForm={recentForm}
-            financeAdjustment={confAdj}
-          />
-        </div>
-
-        {/* ── Escalation ladder ── */}
-        <ConfidenceLadder stage={confStage} />
+        {/* ── The board: its expectation, verdict and last review (R-53) ── */}
+        {confidence && <BoardStatusCard board={confidence} />}
+        <BoardRulesExplainer />
 
         {/* ── Actions ── */}
         <div className="space-y-3">

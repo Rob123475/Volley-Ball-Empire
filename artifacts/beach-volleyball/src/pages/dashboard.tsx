@@ -72,7 +72,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useCalendar } from "@/hooks/use-calendar";
 import type { AttentionItem } from "@workspace/api-client-react";
-import { WarningBanner, BoardConfidenceBar } from "@/components/career/board-confidence-widgets";
+import { BoardStatusCard } from "@/components/career/board-confidence-widgets";
 
 const weatherIcons: Record<string, string> = {
   sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
@@ -315,17 +315,6 @@ export default function Dashboard() {
     query: { queryKey: getGetBoardConfidenceQueryKey() },
   });
 
-  // R-09: GET /board-confidence ends the career itself the instant it reads
-  // as "sacked" — the dashboard is where most sessions land, so it is often
-  // the first read to notice. Route to the dedicated end screen rather than
-  // silently re-rendering a dashboard for a career that no longer exists.
-  useEffect(() => {
-    if (confidence?.careerEnded) {
-      queryClient.clear();
-      window.location.href = "/career-end";
-    }
-  }, [confidence?.careerEnded, queryClient]);
-
   if (dashLoading || seasonLoading) {
     return (
       <div className="space-y-5">
@@ -404,23 +393,12 @@ export default function Dashboard() {
     <div className="space-y-5">
 
       {/* ══════════════════════════════════════════════════════════════
-          BOARD CONFIDENCE — at-risk banner + meter (R-09, hidden once
-          in good standing so a healthy career doesn't carry a permanent
-          fixture at the top of its own dashboard)
+          THE BOARD — always shown (R-53): what it expects this season and
+          its verdict so far, in plain words. R-09 hid its meter while the
+          club was "safe", so a manager never saw what the board wanted
+          until it was already unhappy.
       ══════════════════════════════════════════════════════════════ */}
-      {confidence && confidence.stage !== "safe" && (
-        <div className="space-y-3">
-          {confidence.warning && <WarningBanner score={confidence.score} warning={confidence.warning} />}
-          <div className="rounded-2xl border border-white/10 bg-white/3 p-5">
-            <BoardConfidenceBar
-              score={confidence.score} label={confidence.label}
-              financeHealth={confidence.breakdown.financeHealth}
-              recentForm={confidence.breakdown.recentForm}
-              financeAdjustment={confidence.financeAdjustment}
-            />
-          </div>
-        </div>
-      )}
+      {confidence && <BoardStatusCard board={confidence} />}
 
       {/* ══════════════════════════════════════════════════════════════
           CLUB HERO BANNER

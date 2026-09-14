@@ -1,211 +1,90 @@
 /**
- * Shared board-confidence UI (R-09, docs/economy-design.md §5 "Fail state").
+ * The board, as the manager sees it (R-53, docs/r53-design.md).
  *
- * Extracted from manager-contract.tsx (which built these first) so the
- * dashboard's at-risk banner + confidence meter and the contract page's
- * banner + meter + ladder are the same components reading the same
- * GET /board-confidence response — one visual language for the whole fail
- * state, not two that can drift.
+ * One card for the dashboard and the contract page: what the board expects
+ * this season, its verdict so far, and its last season review — all in plain
+ * words from GET /board-confidence. This replaced R-09's confidence meter,
+ * finance/form chips and escalation ladder (with its "forced sale" step that
+ * never sold anyone).
  */
-import type { BoardConfidenceStage } from "@workspace/api-client-react";
-import {
-  AlertTriangle, AlertCircle, Flame, Users, TrendingUp, Landmark,
-  Wallet, UserMinus, ShieldX, ShieldCheck,
-} from "lucide-react";
+import type { BoardConfidence } from "@workspace/api-client-react";
+import { ShieldCheck, AlertTriangle, Wallet, Flame, Users, Target, Gavel, History } from "lucide-react";
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
-// ── Warning banner ────────────────────────────────────────────────────────────
+const STAGE: Record<BoardConfidence["stage"], { label: string; icon: typeof ShieldCheck; colour: string; pill: string }> = {
+  safe:            { label: "In good standing", icon: ShieldCheck,   colour: "text-emerald-400", pill: "bg-emerald-500/15 border-emerald-500/25 text-emerald-400" },
+  warning:         { label: "Board is concerned", icon: AlertTriangle, colour: "text-amber-400", pill: "bg-amber-500/15 border-amber-500/25 text-amber-400" },
+  spending_freeze: { label: "Spending frozen", icon: Wallet,          colour: "text-orange-400", pill: "bg-orange-500/15 border-orange-500/25 text-orange-400" },
+  final_warning:   { label: "Final warning", icon: Flame,             colour: "text-rose-400", pill: "bg-rose-500/15 border-rose-500/25 text-rose-400" },
+};
 
-export function WarningBanner({ score, warning }: { score: number; warning: string }) {
-  const isDismissal = score <  5;
-  const isAtRisk    = score < 15;
-
-  const config = isDismissal
-    ? {
-        bg:    "bg-rose-500/12 border-rose-500/30",
-        icon:  Flame,
-        colour: "text-rose-400",
-        title: warning,
-        sub:   "The board is actively discussing replacing you. Urgently improve results.",
-      }
-    : isAtRisk
-    ? {
-        bg:    "bg-orange-500/12 border-orange-500/30",
-        icon:  AlertCircle,
-        colour: "text-orange-400",
-        title: warning,
-        sub:   "Your position is under serious threat. A run of wins is essential.",
-      }
-    : {
-        bg:    "bg-amber-500/10 border-amber-500/25",
-        icon:  AlertTriangle,
-        colour: "text-amber-400",
-        title: warning,
-        sub:   "The board is watching closely. Avoid further losses and improve finances.",
-      };
-
-  const Icon = config.icon;
-
-  return (
-    <div className={cn("rounded-2xl border p-4 flex items-start gap-4", config.bg)}>
-      <div className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center bg-white/5 border border-white/10">
-        <Icon className={cn("h-5 w-5", config.colour)} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className={cn("text-sm font-black", config.colour)}>{config.title}</p>
-        <p className="text-xs text-white/50 mt-0.5 leading-snug">{config.sub}</p>
-      </div>
-      <span className={cn("text-2xl font-black tabular-nums shrink-0", config.colour)}>
-        {score}%
-      </span>
-    </div>
-  );
-}
-
-// ── Board confidence bar ───────────────────────────────────────────────────────
-
-export function BoardConfidenceBar({
-  score, label, financeHealth, recentForm, financeAdjustment,
-}: {
-  score: number; label: string; financeHealth: string;
-  recentForm: string; financeAdjustment: number;
-}) {
+export function BoardStatusCard({ board }: { board: BoardConfidence }) {
+  const stage = STAGE[board.stage] ?? STAGE.safe;
+  const StageIcon = stage.icon;
   const barColour =
-    score >= 70 ? "bg-emerald-500" :
-    score >= 50 ? "bg-blue-500"    :
-    score >= 30 ? "bg-amber-500"   :
-    score >= 15 ? "bg-orange-500"  : "bg-rose-500";
-
-  const labelColour =
-    score >= 70 ? "text-emerald-400" :
-    score >= 50 ? "text-blue-400"    :
-    score >= 30 ? "text-amber-400"   :
-    score >= 15 ? "text-orange-400"  : "text-rose-400";
+    board.confidence >= 70 ? "bg-emerald-500" :
+    board.confidence >= 50 ? "bg-blue-500" :
+    board.confidence >= 35 ? "bg-amber-500" :
+    board.confidence > 20 ? "bg-orange-500" : "bg-rose-500";
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl border border-white/10 bg-white/3 p-5 space-y-4" data-testid="board-status">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-white/40" />
-          <span className="text-sm font-semibold text-white/80">Board Confidence</span>
+          <span className="text-sm font-semibold text-white/80">The Board</span>
+          <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest", stage.pill)}>
+            <StageIcon className="h-3 w-3" />
+            {stage.label}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={cn("text-xs font-semibold", labelColour)}>{label}</span>
-          <span className="text-lg font-black text-white tabular-nums">{score}%</span>
-        </div>
+        <span className="text-lg font-black text-white tabular-nums">{board.confidence}%</span>
       </div>
-      <div className="h-3 w-full bg-white/8 rounded-full overflow-hidden">
-        <div className={cn("h-full rounded-full transition-all duration-700", barColour)} style={{ width: `${score}%` }} />
+      <div className="h-2 w-full bg-white/8 rounded-full overflow-hidden">
+        <div className={cn("h-full rounded-full transition-all duration-700", barColour)} style={{ width: `${board.confidence}%` }} />
       </div>
-      <div className="flex flex-wrap gap-2 pt-1">
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/8 bg-white/3 px-2.5 py-1.5 text-[10px] font-semibold text-white/50">
-          <Landmark className="h-3 w-3" />
-          Finances: <span className={cn("ml-0.5",
-            financeHealth === "Strong" ? "text-emerald-400" :
-            financeHealth === "Stable" ? "text-blue-400"    :
-            financeHealth === "Tight"  ? "text-amber-400"   :
-            financeHealth === "Poor"   ? "text-orange-400"  : "text-rose-400",
-          )}>{financeHealth}</span>
-          {financeAdjustment !== 0 && (
-            <span className={financeAdjustment > 0 ? "text-emerald-400" : "text-rose-400"}>
-              ({financeAdjustment > 0 ? "+" : ""}{financeAdjustment})
-            </span>
-          )}
+
+      <div className="space-y-3">
+        <div className="flex gap-3">
+          <Target className="h-4 w-4 shrink-0 text-blue-400 mt-0.5" />
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">What the board expects</p>
+            <p className="text-sm text-white/80 leading-snug" data-testid="board-expectation">{board.expectation}</p>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/8 bg-white/3 px-2.5 py-1.5 text-[10px] font-semibold text-white/50">
-          <TrendingUp className="h-3 w-3" />
-          Form: <span className="ml-0.5 text-white/70">{recentForm}</span>
+        <div className="flex gap-3">
+          <Gavel className={cn("h-4 w-4 shrink-0 mt-0.5", stage.colour)} />
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">The board's verdict so far</p>
+            <p className="text-sm text-white/80 leading-snug" data-testid="board-verdict">{board.verdict}</p>
+          </div>
         </div>
+        {board.lastReview && board.lastReview.seasonYear !== board.seasonYear && (
+          <div className="flex gap-3">
+            <History className="h-4 w-4 shrink-0 text-white/40 mt-0.5" />
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">Last season review</p>
+              <p className="text-sm text-white/60 leading-snug">{board.lastReview.text}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// ── Escalation ladder ─────────────────────────────────────────────────────────
-// Mirrors artifacts/api-server/src/utils/board-confidence.ts's CONFIDENCE_LADDER
-// — same four stages, same order. Kept as frontend copy (not fetched) because
-// it is display text for a fixed, small set of stages, same as every other
-// label in this file.
-
-const LADDER_STEPS: ReadonlyArray<{
-  stage: Exclude<BoardConfidenceStage, "safe">;
-  icon: typeof AlertTriangle;
-  label: string;
-  description: string;
-}> = [
-  { stage: "warning",             icon: AlertTriangle, label: "Warning",              description: "Board is concerned. Avoid further losses." },
-  { stage: "spending_blocked",    icon: Wallet,         label: "Spending Blocked",     description: "New signings, hires and upgrades are frozen." },
-  { stage: "forced_sale_pending", icon: UserMinus,      label: "Forced Sale Pending",  description: "The board is preparing to force a sale." },
-  { stage: "sacked",              icon: ShieldX,        label: "Sacked",               description: "Contract terminated. Career ends." },
-];
-
-export function ConfidenceLadder({ stage }: { stage: BoardConfidenceStage }) {
-  const currentIndex = stage === "safe" ? -1 : LADDER_STEPS.findIndex(s => s.stage === stage);
-
-  if (stage === "safe") {
-    return (
-      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-center gap-3">
-        <div className="h-9 w-9 shrink-0 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-          <ShieldCheck className="h-5 w-5 text-emerald-400" />
-        </div>
-        <div>
-          <p className="text-sm font-black text-emerald-400">In Good Standing</p>
-          <p className="text-xs text-white/40 mt-0.5">
-            The board has no concerns. The escalation ladder below only activates once confidence drops.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+/** How the board judges a manager, in plain words (the contract page). */
+export function BoardRulesExplainer() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/3 p-5">
-      <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold mb-4">Escalation Ladder</p>
-      <div className="space-y-0">
-        {LADDER_STEPS.map((step, i) => {
-          const isCurrent = i === currentIndex;
-          const isPast    = i < currentIndex;
-          const isFuture  = i > currentIndex;
-          const Icon = step.icon;
-
-          const colour =
-            isCurrent ? (step.stage === "sacked" ? "text-rose-400" : "text-orange-400") :
-            isPast    ? "text-white/50" :
-            "text-white/25";
-
-          return (
-            <div key={step.stage} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className={cn(
-                  "h-8 w-8 shrink-0 rounded-full flex items-center justify-center border",
-                  isCurrent ? "bg-rose-500/15 border-rose-500/40" :
-                  isPast    ? "bg-white/8 border-white/20" :
-                  "bg-white/3 border-white/10",
-                )}>
-                  <Icon className={cn("h-4 w-4", colour)} />
-                </div>
-                {i < LADDER_STEPS.length - 1 && (
-                  <div className={cn("w-px flex-1 min-h-[20px]", isPast ? "bg-white/20" : "bg-white/8")} />
-                )}
-              </div>
-              <div className={cn("pb-5", isFuture && "opacity-50")}>
-                <div className="flex items-center gap-2">
-                  <p className={cn("text-sm font-bold", isCurrent ? colour : "text-white/70")}>{step.label}</p>
-                  {isCurrent && (
-                    <span className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/25">
-                      Current
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-white/40 mt-0.5">{step.description}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+    <div className="rounded-2xl border border-white/10 bg-white/3 p-5 space-y-2 text-xs text-white/50 leading-relaxed">
+      <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold">How the board judges you</p>
+      <p>When the World Tour field is drawn, the board sets a target finish from how your best pair ranks against the field. Established clubs get 1 place of slack, underdogs 3, and money you could have spent on a better squad raises the bar.</p>
+      <p>Results never cost you your job mid-season. A month into the World Tour, and every month after, the board checks the standings: a poor projection brings a warning or freezes new signings, hires and upgrades.</p>
+      <p>At the end of each season it reviews your finish against the target, plus any World Finals honours; debt or a collapsing balance counts against you. A season spent forfeiting counts as failed badly. Confidence of 20 or less, or two failed seasons in a row, ends your time at the club.</p>
+      <p>The one exception: if you cannot put two contracted players on the sand for 30 days, you are sacked at your next forfeit. Season 5's review is the verdict on your career.</p>
     </div>
   );
 }

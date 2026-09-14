@@ -1072,8 +1072,8 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;
-  /** True if the manager was sacked as a result of this match (board confidence hit zero, R-09) */
-  fired: boolean;
+  /** Only on a forfeit. True if the board sacked the manager for abandonment: the club had been unable to field two contracted players for 30 game days (R-53). No match result sacks a manager; the board judges the season at its review. */
+  fired?: boolean;
   /** Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen */
   careerEnded?: boolean;
   /** The club name that dismissed the manager (only set when fired is true) */
@@ -1229,7 +1229,7 @@ export interface StaffWageBill {
 }
 
 /**
- * The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked.
+ * safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season's review gave one).
  */
 export type BoardConfidenceStage = typeof BoardConfidenceStage[keyof typeof BoardConfidenceStage];
 
@@ -1237,54 +1237,69 @@ export type BoardConfidenceStage = typeof BoardConfidenceStage[keyof typeof Boar
 export const BoardConfidenceStage = {
   safe: 'safe',
   warning: 'warning',
-  spending_blocked: 'spending_blocked',
-  forced_sale_pending: 'forced_sale_pending',
-  sacked: 'sacked',
+  spending_freeze: 'spending_freeze',
+  final_warning: 'final_warning',
 } as const;
 
 /**
+ * The most recent season review.
  * @nullable
  */
-export type BoardConfidenceForcedSale = {
-  pending: boolean;
-  /** @nullable */
-  player: {
-  id: number;
-  name: string;
-  salary: number;
-} | null;
+export type BoardConfidenceLastReview = {
+  seasonYear: number;
+  finish: number;
+  target: number;
+  grade: string;
+  outcome: 'safe' | 'final_warning' | 'sacked' | 'verdict';
+  confidenceBefore: number;
+  confidenceAfter: number;
+  text: string;
 } | null;
 
-export interface BoardConfidenceBreakdown {
-  financeHealth: string;
-  recentForm: string;
-}
-
+/**
+ * The board's view of the season (R-53, docs/r53-design.md): what it expects, its verdict so far and its last season review, in plain words with the numbers behind them. Reading it never ends a career.
+ */
 export interface BoardConfidence {
+  seasonYear: number;
   /**
+     * Carried from season to season, starting at 60. Only the season review moves it.
      * @minimum 0
      * @maximum 100
      */
-  score: number;
-  /**
-     * @minimum 0
-     * @maximum 100
-     */
-  rawScore: number;
-  financeAdjustment: number;
-  label: string;
-  /** @nullable */
-  warning?: string | null;
-  isJobAtRisk: boolean;
-  /** The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked. */
+  confidence: number;
+  /** safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season's review gave one). */
   stage: BoardConfidenceStage;
-  /** True at spending_blocked and every stage beyond it. */
+  /** New signings, staff hires, facility upgrades and renewals at a raise are refused. Renewing on the same terms is still allowed (R-52). */
   spendingBlocked: boolean;
-  /** @nullable */
-  forcedSale?: BoardConfidenceForcedSale;
-  /** True when this read itself just ended the career (stage was "sacked"). The client should route to the career-end screen. */
-  careerEnded: boolean;
-  breakdown: BoardConfidenceBreakdown;
+  /** What the board expects this season, in plain words. */
+  expectation: string;
+  /** The board's verdict so far this season (or its review, once held), in plain words. */
+  verdict: string;
+  /**
+     * The target finish in the World Tour standings, set at the draw; null before it.
+     * @nullable
+     */
+  target: number | null;
+  /**
+     * Where the club's best contracted pair ranks in the drawn field.
+     * @nullable
+     */
+  strengthRank: number | null;
+  /**
+     * The club's standings rank at the board's last monthly check.
+     * @nullable
+     */
+  projectedFinish: number | null;
+  /**
+     * far_exceeded, exceeded, met, missed, failed or failed_badly at the last monthly check.
+     * @nullable
+     */
+  projectedGrade: string | null;
+  /**
+     * The most recent season review.
+     * @nullable
+     */
+  lastReview: BoardConfidenceLastReview;
 }
 
 export type ManagerContractStatus = typeof ManagerContractStatus[keyof typeof ManagerContractStatus];

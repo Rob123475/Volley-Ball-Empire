@@ -197,8 +197,8 @@ export default function Matches() {
       }
       const body = await res.json().catch(() => ({}));
       if ((body as any).careerEnded) {
-        // R-09: a forfeit is still a loss — it can end the career at zero
-        // board confidence the same as any other match result.
+        // R-53: a forfeit can end the career for abandonment — 30 game days
+        // without two contracted players to put on the sand.
         queryClient.clear();
         window.location.href = "/career-end";
         return;
@@ -539,7 +539,7 @@ export default function Matches() {
                 </Card>
               </div>
 
-              {/* ── Dismissal notice: board confidence hit zero (R-09) ── */}
+              {/* ── Dismissal notice: sacked for abandonment at a forfeit (R-53) ── */}
               {simulationResult.fired && (
                 <div className="rounded-xl border border-rose-500/30 bg-rose-500/8 p-5 space-y-3">
                   <div className="flex items-start gap-3">
@@ -554,7 +554,7 @@ export default function Matches() {
                         <span className="font-bold text-rose-200">
                           {simulationResult.dismissalClubName ?? "The board"}
                         </span>{" "}
-                        has terminated your contract — board confidence collapsed to zero.
+                        has terminated your contract — the club went 30 days without two contracted players to put on the sand.
                       </p>
                     </div>
                   </div>

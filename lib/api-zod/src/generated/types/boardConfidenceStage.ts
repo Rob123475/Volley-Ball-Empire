@@ -7,7 +7,7 @@
  */
 
 /**
- * The escalation-ladder stage (docs/economy-design.md §5): safe, warning, spending_blocked, forced_sale_pending, or sacked.
+ * safe; warning (confidence + projected grade at or below 45); spending_freeze (at or below 30, lifted above 35); final_warning (last season's review gave one).
  */
 export type BoardConfidenceStage = typeof BoardConfidenceStage[keyof typeof BoardConfidenceStage];
 
@@ -15,7 +15,6 @@ export type BoardConfidenceStage = typeof BoardConfidenceStage[keyof typeof Boar
 export const BoardConfidenceStage = {
   safe: 'safe',
   warning: 'warning',
-  spending_blocked: 'spending_blocked',
-  forced_sale_pending: 'forced_sale_pending',
-  sacked: 'sacked',
+  spending_freeze: 'spending_freeze',
+  final_warning: 'final_warning',
 } as const;

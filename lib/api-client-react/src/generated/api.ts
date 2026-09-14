@@ -4840,7 +4840,7 @@ export const getGetBoardConfidenceUrl = () => {
 }
 
 /**
- * @summary Get current board confidence score, label and warnings
+ * @summary The board's expectation for this season, its verdict so far and its last review (R-53)
  */
 export const getBoardConfidence = async ( options?: RequestInit): Promise<BoardConfidence> => {
 
@@ -4887,7 +4887,7 @@ export type GetBoardConfidenceQueryError = ErrorType<void>
 
 
 /**
- * @summary Get current board confidence score, label and warnings
+ * @summary The board's expectation for this season, its verdict so far and its last review (R-53)
  */
 
 export function useGetBoardConfidence<TData = Awaited<ReturnType<typeof getBoardConfidence>>, TError = ErrorType<void>>(

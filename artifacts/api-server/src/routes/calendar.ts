@@ -28,6 +28,8 @@ import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
 } from "../utils/seasonRollover.js";
+import { boardDay } from "../utils/board-confidence.js";
+import { endCareer } from "../utils/careerLifecycle.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -576,6 +578,12 @@ router.post("/calendar/advance", async (req, res) => {
       .where(eq(seasonsTable.id, season.id));
   }
 
+  // 7b. R-53: the board's day — the season target once the World Tour is
+  // drawn, the monthly check of the standings (warning, spending freeze), and
+  // whether the club can still field a side. It never sacks: only the season
+  // review and abandonment (at a forfeit) do.
+  boardDay(careerSaveId, season.year, team.id, nextDate);
+
   const isQuietDay    = events.length === 0;
   const atSeasonEnd   = nextDate >= season.endDate;
 
@@ -590,11 +598,29 @@ router.post("/calendar/advance", async (req, res) => {
         events.push(`Season ${rollover.fromSeason} complete — Season ${rollover.toSeason} begins`);
       } else if (rollover.kind === "career-complete") {
         events.push(`Season ${rollover.finalSeason} complete — your career has ended`);
+      } else if (rollover.kind === "sacked") {
+        events.push(`Season ${rollover.fromSeason} complete — the board has sacked you`);
       }
     } catch (err) {
       // A failed rollover must not eat the day the player just advanced.
       req.log.error({ err }, "season rollover failed");
     }
+  }
+
+  // R-53: sacked at the season review. The review committed with the season it
+  // judged; ending the career (Hall of Fame, history, session) is the same
+  // endCareer every dismissal goes through, and the history entry carries the
+  // review in the board's own words.
+  let fired = false;
+  let dismissalClubName: string | null = null;
+  if (rollover.kind === "sacked" && req.user?.id) {
+    const verdict = rollover.review.text;
+    const summary = await endCareer(req, team.id, req.user.id, {
+      type: "dismissal",
+      description: (s) => `${s.managerName} was sacked by ${s.clubName}. ${verdict}`,
+    });
+    dismissalClubName = summary.clubName;
+    fired = true;
   }
 
   res.json({
@@ -604,6 +630,9 @@ router.post("/calendar/advance", async (req, res) => {
     atSeasonEnd,
     seasonRollover: rollover,
     careerComplete: rollover.kind === "career-complete",
+    fired,
+    careerEnded: fired,
+    dismissalClubName,
     // The YEAR of the season that just ended, so the client can open its review
     // without re-deriving the season-number-to-year mapping. That mapping lives
     // in seasonRollover.ts and duplicating it in the client is how the two drift.

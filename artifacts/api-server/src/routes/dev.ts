@@ -10,6 +10,7 @@ import {
 } from "@workspace/db";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour.js";
+import { boardReviewTable, boardProjection, type BoardTableCareer, type BoardProjectionInput } from "../utils/board-confidence.js";
 
 const WEATHER_CONDITIONS = ["sunny", "clear", "cloudy", "windy", "hot", "overcast", "perfect"];
 function quickWeather() {
@@ -639,6 +640,23 @@ router.post("/dev/ensure-global-youth-pool", async (_req, res) => {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
   }
+});
+
+/**
+ * R-53: the board's rules over fixed inputs, through the same functions the
+ * rollover and the monthly check call. harness/board-review.mjs asserts every
+ * row of docs/r53-design.md §5 with it. Reads and writes nothing.
+ */
+router.post("/dev/board/review-table", (req, res) => {
+  const body = req.body as { careers?: BoardTableCareer[]; projections?: BoardProjectionInput[] };
+  if (!Array.isArray(body?.careers) && !Array.isArray(body?.projections)) {
+    res.status(400).json({ error: "careers and/or projections required" });
+    return;
+  }
+  res.json({
+    careers: (body.careers ?? []).map((c) => boardReviewTable(c)),
+    projections: (body.projections ?? []).map((p) => boardProjection(p)),
+  });
 });
 
 export default router;

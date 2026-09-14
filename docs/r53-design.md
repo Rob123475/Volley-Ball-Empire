@@ -1,7 +1,10 @@
 # R-53: board confidence measured against expectations (design, no code)
 
-Status: **proposal for Rob, 14 Sep 2026.** Nothing here is implemented. Every number is a proposal
-and can be changed.
+Status: **approved as written and implemented, 14 Sep 2026** (R-53 in `docs/REPAIR-REGISTER.md`).
+Rob took every proposed number, including the answers to all five open questions in §7: the
+allowances and money places stand, sacking stays at ≤ 20 or two failed seasons running, the 30-day
+abandonment rule stays, the forced-sale label is deleted, and season 5 stays a verdict that cannot
+sack. `harness/board-review.mjs` asserts every row of §5 and §5.1.
 
 ## 1. Why the current board is wrong
 

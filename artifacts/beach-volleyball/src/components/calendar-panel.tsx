@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCalendar, type CalendarSpeed, SPEED_MS } from "@/hooks/use-calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,17 @@ export function CalendarPanel() {
   useEffect(() => {
     if (lastReviewYear != null) setReviewYear(lastReviewYear);
   }, [lastReviewYear]);
+
+  // R-53: the board's season review can sack the manager at the boundary. The
+  // career is over and there is no next season to show: go to the end screen,
+  // which reads the review from the dismissal entry.
+  const queryClient = useQueryClient();
+  const sackedAtReview = advanceMutation.data?.fired === true;
+  useEffect(() => {
+    if (!sackedAtReview) return;
+    queryClient.clear();
+    window.location.href = "/career-end";
+  }, [sackedAtReview, queryClient]);
 
   // Auto-advance ticker — lives here (and only here) so only one interval ever runs
   useEffect(() => {

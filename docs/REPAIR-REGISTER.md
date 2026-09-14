@@ -1216,7 +1216,7 @@ independent win probability per match):
 - thresholds proportional to events played so far
 - the head start applied every season, or never
 
-### R-53 — OPEN, INVESTIGATED (14 Sep, Rob: MEDIUM; understand it before touching balance): board confidence reacts to the wrong things
+### R-53 — CLOSED (14 Sep, R53HASH): board confidence reacted to the wrong things; the board now reviews seasons against expectations
 **Symptom (R-48 full run 2):**
 - RollWeak2 and RollWeak3 went 0W 54L in seasons 3 and 4, with $1.06M-$1.50M in the bank, and were
   never sacked.
@@ -1273,15 +1273,97 @@ independent win probability per match):
 5. **A forfeit costs the same −5 as a lost match.** With the floor in point 1, a solvent club with no
    squad forfeits indefinitely with no consequence from the board.
 
-**Design proposed (14 Sep):** `docs/r53-design.md`. It covers expectations from squad strength and
-difficulty, patience, a season-end review, money as a modifier and not an immunity, and deleting
-the forced-sale label, with the six harness careers worked through. No code yet; awaiting Rob.
+**Design (14 Sep):** `docs/r53-design.md`. **Rob approved it as written**, with every proposed number
+and the proposals for all five open questions: the 30-day abandonment rule stays, season 5 stays a
+verdict that cannot sack, and the forced-sale label is deleted.
 
-**Not changed.** Rob: investigate before touching balance. Any fix is a design choice, for example:
-- confidence measured against expectations (difficulty, tier, ranking)
-- an end-of-season review
-- removing the budget floor's sacking immunity
-- a forfeit weighted differently
+**Fixed: replaced, not layered.**
+- **`utils/board-confidence.ts` rewritten:**
+  - pure rules: target, grade (with the forfeited-half rule), honours, money, review outcome, freeze
+    hysteresis
+  - database steps: the season row, the target at the draw, `boardDay`, the forfeit count and
+    abandonment, the review
+  - the plain-word texts the player reads
+- **New career-scoped table `board_seasons`:**
+  - target inputs: pair rating, strength rank, allowance, money places, target
+  - the monthly projection and freeze, forfeits, unfieldable-since
+  - the review record
+  - The starter DB gained exactly this table and its index (refresh diff); `deleteCareerSave` clears it.
+- **Removed:**
+  - the win +3/+5/+8 and loss −5 in `/simulate`
+  - the −5 in `recordForfeit`
+  - the post-result sacking in both
+  - the sacking on `GET /board-confidence`
+  - the `financeAdjustment` money bracket and `forcedSaleTarget`
+  - the stages spending_blocked, forced_sale_pending and sacked
+  - `BoardConfidenceBreakdown`
+  - the R-09 widgets (`WarningBanner`, `BoardConfidenceBar`, `ConfidenceLadder`) and the dashboard
+    and contract page's `careerEnded` redirects
+  - `harness/board-confidence-ladder.mjs`
+- **Where the rules now run:**
+  - the target is set once the World Tour is drawn
+  - the monthly check and the unfieldable tracking run in the calendar advance (`boardDay`)
+  - a forfeit is counted, and sacks for abandonment, in `recordForfeit`
+  - the review runs inside `rolloverSeason`: a sacking returns `kind: "sacked"` and opens no next
+    season, the calendar route ends the career with the review as the dismissal text, and the next
+    season's board row opens on the carried balance
+- **`checkSpendingAllowed(careerSaveId)`** reads only the board's freeze. Signing, staff hire,
+  facility upgrade and renewal at a raise are refused; same-terms renewal is allowed (R-52).
+- **Player-facing:**
+  - The dashboard always shows the board card: what the board expects, its verdict so far, and last
+    season's review, in words. It was hidden while "safe".
+  - The contract page shows the card and a "how the board judges you" explainer.
+  - A review sacking at the boundary, or an abandonment sacking from Skip or Sim, routes to the
+    career-end screen.
+- **Spec:** `BoardConfidence` replaced (seasonYear, confidence, stage safe / warning /
+  spending_freeze / final_warning, spendingBlocked, expectation, verdict, target, strengthRank,
+  projection, lastReview). `MatchResult.fired` now means abandonment only. Codegen run.
+- **Pair rating:** `sideRating` over the two best contracted, able players. That is the engine's own
+  rating, the same one the pool clubs are ranked by. The underdog starting pair measures 65.0 (best
+  two of its three) against the design's 63.8 for its two named starters; it ranks #19 either way.
+
+**Verified:**
+- **`harness/board-review.mjs` 50/50** (suite 15 of `run-all`):
+  - **Table:** every §5 row (the six careers, plus RollWeak2's second failed season in S5 as a
+    verdict) and every §5.1 case matches the design's M, T, grade, confidence and outcome through
+    the server's own rules (`POST /dev/board/review-table`, dev-only). So do money-never-immunity
+    ($5M, sacked for two failed seasons at confidence 30), debt −15, a >25% fall −5 (20% costs
+    nothing), 27 of 54 forfeited as failed badly (26 judged on the finish), and the clamp at 100.
+  - **Projection thresholds:** 45 warns, 30 freezes, a freeze holds between 30 and 35, lifts above
+    35. RollWeak3's mid-season #19 against T19 is met, with no warning.
+  - **Target at the draw:** established pair 89.5, strength #1, target #2; underdog strength #19,
+    target #19. Both are stated in words.
+  - **Sabotage, live:** a win, a loss and a forfeit each left confidence at 60; the forfeit was
+    counted. At confidence 0, five more results fired nobody.
+  - **Sabotage, static:** none of the old code remains in 460 api, frontend, generated and spec
+    files. Each of five old lines planted back is caught.
+  - **Monthly check:** 30 game days after the target, the underdog at confidence 0 projected #15
+    exceeded, and was frozen. A signing got 403; a same-terms renewal got 200.
+  - **Abandonment:** forfeits on days 0-28 did not sack; the day-33 forfeit did, and the career
+    ended with the reason.
+  - **Season review:** the underdog at confidence 0 finished #19 against T19 (met, 0 → 5) and was
+    sacked at the boundary. No 2027 season opened, the career was retired, and the dismissal carries
+    the review.
+- **Other suites:** squad-forfeit 11/11 (forfeit leaves confidence unchanged, counted by the board);
+  contract-renewal 23/23 (the freeze now lives on `board_seasons`).
+- **Checks:** `pnpm run typecheck` with every guard clean. Full harness **24/24**, rollover **72/72**
+  ("the board reviewed every season it closed", 5/5 for all six careers).
+- **The new arc: nobody sacked** (0 of 3 in each arc). Reviews per season (finish against target →
+  confidence):
+
+  | career | S1 | S2 | S3 | S4 | S5 (verdict) |
+  |---|---|---|---|---|---|
+  | RollStrong (est.) | #1 vs 2, champion → 80 | #10 vs 2, failed → 55, **final warning** | #4 vs 2, semi → 49 | #2 vs 2, runner-up → 62 | #2, runner-up → 75 |
+  | RollStrong2 (est.) | #1, semi → 69 | #1, champion → 89 | #8 vs 2, failed → 64, **final warning** | #3, semi → 73 | #2, runner-up → 86 |
+  | RollStrong3 (est.) | #1, champion → 80 | #2, runner-up → 93 | #1, champion → 100 | #4, semi → 94 | #1, champion → 100 |
+  | RollWeak (und.) | #14 vs 19, far exceeded → 80 | #17 vs 18, met → 85 | #19 vs 16, missed → 75 | #19 vs 14, failed → 50, **final warning** | #19 vs 13, failed → 25 (a second failed season; the verdict cannot sack) |
+  | RollWeak2 (und.) | #16 vs 19, exceeded → 70 | #19 vs 18, met → 75 | #15 vs 17, exceeded → 85 | #18 vs 15, missed → 75 | #15 vs 13, missed → 65 |
+  | RollWeak3 (und.) | #19 vs 19, met → 65 | #18 vs 18, met → 70 | #19 vs 17, missed → 60 | #19 vs 15, missed → 50 | #14 vs 13, met → 55 |
+
+**Known and accepted:** the rollover suite's RollA walk (ageing, retirement, promotion over five
+boundaries) plays real matches. An established club is now sackable at a review: it would take two
+failed seasons running, or confidence falling to 20. If that ever happens the walk fails with the
+review text rather than hiding it; it did not happen in this run.
 
 ### R-41 — CLOSED (12 Sep, with R-29): `harness/run-all.mjs` had not parsed since R-38
 From `39148cb` (R-38, 11 Sep) until R-29's commit, the full harness could not run at all. Suite 9's
@@ -2375,6 +2457,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-53 The board reviews seasons against expectations (target at the draw, monthly check, season review, abandonment) | 14 Sep, R53HASH | board-review 50/50: all §5/§5.1 rows match the design, win/loss/forfeit leave confidence unchanged, old code absent (planted lines caught), freeze 403/200, abandonment day 33, review sacking; full harness 24/24, rollover 72/72, 0 of 6 sacked |
 | R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, 696a4e5 | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
 | R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + dc8fbc6 | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |
 | R-51 Contract renewal; expiry warned and dated on the game clock | 14 Sep, c41cad2 | contract-renewal 18/18: renew one season in its final season, refusals 409/404/401/403, warnings at 21/11 game days, signing dated on the game clock |

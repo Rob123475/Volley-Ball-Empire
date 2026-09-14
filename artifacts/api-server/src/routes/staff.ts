@@ -55,7 +55,7 @@ router.post("/staff", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const spendingBlocked = checkSpendingAllowed(team);
+  const spendingBlocked = await checkSpendingAllowed(requireCareerSaveId(req.activeCareerSaveId));
   if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);

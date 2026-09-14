@@ -910,6 +910,54 @@ export const playerRankingPointsTable = sqliteTable("player_ranking_points", {
 
 export type PlayerRankingPoints = typeof playerRankingPointsTable.$inferSelect;
 
+/**
+ * R-53: the board's view of one season of one career (docs/r53-design.md).
+ *
+ * Created when the season opens, with the balance it opened on. The target is
+ * set once the World Tour is drawn; the monthly check writes the projection and
+ * the spending freeze; forfeits and an unfieldable squad are tracked as they
+ * happen; the review fields are written once, at the season boundary. The
+ * carried confidence itself stays on teams.board_confidence, which only the
+ * review moves.
+ */
+export const boardSeasonsTable = sqliteTable("board_seasons", {
+  id:                 integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:       integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:         integer("season_year").notNull(),
+  seasonStartBalance: real("season_start_balance").notNull().default(0),
+  // the target, set at the draw
+  pairRating:         real("pair_rating"),
+  strengthRank:       integer("strength_rank"),
+  allowance:          integer("allowance"),
+  moneyPlaces:        integer("money_places"),
+  target:             integer("target"),
+  // during the season
+  projectedOn:        text("projected_on"),
+  projectedFinish:    integer("projected_finish"),
+  projectedGrade:     text("projected_grade"),
+  spendingFrozen:     integer("spending_frozen", { mode: "boolean" }).notNull().default(false),
+  unfieldableSince:   text("unfieldable_since"),
+  forfeits:           integer("forfeits").notNull().default(0),
+  // the review
+  finish:             integer("finish"),
+  worldTourMatches:   integer("world_tour_matches"),
+  grade:              text("grade"),
+  gradePoints:        integer("grade_points"),
+  honours:            text("honours"),
+  honoursPoints:      integer("honours_points"),
+  moneyPoints:        integer("money_points"),
+  confidenceBefore:   integer("confidence_before"),
+  confidenceAfter:    integer("confidence_after"),
+  outcome:            text("outcome"),
+  reviewedOn:         text("reviewed_on"),
+  createdAt:          integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  updatedAt:          integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("board_seasons_career_season").on(t.careerSaveId, t.seasonYear),
+]);
+
+export type BoardSeason = typeof boardSeasonsTable.$inferSelect;
+
 export const clubTemplatesTable = sqliteTable("club_templates", {
   id:             integer("id").primaryKey({ autoIncrement: true }),
   name:           text("name").notNull(),

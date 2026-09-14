@@ -74,6 +74,26 @@ export type CalendarState = {
   }>;
 };
 
+/** The board's season review (R-53), as the rollover returns it. */
+export type BoardReview = {
+  seasonYear: number;
+  target: number;
+  finish: number;
+  grade: string;
+  outcome: "safe" | "final_warning" | "sacked" | "verdict";
+  confidenceBefore: number;
+  confidenceAfter: number;
+  text: string;
+};
+
+/** A forfeit can end the career for abandonment (R-53); the career-end screen says why. */
+function endIfFired(result: unknown, clear: () => void): boolean {
+  if ((result as { fired?: boolean } | null)?.fired !== true) return false;
+  clear();
+  window.location.href = "/career-end";
+  return true;
+}
+
 export type AdvanceResult = {
   newDate?: string;
   events?: string[];
@@ -85,11 +105,16 @@ export type AdvanceResult = {
   currentDate?: string;
   // The season boundary. All three have been returned by the server since the
   // rollover was built and nothing in the client read any of them.
+  // R-53: every closed season carries the board's review; "sacked" is a review
+  // that ended the career.
   seasonRollover?:
     | { kind: "none" }
-    | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number }
-    | { kind: "career-complete"; finalSeason: number };
+    | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: BoardReview }
+    | { kind: "career-complete"; finalSeason: number; review: BoardReview }
+    | { kind: "sacked"; fromSeason: number; review: BoardReview };
   careerComplete?: boolean;
+  /** R-53: the board sacked the manager at the season review. Route to the career-end screen. */
+  fired?: boolean;
   /** Year of the season that just ended, or null. Server-derived on purpose. */
   reviewYear?: number | null;
 };
@@ -171,7 +196,8 @@ export function useCalendar() {
   // then moves the day on.
   const skipMatchMutation = useMutation<unknown, Error, number>({
     mutationFn: async (matchId) => {
-      await apiFetch(`/api/matches/${matchId}/simulate`, { method: "POST" });
+      const played = await apiFetch(`/api/matches/${matchId}/simulate`, { method: "POST" });
+      if (endIfFired(played, () => queryClient.clear())) return played;
       return apiFetch("/api/calendar/skip-match", { method: "POST" });
     },
     onSuccess:  () => queryClient.invalidateQueries({ queryKey: ["calendar"] }),
@@ -180,7 +206,8 @@ export function useCalendar() {
   const simulateMatchMutation = useMutation<unknown, Error, number>({
     mutationFn: (matchId) =>
       apiFetch(`/api/matches/${matchId}/simulate`, { method: "POST" }),
-    onSuccess: () => {
+    onSuccess: (played) => {
+      if (endIfFired(played, () => queryClient.clear())) return;
       dismissMatchMutation.mutate();
     },
   });

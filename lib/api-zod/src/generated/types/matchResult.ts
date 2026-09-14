@@ -18,8 +18,8 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;
-  /** True if the manager was sacked as a result of this match (board confidence hit zero, R-09) */
-  fired: boolean;
+  /** Only on a forfeit. True if the board sacked the manager for abandonment: the club had been unable to field two contracted players for 30 game days (R-53). No match result sacks a manager; the board judges the season at its review. */
+  fired?: boolean;
   /** Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen */
   careerEnded?: boolean;
   /** The club name that dismissed the manager (only set when fired is true) */
