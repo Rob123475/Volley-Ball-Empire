@@ -27,6 +27,65 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-48 — OPEN, INVESTIGATED, AWAITING ROB (14 Sep): the Strong arc collapses at the first season boundary
+**Symptom (final run, 14 Sep):** RollStrong (established) finished season 1 at 42W 14L, #1, World
+Champion. In season 2 it went 10W 44L, #19, with no signings and no training. The weak arc also sat
+at #19 from season 2 on.
+
+**Method:** investigated before changing anything. A diagnostic played an established career through
+the real API on a copy of the shipped starter DB, with no signings or training (the R-08 arc's
+conditions). It snapshotted the DB at five points:
+- **A:** season 1 round 77, one advance before the rollover
+- **B:** immediately after the rollover advance
+- **C:** one advance into season 2
+- **D:** season 2's first World Tour match played
+- **E:** ten matches later
+
+The diagnostic's date column read returned SQLite's CURRENT_DATE keyword rather than the calendar,
+so the rounds (77 → 1 → 1 → 10 → 21) are what place the snapshots.
+
+**What changed, and where:**
+| | end of S1 (A) | start of S2 | where |
+|---|---|---|---|
+| ages | 28, 28, 27 | 29, 29, 28 (at B) | `seasonRollover.ts:103` → `playerDto.ts:493` `ageAllPlayers` |
+| six stats | e.g. [80,96,88,88,99,88] | identical for all three (A→D) | nothing writes them at rollover |
+| retirements | — | none (threshold 40) | `seasonRollover.ts:108`, `RETIREMENT_AGE` |
+| youth promotion | — | none of this squad | `seasonRollover.ts:112` |
+| ranking | 86 pts | new season: no row, then 0 (head start was S1 only) | `careers.ts:278` |
+| contracts | 3 active, all ending `2026-12-31` | all 3 expired at C: team null, inactive, salary 0, contracts terminated | end date hardcoded at `careers.ts:233` via `seedStartingSquad`; expiry at `calendar.ts:538-564` |
+| active squad rating | 86.22 | 60 from C on | `matches.ts:590` `sideRating(activePlayers)` → `matchEngine.ts:61`: an empty list returns a flat 60 |
+| AI pool player stats | hash 472115 over 120 players | identical at E | reference data; nothing writes it |
+| AI field | S1: mean 79.94, max 88.50 | S2: 10 of 18 clubs carried over, mean 78.04, max 85.67 | S2 regional qualifiers (the field got slightly weaker) |
+
+The rollover advance itself reported "Season 1 complete — Season 2 begins". The next advance reported
+"3 contracts expired — players returned to free agency".
+
+In S2 the club plays every match as a phantom pair rated 60, with nobody under contract. The
+diagnostic's first 11 S2 matches went 5W 6L. The weak arc's starting squad is signed to the same
+`2026-12-31`, so both arcs play season 2 onward at 60, which is why both sit near #19.
+
+**Diagnosis:** not a stat reset, not ageing, not retirements, and not an AI strength refresh. Two
+things together:
+1. **Contract length (a design knob):** the starting squad's contracts are one season long and expire
+   on the first day of season 2. The R-08 arc never renews them.
+2. **Silent fallback (a rule question):** a club with no contracted players keeps playing, and
+   keeps winning some matches, as a flat-60 side. The empty squad is hidden rather than surfaced.
+   The dashboard's red "Squad Incomplete" item already says such a club "can't play a match".
+
+**Proposed fix (not applied: contract length and what an empty squad does are Rob's calls):**
+- **Recommended:**
+  - (a) A club without 2 contracted active players cannot field a side, so its match is a forfeit
+    (0-2, through the existing forfeit path) instead of a phantom 60 pair.
+  - (b) The R-08 arc renews expiring contracts through the real contract route before they lapse, as
+    a manager would. It then measures a managed club, and "no signings or training" stays true.
+- **Alternatives, both economy/balance:**
+  - The starting squad signs to the end of the arc (`2030-12-31`).
+  - Contracts auto-renew at rollover.
+
+**Also observed (not at the boundary, not investigated):** at A all three players were injured (two
+"Unavailable", one "Major Injury") with fitness 0, yet active and rated at full stats. Injury and
+fitness appear to play no part in selection or match rating.
+
 ### R-40 — CLOSED, VERIFIED ON SCREEN BY ROB 14 SEP (game 195e769, rebuilt 417cdcd; Unity ea6eb5e)
 
 **Verified on screen by Rob, 14 Sep:** the Electron 3D Court on career 9 shows the full venue and
@@ -1092,7 +1151,7 @@ No All-Star code path can run (no All-Star match exists), so the sacking is not 
 
 Until decided, a full harness run can fail on this by chance. Nothing was changed for it.
 
-### R-46 — CLOSED (14 Sep, the commit carrying this entry): Olympic qualification on this season's World Tour ranking points (Rob's decision on WEEKEND-STATUS Q3)
+### R-46 — CLOSED (14 Sep, 93ba82b): Olympic qualification on this season's World Tour ranking points (Rob's decision on WEEKEND-STATUS Q3)
 **Decision (Rob):**
 - The Olympics are NATIONAL teams.
 - A country qualifies on the World Tour ranking points its players earned THIS SEASON: the sum
@@ -1706,6 +1765,22 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-49 — OPEN (registered 14 Sep): the "logged the drop" check in migration-fixtures is flaky
+`harness/migration-fixtures.mjs:364` asserts `/moved columns dropped/` against the server log.
+
+**Problem:**
+- `bootServer` takes the log once its size has been stable for 600 ms, polled with `setTimeout`,
+  then kills the process.
+- pino writes through a worker thread, so the line can still be in flight when the log is taken.
+
+**Observed:**
+- Failed once, in the 14 Sep final full run. In that same section the migration itself had worked:
+  the moved columns were gone and career state was created.
+- Passed in the R-44, R-45 and R-46 full runs and in three standalone reruns (62/62 each).
+
+**Fix direction (Rob):** wait for the log to flush — for the line itself, or for a flush signal from
+the server — rather than sleeping or timing a quiet period. Not fixed yet.
+
 ### R-39 — electron:dev launched from a Claude Code background task dies within minutes
 Not to be fixed now; recorded so nobody loses an afternoon to it again.
 
@@ -1925,7 +2000,7 @@ Original entry:
 | R-40 WebGL build rendered an empty court | 195e769, rebuilt 417cdcd; verified on screen 14 Sep | Rob: full venue and four players in the Electron 3D Court |
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
-| R-46 Olympic qualification on World Tour points | 14 Sep, the R-46 commit | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,
