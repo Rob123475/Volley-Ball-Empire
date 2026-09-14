@@ -2652,7 +2652,7 @@ starting budget on the dashboard.
 
 ## LOW
 
-### R-58 — CLOSED (14 Sep, PENDING-R58): the dashboard shows the club's tier and where it stands against the board
+### R-58 — CLOSED (14 Sep, bb37664): the dashboard shows the club's tier and where it stands against the board
 **Rob's brief (overnight batch item 5):** the club's current tier badge and the board's expectation
 band in plain words, e.g. "Board expects: top 4 · Currently: 3rd · On track".
 
@@ -3031,7 +3031,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, PENDING-R58 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
+| R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, bb37664 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
 | R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, 92d928e | migration-fixtures 62/62; six mid-migration kills all recovered |
 | R-56 invariants economy probe plays a real career's draw | 14 Sep, 92d928e | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |

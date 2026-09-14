@@ -14,7 +14,7 @@ number below comes from a run in this batch; nothing is estimated.
 | 2 | R-42 | `06488d3` | Trophies written at the season boundary: World Champions, World Final runner-up, World Finals semi-finalist, Silver/Gold tier seasons; shown in the Trophy Cabinet and the season review | trophies 10/10: a fresh career has none; a champion season writes exactly "World Champions 2026" + its tier |
 | 3 | R-43 | `b8f730a` | Deleted the invented world news, Manager Movements, the youth league, the Job Market, poaching offers, the Reputation Bonus card and re-rolled Olympic results (7 files, 2,850 lines, 9 endpoints, 6 tables). Club News now built only from real rows | fake-content-removed 11/11: nothing left in 490 source files or the bundle; an older save loses the tables and still deletes; every news item traces to its row |
 | 4 | R-49, R-56, R-57, R-59 | `92d928e` | Test issues fixed properly: migration-fixtures waits for the server's "Server listening" line; the invariants probe plays a real career's draw; board-review keeps the monthly clock's first start; condition makes its rest-day player fit first | 62/62, invariants sweep runs to the end (2 pass, 0 fail), 58/58, 27/27 |
-| 5 | R-58 | PENDING-R58 | Dashboard tier badge ("Silver tier · 58 pts") and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | dashboard-standing 11/11 |
+| 5 | R-58 | bb37664 | Dashboard tier badge ("Silver tier · 58 pts") and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | dashboard-standing 11/11 |
 
 The full R-43 deletion list, and each item's reasoning, is in the register entry of the same name.
 
