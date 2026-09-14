@@ -27,6 +27,22 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-50 — OPEN (registered 14 Sep, Rob: HIGH, do not fix yet): injuries and fitness play no part in selection or match strength
+**Found during R-48's diagnosis:**
+- At the end of season 1 all three of an established club's players were injured: two
+  "Unavailable" and one "Major Injury", with fitness 0 and fatigue 34.
+- They were still `is_active` and played every match rated on their full stats.
+- Simulate rates a squad by `sideRating(activePlayers)` (`routes/matches.ts`). That reads the six
+  stats only, and `activePlayers` filters on `is_active` alone.
+- Injury status, fitness and fatigue are written (post-match effects, weekly recovery in
+  `calendar.ts`), but nothing that picks the pair or computes match strength reads them.
+
+**When fixed, also check:**
+- the live tick engine's team selection (`utils/match-tick-engine.ts`)
+- the Unity payload
+- R-48's empty-squad rule, which counts contracted active players and so would count an injured one
+  as able to play
+
 ### R-51 — CLOSED (14 Sep, c41cad2): an expiring contract was neither warned about in game time nor renewable
 **Found (Rob's R-48 item 2: does the game warn the manager, with enough notice, and is there a renew action?):**
 - **No renew action existed anywhere.**
