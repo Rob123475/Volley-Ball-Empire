@@ -24,8 +24,8 @@
  * by tier, so tier ACCESS - not win rate within a tier - is the dominant income
  * lever." Winner-takes-all makes win rate the dominant lever, which is the
  * opposite. Runner-up money moves income differences off the coin flip and onto
- * which events a club is eligible to enter at all - the thing the tier gate
- * already controls.
+ * which purses a club is paid in full - the thing its tier controls (R-54: the
+ * tier it finished last season).
  *
  * It is also how real tour purses work. Beach volleyball events pay down the
  * finishing order.
@@ -49,12 +49,11 @@
  * to predictability.
  *
  * The design's answer is that the separation is supposed to come from tier
- * access, not from win rate - a better squad clears thresholds sooner, enters
- * richer events, and the steep per-tier pricing does the rest. That only pays
- * off once the thresholds actually separate the squads, which today they do not
- * (I5 measures all four test squads finishing in the same band). So this change
- * is expected to move I3 and I4 and NOT to fix I1 on its own. Measured, not
- * assumed - see the Phase 3 numbers in docs/economy-design.md.
+ * access, not from win rate - a better squad finishes a higher tier, is paid
+ * richer purses in full the next season, and the steep per-tier pricing does
+ * the rest. So this change was expected to move I3 and I4 and NOT to fix I1 on
+ * its own. Measured, not assumed - see the Phase 3 numbers in
+ * docs/economy-design.md.
  *
  * ── Single source of truth ─────────────────────────────────────────────────
  *
@@ -92,7 +91,7 @@ export function placementShare(won: boolean): number {
  *
  * @param purse       the event's full prize pot
  * @param won         whether the club won the match
- * @param multiplier  tier-eligibility multiplier (see PUSHED_OUT_PRIZE_MULTIPLIER)
+ * @param multiplier  purse-access share (1, or LOCKED_PURSE_MULTIPLIER in utils/tierQualification.ts)
  */
 export function prizeFor(purse: number, won: boolean, multiplier = 1): number {
   if (!Number.isFinite(purse) || purse <= 0) return 0;

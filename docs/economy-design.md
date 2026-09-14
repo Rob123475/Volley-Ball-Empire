@@ -125,6 +125,15 @@ alternative and never reaches Gold at all across the whole arc (peak 41), which
 fails I8's "a well-run club reaches the Grand Final within the arc". Silver 15 /
 Gold 40 stands.
 
+> **Superseded by R-54 (14 Sep 2026).** The model above predates real World Tour
+> fields (R-29), the 57-event season (R-44) and the established head start
+> (R-11). Now every win scores its points with no gate, nobody starts with a
+> head start, and the thresholds are **Silver 55 / Gold 63**, derived from 190
+> real club-seasons so that a typical top-4 club is Gold, #5-#10 Silver and the
+> rest Bronze (`utils/tierQualification.ts`, `docs/REPAIR-REGISTER.md` R-54). A
+> tier now decides one thing: the tier a club finished last season is the
+> highest whose purses it is paid in full.
+
 **Deliberate deviation from the arc, accepted.** §1's arc implies Silver in
 season two and Gold in season three. The measured curve is one season ahead:
 Silver in season one, Gold in season two. Recorded here as a deviation rather
@@ -476,6 +485,12 @@ paper over it. Options, none of them chosen yet:
 Recorded rather than fixed. It is Phase 3 scope only because Phase 3 is what
 concentrated the money there; the pre-Phase-3 table had the same defect on 24.3%
 of the purse instead of 44.1%.
+
+> **Resolved by R-54 (14 Sep 2026), with the third option.** Purse access now
+> follows the tier the club finished last season, so a Gold club is paid the
+> whole Gold card from round 11. Every event is played and every win scores
+> regardless of tier, and points still reset each season, so the ratchet is
+> limited to one season of purse access.
 
 ### 4. Sponsorship, and where money goes
 Reputation-linked, option B decay toward 50 at 5%/week already implemented.

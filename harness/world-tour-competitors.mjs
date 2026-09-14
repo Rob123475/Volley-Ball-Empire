@@ -54,20 +54,17 @@ const LAST_ROUND = FIRST_WT_ROUND + ROUNDS - 1;
 const QUALIFIERS = 3 * 6;              // rules page: 3 qualifiers from each of 6 regions
 const FIELD = QUALIFIERS + 1;          // + the player's club
 
-// Mirrors utils/rankingPoints.ts (TIER_RANKING_POINTS) and
-// utils/tierQualification.ts (TIER_THRESHOLDS, finals ungated). Recomputed here
-// on purpose rather than imported: a harness that calls the code it checks
-// agrees with any bug in it.
+// Mirrors utils/rankingPoints.ts (TIER_RANKING_POINTS). Recomputed here on
+// purpose rather than imported: a harness that calls the code it checks agrees
+// with any bug in it. R-54: every win scores its tier's points — no gate. Rounds
+// 11-22 hold Silver and Gold events long before any club could hold 15 or 40
+// points, so a gate left anywhere in the server fails the reconciliation.
 const TIER_POINTS = {
   "Bronze": 1, "Silver": 2, "Gold": 4, "Continental Final": 6,
   "World Semi Final": 8, "World Final": 15,
 };
-const TIER_THRESHOLD = { "Bronze": 0, "Silver": 15, "Gold": 40 };
-function awarded(tier, won, pointsBefore) {
-  if (!won) return 0;
-  const threshold = TIER_THRESHOLD[tier];
-  if (threshold !== undefined && pointsBefore < threshold) return 0;
-  return TIER_POINTS[tier] ?? 0;
+function awarded(tier, won) {
+  return won ? (TIER_POINTS[tier] ?? 0) : 0;
 }
 
 let failures = 0, checks = 0;
@@ -176,7 +173,7 @@ function reconcile(dbh, careerSaveId, playerCompetitorId, initialPlayerPoints) {
   for (const f of fixtures) {
     const homeWon = f.home_sets > f.away_sets;
     for (const [c, won] of [[f.home_competitor_id, homeWon], [f.away_competitor_id, !homeWon]]) {
-      points.set(c, get(points, c) + awarded(f.tier, won, get(points, c)));
+      points.set(c, get(points, c) + awarded(f.tier, won));
       if (won) wins.set(c, get(wins, c) + 1); else losses.set(c, get(losses, c) + 1);
     }
   }
@@ -343,7 +340,7 @@ for (const [label, career] of [["A", careerA], ["B", careerB]]) {
   const rec = reconcile(dbh, career.careerSaveId, playerCompetitor, career.initialPoints);
   check(`${label}: every ranking row's W/L equals its fixture results`, rec.recordMismatch.length === 0,
     rec.recordMismatch.slice(0, 3).join("; ") || `${rec.rows} rows`);
-  check(`${label}: every ranking row's points equal the recomputation (tier table + gate, round order)`,
+  check(`${label}: every ranking row's points equal the recomputation (tier table, every win scores)`,
     rec.pointMismatch.length === 0, rec.pointMismatch.slice(0, 3).join("; ") || `${rec.rows} rows over ${rec.fixtures} fixtures`);
   const aiPoints = dbh.prepare(`SELECT MAX(r.ranking_points) AS hi, SUM(r.ranking_points) AS total FROM competitor_rankings r
     JOIN competitors c ON c.id = r.competitor_id WHERE r.career_save_id = ? AND c.pool_team_id IS NOT NULL`).get(career.careerSaveId);

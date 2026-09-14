@@ -17,7 +17,7 @@ import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { ensureBoardSeason } from "../utils/board-confidence.js";
 import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
 import {
-  isCareerDifficulty, startingBudgetFor, startingRankingPointsFor,
+  isCareerDifficulty, startingBudgetFor,
   type CareerDifficulty,
 } from "../utils/careerDifficulty.js";
 
@@ -284,9 +284,9 @@ router.post("/careers", async (req, res) => {
   // gained a row on a career's first PLAYED match — a schedule alone
   // doesn't rank you. Seed a zero row so the player appears on their own
   // ladder from day one instead of the ladder staying empty until then.
-  // R-11: ESTABLISHED starts with a ranking-points head start (see
-  // careerDifficulty.ts) — "starts roughly one tier further along."
-  await ensureCompetitorRanking(newTeam.id, inserted!.id, season1!.year, startingRankingPointsFor(difficulty));
+  // R-54: every club starts at zero. R-11's established head start is gone;
+  // difficulty sets season 1's purse access instead (careerDifficulty.ts).
+  await ensureCompetitorRanking(newTeam.id, inserted!.id, season1!.year);
 
   const sid = getSessionId(req);
   if (sid) {

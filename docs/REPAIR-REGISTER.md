@@ -1136,7 +1136,7 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
-### R-54 — OPEN, REPORTED (14 Sep, Rob: MEDIUM; report, do not fix): ranking points versus tier look miscalibrated
+### R-54 — CLOSED (14 Sep, R54HASH): tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier
 **Symptom (R-52 final run):**
 - RollStrong (established) earned 63 points and Gold in season 1 at 31W 24L, with the 20-point head
   start.
@@ -1209,12 +1209,139 @@ independent win probability per match):
 4. **I8's calibration no longer holds.** The model it was set against is gone: real opponents, 57
    events, the head start.
 
-**Options (not applied):**
+**Options reported:**
 - tiers qualified on the previous season's final standing or ranking (the ratchet the reset decision
   rejected)
 - wins count toward points at every tier, with the gate applying only to the purse
 - thresholds proportional to events played so far
 - the head start applied every season, or never
+
+**Decision (Rob, 14 Sep):**
+- Tiers must follow what the player can see.
+- Drop the gate ("a win scores nothing until you hold 15/40") and the season-1 head start.
+- Re-derive Silver and Gold from the real 57-event season with real opponents, so that in the
+  typical season a top-4 club is Gold, a top-10 club Silver, and the rest Bronze.
+- **Purse access follows the tier the club finished last season.** I asked, because 55/63 are
+  season-end levels; under the old live rule almost every Silver and Gold purse would have paid 10%
+  all season. In season 1, established clubs get Silver access and underdogs Bronze.
+
+**Numbers (proposed, then implemented):**
+- **Points per win unchanged:** Bronze 1, Silver 2, Gold 4, World Semi Final 8, World Final 15.
+  - Every win scores; a loss scores 0.
+  - Points reset each season, and every club starts at 0.
+- **Data:** `scripts/r54-tier-thresholds.mjs`, run before the change.
+  - 12 careers through the real API on a starter-DB copy; 10 complete season-1 fields (the old
+    board sacked 2 underdogs); 190 club-seasons.
+  - Every club was scored from `world_tour_fixtures` with every win counted, then ranked by points,
+    wins and set difference. Match results never depended on points, so the scoring is exact.
+  - **Points by finish, median (range):**
+
+    | finish | median | range |
+    |---|---|---|
+    | #1 | 91 | 75-99 |
+    | #2 | 84.5 | 70-91 |
+    | #3 | 69 | 66-76 |
+    | #4 | 65 | 63-71 |
+    | #5 | 62 | 58-67 |
+    | #6 | 62 | 57-67 |
+    | #9 | 56 | 54-59 |
+    | #10 | 55.5 | 51-58 |
+    | #11 | 53 | 50-56 |
+    | #12 | 51.5 | 49-56 |
+    | #19 | 36 | 31-39 |
+
+- **Gold 63, Silver 55:**
+  - Every sampled top-4 club reached 63 (40 of 40); the median #5 did not.
+  - The median #10 reached 55; the median #11 did not.
+  - This agrees with top-4 Gold / #5-#10 Silver / #11-#19 Bronze for 92.1% of the 190 club-seasons.
+  - Gold 64 agreed for 92.6% but left one sampled #4 at Silver. I chose 63 so that a top-4 finish
+    is Gold.
+  - The #4 and #5 ranges overlap (63-71 against 58-67), so a strong #5 can still reach Gold.
+
+**Fixed:**
+- **`utils/tierQualification.ts` rewritten:**
+  - the thresholds, with their derivation
+  - `tierForPoints`
+  - `purseAccessFor(eventTier, accessTier)`: open or finals pay in full; `above_access` pays
+    `LOCKED_PURSE_MULTIPLIER` (0.1)
+  - Deleted: `eligibilityFor`, `below_threshold`, `above_tier`, `unlockedTiers`, `currentTier`,
+    `nextTierGap`, `PUSHED_OUT_PRIZE_MULTIPLIER`.
+- **`utils/rankingPoints.ts`:**
+  - `awardedPoints` deleted; `creditCompetitorTx` credits `rankingPointsFor` to every club, AI and
+    player
+  - `currentRanking` returns the `tier`
+  - new `purseAccessTierFor`: last season's ranking row gives the tier; with no row, difficulty
+    decides
+- **`utils/careerDifficulty.ts`:**
+  - `ESTABLISHED_STARTING_RANKING_POINTS` and `startingRankingPointsFor` deleted
+  - `SEASON_ONE_PURSE_TIER` added (established Silver, underdog Bronze)
+  - `ensureCompetitorRanking` lost its initial-points parameter
+- **Routes:**
+  - `/matches/:id/simulate` pays by purse access.
+  - `GET /matches` carries `purse`, replacing `eligibility`.
+  - `GET /seasons/ranking` adds `purseAccessTier` and `tierThresholds`.
+  - The season review's ranking carries `tier`. The review dialog shows it, with "next season pays
+    X purses in full".
+- **Player-facing text:** the wizard taglines and the `CareerDifficulty` spec text no longer say
+  "Bronze-locked" or "Silver/Gold from day one".
+- **Harness:**
+  - world-tour-competitors and world-tour-byes reconcile every club's points with every win scored.
+    Rounds 11-22 hold Silver and Gold events long before any club could hold 15 or 40, so a gate
+    surviving anywhere fails them.
+  - career-difficulty asserts: both difficulties start at 0; season-1 access is Bronze (underdog)
+    and Silver (established), read from each career's own fixture list; and a source scan for the
+    gate and the head start, with a planted line, finds nothing.
+  - smoke §7 asserts purse access on every fixture.
+  - rollover mirrors 55/63, and asserts each next season's access equals the tier just reached.
+  - `invariants.mjs`: model updated (see findings below).
+- **`docs/economy-design.md`:** the Silver 15 / Gold 40 decision and the "Gold is unreachable in
+  time" finding are annotated as superseded and resolved by R-54.
+
+**Verified:**
+- **Suites:** world-tour-competitors 38/38, world-tour-byes 18/18, career-difficulty 15/15,
+  olympic-qualification 29/29.
+- **Checks:** `pnpm run typecheck` with every guard clean.
+- **Full harness 24/24, rollover 78/78.** The five-season table from the final run:
+
+  | career | S1 | S2 | S3 | S4 |
+  |---|---|---|---|---|
+  | RollStrong (est.) | 37W 18L, 75 Gold, #4, semi | 33W 22L, 68 Gold, #4, semi | 36W 20L, 94 Gold, #1, champion | 38W 18L, 96 Gold, #1, champion |
+  | RollStrong2 (est.) | 35W 21L, 90 Gold, #1, champion | 38W 18L, 100 Gold, #1, champion | 42W 14L, 106 Gold, #1, champion | 36W 19L, 70 Gold, #4, semi |
+  | RollStrong3 (est.) | 37W 19L, 96 Gold, #1, champion | 33W 21L, 64 Gold, #5 | 37W 19L, 82 Gold, #2, runner-up | 40W 15L, 77 Gold, #3, semi |
+  | RollWeak (und.) | 19W 35L, 32 Bronze, #18 | 15W 39L, 29 Bronze, #19 | 14W 40L, 23 Bronze, #19 | 24W 30L, 51 Bronze, #12 |
+  | RollWeak2 (und.) | 21W 33L, 38 Bronze, #16 | 15W 39L, 36 Bronze, #18 | 16W 38L, 33 Bronze, #18 | 19W 35L, 36 Bronze, #19 |
+  | RollWeak3 (und.) | 12W 42L, 21 Bronze, #19 | 14W 40L, 30 Bronze, #19 | 14W 40L, 25 Bronze, #19 | 16W 38L, 30 Bronze, #19 |
+
+  - Balances at the end of S4: established $3.98M-$4.35M; underdog $1.25M-$1.31M.
+  - Every top-4 finish was Gold. RollStrong3's #5 at 64 was also Gold. Every underdog season (#12-#19,
+    21-51 points) was Bronze.
+  - In the first R-54 full run, which failed only on RollA (below): #1-#4 were Gold (66-96 points)
+    and #6-#8 Silver (57-59).
+  - Each next season's purse access equalled the tier just reached: 24 of 24 transitions.
+  - The symptom this entry was filed for is gone. RollStrong used to finish #3-#4 at 37W 18L and
+    41W 14L and end Silver on 22-30 points; a #3-#4 finish is now Gold on 68-77.
+
+**Found on the way, for Rob (not changed):**
+1. **An established club is sacked more often than the arcs show.**
+   - In R-54's first full run, rollover's RollA walk (established) finished 7th twice and was
+     sacked at the season-2 review. That is R-53 working as approved: two failed seasons running.
+   - The walk was ruled out as a cause. A probe on a starter-DB copy (scratchpad
+     `r54_rolla_probe.mjs`) ran two careers each way, RollA's skip-match walk and the arcs' walk:
+     - skip-match careers: 0 forfeits and 0 unplayed matches; finishes #3, #1, #1, #5
+     - an arc-style established career: #9 at 28W 26L
+   - Across both R-54 runs, the #1-rated pair finished #6-#10 in 5 of 26 established seasons.
+     Two in a row sacks. The arcs reported 0 of 3 sacked both times.
+   - **Balance untouched.** RollA's walk exists to test ageing, retirement and promotion across all
+     five boundaries, so it now runs as an underdog. Targets of #19 and #18 are met by any finish,
+     so the board cannot end it before its season-5 verdict; the worst case is confidence 35.
+2. **`harness/invariants.mjs` has been broken since R-29.** Not part of `run-all`.
+   - Its I1/I4/I5 probe calls `opponentRatingFromTier(e.tier, e.opponent)`, but since R-29
+     (5a91525) World Tour events have no `opponent`, so it crashes in `nameVariance`.
+   - R-54 switched its tier model to the new rules. Its probes now read a temp copy of the starter
+     DB; they used to open the committed file in place.
+   - The opponent model is left alone. Offered as a separate task; not registered.
+3. **Money.** Established balances at the end of S4 are $3.98M-$4.35M, against $2.55M-$3.12M in the
+   R-53 run, because Gold purses now pay in full from season 2. Reported only.
 
 ### R-53 — CLOSED (14 Sep, 393cbac): board confidence reacted to the wrong things; the board now reviews seasons against expectations
 **Symptom (R-48 full run 2):**
@@ -1360,10 +1487,11 @@ verdict that cannot sack, and the forced-sale label is deleted.
   | RollWeak2 (und.) | #16 vs 19, exceeded → 70 | #19 vs 18, met → 75 | #15 vs 17, exceeded → 85 | #18 vs 15, missed → 75 | #15 vs 13, missed → 65 |
   | RollWeak3 (und.) | #19 vs 19, met → 65 | #18 vs 18, met → 70 | #19 vs 17, missed → 60 | #19 vs 15, missed → 50 | #14 vs 13, met → 55 |
 
-**Known and accepted:** the rollover suite's RollA walk (ageing, retirement, promotion over five
-boundaries) plays real matches. An established club is now sackable at a review: it would take two
-failed seasons running, or confidence falling to 20. If that ever happens the walk fails with the
-review text rather than hiding it; it did not happen in this run.
+**Known and accepted, then it happened:** the rollover suite's RollA walk (ageing, retirement,
+promotion over five boundaries) plays real matches, and an established club is sackable at a review
+(two failed seasons running, or confidence falling to 20). It did not happen in this run. It did in
+R-54's first full run (RollA finished 7th twice and was sacked at the season-2 review). R-54 made the
+walk an underdog; see R-54's findings.
 
 ### R-41 — CLOSED (12 Sep, with R-29): `harness/run-all.mjs` had not parsed since R-38
 From `39148cb` (R-38, 11 Sep) until R-29's commit, the full harness could not run at all. Suite 9's
@@ -2457,6 +2585,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, R54HASH | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |
 | R-53 The board reviews seasons against expectations (target at the draw, monthly check, season review, abandonment) | 14 Sep, 393cbac | board-review 50/50: all §5/§5.1 rows match the design, win/loss/forfeit leave confidence unchanged, old code absent (planted lines caught), freeze 403/200, abandonment day 33, review sacking; full harness 24/24, rollover 72/72, 0 of 6 sacked |
 | R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, 696a4e5 | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
 | R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + dc8fbc6 | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |

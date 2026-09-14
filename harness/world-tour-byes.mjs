@@ -57,14 +57,10 @@ const BYES_EACH = 3;
 const REMOVED_ROUNDS = [41, 51, 61];
 const LAST_EVENT_ROUND = 70;
 
-// Mirrors utils/rankingPoints.ts and utils/tierQualification.ts on purpose.
+// Mirrors utils/rankingPoints.ts on purpose. R-54: every win scores, no gate.
 const TIER_POINTS = { "Bronze": 1, "Silver": 2, "Gold": 4, "World Semi Final": 8, "World Final": 15 };
-const TIER_THRESHOLD = { "Bronze": 0, "Silver": 15, "Gold": 40 };
-function awarded(tier, won, before) {
-  if (!won) return 0;
-  const t = TIER_THRESHOLD[tier];
-  if (t !== undefined && before < t) return 0;
-  return TIER_POINTS[tier] ?? 0;
+function awarded(tier, won) {
+  return won ? (TIER_POINTS[tier] ?? 0) : 0;
 }
 
 let failures = 0, checks = 0;
@@ -243,7 +239,7 @@ for (const f of matchRows) {
   const homeWon = f.home_sets > f.away_sets;
   for (const [cId, won] of [[f.home_competitor_id, homeWon], [f.away_competitor_id, !homeWon]]) {
     const before = pts.get(cId) ?? 0;
-    pts.set(cId, before + awarded(f.tier, won, before));
+    pts.set(cId, before + awarded(f.tier, won));
   }
 }
 const ptsWrong = rankings.filter((r) => clubs.includes(r.competitor_id) && r.ranking_points !== (pts.get(r.competitor_id) ?? 0));

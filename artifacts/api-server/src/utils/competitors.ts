@@ -113,18 +113,14 @@ export async function competitorIdForTeam(teamId: number): Promise<number> {
  * creditRankingPoints itself upserts against), so it's safe to call as a
  * repair net for careers created before this existed.
  *
- * `initialRankingPoints` (R-11): the ESTABLISHED difficulty starts a career
- * already clear of the Silver threshold ("starts roughly one tier further
- * along" — docs/economy-design.md). Defaults to 0, the pre-R-11 behaviour,
- * so every other call site (the repair-net call from dashboard.ts included)
- * is unaffected.
+ * Every club starts at zero (R-54 deleted R-11's established head start).
  */
 export async function ensureCompetitorRanking(
-  teamId: number, careerSaveId: number, seasonYear: number, initialRankingPoints = 0,
+  teamId: number, careerSaveId: number, seasonYear: number,
 ): Promise<void> {
   const competitorId = await competitorIdForTeam(teamId);
   await db.insert(competitorRankingsTable)
-    .values({ competitorId, careerSaveId, seasonYear, rankingPoints: initialRankingPoints })
+    .values({ competitorId, careerSaveId, seasonYear })
     .onConflictDoNothing();
 }
 

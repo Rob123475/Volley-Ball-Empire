@@ -5,7 +5,8 @@ import { eq, desc, and } from "drizzle-orm";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
-import { currentRanking, TIER_RANKING_POINTS } from "../utils/rankingPoints.js";
+import { currentRanking, purseAccessTierFor, TIER_RANKING_POINTS } from "../utils/rankingPoints.js";
+import { TIER_THRESHOLDS } from "../utils/tierQualification.js";
 import { loadPlayers } from "../lib/playerDto.js";
 import { seasonNumberForYear, FINAL_SEASON } from "../utils/seasonRollover.js";
 import { worldTourStandings, worldFinalsSummary } from "../utils/worldTour.js";
@@ -42,14 +43,16 @@ router.get("/seasons/ranking", async (req, res) => {
   const season = await getActiveSeason(req);
   if (!season) { res.status(404).json({ error: "No active season" }); return; }
 
-  const ranking = await currentRanking(
-    requireCareerSaveId(req.activeCareerSaveId), team.id, season.year,
-  );
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const ranking = await currentRanking(cid, team.id, season.year);
   res.json({
     seasonYear: season.year,
     ...ranking,
-    // Named so the UI does not have to know the weights.
+    // R-54: the tier finished last season, which sets this season's full purses.
+    purseAccessTier: await purseAccessTierFor(cid, team.id, season.year),
+    // Named so the UI does not have to know the weights or the thresholds.
     pointsByTier: TIER_RANKING_POINTS,
+    tierThresholds: TIER_THRESHOLDS,
   });
 });
 

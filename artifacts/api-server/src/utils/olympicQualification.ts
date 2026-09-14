@@ -14,7 +14,7 @@
  *
  * Where the points come from: player_ranking_points, written by
  * creditCompetitorTx (utils/rankingPoints.ts) on every result that credits a
- * club. Same write, same tier gate, so a player's points are exactly what their
+ * club. Same write, same points, so a player's points are exactly what their
  * club earned while they were on the sand for it.
  *
  * One nation, whatever the spelling: pool players store demonyms ("German")

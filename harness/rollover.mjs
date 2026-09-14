@@ -155,7 +155,17 @@ async function advanceToBoundary(api, maxDays = 500) {
 (async () => {
   console.log("\n=== SEASON ROLLOVER ===\n");
   const A = session();
-  await newCareer(A, "RollA");
+  // R-53/R-54: an UNDERDOG, so the board cannot end this walk before its
+  // season-5 verdict. The walk plays real matches, and an established club
+  // (target #2) finishes #6-#10 in about a quarter of seasons; two such seasons
+  // running are a legitimate sacking (it happened in the R-54 full run: #7, #7).
+  // An underdog's target is #19 in season 1 and #18 in season 2, which any
+  // finish meets, and the money places the arc's balances allow keep season 3's
+  // worst case at "missed" — so at most one failed season (season 4), and
+  // confidence no lower than 60+5+5-10-25 = 35. Ageing, retirement, promotion
+  // and the reviews below do not depend on difficulty. The arcs measure both
+  // difficulties' sack rates.
+  await newCareer(A, "RollA", "underdog");
 
   // Ages before any boundary, so the +1 per season can be checked against them.
   // Baseline BOTH pools: promotion moves 72 academy players into the senior
@@ -346,10 +356,10 @@ async function advanceToBoundary(api, maxDays = 500) {
   // season rather than on the existence of one.
   console.log("\n=== R-08: FIVE-SEASON ARC, REAL FIXTURES — STRONG vs WEAK SQUAD ===\n");
 
-  // Mirrors utils/tierQualification.ts's TIER_THRESHOLDS. Not tunable from
-  // here — if that file's numbers move, update this comment's mirror, not
-  // the number itself; this harness measures, it does not decide thresholds.
-  const TIER_THRESHOLDS = { Bronze: 0, Silver: 15, Gold: 40 };
+  // Mirrors utils/tierQualification.ts's TIER_THRESHOLDS (R-54: derived from
+  // real seasons, every win scored). Not tunable from here — this harness
+  // measures, it does not decide thresholds.
+  const TIER_THRESHOLDS = { Bronze: 0, Silver: 55, Gold: 63 };
   function tierReached(rankingPoints) {
     if (rankingPoints >= TIER_THRESHOLDS.Gold) return "Gold";
     if (rankingPoints >= TIER_THRESHOLDS.Silver) return "Silver";
@@ -448,6 +458,10 @@ async function advanceToBoundary(api, maxDays = 500) {
       prevWins = team.wins; prevLosses = team.losses;
 
       const rankingPoints = review.data?.ranking?.rankingPoints ?? null;
+      // R-54: the season that just opened pays full purses up to the tier this
+      // one reached — read from the new season's own fixtures.
+      const opened = (await api("GET", "/matches")).data;
+      const openedFixture = (Array.isArray(opened) ? opened : []).find((m) => m.season === endedYear + 1 && m.purse);
       const row = {
         season: hit.roll.fromSeason,
         year: endedYear,
@@ -465,6 +479,7 @@ async function advanceToBoundary(api, maxDays = 500) {
         byes: review.data?.fixture?.byes ?? null,
         // R-53: the board's review of this season, as the rollover returned it.
         board: hit.roll.review ?? null,
+        nextAccess: openedFixture?.purse?.accessTier ?? null,
       };
       seasons.push(row);
       console.log(
@@ -544,6 +559,11 @@ async function advanceToBoundary(api, maxDays = 500) {
     check(`${arc.label}: the board reviewed every season it closed`,
       reviews.length === expectedReviews && reviews.every((v) => v && typeof v.text === "string" && v.outcome),
       `${reviews.filter(Boolean).length}/${expectedReviews} reviews`);
+
+    // R-54: purse access is the tier the club finished last season.
+    check(`${arc.label}: each next season pays full purses up to the tier this season reached`,
+      arc.seasons.length > 0 && arc.seasons.every((r) => r.nextAccess === r.tier),
+      arc.seasons.map((r) => `S${r.season} ${r.rankingPoints}pts ${r.tier} -> S${r.season + 1} access ${r.nextAccess}`).join(" | "));
   }
 
 

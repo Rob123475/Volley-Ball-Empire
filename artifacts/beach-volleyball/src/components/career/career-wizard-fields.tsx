@@ -276,7 +276,7 @@ export const DIFFICULTY_OPTIONS: ReadonlyArray<{
   {
     value: "underdog",
     label: "Underdog",
-    tagline: "Bronze-locked. Every signing hurts.",
+    tagline: "Full purses at Bronze only, at first. Every signing hurts.",
     description:
       "Money is tight from the first week. Survival is an achievement — the climb is the game.",
     icon: Sprout,
@@ -284,7 +284,7 @@ export const DIFFICULTY_OPTIONS: ReadonlyArray<{
   {
     value: "established",
     label: "Established",
-    tagline: "Competing in Silver/Gold from day one.",
+    tagline: "Full Silver purses from day one.",
     description:
       "Comfortable but not rich. The job is running a business well, not surviving.",
     icon: Building2,

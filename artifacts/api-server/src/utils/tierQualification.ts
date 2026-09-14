@@ -1,113 +1,99 @@
 /**
- * Tier qualification.
+ * Tiers (R-54).
  *
- * Clubs earn Ranking Points from results; tour tiers gate on that ranking.
- * Decided and modelled in docs/economy-design.md:
+ * A club's tier is where its season's World Tour ranking points put it, so it
+ * follows what the player can see: the standings. Every win scores its event's
+ * points from the first round (Bronze 1, Silver 2, Gold 4, World Semi Final 8,
+ * World Final 15 — utils/rankingPoints.ts), every club starts the season at 0,
+ * and the ranking resets each season.
  *
- *   - Thresholds Silver 15, Gold 40. Checked against alternatives: Silver 20 /
- *     Gold 55 never reaches Gold across the whole arc, which fails I8.
- *   - CUMULATIVE eligibility. Clearing a tier keeps the ones below it, so the
- *     calendar grows as a club rises (29 -> 45 -> 59 events since R-44). The exclusive
- *     alternative FAILS I5: a club climbing to Silver earned less than it had in
- *     Bronze, because promotion traded 32 Bronze events for 18 Silver ones.
- *   - Ranking RESETS each season, so qualification is re-earned annually.
+ * ── The thresholds, derived from real seasons ─────────────────────────────
+ * Re-derived on 14 Sep 2026 from 10 complete season-1 World Tour fields: 190
+ * club-seasons of 57 events plus finals against real drawn opponents, every win
+ * scored (docs/REPAIR-REGISTER.md R-54).
  *
- * Because eligibility is cumulative, a club is never above a tier it has
- * cleared, so D4(b)'s push-out has nothing to bite on in normal play. It is
- * still implemented: the rule is "above your band scores nothing", and it is
- * what would apply if a threshold were ever raised mid-arc.
+ *   finish   season points, median (range)
+ *   #1       91   (75-99)
+ *   #4       65   (63-71)
+ *   #5       62   (58-67)
+ *   #10      55.5 (51-58)
+ *   #11      53   (50-56)
+ *   #19      36   (31-39)
+ *
+ *   Gold 63    every sampled top-4 club reached it (40 of 40); the median #5 did not
+ *   Silver 55  the median #10 reached it; the median #11 did not
+ *
+ * The pair agrees with "top 4 Gold, 5-10 Silver, 11-19 Bronze" for 92.1% of the
+ * 190 club-seasons. Gold 64 agrees for 92.6% but left one sampled #4 at Silver.
+ *
+ * They replace Silver 15 / Gold 40, which were modelled on a 62-event season
+ * against tier-rated opponents, before real fields, the 57-event season and
+ * R-11's established head start existed. On top of those, a Silver or Gold win
+ * scored nothing until the club already held 15 or 40 points, so the tier
+ * measured when a club crossed a gate rather than how good it was: a club
+ * finishing #3-4 could end Silver or Bronze.
+ *
+ * ── What a tier does ──────────────────────────────────────────────────────
+ * Purse access (Rob, R-54): the tier a club finished LAST season is the highest
+ * tier whose purses it is paid in full this season. Above it, an event is still
+ * played and still scores its points, but pays LOCKED_PURSE_MULTIPLIER of its
+ * purse. Season 1 has no last season: difficulty stands in for it
+ * (utils/careerDifficulty.ts SEASON_ONE_PURSE_TIER). The World Finals qualify
+ * from the standings and always pay in full.
  */
 
-export const TIER_THRESHOLDS: Record<string, number> = {
-  "Bronze": 0,
-  "Silver": 15,
-  "Gold":   40,
+export type Tier = "Bronze" | "Silver" | "Gold";
+
+/** Weakest first. */
+export const TIERS: readonly Tier[] = ["Bronze", "Silver", "Gold"];
+
+export const TIER_THRESHOLDS: Record<Tier, number> = {
+  Bronze: 0,
+  Silver: 55,
+  Gold:   63,
 };
 
-/** Ranking-gated tiers, weakest first. Finals are NOT here — see below. */
-export const GATED_TIERS = ["Bronze", "Silver", "Gold"] as const;
+/** What an event above the club's purse access pays, as a share of its purse. */
+export const LOCKED_PURSE_MULTIPLIER = 0.1;
 
-/**
- * Finals qualify from end-of-season standings, not from ranking points, so they
- * are never ranking-gated. `bracketBlockReason` in matches.ts already enforces
- * the semi-before-final ordering.
- */
-const QUALIFICATION_TIERS = new Set([
-  "Continental Final", "World Semi Final", "World Final",
-]);
+/** The finals qualify from the standings, not from a tier. */
+const FINALS_TIERS = new Set(["Continental Final", "World Semi Final", "World Final"]);
 
-export type EligibilityReason =
-  | "open"              // this tier is unlocked
-  | "below_threshold"   // not enough ranking points yet
-  | "above_tier"        // pushed out: D4(b), scores nothing
-  | "qualification";    // finals — decided by standings, not ranking
+export function isTier(value: unknown): value is Tier {
+  return typeof value === "string" && (TIERS as readonly string[]).includes(value);
+}
 
-export type Eligibility = {
-  eligible: boolean;
-  reason: EligibilityReason;
-  /** What this tier requires, when it is ranking-gated. */
-  threshold: number | null;
-  /** What the club has right now. */
-  currentPoints: number;
-  /** How far away, when below. Null when eligible or not applicable. */
-  gap: number | null;
-  /** Whether a win here scores ranking points and a full purse. */
-  scores: boolean;
+/** The tier a season's ranking points reach. */
+export function tierForPoints(points: number): Tier {
+  if (points >= TIER_THRESHOLDS.Gold) return "Gold";
+  if (points >= TIER_THRESHOLDS.Silver) return "Silver";
+  return "Bronze";
+}
+
+export type PurseAccess = {
+  /** The event's tier, as scheduled. */
+  eventTier: string | null;
+  /** The highest tier this club is paid in full this season. */
+  accessTier: Tier;
+  fullPurse: boolean;
+  /** The share of the purse this club is paid: 1, or LOCKED_PURSE_MULTIPLIER. */
+  multiplier: number;
+  /** open: at or below access; finals: always full; above_access: 10% until the club finishes a season at this tier. */
+  reason: "open" | "finals" | "above_access";
 };
 
 /**
- * The single place a fixture's eligibility is decided.
- *
- * Returned WITH every fixture rather than only on rejection: "why a club did or
- * did not qualify must be legible, never silent", and a rejection on click is
- * too late — by then the player has already chosen.
+ * The single place a fixture's purse is decided. Returned WITH every fixture so
+ * the player sees what an event pays before playing it, not after.
  */
-export function eligibilityFor(tier: string | null | undefined, points: number): Eligibility {
-  const t = tier ?? "";
-
-  if (QUALIFICATION_TIERS.has(t)) {
-    return { eligible: true, reason: "qualification", threshold: null, currentPoints: points, gap: null, scores: true };
+export function purseAccessFor(eventTier: string | null | undefined, accessTier: Tier): PurseAccess {
+  const tier = eventTier ?? null;
+  if (tier != null && FINALS_TIERS.has(tier)) {
+    return { eventTier: tier, accessTier, fullPurse: true, multiplier: 1, reason: "finals" };
   }
-
-  const threshold = TIER_THRESHOLDS[t];
-  if (threshold === undefined) {
-    // An unknown tier is treated as open rather than silently blocked — a
-    // typo in the schedule must not make a fixture unenterable with no reason.
-    return { eligible: true, reason: "open", threshold: null, currentPoints: points, gap: null, scores: true };
+  // An unknown or absent tier (a friendly) is open rather than silently cut.
+  if (!isTier(tier) || TIERS.indexOf(tier) <= TIERS.indexOf(accessTier)) {
+    return { eventTier: tier, accessTier, fullPurse: true, multiplier: 1, reason: "open" };
   }
-
-  if (points < threshold) {
-    return {
-      eligible: false, reason: "below_threshold", threshold,
-      currentPoints: points, gap: threshold - points, scores: false,
-    };
-  }
-
-  return { eligible: true, reason: "open", threshold, currentPoints: points, gap: null, scores: true };
+  return { eventTier: tier, accessTier, fullPurse: false, multiplier: LOCKED_PURSE_MULTIPLIER, reason: "above_access" };
 }
-
-/** The tiers a club has unlocked, weakest first. */
-export function unlockedTiers(points: number): string[] {
-  return GATED_TIERS.filter((t) => points >= (TIER_THRESHOLDS[t] ?? 0));
-}
-
-/** The highest tier unlocked — what a UI would call the club's current tier. */
-export function currentTier(points: number): string {
-  return unlockedTiers(points).at(-1) ?? "Bronze";
-}
-
-/** Points still needed for the next tier, or null at the top. */
-export function nextTierGap(points: number): { tier: string; threshold: number; gap: number } | null {
-  for (const t of GATED_TIERS) {
-    const threshold = TIER_THRESHOLDS[t] ?? 0;
-    if (points < threshold) return { tier: t, threshold, gap: threshold - points };
-  }
-  return null;
-}
-
-/**
- * D4(b): a club above a tier may still enter, but the purse is sharply reduced
- * and no ranking points are awarded. Kept rather than making the fixture
- * ineligible so the calendar stays full and the penalty is legible on the card.
- */
-export const PUSHED_OUT_PRIZE_MULTIPLIER = 0.1;

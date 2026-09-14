@@ -23,6 +23,7 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 
@@ -49,6 +50,12 @@ function record(id, name, verdict, detail) {
  * Run a probe inside the api-server package, under Electron's node so the
  * native better-sqlite3 ABI matches, importing the REAL engine modules.
  */
+// The probes read the shipped roster from a COPY of the starter database: it
+// is a committed artifact, and opening it in place (WAL mode) can leave a -wal
+// sidecar beside it.
+const PROBE_DB = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "vbe-invariants-")), "starter.sqlite");
+fs.copyFileSync(path.join(REPO, "lib", "db", "volleyball-empire.sqlite"), PROBE_DB);
+
 function probe(source) {
   const file = path.join(REPO, "artifacts", "api-server", "src", `__probe_${Date.now()}.ts`);
   fs.writeFileSync(file, source);
@@ -56,7 +63,7 @@ function probe(source) {
     const r = spawnSync(ELECTRON, [TSX, file], {
       cwd: path.join(REPO, "artifacts", "api-server"),
       encoding: "utf8",
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: path.join(REPO, "lib", "db", "volleyball-empire.sqlite") },
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: PROBE_DB },
     });
     if (r.status !== 0) {
       throw new Error(`probe failed (${r.status}):${NEWLINE}${r.stdout}${NEWLINE}${r.stderr}`);
@@ -181,7 +188,7 @@ console.log(JSON.stringify({ events: WORLD_TOUR.length, total, biggest, byTier }
 import { WORLD_TOUR } from "./data/worldTour.js";
 import { pointProbability, simulateMatch, sideRating, opponentRatingFromTier } from "./utils/matchEngine.js";
 import { monthlyWage } from "./utils/wageCurve.js";
-import { eligibilityFor, currentTier, PUSHED_OUT_PRIZE_MULTIPLIER } from "./utils/tierQualification.js";
+import { tierForPoints, purseAccessFor, type Tier } from "./utils/tierQualification.js";
 import { prizeFor } from "./utils/prizeDistribution.js";
 import { rankingPointsFor } from "./utils/rankingPoints.js";
 import { db, playersTable } from "@workspace/db";
@@ -243,44 +250,46 @@ for (const squad of SQUADS) {
   // player does not re-open his contract.
   const seasonWage = squad.wageFrom.reduce((s: number, p: any) => s + monthlyWage(p.askingPrice), 0) * 12;
 
-  // A GATED season, walked in schedule order.
+  // A season walked in schedule order (R-54).
   //
-  // This can no longer be a per-event expectation. Eligibility depends on
-  // ranking points the club has actually banked BY THAT POINT in the season, so
-  // whether an event can be entered at all depends on realised earlier results.
-  // Averaging whole ordered seasons is the only way to measure that; averaging
-  // per-event win probabilities would silently assume the club was eligible for
-  // everything, which is the assumption the old model carried and gating exists
-  // to remove.
+  // Every event is played and every win scores its points. The purse pays in
+  // full up to the club's ACCESS tier — the tier it finished last season — and
+  // at the locked share above it. So the squad is measured at its steady state:
+  // warm-up seasons from Silver access find the tier this squad reaches, and
+  // the measured seasons are played on that access.
   const schedule = [...WORLD_TOUR].sort((a: any, b: any) => a.round - b.round);
   const SEASONS = 200;
   const goldOnCard = schedule.filter((e: any) => e.tier === "Gold").length;
-  let expected = 0, entered = 0, scored = 0, endPoints = 0, goldIn = 0;
-
-  for (let run = 0; run < SEASONS; run++) {
+  const playSeason = (access: Tier) => {
     let points = 0, income = 0, n = 0, sc = 0, gold = 0;
     for (const e of schedule) {
-      const elig = eligibilityFor(e.tier, points);
-      // Below the threshold the club cannot enter at all. Above its band it may
-      // enter for a token purse and no points (D4b).
-      if (!elig.eligible) continue;
+      const purse = purseAccessFor(e.tier, access);
       n++;
-      if (e.tier === "Gold") gold++;
+      if (e.tier === "Gold" && purse.fullPurse) gold++;
       const opp = opponentRatingFromTier(e.tier, e.opponent, squad.season);
       const p = pointProbability(rating, opp, { homeAdvantage: false });
       const won = simulateMatch(p).homeWon;
       // Both finishers are paid — the split is imported, never restated here.
-      income += prizeFor(e.prize, won, elig.scores ? 1 : PUSHED_OUT_PRIZE_MULTIPLIER);
-      if (won && elig.scores) { points += rankingPointsFor(e.tier, true); sc++; }
+      income += prizeFor(e.prize, won, purse.multiplier);
+      if (won) { points += rankingPointsFor(e.tier, true); sc++; }
     }
-    expected += income; entered += n; scored += sc; endPoints += points; goldIn += gold;
+    return { points, income, n, sc, gold };
+  };
+  let warm = 0;
+  for (let run = 0; run < 20; run++) warm += playSeason("Silver").points;
+  const access = tierForPoints(warm / 20);
+
+  let expected = 0, entered = 0, scored = 0, endPoints = 0, goldIn = 0;
+  for (let run = 0; run < SEASONS; run++) {
+    const s = playSeason(access);
+    expected += s.income; entered += s.n; scored += s.sc; endPoints += s.points; goldIn += s.gold;
   }
 
   expected /= SEASONS; entered /= SEASONS; scored /= SEASONS; endPoints /= SEASONS;
   goldIn /= SEASONS;
   out.squads.push({
     label: squad.label, rating, seasonWage, expected, net: expected - seasonWage,
-    entered, scored, endPoints, tier: currentTier(endPoints),
+    entered, scored, endPoints, tier: tierForPoints(endPoints), access,
     goldIn, goldOnCard, season: squad.season,
   });
 }
@@ -350,7 +359,7 @@ process.exit(0);
   const i5rows = d.squads.map((s) =>
     `  ${s.label.padEnd(10)} reached ${s.tier.padEnd(6)} on ${s.endPoints.toFixed(1)} pts   ` +
     `${s.entered.toFixed(0)} entered / ${s.scored.toFixed(1)} scored   ` +
-    `Gold ${s.goldIn.toFixed(1)}/${s.goldOnCard}   ` +
+    `access ${s.access}   Gold paid in full ${s.goldIn.toFixed(1)}/${s.goldOnCard}   ` +
     `income $${Math.round(s.expected).toLocaleString()}`);
   if (tiersReached.length < 2) {
     record("I5", "CLIMBING PAYS", "VIOLATED",
@@ -359,10 +368,8 @@ process.exit(0);
        `All four squads finish in the SAME band (${tiersReached[0]}), so there is no`,
        `tier boundary between a ${d.squads[0].rating.toFixed(1)}-rated squad and a` +
        ` ${d.squads[d.squads.length - 1].rating.toFixed(1)}-rated one.`,
-       `The gate is not separating them. That is a THRESHOLD question, not a`,
-       `prize question: Silver 15 / Gold 40 were set to make Gold reachable`,
-       `across the arc (I8), and the same setting makes it reachable by everyone`,
-       `in season one. Needs re-tuning once Phase 3 fixes the purses.`,
+       `The tiers are not separating them. Silver 55 / Gold 63 were derived in`,
+       `R-54 from real World Tour fields, not from these tier-rated opponents.`,
       ].join(NEWLINE));
   } else {
     const order = ["Bronze", "Silver", "Gold"];
@@ -373,14 +380,10 @@ process.exit(0);
        ``,
        `${tiersReached.length} bands reached; income ${pays ? "rises" : "does NOT rise"} with tier.`,
        ``,
-       `READ THE Gold COLUMN BEFORE BELIEVING THIS. Reaching Gold and PLAYING`,
-       `Gold are not the same thing. Ranking resets every season, so a club`,
-       `climbs from zero each year and crosses 40 points late — by which time`,
-       `most of the 14 Gold events on the card have already been and gone. The`,
-       `Gold tier holds 44.1% of the season's prize money and is entered a`,
-       `fraction of a time per season even by a squad that clears the gate.`,
-       `Qualifying in time to spend it is a SCHEDULING problem, and it is not`,
-       `solved by moving the threshold.`,
+       `R-54: every event is played and every win scores; a tier decides next`,
+       `season's full purses. The Gold column counts Gold events paid in full on`,
+       `the access tier each squad sustains, so the whole Gold card pays a squad`,
+       `that finishes seasons at Gold.`,
       ].join(NEWLINE));
   }
 

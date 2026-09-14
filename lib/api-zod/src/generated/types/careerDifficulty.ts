@@ -7,7 +7,7 @@
  */
 
 /**
- * R-11 (docs/economy-design.md): UNDERDOG is Bronze-locked with a tight starting budget; ESTABLISHED starts roughly one tier further along with a comfortable budget. Defaults to established when omitted.
+ * R-11 (docs/economy-design.md): UNDERDOG starts with a tight budget and, in season 1, full purses only at Bronze events; ESTABLISHED starts with a comfortable budget and full Silver purses. Both start at 0 ranking points (R-54). Defaults to established when omitted.
  */
 export type CareerDifficulty = typeof CareerDifficulty[keyof typeof CareerDifficulty];
 

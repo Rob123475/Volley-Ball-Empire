@@ -11,7 +11,7 @@
  *   earned     playing World Tour rounds 11-16 through the calendar credits the
  *              players who played: each AI club's two players hold exactly the
  *              club's points and matches, the player's two starters hold what the
- *              club earned (not its difficulty head start), nobody else holds any
+ *              club earned, nobody else holds any
  *   nations    every player resolves to one nation whatever the column's spelling
  *              ("German" pool players and "Germany" seniors are one country)
  *   season A   a high-rated country H earns few points and a low-rated country L
@@ -206,12 +206,12 @@ const starters = d.prepare(
   `SELECT player_id FROM career_player_state WHERE career_save_id = ? AND team_id = ? AND squad_role = 'starter'`)
   .all(careerSaveId, teamId).map((r) => r.player_id);
 const ownRows = earnedRows.filter((r) => r.competitor_id === own?.id);
-check("the player's club: each of its two starters holds what the club earned (not its head start) and its matches",
+check("the player's club: each of its two starters holds what the club earned and its matches",
   !!own && starters.length === 2 && ownRows.length === 2 && starters.every((pid) => {
     const r = ownRows.find((x) => x.player_id === pid);
     return r && r.ranking_points === own.points - initialPoints && r.matches === own.matches;
   }),
-  `club ${own?.points} pts incl. head start ${initialPoints}, ${own?.matches} matches; rows ${JSON.stringify(ownRows.map((r) => [r.player_id, r.ranking_points, r.matches]))}`);
+  `club ${own?.points} pts (started at ${initialPoints}), ${own?.matches} matches; rows ${JSON.stringify(ownRows.map((r) => [r.player_id, r.ranking_points, r.matches]))}`);
 check("nobody else holds points: the interchange and reserves did not play",
   earnedRows.length === aiClubs.length * 2 + 2, `${earnedRows.length} rows`);
 check("AI players actually earned points", earnedRows.some((r) => r.pool_player_id != null && r.ranking_points > 0));

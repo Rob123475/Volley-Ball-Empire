@@ -5,10 +5,12 @@ import {
   continentalPoolPlayersTable,
   careerPlayerStateTable,
   playerRankingPointsTable,
+  careerSavesTable,
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { competitorIdForTeam, competitorIdForTeamTx } from "./competitors.js";
-import { eligibilityFor } from "./tierQualification.js";
+import { tierForPoints, type Tier } from "./tierQualification.js";
+import { isCareerDifficulty, SEASON_ONE_PURSE_TIER } from "./careerDifficulty.js";
 
 /**
  * Ranking points.
@@ -30,9 +32,10 @@ import { eligibilityFor } from "./tierQualification.js";
  * roughly doubling per tier so that climbing is worth more than farming, with
  * the finals worth a large multiple because they are once-a-season.
  *
- * A loss is worth zero. That is also provisional: a participation point would
- * make entering everything strictly better than choosing, which is the exact
- * behaviour the push-out rule exists to prevent.
+ * A loss is worth zero.
+ *
+ * R-54: every win scores these, from the first round. There is no gate: a
+ * Silver or Gold win used to score 0 until the club already held 15 or 40.
  */
 export const TIER_RANKING_POINTS: Record<string, number> = {
   "Bronze":            1,
@@ -49,29 +52,11 @@ export function rankingPointsFor(tier: string | null | undefined, won: boolean):
 }
 
 /**
- * Points actually awarded, after the tier gate.
- *
- * A club pushed out of a tier scores nothing there (D4b) — that is the rule
- * that stops a strong club farming Bronze, and it has to be applied where the
- * points are credited rather than trusted to the entry check, because a fixture
- * can be entered by a club whose ranking has moved since it was scheduled.
- */
-export function awardedPoints(
-  tier: string | null | undefined,
-  won: boolean,
-  currentPoints: number,
-): number {
-  if (!won) return 0;
-  const elig = eligibilityFor(tier, currentPoints);
-  return elig.scores ? rankingPointsFor(tier, won) : 0;
-}
-
-/**
  * Credit a result to this career's season ranking.
  *
  * Upserts, so the first result of a season creates the row. Wins and losses are
- * both counted even when the points are zero, because "events entered" and the
- * win/loss split are what the push-out rule and the standings need.
+ * both counted, because "events entered" and the win/loss split are what the
+ * standings need.
  */
 export async function creditRankingPoints(args: {
   careerSaveId: number;
@@ -94,8 +79,8 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 /**
  * The one place a result becomes ranking points, for ANY competitor — the
  * player's club through creditRankingPoints above, and every AI club in the
- * World Tour (R-29, utils/worldTour.ts). One table, one gate, one write, so an
- * AI club and the player cannot be scored by different rules.
+ * World Tour (R-29, utils/worldTour.ts). One points table, one write, so an AI
+ * club and the player cannot be scored by different rules.
  *
  * Synchronous and transaction-bound: AI fixtures are played inside the World
  * Tour's own transaction, which better-sqlite3 cannot await.
@@ -113,9 +98,8 @@ export function creditCompetitorTx(tx: Tx, args: {
     eq(competitorRankingsTable.seasonYear, args.seasonYear),
   )).get();
 
-  // The gate is applied against the ranking as it stands BEFORE this result,
-  // which is the ranking the club had when it entered.
-  const points = awardedPoints(args.tier, args.won, existing?.rankingPoints ?? 0);
+  // R-54: every win scores its tier's points, whatever the club already holds.
+  const points = rankingPointsFor(args.tier, args.won);
 
   if (!existing) {
     tx.insert(competitorRankingsTable).values({
@@ -153,8 +137,8 @@ export function creditCompetitorTx(tx: Tx, args: {
  * PLAYERS earned this season, whichever club they play for. So every result a
  * club is credited with is also written against its pair on the sand: an AI
  * club's two pool players (they never change club), or the player's club's two
- * starters at the moment of the result. Same points as the club, after the
- * same gate; matches count even when the points are zero.
+ * starters at the moment of the result. Same points as the club; matches count
+ * even when the points are zero.
  */
 function creditPlayersTx(tx: Tx, args: {
   careerSaveId: number;
@@ -223,12 +207,12 @@ function creditPlayersTx(tx: Tx, args: {
   }
 }
 
-/** This career's ranking for a season. Zero when nothing has been played. */
+/** This career's ranking for a season, and the tier it reaches. Zero when nothing has been played. */
 export async function currentRanking(
   careerSaveId: number,
   teamId: number,
   seasonYear: number,
-): Promise<{ rankingPoints: number; eventsEntered: number; wins: number; losses: number }> {
+): Promise<{ rankingPoints: number; eventsEntered: number; wins: number; losses: number; tier: Tier }> {
   const competitorId = await competitorIdForTeam(teamId);
   const [row] = await db.select().from(competitorRankingsTable).where(and(
     eq(competitorRankingsTable.competitorId, competitorId),
@@ -240,5 +224,32 @@ export async function currentRanking(
     eventsEntered: row?.eventsEntered ?? 0,
     wins:          row?.wins ?? 0,
     losses:        row?.losses ?? 0,
+    tier:          tierForPoints(row?.rankingPoints ?? 0),
   };
+}
+
+/**
+ * R-54: the highest tier whose purses this club is paid in full in a season —
+ * the tier its ranking points reached the season before. A career with no
+ * ranking for the year before (its first season) starts on its difficulty's
+ * access tier.
+ */
+export async function purseAccessTierFor(careerSaveId: number, teamId: number, seasonYear: number): Promise<Tier> {
+  const competitorId = await competitorIdForTeam(teamId);
+  const [previous] = await db.select({ points: competitorRankingsTable.rankingPoints })
+    .from(competitorRankingsTable)
+    .where(and(
+      eq(competitorRankingsTable.competitorId, competitorId),
+      eq(competitorRankingsTable.careerSaveId, careerSaveId),
+      eq(competitorRankingsTable.seasonYear, seasonYear - 1),
+    ))
+    .limit(1);
+  if (previous) return tierForPoints(previous.points);
+
+  const [save] = await db.select({ difficulty: careerSavesTable.difficulty })
+    .from(careerSavesTable)
+    .where(eq(careerSavesTable.id, careerSaveId))
+    .limit(1);
+  const difficulty = save?.difficulty;
+  return SEASON_ONE_PURSE_TIER[isCareerDifficulty(difficulty) ? difficulty : "established"];
 }

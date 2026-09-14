@@ -28,7 +28,7 @@ export type SeasonReview = {
   status: string | null;
   record: { wins: number; losses: number };
   balance: number;
-  ranking: { rankingPoints: number; eventsEntered: number; wins: number; losses: number };
+  ranking: { rankingPoints: number; eventsEntered: number; wins: number; losses: number; tier: "Bronze" | "Silver" | "Gold" };
   playerRank: number | null;
   standings: Array<{ rank: number; teamName: string | null; isPlayer: boolean; points: number | null }>;
   retired: Array<{ id: number; name: string | null; age: number | null }>;
@@ -103,8 +103,8 @@ export function SeasonReviewDialog({ year, onClose }: { year: number | null; onC
               />
               <Stat
                 icon={TrendingUp} label="Ranking points"
-                value={String(data.ranking.rankingPoints)}
-                hint={`${data.ranking.eventsEntered} events entered`}
+                value={`${data.ranking.rankingPoints} · ${data.ranking.tier}`}
+                hint={`${data.ranking.eventsEntered} events entered · next season pays ${data.ranking.tier} purses in full`}
               />
               <Stat icon={Wallet} label="Balance" value={money(data.balance)} />
               <Stat

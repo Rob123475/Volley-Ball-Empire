@@ -216,30 +216,30 @@ const roster = async (api) => {
       `${rank.data?.rankingPoints} points from ${rank.data?.wins} wins`);
   }
 
-  // ── 7. Tier qualification is visible on every fixture ────────────────────
-  // Eligibility travels WITH the fixture. A rejection on click is too late —
-  // the player has already chosen by then.
-  console.log("\n7. TIER QUALIFICATION");
+  // ── 7. Purse access is visible on every fixture (R-54) ──────────────────
+  // Every fixture is played and every win scores. The tier the club finished
+  // last season (its difficulty's tier in season 1) decides which purses pay in
+  // full, and that travels WITH the fixture so the player sees it first.
+  console.log("\n7. PURSE ACCESS");
   const fixtures = await A("GET", "/matches");
   const fx = Array.isArray(fixtures.data) ? fixtures.data : [];
-  check("fixtures carry eligibility", fx.length > 0 && fx.every((m) => m.eligibility),
-    `${fx.filter((m) => m.eligibility).length}/${fx.length}`);
+  check("fixtures carry purse access", fx.length > 0 && fx.every((m) => m.purse),
+    `${fx.filter((m) => m.purse).length}/${fx.length}`);
 
   const bronze = fx.filter((m) => m.tier === "Bronze");
+  const silver = fx.filter((m) => m.tier === "Silver");
   const gold   = fx.filter((m) => m.tier === "Gold");
-  check("Bronze is open to a new club",
-    bronze.length === 0 || bronze.every((m) => m.eligibility.eligible),
-    `${bronze.length} Bronze fixtures`);
-  check("Gold is locked, with the threshold and gap stated",
-    gold.length === 0 || gold.every((m) =>
-      !m.eligibility.eligible
-      && m.eligibility.reason === "below_threshold"
-      && m.eligibility.threshold === 40
-      && typeof m.eligibility.gap === "number"),
-    gold.length ? `gap ${gold[0].eligibility.gap} to ${gold[0].eligibility.threshold}` : "no Gold fixtures");
-  const finals = fx.filter((m) => m.tier === "World Final");
-  check("finals are qualification-gated, not ranking-gated",
-    finals.length === 0 || finals.every((m) => m.eligibility.reason === "qualification"),
+  check("a new established club's access tier is Silver",
+    fx.length > 0 && fx.every((m) => m.purse?.accessTier === "Silver"), fx[0]?.purse?.accessTier);
+  check("Bronze and Silver pay the full purse",
+    [...bronze, ...silver].every((m) => m.purse.fullPurse && m.purse.multiplier === 1 && m.purse.reason === "open"),
+    `${bronze.length} Bronze, ${silver.length} Silver`);
+  check("Gold pays 10% until the club has finished a season at Gold, and says why",
+    gold.length > 0 && gold.every((m) => !m.purse.fullPurse && m.purse.multiplier === 0.1 && m.purse.reason === "above_access"),
+    `${gold.length} Gold fixtures`);
+  const finals = fx.filter((m) => m.tier === "World Final" || m.tier === "World Semi Final");
+  check("the finals always pay in full",
+    finals.length === 0 || finals.every((m) => m.purse.fullPurse && m.purse.reason === "finals"),
     `${finals.length} finals`);
 
   // ── 8. The club picker actually renders every club ──────────────────────

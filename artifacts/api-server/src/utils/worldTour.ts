@@ -16,7 +16,7 @@
  *                `matches` row, so lineup, economy and Unity are untouched
  *   AI games   = played through the SAME engine as the player's match —
  *                sideRating over real players, pointProbability, simulateMatch
- *   points     = the SAME ranking table and tier gate, via creditCompetitorTx
+ *   points     = the SAME ranking table, via creditCompetitorTx
  *   standings  = competitor_rankings for this career and season, nothing else
  *   finals     = seeded top 4 from those standings (D5): 1v4, 2v3, winners meet
  *
@@ -252,8 +252,7 @@ export function drawWorldTourTx(
 
   // Every entrant gets its ranking row now, at zero, so the standings are the
   // whole field from the first round rather than whoever has already played.
-  // The player's row already exists (R-26) with its difficulty head start
-  // (R-11); onConflictDoNothing leaves it alone.
+  // The player's row already exists (R-26); onConflictDoNothing leaves it alone.
   for (const competitorId of [playerCompetitorId, ...field.map((f) => f.competitorId)]) {
     tx.insert(competitorRankingsTable)
       .values({ competitorId, careerSaveId, seasonYear })
