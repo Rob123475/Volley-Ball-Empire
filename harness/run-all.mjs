@@ -43,152 +43,158 @@ function runSuite(name, file) {
 // The guards run FIRST. If a guard has gone inert, every check after it is
 // reporting on a net with a hole in it, and the run should say so before
 // anything else claims to have passed.
-console.log("\n########## 1/28  GUARD SELF-TEST ##########");
+console.log("\n########## 1/29  GUARD SELF-TEST ##########");
 runSuite("guard self-test", path.join(REPO, "harness", "guard-selftest.mjs"));
 
 // Schema drift runs before the data migrations, for the same reason
 // ensureSchema runs before them at boot: every migration below assumes its
 // columns exist. A save that has fallen behind the code fails here first, with
 // the column named, rather than three suites later as a confusing data error.
-console.log("\n########## 2/28  SCHEMA DRIFT (R-01) ##########");
+console.log("\n########## 2/29  SCHEMA DRIFT (R-01) ##########");
 runSuite("schema drift", path.join(REPO, "harness", "schema-drift.mjs"));
 
 // Same reasoning, one layer down: ensureReferenceData() runs right after
 // ensureSchema() at boot, so its own drift check belongs right after schema
 // drift's here too — a save missing reference ROWS (not columns) fails here
 // first, with the row named, rather than as a confusing FK error later.
-console.log("\n########## 3/28  REFERENCE DATA BACKFILL (R-28) ##########");
+console.log("\n########## 3/29  REFERENCE DATA BACKFILL (R-28) ##########");
 runSuite("reference data backfill", path.join(REPO, "harness", "reference-data-backfill.mjs"));
 
 // Same boot-time pass, the other half of it: R-28 inserts missing rows, R-33
 // updates stale ones. Sits right next to R-28's suite for the same reason.
-console.log("\n########## 4/28  REFERENCE DATA UPDATE (R-33) ##########");
+console.log("\n########## 4/29  REFERENCE DATA UPDATE (R-33) ##########");
 runSuite("reference data update", path.join(REPO, "harness", "reference-data-update.mjs"));
 
 // Same boot-time pass again: R-28/R-33 only touch rows a save already has —
 // this is what happens when the starter DB has a player row the save has
 // never seen at all.
-console.log("\n########## 5/28  REFERENCE DATA NEW PLAYERS (R-34) ##########");
+console.log("\n########## 5/29  REFERENCE DATA NEW PLAYERS (R-34) ##########");
 runSuite("reference data new players", path.join(REPO, "harness", "reference-data-new-players.mjs"));
 
 // One layer up from all of the above: this is the only suite that boots
 // electron/main.js itself rather than just the server, because the R-23
 // save-folder rename migration is main.js's own logic, running before
 // ensureSchema/ensureReferenceData ever see the moved DB.
-console.log("\n########## 6/28  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
+console.log("\n########## 6/29  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########");
 runSuite("save folder migration", path.join(REPO, "harness", "save-folder-migration.mjs"));
 
 // The other end of the same process lifecycle R-23 touches at boot: this one
 // is shutdown. A real fork(), not spawn() — the IPC channel the shutdown
 // message travels over only exists on a forked child.
-console.log("\n########## 7/28  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########");
+console.log("\n########## 7/29  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########");
 runSuite("wal checkpoint on shutdown", path.join(REPO, "harness", "wal-checkpoint-shutdown.mjs"));
 
-console.log("\n########## 8/28  UNITY PAYLOAD SKIN TONE / KIT COLOUR (R-22) ##########");
+console.log("\n########## 8/29  UNITY PAYLOAD SKIN TONE / KIT COLOUR (R-22) ##########");
 runSuite("unity match-state payload", path.join(REPO, "harness", "unity-match-state-payload.mjs"));
 
 // The same endpoint, one layer up: R-22 made the payload carry the right values,
 // R-38 made it possible to ASK for them at all. /unity/match-state read the
 // career from the session, which neither a WebGL iframe nor Editor Play mode has,
 // so the loader it exists to feed could never call it.
-console.log("\n########## 9/28  UNITY MATCH-STATE CAREER SCOPING (R-38) ##########");
+console.log("\n########## 9/29  UNITY MATCH-STATE CAREER SCOPING (R-38) ##########");
 runSuite("unity career scoping", path.join(REPO, "harness", "unity-career-scoping.mjs"));
 
 // Same freeAgents/isActive contradiction R-22 fixed in the Unity payload,
 // found in the live match-simulation engine's own fallback roster lookup.
-console.log("\n########## 10/28  LIVE MATCH TICK FALLBACK ROSTER (R-32) ##########");
+console.log("\n########## 10/29  LIVE MATCH TICK FALLBACK ROSTER (R-32) ##########");
 runSuite("match tick fallback roster", path.join(REPO, "harness", "match-tick-fallback-roster.mjs"));
 
-console.log("\n########## 11/28  MIGRATION FIXTURES ##########");
+console.log("\n########## 11/29  MIGRATION FIXTURES ##########");
 runSuite("migration fixtures", path.join(REPO, "harness", "migration-fixtures.mjs"));
 
-console.log("\n########## 12/28  FRESH INSTALL CHAIN ##########");
+console.log("\n########## 12/29  FRESH INSTALL CHAIN ##########");
 runSuite("fresh install", path.join(REPO, "harness", "fresh-install.mjs"));
 
-console.log("\n########## 13/28  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
+console.log("\n########## 13/29  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########");
 runSuite("fixture transaction", path.join(REPO, "harness", "fixture-transaction.mjs"));
 
 // Own throwaway DB + server: creates one career of each difficulty in the
 // same session and diffs their starting budget, ranking points and squad —
 // there is no "correct number" to check against (the design doc gives none),
 // only that the two starts are actually different.
-console.log("\n########## 14/28  CAREER DIFFICULTY (R-11) ##########");
+console.log("\n########## 14/29  CAREER DIFFICULTY (R-11) ##########");
 runSuite("career difficulty", path.join(REPO, "harness", "career-difficulty.mjs"));
 
 // Own throwaway DB + server. R-53 replaced R-09's per-result ladder: the
 // review rules over the design's own career tables, the target at the draw,
 // the monthly freeze, abandonment and a sacking at the season review, plus
 // proof the old +3/-5 path is gone.
-console.log("\n########## 15/28  BOARD SEASON REVIEW (R-53) ##########");
+console.log("\n########## 15/29  BOARD SEASON REVIEW (R-53) ##########");
 runSuite("board review", path.join(REPO, "harness", "board-review.mjs"));
 
 // R-29: two careers, a dozen real World Tour rounds each, every AI result and
 // ranking point reconciled against its fixtures, plus sabotaged copies the
 // checks must fail on. Own DB and server.
-console.log("\n########## 16/28  WORLD TOUR COMPETITORS (R-29) ##########");
+console.log("\n########## 16/29  WORLD TOUR COMPETITORS (R-29) ##########");
 runSuite("world tour competitors", path.join(REPO, "harness", "world-tour-competitors.mjs"));
 
 // R-44: a full regular season. Every club 54 matches and 3 byes, one bye in every
 // 19 rounds, byes stored and worth nothing, the player's bye visible, Advance
 // straight through it. Own DB and server.
-console.log("\n########## 17/28  WORLD TOUR BYES (R-44) ##########");
+console.log("\n########## 17/29  WORLD TOUR BYES (R-44) ##########");
 runSuite("world tour byes", path.join(REPO, "harness", "world-tour-byes.mjs"));
 
 // R-45: a fresh career's season has no All-Star fixture and is exactly 59
 // matches; nothing built or shipped mentions an All-Star. Own DB and server.
-console.log("\n########## 18/28  ALL-STAR REMOVED (R-45) ##########");
+console.log("\n########## 18/29  ALL-STAR REMOVED (R-45) ##########");
 runSuite("all-star removed", path.join(REPO, "harness", "all-star-removed.mjs"));
 
 // R-46: Olympic qualification is national, on this season's World Tour points:
 // real play credits the players, two seasons of high-rated vs low-rated
 // countries, ratings changing nothing, the rules page wording. Own DB and server.
-console.log("\n########## 19/28  OLYMPIC QUALIFICATION (R-46) ##########");
+console.log("\n########## 19/29  OLYMPIC QUALIFICATION (R-46) ##########");
 runSuite("olympic qualification", path.join(REPO, "harness", "olympic-qualification.mjs"));
 
 // R-48 (1): starting-squad contracts are dated from the career's own first
 // season, never a literal year. Own DB and server.
-console.log("\n########## 20/28  STARTING CONTRACTS (R-48) ##########");
+console.log("\n########## 20/29  STARTING CONTRACTS (R-48) ##########");
 runSuite("starting contracts", path.join(REPO, "harness", "starting-contracts.mjs"));
 
 // R-51: contracts can be renewed, and expiry is warned about and dated on the
 // game clock. Own DB and server.
-console.log("\n########## 21/28  CONTRACT RENEWAL (R-51) ##########");
+console.log("\n########## 21/29  CONTRACT RENEWAL (R-51) ##########");
 runSuite("contract renewal", path.join(REPO, "harness", "contract-renewal.mjs"));
 
 // R-48: a club without two contracted players forfeits its matches instead of
 // playing as a phantom side. Own DB and server.
-console.log("\n########## 22/28  EMPTY SQUAD FORFEIT (R-48) ##########");
+console.log("\n########## 22/29  EMPTY SQUAD FORFEIT (R-48) ##########");
 runSuite("empty squad forfeit", path.join(REPO, "harness", "squad-forfeit.mjs"));
 
 // R-50: injuries and fitness decide who plays and how well — selection never
 // picks an injured player, fitness scales the side's rating, rest days recover,
 // injuries heal weekly, plus a 5,000-match sample per fitness level. Own DB and
 // server.
-console.log("\n########## 23/28  INJURIES AND FITNESS (R-50) ##########");
+console.log("\n########## 23/29  INJURIES AND FITNESS (R-50) ##########");
 runSuite("injuries and fitness", path.join(REPO, "harness", "condition.mjs"));
 
 // R-42: trophies are written at the season boundary — a fresh career has none,
 // and real season-1 careers get exactly the rows their finals and tier earned,
 // including a champion season. Own DB and server.
-console.log("\n########## 24/28  SEASON TROPHIES (R-42) ##########");
+console.log("\n########## 24/29  SEASON TROPHIES (R-42) ##########");
 runSuite("season trophies", path.join(REPO, "harness", "trophies.mjs"));
 
 // R-43: invented content is deleted — nothing of it in the source, the bundle or
 // the starter database; an older save loses its tables at boot and its profile
 // still deletes; the removed endpoints 404; every news item names a real row;
 // the Olympic schedule is a projected draw. Own DB and server.
-console.log("\n########## 25/28  INVENTED CONTENT REMOVED (R-43) ##########");
+console.log("\n########## 25/29  INVENTED CONTENT REMOVED (R-43) ##########");
 runSuite("invented content removed", path.join(REPO, "harness", "fake-content-removed.mjs"));
 
 // R-58: the dashboard's tier badge and the board's standing line — read from the
 // API, the board's current finish is the standings rank graded by its own bands,
 // the words follow the band, the badge is the season's ranking row. Own DB and
 // server.
-console.log("\n########## 26/28  DASHBOARD TIER AND BOARD STANDING (R-58) ##########");
+console.log("\n########## 26/29  DASHBOARD TIER AND BOARD STANDING (R-58) ##########");
 runSuite("dashboard standing", path.join(REPO, "harness", "dashboard-standing.mjs"));
 
+// R-60: Resign and Break Contract end the career through the same path as a
+// sacking, the save keeps its club, and a save an older build left without one
+// is finished at boot. Own DB and server.
+console.log("\n########## 27/29  RESIGN AND BREAK CONTRACT END THE CAREER (R-60) ##########");
+runSuite("career ends", path.join(REPO, "harness", "career-ends.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
-console.log("\n########## 27/28  GAMEPLAY SMOKE ##########");
+console.log("\n########## 28/29  GAMEPLAY SMOKE ##########");
 {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-smoke-"));
   const db = path.join(work, "smoke.sqlite");
@@ -232,7 +238,7 @@ console.log("\n########## 27/28  GAMEPLAY SMOKE ##########");
     // Rollover reuses the same server: it walks a fresh career through all five
     // season boundaries, which is slow but is the only way to prove the arc
     // actually completes rather than compiling.
-    console.log("\n########## 28/28  SEASON ROLLOVER ##########");
+    console.log("\n########## 29/29  SEASON ROLLOVER ##########");
     const rollStart = Date.now();
     const rr = spawnSync(
       process.execPath,

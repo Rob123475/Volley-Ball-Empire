@@ -2661,6 +2661,38 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-60 — CLOSED (15 Sep, PENDING-R60): Resign and Break Contract end the career; no save is left without a club
+**Rob's decision (15 Sep):** for this release both END the career — a confirmation dialog that says
+plainly "This ends your career at <club>. There is no job market yet.", then the career goes to the
+finished state (the same path as a sacking, with its own reason). No save may ever be left with no
+club. A real job market built from real AI clubs and reputation is noted under V2 in
+`docs/triage.md`.
+
+**Before:** both routes set `career_saves.team_id` to null and left the manager "unemployed" for a
+Job Market that was invented (R-43 deleted it). Such a save could not be loaded
+(`POST /careers/:id/load` refuses a save with no team) and had nothing to play.
+
+**Fix:**
+- `POST /careers/resign` and `POST /careers/break-contract` both call `endCareer` — the function
+  every sacking goes through: Hall of Fame archive, history entry, `retired_at`, session cleared —
+  with their own type and reason ("…resigned from X. The career has ended: there is no job market
+  yet."). Break Contract still takes the $25,000 release clause from the club's budget first. The
+  save keeps its club. Both answer `careerEnded: true`.
+- `utils/clublessCareers.ts`, at boot: any save an older build left with no club and not finished is
+  marked finished. It is not archived to the Hall of Fame — that archive is built from the club's
+  record, and the link to the club was cleared.
+- Both dialogs say the sentence, then go to the finished screen, which now names each ending (You've
+  Been Sacked / You Resigned / You Broke Your Contract) with the recorded reason.
+- Spec: `careerEnded` on both results; `retirement` added to the history entry types (`/careers/end`
+  already wrote it).
+
+**Harness (new):** `harness/career-ends.mjs`, run-all 27/29. 12/12: both dialogs carry the sentence
+and route to the finished screen, which handles all three endings; no route in `careers.ts` clears a
+save's club; resigning finishes the career (retired, club kept, "resigned from Resigner FC… no job
+market yet" first in the history, one Hall of Fame row, dashboard 404, a second resign 400); breaking
+the contract takes 500,000 → 475,000 and finishes it the same way; no open save without a club; a
+save set up the way an older build left it is finished at the next boot.
+
 ### R-58 — CLOSED (14 Sep, bb37664): the dashboard shows the club's tier and where it stands against the board
 **Rob's brief (overnight batch item 5):** the club's current tier badge and the board's expectation
 band in plain words, e.g. "Board expects: top 4 · Currently: 3rd · On track".
@@ -3040,6 +3072,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, PENDING-R60 | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |
 | R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, bb37664 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
 | R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, 92d928e | migration-fixtures 62/62; six mid-migration kills all recovered |

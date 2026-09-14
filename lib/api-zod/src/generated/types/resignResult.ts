@@ -9,4 +9,6 @@
 export interface ResignResult {
   ok: boolean;
   clubName: string;
+  /** R-60 — always true; the career is finished. */
+  careerEnded: boolean;
 }

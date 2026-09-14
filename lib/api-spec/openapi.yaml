@@ -1506,7 +1506,7 @@ paths:
     post:
       operationId: resignCareer
       tags: [careers]
-      summary: Resign from the current club — manager becomes unemployed, history entry recorded
+      summary: Resign from the current club — R-60, ends the career (the same finished state as a sacking, with its own reason); there is no job market
       responses:
         "200":
           description: Resigned successfully
@@ -1523,7 +1523,7 @@ paths:
     post:
       operationId: breakContract
       tags: [careers]
-      summary: Break contract early — pays release clause, manager becomes unemployed
+      summary: Break contract early — pays the release clause from the club's budget, then R-60, ends the career
       responses:
         "200":
           description: Contract broken
@@ -4897,7 +4897,7 @@ components:
           type: integer
         type:
           type: string
-          enum: [resignation, contract_break, appointment, dismissal]
+          enum: [resignation, contract_break, appointment, dismissal, retirement]
         clubName:
           type: string
         season:
@@ -4911,16 +4911,19 @@ components:
 
     ResignResult:
       type: object
-      required: [ok, clubName]
+      required: [ok, clubName, careerEnded]
       properties:
         ok:
           type: boolean
         clubName:
           type: string
+        careerEnded:
+          type: boolean
+          description: R-60 — always true; the career is finished.
 
     BreakContractResult:
       type: object
-      required: [ok, feePaid, newBudget, clubName]
+      required: [ok, feePaid, newBudget, clubName, careerEnded]
       properties:
         ok:
           type: boolean
@@ -4930,6 +4933,9 @@ components:
           type: string
         clubName:
           type: string
+        careerEnded:
+          type: boolean
+          description: R-60 — always true; the career is finished.
 
     HistorySeason:
       type: object

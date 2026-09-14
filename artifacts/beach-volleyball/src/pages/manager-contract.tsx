@@ -139,11 +139,13 @@ export default function ManagerContract() {
     query: { queryKey: getGetManagerContractQueryKey() },
   });
 
+  // R-60: both actions end the career, so both land on the finished screen —
+  // the same one a sacking shows, with this career's own reason.
   const resignMutation = useResignCareer({
     mutation: {
       onSuccess: () => {
         queryClient.clear();
-        navigate("/career");
+        window.location.href = "/career-end";
       },
       onError: () => setActionError("Something went wrong. Please try again."),
     },
@@ -153,7 +155,7 @@ export default function ManagerContract() {
     mutation: {
       onSuccess: () => {
         queryClient.clear();
-        navigate("/career");
+        window.location.href = "/career-end";
       },
       onError: () => setActionError("Something went wrong. Please try again."),
     },
@@ -232,12 +234,12 @@ export default function ManagerContract() {
           <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold px-1">Actions</p>
           <ActionButton
             icon={LogOut} label="Resign"
-            sublabel="Leave your role voluntarily — no compensation paid"
+            sublabel="Ends your career at this club — no compensation paid"
             onClick={() => { setActionError(null); setOpenModal("resign"); }}
           />
           <ActionButton
             icon={Scissors} label="Break Contract"
-            sublabel={`Exit early by paying the ${fmtFee(releaseFee)} release clause`}
+            sublabel={`Pay the ${fmtFee(releaseFee)} release clause and end your career at this club`}
             onClick={() => { setActionError(null); setOpenModal("break"); }}
             variant="destructive"
           />
@@ -266,16 +268,17 @@ export default function ManagerContract() {
 
               <div className="space-y-3 mt-1">
                 <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-4">
-                  <p className="text-sm text-amber-300/80 leading-relaxed">
-                    Resigning ends your contract immediately at{" "}
-                    <span className="font-black text-amber-200">{clubName}</span>.
-                    You will become unemployed and receive no compensation.
+                  <p className="text-sm text-amber-200 font-semibold leading-relaxed" data-testid="resign-ends-career">
+                    This ends your career at {clubName}. There is no job market yet.
+                  </p>
+                  <p className="text-xs text-amber-300/70 mt-2 leading-relaxed">
+                    You receive no compensation.
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/8 bg-white/3 p-4 space-y-2 text-sm text-white/55">
-                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> Career save is kept — your history is preserved</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> Club and players are not deleted</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> A history entry will be recorded</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> The career is finished, as a sacking would finish it, and archived to the Hall of Fame</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> Your resignation is recorded in your manager history</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> To play on, start a new career or load another save</div>
                 </div>
                 {actionError && (
                   <div className="flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/8 px-4 py-3 text-sm text-rose-400">
@@ -326,13 +329,17 @@ export default function ManagerContract() {
                   <p className="text-xs text-rose-300/60 mt-1">
                     This amount will be deducted from{" "}
                     <span className="font-bold text-rose-300">{clubName}</span>'s budget immediately.
-                    You will then become unemployed.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-rose-500/20 bg-rose-500/8 p-4">
+                  <p className="text-sm text-rose-200 font-semibold leading-relaxed" data-testid="break-ends-career">
+                    This ends your career at {clubName}. There is no job market yet.
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/8 bg-white/3 p-4 space-y-2 text-sm text-white/55">
-                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> Career save is kept — your history is preserved</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> Club and players are not deleted</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> A history entry will be recorded</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> The career is finished, as a sacking would finish it, and archived to the Hall of Fame</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> The broken contract is recorded in your manager history</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" /> To play on, start a new career or load another save</div>
                 </div>
                 {actionError && (
                   <div className="flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/8 px-4 py-3 text-sm text-rose-400">

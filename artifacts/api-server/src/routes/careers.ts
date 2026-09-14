@@ -6,7 +6,7 @@ import {
   careerHistoryEntriesTable,
   seasonsTable,
 } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
 import { deleteCareerSave } from "../utils/deleteCareerSave.js";
@@ -486,58 +486,40 @@ router.get("/careers/history", async (req, res) => {
   })));
 });
 
-// ── POST /careers/resign — leave current club voluntarily ─────────────────────
+// ── Resign / Break Contract — R-60: both END the career ───────────────────────
+//
+// These used to set the save's team_id to null and leave the manager
+// "unemployed", waiting for a Job Market that was invented (R-43 deleted it).
+// A save with no club has nowhere to go and nothing to play. Rob's rule for this
+// release: resigning and breaking a contract both end the career — the same
+// endCareer a sacking goes through (Hall of Fame, history, retired, session
+// cleared), each with its own reason. The save keeps its club: no save is ever
+// left with none (utils/clublessCareers.ts finishes any an older build left).
+
+async function activeSaveFor(teamId: number, userId: string) {
+  const [save] = await db.select().from(careerSavesTable).where(and(
+    eq(careerSavesTable.teamId, teamId),
+    eq(careerSavesTable.userId, userId),
+    isNull(careerSavesTable.retiredAt),
+  ));
+  return save ?? null;
+}
 
 router.post("/careers/resign", async (req, res) => {
   if (!req.user?.id)   { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const teamId = req.activeTeamId;
   if (!teamId) { res.status(400).json({ error: "No active career to resign from" }); return; }
+  if (!(await activeSaveFor(teamId, req.user.id))) { res.status(404).json({ error: "Career save not found" }); return; }
 
-  // Find the career save linked to this team
-  const [save] = await db
-    .select()
-    .from(careerSavesTable)
-    .where(and(
-      eq(careerSavesTable.teamId,  teamId),
-      eq(careerSavesTable.userId,  req.user.id),
-    ));
-
-  if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
-
-  const clubName = save.clubName;
-  const season   = save.season;
-
-  // Record career history entry
-  await db.insert(careerHistoryEntriesTable).values({
-    userId:       req.user.id,
-    careerSaveId: save.id,
-    type:         "resignation",
-    clubName,
-    season,
-    description:  `Resigned from ${clubName}`,
+  const summary = await endCareer(req, teamId, req.user.id, {
+    type: "resignation",
+    description: (s) =>
+      `${s.managerName} resigned from ${s.clubName}. The career has ended: there is no job market yet.`,
   });
 
-  // Disconnect career save from team (unemployed — team record stays intact)
-  await db
-    .update(careerSavesTable)
-    .set({ teamId: null, lastPlayedAt: new Date() })
-    .where(eq(careerSavesTable.id, save.id));
-
-  // Clear session's active team
-  const sid = getSessionId(req);
-  if (sid) {
-    const session = await getSession(sid);
-    if (session) {
-      const { activeTeamId: _, ...rest } = session;
-      await updateSession(sid, rest);
-    }
-  }
-
-  res.json({ ok: true, clubName });
+  res.json({ ok: true, clubName: summary.clubName, careerEnded: true });
 });
-
-// ── POST /careers/break-contract — exit early, pay release clause ─────────────
 
 router.post("/careers/break-contract", async (req, res) => {
   if (!req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -545,56 +527,24 @@ router.post("/careers/break-contract", async (req, res) => {
   const teamId = req.activeTeamId;
   if (!teamId) { res.status(400).json({ error: "No active career" }); return; }
 
-  // Find career save and team in parallel
-  const [[save], [team]] = await Promise.all([
-    db.select().from(careerSavesTable).where(and(
-      eq(careerSavesTable.teamId,  teamId),
-      eq(careerSavesTable.userId,  req.user.id),
-    )),
+  const [save, [team]] = await Promise.all([
+    activeSaveFor(teamId, req.user.id),
     db.select().from(teamsTable).where(eq(teamsTable.id, teamId)),
   ]);
-
   if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
-  const clubName   = save.clubName;
-  const season     = save.season;
-  const oldBudget  = team.budget;
-  const newBudget  = oldBudget - BREAK_CONTRACT_FEE;
+  // The release clause is still paid, from the club's budget, before the career ends.
+  const newBudget = team.budget - BREAK_CONTRACT_FEE;
+  await db.update(teamsTable).set({ budget: newBudget }).where(eq(teamsTable.id, teamId));
 
-  // Deduct release clause from team budget
-  await db
-    .update(teamsTable)
-    .set({ budget: newBudget })
-    .where(eq(teamsTable.id, teamId));
-
-  // Record career history entry
-  await db.insert(careerHistoryEntriesTable).values({
-    userId:       req.user.id,
-    careerSaveId: save.id,
-    type:         "contract_break",
-    clubName,
-    season,
-    description:  `Broke contract with ${clubName} (paid $${BREAK_CONTRACT_FEE.toLocaleString()} release clause)`,
+  const summary = await endCareer(req, teamId, req.user.id, {
+    type: "contract_break",
+    description: (s) =>
+      `${s.managerName} broke the contract with ${s.clubName}, paying the $${BREAK_CONTRACT_FEE.toLocaleString("en-US")} release clause. The career has ended: there is no job market yet.`,
   });
 
-  // Disconnect career save from team
-  await db
-    .update(careerSavesTable)
-    .set({ teamId: null, lastPlayedAt: new Date() })
-    .where(eq(careerSavesTable.id, save.id));
-
-  // Clear session
-  const sid = getSessionId(req);
-  if (sid) {
-    const session = await getSession(sid);
-    if (session) {
-      const { activeTeamId: _, ...rest } = session;
-      await updateSession(sid, rest);
-    }
-  }
-
-  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName });
+  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName: summary.clubName, careerEnded: true });
 });
 
 export default router;

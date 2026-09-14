@@ -11,4 +11,6 @@ export interface BreakContractResult {
   feePaid: number;
   newBudget: string;
   clubName: string;
+  /** R-60 — always true; the career is finished. */
+  careerEnded: boolean;
 }

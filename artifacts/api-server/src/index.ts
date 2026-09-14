@@ -9,6 +9,7 @@ import {
 } from "./utils/migrateCareerState";
 import { ensureSchema, ensureReferenceData } from "./utils/ensureSchema";
 import { dropRemovedContent } from "./utils/removedContent";
+import { finishClublessCareers } from "./utils/clublessCareers";
 
 // R-31: electron/main.js forks this process and already has a live IPC
 // channel to it (confirmed by its own pre-existing child.disconnect() call
@@ -187,6 +188,17 @@ try {
   }
 } catch (err) {
   logger.error({ err }, "dropping removed content failed");
+}
+
+// R-60: a save an older build left without a club (resign / break contract) is
+// finished, the way resigning finishes a career now.
+try {
+  const clubless = finishClublessCareers();
+  if (clubless.finished > 0) {
+    logger.info({ finished: clubless.finished }, "careers left without a club finished");
+  }
+} catch (err) {
+  logger.error({ err }, "finishing careers left without a club failed");
 }
 
 app.listen(port, (err) => {

@@ -350,6 +350,14 @@ opening the app, not by any check.
 
 Not repairs and not scheduled — parked so they are not lost.
 
+- **A real job market.** Rob wants it if time allows (15 September 2026, R-60). For this
+  release Resign and Break Contract END the career, because the only job market the game
+  had was invented (hardcoded listings, R-43) and accepting a job created a club with no
+  squad and no fixtures. A real one would be built from the real AI clubs — the pool
+  clubs a career already plays against — and the manager's reputation: which clubs
+  have an opening, what they expect (the board bands, R-55), and a taken job moving the
+  career to that club's squad, budget, fixtures and board.
+
 - **All-Star events.** Removed on 14 September 2026 (R-45, Rob's decision). No event
   on the schedule ever produced one: the All-Star page could only say "not yet
   scheduled", while the fixture, prize, ranking, eligibility and forfeit code carried

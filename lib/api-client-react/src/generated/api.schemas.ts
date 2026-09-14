@@ -2215,6 +2215,7 @@ export const CareerHistoryEntryType = {
   contract_break: 'contract_break',
   appointment: 'appointment',
   dismissal: 'dismissal',
+  retirement: 'retirement',
 } as const;
 
 export interface CareerHistoryEntry {
@@ -2229,6 +2230,8 @@ export interface CareerHistoryEntry {
 export interface ResignResult {
   ok: boolean;
   clubName: string;
+  /** R-60 — always true; the career is finished. */
+  careerEnded: boolean;
 }
 
 export interface BreakContractResult {
@@ -2236,6 +2239,8 @@ export interface BreakContractResult {
   feePaid: number;
   newBudget: string;
   clubName: string;
+  /** R-60 — always true; the career is finished. */
+  careerEnded: boolean;
 }
 
 export interface HistorySeason {

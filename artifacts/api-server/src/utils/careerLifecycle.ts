@@ -64,12 +64,12 @@ export type CareerSummary = Awaited<ReturnType<typeof buildCareerSummary>>;
 /**
  * Archives to Hall of Fame, writes one history entry, marks the career save
  * retired, and clears it from the session. This is the one place a career
- * ACTUALLY ends (as opposed to resign/break-contract, which only disconnect
- * the manager from a club — the save stays alive, without a club).
+ * ends.
  *
- * Used by voluntary retirement (POST /careers/end) and by the board-
- * confidence fail state (sacked at zero confidence, R-09) — same
- * termination, different history `type`/`description`.
+ * Used by voluntary retirement (POST /careers/end), by every sacking (the
+ * season review and abandonment, R-53), and — R-60 — by resigning and breaking
+ * a contract: same termination, different history `type`/`description`. The
+ * save keeps its club link; nothing ever leaves a save without a club.
  */
 export async function endCareer(
   req: Request,

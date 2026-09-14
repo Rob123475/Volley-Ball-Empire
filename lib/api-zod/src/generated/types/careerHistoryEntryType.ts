@@ -14,4 +14,5 @@ export const CareerHistoryEntryType = {
   contract_break: 'contract_break',
   appointment: 'appointment',
   dismissal: 'dismissal',
+  retirement: 'retirement',
 } as const;

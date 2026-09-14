@@ -10873,7 +10873,7 @@ export const DeleteCareerSaveResponse = zod.object({
  */
 export const GetCareerHistoryResponseItem = zod.object({
   "id": zod.number(),
-  "type": zod.enum(['resignation', 'contract_break', 'appointment', 'dismissal']),
+  "type": zod.enum(['resignation', 'contract_break', 'appointment', 'dismissal', 'retirement']),
   "clubName": zod.string(),
   "season": zod.string().nullish(),
   "description": zod.string(),
@@ -10883,22 +10883,24 @@ export const GetCareerHistoryResponse = zod.array(GetCareerHistoryResponseItem)
 
 
 /**
- * @summary Resign from the current club — manager becomes unemployed, history entry recorded
+ * @summary Resign from the current club — R-60, ends the career (the same finished state as a sacking, with its own reason); there is no job market
  */
 export const ResignCareerResponse = zod.object({
   "ok": zod.boolean(),
-  "clubName": zod.string()
+  "clubName": zod.string(),
+  "careerEnded": zod.boolean().describe('R-60 — always true; the career is finished.')
 })
 
 
 /**
- * @summary Break contract early — pays release clause, manager becomes unemployed
+ * @summary Break contract early — pays the release clause from the club's budget, then R-60, ends the career
  */
 export const BreakContractResponse = zod.object({
   "ok": zod.boolean(),
   "feePaid": zod.number(),
   "newBudget": zod.string(),
-  "clubName": zod.string()
+  "clubName": zod.string(),
+  "careerEnded": zod.boolean().describe('R-60 — always true; the career is finished.')
 })
 
 

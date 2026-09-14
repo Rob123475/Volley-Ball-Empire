@@ -6246,7 +6246,7 @@ export const getResignCareerUrl = () => {
 }
 
 /**
- * @summary Resign from the current club — manager becomes unemployed, history entry recorded
+ * @summary Resign from the current club — R-60, ends the career (the same finished state as a sacking, with its own reason); there is no job market
  */
 export const resignCareer = async ( options?: RequestInit): Promise<ResignResult> => {
 
@@ -6294,7 +6294,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ResignCareerMutationError = ErrorType<void>
 
     /**
- * @summary Resign from the current club — manager becomes unemployed, history entry recorded
+ * @summary Resign from the current club — R-60, ends the career (the same finished state as a sacking, with its own reason); there is no job market
  */
 export const useResignCareer = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resignCareer>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -6316,7 +6316,7 @@ export const getBreakContractUrl = () => {
 }
 
 /**
- * @summary Break contract early — pays release clause, manager becomes unemployed
+ * @summary Break contract early — pays the release clause from the club's budget, then R-60, ends the career
  */
 export const breakContract = async ( options?: RequestInit): Promise<BreakContractResult> => {
 
@@ -6364,7 +6364,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type BreakContractMutationError = ErrorType<void>
 
     /**
- * @summary Break contract early — pays release clause, manager becomes unemployed
+ * @summary Break contract early — pays the release clause from the club's budget, then R-60, ends the career
  */
 export const useBreakContract = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof breakContract>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
