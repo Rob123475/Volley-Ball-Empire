@@ -1123,7 +1123,7 @@ On the same build, run-all's suites 19+20 were reproduced twice on one server:
 
 No All-Star code path can run (no All-Star match exists), so the sacking is not caused by R-45.
 
-### R-47 — CLOSED (14 Sep, R47_COMMIT_HASH): the R-08 arc treats a sacking as a legitimate result and reports the sack rate per arc
+### R-47 — CLOSED (14 Sep, 04f7830): the R-08 arc treats a sacking as a legitimate result and reports the sack rate per arc
 **What happens:**
 - `harness/rollover.mjs`'s R-08 section walks an established and an underdog career through five
   seasons.
@@ -2026,7 +2026,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-47 R-08 arc reports sackings | 14 Sep, R47_COMMIT_HASH | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
+| R-47 R-08 arc reports sackings | 14 Sep, 04f7830 | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,
