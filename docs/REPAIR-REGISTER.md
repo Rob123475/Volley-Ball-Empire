@@ -1752,7 +1752,7 @@ of Fame archive's trophy count, and the `olympic_gold` achievement.
 R-29 now produces a real World Champion every season (`world_tour_fixtures`, round 72), which is
 the natural source for a world-championship trophy. Registered 12 Sep; not fixed this weekend.
 
-### R-43 — CLOSED (14 Sep, PENDING-R43): invented content deleted, not stubbed
+### R-43 — CLOSED (14 Sep, b8f730a): invented content deleted, not stubbed
 **Rob's brief (overnight batch item 3):** delete the fabricated news generator, fake manager moves
 and fake youth results. Replace only with what real events can generate (results, signings,
 renewals, sackings, trophies); anything with no real source is removed, not stubbed. Report what was
@@ -2996,7 +2996,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, PENDING-R43 | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
+| R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
 | R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, PENDING-TESTS | migration-fixtures 62/62; six mid-migration kills all recovered |
 | R-56 invariants economy probe plays a real career's draw | 14 Sep, PENDING-TESTS | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |
 | R-57 board-review keeps the monthly clock's first start | 14 Sep, PENDING-TESTS | board-review 58/58: clock 2026-02-18, first check 2026-03-20 (30 days) |
