@@ -26,6 +26,7 @@ import fs from "node:fs";
 import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
+import { forkServer, stopServer } from "./server-harness.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const ELECTRON = requireElectronBinary(REPO);
@@ -55,6 +56,54 @@ function record(id, name, verdict, detail) {
 // sidecar beside it.
 const PROBE_DB = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "vbe-invariants-")), "starter.sqlite");
 fs.copyFileSync(path.join(REPO, "lib", "db", "volleyball-empire.sqlite"), PROBE_DB);
+
+// R-56: World Tour opponents are DRAWN per career from real pool clubs (R-29) —
+// there is no fixed opponent on a schedule row any more, which is what broke the
+// economy probe. So the probe plays against a real draw: the real server, on the
+// probe's copy of the starter database, creates one career and advances it to its
+// first World Tour match day, which is when the season is drawn.
+const DRAW = await (async () => {
+  const port = 4780;
+  const base = `http://localhost:${port}/api`;
+  const out = fs.openSync(path.join(path.dirname(PROBE_DB), "draw-server.log"), "w");
+  const child = forkServer({
+    server: path.join(REPO, "artifacts", "api-server", "dist", "index.mjs"), electron: ELECTRON, out,
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: PROBE_DB, PORT: String(port), NODE_ENV: "development", SESSION_SECRET: "invariants-draw" },
+  });
+  let cookie = "";
+  const api = async (method, p, body) => {
+    const res = await fetch(base + p, {
+      method, headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const sc = res.headers.get("set-cookie"); if (sc) cookie = sc.split(";")[0];
+    const text = await res.text();
+    try { return { status: res.status, data: text ? JSON.parse(text) : null }; } catch { return { status: res.status, data: text }; }
+  };
+  try {
+    const deadline = Date.now() + 60000;
+    for (;;) {
+      try { await fetch(`${base}/health`); break; } catch {
+        if (Date.now() > deadline) throw new Error("draw server never came up");
+        await new Promise((r) => setTimeout(r, 250));
+      }
+    }
+    const prof = await api("POST", "/profiles", { name: "Invariants" });
+    await api("POST", `/profiles/${prof.data.id}/select`);
+    const c = await api("POST", "/careers", {
+      slotNumber: 1, managerName: "Invariants", managerNationality: "Australia", clubName: "Invariants FC", originalClubName: "Invariants FC",
+      season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
+    });
+    for (let i = 0; i < 400; i++) {
+      const r = await api("POST", "/calendar/advance", {});
+      if (r.data?.blocked === "pending_match") break;
+    }
+    return { careerSaveId: c.data.id, teamId: c.data.teamId, seasonYear: 2026 };
+  } finally {
+    await stopServer(child);
+    try { fs.closeSync(out); } catch { /* closed */ }
+  }
+})();
 
 function probe(source) {
   const file = path.join(REPO, "artifacts", "api-server", "src", `__probe_${Date.now()}.ts`);
@@ -186,12 +235,33 @@ console.log(JSON.stringify({ events: WORLD_TOUR.length, total, biggest, byTier }
   const RUNS = 5;
   const d = probe(`
 import { WORLD_TOUR } from "./data/worldTour.js";
-import { pointProbability, simulateMatch, sideRating, opponentRatingFromTier } from "./utils/matchEngine.js";
+import { pointProbability, simulateMatch, sideRating } from "./utils/matchEngine.js";
 import { monthlyWage } from "./utils/wageCurve.js";
 import { tierForPoints, purseAccessFor, type Tier } from "./utils/tierQualification.js";
 import { prizeFor } from "./utils/prizeDistribution.js";
 import { rankingPointsFor } from "./utils/rankingPoints.js";
-import { db, playersTable } from "@workspace/db";
+import { competitorRating, WORLD_TOUR_EVENT_ROUNDS, BYE } from "./utils/worldTour.js";
+import { competitorIdForTeam } from "./utils/competitors.js";
+import { db, playersTable, worldTourFixturesTable } from "@workspace/db";
+import { and, eq } from "drizzle-orm";
+
+// R-56: the opponent in each regular World Tour round is the club this career
+// was DRAWN against, rated as the game rates it for the match (competitorRating:
+// the pool club's own players). A bye round has no opponent and no purse. The
+// finals are seeded from the standings, not drawn, so they are not in here.
+const me = await competitorIdForTeam(${DRAW.teamId});
+const drawnOpponent = new Map<number, number | null>();
+for (const f of await db.select().from(worldTourFixturesTable).where(and(
+  eq(worldTourFixturesTable.careerSaveId, ${DRAW.careerSaveId}),
+  eq(worldTourFixturesTable.seasonYear, ${DRAW.seasonYear}),
+))) {
+  if (f.homeCompetitorId !== me && f.awayCompetitorId !== me) continue;
+  if (f.status === BYE) { drawnOpponent.set(f.round, null); continue; }
+  drawnOpponent.set(f.round, competitorRating(f.homeCompetitorId === me ? f.awayCompetitorId : f.homeCompetitorId));
+}
+if (drawnOpponent.size !== WORLD_TOUR_EVENT_ROUNDS.length) {
+  throw new Error(\`the draw covers \${drawnOpponent.size} of \${WORLD_TOUR_EVENT_ROUNDS.length} World Tour rounds for this career\`);
+}
 
 // Real athletes, ordered by what they cost.
 const all = await db.select().from(playersTable);
@@ -263,10 +333,11 @@ for (const squad of SQUADS) {
   const playSeason = (access: Tier) => {
     let points = 0, income = 0, n = 0, sc = 0, gold = 0;
     for (const e of schedule) {
+      const opp = drawnOpponent.get(e.round);
+      if (opp == null) continue;   // a bye, a finals round, or an open date
       const purse = purseAccessFor(e.tier, access);
       n++;
       if (e.tier === "Gold" && purse.fullPurse) gold++;
-      const opp = opponentRatingFromTier(e.tier, e.opponent, squad.season);
       const p = pointProbability(rating, opp, { homeAdvantage: false });
       const won = simulateMatch(p).homeWon;
       // Both finishers are paid — the split is imported, never restated here.
@@ -303,7 +374,8 @@ const fixedRating = sideRating(fixed.players.map((p: any) => ({
 for (let run = 0; run < ${RUNS}; run++) {
   let income = 0;
   for (const e of WORLD_TOUR) {
-    const opp = opponentRatingFromTier(e.tier, e.opponent);
+    const opp = drawnOpponent.get(e.round);
+    if (opp == null) continue;
     const p = pointProbability(fixedRating, opp, { homeAdvantage: false });
     income += prizeFor(e.prize, simulateMatch(p).homeWon);
   }

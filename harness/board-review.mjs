@@ -324,6 +324,15 @@ try {
   check("both careers reach the first World Tour match day", estMatch != null && undMatch != null, `est ${estMatch}, und ${undMatch}`);
   const estDraw = await EST("GET", "/board-confidence");
   const undDraw = await UND("GET", "/board-confidence");
+  // R-57: the underdog's monthly clock. The board starts it (projected_on) the
+  // first time its daily pass runs after the draw, and every monthly check then
+  // OVERWRITES projected_on with the check's date. Sections 3 and 4 play this
+  // career forward and can carry it past its first check, so the start is kept
+  // the first time it is seen — after every step, never overwritten — instead of
+  // being read once when section 5 begins.
+  let undClockStart = null;
+  const noteUndClock = () => { undClockStart ??= boardRow(und.careerSaveId)?.projected_on ?? null; };
+  noteUndClock();
   check("established: strength #1 in the field; top 4 met, 5th-8th below, 9th or worse failed, in plain words",
     estDraw.data?.strengthRank === 1 && estDraw.data?.target === 4 && estDraw.data?.failedFrom === 9 && estDraw.data?.strikes === 0
       && /The board expects a top-4 finish this season/.test(estDraw.data?.expectation ?? "")
@@ -354,6 +363,7 @@ try {
       const kind = won ? "win" : "loss";
       if (played.status === 200 && results[kind] == null) results[kind] = { label, match: id, before: conf0, after: conf1 };
       setMatch(await nextMatchDay(api));
+      noteUndClock();
       if (results[want] != null && label === "established") break;
     }
   }
@@ -378,6 +388,7 @@ try {
     const played = await playMatch(UND, undMatch);
     lowRuns.push(`${played.data?.homeScore}-${played.data?.awayScore}${played.data?.fired ? " FIRED" : ""}`);
     undMatch = await nextMatchDay(UND);
+    noteUndClock();
   }
   const undTeam = await UND("GET", "/team");
   check("five more results at confidence 0: nobody fired, the career is still active, confidence still 0",
@@ -386,11 +397,12 @@ try {
 
   // ── 5. The monthly check freezes spending ────────────────────────────────
   console.log("\n5. THE MONTHLY CHECK: A CLUB AT CONFIDENCE 0 IS FROZEN, AND CAN STILL RENEW");
-  const clockStart = boardRow(und.careerSaveId)?.projected_on;
   for (let n = 0; n < 40 && boardRow(und.careerSaveId)?.projected_grade == null && undMatch != null; n++) {
     await playMatch(UND, undMatch);
     undMatch = await nextMatchDay(UND);
+    noteUndClock();
   }
+  const clockStart = undClockStart;
   const checked = boardRow(und.careerSaveId);
   check("the first monthly check comes 30 game days after the draw",
     checked?.projected_grade != null && clockStart != null && days(clockStart, checked.projected_on) >= 30,

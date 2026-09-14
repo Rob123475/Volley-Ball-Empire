@@ -261,6 +261,10 @@ try {
   // ── 5. Rest ──────────────────────────────────────────────────────────────
   console.log("\n5. REST DAYS EXIST, AND A REST DAY RECOVERS");
   const aNow = byId(A.id);
+  // R-59: sections 3 and 4 play real matches, and every match rolls injuries for
+  // the pair that played. C is the FIT player of this scene, so she is made fit
+  // here rather than assumed to still be.
+  setInjury(C.id, "Healthy", 0);
   setCondition(C.id, 50, 40);
   setCondition(A.id, 50, 40);
   const restDay = await api("POST", "/calendar/advance", {});

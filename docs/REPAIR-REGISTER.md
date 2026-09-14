@@ -2652,7 +2652,13 @@ starting budget on the dashboard.
 
 ## LOW
 
-### R-59 — OPEN (registered 14 Sep): condition.mjs's rest-day player can already be injured
+### R-59 — CLOSED (14 Sep, PENDING-TESTS): condition.mjs makes its rest-day player fit first
+**Fix:** section 5 sets C `Healthy` (not injured, 0 weeks) before setting her to 50 / 40, instead of
+assuming the matches before it left her unhurt. A's check already reads A's injury state first.
+
+Original entry:
+
+### R-59 (registered 14 Sep): condition.mjs's rest-day player can already be injured
 `harness/condition.mjs` section 5 sets player C to fitness 50 / fatigue 40, advances one rest day
 and expects the fit-player recovery (+2 fitness, −5 fatigue: 52 / 35).
 
@@ -2999,6 +3005,7 @@ Original entry:
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
 | R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, PENDING-TESTS | migration-fixtures 62/62; six mid-migration kills all recovered |
 | R-56 invariants economy probe plays a real career's draw | 14 Sep, PENDING-TESTS | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |
+| R-59 condition.mjs makes its rest-day player fit before the rest day | 14 Sep, PENDING-TESTS | the R-43 full run's "C 51% / fatigue 37" was the injured rate (+1 / −3) after a random injury; fixed scene rerun below |
 | R-57 board-review keeps the monthly clock's first start | 14 Sep, PENDING-TESTS | board-review 58/58: clock 2026-02-18, first check 2026-03-20 (30 days) |
 | R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, 06488d3 | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
 | R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, 56c40ba | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |

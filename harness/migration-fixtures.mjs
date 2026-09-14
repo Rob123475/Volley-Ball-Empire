@@ -251,33 +251,45 @@ function bootServer(dbFile, { killAfterMs = null } = {}) {
 
   return new Promise((resolve) => {
     let settled = false;
+    const takeLogAndStop = (result) => {
+      let log = "";
+      try { log = fs.readFileSync(logFile, "utf8"); } catch {}
+      try { child.kill("SIGKILL"); } catch {}
+      setTimeout(() => {
+        try { fs.closeSync(out); } catch {}
+        resolve({ ...result, log, port });
+      }, 250);
+    };
     const finish = (result) => {
       if (settled) return;
       settled = true;
-      // Read the log while the process is STILL RUNNING, then kill.
+      // R-49: read the log while the process is STILL RUNNING, and only once it
+      // is known to be complete.
       //
-      // pino writes through a worker thread, so killing first discards whatever
-      // is still buffered. Windows has no graceful signal — child.kill("SIGTERM")
-      // terminates as abruptly as SIGKILL — so waiting for a clean exit does not
-      // help either. Both of those made "logged the drop" flaky, and neither had
-      // anything to do with the migration. Let the live process flush, take the
-      // log, and only then stop it.
-      let last = -1, stableFor = 0;
-      const settle = () => {
-        let size = 0;
-        try { size = fs.statSync(logFile).size; } catch {}
-        if (size === last && size > 0) stableFor += 120; else { stableFor = 0; last = size; }
-        if (stableFor >= 600) {
+      // pino writes through a worker thread (pino-pretty in development), so a
+      // line can still be in flight after /api/health answers, and Windows has no
+      // graceful signal — killing first discards it. The old wait ("the file has
+      // not grown for 600 ms") guessed when that thread had caught up, and
+      // guessed wrong in the 14 Sep full run.
+      //
+      // The flush signal is the server's own "Server listening" line. index.ts
+      // runs every boot migration BEFORE app.listen, and pino keeps order, so
+      // once that line is in the file every migration line already is.
+      if (result.listening) {
+        const deadline = Date.now() + 20000;
+        const waitForListeningLine = () => {
           let log = "";
           try { log = fs.readFileSync(logFile, "utf8"); } catch {}
-          try { child.kill("SIGKILL"); } catch {}
-          setTimeout(() => {
-            try { fs.closeSync(out); } catch {}
-            resolve({ ...result, log, port });
-          }, 250);
-        } else setTimeout(settle, 120);
-      };
-      settle();
+          if (/Server listening/.test(log)) return takeLogAndStop(result);
+          if (Date.now() > deadline) return takeLogAndStop({ ...result, logIncomplete: true });
+          setTimeout(waitForListeningLine, 100);
+        };
+        waitForListeningLine();
+        return;
+      }
+      // Killed mid-migration, or never came up: there is no line to wait for, and
+      // no check reads these logs. A kill happens at the offset it was asked for.
+      takeLogAndStop(result);
     };
 
     if (killAfterMs !== null) {
