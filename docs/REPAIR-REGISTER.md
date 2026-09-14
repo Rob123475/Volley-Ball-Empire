@@ -27,6 +27,15 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-55 — CLOSED (15 Sep, Rob's decision; code 51f83ab): the board's expectation is a band, not a rank — kept as is
+**Rob's decision (15 Sep):** KEEP. A 1-in-10 established sacking over four seasons is intended. No
+code change; the "near 0%" target no longer applies. Harness case: `harness/board-review.mjs`
+section 1 carries R-55's band cases (four warnings and no strike at 6th/7th/8th/5th; two failed
+seasons in a row sack; a below season between two failed ones resets nothing; a met season clears
+the strike; an underdog judged at its level) — 58/58 in the 14 Sep final full run.
+
+Original entry:
+
 ### R-55 — CLOSED AS SPECIFIED (14 Sep, 51f83ab); ROB TO DECIDE: the "near 0%" target is not met: the board's expectation is a band, not a rank
 **Symptom (R-54):** established clubs were sacked by ordinary results variance. The strongest pair
 finished 6th-10th in 5 of 26 seasons, and two such seasons in a row sacked against R-53's #2 target.
@@ -3039,7 +3048,7 @@ Original entry:
 | R-57 board-review keeps the monthly clock's first start | 14 Sep, 92d928e | board-review 58/58: clock 2026-02-18, first check 2026-03-20 (30 days) |
 | R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, 06488d3 | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
 | R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, 56c40ba | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |
-| R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
+| R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab; closed 15 Sep by Rob's decision | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — Rob: 1 in 10 over four seasons is intended, KEEP |
 | R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, 8bc38c2 | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |
 | R-53 The board reviews seasons against expectations (target at the draw, monthly check, season review, abandonment) | 14 Sep, 393cbac | board-review 50/50: all §5/§5.1 rows match the design, win/loss/forfeit leave confidence unchanged, old code absent (planted lines caught), freeze 403/200, abandonment day 33, review sacking; full harness 24/24, rollover 72/72, 0 of 6 sacked |
 | R-52 Renewal at unchanged terms is exempt from the spending freeze | 14 Sep, 696a4e5 | contract-renewal 23/23 (frozen: same salary renews, raise 403, signing 403); full harness 24/24, rollover 66/66 |
