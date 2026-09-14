@@ -3,7 +3,7 @@
  *
  * Season layout (sequential schedule slots):
  *   Slots  1–10  Regional Period   (10 rounds — all 6 continents play round N simultaneously)
- *   Slots 11–70  World Tour Period  (60 events, 10 per continent)
+ *   Slots 11–70  World Tour Period  (60 slots; 57 events since R-44 — 41, 51, 61 are open dates)
  *   Slots 71–72  Finals Period      (Day 1 = Semifinals, Day 2 = World Final)
  *   Slots 73–78  Holiday Period     (rest / off-season prep)
  *

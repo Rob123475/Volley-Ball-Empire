@@ -3051,8 +3051,8 @@ components:
           type: ["number", "null"]
         status:
           type: string
-          description: "not_qualified (R-29): a World Finals match the club did not earn a place in."
-          enum: [scheduled, in_progress, completed, cancelled, not_qualified]
+          description: "not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round."
+          enum: [scheduled, in_progress, completed, cancelled, not_qualified, bye]
         season:
           type: integer
         round:
@@ -4648,6 +4648,14 @@ components:
         nextMatch:
           type: object
           nullable: true
+        nextBye:
+          type: object
+          nullable: true
+          description: "R-44: the club's next World Tour round, when it is a bye that comes before the next match."
+          properties:
+            round: { type: integer }
+            scheduledAt: { type: ["string", "null"] }
+            locationName: { type: ["string", "null"] }
         financeSummary:
           type: object
           properties:

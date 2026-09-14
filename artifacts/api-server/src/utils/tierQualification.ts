@@ -7,7 +7,7 @@
  *   - Thresholds Silver 15, Gold 40. Checked against alternatives: Silver 20 /
  *     Gold 55 never reaches Gold across the whole arc, which fails I8.
  *   - CUMULATIVE eligibility. Clearing a tier keeps the ones below it, so the
- *     calendar grows as a club rises (32 -> 48 -> 62 events). The exclusive
+ *     calendar grows as a club rises (29 -> 45 -> 59 events since R-44). The exclusive
  *     alternative FAILS I5: a club climbing to Silver earned less than it had in
  *     Bronze, because promotion traded 32 Bronze events for 18 Silver ones.
  *   - Ranking RESETS each season, so qualification is re-earned annually.

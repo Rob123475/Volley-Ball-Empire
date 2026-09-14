@@ -22,7 +22,9 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
-import { worldTourStandings, SEMI_FINAL_TIER, NOT_QUALIFIED } from "../utils/worldTour.js";
+import {
+  worldTourStandings, SEMI_FINAL_TIER, NOT_QUALIFIED, BYE, WORLD_TOUR_EVENT_ROUNDS,
+} from "../utils/worldTour.js";
 import { WORLD_TOUR_START, WORLD_TOUR_END, FINALS_START, FINALS_END } from "../utils/calendarSlots.js";
 
 const router = Router();
@@ -59,6 +61,8 @@ function serializeFixture(f: Fixture, names: Names) {
     round:    f.round,
     tier:     f.tier,
     status:   f.status,
+    // R-44: a bye row carries one club (home and away are the same competitor).
+    bye:      f.status === BYE,
     matchId:  f.matchId,
     home:     side(f.homeCompetitorId, f.homeSeed),
     away:     side(f.awayCompetitorId, f.awaySeed),
@@ -104,20 +108,22 @@ router.get("/world-tour/fixtures", async (req, res) => {
 
   const fixtures = fixturesInRound(cid, season.year, round);
   const standings = drawn ? worldTourStandings(cid, season.year) : [];
-  const playing = new Set(fixtures.flatMap((f) => [f.homeCompetitorId, f.awayCompetitorId]));
-
-  // Only a regular round has a rest: the finals are four and two clubs by design.
-  const resting = round <= WORLD_TOUR_END && fixtures.length > 0
-    ? standings.filter((s) => !playing.has(s.competitorId)).map((s) => ({ competitorId: s.competitorId, name: s.name }))
-    : [];
+  // R-44: the resting club is a stored bye row, not an absence to infer.
+  const names = namesFor(fixtures);
+  const resting = fixtures
+    .filter((f) => f.status === BYE)
+    .map((f) => ({ competitorId: f.homeCompetitorId, name: names.get(f.homeCompetitorId)?.name ?? "Unknown" }));
 
   res.json({
     seasonYear: season.year,
     round,
     drawn,
     fieldSize:  drawn ? standings.length : null,
-    fixtures:   fixtures.map((f) => serializeFixture(f, namesFor(fixtures))),
+    fixtures:   fixtures.map((f) => serializeFixture(f, names)),
     resting,
+    // The season's event rounds (R-44: 57), so a screen never offers an open date.
+    eventRounds: WORLD_TOUR_EVENT_ROUNDS,
+    isEventRound: WORLD_TOUR_EVENT_ROUNDS.includes(round) || round > WORLD_TOUR_END,
   });
 });
 

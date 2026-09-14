@@ -401,6 +401,7 @@ async function advanceToBoundary(api, maxDays = 500) {
         finals: review.data?.worldFinals?.playerResult ?? "?",
         champion: review.data?.worldFinals?.champion ?? "?",
         notQualified: review.data?.fixture?.notQualified ?? null,
+        byes: review.data?.fixture?.byes ?? null,
       };
       seasons.push(row);
       console.log(
@@ -438,12 +439,14 @@ async function advanceToBoundary(api, maxDays = 500) {
     // R-29: finals the club did not qualify for are marked not_qualified and are
     // not the club's to play, so a full season is the fixture less those. The
     // count comes from the season review, which reads the club's match rows.
-    const short = arc.seasons.filter((r) => r.notQualified == null || r.played !== arc.fixtureSize - r.notQualified);
-    check(`${arc.label}: every season played every match it was entitled to (${arc.fixtureSize}-match fixture less finals not qualified for)`,
+    // R-44: a bye is not a match either.
+    const short = arc.seasons.filter((r) => r.notQualified == null || r.byes == null
+      || r.played !== arc.fixtureSize - r.notQualified - r.byes);
+    check(`${arc.label}: every season played every match it was entitled to (fixture of ${arc.fixtureSize} less byes and finals not qualified for)`,
       short.length === 0,
       short.length === 0
         ? arc.seasons.map((r) => `${r.played}/${arc.fixtureSize}`).join(" | ")
-        : short.map((r) => `season ${r.season} played ${r.played}, not qualified for ${r.notQualified}`).join("; "));
+        : short.map((r) => `season ${r.season} played ${r.played}, byes ${r.byes}, not qualified for ${r.notQualified}`).join("; "));
 
     check(`${arc.label}: no season was a 0W 0L walkover`,
       arc.seasons.every((r) => r.played > 0),

@@ -104,6 +104,7 @@ router.get("/seasons/:year/review", async (req, res) => {
     total:        seasonMatches.length,
     completed:    seasonMatches.filter((m) => m.status === "completed").length,
     notQualified: seasonMatches.filter((m) => m.status === "not_qualified").length,
+    byes:         seasonMatches.filter((m) => m.status === "bye").length,
   };
 
   res.json({

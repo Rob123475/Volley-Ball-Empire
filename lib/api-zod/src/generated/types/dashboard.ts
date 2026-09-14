@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { DashboardFinanceSummary } from './dashboardFinanceSummary';
+import type { DashboardNextBye } from './dashboardNextBye';
 import type { DashboardNextMatch } from './dashboardNextMatch';
 import type { DashboardSeasonStanding } from './dashboardSeasonStanding';
 import type { Match } from './match';
@@ -15,6 +16,8 @@ import type { Team } from './team';
 export interface Dashboard {
   team: Team;
   nextMatch: DashboardNextMatch;
+  /** R-44: the club's next World Tour round, when it is a bye that comes before the next match. */
+  nextBye?: DashboardNextBye;
   financeSummary: DashboardFinanceSummary;
   recentResults: Match[];
   topPlayers: Player[];

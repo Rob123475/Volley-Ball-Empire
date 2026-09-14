@@ -919,6 +919,89 @@ Each of these is presented as a record of something that happened:
 File lines are in `docs/r10-audit.md` §1. Registered 12 Sep; not fixed. The youth league has the
 same shape R-29 fixed for seniors and should follow the same design.
 
+### R-44 — CLOSED (14 Sep, the commit carrying this entry): World Tour byes (Rob's decision on WEEKEND-STATUS Q1)
+**Decision (Rob):** keep the 19-club field (18 AI + the player). The resting club each round gets an
+explicit BYE: it appears in that club's fixture list and in the round view as "Bye", never as a
+missing match, and a bye earns 0 points. If the player's club has the bye, the dashboard's Next Match
+card says so and Advance still works. Harness: over a full season every club has exactly the same
+number of matches and exactly one bye per 19 rounds.
+
+**Arithmetic, and Rob's follow-up choice:** the regular World Tour had 60 rounds. 60 is not a multiple
+of 19, so "same matches for every club" and "exactly one bye per 19 rounds" cannot both hold over 60.
+Rob chose **57 rounds** (three full cycles): every club plays 54 matches and has 3 byes. Three Bronze
+events came off: the three smallest purses in the game, from three different continents:
+- round 41 Hurghada Red Sea Open ($6,000)
+- round 51 Cancún Open ($5,000)
+- round 61 Cartagena Beach Cup ($6,000)
+
+Their slots are open dates; no other event moved.
+
+Measured from `data/worldTour.ts` before and after:
+- Bronze: 30 events / $231,500 → 27 / $214,500 (smallest purse left: $6,500)
+- season: 62 events / $1,615,000 → 59 / $1,598,000
+
+**Design:**
+- The draw is a true circle-method round robin over all 19 entrants (the player is one of them) with
+  a BYE slot. The old draw kept the player out of the rotation, so the player never rested.
+- A bye is a stored `world_tour_fixtures` row with status `bye` and home = away (both columns are NOT
+  NULL; no schema change).
+- The player's bye is its `matches` row set to status `bye`, opponent "Bye", prize 0, linked by
+  `match_id`.
+- No points are credited for a bye.
+- A rotation offset puts the player's byes in its 11th, 30th and 49th World Tour rounds rather than
+  the first.
+- A pre-R-44 fixture's unplayed player rows on the removed rounds are deleted at draw time. A season
+  already drawn keeps its draw.
+
+**What changed:**
+- `data/worldTour.ts`: the three events are removed.
+- `utils/worldTour.ts`:
+  - `WORLD_TOUR_EVENT_ROUNDS` comes from the schedule
+  - a new `roundPairings(entrants, k)` and `drawWorldTourTx` with bye rows
+  - `BYE` / `BYE_MESSAGE`
+  - `worldTourGate` refuses a bye (409)
+- `routes/world-tour.ts`: every fixture carries `bye`. `resting` is read from the bye row rather than
+  inferred, and `eventRounds` is returned.
+- `routes/dashboard.ts`:
+  - `nextBye` is the club's next bye, when it has not passed (`round >= season.currentRound`) and
+    comes before the next match
+  - `nextMatch` is now ordered by round; it had no order before
+- `routes/seasons.ts`: the review carries `fixture.byes`.
+- `routes/calendar.ts`: the season structure is counted from the schedule, and a bye day's event
+  reads "Bye — your club rests this round".
+- OpenAPI: Match status gains `bye`, and Dashboard gains `nextBye` (codegen rerun).
+- Frontend:
+  - the Next Match card says "Bye — Round N · Your club rests this round · Advance carries on"
+  - the fixture list has a Bye card
+  - the finals unlock treats a bye as done
+  - WT Fixtures shows a Bye card and only offers event rounds (numbered "WT Round 1–57")
+  - the rules page's World Tour card describes 19 clubs, 57 rounds, 54 matches and 3 byes
+- Comments and docs: calendarSlots, tierQualification (29 -> 45 -> 59 events), economy-design.
+
+**Harness:**
+- **New `harness/world-tour-byes.mjs`, 18/18.** One fresh career walked through the whole regular
+  World Tour by the calendar:
+  - 57 rounds; slots 41/51/61 empty
+  - every round 9 matches + 1 bye
+  - all 19 clubs exactly 54 matches and 3 byes, one per 19-round cycle
+  - every ranking row W+L = 54, points = a recomputation from matches alone
+  - the player's 3 byes (R21, R40, R62) on its fixture list as "Bye" with no purse, linked to the
+    bye rows
+  - the round view shows the club's Bye
+  - `GET /dashboard` reported the bye before round 21 (next match 22)
+  - no pending match ever pointed at a bye
+  - the field played every round the player sat out
+- `world-tour-competitors.mjs` now reads bye rows (38/38).
+- `fixture-transaction.mjs`'s sabotage trigger moved to round 42, because round 41 no longer exists.
+- `rollover.mjs` subtracts byes from the entitled count.
+- **Full harness 19/19 suites passed.** R-08 arc: every season 54/59 played (56/59 in RollStrong's
+  title season), every season entitled-match check passing.
+
+Left as is:
+- The fixture endpoint returns a bye's purse as null rather than 0; the Bye card shows no purse.
+- A season already drawn before this change keeps its bye-less draw.
+- Screen check is Rob's (R-39).
+
 ### R-29 — CLOSED (12 Sep, the commit carrying this entry): the World Tour is a real competition, per career
 World Tour Standings read "1 teams", the World Finals bracket seeded the player #1 with every other
 slot TBD, and the fixtures header said "18 qualified teams" while the ladder held one. Rob's decision
@@ -1643,6 +1726,7 @@ Original entry:
 | R-22 Unity half (skin tone + kit colour) | Unity 32fc43f to 8ea5905; verified on screen 14 Sep | Rob: four distinct tones, home `#0a0` green, away red |
 | R-31 DB checkpointed and closed on quit | 877557c; verified on live save 14 Sep | closed via X: no `-wal`, no `-shm`; harness wal-checkpoint-shutdown 7/7 |
 | R-40 WebGL build rendered an empty court | 195e769, rebuilt 417cdcd; verified on screen 14 Sep | Rob: full venue and four players in the Electron 3D Court |
+| R-44 World Tour byes (57 rounds) | 14 Sep, the R-44 commit | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 
 26 Aug Release Triage: 25/33 fully fixed, leftovers folded in above. Still holding: native-ABI
 guard, dev routes gated, CORS same-origin, all portrait refs resolve, PORT build hole guarded,

@@ -2,13 +2,13 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { matchesTable, financeTransactionsTable, careerSavesTable, competitorRankingsTable, competitorsTable } from "@workspace/db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, asc, gte } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
-import { worldTourStandings } from "../utils/worldTour.js";
+import { worldTourStandings, BYE } from "../utils/worldTour.js";
 
 const router = Router();
 
@@ -35,9 +35,26 @@ router.get("/dashboard", async (req, res) => {
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "completed")))
     .orderBy(desc(matchesTable.createdAt)).limit(5);
 
+  // Ordered by round: with no order, findFirst returned whichever row SQLite
+  // handed back first, which only matched round order by accident.
   const nextMatch = await db.query.matchesTable.findFirst({
     where: and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "scheduled")),
+    orderBy: [asc(matchesTable.round)],
   });
+
+  // R-44: the club's next World Tour round may be a bye. It is the next thing on
+  // the card only if it has not passed and comes before the next real match.
+  const nextByeRow = activeSeason
+    ? (await db.select().from(matchesTable).where(and(
+        eq(matchesTable.homeTeamId, team.id),
+        eq(matchesTable.season, activeSeason.year),
+        eq(matchesTable.status, BYE),
+        gte(matchesTable.round, activeSeason.currentRound),
+      )).orderBy(asc(matchesTable.round)).limit(1))[0] ?? null
+    : null;
+  const nextBye = nextByeRow && (!nextMatch || nextByeRow.round < nextMatch.round)
+    ? { round: nextByeRow.round, scheduledAt: nextByeRow.scheduledAt, locationName: nextByeRow.locationName }
+    : null;
 
   const allTx = await db.select().from(financeTransactionsTable)
     .where(eq(financeTransactionsTable.teamId, team.id));
@@ -97,6 +114,7 @@ router.get("/dashboard", async (req, res) => {
       windSpeed: nextMatch.windSpeed ? Number(nextMatch.windSpeed) : null,
       temperature: nextMatch.temperature ? Number(nextMatch.temperature) : null,
     } : null,
+    nextBye,
     financeSummary: { balance, monthlyNet: monthIncome - monthExpenses },
     recentResults: recentMatches.map(m => ({
       ...m,

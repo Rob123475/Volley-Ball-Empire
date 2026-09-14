@@ -52,6 +52,7 @@ export * from './contractInputSquadRole';
 export * from './contractStatus';
 export * from './dashboard';
 export * from './dashboardFinanceSummary';
+export * from './dashboardNextBye';
 export * from './dashboardNextMatch';
 export * from './dashboardSeasonStanding';
 export * from './declinePoachingOffer200';

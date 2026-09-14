@@ -24,7 +24,7 @@
  * collides with a later auto-assigned one.
  *
  * A SQL trigger does the job cleanly and portably: `BEFORE INSERT ON matches
- * WHEN NEW.round = 41` raises ABORT, which better-sqlite3 surfaces as a
+ * WHEN NEW.round = 42` raises ABORT, which better-sqlite3 surfaces as a
  * thrown SqliteError inside the transaction callback — exactly the shape of
  * failure ("one insert fails") the register asks for, without touching
  * production code or relying on a pragma this project doesn't set. Round 41
@@ -80,14 +80,14 @@ const dbFile = path.join(WORK, "fixture-tx.sqlite");
 fs.copyFileSync(SHIPPED, dbFile);
 
 // A trigger that aborts the insert for a round comfortably inside the
-// sequence (round 41 of the ~62-round season, ~31st insert), so the
+// sequence (round 42 — R-44 made round 41 an open date — ~30th insert), so the
 // transaction must roll back inserts that already "succeeded" this run.
 {
   const db = new DatabaseSync(dbFile);
   db.exec(`
     CREATE TRIGGER matches_harness_sabotage
     BEFORE INSERT ON matches
-    WHEN NEW.round = 41
+    WHEN NEW.round = 42
     BEGIN
       SELECT RAISE(ABORT, 'harness: forced mid-sequence failure');
     END;

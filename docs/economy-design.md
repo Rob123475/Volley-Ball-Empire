@@ -327,6 +327,11 @@ being absolute outliers was their entire problem.
 | World Semi Final | 1 | $150,000 | $115,000 | $115,000 | 7.1% |
 | **total** | 62 | $1,430,000 | $1,615,000 | | |
 
+*R-44 (14 Sep): three Bronze events came off the calendar so a 19-club World Tour field
+plays three full cycles — round 41 Hurghada ($6,000), round 51 Cancún ($5,000) and round 61
+Cartagena ($6,000). Bronze is now 27 events and $214,500; the season is 59 events and
+$1,598,000. The table above is as measured on 1 Sep.*
+
 Per-event means now run Bronze $7,717 -> Silver $22,875 (3.0x) -> Gold $50,893
 (6.6x Bronze). That is the "scales steeply by tier" the section above asks for,
 and it is what makes tier access worth having once the gate separates clubs.

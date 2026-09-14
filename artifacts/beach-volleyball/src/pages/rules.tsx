@@ -80,13 +80,15 @@ const COMP_TIERS = [
   },
   {
     title: "World Tour",
-    badge: "18 teams total",
+    badge: "19 clubs",
     color: "text-amber-400",
     bg: "bg-amber-500/10",
     border: "border-amber-500/25",
     points: [
-      `3 qualifying teams from each of the ${CONTINENT_COUNT} continental regions`,
+      `3 qualifying clubs from each of the ${CONTINENT_COUNT} continental regions, plus your club`,
       "Europe, Asia, North America, South America, Africa & Middle East, Australia & Pacific Islands",
+      "57 rounds: each round one club, yours included, has a bye — no match and 0 ranking points",
+      "Every club plays 54 matches and has 3 byes, one in every 19 rounds",
     ],
   },
   {

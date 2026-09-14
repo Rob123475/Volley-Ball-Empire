@@ -9153,7 +9153,7 @@ export const ListMatchesResponseItem = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified', 'bye']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9199,7 +9199,7 @@ export const GetMatchResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified', 'bye']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9235,7 +9235,7 @@ export const SimulateMatchResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified', 'bye']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9541,7 +9541,7 @@ export const UpdateMatchLineupResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified', 'bye']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -9568,7 +9568,7 @@ export const ListUpcomingMatchesResponseItem = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified', 'bye']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),
@@ -10836,6 +10836,11 @@ export const GetDashboardResponse = zod.object({
   "nextMatch": zod.object({
 
 }).passthrough().nullable(),
+  "nextBye": zod.object({
+  "round": zod.number().optional(),
+  "scheduledAt": zod.string().nullish(),
+  "locationName": zod.string().nullish()
+}).nullish().describe('R-44: the club\'s next World Tour round, when it is a bye that comes before the next match.'),
   "financeSummary": zod.object({
   "balance": zod.number().optional(),
   "monthlyNet": zod.number().optional()
@@ -10848,7 +10853,7 @@ export const GetDashboardResponse = zod.object({
   "weather": zod.enum(['sunny', 'cloudy', 'windy', 'hot', 'overcast', 'stormy', 'perfect']),
   "windSpeed": zod.number().nullish(),
   "temperature": zod.number().nullish(),
-  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in.'),
+  "status": zod.enum(['scheduled', 'in_progress', 'completed', 'cancelled', 'not_qualified', 'bye']).describe('not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.'),
   "season": zod.number(),
   "round": zod.number(),
   "teamSize": zod.number(),

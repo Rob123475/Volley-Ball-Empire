@@ -981,7 +981,7 @@ export const MatchWeather = {
 } as const;
 
 /**
- * not_qualified (R-29): a World Finals match the club did not earn a place in.
+ * not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.
  */
 export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
 
@@ -992,6 +992,7 @@ export const MatchStatus = {
   completed: 'completed',
   cancelled: 'cancelled',
   not_qualified: 'not_qualified',
+  bye: 'bye',
 } as const;
 
 export interface Match {
@@ -1004,7 +1005,7 @@ export interface Match {
   windSpeed?: number | null;
   /** @nullable */
   temperature?: number | null;
-  /** not_qualified (R-29): a World Finals match the club did not earn a place in. */
+  /** not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round. */
   status: MatchStatus;
   season: number;
   round: number;
@@ -2081,6 +2082,17 @@ export interface YouthScoutingMission {
 
 export type DashboardNextMatch = { [key: string]: unknown } | null;
 
+/**
+ * R-44: the club's next World Tour round, when it is a bye that comes before the next match.
+ */
+export type DashboardNextBye = {
+  round?: number;
+  /** @nullable */
+  scheduledAt?: string | null;
+  /** @nullable */
+  locationName?: string | null;
+} | null;
+
 export type DashboardFinanceSummary = {
   balance?: number;
   monthlyNet?: number;
@@ -2096,6 +2108,8 @@ export type DashboardSeasonStanding = {
 export interface Dashboard {
   team: Team;
   nextMatch: DashboardNextMatch;
+  /** R-44: the club's next World Tour round, when it is a bye that comes before the next match. */
+  nextBye?: DashboardNextBye;
   financeSummary: DashboardFinanceSummary;
   recentResults: Match[];
   topPlayers: Player[];

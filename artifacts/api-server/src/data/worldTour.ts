@@ -5,14 +5,22 @@ import type { ContinentKey } from "@workspace/db";
  *
  * Layout:
  *   Slots  1–10  Regional Period       (no entries here — handled by regional league tables)
- *   Slots 11–70  World Tour Period     (60 events, 10 per continent, rounds = slot numbers)
+ *   Slots 11–70  World Tour Period     (57 events, rounds = slot numbers; see R-44 below)
  *   Slots 71–72  Finals Period         (Semifinals day + World Final day)
  *   Slots 73–78  Holiday Period        (no entries — rest days)
  *
  * Dates are aligned with the linear-interpolation formula used by roundToDate():
  *   offset = floor((round - 1) * 364 / 77) days after season startDate (2026-01-01).
  *
- * Each continent keeps its 5 Bronze + varying Silver/Gold events (10 total).
+ * Each continent keeps its Bronze + varying Silver/Gold events (10 total), except the
+ * three that R-44 took a Bronze event from, which have 9.
+ *
+ * R-44 (14 Sep): the World Tour field is 19 clubs, so one club rests every round.
+ * For every club to play the same number of matches with exactly one bye in every
+ * 19 rounds, the regular season is 57 rounds: three full cycles. The three smallest
+ * Bronze purses, from three different continents, came off: round 41 Hurghada Red
+ * Sea Open ($6,000), round 51 Cancún Open ($5,000) and round 61 Cartagena Beach Cup
+ * ($6,000). Their slots are open dates; no other event moved.
  * Continental Final and Elite rounds have been removed from the WT schedule —
  * continental qualification is now decided by the regional league system.
  */
@@ -269,13 +277,6 @@ export const WORLD_TOUR: WorldTourEvent[] = [
 
   // ── Africa & Middle East Tour  (Slots 41–50) ──────────────────────────────
   {
-    round: 41,  continent: "africa_middle_east",  country: "Egypt",
-    city: "Hurghada",  beachName: "Red Sea Beach",
-    displayName: "Hurghada Red Sea Open",  date: "2026-07-09",
-    locId: 11,  locName: "Red Sea Beach, Hurghada",
-    prize: 6000,  tier: "Bronze",
-  },
-  {
     round: 42,  continent: "africa_middle_east",  country: "Morocco",
     city: "Agadir",  beachName: "Agadir Beach",
     displayName: "Agadir Atlantic Open",  date: "2026-07-13",
@@ -341,13 +342,6 @@ export const WORLD_TOUR: WorldTourEvent[] = [
 
   // ── North America Tour  (Slots 51–60) ────────────────────────────────────
   {
-    round: 51,  continent: "north_america",  country: "Mexico",
-    city: "Cancún",  beachName: "Playa Delfines",
-    displayName: "Cancún Open",  date: "2026-08-25",
-    locId: 5,  locName: "Playa Delfines, Cancún",
-    prize: 5000,  tier: "Bronze",
-  },
-  {
     round: 52,  continent: "north_america",  country: "USA",
     city: "Miami",  beachName: "South Beach",
     displayName: "Miami Beach Open",  date: "2026-08-30",
@@ -412,13 +406,6 @@ export const WORLD_TOUR: WorldTourEvent[] = [
   },
 
   // ── South America Tour  (Slots 61–70) ────────────────────────────────────
-  {
-    round: 61,  continent: "south_america",  country: "Colombia",
-    city: "Cartagena",  beachName: "Playa Blanca",
-    displayName: "Cartagena Beach Cup",  date: "2026-10-11",
-    locId: 1,  locName: "Playa Blanca, Cartagena",
-    prize: 6000,  tier: "Bronze",
-  },
   {
     round: 62,  continent: "south_america",  country: "Peru",
     city: "Lima",  beachName: "Costa Verde Beach",

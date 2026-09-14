@@ -15,9 +15,9 @@
  *
  *   field      each career's World Tour field is its own 18 qualifiers
  *              (3 per continent, all carrying its career_save_id) + its club
- *   played     after N rounds every AI club has played exactly N minus its
- *              scheduled rests, with exactly one rest per round (the field is
- *              19, so one club must sit out — see docs/WEEKEND-STATUS.md Q1)
+ *   played     after N rounds every club, the player's included, has played
+ *              exactly N minus its byes, with exactly one stored bye per round
+ *              (the field is 19, so one club rests — R-44)
  *   real       every result is 2-0 or 2-1 with legal set scores
  *   records    each club's ranking row wins/losses equal its fixture results
  *   points     each club's ranking points equal an INDEPENDENT recomputation
@@ -146,7 +146,8 @@ async function playThroughRound(api, round, maxDays = 400) {
       await api("POST", "/calendar/dismiss-match", {});
     }
     const fx = await api("GET", `/world-tour/fixtures?round=${round}`);
-    if (fx.status === 200 && fx.data.fixtures.length > 0 && fx.data.fixtures.every((f) => f.status === "completed")) {
+    // R-44: a round is decided when every match is completed; its bye is never played.
+    if (fx.status === 200 && fx.data.fixtures.length > 0 && fx.data.fixtures.every((f) => f.status === "completed" || f.bye)) {
       return day + 1;
     }
   }
@@ -273,10 +274,13 @@ check(`B's ladder is the whole field of ${FIELD}, one player row`,
 check(`A's leaderboard is the same ${FIELD} clubs`, Array.isArray(leaderboardA) && leaderboardA.length === FIELD,
   `${leaderboardA?.length} rows`);
 const r11 = fixturesA11.data;
-check(`a World Tour round is ${(FIELD - 1) / 2} fixtures, one of them the player's, with one club resting`,
-  r11?.fixtures.length === (FIELD - 1) / 2 && r11.fixtures.filter((f) => f.home.isPlayer || f.away.isPlayer).length === 1
-    && r11.resting.length === 1,
-  `${r11?.fixtures.length} fixtures, resting: ${r11?.resting.map((x) => x.name).join(", ")}`);
+const r11Matches = (r11?.fixtures ?? []).filter((f) => !f.bye);
+const r11Byes = (r11?.fixtures ?? []).filter((f) => f.bye);
+check(`a World Tour round is ${(FIELD - 1) / 2} matches and one stored bye, the player's club in exactly one of them`,
+  r11Matches.length === (FIELD - 1) / 2 && r11Byes.length === 1
+    && (r11?.fixtures ?? []).filter((f) => f.home.isPlayer || f.away.isPlayer).length === 1
+    && r11.resting.length === 1 && r11.resting[0].competitorId === r11Byes[0].home.competitorId,
+  `${r11Matches.length} matches, bye: ${r11Byes.map((f) => f.home.name).join(", ")}`);
 
 dbh = new DatabaseSync(dbFile);
 for (const [label, career] of [["A", careerA], ["B", careerB]]) {
@@ -301,27 +305,38 @@ for (const [label, career] of [["A", careerA], ["B", careerB]]) {
   const fixtures = dbh.prepare(`SELECT * FROM world_tour_fixtures WHERE career_save_id = ? AND season_year = ?
     AND round BETWEEN ? AND ?`).all(career.careerSaveId, SEASON, FIRST_WT_ROUND, LAST_ROUND);
 
-  const played = new Map(field.map((id) => [id, 0]));
-  const rests = new Map(field.map((id) => [id, 0]));
-  let restsPerRoundOk = true;
+  // R-44: the resting club is a stored bye row (home = away), not an absence.
+  const clubs = [playerCompetitor, ...field];
+  const matchRows = fixtures.filter((f) => f.status !== "bye");
+  const byeRows = fixtures.filter((f) => f.status === "bye");
+  const played = new Map(clubs.map((id) => [id, 0]));
+  const byes = new Map(clubs.map((id) => [id, 0]));
+  let roundsOk = true;
   for (let round = FIRST_WT_ROUND; round <= LAST_ROUND; round++) {
-    const inRound = new Set(fixtures.filter((f) => f.round === round).flatMap((f) => [f.home_competitor_id, f.away_competitor_id]));
-    const resting = field.filter((id) => !inRound.has(id));
-    if (resting.length !== 1) restsPerRoundOk = false;
-    for (const id of resting) rests.set(id, rests.get(id) + 1);
-    for (const id of inRound) if (played.has(id)) played.set(id, played.get(id) + 1);
+    const inRoundMatches = matchRows.filter((f) => f.round === round);
+    const inRoundByes = byeRows.filter((f) => f.round === round);
+    const seen = new Set([...inRoundMatches.flatMap((f) => [f.home_competitor_id, f.away_competitor_id]),
+      ...inRoundByes.map((f) => f.home_competitor_id)]);
+    // One bye, and every club in the round exactly once: 9 matches x 2 + 1 bye = 19.
+    if (inRoundByes.length !== 1 || seen.size !== FIELD || inRoundMatches.length * 2 + inRoundByes.length !== FIELD) roundsOk = false;
+    for (const f of inRoundByes) byes.set(f.home_competitor_id, (byes.get(f.home_competitor_id) ?? 0) + 1);
+    for (const f of inRoundMatches) {
+      for (const id of [f.home_competitor_id, f.away_competitor_id]) played.set(id, (played.get(id) ?? 0) + 1);
+    }
   }
-  const wrongCount = field.filter((id) => played.get(id) !== ROUNDS - rests.get(id));
+  const wrongCount = clubs.filter((id) => played.get(id) !== ROUNDS - byes.get(id));
   check(`${label}: ${field.length} AI clubs in the field`, field.length === QUALIFIERS);
-  check(`${label}: exactly one AI club rests in every round`, restsPerRoundOk);
-  check(`${label}: every AI club played exactly ${ROUNDS} rounds minus its rests`, wrongCount.length === 0,
-    `played ${Math.min(...played.values())}-${Math.max(...played.values())}, rests ${Math.min(...rests.values())}-${Math.max(...rests.values())}`);
-  check(`${label}: every fixture in rounds ${FIRST_WT_ROUND}-${LAST_ROUND} is completed`,
-    fixtures.length > 0 && fixtures.every((f) => f.status === "completed"), `${fixtures.length} fixtures`);
-  const illegal = fixtures.filter((f) => !legalResult(f));
+  check(`${label}: every round has exactly one stored bye, and every club appears in it once`, roundsOk);
+  check(`${label}: every club, the player's included, played exactly ${ROUNDS} rounds minus its byes`, wrongCount.length === 0,
+    `played ${Math.min(...played.values())}-${Math.max(...played.values())}, byes ${Math.min(...byes.values())}-${Math.max(...byes.values())}`);
+  check(`${label}: every match in rounds ${FIRST_WT_ROUND}-${LAST_ROUND} is completed, and no bye carries a score`,
+    matchRows.length > 0 && matchRows.every((f) => f.status === "completed")
+      && byeRows.every((f) => f.home_sets == null && f.away_sets == null && f.sets == null),
+    `${matchRows.length} matches, ${byeRows.length} byes`);
+  const illegal = matchRows.filter((f) => !legalResult(f));
   check(`${label}: every result is a legal best-of-three (21/21/15, win by 2)`, illegal.length === 0,
-    illegal.length ? `illegal: ${illegal.slice(0, 3).map((f) => f.id).join(", ")}` : `${fixtures.length} results`);
-  check(`${label}: the player's own ${ROUNDS} matches are on the fixture list, linked to their match rows`,
+    illegal.length ? `illegal: ${illegal.slice(0, 3).map((f) => f.id).join(", ")}` : `${matchRows.length} results`);
+  check(`${label}: the player's own ${ROUNDS} rounds (matches and byes) are on the fixture list, linked to their match rows`,
     fixtures.filter((f) => f.home_competitor_id === playerCompetitor && f.match_id != null).length === ROUNDS);
 
   console.log(`\n3. ${label}: RECORDS AND POINTS RECONCILE`);

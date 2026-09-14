@@ -416,6 +416,8 @@ export default function Dashboard() {
                         "border-slate-500/30";
 
   const nextMatch = dashboard?.nextMatch as any;
+  // R-44: when the club's next World Tour round is a bye, the card says so.
+  const nextBye = dashboard?.nextBye ?? null;
 
   return (
     <>
@@ -724,14 +726,27 @@ export default function Dashboard() {
               <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white/40">
                 <Calendar className="h-2.5 w-2.5" /> Next Match
               </div>
-              <div className="text-sm font-black text-white leading-snug mt-0.5 truncate">
-                {nextMatch
-                  ? <>{weatherIcons[nextMatch.weather] ?? "☀️"} {nextMatch.locationName ?? "TBD"}</>
-                  : <span className="text-white/30">No match</span>}
-              </div>
-              <div className="text-[11px] text-white/40 mt-1 font-semibold">
-                {nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule one"}
-              </div>
+              {nextBye ? (
+                <>
+                  <div className="text-sm font-black text-white leading-snug mt-0.5 truncate" data-testid="next-match-bye">
+                    Bye — Round {nextBye.round}
+                  </div>
+                  <div className="text-[11px] text-white/40 mt-1 font-semibold">
+                    Your club rests this round · Advance carries on
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-black text-white leading-snug mt-0.5 truncate">
+                    {nextMatch
+                      ? <>{weatherIcons[nextMatch.weather] ?? "☀️"} {nextMatch.locationName ?? "TBD"}</>
+                      : <span className="text-white/30">No match</span>}
+                  </div>
+                  <div className="text-[11px] text-white/40 mt-1 font-semibold">
+                    {nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule one"}
+                  </div>
+                </>
+              )}
             </div>
 
           </div>

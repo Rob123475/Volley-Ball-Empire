@@ -10,7 +10,8 @@
  *
  *   field      = this season's regional qualifiers (3 per continent, the rules
  *                page's "18 teams total") + the player's club
- *   draw       = every World Tour round (11-70) paired up front, stored in
+ *   draw       = every World Tour event round paired up front (R-44: 57 rounds,
+ *                a 19-club rotation with one stored bye per round), stored in
  *                world_tour_fixtures; the player's side links to its own
  *                `matches` row, so lineup, economy and Unity are untouched
  *   AI games   = played through the SAME engine as the player's match —
@@ -35,6 +36,7 @@ import {
   teamsTable,
   worldTourQualificationsTable,
   worldTourFixturesTable,
+  matchLiveStateTable,
 } from "@workspace/db";
 import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { sideRating, pointProbability, simulateMatch, type SetScore } from "./matchEngine.js";
@@ -178,45 +180,64 @@ export type DrawOutcome =
   | { drawn: true; fieldSize: number }
   | { drawn: false; reason: string };
 
-/**
- * One round's pairings, as indexes into the AI field.
- *
- * The player plays every round. With n AI clubs:
- *   - the player meets field[k mod n]
- *   - if n is even (an odd field overall), field[(k + n/2) mod n] rests
- *   - everyone else is paired by the circle method over what remains
- *
- * Rotating the player's opponent and the rest by different offsets means every
- * club meets the player and rests an even number of times: with 18 clubs over
- * 60 rounds, each does both 3 or 4 times.
- */
-export function roundPairings(n: number, k: number): {
-  playerOpponent: number;
-  resting: number | null;
-  pairs: Array<[number, number]>;
-} {
-  if (n < 1) throw new Error("A World Tour field needs at least one AI club");
-  const playerOpponent = k % n;
-  const resting = n % 2 === 0 && n > 1 ? (k + n / 2) % n : null;
+/** R-44: the resting club's round. Stored, shown, worth nothing. */
+export const BYE = "bye";
+export const BYE_MESSAGE = "Your club has a bye this round: there is no match to play.";
 
-  const rest: number[] = [];
-  for (let i = 0; i < n; i++) if (i !== playerOpponent && i !== resting) rest.push(i);
+/**
+ * The regular World Tour's event rounds, from the schedule itself. R-44 took three
+ * Bronze events off the calendar (rounds 41, 51 and 61 are open dates), leaving 57:
+ * three full cycles of a 19-club field.
+ */
+export const WORLD_TOUR_EVENT_ROUNDS: readonly number[] = WORLD_TOUR
+  .filter((e) => e.tier !== SEMI_FINAL_TIER && e.tier !== FINAL_TIER)
+  .map((e) => e.round)
+  .sort((a, b) => a - b);
+
+/**
+ * Where the player's club sits in the rotation. The circle method rests the fixed
+ * slot when k ≡ 0 (mod 19), which would give the player a bye in the very first
+ * World Tour round of every season. Offsetting the round index by nine moves the
+ * player's byes to the 11th, 30th and 49th rounds. Any 19 consecutive rounds still
+ * hold exactly one bye for every club.
+ */
+const ROTATION_OFFSET = 9;
+
+/**
+ * R-44: one round of a round robin over `entrants` clubs — the player's club is
+ * just one of them — by the circle method. An odd field gets a BYE slot; the club
+ * drawn against it rests. Slot 0 is fixed and the rest turn one place per round,
+ * so over `entrants` rounds every club meets every other club once and rests
+ * exactly once, and then the pattern repeats.
+ */
+export function roundPairings(entrants: number, k: number): {
+  pairs: Array<[number, number]>;
+  bye: number | null;
+} {
+  if (entrants < 2) throw new Error("A World Tour field needs at least two clubs");
+  const odd = entrants % 2 === 1;
+  const slots = odd ? entrants + 1 : entrants;
+  const byeSlot = odd ? entrants : -1;
+  const turn = ((k % (slots - 1)) + (slots - 1)) % (slots - 1);
+  const order: number[] = [0];
+  for (let i = 0; i < slots - 1; i++) order.push(1 + ((i + turn) % (slots - 1)));
 
   const pairs: Array<[number, number]> = [];
-  if (rest.length > 0) {
-    const [fixed, ...rotating] = rest;
-    const turned = rotating.map((_, i) => rotating[(i + k) % rotating.length]!);
-    const order = [fixed!, ...turned];
-    for (let i = 0; i < order.length / 2; i++) {
-      pairs.push([order[i]!, order[order.length - 1 - i]!]);
-    }
+  let bye: number | null = null;
+  for (let i = 0; i < slots / 2; i++) {
+    const a = order[i]!;
+    const b = order[slots - 1 - i]!;
+    if (a === byeSlot) bye = b;
+    else if (b === byeSlot) bye = a;
+    else pairs.push([a, b]);
   }
-  return { playerOpponent, resting, pairs };
+  return { pairs, bye };
 }
 
 /**
- * Draw the season's World Tour: rounds 11-70, every entrant, stored.
- * Idempotent — a season that is already drawn is left exactly as it is.
+ * Draw the season's World Tour: every event round, every entrant, stored —
+ * matches and byes alike. Idempotent: a season that is already drawn is left
+ * exactly as it is (one drawn before R-44 keeps its bye-less draw).
  */
 export function drawWorldTourTx(
   tx: Tx, careerSaveId: number, seasonYear: number, playerTeamId: number,
@@ -246,47 +267,89 @@ export function drawWorldTourTx(
     gte(matchesTable.round, WORLD_TOUR_START),
     lte(matchesTable.round, WORLD_TOUR_END),
   )).all();
-  const matchByRound = new Map(playerMatches.map((m) => [m.round, m]));
 
-  for (let round = WORLD_TOUR_START; round <= WORLD_TOUR_END; round++) {
-    const k = round - WORLD_TOUR_START;
+  // R-44: a fixture generated before three events came off the calendar still has
+  // player rows for rounds that are open dates now. They are unplayed and belong
+  // to no event, so they go before the draw (live state first: it references the
+  // match).
+  const eventRounds = new Set(WORLD_TOUR_EVENT_ROUNDS);
+  const orphaned = playerMatches
+    .filter((m) => !eventRounds.has(m.round) && m.status === "scheduled")
+    .map((m) => m.id);
+  if (orphaned.length > 0) {
+    tx.delete(matchLiveStateTable).where(inArray(matchLiveStateTable.matchId, orphaned)).run();
+    tx.delete(matchesTable).where(inArray(matchesTable.id, orphaned)).run();
+  }
+  const matchByRound = new Map(
+    playerMatches.filter((m) => eventRounds.has(m.round)).map((m) => [m.round, m]),
+  );
+
+  const entrants = [
+    { competitorId: playerCompetitorId, name: "", isPlayer: true },
+    ...field.map((f) => ({ competitorId: f.competitorId, name: f.name, isPlayer: false })),
+  ];
+
+  WORLD_TOUR_EVENT_ROUNDS.forEach((round, k) => {
     const tier = tierForRound(round);
-    const { playerOpponent, pairs } = roundPairings(field.length, k);
-    const opponent = field[playerOpponent]!;
+    const { pairs, bye } = roundPairings(entrants.length, k + ROTATION_OFFSET);
 
-    // The player's side. A match that is already completed is history against
-    // an opponent that was only ever a name, so it is not rewritten into a
-    // game against a real club it never played; that club simply sits the
-    // round out. Only legacy saves drawn mid-season can hit this.
+    // The player's own row for this round. in_progress means the live tick engine
+    // has started it: still unplayed. A completed match is history (only a legacy
+    // save drawn mid-season has one) and is never rewritten into something else.
     const event = matchByRound.get(round);
-    // in_progress: the live tick engine has started it; still unplayed.
-    if (event && (event.status === "scheduled" || event.status === "in_progress")) {
+    const playerEventOpen = !!event && (event.status === "scheduled" || event.status === "in_progress");
+
+    if (bye != null) {
+      const resting = entrants[bye]!;
+      const linkPlayer = resting.isPlayer && playerEventOpen;
       tx.insert(worldTourFixturesTable).values({
         careerSaveId, seasonYear, round, tier,
-        homeCompetitorId: playerCompetitorId,
-        awayCompetitorId: opponent.competitorId,
-        matchId:          event.id,
-        status:           "scheduled",
+        // A bye has one club. away_competitor_id is NOT NULL, so it carries the
+        // same club; status "bye" is what marks the row.
+        homeCompetitorId: resting.competitorId,
+        awayCompetitorId: resting.competitorId,
+        matchId:          linkPlayer ? event!.id : null,
+        status:           BYE,
       }).run();
-      tx.update(matchesTable)
-        .set({ awayTeamName: opponent.name })
-        .where(eq(matchesTable.id, event.id))
-        .run();
+      if (linkPlayer) {
+        tx.update(matchesTable)
+          .set({ status: BYE, awayTeamName: "Bye", prizeAmount: 0 })
+          .where(eq(matchesTable.id, event!.id))
+          .run();
+      }
     }
 
-    for (const [a, b] of pairs) {
+    pairs.forEach(([a, b], i) => {
+      const first = entrants[a]!;
+      const second = entrants[b]!;
+      if (first.isPlayer || second.isPlayer) {
+        if (!playerEventOpen) return;
+        const opponent = first.isPlayer ? second : first;
+        tx.insert(worldTourFixturesTable).values({
+          careerSaveId, seasonYear, round, tier,
+          homeCompetitorId: playerCompetitorId,
+          awayCompetitorId: opponent.competitorId,
+          matchId:          event!.id,
+          status:           "scheduled",
+        }).run();
+        tx.update(matchesTable)
+          .set({ awayTeamName: opponent.name })
+          .where(eq(matchesTable.id, event!.id))
+          .run();
+        return;
+      }
       // Alternate which club is listed at home, so no club is always home.
-      const [home, away] = k % 2 === 0 ? [field[a]!, field[b]!] : [field[b]!, field[a]!];
+      const [home, away] = (k + i) % 2 === 0 ? [first, second] : [second, first];
       tx.insert(worldTourFixturesTable).values({
         careerSaveId, seasonYear, round, tier,
         homeCompetitorId: home.competitorId,
         awayCompetitorId: away.competitorId,
         status:           "scheduled",
       }).run();
-    }
-  }
+    });
+  });
 
-  return { drawn: true, fieldSize: field.length + 1 };
+  return { drawn: true, fieldSize: entrants.length };
 }
 
 // ── Playing AI fixtures ──────────────────────────────────────────────────────
@@ -744,6 +807,7 @@ export async function worldTourGate(
   match: { id: number; round: number; season: number; tier: string | null; status: string },
 ): Promise<string | null> {
   if (match.status === NOT_QUALIFIED) return NOT_QUALIFIED_MESSAGE;
+  if (match.status === BYE) return BYE_MESSAGE;
   if (!match.tier || match.tier === "All-Star Match") return null;
   if (match.round < WORLD_TOUR_START || match.round > FINALS_END) return null;
 

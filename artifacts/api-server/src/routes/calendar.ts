@@ -16,7 +16,7 @@ import {
 } from "@workspace/db";
 import { eq, or, and, ne, sql, lte, inArray, isNotNull, desc } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
-import { advanceWorldTour, NOT_QUALIFIED } from "../utils/worldTour.js";
+import { advanceWorldTour, NOT_QUALIFIED, BYE, WORLD_TOUR_EVENT_ROUNDS } from "../utils/worldTour.js";
 import {
   isRegionalSlot, isLastRegionalSlot, getSlotType,
   TOTAL_SLOTS, REGIONAL_START, REGIONAL_END, WORLD_TOUR_START, WORLD_TOUR_END,
@@ -674,7 +674,7 @@ router.get("/calendar/season-structure", (_req, res) => {
     totalSlots: TOTAL_SLOTS,
     phases: [
       { name: "Regional Period",      slots: `${REGIONAL_START}–${REGIONAL_END}`,     count: 10, description: `All ${CONTINENT_COUNT} continents play one round per slot` },
-      { name: "World Tour",           slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: 60, description: "60 events, 10 per continent" },
+      { name: "World Tour",           slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: WORLD_TOUR_EVENT_ROUNDS.length, description: `${WORLD_TOUR_EVENT_ROUNDS.length} events; 19 clubs, one bye per round` },
       { name: "World Finals",         slots: `${FINALS_START}–${FINALS_END}`,          count: 2,  description: "Semifinals + World Final" },
       { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,       count: 6,  description: "Rest & preparation for next season" },
     ],
@@ -753,12 +753,15 @@ router.get("/calendar/annual", async (req, res) => {
       const phase     = getSlotType(m.round);
       const evType: EvType = phase === "finals" ? "finals" : phase === "regional" ? "regional" : "world_tour";
       const completed = m.status === "completed";
+      const bye       = m.status === BYE;
       const location  = m.locationName ?? "TBD";
       events.push({
         date,
         type: evType,
         title: `${phase === "world_tour" ? "WT" : phase === "finals" ? "Finals" : "Regional"} R${m.round} · ${location}`,
-        subtitle: `vs ${opponent ?? "TBD"} · ${completed ? "Completed" : "Scheduled"}`,
+        subtitle: bye
+          ? "Bye — your club rests this round"
+          : `vs ${opponent ?? "TBD"} · ${completed ? "Completed" : "Scheduled"}`,
         link: "/world-tour",
         round: m.round,
       });

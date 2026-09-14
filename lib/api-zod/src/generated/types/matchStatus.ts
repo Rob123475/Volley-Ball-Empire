@@ -7,7 +7,7 @@
  */
 
 /**
- * not_qualified (R-29): a World Finals match the club did not earn a place in.
+ * not_qualified (R-29): a World Finals match the club did not earn a place in. bye (R-44): the club rests this World Tour round.
  */
 export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
 
@@ -18,4 +18,5 @@ export const MatchStatus = {
   completed: 'completed',
   cancelled: 'cancelled',
   not_qualified: 'not_qualified',
+  bye: 'bye',
 } as const;

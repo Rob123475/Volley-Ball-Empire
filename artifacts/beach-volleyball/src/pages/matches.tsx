@@ -322,7 +322,7 @@ export default function Matches() {
                 // entire World Finals bracket — including the 500,000 Grand
                 // Final — could never be played.
                 const worldFinalsUnlocked =
-                  regularFixture.length > 0 && regularFixture.every(m => m.status === "completed");
+                  regularFixture.length > 0 && regularFixture.every(m => m.status === "completed" || m.status === "bye");
 
                 return (
                   <>
@@ -596,6 +596,26 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
   const [selected, setSelected] = useState<number[]>([]);
   const [expanded, setExpanded] = useState(false);
   const date = match.scheduledAt ? new Date(match.scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "TBD";
+
+  // R-44: a bye is a round the club rests — shown as a round, never as a gap.
+  if (match.status === "bye") {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/20" data-testid={`fixture-bye-${match.round}`}>
+        <div className="flex items-center gap-4 p-4">
+          <div className="flex-shrink-0 h-12 w-12 rounded-full flex flex-col items-center justify-center text-xs font-black bg-muted text-muted-foreground">
+            <span className="text-[9px] leading-none">RND</span>
+            <span className="text-base leading-tight">{match.round}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="text-xs text-muted-foreground">{date}</span>
+            <div className="font-bold">Bye</div>
+            <div className="text-xs text-muted-foreground">Your club rests this round — no match, 0 ranking points</div>
+          </div>
+          <Badge variant="outline" className="text-[10px]">BYE</Badge>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn(
