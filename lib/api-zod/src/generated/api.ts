@@ -9930,14 +9930,6 @@ export const GetHistoryStandingsResponse = zod.object({
   "points": zod.number(),
   "setDiff": zod.number()
 })),
-  "youth": zod.array(zod.object({
-  "rank": zod.number(),
-  "teamName": zod.string(),
-  "isPlayer": zod.boolean(),
-  "wins": zod.number(),
-  "losses": zod.number(),
-  "points": zod.number()
-})),
   "hasSnapshot": zod.boolean()
 })
 
@@ -9959,7 +9951,6 @@ export const GetHistorySeasonSummaryResponse = zod.object({
 })),
   "worldResult": zod.string().nullable(),
   "continentalResult": zod.string().nullable(),
-  "youthResult": zod.string().nullable(),
   "wins": zod.number(),
   "losses": zod.number(),
   "leaguePosition": zod.number().nullable(),
@@ -9995,8 +9986,7 @@ export const GetHistoryManagerSeasonsResponseItem = zod.object({
   "losses": zod.number(),
   "budgetSnapshot": zod.number().nullish(),
   "worldResult": zod.string().nullish(),
-  "continentalResult": zod.string().nullish(),
-  "youthResult": zod.string().nullish()
+  "continentalResult": zod.string().nullish()
 })
 export const GetHistoryManagerSeasonsResponse = zod.array(GetHistoryManagerSeasonsResponseItem)
 
@@ -10910,102 +10900,12 @@ export const BreakContractResponse = zod.object({
 
 
 /**
- * @summary Apply for a job from the job market — checks manager reputation and hires if qualified
- */
-export const ApplyJobBody = zod.object({
-  "clubName": zod.string(),
-  "continent": zod.string(),
-  "country": zod.string(),
-  "city": zod.string(),
-  "competition": zod.string(),
-  "salary": zod.number(),
-  "transferBudget": zod.number(),
-  "clubReputation": zod.number(),
-  "requiredReputation": zod.number(),
-  "logoColor": zod.string()
-})
-
-export const ApplyJobResponse = zod.object({
-  "accepted": zod.boolean(),
-  "required": zod.number().optional(),
-  "current": zod.number().optional(),
-  "teamId": zod.number().nullish(),
-  "clubName": zod.string().optional(),
-  "season": zod.string().optional()
-})
-
-
-/**
- * @summary Get recent AI manager movement events (auto-ticks world simulation if cooldown elapsed)
- */
-export const GetAiManagerFeedResponse = zod.object({
-  "events": zod.array(zod.object({
-  "id": zod.number(),
-  "managerName": zod.string(),
-  "eventType": zod.string(),
-  "fromClub": zod.string().nullish(),
-  "toClub": zod.string().nullish(),
-  "description": zod.string(),
-  "occurredAt": zod.coerce.date()
-}))
-})
-
-
-/**
- * @summary Get pending poaching offers for the current career save (auto-generates if eligible)
- */
-export const GetPoachingOffersResponse = zod.object({
-  "offers": zod.array(zod.object({
-  "id": zod.number(),
-  "clubName": zod.string(),
-  "continent": zod.string(),
-  "country": zod.string(),
-  "logoColor": zod.string(),
-  "salary": zod.number(),
-  "contractLength": zod.number(),
-  "transferBudget": zod.string(),
-  "seasonExpectation": zod.string(),
-  "clubReputation": zod.number(),
-  "status": zod.enum(['pending', 'accepted', 'declined']),
-  "createdAt": zod.coerce.date()
-}))
-})
-
-
-/**
- * @summary Decline a poaching offer
- */
-export const DeclinePoachingOfferParams = zod.object({
-  "id": zod.coerce.number()
-})
-
-export const DeclinePoachingOfferResponse = zod.object({
-  "ok": zod.boolean()
-})
-
-
-/**
- * @summary Accept a poaching offer and move to the new club
- */
-export const AcceptPoachingOfferParams = zod.object({
-  "id": zod.coerce.number()
-})
-
-export const AcceptPoachingOfferResponse = zod.object({
-  "ok": zod.boolean(),
-  "clubName": zod.string(),
-  "teamId": zod.number(),
-  "season": zod.string()
-})
-
-
-/**
  * @summary Get upcoming events and fixtures for the manager's planning view
  */
 export const GetUpcomingEventsResponse = zod.object({
   "items": zod.array(zod.object({
   "id": zod.string(),
-  "type": zod.enum(['match', 'season_end', 'scouting_return', 'olympic', 'youth_league', 'facility_action']),
+  "type": zod.enum(['match', 'season_end', 'scouting_return', 'olympic', 'facility_action']),
   "title": zod.string(),
   "subtitle": zod.string(),
   "location": zod.string().nullish(),
@@ -11018,17 +10918,15 @@ export const GetUpcomingEventsResponse = zod.object({
 
 
 /**
- * @summary Get the latest World Tour news stories
+ * @summary Club news built only from what happened in this career — results, signings, board reviews, honours and World Finals (R-43)
  */
-export const GetWorldTourNewsResponse = zod.object({
+export const GetClubNewsResponse = zod.object({
   "items": zod.array(zod.object({
-  "id": zod.string(),
-  "type": zod.enum(['tournament', 'transfer', 'staff_signing', 'youth', 'injury', 'olympic', 'facility', 'record']),
+  "id": zod.string().describe('<type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final.'),
+  "type": zod.enum(['result', 'signing', 'board', 'trophy', 'champion']),
   "headline": zod.string(),
   "detail": zod.string(),
-  "nation": zod.string(),
-  "flag": zod.string(),
-  "publishedAt": zod.string(),
+  "date": zod.string().describe('Game date (YYYY-MM-DD) it happened on.'),
   "isUserTeam": zod.boolean()
 }))
 })
@@ -11923,73 +11821,6 @@ export const RunWellbeingCampResponse = zod.object({
   "roundsRemaining": zod.number()
 }).nullish()
 })
-
-
-/**
- * @summary Get recent Youth Development League results for the team's youth players
- */
-export const GetYouthLeagueResultsResponseItem = zod.object({
-  "id": zod.number(),
-  "teamId": zod.number(),
-  "playerId": zod.number(),
-  "playerName": zod.string(),
-  "weekNumber": zod.number(),
-  "result": zod.enum(['win', 'loss', 'draw']),
-  "oppositionName": zod.string(),
-  "xpGained": zod.number(),
-  "devPointsGained": zod.number(),
-  "moraleChange": zod.number(),
-  "playerRatingAtTime": zod.number(),
-  "createdAt": zod.string()
-})
-export const GetYouthLeagueResultsResponse = zod.array(GetYouthLeagueResultsResponseItem)
-
-
-/**
- * @summary Get the Youth Development League ladder for the current season
- */
-export const GetYouthLadderResponseItem = zod.object({
-  "id": zod.number(),
-  "teamId": zod.number(),
-  "season": zod.number(),
-  "competitorName": zod.string(),
-  "isPlayer": zod.boolean(),
-  "wins": zod.number(),
-  "losses": zod.number(),
-  "points": zod.number(),
-  "createdAt": zod.string().optional()
-})
-export const GetYouthLadderResponse = zod.array(GetYouthLadderResponseItem)
-
-
-/**
- * @summary Get top youth players (ages 14-18) ordered by rating
- */
-export const GetYouthStarsResponseItem = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "age": zod.number(),
-  "rating": zod.number(),
-  "potential": zod.string(),
-  "speciality": zod.string(),
-  "nationality": zod.string()
-})
-export const GetYouthStarsResponse = zod.array(GetYouthStarsResponseItem)
-
-
-/**
- * @summary Get Youth Championship trophy history
- */
-export const GetYouthChampionshipResponseItem = zod.object({
-  "id": zod.number(),
-  "teamId": zod.number(),
-  "season": zod.number(),
-  "year": zod.number().nullish(),
-  "winningTeamName": zod.string(),
-  "isPlayerWin": zod.boolean(),
-  "createdAt": zod.string().optional()
-})
-export const GetYouthChampionshipResponse = zod.array(GetYouthChampionshipResponseItem)
 
 
 /**

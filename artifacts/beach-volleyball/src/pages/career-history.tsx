@@ -13,7 +13,6 @@ import {
   Trophy,
   Star,
   Medal,
-  Handshake,
   Sunset,
 } from "lucide-react";
 
@@ -115,18 +114,6 @@ function entryConfig(type: EntryType): EntryConfig {
         badgeBg:     "bg-sky-500/15",
         badgeText:   "text-sky-300",
         label:       "Olympic Medal",
-      };
-    case "poaching":
-    case "offer":
-      return {
-        Icon:        Handshake,
-        dotRing:     "ring-teal-500/40",
-        dotBg:       "bg-teal-500/20",
-        iconColour:  "text-teal-400",
-        cardBorder:  "border-teal-500/20",
-        badgeBg:     "bg-teal-500/15",
-        badgeText:   "text-teal-300",
-        label:       "Offer Accepted",
       };
     case "retirement":
       return {

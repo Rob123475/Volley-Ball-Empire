@@ -113,9 +113,6 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/olympics",                         label: "Qualification",       icon: Medal        },
       { href: "/competition/national-squads",      label: "National Squads",     icon: Users        },
       { href: "/competition/olympic-schedule",     label: "Schedule",            icon: CalendarDays },
-      // ── YOUTH ─────────────────────────────────────────────────────────────
-      { sectionHeader: true, label: "Youth" },
-      { href: "/youth-league",                     label: "Youth League",        icon: Star         },
     ],
   },
   { id: "club",     label: "Club",         icon: Building2,   href: "/club"             },

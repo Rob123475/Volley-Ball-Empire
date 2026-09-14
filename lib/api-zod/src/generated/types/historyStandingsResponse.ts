@@ -6,10 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { HistoryStandingRow } from './historyStandingRow';
-import type { HistoryYouthRow } from './historyYouthRow';
 
 export interface HistoryStandingsResponse {
   seniors: HistoryStandingRow[];
-  youth: HistoryYouthRow[];
   hasSnapshot: boolean;
 }

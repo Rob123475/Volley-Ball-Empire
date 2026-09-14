@@ -65,8 +65,7 @@ export type CareerSummary = Awaited<ReturnType<typeof buildCareerSummary>>;
  * Archives to Hall of Fame, writes one history entry, marks the career save
  * retired, and clears it from the session. This is the one place a career
  * ACTUALLY ends (as opposed to resign/break-contract, which only disconnect
- * the manager from a club — the save stays alive, employable again from the
- * Job Market).
+ * the manager from a club — the save stays alive, without a club).
  *
  * Used by voluntary retirement (POST /careers/end) and by the board-
  * confidence fail state (sacked at zero confidence, R-09) — same

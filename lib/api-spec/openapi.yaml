@@ -1538,107 +1538,6 @@ paths:
         "404":
           description: Career save or team not found
 
-  /careers/apply-job:
-    post:
-      operationId: applyJob
-      tags: [careers]
-      summary: Apply for a job from the job market — checks manager reputation and hires if qualified
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ApplyJobRequest"
-      responses:
-        "200":
-          description: Application result (accepted or rejected based on reputation)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApplyJobResult"
-        "401":
-          description: Unauthorized
-        "404":
-          description: Career save not found
-
-  /ai-managers/feed:
-    get:
-      operationId: getAiManagerFeed
-      tags: [ai-managers]
-      summary: Get recent AI manager movement events (auto-ticks world simulation if cooldown elapsed)
-      responses:
-        "200":
-          description: Recent manager movement events
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AiManagerFeedResponse"
-
-  /poaching/offers:
-    get:
-      operationId: getPoachingOffers
-      tags: [poaching]
-      summary: Get pending poaching offers for the current career save (auto-generates if eligible)
-      responses:
-        "200":
-          description: List of pending poaching offers
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PoachingOffersResponse"
-        "401":
-          description: Unauthorized
-
-  /poaching/offers/{id}/decline:
-    post:
-      operationId: declinePoachingOffer
-      tags: [poaching]
-      summary: Decline a poaching offer
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Offer declined
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [ok]
-                properties:
-                  ok:
-                    type: boolean
-        "401":
-          description: Unauthorized
-        "404":
-          description: Offer not found
-
-  /poaching/offers/{id}/accept:
-    post:
-      operationId: acceptPoachingOffer
-      tags: [poaching]
-      summary: Accept a poaching offer and move to the new club
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Offer accepted — manager moved to new club
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AcceptPoachingResult"
-        "401":
-          description: Unauthorized
-        "404":
-          description: Offer not found
-
   /events/upcoming:
     get:
       operationId: getUpcomingEvents
@@ -1654,18 +1553,18 @@ paths:
         "401":
           description: Unauthorized
 
-  /news/world-tour:
+  /news:
     get:
-      operationId: getWorldTourNews
+      operationId: getClubNews
       tags: [news]
-      summary: Get the latest World Tour news stories
+      summary: Club news built only from what happened in this career — results, signings, board reviews, honours and World Finals (R-43)
       responses:
         "200":
-          description: Latest news stories
+          description: Newest first, by game date
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WorldTourNewsFeed"
+                $ref: "#/components/schemas/ClubNewsFeed"
         "401":
           description: Unauthorized
 
@@ -2094,74 +1993,6 @@ paths:
                 $ref: "#/components/schemas/WellbeingResult"
         "400":
           description: Invalid camp type or insufficient funds
-        "401":
-          description: Unauthorized
-
-  /youth-league/results:
-    get:
-      operationId: getYouthLeagueResults
-      tags: [youth-scouting]
-      summary: Get recent Youth Development League results for the team's youth players
-      responses:
-        "200":
-          description: Youth league results grouped by week
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/YouthLeagueResult"
-        "401":
-          description: Unauthorized
-
-  /youth-league/ladder:
-    get:
-      operationId: getYouthLadder
-      tags: [youth-scouting]
-      summary: Get the Youth Development League ladder for the current season
-      responses:
-        "200":
-          description: Ladder standings sorted by points descending
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/YouthLadderEntry"
-        "401":
-          description: Unauthorized
-
-  /youth-league/stars:
-    get:
-      operationId: getYouthStars
-      tags: [youth-scouting]
-      summary: Get top youth players (ages 14-18) ordered by rating
-      responses:
-        "200":
-          description: Top youth players
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/YouthStar"
-        "401":
-          description: Unauthorized
-
-  /youth-league/championship:
-    get:
-      operationId: getYouthChampionship
-      tags: [youth-scouting]
-      summary: Get Youth Championship trophy history
-      responses:
-        "200":
-          description: Youth championship trophy history
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/YouthChampionshipTrophy"
         "401":
           description: Unauthorized
 
@@ -3882,7 +3713,7 @@ components:
           type: string
         type:
           type: string
-          enum: [match, season_end, scouting_return, olympic, youth_league, facility_action]
+          enum: [match, season_end, scouting_return, olympic, facility_action]
         title:
           type: string
         subtitle:
@@ -4096,36 +3927,34 @@ components:
           items:
             $ref: "#/components/schemas/UpcomingEvent"
 
-    WorldTourNewsItem:
+    ClubNewsItem:
       type: object
-      required: [id, type, headline, detail, nation, flag, publishedAt, isUserTeam]
+      required: [id, type, headline, detail, date, isUserTeam]
       properties:
         id:
           type: string
+          description: "<type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final."
         type:
           type: string
-          enum: [tournament, transfer, staff_signing, youth, injury, olympic, facility, record]
+          enum: [result, signing, board, trophy, champion]
         headline:
           type: string
         detail:
           type: string
-        nation:
+        date:
           type: string
-        flag:
-          type: string
-        publishedAt:
-          type: string
+          description: Game date (YYYY-MM-DD) it happened on.
         isUserTeam:
           type: boolean
 
-    WorldTourNewsFeed:
+    ClubNewsFeed:
       type: object
       required: [items]
       properties:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/WorldTourNewsItem"
+            $ref: "#/components/schemas/ClubNewsItem"
 
     PositionStrength:
       type: object
@@ -4468,98 +4297,6 @@ components:
           type: string
         currentInjuryCount:
           type: integer
-
-    YouthLadderEntry:
-      type: object
-      required: [id, teamId, season, competitorName, isPlayer, wins, losses, points]
-      properties:
-        id:
-          type: integer
-        teamId:
-          type: integer
-        season:
-          type: integer
-        competitorName:
-          type: string
-        isPlayer:
-          type: boolean
-        wins:
-          type: integer
-        losses:
-          type: integer
-        points:
-          type: integer
-        createdAt:
-          type: string
-
-    YouthStar:
-      type: object
-      required: [id, name, age, rating, potential, speciality, nationality]
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        age:
-          type: integer
-        rating:
-          type: integer
-        potential:
-          type: string
-        speciality:
-          type: string
-        nationality:
-          type: string
-
-    YouthChampionshipTrophy:
-      type: object
-      required: [id, teamId, season, winningTeamName, isPlayerWin]
-      properties:
-        id:
-          type: integer
-        teamId:
-          type: integer
-        season:
-          type: integer
-        year:
-          type: integer
-          nullable: true
-        winningTeamName:
-          type: string
-        isPlayerWin:
-          type: boolean
-        createdAt:
-          type: string
-
-    YouthLeagueResult:
-      type: object
-      required: [id, teamId, playerId, playerName, weekNumber, result, oppositionName, xpGained, devPointsGained, moraleChange, playerRatingAtTime, createdAt]
-      properties:
-        id:
-          type: integer
-        teamId:
-          type: integer
-        playerId:
-          type: integer
-        playerName:
-          type: string
-        weekNumber:
-          type: integer
-        result:
-          type: string
-          enum: [win, loss, draw]
-        oppositionName:
-          type: string
-        xpGained:
-          type: integer
-        devPointsGained:
-          type: integer
-        moraleChange:
-          type: integer
-        playerRatingAtTime:
-          type: integer
-        createdAt:
-          type: string
 
     StartYouthScoutingInput:
       type: object
@@ -5150,49 +4887,6 @@ components:
           type: string
           format: date-time
 
-    ApplyJobRequest:
-      type: object
-      required: [clubName, continent, country, city, competition, salary, transferBudget, clubReputation, requiredReputation, logoColor]
-      properties:
-        clubName:
-          type: string
-        continent:
-          type: string
-        country:
-          type: string
-        city:
-          type: string
-        competition:
-          type: string
-        salary:
-          type: number
-        transferBudget:
-          type: number
-        clubReputation:
-          type: integer
-        requiredReputation:
-          type: integer
-        logoColor:
-          type: string
-
-    ApplyJobResult:
-      type: object
-      required: [accepted]
-      properties:
-        accepted:
-          type: boolean
-        required:
-          type: integer
-        current:
-          type: integer
-        teamId:
-          type: integer
-          nullable: true
-        clubName:
-          type: string
-        season:
-          type: string
-
     ResignResult:
       type: object
       required: [ok, clubName]
@@ -5214,90 +4908,6 @@ components:
           type: string
         clubName:
           type: string
-
-    PoachingOffer:
-      type: object
-      required: [id, clubName, continent, country, logoColor, salary, contractLength, transferBudget, seasonExpectation, clubReputation, status, createdAt]
-      properties:
-        id:
-          type: integer
-        clubName:
-          type: string
-        continent:
-          type: string
-        country:
-          type: string
-        logoColor:
-          type: string
-        salary:
-          type: integer
-        contractLength:
-          type: integer
-        transferBudget:
-          type: string
-        seasonExpectation:
-          type: string
-        clubReputation:
-          type: integer
-        status:
-          type: string
-          enum: [pending, accepted, declined]
-        createdAt:
-          type: string
-          format: date-time
-
-    PoachingOffersResponse:
-      type: object
-      required: [offers]
-      properties:
-        offers:
-          type: array
-          items:
-            $ref: "#/components/schemas/PoachingOffer"
-
-    AcceptPoachingResult:
-      type: object
-      required: [ok, clubName, teamId, season]
-      properties:
-        ok:
-          type: boolean
-        clubName:
-          type: string
-        teamId:
-          type: integer
-        season:
-          type: string
-
-    AiManagerEvent:
-      type: object
-      required: [id, managerName, eventType, description, occurredAt]
-      properties:
-        id:
-          type: integer
-        managerName:
-          type: string
-        eventType:
-          type: string
-        fromClub:
-          type: string
-          nullable: true
-        toClub:
-          type: string
-          nullable: true
-        description:
-          type: string
-        occurredAt:
-          type: string
-          format: date-time
-
-    AiManagerFeedResponse:
-      type: object
-      required: [events]
-      properties:
-        events:
-          type: array
-          items:
-            $ref: "#/components/schemas/AiManagerEvent"
 
     HistorySeason:
       type: object
@@ -5331,35 +4941,14 @@ components:
         setDiff:
           type: integer
 
-    HistoryYouthRow:
-      type: object
-      required: [rank, teamName, isPlayer, wins, losses, points]
-      properties:
-        rank:
-          type: integer
-        teamName:
-          type: string
-        isPlayer:
-          type: boolean
-        wins:
-          type: integer
-        losses:
-          type: integer
-        points:
-          type: integer
-
     HistoryStandingsResponse:
       type: object
-      required: [seniors, youth, hasSnapshot]
+      required: [seniors, hasSnapshot]
       properties:
         seniors:
           type: array
           items:
             $ref: "#/components/schemas/HistoryStandingRow"
-        youth:
-          type: array
-          items:
-            $ref: "#/components/schemas/HistoryYouthRow"
         hasSnapshot:
           type: boolean
 
@@ -5380,7 +4969,7 @@ components:
 
     HistorySeasonSummaryResponse:
       type: object
-      required: [year, trophies, worldResult, continentalResult, youthResult, wins, losses, leaguePosition]
+      required: [year, trophies, worldResult, continentalResult, wins, losses, leaguePosition]
       properties:
         year:
           type: integer
@@ -5392,9 +4981,6 @@ components:
           type: string
           nullable: true
         continentalResult:
-          type: string
-          nullable: true
-        youthResult:
           type: string
           nullable: true
         wins:
@@ -5455,9 +5041,6 @@ components:
           type: string
           nullable: true
         continentalResult:
-          type: string
-          nullable: true
-        youthResult:
           type: string
           nullable: true
 

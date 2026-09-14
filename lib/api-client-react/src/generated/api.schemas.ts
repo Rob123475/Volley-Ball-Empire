@@ -1563,7 +1563,6 @@ export const UpcomingEventType = {
   season_end: 'season_end',
   scouting_return: 'scouting_return',
   olympic: 'olympic',
-  youth_league: 'youth_league',
   facility_action: 'facility_action',
 } as const;
 
@@ -1694,33 +1693,30 @@ export interface UpcomingEventsFeed {
   items: UpcomingEvent[];
 }
 
-export type WorldTourNewsItemType = typeof WorldTourNewsItemType[keyof typeof WorldTourNewsItemType];
+export type ClubNewsItemType = typeof ClubNewsItemType[keyof typeof ClubNewsItemType];
 
 
-export const WorldTourNewsItemType = {
-  tournament: 'tournament',
-  transfer: 'transfer',
-  staff_signing: 'staff_signing',
-  youth: 'youth',
-  injury: 'injury',
-  olympic: 'olympic',
-  facility: 'facility',
-  record: 'record',
+export const ClubNewsItemType = {
+  result: 'result',
+  signing: 'signing',
+  board: 'board',
+  trophy: 'trophy',
+  champion: 'champion',
 } as const;
 
-export interface WorldTourNewsItem {
+export interface ClubNewsItem {
+  /** <type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final. */
   id: string;
-  type: WorldTourNewsItemType;
+  type: ClubNewsItemType;
   headline: string;
   detail: string;
-  nation: string;
-  flag: string;
-  publishedAt: string;
+  /** Game date (YYYY-MM-DD) it happened on. */
+  date: string;
   isUserTeam: boolean;
 }
 
-export interface WorldTourNewsFeed {
-  items: WorldTourNewsItem[];
+export interface ClubNewsFeed {
+  items: ClubNewsItem[];
 }
 
 export interface PositionStrength {
@@ -1892,62 +1888,6 @@ export interface SeasonInjuryStats {
   avgRecoveryDays: number;
   mostCommon: string;
   currentInjuryCount: number;
-}
-
-export interface YouthLadderEntry {
-  id: number;
-  teamId: number;
-  season: number;
-  competitorName: string;
-  isPlayer: boolean;
-  wins: number;
-  losses: number;
-  points: number;
-  createdAt?: string;
-}
-
-export interface YouthStar {
-  id: number;
-  name: string;
-  age: number;
-  rating: number;
-  potential: string;
-  speciality: string;
-  nationality: string;
-}
-
-export interface YouthChampionshipTrophy {
-  id: number;
-  teamId: number;
-  season: number;
-  year?: number | null;
-  winningTeamName: string;
-  isPlayerWin: boolean;
-  createdAt?: string;
-}
-
-export type YouthLeagueResultResult = typeof YouthLeagueResultResult[keyof typeof YouthLeagueResultResult];
-
-
-export const YouthLeagueResultResult = {
-  win: 'win',
-  loss: 'loss',
-  draw: 'draw',
-} as const;
-
-export interface YouthLeagueResult {
-  id: number;
-  teamId: number;
-  playerId: number;
-  playerName: string;
-  weekNumber: number;
-  result: YouthLeagueResultResult;
-  oppositionName: string;
-  xpGained: number;
-  devPointsGained: number;
-  moraleChange: number;
-  playerRatingAtTime: number;
-  createdAt: string;
 }
 
 export interface StartYouthScoutingInput {
@@ -2256,28 +2196,6 @@ export interface CareerHistoryEntry {
   occurredAt: string;
 }
 
-export interface ApplyJobRequest {
-  clubName: string;
-  continent: string;
-  country: string;
-  city: string;
-  competition: string;
-  salary: number;
-  transferBudget: number;
-  clubReputation: number;
-  requiredReputation: number;
-  logoColor: string;
-}
-
-export interface ApplyJobResult {
-  accepted: boolean;
-  required?: number;
-  current?: number;
-  teamId?: number | null;
-  clubName?: string;
-  season?: string;
-}
-
 export interface ResignResult {
   ok: boolean;
   clubName: string;
@@ -2288,55 +2206,6 @@ export interface BreakContractResult {
   feePaid: number;
   newBudget: string;
   clubName: string;
-}
-
-export type PoachingOfferStatus = typeof PoachingOfferStatus[keyof typeof PoachingOfferStatus];
-
-
-export const PoachingOfferStatus = {
-  pending: 'pending',
-  accepted: 'accepted',
-  declined: 'declined',
-} as const;
-
-export interface PoachingOffer {
-  id: number;
-  clubName: string;
-  continent: string;
-  country: string;
-  logoColor: string;
-  salary: number;
-  contractLength: number;
-  transferBudget: string;
-  seasonExpectation: string;
-  clubReputation: number;
-  status: PoachingOfferStatus;
-  createdAt: string;
-}
-
-export interface PoachingOffersResponse {
-  offers: PoachingOffer[];
-}
-
-export interface AcceptPoachingResult {
-  ok: boolean;
-  clubName: string;
-  teamId: number;
-  season: string;
-}
-
-export interface AiManagerEvent {
-  id: number;
-  managerName: string;
-  eventType: string;
-  fromClub?: string | null;
-  toClub?: string | null;
-  description: string;
-  occurredAt: string;
-}
-
-export interface AiManagerFeedResponse {
-  events: AiManagerEvent[];
 }
 
 export interface HistorySeason {
@@ -2356,18 +2225,8 @@ export interface HistoryStandingRow {
   setDiff: number;
 }
 
-export interface HistoryYouthRow {
-  rank: number;
-  teamName: string;
-  isPlayer: boolean;
-  wins: number;
-  losses: number;
-  points: number;
-}
-
 export interface HistoryStandingsResponse {
   seniors: HistoryStandingRow[];
-  youth: HistoryYouthRow[];
   hasSnapshot: boolean;
 }
 
@@ -2383,7 +2242,6 @@ export interface HistorySeasonSummaryResponse {
   trophies: HistoryTrophyEntry[];
   worldResult: string | null;
   continentalResult: string | null;
-  youthResult: string | null;
   wins: number;
   losses: number;
   leaguePosition: number | null;
@@ -2412,7 +2270,6 @@ export interface HistoryManagerSeasonRow {
   budgetSnapshot?: number | null;
   worldResult?: string | null;
   continentalResult?: string | null;
-  youthResult?: string | null;
 }
 
 export interface HistoryHofPlayer {
@@ -2461,10 +2318,6 @@ export type LoadCareerSave200 = {
 };
 
 export type DeleteCareerSave200 = {
-  ok: boolean;
-};
-
-export type DeclinePoachingOffer200 = {
   ok: boolean;
 };
 

@@ -8,7 +8,6 @@ import {
   continentalScoutingMissionsTable,
   olympicSelectionsTable,
   facilitiesTable,
-  youthLadderTable,
   activeCampsTable,
 } from "@workspace/db";
 import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
@@ -205,42 +204,6 @@ router.get("/events/upcoming", async (req, res) => {
       prizeMoney: null,
       urgency: "planning",
       detail: "Win continental titles or achieve top World Tour rankings to qualify for Olympic selection.",
-    });
-  }
-
-  // ── 5. Youth league ──────────────────────────────────────────────────────
-  const youthEntries = await db
-    .select()
-    .from(youthLadderTable)
-    .where(and(eq(youthLadderTable.teamId, team.id), eq(youthLadderTable.isPlayer, true)))
-    .orderBy(desc(youthLadderTable.season))
-    .limit(1);
-
-  if (youthEntries.length > 0) {
-    const y = youthEntries[0];
-    const played = y.wins + y.losses;
-    items.push({
-      id: `youth_${y.id}`,
-      type: "youth_league",
-      title: "Youth League — Active Season",
-      subtitle: `Season ${y.season} · ${y.wins}W ${y.losses}L`,
-      location: null,
-      daysRemaining: null,
-      prizeMoney: null,
-      urgency: played < 3 ? "soon" : "upcoming",
-      detail: `${y.points} point${y.points !== 1 ? "s" : ""} accumulated. Keep developing your youth prospects.`,
-    });
-  } else {
-    items.push({
-      id: "youth_league_setup",
-      type: "youth_league",
-      title: "Youth League",
-      subtitle: "No active campaign",
-      location: null,
-      daysRemaining: null,
-      prizeMoney: null,
-      urgency: "planning",
-      detail: "Develop youth players to enter the Youth League and build your future squad.",
     });
   }
 

@@ -25,7 +25,9 @@
  *
  *   step 1 (and only step): make-starter-db.ts <live save> -> lib/db/...sqlite
  *
- * (ai_managers self-bootstraps via seedIfEmpty() in routes/ai-managers.ts.)
+ * R-43: a source save from before R-43 still carries the tables of the deleted
+ * invented content. Boot the app on it once first — utils/removedContent.ts
+ * drops them — or the drift check below stops on tables nobody categorized.
  *
  * The shared better-sqlite3 native build in this workspace is compiled for
  * Electron's Node ABI (rebuilt via @electron/rebuild so the desktop app
@@ -63,19 +65,16 @@ const KEEP_TABLES = [
 // nobody has categorized yet trips the drift check below instead of
 // silently getting wiped or silently kept.
 //
-// continental_pool_teams/continental_pool_players and ai_managers are CLEAR,
-// not KEEP, even though they look like reference/roster pools: pool
-// ranking and isActiveInLeague are mutated by promotion/relegation during a
-// career (see utils/regionalSeason.ts), and ai_managers self-bootstraps via
-// seedIfEmpty() in routes/ai-managers.ts. Keeping them would bake one
-// career's mutated world state into every new install.
+// continental_pool_teams/continental_pool_players are CLEAR, not KEEP, even
+// though they look like reference/roster pools: pool ranking and
+// isActiveInLeague are mutated by promotion/relegation during a career (see
+// utils/regionalSeason.ts). Keeping them would bake one career's mutated world
+// state into every new install.
 const CLEAR_TABLES = [
   "sessions",
   "users",
   "achievements",
   "active_camps",
-  "ai_manager_events",
-  "ai_managers",
   "calendar_state",
   "career_history_entries",
   "career_saves",
@@ -101,7 +100,6 @@ const CLEAR_TABLES = [
   "match_live_state",
   "matches",
   "olympic_selections",
-  "poaching_offers",
   "promo_deals",
   "regional_league_fixtures",
   "regional_league_results",
@@ -117,9 +115,6 @@ const CLEAR_TABLES = [
   "wellbeing_effects",
   "world_tour_qualifications",
   "world_tour_fixtures",
-  "youth_championship_trophies",
-  "youth_ladder",
-  "youth_league_results",
   "youth_prospects",
 ];
 

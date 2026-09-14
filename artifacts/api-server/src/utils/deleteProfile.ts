@@ -10,7 +10,6 @@ import {
   injuryHistoryTable,
   trainingSessionsTable,
   unityMatchStatsTable,
-  youthLeagueResultsTable,
   continentalScoutingMissionsTable,
   achievementsTable,
   activeCampsTable,
@@ -23,8 +22,6 @@ import {
   seasonInjuryStatsTable,
   trophiesTable,
   wellbeingEffectsTable,
-  youthChampionshipTrophiesTable,
-  youthLadderTable,
   youthProspectsTable,
   hallOfFameTable,
   olympicSelectionsTable,
@@ -38,7 +35,6 @@ import {
   regionalLeagueResultsTable,
   seasonsTable,
   worldTourQualificationsTable,
-  aiManagersTable,
 } from "@workspace/db";
 import { eq, inArray, or } from "drizzle-orm";
 import { deleteCareerSave } from "./deleteCareerSave.js";
@@ -120,7 +116,6 @@ export function deleteProfileCascade(userId: string): void {
         injuryHistoryTable,
         trainingSessionsTable,
         unityMatchStatsTable,
-        youthLeagueResultsTable,
         continentalScoutingMissionsTable,
         achievementsTable,
         activeCampsTable,
@@ -132,8 +127,6 @@ export function deleteProfileCascade(userId: string): void {
         seasonInjuryStatsTable,
         trophiesTable,
         wellbeingEffectsTable,
-        youthChampionshipTrophiesTable,
-        youthLadderTable,
         youthProspectsTable,
       ] as const) {
         tx.delete(table).where(inArray((table as any).teamId, teamIds)).run();
@@ -158,7 +151,7 @@ export function deleteProfileCascade(userId: string): void {
       .map((r) => r.id);
     if (saveIds.length > 0) {
       // deleteCareerSave deletes careerPlayerStateTable, careerStaffStateTable,
-      // careerPoolTeamStateTable, competitorRankingsTable, poachingOffersTable,
+      // careerPoolTeamStateTable, competitorRankingsTable,
       // careerHistoryEntriesTable and the careerSavesTable row itself — the
       // same shared cascade the career-slot routes use. Passing our own `tx`
       // keeps this part of the one profile-deletion transaction rather than
@@ -181,7 +174,6 @@ export function deleteProfileCascade(userId: string): void {
       // worldTourFixturesTable (R-29) is cleared per save by deleteCareerSave
       // above, before that save's career_saves row goes. playerRankingPointsTable
       // (R-46) and boardSeasonsTable (R-53) are cleared there too.
-      tx.delete(aiManagersTable).where(inArray(aiManagersTable.careerSaveId, saveIds)).run();
     }
 
     // ── Remaining direct references to the user ────────────────────────────

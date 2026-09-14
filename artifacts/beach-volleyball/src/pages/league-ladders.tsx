@@ -4,8 +4,6 @@ import {
   getGetCurrentSeasonQueryKey,
   useGetSeasonLadder,
   getGetSeasonLadderQueryKey,
-  useGetYouthLadder,
-  getGetYouthLadderQueryKey,
   useGetMyTeam,
   getGetMyTeamQueryKey,
   useListHistorySeasons,
@@ -43,21 +41,6 @@ function teamColor(name: string): string {
   ];
   const hash = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   return COLORS[hash % COLORS.length];
-}
-
-// FAKE DATA — not results. The youth ladder's entries carry no match history,
-// so its form strip is generated from a hash of the club name. R-29 removed this
-// from the seniors ladder (which now shows real results); the youth ladder is out
-// of R-29's scope and is listed in docs/r10-audit.md instead of being changed here.
-function mockForm(name: string, wins: number, losses: number): ("W" | "L")[] {
-  const total = wins + losses;
-  if (total === 0) return ["L", "L", "L", "L", "L"];
-  const winRate = wins / total;
-  let seed = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0) + wins * 7 + losses * 13;
-  return Array.from({ length: 5 }, () => {
-    seed = ((seed * 1103515245) + 12345) & 0x7fffffff;
-    return (seed / 0x7fffffff) < winRate ? "W" : "L";
-  });
 }
 
 function rankDisplay(rank: number) {
@@ -214,101 +197,6 @@ function SeniorsLadder({ myTeamName }: { myTeamName: string }) {
   );
 }
 
-// ── Youth Ladder ──────────────────────────────────────────────────────────────
-
-function YouthLadder() {
-  const { data: rawLadder, isLoading } = useGetYouthLadder({
-    query: { queryKey: getGetYouthLadderQueryKey() },
-  });
-
-  if (isLoading) {
-    return <div className="space-y-2">{[...Array(8)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>;
-  }
-
-  if (!rawLadder || rawLadder.length === 0) {
-    return <p className="text-muted-foreground text-sm">No youth ladder data available.</p>;
-  }
-
-  const ladder = [...rawLadder]
-    .sort((a, b) => {
-      if (b.points !== a.points) return b.points - a.points;
-      const aDiff = a.wins - a.losses;
-      const bDiff = b.wins - b.losses;
-      return bDiff - aDiff;
-    })
-    .map((e, i) => ({ ...e, rank: i + 1 }));
-
-  return (
-    <div>
-      <BandLegend />
-      <div className="rounded-md border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="h-9 px-2 text-left font-medium text-muted-foreground w-10">Rank</th>
-              <th className="h-9 px-2 text-left font-medium text-muted-foreground w-8"></th>
-              <th className="h-9 px-2 text-left font-medium text-muted-foreground">Club</th>
-              <th className="h-9 px-2 text-center font-medium text-muted-foreground w-12 hidden sm:table-cell">P</th>
-              <th className="h-9 px-2 text-center font-medium text-muted-foreground w-12">W</th>
-              <th className="h-9 px-2 text-center font-medium text-muted-foreground w-12">L</th>
-              <th className="h-9 px-2 text-right font-medium text-muted-foreground w-12">Pts</th>
-              <th className="h-9 px-2 text-center font-medium text-muted-foreground w-28 hidden lg:table-cell">Form</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ladder.map((entry) => {
-              const played = entry.wins + entry.losses;
-              const form = mockForm(entry.competitorName, entry.wins, entry.losses);
-              const initials = teamInitials(entry.competitorName);
-              const color = teamColor(entry.competitorName);
-              return (
-                <tr
-                  key={entry.id}
-                  className={cn(
-                    "border-b last:border-0 transition-colors",
-                    bandClass(entry.rank),
-                    entry.isPlayer && "font-semibold"
-                  )}
-                >
-                  <td className="px-2 py-2">{rankDisplay(entry.rank)}</td>
-                  <td className="px-1 py-2">
-                    <div className={cn("h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0", color)}>
-                      {initials}
-                    </div>
-                  </td>
-                  <td className="px-2 py-2">
-                    <span>{entry.competitorName}</span>
-                    {entry.isPlayer && <Badge variant="outline" className="ml-2 text-[10px] py-0">You</Badge>}
-                  </td>
-                  <td className="px-2 py-2 text-center text-muted-foreground hidden sm:table-cell">{played}</td>
-                  <td className="px-2 py-2 text-center text-emerald-600 font-semibold">{entry.wins}</td>
-                  <td className="px-2 py-2 text-center text-red-500 font-semibold">{entry.losses}</td>
-                  <td className="px-2 py-2 text-right font-bold">{entry.points}</td>
-                  <td className="px-2 py-2 hidden lg:table-cell">
-                    <div className="flex items-center justify-center gap-0.5">
-                      {form.map((r, i) => (
-                        <span
-                          key={i}
-                          className={cn(
-                            "inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-bold",
-                            r === "W" ? "bg-emerald-500/20 text-emerald-600" : "bg-red-500/15 text-red-500"
-                          )}
-                        >
-                          {r}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 // ── History: Season Archive ───────────────────────────────────────────────────
 
 function HistoryStandingsTable({
@@ -393,7 +281,7 @@ function SeasonChampionsPodium({ year }: { year: number }) {
   if (!summary) return null;
 
   const hasTrophies = summary.trophies.length > 0;
-  const hasAnyResult = summary.worldResult || summary.continentalResult || summary.youthResult;
+  const hasAnyResult = summary.worldResult || summary.continentalResult;
 
   if (!hasTrophies && !hasAnyResult) return null;
 
@@ -401,7 +289,7 @@ function SeasonChampionsPodium({ year }: { year: number }) {
     if (!result) return null;
     const isChamp = result.includes("World Champion");
     const isRunner = result.includes("Runner Up");
-    const isThird = result.includes("3rd");
+    const isThird = result.includes("semi-finalist");
     const isFourth = result.includes("4th");
     return (
       <div className={cn(
@@ -428,13 +316,6 @@ function SeasonChampionsPodium({ year }: { year: number }) {
             <span className="text-3xl">🌍</span>
             <span className="text-xs font-semibold text-center">{summary.continentalResult}</span>
             <span className="text-xs text-muted-foreground">Continental Championship</span>
-          </div>
-        )}
-        {summary.youthResult && (
-          <div className="flex flex-col items-center gap-1 rounded-xl p-4 border bg-emerald-500/10 border-emerald-500/30">
-            <span className="text-3xl">{summary.youthResult.includes("Champion") ? "🏆" : "🌱"}</span>
-            <span className="text-xs font-semibold text-center">{summary.youthResult}</span>
-            <span className="text-xs text-muted-foreground">Youth World Series</span>
           </div>
         )}
       </div>
@@ -507,15 +388,6 @@ function HistorySeasonArchive() {
     setDiff: r.setDiff,
   })) ?? [];
 
-  const youthRows = standings?.youth.map((r) => ({
-    rank: r.rank,
-    name: r.teamName,
-    isPlayer: r.isPlayer,
-    wins: r.wins,
-    losses: r.losses,
-    points: r.points,
-  })) ?? [];
-
   return (
     <div className="space-y-6">
       {/* Season selector */}
@@ -563,24 +435,6 @@ function HistorySeasonArchive() {
                 ) : (
                   <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
                     Final standings are captured at the end of each World Final going forward. No snapshot exists for {activeYear}.
-                  </div>
-                )}
-              </div>
-
-              {/* Youth */}
-              <div>
-                <SectionHeader title="Youth World Beach Pro Series — Final Standings" />
-                {youthRows.length > 0 ? (
-                  <>
-                    <BandLegend />
-                    <HistoryStandingsTable
-                      rows={youthRows}
-                      cols={[]}
-                    />
-                  </>
-                ) : (
-                  <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-                    No youth standings recorded for {activeYear}.
                   </div>
                 )}
               </div>
@@ -676,7 +530,6 @@ function HistoryManagerSeasons() {
             <th className="h-9 px-3 text-center font-medium text-muted-foreground">L</th>
             <th className="h-9 px-3 text-left font-medium text-muted-foreground hidden md:table-cell">World</th>
             <th className="h-9 px-3 text-left font-medium text-muted-foreground hidden lg:table-cell">Continental</th>
-            <th className="h-9 px-3 text-left font-medium text-muted-foreground hidden lg:table-cell">Youth</th>
             <th className="h-9 px-3 text-right font-medium text-muted-foreground hidden xl:table-cell">Budget</th>
           </tr>
         </thead>
@@ -700,11 +553,6 @@ function HistoryManagerSeasons() {
               <td className="px-3 py-2.5 hidden lg:table-cell">
                 {row.continentalResult
                   ? <span className="text-xs text-violet-600 font-medium">{row.continentalResult}</span>
-                  : <span className="text-muted-foreground text-xs">—</span>}
-              </td>
-              <td className="px-3 py-2.5 hidden lg:table-cell">
-                {row.youthResult
-                  ? <span className="text-xs text-emerald-600 font-medium">{row.youthResult}</span>
                   : <span className="text-muted-foreground text-xs">—</span>}
               </td>
               <td className="px-3 py-2.5 text-right text-muted-foreground hidden xl:table-cell">
@@ -910,16 +758,11 @@ export default function LeagueLadders() {
       <Tabs defaultValue="seniors">
         <TabsList className="mb-4">
           <TabsTrigger value="seniors">Seniors</TabsTrigger>
-          <TabsTrigger value="youth">Youth</TabsTrigger>
           <TabsTrigger value="history">History & Records</TabsTrigger>
         </TabsList>
 
         <TabsContent value="seniors">
           <SeniorsLadder myTeamName={team?.name ?? ""} />
-        </TabsContent>
-
-        <TabsContent value="youth">
-          <YouthLadder />
         </TabsContent>
 
         <TabsContent value="history">

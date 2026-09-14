@@ -25,7 +25,6 @@ import StaffHub         from "@/pages/staff-hub";
 import WorldTourHub     from "@/pages/world-tour";
 import ContinentalHub   from "@/pages/continental";
 import OlympicsHub      from "@/pages/olympics";
-import YouthLeagueHub   from "@/pages/youth-league";
 import ClubHub          from "@/pages/club-hub";
 import CareerHub        from "@/pages/career-hub";
 
@@ -41,13 +40,11 @@ import Facilities         from "@/pages/facilities";
 import Wellbeing          from "@/pages/wellbeing";
 import YouthAcademy       from "@/pages/youth-academy";
 import Achievements       from "@/pages/achievements";
-import YouthResults       from "@/pages/youth-results";
 import ContinentalScouting from "@/pages/continental-scouting";
 import MedicalMarket      from "@/pages/medical-market";
 import CareerManagement   from "@/pages/career-management";
 import ManagerProfile     from "@/pages/profile";
 import ManagerContract    from "@/pages/manager-contract";
-import JobMarket          from "@/pages/job-market";
 import CareerHistory      from "@/pages/career-history";
 import LeagueLadders      from "@/pages/league-ladders";
 import Leaderboard        from "@/pages/leaderboard";
@@ -162,7 +159,6 @@ function Router() {
               <Route path="/world-tour"  component={WorldTourHub} />
               <Route path="/continental" component={ContinentalHub} />
               <Route path="/olympics"    component={OlympicsHub}  />
-              <Route path="/youth-league" component={YouthLeagueHub} />
               <Route path="/club"        component={ClubHub}      />
               <Route path="/finances"    component={Finances}     />
               <Route path="/career"      component={CareerHub}    />
@@ -180,14 +176,12 @@ function Router() {
               <Route path="/facilities"         component={Facilities}        />
               <Route path="/wellbeing"          component={Wellbeing}         />
               <Route path="/youth-academy"      component={YouthAcademy}      />
-              <Route path="/youth-results"      component={YouthResults}      />
               <Route path="/continental-scouting" component={ContinentalScouting} />
               <Route path="/achievements"       component={Achievements}      />
               <Route path="/medical-market"     component={MedicalMarket}     />
               <Route path="/career-management"  component={CareerManagement}  />
               <Route path="/profile"            component={ManagerProfile}    />
               <Route path="/manager-contract"   component={ManagerContract}   />
-              <Route path="/job-market"         component={JobMarket}         />
               <Route path="/career-history"     component={CareerHistory}     />
               <Route path="/league-ladders"     component={LeagueLadders}     />
 

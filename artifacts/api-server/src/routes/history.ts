@@ -4,8 +4,6 @@ import {
   teamsTable,
   seasonsTable,
   trophiesTable,
-  youthLadderTable,
-  youthChampionshipTrophiesTable,
   seasonFinalStandingsTable,
   managerSeasonSummaryTable,
   hallOfFameTable,
@@ -59,46 +57,6 @@ router.get("/history/seasons/:year/standings", async (req, res) => {
 
   const hasSnapshot = seniorRows.length > 0;
 
-  // Youth: map calendar year → season number via seasonsTable ordering
-  const allSeasons = await db
-    .select({ year: seasonsTable.year })
-    .from(seasonsTable)
-    .orderBy(asc(seasonsTable.year));
-
-  const seasonIndex = allSeasons.findIndex((s) => s.year === year);
-  const seasonNumber = seasonIndex >= 0 ? seasonIndex + 1 : null;
-
-  let youthRows: {
-    rank: number;
-    teamName: string;
-    isPlayer: boolean;
-    wins: number;
-    losses: number;
-    points: number;
-  }[] = [];
-
-  if (seasonNumber !== null) {
-    const youthData = await db
-      .select()
-      .from(youthLadderTable)
-      .where(
-        and(
-          eq(youthLadderTable.teamId, team.id),
-          eq(youthLadderTable.season, seasonNumber),
-        ),
-      )
-      .orderBy(desc(youthLadderTable.points));
-
-    youthRows = youthData.map((row, i) => ({
-      rank: i + 1,
-      teamName: row.competitorName,
-      isPlayer: row.isPlayer,
-      wins: row.wins,
-      losses: row.losses,
-      points: row.points,
-    }));
-  }
-
   res.json({
     seniors: seniorRows.map((r) => ({
       rank: r.rank,
@@ -109,7 +67,6 @@ router.get("/history/seasons/:year/standings", async (req, res) => {
       points: r.points,
       setDiff: r.setDiff,
     })),
-    youth: youthRows,
     hasSnapshot,
   });
 });
@@ -138,16 +95,6 @@ router.get("/history/seasons/:year/summary", async (req, res) => {
       ),
     );
 
-  const [youthChampion] = await db
-    .select()
-    .from(youthChampionshipTrophiesTable)
-    .where(
-      and(
-        eq(youthChampionshipTrophiesTable.teamId, team.id),
-        eq(youthChampionshipTrophiesTable.year, year),
-      ),
-    );
-
   const byType = (type: string) => trophies.find((t) => t.type === type);
 
   let worldResult: string | null =
@@ -162,15 +109,6 @@ router.get("/history/seasons/:year/summary", async (req, res) => {
     : byType("continental_final")      ? "Continental Finalist"
     : (managerRow?.continentalResult ?? null);
 
-  let youthResult: string | null = null;
-  if (youthChampion) {
-    youthResult = youthChampion.winningTeamName === team.name
-      ? "Youth Champion 🏆"
-      : "Youth season completed";
-  } else {
-    youthResult = managerRow?.youthResult ?? null;
-  }
-
   res.json({
     year,
     trophies: trophies.map((t) => ({
@@ -181,7 +119,6 @@ router.get("/history/seasons/:year/summary", async (req, res) => {
     })),
     worldResult,
     continentalResult,
-    youthResult,
     wins: managerRow?.wins ?? 0,
     losses: managerRow?.losses ?? 0,
     leaguePosition: managerRow?.leaguePosition ?? null,
@@ -270,7 +207,6 @@ router.get("/history/manager-seasons", async (req, res) => {
       budgetSnapshot: r.budgetSnapshot ? Number(r.budgetSnapshot) : null,
       worldResult: r.worldResult ?? null,
       continentalResult: r.continentalResult ?? null,
-      youthResult: r.youthResult ?? null,
     })),
   );
 });

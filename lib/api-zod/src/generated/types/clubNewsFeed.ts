@@ -5,8 +5,8 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
-import type { WorldTourNewsItem } from './worldTourNewsItem';
+import type { ClubNewsItem } from './clubNewsItem';
 
-export interface WorldTourNewsFeed {
-  items: WorldTourNewsItem[];
+export interface ClubNewsFeed {
+  items: ClubNewsItem[];
 }

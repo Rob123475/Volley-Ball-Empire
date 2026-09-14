@@ -12,7 +12,6 @@ export interface HistorySeasonSummaryResponse {
   trophies: HistoryTrophyEntry[];
   worldResult: string | null;
   continentalResult: string | null;
-  youthResult: string | null;
   wins: number;
   losses: number;
   leaguePosition: number | null;

@@ -1,414 +1,141 @@
+/**
+ * Club news — R-43.
+ *
+ * Every item is built from a row this career wrote, and its id names that row:
+ *   result-<match id>         a completed match of the club's
+ *   signing-<contract id>     a contract the club signed
+ *   board-<board season id>   the board's season review
+ *   trophy-<trophy id>        an honour the club won (R-42)
+ *   champion-<season year>    that season's World Final
+ * Each carries the game date it happened on.
+ *
+ * This replaced a day-seeded generator of invented players, nations,
+ * tournaments, transfers, injuries and records, merged into the same list as
+ * the club's real items with nothing to tell them apart. A kind of event with no
+ * row behind it is not news. Renewals are not listed: a renewal updates the
+ * contract in place and records no date.
+ */
 import { Router } from "express";
+import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable } from "@workspace/db";
+import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db } from "@workspace/db";
-import { teamsTable, playersTable, staffTable, trophiesTable, matchesTable } from "@workspace/db";
-import { eq, desc, and, or } from "drizzle-orm";
-import { loadPlayers, requireCareerSaveId, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import { requireCareerSaveId } from "../lib/playerDto.js";
+import { worldFinalsSummary } from "../utils/worldTour.js";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
-// ── Static world pools ──────────────────────────────────────────────────────
-
-const NATIONS: { name: string; flag: string }[] = [
-  { name: "Brazil",       flag: "🇧🇷" },
-  { name: "Japan",        flag: "🇯🇵" },
-  { name: "Australia",    flag: "🇦🇺" },
-  { name: "USA",          flag: "🇺🇸" },
-  { name: "Germany",      flag: "🇩🇪" },
-  { name: "France",       flag: "🇫🇷" },
-  { name: "Italy",        flag: "🇮🇹" },
-  { name: "Spain",        flag: "🇪🇸" },
-  { name: "Netherlands",  flag: "🇳🇱" },
-  { name: "Cuba",         flag: "🇨🇺" },
-  { name: "China",        flag: "🇨🇳" },
-  { name: "South Korea",  flag: "🇰🇷" },
-  { name: "Argentina",    flag: "🇦🇷" },
-  { name: "Canada",       flag: "🇨🇦" },
-  { name: "Poland",       flag: "🇵🇱" },
-  { name: "Turkey",       flag: "🇹🇷" },
-  { name: "Norway",       flag: "🇳🇴" },
-  { name: "Kenya",        flag: "🇰🇪" },
-  { name: "Switzerland",  flag: "🇨🇭" },
-  { name: "New Zealand",  flag: "🇳🇿" },
-];
-
-const TOURNAMENTS = [
-  "Rio Masters", "Tokyo Beach Slam", "Sydney Open", "Huntington Beach Pro",
-  "Berlin Masters", "Paris Beach Grand Prix", "Rome Open", "Barcelona Showcase",
-  "Shanghai Open", "Seoul Pro Challenge", "Buenos Aires Classic", "Canadian Open",
-  "Warsaw Grand Slam", "Istanbul Open", "Lausanne Elite", "Nairobi Challenge",
-  "Auckland Pro", "Vienna Masters", "Doha Open", "Durban Beach Classic",
-];
-
-const FIRST_NAMES = [
-  "Ana", "Maria", "Yuki", "Chloe", "Ingrid", "Agata", "Sofia", "Isabelle",
-  "Priya", "Amara", "Mei", "Nina", "Camila", "Valeria", "Erika", "Linh",
-  "Keiko", "Adriana", "Fernanda", "Petra", "Katja", "Alinta", "Tala", "Nia",
-  "Luciana", "Mia", "Elena", "Zara", "Hana", "Sara",
-];
-
-const LAST_NAMES = [
-  "Silva", "Tanaka", "Johnson", "Müller", "Dupont", "Rossi", "García",
-  "de Vries", "Ivanova", "Zhang", "Park", "Santos", "Trudeau", "Kowalski",
-  "Yilmaz", "Novak", "Kimani", "Cooper", "Ferreira", "Kim", "Romano",
-  "Lindqvist", "Walsh", "Osei", "Nakamura", "Fischer", "López", "Nguyen",
-];
-
-const POSITIONS_LABEL: Record<string, string> = {
-  setter: "setter", spiker: "spiker", defender: "defender",
-  blocker: "blocker", server: "server", all_rounder: "all-rounder",
-};
-
-const STAFF_ROLES = [
-  "head coach", "assistant coach", "sports scientist",
-  "strength & conditioning trainer", "nutritionist", "mental performance coach",
-];
-
-const INJURY_TYPES = [
-  "knee ligament strain", "shoulder inflammation", "ankle sprain",
-  "lower back injury", "hamstring strain", "wrist tendinitis",
-];
-
-const FACILITY_TYPES = [
-  "training centre", "medical facility", "performance gym",
-  "sports science lab", "youth academy", "recovery suite",
-];
-
-// ── Seeded PRNG (mulberry32) ─────────────────────────────────────────────────
-
-function seedFrom(n: number) {
-  let t = n >>> 0;
-  return () => {
-    t |= 0; t = t + 0x6D2B79F5 | 0;
-    let r = Math.imul(t ^ (t >>> 15), 1 | t);
-    r = r + Math.imul(r ^ (r >>> 7), 61 | r) ^ r;
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function pick<T>(arr: T[], rng: () => number): T {
-  return arr[Math.floor(rng() * arr.length)];
-}
-
-function pickTwo<T>(arr: T[], rng: () => number): [T, T] {
-  const a = pick(arr, rng);
-  let b = pick(arr, rng);
-  while (b === a) b = pick(arr, rng);
-  return [a, b];
-}
-
-function randomName(rng: () => number) {
-  return `${pick(FIRST_NAMES, rng)} ${pick(LAST_NAMES, rng)}`;
-}
-
-function daysAgo(n: number, rng: () => number) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  d.setHours(Math.floor(rng() * 20) + 4);
-  d.setMinutes(Math.floor(rng() * 60));
-  return d.toISOString();
-}
-
-// ── News generators ──────────────────────────────────────────────────────────
-
 type NewsItem = {
   id: string;
-  type: string;
+  type: "result" | "signing" | "board" | "trophy" | "champion";
   headline: string;
   detail: string;
-  nation: string;
-  flag: string;
-  publishedAt: string;
+  date: string;
   isUserTeam: boolean;
 };
 
-function generateWorldNews(seed: number): NewsItem[] {
-  const rng = seedFrom(seed);
-  const items: NewsItem[] = [];
+const RECENT_RESULTS = 6;
+const RECENT_SIGNINGS = 5;
+const MAX_ITEMS = 15;
 
-  const usedNations = new Set<string>();
-  const freshNation = () => {
-    for (let i = 0; i < 10; i++) {
-      const n = pick(NATIONS, rng);
-      if (!usedNations.has(n.name)) { usedNations.add(n.name); return n; }
-    }
-    return pick(NATIONS, rng);
-  };
+// On one date, the bigger story first.
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, champion: 1, board: 2, result: 3, signing: 4 };
 
-  // ── Tournament results (3 items)
-  for (let i = 0; i < 3; i++) {
-    const nation = freshNation();
-    const tournament = pick(TOURNAMENTS, rng);
-    const player = randomName(rng);
-    items.push({
-      id: `t_${seed}_${i}`,
-      type: "tournament",
-      headline: `${nation.name} wins ${tournament}`,
-      detail: `${player} led ${nation.name} to victory in a dominant performance at the ${tournament}, claiming the title with back-to-back set wins.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(i, rng),
-      isUserTeam: false,
-    });
-  }
+const GRADE_WORDS: Record<string, string> = {
+  met: "met expectations", below: "below expectations", failed: "failed expectations",
+};
 
-  // ── Player transfers (2 items)
-  for (let i = 0; i < 2; i++) {
-    const [from, to] = pickTwo(NATIONS, rng);
-    const player = randomName(rng);
-    const pos = pick(Object.keys(POSITIONS_LABEL), rng);
-    items.push({
-      id: `tr_${seed}_${i}`,
-      type: "transfer",
-      headline: `${to.name} signs ${from.name} ${POSITIONS_LABEL[pos]}`,
-      detail: `${player} has agreed a two-season contract with the ${to.name} national programme after an impressive run on the World Tour.`,
-      nation: to.name, flag: to.flag,
-      publishedAt: daysAgo(i + 1, rng),
-      isUserTeam: false,
-    });
-  }
-
-  // ── Staff signings (1 item)
-  {
-    const nation = freshNation();
-    const coach = randomName(rng);
-    const role = pick(STAFF_ROLES, rng);
-    items.push({
-      id: `s_${seed}`,
-      type: "staff_signing",
-      headline: `${nation.name} appoints new ${role}`,
-      detail: `${coach} joins the ${nation.name} setup as ${role}, bringing experience from three previous World Tour programmes.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(2, rng),
-      isUserTeam: false,
-    });
-  }
-
-  // ── Youth discovery (2 items)
-  for (let i = 0; i < 2; i++) {
-    const nation = freshNation();
-    const player = randomName(rng);
-    const pos = pick(Object.keys(POSITIONS_LABEL), rng);
-    const age = 15 + Math.floor(rng() * 4);
-    const adj = pick(["elite", "prodigious", "exceptional", "outstanding", "rare"], rng);
-    items.push({
-      id: `y_${seed}_${i}`,
-      type: "youth",
-      headline: `${nation.name} discovers ${adj} youth ${POSITIONS_LABEL[pos]}`,
-      detail: `${player}, aged ${age}, has been fast-tracked into the ${nation.name} junior programme after scouts described her potential as ${adj}.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(i + 2, rng),
-      isUserTeam: false,
-    });
-  }
-
-  // ── Injury (1 item)
-  {
-    const nation = freshNation();
-    const player = randomName(rng);
-    const injury = pick(INJURY_TYPES, rng);
-    const weeks = 2 + Math.floor(rng() * 8);
-    items.push({
-      id: `inj_${seed}`,
-      type: "injury",
-      headline: `${nation.name} star out ${weeks} weeks with ${injury}`,
-      detail: `${player} will miss the next ${weeks} weeks after sustaining a ${injury} during training. ${nation.name} are monitoring her recovery ahead of the next World Tour leg.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(3, rng),
-      isUserTeam: false,
-    });
-  }
-
-  // ── Olympic qualification (1 item)
-  {
-    const nation = freshNation();
-    const quota = 1 + Math.floor(rng() * 2);
-    items.push({
-      id: `oly_${seed}`,
-      type: "olympic",
-      headline: `${nation.name} secures Olympic quota place`,
-      detail: `${nation.name} confirmed ${quota === 1 ? "a" : "two"} Olympic quota place${quota > 1 ? "s" : ""} following a strong continental qualifying campaign, locking in beach volleyball representation at the next Games.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(4, rng),
-      isUserTeam: false,
-    });
-  }
-
-  // ── Facility upgrade (1 item)
-  {
-    const nation = freshNation();
-    const facility = pick(FACILITY_TYPES, rng);
-    items.push({
-      id: `fac_${seed}`,
-      type: "facility",
-      headline: `${nation.name} upgrades national ${facility}`,
-      detail: `${nation.name} volleyball federation has completed a major investment in their ${facility}, expected to benefit both senior and youth pathways into the World Tour.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(5, rng),
-      isUserTeam: false,
-    });
-  }
-
-  // ── Record breaker (1 item)
-  {
-    const nation = freshNation();
-    const player = randomName(rng);
-    const record = pick([
-      "most career wins in a single World Tour season",
-      "youngest player to win a major international title",
-      "longest winning streak on the women's World Tour",
-      "most consecutive final appearances on the circuit",
-    ], rng);
-    items.push({
-      id: `rec_${seed}`,
-      type: "record",
-      headline: `${player} breaks record for ${record}`,
-      detail: `The ${nation.name} star set a new benchmark for ${record}, cementing her place among the all-time greats of women's beach volleyball.`,
-      nation: nation.name, flag: nation.flag,
-      publishedAt: daysAgo(6, rng),
-      isUserTeam: false,
-    });
-  }
-
-  return items;
+function ordinal(n: number): string {
+  const v = n % 100;
+  if (v >= 11 && v <= 13) return `${n}th`;
+  return `${n}${({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[n % 10] ?? "th"}`;
 }
 
-// ── Route ────────────────────────────────────────────────────────────────────
-
-router.get("/news/world-tour", async (req, res) => {
+router.get("/news", async (req, res) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const userId = req.user.id;
-
   const team = await getActiveTeam(req);
+  if (!team) { res.json({ items: [] }); return; }
+  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+  const today = (await getGameDate(team.id)).slice(0, 10);
+  const items: NewsItem[] = [];
 
-  const userItems: NewsItem[] = [];
+  // Results: the club's latest completed matches.
+  const matches = await db.select().from(matchesTable).where(and(
+    or(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.awayTeamId, team.id)),
+    eq(matchesTable.status, "completed"),
+    isNotNull(matchesTable.scheduledAt),
+  )).orderBy(desc(matchesTable.scheduledAt)).limit(RECENT_RESULTS);
+  for (const m of matches) {
+    const home = m.homeTeamId === team.id;
+    const mine = (home ? m.homeScore : m.awayScore) ?? 0;
+    const theirs = (home ? m.awayScore : m.homeScore) ?? 0;
+    const opponent = (home ? m.awayTeamName : m.homeTeamName) ?? "their opponent";
+    items.push({
+      id: `result-${m.id}`, type: "result", isUserTeam: true,
+      date: m.scheduledAt!.slice(0, 10),
+      headline: mine > theirs
+        ? `${team.name} beat ${opponent} ${mine}–${theirs}`
+        : `${team.name} lose to ${opponent} ${mine}–${theirs}`,
+      detail: `Round ${m.round}${m.locationName ? ` · ${m.locationName}` : ""}`,
+    });
+  }
 
-  if (team) {
-    // Real event: recent trophies won by user's team
-    const recentTrophies = await db
-      .select()
-      .from(trophiesTable)
-      .where(eq(trophiesTable.teamId, team.id))
-      .orderBy(desc(trophiesTable.createdAt))
-      .limit(3);
+  // Signings: the club's latest contracts, dated on the game clock (R-51).
+  const contracts = await db.select().from(contractsTable).where(eq(contractsTable.teamId, team.id))
+    .orderBy(desc(contractsTable.startDate), desc(contractsTable.id)).limit(RECENT_SIGNINGS);
+  const names = new Map(
+    (contracts.length > 0
+      ? await db.select({ id: playersTable.id, name: playersTable.name }).from(playersTable)
+          .where(inArray(playersTable.id, contracts.map((c) => c.playerId)))
+      : []
+    ).map((p) => [p.id, p.name]),
+  );
+  for (const c of contracts) {
+    items.push({
+      id: `signing-${c.id}`, type: "signing", isUserTeam: true,
+      date: c.startDate.slice(0, 10),
+      headline: `${team.name} sign ${names.get(c.playerId) ?? "a player"}`,
+      detail: `Contract runs to ${c.endDate.slice(0, 10)}`,
+    });
+  }
 
-    for (const trophy of recentTrophies) {
-      const typeMap: Record<string, string> = {
-        world_championship: "tournament", continental_championship: "tournament",
-        grand_final: "tournament", olympic_gold: "olympic", olympic_silver: "olympic",
-        olympic_bronze: "olympic",
-      };
-      const headlineMap: Record<string, string> = {
-        world_championship: `${team.name} wins World Championship!`,
-        continental_championship: `${team.name} claims Continental Championship!`,
-        grand_final: `${team.name} wins Grand Final!`,
-        olympic_gold: `${team.name} wins Olympic Gold! 🥇`,
-        olympic_silver: `${team.name} wins Olympic Silver! 🥈`,
-        olympic_bronze: `${team.name} wins Olympic Bronze! 🥉`,
-      };
-      const detailMap: Record<string, string> = {
-        world_championship: `Your team delivered a world-class performance to claim the ${trophy.name}, etching their name into beach volleyball history.`,
-        continental_championship: `${team.name} triumphed at the ${trophy.name}, winning the continental title in a thrilling final.`,
-        grand_final: `A dominant run through the bracket saw ${team.name} lift the trophy at the ${trophy.name}.`,
-        olympic_gold: `${team.name} delivered a flawless Olympic performance, claiming the gold medal on the sport's biggest stage.`,
-        olympic_silver: `${team.name} finished as Olympic runners-up, bringing home the silver medal in a closely-fought final.`,
-        olympic_bronze: `${team.name} secured the Olympic bronze medal, completing a memorable campaign at the Games.`,
-      };
-      userItems.push({
-        id: `user_trophy_${trophy.id}`,
-        type: typeMap[trophy.type] ?? "tournament",
-        headline: headlineMap[trophy.type] ?? `${team.name} wins ${trophy.name}!`,
-        detail: detailMap[trophy.type] ?? `${team.name} claimed the ${trophy.name}.`,
-        nation: team.name, flag: "🏐",
-        publishedAt: trophy.createdAt.toISOString(),
-        isUserTeam: true,
-      });
-    }
-
-    // Real event: recent player signings
-    const recentPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
-      .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
-      .slice(0, 2);
-
-    for (const player of recentPlayers) {
-      const pos = POSITIONS_LABEL[player.position] ?? player.position;
-      userItems.push({
-        id: `user_signing_${player.id}`,
-        type: "transfer",
-        headline: `${team.name} sign ${player.position === "all_rounder" ? "versatile all-rounder" : pos} ${player.name}`,
-        detail: `${player.name} has joined ${team.name} from ${player.nationality ?? "the international circuit"}, adding ${pos} depth to the squad.`,
-        nation: team.name, flag: "🏐",
-        publishedAt: player.createdAt.toISOString(),
-        isUserTeam: true,
-      });
-    }
-
-    // Real event: recent staff signings
-    // Squad membership is career state, so the newest signing is found by
-    // sorting this career's staff rather than by a WHERE on the reference row.
-    const careerStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
-    const recentStaff = [...careerStaff]
-      .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
-      .slice(0, 1);
-
-    for (const staff of recentStaff) {
-      userItems.push({
-        id: `user_staff_${staff.id}`,
-        type: "staff_signing",
-        headline: `${team.name} appoint ${staff.name} as ${staff.role.replace(/_/g, " ")}`,
-        detail: `${staff.name} joins the ${team.name} backroom team as ${staff.role.replace(/_/g, " ")}, bringing their expertise to the programme.`,
-        nation: team.name, flag: "🏐",
-        publishedAt: staff.createdAt.toISOString(),
-        isUserTeam: true,
-      });
-    }
-
-    // Real event: recent completed match results
-    const recentMatches = await db
-      .select()
-      .from(matchesTable)
-      .where(
-        and(
-          or(
-            eq(matchesTable.homeTeamId, team.id),
-            eq(matchesTable.awayTeamId, team.id),
-          ),
-          eq(matchesTable.status, "completed"),
-        ),
-      )
-      .orderBy(desc(matchesTable.createdAt))
-      .limit(2);
-
-    for (const match of recentMatches) {
-      const isHome  = match.homeTeamId === team.id;
-      const opponent = isHome ? (match.awayTeamName ?? "Opponent") : (match.homeTeamName ?? "Opponent");
-      const myScore  = isHome ? match.homeScore  : match.awayScore;
-      const oppScore = isHome ? match.awayScore  : match.homeScore;
-      const won = (myScore ?? 0) > (oppScore ?? 0);
-      userItems.push({
-        id: `user_match_${match.id}`,
-        type: won ? "tournament" : "record",
-        headline: won
-          ? `${team.name} defeat ${opponent} ${myScore}–${oppScore}`
-          : `${team.name} fall to ${opponent} ${myScore}–${oppScore}`,
-        detail: `Round ${match.round}${match.locationName ? ` · ${match.locationName}` : ""}. ${won ? "A solid result that keeps the season on track." : "The team will look to bounce back in the next fixture."}`,
-        nation: team.name, flag: "🏐",
-        publishedAt: match.createdAt.toISOString(),
-        isUserTeam: true,
+  // Board reviews, and the World Final of each reviewed season.
+  const reviews = await db.select().from(boardSeasonsTable).where(and(
+    eq(boardSeasonsTable.careerSaveId, careerSaveId),
+    isNotNull(boardSeasonsTable.outcome),
+    isNotNull(boardSeasonsTable.reviewedOn),
+  ));
+  const reviewedOn = new Map(reviews.map((r) => [r.seasonYear, r.reviewedOn!.slice(0, 10)]));
+  for (const r of reviews) {
+    const date = reviewedOn.get(r.seasonYear)!;
+    items.push({
+      id: `board-${r.id}`, type: "board", isUserTeam: true, date,
+      headline: `Board review ${r.seasonYear}: ${r.finish != null ? `finished ${ordinal(r.finish)}, ` : ""}${GRADE_WORDS[r.grade ?? ""] ?? "season reviewed"}`,
+      detail: r.confidenceBefore != null && r.confidenceAfter != null
+        ? `Board confidence ${r.confidenceBefore} → ${r.confidenceAfter}`
+        : "",
+    });
+    const finals = worldFinalsSummary(careerSaveId, r.seasonYear, team.id);
+    if (finals.champion) {
+      items.push({
+        id: `champion-${r.seasonYear}`, type: "champion", isUserTeam: finals.playerResult === "champion", date,
+        headline: `${finals.champion} are World Champions ${r.seasonYear}`,
+        detail: finals.runnerUp ? `Beat ${finals.runnerUp} in the World Final` : "Won the World Final",
       });
     }
   }
 
-  // Seed world news by day so stories feel stable within a session
-  const today = new Date();
-  const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const worldItems = generateWorldNews(daySeed);
+  // Honours: written in the same transaction as the season's review (R-42), so
+  // each is dated by it.
+  const trophies = await db.select().from(trophiesTable).where(eq(trophiesTable.teamId, team.id));
+  for (const t of trophies) {
+    const date = t.year != null ? reviewedOn.get(t.year) : undefined;
+    if (!date) continue;
+    items.push({ id: `trophy-${t.id}`, type: "trophy", isUserTeam: true, date, headline: t.name, detail: t.notes ?? "" });
+  }
 
-  // Merge: user items first, then world items — sort combined by date desc, cap at 12
-  const all = [...userItems, ...worldItems]
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, 12);
-
-  res.json({ items: all });
+  items.sort((a, b) => b.date.localeCompare(a.date) || KIND_ORDER[a.type] - KIND_ORDER[b.type]);
+  res.json({ items: items.filter((i) => i.date <= today).slice(0, MAX_ITEMS) });
 });
 
 export default router;

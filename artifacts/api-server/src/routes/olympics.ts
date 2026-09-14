@@ -307,8 +307,10 @@ router.get("/olympics/qualifiers", async (req, res) => {
 });
 
 // ── Route: GET /olympics/schedule ────────────────────────────────────────────
-// Olympic tournament bracket: group draw + knockout rounds.
-// Non-Olympic years → projected (no results). Olympic years → simulated results.
+// The Olympic draw: the qualified nations in groups, and the knockout path.
+// R-43: projected only. This build plays no Olympic tournament. In an Olympic
+// year this used to fill in scores from a roll made on every request, so a page
+// reload could change who won gold. No result exists until a real tournament does.
 
 router.get("/olympics/schedule", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -336,13 +338,6 @@ router.get("/olympics/schedule", async (req, res) => {
     groups[g]!.teams.push(t);
   });
 
-  // Simulate match result: the side with more World Tour points wins 70% of the time
-  function simResult(a: number, b: number, seed: number): [number, number] {
-    const rand = ((seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
-    const aWins = rand < (a > b ? 0.70 : 0.30);
-    return aWins ? [2, Math.random() < 0.4 ? 0 : 1] : [Math.random() < 0.4 ? 0 : 1, 2];
-  }
-
   // Build group stage matches
   type GSMatch = { home: string; homeflag: string; away: string; awayflag: string; homeScore: number|null; awayScore: number|null; status: "projected"|"completed"; day: number };
   const groupStage = groups.map((g, gi) => {
@@ -352,41 +347,19 @@ router.get("/olympics/schedule", async (req, res) => {
       { home: t0?.country ?? "TBD", homeflag: t0?.flag ?? "🏳️", away: t2?.country ?? "TBD", awayflag: t2?.flag ?? "🏳️", homeScore: null, awayScore: null, status: "projected", day: gi < 2 ? 2 : 3 },
       { home: t1?.country ?? "TBD", homeflag: t1?.flag ?? "🏳️", away: t2?.country ?? "TBD", awayflag: t2?.flag ?? "🏳️", homeScore: null, awayScore: null, status: "projected", day: gi < 2 ? 3 : 4 },
     ];
-    if (isOlympicYear) {
-      matches.forEach((m, mi) => {
-        const homeTeam = g.teams.find(t => t.country === m.home);
-        const awayTeam = g.teams.find(t => t.country === m.away);
-        const [hs, as_] = simResult(homeTeam?.points ?? 0, awayTeam?.points ?? 0, gi * 10 + mi);
-        m.homeScore = hs; m.awayScore = as_; m.status = "completed";
-      });
-    }
     return { ...g, matches };
   });
 
-  // Compute group standings (wins = 3pts, losses = 0)
-  const groupStandings = groupStage.map(g => {
-    const pts: Record<string, number> = {};
-    const wins: Record<string, number> = {};
-    for (const t of g.teams) { pts[t.country] = 0; wins[t.country] = 0; }
-    for (const m of g.matches) {
-      if (m.status === "completed" && m.homeScore !== null && m.awayScore !== null) {
-        if (m.homeScore > m.awayScore) { pts[m.home] = (pts[m.home] ?? 0) + 3; wins[m.home] = (wins[m.home] ?? 0) + 1; }
-        else { pts[m.away] = (pts[m.away] ?? 0) + 3; wins[m.away] = (wins[m.away] ?? 0) + 1; }
-      }
-    }
-    return {
-      group: g.name,
-      standings: g.teams.map(t => ({
-        country: t.country, flag: t.flag, continent: t.continent,
-        played: isOlympicYear ? 2 : 0,
-        won: wins[t.country] ?? 0,
-        lost: isOlympicYear ? (2 - (wins[t.country] ?? 0)) : 0,
-        points: pts[t.country] ?? 0,
-      })).sort((a, b) => b.points - a.points || b.won - a.won),
-    };
-  });
+  // Group tables: the drawn nations in seeding order, nothing played.
+  const groupStandings = groupStage.map(g => ({
+    group: g.name,
+    standings: g.teams.map(t => ({
+      country: t.country, flag: t.flag, continent: t.continent,
+      played: 0, won: 0, lost: 0, points: 0,
+    })),
+  }));
 
-  // Quarter finalists: top 2 from each group (by points)
+  // Projected quarter-finalists: the top two seeds of each group
   const qfTeams = groupStandings.flatMap(g => g.standings.slice(0, 2));
 
   type KOMatch = { label: string; home: string; homeflag: string; away: string; awayflag: string; homeScore: number|null; awayScore: number|null; status: "projected"|"completed"; day: number };
@@ -406,36 +379,6 @@ router.get("/olympics/schedule", async (req, res) => {
     { label: "Bronze", home: "L-SF1", homeflag: "🏳️", away: "L-SF2", awayflag: "🏳️", homeScore: null, awayScore: null, status: "projected", day: 7 },
     { label: "Gold",   home: "W-SF1", homeflag: "🏳️", away: "W-SF2", awayflag: "🏳️", homeScore: null, awayScore: null, status: "projected", day: 7 },
   ];
-
-  if (isOlympicYear) {
-    // Simulate QF
-    qf.forEach((m, i) => {
-      const h = qfTeams.find(t => t.country === m.home);
-      const a = qfTeams.find(t => t.country === m.away);
-      const [hs, as_] = simResult(h?.points ?? 70, a?.points ?? 70, 100 + i);
-      m.homeScore = hs; m.awayScore = as_; m.status = "completed";
-    });
-    // Simulate SF using QF winners
-    const qfWinners = qf.map(m => (m.homeScore ?? 0) > (m.awayScore ?? 0) ? { country: m.home, flag: m.homeflag } : { country: m.away, flag: m.awayflag });
-    sf[0]!.home = qfWinners[0]?.country ?? "TBD"; sf[0]!.homeflag = qfWinners[0]?.flag ?? "🏳️";
-    sf[0]!.away = qfWinners[1]?.country ?? "TBD"; sf[0]!.awayflag = qfWinners[1]?.flag ?? "🏳️";
-    sf[1]!.home = qfWinners[2]?.country ?? "TBD"; sf[1]!.homeflag = qfWinners[2]?.flag ?? "🏳️";
-    sf[1]!.away = qfWinners[3]?.country ?? "TBD"; sf[1]!.awayflag = qfWinners[3]?.flag ?? "🏳️";
-    sf.forEach((m, i) => {
-      const [hs, as_] = simResult(70, 70, 200 + i);
-      m.homeScore = hs; m.awayScore = as_; m.status = "completed";
-    });
-    const sfWinners  = sf.map(m => (m.homeScore ?? 0) > (m.awayScore ?? 0) ? { country: m.home, flag: m.homeflag } : { country: m.away, flag: m.awayflag });
-    const sfLosers   = sf.map(m => (m.homeScore ?? 0) > (m.awayScore ?? 0) ? { country: m.away, flag: m.awayflag } : { country: m.home, flag: m.homeflag });
-    finals[0]!.home = sfLosers[0]?.country ?? "TBD";  finals[0]!.homeflag = sfLosers[0]?.flag ?? "🏳️";
-    finals[0]!.away = sfLosers[1]?.country ?? "TBD";  finals[0]!.awayflag = sfLosers[1]?.flag ?? "🏳️";
-    finals[1]!.home = sfWinners[0]?.country ?? "TBD"; finals[1]!.homeflag = sfWinners[0]?.flag ?? "🏳️";
-    finals[1]!.away = sfWinners[1]?.country ?? "TBD"; finals[1]!.awayflag = sfWinners[1]?.flag ?? "🏳️";
-    finals.forEach((m, i) => {
-      const [hs, as_] = simResult(70, 70, 300 + i);
-      m.homeScore = hs; m.awayScore = as_; m.status = "completed";
-    });
-  }
 
   res.json({ olympicsYear, isOlympicYear, groupStage, groupStandings, knockout: { qf, sf, finals } });
 });

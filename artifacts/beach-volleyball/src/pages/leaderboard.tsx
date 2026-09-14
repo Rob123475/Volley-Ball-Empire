@@ -10,7 +10,7 @@ import {
 } from "@workspace/api-client-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Medal, Star, TrendingUp, Globe, Zap, Crown } from "lucide-react";
+import { Trophy, Medal, Star, TrendingUp, Globe, Crown } from "lucide-react";
 
 const CHAMP_IMAGE = "/images/hero-women-volleyball.webp";
 
@@ -334,20 +334,13 @@ export default function Leaderboard() {
       )}
 
       {/* ── Info cards ───────────────────────────────────────────────── */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <InfoCard
           gradient="from-amber-500 to-orange-500"
           icon={<Trophy className="h-6 w-6 text-white" />}
           label="World Finals"
           sub="Seeded when World Tour round 70 is complete"
           detail="The top 4 of these standings qualify"
-        />
-        <InfoCard
-          gradient="from-sky-500 to-primary"
-          icon={<Zap className="h-6 w-6 text-white" />}
-          label="Reputation Bonus"
-          sub="Next tier at 2,500 REP"
-          detail="Win streaks multiply your bonus"
         />
         <InfoCard
           gradient="from-fuchsia-500 to-violet-600"

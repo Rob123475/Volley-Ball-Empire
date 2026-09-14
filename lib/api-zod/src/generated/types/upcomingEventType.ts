@@ -14,6 +14,5 @@ export const UpcomingEventType = {
   season_end: 'season_end',
   scouting_return: 'scouting_return',
   olympic: 'olympic',
-  youth_league: 'youth_league',
   facility_action: 'facility_action',
 } as const;

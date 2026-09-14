@@ -8,6 +8,7 @@ import {
   attributeRegionalLeagueOnce, dropMovedColumns,
 } from "./utils/migrateCareerState";
 import { ensureSchema, ensureReferenceData } from "./utils/ensureSchema";
+import { dropRemovedContent } from "./utils/removedContent";
 
 // R-31: electron/main.js forks this process and already has a live IPC
 // channel to it (confirmed by its own pre-existing child.disconnect() call
@@ -175,6 +176,17 @@ try {
   }
 } catch (err) {
   logger.error({ err }, "career state migration failed");
+}
+
+// R-43: the invented youth league, hardcoded club offers and AI managers left
+// tables behind in older saves, with rows that would block a profile's deletion.
+try {
+  const removed = dropRemovedContent();
+  if (removed.dropped.length > 0) {
+    logger.info({ dropped: removed.dropped }, "removed content dropped");
+  }
+} catch (err) {
+  logger.error({ err }, "dropping removed content failed");
 }
 
 app.listen(port, (err) => {

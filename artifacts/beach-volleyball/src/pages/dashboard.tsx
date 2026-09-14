@@ -7,9 +7,8 @@ import {
   useGetClubRating,
   useGetAttentionItems,
   useGetFacilities,
-  useGetWorldTourNews,
+  useGetClubNews,
   useGetUpcomingEvents,
-  useGetAiManagerFeed,
   useGetBoardConfidence,
   getGetDashboardQueryKey,
   getGetCurrentSeasonQueryKey,
@@ -17,9 +16,8 @@ import {
   getGetClubRatingQueryKey,
   getGetAttentionItemsQueryKey,
   getGetFacilitiesQueryKey,
-  getGetWorldTourNewsQueryKey,
+  getGetClubNewsQueryKey,
   getGetUpcomingEventsQueryKey,
-  getGetAiManagerFeedQueryKey,
   getGetBoardConfidenceQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -65,7 +63,6 @@ import {
   Home,
 } from "lucide-react";
 import { CareerOptionsMenu } from "@/components/career/CareerOptionsMenu";
-import { PoachingInbox } from "@/components/career/PoachingInbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -277,8 +274,7 @@ export default function Dashboard() {
   const [showCareerOptions, setShowCareerOptions] = useState(false);
   const [facilitiesOpen,   setFacilitiesOpen]   = useState(false);
   const [upcomingOpen,     setUpcomingOpen]     = useState(false);
-  const [worldNewsOpen,    setWorldNewsOpen]    = useState(false);
-  const [managerMovesOpen, setManagerMovesOpen] = useState(false);
+  const [clubNewsOpen,     setClubNewsOpen]     = useState(false);
 
   const { calendar } = useCalendar();
 
@@ -302,14 +298,11 @@ export default function Dashboard() {
     query: { queryKey: getGetFacilitiesQueryKey() },
   });
 
-  const { data: worldNews } = useGetWorldTourNews({
-    query: { queryKey: getGetWorldTourNewsQueryKey() },
+  const { data: clubNews } = useGetClubNews({
+    query: { queryKey: getGetClubNewsQueryKey() },
   });
   const { data: upcomingEvents } = useGetUpcomingEvents({
     query: { queryKey: getGetUpcomingEventsQueryKey() },
-  });
-  const { data: aiManagerFeed } = useGetAiManagerFeed({
-    query: { queryKey: getGetAiManagerFeedQueryKey() },
   });
   const { data: confidence } = useGetBoardConfidence({
     query: { queryKey: getGetBoardConfidenceQueryKey() },
@@ -897,39 +890,19 @@ export default function Dashboard() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════
-          COLLAPSIBLE: WORLD TOUR NEWS
+          COLLAPSIBLE: CLUB NEWS — R-43: only what happened in this career
       ══════════════════════════════════════════════════════════════ */}
-      {worldNews && (
+      {clubNews && (
         <CollapsiblePanel
-          open={worldNewsOpen}
-          onToggle={() => setWorldNewsOpen(v => !v)}
-          title="World Tour News"
+          open={clubNewsOpen}
+          onToggle={() => setClubNewsOpen(v => !v)}
+          title="Club News"
           icon={<Star className="h-4 w-4 text-white/50" />}
-          summary={`${worldNews.items.length} stor${worldNews.items.length !== 1 ? "ies" : "y"}`}
+          summary={`${clubNews.items.length} stor${clubNews.items.length !== 1 ? "ies" : "y"}`}
         >
-          <WorldTourNewsFeed items={worldNews.items} />
+          <ClubNewsFeed items={clubNews.items} />
         </CollapsiblePanel>
       )}
-
-      {/* ══════════════════════════════════════════════════════════════
-          COLLAPSIBLE: MANAGER MOVEMENTS
-      ══════════════════════════════════════════════════════════════ */}
-      {aiManagerFeed && aiManagerFeed.events.length > 0 && (
-        <CollapsiblePanel
-          open={managerMovesOpen}
-          onToggle={() => setManagerMovesOpen(v => !v)}
-          title="Manager Movements"
-          icon={<Users className="h-4 w-4 text-white/50" />}
-          summary={`${aiManagerFeed.events.length} movement${aiManagerFeed.events.length !== 1 ? "s" : ""}`}
-        >
-          <ManagerMovementsFeed events={aiManagerFeed.events} />
-        </CollapsiblePanel>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════
-          POACHING APPROACH
-      ══════════════════════════════════════════════════════════════ */}
-      <PoachingInbox />
 
       {/* ══════════════════════════════════════════════════════════════
           CAREER OPTIONS
@@ -1174,7 +1147,6 @@ const EVENT_META: Record<string, { icon: string; label: string; color: string; b
   season_end:      { icon: "📅", label: "Season",   color: "text-violet-300",  bg: "bg-violet-500/10",  border: "border-violet-500/25",  barColor: "bg-violet-500"  },
   scouting_return: { icon: "🔭", label: "Scouting", color: "text-amber-300",   bg: "bg-amber-500/10",   border: "border-amber-500/25",   barColor: "bg-amber-500"   },
   olympic:         { icon: "🏅", label: "Olympic",  color: "text-yellow-300",  bg: "bg-yellow-500/10",  border: "border-yellow-500/25",  barColor: "bg-yellow-500"  },
-  youth_league:    { icon: "⭐", label: "Youth",    color: "text-emerald-300", bg: "bg-emerald-500/10", border: "border-emerald-500/25", barColor: "bg-emerald-500" },
   facility_action: { icon: "🏗️",  label: "Facility", color: "text-rose-300",   bg: "bg-rose-500/10",    border: "border-rose-500/25",    barColor: "bg-rose-500"    },
 };
 
@@ -1217,7 +1189,6 @@ function UpcomingEventsWidget({ items }: { items: UpcomingEventItem[] }) {
     const nav     = evt.type === "match"           ? "/matches"
                   : evt.type === "scouting_return" ? "/continental-scouting"
                   : evt.type === "olympic"         ? "/locations"
-                  : evt.type === "youth_league"    ? "/youth-academy"
                   : evt.type === "facility_action" ? facilityNav(evt.title)
                   : null;
 
@@ -1338,125 +1309,87 @@ function UpcomingEventsWidget({ items }: { items: UpcomingEventItem[] }) {
   );
 }
 
-// ── World Tour News Feed ───────────────────────────────────────────────────────
+// ── Club News Feed ─────────────────────────────────────────────────────────────
+// R-43: only what happened in this career. Every item names the row it was built
+// from (a match, a contract, a board review, a trophy, a World Final) and is
+// dated on the game clock — see routes/news.ts.
 
 const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot: string }> = {
-  tournament:   { icon: "🏆", label: "Tournament",   pill: "bg-yellow-400/15 text-yellow-300 border-yellow-400/25",  dot: "bg-yellow-400"  },
-  transfer:     { icon: "🔄", label: "Transfer",     pill: "bg-sky-400/15 text-sky-300 border-sky-400/25",           dot: "bg-sky-400"     },
-  staff_signing:{ icon: "📋", label: "Signing",      pill: "bg-violet-400/15 text-violet-300 border-violet-400/25",  dot: "bg-violet-400"  },
-  youth:        { icon: "⭐", label: "Youth",        pill: "bg-emerald-400/15 text-emerald-300 border-emerald-400/25",dot: "bg-emerald-400" },
-  injury:       { icon: "🩹", label: "Injury",       pill: "bg-red-400/15 text-red-300 border-red-400/25",           dot: "bg-red-400"     },
-  olympic:      { icon: "🥇", label: "Olympic",      pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",     dot: "bg-amber-400"   },
-  facility:     { icon: "🏗️",  label: "Facility",    pill: "bg-slate-400/15 text-slate-300 border-slate-400/25",     dot: "bg-slate-400"   },
-  record:       { icon: "📈", label: "Record",       pill: "bg-pink-400/15 text-pink-300 border-pink-400/25",        dot: "bg-pink-400"    },
+  result:   { icon: "🏐", label: "Result",      pill: "bg-sky-400/15 text-sky-300 border-sky-400/25",          dot: "bg-sky-400"    },
+  signing:  { icon: "✍️", label: "Signing",     pill: "bg-violet-400/15 text-violet-300 border-violet-400/25", dot: "bg-violet-400" },
+  board:    { icon: "📋", label: "Board",       pill: "bg-slate-400/15 text-slate-300 border-slate-400/25",    dot: "bg-slate-400"  },
+  trophy:   { icon: "🏆", label: "Honour",      pill: "bg-yellow-400/15 text-yellow-300 border-yellow-400/25", dot: "bg-yellow-400" },
+  champion: { icon: "👑", label: "World Final", pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",    dot: "bg-amber-400"  },
 };
 
-function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins  = Math.floor(diff / 60_000);
-  const hours = Math.floor(diff / 3_600_000);
-  const days  = Math.floor(diff / 86_400_000);
-  if (mins  < 60)  return `${mins}m ago`;
-  if (hours < 24)  return `${hours}h ago`;
-  return `${days}d ago`;
+function gameDateLabel(date: string) {
+  const d = new Date(`${date}T00:00:00Z`);
+  return Number.isNaN(d.getTime())
+    ? date
+    : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-function WorldTourNewsFeed({ items }: { items: import("@workspace/api-client-react").WorldTourNewsItem[] }) {
+function ClubNewsFeed({ items }: { items: import("@workspace/api-client-react").ClubNewsItem[] }) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/80 shadow-xl">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.07),_transparent_55%)] pointer-events-none" />
-
+    <div
+      className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/80 shadow-xl"
+      data-testid="club-news"
+    >
       <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-white/8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-indigo-400/15 border border-indigo-400/30 flex items-center justify-center text-xl">
-              🌍
-            </div>
-            <div>
-              <h3 className="text-base font-black text-white leading-none">World Tour News</h3>
-              <div className="text-[11px] text-white/50 mt-0.5">Live circuit updates</div>
-            </div>
+        <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-white/8">
+          <div className="h-10 w-10 rounded-xl bg-indigo-400/15 border border-indigo-400/30 flex items-center justify-center text-xl">
+            📰
           </div>
-          {/* Live indicator */}
-          <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            LIVE
+          <div>
+            <h3 className="text-base font-black text-white leading-none">Club News</h3>
+            <div className="text-[11px] text-white/50 mt-0.5">Your results, signings, board reviews, honours and the World Finals</div>
           </div>
         </div>
 
-        {/* News list */}
-        <div className="divide-y divide-white/5">
-          {items.slice(0, 10).map((item) => {
-            const meta = NEWS_META[item.type] ?? NEWS_META.record;
-            const isOpen = expanded === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setExpanded(isOpen ? null : item.id)}
-                className={cn(
-                  "w-full text-left px-5 py-3.5 transition-colors",
-                  item.isUserTeam
-                    ? "bg-yellow-400/5 hover:bg-yellow-400/10"
-                    : "hover:bg-white/4",
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  {/* Colour dot */}
-                  <div className={cn("mt-1.5 h-2 w-2 rounded-full shrink-0", meta.dot)} />
-
-                  <div className="flex-1 min-w-0">
-                    {/* Top row */}
-                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className={cn(
-                        "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
-                        meta.pill
-                      )}>
-                        {meta.icon} {meta.label}
-                      </span>
-                      <span className="text-[10px] text-white/30 font-semibold">{item.flag} {item.nation}</span>
-                      {item.isUserTeam && (
-                        <span className="text-[9px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded-full px-1.5 py-0.5">
-                          YOUR TEAM
+        {items.length === 0 ? (
+          <div className="px-5 py-6 text-sm text-white/50">
+            Nothing yet. News appears here as your season happens.
+          </div>
+        ) : (
+          <div className="divide-y divide-white/5">
+            {items.map((item) => {
+              const meta = NEWS_META[item.type] ?? NEWS_META.result;
+              const isOpen = expanded === item.id && item.detail !== "";
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setExpanded(expanded === item.id ? null : item.id)}
+                  className="w-full text-left px-5 py-3.5 transition-colors hover:bg-white/4"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={cn("mt-1.5 h-2 w-2 rounded-full shrink-0", meta.dot)} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <span className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
+                          meta.pill,
+                        )}>
+                          {meta.icon} {meta.label}
                         </span>
+                      </div>
+                      <div className={cn("text-sm font-bold leading-snug", item.isUserTeam ? "text-yellow-100" : "text-white/90")}>
+                        {item.headline}
+                      </div>
+                      {isOpen && (
+                        <div className="mt-1.5 text-[11px] text-white/55 leading-relaxed">{item.detail}</div>
                       )}
                     </div>
-
-                    {/* Headline */}
-                    <div className={cn(
-                      "text-sm font-bold leading-snug",
-                      item.isUserTeam ? "text-yellow-100" : "text-white/90"
-                    )}>
-                      {item.headline}
+                    <div className="text-[10px] text-white/30 shrink-0 mt-0.5 font-semibold">
+                      {gameDateLabel(item.date)}
                     </div>
-
-                    {/* Detail (expandable) */}
-                    {isOpen && (
-                      <div className="mt-1.5 text-[11px] text-white/55 leading-relaxed">
-                        {item.detail}
-                      </div>
-                    )}
                   </div>
-
-                  {/* Time */}
-                  <div className="text-[10px] text-white/30 shrink-0 mt-0.5 font-semibold">
-                    {timeAgo(item.publishedAt)}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-white/8 text-[10px] text-white/25 font-semibold">
-          Tap any story to expand · World Tour stories refresh daily
-        </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1908,68 +1841,4 @@ function AttentionPanel({ items }: { items: AttentionItem[] }) {
   );
 }
 
-// ── AI Manager Movements Feed ─────────────────────────────────────────────────
-
-type AiEvent = import("@workspace/api-client-react").AiManagerEvent;
-
-const AI_EVENT_META: Record<string, { dot: string; pill: string; icon: string; label: string }> = {
-  hired:    { dot: "bg-emerald-400", pill: "bg-emerald-400/10 text-emerald-400 border-emerald-400/30", icon: "📋", label: "APPOINTED" },
-  fired:    { dot: "bg-red-400",     pill: "bg-red-400/10     text-red-400     border-red-400/30",     icon: "🔴", label: "SACKED"     },
-  retired:  { dot: "bg-amber-400",   pill: "bg-amber-400/10   text-amber-400   border-amber-400/30",   icon: "🌅", label: "RETIRED"    },
-  promoted: { dot: "bg-violet-400",  pill: "bg-violet-400/10  text-violet-400  border-violet-400/30",  icon: "⬆️", label: "PROMOTED"   },
-  moved:    { dot: "bg-sky-400",     pill: "bg-sky-400/10     text-sky-400     border-sky-400/30",     icon: "🔄", label: "TRANSFER"   },
-};
-const AI_EVENT_FALLBACK = AI_EVENT_META.hired!;
-
-function ManagerMovementsFeed({ events }: { events: AiEvent[] }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/80 shadow-xl">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.06),_transparent_55%)] pointer-events-none" />
-
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-white/8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-violet-400/15 border border-violet-400/30 flex items-center justify-center text-xl">
-              🧑‍💼
-            </div>
-            <div>
-              <h3 className="text-base font-black text-white leading-none">Manager Movements</h3>
-              <div className="text-[11px] text-white/50 mt-0.5">World coaching carousel</div>
-            </div>
-          </div>
-          <div className="text-[10px] font-bold text-violet-400 bg-violet-400/10 border border-violet-400/20 rounded-full px-2.5 py-1">
-            WORLD
-          </div>
-        </div>
-
-        {/* Events list */}
-        <div className="divide-y divide-white/5">
-          {events.slice(0, 8).map((ev) => {
-            const meta = AI_EVENT_META[ev.eventType] ?? AI_EVENT_FALLBACK;
-            return (
-              <div key={ev.id} className="flex items-start gap-3 px-5 py-3.5">
-                <div className={cn("mt-2 h-2 w-2 rounded-full shrink-0", meta.dot)} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <span className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
-                      meta.pill
-                    )}>
-                      {meta.icon} {meta.label}
-                    </span>
-                    {ev.toClub && (
-                      <span className="text-[10px] text-white/40 font-semibold">{ev.toClub}</span>
-                    )}
-                  </div>
-                  <div className="text-sm text-white/85 leading-snug">{ev.description}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
 

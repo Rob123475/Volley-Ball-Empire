@@ -15,5 +15,4 @@ export interface HistoryManagerSeasonRow {
   budgetSnapshot?: number | null;
   worldResult?: string | null;
   continentalResult?: string | null;
-  youthResult?: string | null;
 }

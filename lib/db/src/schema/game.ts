@@ -452,23 +452,6 @@ export const staffTable = sqliteTable("staff", {
 
 export type StaffMember = typeof staffTable.$inferSelect;
 
-export const youthLeagueResultsTable = sqliteTable("youth_league_results", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  playerId: integer("player_id").notNull().references(() => playersTable.id),
-  playerName: text("player_name").notNull(),
-  weekNumber: integer("week_number").notNull(),
-  result: text("result").notNull(),
-  oppositionName: text("opposition_name").notNull(),
-  xpGained: integer("xp_gained").notNull().default(0),
-  devPointsGained: integer("dev_points_gained").notNull().default(0),
-  moraleChange: integer("morale_change").notNull().default(0),
-  playerRatingAtTime: integer("player_rating_at_time").notNull().default(0),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
-
-export type YouthLeagueResult = typeof youthLeagueResultsTable.$inferSelect;
-
 export const trainingSessionsTable = sqliteTable("training_sessions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),
@@ -726,7 +709,6 @@ export const managerSeasonSummaryTable = sqliteTable("manager_season_summaries",
   budgetSnapshot:    real("budget_snapshot"),
   worldResult:       text("world_result"),
   continentalResult: text("continental_result"),
-  youthResult:       text("youth_result"),
   createdAt:         integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
@@ -782,32 +764,6 @@ export const youthProspectsTable = sqliteTable("youth_prospects", {
 });
 
 export type YouthProspect = typeof youthProspectsTable.$inferSelect;
-
-export const youthLadderTable = sqliteTable("youth_ladder", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  season: integer("season").notNull().default(1),
-  competitorName: text("competitor_name").notNull(),
-  isPlayer: integer("is_player", { mode: "boolean" }).notNull().default(false),
-  wins: integer("wins").notNull().default(0),
-  losses: integer("losses").notNull().default(0),
-  points: integer("points").notNull().default(0),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
-
-export type YouthLadderEntry = typeof youthLadderTable.$inferSelect;
-
-export const youthChampionshipTrophiesTable = sqliteTable("youth_championship_trophies", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  teamId: integer("team_id").notNull().references(() => teamsTable.id),
-  season: integer("season").notNull(),
-  year: integer("year"),
-  winningTeamName: text("winning_team_name").notNull(),
-  isPlayerWin: integer("is_player_win", { mode: "boolean" }).notNull().default(false),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
-
-export type YouthChampionshipTrophy = typeof youthChampionshipTrophiesTable.$inferSelect;
 
 export const continentalScoutingMissionsTable = sqliteTable("continental_scouting_missions", {
   id:              integer("id").primaryKey({ autoIncrement: true }),
@@ -1028,56 +984,6 @@ export const hallOfFameTable = sqliteTable("hall_of_fame", {
 });
 
 export type HallOfFameRecord = typeof hallOfFameTable.$inferSelect;
-
-export const poachingOffersTable = sqliteTable("poaching_offers", {
-  id:                integer("id").primaryKey({ autoIncrement: true }),
-  userId:            text("user_id").notNull().references(() => usersTable.id),
-  careerSaveId:      integer("career_save_id").notNull().references(() => careerSavesTable.id),
-  clubName:          text("club_name").notNull(),
-  continent:         text("continent").notNull(),
-  country:           text("country").notNull(),
-  logoColor:         text("logo_color").notNull(),
-  salary:            integer("salary").notNull(),
-  contractLength:    integer("contract_length").notNull(),
-  transferBudget:    real("transfer_budget").notNull(),
-  seasonExpectation: text("season_expectation").notNull(),
-  clubReputation:    integer("club_reputation").notNull(),
-  status:            text("status").notNull().default("pending"),
-  createdAt:         integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
-
-export type PoachingOffer       = typeof poachingOffersTable.$inferSelect;
-export type InsertPoachingOffer = typeof poachingOffersTable.$inferInsert;
-
-// ── AI Manager World Simulation ───────────────────────────────────────────────
-
-export const aiManagersTable = sqliteTable("ai_managers", {
-  id:                    integer("id").primaryKey({ autoIncrement: true }),
-  // Same reasoning as world_tour_qualifications: 0 rows today, self-bootstraps
-  // via seedIfEmpty() on first request, and rival managers are per-career the
-  // moment anything writes to them.
-  careerSaveId:          integer("career_save_id").references(() => careerSavesTable.id),
-  name:                  text("name").notNull(),
-  reputation:            integer("reputation").notNull().default(50),
-  currentClub:           text("current_club"),
-  currentClubReputation: integer("current_club_reputation"),
-  status:                text("status").notNull().default("active"),
-  hiredAt:               integer("hired_at", { mode: "timestamp" }),
-  createdAt:             integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
-
-export const aiManagerEventsTable = sqliteTable("ai_manager_events", {
-  id:          integer("id").primaryKey({ autoIncrement: true }),
-  managerName: text("manager_name").notNull(),
-  eventType:   text("event_type").notNull(),
-  fromClub:    text("from_club"),
-  toClub:      text("to_club"),
-  description: text("description").notNull(),
-  occurredAt:  integer("occurred_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-});
-
-export type AiManager      = typeof aiManagersTable.$inferSelect;
-export type AiManagerEvent = typeof aiManagerEventsTable.$inferSelect;
 
 // Unity Game API — per-player match stats submitted by the Unity client
 export const unityMatchStatsTable = sqliteTable("unity_match_stats", {

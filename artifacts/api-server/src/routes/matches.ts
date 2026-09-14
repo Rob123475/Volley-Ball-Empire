@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
+import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
 import { seasonNumberForYear, FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
@@ -13,7 +13,7 @@ import { purseAccessFor, type Tier } from "../utils/tierQualification.js";
 import { prizeFor } from "../utils/prizeDistribution.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
-import { simulateYouthLeague, tickAcademyContracts } from "./youth-league";
+import { developAcademyPlayers, tickAcademyContracts } from "../utils/academyDevelopment.js";
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
@@ -934,22 +934,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
           const playerRow = worldTourStandings(requireCareerSaveId(req.activeCareerSaveId), seasonYear)
             .find((s) => s.isPlayer && s.teamId === team.id) ?? null;
 
-          // Youth champion from this season
-          const [youthChamp] = await db
-            .select()
-            .from(youthChampionshipTrophiesTable)
-            .where(
-              and(
-                eq(youthChampionshipTrophiesTable.teamId, team.id),
-                eq(youthChampionshipTrophiesTable.year, seasonYear),
-              ),
-            );
-          const youthResult = youthChamp
-            ? youthChamp.winningTeamName === team.name
-              ? "Youth Champion 🏆"
-              : "Youth season completed"
-            : null;
-
           await db.insert(managerSeasonSummaryTable).values({
             userId: req.user!.id,
             teamId: team.id,
@@ -961,7 +945,6 @@ router.post("/matches/:id/simulate", async (req, res) => {
             budgetSnapshot: team.budget,
             worldResult,
             continentalResult: null,
-            youthResult,
           });
         }
       } catch {
@@ -970,8 +953,9 @@ router.post("/matches/:id/simulate", async (req, res) => {
     })();
   }
 
-  // Simulate Youth Development League for all signed youth players (fire-and-forget)
-  simulateYouthLeague(team.id).catch(() => {});
+  // Academy development for signed youth players (fire-and-forget). R-43: no
+  // invented youth match any more; see utils/academyDevelopment.ts.
+  developAcademyPlayers(team.id).catch(() => {});
 
   // Advance youth scouting mission by one week
   if (team.youthScoutingStatus === "active" && (team.youthScoutingWeeksRemaining ?? 0) > 0) {

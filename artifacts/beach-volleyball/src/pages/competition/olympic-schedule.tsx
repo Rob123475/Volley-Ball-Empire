@@ -1,42 +1,33 @@
+/**
+ * The Olympic draw — R-43: projected only.
+ *
+ * This build plays no Olympic tournament. The schedule used to fill in scores in
+ * an Olympic year from a roll made on every request, so a reload could change
+ * who won gold. No result exists until a real tournament does, so every match
+ * here is the drawn fixture and nothing more.
+ */
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Trophy, Medal, Flame } from "lucide-react";
 
-type GSMatch = {
+type Fixture = {
+  label?: string;
   home: string; homeflag: string;
   away: string; awayflag: string;
-  homeScore: number | null;
-  awayScore: number | null;
-  status: "projected" | "completed";
   day: number;
-};
-
-type KOMatch = {
-  label: string;
-  home: string; homeflag: string;
-  away: string; awayflag: string;
-  homeScore: number | null;
-  awayScore: number | null;
-  status: "projected" | "completed";
-  day: number;
-};
-
-type GroupStanding = {
-  country: string; flag: string; continent: string;
-  played: number; won: number; lost: number; points: number;
 };
 
 type GroupData = {
   group: string;
-  standings: GroupStanding[];
+  standings: { country: string; flag: string; continent: string }[];
 };
 
 type GroupStage = {
   name: string;
   teams: { country: string; flag: string; continent: string; points: number }[];
-  matches: GSMatch[];
+  matches: Fixture[];
 };
 
 type ScheduleData = {
@@ -44,37 +35,23 @@ type ScheduleData = {
   isOlympicYear: boolean;
   groupStage: GroupStage[];
   groupStandings: GroupData[];
-  knockout: { qf: KOMatch[]; sf: KOMatch[]; finals: KOMatch[] };
+  knockout: { qf: Fixture[]; sf: Fixture[]; finals: Fixture[] };
 };
 
-function MatchRow({ m, compact }: { m: GSMatch | KOMatch; compact?: boolean }) {
-  const done = m.status === "completed";
-  const homeWon = done && (m.homeScore ?? 0) > (m.awayScore ?? 0);
-  const awayWon = done && (m.awayScore ?? 0) > (m.homeScore ?? 0);
+function FixtureRow({ m, compact }: { m: Fixture; compact?: boolean }) {
   return (
-    <div className={cn("flex items-center gap-3 py-2 px-3 rounded-lg", done ? "bg-muted/30" : "bg-muted/10", compact && "py-1.5")}>
-      <div className={cn("flex items-center gap-1.5 flex-1 justify-end min-w-0", homeWon && "font-bold")}>
+    <div className={cn("flex items-center gap-3 py-2 px-3 rounded-lg bg-muted/10", compact && "py-1.5")}>
+      <div className="flex items-center gap-1.5 flex-1 justify-end min-w-0">
         <span className="text-sm truncate text-right">{m.home}</span>
         <span className="text-base leading-none shrink-0">{m.homeflag}</span>
       </div>
-      <div className="shrink-0 w-16 text-center">
-        {done ? (
-          <span className="font-black text-sm tabular-nums">
-            <span className={homeWon ? "text-foreground" : "text-muted-foreground"}>{m.homeScore}</span>
-            <span className="text-muted-foreground mx-0.5">–</span>
-            <span className={awayWon ? "text-foreground" : "text-muted-foreground"}>{m.awayScore}</span>
-          </span>
-        ) : (
-          <span className="text-xs text-muted-foreground font-semibold">vs</span>
-        )}
+      <div className="shrink-0 w-10 text-center">
+        <span className="text-xs text-muted-foreground font-semibold">vs</span>
       </div>
-      <div className={cn("flex items-center gap-1.5 flex-1 min-w-0", awayWon && "font-bold")}>
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
         <span className="text-base leading-none shrink-0">{m.awayflag}</span>
         <span className="text-sm truncate">{m.away}</span>
       </div>
-      {!done && (
-        <Badge variant="outline" className="text-[10px] shrink-0 text-muted-foreground">Projected</Badge>
-      )}
     </div>
   );
 }
@@ -98,42 +75,20 @@ export default function OlympicSchedule() {
 
   const { olympicsYear, isOlympicYear, groupStage, groupStandings, knockout } = data;
 
-  const goldMatch = knockout.finals.find(f => f.label === "Gold");
-  const goldMedalist = goldMatch?.status === "completed"
-    ? ((goldMatch.homeScore ?? 0) > (goldMatch.awayScore ?? 0)
-        ? `${goldMatch.homeflag} ${goldMatch.home}`
-        : `${goldMatch.awayflag} ${goldMatch.away}`)
-    : null;
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Flame className="h-5 w-5 text-amber-400" />
-            <h2 className="text-xl font-bold">{olympicsYear} Olympic Beach Volleyball</h2>
-            {isOlympicYear ? (
-              <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30">Live</Badge>
-            ) : (
-              <Badge variant="outline" className="text-muted-foreground">Projected</Badge>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {isOlympicYear
-              ? "Olympic tournament bracket — results below."
-              : `Projected draw based on current qualification standings. Final bracket confirmed at ${olympicsYear - 1} season end.`}
-          </p>
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <Flame className="h-5 w-5 text-amber-400" />
+          <h2 className="text-xl font-bold">{olympicsYear} Olympic Beach Volleyball</h2>
+          <Badge variant="outline" className="text-muted-foreground">Projected draw</Badge>
         </div>
-        {goldMedalist && (
-          <div className="flex items-center gap-2 bg-amber-950/30 border border-amber-500/30 rounded-xl px-4 py-2 shrink-0">
-            <Trophy className="h-4 w-4 text-amber-400" />
-            <div>
-              <div className="text-[10px] text-amber-400/70 font-black uppercase tracking-wider">Gold Medal</div>
-              <div className="font-bold text-sm text-amber-300">{goldMedalist}</div>
-            </div>
-          </div>
-        )}
+        <p className="text-sm text-muted-foreground" data-testid="olympic-schedule-note">
+          {isOlympicYear
+            ? `The ${olympicsYear} draw from this season's qualifying. This build plays no Olympic tournament: no matches are played and no medals are awarded.`
+            : `Projected draw based on current qualification standings. Final bracket confirmed at ${olympicsYear - 1} season end.`}
+        </p>
       </div>
 
       {/* Group Stage */}
@@ -157,31 +112,22 @@ export default function OlympicSchedule() {
 
                 {standings && (
                   <div className="px-3 pt-2 pb-1">
-                    <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 text-[10px] font-black uppercase tracking-wide text-muted-foreground/60 px-1 mb-1">
-                      <span>Team</span><span>P</span><span>W</span><span>L</span><span>Pts</span>
-                    </div>
                     {standings.standings.map((t, ri) => (
                       <div key={t.country} className={cn(
-                        "grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-3 items-center px-1 py-1 rounded text-sm",
+                        "flex items-center gap-1.5 px-1 py-1 rounded text-sm min-w-0",
                         ri < 2 ? "text-foreground" : "text-muted-foreground",
                       )}>
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          {ri < 2 && <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />}
-                          <span className="text-base leading-none">{t.flag}</span>
-                          <span className="truncate text-xs font-semibold">{t.country}</span>
-                        </div>
-                        <span className="text-xs tabular-nums text-center">{t.played}</span>
-                        <span className="text-xs tabular-nums text-center">{t.won}</span>
-                        <span className="text-xs tabular-nums text-center">{t.lost}</span>
-                        <span className="text-xs tabular-nums font-bold text-center">{t.points}</span>
+                        {ri < 2 && <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />}
+                        <span className="text-base leading-none">{t.flag}</span>
+                        <span className="truncate text-xs font-semibold">{t.country}</span>
                       </div>
                     ))}
-                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 mb-1 px-1">● = advance to QF</p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 mb-1 px-1">● = top two seeds, projected into the quarter-finals</p>
                   </div>
                 )}
 
                 <div className="px-3 pb-3 space-y-1 border-t pt-2">
-                  {g.matches.map((m, mi) => <MatchRow key={mi} m={m} compact />)}
+                  {g.matches.map((m, mi) => <FixtureRow key={mi} m={m} compact />)}
                 </div>
               </div>
             );
@@ -202,7 +148,7 @@ export default function OlympicSchedule() {
             Quarter Finals — Day 5
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            {knockout.qf.map(m => <MatchRow key={m.label} m={m} />)}
+            {knockout.qf.map(m => <FixtureRow key={m.label} m={m} />)}
           </div>
         </div>
 
@@ -211,7 +157,7 @@ export default function OlympicSchedule() {
             Semi Finals — Day 6
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            {knockout.sf.map(m => <MatchRow key={m.label} m={m} />)}
+            {knockout.sf.map(m => <FixtureRow key={m.label} m={m} />)}
           </div>
         </div>
 
@@ -226,7 +172,7 @@ export default function OlympicSchedule() {
                   m.label === "Gold" ? "text-amber-400" : "text-orange-600/80")}>
                   {m.label === "Gold" ? "🥇 Gold Medal Match" : "🥉 Bronze Medal Match"}
                 </div>
-                <MatchRow m={m} />
+                <FixtureRow m={m} />
               </div>
             ))}
           </div>

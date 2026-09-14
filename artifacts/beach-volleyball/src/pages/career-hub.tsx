@@ -5,7 +5,6 @@ import ManagerProfile   from "@/pages/profile";
 import Achievements     from "@/pages/achievements";
 import TrophyCabinet    from "@/pages/trophy-cabinet";
 import CareerHistory    from "@/pages/career-history";
-import JobMarket        from "@/pages/job-market";
 import ManagerContract  from "@/pages/manager-contract";
 
 type Tab = "overview" | "achievements" | "records" | "history" | "options";
@@ -43,12 +42,9 @@ export default function CareerHub() {
       {tab === "achievements" && <Achievements />}
       {tab === "records"      && <TrophyCabinet />}
       {tab === "history"      && <CareerHistory />}
-      {tab === "options"      && (
-        <div className="space-y-8">
-          <JobMarket />
-          <ManagerContract />
-        </div>
-      )}
+      {/* R-43: the Job Market's listings were hardcoded clubs, and applying
+          created a club with no squad and no fixtures. Removed. */}
+      {tab === "options"      && <ManagerContract />}
     </div>
   );
 }

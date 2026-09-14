@@ -1752,7 +1752,82 @@ of Fame archive's trophy count, and the `olympic_gold` achievement.
 R-29 now produces a real World Champion every season (`world_tour_fixtures`, round 72), which is
 the natural source for a world-championship trophy. Registered 12 Sep; not fixed this weekend.
 
-### R-43 — Invented content shown as real (found by R-10)
+### R-43 — CLOSED (14 Sep, PENDING-R43): invented content deleted, not stubbed
+**Rob's brief (overnight batch item 3):** delete the fabricated news generator, fake manager moves
+and fake youth results. Replace only with what real events can generate (results, signings,
+renewals, sackings, trophies); anything with no real source is removed, not stubbed. Report what was
+deleted.
+
+**Deleted — whole files (2,850 lines):**
+
+| File | Lines | What it was |
+|---|---|---|
+| `routes/youth-league.ts` | 392 | youth "Development League": Math.random win/draw/loss, opponents from a hardcoded name list, an AI ladder ticking at random, a coin-flip championship |
+| `routes/ai-managers.ts` | 240 | "Manager Movements": invented managers and clubs moving on a random tick |
+| `routes/poaching.ts` | 261 | poaching offers from a hardcoded club pool; accepting created a club with no squad and no fixtures |
+| `pages/youth-league.tsx` | 417 | Youth League hub (results, ladder, stars, championship) |
+| `pages/youth-results.tsx` | 427 | the same, as a second page |
+| `pages/job-market.tsx` | 850 | hardcoded job listings; applying created a club with no squad and no fixtures |
+| `components/career/PoachingInbox.tsx` | 263 | the dashboard's poaching approach card |
+
+**Deleted — in place:**
+- `routes/news.ts`: the day-seeded world news generator and every pool it drew from (nations,
+  tournaments, first/last names, staff roles, injuries, facilities, records). Also the "real" player
+  and staff signing items, which were dated by the reference rows' `createdAt` — not events.
+- `routes/careers.ts`: `POST /careers/apply-job`.
+- `routes/olympics.ts`: `simResult` and every Olympic-year score, group table and medallist it filled
+  in (re-rolled on each read). The schedule is the projected draw only.
+- `routes/events.ts`: the Youth League upcoming-event item. `routes/history.ts`: youth standings and
+  the youth result. `routes/matches.ts`: the youth champion lookup for the season summary.
+- Schema: tables `youth_league_results`, `youth_ladder`, `youth_championship_trophies`,
+  `poaching_offers`, `ai_managers`, `ai_manager_events`; column `manager_season_summaries.youth_result`.
+- Spec: 9 paths and their schemas (`ApplyJob*`, `Poaching*`, `AcceptPoachingResult`, `AiManager*`,
+  `WorldTourNews*`, `Youth{Ladder,Star,Championship,LeagueResult}*`, `HistoryYouthRow`, `youthResult`,
+  the `youth_league` event type).
+- Frontend: dashboard World Tour News panel, Manager Movements panel and poaching card; league-ladders
+  Youth tab, youth standings, youth result badge and column, and `mockForm` (a form strip hashed from
+  a club name); youth-academy "Development League" section; leaderboard "Reputation Bonus — Next tier
+  at 2,500 REP" card; Career Options' Job Market; nav "Youth League"; routes `/youth-league`,
+  `/youth-results`, `/job-market`; career-history's "Offer Accepted" entry type.
+
+**Replaced with real sources only:**
+- **Club News** (`GET /news`, dashboard): every item names its row and carries that row's game date —
+  `result-<match>` (the club's completed matches), `signing-<contract>` (contracts, dated on the game
+  clock since R-51), `board-<board season>` (season reviews), `trophy-<trophy>` (R-42 honours),
+  `champion-<year>` (that season's World Final). Renewals are NOT listed: a renewal updates the
+  contract in place and records no date. Sackings end the career, so the dashboard never shows one.
+- **Academy development** (`utils/academyDevelopment.ts`) stays without the invented result: weekly XP
+  is the old roll's average for the rating band (21 / 19 / 16), focus points unchanged, morale no
+  longer moves (it only ever moved on the invented result).
+- **Older saves**: `utils/removedContent.ts` drops the six tables and the column at boot — their rows
+  reference teams, users and career saves, and would otherwise block a profile's deletion. Starter
+  database refreshed (47 tables; only those removed, no row changes).
+
+**Consequences — recorded, not papered over:**
+- Resign and Break Contract still end the job, but the Job Market was the only way to another club:
+  the save is left without a club. Career Management (new or load) is the way on. Listed for Rob in
+  RELEASE-STATUS.
+- Youth players develop; there is no youth competition to watch.
+- The Olympics have a projected draw and no tournament, medals or Olympic trophies (see R-42).
+- `make-starter-db.ts`: a source save from before R-43 must be booted once first.
+
+**Harness (new):** `harness/fake-content-removed.mjs`, run-all 25/27. 11/11: none of it in 490 api,
+frontend, spec, schema, script and generated files (a planted line of each of 9 patterns caught);
+nothing of the removed screens in the built bundle; starter clean; an older save with rows in all six
+tables loses them at boot and its profile deletes (HTTP 200); 9 removed endpoints 404; after 6 match
+days 9 news items (6 results, 3 signings), each traced to its row and date; the Olympic schedule's 20
+matches unscored and identical across reads. First run 9/11 — both failures were the new suite's own
+mistakes (it counted a split string as a seventh table; it expected 22 Olympic matches, there are 20).
+
+**Full harness: 26/27** (launched without `ELECTRON_RUN_AS_NODE`; save folder migration passed). The
+one failure is not R-43: injuries and fitness 26/27, R-59 — a random injury from the suite's own
+simulated matches reached its rest-day player. Rerun standalone: 27/27. Board review 58/58 and
+migration fixtures 62/62 inside the run (R-57, R-49). Rollover 78/78; five-season table: every
+season crowned a champion from the field; established 0 of 3 sacked (RollStrong champion in seasons 1
+and 2, RollStrong2 champion in seasons 1 and 2, RollStrong3 #3, #2, #12, #2), underdog 0 of 3 (#14–#19,
+every season met).
+
+Original entry:
 Each of these is presented as a record of something that happened:
 - **World Tour News:** `routes/news.ts` `generateWorldNews`, a day-seeded RNG over hardcoded names
   and tournaments, merged indistinguishably with the player's real items.
@@ -2577,7 +2652,37 @@ starting budget on the dashboard.
 
 ## LOW
 
-### R-57 — OPEN (registered 14 Sep): board-review's "first monthly check comes 30 game days after the draw" reads the wrong clock start
+### R-59 — OPEN (registered 14 Sep): condition.mjs's rest-day player can already be injured
+`harness/condition.mjs` section 5 sets player C to fitness 50 / fatigue 40, advances one rest day
+and expects the fit-player recovery (+2 fitness, −5 fatigue: 52 / 35).
+
+**Problem:** the scene sets C's condition but not her injury state. Sections 3 and 4 play real
+`/simulate` matches, and every match rolls injuries for the pair that played. If C is hurt there, the
+rest day correctly applies the injured rate (+1 / −3) and the check fails.
+
+**Observed:** the 14 Sep R-43 full run: "C 51% / fatigue 37" — exactly 50 + 1 and 40 − 3, the
+injured rate. Rerun standalone: 27/27 ("C 52% / fatigue 35"). The game's rule held.
+
+**Fix direction:** make C explicitly healthy before the rest day, as the scene already reads A's
+injury state before judging A.
+
+### R-57 — CLOSED (14 Sep, PENDING-TESTS): board-review keeps the monthly clock's first start
+**First attempt failed, and why:** reading `projected_on` at the draw (section 2) gave `null` — the
+board does not start the clock at the draw itself but the first time its daily pass runs after it
+("clock started null, checked 2026-03-20").
+
+**Fix:** `noteUndClock()` keeps the underdog career's FIRST non-null `projected_on` and never
+overwrites it. It is called after every step that career takes in sections 2–5 — steps are one match
+day (4–5 game days) apart, a check is 30 — so a later check cannot replace the start before it has
+been seen.
+
+**Verified:** board-review 58/58 standalone: "clock started 2026-02-18, checked 2026-03-20 (30
+days)". The failing run's check was on that same date: the board's rule held; the harness misread
+the start.
+
+Original entry:
+
+### R-57 (registered 14 Sep): board-review's "first monthly check comes 30 game days after the draw" reads the wrong clock start
 `harness/board-review.mjs` section 5 takes `clockStart` from `board_seasons.projected_on` when
 section 5 begins, then plays until the first monthly check and asserts ≥ 30 days between the two.
 
@@ -2595,7 +2700,32 @@ trophies at the season boundary.
 **Fix direction:** read the clock start at the draw (section 2), before any match is played, and
 assert the first check's date is 30 or more days after it.
 
-### R-56 — OPEN (registered 14 Sep, Rob: LOW, do not fix now): `harness/invariants.mjs`'s economy probe has been broken since R-29
+### R-56 — CLOSED (14 Sep, PENDING-TESTS): the invariants economy probe plays a real career's draw
+**Rob's brief (overnight batch item 4):** rebuild the invariants probe on real drawn opponents.
+
+**Fix:** `harness/invariants.mjs` boots the real server on its temp copy of the starter database,
+creates an established career and advances it to its first World Tour match day — the draw — then
+stops it. The economy probe reads that career's `world_tour_fixtures`: each regular round's opponent
+is the drawn pool club, rated by `competitorRating` (its own players' `sideRating`), which is what
+`routes/matches.ts` uses for the player's World Tour match. Bye rounds are skipped (no opponent, no
+purse); the finals are seeded from the standings, not drawn, so they are not in the walk. The probe
+refuses to run if the draw does not cover every World Tour round. `opponentRatingFromTier` is no
+longer used by the probe (the game keeps it only as a fallback for a match with no fixture).
+
+**Verified:** the sweep runs to the end, exit 0 — 2 pass, 0 fail, 5 baseline, 2 blocked.
+- I7 one engine: PASS. I5 climbing pays: PASS (four purchasable squads Bronze on 32.1–47.9 points;
+  the developed 89.5 squad Gold on 70.9, 13 of 14 Gold purses paid in full). 54 World Tour matches a
+  season: 57 rounds less 3 byes.
+- I4 predictability: five runs $516,250–$607,450, max deviation 8.5% (target ≤ 25%).
+- I1 monotonic return: still VIOLATED — a measurement, not a probe fault: 0.97x → 0.67x → 0.63x →
+  0.55x → 2.58x (wages rise faster than income until the developed squad reaches Gold).
+
+**Not changed, recorded:** the sweep's Group B text predates R-11, R-53 and R-54 — I2 and I6 still
+say there is no fail state and no start modes. It is standalone, not part of `run-all`.
+
+Original entry:
+
+### R-56 (registered 14 Sep, Rob: LOW): `harness/invariants.mjs`'s economy probe had been broken since R-29
 **What happens:**
 - `node harness/invariants.mjs` is the Phase 7 invariant sweep. It is standalone, not part of
   `run-all`.
@@ -2617,7 +2747,20 @@ The opponent model was left alone.
 **Fix direction:** rebuild the probe's opponents on real drawn clubs, rated as the World Tour draw
 rates them (`sideRating` over each pool club's own players).
 
-### R-49 — OPEN (registered 14 Sep): the "logged the drop" check in migration-fixtures is flaky
+### R-49 — CLOSED (14 Sep, PENDING-TESTS): the log is taken once the server says it is listening
+**Fix:** `bootServer` no longer guesses when pino's worker thread has caught up ("the file has not
+grown for 600 ms"). It waits for the server's own `Server listening` line: `index.ts` runs every
+boot migration before `app.listen`, and pino keeps order, so once that line is in the file every
+migration line already is. Then it reads the log and kills the process (Windows has no graceful
+signal). A boot killed mid-migration has no line to wait for and no check reads its log; it is now
+killed at the offset it asks for — the old settle had been quietly delaying those kills.
+
+**Verified:** migration-fixtures 62/62 standalone; all six interrupted boots (150–1400 ms) reopened
+with 276 players and 276 state rows.
+
+Original entry:
+
+### R-49 (registered 14 Sep): the "logged the drop" check in migration-fixtures is flaky
 `harness/migration-fixtures.mjs:364` asserts `/moved columns dropped/` against the server log.
 
 **Problem:**
@@ -2853,6 +2996,10 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, PENDING-R43 | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
+| R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, PENDING-TESTS | migration-fixtures 62/62; six mid-migration kills all recovered |
+| R-56 invariants economy probe plays a real career's draw | 14 Sep, PENDING-TESTS | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |
+| R-57 board-review keeps the monthly clock's first start | 14 Sep, PENDING-TESTS | board-review 58/58: clock 2026-02-18, first check 2026-03-20 (30 days) |
 | R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, 06488d3 | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
 | R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, 56c40ba | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |
 | R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
