@@ -10,7 +10,8 @@ import { eq, and, desc } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
 import { deleteCareerSave } from "../utils/deleteCareerSave.js";
-import { seedStartingSquad } from "../utils/seedStartingSquad.js";
+import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad.js";
+import { FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
@@ -228,10 +229,6 @@ router.post("/careers", async (req, res) => {
   // signed — players are global reference data and the career half must exist.
   seedCareerState(inserted!.id);
 
-  // A startup squad so the manager isn't staring at zero players (R-04).
-  // R-11: quality now follows difficulty — see seedStartingSquad.ts.
-  await seedStartingSquad(inserted!.id, newTeam.id, "2026-12-31", difficulty);
-
   // This career's own season timeline. Previously one global season row was
   // created on the first career and every later career reused it, so a second
   // career inherited the first one's currentRound and could start mid-season or
@@ -241,18 +238,27 @@ router.post("/careers", async (req, res) => {
   // Bounds are chosen so the hardcoded World Tour dates (worldTour.ts) land
   // where calendar.ts's round->date interpolation expects them
   // (round 11 -> 2026-02-17, round 72 -> 2026-12-02).
+  //
+  // R-48: created BEFORE the starting squad, because the squad's contracts are
+  // dated from this row, and its year is FIRST_SEASON_YEAR rather than a literal.
+  const firstYear = FIRST_SEASON_YEAR;
   const [season1] = await db.insert(seasonsTable).values({
     careerSaveId:            inserted!.id,
-    year:                    2026,
+    year:                    firstYear,
     name:                    "Season 1",
     status:                  "active",
     totalRounds:             78,
     currentRound:            1,
-    startDate:               "2026-01-01",
-    endDate:                 "2026-12-31",
+    startDate:               `${firstYear}-01-01`,
+    endDate:                 `${firstYear}-12-31`,
     isOlympicSeason:         false,
     regionalRoundsProcessed: 0,
   }).returning();
+
+  // A startup squad so the manager isn't staring at zero players (R-04).
+  // R-11: quality now follows difficulty — see seedStartingSquad.ts.
+  // R-48: contracts for the career's first season, dated from its season row.
+  await seedStartingSquad(inserted!.id, newTeam.id, oneSeasonContract(season1!), difficulty);
 
   // R-26: fixture generation used to be lazy — only GET /matches/fixture ever
   // called it, so a career had no schedule until the player happened to open
@@ -275,7 +281,7 @@ router.post("/careers", async (req, res) => {
   // ladder from day one instead of the ladder staying empty until then.
   // R-11: ESTABLISHED starts with a ranking-points head start (see
   // careerDifficulty.ts) — "starts roughly one tier further along."
-  await ensureCompetitorRanking(newTeam.id, inserted!.id, 2026, startingRankingPointsFor(difficulty));
+  await ensureCompetitorRanking(newTeam.id, inserted!.id, season1!.year, startingRankingPointsFor(difficulty));
 
   const sid = getSessionId(req);
   if (sid) {
