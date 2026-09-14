@@ -143,20 +143,36 @@ const roster = async (api) => {
     check("training endpoint reachable", tRes.status < 500, `HTTP ${tRes.status} (skipped state check)`);
   }
 
+  // R-48: a club needs two contracted players or its matches are forfeited, so
+  // the tracked player gets a partner before any match is played.
+  const partner = (await market(A)).find((p) => p.id !== target.id);
+  const partnerRes = await A("POST", "/contracts", {
+    playerId: partner?.id, salary: partner?.salary ?? 8000,
+    endDate: "2026-12-31", bonusPerWin: 0, squadRole: "starter",
+  });
+  check("a partner is signed, so the matches below are played rather than forfeited", partnerRes.status < 400,
+    `HTTP ${partnerRes.status}`);
+
   // ── 3. Condition changes over played matches ──────────────────────────────
   console.log("\n3. CONDITION MOVES WHEN MATCHES ARE PLAYED");
   const condBefore = (await roster(A)).find(p => p.id === target.id);
   await A("GET", "/matches/fixture");
   await A("PATCH", "/calendar/speed", { speed: "pause" });
-  let played = 0;
+  let played = 0, forfeited = 0;
   for (let d = 0; d < 120 && played < 6; d++) {
     const r = await A("POST", "/calendar/advance", {});
     if (r.status >= 400 || r.data?.blocked === "season_end") break;
     const mid = r.data?.pendingMatchId ?? r.data?.matchDay?.id;
-    if (mid) { await A("POST", `/matches/${mid}/simulate`, {}); played++; await A("POST", "/calendar/dismiss-match", {}); }
+    if (mid) {
+      const sim = await A("POST", `/matches/${mid}/simulate`, {});
+      if (sim.data?.forfeit) forfeited++;
+      played++;
+      await A("POST", "/calendar/dismiss-match", {});
+    }
   }
   const condAfter = (await roster(A)).find(p => p.id === target.id);
   check("matches were played", played > 0, `${played} matches`);
+  check("none of them was forfeited (the pair was on the sand)", forfeited === 0, `${forfeited} forfeited`);
   check("fitness/fatigue/morale moved",
     condAfter.fitness !== condBefore.fitness ||
     condAfter.fatigue !== condBefore.fatigue ||

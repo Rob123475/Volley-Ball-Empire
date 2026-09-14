@@ -27,6 +27,32 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-52 — OPEN (found 14 Sep during R-48, Rob's call): the board's spending freeze blocks contract renewal, so a solvent club can lose its squad and forfeit whole seasons
+**What happens:**
+- R-51's renewal applies the board's spending gate, the same gate as signing.
+- A club in the `spending_blocked` stage therefore cannot renew. Its squad lapses at the next season
+  boundary, and under R-48 every match after that is a forfeit.
+- A healthy budget floors board confidence at the `spending_blocked` stage (the
+  board-confidence-ladder suite asserts this), so such a club is never sacked either.
+- It forfeits season after season with money in the bank.
+
+**Evidence (14 Sep, the two R-48 full runs):**
+- **Run 1:** RollStrong (established) was refused at the start of season 3 (balance $1.89M) and went
+  0W 54L in season 4.
+- **Run 2:**
+  - RollWeak2 and RollWeak3 (underdog) were refused at the start of seasons 2 and 3. Their contracts,
+    renewed at season-1 start, ran through season 2, lapsed on day one of season 3, and seasons 3 and
+    4 were both 0W 54L. Balances were $1.06M-$1.50M, and neither was sacked.
+  - RollStrong was refused at the start of season 5, the terminal season.
+
+The harness report line for this is imprecise: it says "the squad lapsed and its matches were
+forfeited" for every refused season, where a refusal lapses the squad at the NEXT boundary.
+
+**Options (not applied; board-confidence balance is not to change yet, R-47):**
+- Renewal at unchanged terms is exempt from the spending freeze, since it is not new spending.
+- The freeze leaves renewals open but caps them.
+- Leave it as is: the freeze bites and the board never ends a solvent career.
+
 ### R-50 — OPEN (registered 14 Sep, Rob: HIGH, do not fix yet): injuries and fitness play no part in selection or match strength
 **Found during R-48's diagnosis:**
 - At the end of season 1 all three of an established club's players were injured: two
@@ -94,7 +120,7 @@ The first run of this suite failed 3 checks. The harness set the game date on a 
 did not exist yet: `GET /calendar` creates it, and `current_date` is also SQLite's CURRENT_DATE
 keyword. Scene writes now open the calendar first, quote the column, and must change exactly one row.
 
-### R-48 — OPEN, INVESTIGATED, AWAITING ROB (14 Sep): the Strong arc collapses at the first season boundary
+### R-48 — CLOSED (14 Sep, R48_COMMIT_HASH): the Strong arc collapsed at the first season boundary — squads walked out and clubs played on as phantoms
 **Symptom (final run, 14 Sep):** RollStrong (established) finished season 1 at 42W 14L, #1, World
 Champion. In season 2 it went 10W 44L, #19, with no signings and no training. The weak arc also sat
 at #19 from season 2 on.
@@ -152,6 +178,69 @@ things together:
 **Also observed (not at the boundary, not investigated):** at A all three players were injured (two
 "Unavailable", one "Major Injury") with fitness 0, yet active and rated at full stats. Injury and
 fitness appear to play no part in selection or match rating.
+
+**Rob's decision (14 Sep):** go with the recommendation (forfeit empty squads; the harness renews),
+plus:
+- (1) contracts dated relative to the career's start, never a literal year
+- (2) check the player-facing warning and renew action
+- (3) register R-50
+
+**What changed:**
+- **(1) `229957a`:**
+  - `POST /careers` creates the season row first, with its year from `FIRST_SEASON_YEAR`.
+  - It signs the starting squad with `oneSeasonContract(season)`: start and end are the season's own
+    dates. This replaces the literal `"2026-12-31"` and the computer-clock start.
+  - Harness `starting-contracts` 15/15.
+- **(2) found no renew action and a warning on the computer's clock.** That became R-51 (`c41cad2`):
+  renewal route and button, game-clock warning and signing. Harness `contract-renewal` 18/18.
+- **(3)** R-50 registered (`e90bef6`).
+- **Forfeit (R48_COMMIT_HASH):**
+  - A club with fewer than 2 contracted active players forfeits instead of playing as a flat-60
+    phantom side.
+  - `/simulate` records the forfeit through the same code as `POST /matches/:id/forfeit`, now shared
+    as `recordForfeit`, and the result says why.
+  - `/watch` refuses with 409.
+  - The dashboard's Squad item says matches are forfeited.
+  - Harness `squad-forfeit` 11/11: warned, watch refused, a 0-2 forfeit with loss, confidence −5,
+    opponent credit and ranking loss; a full-squad control plays a real best-of-three.
+  - The smoke suite signs a partner for its tracked player so its matches are played, and asserts
+    none were forfeited.
+- **Harness renewal (R48_COMMIT_HASH):**
+  - `rollover.mjs` renews every contract ending this season through `POST /contracts/:id/renew`
+    before each season, in both the rollover walk and the R-08 arc.
+  - Refusals are reported, and the check accepts only the board's spending block (403).
+
+**Verification:**
+- **Full run 1: 20 of 24 suites passed.** The four failures were two mistakes of mine:
+  - fresh-install, all-star-removed and olympic-qualification failed because rebuilding the server
+    cleared `dist/public` and I had not re-synced the frontend
+  - season rollover's new renewal check wrongly failed a season with nothing left to renew after a
+    refusal
+- The frontend was rebuilt and synced, and the check corrected.
+- **Full run 2: 24/24 suites passed; season rollover 66/66.**
+
+**Five-season table (run 2, first career of each arc):**
+| season | Strong (established) | Weak (underdog) |
+|---|---|---|
+| 1 | 36W 19L · 55/59 · 78 pts · Gold · $1,211,159 · #1 · semi-finalist | SACKED after 7W 17L |
+| 2 | 32W 22L · 54/59 · 14 pts · Bronze · $1,549,903 · #7 · did not qualify | — |
+| 3 | 33W 22L · 55/59 · 22 pts · Silver · $1,968,222 · #3 · semi-finalist | — |
+| 4 | 24W 30L · 54/59 · 8 pts · Bronze · $2,243,526 · #18 · did not qualify | — |
+
+Sackings: established 0 of 3, underdog 1 of 3 (run 1: 0 of 3 and 3 of 3).
+
+All three runs, every season:
+- **Established:**
+  - RollStrong 36-19, 32-22, 33-22, 24-30
+  - RollStrong2 37-19, 34-22, 39-17, 35-19
+  - RollStrong3 36-20, 32-24, 40-16, 39-16
+- **Underdog:**
+  - RollWeak sacked in S1
+  - RollWeak2 15-39, 11-43, 0-54, 0-54
+  - RollWeak3 23-31, 21-33, 0-54, 0-54
+  - Both RollWeak2 and RollWeak3 lost their squads to refused renewals: R-52.
+
+The season-2 collapse is gone. What remains is R-52.
 
 ### R-40 — CLOSED, VERIFIED ON SCREEN BY ROB 14 SEP (game 195e769, rebuilt 417cdcd; Unity ea6eb5e)
 
@@ -2093,6 +2182,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-48 Season-2 collapse: empty squads forfeit, contracts dated from the season, arc renews | 14 Sep, 229957a + R48_COMMIT_HASH | squad-forfeit 11/11, starting-contracts 15/15; full harness 24/24, rollover 66/66; Strong S1-S4 36-19, 32-22, 33-22, 24-30 |
 | R-51 Contract renewal; expiry warned and dated on the game clock | 14 Sep, c41cad2 | contract-renewal 18/18: renew one season in its final season, refusals 409/404/401/403, warnings at 21/11 game days, signing dated on the game clock |
 | R-47 R-08 arc reports sackings | 14 Sep, 04f7830 | full harness 21/21, rollover 60/60: 3 careers per arc; underdog sacked 1 of 3, established 0 of 3 |
 

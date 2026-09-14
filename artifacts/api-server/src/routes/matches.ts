@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, youthChampionshipTrophiesTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
@@ -18,6 +19,7 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { buildBoardConfidenceResult } from "../utils/board-confidence.js";
 import { endCareer } from "../utils/careerLifecycle.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
+import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
   worldTourGate, recordPlayerMatchResult, fixtureForMatch, competitorRating, worldTourStandings,
 } from "../utils/worldTour.js";
@@ -516,6 +518,12 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
     // R-29: the live match needs its real drawn opponent before the first point.
     const wtBlocked = await worldTourGate(requireCareerSaveId(req.activeCareerSaveId), watchTeam.id, match);
     if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
+    // R-48: a club without two contracted players cannot take the court.
+    const watchSquad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: watchTeam.id, isActive: true });
+    if (watchSquad.length < MAX_STARTERS) {
+      res.status(409).json({ error: `${SQUAD_INCOMPLETE} Played or simulated, the match is forfeited.`, squadIncomplete: true });
+      return;
+    }
   }
   const result = await startMatchTick(id);
   if (!result.ok) {
@@ -585,6 +593,25 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const activePlayers = players.filter(p => p.isActive);
+
+  // R-48: a club that cannot put two contracted players on the sand does not
+  // play. It used to play anyway as a phantom side — sideRating([]) is a flat
+  // 60 — and could even win, which is how a squad that walked out at the season
+  // boundary went unnoticed. The match is forfeited through the same path as a
+  // manual forfeit, and the result says why.
+  if (activePlayers.length < MAX_STARTERS) {
+    const forfeit = await recordForfeit(req, team, match, requireCareerSaveId(req.activeCareerSaveId));
+    res.json({
+      ...forfeit,
+      winner:         "away",
+      prizeEarned:    0,
+      isFinal:        false,
+      highlights:     [`Forfeited. ${SQUAD_INCOMPLETE}`],
+      squadIncomplete: true,
+      reason:         SQUAD_INCOMPLETE,
+    });
+    return;
+  }
   // Six-stat mean, the same OVR the UI shows. The old three-stat average here
   // disagreed with the tick engine's four-stat one about what a squad is worth.
   const squadRating = sideRating(activePlayers);
@@ -1107,6 +1134,30 @@ router.post("/matches/:id/forfeit", async (req, res) => {
   const wtBlocked = await worldTourGate(forfeitCid, team.id, match);
   if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
 
+  res.json(await recordForfeit(req, team, match, forfeitCid));
+});
+
+/** R-48: why a club without two contracted players cannot play. */
+const SQUAD_INCOMPLETE =
+  `Your club has fewer than ${MAX_STARTERS} contracted players able to play. Sign or renew players on the Contracts page.`;
+
+/**
+ * Record a forfeit: a straight-sets loss with the standard loss-side team
+ * penalties (losses, board confidence, sponsor reputation, win streak), ranking
+ * credit to both sides, post-match effects and the sacking check.
+ *
+ * Shared by POST /matches/:id/forfeit and by R-48's empty-squad rule in
+ * /simulate, so a forfeit means exactly one thing wherever it comes from. The
+ * caller has already passed the World Tour gate.
+ */
+async function recordForfeit(
+  req: Request,
+  team: NonNullable<Awaited<ReturnType<typeof getActiveTeam>>>,
+  match: Match,
+  careerSaveId: number,
+) {
+  const id = match.id;
+
   // home_score/away_score are SETS WON (the headline the UI prints), with the
   // per-set point scores in `sets`. A forfeit is a straight-sets loss; this
   // used to write 0-21, a point score, which rendered as "0 - 21".
@@ -1132,10 +1183,10 @@ router.post("/matches/:id/forfeit", async (req, res) => {
   // R-29: a forfeit used to count in teams.losses only, so the ranking table and
   // the club's own record disagreed, and the opponent was credited nothing.
   await creditRankingPoints({
-    careerSaveId: forfeitCid, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false,
+    careerSaveId, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false,
   });
   recordPlayerMatchResult({
-    careerSaveId: forfeitCid, matchId: id, playerWon: false, homeSets: homeScore, awaySets: awayScore, sets: null,
+    careerSaveId, matchId: id, playerWon: false, homeSets: homeScore, awaySets: awayScore, sets: null,
   });
 
   const [facilityRows] = await Promise.all([
@@ -1163,7 +1214,7 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     }
   }
 
-  res.json({
+  return {
     ok:        true,
     matchId:   id,
     homeScore,
@@ -1173,8 +1224,8 @@ router.post("/matches/:id/forfeit", async (req, res) => {
     fired,
     careerEnded: fired,
     dismissalClubName,
-  });
-});
+  };
+}
 
 router.patch("/matches/:id/lineup", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

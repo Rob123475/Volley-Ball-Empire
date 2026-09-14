@@ -68,6 +68,27 @@ async function playPendingMatch(api, matchId) {
 }
 
 /**
+ * R-48: renew every contract that ends within the current season, through the
+ * real renewal route (POST /contracts/:id/renew, R-51), before the calendar
+ * moves — as a manager would. A starting squad is signed for one season, and
+ * without renewal the arc measured a club whose squad walked out on the first
+ * day of season 2. Refusals are returned, not hidden: the board's spending block
+ * (403) is a legitimate one.
+ */
+async function renewExpiringContracts(api) {
+  const season = (await api("GET", "/seasons/current")).data;
+  const contracts = (await api("GET", "/contracts")).data;
+  const result = { renewed: 0, refused: [] };
+  if (!season?.endDate || !Array.isArray(contracts)) return result;
+  for (const c of contracts.filter((k) => k.endDate <= season.endDate)) {
+    const r = await api("POST", `/contracts/${c.id}/renew`);
+    if (r.status === 200) result.renewed++;
+    else result.refused.push({ status: r.status, error: r.data?.error ?? null });
+  }
+  return result;
+}
+
+/**
  * Same shape as advanceToBoundary, but plays every pending match for real.
  *
  * R-47: a sacking is a result, not a harness failure. When the board ends the
@@ -77,6 +98,7 @@ async function playPendingMatch(api, matchId) {
  * results themselves rather than read from GET /team afterwards.
  */
 async function advanceToBoundaryPlaying(api, maxDays = 500) {
+  const renewal = await renewExpiringContracts(api);
   let wins = 0, losses = 0;
   for (let i = 0; i < maxDays; i++) {
     const r = await api("POST", "/calendar/advance", {});
@@ -85,12 +107,12 @@ async function advanceToBoundaryPlaying(api, maxDays = 500) {
       const played = await playPendingMatch(api, r.data.pendingMatchId);
       if ((played.data?.homeScore ?? 0) > (played.data?.awayScore ?? 0)) wins++; else losses++;
       if (played.data?.fired) {
-        return { sacked: { club: played.data.dismissalClubName ?? null, record: `${wins}W ${losses}L` }, days: i + 1 };
+        return { sacked: { club: played.data.dismissalClubName ?? null, record: `${wins}W ${losses}L` }, days: i + 1, renewal };
       }
       continue;
     }
     const roll = r.data?.seasonRollover;
-    if (roll && roll.kind !== "none") return { roll, days: i + 1, body: r.data };
+    if (roll && roll.kind !== "none") return { roll, days: i + 1, body: r.data, renewal };
   }
   return null;
 }
@@ -107,6 +129,7 @@ async function advanceToBoundaryPlaying(api, maxDays = 500) {
  * season/date/age progression, not match outcomes.
  */
 async function advanceToBoundary(api, maxDays = 500) {
+  await renewExpiringContracts(api);   // R-48: keep the squad under contract
   for (let i = 0; i < maxDays; i++) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed: ${JSON.stringify(r.data)}`);
@@ -367,6 +390,7 @@ async function advanceToBoundary(api, maxDays = 500) {
 
     const seasons = [];
     let sacked = null;
+    const renewals = [];
     let prevWins = team.wins, prevLosses = team.losses;
 
     for (let season = 1; season <= 6; season++) {
@@ -380,6 +404,7 @@ async function advanceToBoundary(api, maxDays = 500) {
       if (!hit) { console.log(`    season ${season}: never reached a boundary — stopping`); break; }
 
       // R-47: sacked by the board — the career ends here, and that is the result.
+      renewals.push({ season, ...hit.renewal });
       if (hit.sacked) {
         sacked = { season, year: activeYear, record: hit.sacked.record, club: hit.sacked.club };
         console.log(`    season ${season} (${activeYear}): SACKED after ${hit.sacked.record} (board confidence reached zero, R-09) — career over`);
@@ -432,7 +457,7 @@ async function advanceToBoundary(api, maxDays = 500) {
       );
     }
 
-    return { label, difficulty, seasons, fixtureSize, sacked };
+    return { label, difficulty, seasons, fixtureSize, sacked, renewals };
   }
 
   // R-47: a sacking is a legitimate result, so one career per arc could only say
@@ -482,6 +507,18 @@ async function advanceToBoundary(api, maxDays = 500) {
         ? arc.seasons.map((r) => `${r.played}/${arc.fixtureSize}`).join(" | ")
         : short.map((r) => `season ${r.season} played ${r.played}, byes ${r.byes}, not qualified for ${r.notQualified}`).join("; "));
 
+    // R-48: the squad is renewed through the real route at the start of every
+    // season; the only acceptable refusal is the board blocking spending.
+    const badRefusals = arc.renewals.flatMap((r) => r.refused.filter((x) => x.status !== 403)
+      .map((x) => `season ${r.season}: ${x.status} ${x.error}`));
+    // A season with nothing left to renew is right only once the squad has
+    // lapsed, i.e. after the board refused an earlier season's renewal.
+    const emptyWithoutCause = arc.renewals.filter((r, i) => r.renewed + r.refused.length === 0
+      && !arc.renewals.slice(0, i).some((p) => p.refused.length > 0));
+    check(`${arc.label}: its expiring contracts were renewed every season (refused only by a spending block; nothing left only after one)`,
+      arc.renewals.length > 0 && emptyWithoutCause.length === 0 && badRefusals.length === 0,
+      badRefusals.join("; ") || arc.renewals.map((r) => `S${r.season} ${r.renewed} renewed${r.refused.length ? `, ${r.refused.length} refused (spending blocked)` : ""}`).join(" | "));
+
     check(`${arc.label}: no season was a 0W 0L walkover`,
       arc.seasons.every((r) => r.played > 0),
       arc.seasons.map((r) => r.record).join(" | "));
@@ -512,6 +549,11 @@ async function advanceToBoundary(api, maxDays = 500) {
     for (const r of runs) {
       const seasonsText = r.seasons.map((x) => x.record).join(" | ");
       console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED in season ${r.sacked.season} after ${r.sacked.record}` : "  ->  career complete"}`);
+      // R-48: a renewal the board refused means the squad lapsed and that season was forfeited.
+      const refusedSeasons = (r.renewals ?? []).filter((x) => x.refused.length > 0).map((x) => x.season);
+      if (refusedSeasons.length > 0) {
+        console.log(`      renewal refused by the board's spending block at the start of season(s) ${refusedSeasons.join(", ")}: the squad lapsed and its matches were forfeited`);
+      }
     }
   }
 

@@ -75,9 +75,11 @@ router.get("/attention-items", async (req, res) => {
       priority: "red",
       category: "Squad",
       title: startersSigned === 0 ? "Build Your Squad" : "Squad Incomplete",
-      description: startersSigned === 0
+      // R-48: with fewer than MAX_STARTERS active players every match is forfeited.
+      description: (startersSigned === 0
         ? "You have no players signed — visit the Player Market to sign your first starters."
-        : `Only ${startersSigned}/${MAX_STARTERS} starters signed — visit the Player Market to fill your squad.`,
+        : `Only ${startersSigned}/${MAX_STARTERS} starters signed — visit the Player Market to fill your squad.`)
+        + (players.length < MAX_STARTERS ? " Until two players can take the sand, every match is forfeited." : ""),
       navigateTo: "/players",
     });
   }
