@@ -3,6 +3,7 @@ import { db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveSt
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
+import { selectPair } from "../utils/condition.js";
 
 const router = Router();
 
@@ -181,19 +182,17 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   } else {
     // Path B — derive from team IDs
 
-    // Home: top 2 active seniors on the home team
+    // Home: the pair that takes the court (R-50) — the same selection /simulate
+    // and the live tick engine use, so an injured player is never sent to Unity.
+    // This took the top two active seniors, injured or not.
     if (match.homeTeamId) {
-      homePlayers = (await loadPlayers(careerSaveId, {
-        teamId: match.homeTeamId, isActive: true, playerType: "senior",
-      })).sort((x, y) => computeOverall(y) - computeOverall(x)).slice(0, 2);
+      homePlayers = selectPair(await loadPlayers(careerSaveId, { teamId: match.homeTeamId }));
     }
 
     // Away: top 2 active seniors on the away team, if it is a distinct DB team
     const awayIsDistinct = match.awayTeamId != null && match.awayTeamId !== match.homeTeamId;
     if (awayIsDistinct) {
-      awayPlayers = (await loadPlayers(careerSaveId, {
-        teamId: match.awayTeamId!, isActive: true, playerType: "senior",
-      })).sort((x, y) => computeOverall(y) - computeOverall(x)).slice(0, 2);
+      awayPlayers = selectPair(await loadPlayers(careerSaveId, { teamId: match.awayTeamId! }));
     }
 
     // Fallback: AI opponent has no DB team — fill remaining slots from the

@@ -18,6 +18,10 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;
+  /** The ids of the pair that played (R-50). Injured players are never selected. */
+  lineup?: number[];
+  /** The side's rating for this match — the pair's six-stat mean, each player scaled by fitness (0.6 + 0.4 × fitness / 100). */
+  squadRating?: number;
   /** Only on a forfeit. True if the board sacked the manager for abandonment: the club had been unable to field two contracted players for 30 game days (R-53). No match result sacks a manager; the board judges the season at its review. */
   fired?: boolean;
   /** Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen */

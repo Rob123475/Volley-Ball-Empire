@@ -178,7 +178,7 @@ Five-season table and sackings, as the run printed them:
     RollWeak3    (no full season)  ->  SACKED in season 1 after 3W 14L
 ```
 
-### R-50 — OPEN (registered 14 Sep, Rob: HIGH, do not fix yet): injuries and fitness play no part in selection or match strength
+### R-50 — CLOSED (14 Sep, R50HASH): injuries and fitness decided nothing: injured players at fitness 0 played at full rating
 **Found during R-48's diagnosis:**
 - At the end of season 1 all three of an established club's players were injured: two
   "Unavailable" and one "Major Injury", with fitness 0 and fatigue 34.
@@ -193,6 +193,106 @@ Five-season table and sackings, as the run printed them:
 - the Unity payload
 - R-48's empty-squad rule, which counts contracted active players and so would count an injured one
   as able to play
+
+**Found when fixing it (overnight batch item 1, 14 Sep):**
+- **"The side" was every active player.** Starters and the interchange were all rated together, on
+  full stats, and all of them "played" every match.
+- **Nobody ever rested, so nobody healed.** Injury weeks ticked down only for a player who sat a match
+  out.
+- **Recovery could never keep up.** Daily recovery was fatigue −4 and fitness +1, and the fitness
+  gain only applied below 30 fatigue. Against about +20 fatigue a match every ~4.7 days, fatigue
+  climbed all season and fitness drained to 0.
+
+**Design (decided and recorded, `utils/condition.ts`):**
+- **Selection.** A pair of available players: contracted, active, not injured.
+  - The stored lineup comes first where its players are available, then starters, the interchange
+    and anyone else, each by fitness-scaled rating.
+  - One function picks the side for `/simulate`, `/watch`, the live tick engine, both sides of the
+    Unity payload, game-API match setup, the R-48 forfeit rule, and the board's able-to-play check
+    (R-53).
+  - `PATCH /matches/:id/lineup` refuses an injured player, or anyone outside the squad (400, naming
+    who). It also now checks the match belongs to the club.
+- **Fitness curve:** factor = 0.6 + 0.4 × fitness / 100, applied to each of the six stats.
+  - 100 → 1.00, 75 → 0.90, 50 → 0.80, 25 → 0.70, 0 → 0.60.
+  - Linear because it meets Rob's anchors exactly and reads plainly on screen ("plays at 88%").
+- **A match costs only the two who played:** fitness −4 to −7, fatigue +12 to +18 (plus weather),
+  and an injury roll.
+- **Rest.** Every game day, on the calendar: fitness +2 and fatigue −5; injured players +1 and −3.
+  Measured rest days between the club's World Tour matches: 4-5.
+- **Injuries** heal a week every 7 game days on the calendar, off-season included; the medic and
+  Medical Centre bonuses are unchanged. They are shorter and rarer than before, because an injured
+  player can no longer play through it and a three-player squad with two out forfeits:
+  - base risk 3% a match (was 5%)
+  - Minor: 1 week, 65% of injuries (was 2 weeks, 60%)
+  - Major: 3 weeks, 30% (was 6 weeks, 30%)
+  - Unavailable: 6 weeks, 5% (was 12 weeks, 10%)
+  - the "playing through an injury" path is deleted
+- **Screens:**
+  - **Team page:** each player card shows "Fitness N% · plays at M%" and, when injured,
+    "Injured: … · N weeks out · cannot be selected".
+  - **Next Match card:** names the pair, their fitness and what they play at, who cannot be
+    selected, and warns when the match would be forfeited.
+  - **Attention panel:** says when injuries leave fewer than two fit players.
+  - **Status badge:** "Injured — can't play".
+  - **Match screens:** Sim Result's auto-pick and both lineup pickers leave injured players out.
+
+**Fixed:**
+- **New `utils/condition.ts`** holds the rules.
+- **`routes/matches.ts`:** simulate, watch, forfeit and the lineup route go through the selection.
+  - The match row stores who played, and the result returns `lineup` and `squadRating`.
+  - `applyPostMatchEffects(playedIds…)` charges only the pair.
+  - Moved to `condition.ts`: `calcInjuryRisk`, `rollInjurySeverity` and the per-match injury tick.
+- **`routes/calendar.ts`:** the rest-day recovery and the weekly injury tick.
+- **Selection wired into:** `match-tick-engine.ts`, `unity.ts`, `game-api.ts`.
+- **Board and dashboard:**
+  - `board-confidence.ts` excludes injured players from the pair and from unfieldable-days.
+  - `dashboard.ts` and the spec add `nextMatchSelection`.
+  - `attention.ts` adds `squad-unfit`.
+- **Dev:** `POST /dev/condition/win-rate` (dev-only).
+- **Frontend:** the dashboard, Team page, `MatchActionButtons`, matches page and status badge.
+- **Harness:** new `harness/condition.mjs` (suite 23 of 25).
+
+**Verified:**
+- **`harness/condition.mjs` 27/27:**
+  - **Source scan:** the old paths are gone (the whole active squad rated on full stats, the tick
+    engine's top two active seniors, the gated recovery, playing through an injury), and each old
+    line planted back is caught.
+  - **5,000 matches per fitness level** against an 80-rated side, through the rating `/simulate`
+    uses:
+    - an 89.5 pair wins 66.0% at fitness 100, 36.3% at 50 and 14.9% at 0 (z = 52)
+    - ratings 89.5 / 71.6 / 53.7 exactly
+  - **Live, with a starter injured on the match day:**
+    - the dashboard names the other starter and the interchange, and says she cannot be selected
+    - Unity sends the fit pair
+    - a manual lineup including her gets 400 ("Yaritza Mendez is injured")
+    - auto-selection plays the other two, and the match row stores them
+    - she is not charged for the match; the pair are
+  - **`/simulate` squadRating** equals the pair's stats × 0.6 at fitness 0 and × 1.0 at 100.
+  - **Rest and recovery:**
+    - a rest day: +2 fitness, −5 fatigue (injured: +1, −3)
+    - match days 17 Feb, 22 Feb, 26 Feb, 3 Mar, 8 Mar, 12 Mar (gaps of 4-5 days)
+    - a one-week injury heals on the weekly tick
+  - **Two of three injured:** the dashboard and the attention panel warn, and the match is forfeited
+    with the injury reason.
+- **Checks:** `pnpm run typecheck` with every guard clean.
+- **Full harness 25/25, rollover 78/78.** Every harness career completed; 0 of 3 sacked in each arc.
+  The five-season table:
+
+  | career | S1 | S2 | S3 | S4 |
+  |---|---|---|---|---|
+  | RollStrong | 34W 21L, #3, Gold, semi | 41W 15L, #1, Gold, champion | 39W 17L, #1, Gold, champion | 32W 22L, #9, Silver |
+  | RollStrong2 | 33W 21L, #8, Silver | 25W 29L, #15, Bronze | 37W 19L, #1, Gold, champion | 39W 17L, #1, Gold, champion |
+  | RollStrong3 | 35W 20L, #3, Gold, semi | 35W 19L, #7, Silver | 40W 16L, #2, Gold, runner-up | 41W 15L, #1, Gold, champion |
+  | RollWeak | 25W 29L, #12, Bronze | 18W 36L, #19 | 16W 38L, #19 | 18W 36L, #19 |
+  | RollWeak2 | 17W 37L, #18 | 22W 32L, #13 | 18W 36L, #19 | 17W 37L, #19 |
+  | RollWeak3 | 16W 38L, #19 | 10W 44L, #19 | 15W 39L, #19 | 17W 37L, #17 |
+
+  RollStrong3's season-5 review was judged against a top-6 finish. A player injured at the draw does
+  not count towards the pair, so its strength rank was 3 that season: R-50 and R-55 working
+  together.
+
+**Known and accepted:** the calendar's "skip match" path moves the date on without that day's
+processing, so a manager who skips loses that day's rest recovery.
 
 ### R-51 — CLOSED (14 Sep, c41cad2): an expiring contract was neither warned about in game time nor renewable
 **Found (Rob's R-48 item 2: does the game warn the manager, with enough notice, and is there a renew action?):**
@@ -2686,6 +2786,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, R50HASH | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |
 | R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
 | R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, 8bc38c2 | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |
 | R-53 The board reviews seasons against expectations (target at the draw, monthly check, season review, abandonment) | 14 Sep, 393cbac | board-review 50/50: all §5/§5.1 rows match the design, win/loss/forfeit leave confidence unchanged, old code absent (planted lines caught), freeze 403/200, abandonment day 33, review sacking; full harness 24/24, rollover 72/72, 0 of 6 sacked |

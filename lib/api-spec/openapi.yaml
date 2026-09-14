@@ -3155,6 +3155,14 @@ components:
           type: number
         isFinal:
           type: boolean
+        lineup:
+          type: array
+          description: The ids of the pair that played (R-50). Injured players are never selected.
+          items:
+            type: integer
+        squadRating:
+          type: number
+          description: The side's rating for this match — the pair's six-stat mean, each player scaled by fitness (0.6 + 0.4 × fitness / 100).
         fired:
           type: boolean
           description: >-
@@ -4732,6 +4740,45 @@ components:
             points: { type: integer }
         injuredCount:
           type: integer
+        nextMatchSelection:
+          type: ["object", "null"]
+          description: >-
+            R-50: the pair that would take the court for the next match, how fit they are, and who
+            cannot be selected. The same selection the match itself makes.
+          required: [players, unavailable, willForfeit]
+          properties:
+            players:
+              type: array
+              items:
+                type: object
+                required: [id, name, fitness, contribution]
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  fitness:
+                    type: integer
+                  contribution:
+                    type: integer
+                    description: What she plays at, as a percentage of her full stats.
+            unavailable:
+              type: array
+              items:
+                type: object
+                required: [id, name, injuryStatus, weeksOut]
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  injuryStatus:
+                    type: string
+                  weeksOut:
+                    type: integer
+            willForfeit:
+              type: boolean
+              description: Fewer than two players are fit to play, so the match would be forfeited.
 
     AchievementStatus:
       type: object

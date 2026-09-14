@@ -1072,6 +1072,10 @@ export interface MatchResult {
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;
+  /** The ids of the pair that played (R-50). Injured players are never selected. */
+  lineup?: number[];
+  /** The side's rating for this match — the pair's six-stat mean, each player scaled by fitness (0.6 + 0.4 × fitness / 100). */
+  squadRating?: number;
   /** Only on a forfeit. True if the board sacked the manager for abandonment: the club had been unable to field two contracted players for 30 game days (R-53). No match result sacks a manager; the board judges the season at its review. */
   fired?: boolean;
   /** Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen */
@@ -2126,6 +2130,28 @@ export type DashboardSeasonStanding = {
   points?: number;
 } | null;
 
+/**
+ * R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.
+ * @nullable
+ */
+export type DashboardNextMatchSelection = {
+  players: {
+  id: number;
+  name: string;
+  fitness: number;
+  /** What she plays at, as a percentage of her full stats. */
+  contribution: number;
+}[];
+  unavailable: {
+  id: number;
+  name: string;
+  injuryStatus: string;
+  weeksOut: number;
+}[];
+  /** Fewer than two players are fit to play, so the match would be forfeited. */
+  willForfeit: boolean;
+} | null;
+
 export interface Dashboard {
   team: Team;
   nextMatch: DashboardNextMatch;
@@ -2136,6 +2162,11 @@ export interface Dashboard {
   topPlayers: Player[];
   seasonStanding: DashboardSeasonStanding;
   injuredCount: number;
+  /**
+     * R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.
+     * @nullable
+     */
+  nextMatchSelection?: DashboardNextMatchSelection;
 }
 
 export type AchievementStatusCategory = typeof AchievementStatusCategory[keyof typeof AchievementStatusCategory];

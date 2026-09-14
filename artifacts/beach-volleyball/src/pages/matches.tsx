@@ -690,9 +690,12 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
                 key={p.id}
                 className={cn(
                   "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
-                  selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                  selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted",
+                  (p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy") && "opacity-50 cursor-not-allowed"
                 )}
                 onClick={() => {
+                  // R-50: an injured player cannot be selected
+                  if (p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy") return;
                   if (selected.includes(p.id)) setSelected(selected.filter(id => id !== p.id));
                   else if (selected.length < (match.teamSize ?? 2)) setSelected([...selected, p.id]);
                 }}
@@ -1066,9 +1069,12 @@ function MatchCard({ match, onSimulate, isSimulating, activePlayers }: {
                     data-testid={`player-select-${p.id}`}
                     className={cn(
                       "flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer",
-                      selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                      selected.includes(p.id) ? "bg-primary/10 border-primary" : "hover:bg-muted",
+                      (p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy") && "opacity-50 cursor-not-allowed"
                     )}
                     onClick={() => {
+                      // R-50: an injured player cannot be selected
+                      if (p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy") return;
                       if (selected.includes(p.id)) setSelected(selected.filter(id => id !== p.id));
                       else if (selected.length < match.teamSize) setSelected([...selected, p.id]);
                     }}

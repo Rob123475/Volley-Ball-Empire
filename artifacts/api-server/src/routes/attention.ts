@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { MAX_STARTERS, MAX_SENIORS } from "../utils/squadRules.js";
+import { isAvailable } from "../utils/condition.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -96,6 +97,21 @@ router.get("/attention-items", async (req, res) => {
       category: "Squad",
       title: "Grow Your Squad",
       description: "You're starting with the bare minimum to compete — visit the Player Market to sign more players.",
+      navigateTo: "/players",
+    });
+  }
+
+  // ── Injuries leave fewer than two fit players (red) ──────────────────────────
+  // R-50: an injured player cannot be selected, so a squad with its starters
+  // signed can still be unable to play. Say so before the match is forfeited.
+  const fitToPlay = players.filter((p) => isAvailable(p)).length;
+  if (startersSigned >= MAX_STARTERS && fitToPlay < MAX_STARTERS) {
+    items.push({
+      id: "squad-unfit",
+      priority: "red",
+      category: "Squad",
+      title: "Not Enough Fit Players",
+      description: `Only ${fitToPlay} of your players can play. Injured players cannot be selected, so every match is forfeited until someone recovers or you sign cover.`,
       navigateTo: "/players",
     });
   }

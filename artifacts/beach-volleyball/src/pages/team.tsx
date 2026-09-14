@@ -501,6 +501,24 @@ export default function TeamRoster() {
             </div>
           </div>
 
+          {/* R-50: fitness scales what she brings to a match (mirror of
+              utils/condition.ts: 0.6 + 0.4 × fitness / 100); an injured player
+              cannot be selected. */}
+          <div className="space-y-1" data-testid={`fitness-${player.id}`}>
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold">Fitness {player.fitness ?? 100}%</span>
+              <span className="text-muted-foreground">
+                plays at {Math.round((0.6 + 0.4 * (player.fitness ?? 100) / 100) * 100)}%
+              </span>
+            </div>
+            <Progress value={player.fitness ?? 100} className="h-1.5" />
+            {(player.isInjured || (player.injuryStatus ?? "Healthy") !== "Healthy") && (
+              <div className="text-xs font-semibold text-red-600 dark:text-red-400">
+                Injured: {player.injuryStatus} · {Math.ceil(Number(player.injuryWeeksRemaining ?? 0))} week{Math.ceil(Number(player.injuryWeeksRemaining ?? 0)) === 1 ? "" : "s"} out · cannot be selected
+              </div>
+            )}
+          </div>
+
           <div className="space-y-1.5">
             <StatBar label="Power"   value={player.power}   icon={Zap}    />
             <StatBar label="Speed"   value={player.speed}   icon={Wind}   />

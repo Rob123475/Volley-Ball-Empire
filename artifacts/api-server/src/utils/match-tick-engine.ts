@@ -23,6 +23,7 @@ import { eq, and, inArray, isNull, notInArray, desc, sql } from "drizzle-orm";
 import { getWeatherEffects } from "../routes/matches.js";
 import { logger } from "../lib/logger.js";
 import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import { selectPair, conditioned } from "./condition.js";
 
 const TICK_MS = 1800; // ~1 point every 1.8s of real time
 const SECONDS_PER_POINT = 22; // in-fiction rally duration, for matchTimeSeconds
@@ -44,13 +45,15 @@ type RosterPlayer = {
 
 const overallExpr = sql<number>`(${playersTable.speed}+${playersTable.power}+${playersTable.defense}+${playersTable.serve}+${playersTable.block}+${playersTable.stamina})`;
 
-async function loadRoster(teamId: number | null, excludeIds: number[]): Promise<RosterPlayer[]> {
+async function loadRoster(teamId: number | null, excludeIds: number[], preferredIds: number[] = []): Promise<RosterPlayer[]> {
   if (teamId == null) return [];
   const cid = await careerSaveIdForTeamOrThrow(teamId);
-  const rows = (await loadPlayers(cid, { teamId, isActive: true, playerType: "senior" }))
-    .sort((a, b) => sideRating([b]) - sideRating([a]))
-    .slice(0, 2);
-  return rows.filter(p => !excludeIds.includes(p.id));
+  // R-50: the same pair /simulate fields — available players only, the stored
+  // lineup first, each scaled by fitness — so watching a match and simulating
+  // it rate the same side. This took the top two active seniors, injured or not.
+  return selectPair(await loadPlayers(cid, { teamId }), preferredIds)
+    .filter((p) => !excludeIds.includes(p.id))
+    .map(conditioned);
 }
 
 async function loadFallbackPool(fallbackCareerId: number, excludeIds: number[]): Promise<RosterPlayer[]> {
@@ -119,7 +122,7 @@ export async function startMatchTick(matchId: number): Promise<{ ok: boolean; er
   if (!match) return { ok: false, error: "Match not found" };
   if (match.status === "completed") return { ok: false, error: "Match already completed" };
 
-  const homeRoster = await loadRoster(match.homeTeamId, []);
+  const homeRoster = await loadRoster(match.homeTeamId, [], Array.isArray(match.lineup) ? (match.lineup as number[]) : []);
   let awayRoster = match.awayTeamId != null && match.awayTeamId !== match.homeTeamId
     ? await loadRoster(match.awayTeamId, homeRoster.map(p => p.id))
     : [];

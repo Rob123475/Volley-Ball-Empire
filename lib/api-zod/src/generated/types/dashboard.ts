@@ -8,6 +8,7 @@
 import type { DashboardFinanceSummary } from './dashboardFinanceSummary';
 import type { DashboardNextBye } from './dashboardNextBye';
 import type { DashboardNextMatch } from './dashboardNextMatch';
+import type { DashboardNextMatchSelection } from './dashboardNextMatchSelection';
 import type { DashboardSeasonStanding } from './dashboardSeasonStanding';
 import type { Match } from './match';
 import type { Player } from './player';
@@ -23,4 +24,9 @@ export interface Dashboard {
   topPlayers: Player[];
   seasonStanding: DashboardSeasonStanding;
   injuredCount: number;
+  /**
+     * R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.
+     * @nullable
+     */
+  nextMatchSelection?: DashboardNextMatchSelection;
 }

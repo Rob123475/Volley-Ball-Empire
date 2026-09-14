@@ -9504,6 +9504,8 @@ export const SimulateMatchResponse = zod.object({
   "winner": zod.enum(['home', 'away', 'draw']),
   "prizeEarned": zod.number(),
   "isFinal": zod.boolean(),
+  "lineup": zod.array(zod.number()).optional().describe('The ids of the pair that played (R-50). Injured players are never selected.'),
+  "squadRating": zod.number().optional().describe('The side\'s rating for this match — the pair\'s six-stat mean, each player scaled by fitness (0.6 + 0.4 × fitness \/ 100).'),
   "fired": zod.boolean().optional().describe('Only on a forfeit. True if the board sacked the manager for abandonment: the club had been unable to field two contracted players for 30 game days (R-53). No match result sacks a manager; the board judges the season at its review.'),
   "careerEnded": zod.boolean().optional().describe('Same signal as `fired` — the career was permanently archived and the client should route to the career-end screen'),
   "dismissalClubName": zod.string().nullish().describe('The club name that dismissed the manager (only set when fired is true)'),
@@ -11370,7 +11372,22 @@ export const GetDashboardResponse = zod.object({
   "losses": zod.number().optional(),
   "points": zod.number().optional()
 }).nullable(),
-  "injuredCount": zod.number()
+  "injuredCount": zod.number(),
+  "nextMatchSelection": zod.object({
+  "players": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "fitness": zod.number(),
+  "contribution": zod.number().describe('What she plays at, as a percentage of her full stats.')
+})),
+  "unavailable": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "injuryStatus": zod.string(),
+  "weeksOut": zod.number()
+})),
+  "willForfeit": zod.boolean().describe('Fewer than two players are fit to play, so the match would be forfeited.')
+}).nullish().describe('R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.')
 })
 
 

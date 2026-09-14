@@ -9,6 +9,7 @@ import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { worldTourStandings, BYE } from "../utils/worldTour.js";
+import { selectPair, isAvailable, fitnessFactor, PAIR_SIZE } from "../utils/condition.js";
 
 const router = Router();
 
@@ -71,6 +72,21 @@ router.get("/dashboard", async (req, res) => {
     .slice(0, 5).map(p => ({ ...p, height: Number(p.height), salary: Number(p.salary) }));
   const injuredCount = players.filter(p => p.isInjured).length;
 
+  // R-50: who would take the court for the next match, how fit they are, and
+  // who cannot be selected — the same selection /simulate will make.
+  const nextPair = nextMatch
+    ? selectPair(players, Array.isArray(nextMatch.lineup) ? (nextMatch.lineup as number[]) : [])
+    : [];
+  const nextMatchSelection = nextMatch ? {
+    players: nextPair.map((p) => ({
+      id: p.id, name: p.name, fitness: p.fitness, contribution: Math.round(fitnessFactor(p.fitness) * 100),
+    })),
+    unavailable: players.filter((p) => p.isActive && !isAvailable(p)).map((p) => ({
+      id: p.id, name: p.name, injuryStatus: p.injuryStatus, weeksOut: Math.ceil(Number(p.injuryWeeksRemaining ?? 0)),
+    })),
+    willForfeit: nextPair.length < PAIR_SIZE,
+  } : null;
+
   // R-20: this used to rank against every team in the whole table with no
   // filter at all — other profiles' teams, live or retired. Excluding
   // retired careers was not enough: a rank compared against a career you are
@@ -115,6 +131,7 @@ router.get("/dashboard", async (req, res) => {
       temperature: nextMatch.temperature ? Number(nextMatch.temperature) : null,
     } : null,
     nextBye,
+    nextMatchSelection,
     financeSummary: { balance, monthlyNet: monthIncome - monthExpenses },
     recentResults: recentMatches.map(m => ({
       ...m,

@@ -703,6 +703,25 @@ export default function Dashboard() {
                   <div className="text-[11px] text-white/40 mt-1 font-semibold">
                     {nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule one"}
                   </div>
+                  {/* R-50: who takes the court, how fit, and who cannot be selected */}
+                  {dashboard?.nextMatchSelection && (
+                    <div className="mt-1.5 space-y-0.5 text-[11px] font-semibold leading-snug" data-testid="next-match-selection">
+                      {dashboard.nextMatchSelection.willForfeit ? (
+                        <div className="text-red-300">Not enough fit players — this match will be forfeited</div>
+                      ) : (
+                        dashboard.nextMatchSelection.players.map((p) => (
+                          <div key={p.id} className={cn(p.fitness >= 80 ? "text-emerald-300" : p.fitness >= 50 ? "text-yellow-300" : "text-red-300")}>
+                            {p.name} · fitness {p.fitness}% · plays at {p.contribution}%
+                          </div>
+                        ))
+                      )}
+                      {dashboard.nextMatchSelection.unavailable.map((p) => (
+                        <div key={p.id} className="text-red-300">
+                          {p.name}: {p.injuryStatus}, {p.weeksOut} week{p.weeksOut === 1 ? "" : "s"} — cannot be selected
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
             </div>

@@ -18,9 +18,10 @@ export function getPlayerStatus(player: {
   const fatigue = player.fatigue ?? 0;
   const injury = player.injuryStatus ?? "Healthy";
 
+  // R-50: an injured player cannot be selected, so the badge says so.
   if (injury === "Unavailable") return {
     level: "Unavailable",
-    label: "Unavailable",
+    label: "Unavailable — can't play",
     dot: "bg-red-500",
     text: "text-red-700 dark:text-red-400",
     bg: "bg-red-50 dark:bg-red-950/30",
@@ -29,7 +30,7 @@ export function getPlayerStatus(player: {
 
   if (injury === "Major Injury" || injury === "Minor Injury") return {
     level: "Carrying Injury",
-    label: "Carrying Injury",
+    label: "Injured — can't play",
     dot: "bg-orange-500",
     text: "text-orange-700 dark:text-orange-400",
     bg: "bg-orange-50 dark:bg-orange-950/30",

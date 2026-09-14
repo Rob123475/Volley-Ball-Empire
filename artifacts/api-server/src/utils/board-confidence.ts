@@ -348,7 +348,7 @@ function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 }
 
-/** The club's contracted players able to play — the same set /simulate fields (R-48). */
+/** The club's contracted players able to play — active and not injured (R-48, R-50). */
 function ablePlayersTx(tx: Tx, careerSaveId: number, teamId: number) {
   return tx.select({
     speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power,
@@ -358,6 +358,8 @@ function ablePlayersTx(tx: Tx, careerSaveId: number, teamId: number) {
     eq(careerPlayerStateTable.careerSaveId, careerSaveId),
     eq(careerPlayerStateTable.teamId, teamId),
     eq(careerPlayerStateTable.isActive, true),
+    eq(careerPlayerStateTable.isInjured, false),
+    eq(careerPlayerStateTable.injuryStatus, "Healthy"),
   )).all();
 }
 

@@ -11,6 +11,8 @@ import {
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { boardReviewTable, boardProjection, type BoardTableCareer, type BoardProjectionInput } from "../utils/board-confidence.js";
+import { pairSideRating } from "../utils/condition.js";
+import { pointProbability, simulateMatch, type RatedPlayer } from "../utils/matchEngine.js";
 
 const WEATHER_CONDITIONS = ["sunny", "clear", "cloudy", "windy", "hot", "overcast", "perfect"];
 function quickWeather() {
@@ -657,6 +659,32 @@ router.post("/dev/board/review-table", (req, res) => {
     careers: (body.careers ?? []).map((c) => boardReviewTable(c)),
     projections: (body.projections ?? []).map((p) => boardProjection(p)),
   });
+});
+
+/**
+ * R-50: the same pair at different fitness, played many times through the
+ * match engine with the rating /simulate uses (pairSideRating). Lets
+ * harness/condition.mjs measure what fitness does over a sample far larger
+ * than a season. Reads and writes nothing.
+ */
+router.post("/dev/condition/win-rate", (req, res) => {
+  const body = req.body as { pair?: RatedPlayer[]; opponentRating?: number; samples?: number; fitness?: number[] };
+  if (!Array.isArray(body?.pair) || body.pair.length !== 2 || !Number.isFinite(body.opponentRating)) {
+    res.status(400).json({ error: "pair (two players' six stats) and opponentRating are required" });
+    return;
+  }
+  const samples = Math.min(20000, Math.max(100, Math.round(body.samples ?? 2000)));
+  const results = (body.fitness ?? [100, 0]).map((fitness) => {
+    const rating = pairSideRating(body.pair!.map((p, i) => ({
+      ...p, id: i + 1, isActive: true, isInjured: false, injuryStatus: "Healthy", squadRole: "starter", fitness,
+    })));
+    let wins = 0;
+    for (let n = 0; n < samples; n++) {
+      if (simulateMatch(pointProbability(rating, body.opponentRating!, { homeAdvantage: false })).homeWon) wins++;
+    }
+    return { fitness, rating, wins, winRate: wins / samples };
+  });
+  res.json({ samples, opponentRating: body.opponentRating, results });
 });
 
 export default router;

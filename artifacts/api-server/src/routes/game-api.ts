@@ -23,6 +23,7 @@ import { eq, and, asc } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields } from "../lib/playerDto.js";
 import { creditRankingPoints } from "../utils/rankingPoints.js";
 import { worldTourGate, recordPlayerMatchResult } from "../utils/worldTour.js";
+import { selectPair } from "../utils/condition.js";
 
 const router = Router();
 
@@ -241,7 +242,7 @@ router.get("/game/match-setup/:matchId", async (req, res) => {
   const lineup: number[] = Array.isArray(match.lineup) ? (match.lineup as number[]) : [];
   const lineupPlayers = lineup.length > 0
     ? allPlayers.filter(p => lineup.includes(p.id))
-    : allPlayers.filter(p => p.squadRole === "starter" || p.squadRole === "interchange");
+    : selectPair(allPlayers);   // R-50: the pair that takes the court, never an injured player
 
   const [save] = await db
     .select()

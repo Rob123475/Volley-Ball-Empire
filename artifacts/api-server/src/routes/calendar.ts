@@ -30,6 +30,7 @@ import {
 } from "../utils/seasonRollover.js";
 import { boardDay } from "../utils/board-confidence.js";
 import { endCareer } from "../utils/careerLifecycle.js";
+import { REST_RECOVERY, applyWeeklyInjuryRecovery } from "../utils/condition.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -431,7 +432,10 @@ router.post("/calendar/advance", async (req, res) => {
 
   // ── Daily processing ──────────────────────────────────────────
 
-  // 1. Fatigue recovery — healthy players
+  // 1-2. R-50: a game day of rest for every player — fitness and fatigue
+  // recover, the injured more slowly (utils/condition.ts REST_RECOVERY). Fitness
+  // used to recover +1 a day and only below 30 fatigue, which a match every ~4.7
+  // days never allowed, so it drained to 0 over a season.
   // NOTE: SQLite has no GREATEST/LEAST (Postgres/MySQL). Its multi-argument
   // MAX()/MIN() is the scalar per-row form and is equivalent here — verified
   // against the real engine. The only semantic difference vs GREATEST/LEAST
@@ -440,18 +444,17 @@ router.post("/calendar/advance", async (req, res) => {
   // `fatigue` and `fitness` are NOT NULL columns.
   const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
   await updateTeamPlayerState(careerSaveId, team.id,
-    { fatigue: sql`MAX(0, fatigue - 4)` },
+    {
+      fatigue: sql`MAX(0, fatigue - ${REST_RECOVERY.healthy.fatigue})`,
+      fitness: sql`MIN(100, fitness + ${REST_RECOVERY.healthy.fitness})`,
+    },
     eq(careerPlayerStateTable.injuryStatus, "Healthy"));
-
-  // 2. Fatigue recovery — injured players (slower, bed rest)
   await updateTeamPlayerState(careerSaveId, team.id,
-    { fatigue: sql`MAX(0, fatigue - 2)` },
+    {
+      fatigue: sql`MAX(0, fatigue - ${REST_RECOVERY.injured.fatigue})`,
+      fitness: sql`MIN(100, fitness + ${REST_RECOVERY.injured.fitness})`,
+    },
     ne(careerPlayerStateTable.injuryStatus, "Healthy"));
-
-  // 3. Fitness recovery for well-rested healthy players
-  await updateTeamPlayerState(careerSaveId, team.id,
-    { fitness: sql`MIN(100, fitness + 1)` },
-    and(eq(careerPlayerStateTable.injuryStatus, "Healthy"), sql`fatigue < 30`)!);
 
   // 4. Weekly salary & sponsor income (every 7 calendar days)
   const lastSalary = calendar.lastSalaryDate ?? season.startDate;
@@ -531,6 +534,14 @@ router.post("/calendar/advance", async (req, res) => {
     await db.update(calendarStateTable)
       .set({ lastSalaryDate: nextDate })
       .where(eq(calendarStateTable.teamId, team.id));
+
+    // R-50: injuries heal a week every 7 game days — the off-season included.
+    // They used to tick only for a player who sat out a match, which a club
+    // whose whole active squad played every match never did.
+    const recovered = await applyWeeklyInjuryRecovery(careerSaveId, team.id);
+    if (recovered.length > 0) {
+      events.push(`Back from injury: ${recovered.join(", ")}`);
+    }
 
     events.push(
       `Salary week: €${weeklySalary.toLocaleString()} wages, €${sponsorIncome.toLocaleString()} sponsor income`

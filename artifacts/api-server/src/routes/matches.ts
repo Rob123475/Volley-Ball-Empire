@@ -21,6 +21,9 @@ import { endCareer } from "../utils/careerLifecycle.js";
 import { startMatchTick } from "../utils/match-tick-engine.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
+  selectPair, pairSideRating, isAvailable, matchCosts, injuryRisk, rollInjury,
+} from "../utils/condition.js";
+import {
   worldTourGate, recordPlayerMatchResult, fixtureForMatch, competitorRating, worldTourStandings,
 } from "../utils/worldTour.js";
 import { getGameDate } from "../utils/gameDate.js";
@@ -173,55 +176,7 @@ export const serializeMatch = (m: Match) => ({
   highlights: Array.isArray(m.highlights) ? m.highlights : [],
 });
 
-// ── Post-match health mechanics ────────────────────────────────────────────────
-
-const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
-
-async function getBestMedicalSkill(teamId: number): Promise<number> {
-  const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
-  const medics = staff.filter(s => MEDICAL_ROLES.includes(s.role));
-  return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
-}
-
-/** Returns probability (0–0.60) of a player getting injured this match. */
-function calcInjuryRisk(fatigue: number, stamina: number, consecutive: number, injuryStatus: string, sportsLabLevel = 1, hasRecoveryCamp = false): number {
-  let risk = 0.05;
-
-  // Fatigue makes the body fragile
-  if      (fatigue > 85) risk += 0.12;
-  else if (fatigue > 70) risk += 0.06;
-  else if (fatigue > 55) risk += 0.02;
-
-  // Low stamina = poor physical resilience
-  risk += ((100 - stamina) / 100) * 0.08;
-
-  // Back-to-back matches wear the body down
-  if      (consecutive >= 4) risk += 0.05;
-  else if (consecutive >= 2) risk += 0.02;
-
-  // Already hurt and still playing — 2.5× multiplier
-  if (injuryStatus !== "Healthy") risk *= 2.5;
-
-  // Sports Science Lab: reduces injury risk (0% at L1, −25% at L10)
-  const labFactor  = 1 - (sportsLabLevel - 1) * (0.25 / 9);
-  // Recovery Retreat camp: additional −15% while active
-  const campFactor = hasRecoveryCamp ? 0.85 : 1.0;
-  return Math.min(risk * labFactor * campFactor, 0.60);
-}
-
-/** Rolls the severity of a new injury (or worsening). */
-function rollInjurySeverity(currentStatus: string): { status: string; weeks: number } {
-  const roll = Math.random();
-  if (currentStatus !== "Healthy") {
-    // Playing through injury — high chance of making it much worse
-    if (roll < 0.30) return { status: "Major Injury", weeks: 6  };
-    if (roll < 0.70) return { status: "Unavailable",  weeks: 10 };
-    return                  { status: "Unavailable",  weeks: 14 };
-  }
-  if (roll < 0.60) return   { status: "Minor Injury", weeks: 2  };
-  if (roll < 0.90) return   { status: "Major Injury", weeks: 6  };
-  return                    { status: "Unavailable",  weeks: 12 };
-}
+// ── Post-match health mechanics (R-50: the rules live in utils/condition.ts) ──
 
 export type PlayerEvent = {
   playerId: number;
@@ -232,81 +187,57 @@ export type PlayerEvent = {
 };
 
 /**
- * Applies post-match health effects to every player on the team:
- *  - Active players:  fatigue ↑, fitness ↓, injury risk roll, consecutive streak ↑
- *  - Bench/reserve:   fatigue ↓, fitness ↑, consecutive resets, injury weeks tick down
- * Returns events (new injuries, worsenings, recoveries) for the UI to surface.
+ * Applies post-match health effects (R-50):
+ *  - the pair that played: fitness ↓, fatigue ↑, an injury roll, consecutive streak ↑
+ *  - everyone else rested: their consecutive streak resets. Fitness and fatigue
+ *    recover on the calendar's game days, and injuries heal a week every 7 game
+ *    days there — not here, per match rested, which never happened to a player
+ *    who was selected for every match.
+ * Returns new injuries for the UI to surface.
  */
-export async function applyPostMatchEffects(teamId: number, weather: string, facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false, windSpeed = 0, temperature = 25): Promise<PlayerEvent[]> {
-  const [players, physioSkill] = await Promise.all([
-    careerSaveIdForTeam(teamId).then((cid: number | null) => loadPlayers(requireCareerSaveId(cid ?? undefined), { teamId })),
-    getBestMedicalSkill(teamId),
-  ]);
-
-  const medCentreLevel  = facilityLevels.medical_centre     ?? 1;
-  const sportsLabLevel  = facilityLevels.sports_science_lab ?? 1;
-
-  const events: PlayerEvent[] = [];
+export async function applyPostMatchEffects(
+  teamId: number, playedIds: readonly number[], weather: string,
+  facilityLevels: Record<string, number> = {}, hasRecoveryCamp = false, windSpeed = 0, temperature = 25,
+): Promise<PlayerEvent[]> {
+  const cid = await careerSaveIdForTeamOrThrow(teamId);
+  const players = await loadPlayers(cid, { teamId });
+  const sportsLabLevel = facilityLevels.sports_science_lab ?? 1;
   const wx = getWeatherEffects(weather, windSpeed, temperature);
+  const events: PlayerEvent[] = [];
 
   for (const player of players) {
     const updates: Partial<CareerPlayerFields> = {};
-    const prevStatus  = (player.injuryStatus  as string)  ?? "Healthy";
-    const curFatigue  = player.fatigue  ?? 0;
-    const curFitness  = (player.fitness  as number) ?? 100;
-    const consecutive = (player.consecutiveMatchesPlayed as number) ?? 0;
+    const consecutive = player.consecutiveMatchesPlayed ?? 0;
 
-    if (player.isActive) {
-      // ── Played this match ──────────────────────────────────────────────────
-      const fatigueCost = 15 + Math.floor(Math.random() * 11) + Math.max(0, wx.extraFatigue);
-      updates.fatigue  = Math.min(100, curFatigue + fatigueCost);
-      updates.fitness  = Math.max(0, curFitness - 3 - Math.floor(Math.random() * 6));
+    if (playedIds.includes(player.id)) {
+      const cost = matchCosts(wx.extraFatigue);
+      updates.fatigue = Math.min(100, (player.fatigue ?? 0) + cost.fatigue);
+      updates.fitness = Math.max(0, (player.fitness ?? 100) - cost.fitness);
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
-      // Injury risk roll — weather, fatigue, stamina, and injury status all affect risk
-      const baseRisk = calcInjuryRisk(curFatigue, player.stamina, consecutive, prevStatus, sportsLabLevel, hasRecoveryCamp);
-      const risk = Math.min(baseRisk * wx.injuryRiskMultiplier, 0.70);
+      const risk = Math.min(
+        injuryRisk(player.fatigue ?? 0, player.stamina, consecutive, sportsLabLevel, hasRecoveryCamp) * wx.injuryRiskMultiplier,
+        0.70,
+      );
       if (Math.random() < risk) {
-        const inj = rollInjurySeverity(prevStatus);
-        updates.injuryStatus        = inj.status;
+        const inj = rollInjury();
+        updates.injuryStatus         = inj.status;
         updates.injuryWeeksRemaining = inj.weeks;
-        updates.isInjured           = true;
+        updates.isInjured            = true;
         events.push({
-          playerId:    player.id,
-          playerName:  player.name,
-          event:       prevStatus !== "Healthy" ? "injury_worsened" : "injury_new",
+          playerId:     player.id,
+          playerName:   player.name,
+          event:        "injury_new",
           injuryStatus: inj.status,
-          weeksOut:    inj.weeks,
+          weeksOut:     inj.weeks,
         });
       }
-    } else {
-      // ── Resting this match ────────────────────────────────────────────────
-      updates.fatigue  = Math.max(0, curFatigue - 8 - Math.floor(Math.random() * 7));
-      updates.fitness  = Math.min(100, curFitness + 3 + Math.floor(Math.random() * 4));
+    } else if (consecutive !== 0) {
       updates.consecutiveMatchesPlayed = 0;
-
-      // Injury recovery tick — physio skill + Medical Centre both speed recovery
-      const weeksLeft = (player.injuryWeeksRemaining as number) ?? 0;
-      if (weeksLeft > 0) {
-        const extraTick        = Math.random() < physioSkill / 250 ? 1 : 0;
-        // Medical Centre: +0 at L1, −1 extra week per tick at L10
-        const facilityReduction = (medCentreLevel - 1) * (1.0 / 9);
-        const newWeeks    = Math.max(0, weeksLeft - 1 - extraTick - facilityReduction);
-        updates.injuryWeeksRemaining = newWeeks;
-        if (newWeeks === 0) {
-          updates.injuryStatus = "Healthy";
-          updates.isInjured    = false;
-          events.push({ playerId: player.id, playerName: player.name, event: "recovery_complete" });
-        }
-      }
     }
 
     if (Object.keys(updates).length > 0) {
-      await updatePlayerState(
-        await careerSaveIdForTeamOrThrow(teamId),
-        player.id,
-        updates,
-      );
+      await updatePlayerState(cid, player.id, updates);
     }
   }
 
@@ -519,9 +450,10 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
     // R-29: the live match needs its real drawn opponent before the first point.
     const wtBlocked = await worldTourGate(requireCareerSaveId(req.activeCareerSaveId), watchTeam.id, match);
     if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
-    // R-48: a club without two contracted players cannot take the court.
-    const watchSquad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: watchTeam.id, isActive: true });
-    if (watchSquad.length < MAX_STARTERS) {
+    // R-48: a club without two players fit to play cannot take the court (R-50:
+    // the same selection /simulate uses — injured players do not count).
+    const watchSquad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: watchTeam.id });
+    if (selectPair(watchSquad, Array.isArray(match.lineup) ? (match.lineup as number[]) : []).length < MAX_STARTERS) {
       res.status(409).json({ error: `${SQUAD_INCOMPLETE} Played or simulated, the match is forfeited.`, squadIncomplete: true });
       return;
     }
@@ -593,14 +525,18 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const hasRecoveryCamp = wellbeingEffects.some(e => e.effectType === "recovery_camp");
 
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const activePlayers = players.filter(p => p.isActive);
+  // R-50: the side is a pair of AVAILABLE players — contracted, active and not
+  // injured — picked by the one selection every match path uses, the stored
+  // lineup first where its players are available. It used to be every active
+  // player on the team, starters and interchange alike, injured or not.
+  const pair = selectPair(players, Array.isArray(match.lineup) ? (match.lineup as number[]) : []);
 
-  // R-48: a club that cannot put two contracted players on the sand does not
-  // play. It used to play anyway as a phantom side — sideRating([]) is a flat
-  // 60 — and could even win, which is how a squad that walked out at the season
-  // boundary went unnoticed. The match is forfeited through the same path as a
-  // manual forfeit, and the result says why.
-  if (activePlayers.length < MAX_STARTERS) {
+  // R-48: a club that cannot put two players on the sand does not play. It used
+  // to play anyway as a phantom side — sideRating([]) is a flat 60 — and could
+  // even win, which is how a squad that walked out at the season boundary went
+  // unnoticed. The match is forfeited through the same path as a manual
+  // forfeit, and the result says why. Since R-50 an injured player does not count.
+  if (pair.length < MAX_STARTERS) {
     const forfeit = await recordForfeit(req, team, match, requireCareerSaveId(req.activeCareerSaveId));
     res.json({
       ...forfeit,
@@ -613,9 +549,9 @@ router.post("/matches/:id/simulate", async (req, res) => {
     });
     return;
   }
-  // Six-stat mean, the same OVR the UI shows. The old three-stat average here
-  // disagreed with the tick engine's four-stat one about what a squad is worth.
-  const squadRating = sideRating(activePlayers);
+  // Six-stat mean, the same OVR the UI shows, over the pair — each player scaled
+  // by her fitness (R-50: 0.6 + 0.4 × fitness / 100).
+  const squadRating = pairSideRating(pair);
 
   // Weather impact on match difficulty
   const matchWindSpeed = Number(match.windSpeed ?? 0);
@@ -699,8 +635,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     highlightTemplates[Math.floor(Math.random() * highlightTemplates.length)]
   );
 
-  const mvp = activePlayers.length > 0
-    ? activePlayers.reduce((best, p) => (p.power + p.serve) > (best.power + best.serve) ? p : best, activePlayers[0])
+  const mvp = pair.length > 0
+    ? pair.reduce((best, p) => (p.power + p.serve) > (best.power + best.serve) ? p : best, pair[0])
     : null;
 
   // Pay exactly what the fixture advertises. The `|| 5000` fallback here meant
@@ -728,6 +664,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     awayScore,
     status: "completed",
     highlights,
+    // R-50: who actually played. The medical page counts matches from this.
+    lineup: pair.map((p) => p.id),
     ...(resolvedSets ? { sets: resolvedSets } : {}),
   }).where(eq(matchesTable.id, id)).returning();
 
@@ -849,7 +787,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
     });
   }
 
-  const playerEvents = await applyPostMatchEffects(team.id, match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
+  const playerEvents = await applyPostMatchEffects(team.id, pair.map((p) => p.id), match.weather, facilityLevels, hasRecoveryCamp, matchWindSpeed, matchTemp);
 
   // Record new injuries into season injury stats
   const newInjuryEvents = playerEvents.filter(e => e.event === "injury_new");
@@ -1068,6 +1006,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     prizeEarned,
     mvp:          mvp ? { ...mvp, height: Number(mvp.height), salary: Number(mvp.salary) } : null,
     isFinal,
+    lineup:       pair.map((p) => p.id),
+    squadRating,
     weather:      match.weather,
     windSpeed:    matchWindSpeed,
     temperature:  matchTemp,
@@ -1112,7 +1052,7 @@ router.post("/matches/:id/forfeit", async (req, res) => {
 
 /** R-48: why a club without two contracted players cannot play. */
 const SQUAD_INCOMPLETE =
-  `Your club has fewer than ${MAX_STARTERS} contracted players able to play. Sign or renew players on the Contracts page.`;
+  `Your club has fewer than ${MAX_STARTERS} contracted players fit to play — injured players cannot be selected. Sign or renew players on the Contracts page.`;
 
 /**
  * Record a forfeit: a straight-sets loss with the standard loss-side team
@@ -1166,7 +1106,7 @@ async function recordForfeit(
   ]);
   const facilityLevels: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
 
-  await applyPostMatchEffects(team.id, match.weather ?? "sunny", facilityLevels, false, 0, 25);
+  await applyPostMatchEffects(team.id, [], match.weather ?? "sunny", facilityLevels, false, 0, 25);
 
   // R-53: the board counts the forfeit for its season review, and applies the
   // one mid-season sacking there is — abandonment: a club that has been unable
@@ -1203,7 +1143,34 @@ async function recordForfeit(
 router.patch("/matches/:id/lineup", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
-  const { playerIds } = req.body;
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  const [existing] = await db.select().from(matchesTable).where(eq(matchesTable.id, id));
+  if (!existing) { res.status(404).json({ error: "Match not found" }); return; }
+  if (existing.homeTeamId !== team.id && existing.awayTeamId !== team.id) {
+    res.status(403).json({ error: "This match does not belong to your team" }); return;
+  }
+  const playerIds = Array.isArray(req.body?.playerIds)
+    ? (req.body.playerIds as unknown[]).map(Number).filter(Number.isInteger)
+    : null;
+  if (!playerIds) { res.status(400).json({ error: "playerIds must be an array of player ids" }); return; }
+
+  // R-50: an injured player cannot be selected, and neither can anyone outside
+  // the club's active squad. This route used to store whatever it was sent.
+  const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
+  const refused = playerIds
+    .map((pid) => ({ pid, player: squad.find((p) => p.id === pid) }))
+    .filter(({ player }) => !player || !isAvailable(player));
+  if (refused.length > 0) {
+    const why = refused.map(({ pid, player }) => !player
+      ? `player ${pid} is not in your squad`
+      : player.isInjured || player.injuryStatus !== "Healthy"
+        ? `${player.name} is injured (${player.injuryStatus})`
+        : `${player.name} is not in the active squad`);
+    res.status(400).json({ error: `That lineup cannot be selected: ${why.join("; ")}.`, unavailable: refused.map((r) => r.pid) });
+    return;
+  }
+
   const [match] = await db.update(matchesTable).set({ lineup: playerIds })
     .where(eq(matchesTable.id, id)).returning();
   res.json(serializeMatch(match));

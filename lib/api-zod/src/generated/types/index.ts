@@ -53,6 +53,7 @@ export * from './dashboard';
 export * from './dashboardFinanceSummary';
 export * from './dashboardNextBye';
 export * from './dashboardNextMatch';
+export * from './dashboardNextMatchSelection';
 export * from './dashboardSeasonStanding';
 export * from './declinePoachingOffer200';
 export * from './deleteCareerSave200';

@@ -21,12 +21,16 @@ interface MatchActionButtonsProps {
   isForfeiting?: boolean;
 }
 
+/** R-50: an injured player cannot be selected (mirror of utils/condition.ts isAvailable). */
+export function isFitToPlay(p: any): boolean {
+  return !p.isInjured && (p.injuryStatus ?? "Healthy") === "Healthy";
+}
+
 function autoPickIds(players: any[], count: number): number[] {
-  return [...players]
+  // Injured players are left out entirely — they used to be sorted last and
+  // picked anyway whenever the squad was short.
+  return players.filter(isFitToPlay)
     .sort((a, b) => {
-      const ha = (a.injuryStatus === "Healthy" || !a.injuryStatus) ? 1 : 0;
-      const hb = (b.injuryStatus === "Healthy" || !b.injuryStatus) ? 1 : 0;
-      if (ha !== hb) return hb - ha;
       const ra = ((a.speed ?? 50) + (a.power ?? 50) + (a.defense ?? 50) + (a.serve ?? 50) + (a.block ?? 50)) / 5;
       const rb = ((b.speed ?? 50) + (b.power ?? 50) + (b.defense ?? 50) + (b.serve ?? 50) + (b.block ?? 50)) / 5;
       return rb - ra;
@@ -49,7 +53,7 @@ export function MatchActionButtons({
   const [showSimConfirm, setShowSimConfirm] = useState(false);
   const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
 
-  const enoughPlayers = activePlayers.length >= teamSize;
+  const enoughPlayers = activePlayers.filter(isFitToPlay).length >= teamSize;
   const busy = isSimulating || isForfeiting;
 
   function handleConfirmSim() {
