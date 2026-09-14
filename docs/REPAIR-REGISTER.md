@@ -1692,7 +1692,7 @@ end: **18/18**.
 **Rule:** edit anything containing backslash escapes with Write/Edit, never through a shell
 command, and run `node --check` on a harness file after touching it.
 
-### R-42 — CLOSED (14 Sep, PENDING-HASH): trophies are written at the season boundary
+### R-42 — CLOSED (14 Sep, 06488d3): trophies are written at the season boundary
 **Rob's brief (overnight batch item 2):** trophies written at season end — World Tour tier titles,
 World Finals placings, Olympics — into the trophies table, shown on the club page and the season
 review. Harness: a champion season produces exactly the right rows; a fresh career has none.
@@ -2853,7 +2853,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, PENDING-HASH | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
+| R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, 06488d3 | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
 | R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, 56c40ba | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |
 | R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
 | R-54 Tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier | 14 Sep, 8bc38c2 | world-tour-competitors 38/38 and byes 18/18 reconcile ungated points; career-difficulty 15/15 (both start at 0, access Bronze/Silver); full harness 24/24, rollover 78/78: every top-4 finish Gold, next-season access = tier reached 24/24 |
