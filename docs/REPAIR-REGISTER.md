@@ -2652,7 +2652,7 @@ starting budget on the dashboard.
 
 ## LOW
 
-### R-59 — CLOSED (14 Sep, PENDING-TESTS): condition.mjs makes its rest-day player fit first
+### R-59 — CLOSED (14 Sep, 92d928e): condition.mjs makes its rest-day player fit first
 **Fix:** section 5 sets C `Healthy` (not injured, 0 weeks) before setting her to 50 / 40, instead of
 assuming the matches before it left her unhurt. A's check already reads A's injury state first.
 
@@ -2672,7 +2672,7 @@ injured rate. Rerun standalone: 27/27 ("C 52% / fatigue 35"). The game's rule he
 **Fix direction:** make C explicitly healthy before the rest day, as the scene already reads A's
 injury state before judging A.
 
-### R-57 — CLOSED (14 Sep, PENDING-TESTS): board-review keeps the monthly clock's first start
+### R-57 — CLOSED (14 Sep, 92d928e): board-review keeps the monthly clock's first start
 **First attempt failed, and why:** reading `projected_on` at the draw (section 2) gave `null` — the
 board does not start the clock at the draw itself but the first time its daily pass runs after it
 ("clock started null, checked 2026-03-20").
@@ -2706,7 +2706,7 @@ trophies at the season boundary.
 **Fix direction:** read the clock start at the draw (section 2), before any match is played, and
 assert the first check's date is 30 or more days after it.
 
-### R-56 — CLOSED (14 Sep, PENDING-TESTS): the invariants economy probe plays a real career's draw
+### R-56 — CLOSED (14 Sep, 92d928e): the invariants economy probe plays a real career's draw
 **Rob's brief (overnight batch item 4):** rebuild the invariants probe on real drawn opponents.
 
 **Fix:** `harness/invariants.mjs` boots the real server on its temp copy of the starter database,
@@ -2753,7 +2753,7 @@ The opponent model was left alone.
 **Fix direction:** rebuild the probe's opponents on real drawn clubs, rated as the World Tour draw
 rates them (`sideRating` over each pool club's own players).
 
-### R-49 — CLOSED (14 Sep, PENDING-TESTS): the log is taken once the server says it is listening
+### R-49 — CLOSED (14 Sep, 92d928e): the log is taken once the server says it is listening
 **Fix:** `bootServer` no longer guesses when pino's worker thread has caught up ("the file has not
 grown for 600 ms"). It waits for the server's own `Server listening` line: `index.ts` runs every
 boot migration before `app.listen`, and pino keeps order, so once that line is in the file every
@@ -3003,10 +3003,10 @@ Original entry:
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
-| R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, PENDING-TESTS | migration-fixtures 62/62; six mid-migration kills all recovered |
-| R-56 invariants economy probe plays a real career's draw | 14 Sep, PENDING-TESTS | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |
-| R-59 condition.mjs makes its rest-day player fit before the rest day | 14 Sep, PENDING-TESTS | the R-43 full run's "C 51% / fatigue 37" was the injured rate (+1 / −3) after a random injury; fixed scene rerun below |
-| R-57 board-review keeps the monthly clock's first start | 14 Sep, PENDING-TESTS | board-review 58/58: clock 2026-02-18, first check 2026-03-20 (30 days) |
+| R-49 migration-fixtures takes the log once the server says "Server listening" | 14 Sep, 92d928e | migration-fixtures 62/62; six mid-migration kills all recovered |
+| R-56 invariants economy probe plays a real career's draw | 14 Sep, 92d928e | the sweep runs to the end (2 pass, 0 fail); I4 max deviation 8.5%; I1 still violated — a measurement |
+| R-59 condition.mjs makes its rest-day player fit before the rest day | 14 Sep, 92d928e | the R-43 full run's "C 51% / fatigue 37" was the injured rate (+1 / −3) after a random injury; fixed scene rerun below |
+| R-57 board-review keeps the monthly clock's first start | 14 Sep, 92d928e | board-review 58/58: clock 2026-02-18, first check 2026-03-20 (30 days) |
 | R-42 Trophies written at the season boundary (World Final placings, Silver/Gold tier seasons; no Olympic trophies — no real tournament) | 14 Sep, 06488d3 | trophies 10/10 (20/20 in the full run): fresh career has none; champion season → "World Champions 2026" + Gold tier, exactly; review and cabinet show the same rows; full harness 24/26 (R-57 harness flaw; R-23 suite launched with ELECTRON_RUN_AS_NODE, 7/7 standalone), rollover 78/78, 0/3 + 0/3 sacked |
 | R-50 Injuries and fitness decide who plays and how well (pair selection skips the injured; fitness 0.6-1.0 of stats; rest-day recovery; weekly injury healing) | 14 Sep, 56c40ba | condition 27/27 (5,000 matches per fitness: 66.0% / 36.3% / 14.9%, z = 52; injured starter absent from auto-selection, Unity and manual lineup; squadRating × 0.6 at fitness 0); full harness 25/25, rollover 78/78, 0/3 + 0/3 sacked |
 | R-55 Board expectation is a band relative to squad strength (established: top 4 met, 5th-8th a warning, 9th+ a strike; two strikes in a row sack) | 14 Sep, 51f83ab | board-review 58/58; full harness 24/24, rollover 78/78 with RollA established; arcs 0/3 + 0/3 sacked; 10+10 careers: established 1/10, underdog 0/10 — near-0% target NOT met, options recorded for Rob |
