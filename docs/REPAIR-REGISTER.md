@@ -1193,6 +1193,10 @@ itself ran entirely through the app's own boot code path, not a direct write.
 5. **A forfeit costs the same −5 as a lost match.** With the floor in point 1, a solvent club with no
    squad forfeits indefinitely with no consequence from the board.
 
+**Design proposed (14 Sep):** `docs/r53-design.md`. It covers expectations from squad strength and
+difficulty, patience, a season-end review, money as a modifier and not an immunity, and deleting
+the forced-sale label, with the six harness careers worked through. No code yet; awaiting Rob.
+
 **Not changed.** Rob: investigate before touching balance. Any fix is a design choice, for example:
 - confidence measured against expectations (difficulty, tier, ranking)
 - an end-of-season review
