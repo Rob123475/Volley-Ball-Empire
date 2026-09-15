@@ -17,6 +17,7 @@ estimated.
 | 3 | R-61 | `d5bbd96` | A real Olympic tournament in Olympic years (2028 for a 2026 career): the 12 qualified nations' real top-two pairs from any club, 4 groups of 3, quarter-finals, semi-finals, bronze and gold on the World Tour engine, 25 Nov (after round 70, before the World Finals); medals on the players' records, trophies for their club, Club News. The projected draw, the manager-picked squads with invented wildcards, `olympic_selections` and the Locations page are deleted | olympics-tournament 24/24; olympic-qualification 29/29; fake-content-removed 11/11 |
 | 4 | R-62 | `8eb6bde` | Every rollover that opens a season brings the player's club 3 youth players: the youth template card, 16–18, ratings from the shipped youth's distribution, real names of the club's country and region; Club News; a dry academy says it found no one. Players a career creates are owned by it and no longer leak into later careers | youth-intake 22/22 |
 | 5 | R-63 | `3bc6c70` | The academy holds 12: signing and the intake both stop there, and the Team page banner reads the same cap from the roster. Academy wages billed once, in the weekly wage run; the per-match charge deleted. A full academy costs $71,500 a season in wages (12 players, 52 weeks), plus 20% in staff costs on the wage bill | academy-cap-wages 17/17 |
+| 6 | R-64 | PENDING-R64 | Release build 0.9.0: the NSIS installer (336,203,636 bytes) and win-unpacked (557,170,430 bytes), installed and run from the install folder against the live save and on a first run | build chain 32/32; install proof in the register |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -165,28 +166,39 @@ replaced by check 3 above.)
 
 Honest, in the order it would have to happen. Nothing in this section was done in this batch.
 
-### Packaging
-- **Installer not rebuilt.** electron-builder 25 / Electron 32, NSIS, `oneClick: false`. The last
-  documented installer is 641.5 MB (22 Aug). Every change since — R-17 through R-62 — has only run
-  unpackaged. Follow `docs/packaging.md` in order: Unity `.br` compression, native `better-sqlite3`
-  rebuild **before** `pnpm run build`, Bitdefender exclusions for `C:\build\vbe` and the NSIS cache,
-  then `pnpm run electron:build`, then a silent install to a scratch directory and the verify steps.
-- **Not code-signed.** No certificate is configured; Windows SmartScreen will warn on install.
-- **Size.** ~640 MB, 98% of it one Unity asset file (`sharedassets0.assets`). The lever is the Unity
-  project's texture and audio import settings, not the build.
+### Packaging — done: 0.9.0 (R-64)
+- **Built and proven on a clean install.** `C:\build\vbe\Beach Volleyball Empire Setup 0.9.0.exe`
+  (336,203,636 bytes, sha256 `2c275612…`) for our testing, and `C:\build\vbe\win-unpacked`
+  (557,170,430 bytes, 952 files) for Steam's depot. Installed silently, launched from the install
+  folder against the live save (boot sync only, profiles listed, 3D Court rendered, WAL checkpointed
+  on quit) and on an empty user-data folder (fresh save from the starter DB, Select Manager with no
+  profiles). Details and hashes in the register, R-64.
+- **Not code-signed.** No certificate is configured; Windows SmartScreen warns on the installer. Steam
+  installs from the depot, so this matters for the NSIS copy, not the Steam build.
+- **Company name.** The exe says "GitHub, Inc." (Electron's default): `package.json` has no `author` or
+  `description`. Set both before the store build.
+- **Starter DB sidecars.** The server's reference-data check leaves an empty `-wal` and a `-shm` next to
+  the installed starter DB (R-64); the `.sqlite` itself is untouched. Harmless in a writable install
+  folder; worth a look before shipping into a Steam library folder.
+- **Size.** 320.6 MB installer / 531.4 MB unpacked; the Unity `.data` is most of it. The lever is the
+  Unity project's texture and audio import settings, not the build.
 - **Dev route shipped.** `/dev/generation-test` is still routed in the production frontend with a
   dead API behind it (R-10 audit finding 9).
 
-### Steam
-- **Nothing Steam exists in the repository**: no app id, no `steam_appid.txt`, no Steamworks SDK,
-  no SteamPipe app/depot build scripts, no store configuration.
-- **Upload.** SteamPipe (steamcmd with app and depot VDFs pointing at the packaged `win-unpacked`)
-  has to be set up from scratch in a Steamworks partner account.
-- **Auto-Cloud.** The whole save is one file: `%APPDATA%\Beach Volleyball Empire\volleyball-empire.sqlite`
-  (R-23). On a clean quit the WAL is checkpointed and the database closed (R-31). Configure Auto-Cloud
-  on that one file and **exclude** `-wal` / `-shm`. Not verified: after a crash the last writes sit in
-  `-wal`, and Steam would sync an older `.sqlite`.
-- **Review copy.** Keys come from Steamworks once the app exists there.
+### Steam — still between this build and the upload (nothing Steam exists in the repository)
+1. **Steamworks depot configuration.** App and Windows depot in the partner site; the depot's content
+   root is `win-unpacked`; launch option `Beach Volleyball Empire.exe`. No `steam_appid.txt` or
+   Steamworks SDK is needed for a plain depot, and none is in the repo.
+2. **Auto-Cloud.** Root **WinAppDataRoaming**, subdirectory **"Beach Volleyball Empire"**, pattern
+   **`*.sqlite`**. The whole save is `volleyball-empire.sqlite` (R-23); `*.sqlite` does not match the
+   `-wal`/`-shm` sidecars, and R-64 proved a normal quit checkpoints the WAL and leaves neither behind.
+   Not covered: after a crash the latest writes sit in `-wal`, and Auto-Cloud would sync the older
+   `.sqlite`.
+3. **Build upload.** SteamPipe: steamcmd with an app build VDF and a depot build VDF pointing at
+   `C:\build\vbe\win-unpacked`, uploaded to a branch, then set live for review.
+4. **Store assets.** Capsule images (header, small, main, vertical, library hero/logo), screenshots,
+   trailer, short and long descriptions, tags, system requirements, content survey.
+5. **Review copy.** Keys come from Steamworks once the app exists there.
 
 ### Known gaps in the game
 - **Academy graduates fill the senior squad** (found in R-63, not changed): a promoted graduate stays

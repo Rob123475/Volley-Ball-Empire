@@ -2661,6 +2661,86 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-64 — CLOSED (15 Sep, PENDING-R64): release build 0.9.0, proven on a clean install
+**Brief (15 Sep):** version 0.9.0; confirm productName, appId, icon, the Unity build and a clean starter
+DB; build the NSIS installer and `win-unpacked`; install it, launch it against the live save and on a
+first run, quit it normally; register; update the release status. Steamworks not touched.
+`docs/toolchain-gotchas.md` followed throughout (`MSYS_NO_PATHCONV=1`; success markers read, never
+exit codes).
+
+**1. Configuration**
+- `package.json` version 1.0.0 → **0.9.0** (electron-builder reads the app version there; the `build`
+  block has none; no code reads a version). productName "Beach Volleyball Empire" and appId
+  `com.volleyballempire.desktop` unchanged from HEAD. `win.icon` =
+  `artifacts/beach-volleyball/public/images/brand/bve-icon-256.ico`, a real ICO (16–256 px).
+- Unity build matches 417cdcd: `.data` 267,141,147 bytes, sha256 `9518551a…`, and `.wasm` 51,445,891,
+  `fa440bfd…` — both equal 417cdcd's LFS objects; `.framework.js` 467,435 and `.loader.js` 26,982 equal
+  its tree; no commit since touches the folder. `.br` siblings (215,496,503 / 9,004,850) newer than
+  their sources.
+- Starter DB `lib/db/volleyball-empire.sqlite`: 2,826,240 bytes, sha256 `80b51d52…`, 50 tables,
+  **0 profiles (users), 0 careers**, 0 teams, 0 sessions. It had a 0-byte `-wal` and a `-shm` beside it;
+  a checkpoint and clean close removed both without changing the file (hash identical). The build
+  chain's harness recreated them; cleared the same way immediately before packaging.
+
+**2. Build**
+- `verify-native-abi.cjs` OK before the build, after it (the api-server build re-vendors
+  better-sqlite3) and in electron-builder's `beforePack`, with `verify-unity-brotli` OK.
+- `pnpm run build`: `BUILD OK`, check-starter-db OK (50 tables), sync-public OK (563 files),
+  `ALL HARNESSES PASSED` (32 suites), 0 FAIL lines. No leftover Electron before packaging.
+- `pnpm run electron:build` (electron-builder 25.1.8, Electron 32.3.3), unsigned (no certificate):
+  - **NSIS installer** `C:\build\vbe\Beach Volleyball Empire Setup 0.9.0.exe` — **336,203,636 bytes
+    (320.6 MB)**, sha256 `2c275612cad98beea778289b84ba0c42e3f20c62bce26a7d906260ffbd7ba65b`;
+    `.blockmap` 349,940.
+  - **win-unpacked** `C:\build\vbe\win-unpacked` — **557,170,430 bytes (531.4 MB), 952 files**;
+    `Beach Volleyball Empire.exe` 186,372,608 bytes, sha256
+    `76cd3574b0c54a9775a325ae5b8f9b6001b2ebaab7426edb83796521c7525b2e`, ProductVersion 0.9.0.
+    `resources/`: public 253.2 MB (Unity `.br` + `.js` only), server 23.4 MB (no `public` copy),
+    starter-db 2,826,240 bytes, sha256 `80b51d52…` (the repo's).
+
+**3. Clean install, launched against the live save**
+- Live save backed up by copy first: 2,084,864 bytes, sha256 `5ebae14d…`; profiles mary, R04 Check,
+  R24 Check, R25 Check; 5 careers; 15 sessions.
+- Silent install `/S /D=C:\vbe-test-install-0.9.0`: exit 0 in 23.8 s, 557,407,767 bytes. The machine's
+  previous test install (uninstall entry "Volley-Ball-Empire 1.0.0", same appId) was uninstalled by the
+  installer; `C:\vbe-test-install\Volley-Ball-Empire` is left, empty.
+- Launched from the install folder (not `electron:dev`), console captured to a log. The server child
+  ran `C:\vbe-test-install-0.9.0\resources\server\dist\index.mjs` and owned port 4173; `PUBLIC_DIR` the
+  install's `resources\public`; the renderer's user-data dir was the live save's folder; bundle
+  `index-a9VRxD6b.js`. **Boot sync only:** created `olympic_matches`, `olympic_medals`,
+  `olympic_tournaments`, `youth_intakes`, column `players.origin_career_save_id`, 2 indexes; dropped the
+  removed content (the R-43 tables, `olympic_selections`, `manager_season_summaries.youth_result`);
+  reference data up to date.
+- Profile picker: `GET /api/profiles` and the Select Manager screen list mary, R04 Check, R24 Check,
+  R25 Check. The game window restored its signed-in session and opened on the title screen
+  (Continue).
+- Window title "Beach Volleyball Empire"; the title-bar icon and the exe's icon are the BVE logo; the
+  install's window-icon file is byte-identical to the repo's.
+- **3D Court:** the headless render proof against the installed server
+  (`unity-build/index.html?careerSaveId=9`): 4 of 4 players applied, match started after 16.2 s,
+  0 errors, the court rendered.
+- **Quit through the window's close (WM_CLOSE):** the server logged "WAL checkpointed and database
+  closed for shutdown", the main process "[shutdown] server child exited, quitting"; every process
+  exited and port 4173 was released; **no `-wal` or `-shm` left**. Against the backup, 46 tables and
+  5,627 rows compared: **no data changed** — the schema changes above are the only difference.
+
+**4. First run**
+- Launched with `--user-data-dir` pointing at an empty temp folder: the save was created there from
+  the starter DB (2,826,240 bytes; 0 profiles, 0 careers, 0 sessions, 276 players); schema and
+  reference data already up to date; `/api/auth/user` 401 → **Select Manager: "No profiles yet —
+  create one below"** (a fresh install goes straight there; the title screen with Continue is for a
+  signed-in session). The live save's hash did not change. Closed the same way: WAL checkpointed, no
+  sidecars.
+
+**Found, not changed:**
+- The server's reference-data check opens the INSTALLED starter DB and leaves a 0-byte `-wal` and a
+  `-shm` beside it in `resources\starter-db` (the `.sqlite` is unchanged, sha256 `80b51d52…`); the
+  first run then copied those sidecars into the new save's folder. Harmless here — the folder is
+  writable and the WAL is empty — but files appear in the install folder, and a read-only install
+  location is untested.
+- The exe's CompanyName reads "GitHub, Inc." (Electron's default): `package.json` has no `author` or
+  `description`.
+- Unsigned: Windows SmartScreen will warn on the NSIS installer.
+
 ### R-63 — CLOSED (15 Sep, 3bc6c70): the academy holds 12; academy wages billed once
 **Rob's decisions (15 Sep):** academy cap 12. The intake takes up to 3 per season but never past the
 cap; the Team page banner and the signing rule both read the same cap constant — no more "up to 6"
@@ -3270,6 +3350,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-64 Release build 0.9.0: NSIS installer (336,203,636 bytes, sha256 2c275612…) and win-unpacked (557,170,430 bytes) | 15 Sep, PENDING-R64 | full build chain 32/32 and native ABI verified; silent install launched against the live save (boot sync only, 46 tables / 5,627 rows unchanged, profiles listed, 3D Court rendered, WAL checkpointed on quit) and on an empty user-data folder (fresh starter save, no profiles) |
 | R-63 The academy holds 12 (one constant for the signing rule, the scouting route, the intake and the Team page banner); academy wages billed once, in the weekly wage run | 15 Sep, 3bc6c70 | academy-cap-wages 17/17: 13th signing refused at 12/12; an academy of 11 takes 1 at the boundary, of 12 takes none, both in Club News; 52 salary weeks billed once at the expected amount; 56 matches wrote no wage row. Full academy $71,500 a season (+20% staff) |
 | R-62 Academy intake: 3 youth players for the player's club at every rollover that opens a season (template card, 16–18, shipped youth's rating distribution, real names of the club's region); Club News; created players owned by their career and never seeded into another | 15 Sep, 8eb6bde | youth-intake 22/22: 4 intakes of 3 in a five-season career, every card on disk, names new and real, never in another career, a dry academy creates no one and says so; 194 names left in South America (64 seasons) |
 | R-61 A real Olympic tournament in Olympic years: 12 qualified nations, their real top-two pairs, 4 groups of 3 then quarter-finals, semi-finals, bronze and gold on the World Tour engine; medals, trophies, Club News | 15 Sep, d5bbd96 | olympics-tournament 24/24: 2028 only; 12 nations; 12 group + 8 knockout real scores; bracket follows tables; club pair won gold with medals and trophies; news dated 25 Nov. Ireland and Portugal cannot field a pair (1 each) |
