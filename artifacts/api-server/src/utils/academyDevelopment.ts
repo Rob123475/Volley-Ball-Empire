@@ -14,22 +14,19 @@
  *   - Focus development points are unchanged: 8-12 a week.
  *   - Morale no longer moves. It only ever moved on the invented result; a
  *     Leadership focus still adds its 2.
+ *
+ * R-63: the contract tick no longer charges wages. An academy player's wage was
+ * billed here after every match AND in the weekly wage run; it is now billed
+ * once, in the weekly wage run (routes/calendar.ts, utils/academy.ts).
  */
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
 
-const YOUTH_WEEKLY_WAGE_MAP: Record<string, number> = {
-  Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
-};
-
-export async function tickAcademyContracts(teamId: number): Promise<{ totalWeeklyWages: number; playerCount: number }> {
+/** Take a week off each academy contract. Charges nothing. */
+export async function tickAcademyContracts(teamId: number): Promise<{ playerCount: number }> {
   const careerSaveId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
   const youthPlayers = (await loadPlayers(careerSaveId, { teamId }))
     .filter((p) => p.age >= 14 && p.age <= 18);
-
-  if (youthPlayers.length === 0) return { totalWeeklyWages: 0, playerCount: 0 };
-
-  let totalWeeklyWages = 0;
 
   for (const player of youthPlayers) {
     const currentYears = player.academyContractYears != null
@@ -41,11 +38,9 @@ export async function tickAcademyContracts(teamId: number): Promise<{ totalWeekl
     await updatePlayerState(careerSaveId, player.id, {
       academyContractYears: Number(newYears.toFixed(2)),
     });
-
-    totalWeeklyWages += YOUTH_WEEKLY_WAGE_MAP[player.potential] ?? 75;
   }
 
-  return { totalWeeklyWages, playerCount: youthPlayers.length };
+  return { playerCount: youthPlayers.length };
 }
 
 const FOCUS_STAT_MAP: Record<string, StatKey> = {

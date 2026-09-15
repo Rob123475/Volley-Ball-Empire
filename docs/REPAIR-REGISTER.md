@@ -2661,6 +2661,64 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-63 — CLOSED (15 Sep, PENDING-R63): the academy holds 12; academy wages billed once
+**Rob's decisions (15 Sep):** academy cap 12. The intake takes up to 3 per season but never past the
+cap; the Team page banner and the signing rule both read the same cap constant — no more "up to 6"
+text with a different rule underneath. Academy wages billed ONCE, in the weekly wage run; the
+per-match charge removed. Report what a full academy costs per season.
+
+**Before:** three academy numbers — `squadRules.MAX_YOUTH = 1` for POST /contracts, a literal 6 in the
+scouting sign route, a literal 6 on the Team page — and the R-62 intake held to none of them. Academy
+players counted by age (14–18) in two routes and by player type in the intake. Wages: the academy's
+weekly wage table was written out in four files; every simulated match charged each academy player
+her weekly wage (`Youth Academy wages` row), and the weekly wage run charged her stored salary again
+(a weekly figure read as monthly).
+
+**Fix:**
+- `squadRules.ACADEMY_CAP = 12` is the only academy number. The signing rule (POST /contracts), the
+  scouting sign route (now asks the same `refusalReason`), the season intake and `GET /team/roster`
+  (new `academy: { size, cap }`) read it; the Team page banner, dots and subtitle read the roster's
+  cap and size and hold no number of their own. An academy player is a youth player not yet promoted
+  (`isYouthPlayer`) everywhere — no age guess.
+- The intake takes the places left under the cap, up to 3, counted after the boundary's promotions.
+  `youth_intakes` gains `outcome` (joined / full / no_names) and `academy_size`. Club News: "1 youth
+  player joins … · The academy is now full (12/12)", or "The <club> academy is full (12/12): no
+  intake this year".
+- `utils/academy.ts`: the one academy wage table. The weekly wage run bills seniors' monthly salaries
+  / (52/12) plus each academy player's weekly academy wage. The match route's charge is deleted; the
+  contract tick only takes a week off the contract. New academy players (intake, scouting) store the
+  wage's monthly figure as salary, so a graduate is paid the same once promoted. The Finances page's
+  academy wage bill reads the same table.
+- Rules page: the intake never passes the academy's limit shown on the Team page; academy wages are
+  paid weekly with the squad's.
+
+**Report — what a full academy costs:** the harness's academy of 12 cost **$1,375 a week, billed in
+52 salary weeks: $71,500 a season** in academy wages. At the shipped youth's potential mix ($106.94 a
+player a week) a full academy is $66,733 a season; all Average $46,800, all Elite $93,600. The weekly
+run also charges staff at 20% of the whole wage bill (`weeklyStaff`, unchanged), so a full academy
+adds a further 20% there — $85,800 in all for the harness's academy.
+
+**Found, not changed (Rob to decide):** a promoted academy graduate stays at the club in the reserve
+role and counts as a senior, so by season 3 or 4 the intake's graduates fill the three-senior signing
+limit (`MAX_SENIORS`) and the manager cannot sign a senior without releasing one. Graduates are never
+released or offered a senior contract. This predates R-63 (R-62's intake plus the existing promotion
+rule).
+
+Saves from before this build: scouted academy players stored their weekly wage as salary; while in
+the academy they are now billed the academy wage, but once promoted they are billed that stored figure
+as a monthly salary (a quarter of the wage). Not repaired.
+
+**Harness (new):** `harness/academy-cap-wages.mjs`, 17/17 — ACADEMY_CAP = 12 is the only academy
+number (signing rule, scouting route, intake, roster; no `MAX_YOUTH`, no literal 6); the Team page
+reads the roster's cap; the wage table exists once; the match route and contract tick charge nothing.
+A new roster reports {0, 12}; 12 youth sign, the 13th is refused "Academy is full (12/12)"; releasing
+one leaves 11. A season with 11 in the academy: all 52 salary weeks billed once, each exactly seniors'
+monthly / (52/12) + the academy's weekly wages ($1,275); 56 matches wrote no wage row and moved the
+budget only by their own ledger rows. At the boundary the academy of 11 took exactly 1 (to 12), Club
+News "1 youth player joins … · The academy is now full (12/12)"; a second career with 12 took no one,
+Club News "… academy is full (12/12): no intake this year", and its season billed once a week too.
+`youth-intake` still passes, 22/22. Full harness 32/32 (launched without `ELECTRON_RUN_AS_NODE`).
+
 ### R-62 — CLOSED (15 Sep, 8eb6bde): youth intake every season
 **Rob's brief:** every season rollover creates a new academy intake; ages 16–18; ratings drawn from
 the distribution the existing youth were seeded with; Club News reports it; never a player without an
@@ -3212,6 +3270,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-63 The academy holds 12 (one constant for the signing rule, the scouting route, the intake and the Team page banner); academy wages billed once, in the weekly wage run | 15 Sep, PENDING-R63 | academy-cap-wages 17/17: 13th signing refused at 12/12; an academy of 11 takes 1 at the boundary, of 12 takes none, both in Club News; 52 salary weeks billed once at the expected amount; 56 matches wrote no wage row. Full academy $71,500 a season (+20% staff) |
 | R-62 Academy intake: 3 youth players for the player's club at every rollover that opens a season (template card, 16–18, shipped youth's rating distribution, real names of the club's region); Club News; created players owned by their career and never seeded into another | 15 Sep, 8eb6bde | youth-intake 22/22: 4 intakes of 3 in a five-season career, every card on disk, names new and real, never in another career, a dry academy creates no one and says so; 194 names left in South America (64 seasons) |
 | R-61 A real Olympic tournament in Olympic years: 12 qualified nations, their real top-two pairs, 4 groups of 3 then quarter-finals, semi-finals, bronze and gold on the World Tour engine; medals, trophies, Club News | 15 Sep, d5bbd96 | olympics-tournament 24/24: 2028 only; 12 nations; 12 group + 8 knockout real scores; bracket follows tables; club pair won gold with medals and trophies; news dated 25 Nov. Ireland and Portugal cannot field a pair (1 each) |
 | R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, 3267c4b | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |

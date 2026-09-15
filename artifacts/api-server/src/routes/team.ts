@@ -6,6 +6,7 @@ import { teamsTable, playersTable, staffTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import type { Team } from "@workspace/db";
+import { ACADEMY_CAP, academySize } from "../utils/academy.js";
 
 const router = Router();
 
@@ -33,6 +34,9 @@ const buildRosterResponse = (team: any, players: any[], staff: any[]) => {
     activePlayers: [...starters, ...interchanges],
     benchPlayers: reserves,
     staff: staff.map(s => ({ ...s, salary: Number(s.salary) })),
+    // R-63: the academy's size and cap — the Team page banner reads the same cap
+    // the signing rule and the season intake enforce.
+    academy: { size: academySize(players), cap: ACADEMY_CAP },
   };
 };
 

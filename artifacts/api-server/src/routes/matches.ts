@@ -848,22 +848,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
       .where(eq(wellbeingEffectsTable.id, effect.id));
   }
 
-  // Tick academy contracts (decrement years, charge weekly wages)
-  const academyWages = await tickAcademyContracts(team.id);
-  if (academyWages.totalWeeklyWages > 0) {
-    const wageDate = await getGameDate(team.id);
-    await db.update(teamsTable)
-      .set({ budget: sql`${teamsTable.budget} - ${academyWages.totalWeeklyWages}` })
-      .where(eq(teamsTable.id, team.id));
-    await db.insert(financeTransactionsTable).values({
-      teamId:      team.id,
-      type:        "expense",
-      amount:      academyWages.totalWeeklyWages,
-      description: `Youth Academy wages — ${academyWages.playerCount} player${academyWages.playerCount !== 1 ? "s" : ""}`,
-      category:    "player_salary",
-      date:        wageDate,
-    });
-  }
+  // Take a week off each academy contract. R-63: an academy player's wage is
+  // billed once, in the weekly wage run (routes/calendar.ts); it used to be
+  // charged again here after every match.
+  await tickAcademyContracts(team.id);
 
   // Update career stats and check achievements (non-critical — never breaks match sim)
   try {

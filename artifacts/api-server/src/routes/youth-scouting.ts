@@ -14,6 +14,8 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
 import { loadPlayers, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import { refusalReason } from "../utils/squadRules.js";
+import { academySize, academyMonthlySalary } from "../utils/academy.js";
 import type { Team, YouthProspect } from "@workspace/db";
 import {
   CONTINENT_KEYS, continentKeyFrom, continentLabel, isContinentKey, type ContinentKey,
@@ -215,13 +217,15 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     return;
   }
 
-  // Youth Academy capacity check (max 6 players age 14–18)
-  const youthPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
-    .filter((p) => p.age >= 14 && p.age <= 18);
-  if (youthPlayers.length >= 6) {
-    res.status(422).json({
-      error: "Youth Academy is full (6/6). Release a youth player before signing a new one.",
-    });
+  // R-63: the academy's limit is ACADEMY_CAP, asked of the same signing rule
+  // POST /contracts uses and counted the way the intake counts it.
+  const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
+  const academyFull = refusalReason(
+    { starters: 0, interchange: 0, seniors: 0, youth: academySize(squad) },
+    { isYouth: true, squadRole: "reserve" },
+  );
+  if (academyFull) {
+    res.status(422).json({ error: academyFull });
     return;
   }
 
@@ -237,11 +241,9 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   // Position: Setters favour serve/defense; Spikers favour power/speed/block
   const position = ["Serve", "Defense"].includes(prospect.speciality) ? "setter" : "spiker";
 
-  // Youth salary: based on potential stars per academy contract rules
-  const YOUTH_WEEKLY_WAGE: Record<string, number> = {
-    Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
-  };
-  const salary = YOUTH_WEEKLY_WAGE[prospect.potentialStars] ?? 75;
+  // R-63: the academy wage for her potential (utils/academy.ts), stored as its
+  // monthly figure and billed once a week in the weekly wage run.
+  const salary = academyMonthlySalary(prospect.potentialStars);
 
   const today = new Date().toISOString().split("T")[0]!;
   const contractEnd = new Date();

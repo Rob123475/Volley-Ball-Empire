@@ -251,10 +251,11 @@ export default function TeamRoster() {
     })
     .slice(0, 5);
 
-  const YOUTH_MAX    = 6;
-  const youthPlayers = reserves.filter((p: any) => p.age >= 14 && p.age <= 18);
-  const youthCount   = youthPlayers.length;
-  const youthFull    = youthCount >= YOUTH_MAX;
+  // R-63: the academy's size and cap come from the server — the same cap the
+  // signing rule and the season intake enforce. No number is written here.
+  const academyCap   = roster?.academy?.cap ?? 0;
+  const youthCount   = roster?.academy?.size ?? 0;
+  const youthFull    = academyCap > 0 && youthCount >= academyCap;
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
 
@@ -1191,7 +1192,7 @@ export default function TeamRoster() {
       <section className="space-y-4 pb-8">
         <SectionHeader
           title="Youths"
-          subtitle="All remaining signed players. Youth Academy holds up to 6 players aged 14–18."
+          subtitle={`All remaining signed players. The Youth Academy holds up to ${academyCap} players.`}
           icon={Shield}
           count={reserves.length}
           role="reserve"
@@ -1209,10 +1210,10 @@ export default function TeamRoster() {
               Youth Academy Capacity:
             </span>
             <span className={cn("text-sm font-black tabular-nums", youthFull ? "text-red-600" : "text-yellow-700 dark:text-yellow-400")}>
-              {youthCount} / {YOUTH_MAX}
+              {youthCount} / {academyCap}
             </span>
             <div className="flex gap-0.5 ml-1">
-              {Array.from({ length: YOUTH_MAX }).map((_, i) => (
+              {Array.from({ length: academyCap }).map((_, i) => (
                 <div
                   key={i}
                   className={cn(

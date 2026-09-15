@@ -8,9 +8,12 @@
 import type { Player } from './player';
 import type { StaffMember } from './staffMember';
 import type { Team } from './team';
+import type { TeamRosterAcademy } from './teamRosterAcademy';
 
 export interface TeamRoster {
   team: Team;
+  /** R-63: academy players at the club (youth, not promoted) and the cap the signing rule and the season intake enforce. */
+  academy: TeamRosterAcademy;
   starters: Player[];
   interchanges: Player[];
   reserves: Player[];

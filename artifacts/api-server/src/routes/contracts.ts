@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { refusalReason } from "../utils/squadRules.js";
+import { isYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
@@ -56,7 +57,9 @@ router.post("/contracts", async (req, res) => {
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
   if (!player) { res.status(404).json({ error: "Player not found." }); return; }
-  const isYouth = player.age >= 14 && player.age <= 18;
+  // R-63: an academy player is a youth player not yet promoted — the same test
+  // the intake and the Team page use.
+  const isYouth = isYouthPlayer(player);
 
   // Resolve squad role: validate and apply age guards
   const validRoles = ["starter", "interchange", "reserve"] as const;
@@ -77,13 +80,15 @@ router.post("/contracts", async (req, res) => {
   }
 
   // ── Squad size ──────────────────────────────────────────────────────────
-  // Two on the sand, one interchange, one in the academy. The limits live in
-  // utils/squadRules.ts so the numbers are stated once; this route only counts
-  // what is already signed and asks whether one more is allowed.
+  // Two on the sand, one interchange, and an academy of ACADEMY_CAP. The limits
+  // live in utils/squadRules.ts so the numbers are stated once; this route only
+  // counts what is already signed and asks whether one more is allowed. R-63:
+  // academy players are counted as the intake and the Team page count them —
+  // youth players not yet promoted — not by an age guess.
   {
     const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-    const youthNow = squad.filter((p) => p.age >= 14 && p.age <= 18);
-    const seniorNow = squad.filter((p) => !(p.age >= 14 && p.age <= 18));
+    const youthNow = squad.filter(isYouthPlayer);
+    const seniorNow = squad.filter((p) => !isYouthPlayer(p));
     const refusal = refusalReason(
       {
         starters:    seniorNow.filter((p) => p.squadRole === "starter").length,

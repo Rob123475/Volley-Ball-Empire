@@ -25,6 +25,7 @@ import { requireCareerSaveId } from "../lib/playerDto.js";
 import { worldFinalsSummary } from "../utils/worldTour.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { olympicTournament, olympicYearsPlayed } from "../utils/olympics.js";
+import { ACADEMY_CAP } from "../utils/academy.js";
 
 const router = Router();
 
@@ -154,12 +155,19 @@ router.get("/news", async (req, res) => {
       ? await db.select({ id: playersTable.id, name: playersTable.name, nationality: playersTable.nationality, baseAge: playersTable.baseAge })
           .from(playersTable).where(inArray(playersTable.id, intake.playerIds))
       : [];
+    // R-63: an intake stops at the academy's cap, and says so.
+    const nowFull = joined.length > 0 && intake.academySize >= ACADEMY_CAP;
     items.push({
       id: `academy-${intake.seasonYear}`, type: "academy", isUserTeam: true, date: intake.intakeOn,
       headline: joined.length > 0
-        ? `${joined.length} youth player${joined.length === 1 ? "" : "s"} join the ${team.name} academy`
-        : `The ${team.name} academy found no one this year`,
-      detail: joined.map((p) => `${p.name} (${p.nationality}, ${p.baseAge})`).join(" · "),
+        ? `${joined.length} youth player${joined.length === 1 ? " joins" : "s join"} the ${team.name} academy`
+        : intake.outcome === "full"
+          ? `The ${team.name} academy is full (${intake.academySize}/${ACADEMY_CAP}): no intake this year`
+          : `The ${team.name} academy found no one this year`,
+      detail: [
+        ...joined.map((p) => `${p.name} (${p.nationality}, ${p.baseAge})`),
+        ...(nowFull ? [`The academy is now full (${intake.academySize}/${ACADEMY_CAP})`] : []),
+      ].join(" · "),
     });
   }
 

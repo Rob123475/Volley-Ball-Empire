@@ -677,6 +677,14 @@ export interface TeamUpdate {
   trainingPhilosophy?: TeamUpdateTrainingPhilosophy;
 }
 
+/**
+ * R-63: academy players at the club (youth, not promoted) and the cap the signing rule and the season intake enforce.
+ */
+export type TeamRosterAcademy = {
+  size: number;
+  cap: number;
+};
+
 export type StaffMemberRole = typeof StaffMemberRole[keyof typeof StaffMemberRole];
 
 
@@ -758,6 +766,8 @@ export interface StaffMember {
 
 export interface TeamRoster {
   team: Team;
+  /** R-63: academy players at the club (youth, not promoted) and the cap the signing rule and the season intake enforce. */
+  academy: TeamRosterAcademy;
   starters: Player[];
   interchanges: Player[];
   reserves: Player[];

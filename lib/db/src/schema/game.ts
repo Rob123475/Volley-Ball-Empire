@@ -697,6 +697,11 @@ export const youthIntakesTable = sqliteTable("youth_intakes", {
   seasonYear:   integer("season_year").notNull(),
   intakeOn:     text("intake_on").notNull(),
   playerIds:    text("player_ids", { mode: "json" }).$type<number[]>().notNull(),
+  // R-63: "joined" (someone came), "full" (the academy was at its cap) or
+  // "no_names" (no name left in the club's region).
+  outcome:      text("outcome").notNull().default("joined"),
+  // R-63: the academy's size once the intake had joined.
+  academySize:  integer("academy_size").notNull().default(0),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
   uniqueIndex("youth_intakes_career_season").on(t.careerSaveId, t.seasonYear),

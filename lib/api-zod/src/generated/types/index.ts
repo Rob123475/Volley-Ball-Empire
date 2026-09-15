@@ -175,6 +175,7 @@ export * from './startYouthScoutingInput';
 export * from './team';
 export * from './teamInput';
 export * from './teamRoster';
+export * from './teamRosterAcademy';
 export * from './teamStrength';
 export * from './teamStrengthPositions';
 export * from './teamTrainingInput';

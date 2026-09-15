@@ -115,7 +115,8 @@ const COMP_TIERS = [
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/25",
     points: [
-      "Every new season three youth players aged 16 to 18 join your club's academy",
+      "Every new season up to three youth players aged 16 to 18 join your club's academy, never past the academy's limit shown on the Team page",
+      "An academy player is paid a weekly academy wage set by her potential, once a week with the rest of the squad's wages",
       "About half come from your club's country, the rest from the other nations of its region",
       "Their ratings are drawn from the same spread as the game's other youth players",
       "An academy player becomes a senior player at the season change when she reaches 19",

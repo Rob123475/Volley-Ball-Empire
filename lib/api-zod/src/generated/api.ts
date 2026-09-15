@@ -2919,6 +2919,10 @@ export const GetTeamRosterResponse = zod.object({
   "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
+  "academy": zod.object({
+  "size": zod.number(),
+  "cap": zod.number()
+}).describe('R-63: academy players at the club (youth, not promoted) and the cap the signing rule and the season intake enforce.'),
   "starters": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -4246,6 +4250,10 @@ export const SwapTeamPlayerResponse = zod.object({
   "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
+  "academy": zod.object({
+  "size": zod.number(),
+  "cap": zod.number()
+}).describe('R-63: academy players at the club (youth, not promoted) and the cap the signing rule and the season intake enforce.'),
   "starters": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -5576,6 +5584,10 @@ export const SetPlayerRoleResponse = zod.object({
   "winStreak": zod.number().describe('Current consecutive-win streak'),
   "createdAt": zod.string()
 }),
+  "academy": zod.object({
+  "size": zod.number(),
+  "cap": zod.number()
+}).describe('R-63: academy players at the club (youth, not promoted) and the cap the signing rule and the season intake enforce.'),
   "starters": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),

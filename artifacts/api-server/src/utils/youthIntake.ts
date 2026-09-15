@@ -4,7 +4,9 @@
  * Rob's decisions (15 Sep):
  *   who        the player's club only; the AI clubs stay fixed pairs this release
  *              (AI squad turnover is V2, docs/triage.md)
- *   how many   3 per club per intake
+ *   how many   3 per club per intake — R-63: never past the academy's cap
+ *              (ACADEMY_CAP, 12). An intake takes the places left, up to 3; an
+ *              academy already full takes no one and says so
  *   when       every rollover that opens a new season — so a five-season career has
  *              four intakes, at the start of seasons 2 to 5
  *   image      the same blank youth template card as the 72 shipped youth; the 89
@@ -21,15 +23,19 @@
  *              athlete already has — nothing is invented from outside the game
  *   joins      the club's academy: reserve, not active, an academy contract
  *              (managed by the academy, never renewed or expired as a senior
- *              contract), the academy's weekly wage for their potential
- *   news       one youth_intakes row per intake; Club News reports it, and an
- *              intake that could not name anyone says the academy found no one
+ *              contract). R-63: paid the academy's weekly wage for her potential,
+ *              billed once in the weekly wage run; the stored salary is its
+ *              monthly figure, so she is paid the same once promoted
+ *   news       one youth_intakes row per intake; Club News reports it — who joined,
+ *              that the academy is now full, that it was full, or that it found
+ *              no one
  *
  * Every athlete it creates is owned by this career (players.origin_career_save_id),
  * so it never appears in another save.
  */
 import {
   playersTable,
+  careerPlayerStateTable,
   continentalPoolPlayersTable,
   teamsTable,
   locationsTable,
@@ -39,9 +45,10 @@ import {
   nationName,
   type ContinentKey,
 } from "@workspace/db";
-import { eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import type { CareerStateTx } from "../lib/playerDto.js";
 import { generateDevelopment } from "./player-development.js";
+import { ACADEMY_CAP, academyMonthlySalary } from "./academy.js";
 
 export const INTAKE_SIZE = 3;
 export const INTAKE_AGE_MIN = 16;
@@ -68,11 +75,6 @@ export const SEEDED_YOUTH_STATS = {
 /** How many of the 72 hold each position and each potential. */
 export const SEEDED_YOUTH_POSITIONS: Record<string, number> = { blocker: 27, defender: 23, all_rounder: 22 };
 export const SEEDED_YOUTH_POTENTIAL: Record<string, number> = { High: 47, Elite: 15, Average: 10 };
-
-/** The academy's weekly wage by potential — the same table utils/academyDevelopment.ts bills. */
-const YOUTH_WEEKLY_WAGE: Record<string, number> = {
-  Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
-};
 
 /** Half of each intake comes from the club's own country. */
 const HOME_SHARE = 0.5;
@@ -147,12 +149,34 @@ export function intakeNamePoolTx(tx: Tx, nations: readonly string[]): Map<string
   return result;
 }
 
+/** R-63: the academy's size — youth players at the club this career has not promoted. */
+export function academySizeTx(tx: Tx, careerSaveId: number, teamId: number): number {
+  const [row] = tx.select({ n: sql<number>`COUNT(*)` })
+    .from(careerPlayerStateTable)
+    .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+    .where(and(
+      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+      eq(careerPlayerStateTable.teamId, teamId),
+      eq(careerPlayerStateTable.isRetired, false),
+      eq(careerPlayerStateTable.isPromoted, false),
+      eq(playersTable.playerType, "youth"),
+    ))
+    .all();
+  return Number(row?.n ?? 0);
+}
+
 export type IntakePlayer = { id: number; name: string; nationality: string; age: number; position: string; potential: string };
-export type IntakeResult = { seasonYear: number; intakeOn: string; players: IntakePlayer[] };
+/** joined: someone came; full: the academy was at its cap; no_names: no name left in the region. */
+export type IntakeOutcome = "joined" | "full" | "no_names";
+export type IntakeResult = {
+  seasonYear: number; intakeOn: string; players: IntakePlayer[];
+  outcome: IntakeOutcome; academySize: number;
+};
 
 /**
  * Bring this season's intake into the club's academy, inside the rollover's
- * transaction. Idempotent: a season that already has its intake returns it.
+ * transaction, after the boundary's promotions. Idempotent: a season that
+ * already has its intake returns it.
  */
 export function youthIntakeTx(
   w: CareerStateTx, careerSaveId: number, teamId: number, seasonYear: number, intakeOn: string,
@@ -162,66 +186,76 @@ export function youthIntakeTx(
     .where(eq(youthIntakesTable.careerSaveId, careerSaveId))
     .all()
     .filter((r) => r.seasonYear === seasonYear);
-  if (existing) return { seasonYear, intakeOn: existing.intakeOn, players: [] };
-
-  const { home, nations } = intakeNationsTx(tx, teamId);
-  const names = intakeNamePoolTx(tx, nations);
-  const others = nations.filter((n) => n !== home);
-  const players: IntakePlayer[] = [];
-
-  for (let i = 0; i < INTAKE_SIZE; i++) {
-    // The club's country half the time, the rest of its region otherwise; a
-    // nation with no name left gives way to one that has.
-    const preferred = home && (others.length === 0 || Math.random() < HOME_SHARE) ? home : pick(others);
-    const order = [preferred, ...nations.filter((n) => n !== preferred).sort(() => Math.random() - 0.5)];
-    const nationality = order.find((n) => (names.get(n)?.length ?? 0) > 0);
-    if (!nationality) break; // no name left anywhere in the club's region
-
-    const available = names.get(nationality)!;
-    const name = available.splice(Math.floor(Math.random() * available.length), 1)[0]!;
-    const age = INTAKE_AGE_MIN + Math.floor(Math.random() * (INTAKE_AGE_MAX - INTAKE_AGE_MIN + 1));
-    const s = SEEDED_YOUTH_STATS;
-    const stats = {
-      speed:   normal(s.speed.mean, s.speed.sd, s.speed.min, s.speed.max),
-      power:   normal(s.power.mean, s.power.sd, s.power.min, s.power.max),
-      defense: normal(s.defense.mean, s.defense.sd, s.defense.min, s.defense.max),
-      serve:   normal(s.serve.mean, s.serve.sd, s.serve.min, s.serve.max),
-      block:   normal(s.block.mean, s.block.sd, s.block.min, s.block.max),
-      stamina: normal(s.stamina.mean, s.stamina.sd, s.stamina.min, s.stamina.max),
-    };
-    const position = weighted(SEEDED_YOUTH_POSITIONS);
-    const potential = weighted(SEEDED_YOUTH_POTENTIAL);
-
-    const id = w.createPlayer(careerSaveId, {
-      name,
-      nationality,
-      baseAge: age,
-      height: normal(s.height.mean, s.height.sd, s.height.min, s.height.max),
-      position,
-      ...stats,
-      imageUrl: YOUTH_TEMPLATE_IMAGE,
-      continent: continentKeyForNationality(nationality),
-      playerType: "youth",
-      potential,
-      development: generateDevelopment(),
-    }, {
-      age,
-      ...stats,
-      teamId,
-      squadRole: "reserve",
-      isActive: false,
-      salary: YOUTH_WEEKLY_WAGE[potential] ?? 75,
-      academyContractYears: 2,
-      morale: 75 + Math.floor(Math.random() * 16),
-      fatigue: 0,
-      fitness: 100,
-      injuryStatus: "Healthy",
-    });
-    players.push({ id, name, nationality, age, position, potential });
+  if (existing) {
+    return { seasonYear, intakeOn: existing.intakeOn, players: [], outcome: existing.outcome as IntakeOutcome, academySize: existing.academySize };
   }
 
+  // R-63: the places left under the academy's cap, up to an intake's size.
+  const sizeBefore = academySizeTx(tx, careerSaveId, teamId);
+  const places = Math.max(0, Math.min(INTAKE_SIZE, ACADEMY_CAP - sizeBefore));
+  const players: IntakePlayer[] = [];
+
+  if (places > 0) {
+    const { home, nations } = intakeNationsTx(tx, teamId);
+    const names = intakeNamePoolTx(tx, nations);
+    const others = nations.filter((n) => n !== home);
+
+    for (let i = 0; i < places; i++) {
+      // The club's country half the time, the rest of its region otherwise; a
+      // nation with no name left gives way to one that has.
+      const preferred = home && (others.length === 0 || Math.random() < HOME_SHARE) ? home : pick(others);
+      const order = [preferred, ...nations.filter((n) => n !== preferred).sort(() => Math.random() - 0.5)];
+      const nationality = order.find((n) => (names.get(n)?.length ?? 0) > 0);
+      if (!nationality) break; // no name left anywhere in the club's region
+
+      const available = names.get(nationality)!;
+      const name = available.splice(Math.floor(Math.random() * available.length), 1)[0]!;
+      const age = INTAKE_AGE_MIN + Math.floor(Math.random() * (INTAKE_AGE_MAX - INTAKE_AGE_MIN + 1));
+      const s = SEEDED_YOUTH_STATS;
+      const stats = {
+        speed:   normal(s.speed.mean, s.speed.sd, s.speed.min, s.speed.max),
+        power:   normal(s.power.mean, s.power.sd, s.power.min, s.power.max),
+        defense: normal(s.defense.mean, s.defense.sd, s.defense.min, s.defense.max),
+        serve:   normal(s.serve.mean, s.serve.sd, s.serve.min, s.serve.max),
+        block:   normal(s.block.mean, s.block.sd, s.block.min, s.block.max),
+        stamina: normal(s.stamina.mean, s.stamina.sd, s.stamina.min, s.stamina.max),
+      };
+      const position = weighted(SEEDED_YOUTH_POSITIONS);
+      const potential = weighted(SEEDED_YOUTH_POTENTIAL);
+
+      const id = w.createPlayer(careerSaveId, {
+        name,
+        nationality,
+        baseAge: age,
+        height: normal(s.height.mean, s.height.sd, s.height.min, s.height.max),
+        position,
+        ...stats,
+        imageUrl: YOUTH_TEMPLATE_IMAGE,
+        continent: continentKeyForNationality(nationality),
+        playerType: "youth",
+        potential,
+        development: generateDevelopment(),
+      }, {
+        age,
+        ...stats,
+        teamId,
+        squadRole: "reserve",
+        isActive: false,
+        salary: academyMonthlySalary(potential),
+        academyContractYears: 2,
+        morale: 75 + Math.floor(Math.random() * 16),
+        fatigue: 0,
+        fitness: 100,
+        injuryStatus: "Healthy",
+      });
+      players.push({ id, name, nationality, age, position, potential });
+    }
+  }
+
+  const outcome: IntakeOutcome = places === 0 ? "full" : players.length > 0 ? "joined" : "no_names";
+  const academySize = sizeBefore + players.length;
   tx.insert(youthIntakesTable).values({
-    careerSaveId, teamId, seasonYear, intakeOn, playerIds: players.map((p) => p.id),
+    careerSaveId, teamId, seasonYear, intakeOn, playerIds: players.map((p) => p.id), outcome, academySize,
   }).run();
-  return { seasonYear, intakeOn, players };
+  return { seasonYear, intakeOn, players, outcome, academySize };
 }

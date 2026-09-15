@@ -32,6 +32,8 @@ import { boardDay } from "../utils/board-confidence.js";
 import { endCareer } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
 import { REST_RECOVERY, applyWeeklyInjuryRecovery } from "../utils/condition.js";
+import { isYouthPlayer } from "../utils/playerClassification.js";
+import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -477,8 +479,13 @@ router.post("/calendar/advance", async (req, res) => {
     //
     // Divided into a weekly drip rather than charged as a monthly lump, so
     // signing a player the day before payday cannot bankrupt a club.
-    const monthlySalary = teamPlayers.reduce((s, p) => s + Number(p.salary), 0);
-    const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH);
+    // R-63: an academy player's wage is the academy's weekly wage for her
+    // potential (utils/academy.ts), billed here and only here — it used to be
+    // charged again after every match.
+    const academy       = teamPlayers.filter(isYouthPlayer);
+    const monthlySalary = teamPlayers.filter((p) => !isYouthPlayer(p)).reduce((s, p) => s + Number(p.salary), 0);
+    const academyWeekly = academy.reduce((s, p) => s + academyWeeklyWage(p.potential), 0);
+    const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH) + academyWeekly;
     const weeklyStaff   = Math.round(weeklySalary * 0.2);
     // ── Sponsor reputation: weekly decay toward the baseline ──────────────
     // Reputation moves +1 per win and -1 per loss with only a hard floor at 0,
@@ -518,7 +525,7 @@ router.post("/calendar/advance", async (req, res) => {
         teamId:      team.id,
         type:        "expense",
         amount:      weeklySalary,
-        description: `Weekly player salaries (${teamPlayers.length} players)`,
+        description: `Weekly player salaries (${teamPlayers.length} players${academy.length > 0 ? `, ${academy.length} in the academy` : ""})`,
         category:    "salaries",
         date:        nextDate,
       },
@@ -610,8 +617,12 @@ router.post("/calendar/advance", async (req, res) => {
         events.push(`Season ${rollover.fromSeason} complete — Season ${rollover.toSeason} begins`);
         // R-62: the new season's academy intake.
         if (rollover.intake) {
-          const n = rollover.intake.players.length;
-          events.push(n > 0 ? `${n} youth player${n === 1 ? "" : "s"} joined the academy` : "The academy found no one this year");
+          const { players, outcome, academySize } = rollover.intake;
+          events.push(players.length > 0
+            ? `${players.length} youth player${players.length === 1 ? "" : "s"} joined the academy (${academySize}/${ACADEMY_CAP})`
+            : outcome === "full"
+              ? `The academy is full (${academySize}/${ACADEMY_CAP}): no intake this year`
+              : "The academy found no one this year");
         }
       } else if (rollover.kind === "career-complete") {
         events.push(`Season ${rollover.finalSeason} complete — your career has ended`);

@@ -6,6 +6,7 @@ import { eq, and, desc, sql, count } from "drizzle-orm";
 import { generateOfferBatch } from "../utils/sponsor-generator.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
+import { academyWeeklyWage } from "../utils/academy.js";
 import { loadPlayers, careerSaveIdForTeamOrThrow, loadStaff } from "../lib/playerDto.js";
 import type { FinanceTransaction, PromoDeal } from "@workspace/db";
 
@@ -76,10 +77,8 @@ async function computeWageBill(teamId: number) {
   return { weeklyWages, monthlyWages, playerCount: roster.length, players: roster };
 }
 
-const YOUTH_WEEKLY_WAGE: Record<string, number> = {
-  Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250,
-};
-
+// R-63: the academy wage is utils/academy.ts's table — the same one the weekly
+// wage run bills.
 async function computeYouthWageBill(teamId: number) {
   const players = await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId });
   const youthPlayers = players.filter(isActiveYouthPlayer);
@@ -87,7 +86,7 @@ async function computeYouthWageBill(teamId: number) {
     id:           p.id,
     name:         p.name,
     potential:    p.potential,
-    weeklySalary: YOUTH_WEEKLY_WAGE[p.potential] ?? 75,
+    weeklySalary: academyWeeklyWage(p.potential),
   }));
   const weeklyWages  = roster.reduce((s, p) => s + p.weeklySalary, 0);
   const monthlyWages = Math.round(weeklyWages * WEEKS_PER_MONTH);

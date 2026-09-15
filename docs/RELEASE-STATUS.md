@@ -16,6 +16,7 @@ estimated.
 | 2 | R-60 | `3267c4b` | Resign and Break Contract END the career through the sacking path with their own reason; the dialog says "This ends your career at <club>. There is no job market yet."; the save keeps its club; a clubless save an older build left is finished at boot; the finished screen names each ending | career-ends 12/12 |
 | 3 | R-61 | `d5bbd96` | A real Olympic tournament in Olympic years (2028 for a 2026 career): the 12 qualified nations' real top-two pairs from any club, 4 groups of 3, quarter-finals, semi-finals, bronze and gold on the World Tour engine, 25 Nov (after round 70, before the World Finals); medals on the players' records, trophies for their club, Club News. The projected draw, the manager-picked squads with invented wildcards, `olympic_selections` and the Locations page are deleted | olympics-tournament 24/24; olympic-qualification 29/29; fake-content-removed 11/11 |
 | 4 | R-62 | `8eb6bde` | Every rollover that opens a season brings the player's club 3 youth players: the youth template card, 16–18, ratings from the shipped youth's distribution, real names of the club's country and region; Club News; a dry academy says it found no one. Players a career creates are owned by it and no longer leak into later careers | youth-intake 22/22 |
+| 5 | R-63 | PENDING-R63 | The academy holds 12: signing and the intake both stop there, and the Team page banner reads the same cap from the roster. Academy wages billed once, in the weekly wage run; the per-match charge deleted. A full academy costs $71,500 a season in wages (12 players, 52 weeks), plus 20% in staff costs on the wage bill | academy-cap-wages 17/17 |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -39,6 +40,8 @@ estimated.
 
 **31/31 suites passed** (`node harness/run-all.mjs`, launched without `ELECTRON_RUN_AS_NODE`), with
 every static guard and typecheck clean and the starter database matching the model (50 tables).
+**After R-63: 32/32**, the new suite 30 being *academy cap and wages* 17/17, every other suite at the
+same count as below and the season rollover still 78/78 with no career sacked.
 
 | # | Suite | Checks | # | Suite | Checks |
 |---|---|---|---|---|---|
@@ -142,11 +145,13 @@ now on are kept out of other careers.
 **R-62 — academy intake**
 7. Play (or open) a career past its first season boundary: Club News "3 youth players join the
    <club> academy" dated 1 January, with names, nations and ages.
-8. Team → Youths: the three on the youth template card, aged 16–18. **Look at the capacity banner:**
-   it still says "up to 6", and the signing limit is still one academy place — the intake is held to
-   neither, so by season 5 the academy holds 9–12 and manual youth signings are refused. Rob to say
-   whether that is right.
-9. Rules → Academy: five lines.
+8. Team → Youths: the three on the youth template card, aged 16–18. The banner reads *N / 12* with
+   twelve dots and the subtitle *holds up to 12 players* (R-63). Signing a 13th academy player is
+   refused with *Academy is full (12/12)*.
+9. Finances → transactions (R-63): academy wages appear only inside the weekly *Weekly player
+   salaries (… in the academy)* row — never a *Youth Academy wages* row after a match.
+10. Rules → Academy: six lines, including the intake stopping at the Team page's limit and the weekly
+    academy wage.
 
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game
@@ -184,9 +189,10 @@ Honest, in the order it would have to happen. Nothing in this section was done i
 - **Review copy.** Keys come from Steamworks once the app exists there.
 
 ### Known gaps in the game
-- **Academy size is not reconciled** (R-62): signing limit one, banner six, intake up to twelve by
-  season 5. An academy player's wage is billed both in the weekly salary sum and by the academy tick
-  after each match (the existing academy path, unchanged) — the intake makes that 3–12 players.
+- **Academy graduates fill the senior squad** (found in R-63, not changed): a promoted graduate stays
+  in the reserve role and counts as a senior, so by season 3 or 4 graduates fill the three-senior
+  signing limit and a senior can only be signed after a release. Graduates are never released or
+  offered a senior contract. Rob's call.
 - **Retirement is effectively off** (triage 3z): one senior retires in five seasons.
 - **No Career Result screen** for a completed five-season career (R-10): the season-5 review dialog is
   the end.
