@@ -25,6 +25,9 @@ estimated.
 | 11 | R-73 | `75e8ed8` | The wizard's colours were always sent for the home pair; the away pair was two club-less free agents with no kit, painted in Unity's red fallback. The away side is now the fixture's own AI club pair in that club's kit; all 60 AI clubs have two distinct hexes (12-primary palette, no primary repeated inside a continent); a null kit is logged as a warning. HUD team names ship with the Unity export | club-kits 14/14; unity-match-state-payload 9/9 |
 | 12 | R-75 | `85ca86c` | Pool players had no skin tone at all (the court showed stand-ins). All 120 now carry one, drawn from their nation's own tone counts among the 276 seeded players (continent counts for the 5 nations with none), reproducibly. 20 of 60 pairs share a tone — the seeded tones are themselves uniform random picks, so "same country looks alike" is as strong as that data allows | pool-skin-tones 4/4 |
 | 13 | R-77 | `def721c` | A match watched in 3D never completed — it sat "in progress" with no win, purse, stats or achievements, and blocked the calendar. It now completes on its own through the same code as Sim Result. Achievements: 30 → 22; Continental Champion, the 10/20/30-season ones, 10 World Finals, 2 Olympic golds and First Pay Day deleted; every description states its real trigger | watched-match 10/10; rollover Local Legend check |
+| 14 | R-71 | `PENDING-EXPORT` | 3D Court zoom on all three cameras: mouse wheel and +/- dolly the camera, clamped per preset, reset when the camera changes; the overhead camera starts at 24 m (was 40). The first batch test saw no zoom because the preset positions lived in a Dictionary that a mid-Play domain reload emptied; nothing is stored now. Unity `347e193` | CourtPlayProbe 3/3 presets, clean and after a forced reload: close 19.09 m, +9/−8 m; wide 17.08 m, +8/−10; overhead 21.40 m (was 37.40), +10/−16 |
+| 15 | R-76 | `PENDING-EXPORT` | Players move: the set lands at the net and the attacker meets it; the nearer defender blocks at the net, her partner covers deep; on court, with the existing locomotion clips. The movement test had sampled nothing (an Editor-folder component Unity would not attach); it now samples in the player loop and waits out the launch recompile. Unity `707defe` | CourtPlayProbe: all four left their spots by 4.48–6.53 m, all within 0.60 m of the net; 28 spikes at a mean 1.39 m, blocker 0.60 m |
+| 16 | R-74 | `PENDING-EXPORT` | Spectators: 25 of 25 animate on the spot (clapping, cheering, photo, idles already in the project); no controller holds a walk, so the three walkers on the left stand and animate. Unity `415375c` | CourtPlayProbe: 25/25, 0/25 controllers with a walk clip, walkers moved 0.00 m |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -193,6 +196,21 @@ now on are kept out of other careers.
     the Finances page has the purse, and the calendar is no longer stuck on that match day.
 20. Career → Achievements lists 22. None mentions loans, towns, 10+ seasons or a continental
     championship. After your first win, First Steps is unlocked.
+
+**R-71 — camera zoom** (needs the 0.9.1 build)
+21. In 3D Court, roll the mouse wheel forward: the camera moves in and stops short of the umpire chair;
+    roll it back: the camera moves out. Holding + or − does the same.
+22. Press 2 (overhead): it starts much closer than before, and the wheel works there and on 1 (wide).
+    Pressing any camera key puts that camera back to its starting view.
+
+**R-76 — players move**
+23. Watch a rally. On a set, the attacker runs to the net and spikes from there. On the other side,
+    the nearer player goes to the net to block while her partner drops back. Nobody leaves the court,
+    and they walk rather than slide.
+
+**R-74 — spectators**
+24. The three girls by the tent clap and cheer on the spot. The figures on the left stand and move in
+    place; nobody walks off anywhere.
 
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game

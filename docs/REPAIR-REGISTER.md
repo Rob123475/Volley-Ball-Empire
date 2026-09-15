@@ -2661,6 +2661,193 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-78 — OPEN, LOW (registered 15 Sep): three harness suites fail at random on seasons they leave to chance
+**Found overnight 15 Sep.** The full harness for the R-71/74/76 export came back 35/38. The failing
+suites were world tour competitors, season trophies and gameplay smoke. Nothing in
+`artifacts/api-server/src`, `lib/db/src`, `harness` or `scripts/src` has changed since `def721c`, whose
+own full rerun passed 38/38; this batch changed only the Unity build files, the docs, `package.json`
+and `scripts/installer.nsh`.
+
+**World tour competitors.**
+- The failure: "B: every result is a legal best-of-three … illegal: 662". One fixture of career B's 108
+  was rejected.
+- Why a forfeit fails the check: `legalResult` rejects any fixture without a set array.
+- Why it was a forfeit: the suite only ever calls `POST /matches/:id/simulate`. The only writer it
+  reaches that completes a World Tour fixture with `sets: null` is `recordForfeit`, the R-48 path.
+  (The other one is `POST /game/match-result`, which the suite never calls.)
+- The cause: since R-50 a simulated match rolls injuries. A harness club left with fewer than two fit
+  players forfeits, as the game's rules say it must.
+- Not seen directly: the suite deletes its database, so the row itself was not read.
+
+**Gameplay smoke.**
+- The failure: "none of them was forfeited … 1 forfeited", 1 of 6 simulated matches.
+- What the log shows: the player it tracks ended the run with a "Major Injury".
+- What it does not show: the suite does not print the forfeit's reason.
+
+**Season trophies.**
+- The failure: "no champion in 8 seasons". R-77's first full run failed the same way, and its rerun
+  passed.
+- The suite needs one of 8 simulated seasons to end in a World Final win, and that is not guaranteed.
+
+**Rerun:** the full harness straight after, same build, passed: "ALL HARNESSES PASSED", 38/38 suites,
+845 checks.
+- world tour competitors: A and B 108 legal results each.
+- smoke: 0 forfeited.
+- season trophies: a champion in season 4.
+
+**Not changed tonight.** This needs a decision on how the harness should handle chance:
+- give the harness's own clubs a way to switch off injury rolls;
+- accept a forfeit as a legal result in those two checks;
+- or play enough seasons that a champion is certain rather than likely.
+
+### R-66 — IN PROGRESS (15 Sep) MEDIUM: the installer offered a "Volley-Ball-Empire" install folder
+**Rob (15 Sep, overnight brief):**
+- Fix the install folder name so it is "Beach Volleyball Empire", not "Volley-Ball-Empire". Check
+  productName, directories, the NSIS settings and the after-pack script.
+- Rebuild the installer and win-unpacked into `C:\build\vbe\` as 0.9.1.
+- Run verify-native-abi, and record both sha256s.
+- Confirm no starter DB sidecars are packaged and the menu bar is hidden.
+
+**Checked:**
+- **The build settings.** None of them names a folder "Volley-Ball-Empire":
+  - `productName` is already "Beach Volleyball Empire";
+  - `directories.output` is `C:\build\vbe`;
+  - `nsis` is `oneClick: false`, `allowToChangeInstallationDirectory: true`;
+  - `scripts/after-pack.cjs` only checks the starter DB folder.
+- **A fresh install.** electron-builder 25.1.8 names it after `productFilename` when `oneClick` is off
+  (`getWindowsInstallationDirName`), so per user that is `%LOCALAPPDATA%\Programs\Beach Volleyball Empire`.
+- **A remembered folder.**
+  - The assisted installer first reads `InstallLocation` from `HKCU\Software\<APP_GUID>`
+    (`multiUser.nsh`). Any earlier install with the same appId leaves it there, and the installer
+    offers that folder whatever it is called.
+  - At install, `instFilesPre` only adds `\Beach Volleyball Empire` when that name is not already in
+    the path.
+- **This machine.**
+  - The value was `C:\vbe-test-install-0.9.0-r65`, R-65's test install.
+  - Before R-64, the machine had "Volley-Ball-Empire 1.0.0" in `C:\vbe-test-install\Volley-Ball-Empire`.
+    That was the build from before the rename.
+  - The empty folder `C:\vbe-test-install\Volley-Ball-Empire\Beach Volleyball Empire` (created 15 Sep
+    12:25) is what an installer offering that remembered folder produces.
+
+**Fix:** `scripts/installer.nsh`, wired in as `nsis.include`, adds a `customInit` step. When no `/D=`
+is given and the remembered folder's own name is not "Beach Volleyball Empire":
+- the remembered `InstallLocation` is deleted and the install mode set again;
+- so the default `<Programs>\Beach Volleyball Empire` is what the directory page offers and what a
+  silent install uses.
+
+What it leaves alone:
+- A remembered folder already named "Beach Volleyball Empire" is kept, so upgrades land where they
+  were.
+- The old version is still uninstalled: with no `InstallLocation`, `uninstallOldVersion` falls back to
+  its uninstaller's own folder.
+
+**Proof:** PENDING-R66-PROOF
+
+### R-76 — CLOSED (15 Sep, Unity 707defe; export PENDING-EXPORT) HIGH: players stood rooted and never went to the net
+**Rob (15 Sep):** players stay rooted and never go to the net for a spike. Brief:
+- Attackers go to the net on their side's attack and come back.
+- Defenders shift to cover.
+- Use only the clips already wired in VolleyballController, and keep everyone on the court.
+
+**Overnight brief:** the movement test collected no samples. Fix the test first, then prove both pairs
+leave their start spots and at least one player reaches the net zone.
+
+**How positioning worked** (`MatchManager.cs`; `MatchManager.Start` switches `PlayerAI`'s own movement
+off):
+- The rally is a scripted six-step sequence each point: pass, set and attack for each side.
+- Each step moved one player, its receiver, to where the ball would land. The other three walked back
+  to home spots 4 m from the net.
+- The set landed within 1.5 m of the attacker, so she never went forward. Nobody blocked or covered.
+- The Speed parameter came from "is this the receiver". Anyone else who moved slid across the sand in
+  the idle pose.
+- The jump heights looked for the model as `SK_Woman` / `SK_Man`. The Beach Girl swap had renamed
+  it, so nobody had jumped since.
+
+**Fix (Unity `707defe`):**
+- **The set** lands 1.1 m from the net (spread by the pattern), inside the court.
+- **The block and cover.** On a set, the defender nearer the attack line goes to the net opposite
+  it (0.6 m) to block. Her partner covers deep on the far diagonal (5.5 m). The blocker holds the
+  net until the spike is past; everyone else goes back to their spot.
+- **The court.** Every movement target is clamped inside the sidelines and on the player's own half.
+- **The animation.** Speed comes from how far each player really moved this frame (2 m/s = full).
+  It blends the existing `1-Idle in dig` and `14-Moving in dig, forward and back`; no clip was added.
+- **The jumps.** Heights find the model through its Animator.
+
+**The test (`Assets/Editor/CourtPlayProbe.cs`):**
+- **Why it collected nothing.** The first version sampled from a MonoBehaviour in an Editor folder,
+  and Unity refuses to attach one ("it is an editor script"). Sampling now runs in a player-loop system
+  at the start of PostLateUpdate.
+- **The mid-Play reload.** Every batch launch recompiles shortly after it opens ("Define symbols
+  changed": the App UI package adds `APP_UI_EDITOR_ONLY` to the WebGL defines).
+  - Play used to be entered straight away, so that domain reload landed in the middle of Play.
+  - It wiped MatchManager's rally: 7,668 `UpdateRally` errors in one run.
+- **The fix.** The probe waits for the editor to go idle before entering Play, and reports how many
+  times sampling started.
+
+**Proof** (`proof/probe_r71fix.txt` in the Unity checkout, gitignored). Batch Play mode, sampling
+started once, 130,074 frames, 109,323 of them in a rally:
+
+| Player | Start (x, z) | Furthest from start | Closest to the net | Frames within 1.5 m of the net |
+|---|---|---|---|---|
+| A1 | 45.10, 16.10 | 5.32 m | 0.60 m | 13,712 |
+| A2 | 49.10, 16.10 | 6.26 m | 0.60 m | 14,157 |
+| B1 | 45.10, 24.10 | 6.53 m | 0.60 m | 21,306 |
+| B2 | 48.95, 24.39 | 4.48 m | 0.59 m | 21,200 |
+
+- **28 spikes.** At the hit the attacker was 1.13–1.84 m from the net (mean 1.39) and the blocker
+  0.60 m every time. 1.2 s later the attacker was back at a mean 2.43 m.
+- **Render sequence.** Six frames of a set and spike: `proof/r76_r71fix_seq1_set` …
+  `seq6_after_1.6s`.
+
+**Found, not changed:**
+- **MatchManager is not reload-safe.** It does not survive a domain reload in Play mode, because its
+  rally sequence is not serialised; after one, `UpdateRally` throws every frame until the next point.
+  This is Editor-only: a WebGL build never reloads.
+- **The saved define.** The batch session saves `APP_UI_EDITOR_ONLY` into the WebGL defines in
+  `ProjectSettings.asset`. It was reverted before the export and never committed.
+
+### R-74 — CLOSED (15 Sep, Unity 415375c; export PENDING-EXPORT) MEDIUM: spectators frozen, three walking to nowhere
+**Rob (15 Sep):** the three girls in front of the tent have no animation (they should clap or jump on
+the spot), and three figures on the left walk to nowhere. Brief:
+- List every crowd figure, with which work and which don't.
+- Assign clapping, cheering and photo clips from the packs already in the project.
+- Remove any walk with no path.
+- Never invent assets.
+
+**Overnight brief:** 25/25 already animate. Make the three walkers either walk between two real points
+and turn around, or stand and animate.
+
+**Survey** (`Assets/Editor/SceneSurvey.cs`, read-only; the before-probe was 45 s of Play):
+- **Who has an Animator.** 25 figures besides the players. The grandstand's figures are static, with
+  no Animator.
+- **17 of 25 working.**
+  - Seven PolyPeople swimwear figures, the three girls by the tent among them, froze on their clip's
+    last frame after 8–12 s. The PromptMotion clip was imported with looping off, in a state with no
+    transition.
+  - `worker_Male_constructor_B (3)` froze the same way.
+- **The walks.** The CityPeople figures' controllers carried walk and jog loops, and `CityPeople.cs`
+  cross-fades into a random clip from its controller every 15–20 s. One generated clip,
+  `a_relaxed_beach_volleyball_spectator_cas…`, is itself a walk: 1.32 m/s of root motion.
+
+**Fix (Unity `415375c`, `Assets/Editor/SpectatorAnimationFix.cs`).** Stand and animate, the brief's
+second option, using only clips already in the project:
+- **Looping.** The PromptMotion clapping, cheering-with-both-arms-raised and photo clips loop (their
+  `.fbx.meta`).
+- **New controllers** in `Assets/Animations/Spectators`. The packs' own controllers are untouched.
+  - `Spectator_Cheer`: clap ↔ cheer.
+  - `Spectator_Photo`: photo ↔ clap.
+  - `Spectator_CityF` / `Spectator_CityM`: the pack's standing idles, clap and cheer. No walk, no jog.
+  - `Spectator_ProstheticLeg`: its idle and talking, not its walk.
+- **Assignment.** 24 figures assigned, root motion off. `SpectatorIdleOffset` starts the figures that
+  have no CityPeople script at a random point in their clip.
+
+**Proof** (`proof/probe_r71fix.txt`, clean run, 70 samples a second apart):
+- 25 of 25 figures animate on the spot, and 0 of 25 controllers contain a walk clip.
+- The three walkers on the left of the start camera each moved 0.00 m:
+  - `casual_Female_G` (50.2, 8.7) played cheering, clapping, `idle_f_1` and `idle_f_2`;
+  - `casual_Male_G` (49.6, 8.8) and `casual_Male_K (7)` (59.8, 8.4) played clapping, `idle_m_1`,
+    `idle_m_2` and phone talking.
+
 ### R-77 — CLOSED (15 Sep, def721c) HIGH: watched matches never counted; achievements said things that were not true
 **Rob (15 Sep):** an honesty pass over Career → Achievements. Prove whether a match watched in 3D
 counts. Give World Champion its own real condition. Continental Champion either unlocks for a real
@@ -2798,8 +2985,18 @@ and blue defaults. Brief:
   Ncube in every match of all three careers. A free agent has no club, so no kit: the payload sent
   null/null, and `UnityMatchDataLoader.ApplyAppearance` silently painted its red fallback. AI clubs
   (`continental_pool_teams`) had no colour columns at all.
-- **The HUD.** It reads Unity's built-in team names "BLUE SHARKS" / "RED GIANTS". That is the Unity
-  half, and it ships with the R-71/74/76 export.
+- **The HUD.** It read Unity's built-in team names "BLUE SHARKS" / "RED GIANTS".
+
+**The Unity half (Unity `da6f869`):** the loader sets both HUD names from the payload, and warns when
+a kit is missing.
+- **Proof,** in batch Play against a copy of Rob's save (career 10, match 312), with
+  `STARTER_DB_PATH` set as `electron/main.js` sets it:
+  - 4 of 4 applied;
+  - the away pair in Rome Beach Gladiators' #0B2545/#6CC5F0, skin tones Light and Dark;
+  - the HUD reads "SYDNEY RIPTIDE vs ROME BEACH GLADIATORS".
+- **Without `STARTER_DB_PATH`.** A bare server skips the reference backfill and sends that save's pool
+  pair with no kit and no tone, logged as a warning. The installed app always sets it.
+- **Shipping.** It ships in the R-71/74/76 export (PENDING-EXPORT).
 
 **Fix:**
 - **New columns.** `continental_pool_teams` gains `primary_color` and `secondary_color`.
@@ -2843,7 +3040,7 @@ opponent data) and what is new, with the calendar decision that needs Rob: the W
 fall in 40 weeks, so a one-match-day week needs a weekend that can hold two rounds (recommended) or a
 change to R-44's schedule. No code.
 
-### R-71 — OPEN, MEDIUM (registered 15 Sep): 3D Court camera zoom — PAUSED, another session is changing the Unity export
+### R-71 — CLOSED (15 Sep, Unity 347e193; export PENDING-EXPORT) MEDIUM: 3D Court camera zoom
 **Rob (15 Sep):** mouse-wheel zoom on all three camera presets: a dolly along the camera's forward axis
 (not FOV), clamped per preset so it cannot go through the sand or past the stands, +/- keys for
 trackpads, and a reset when the preset changes. The overhead preset's default noticeably closer (Rob:
@@ -2870,6 +3067,86 @@ file was touched, so the two cannot collide. The survey so far, read-only, is fr
 - **Tools to reuse.**
   - `Assets/Editor/BeachPlayerProof.cs` renders a scene camera to PNG without saving the scene.
   - `Assets/Editor/WebBuild.cs` Step 7 builds Web to `webgl-out` (outside the game repo).
+
+**Built (15 Sep).** Rob's overnight brief:
+- The batch test showed the wheel did not move the camera. Diagnose why: input system inactive in
+  batch? wrong camera? script not on the active preset?
+- Fix all three presets on the wheel and +/-, clamped, with the overhead default noticeably closer.
+- Prove it by reading the camera position before and after a simulated input.
+
+**The zoom (Unity `347e193`, `SimpleCameraPresets.cs`):**
+- **The movement.** A dolly along the active camera's forward axis: 1.5 m a wheel notch, 8 m/s while
+  + or − (or the numpad keys) is held, smoothed.
+- **The limits,** per preset, from the scene's geometry:
+  - close: +9 / −8 m (9 m in stops at x 55.4, clear of the umpire chair at x ≤ 53.8);
+  - wide: +8 / −10 m;
+  - overhead: +10 / −16 m.
+- **The reset.** A preset key returns the zoomed camera to where the scene placed it.
+
+**The overhead default.** "The overhead preset" is `Camera_TopDown_Test` (key 2), which the switcher
+logs as "OVERHEAD CAMERA ACTIVE". `Assets/Editor/OverheadCameraDefault.cs` moved it from y 40 to y 24:
+- distance to what its centre ray hits 37.40 m → 21.40 m;
+- the view's short side 46.2 m → 27.7 m.
+
+**Why the test saw no zoom — measured, not assumed.** It was none of the three guesses:
+- the Input System was active: the wheel read 120 a notch inside the player loop;
+- the script sits on `Camera_Gameplay_Close` and drives whichever camera is active;
+- the preset keys switched cameras.
+
+The cause was a `Dictionary`:
+- The script kept each camera's preset position in a `Dictionary`.
+- Every batch run hit a domain reload in the middle of Play (see R-76). A reload empties a
+  `Dictionary`, and `Start` does not run again.
+- So `UpdateZoom` returned on its first line every frame. The probe read `_home count 0` and
+  `_targetDolly 0` after a wheel notch.
+- Switching presets does not use it, so that kept working.
+- Saving a script while playing in the Editor does the same.
+
+**Fix.** No position is stored. The camera moves by the change in zoom each frame, and back by the zoom
+on a switch. Only floats and camera references remain, and a reload keeps those.
+
+**Proof** (`proof/probe_r71fix.txt`). How it was run:
+- Input events were queued through the Input System in one frame, and the camera was read in the next.
+- It ran clean, then again after a domain reload forced in Play. 3 of 3 presets pass both times.
+- The same test on the unfixed script (`proof/probe_r71pre.txt`): 0 of 3.
+
+Numbers from the clean run:
+
+| Preset | Default: distance to centre hit | 40 notches in | 80 notches out | + held 1 s, from fully out | − held 0.5 s | Switch away and back |
+|---|---|---|---|---|---|---|
+| Close (64, 8.5, 20.1) | 19.09 m | +9.00 m → 10.09 m | −8.00 m → 27.09 m | +0.93 m | −3.07 m | 0.00 m |
+| Wide (47.1, 12, 6.1) | 17.08 m | +8.00 m → 9.08 m | −10.00 m → 27.08 m | −1.30 m | −5.30 m | 0.00 m |
+| Overhead (47.1, 24, 20.1) | 21.40 m (was 37.40 m) | +10.00 m → 11.40 m | −16.00 m → 37.40 m | −6.82 m | −10.83 m | 0.00 m |
+
+Renders: `proof/r71_r71fix_{clean,after_reload}_{close,wide,overhead}_{default,zoomed_in,zoomed_out}.png`.
+
+**The export (game PENDING-EXPORT)** carries R-71, R-74, R-76 and R-73's Unity half (Unity `415375c`).
+The pipeline was 417cdcd's:
+- **The build.** `WebBuild.Step7`: compression Disabled, texture override 2048, scene V19, "Build
+  Finished, Result: Success". The WebGL defines were the committed ones; the batch session's
+  `APP_UI_EDITOR_ONLY` flip had been reverted.
+- **Into the game.** The four files were copied under the repo's names and Brotli-compressed. The
+  frontend was built, and `sync:public` copied 563 files.
+
+The files:
+
+| File | Bytes | Before (417cdcd) | Notes |
+|---|---|---|---|
+| `.data` | 266,214,711 | 267,141,147 | sha256 `2e4bdc45…`, `.br` 214,583,435 |
+| `.wasm` | 51,484,510 | 51,445,891 | sha256 `1e7421be…`, `.br` 9,009,996 |
+| `.framework.js` | 467,435 | 467,435 | size unchanged |
+| `.loader.js` | 26,982 | 26,982 | size unchanged |
+
+**Render proof** on the real GPU (RTX 5080, ANGLE D3D11). A production server against a copy of Rob's
+save, with `STARTER_DB_PATH` set, at `unity-build/index.html?careerSaveId=10&matchId=312`:
+- **The server** answered `.data`/`.wasm` with `br`.
+- **The loader:** 4 of 4 applied. The away pair was in Rome Beach Gladiators' kit, skin tones Light
+  and Dark. "team names: SYDNEY RIPTIDE (home) vs ROME BEACH GLADIATORS (away)".
+- **The match:** "match starts after 4.2s: match data applied", then the four rating sets.
+- **0 console errors.**
+- **The court renders:** bottom half 0.6% sky-blue / 43.4% sand (417cdcd: 0.6 / 43.5). The HUD reads
+  "SYDNEY RIPTIDE 0 - ROME BEACH GLADIATORS 2".
+- **Screenshot:** `proof/webgl_court_r71_gpu.png` in the Unity checkout.
 
 ### R-70 — CLOSED (15 Sep, 3f57266) MEDIUM: the top bar showed the schedule slot as a round ("R7/78")
 **Rob (15 Sep):** the top bar should show the round of the competition being played: Continental R7/10,
@@ -3789,6 +4066,9 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-76 Players move in the 3D Court: the set lands at the net and the attacker meets it; the nearer defender blocks at the net, her partner covers deep; everyone stays on court, animated by the existing locomotion blend | 15 Sep, Unity 707defe; export PENDING-EXPORT | CourtPlayProbe (sampling started once, 130,074 frames): all four left their start spots by 4.48–6.53 m and came within 0.59–0.60 m of the net; 28 spikes, attacker a mean 1.39 m from the net, blocker 0.60 m; six-frame render sequence |
+| R-74 Every spectator animates on the spot with clips already in the project (looped clapping, cheering, photo; project-owned controllers without walks); the three walkers on the left stand and animate | 15 Sep, Unity 415375c; export PENDING-EXPORT | CourtPlayProbe, 70 s: 25 of 25 animate on the spot (17 before), 0 of 25 controllers contain a walk clip, the three walkers moved 0.00 m |
+| R-71 Mouse-wheel and +/- zoom on all three 3D Court cameras (dolly, clamped per preset, reset on switching); overhead camera y 40 → 24. The first test saw no zoom because preset positions lived in a Dictionary that a mid-Play domain reload emptied; positions are no longer stored | 15 Sep, Unity 347e193; export PENDING-EXPORT | CourtPlayProbe, input queued through the Input System and the camera read back: 3/3 presets pass clean and after a forced reload (unfixed script 0/3) — close 19.09 m, +9/−8; wide 17.08 m, +8/−10; overhead 21.40 m (was 37.40), +10/−16; switch resets to 0.00 m |
 | R-77 A watched match completes through the same code as Sim Result and counts; seasons and the season's losses counted at the season boundary; 8 unreachable or dishonest achievements deleted, the rest say their real trigger (30 → 22) | 15 Sep, def721c | watched-match 10/10: the 22 served, no deleted key or loan text; a watched match completes on its own and moves wins, career stats, purse, First Steps; simulate the same; watched then simulated counts once. rollover: five-season careers complete 5 seasons and unlock Local Legend |
 | R-75 Pool players' skin tones drawn from their nation's own tone counts among the seeded players (continent counts for 5 nations with none); pool players had no tone before, so 120 of 120 set | 15 Sep, 85ca86c | pool-skin-tones 4/4: all 120 banded; a re-run of the draw changes nothing; every away pool player's payload tone is her stored tone; an older save gets all 120 on boot. club-kits 14/14, unity-match-state-payload 9/9 on the same build |
 | R-73 The wizard's colours reach the court: the away pair is the fixture's own AI club in that club's kit (was two club-less free agents in Unity's red fallback); all 60 AI clubs have distinct two-hex kits; a null kit is warned about | 15 Sep, 75e8ed8 | club-kits 14/14: a wizard career played to the draw, 54 matches — 108 home players in the exact hexes, every away pair its fixture's pool pair in its kit, 18 opponents 18 kits, no warning; a nulled kit sent null with a warning; an older save given 60 kits on boot. unity-match-state-payload 9/9 |
