@@ -2661,6 +2661,47 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-75 — CLOSED (15 Sep, PENDING-R75) MEDIUM: pool pairs' skin tones drawn from their nation's own distribution
+**Rob (15 Sep):**
+- Pool-pair skin tones are random per player.
+- A pair from one nationality should draw from that nationality's tone distribution. The table comes
+  from the seeded players' own nationality→tone counts, with no invented mapping, so teammates
+  usually look like they are from the same country.
+- Re-seed the pool pairs' tones and report how many changed.
+
+**Found:**
+- **There was nothing to re-seed.** Pool players had no skin tone anywhere:
+  `continental_pool_players` had no column for one, and the court never showed them. Its away pair was
+  two free agents, whose tones came from `seed-player-v4.ts`'s uniform random pick (R-73). All 120 pool
+  players therefore get a tone for the first time: 120 changed, from none.
+- **The source counts are themselves random.** The seeded players' tones are those same uniform picks
+  (the starter DB holds Light 56, Medium Light 62, Medium 56, Medium Dark 55, Dark 47). Per nation the
+  counts are tiny: 276 players over 65 nations, 1–4 each. A distribution built from them cannot make
+  teammates look alike much more often than chance. That limit is in the seeded players' data, not in
+  the draw.
+
+**Fix:**
+- **New column.** `continental_pool_players` gains `skin_tone`.
+- **The counts.** `scripts/src/seed-pool-skin-tones.ts` counts nationality → tone over the 276 seeded
+  players. Demonyms and country names resolve to one nation through `nationName()`.
+- **The draw.** Each pool player draws from her nation's counts, seeded by her stable_id, so a re-run
+  gives the same result.
+- **Five nations have no seeded player:** Poland (Polish), South Korean, Emirati, Ghanaian and Saudi.
+  Their 10 players draw from their continent's counts.
+- **Result:**
+  - 120 of 120 set.
+  - Bands: Light 20, Medium Light 27, Medium 26, Medium Dark 26, Dark 21.
+  - 20 of 60 pairs share one tone.
+- **Where it applies.** Written to the starter DB; older saves get the tones on boot (the update-only
+  reference list). `/unity/match-state` sends each away pool player her tone.
+
+**Harness (new):** `harness/pool-skin-tones.mjs`, 4/4.
+- Every pool player has one of the five bands.
+- Re-running the draw against the shipped DB changes nothing, so the stored tones are the counted
+  draw.
+- After the World Tour draw, every away pool player's skinTone in the payload is her stored tone.
+- A save from before the column gets all 120 tones on boot.
+
 ### R-73 — CLOSED (15 Sep, 75e8ed8) HIGH: the wizard's club colours never reached the 3D Court
 **Rob (15 Sep):** he picked club colours for Sydney Riptide in the wizard, yet the 3D Court showed red
 and blue defaults. Brief:
@@ -3671,6 +3712,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-75 Pool players' skin tones drawn from their nation's own tone counts among the seeded players (continent counts for 5 nations with none); pool players had no tone before, so 120 of 120 set | 15 Sep, PENDING-R75 | pool-skin-tones 4/4: all 120 banded; a re-run of the draw changes nothing; every away pool player's payload tone is her stored tone; an older save gets all 120 on boot. club-kits 14/14, unity-match-state-payload 9/9 on the same build |
 | R-73 The wizard's colours reach the court: the away pair is the fixture's own AI club in that club's kit (was two club-less free agents in Unity's red fallback); all 60 AI clubs have distinct two-hex kits; a null kit is warned about | 15 Sep, 75e8ed8 | club-kits 14/14: a wizard career played to the draw, 54 matches — 108 home players in the exact hexes, every away pair its fixture's pool pair in its kit, 18 opponents 18 kits, no warning; a nulled kit sent null with a warning; an older save given 60 kits on boot. unity-match-state-payload 9/9 |
 | R-70 The top bar shows the round of the competition being played (Continental R7/10, World Tour R31/57, Finals, Off-season); the season is 69 rounds and 78 was the schedule's slots; match screens name a match's round the same way | 15 Sep, 3f57266 | season-phase 16/16: every phase at its boundary slots including open date 41; all 57 events named R1–R57; upcoming events 28 of 69 remaining at World Tour R31; the label follows the real clock; smoke reads scheduleSlot; full run 35/35 passed |
 | R-68 Pressing Play gives visible feedback: the date re-animates each simulated day, a bar fills across the ticker interval, a dot pulses (interim; subsumed by R-72's 7-day strip) | 15 Sep, c787e14 | calendar-tick 7/7: source and served bundle carry the tick, the bar and the dot; reduced motion honoured |

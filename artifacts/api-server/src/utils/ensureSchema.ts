@@ -391,6 +391,10 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
   // dev-only routes/dev.ts), and the values come from
   // scripts/src/seed-pool-kits.ts alone.
   continental_pool_teams: ["primary_color", "secondary_color"],
+  // R-75: pool players' skin tones, on the same terms — nothing in the server
+  // updates a pool player row, and the values come from
+  // scripts/src/seed-pool-skin-tones.ts alone.
+  continental_pool_players: ["skin_tone"],
 };
 
 export type EnsureReferenceDataResult = {

@@ -334,8 +334,8 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       height:         0,
       primaryColor:   team.primaryColor ?? null,
       secondaryColor: team.secondaryColor ?? null,
-      // No tone is recorded for a pool player; Unity leaves the prefab skin and says so.
-      skinTone:       null,
+      // R-75: her own band, drawn from her nation's distribution.
+      skinTone:       pp.skinTone ?? null,
       source:         "pool" as const,
     };
   }

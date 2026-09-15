@@ -1168,6 +1168,10 @@ export const continentalPoolPlayersTable = sqliteTable("continental_pool_players
   block:       integer("block").notNull().default(60),
   stamina:     integer("stamina").notNull().default(60),
   imageUrl:    text("image_url"),
+  // R-75: one of the five skin tone bands the 3D Court knows (Light … Dark),
+  // drawn from her nation's own distribution among the seeded players.
+  // REFERENCE: written by scripts/src/seed-pool-skin-tones.ts only.
+  skinTone:    text("skin_tone"),
   createdAt:   integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
