@@ -48,6 +48,8 @@ import { WORLD_TOUR } from "../data/worldTour.js";
 import { getWeatherEffects } from "../routes/matches.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import { simulateRegionalRound, resolveRegionalSeason } from "./regionalSeason.js";
+import { playOlympicsTx, type OlympicOutcome } from "./olympics.js";
+import { updatePlayerState } from "../lib/playerDto.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -741,6 +743,8 @@ export type WorldTourProgress = {
   /** Why the World Tour cannot move yet, for a 409. Null when it did. */
   blocked: string | null;
   aiPlayed: number;
+  /** R-61: the Olympic tournament, when this call is the one that played it. */
+  olympics?: OlympicOutcome | null;
 };
 
 /**
@@ -766,7 +770,7 @@ export async function advanceWorldTour(opts: {
     await catchUpRegionalSeason(careerSaveId, seasonYear);
   }
 
-  return db.transaction((tx): WorldTourProgress => {
+  const progress = db.transaction((tx): WorldTourProgress => {
     const draw = drawWorldTourTx(tx, careerSaveId, seasonYear, playerTeamId);
     if (!draw.drawn) {
       return {
@@ -778,7 +782,12 @@ export async function advanceWorldTour(opts: {
 
     let aiPlayed = playWorldTourUpToTx(tx, careerSaveId, seasonYear, playerTeamId,
       Math.min(upToRound, WORLD_TOUR_END));
+    let olympics: OlympicOutcome | null = null;
     if (upToRound >= FINALS_START) {
+      // R-61: in an Olympic year the Olympics come first — once every regular
+      // World Tour fixture is decided, before the semi-finals are seeded — so
+      // qualifying is on the regular season's points (utils/olympics.ts).
+      olympics = playOlympicsTx(tx, careerSaveId, seasonYear, playerTeamId);
       seedWorldFinalsTx(tx, careerSaveId, seasonYear, playerTeamId);
       aiPlayed += playWorldTourUpToTx(tx, careerSaveId, seasonYear, playerTeamId, FINALS_START);
     }
@@ -786,8 +795,16 @@ export async function advanceWorldTour(opts: {
       seedWorldFinalTx(tx, careerSaveId, seasonYear, playerTeamId);
       aiPlayed += playWorldTourUpToTx(tx, careerSaveId, seasonYear, playerTeamId, FINALS_END);
     }
-    return { drawn: true, blocked: null, aiPlayed };
+    return { drawn: true, blocked: null, aiPlayed, olympics };
   });
+
+  // An Olympic medal is part of the player's own record. Player state is written
+  // through playerDto (check-write-boundaries), which cannot run inside the
+  // synchronous transaction above.
+  for (const h of progress.olympics?.honours ?? []) {
+    await updatePlayerState(careerSaveId, h.playerId, { olympicMedalsCount: h.olympicMedalsCount });
+  }
+  return progress;
 }
 
 export const NOT_QUALIFIED_MESSAGE = "Your club did not qualify for this World Finals match.";

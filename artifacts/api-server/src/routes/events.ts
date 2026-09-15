@@ -6,13 +6,14 @@ import {
   matchesTable,
   seasonsTable,
   continentalScoutingMissionsTable,
-  olympicSelectionsTable,
   facilitiesTable,
   activeCampsTable,
 } from "@workspace/db";
 import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
-import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { getActiveSeason, getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
+import { requireCareerSaveId } from "../lib/playerDto.js";
+import { isOlympicYear, nextOlympicsYear, olympicDate, olympicTournament } from "../utils/olympics.js";
 
 const router = Router();
 
@@ -175,35 +176,30 @@ router.get("/events/upcoming", async (req, res) => {
     });
   }
 
-  // ── 4. Olympic status ────────────────────────────────────────────────────
-  const [olympicSel] = await db
-    .select()
-    .from(olympicSelectionsTable)
-    .where(eq(olympicSelectionsTable.userId, userId));
-
-  if (olympicSel) {
+  // ── 4. The Olympic Games (R-61) ──────────────────────────────────────────
+  // Olympic years only, after the last regular World Tour round and before the
+  // World Finals. Nations qualify, not clubs; this says when, and what happened.
+  {
+    const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+    const seasonYear = (await getActiveSeasonForCareer(careerSaveId))?.year ?? Number(gameDate.slice(0, 4));
+    const olympicsYear = nextOlympicsYear(seasonYear);
+    const played = isOlympicYear(seasonYear) ? olympicTournament(careerSaveId, seasonYear) : null;
+    const date = olympicDate(olympicsYear);
+    const days = played ? null : daysBetween(gameDate, date);
     items.push({
-      id: "olympic_qualified",
+      id: `olympics_${olympicsYear}`,
       type: "olympic",
-      title: `${olympicSel.selectedFlag} Olympic Campaign`,
-      subtitle: `Representing ${olympicSel.selectedCountry}`,
-      location: "International",
-      daysRemaining: null,
-      prizeMoney: null,
-      urgency: "upcoming",
-      detail: "Your squad is registered for the Olympic programme. Maintain form and fitness.",
-    });
-  } else {
-    items.push({
-      id: "olympic_qualification",
-      type: "olympic",
-      title: "🏅 Olympic Qualification",
-      subtitle: "Not yet qualified",
+      title: `🏅 Olympic Games ${olympicsYear}`,
+      subtitle: played
+        ? `Played — gold to ${played.medals.gold.nation}`
+        : isOlympicYear(seasonYear) ? "This season, before the World Finals" : `Qualification on the ${olympicsYear} World Tour`,
       location: null,
-      daysRemaining: null,
+      daysRemaining: days != null && days >= 0 ? days : null,
       prizeMoney: null,
-      urgency: "planning",
-      detail: "Win continental titles or achieve top World Tour rankings to qualify for Olympic selection.",
+      urgency: played ? "planning" : urgency(days != null && days >= 0 ? days : null),
+      detail: played
+        ? `Silver to ${played.medals.silver.nation}, bronze to ${played.medals.bronze.nation}.`
+        : "The 12 nations with the most World Tour ranking points that season, each represented by its two highest-rated players at any club.",
     });
   }
 

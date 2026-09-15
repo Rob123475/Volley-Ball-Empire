@@ -344,7 +344,7 @@ export default function TrophyCabinet() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <Medal className="h-4 w-4 text-yellow-400" /> Medal Haul
                 </CardTitle>
-                <CardDescription>Your Olympic medal record as national coach</CardDescription>
+                <CardDescription>Olympic medals won by your club's players for their nations</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-around py-4">

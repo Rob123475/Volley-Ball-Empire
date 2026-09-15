@@ -10928,7 +10928,7 @@ export const GetUpcomingEventsResponse = zod.object({
 export const GetClubNewsResponse = zod.object({
   "items": zod.array(zod.object({
   "id": zod.string().describe('<type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final.'),
-  "type": zod.enum(['result', 'signing', 'board', 'trophy', 'champion']),
+  "type": zod.enum(['result', 'signing', 'board', 'trophy', 'champion', 'olympic']),
   "headline": zod.string(),
   "detail": zod.string(),
   "date": zod.string().describe('Game date (YYYY-MM-DD) it happened on.'),
@@ -11296,96 +11296,6 @@ export const GetDashboardResponse = zod.object({
 })),
   "willForfeit": zod.boolean().describe('Fewer than two players are fit to play, so the match would be forfeited.')
 }).nullish().describe('R-50: the pair that would take the court for the next match, how fit they are, and who cannot be selected. The same selection the match itself makes.')
-})
-
-
-/**
- * @summary List eligible Olympic countries with their squads
- */
-export const ListOlympicCountriesResponseItem = zod.object({
-  "country": zod.string(),
-  "flag": zod.string(),
-  "playerCount": zod.number(),
-  "squad": zod.array(zod.object({
-  "id": zod.number().nullish(),
-  "name": zod.string(),
-  "nationality": zod.string(),
-  "age": zod.number(),
-  "speed": zod.number(),
-  "power": zod.number(),
-  "defense": zod.number(),
-  "serve": zod.number(),
-  "block": zod.number(),
-  "stamina": zod.number(),
-  "isReserve": zod.boolean(),
-  "imageUrl": zod.string().nullish()
-}))
-})
-export const ListOlympicCountriesResponse = zod.array(ListOlympicCountriesResponseItem)
-
-
-/**
- * @summary Get the current user's Olympic country selection
- */
-export const GetOlympicSelectionResponse = zod.object({
-  "country": zod.string(),
-  "flag": zod.string(),
-  "squad": zod.array(zod.object({
-  "id": zod.number().nullish(),
-  "name": zod.string(),
-  "nationality": zod.string(),
-  "age": zod.number(),
-  "speed": zod.number(),
-  "power": zod.number(),
-  "defense": zod.number(),
-  "serve": zod.number(),
-  "block": zod.number(),
-  "stamina": zod.number(),
-  "isReserve": zod.boolean(),
-  "imageUrl": zod.string().nullish()
-}))
-})
-
-
-/**
- * @summary Save the user's Olympic country selection
- */
-export const SaveOlympicSelectionBody = zod.object({
-  "country": zod.string(),
-  "flag": zod.string(),
-  "squad": zod.array(zod.object({
-  "id": zod.number().nullish(),
-  "name": zod.string(),
-  "nationality": zod.string(),
-  "age": zod.number(),
-  "speed": zod.number(),
-  "power": zod.number(),
-  "defense": zod.number(),
-  "serve": zod.number(),
-  "block": zod.number(),
-  "stamina": zod.number(),
-  "isReserve": zod.boolean(),
-  "imageUrl": zod.string().nullish()
-}))
-})
-
-export const SaveOlympicSelectionResponse = zod.object({
-  "country": zod.string(),
-  "flag": zod.string(),
-  "squad": zod.array(zod.object({
-  "id": zod.number().nullish(),
-  "name": zod.string(),
-  "nationality": zod.string(),
-  "age": zod.number(),
-  "speed": zod.number(),
-  "power": zod.number(),
-  "defense": zod.number(),
-  "serve": zod.number(),
-  "block": zod.number(),
-  "stamina": zod.number(),
-  "isReserve": zod.boolean(),
-  "imageUrl": zod.string().nullish()
-}))
 })
 
 

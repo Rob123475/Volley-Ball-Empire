@@ -102,7 +102,10 @@ const COMP_TIERS = [
       "A country qualifies on the World Tour ranking points its players earned this season: the sum across all of that country's players, whichever club they play for",
       "The top 12 countries qualify; ties are broken by the best single-player total",
       "Player ratings play no part in qualifying",
-      "Group stage (4 groups, days 1–4) → Quarterfinals (day 5) → Semifinals (day 6) → Gold & Bronze medal matches (day 7)",
+      "Played in Olympic years only (years divisible by 4), after the last regular World Tour round and before the World Finals",
+      "Each nation is represented by its two highest-rated players at any club; injured players cannot be picked, and a nation that cannot field two gives its place to the next nation that can",
+      "4 groups of 3, each a round robin; the top two of each group reach the quarter-finals, then semi-finals, a bronze medal match and the gold medal match",
+      "Medals go on the players' records, and a club whose player wins one gets the Olympic medal in its trophy cabinet",
     ],
   },
 ];

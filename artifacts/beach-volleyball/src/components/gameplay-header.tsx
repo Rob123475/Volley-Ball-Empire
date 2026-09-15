@@ -4,8 +4,6 @@ import { CalendarPanel } from "@/components/calendar-panel";
 import {
   useGetCurrentAuthUser,
   getGetCurrentAuthUserQueryKey,
-  useGetOlympicSelection,
-  getGetOlympicSelectionQueryKey,
   useGetAttentionItems,
   getGetAttentionItemsQueryKey,
 } from "@workspace/api-client-react";
@@ -80,9 +78,6 @@ export function GameplayHeader() {
   const { data: user } = useGetCurrentAuthUser({
     query: { queryKey: getGetCurrentAuthUserQueryKey() },
   });
-  const { data: selection } = useGetOlympicSelection({
-    query: { queryKey: getGetOlympicSelectionQueryKey(), retry: false },
-  });
   const { data: attention } = useGetAttentionItems({
     query: { queryKey: getGetAttentionItemsQueryKey() },
   });
@@ -119,19 +114,6 @@ export function GameplayHeader() {
             </span>
           </div>
 
-          {selection ? (
-            <div className="flex items-center gap-1 rounded px-1.5 py-0.5 bg-blue-500/10 border border-blue-500/15">
-              <Medal className="h-3 w-3 text-blue-400 shrink-0" />
-              <span className="text-[11px] font-semibold text-blue-300 leading-none">
-                {selection.flag} {selection.country}
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 rounded px-1.5 py-0.5 bg-sidebar-accent/20 border border-sidebar-border">
-              <Medal className="h-3 w-3 text-sidebar-foreground/30 shrink-0" />
-              <span className="text-[11px] text-sidebar-foreground/30 italic leading-none">No nat. team</span>
-            </div>
-          )}
         </div>
 
         <VDiv />

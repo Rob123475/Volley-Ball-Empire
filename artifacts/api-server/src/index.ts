@@ -10,6 +10,7 @@ import {
 import { ensureSchema, ensureReferenceData } from "./utils/ensureSchema";
 import { dropRemovedContent } from "./utils/removedContent";
 import { finishClublessCareers } from "./utils/clublessCareers";
+import { syncOlympicSeasonFlags } from "./utils/olympics";
 
 // R-31: electron/main.js forks this process and already has a live IPC
 // channel to it (confirmed by its own pre-existing child.disconnect() call
@@ -199,6 +200,15 @@ try {
   }
 } catch (err) {
   logger.error({ err }, "finishing careers left without a club failed");
+}
+
+// R-61: every season row used to be created as a non-Olympic season. Olympic
+// years are the years divisible by 4.
+try {
+  const flags = syncOlympicSeasonFlags();
+  if (flags.updated > 0) logger.info({ updated: flags.updated }, "Olympic season flags corrected");
+} catch (err) {
+  logger.error({ err }, "correcting Olympic season flags failed");
 }
 
 app.listen(port, (err) => {

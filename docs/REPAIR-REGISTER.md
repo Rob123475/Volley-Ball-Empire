@@ -2661,6 +2661,90 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-62 — OPEN (registered 15 Sep): youth intake every season
+**Rob's brief:** every season rollover creates a new academy intake; ages 16–18; ratings drawn from
+the distribution the existing youth were seeded with; Club News reports it; never a player without an
+image.
+
+**Survey, reported before building (15 Sep):**
+- `attached_assets` holds 405 player portraits (217 distinct images). 111 are originals of cards
+  already in the game; **89 distinct portraits have no player row** (93 files), plus
+  `player_senior_peru_04.webp` in the public tree. Tags are the filename only — 45 name a country
+  (several misspelled: "columbia", "peurto_rico", "swiss", "png"), 43 name only a region (africa 12,
+  asia 12, europe 10, oceania 6, america 3), one is malformed. **Every one is an adult senior
+  trading card** with a printed name, nationality, age and role ("africa_01" prints Zandile
+  Mthethwa, South Africa, 24 yrs).
+- **No real youth portrait exists:** all 72 youth rows point at one blank "YOUTH PLAYER" template card.
+
+**Rob's decisions (15 Sep):**
+- New youth use the same blank youth template as the existing 72. Name and nationality are generated
+  from the club's country and region mix. The 89 unused adult cards are NOT for youth — kept as a
+  reserve for a senior free-agent refresh (V2, `docs/triage.md`).
+- **3 per club** per intake.
+- **AI clubs: none this release** — they stay fixed pairs. "AI squad turnover — ageing, retirements,
+  intake for AI clubs" is a V2 item.
+
+### R-61 — CLOSED (15 Sep, PENDING-R61): a real Olympic tournament
+**Rob's brief:** the 12 nations qualified under R-46 play a real event on the same match engine — 4
+groups of 3, top two to quarter-finals, knockout to a final and a bronze match. National pairs are
+the two highest-rated players of that nationality across all clubs; never invent players. At the end
+of the season before the World Finals. Results feed Club News and trophies (Olympic gold/silver/bronze
+for the players' clubs and a national honour on the player). Delete any remaining "draw only" code.
+
+**Found before building (15 Sep):**
+- **Format arithmetic:** 4 groups of 3 is 12 group matches; top two to quarter-finals then a final and
+  a bronze match is 4 + 2 + 1 + 1 = **8 knockout matches**, not the 16 in the brief's harness line.
+  Built and asserted as the format is written.
+- **Calendar:** World Tour round 70 (23 Nov) is followed directly by World Finals round 71 (27 Nov);
+  no slot lies between them. The tournament is played on that transition — once every regular World
+  Tour fixture is decided, before the semi-finals are seeded.
+- **Pairs:** the 120 AI pool-club players cover 55 nationality spellings; Irish and Portuguese have
+  one player each, and a nation represented only at the player's own club can have one. Rule taken: a
+  qualified nation that cannot field two real contracted players gives its place to the next-ranked
+  nation that can.
+
+**Rob's decision (15 Sep):** **Olympic years only** — years divisible by 4 (2028 in a career starting
+2026). Every season row was being created as non-Olympic.
+
+**Demolished:** the projected-draw schedule, the manager-picked "national coach" squad (three players
+including invented wildcards) with its `/olympics/countries` and `/olympics/selection` routes, the
+`olympic_selections` table (dropped at boot as removed content), the Locations page that only fed it,
+and the header badge.
+
+**Built (`utils/olympics.ts`):**
+- Season rows carry `is_olympic_season` for years divisible by 4, at creation, at rollover, and fixed
+  at boot for existing saves.
+- In an Olympic year, inside the World Tour's own transaction: once every regular fixture is decided
+  and BEFORE the semi-finals are seeded, the first 12 qualified nations (R-46 order) that can field a
+  pair play. A pair is the nation's two highest-rated players at any club — the 60 AI pool clubs and
+  the player's club (contracted, fit, not an academy junior). 4 groups of 3 drawn serpentine by seed,
+  round robins (12 matches), quarter-finals A1–C2 / B1–D2 / A2–C1 / B2–D1, semi-finals, bronze and
+  gold (8) — `sideRating` + `pointProbability` (no home advantage) + `simulateMatch`, the World Tour's
+  engine. Dated 25 Nov (between round 70 and the World Finals). Stored in `olympic_tournaments`,
+  `olympic_matches`, `olympic_medals`.
+- Honours: a medal row for each of the six medallists; for the player's club, a trophy per medal its
+  players won plus an appearance; the medal added to the player's own record.
+- Club News `olympic-<year>`; Olympic trophies dated by the tournament; calendar and upcoming events
+  show the Games only in an Olympic year; the schedule page shows the real groups, bracket and
+  medals, or says when the next Games are; National Squads shows each nation's current pair; the
+  rules page says all of this.
+
+**Reported:** 52 nations can field a pair; **2 cannot — Ireland and Portugal, one eligible player
+each.** Neither has qualified in any run. Rule applied, not invented players: a qualified nation that
+cannot field two gives its place to the next nation that can, and is recorded as passed over.
+
+**Harness (new):** `harness/olympics-tournament.mjs`, 24/24 — code demolished and on the World Tour
+engine, rules page text; a career played to 2028 (contracts renewed each season, as a manager would;
+the seeded squad swapped for Australia's three free-agent seniors and raised to 99 on the harness's
+own DB copy so the club's honours path is exercised): no Games in 2026/2027, one in 2028; played after
+every regular fixture and before the semi-finals; 12 nations in qualifying order; every pair is the
+nation's current top two, all real; 12 group + 8 knockout matches, every score a real best-of-three;
+the bracket follows the tables; one gold/silver/bronze with the pairs as medallists; the club's pair
+(Charlotte Wade, Mia Anderson) won gold, both carry the medal, trophies exactly
+[olympic_appearance, olympic_gold]; Club News "Australia win Olympic gold 2028" dated 25 Nov.
+`olympic-qualification` 29/29 and `fake-content-removed` 11/11 updated for the real schedule.
+The brief's harness line said 16 knockout matches; this format plays 8, asserted as 8.
+
 ### R-60 — CLOSED (15 Sep, 3267c4b): Resign and Break Contract end the career; no save is left without a club
 **Rob's decision (15 Sep):** for this release both END the career — a confirmation dialog that says
 plainly "This ends your career at <club>. There is no job market yet.", then the career goes to the
@@ -3072,6 +3156,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-61 A real Olympic tournament in Olympic years: 12 qualified nations, their real top-two pairs, 4 groups of 3 then quarter-finals, semi-finals, bronze and gold on the World Tour engine; medals, trophies, Club News | 15 Sep, PENDING-R61 | olympics-tournament 24/24: 2028 only; 12 nations; 12 group + 8 knockout real scores; bracket follows tables; club pair won gold with medals and trophies; news dated 25 Nov. Ireland and Portugal cannot field a pair (1 each) |
 | R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, 3267c4b | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |
 | R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, bb37664 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |

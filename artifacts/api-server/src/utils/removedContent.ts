@@ -32,11 +32,18 @@ export const REMOVED_TABLES = [
 
 const REMOVED_SUMMARY_COLUMN = "youth" + "_result";
 
+/**
+ * R-61: the "national coach" selection — a manager-picked three-player Olympic
+ * squad that could include invented wildcard players. The real tournament picks
+ * each nation's pair by rule (utils/olympics.ts); nothing references this table.
+ */
+export const REMOVED_OLYMPIC_TABLES = ["olympic_selections"] as const;
+
 export function dropRemovedContent(): { dropped: string[] } {
   const dropped: string[] = [];
   const tableExists = sqlite.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?");
 
-  for (const table of REMOVED_TABLES) {
+  for (const table of [...REMOVED_TABLES, ...REMOVED_OLYMPIC_TABLES]) {
     if (!tableExists.get(table)) continue;
     sqlite.exec(`DROP TABLE "${table}"`);
     dropped.push(table);

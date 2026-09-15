@@ -8,6 +8,7 @@ import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-confidence.js";
 import { awardSeasonTrophiesTx } from "./seasonTrophies.js";
+import { isOlympicYear } from "./olympics.js";
 
 /**
  * Season rollover.
@@ -212,7 +213,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       // round->date interpolation keeps landing where worldTour expects.
       startDate:               `${nextYear}-01-01`,
       endDate:                 `${nextYear}-12-31`,
-      isOlympicSeason:         false,
+      isOlympicSeason:         isOlympicYear(nextYear),
       regionalRoundsProcessed: 0,
     }).returning().all();
 

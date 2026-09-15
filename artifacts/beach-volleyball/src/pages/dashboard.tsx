@@ -1214,7 +1214,7 @@ function UpcomingEventsWidget({ items }: { items: UpcomingEventItem[] }) {
     };
     const nav     = evt.type === "match"           ? "/matches"
                   : evt.type === "scouting_return" ? "/continental-scouting"
-                  : evt.type === "olympic"         ? "/locations"
+                  : evt.type === "olympic"         ? "/olympics"
                   : evt.type === "facility_action" ? facilityNav(evt.title)
                   : null;
 
@@ -1346,6 +1346,7 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   board:    { icon: "📋", label: "Board",       pill: "bg-slate-400/15 text-slate-300 border-slate-400/25",    dot: "bg-slate-400"  },
   trophy:   { icon: "🏆", label: "Honour",      pill: "bg-yellow-400/15 text-yellow-300 border-yellow-400/25", dot: "bg-yellow-400" },
   champion: { icon: "👑", label: "World Final", pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",    dot: "bg-amber-400"  },
+  olympic:  { icon: "🥇", label: "Olympics",    pill: "bg-orange-400/15 text-orange-300 border-orange-400/25", dot: "bg-orange-400" },
 };
 
 function gameDateLabel(date: string) {

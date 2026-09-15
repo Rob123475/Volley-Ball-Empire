@@ -592,35 +592,93 @@ export const promoDealsTable = sqliteTable("promo_deals", {
 
 export type PromoDeal = typeof promoDealsTable.$inferSelect;
 
-export type OlympicPlayerData = {
-  id: number | null;
+// ── R-61: the Olympic tournament a career plays ──────────────────────────────
+//
+// Olympic years only, after the last regular World Tour round and before the World
+// Finals (artifacts/api-server/src/utils/olympics.ts). Replaced the manager's
+// "national coach" selection table, where a manager picked a three-player squad
+// that could include invented wildcard players (dropped at boot: removedContent.ts).
+
+/** A player in a national pair: a real player at the career's club, or an AI pool club's. */
+export type OlympicPlayerEntry = {
+  kind: "player" | "pool";
+  id: number;
   name: string;
-  nationality: string;
-  age: number;
-  speed: number;
-  power: number;
-  defense: number;
-  serve: number;
-  block: number;
-  stamina: number;
-  isReserve: boolean;
-  imageUrl?: string | null;
+  club: string;
+  teamId: number | null;
+  poolTeamId: number | null;
+  rating: number;
 };
 
-export const olympicSelectionsTable = sqliteTable("olympic_selections", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  userId: text("user_id").notNull().unique().references(() => usersTable.id),
-  selectedCountry: text("selected_country").notNull(),
-  selectedFlag: text("selected_flag").notNull(),
-  squad: text("squad", { mode: "json" }).$type<OlympicPlayerData[]>().notNull().default([]),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdate(() => new Date()),
+export type OlympicFieldEntry = {
+  seed: number;
+  nation: string;
+  flag: string;
+  points: number;
+  qualifyingRank: number;
+  rating: number;
+  pair: OlympicPlayerEntry[];
+};
+
+/** A qualified nation that could not field two real, fit players at any club. */
+export type OlympicPassedOver = { nation: string; flag: string; qualifyingRank: number; eligible: number };
+
+export const olympicTournamentsTable = sqliteTable("olympic_tournaments", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  playedOn:     text("played_on").notNull(),
+  field:        text("field", { mode: "json" }).$type<OlympicFieldEntry[]>().notNull(),
+  passedOver:   text("passed_over", { mode: "json" }).$type<OlympicPassedOver[]>().notNull(),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("olympic_tournaments_career_season").on(t.careerSaveId, t.seasonYear),
+]);
+
+export type OlympicTournament = typeof olympicTournamentsTable.$inferSelect;
+
+export const olympicMatchesTable = sqliteTable("olympic_matches", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  tournamentId: integer("tournament_id").notNull().references(() => olympicTournamentsTable.id),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  /** group | quarter_final | semi_final | bronze | gold */
+  stage:        text("stage").notNull(),
+  label:        text("label").notNull(),
+  groupName:    text("group_name"),
+  homeNation:   text("home_nation").notNull(),
+  awayNation:   text("away_nation").notNull(),
+  homeRating:   real("home_rating").notNull(),
+  awayRating:   real("away_rating").notNull(),
+  homeSets:     integer("home_sets").notNull(),
+  awaySets:     integer("away_sets").notNull(),
+  sets:         text("sets", { mode: "json" }).$type<{ home: number; away: number }[]>().notNull(),
+  winnerNation: text("winner_nation").notNull(),
+  playedOn:     text("played_on").notNull(),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
-export type OlympicSelection = typeof olympicSelectionsTable.$inferSelect;
+export type OlympicMatch = typeof olympicMatchesTable.$inferSelect;
+
+export const olympicMedalsTable = sqliteTable("olympic_medals", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  tournamentId: integer("tournament_id").notNull().references(() => olympicTournamentsTable.id),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  /** gold | silver | bronze */
+  medal:        text("medal").notNull(),
+  nation:       text("nation").notNull(),
+  playerKind:   text("player_kind").notNull(),
+  playerId:     integer("player_id").references(() => playersTable.id),
+  poolPlayerId: integer("pool_player_id").references(() => continentalPoolPlayersTable.id),
+  playerName:   text("player_name").notNull(),
+  clubName:     text("club_name").notNull(),
+  teamId:       integer("team_id").references(() => teamsTable.id),
+  poolTeamId:   integer("pool_team_id").references(() => continentalPoolTeamsTable.id),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});
+
+export type OlympicMedal = typeof olympicMedalsTable.$inferSelect;
 
 export const facilitiesTable = sqliteTable("facilities", {
   id: integer("id").primaryKey({ autoIncrement: true }),

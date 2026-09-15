@@ -99,7 +99,10 @@ const CLEAR_TABLES = [
   "manager_season_summaries",
   "match_live_state",
   "matches",
-  "olympic_selections",
+  // R-61: the Olympic tournaments a career plays.
+  "olympic_medals",
+  "olympic_matches",
+  "olympic_tournaments",
   "promo_deals",
   "regional_league_fixtures",
   "regional_league_results",

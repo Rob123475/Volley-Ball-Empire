@@ -350,6 +350,15 @@ opening the app, not by any check.
 
 Not repairs and not scheduled — parked so they are not lost.
 
+- **A senior free-agent refresh from the unused adult cards** (15 September 2026, R-62). 89
+  distinct real senior trading cards in `attached_assets` have no player row (45 tagged with a
+  country in the filename, 43 only with a region — the nation is printed on the card). Rob: they
+  are not for youth; keep them as a reserve for refreshing the senior free-agent market. Each card
+  prints a name, nationality, age and role, so each must be opened and recorded (as
+  `scripts/captions.json` does) before it becomes a player.
+- **AI squad turnover** (15 September 2026, R-62). AI clubs are fixed pairs of reference players:
+  they never age, retire or take in youth, while the player's club does all three. Rob: ageing,
+  retirements and intake for AI clubs, as a V2 item.
 - **A real job market.** Rob wants it if time allows (15 September 2026, R-60). For this
   release Resign and Break Contract END the career, because the only job market the game
   had was invented (hardcoded listings, R-43) and accepting a job created a club with no

@@ -247,7 +247,7 @@ try {
   const today = read("SELECT current_date AS d FROM calendar_state WHERE team_id = ?", career.teamId)[0]?.d ?? "";
   const bad = [];
   for (const it of items) {
-    const m = /^(result|signing|trophy|board|champion)-(\d+)$/.exec(it.id ?? "");
+    const m = /^(result|signing|trophy|board|champion|olympic)-(\d+)$/.exec(it.id ?? "");
     if (!m || m[1] !== it.type) { bad.push(`${it.id}: unknown kind`); continue; }
     const id = Number(m[2]);
     if (!(typeof it.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(it.date) && it.date <= today.slice(0, 10))) bad.push(`${it.id}: date ${it.date} vs today ${today}`);
@@ -264,6 +264,8 @@ try {
       if (read("SELECT COUNT(*) AS n FROM trophies WHERE id = ? AND team_id = ?", id, career.teamId)[0].n !== 1) bad.push(`${it.id}: no such trophy`);
     } else if (m[1] === "board") {
       if (read("SELECT COUNT(*) AS n FROM board_seasons WHERE id = ? AND career_save_id = ? AND outcome IS NOT NULL", id, career.careerSaveId)[0].n !== 1) bad.push(`${it.id}: no such review`);
+    } else if (m[1] === "olympic") {
+      if (read("SELECT COUNT(*) AS n FROM olympic_tournaments WHERE career_save_id = ? AND season_year = ?", career.careerSaveId, id)[0].n !== 1) bad.push(`${it.id}: no Olympic tournament played`);
     } else if (m[1] === "champion") {
       if (read("SELECT COUNT(*) AS n FROM world_tour_fixtures WHERE career_save_id = ? AND season_year = ? AND round = 72 AND status = 'completed'", career.careerSaveId, id)[0].n !== 1) bad.push(`${it.id}: no World Final played`);
     }
@@ -275,15 +277,16 @@ try {
   check("every item traces to its row, with that row's own game date", bad.length === 0 && items.length > 0, bad.slice(0, 5).join(" | ") || `${items.length} items checked`);
 
   // ── 5. Olympics ───────────────────────────────────────────────────────────
-  console.log("\n5. THE OLYMPIC SCHEDULE IS A PROJECTED DRAW");
+  // R-61 replaced the projected draw with a real tournament, played in Olympic
+  // years only (harness/olympics-tournament.mjs). A career's first season is not
+  // one, so there is nothing to show — and nothing is invented to fill the gap.
+  console.log("\n5. THE OLYMPIC SCHEDULE INVENTS NOTHING");
   const s1 = await api("GET", "/olympics/schedule");
   const s2 = await api("GET", "/olympics/schedule");
-  const matches = s1.data ? [...s1.data.groupStage.flatMap((g) => g.matches), ...s1.data.knockout.qf, ...s1.data.knockout.sf, ...s1.data.knockout.finals] : [];
-  check("no match has a score or a result, and two reads are identical",
-    // 4 groups x 3 + 4 quarter-finals + 2 semi-finals + bronze and gold = 20
-    s1.status === 200 && matches.length === 20 && matches.every((m) => m.status === "projected" && m.homeScore === null && m.awayScore === null)
+  check("outside an Olympic year there is no tournament, and two reads are identical",
+    s1.status === 200 && s1.data?.tournament === null && s1.data?.isOlympicYear === false
       && JSON.stringify(s1.data) === JSON.stringify(s2.data),
-    `HTTP ${s1.status}; ${matches.length} matches; ${matches.filter((m) => m.status !== "projected" || m.homeScore !== null).length} with a result; identical ${JSON.stringify(s1.data) === JSON.stringify(s2.data)}`);
+    `HTTP ${s1.status}; ${JSON.stringify({ isOlympicYear: s1.data?.isOlympicYear, olympicsYear: s1.data?.olympicsYear, tournament: s1.data?.tournament })}`);
 } finally {
   await shutdown(main);
 }

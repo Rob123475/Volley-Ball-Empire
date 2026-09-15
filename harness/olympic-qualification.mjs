@@ -326,10 +326,14 @@ check(`a tie on points is broken by best single-player total: ${T.country} (${aT
   !!aT && !aT.qualified && tiedIn.length > 0
     && tiedIn.every((c) => c.bestPlayerPoints > aT.bestPlayerPoints && c.rank < aT.rank),
   `rank ${aT?.rank}; ${tiedIn.length} qualified on the same points with best ${tiedIn[0]?.bestPlayerPoints}`);
-const drawn = new Set((read.sched.data?.groupStage ?? []).flatMap((g) => g.teams.map((t) => t.country)));
-const qualifiedA = A.filter((c) => c.qualified).map((c) => c.country);
-check("the Olympic schedule draws exactly the 12 qualified nations",
-  drawn.size === SPOTS && qualifiedA.every((c) => drawn.has(c)), [...drawn].join(", "));
+// R-61: the schedule no longer projects a draw. Outside an Olympic year it holds
+// no tournament and names the next Games; the tournament itself is
+// harness/olympics-tournament.mjs.
+const sched = read.sched.data ?? {};
+check("the Olympic schedule invents nothing: no tournament outside an Olympic year, and the next Games named",
+  read.sched.status === 200 && sched.tournament === null && sched.isOlympicYear === false
+    && sched.olympicsYear % 4 === 0 && sched.olympicsYear > sched.seasonYear,
+  JSON.stringify({ seasonYear: sched.seasonYear, isOlympicYear: sched.isOlympicYear, olympicsYear: sched.olympicsYear, tournament: sched.tournament }));
 
 // Sabotage: the old rule, ranking by rating, would have put H in and L out.
 const byRating = [...A].sort((a, b) => rating(b) - rating(a)).slice(0, SPOTS).map((c) => c.country);

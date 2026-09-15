@@ -15,4 +15,5 @@ export const ClubNewsItemType = {
   board: 'board',
   trophy: 'trophy',
   champion: 'champion',
+  olympic: 'olympic',
 } as const;

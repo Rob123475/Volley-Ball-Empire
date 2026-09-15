@@ -16,6 +16,7 @@ import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { ensureBoardSeason } from "../utils/board-confidence.js";
 import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
+import { isOlympicYear } from "../utils/olympics.js";
 import {
   isCareerDifficulty, startingBudgetFor,
   type CareerDifficulty,
@@ -252,7 +253,7 @@ router.post("/careers", async (req, res) => {
     currentRound:            1,
     startDate:               `${firstYear}-01-01`,
     endDate:                 `${firstYear}-12-31`,
-    isOlympicSeason:         false,
+    isOlympicSeason:         isOlympicYear(firstYear),
     regionalRoundsProcessed: 0,
   }).returning();
 

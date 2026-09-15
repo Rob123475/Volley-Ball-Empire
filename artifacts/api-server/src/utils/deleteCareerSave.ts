@@ -9,6 +9,9 @@ import {
   playerRankingPointsTable,
   boardSeasonsTable,
   careerHistoryEntriesTable,
+  olympicTournamentsTable,
+  olympicMatchesTable,
+  olympicMedalsTable,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
@@ -44,6 +47,11 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(playerRankingPointsTable).where(eq(playerRankingPointsTable.careerSaveId, careerSaveId)).run();
     // R-53: the board's season rows reference the save (NOT NULL).
     t.delete(boardSeasonsTable).where(eq(boardSeasonsTable.careerSaveId, careerSaveId)).run();
+    // R-61: the Olympic tournaments reference the save (NOT NULL); medals and
+    // matches reference their tournament, so they go first.
+    t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();
+    t.delete(olympicMatchesTable).where(eq(olympicMatchesTable.careerSaveId, careerSaveId)).run();
+    t.delete(olympicTournamentsTable).where(eq(olympicTournamentsTable.careerSaveId, careerSaveId)).run();
     t.delete(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).run();
   };
 

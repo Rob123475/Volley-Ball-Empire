@@ -6,7 +6,6 @@ import {
   playersTable,
   staffTable,
   matchesTable,
-  olympicSelectionsTable,
   financeTransactionsTable,
   trophiesTable,
 } from "@workspace/db";
@@ -50,11 +49,6 @@ router.get("/trophies/cabinet", async (req, res) => {
         (continentalFinalsByContinent[t.continent] ?? 0) + 1;
     }
   }
-
-  const [olympicSelection] = await db
-    .select()
-    .from(olympicSelectionsTable)
-    .where(eq(olympicSelectionsTable.userId, userId));
 
   const teamPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
@@ -164,12 +158,12 @@ router.get("/trophies/cabinet", async (req, res) => {
     },
     {
       id: "olympic_qual",
-      title: "Olympic Qualification",
-      description: "Qualify for the Olympics as a national coach",
+      title: "Olympian",
+      description: "Have one of your players play at the Olympic Games",
       icon: "medal",
       tier: "gold",
-      unlocked: !!olympicSelection,
-      progress: olympicSelection ? 1 : 0,
+      unlocked: olympicAppearances.length > 0,
+      progress: Math.min(1, olympicAppearances.length),
       target: 1,
     },
     {
@@ -298,7 +292,7 @@ router.get("/trophies/cabinet", async (req, res) => {
       gold: olympicGold.length,
       silver: olympicSilver.length,
       bronze: olympicBronze.length,
-      appearances: olympicAppearances.length + (olympicSelection ? 1 : 0),
+      appearances: olympicAppearances.length,
       hosts: olympicAppearances.map((t) => ({
         year: t.year ?? 0,
         location: t.locationName ?? "",

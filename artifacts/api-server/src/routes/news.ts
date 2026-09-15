@@ -7,6 +7,7 @@
  *   board-<board season id>   the board's season review
  *   trophy-<trophy id>        an honour the club won (R-42)
  *   champion-<season year>    that season's World Final
+ *   olympic-<season year>     that year's Olympic tournament (R-61)
  * Each carries the game date it happened on.
  *
  * This replaced a day-seeded generator of invented players, nations,
@@ -22,12 +23,13 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import { worldFinalsSummary } from "../utils/worldTour.js";
 import { getGameDate } from "../utils/gameDate.js";
+import { olympicTournament, olympicYearsPlayed } from "../utils/olympics.js";
 
 const router = Router();
 
 type NewsItem = {
   id: string;
-  type: "result" | "signing" | "board" | "trophy" | "champion";
+  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic";
   headline: string;
   detail: string;
   date: string;
@@ -39,7 +41,8 @@ const RECENT_SIGNINGS = 5;
 const MAX_ITEMS = 15;
 
 // On one date, the bigger story first.
-const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, champion: 1, board: 2, result: 3, signing: 4 };
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, result: 4, signing: 5 };
+const OLYMPIC_TROPHY_TYPES = new Set(["olympic_gold", "olympic_silver", "olympic_bronze", "olympic_appearance"]);
 
 const GRADE_WORDS: Record<string, string> = {
   met: "met expectations", below: "below expectations", failed: "failed expectations",
@@ -125,11 +128,27 @@ router.get("/news", async (req, res) => {
     }
   }
 
-  // Honours: written in the same transaction as the season's review (R-42), so
-  // each is dated by it.
+  // R-61: the Olympic tournaments this career has played.
+  const olympicPlayedOn = new Map<number, string>();
+  for (const year of olympicYearsPlayed(careerSaveId)) {
+    const t = olympicTournament(careerSaveId, year);
+    if (!t) continue;
+    olympicPlayedOn.set(year, t.playedOn);
+    const clubMedal = (["gold", "silver", "bronze"] as const)
+      .some((m) => t.medals[m].pair.some((p) => p.kind === "player" && p.teamId === team.id));
+    items.push({
+      id: `olympic-${year}`, type: "olympic", isUserTeam: clubMedal, date: t.playedOn,
+      headline: `${t.medals.gold.nation} win Olympic gold ${year}`,
+      detail: `Beat ${t.medals.silver.nation} in the gold medal match; bronze to ${t.medals.bronze.nation}`,
+    });
+  }
+
+  // Honours: season honours are written in the same transaction as the season's
+  // review (R-42) and dated by it; Olympic honours are dated by their tournament.
   const trophies = await db.select().from(trophiesTable).where(eq(trophiesTable.teamId, team.id));
   for (const t of trophies) {
-    const date = t.year != null ? reviewedOn.get(t.year) : undefined;
+    const date = t.year == null ? undefined
+      : OLYMPIC_TROPHY_TYPES.has(t.type) ? olympicPlayedOn.get(t.year) : reviewedOn.get(t.year);
     if (!date) continue;
     items.push({ id: `trophy-${t.id}`, type: "trophy", isUserTeam: true, date, headline: t.name, detail: t.notes ?? "" });
   }

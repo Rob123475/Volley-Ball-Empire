@@ -48,7 +48,6 @@ import ManagerContract    from "@/pages/manager-contract";
 import CareerHistory      from "@/pages/career-history";
 import LeagueLadders      from "@/pages/league-ladders";
 import Leaderboard        from "@/pages/leaderboard";
-import WorldTourLocations from "@/pages/locations";
 import Rules from "@/pages/rules";
 
 // Competition pages — Continental
@@ -171,7 +170,6 @@ function Router() {
               <Route path="/staff-market"       component={StaffMarket}       />
               <Route path="/medical"            component={MedicalCentre}     />
               <Route path="/leaderboard"        component={Leaderboard}       />
-              <Route path="/locations"          component={WorldTourLocations}/>
               <Route path="/trophy-cabinet"     component={TrophyCabinet}     />
               <Route path="/facilities"         component={Facilities}        />
               <Route path="/wellbeing"          component={Wellbeing}         />

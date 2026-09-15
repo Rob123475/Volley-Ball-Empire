@@ -24,7 +24,6 @@ import {
   wellbeingEffectsTable,
   youthProspectsTable,
   hallOfFameTable,
-  olympicSelectionsTable,
   userProfilesTable,
   careerSavesTable,
   careerPlayerStateTable,
@@ -173,13 +172,14 @@ export function deleteProfileCascade(userId: string): void {
       tx.delete(worldTourQualificationsTable).where(inArray(worldTourQualificationsTable.careerSaveId, saveIds)).run();
       // worldTourFixturesTable (R-29) is cleared per save by deleteCareerSave
       // above, before that save's career_saves row goes. playerRankingPointsTable
-      // (R-46) and boardSeasonsTable (R-53) are cleared there too.
+      // (R-46) and boardSeasonsTable (R-53) are cleared there too, as are the
+      // R-61 Olympic tables: olympicMedalsTable, olympicMatchesTable and
+      // olympicTournamentsTable.
     }
 
     // ── Remaining direct references to the user ────────────────────────────
     tx.delete(managerSeasonSummaryTable).where(eq(managerSeasonSummaryTable.userId, userId)).run();
     tx.delete(hallOfFameTable).where(eq(hallOfFameTable.userId, userId)).run();
-    tx.delete(olympicSelectionsTable).where(eq(olympicSelectionsTable.userId, userId)).run();
     tx.delete(userProfilesTable).where(eq(userProfilesTable.userId, userId)).run();
 
     if (teamIds.length > 0) {
