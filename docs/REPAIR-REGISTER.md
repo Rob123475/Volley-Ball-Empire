@@ -2700,7 +2700,7 @@ and `scripts/installer.nsh`.
 - accept a forfeit as a legal result in those two checks;
 - or play enough seasons that a champion is certain rather than likely.
 
-### R-66 — IN PROGRESS (15 Sep) MEDIUM: the installer offered a "Volley-Ball-Empire" install folder
+### R-66 — CLOSED (15 Sep, PENDING-R66) MEDIUM: the installer offered a "Volley-Ball-Empire" install folder
 **Rob (15 Sep, overnight brief):**
 - Fix the install folder name so it is "Beach Volleyball Empire", not "Volley-Ball-Empire". Check
   productName, directories, the NSIS settings and the after-pack script.
@@ -2729,19 +2729,79 @@ and `scripts/installer.nsh`.
   - The empty folder `C:\vbe-test-install\Volley-Ball-Empire\Beach Volleyball Empire` (created 15 Sep
     12:25) is what an installer offering that remembered folder produces.
 
-**Fix:** `scripts/installer.nsh`, wired in as `nsis.include`, adds a `customInit` step. When no `/D=`
-is given and the remembered folder's own name is not "Beach Volleyball Empire":
-- the remembered `InstallLocation` is deleted and the install mode set again;
-- so the default `<Programs>\Beach Volleyball Empire` is what the directory page offers and what a
-  silent install uses.
+**Fix (`scripts/installer.nsh`, wired in as `nsis.include`).** It applies when no `/D=` is given and
+the remembered folder's own name is not "Beach Volleyball Empire".
 
-What it leaves alone:
-- A remembered folder already named "Beach Volleyball Empire" is kept, so upgrades land where they
-  were.
-- The old version is still uninstalled: with no `InstallLocation`, `uninstallOldVersion` falls back to
-  its uninstaller's own folder.
+**First version, not kept.** `customInit` deleted the remembered `InstallLocation`.
+- The install landed in the right folder, but the old install's 953 files stayed behind.
+- The reason: the old version's own uninstaller reads that same value to find its folder. Its
+  `un.onInit` runs `initMultiUser`, which sets `$INSTDIR` from the registry and ignores the `_?=`
+  folder it is started with.
+- With the value gone, it looked in the default folder and removed nothing.
 
-**Proof:** PENDING-R66-PROOF
+**Kept:**
+- **Set aside.** `customInit` sets the value aside, deletes it and sets the install mode again, so the
+  folder is `<Programs>\Beach Volleyball Empire`. A silent install puts the value back at once.
+- **The pages.** The install-mode page re-reads the registry when it is left and finds nothing, so the
+  directory page offers the default.
+- **Before installing.** An invisible page after the directory page (`customPageAfterChangeDir`) puts
+  the value back before the install section runs `uninstallOldVersion`.
+- **Cancel.** Cancelling puts it back too (`MUI_CUSTOMFUNCTION_ABORT`).
+- **Left alone.** A remembered folder already named "Beach Volleyball Empire" is kept, so upgrades land
+  where they were.
+- **Not covered.** Choosing "all users" re-launches the installer elevated, and the outer process quits
+  without putting a per-user value back.
+
+**Proof.** Silent and interactive runs on this machine. The live save's sha256 was `06033863…` before
+and after every step.
+
+| Step | What happened |
+|---|---|
+| 0.9.0 installer, silent, into `C:\vbe-test-install-0.9.0-r65` | registry `InstallLocation` = that folder; uninstall entry "Beach Volleyball Empire 0.9.0"; 953 files |
+| 0.9.1 installer, interactive (driven through its own window: Next, read the folder box, Cancel) | the install-mode page says "There is already a per-user installation. Will reinstall/upgrade."; the directory page offers `C:\Users\rbonn\AppData\Local\Programs\Beach Volleyball Empire` (captured); after Cancel the registry holds `C:\vbe-test-install-0.9.0-r65` again |
+| 0.9.1 installer, silent, no `/D` | installed in `…\Programs\Beach Volleyball Empire` (953 files) in 11 s; the 0.9.0 folder emptied (953 → 0 files); registry and uninstall entry now 0.9.1 |
+| 0.9.1 again, silent | the same folder; nothing else changed |
+| 0.9.1 uninstaller, silent | 0 files; the registry keys gone; the save folder keeps its save |
+
+The first version, run through the same silent steps, landed in the right folder, but
+`C:\vbe-test-install-0.9.0-r65` kept its 953 files.
+
+**The 0.9.1 build** (`C:\build\vbe`, electron-builder 25.1.8, unsigned):
+- **Checks.**
+  - `package.json` version 0.9.0 → 0.9.1.
+  - `verify-native-abi` OK before the build and in `beforePack`.
+  - `verify-unity-brotli` OK: only the `.br` Unity files and the two `.js` were packaged.
+  - `[after-pack] OK`.
+  - The starter DB `lib/db/volleyball-empire.sqlite` is sha256 `68135375…`. Its empty harness WAL was
+    checkpointed away first; the hash did not change.
+- **NSIS installer** `Beach Volleyball Empire Setup 0.9.1.exe`: **335,301,232 bytes**, sha256
+  `548f6206c4758acda8cf83c56618790e022715fd5ae45567aa3f8c280235d396`. The build with the first
+  version, 335,301,126 bytes, was replaced.
+- **`win-unpacked`:** **952 files, 556,297,102 bytes.**
+  - sha256 of its sorted per-file sha256 list:
+    `ab3b700ed71043382a309b19d6c2ccae6f6855799c6ea39a7abe9b6ef08e2e55`.
+  - `Beach Volleyball Empire.exe`: 186,372,608 bytes, sha256
+    `3103c04be4856c6bccb0cdd78bb2b8ddc039af6706014f801fd0c3ea72f81ebb`, ProductVersion 0.9.1,
+    CompanyName Bean & Label.
+- **No starter DB sidecars:** `resources/starter-db` holds only `volleyball-empire.sqlite` (`68135375…`).
+- **The rest of the package:**
+  - `resources/public/unity-build/Build`: `.data.br` 214,583,435, `.wasm.br` 9,009,996, the
+    framework and loader;
+  - no `server/dist/public`;
+  - `app.asar` carries `setApplicationMenu(null)`, the dev-only `before-input-event` handler and the
+    `starter-reference.db` copy.
+- **Menu bar hidden.**
+  - `win-unpacked` was launched with `--user-data-dir` pointing into the scratchpad, never the live save.
+  - The window "Beach Volleyball Empire" has its title bar straight onto the page: **no menu bar**.
+    Select Manager showed "No profiles yet" (captured).
+- **Where that launch wrote.**
+  - `main.js` puts userData beside the folder it is given:
+    `path.join(path.dirname(app.getPath("userData")), APP_NAME)`.
+  - So the fresh profile was `scratchpad\Beach Volleyball Empire`:
+    - a new save identical to the starter DB;
+    - `starter-reference.db` with its empty sidecars, as R-65 recorded;
+    - no `-wal`/`-shm` beside the save after the normal close.
+  - 0 processes were left. The live save folder's newest file is from 14:21.
 
 ### R-76 — CLOSED (15 Sep, Unity 707defe; export 2d23dcc) HIGH: players stood rooted and never went to the net
 **Rob (15 Sep):** players stay rooted and never go to the net for a spike. Brief:
@@ -4066,6 +4126,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-66 The installer's folder is always `<Programs>\Beach Volleyball Empire`. A remembered folder with another name (a test install, the pre-rename "Volley-Ball-Empire") is not offered, and the old version is still uninstalled from where it is. Release build 0.9.1 | 15 Sep, PENDING-R66 | a stale 0.9.0 install recreated with its own installer. Interactive: the directory page offers …\Programs\Beach Volleyball Empire, and Cancel restores the registry. Silent: lands there and empties the old folder (953 → 0). Reinstall reuses the folder; uninstall is clean; the live save hash is unchanged throughout. Installer 335,301,232 bytes, sha256 548f6206…; win-unpacked 952 files; no sidecars; no menu bar (captured) |
 | R-76 Players move in the 3D Court: the set lands at the net and the attacker meets it; the nearer defender blocks at the net, her partner covers deep; everyone stays on court, animated by the existing locomotion blend | 15 Sep, Unity 707defe; export 2d23dcc | CourtPlayProbe (sampling started once, 130,074 frames): all four left their start spots by 4.48–6.53 m and came within 0.59–0.60 m of the net; 28 spikes, attacker a mean 1.39 m from the net, blocker 0.60 m; six-frame render sequence |
 | R-74 Every spectator animates on the spot with clips already in the project (looped clapping, cheering, photo; project-owned controllers without walks); the three walkers on the left stand and animate | 15 Sep, Unity 415375c; export 2d23dcc | CourtPlayProbe, 70 s: 25 of 25 animate on the spot (17 before), 0 of 25 controllers contain a walk clip, the three walkers moved 0.00 m |
 | R-71 Mouse-wheel and +/- zoom on all three 3D Court cameras (dolly, clamped per preset, reset on switching); overhead camera y 40 → 24. The first test saw no zoom because preset positions lived in a Dictionary that a mid-Play domain reload emptied; positions are no longer stored | 15 Sep, Unity 347e193; export 2d23dcc | CourtPlayProbe, input queued through the Input System and the camera read back: 3/3 presets pass clean and after a forced reload (unfixed script 0/3) — close 19.09 m, +9/−8; wide 17.08 m, +8/−10; overhead 21.40 m (was 37.40), +10/−16; switch resets to 0.00 m |

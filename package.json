@@ -1,6 +1,6 @@
 {
   "name": "workspace",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Beach Volleyball Empire — all-women beach volleyball management",
   "author": "Bean & Label",
   "license": "MIT",
@@ -63,7 +63,8 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "include": "scripts/installer.nsh"
     }
   }
 }

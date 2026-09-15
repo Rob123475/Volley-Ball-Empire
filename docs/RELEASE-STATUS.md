@@ -28,6 +28,8 @@ estimated.
 | 14 | R-71 | `2d23dcc` | 3D Court zoom on all three cameras: mouse wheel and +/- dolly the camera, clamped per preset, reset when the camera changes; the overhead camera starts at 24 m (was 40). The first batch test saw no zoom because the preset positions lived in a Dictionary that a mid-Play domain reload emptied; nothing is stored now. Unity `347e193` | CourtPlayProbe 3/3 presets, clean and after a forced reload: close 19.09 m, +9/−8 m; wide 17.08 m, +8/−10; overhead 21.40 m (was 37.40), +10/−16 |
 | 15 | R-76 | `2d23dcc` | Players move: the set lands at the net and the attacker meets it; the nearer defender blocks at the net, her partner covers deep; on court, with the existing locomotion clips. The movement test had sampled nothing (an Editor-folder component Unity would not attach); it now samples in the player loop and waits out the launch recompile. Unity `707defe` | CourtPlayProbe: all four left their spots by 4.48–6.53 m, all within 0.60 m of the net; 28 spikes at a mean 1.39 m, blocker 0.60 m |
 | 16 | R-74 | `2d23dcc` | Spectators: 25 of 25 animate on the spot (clapping, cheering, photo, idles already in the project); no controller holds a walk, so the three walkers on the left stand and animate. Unity `415375c` | CourtPlayProbe: 25/25, 0/25 controllers with a walk clip, walkers moved 0.00 m |
+| 17 | R-66 | `PENDING-R66` | The installer's folder is always "Beach Volleyball Empire" under Programs. It used to offer whatever folder an earlier install had recorded: on this machine a test folder, and before that "Volley-Ball-Empire" from the build before the rename. The old version is still removed from its own folder | install test: stale folder recreated with the 0.9.0 installer; the 0.9.1 directory page offers …\Programs\Beach Volleyball Empire; the silent install lands there, old folder 953 → 0 files; live save unchanged |
+| 18 | 0.9.1 | `PENDING-R66` | Release build 0.9.1, carrying R-66/71/73/74/75/76/77. Installer 335,301,232 bytes (sha256 `548f6206…`); win-unpacked 952 files / 556,297,102 bytes (manifest `ab3b700e…`); native ABI OK, only Brotli Unity files, no starter DB sidecars, no menu bar | full harness 38/38 on the rerun (first run 35/38, see R-78) |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -211,6 +213,13 @@ now on are kept out of other careers.
 **R-74 — spectators**
 24. The three girls by the tent clap and cheer on the spot. The figures on the left stand and move in
     place; nobody walks off anywhere.
+
+**R-66 and 0.9.1 — the installer**
+25. Run `C:\build\vbe\Beach Volleyball Empire Setup 0.9.1.exe`. On "Choose Install Location" the folder
+    ends in `\Programs\Beach Volleyball Empire`, with no "Volley-Ball-Empire" and no test folder
+    anywhere in it.
+26. Finish the install and start the game from the Start menu. There is no File/Edit/View menu bar,
+    and your profiles are there.
 
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game
