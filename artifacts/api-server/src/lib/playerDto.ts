@@ -258,7 +258,8 @@ export async function createCareerPlayer(
   reference: typeof playersTable.$inferInsert,
   state: Partial<CareerPlayerFields> & { age: number },
 ): Promise<PlayerDTO> {
-  const [created] = await db.insert(playersTable).values(reference).returning();
+  // R-62: owned by the career that created them, so no other save is seeded with them.
+  const [created] = await db.insert(playersTable).values({ ...reference, originCareerSave: careerSaveId }).returning();
   const [st] = await db.insert(careerPlayerStateTable)
     .values({ careerSaveId, playerId: created!.id, ...state })
     .returning();
@@ -426,6 +427,16 @@ export type CareerStateTx = {
    * stays 'youth' forever because it is shared by every save.
    */
   promoteAgedYouth(careerSaveId: number, minAge: number): Array<{ playerId: number; age: number }>;
+  /**
+   * R-62: create an athlete this career owns — the reference row and this
+   * career's state for them, both or neither, inside the caller's transaction.
+   * The season rollover's academy intake is the caller.
+   */
+  createPlayer(
+    careerSaveId: number,
+    reference: typeof playersTable.$inferInsert,
+    state: Partial<CareerPlayerFields> & { age: number },
+  ): number;
   insertLeagueResult(careerSaveId: number, values: {
     fixtureId: number; winnerId: number | null;
     homeSets: number; awaySets: number;
@@ -560,6 +571,16 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           .run();
       }
       return going;
+    },
+    createPlayer(careerSaveId, reference, state) {
+      const [created] = tx.insert(playersTable)
+        .values({ ...reference, originCareerSave: careerSaveId })
+        .returning({ id: playersTable.id })
+        .all();
+      tx.insert(careerPlayerStateTable)
+        .values({ careerSaveId, playerId: created!.id, ...state })
+        .run();
+      return created!.id;
     },
     insertLeagueResult(careerSaveId, values) {
       tx.insert(regionalLeagueResultsTable).values({ ...values, careerSaveId }).run();

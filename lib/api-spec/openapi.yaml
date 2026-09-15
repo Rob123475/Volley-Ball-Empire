@@ -3800,10 +3800,10 @@ components:
       properties:
         id:
           type: string
-          description: "<type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final."
+          description: "<type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final; olympic-<season year> for an Olympic tournament; academy-<season year> for an academy intake."
         type:
           type: string
-          enum: [result, signing, board, trophy, champion, olympic]
+          enum: [result, signing, board, trophy, champion, olympic, academy]
         headline:
           type: string
         detail:

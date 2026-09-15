@@ -12,6 +12,7 @@ import {
   olympicTournamentsTable,
   olympicMatchesTable,
   olympicMedalsTable,
+  youthIntakesTable,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
@@ -52,6 +53,8 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();
     t.delete(olympicMatchesTable).where(eq(olympicMatchesTable.careerSaveId, careerSaveId)).run();
     t.delete(olympicTournamentsTable).where(eq(olympicTournamentsTable.careerSaveId, careerSaveId)).run();
+    // R-62: the academy intakes reference the save (NOT NULL).
+    t.delete(youthIntakesTable).where(eq(youthIntakesTable.careerSaveId, careerSaveId)).run();
     t.delete(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).run();
   };
 

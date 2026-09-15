@@ -8,7 +8,7 @@
 import type { ClubNewsItemType } from './clubNewsItemType';
 
 export interface ClubNewsItem {
-  /** <type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final. */
+  /** <type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final; olympic-<season year> for an Olympic tournament; academy-<season year> for an academy intake. */
   id: string;
   type: ClubNewsItemType;
   headline: string;

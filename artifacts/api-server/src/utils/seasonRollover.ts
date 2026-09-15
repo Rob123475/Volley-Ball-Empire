@@ -9,13 +9,16 @@ import { worldTourStandingsTx } from "./worldTour.js";
 import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-confidence.js";
 import { awardSeasonTrophiesTx } from "./seasonTrophies.js";
 import { isOlympicYear } from "./olympics.js";
+import { youthIntakeTx, type IntakeResult } from "./youthIntake.js";
 
 /**
  * Season rollover.
  *
  * The arc is bounded at five seasons, so this is deliberately minimal: no deep
- * ageing curves, no procedural player generation, no self-sustaining world.
- * Those are only needed for an endless mode, which is deferred.
+ * ageing curves, no self-sustaining world. Those are only needed for an endless
+ * mode, which is deferred. The one thing it does create is the player's club's
+ * academy intake (R-62, utils/youthIntake.ts): three youth players each season
+ * it opens.
  *
  * Before this existed a career simply ran off the end of season one: the date
  * advanced past endDate, `atSeasonEnd` was computed and returned to the client,
@@ -76,7 +79,7 @@ export const yearForSeasonNumber = (n: number) => FIRST_SEASON_YEAR + n - 1;
 export type RolloverResult =
   | { kind: "none" }
   | { kind: "career-complete"; finalSeason: number; review: SeasonReview }
-  | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: SeasonReview }
+  | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: SeasonReview; intake: IntakeResult | null }
   | { kind: "sacked"; fromSeason: number; review: SeasonReview };
 
 /**
@@ -88,7 +91,8 @@ export type RolloverResult =
  * more than once — advancing several days at a time crosses it in one step.
  */
 export function rolloverSeason(careerSaveId: number, teamId: number): RolloverResult {
-  return withCareerStateTx(({ tx, ageAllPlayers, retireAgedPlayers, promoteAgedYouth }) => {
+  return withCareerStateTx((w) => {
+    const { tx, ageAllPlayers, retireAgedPlayers, promoteAgedYouth } = w;
     const [season] = tx
       .select()
       .from(seasonsTable)
@@ -250,12 +254,17 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // club carries into it — what next season's money places are measured from.
     ensureBoardSeasonTx(tx, careerSaveId, nextYear, teamId);
 
+    // R-62: the new season's academy intake, in the transaction that opened the
+    // season, dated its first day — so no season opens without its intake.
+    const intake = team ? youthIntakeTx(w, careerSaveId, teamId, nextYear, `${nextYear}-01-01`) : null;
+
     return {
       kind: "rolled",
       fromSeason: current,
       toSeason: nextNumber,
       newSeasonId: created!.id,
       review,
+      intake,
     } as const;
   });
 }

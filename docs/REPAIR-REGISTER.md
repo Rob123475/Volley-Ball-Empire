@@ -2661,7 +2661,7 @@ starting budget on the dashboard.
 
 ## LOW
 
-### R-62 — OPEN (registered 15 Sep): youth intake every season
+### R-62 — CLOSED (15 Sep, PENDING-R62): youth intake every season
 **Rob's brief:** every season rollover creates a new academy intake; ages 16–18; ratings drawn from
 the distribution the existing youth were seeded with; Club News reports it; never a player without an
 image.
@@ -2683,6 +2683,62 @@ image.
 - **3 per club** per intake.
 - **AI clubs: none this release** — they stay fixed pairs. "AI squad turnover — ageing, retirements,
   intake for AI clubs" is a V2 item.
+
+**Built (`utils/youthIntake.ts`, called from `rolloverSeason`):**
+- Every rollover that opens a season brings the player's club 3 youth players, in the same
+  transaction, dated the new season's first day, recorded in `youth_intakes`. A five-season career
+  crosses 5 boundaries: **4 open a season (2027–2030) and bring an intake; the 5th ends the career.**
+  None at career creation (the brief said "every season rollover").
+- Card: the blank youth template the 72 shipped youth wear. Age 16–18. Ratings and height: a normal
+  draw on the 72 shipped youth's measured mean and spread, kept inside the range they span; position
+  and potential in their exact mix (blocker 27 / defender 23 / all-rounder 22; High 47 / Elite 15 /
+  Average 10). The harness re-measures the starter DB, so the constants cannot drift.
+- Nationality: half from the club's own country (its location), the rest from the other core nations
+  of its region. Name: a real first name and a real surname of that nation's shipped and pool-club
+  athletes, recombined into a name no athlete already has. Nothing from outside the game's data.
+- Joins the academy: reserve, not active, an academy contract (the academy's weekly wage for the
+  potential; academy contracts are not renewed or expired as senior contracts are). No contracts row,
+  so the renewal route never sees them.
+- If no name is left in the club's region, fewer arrive; an intake of nobody is recorded, and Club
+  News says "The <club> academy found no one this year". Never a player without a real name.
+- Club News `academy-<year>`: "3 youth players join the <club> academy" with each name, nation and
+  age. The calendar's day events carry a line for it too (not asserted by any harness). Rules page: an
+  Academy section.
+
+**Found and fixed on the way — one career's created players leaked into every later career.**
+`seedCareerState` seeded state for EVERY `players` row, and players a career creates (draft picks,
+scouted signings, `POST /players`) are `players` rows — so a new save started with the previous
+save's creations as free agents. An intake every season would have made that routine.
+`players.origin_career_save_id` now records the owning career (set by `createCareerPlayer` and the new
+in-transaction `createPlayer`); a new career is seeded only with unowned athletes; the starter-DB
+build deletes owned rows. Owned reference rows are left in place when a career is deleted — nothing
+seeds or lists them.
+
+**Reported:**
+- Portrait pool (Rob's question): 89 unused adult portraits; not used, by Rob's decision. Cards never
+  run out — the intake uses the template.
+- The finite pool is names. After a five-season Copacabana (Brazil, South America) career used 12,
+  **194 unused names remain in the region — 64 more seasons of intakes of 3** (Brazil 40, Venezuela 26,
+  Uruguay 22, Argentina 20, Colombia 20, Peru 19, Chile 18, Ecuador 11, Bolivia 10, Guyana 8).
+- The signing limit is still one academy place (`squadRules.MAX_YOUTH`) and the Team page banner still
+  says "up to 6"; the intake is not a signing and is not held to either, so by season 5 the academy
+  holds 9–12 (promoted players stay in the reserve role). Manual youth signings are refused while it
+  is over the limit. Left as it is; Rob to look.
+- Academy wages: an academy player's wage is billed both in the weekly salary sum and by the academy
+  tick after each match — the existing academy path, unchanged. The intake makes it 3–12 players.
+
+**Harness (new):** `harness/youth-intake.mjs`, 22/22 — the seeded distribution equals the 72 shipped
+youth; the template card on disk; rules page text; starter DB owns no players; a five-season career
+(squad raised to 99 on the harness's DB copy so the board cannot end it early): 4 intakes of 3
+(2027–2030), each on 1 January, each in the rollover's response and in the academy that day; all 12
+on the template card whose file exists, aged 16–18 (18,18,16,17,16,17,16,18,18,16,16,16), owned by
+the career, still at the club with an academy contract at the end; every rating inside the shipped
+range; 6 of 12 from Brazil, the rest Colombia, Venezuela ×2, Ecuador, Chile, Uruguay; every name new
+and made of a real first name and surname of that nation; Club News for each intake with its names;
+a second career is not seeded with any of them; with every name in the world taken (75,908 parked),
+the next intake creates no one and Club News says the academy found no one.
+`rollover.mjs` now traces promoted intake players to their intake; `fake-content-removed` accepts
+`academy-<year>` news tied to its intake row.
 
 ### R-61 — CLOSED (15 Sep, d5bbd96): a real Olympic tournament
 **Rob's brief:** the 12 nations qualified under R-46 play a real event on the same match engine — 4
@@ -3156,6 +3212,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-62 Academy intake: 3 youth players for the player's club at every rollover that opens a season (template card, 16–18, shipped youth's rating distribution, real names of the club's region); Club News; created players owned by their career and never seeded into another | 15 Sep, PENDING-R62 | youth-intake 22/22: 4 intakes of 3 in a five-season career, every card on disk, names new and real, never in another career, a dry academy creates no one and says so; 194 names left in South America (64 seasons) |
 | R-61 A real Olympic tournament in Olympic years: 12 qualified nations, their real top-two pairs, 4 groups of 3 then quarter-finals, semi-finals, bronze and gold on the World Tour engine; medals, trophies, Club News | 15 Sep, d5bbd96 | olympics-tournament 24/24: 2028 only; 12 nations; 12 group + 8 knockout real scores; bracket follows tables; club pair won gold with medals and trophies; news dated 25 Nov. Ireland and Portugal cannot field a pair (1 each) |
 | R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, 3267c4b | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |
 | R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, bb37664 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |

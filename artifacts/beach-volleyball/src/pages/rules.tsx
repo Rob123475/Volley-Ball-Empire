@@ -108,6 +108,20 @@ const COMP_TIERS = [
       "Medals go on the players' records, and a club whose player wins one gets the Olympic medal in its trophy cabinet",
     ],
   },
+  {
+    title: "Academy",
+    badge: "3 a season",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/25",
+    points: [
+      "Every new season three youth players aged 16 to 18 join your club's academy",
+      "About half come from your club's country, the rest from the other nations of its region",
+      "Their ratings are drawn from the same spread as the game's other youth players",
+      "An academy player becomes a senior player at the season change when she reaches 19",
+      "Only your club takes an intake; the AI clubs keep their pairs",
+    ],
+  },
 ];
 
 // — Camera Controls —

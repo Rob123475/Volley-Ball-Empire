@@ -266,6 +266,11 @@ export const playersTable = sqliteTable("players", {
   legendScore: integer("legend_score"),
   development: text("development", { mode: "json" }).$type<PlayerDevelopment>(),
   playerV4: text("player_v4", { mode: "json" }).$type<PlayerV4>(),
+  // R-62: the career that created this athlete — a youth intake, a draft pick, a
+  // scouted signing, a created player. Null for the shipped world. A new career
+  // is seeded only with athletes no career owns, so one save's creations never
+  // appear in another save's market or academy.
+  originCareerSave: integer("origin_career_save_id"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
@@ -679,6 +684,25 @@ export const olympicMedalsTable = sqliteTable("olympic_medals", {
 });
 
 export type OlympicMedal = typeof olympicMedalsTable.$inferSelect;
+
+/**
+ * R-62: one row per academy intake — the club, the season it opened, the day it
+ * arrived and who joined. Club News is built from it; an intake that found no
+ * one is a row with no players, so the news can say so.
+ */
+export const youthIntakesTable = sqliteTable("youth_intakes", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  teamId:       integer("team_id").notNull().references(() => teamsTable.id),
+  seasonYear:   integer("season_year").notNull(),
+  intakeOn:     text("intake_on").notNull(),
+  playerIds:    text("player_ids", { mode: "json" }).$type<number[]>().notNull(),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("youth_intakes_career_season").on(t.careerSaveId, t.seasonYear),
+]);
+
+export type YouthIntake = typeof youthIntakesTable.$inferSelect;
 
 export const facilitiesTable = sqliteTable("facilities", {
   id: integer("id").primaryKey({ autoIncrement: true }),

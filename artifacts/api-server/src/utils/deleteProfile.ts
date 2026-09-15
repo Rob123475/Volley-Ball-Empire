@@ -174,7 +174,9 @@ export function deleteProfileCascade(userId: string): void {
       // above, before that save's career_saves row goes. playerRankingPointsTable
       // (R-46) and boardSeasonsTable (R-53) are cleared there too, as are the
       // R-61 Olympic tables: olympicMedalsTable, olympicMatchesTable and
-      // olympicTournamentsTable.
+      // olympicTournamentsTable, and R-62's academy intakes, youthIntakesTable.
+      // The athletes an intake created stay: players is reference data, and a
+      // new career is seeded only with athletes no career owns.
     }
 
     // ── Remaining direct references to the user ────────────────────────────

@@ -8,6 +8,7 @@
  *   trophy-<trophy id>        an honour the club won (R-42)
  *   champion-<season year>    that season's World Final
  *   olympic-<season year>     that year's Olympic tournament (R-61)
+ *   academy-<season year>     that season's academy intake (R-62)
  * Each carries the game date it happened on.
  *
  * This replaced a day-seeded generator of invented players, nations,
@@ -17,7 +18,7 @@
  * contract in place and records no date.
  */
 import { Router } from "express";
-import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable } from "@workspace/db";
+import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable } from "@workspace/db";
 import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
@@ -29,7 +30,7 @@ const router = Router();
 
 type NewsItem = {
   id: string;
-  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic";
+  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy";
   headline: string;
   detail: string;
   date: string;
@@ -41,7 +42,7 @@ const RECENT_SIGNINGS = 5;
 const MAX_ITEMS = 15;
 
 // On one date, the bigger story first.
-const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, result: 4, signing: 5 };
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, result: 5, signing: 6 };
 const OLYMPIC_TROPHY_TYPES = new Set(["olympic_gold", "olympic_silver", "olympic_bronze", "olympic_appearance"]);
 
 const GRADE_WORDS: Record<string, string> = {
@@ -140,6 +141,25 @@ router.get("/news", async (req, res) => {
       id: `olympic-${year}`, type: "olympic", isUserTeam: clubMedal, date: t.playedOn,
       headline: `${t.medals.gold.nation} win Olympic gold ${year}`,
       detail: `Beat ${t.medals.silver.nation} in the gold medal match; bronze to ${t.medals.bronze.nation}`,
+    });
+  }
+
+  // R-62: the academy's intakes, one for each season the career has opened.
+  const intakes = await db.select().from(youthIntakesTable).where(and(
+    eq(youthIntakesTable.careerSaveId, careerSaveId),
+    eq(youthIntakesTable.teamId, team.id),
+  ));
+  for (const intake of intakes) {
+    const joined = intake.playerIds.length > 0
+      ? await db.select({ id: playersTable.id, name: playersTable.name, nationality: playersTable.nationality, baseAge: playersTable.baseAge })
+          .from(playersTable).where(inArray(playersTable.id, intake.playerIds))
+      : [];
+    items.push({
+      id: `academy-${intake.seasonYear}`, type: "academy", isUserTeam: true, date: intake.intakeOn,
+      headline: joined.length > 0
+        ? `${joined.length} youth player${joined.length === 1 ? "" : "s"} join the ${team.name} academy`
+        : `The ${team.name} academy found no one this year`,
+      detail: joined.map((p) => `${p.name} (${p.nationality}, ${p.baseAge})`).join(" · "),
     });
   }
 

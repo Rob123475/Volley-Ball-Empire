@@ -205,11 +205,19 @@ async function advanceToBoundary(api, maxDays = 500) {
   const boundaries = seen.length + (complete ? 1 : 0);
   const known = list.filter((p) => ages0.has(p.id));
   const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
+  // R-62: each boundary that opens a season brings an academy intake. Those
+  // players are traced to the intake that created them (boundary i + 1) and age
+  // from the age they arrived at; a promoted one is a senior by season 5.
+  const intakeAge = new Map();
+  seen.forEach((r, i) => { for (const p of r.intake?.players ?? []) intakeAge.set(p.id, { age: p.age, boundary: i + 1 }); });
+  const fromIntake = list.filter((p) => !ages0.has(p.id) && intakeAge.has(p.id));
+  const intakeCorrect = fromIntake.filter((p) => p.age === intakeAge.get(p.id).age + boundaries - intakeAge.get(p.id).boundary);
   check("every player aged exactly one year per season boundary",
-    known.length > 0 && correct.length === known.length,
-    `${correct.length}/${known.length} with a baseline, after ${boundaries} boundaries`);
-  check("every senior has a baseline (nobody appeared from nowhere)",
-    known.length === list.length, `${known.length}/${list.length} traceable`);
+    known.length > 0 && correct.length === known.length && intakeCorrect.length === fromIntake.length,
+    `${correct.length}/${known.length} with a baseline, ${intakeCorrect.length}/${fromIntake.length} from an academy intake, after ${boundaries} boundaries`);
+  check("every senior has a baseline or came from an academy intake (nobody appeared from nowhere)",
+    known.length + fromIntake.length === list.length,
+    `${known.length} + ${fromIntake.length} intake of ${list.length} traceable`);
 
   check("rolled through four boundaries", seen.length === 4,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));

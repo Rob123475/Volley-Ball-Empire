@@ -103,6 +103,8 @@ const CLEAR_TABLES = [
   "olympic_medals",
   "olympic_matches",
   "olympic_tournaments",
+  // R-62: a career's academy intakes.
+  "youth_intakes",
   "promo_deals",
   "regional_league_fixtures",
   "regional_league_results",
@@ -231,6 +233,13 @@ function main() {
   const run = db.transaction(() => {
     for (const t of tablesToClear) {
       db.prepare(`DELETE FROM \`${t}\``).run();
+    }
+
+    // R-62: athletes a career created — youth intakes, draft picks, scouted
+    // signings — belong to that career, not to the world a new install starts in.
+    const playerColumns = (db.prepare("PRAGMA table_info(players)").all() as { name: string }[]).map((c) => c.name);
+    if (playerColumns.includes("origin_career_save_id")) {
+      db.prepare("DELETE FROM players WHERE origin_career_save_id IS NOT NULL").run();
     }
 
     // `players` needs no reset any more. Every column this used to clear —

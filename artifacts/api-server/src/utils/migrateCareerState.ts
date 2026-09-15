@@ -9,7 +9,7 @@ import {
   regionalLeagueSeasonsTable,
   regionalLeagueFixturesTable,
 } from "@workspace/db";
-import { sql } from "drizzle-orm";
+import { isNull, sql } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
 import { monthlyWage } from "./wageCurve.js";
 
@@ -617,7 +617,10 @@ export function seedPlayerStateRows(tx: DbTx, careerSaveId: number, playerIds: r
  */
 export function seedCareerState(careerSaveId: number): void {
   db.transaction((tx) => {
-    const players = tx.select({ id: playersTable.id }).from(playersTable).all();
+    // R-62: only athletes no career owns. One save's youth intakes, draft picks
+    // and scouted signings are that save's, and must not appear in a new one.
+    const players = tx.select({ id: playersTable.id }).from(playersTable)
+      .where(isNull(playersTable.originCareerSave)).all();
     const staff   = tx.select({ id: staffTable.id }).from(staffTable).all();
 
     seedPlayerStateRows(tx, careerSaveId, players.map((p) => p.id));

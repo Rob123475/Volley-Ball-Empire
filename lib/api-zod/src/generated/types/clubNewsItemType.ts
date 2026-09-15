@@ -16,4 +16,5 @@ export const ClubNewsItemType = {
   trophy: 'trophy',
   champion: 'champion',
   olympic: 'olympic',
+  academy: 'academy',
 } as const;

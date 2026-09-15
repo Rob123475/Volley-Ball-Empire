@@ -608,6 +608,11 @@ router.post("/calendar/advance", async (req, res) => {
       rollover = rolloverSeason(requireCareerSaveId(req.activeCareerSaveId), team.id);
       if (rollover.kind === "rolled") {
         events.push(`Season ${rollover.fromSeason} complete — Season ${rollover.toSeason} begins`);
+        // R-62: the new season's academy intake.
+        if (rollover.intake) {
+          const n = rollover.intake.players.length;
+          events.push(n > 0 ? `${n} youth player${n === 1 ? "" : "s"} joined the academy` : "The academy found no one this year");
+        }
       } else if (rollover.kind === "career-complete") {
         events.push(`Season ${rollover.finalSeason} complete — your career has ended`);
       } else if (rollover.kind === "sacked") {

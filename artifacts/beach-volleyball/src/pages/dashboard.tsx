@@ -1347,6 +1347,7 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   trophy:   { icon: "🏆", label: "Honour",      pill: "bg-yellow-400/15 text-yellow-300 border-yellow-400/25", dot: "bg-yellow-400" },
   champion: { icon: "👑", label: "World Final", pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",    dot: "bg-amber-400"  },
   olympic:  { icon: "🥇", label: "Olympics",    pill: "bg-orange-400/15 text-orange-300 border-orange-400/25", dot: "bg-orange-400" },
+  academy:  { icon: "🌱", label: "Academy",     pill: "bg-emerald-400/15 text-emerald-300 border-emerald-400/25", dot: "bg-emerald-400" },
 };
 
 function gameDateLabel(date: string) {

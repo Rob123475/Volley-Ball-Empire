@@ -247,7 +247,7 @@ try {
   const today = read("SELECT current_date AS d FROM calendar_state WHERE team_id = ?", career.teamId)[0]?.d ?? "";
   const bad = [];
   for (const it of items) {
-    const m = /^(result|signing|trophy|board|champion|olympic)-(\d+)$/.exec(it.id ?? "");
+    const m = /^(result|signing|trophy|board|champion|olympic|academy)-(\d+)$/.exec(it.id ?? "");
     if (!m || m[1] !== it.type) { bad.push(`${it.id}: unknown kind`); continue; }
     const id = Number(m[2]);
     if (!(typeof it.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(it.date) && it.date <= today.slice(0, 10))) bad.push(`${it.id}: date ${it.date} vs today ${today}`);
@@ -264,6 +264,8 @@ try {
       if (read("SELECT COUNT(*) AS n FROM trophies WHERE id = ? AND team_id = ?", id, career.teamId)[0].n !== 1) bad.push(`${it.id}: no such trophy`);
     } else if (m[1] === "board") {
       if (read("SELECT COUNT(*) AS n FROM board_seasons WHERE id = ? AND career_save_id = ? AND outcome IS NOT NULL", id, career.careerSaveId)[0].n !== 1) bad.push(`${it.id}: no such review`);
+    } else if (m[1] === "academy") {
+      if (read("SELECT COUNT(*) AS n FROM youth_intakes WHERE career_save_id = ? AND season_year = ?", career.careerSaveId, id)[0].n !== 1) bad.push(`${it.id}: no academy intake`);
     } else if (m[1] === "olympic") {
       if (read("SELECT COUNT(*) AS n FROM olympic_tournaments WHERE career_save_id = ? AND season_year = ?", career.careerSaveId, id)[0].n !== 1) bad.push(`${it.id}: no Olympic tournament played`);
     } else if (m[1] === "champion") {
