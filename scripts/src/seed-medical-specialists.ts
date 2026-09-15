@@ -69,7 +69,8 @@ const MEDICAL_SALARY_SKILL_MIN = 55;
 const MEDICAL_SALARY_SKILL_MAX = 97;
 function medicalSalaryFromSkill(skill: number): number {
   const t = (skill - MEDICAL_SALARY_SKILL_MIN) / (MEDICAL_SALARY_SKILL_MAX - MEDICAL_SALARY_SKILL_MIN);
-  return Math.round((100000 + t * 100000) / 1000) * 1000;
+  // R-67: the scale is ANNUAL (100,000-200,000); base_salary is monthly.
+  return Math.round((Math.round((100000 + t * 100000) / 1000) * 1000) / 12);
 }
 
 type AttrKey = "sportsMedicine"|"injuryAssessment"|"concussionManagement"|"rehabilitationPlanning"|"returnToPlay"|"playerWellbeing"|"medicalResearch"|"professionalism";

@@ -11,6 +11,7 @@ import { ensureSchema, ensureReferenceData } from "./utils/ensureSchema";
 import { dropRemovedContent } from "./utils/removedContent";
 import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
+import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
 
 // R-31: electron/main.js forks this process and already has a live IPC
 // channel to it (confirmed by its own pre-existing child.disconnect() call
@@ -105,6 +106,16 @@ try {
   }
 } catch (err) {
   logger.error({ err }, "reference data backfill failed");
+}
+
+// R-67: staff salaries are monthly. A save made before carries each career's
+// live staff wage copied from the old ANNUAL base_salary; once the reference
+// data above has brought base_salary forward, those copies are set to it.
+try {
+  const staffUnits = repairStaffSalaryUnits();
+  if (staffUnits.repaired > 0) logger.info({ repaired: staffUnits.repaired }, "staff salaries repaired to monthly figures");
+} catch (err) {
+  logger.error({ err }, "staff salary repair failed");
 }
 
 // Data migration: move every continent column onto the canonical KEYS and

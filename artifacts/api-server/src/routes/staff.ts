@@ -71,8 +71,11 @@ router.post("/staff", async (req, res) => {
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
-  // Hiring costs the first month up front. Without this the staff market was
-  // free: the budget never moved no matter who you signed.
+  // Hiring costs a signing fee of one month's salary up front. Without this the
+  // staff market was free: the budget never moved no matter who you signed.
+  // R-67: salary is a MONTHLY figure (utils/staffSalaryUnits.ts), and the wages
+  // themselves are billed weekly by the calendar's wage run from the next
+  // salary week, so this fee is the only charge at signing.
   const signingCost = Math.round(Number(member.salary));
   const signingDate = await getGameDate(team.id);
 
@@ -96,7 +99,7 @@ router.post("/staff", async (req, res) => {
       teamId:      team.id,
       type:        "expense",
       amount:      signingCost,
-      description: `Signed ${member.name} (${member.role}) — first month's salary`,
+      description: `Signed ${member.name} (${member.role}) — signing fee, one month's salary`,
       category:    "staff_salary",
       date:        signingDate,
     }).run();

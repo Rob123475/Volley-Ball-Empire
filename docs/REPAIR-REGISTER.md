@@ -2661,6 +2661,72 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-67 — CLOSED (15 Sep, PENDING-R67) HIGH: staff salaries were annual figures charged as monthly
+**Rob's play-through (0.9.0 installer):** a new wizard career (profile "Rob") showed a $5,000
+budget and one staff member costing $33,462 a week ($145,000 a month) against $20K of monthly
+income, where the harness careers start at $150k / $500k.
+
+**Found (from a copy of Rob's live save, career 10 "Rob Matthews"):**
+- The wizard path does NOT differ. The career was created **underdog** and started on **$150,000**
+  (`startingBudgetFor`, R-11) exactly as the harness careers do; difficulty was sent and applied.
+- On 1 January Rob hired **Sofia Andersen (Head Coach)**. The hire charged `staff.base_salary`,
+  $145,000, as "first month's salary" → $150,000 − $145,000 = **$5,000**.
+- The unit is wrong at source. 118 of the 120 starter-DB staff — everything the content scripts
+  `seed-staff.ts`, `seed-doctors.ts`, `seed-physiotherapists.ts`, `seed-nutritionists.ts`,
+  `seed-sports-scientists.ts` and `seed-medical-specialists.ts` wrote — carry ANNUAL figures
+  ($58,000–$280,000; Head Coach median $190,000). Every reader treats staff salary as MONTHLY: the
+  staff page's "/mo", the one-month hire fee, the termination fee (monthly × months × 0.5), the
+  Finances wage bill (monthly ÷ 4.33 = the $33,462 a week Rob saw), and the market generator
+  (`utils/staff-generator.ts`, monthly $6,500–$13,000). The two later Fitness Trainers ($4,800 /
+  $5,200) were already monthly.
+- A second defect behind it: **the weekly wage run never billed hired staff.** Its "staff &
+  operational costs" row is 20% of player wages ($900 a week for Rob); a hired staff member cost the
+  hire fee and nothing after, while the Finances page showed a wage bill no one was charged.
+- `docs/economy-design.md` gives no staff numbers beyond §3 "wages: a monthly figure, weekly drip at
+  salary ÷ 4.333" and "salary units (monthly)" under what is kept — so the design numbers are: the
+  difficulty's starting budget, monthly staff salaries, and a weekly staff bill of salary ÷ (52/12).
+
+**Fix at source:**
+- Starter DB: the 118 seeded rows (identified by their five seed runs' `created_at`, not a salary
+  threshold) set to round(annual ÷ 12) — **$4,833–$23,333**; the two monthly rows untouched; no
+  other change (120 staff, 0 users, 0 careers; no sidecars). Sofia Andersen **$145,000 → $12,083**.
+- The six seed scripts divide their annual figures by 12 where they insert, so a re-seed cannot
+  bring the bug back.
+- Existing saves: `ensureReferenceData` (R-33) already brings `staff.base_salary` forward from the
+  starter DB; new `utils/staffSalaryUnits.ts` then sets each career's live wage
+  (`career_staff_state.salary`, copied from the old annual figure at career creation) to the monthly
+  base wherever it is within a rounding step of 12 × base. Runs at boot after the reference sync;
+  idempotent; logs the count.
+- The weekly wage run (`routes/calendar.ts`) now bills hired staff: Σ monthly salary ÷ (52/12), a
+  "Weekly staff wages (N staff)" row (category `staff_salary`), in the budget change and the salary
+  week's event line. The 20% operational row is unchanged.
+- The hire is a "signing fee, one month's salary" (the same amount, named for what it is now that
+  the wages are billed weekly).
+
+**Before and after:**
+
+| | Before | After |
+|---|---|---|
+| Underdog wizard career, starting budget | $150,000 | $150,000 (unchanged — was never the bug) |
+| Hiring Sofia Andersen (Head Coach) | −$145,000 → $5,000 | −$12,083 → $137,917 |
+| Her wage | $145,000/month = $33,462/week (shown, never billed) | $12,083/month = $2,788/week (billed weekly) |
+| Starter DB staff salaries | $4,800–$280,000 (118 annual) | $4,800–$23,333 (all monthly) |
+| Rob's save, on a copy, after the rebuilt server's boot | Sofia base $145,000, live $145,000; 472 annual live wages across his 4 careers | base $12,083, live $12,083; 0 annual |
+
+Rob's career keeps its $23,400 balance: the $145,000 already charged is history and is not refunded.
+
+**Harness (new):** `harness/wizard-career-economy.mjs`, 11/11 — every starter staff salary monthly
+(≤ $25,000), Sofia $12,083, seed scripts divide by 12; careers created with exactly the wizard's
+payload start on $150,000 (underdog) and $500,000 (established); hiring her costs $12,083
+($150,000 → $137,917); the first salary week bills her once at $2,788; the hire row reads as a
+one-month signing fee; the Finances staff wage bill shows $12,083 / $2,788; an older save (236
+annual base and live wages planted) is repaired on boot, 236 repaired, none left.
+
+**Also found, not changed (for R-72):** training's coach and fitness-trainer bonuses
+(`routes/training.ts`) look for staff roles `head_coach` / `assistant_coach` / `fitness_trainer`,
+but all 120 seeded staff are stored Title Case ("Head Coach"); only market-generated staff match, so
+hiring a seeded coach does nothing for training.
+
 ### R-65 — CLOSED (15 Sep, 7974e06): company name, no menu bar, the starter DB never opened where it is installed
 **Brief (15 Sep):** (1) `package.json` author "Bean & Label" and a description, so the exe stops
 saying GitHub, Inc.; (2) hide Electron's default File/Edit/View/Window/Help menu in the shipped
@@ -3428,6 +3494,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-67 Staff salaries were annual figures charged as monthly: starter DB and seed scripts to monthly, older saves repaired on boot, hired staff billed weekly | 15 Sep, PENDING-R67 | wizard-career-economy 11/11: wizard careers $150,000 / $500,000; Head Coach hire $12,083 (was $145,000); weekly staff bill $2,788 (was $33,462 shown, never billed); 236 annual wages repaired on boot; Rob's save copy: 472 → 0 annual |
 | R-65 Rebuild 0.9.0: CompanyName Bean & Label and a description; no menu bar (dev tools only unpackaged); the starter DB only ever copied, never opened in the install folder, no sidecars in the package | 15 Sep, 7974e06 | build chain 32/32, after-pack guard OK; installer 336,204,338 bytes sha256 5d3d0237…; live-save run: no data changed, install folder 953 files unchanged; first run from a read-only install folder: fresh save, no profiles, no dev tools on Ctrl+Shift+I, install folder unchanged |
 | R-64 Release build 0.9.0: NSIS installer (336,203,636 bytes, sha256 2c275612…) and win-unpacked (557,170,430 bytes) | 15 Sep, 27fecd1 | full build chain 32/32 and native ABI verified; silent install launched against the live save (boot sync only, 46 tables / 5,627 rows unchanged, profiles listed, 3D Court rendered, WAL checkpointed on quit) and on an empty user-data folder (fresh starter save, no profiles) |
 | R-63 The academy holds 12 (one constant for the signing rule, the scouting route, the intake and the Team page banner); academy wages billed once, in the weekly wage run | 15 Sep, 3bc6c70 | academy-cap-wages 17/17: 13th signing refused at 12/12; an academy of 11 takes 1 at the boundary, of 12 takes none, both in Club News; 52 salary weeks billed once at the expected amount; 56 matches wrote no wage row. Full academy $71,500 a season (+20% staff) |

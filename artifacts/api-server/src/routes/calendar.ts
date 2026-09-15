@@ -23,7 +23,7 @@ import {
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, requireCareerSaveId, updatePlayerState, updateTeamPlayerState } from "../lib/playerDto.js";
+import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState } from "../lib/playerDto.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -487,6 +487,12 @@ router.post("/calendar/advance", async (req, res) => {
     const academyWeekly = academy.reduce((s, p) => s + academyWeeklyWage(p.potential), 0);
     const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH) + academyWeekly;
     const weeklyStaff   = Math.round(weeklySalary * 0.2);
+    // R-67: hired staff are paid like players — a monthly salary, dripped weekly
+    // at salary / (52/12). Until now nothing billed them after the hire fee, so a
+    // staff member cost one month and then nothing, while the Finances page
+    // showed a wage bill no one was charged.
+    const teamStaff        = await loadStaff(careerSaveId, { teamId: team.id });
+    const weeklyStaffWages = Math.round(teamStaff.reduce((s, m) => s + Number(m.salary), 0) / WEEKS_PER_MONTH);
     // ── Sponsor reputation: weekly decay toward the baseline ──────────────
     // Reputation moves +1 per win and -1 per loss with only a hard floor at 0,
     // so a club that loses more than it wins drifts down without limit and
@@ -506,13 +512,21 @@ router.post("/calendar/advance", async (req, res) => {
     }
 
     const sponsorIncome = Math.round(sponsorRep * 200);
-    const net           = sponsorIncome - weeklySalary - weeklyStaff;
+    const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages;
 
     await db.update(teamsTable)
       .set({ budget: sql`budget + ${net}` })
       .where(eq(teamsTable.id, team.id));
 
     await db.insert(financeTransactionsTable).values([
+      ...(teamStaff.length > 0 ? [{
+        teamId:      team.id,
+        type:        "expense",
+        amount:      weeklyStaffWages,
+        description: `Weekly staff wages (${teamStaff.length} staff)`,
+        category:    "staff_salary",
+        date:        nextDate,
+      }] : []),
       {
         teamId:      team.id,
         type:        "income",
@@ -552,7 +566,9 @@ router.post("/calendar/advance", async (req, res) => {
     }
 
     events.push(
-      `Salary week: €${weeklySalary.toLocaleString()} wages, €${sponsorIncome.toLocaleString()} sponsor income`
+      `Salary week: €${weeklySalary.toLocaleString()} wages` +
+        (teamStaff.length > 0 ? `, €${weeklyStaffWages.toLocaleString()} staff wages` : "") +
+        `, €${sponsorIncome.toLocaleString()} sponsor income`
     );
   }
 

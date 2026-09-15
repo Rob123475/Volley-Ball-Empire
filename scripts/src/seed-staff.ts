@@ -2039,7 +2039,8 @@ async function main() {
         member.name,
         member.role,
         member.specialty,
-        member.salary,
+        // R-67: the salaries above are ANNUAL figures; base_salary is monthly.
+        Math.round(member.salary / 12),
         member.skillLevel,
         member.nationality,
         imageUrl,

@@ -19,6 +19,7 @@ estimated.
 | 5 | R-63 | `3bc6c70` | The academy holds 12: signing and the intake both stop there, and the Team page banner reads the same cap from the roster. Academy wages billed once, in the weekly wage run; the per-match charge deleted. A full academy costs $71,500 a season in wages (12 players, 52 weeks), plus 20% in staff costs on the wage bill | academy-cap-wages 17/17 |
 | 6 | R-64 | `27fecd1` | Release build 0.9.0: the NSIS installer (336,203,636 bytes) and win-unpacked (557,170,430 bytes), installed and run from the install folder against the live save and on a first run | build chain 32/32; install proof in the register |
 | 7 | R-65 | `7974e06` | Rebuilt 0.9.0: exe CompanyName "Bean & Label"; no menu bar, dev tools only when unpackaged; the starter DB is only copied (to the save, and to `userData/starter-reference.db` per launch) and never opened in the install folder; after-pack guard keeps sidecars out of the package. Installer 336,204,338 bytes | live-save run and read-only first run both left the install folder's 953 files unchanged |
+| 8 | R-67 | PENDING-R67 | Staff salaries were annual figures charged as monthly — a Head Coach hire took $145,000 of a new underdog club's $150,000. Starter DB and seed scripts now monthly ($4,833–$23,333), older saves repaired on boot, hired staff billed weekly (salary ÷ 52/12). Rob's career keeps its balance; the charge already made is not refunded | wizard-career-economy 11/11 |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -154,6 +155,13 @@ now on are kept out of other careers.
    salaries (… in the academy)* row — never a *Youth Academy wages* row after a match.
 10. Rules → Academy: six lines, including the intake stopping at the Team page's limit and the weekly
     academy wage.
+
+**R-67 — staff wages** (needs the next build; the live save is repaired on its first launch with it)
+11. Staff market: salaries read in the thousands a month (a Head Coach $10k–$23k), not $100k+.
+12. Hire a Head Coach on a new underdog career: the balance drops by one month's salary; the next
+    salary week's Finances ledger has a "Weekly staff wages" line at salary ÷ 4.33.
+13. Your "Rob Matthews" career: Sofia Andersen now reads $12,083/month; the balance keeps the $145,000
+    already taken.
 
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game
