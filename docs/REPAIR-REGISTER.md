@@ -2661,6 +2661,23 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-68 — CLOSED (15 Sep, PENDING-R68) MEDIUM: pressing Play gave no feedback — interim, subsumed by R-72
+**Rob's play-through:** pressing Play on the clock gives no visible feedback — at Slow the date only
+changes every 3 seconds, so the game feels frozen.
+
+**Fix (`components/calendar-panel.tsx`, `index.css`):** while the clock runs (a speed set, no match
+waiting) the date re-animates on every simulated day (keyed on the date), a thin bar under it fills
+across the ticker's own interval (`SPEED_MS`: 3 s Slow, 1 s Medium, 0.2 s Fast) and restarts each day,
+and a dot pulses beside the speed label in the speed's colour. Motion is dropped for
+`prefers-reduced-motion`.
+
+**Status:** Rob's R-72 (same day) makes a 7-day strip on the dashboard the visible clock and subsumes
+this. R-68 ships as the interim fix until R-72 is built.
+
+**Harness (new):** `harness/calendar-tick.mjs`, 7/7 — the running condition, the date keyed and
+animated, the bar keyed per day with the ticker's duration, the dot, the keyframes with reduced motion,
+and the built bundle the server serves carrying all three.
+
 ### R-67 — CLOSED (15 Sep, 95f178e) HIGH: staff salaries were annual figures charged as monthly
 **Rob's play-through (0.9.0 installer):** a new wizard career (profile "Rob") showed a $5,000
 budget and one staff member costing $33,462 a week ($145,000 a month) against $20K of monthly
@@ -3494,6 +3511,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-68 Pressing Play gives visible feedback: the date re-animates each simulated day, a bar fills across the ticker interval, a dot pulses (interim; subsumed by R-72's 7-day strip) | 15 Sep, PENDING-R68 | calendar-tick 7/7: source and served bundle carry the tick, the bar and the dot; reduced motion honoured |
 | R-67 Staff salaries were annual figures charged as monthly: starter DB and seed scripts to monthly, older saves repaired on boot, hired staff billed weekly | 15 Sep, 95f178e | wizard-career-economy 11/11: wizard careers $150,000 / $500,000; Head Coach hire $12,083 (was $145,000); weekly staff bill $2,788 (was $33,462 shown, never billed); 236 annual wages repaired on boot; Rob's save copy: 472 → 0 annual |
 | R-65 Rebuild 0.9.0: CompanyName Bean & Label and a description; no menu bar (dev tools only unpackaged); the starter DB only ever copied, never opened in the install folder, no sidecars in the package | 15 Sep, 7974e06 | build chain 32/32, after-pack guard OK; installer 336,204,338 bytes sha256 5d3d0237…; live-save run: no data changed, install folder 953 files unchanged; first run from a read-only install folder: fresh save, no profiles, no dev tools on Ctrl+Shift+I, install folder unchanged |
 | R-64 Release build 0.9.0: NSIS installer (336,203,636 bytes, sha256 2c275612…) and win-unpacked (557,170,430 bytes) | 15 Sep, 27fecd1 | full build chain 32/32 and native ABI verified; silent install launched against the live save (boot sync only, 46 tables / 5,627 rows unchanged, profiles listed, 3D Court rendered, WAL checkpointed on quit) and on an empty user-data folder (fresh starter save, no profiles) |

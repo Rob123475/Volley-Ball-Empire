@@ -2,6 +2,33 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+/* R-68: the calendar clock ticks visibly (components/calendar-panel.tsx). The
+   date replays this on every simulated day; the bar fills across the ticker's
+   interval, its duration set inline from SPEED_MS. */
+@keyframes vbe-date-tick {
+  0%   { opacity: 0.35; transform: translateY(-3px); }
+  100% { opacity: 1;    transform: none; }
+}
+.vbe-date-tick { animation: vbe-date-tick 260ms ease-out; }
+@keyframes vbe-tick-bar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.vbe-tick-bar {
+  transform-origin: left;
+  animation-name: vbe-tick-bar;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes vbe-running-dot {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(0.7); }
+}
+.vbe-running-dot { animation: vbe-running-dot 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .vbe-date-tick, .vbe-running-dot { animation: none; }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

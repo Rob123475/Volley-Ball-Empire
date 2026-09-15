@@ -121,6 +121,12 @@ export function CalendarPanel() {
   const dateLabel = formatGameDate(calendar.currentDate);
   const year      = new Date(calendar.currentDate + "T00:00:00Z").getUTCFullYear();
   const speed     = calendar.calendarSpeed;
+  // R-68: the clock is running when a speed is set and no match is waiting.
+  // Between two simulated days the date sits still for the ticker's whole
+  // interval (3 s at Slow), which read as frozen; the date now re-animates on
+  // every new day and a bar fills across that interval.
+  const isRunning = speed !== "pause" && !calendar.pendingMatchId;
+  const tickMs    = SPEED_MS[speed];
 
   const speedColor: Record<CalendarSpeed, string> = {
     pause:  "text-sidebar-foreground/40",
@@ -138,14 +144,29 @@ export function CalendarPanel() {
   return (
     <div className="flex items-center gap-0 min-w-0 overflow-x-auto">
 
-      {/* ── Date ── */}
-      <div className="flex flex-col shrink-0 px-2">
+      {/* ── Date ── R-68: keyed on the date, so each simulated day replays the
+          tick animation; the bar under it restarts with the day and fills over
+          the ticker interval. */}
+      <div className="relative flex flex-col shrink-0 px-2 pb-1" data-testid="calendar-date-block">
         <span className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none">
           Date
         </span>
-        <span className="text-sm font-bold tabular-nums leading-tight mt-0.5">
+        <span
+          key={calendar.currentDate}
+          data-testid="calendar-date"
+          className={cn("text-sm font-bold tabular-nums leading-tight mt-0.5", isRunning && "vbe-date-tick")}
+        >
           {dateLabel.short}, {year}
         </span>
+        {isRunning && tickMs != null && (
+          <span
+            key={`tick-${calendar.currentDate}`}
+            data-testid="calendar-tick-bar"
+            aria-hidden="true"
+            className="vbe-tick-bar absolute left-2 right-2 bottom-0 h-0.5 rounded-full bg-emerald-400/80"
+            style={{ animationDuration: `${tickMs}ms` }}
+          />
+        )}
       </div>
 
       <VDiv />
@@ -207,6 +228,14 @@ export function CalendarPanel() {
           );
         })}
 
+        {/* R-68: a pulsing dot while the clock runs, so Play is obviously on. */}
+        {isRunning && (
+          <span
+            data-testid="calendar-running-dot"
+            aria-label="Clock running"
+            className={cn("vbe-running-dot ml-1.5 h-1.5 w-1.5 rounded-full shrink-0", speed === "fast" ? "bg-emerald-400" : speed === "medium" ? "bg-amber-400" : "bg-blue-400")}
+          />
+        )}
         <span className={cn("text-[9px] font-black uppercase tracking-wide ml-1 shrink-0", speedColor[speed])}>
           {speedLabel[speed]}
         </span>
