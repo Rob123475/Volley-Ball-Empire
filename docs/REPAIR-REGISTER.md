@@ -2661,6 +2661,84 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-65 — CLOSED (15 Sep, PENDING-R65): company name, no menu bar, the starter DB never opened where it is installed
+**Brief (15 Sep):** (1) `package.json` author "Bean & Label" and a description, so the exe stops
+saying GitHub, Inc.; (2) hide Electron's default File/Edit/View/Window/Help menu in the shipped
+window, dev tools on Ctrl+Shift+I only when not packaged; (3) no `-wal`/`-shm` in the package, the
+packaged starter DB only ever COPIED to userData and never opened writable in the install folder —
+tested with the install folder read-only. Rebuild 0.9.0, re-run R-64's steps 3 and 4.
+
+**Fix:**
+1. `package.json`: `"author": "Bean & Label"`, `"description": "Beach Volleyball Empire — all-women
+   beach volleyball management"`. The built exe: CompanyName **Bean & Label**, FileDescription the
+   description, LegalCopyright "Copyright © 2026 Bean & Label"; the Windows uninstall entry's
+   Publisher reads Bean & Label.
+2. `electron/main.js`: `Menu.setApplicationMenu(null)` before the window is created — no menu bar and
+   no menu accelerators (no reload, no dev tools) in any build. An unpackaged run gets Ctrl+Shift+I
+   back through a `before-input-event` handler; a packaged one has none.
+3. The starter DB:
+   - The only thing that ever opened it was the server's reference-data check
+     (`ensureReferenceData`), handed the installed file as `STARTER_DB_PATH` and opening it read-only
+     — which on a WAL-mode database still creates `-wal`/`-shm` beside it (R-64's finding). `main.js`
+     now copies the bundled file on every launch to `userData/starter-reference.db` (stale sidecars
+     of that copy deleted first) and passes the COPY. The `.db` extension keeps it out of Auto-Cloud's
+     `*.sqlite`. First launch still copies the bundled file to the save; the loop that also copied
+     `-wal`/`-shm` from beside the bundled file is deleted. The installed file is now only ever read by
+     `copyFileSync`.
+   - `extraResources` names the single `.sqlite` (unchanged); new `scripts/after-pack.cjs` (electron-
+     builder `afterPack`, before the NSIS target) fails the build unless `resources/starter-db` holds
+     exactly `volleyball-empire.sqlite`. Chosen over a directory form with a filter, which would walk
+     `lib/db`'s `node_modules`.
+   - `docs/packaging.md` updated.
+
+**Build:** `pnpm run build` — `BUILD OK`, check-starter-db OK, sync-public OK, `ALL HARNESSES PASSED`
+(32 suites, including save-folder-migration, which boots `electron/main.js`), 0 FAIL. `lib/db`'s
+harness-made sidecars cleared (hash unchanged `80b51d52…`), `verify-native-abi` OK, then
+`pnpm run electron:build`: `verify-unity-brotli` OK, `verify-native-abi` OK, **`[after-pack] OK`**.
+- NSIS installer `C:\build\vbe\Beach Volleyball Empire Setup 0.9.0.exe` — **336,204,338 bytes**, sha256
+  `5d3d0237b053f4f4cce51fe28d424e2bae69682a55f8bdb51758fd7da5fecb27`.
+- `C:\build\vbe\win-unpacked` — **557,172,057 bytes, 952 files**; exe sha256
+  `0db49fc5834ec4459f31af300206d980ef9507f6bdd1624f1e6ca6f9375c7f05`; `resources/starter-db` holds
+  only `volleyball-empire.sqlite` (`80b51d52…`). `app.asar` carries the new `main.js` (searched: the
+  copy, the menu call, the dev-only handler; the sidecar loop absent).
+
+**Step 3 again — installed (`C:\vbe-test-install-0.9.0-r65`, previous 0.9.0 install removed by the
+installer), launched against the live save** (backed up first, sha256 `6b74960d…`):
+- Server from the install; reference check against
+  `%APPDATA%\Beach Volleyball Empire\starter-reference.db`; schema and reference data already up to
+  date (no boot sync this time). Profiles mary, R04 Check, R24 Check, R25 Check. Title "Beach
+  Volleyball Empire"; exe icon the BVE logo; **the window has no menu bar** (captured).
+- 3D Court headless proof against the installed server: 4 of 4 players, match started after 17.9 s,
+  0 errors, rendered.
+- **The install folder: 953 files before and after — none added, removed or changed.**
+- The live save afterwards: 50 tables, 5,627 rows compared with the backup — **no data changed**, no
+  schema change, no `-wal`/`-shm`; the quit logged "WAL checkpointed and database closed for
+  shutdown" and "[shutdown] server child exited, quitting".
+- Recorded as it happened: after Ctrl+Shift+I was sent (12:01:36) the window went from the title
+  screen to the Dashboard (12:01:37) and to 3D Court (12:01:50), and it closed at 12:02:14 through the
+  normal quit — none of it by this run's scripts (the close script then found no window; nothing
+  else was driving the window). It fits someone using the window. Only GET requests reached the
+  server, and the data comparison above shows nothing was written.
+
+**Step 4 again — first run from a READ-ONLY install folder:**
+- The install folder was denied write data, append, write attributes, write extended attributes,
+  delete and delete-child for the current user, inherited by every file (set through the .NET ACL API
+  — icacls's `W` group, and its specific-rights form too, added SYNCHRONIZE, which also blocked
+  reads). Proved: creating a file in `resources\starter-db` refused, opening the starter DB for write
+  refused, reading it OK, the exe readable.
+- Launched with an empty `--user-data-dir`: no access error in the log; the save created in the new
+  userData from the starter DB (0 profiles, 0 careers, 276 players), `starter-reference.db` beside
+  it; Select Manager, "No profiles yet". **Ctrl+Shift+I: no dev tools, no second window, the page
+  unchanged** (captured). Closed through the window: WAL checkpointed; no `-wal`/`-shm` beside the
+  save. **Install folder: 953 files, unchanged.** Live save hash unchanged. The deny was then removed
+  and a write proven to work again.
+
+**Still true:** unsigned (SmartScreen warns on the NSIS installer). Not exercised here: Ctrl+Shift+I in
+an unpackaged `electron:dev` run. `lib/db`'s own starter DB still gains `-wal`/`-shm` whenever a
+harness suite boots a server against it; they are not packaged (after-pack) and are cleared before
+packaging. The reference copy's empty sidecars stay in userData after quit and are deleted at the next
+launch.
+
 ### R-64 — CLOSED (15 Sep, 27fecd1): release build 0.9.0, proven on a clean install
 **Brief (15 Sep):** version 0.9.0; confirm productName, appId, icon, the Unity build and a clean starter
 DB; build the NSIS installer and `win-unpacked`; install it, launch it against the live save and on a
@@ -3350,6 +3428,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-65 Rebuild 0.9.0: CompanyName Bean & Label and a description; no menu bar (dev tools only unpackaged); the starter DB only ever copied, never opened in the install folder, no sidecars in the package | 15 Sep, PENDING-R65 | build chain 32/32, after-pack guard OK; installer 336,204,338 bytes sha256 5d3d0237…; live-save run: no data changed, install folder 953 files unchanged; first run from a read-only install folder: fresh save, no profiles, no dev tools on Ctrl+Shift+I, install folder unchanged |
 | R-64 Release build 0.9.0: NSIS installer (336,203,636 bytes, sha256 2c275612…) and win-unpacked (557,170,430 bytes) | 15 Sep, 27fecd1 | full build chain 32/32 and native ABI verified; silent install launched against the live save (boot sync only, 46 tables / 5,627 rows unchanged, profiles listed, 3D Court rendered, WAL checkpointed on quit) and on an empty user-data folder (fresh starter save, no profiles) |
 | R-63 The academy holds 12 (one constant for the signing rule, the scouting route, the intake and the Team page banner); academy wages billed once, in the weekly wage run | 15 Sep, 3bc6c70 | academy-cap-wages 17/17: 13th signing refused at 12/12; an academy of 11 takes 1 at the boundary, of 12 takes none, both in Club News; 52 salary weeks billed once at the expected amount; 56 matches wrote no wage row. Full academy $71,500 a season (+20% staff) |
 | R-62 Academy intake: 3 youth players for the player's club at every rollover that opens a season (template card, 16–18, shipped youth's rating distribution, real names of the club's region); Club News; created players owned by their career and never seeded into another | 15 Sep, 8eb6bde | youth-intake 22/22: 4 intakes of 3 in a five-season career, every card on disk, names new and real, never in another career, a dry academy creates no one and says so; 194 names left in South America (64 seasons) |

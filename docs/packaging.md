@@ -16,7 +16,7 @@ controls what electron-builder copies into `resources/`:
 |---|---|---|---|
 | `artifacts/api-server/dist` | → | `resources/server/dist` | the compiled server (`index.mjs` + its native deps) |
 | `artifacts/beach-volleyball/dist/public` | → | `resources/public` | the built frontend + everything from `beach-volleyball/public/` (Vite copies `public/` into `dist/public/` automatically on build) |
-| `lib/db/volleyball-empire.sqlite` | → | `resources/starter-db` | first-launch starter DB, copied to per-user `userData` on first run |
+| `lib/db/volleyball-empire.sqlite` (that one file — `scripts/after-pack.cjs` fails the build if `resources/starter-db` holds anything else, such as a `-wal`/`-shm`) | → | `resources/starter-db` | first-launch starter DB, copied to per-user `userData` on first run, and copied again on every launch to `userData/starter-reference.db` for the server's reference-data check (R-65). The installed file is never opened, so the install folder can be read-only |
 
 ### Why `api-server/dist` ships with `"filter": ["**/*", "!public/**"]`
 

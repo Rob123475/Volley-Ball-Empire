@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog } = require("electron");
+const { app, BrowserWindow, Menu, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { fork } = require("child_process");
@@ -183,15 +183,14 @@ function migrateRenamedAppData() {
 }
 
 // ── First-launch DB setup ────────────────────────────────────────────────────
-// Copies the -wal/-shm sidecars alongside the main file, if present, rather
-// than opening + checkpointing bundledDbPath first: bundledDbPath lives
-// under process.resourcesPath in a packaged build, which can be read-only
-// (e.g. an unelevated install under Program Files), so anything requiring
-// write access to the bundled copy would fail there. A bare copyFileSync of
-// only the main .sqlite file silently drops any writes still sitting in an
-// un-checkpointed WAL — SQLite auto-replays the copied WAL the first time
-// the destination is opened, so the result is correct either way, but only
-// this way works regardless of whether the source is writable.
+// R-65: the bundled starter DB is only ever COPIED. bundledDbPath lives under
+// process.resourcesPath in a packaged build — for Steam, a library folder the
+// game must not write to — so nothing opens it where it is installed, not even
+// read-only: SQLite opening a WAL-mode database creates -wal/-shm files beside
+// it. The package carries the single .sqlite file and no sidecars
+// (scripts/after-pack.cjs), so a copy of that one file is the whole database.
+// (This used to copy -wal/-shm sidecars from beside the bundled file too; the
+// server's own read-only reference check had been creating them there.)
 function ensureUserDb() {
   // Priority order matters: migrateRenamedAppData() is the specific, most
   // relevant hand-off (the name the app shipped under until today) and must
@@ -206,13 +205,24 @@ function ensureUserDb() {
   if (!fs.existsSync(userDbPath)) {
     fs.mkdirSync(path.dirname(userDbPath), { recursive: true });
     fs.copyFileSync(bundledDbPath, userDbPath);
-    for (const suffix of ["-wal", "-shm"]) {
-      const src = `${bundledDbPath}${suffix}`;
-      if (fs.existsSync(src)) {
-        fs.copyFileSync(src, `${userDbPath}${suffix}`);
-      }
-    }
   }
+}
+
+// R-65: the server compares every save with the starter DB at boot (R-28/R-33/
+// R-34 reference data). It is handed this private copy, refreshed from the
+// bundled file on every launch, never the installed file. The .db extension
+// keeps it out of Steam Auto-Cloud's *.sqlite pattern — it is not save data —
+// and any sidecars the read-only reference check leaves sit beside the copy,
+// in userData, where the game may write.
+const starterReferencePath = path.join(userDataPath, "starter-reference.db");
+
+function refreshStarterReference() {
+  fs.mkdirSync(userDataPath, { recursive: true });
+  // A stale -wal left beside an older copy would be replayed into the new one.
+  for (const suffix of ["-wal", "-shm", "-journal"]) {
+    fs.rmSync(`${starterReferencePath}${suffix}`, { force: true });
+  }
+  fs.copyFileSync(bundledDbPath, starterReferencePath);
 }
 
 // ── Spawn the API server as a child process ─────────────────────────────────
@@ -229,8 +239,9 @@ function startServer() {
         // club_templates, outfits) that a save made before a row was added
         // to the starter DB never got. Same "resolve it here, pass it down"
         // reason as PUBLIC_DIR above — process.resourcesPath is not reliable
-        // inside the forked child.
-        STARTER_DB_PATH: bundledDbPath,
+        // inside the forked child. R-65: the per-launch copy in userData,
+        // never the installed file (see refreshStarterReference).
+        STARTER_DB_PATH: starterReferencePath,
       },
       silent: true,
     });
@@ -305,6 +316,18 @@ function createWindow() {
     mainWindow.show();
   });
 
+  // R-65: with no application menu there are no menu accelerators either, so
+  // Ctrl+Shift+I (dev tools) is wired here by hand — and only for an unpackaged
+  // run. A shipped build has no dev tools shortcut and no reload shortcut.
+  if (!isPackaged) {
+    mainWindow.webContents.on("before-input-event", (event, input) => {
+      if (input.type === "keyDown" && input.control && input.shift && input.key.toLowerCase() === "i") {
+        mainWindow.webContents.toggleDevTools();
+        event.preventDefault();
+      }
+    });
+  }
+
   mainWindow.loadURL(`http://localhost:${SERVER_PORT}/`);
 }
 
@@ -326,6 +349,10 @@ if (!gotTheLock) {
   app.whenReady().then(async () => {
     try {
       ensureUserDb();
+      refreshStarterReference();
+      // R-65: no application menu. Electron's default File/Edit/View/Window/Help
+      // bar is gone from the window in every build.
+      Menu.setApplicationMenu(null);
       await startServer();
       createWindow();
     } catch (err) {

@@ -18,6 +18,7 @@ estimated.
 | 4 | R-62 | `8eb6bde` | Every rollover that opens a season brings the player's club 3 youth players: the youth template card, 16–18, ratings from the shipped youth's distribution, real names of the club's country and region; Club News; a dry academy says it found no one. Players a career creates are owned by it and no longer leak into later careers | youth-intake 22/22 |
 | 5 | R-63 | `3bc6c70` | The academy holds 12: signing and the intake both stop there, and the Team page banner reads the same cap from the roster. Academy wages billed once, in the weekly wage run; the per-match charge deleted. A full academy costs $71,500 a season in wages (12 players, 52 weeks), plus 20% in staff costs on the wage bill | academy-cap-wages 17/17 |
 | 6 | R-64 | `27fecd1` | Release build 0.9.0: the NSIS installer (336,203,636 bytes) and win-unpacked (557,170,430 bytes), installed and run from the install folder against the live save and on a first run | build chain 32/32; install proof in the register |
+| 7 | R-65 | PENDING-R65 | Rebuilt 0.9.0: exe CompanyName "Bean & Label"; no menu bar, dev tools only when unpackaged; the starter DB is only copied (to the save, and to `userData/starter-reference.db` per launch) and never opened in the install folder; after-pack guard keeps sidecars out of the package. Installer 336,204,338 bytes | live-save run and read-only first run both left the install folder's 953 files unchanged |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -166,20 +167,21 @@ replaced by check 3 above.)
 
 Honest, in the order it would have to happen. Nothing in this section was done in this batch.
 
-### Packaging — done: 0.9.0 (R-64)
+### Packaging — done: 0.9.0 (R-64, rebuilt in R-65)
 - **Built and proven on a clean install.** `C:\build\vbe\Beach Volleyball Empire Setup 0.9.0.exe`
-  (336,203,636 bytes, sha256 `2c275612…`) for our testing, and `C:\build\vbe\win-unpacked`
-  (557,170,430 bytes, 952 files) for Steam's depot. Installed silently, launched from the install
-  folder against the live save (boot sync only, profiles listed, 3D Court rendered, WAL checkpointed
-  on quit) and on an empty user-data folder (fresh save from the starter DB, Select Manager with no
-  profiles). Details and hashes in the register, R-64.
+  (336,204,338 bytes, sha256 `5d3d0237…`) for our testing, and `C:\build\vbe\win-unpacked`
+  (557,172,057 bytes, 952 files) for Steam's depot. Installed silently and launched from the install
+  folder against the live save (no data changed, profiles listed, 3D Court rendered, WAL checkpointed
+  on quit) and, with the install folder **read-only**, on an empty user-data folder (fresh save from
+  the starter DB, Select Manager with no profiles). The install folder was unchanged by both runs.
+  Details and hashes in the register, R-64 and R-65.
+- **The game never writes to its install folder** (R-65). The starter DB is only copied: to the save
+  on first run, and to `userData/starter-reference.db` on every launch for the server's reference
+  check. The package's `resources/starter-db` is checked to hold only the `.sqlite` (after-pack).
+- **Metadata** (R-65). CompanyName and Publisher "Bean & Label"; description set.
+- **Window** (R-65). No File/Edit/View/Window/Help menu bar; no dev tools shortcut in a packaged build.
 - **Not code-signed.** No certificate is configured; Windows SmartScreen warns on the installer. Steam
   installs from the depot, so this matters for the NSIS copy, not the Steam build.
-- **Company name.** The exe says "GitHub, Inc." (Electron's default): `package.json` has no `author` or
-  `description`. Set both before the store build.
-- **Starter DB sidecars.** The server's reference-data check leaves an empty `-wal` and a `-shm` next to
-  the installed starter DB (R-64); the `.sqlite` itself is untouched. Harmless in a writable install
-  folder; worth a look before shipping into a Steam library folder.
 - **Size.** 320.6 MB installer / 531.4 MB unpacked; the Unity `.data` is most of it. The lever is the
   Unity project's texture and audio import settings, not the build.
 - **Dev route shipped.** `/dev/generation-test` is still routed in the production frontend with a

@@ -1,6 +1,8 @@
 {
   "name": "workspace",
   "version": "0.9.0",
+  "description": "Beach Volleyball Empire — all-women beach volleyball management",
+  "author": "Bean & Label",
   "license": "MIT",
   "private": true,
   "main": "electron/main.js",
@@ -33,6 +35,7 @@
     "appId": "com.volleyballempire.desktop",
     "productName": "Beach Volleyball Empire",
     "beforePack": "scripts/before-pack.cjs",
+    "afterPack": "scripts/after-pack.cjs",
     "directories": {
       "output": "C:\\build\\vbe"
     },
