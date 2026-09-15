@@ -2743,7 +2743,7 @@ What it leaves alone:
 
 **Proof:** PENDING-R66-PROOF
 
-### R-76 — CLOSED (15 Sep, Unity 707defe; export PENDING-EXPORT) HIGH: players stood rooted and never went to the net
+### R-76 — CLOSED (15 Sep, Unity 707defe; export 2d23dcc) HIGH: players stood rooted and never went to the net
 **Rob (15 Sep):** players stay rooted and never go to the net for a spike. Brief:
 - Attackers go to the net on their side's attack and come back.
 - Defenders shift to cover.
@@ -2806,7 +2806,7 @@ started once, 130,074 frames, 109,323 of them in a rally:
 - **The saved define.** The batch session saves `APP_UI_EDITOR_ONLY` into the WebGL defines in
   `ProjectSettings.asset`. It was reverted before the export and never committed.
 
-### R-74 — CLOSED (15 Sep, Unity 415375c; export PENDING-EXPORT) MEDIUM: spectators frozen, three walking to nowhere
+### R-74 — CLOSED (15 Sep, Unity 415375c; export 2d23dcc) MEDIUM: spectators frozen, three walking to nowhere
 **Rob (15 Sep):** the three girls in front of the tent have no animation (they should clap or jump on
 the spot), and three figures on the left walk to nowhere. Brief:
 - List every crowd figure, with which work and which don't.
@@ -2996,7 +2996,7 @@ a kit is missing.
   - the HUD reads "SYDNEY RIPTIDE vs ROME BEACH GLADIATORS".
 - **Without `STARTER_DB_PATH`.** A bare server skips the reference backfill and sends that save's pool
   pair with no kit and no tone, logged as a warning. The installed app always sets it.
-- **Shipping.** It ships in the R-71/74/76 export (PENDING-EXPORT).
+- **Shipping.** It ships in the R-71/74/76 export (2d23dcc).
 
 **Fix:**
 - **New columns.** `continental_pool_teams` gains `primary_color` and `secondary_color`.
@@ -3040,7 +3040,7 @@ opponent data) and what is new, with the calendar decision that needs Rob: the W
 fall in 40 weeks, so a one-match-day week needs a weekend that can hold two rounds (recommended) or a
 change to R-44's schedule. No code.
 
-### R-71 — CLOSED (15 Sep, Unity 347e193; export PENDING-EXPORT) MEDIUM: 3D Court camera zoom
+### R-71 — CLOSED (15 Sep, Unity 347e193; export 2d23dcc) MEDIUM: 3D Court camera zoom
 **Rob (15 Sep):** mouse-wheel zoom on all three camera presets: a dolly along the camera's forward axis
 (not FOV), clamped per preset so it cannot go through the sand or past the stands, +/- keys for
 trackpads, and a reset when the preset changes. The overhead preset's default noticeably closer (Rob:
@@ -3120,7 +3120,7 @@ Numbers from the clean run:
 
 Renders: `proof/r71_r71fix_{clean,after_reload}_{close,wide,overhead}_{default,zoomed_in,zoomed_out}.png`.
 
-**The export (game PENDING-EXPORT)** carries R-71, R-74, R-76 and R-73's Unity half (Unity `415375c`).
+**The export (game 2d23dcc)** carries R-71, R-74, R-76 and R-73's Unity half (Unity `415375c`).
 The pipeline was 417cdcd's:
 - **The build.** `WebBuild.Step7`: compression Disabled, texture override 2048, scene V19, "Build
   Finished, Result: Success". The WebGL defines were the committed ones; the batch session's
@@ -4066,9 +4066,9 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-76 Players move in the 3D Court: the set lands at the net and the attacker meets it; the nearer defender blocks at the net, her partner covers deep; everyone stays on court, animated by the existing locomotion blend | 15 Sep, Unity 707defe; export PENDING-EXPORT | CourtPlayProbe (sampling started once, 130,074 frames): all four left their start spots by 4.48–6.53 m and came within 0.59–0.60 m of the net; 28 spikes, attacker a mean 1.39 m from the net, blocker 0.60 m; six-frame render sequence |
-| R-74 Every spectator animates on the spot with clips already in the project (looped clapping, cheering, photo; project-owned controllers without walks); the three walkers on the left stand and animate | 15 Sep, Unity 415375c; export PENDING-EXPORT | CourtPlayProbe, 70 s: 25 of 25 animate on the spot (17 before), 0 of 25 controllers contain a walk clip, the three walkers moved 0.00 m |
-| R-71 Mouse-wheel and +/- zoom on all three 3D Court cameras (dolly, clamped per preset, reset on switching); overhead camera y 40 → 24. The first test saw no zoom because preset positions lived in a Dictionary that a mid-Play domain reload emptied; positions are no longer stored | 15 Sep, Unity 347e193; export PENDING-EXPORT | CourtPlayProbe, input queued through the Input System and the camera read back: 3/3 presets pass clean and after a forced reload (unfixed script 0/3) — close 19.09 m, +9/−8; wide 17.08 m, +8/−10; overhead 21.40 m (was 37.40), +10/−16; switch resets to 0.00 m |
+| R-76 Players move in the 3D Court: the set lands at the net and the attacker meets it; the nearer defender blocks at the net, her partner covers deep; everyone stays on court, animated by the existing locomotion blend | 15 Sep, Unity 707defe; export 2d23dcc | CourtPlayProbe (sampling started once, 130,074 frames): all four left their start spots by 4.48–6.53 m and came within 0.59–0.60 m of the net; 28 spikes, attacker a mean 1.39 m from the net, blocker 0.60 m; six-frame render sequence |
+| R-74 Every spectator animates on the spot with clips already in the project (looped clapping, cheering, photo; project-owned controllers without walks); the three walkers on the left stand and animate | 15 Sep, Unity 415375c; export 2d23dcc | CourtPlayProbe, 70 s: 25 of 25 animate on the spot (17 before), 0 of 25 controllers contain a walk clip, the three walkers moved 0.00 m |
+| R-71 Mouse-wheel and +/- zoom on all three 3D Court cameras (dolly, clamped per preset, reset on switching); overhead camera y 40 → 24. The first test saw no zoom because preset positions lived in a Dictionary that a mid-Play domain reload emptied; positions are no longer stored | 15 Sep, Unity 347e193; export 2d23dcc | CourtPlayProbe, input queued through the Input System and the camera read back: 3/3 presets pass clean and after a forced reload (unfixed script 0/3) — close 19.09 m, +9/−8; wide 17.08 m, +8/−10; overhead 21.40 m (was 37.40), +10/−16; switch resets to 0.00 m |
 | R-77 A watched match completes through the same code as Sim Result and counts; seasons and the season's losses counted at the season boundary; 8 unreachable or dishonest achievements deleted, the rest say their real trigger (30 → 22) | 15 Sep, def721c | watched-match 10/10: the 22 served, no deleted key or loan text; a watched match completes on its own and moves wins, career stats, purse, First Steps; simulate the same; watched then simulated counts once. rollover: five-season careers complete 5 seasons and unlock Local Legend |
 | R-75 Pool players' skin tones drawn from their nation's own tone counts among the seeded players (continent counts for 5 nations with none); pool players had no tone before, so 120 of 120 set | 15 Sep, 85ca86c | pool-skin-tones 4/4: all 120 banded; a re-run of the draw changes nothing; every away pool player's payload tone is her stored tone; an older save gets all 120 on boot. club-kits 14/14, unity-match-state-payload 9/9 on the same build |
 | R-73 The wizard's colours reach the court: the away pair is the fixture's own AI club in that club's kit (was two club-less free agents in Unity's red fallback); all 60 AI clubs have distinct two-hex kits; a null kit is warned about | 15 Sep, 75e8ed8 | club-kits 14/14: a wizard career played to the draw, 54 matches — 108 home players in the exact hexes, every away pair its fixture's pool pair in its kit, 18 opponents 18 kits, no warning; a nulled kit sent null with a warning; an older save given 60 kits on boot. unity-match-state-payload 9/9 |
