@@ -2726,8 +2726,12 @@ and `scripts/installer.nsh`.
   - The value was `C:\vbe-test-install-0.9.0-r65`, R-65's test install.
   - Before R-64, the machine had "Volley-Ball-Empire 1.0.0" in `C:\vbe-test-install\Volley-Ball-Empire`.
     That was the build from before the rename.
-  - The empty folder `C:\vbe-test-install\Volley-Ball-Empire\Beach Volleyball Empire` (created 15 Sep
-    12:25) is what an installer offering that remembered folder produces.
+  - `C:\vbe-test-install\Volley-Ball-Empire\Beach Volleyball Empire` holds a complete 0.9.0 install:
+    - 953 files, 557,409,436 bytes; the exe is 0.9.0, Bean & Label; the files carry the 11:59 build
+      time.
+    - The folder was created 15 Sep 12:25.
+    - That is where an installer offering the remembered `…\Volley-Ball-Empire` folder puts the game.
+    - It has no uninstall entry now. Tonight's tests did not touch it.
 
 **Fix (`scripts/installer.nsh`, wired in as `nsis.include`).** It applies when no `/D=` is given and
 the remembered folder's own name is not "Beach Volleyball Empire".
