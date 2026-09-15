@@ -2661,6 +2661,24 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-72 — OPEN, HIGH (registered 15 Sep): the week has no rhythm — DESIGN ONLY, build after the Steam upload
+**Rob's play-through:** no urgency before a match, no reason to train. **Rob (15 Sep):** a fixed weekly
+cadence — Monday results and board mood; Wednesday training day with a focus the player chooses
+(fitness / attack / defence / rest), applied only if set; Friday pre-match brief with opponent form and
+a play-or-rest call per player on the R-50 fitness curve; match day; Sunday roll. A 7-day strip on the
+dashboard with the current day lit is the visible clock (subsumes R-68). Training has a real effect on
+fitness and a small rating drift, with a cost.
+
+Design written: `docs/r72-week-rhythm.md` — what exists today (measured calendar, the R-50 fitness
+rules, the training programmes and what they do and do not do, staff and facility effects, board and
+opponent data) and what is new, with the calendar decision that needs Rob: the World Tour's 57 rounds
+fall in 40 weeks, so a one-match-day week needs a weekend that can hold two rounds (recommended) or a
+change to R-44's schedule. No code.
+
+### R-69 — V2 (registered 15 Sep): a loan / overdraft facility — register only, no code
+**Rob (15 Sep):** a loan or overdraft facility on the Finances page, with interest and a board limit.
+Parked in `docs/triage.md` §6 (V2 ideas). Not scheduled.
+
 ### R-68 — CLOSED (15 Sep, c787e14) MEDIUM: pressing Play gave no feedback — interim, subsumed by R-72
 **Rob's play-through:** pressing Play on the clock gives no visible feedback — at Slow the date only
 changes every 3 seconds, so the game feels frozen.

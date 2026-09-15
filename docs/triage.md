@@ -350,6 +350,12 @@ opening the app, not by any check.
 
 Not repairs and not scheduled — parked so they are not lost.
 
+- **A loan / overdraft facility** (15 September 2026, R-69). Rob: on the Finances page, a way to
+  borrow — a loan or an overdraft — that charges interest and is capped by a limit the board sets.
+  Would sit with the board's spending freeze (R-52/R-53): the board's confidence and the club's
+  finances decide how much it will let the club owe, and repayments are a weekly ledger line like
+  wages.
+
 - **A senior free-agent refresh from the unused adult cards** (15 September 2026, R-62). 89
   distinct real senior trading cards in `attached_assets` have no player row (45 tagged with a
   country in the filename, 43 only with a region — the nation is printed on the card). Rob: they
