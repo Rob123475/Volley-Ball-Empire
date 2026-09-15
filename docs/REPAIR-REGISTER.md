@@ -2684,7 +2684,7 @@ image.
 - **AI clubs: none this release** — they stay fixed pairs. "AI squad turnover — ageing, retirements,
   intake for AI clubs" is a V2 item.
 
-### R-61 — CLOSED (15 Sep, PENDING-R61): a real Olympic tournament
+### R-61 — CLOSED (15 Sep, d5bbd96): a real Olympic tournament
 **Rob's brief:** the 12 nations qualified under R-46 play a real event on the same match engine — 4
 groups of 3, top two to quarter-finals, knockout to a final and a bronze match. National pairs are
 the two highest-rated players of that nationality across all clubs; never invent players. At the end
@@ -3156,7 +3156,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-61 A real Olympic tournament in Olympic years: 12 qualified nations, their real top-two pairs, 4 groups of 3 then quarter-finals, semi-finals, bronze and gold on the World Tour engine; medals, trophies, Club News | 15 Sep, PENDING-R61 | olympics-tournament 24/24: 2028 only; 12 nations; 12 group + 8 knockout real scores; bracket follows tables; club pair won gold with medals and trophies; news dated 25 Nov. Ireland and Portugal cannot field a pair (1 each) |
+| R-61 A real Olympic tournament in Olympic years: 12 qualified nations, their real top-two pairs, 4 groups of 3 then quarter-finals, semi-finals, bronze and gold on the World Tour engine; medals, trophies, Club News | 15 Sep, d5bbd96 | olympics-tournament 24/24: 2028 only; 12 nations; 12 group + 8 knockout real scores; bracket follows tables; club pair won gold with medals and trophies; news dated 25 Nov. Ireland and Portugal cannot field a pair (1 each) |
 | R-60 Resign and Break Contract end the career (same path as a sacking, own reason); no save is left without a club | 15 Sep, 3267c4b | career-ends 12/12: career finished and club kept on both; release clause taken; no open clubless save; an older build's clubless save finished at boot |
 | R-58 Dashboard tier badge and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | 14 Sep, bb37664 | dashboard-standing 11/11: current finish = standings rank graded by the board's bands; below / failing words from moved bands; badge = the season's ranking row |
 | R-43 Invented content deleted — world news generator, Manager Movements, youth league, Job Market, poaching pool, Reputation Bonus card, Olympic results; Club News from real rows only | 14 Sep, b8f730a | fake-content-removed 11/11: nothing left in 490 source files or the bundle; starter clean; an older save's six tables dropped at boot and its profile deletes; 9 endpoints 404; every news item traced to its row; Olympic draw unscored |
