@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCalendar, type CalendarSpeed, SPEED_MS } from "@/hooks/use-calendar";
+import { useCalendar, useRoundNames, type CalendarSpeed, SPEED_MS } from "@/hooks/use-calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SeasonReviewDialog } from "@/components/season-review-dialog";
@@ -38,6 +38,7 @@ function VDiv() {
 
 export function CalendarPanel() {
   const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed, advanceMutation } = useCalendar();
+  const roundName = useRoundNames();
   const tickingRef = useRef(false);
   // A season boundary is an event, not a place: it has to interrupt. Opening
   // the review also pauses the clock, otherwise the ticker keeps advancing days
@@ -176,8 +177,8 @@ export function CalendarPanel() {
         <span className="text-[9px] font-black uppercase tracking-widest text-sidebar-foreground/40 leading-none">
           Season
         </span>
-        <span className="text-xs font-bold leading-tight mt-0.5">
-          {calendar.seasonYear} · R{calendar.seasonRound}/{calendar.seasonTotalRounds}
+        <span className="text-xs font-bold leading-tight mt-0.5" data-testid="calendar-season-phase">
+          {calendar.seasonYear} · {calendar.seasonPhase.label}
         </span>
       </div>
 
@@ -193,7 +194,7 @@ export function CalendarPanel() {
         <div className="flex items-center gap-1.5 shrink-0 px-2 rounded bg-sidebar-accent/30 h-7">
           <Trophy className="h-3 w-3 text-sidebar-foreground/50 shrink-0" />
           <span className="text-[11px] font-semibold leading-none max-w-[120px] truncate">
-            R{calendar.nextMatch.round} · {calendar.nextMatch.awayTeamName ?? "Opponent"}
+            {roundName(calendar.nextMatch.round, "short")} · {calendar.nextMatch.awayTeamName ?? "Opponent"}
           </span>
           {calendar.daysToNextMatch !== null && (
             <span className="text-[10px] text-sidebar-foreground/45 shrink-0">

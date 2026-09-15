@@ -4332,6 +4332,7 @@ components:
           type: object
           nullable: true
           description: "R-44: the club's next World Tour round, when it is a bye that comes before the next match."
+          required: [round]
           properties:
             round: { type: integer }
             scheduledAt: { type: ["string", "null"] }

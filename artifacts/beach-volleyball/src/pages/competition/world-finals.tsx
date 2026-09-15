@@ -128,7 +128,7 @@ export default function WorldFinals() {
           <Trophy className="h-4 w-4 text-yellow-500" />
           <span className="font-medium">Season {season.year} — World Finals</span>
           {data && !data.seeded && (
-            <Badge variant="outline" className="ml-2 text-xs">Seeded when World Tour round 70 is complete</Badge>
+            <Badge variant="outline" className="ml-2 text-xs">Seeded when the last World Tour round is complete</Badge>
           )}
           {data?.playerQualified === false && (
             <Badge variant="outline" className="ml-2 text-xs border-red-500/40 text-red-500">

@@ -27,6 +27,7 @@ import {
 import { PlayerStatusBadge } from "@/components/player-status-badge";
 import { MatchActionButtons } from "@/components/match/MatchActionButtons";
 import { useState } from "react";
+import { useRoundNames } from "@/hooks/use-calendar";
 import {
   Dialog,
   DialogContent,
@@ -595,6 +596,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
 }) {
   const [selected, setSelected] = useState<number[]>([]);
   const [expanded, setExpanded] = useState(false);
+  const roundName = useRoundNames();
   const date = match.scheduledAt ? new Date(match.scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "TBD";
 
   // R-44: a bye is a round the club rests — shown as a round, never as a gap.
@@ -714,7 +716,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
             onClick={() => onSimulate(selected)}
             data-testid={`button-simulate-${match.id}`}
           >
-            {isSimulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Play className="h-4 w-4 fill-current" /> Simulate Round {match.round}</>}
+            {isSimulating ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Play className="h-4 w-4 fill-current" /> Simulate {roundName(match.round)}</>}
           </Button>
         </div>
       )}

@@ -10998,7 +10998,7 @@ export const GetDashboardResponse = zod.object({
 
 }).passthrough().nullable(),
   "nextBye": zod.object({
-  "round": zod.number().optional(),
+  "round": zod.number(),
   "scheduledAt": zod.string().nullish(),
   "locationName": zod.string().nullish()
 }).nullish().describe('R-44: the club\'s next World Tour round, when it is a bye that comes before the next match.'),

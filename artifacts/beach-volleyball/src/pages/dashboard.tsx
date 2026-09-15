@@ -67,7 +67,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useCalendar } from "@/hooks/use-calendar";
+import { useCalendar, useRoundNames } from "@/hooks/use-calendar";
 import type { AttentionItem } from "@workspace/api-client-react";
 import { BoardStatusCard } from "@/components/career/board-confidence-widgets";
 
@@ -277,6 +277,7 @@ export default function Dashboard() {
   const [clubNewsOpen,     setClubNewsOpen]     = useState(false);
 
   const { calendar } = useCalendar();
+  const roundName = useRoundNames();
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
     query: { queryKey: getGetDashboardQueryKey() },
@@ -458,24 +459,24 @@ export default function Dashboard() {
               <span className="text-[11px] font-black uppercase tracking-widest text-white/70">{season?.name ?? "Season 1"}</span>
             </div>
 
-            {/* Season round progress pill */}
-            {calendar && calendar.seasonTotalRounds > 0 && (
+            {/* Season progress pill — R-70: the round of the competition being
+                played, and progress through the season's own rounds rather than
+                the schedule's 78 slots */}
+            {calendar && (
               <>
                 <div className="h-3 w-px bg-white/15" />
-                <div className="flex items-center gap-2 bg-white/8 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/50">Round</span>
-                  <span className="text-[11px] font-black tabular-nums text-white/80">
-                    {calendar.seasonRound}
-                    <span className="text-white/35 font-semibold">/{calendar.seasonTotalRounds}</span>
+                <div className="flex items-center gap-2 bg-white/8 backdrop-blur-sm rounded-full px-3 py-1 border border-white/10" data-testid="dashboard-season-phase">
+                  <span className="text-[11px] font-black uppercase tracking-widest tabular-nums text-white/80">
+                    {calendar.seasonPhase.label}
                   </span>
                   <div className="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <div
                       className="h-full rounded-full bg-amber-400/70 transition-all duration-500"
-                      style={{ width: `${Math.round((calendar.seasonRound / calendar.seasonTotalRounds) * 100)}%` }}
+                      style={{ width: `${Math.round((calendar.seasonPhase.played / calendar.seasonPhase.length) * 100)}%` }}
                     />
                   </div>
                   <span className="text-[10px] text-white/40 font-semibold tabular-nums">
-                    {Math.round((calendar.seasonRound / calendar.seasonTotalRounds) * 100)}%
+                    {Math.round((calendar.seasonPhase.played / calendar.seasonPhase.length) * 100)}%
                   </span>
                 </div>
               </>
@@ -706,7 +707,7 @@ export default function Dashboard() {
               {nextBye ? (
                 <>
                   <div className="text-sm font-black text-white leading-snug mt-0.5 truncate" data-testid="next-match-bye">
-                    Bye — Round {nextBye.round}
+                    Bye — {roundName(nextBye.round)}
                   </div>
                   <div className="text-[11px] text-white/40 mt-1 font-semibold">
                     Your club rests this round · Advance carries on
@@ -752,7 +753,7 @@ export default function Dashboard() {
       {/* ══════════════════════════════════════════════════════════════
           OLYMPIC QUALIFIER WIDGET (off-season & Olympic years)
       ══════════════════════════════════════════════════════════════ */}
-      {((calendar?.seasonRound ?? 0) >= 73 || (calendar?.seasonYear ?? 0) % 4 === 0) && (
+      {(calendar?.seasonPhase.phase === "off_season" || (calendar?.seasonYear ?? 0) % 4 === 0) && (
         <OlympicDashboardWidget />
       )}
 

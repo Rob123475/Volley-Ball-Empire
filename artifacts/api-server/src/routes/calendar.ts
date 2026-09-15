@@ -34,6 +34,7 @@ import { isOlympicYear, olympicDate } from "../utils/olympics.js";
 import { REST_RECOVERY, applyWeeklyInjuryRecovery } from "../utils/condition.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
+import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -229,8 +230,10 @@ router.get("/calendar", async (req, res) => {
     nextMatchDate,
     daysToNextMatch,
     seasonYear:        season.year,
-    seasonRound:       season.currentRound,
-    seasonTotalRounds: season.totalRounds,
+    // R-70: the schedule slot (1–78) is for logic that walks the schedule; what
+    // a screen shows is the phase — the round of the competition being played.
+    scheduleSlot:      season.currentRound,
+    seasonPhase:       seasonPhase(season.currentRound),
     regionalRoundsProcessed: season.regionalRoundsProcessed,
     isOlympicSeason:   season.isOlympicSeason,
     teamFitness: { avgFitness, avgFatigue, injuredCount, totalActive: active.length },
@@ -752,6 +755,19 @@ router.get("/calendar/season-structure", (_req, res) => {
       { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,       count: 6,  description: "Rest & preparation for next season" },
     ],
   });
+});
+
+// ── GET /api/calendar/round-names ─────────────────────────────────────────
+// R-70: every schedule slot named in the competition's own rounds, for any
+// screen that shows a match's round. One source: utils/seasonPhase.ts.
+
+router.get("/calendar/round-names", (_req, res) => {
+  const names: Record<number, { name: string; short: string }> = {};
+  for (let slot = 1; slot <= TOTAL_SLOTS; slot++) {
+    const p = seasonPhase(slot);
+    names[slot] = { name: p.name, short: p.short };
+  }
+  res.json({ seasonLength: SEASON_LENGTH, names });
 });
 
 // ── GET /api/calendar/annual ───────────────────────────────────────────────

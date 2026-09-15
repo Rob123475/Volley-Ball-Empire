@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useListMatches, useGetCurrentSeason } from "@workspace/api-client-react";
+import { useRoundNames } from "@/hooks/use-calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle } from "lucide-react";
@@ -10,6 +11,9 @@ const WT_ROUND_MAX = 70;
 export default function WtResults() {
   const { data: season } = useGetCurrentSeason();
   const { data: allMatches, isLoading, isError } = useListMatches();
+  // R-70: the heading used to subtract ten from the slot, which was wrong from
+  // the first open date (slot 41) on.
+  const roundName = useRoundNames();
 
   const completed = (allMatches ?? [])
     .filter(
@@ -84,7 +88,7 @@ export default function WtResults() {
               <div key={round} className="rounded-lg border bg-card overflow-hidden">
                 <div className="px-4 py-2.5 bg-muted/30 border-b flex items-center gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-sm font-medium">WT Round {round - 10}</span>
+                  <span className="text-sm font-medium">{roundName(round)}</span>
                   <Badge variant="secondary" className="text-xs ml-auto">
                     {roundMatches.length} match{roundMatches.length !== 1 ? "es" : ""}
                   </Badge>

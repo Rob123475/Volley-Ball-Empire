@@ -54,7 +54,7 @@ type RoundData = {
 export default function WtFixtures() {
   const { data: season } = useGetCurrentSeason();
   const { calendar } = useCalendar();
-  const calendarRound = Math.min(72, Math.max(FIRST_ROUND, calendar?.seasonRound ?? FIRST_ROUND));
+  const calendarRound = Math.min(72, Math.max(FIRST_ROUND, calendar?.scheduleSlot ?? FIRST_ROUND));
 
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const round = selectedRound ?? calendarRound;

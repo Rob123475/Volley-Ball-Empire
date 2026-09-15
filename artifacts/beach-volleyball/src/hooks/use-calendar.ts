@@ -25,6 +25,16 @@ export type AnnualCalendarData = {
 
 export type CalendarSpeed = "pause" | "slow" | "medium" | "fast";
 
+/** R-70: api-server utils/seasonPhase.ts. */
+export type SeasonPhase = {
+  phase: "continental" | "world_tour" | "finals" | "off_season";
+  label: string;
+  round: number | null;
+  of: number | null;
+  played: number;
+  length: number;
+};
+
 export type CalendarMatchDay = {
   matchId: number;
   round: number;
@@ -58,8 +68,10 @@ export type CalendarState = {
   nextMatchDate: string | null;
   daysToNextMatch: number | null;
   seasonYear: number;
-  seasonRound: number;
-  seasonTotalRounds: number;
+  /** The schedule slot, 1–78 (utils/calendarSlots.ts). Never show it as a round. */
+  scheduleSlot: number;
+  /** R-70: the round of the competition being played, and the season's own length. */
+  seasonPhase: SeasonPhase;
   teamFitness: {
     avgFitness: number;
     avgFatigue: number;
@@ -130,6 +142,23 @@ async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(path, opts);
   if (!res.ok) throw new Error(`${path} ${res.status}`);
   return res.json() as Promise<T>;
+}
+
+type RoundNames = { seasonLength: number; names: Record<string, { name: string; short: string }> };
+
+/**
+ * R-70: a match's round as the competition numbers it ("World Tour R31"),
+ * never the schedule slot it sits in (42). The names come from the server's
+ * schedule, which does not change during a session.
+ */
+export function useRoundNames() {
+  const { data } = useQuery<RoundNames>({
+    queryKey: ["calendar-round-names"],
+    queryFn:  () => apiFetch<RoundNames>("/api/calendar/round-names"),
+    staleTime: Infinity,
+    retry: 1,
+  });
+  return (slot: number, form: "name" | "short" = "name"): string => data?.names[String(slot)]?.[form] ?? "…";
 }
 
 export function useCalendar() {

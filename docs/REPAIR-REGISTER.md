@@ -2703,6 +2703,70 @@ file was touched, so the two cannot collide. The survey so far, read-only, is fr
   - `Assets/Editor/BeachPlayerProof.cs` renders a scene camera to PNG without saving the scene.
   - `Assets/Editor/WebBuild.cs` Step 7 builds Web to `webgl-out` (outside the game repo).
 
+### R-70 — CLOSED (15 Sep, PENDING-R70) MEDIUM: the top bar showed the schedule slot as a round ("R7/78")
+**Rob (15 Sep):** the top bar should show the round of the competition being played: Continental R7/10,
+then World Tour Rn/57, then Finals. Re-derive the season length and report what 78 was.
+
+**What 78 was.** The season record's `totalRounds` is the schedule's slot count, which `roundToDate()`
+spreads across the year (`utils/calendarSlots.ts`):
+
+| Slots | Count | What |
+|---|---|---|
+| 1–10 | 10 | continental rounds |
+| 11–70 | 60 | World Tour: 57 events, plus the open dates R-44 made at 41, 51 and 61 |
+| 71–72 | 2 | World Finals days |
+| 73–78 | 6 | off-season |
+
+It was never a count of rounds played. The top bar showed `currentRound/totalRounds` raw, and the
+dashboard pill showed a percentage of 78.
+
+**The season, re-derived.** 10 continental + 57 World Tour events + 2 World Finals days = **69 rounds**.
+The count comes from the schedule the server runs (`WORLD_TOUR_EVENT_ROUNDS`), so it follows any change
+to the events. Dates stay on the 78-slot grid; nothing moved.
+
+**The same fault elsewhere, fixed with it.** A match's `round` is its slot, so World Tour round 31 (slot
+42) was shown as a slot number:
+- "Round 42" on the Match Day dialog, the Matches page's Simulate button, the top bar's next-match
+  chip and the dashboard's bye card.
+- World Tour Results subtracted 10 from the slot, which is wrong from the first open date on: slot 42
+  read "WT Round 32".
+- Leaderboard: "78 rounds per season".
+- Upcoming events: "concludes after round 78", and "rounds remaining" counted slots.
+- Leaderboard and World Finals: "Seeded when World Tour round 70 is complete".
+
+**Fix:**
+- New `utils/seasonPhase.ts` gives, for any slot:
+  - its phase and its round within that phase (a World Tour open date keeps the last event's number);
+  - the top-bar label, a match name ("World Tour R31") and a short name ("WT R31");
+  - rounds played, and the season length.
+- `GET /calendar` returns `seasonPhase`. `seasonRound` is renamed `scheduleSlot` and kept for logic
+  only. `seasonTotalRounds` is removed.
+- New `GET /calendar/round-names` names every slot, for match screens.
+- **Top bar:** "2026 · Continental R7/10", "World Tour R31/57", "Finals · Semi-finals", "Finals · Final"
+  or "Off-season". The next-match chip reads "WT R31 · opponent".
+- **Dashboard pill:** the same label, with progress out of 69.
+- **Match screens:** the Match Day dialog, the Simulate button, the bye card and World Tour Results use
+  the round names.
+- **Leaderboard:** "69 rounds per season".
+- **Upcoming events:** count the season's own rounds.
+- Both "round 70" texts now read "the last World Tour round".
+- `openapi.yaml`: `nextBye.round` is now required. The server always sends it; only the generated type
+  had it optional, and the codegen diff is those 3 lines.
+
+**Harness (new):** `harness/season-phase.mjs`, 16/16.
+- **Source.** The slot layout sums to 78. The top bar, the dashboard pill and every match screen read
+  the phase or the round names, and no old form is left in the frontend source. The served bundle
+  carries them.
+- **Server.**
+  - A new career reads Continental R1/10, with no 78 in the calendar payload.
+  - The season is 10 + 57 + 2 = 69, counted from the World Tour's own event rounds (open dates 41, 51,
+    61).
+  - Slots 1, 7, 10, 11, 40, 41, 42, 70, 71, 72, 73 and 78 give their phase labels and progress.
+  - All 57 events are named R1–R57.
+  - At World Tour R31, upcoming events show 28 of 69 rounds remaining.
+  - Advancing the real clock from 1 to 6 January moves the top bar from Continental R1/10 to R2/10.
+- `smoke.mjs` reads `scheduleSlot`.
+
 ### R-69 — V2 (registered 15 Sep): a loan / overdraft facility — register only, no code
 **Rob (15 Sep):** a loan or overdraft facility on the Finances page, with interest and a board limit.
 Parked in `docs/triage.md` §6 (V2 ideas). Not scheduled.
@@ -3557,6 +3621,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-70 The top bar shows the round of the competition being played (Continental R7/10, World Tour R31/57, Finals, Off-season); the season is 69 rounds and 78 was the schedule's slots; match screens name a match's round the same way | 15 Sep, PENDING-R70 | season-phase 16/16: every phase at its boundary slots including open date 41; all 57 events named R1–R57; upcoming events 28 of 69 remaining at World Tour R31; the label follows the real clock; smoke reads scheduleSlot |
 | R-68 Pressing Play gives visible feedback: the date re-animates each simulated day, a bar fills across the ticker interval, a dot pulses (interim; subsumed by R-72's 7-day strip) | 15 Sep, c787e14 | calendar-tick 7/7: source and served bundle carry the tick, the bar and the dot; reduced motion honoured |
 | R-67 Staff salaries were annual figures charged as monthly: starter DB and seed scripts to monthly, older saves repaired on boot, hired staff billed weekly | 15 Sep, 95f178e | wizard-career-economy 11/11: wizard careers $150,000 / $500,000; Head Coach hire $12,083 (was $145,000); weekly staff bill $2,788 (was $33,462 shown, never billed); 236 annual wages repaired on boot; Rob's save copy: 472 → 0 annual |
 | R-65 Rebuild 0.9.0: CompanyName Bean & Label and a description; no menu bar (dev tools only unpackaged); the starter DB only ever copied, never opened in the install folder, no sidecars in the package | 15 Sep, 7974e06 | build chain 32/32, after-pack guard OK; installer 336,204,338 bytes sha256 5d3d0237…; live-save run: no data changed, install folder 953 files unchanged; first run from a read-only install folder: fresh save, no profiles, no dev tools on Ctrl+Shift+I, install folder unchanged |

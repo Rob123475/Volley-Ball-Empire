@@ -498,7 +498,7 @@ const roster = async (api) => {
   const cal0 = await H("GET", "/calendar");
   check("R-24: a fresh career's calendar starts paused",
     cal0.data?.calendarSpeed === "pause", `speed=${cal0.data?.calendarSpeed}`);
-  const round0 = cal0.data?.seasonRound;
+  const round0 = cal0.data?.scheduleSlot;
   const date0  = cal0.data?.currentDate;
 
   for (let i = 0; i < 20; i++) {
@@ -508,8 +508,8 @@ const roster = async (api) => {
 
   const cal1 = await H("GET", "/calendar");
   check("R-24: 20 polls of /calendar and /dashboard never move the round or the date",
-    cal1.data?.seasonRound === round0 && cal1.data?.currentDate === date0,
-    `round ${round0} -> ${cal1.data?.seasonRound}, date ${date0} -> ${cal1.data?.currentDate}`);
+    round0 !== undefined && cal1.data?.scheduleSlot === round0 && cal1.data?.currentDate === date0,
+    `round ${round0} -> ${cal1.data?.scheduleSlot}, date ${date0} -> ${cal1.data?.currentDate}`);
 
   // ── 14. A new career has fixtures and a next match immediately (R-26) ─────
   // Fixture generation used to run only from GET /matches/fixture, called

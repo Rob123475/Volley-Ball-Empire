@@ -21,6 +21,7 @@ estimated.
 | 7 | R-65 | `7974e06` | Rebuilt 0.9.0: exe CompanyName "Bean & Label"; no menu bar, dev tools only when unpackaged; the starter DB is only copied (to the save, and to `userData/starter-reference.db` per launch) and never opened in the install folder; after-pack guard keeps sidecars out of the package. Installer 336,204,338 bytes | live-save run and read-only first run both left the install folder's 953 files unchanged |
 | 8 | R-67 | `95f178e` | Staff salaries were annual figures charged as monthly — a Head Coach hire took $145,000 of a new underdog club's $150,000. Starter DB and seed scripts now monthly ($4,833–$23,333), older saves repaired on boot, hired staff billed weekly (salary ÷ 52/12). Rob's career keeps its balance; the charge already made is not refunded | wizard-career-economy 11/11 |
 | 9 | R-68 | `c787e14` | The running clock is visible: the date re-animates each day, a bar fills across the ticker interval, a dot pulses. Interim — R-72's 7-day strip replaces it | calendar-tick 7/7 |
+| 10 | R-70 | PENDING-R70 | The top bar shows the round of the competition being played — Continental R7/10, World Tour R31/57, Finals · Semi-finals / Final, Off-season — and the dashboard pill counts the season's 69 rounds. 78 was the schedule's slots: 10 continental + 60 World Tour (57 events, 3 open dates) + 2 finals days + 6 off-season. Match Day, Simulate, the bye card, World Tour Results and the leaderboard stopped showing slots as rounds | season-phase 16/16 |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -167,6 +168,13 @@ now on are kept out of other careers.
 **R-68 — the clock**
 14. Press Slow: the date animates each day, a thin bar fills under it every 3 seconds, and a dot pulses
     beside SLOW. Pause stops all three.
+
+**R-70 — the round in the top bar**
+15. New career: the top bar reads "2026 · Continental R1/10", and the dashboard pill shows the same
+    label at 1%.
+16. Play into the World Tour. On its first date the top bar reads "World Tour R1/57", the next-match
+    chip shows "WT R… · opponent", and the Match Day dialog names the same round. No screen shows a
+    round above 57 or a "/78".
 
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game

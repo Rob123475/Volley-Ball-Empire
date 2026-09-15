@@ -14,6 +14,7 @@ import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason, getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import { isOlympicYear, nextOlympicsYear, olympicDate, olympicTournament } from "../utils/olympics.js";
+import { CONTINENTAL_ROUNDS, FINALS_ROUNDS, WORLD_TOUR_ROUNDS, seasonPhase } from "../utils/seasonPhase.js";
 
 const router = Router();
 
@@ -131,7 +132,9 @@ router.get("/events/upcoming", async (req, res) => {
   const activeSeason = await getActiveSeason(req);
 
   if (activeSeason) {
-    const roundsLeft = activeSeason.totalRounds - activeSeason.currentRound;
+    // R-70: rounds of the season being played, not the schedule's 78 slots.
+    const phase = seasonPhase(activeSeason.currentRound);
+    const roundsLeft = phase.length - phase.played;
     const days = activeSeason.endDate ? daysBetween(gameDate, activeSeason.endDate) : null;
     items.push({
       id: `season_${activeSeason.id}`,
@@ -142,7 +145,7 @@ router.get("/events/upcoming", async (req, res) => {
       daysRemaining: days,
       prizeMoney: null,
       urgency: urgency(days),
-      detail: `Season ${activeSeason.year} concludes after round ${activeSeason.totalRounds}`,
+      detail: `Season ${activeSeason.year}: ${phase.length} rounds — ${CONTINENTAL_ROUNDS} continental, ${WORLD_TOUR_ROUNDS} World Tour, ${FINALS_ROUNDS} World Finals days`,
     });
   }
 

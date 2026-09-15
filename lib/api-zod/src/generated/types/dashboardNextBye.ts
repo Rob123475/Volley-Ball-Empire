@@ -10,7 +10,7 @@
  * R-44: the club's next World Tour round, when it is a bye that comes before the next match.
  */
 export type DashboardNextBye = {
-  round?: number;
+  round: number;
   /** @nullable */
   scheduledAt?: string | null;
   /** @nullable */

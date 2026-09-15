@@ -5,9 +5,8 @@ import {
   useGetDashboard,
   useListLocations,
   getListLocationsQueryKey,
-  useGetCurrentSeason,
-  getGetCurrentSeasonQueryKey,
 } from "@workspace/api-client-react";
+import { useCalendar } from "@/hooks/use-calendar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Medal, Star, TrendingUp, Globe, Crown } from "lucide-react";
@@ -104,13 +103,13 @@ export default function Leaderboard() {
   const { data: locations } = useListLocations({
     query: { queryKey: getListLocationsQueryKey() },
   });
-  const { data: currentSeason } = useGetCurrentSeason({
-    query: { queryKey: getGetCurrentSeasonQueryKey(), retry: false },
-  });
+  // R-70: the season's own length (continental + World Tour events + finals),
+  // not the season record's totalRounds — that is the schedule's 78 slots.
+  const { calendar } = useCalendar();
 
   const activeTeamCount = rankings?.length ?? 0;
   const venueCount      = locations?.length ?? 0;
-  const roundsPerSeason = currentSeason?.totalRounds ?? null;
+  const roundsPerSeason = calendar?.seasonPhase.length ?? null;
 
   if (isLoading) {
     return (
@@ -339,7 +338,7 @@ export default function Leaderboard() {
           gradient="from-amber-500 to-orange-500"
           icon={<Trophy className="h-6 w-6 text-white" />}
           label="World Finals"
-          sub="Seeded when World Tour round 70 is complete"
+          sub="Seeded when the last World Tour round is complete"
           detail="The top 4 of these standings qualify"
         />
         <InfoCard

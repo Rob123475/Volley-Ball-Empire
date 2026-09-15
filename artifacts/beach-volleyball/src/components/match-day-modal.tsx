@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCalendar } from "@/hooks/use-calendar";
+import { useCalendar, useRoundNames } from "@/hooks/use-calendar";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,7 @@ export function MatchDayModal() {
     dismissMatch,
     watchMatch,
   } = useCalendar();
+  const roundName = useRoundNames();
 
   // If an action fails, this modal must stop being inescapable — it blocks
   // close, outside-click and Escape, so a failed simulate left the player
@@ -104,7 +105,7 @@ export function MatchDayModal() {
               Match Day!
             </Badge>
             <Badge variant="outline" className="text-[10px] uppercase tracking-wide font-semibold">
-              Round {match.round}
+              {roundName(match.round)}
             </Badge>
             <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
               {tierLabel}
