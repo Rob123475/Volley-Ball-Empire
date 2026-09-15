@@ -2675,6 +2675,34 @@ opponent data) and what is new, with the calendar decision that needs Rob: the W
 fall in 40 weeks, so a one-match-day week needs a weekend that can hold two rounds (recommended) or a
 change to R-44's schedule. No code.
 
+### R-71 — OPEN, MEDIUM (registered 15 Sep): 3D Court camera zoom — PAUSED, another session is changing the Unity export
+**Rob (15 Sep):** mouse-wheel zoom on all three camera presets: a dolly along the camera's forward axis
+(not FOV), clamped per preset so it cannot go through the sand or past the stands, +/- keys for
+trackpads, and a reset when the preset changes. The overhead preset's default noticeably closer (Rob:
+too far away), old and new distances reported. Proof: a headless render with three shots per preset
+(default, zoomed in, zoomed out) into `proof/`, and the WebGL build compiling. No export or installer
+rebuild.
+
+**Paused (15 Sep):** Rob's next message said another session is changing the Unity export. No Unity
+file was touched, so the two cannot collide. The survey so far, read-only, is from `volleyball-unity`
+`main` at `6370636` (Unity 6000.3.16f1, Unity closed):
+- **The switcher.** `Assets/Scripts/SimpleCameraPresets.cs` sits on `Camera_Gameplay_Close` in
+  `Assets/BeachVolleyball V19.unity`. Keys: `1` → `Camera_Wide_Overhead`, `2` →
+  `Camera_TopDown_Test`, `3`/`R`/`Space` → `Camera_Gameplay_Close` (the start camera). It enables one
+  Camera component and moves the MainCamera tag. There is no zoom.
+- **The scene's cameras:**
+  - Close at (64, 8.5, 20.1), FOV 60, far clip 5000.
+  - Wide_Overhead at (47.1, 12, 6.1), pitched 35° down, FOV 60.
+  - TopDown_Test at (47.1, 40, 20.1), looking straight down, FOV 60.
+- **Input.** Input System package 1.19.0, with active input handling set to the Input System only.
+  Keys already bound: 1, 2, 3, R, Space (cameras) and A, D (boost UI).
+- **To settle before building.** "The overhead preset" could be either camera. The switcher logs
+  `Camera_TopDown_Test` as "OVERHEAD CAMERA ACTIVE" and `Camera_Wide_Overhead` as "WIDE OVERHEAD COURT
+  CAMERA ACTIVE".
+- **Tools to reuse.**
+  - `Assets/Editor/BeachPlayerProof.cs` renders a scene camera to PNG without saving the scene.
+  - `Assets/Editor/WebBuild.cs` Step 7 builds Web to `webgl-out` (outside the game repo).
+
 ### R-69 — V2 (registered 15 Sep): a loan / overdraft facility — register only, no code
 **Rob (15 Sep):** a loan or overdraft facility on the Finances page, with interest and a board limit.
 Parked in `docs/triage.md` §6 (V2 ideas). Not scheduled.
