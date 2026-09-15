@@ -1,8 +1,10 @@
-# Release status — overnight batch (14 Sep 2026)
+# Release status — Rob's four design decisions (15 Sep 2026)
 
-Written at the end of the unattended batch. Rules: `docs/REPAIR-REGISTER.md` rules of engagement —
-never the live save, commit per item, decide-and-go on anything that is not game design. Every
-number below comes from a run in this batch; nothing is estimated.
+Written at the end of the batch that carried out Rob's decisions on R-55, R-60, R-61 and R-62, on top
+of the overnight batch of 14 Sep (R-50, R-42, R-43, R-49/56/57/59, R-58 — section 1b). Rules:
+`docs/REPAIR-REGISTER.md` rules of engagement — never the live save, commit per item, decide-and-go on
+anything that is not game design. Every number below comes from a run in this batch; nothing is
+estimated.
 
 ---
 
@@ -10,106 +12,147 @@ number below comes from a run in this batch; nothing is estimated.
 
 | Item | Register | Commit | What changed | Proof |
 |---|---|---|---|---|
-| 1 | R-50 | `56c40ba` | Injured players cannot be selected (auto-selection, Unity, manual lineups); fitness scales a player's contribution 0.6–1.0; rest days recover (+2 fitness / −5 fatigue, injured +1 / −3); injuries heal weekly | condition 27/27 — 5,000 matches per fitness level: 66.0% / 36.3% / 14.9% wins at fitness 100 / 50 / 0 |
-| 2 | R-42 | `06488d3` | Trophies written at the season boundary: World Champions, World Final runner-up, World Finals semi-finalist, Silver/Gold tier seasons; shown in the Trophy Cabinet and the season review | trophies 10/10: a fresh career has none; a champion season writes exactly "World Champions 2026" + its tier |
-| 3 | R-43 | `b8f730a` | Deleted the invented world news, Manager Movements, the youth league, the Job Market, poaching offers, the Reputation Bonus card and re-rolled Olympic results (7 files, 2,850 lines, 9 endpoints, 6 tables). Club News now built only from real rows | fake-content-removed 11/11: nothing left in 490 source files or the bundle; an older save loses the tables and still deletes; every news item traces to its row |
-| 4 | R-49, R-56, R-57, R-59 | `92d928e` | Test issues fixed properly: migration-fixtures waits for the server's "Server listening" line; the invariants probe plays a real career's draw; board-review keeps the monthly clock's first start; condition makes its rest-day player fit first | 62/62, invariants sweep runs to the end (2 pass, 0 fail), 58/58, 27/27 |
-| 5 | R-58 | bb37664 | Dashboard tier badge ("Silver tier · 58 pts") and the board's standing line ("Board expects: top 4 · Currently: 3rd · On track") | dashboard-standing 11/11 |
+| 1 | R-55 | `0bf9a71` | Closed by Rob's decision: the board's bands stay (established: top 4 met, 5th–8th a warning, 9th+ a strike, two strikes sack). 1 established career in 10 sacked over four seasons is intended | register entry; no code change |
+| 2 | R-60 | `3267c4b` | Resign and Break Contract END the career through the sacking path with their own reason; the dialog says "This ends your career at <club>. There is no job market yet."; the save keeps its club; a clubless save an older build left is finished at boot; the finished screen names each ending | career-ends 12/12 |
+| 3 | R-61 | `d5bbd96` | A real Olympic tournament in Olympic years (2028 for a 2026 career): the 12 qualified nations' real top-two pairs from any club, 4 groups of 3, quarter-finals, semi-finals, bronze and gold on the World Tour engine, 25 Nov (after round 70, before the World Finals); medals on the players' records, trophies for their club, Club News. The projected draw, the manager-picked squads with invented wildcards, `olympic_selections` and the Locations page are deleted | olympics-tournament 24/24; olympic-qualification 29/29; fake-content-removed 11/11 |
+| 4 | R-62 | `8eb6bde` | Every rollover that opens a season brings the player's club 3 youth players: the youth template card, 16–18, ratings from the shipped youth's distribution, real names of the club's country and region; Club News; a dry academy says it found no one. Players a career creates are owned by it and no longer leak into later careers | youth-intake 22/22 |
 
-The full R-43 deletion list, and each item's reasoning, is in the register entry of the same name.
+### Rob's questions, answered
+- **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
+  quarter-finals is 4 QF + 2 SF + bronze + gold = **8**, plus 12 group matches. Built and asserted
+  as 8.
+- **R-61, calendar.** Round 70 (23 Nov) is followed directly by the World Finals (27 Nov); there is no
+  slot between. The Games are played on that transition, dated 25 Nov. No clash with any fixture.
+- **R-61, nations with fewer than two eligible players:** 52 nations can field a pair; **2 cannot —
+  Ireland and Portugal, one each.** Neither has qualified in any run. Rule applied, no invented
+  players: such a nation gives its place to the next nation that can field two.
+- **R-62, portraits.** 89 distinct portraits in `attached_assets` have no player row; tags are
+  filenames only (45 country, 43 region, 1 malformed); every one is an adult senior card. By Rob's
+  decision they are not used for youth — reserved for a senior free-agent refresh (V2). Intake cards
+  are the youth template, so cards never run out.
+- **R-62, how long the pool lasts.** The finite pool is names. After a five-season Brazil club used
+  12, South America still holds **194 unused names — 64 more seasons of intakes of 3.**
+- **R-62, "five rollovers produce five intakes".** A five-season career crosses 5 boundaries; 4 open
+  a new season and bring an intake (2027–2030); the 5th ends the career. Asserted as 4.
 
 ### Final full harness
 
-**28/28 suites passed** (`node harness/run-all.mjs`, launched without `ELECTRON_RUN_AS_NODE`), with
-every static guard and typecheck clean and the starter database matching the model (47 tables).
+**31/31 suites passed** (`node harness/run-all.mjs`, launched without `ELECTRON_RUN_AS_NODE`), with
+every static guard and typecheck clean and the starter database matching the model (50 tables).
 
 | # | Suite | Checks | # | Suite | Checks |
 |---|---|---|---|---|---|
-| 1 | guard self-test | 42/42 | 15 | board review | 58/58 |
-| 2 | schema drift | 12/12 | 16 | world tour competitors | 38/38 |
-| 3 | reference data backfill | 8/8 | 17 | world tour byes | 18/18 |
-| 4 | reference data update | 6/6 | 18 | all-star removed | 12/12 |
-| 5 | reference data new players | 9/9 | 19 | olympic qualification | 29/29 |
-| 6 | save folder migration | 7/7 | 20 | starting contracts | 15/15 |
-| 7 | wal checkpoint on shutdown | 7/7 | 21 | contract renewal | 23/23 |
-| 8 | unity match-state payload | 9/9 | 22 | empty squad forfeit | 11/11 |
-| 9 | unity career scoping | 15/15 | 23 | injuries and fitness | 27/27 |
-| 10 | match tick fallback roster | 9/9 | 24 | season trophies | 14/14 |
-| 11 | migration fixtures | 62/62 | 25 | invented content removed | 11/11 |
-| 12 | fresh install | 40/40 | 26 | dashboard standing | 11/11 |
-| 13 | fixture transaction | 3/3 | 27 | gameplay smoke | 75/75 |
-| 14 | career difficulty | 15/15 | 28 | season rollover | 78/78 |
+| 1 | guard self-test | 42/42 | 17 | world tour byes | 18/18 |
+| 2 | schema drift | 12/12 | 18 | all-star removed | 12/12 |
+| 3 | reference data backfill | 8/8 | 19 | olympic qualification | 29/29 |
+| 4 | reference data update | 6/6 | 20 | starting contracts | 15/15 |
+| 5 | reference data new players | 9/9 | 21 | contract renewal | 23/23 |
+| 6 | save folder migration | 7/7 | 22 | empty squad forfeit | 11/11 |
+| 7 | wal checkpoint on shutdown | 7/7 | 23 | injuries and fitness | 27/27 |
+| 8 | unity match-state payload | 9/9 | 24 | season trophies | 14/14 |
+| 9 | unity career scoping | 15/15 | 25 | invented content removed | 11/11 |
+| 10 | match tick fallback roster | 9/9 | 26 | dashboard standing | 11/11 |
+| 11 | migration fixtures | 62/62 | 27 | **career ends (R-60)** | 12/12 |
+| 12 | fresh install | 40/40 | 28 | **olympic tournament (R-61)** | 24/24 |
+| 13 | fixture transaction | 3/3 | 29 | **academy intake (R-62)** | 22/22 |
+| 14 | career difficulty | 15/15 | 30 | gameplay smoke | 75/75 |
+| 15 | board review | 58/58 | 31 | season rollover | 78/78 |
+| 16 | world tour competitors | 38/38 | | | |
 
-Standalone, not in run-all: `harness/invariants.mjs` runs to the end (2 pass, 0 fail, 5 baseline, 2
-blocked).
-
-Two failures earlier in the batch, both harness faults, both fixed and registered: R-57 (board-review
-misread its clock start) and R-59 (condition's rest-day player hurt by a random injury). One more was
-my own launch: the R-42 run inherited `ELECTRON_RUN_AS_NODE`, which the save-folder suite passes to
-real Electron — launch run-all without it.
+Along the way (all fixed before this run, none a game fault):
+- The first Olympic runs were sacked for abandonment because the harness never renewed contracts.
+- The club-honours check then found the club's players weren't in the field: first because their
+  nations didn't qualify, then because USA's seniors are draft-pool players, not free agents.
+- The intake harness first ran out of its day budget one season short.
 
 ### Five-season table (season rollover suite, real fixtures)
 
 Three established careers (the strongest starting squad) and three underdog careers (the weakest),
-each played through five seasons on the real draw. Every season crowned a real champion from the
-field. **Sacked: established 0 of 3, underdog 0 of 3.**
+each played through five seasons on the real draw. The academy intake (R-62) is live in every one of
+these careers from season 2, and 2028 is an Olympic year. Every season crowned a real champion from
+the field. **Sacked: established 0 of 3, underdog 0 of 3.**
 
-| Career | Season 1 | Season 2 | Season 3 | Season 4 | End |
+| Career | Season 1 (2026) | Season 2 (2027) | Season 3 (2028) | Season 4 (2029) | End |
 |---|---|---|---|---|---|
-| RollStrong (est.) | 33-23, #2, Gold, runner-up | 36-20, #1, Gold, **champion** | 37-19, #2, Gold, runner-up | 33-21, #5, Gold | complete |
-| RollStrong2 (est.) | 35-20, #3, Gold, semi-final | 40-16, #1, Gold, **champion** | 29-25, #8, Silver | 43-13, #1, Gold, runner-up | complete |
-| RollStrong3 (est.) | 34-21, #4, Gold, semi-final | 39-16, #2, Gold, semi-final | 28-26, #10, Bronze | 38-16, #5, Gold | complete |
-| RollWeak (und.) | 17-37, #18, Bronze | 17-37, #17, Bronze | 18-36, #19, Bronze | 16-38, #17, Bronze | complete |
-| RollWeak2 (und.) | 15-39, #18, Bronze | 28-26, #9, Silver | 19-35, #19, Bronze | 23-31, #15, Bronze | complete |
-| RollWeak3 (und.) | 16-38, #18, Bronze | 16-38, #18, Bronze | 16-38, #19, Bronze | 16-38, #19, Bronze | complete |
+| RollStrong (est.) | 39-17, #2, Gold, runner-up | 37-19, #2, Gold, runner-up | 36-20, #2, Gold, runner-up | 40-16, #2, Gold, runner-up | complete |
+| RollStrong2 (est.) | 37-18, #2, Gold, semi-final | 28-26, #11, Bronze | 40-16, #1, Gold, **champion** | 40-15, #2, Gold, semi-final | complete |
+| RollStrong3 (est.) | 41-14, #1, Gold, semi-final | 38-18, #2, Gold, runner-up | 34-20, #5, Gold | 43-13, #1, Gold, **champion** | complete |
+| RollWeak (und.) | 15-39, #19, Bronze | 23-31, #16, Bronze | 18-36, #17, Bronze | 19-35, #17, Bronze | complete |
+| RollWeak2 (und.) | 18-36, #17, Bronze | 16-38, #19, Bronze | 26-28, #9, Silver | 11-43, #19, Bronze | complete |
+| RollWeak3 (und.) | 19-35, #16, Bronze | 20-34, #17, Bronze | 17-37, #19, Bronze | 15-39, #19, Bronze | complete |
 
 Each season is 54–56 of 59 matches played: 57 World Tour rounds less 3 byes, plus the World Finals
-for the four that qualify. R-50's fitness and injuries are live in every one of these seasons.
+for the four that qualify. Balances still rise every season with the intake's academy wages
+(RollStrong $1.13M → $3.97M; RollWeak $451K → $1.20M).
 
-The board's season reviews for the established careers (the expectation is re-set at every draw from
-that season's strength rank, so "top 4" can become "top 7"):
-- RollStrong: met, met, met, **below** (5th against top 4), met.
-- RollStrong2: met, met, **below** (8th against top 4), met, met.
-- RollStrong3: met, met, **below** (10th against top 7), **below** (5th against top 4), met — champion
-  in season 5.
+The board's season reviews for the established careers:
+- RollStrong: met in all five (2nd, 2nd, 2nd, 2nd, 3rd against top 4).
+- RollStrong2: met, **failed** (11th against top 4 — a strike and the final warning), met as
+  champion, met, met (6th against top 7). The strike did not become a sacking because the next
+  season met.
+- RollStrong3: met, met, **below** (5th against top 4 — a warning, no strike), met as champion
+  (1st against top 6), met.
 
-No established career had a failed season or a strike in this run. R-55's open issue stands on its
-own evidence (1 of 10 established careers sacked in the R-55 study), not on this table.
+This is the R-55 band Rob chose to keep: one failed season in 15 established seasons here, no
+sacking.
+
+---
+
+## 1b. The overnight batch before this one (14 Sep)
+
+| Register | Commit | What changed | Proof |
+|---|---|---|---|
+| R-50 | `56c40ba` | Injured players cannot be selected; fitness scales a player's contribution 0.6–1.0; rest days recover; injuries heal weekly | condition 27/27 |
+| R-42 | `06488d3` | Season trophies written at the boundary and shown in the cabinet and the season review | season trophies 14/14 |
+| R-43 | `b8f730a` | Invented world news, Manager Movements, the youth league, the Job Market, poaching, the Reputation Bonus card deleted; Club News built only from real rows | fake-content-removed 11/11 |
+| R-49, R-56, R-57, R-59 | `92d928e` | Harness faults fixed properly | 62/62, 58/58, 27/27 |
+| R-58 | `bb37664` | Dashboard tier badge and the board's standing line | dashboard-standing 11/11 |
 
 ---
 
 ## 2. What Rob must check on screen
 
 Start the app from your own terminal (R-39) and confirm `http://localhost:4173/api/health` answers.
-On the **live save's first launch** with this build the server drops the six removed tables — the
-log says `removed content dropped`. That is expected, once.
+Use a test profile for anything that ends a career — never *mary*.
 
-**R-50 — injuries and fitness**
-1. Team page: each player card shows *Fitness N%* and *plays at M%*; an injured player reads
-   *Injured — can't play*.
-2. Dashboard, Next Match card: the pair that will play, their fitness, who is unavailable and why,
-   and a forfeit warning when fewer than two are fit.
-3. Matches page: the lineup picker will not accept an injured player.
+**On the live save's first launch with this build** the server, once: drops `olympic_selections`
+(log: `removed content dropped`), creates `olympic_tournaments`, `olympic_matches`, `olympic_medals`
+and `youth_intakes`, adds `players.origin_career_save_id`, and marks every season row whose year is
+divisible by 4 as Olympic. Players the live save's careers created BEFORE this build (draft picks,
+scouted signings) cannot be traced to their career, so they stay unowned; only players created from
+now on are kept out of other careers.
 
-**R-42 — trophies**
-4. Play a season to its end (or open a career already past a boundary): the season review has an
-   *Honours won* list when there is anything to list.
-5. Club → Trophy Cabinet: *World Champions (World Final wins)*, *World Tour Silver / Gold tier
-   seasons*, *World Final Runner-Ups*, *World Finals Semi-Finals*.
+**R-60 — Resign / Break Contract**
+1. Career → Career Options → Resign: the dialog reads *This ends your career at <club>. There is no
+   job market yet.* Confirm → the finished screen says *You Resigned* with the reason. The save
+   appears finished in Career Management, still showing its club.
+2. Same for Break Contract on another test career: *You Broke Your Contract*; the $25,000 release
+   clause is gone from the balance first.
 
-**R-43 — invented content gone**
-6. Dashboard: *Club News* (no LIVE badge, no nations, dates are game dates); no *Manager Movements*
-   panel; no poaching approach card.
-7. Sidebar: no *Youth League*. Club → Overview: no *Youth* tab. Team → Youth: no *Development
-   League* section. Career → Career Options: the contract card only, no Job Market.
-8. Olympics → Schedule: *Projected draw*, no scores, no gold medallist.
-9. Club → Hall of Fame (leaderboard): two info cards, no *Reputation Bonus*.
-10. Delete a test profile (never *mary*): it still deletes.
+**R-61 — Olympics**
+3. Olympics → Schedule in 2026: no draw and no scores; it names the next Games (2028).
+4. Olympics → National Squads: each nation's current pair, with their clubs; a *Fewer than two
+   players* count, and those nations badged *Cannot enter* (Ireland and Portugal in the harness
+   career — your own squad's nationalities can change the count).
+5. Rules → Olympics: the eight lines match the above.
+6. Only if you play a career to late November 2028: the schedule shows four group tables, the
+   bracket and the medals; Club News "<nation> win Olympic gold 2028"; a medal in a player's
+   record and in the Trophy Cabinet if one of your players won one.
 
-**R-58 — dashboard**
-11. Dashboard top: a tier badge (Bronze / Silver / Gold with points; hover shows the purse access
-    tier) and the board's line — before the draw it is absent, between the draw and the first
-    World Tour result it says *No World Tour result yet*.
+**R-62 — academy intake**
+7. Play (or open) a career past its first season boundary: Club News "3 youth players join the
+   <club> academy" dated 1 January, with names, nations and ages.
+8. Team → Youths: the three on the youth template card, aged 16–18. **Look at the capacity banner:**
+   it still says "up to 6", and the signing limit is still one academy place — the intake is held to
+   neither, so by season 5 the academy holds 9–12 and manual youth signings are refused. Rob to say
+   whether that is right.
+9. Rules → Academy: five lines.
+
+**Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
+lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game
+dates, no Manager Movements, no Youth League, no Job Market, no Reputation Bonus, a test profile still
+deletes; R-58 tier badge and board line. (14 Sep item 8, "Olympics → Schedule: Projected draw", is
+replaced by check 3 above.)
 
 ---
 
@@ -119,7 +162,7 @@ Honest, in the order it would have to happen. Nothing in this section was done i
 
 ### Packaging
 - **Installer not rebuilt.** electron-builder 25 / Electron 32, NSIS, `oneClick: false`. The last
-  documented installer is 641.5 MB (22 Aug). Every change since — R-17 through R-58 — has only run
+  documented installer is 641.5 MB (22 Aug). Every change since — R-17 through R-62 — has only run
   unpackaged. Follow `docs/packaging.md` in order: Unity `.br` compression, native `better-sqlite3`
   rebuild **before** `pnpm run build`, Bitdefender exclusions for `C:\build\vbe` and the NSIS cache,
   then `pnpm run electron:build`, then a silent install to a scratch directory and the verify steps.
@@ -131,33 +174,31 @@ Honest, in the order it would have to happen. Nothing in this section was done i
 
 ### Steam
 - **Nothing Steam exists in the repository**: no app id, no `steam_appid.txt`, no Steamworks SDK,
-  no SteamPipe app/depot build scripts, no store configuration. The only mention is a comment in
-  `electron/main.js`.
+  no SteamPipe app/depot build scripts, no store configuration.
 - **Upload.** SteamPipe (steamcmd with app and depot VDFs pointing at the packaged `win-unpacked`)
   has to be set up from scratch in a Steamworks partner account.
 - **Auto-Cloud.** The whole save is one file: `%APPDATA%\Beach Volleyball Empire\volleyball-empire.sqlite`
-  (R-23). On a clean quit the WAL is checkpointed and the database closed (R-31), so that file alone
-  is the save. Configure Auto-Cloud on that one file and **exclude** `-wal` / `-shm`. Not verified:
-  after a crash the last writes sit in `-wal`, and Steam would sync an older `.sqlite`.
-- **Review copy.** Keys come from Steamworks once the app exists there. None of this can be tested
-  from the repository.
+  (R-23). On a clean quit the WAL is checkpointed and the database closed (R-31). Configure Auto-Cloud
+  on that one file and **exclude** `-wal` / `-shm`. Not verified: after a crash the last writes sit in
+  `-wal`, and Steam would sync an older `.sqlite`.
+- **Review copy.** Keys come from Steamworks once the app exists there.
 
 ### Known gaps in the game
-- **Established clubs can still be sacked by variance (R-55).** 1 of 10 established careers over
-  four seasons (target was near 0%). Options recorded in R-55: failed from 11th, rank by wins, or a
-  confidence floor. Rob's call.
-- **No Olympic tournament.** A projected draw only: no matches, medals or Olympic trophies (R-42, R-43).
-- **Resign / Break Contract leave the save with no club.** The Job Market was the only way to another
-  club and it was fabricated (R-43). Career Management (new or load) is the way on. Design call:
-  build a real job market from real clubs, or make resigning end the career.
-- **No youth intake** (triage 3w): the academy drains to 0 by the end of a five-season arc. No youth
-  competition either (R-43).
+- **Academy size is not reconciled** (R-62): signing limit one, banner six, intake up to twelve by
+  season 5. An academy player's wage is billed both in the weekly salary sum and by the academy tick
+  after each match (the existing academy path, unchanged) — the intake makes that 3–12 players.
 - **Retirement is effectively off** (triage 3z): one senior retires in five seasons.
 - **No Career Result screen** for a completed five-season career (R-10): the season-5 review dialog is
-  the end. After a sacking, *View Career Result* goes to the sacked screen.
+  the end.
 - **Design-doc screens not built** (R-10): Rankings screen, per-event qualification, tier status
-  detail. R-58's badge is the only tier display.
-- **Economy invariants (R-07)**: I1 *monotonic return* still violated — 0.97x → 0.67x → 0.63x → 0.55x
-  → 2.58x; wages outpace income until a squad reaches Gold. I9 *money stays meaningful* violated.
+  detail.
+- **Economy invariants (R-07)**: I1 *monotonic return* and I9 *money stays meaningful* still violated.
 - **Club News** does not list contract renewals: a renewal records no date.
+- **Created players are not deleted with their career**: owned reference rows stay in `players`,
+  unseen by every other career.
 - **Open design questions** (triage §3): AI club reserves (3a), a qualifying competition (3b).
+
+### V2 (`docs/triage.md`)
+- **A real job market** from real AI clubs and reputation — Rob wants it if time allows (R-60).
+- **A senior free-agent refresh** from the 89 unused adult portraits (R-62).
+- **AI squad turnover** — ageing, retirements and intake for AI clubs (R-62).
