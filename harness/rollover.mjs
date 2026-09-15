@@ -414,6 +414,7 @@ async function advanceToBoundary(api, maxDays = 500) {
     const seasons = [];
     let sacked = null;
     let verdict = null;
+    let careerEnd = null;
     const renewals = [];
     let prevWins = team.wins, prevLosses = team.losses;
 
@@ -440,6 +441,12 @@ async function advanceToBoundary(api, maxDays = 500) {
       if (hit.roll.kind === "career-complete") {
         verdict = hit.roll.review ?? null;
         console.log(`    career complete after season ${hit.roll.finalSeason} — ${verdict?.text}`);
+        // R-77: every season boundary counts a completed season, the last one
+        // included, and five of them unlock Local Legend.
+        careerEnd = {
+          seasonsCompleted: (await api("GET", "/achievements/career-stats")).data?.seasonsCompleted ?? null,
+          localLegend: ((await api("GET", "/achievements")).data ?? []).find((a) => a.key === "local_legend")?.unlocked ?? null,
+        };
         break;
       }
 
@@ -492,7 +499,7 @@ async function advanceToBoundary(api, maxDays = 500) {
       console.log(`      board: ${row.board?.text ?? "NO REVIEW"}`);
     }
 
-    return { label, difficulty, seasons, fixtureSize, sacked, renewals, verdict };
+    return { label, difficulty, seasons, fixtureSize, sacked, renewals, verdict, careerEnd };
   }
 
   // R-47: a sacking is a legitimate result, so one career per arc could only say
@@ -561,6 +568,14 @@ async function advanceToBoundary(api, maxDays = 500) {
     check(`${arc.label}: the board reviewed every season it closed`,
       reviews.length === expectedReviews && reviews.every((v) => v && typeof v.text === "string" && v.outcome),
       `${reviews.filter(Boolean).length}/${expectedReviews} reviews`);
+
+    // R-77: seasons are counted at every season boundary, the final one included,
+    // so a career that runs its five seasons completes five and unlocks Local Legend.
+    if (!arc.sacked) {
+      check(`${arc.label}: a five-season career counts five completed seasons and unlocks Local Legend`,
+        arc.careerEnd?.seasonsCompleted === 5 && arc.careerEnd?.localLegend === true,
+        `seasonsCompleted ${arc.careerEnd?.seasonsCompleted}, Local Legend ${arc.careerEnd?.localLegend}`);
+    }
 
     // R-54: purse access is the tier the club finished last season.
     check(`${arc.label}: each next season pays full purses up to the tier this season reached`,

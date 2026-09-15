@@ -9,25 +9,40 @@ export const DEFAULT_CAREER_STATS: CareerStats = {
   championshipsWon: 0,
   highestBalanceReached: 0,
   seasonsCompleted: 0,
-  seasonsInCurrentLocation: 0,
-  currentLocationId: null,
   continentsVisited: [],
   youthSigned: 0,
   youthPromoted: 0,
   playersDevelopedToFiveStar: 0,
-  continentalTitles: 0,
   olympicGolds: 0,
   perfectSeasons: 0,
   debtFreeSeasons: 0,
   currentSeasonLosses: 0,
+  goldEventsWon: 0,
 };
 
+/**
+ * The known counters only, each defaulting to zero. R-77: an older save's JSON
+ * may still carry counters that were removed (continentalTitles,
+ * seasonsInCurrentLocation, currentLocationId); they are dropped here, not
+ * spread back into the stored object.
+ */
 export function getCareerStats(raw: unknown): CareerStats {
-  const s = (typeof raw === "object" && raw !== null ? raw : {}) as Partial<CareerStats>;
+  const s = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  const n = (key: keyof CareerStats) => (typeof s[key] === "number" ? (s[key] as number) : 0);
   return {
-    ...DEFAULT_CAREER_STATS,
-    ...s,
-    continentsVisited: Array.isArray(s.continentsVisited) ? s.continentsVisited : [],
+    matchesWon:                 n("matchesWon"),
+    championshipsWon:           n("championshipsWon"),
+    highestBalanceReached:      n("highestBalanceReached"),
+    seasonsCompleted:           n("seasonsCompleted"),
+    continentsVisited:          Array.isArray(s["continentsVisited"]) ? (s["continentsVisited"] as string[]) : [],
+    youthSigned:                n("youthSigned"),
+    youthPromoted:              n("youthPromoted"),
+    playersDevelopedToFiveStar: n("playersDevelopedToFiveStar"),
+    olympicGolds:               n("olympicGolds"),
+    perfectSeasons:             n("perfectSeasons"),
+    debtFreeSeasons:            n("debtFreeSeasons"),
+    currentSeasonLosses:        n("currentSeasonLosses"),
+    goldEventsWon:              n("goldEventsWon"),
   };
 }
 

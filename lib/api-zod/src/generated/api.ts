@@ -11430,15 +11430,15 @@ export const GetCareerStatsResponse = zod.object({
   "championshipsWon": zod.number().optional(),
   "highestBalanceReached": zod.number().optional(),
   "seasonsCompleted": zod.number().optional(),
-  "seasonsInCurrentLocation": zod.number().optional(),
   "continentsVisited": zod.array(zod.string()).optional(),
   "youthSigned": zod.number().optional(),
   "youthPromoted": zod.number().optional(),
   "playersDevelopedToFiveStar": zod.number().optional(),
-  "continentalTitles": zod.number().optional(),
   "olympicGolds": zod.number().optional(),
   "perfectSeasons": zod.number().optional(),
-  "debtFreeSeasons": zod.number().optional()
+  "debtFreeSeasons": zod.number().optional(),
+  "currentSeasonLosses": zod.number().optional(),
+  "goldEventsWon": zod.number().optional()
 })
 
 

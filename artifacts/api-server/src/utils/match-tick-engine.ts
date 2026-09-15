@@ -16,16 +16,18 @@
  * of a fresh random one.
  */
 
-import { db, matchesTable, matchLiveStateTable, playersTable, teamsTable } from "@workspace/db";
+import { db, matchesTable, matchLiveStateTable, playersTable, teamsTable, careerSavesTable } from "@workspace/db";
 import { sideRating, pointProbability, clampRating, pointTarget as sharedPointTarget } from "./matchEngine.js";
 import { fixtureForMatch, competitorRating } from "./worldTour.js";
 import { eq, and, inArray, isNull, notInArray, desc, sql } from "drizzle-orm";
-import { getWeatherEffects } from "../routes/matches.js";
+import { getWeatherEffects, completeMatch } from "../routes/matches.js";
 import { logger } from "../lib/logger.js";
 import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import { selectPair, conditioned } from "./condition.js";
 
-const TICK_MS = 1800; // ~1 point every 1.8s of real time
+// ~1 point every 1.8s of real time. MATCH_TICK_MS exists for the harness, which
+// cannot wait two minutes of real time for every watched match.
+const TICK_MS = Number(process.env["MATCH_TICK_MS"]) > 0 ? Number(process.env["MATCH_TICK_MS"]) : 1800;
 const SECONDS_PER_POINT = 22; // in-fiction rally duration, for matchTimeSeconds
 const SET_BREAK_TICKS = 3; // extra idle ticks between sets
 const WIN_BY = 2;
@@ -261,11 +263,28 @@ async function finalizeTick(matchId: number, setsWonHome: number, setsWonAway: n
     matchTimeSeconds,
     updatedAt: new Date(),
   }).where(eq(matchLiveStateTable.matchId, matchId));
-  // NOTE: matchesTable.status stays 'in_progress' and homeScore/awayScore stay
-  // unset here on purpose. The frontend detects rallyState === 'finished' via
-  // polling and calls POST /matches/:id/simulate with `precomputedResult:
-  // { homeScore: setsWonHome, awayScore: setsWonAway }` to run the real
-  // economy logic and flip status to 'completed'.
+
+  // R-77: the watched match is completed here, through the same code as "Sim
+  // Result" (completeMatch in routes/matches.ts), with the score it played. It
+  // used to stop at "finished": the note here said the page would poll and call
+  // /simulate with the result, and nothing ever did. A watched match earned no
+  // win, purse, ranking points, career stats or achievements, and the calendar
+  // stayed blocked on it.
+  try {
+    const match = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, matchId) });
+    if (!match || match.status === "completed" || match.homeTeamId == null) return;
+    const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, match.homeTeamId) });
+    if (!team) return;
+    const careerSaveId = await careerSaveIdForTeamOrThrow(team.id);
+    const save = await db.query.careerSavesTable.findFirst({ where: eq(careerSavesTable.id, careerSaveId) });
+    await completeMatch(
+      { careerSaveId, team, userId: save?.userId ?? null, log: logger },
+      match,
+      { homeScore: setsWonHome, awayScore: setsWonAway },
+    );
+  } catch (err) {
+    logger.error({ matchId, err }, "watched match could not be completed");
+  }
 }
 
 async function writeState(matchId: number, fields: {

@@ -2661,6 +2661,83 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-77 — CLOSED (15 Sep, PENDING-R77) HIGH: watched matches never counted; achievements said things that were not true
+**Rob (15 Sep):** an honesty pass over Career → Achievements. Prove whether a match watched in 3D
+counts. Give World Champion its own real condition. Continental Champion either unlocks for a real
+continental win or goes. Delete the unreachable season achievements and First Pay Day. Make the
+Debt Free, continent and scouting texts true.
+
+**2a, traced: a watched match never completed.**
+- `POST /matches/:id/watch` starts `utils/match-tick-engine.ts`. The engine writes every point to
+  `match_live_state` and ends at `rallyState: "finished"`, leaving the match `in_progress`.
+- The engine's own note said the frontend would poll, then call `POST /matches/:id/simulate` with
+  the real score (`precomputedResult`). Nothing does:
+  - no page polls `live-state`, and nothing sends `precomputedResult`;
+  - the Unity build posts no result either (`/game/match-result` is never called).
+- So a match watched to the end earned no win or loss, no purse, no ranking points, no career stats
+  and no achievements, and the calendar stayed blocked on it.
+
+**Fix:**
+- **One completion path.** Everything `/simulate` did after its checks is now `completeMatch()` in
+  `routes/matches.ts`: score, purse, ranking points, the World Tour fixture, injuries, career stats,
+  achievements, the season summary.
+  - `/simulate` keeps its checks and the forfeit, then calls it.
+  - The tick engine calls it when a watched match ends, with the sets it played.
+  - A match already completed returns null, so a match watched and simulated mid-play counts once.
+- **Harness speed.** `MATCH_TICK_MS` lets the harness play a watched match in seconds.
+- **Seasons are counted where every season ends,** the season boundary (`routes/calendar.ts`), for a
+  season that rolls on, the final one and a sacking. That is also where the season's loss count
+  resets. Both used to move only on a World Final win, so a season without a title never counted
+  and "Perfect Season" counted losses from the start of the career.
+- **Continental Champion is deleted.**
+  - The player's club never plays a continental tournament; the regional leagues are between pool
+    clubs only.
+  - The schedule has no "Continental Final" match.
+  - Nothing writes a `continental_championship` trophy.
+  - The dead counter `continentalTitles` is removed.
+- **Also deleted,** by the rule Rob applied to the season achievements. Careers are 5 seasons, with
+  one Olympics (2028):
+  - Beach Volleyball Empire (10 World Finals);
+  - Mr Loyalty (10 seasons in one town);
+  - Back-to-Back Gold (2 Olympic golds).
+- **Deleted as asked:** Decade in the Sand, Veteran Coach, Hall of Fame and First Pay Day.
+- **Tournament Winner.** It was "a continental title or a World Final", which became the same as
+  Champion. It now means winning a Gold-tier World Tour event (new counter `goldEventsWon`).
+- **Local Legend.** It counted World Final wins at a `locationId` that a wizard career never has. It
+  now means completing 5 seasons with the same club (there is no job market). The unused town
+  counters are removed.
+- **Continents.** The continent list no longer counts the World Finals' "world" as a continent.
+- **Talent Spotter / Talent Pipeline:** scouted signings only, said in the text. Counting the yearly
+  intake would unlock Talent Spotter at the first season boundary without the player doing anything.
+- **Other texts rewritten** to their real triggers: World Champion, Champion, Dynasty Begins, Debt
+  Free, Financially Secure, Olympic Gold, Perfect Season, Youth Graduate/Factory, Future Superstar,
+  Star Factory, World Traveller and Globe Trotter.
+- **Achievements page.** Nothing to remove: it renders the server's list. 30 achievements → 22. No
+  harness expected 30.
+- **Generated client.** The OpenAPI `CareerStats` schema was updated and the client regenerated.
+
+**Found, not changed:** the Trophy Cabinet's own milestone list (`routes/trophies.ts`) still has a
+"Win a continental championship" milestone that nothing can unlock. It is separate from Achievements
+and outside this brief.
+
+**Harness (new):** `harness/watched-match.mjs`, 10/10.
+- The served list is exactly the 22, with no deleted key, no loans, and "Play matches on N
+  continents".
+- On a real match day, a watched match completed on its own (2-1):
+  - wins 0 → 1, and career stats and the purse moved by one;
+  - the live row was cleared and the calendar freed;
+  - First Steps unlocked.
+- A simulated match moves the same counters.
+- Watched, then simulated mid-play, counts one result and one purse.
+- `rollover.mjs` now also checks that every five-season career completes 5 seasons and unlocks Local
+  Legend: 6 of 6 careers did.
+- **Full run-all: 38/38 passed.** The first full run was 37/38. Season trophies found no World Final
+  winner in 8 fresh careers:
+  - two finals were lost on court (1-2, 0-2);
+  - one was a squad-short forfeit, through the pre-existing check, which answered HTTP 200 in 4 ms.
+  Nothing in the win odds changed. The suite passed 10/10 on its own (champion in career 1) and in
+  the rerun.
+
 ### R-75 — CLOSED (15 Sep, 85ca86c) MEDIUM: pool pairs' skin tones drawn from their nation's own distribution
 **Rob (15 Sep):**
 - Pool-pair skin tones are random per player.
@@ -3712,6 +3789,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-77 A watched match completes through the same code as Sim Result and counts; seasons and the season's losses counted at the season boundary; 8 unreachable or dishonest achievements deleted, the rest say their real trigger (30 → 22) | 15 Sep, PENDING-R77 | watched-match 10/10: the 22 served, no deleted key or loan text; a watched match completes on its own and moves wins, career stats, purse, First Steps; simulate the same; watched then simulated counts once. rollover: five-season careers complete 5 seasons and unlock Local Legend |
 | R-75 Pool players' skin tones drawn from their nation's own tone counts among the seeded players (continent counts for 5 nations with none); pool players had no tone before, so 120 of 120 set | 15 Sep, 85ca86c | pool-skin-tones 4/4: all 120 banded; a re-run of the draw changes nothing; every away pool player's payload tone is her stored tone; an older save gets all 120 on boot. club-kits 14/14, unity-match-state-payload 9/9 on the same build |
 | R-73 The wizard's colours reach the court: the away pair is the fixture's own AI club in that club's kit (was two club-less free agents in Unity's red fallback); all 60 AI clubs have distinct two-hex kits; a null kit is warned about | 15 Sep, 75e8ed8 | club-kits 14/14: a wizard career played to the draw, 54 matches — 108 home players in the exact hexes, every away pair its fixture's pool pair in its kit, 18 opponents 18 kits, no warning; a nulled kit sent null with a warning; an older save given 60 kits on boot. unity-match-state-payload 9/9 |
 | R-70 The top bar shows the round of the competition being played (Continental R7/10, World Tour R31/57, Finals, Off-season); the season is 69 rounds and 78 was the schedule's slots; match screens name a match's round the same way | 15 Sep, 3f57266 | season-phase 16/16: every phase at its boundary slots including open date 41; all 57 events named R1–R57; upcoming events 28 of 69 remaining at World Tour R31; the label follows the real clock; smoke reads scheduleSlot; full run 35/35 passed |

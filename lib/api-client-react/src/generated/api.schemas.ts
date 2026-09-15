@@ -2149,15 +2149,15 @@ export interface CareerStats {
   championshipsWon?: number;
   highestBalanceReached?: number;
   seasonsCompleted?: number;
-  seasonsInCurrentLocation?: number;
   continentsVisited?: string[];
   youthSigned?: number;
   youthPromoted?: number;
   playersDevelopedToFiveStar?: number;
-  continentalTitles?: number;
   olympicGolds?: number;
   perfectSeasons?: number;
   debtFreeSeasons?: number;
+  currentSeasonLosses?: number;
+  goldEventsWon?: number;
 }
 
 export type AttentionItemPriority = typeof AttentionItemPriority[keyof typeof AttentionItemPriority];

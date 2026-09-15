@@ -12,7 +12,20 @@ export type AchievementDef = {
   progress: (team: Team, stats: CareerStats) => { current: number; target: number };
 };
 
+/**
+ * R-77: every description says what actually unlocks it. Careers last
+ * FINAL_SEASON (5) seasons, with one Olympic Games (2028) in them. These were
+ * deleted:
+ *   - "10 seasons", "20 seasons", "30 seasons", "10 World Finals" and
+ *     "2 Olympic golds": not reachable inside a career.
+ *   - "Continental Champion": the player's club never plays a continental
+ *     tournament, and no match is a continental final.
+ *   - "First Pay Day" ($100,000): every new career starts above it.
+ * A match counts whether it was simulated or watched to the end
+ * (routes/matches.ts completeMatch).
+ */
 export const ACHIEVEMENT_DEFS: AchievementDef[] = [
+  // ── Career ────────────────────────────────────────────────────────────────
   {
     key: "first_steps",
     name: "First Steps",
@@ -21,166 +34,6 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     check: (team) => team.wins >= 1,
     progress: (team) => ({ current: Math.min(team.wins, 1), target: 1 }),
   },
-  {
-    key: "tournament_winner",
-    name: "Tournament Winner",
-    description: "Win your first tournament.",
-    category: "competition",
-    check: (team, stats) => stats.continentalTitles + team.titlesWon >= 1,
-    progress: (team, stats) => ({ current: Math.min(stats.continentalTitles + team.titlesWon, 1), target: 1 }),
-  },
-  {
-    key: "champion",
-    name: "Champion",
-    description: "Win your first league championship.",
-    category: "competition",
-    check: (team) => team.titlesWon >= 1,
-    progress: (team) => ({ current: Math.min(team.titlesWon, 1), target: 1 }),
-  },
-  {
-    key: "dynasty_begins",
-    name: "Dynasty Begins",
-    description: "Win 3 championships.",
-    category: "competition",
-    check: (team) => team.titlesWon >= 3,
-    progress: (team) => ({ current: Math.min(team.titlesWon, 3), target: 3 }),
-  },
-  {
-    key: "volleyball_empire",
-    name: "Beach Volleyball Empire",
-    description: "Win 10 championships.",
-    category: "competition",
-    check: (team) => team.titlesWon >= 10,
-    progress: (team) => ({ current: Math.min(team.titlesWon, 10), target: 10 }),
-  },
-  {
-    key: "first_pay_day",
-    name: "First Pay Day",
-    description: "Reach $100,000 club balance.",
-    category: "finance",
-    check: (_t, stats) => stats.highestBalanceReached >= 100_000,
-    progress: (_t, stats) => ({ current: Math.min(Math.round(stats.highestBalanceReached), 100_000), target: 100_000 }),
-  },
-  {
-    key: "making_money",
-    name: "Making Money",
-    description: "Reach $1,000,000 club balance.",
-    category: "finance",
-    check: (_t, stats) => stats.highestBalanceReached >= 1_000_000,
-    progress: (_t, stats) => ({ current: Math.min(Math.round(stats.highestBalanceReached), 1_000_000), target: 1_000_000 }),
-  },
-  {
-    key: "debt_free",
-    name: "Debt Free",
-    description: "Complete a season with a positive balance and no outstanding loans.",
-    category: "finance",
-    check: (_t, stats) => stats.debtFreeSeasons >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.debtFreeSeasons, 1), target: 1 }),
-  },
-  {
-    key: "talent_spotter",
-    name: "Talent Spotter",
-    description: "Sign your first youth player.",
-    category: "youth",
-    check: (_t, stats) => stats.youthSigned >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.youthSigned, 1), target: 1 }),
-  },
-  {
-    key: "youth_graduate",
-    name: "Youth Graduate",
-    description: "Promote a youth player to the senior squad.",
-    category: "youth",
-    check: (_t, stats) => stats.youthPromoted >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.youthPromoted, 1), target: 1 }),
-  },
-  {
-    key: "youth_factory",
-    name: "Youth Factory",
-    description: "Promote 10 youth players during your career.",
-    category: "youth",
-    check: (_t, stats) => stats.youthPromoted >= 10,
-    progress: (_t, stats) => ({ current: Math.min(stats.youthPromoted, 10), target: 10 }),
-  },
-  {
-    key: "future_superstar",
-    name: "Future Superstar",
-    description: "Develop a player to 5-star overall rating.",
-    category: "youth",
-    check: (_t, stats) => stats.playersDevelopedToFiveStar >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.playersDevelopedToFiveStar, 1), target: 1 }),
-  },
-  {
-    key: "continental_champion",
-    name: "Continental Champion",
-    description: "Win a continental championship.",
-    category: "competition",
-    check: (_t, stats) => stats.continentalTitles >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.continentalTitles, 1), target: 1 }),
-  },
-  {
-    key: "world_champion",
-    name: "World Champion",
-    description: "Win the World Championship.",
-    category: "competition",
-    check: (team) => team.titlesWon >= 3,
-    progress: (team) => ({ current: Math.min(team.titlesWon, 3), target: 3 }),
-  },
-  {
-    key: "olympic_gold",
-    name: "Olympic Gold",
-    description: "Win an Olympic Gold Medal.",
-    category: "competition",
-    check: (_t, stats) => stats.olympicGolds >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 1), target: 1 }),
-  },
-  {
-    key: "perfect_season",
-    name: "Perfect Season",
-    description: "Win a championship season without losing a match.",
-    category: "career",
-    check: (_t, stats) => stats.perfectSeasons >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.perfectSeasons, 1), target: 1 }),
-  },
-  {
-    key: "local_legend",
-    name: "Local Legend",
-    description: "Stay in the same town for 5 seasons.",
-    category: "legacy",
-    check: (_t, stats) => stats.seasonsInCurrentLocation >= 5,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsInCurrentLocation, 5), target: 5 }),
-  },
-  {
-    key: "mr_loyalty",
-    name: "Mr Loyalty",
-    description: "Stay in the same town for 10 seasons.",
-    category: "legacy",
-    check: (_t, stats) => stats.seasonsInCurrentLocation >= 10,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsInCurrentLocation, 10), target: 10 }),
-  },
-  {
-    key: "world_traveller",
-    name: "World Traveller",
-    // Target derived, not typed: this said "6" in three places while the club
-    // picker was showing four, and nothing could tell which was right.
-    description: `Manage teams on all ${CONTINENT_COUNT} continents.`,
-    category: "legacy",
-    check: (_t, stats) => stats.continentsVisited.length >= CONTINENT_COUNT,
-    progress: (_t, stats) => ({
-      current: Math.min(stats.continentsVisited.length, CONTINENT_COUNT),
-      target:  CONTINENT_COUNT,
-    }),
-  },
-  {
-    key: "hall_of_fame",
-    name: "Hall of Fame",
-    description: "Reach 30 career seasons.",
-    category: "legacy",
-    check: (_t, stats) => stats.seasonsCompleted >= 30,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 30), target: 30 }),
-  },
-
-  // ── 10 new achievements ────────────────────────────────────────────────────
-
   {
     key: "battle_hardened",
     name: "Battle Hardened",
@@ -198,28 +51,65 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     progress: (_t, stats) => ({ current: Math.min(stats.matchesWon, 100), target: 100 }),
   },
   {
-    key: "decade_in_sand",
-    name: "Decade in the Sand",
-    description: "Complete 10 seasons as a beach volleyball manager.",
-    category: "legacy",
-    check: (_t, stats) => stats.seasonsCompleted >= 10,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 10), target: 10 }),
+    key: "perfect_season",
+    name: "Perfect Season",
+    description: "Win the World Final in a season in which you lost no match.",
+    category: "career",
+    check: (_t, stats) => stats.perfectSeasons >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.perfectSeasons, 1), target: 1 }),
+  },
+
+  // ── Competition ───────────────────────────────────────────────────────────
+  {
+    key: "tournament_winner",
+    name: "Tournament Winner",
+    description: "Win a Gold-tier World Tour event.",
+    category: "competition",
+    check: (_t, stats) => stats.goldEventsWon >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.goldEventsWon, 1), target: 1 }),
   },
   {
-    key: "veteran_coach",
-    name: "Veteran Coach",
-    description: "Complete 20 seasons on the beach circuit.",
-    category: "legacy",
-    check: (_t, stats) => stats.seasonsCompleted >= 20,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 20), target: 20 }),
+    key: "champion",
+    name: "Champion",
+    description: "Win the World Final.",
+    category: "competition",
+    check: (team) => team.titlesWon >= 1,
+    progress: (team) => ({ current: Math.min(team.titlesWon, 1), target: 1 }),
   },
   {
-    key: "globe_trotter",
-    name: "Globe Trotter",
-    description: "Manage teams on 4 different continents.",
-    category: "legacy",
-    check: (_t, stats) => stats.continentsVisited.length >= 4,
-    progress: (_t, stats) => ({ current: Math.min(stats.continentsVisited.length, 4), target: 4 }),
+    key: "world_champion",
+    name: "World Champion",
+    // One World Final a season, so two titles are two different seasons.
+    description: "Win the World Final in two different seasons.",
+    category: "competition",
+    check: (team) => team.titlesWon >= 2,
+    progress: (team) => ({ current: Math.min(team.titlesWon, 2), target: 2 }),
+  },
+  {
+    key: "dynasty_begins",
+    name: "Dynasty Begins",
+    description: "Win the World Final three times.",
+    category: "competition",
+    check: (team) => team.titlesWon >= 3,
+    progress: (team) => ({ current: Math.min(team.titlesWon, 3), target: 3 }),
+  },
+  {
+    key: "olympic_gold",
+    name: "Olympic Gold",
+    description: "Have a player from your club win Olympic gold.",
+    category: "competition",
+    check: (_t, stats) => stats.olympicGolds >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 1), target: 1 }),
+  },
+
+  // ── Finance ───────────────────────────────────────────────────────────────
+  {
+    key: "making_money",
+    name: "Making Money",
+    description: "Reach a club balance of $1,000,000.",
+    category: "finance",
+    check: (_t, stats) => stats.highestBalanceReached >= 1_000_000,
+    progress: (_t, stats) => ({ current: Math.min(Math.round(stats.highestBalanceReached), 1_000_000), target: 1_000_000 }),
   },
   {
     key: "millionaires_club",
@@ -230,35 +120,99 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     progress: (_t, stats) => ({ current: Math.min(Math.round(stats.highestBalanceReached), 5_000_000), target: 5_000_000 }),
   },
   {
+    key: "debt_free",
+    name: "Debt Free",
+    description: "Win the World Final with the club's balance above $0.",
+    category: "finance",
+    check: (_t, stats) => stats.debtFreeSeasons >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.debtFreeSeasons, 1), target: 1 }),
+  },
+  {
     key: "financially_secure",
     name: "Financially Secure",
-    description: "Complete 5 debt-free seasons.",
+    description: "Win the World Final five times with the club's balance above $0.",
     category: "finance",
     check: (_t, stats) => stats.debtFreeSeasons >= 5,
     progress: (_t, stats) => ({ current: Math.min(stats.debtFreeSeasons, 5), target: 5 }),
   },
+
+  // ── Youth ─────────────────────────────────────────────────────────────────
+  {
+    key: "talent_spotter",
+    name: "Talent Spotter",
+    description: "Sign a youth prospect found by scouting. The yearly academy intake does not count.",
+    category: "youth",
+    check: (_t, stats) => stats.youthSigned >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.youthSigned, 1), target: 1 }),
+  },
   {
     key: "youth_pipeline",
     name: "Talent Pipeline",
-    description: "Sign 20 youth players across your career.",
+    description: "Sign 20 youth prospects found by scouting. The yearly academy intake does not count.",
     category: "youth",
     check: (_t, stats) => stats.youthSigned >= 20,
     progress: (_t, stats) => ({ current: Math.min(stats.youthSigned, 20), target: 20 }),
   },
   {
+    key: "youth_graduate",
+    name: "Youth Graduate",
+    description: "Promote an academy player to starter or interchange.",
+    category: "youth",
+    check: (_t, stats) => stats.youthPromoted >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.youthPromoted, 1), target: 1 }),
+  },
+  {
+    key: "youth_factory",
+    name: "Youth Factory",
+    description: "Promote 10 academy players to starter or interchange.",
+    category: "youth",
+    check: (_t, stats) => stats.youthPromoted >= 10,
+    progress: (_t, stats) => ({ current: Math.min(stats.youthPromoted, 10), target: 10 }),
+  },
+  {
+    key: "future_superstar",
+    name: "Future Superstar",
+    description: "Have a player in your squad whose peak rating reaches 85.",
+    category: "youth",
+    check: (_t, stats) => stats.playersDevelopedToFiveStar >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.playersDevelopedToFiveStar, 1), target: 1 }),
+  },
+  {
     key: "star_factory",
     name: "Star Factory",
-    description: "Develop 3 players to a 5-star overall rating.",
+    description: "Have 3 players in your squad whose peak rating reaches 85.",
     category: "youth",
     check: (_t, stats) => stats.playersDevelopedToFiveStar >= 3,
     progress: (_t, stats) => ({ current: Math.min(stats.playersDevelopedToFiveStar, 3), target: 3 }),
   },
+
+  // ── Legacy ────────────────────────────────────────────────────────────────
   {
-    key: "double_olympic_gold",
-    name: "Back-to-Back Gold",
-    description: "Win 2 Olympic Gold Medals.",
-    category: "competition",
-    check: (_t, stats) => stats.olympicGolds >= 2,
-    progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 2), target: 2 }),
+    key: "local_legend",
+    name: "Local Legend",
+    // There is no job market: every season of a career is at the same club.
+    description: "Complete 5 seasons with the same club.",
+    category: "legacy",
+    check: (_t, stats) => stats.seasonsCompleted >= 5,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 5), target: 5 }),
+  },
+  {
+    key: "world_traveller",
+    name: "World Traveller",
+    description: `Play matches on ${CONTINENT_COUNT} continents.`,
+    category: "legacy",
+    check: (_t, stats) => stats.continentsVisited.length >= CONTINENT_COUNT,
+    progress: (_t, stats) => ({
+      current: Math.min(stats.continentsVisited.length, CONTINENT_COUNT),
+      target:  CONTINENT_COUNT,
+    }),
+  },
+  {
+    key: "globe_trotter",
+    name: "Globe Trotter",
+    description: "Play matches on 4 continents.",
+    category: "legacy",
+    check: (_t, stats) => stats.continentsVisited.length >= 4,
+    progress: (_t, stats) => ({ current: Math.min(stats.continentsVisited.length, 4), target: 4 }),
   },
 ];

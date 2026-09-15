@@ -149,22 +149,29 @@ export type PlayerV4 = {
   };
 };
 
+/**
+ * The counters achievements read (utils/achievement-definitions.ts). R-77 removed
+ * the ones nothing could honestly move: the continental title count (no match is a
+ * continental final) and the town counters (a wizard career has no town). An older
+ * save's JSON may still carry them; getCareerStats ignores what it does not know.
+ */
 export type CareerStats = {
   matchesWon: number;
   championshipsWon: number;
   highestBalanceReached: number;
+  /** Counted at every season boundary, including the final season and a sacking. */
   seasonsCompleted: number;
-  seasonsInCurrentLocation: number;
-  currentLocationId: number | null;
   continentsVisited: string[];
   youthSigned: number;
   youthPromoted: number;
   playersDevelopedToFiveStar: number;
-  continentalTitles: number;
   olympicGolds: number;
   perfectSeasons: number;
   debtFreeSeasons: number;
+  /** Reset at every season boundary. */
   currentSeasonLosses: number;
+  /** R-77: Gold-tier World Tour events won. */
+  goldEventsWon: number;
 };
 
 export const teamsTable = sqliteTable("teams", {

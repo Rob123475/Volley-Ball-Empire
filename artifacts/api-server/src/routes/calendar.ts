@@ -35,6 +35,7 @@ import { REST_RECOVERY, applyWeeklyInjuryRecovery } from "../utils/condition.js"
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
 import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
+import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -651,6 +652,20 @@ router.post("/calendar/advance", async (req, res) => {
     } catch (err) {
       // A failed rollover must not eat the day the player just advanced.
       req.log.error({ err }, "season rollover failed");
+    }
+
+    // R-77: a season ends here for every career — rolled on, complete, or sacked —
+    // so this is where seasons are counted and the season's loss count resets.
+    // Both used to move only on a World Final win, so "Perfect Season" counted
+    // losses from the start of the career and a season without a title never
+    // counted as a season.
+    if (rollover.kind !== "none") {
+      try {
+        await updateCareerStats(team.id, (s) => ({ ...s, seasonsCompleted: s.seasonsCompleted + 1, currentSeasonLosses: 0 }));
+        await checkAchievements(team.id, season.year);
+      } catch (err) {
+        req.log.error({ err }, "season achievement counters failed");
+      }
     }
   }
 

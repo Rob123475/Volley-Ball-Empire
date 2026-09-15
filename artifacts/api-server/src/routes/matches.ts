@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db } from "@workspace/db";
+import { db, isContinentKey, type Team } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
@@ -513,23 +513,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const drawnMatch = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
   if (drawnMatch) Object.assign(match, drawnMatch);
 
-  // Load all facility levels and active wellbeing effects for match bonuses
-  const [facilityRows, wellbeingEffects] = await Promise.all([
-    db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),
-    db.select().from(wellbeingEffectsTable).where(
-      and(eq(wellbeingEffectsTable.teamId, team.id), gt(wellbeingEffectsTable.matchesRemaining, 0))
-    ),
-  ]);
-  const facilityLevels: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
-  const hasPsychCamp    = wellbeingEffects.some(e => e.effectType === "psych_camp");
-  const hasRecoveryCamp = wellbeingEffects.some(e => e.effectType === "recovery_camp");
-
-  const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  // R-50: the side is a pair of AVAILABLE players — contracted, active and not
-  // injured — picked by the one selection every match path uses, the stored
-  // lineup first where its players are available. It used to be every active
-  // player on the team, starters and interchange alike, injured or not.
-  const pair = selectPair(players, Array.isArray(match.lineup) ? (match.lineup as number[]) : []);
+  const squadForForfeit = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
+  const pair = selectPair(squadForForfeit, Array.isArray(match.lineup) ? (match.lineup as number[]) : []);
 
   // R-48: a club that cannot put two players on the sand does not play. It used
   // to play anyway as a phantom side — sideRating([]) is a flat 60 — and could
@@ -549,6 +534,64 @@ router.post("/matches/:id/simulate", async (req, res) => {
     });
     return;
   }
+
+  const result = await completeMatch(
+    { careerSaveId: requireCareerSaveId(req.activeCareerSaveId), team, userId: req.user?.id ?? null, log: req.log },
+    match,
+    req.body?.precomputedResult,
+  );
+  if (!result) { res.status(409).json({ error: "Match already completed" }); return; }
+  res.json(result);
+});
+
+export type MatchContext = {
+  careerSaveId: number;
+  team: Team;
+  userId: string | null;
+  log: { error: (obj: object, msg?: string) => void };
+};
+
+/**
+ * R-77: the whole result of a played match — the score, the purse, ranking
+ * points, the World Tour fixture, injuries, career stats and achievements.
+ *
+ * POST /matches/:id/simulate calls it for "Sim Result". The live point-tick
+ * engine calls it when a watched match ends, with the score it played. A watched
+ * match used to stop at "finished" in the live-state table and never reach any
+ * of this: the engine expected the page to call /simulate, and nothing did.
+ *
+ * Returns null when the match is already completed (the other path got there first).
+ */
+export async function completeMatch(
+  ctx: MatchContext,
+  match: Match,
+  precomputedResult?: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] },
+) {
+  const team = ctx.team;
+  const current = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, match.id) });
+  if (!current || current.status === "completed") return null;
+
+  // Load all facility levels and active wellbeing effects for match bonuses
+  const [facilityRows, wellbeingEffects] = await Promise.all([
+    db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),
+    db.select().from(wellbeingEffectsTable).where(
+      and(eq(wellbeingEffectsTable.teamId, team.id), gt(wellbeingEffectsTable.matchesRemaining, 0))
+    ),
+  ]);
+  const facilityLevels: Record<string, number> = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
+  const hasPsychCamp    = wellbeingEffects.some(e => e.effectType === "psych_camp");
+  const hasRecoveryCamp = wellbeingEffects.some(e => e.effectType === "recovery_camp");
+
+  const players = await loadPlayers(ctx.careerSaveId, { teamId: team.id });
+  // R-50: the side is a pair of AVAILABLE players — contracted, active and not
+  // injured — picked by the one selection every match path uses, the stored
+  // lineup first where its players are available. It used to be every active
+  // player on the team, starters and interchange alike, injured or not.
+  const pair = selectPair(players, Array.isArray(match.lineup) ? (match.lineup as number[]) : []);
+
+  // The caller has already forfeited a club that cannot put two players on the
+  // sand (R-48); a pair short here means the squad changed underneath it.
+  if (pair.length < MAX_STARTERS) throw new Error(SQUAD_INCOMPLETE);
   // Six-stat mean, the same OVR the UI shows, over the pair — each player scaled
   // by her fitness (R-50: 0.6 + 0.4 × fitness / 100).
   const squadRating = pairSideRating(pair);
@@ -580,7 +623,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // (body carries the real outcome) or we fall back to the instant random roll
   // used by the "Sim Result" button.
   const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
-    req.body?.precomputedResult;
+    precomputedResult;
 
   // Opponent strength is REAL — see resolveOpponentRating. For a World Tour
   // match that is the drawn club's own players (R-29).
@@ -649,7 +692,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // season's running points against Silver 15 / Gold 40.
   const purse = purseAccessFor(
     match.tier,
-    await purseAccessTierFor(requireCareerSaveId(req.activeCareerSaveId), team.id, match.season),
+    await purseAccessTierFor(ctx.careerSaveId, team.id, match.season),
   );
   const prizeMultiplier = purse.multiplier;
 
@@ -667,13 +710,13 @@ router.post("/matches/:id/simulate", async (req, res) => {
     // R-50: who actually played. The medical page counts matches from this.
     lineup: pair.map((p) => p.id),
     ...(resolvedSets ? { sets: resolvedSets } : {}),
-  }).where(eq(matchesTable.id, id)).returning();
+  }).where(eq(matchesTable.id, match.id)).returning();
 
   // Ranking points. competitor_rankings existed since Phase 0 with nothing
   // writing to it — the table tier qualification gates on was always empty.
   try {
     await creditRankingPoints({
-      careerSaveId: requireCareerSaveId(req.activeCareerSaveId),
+      careerSaveId: ctx.careerSaveId,
       teamId:       team.id,
       seasonYear:   match.season,
       tier:         match.tier,
@@ -681,28 +724,28 @@ router.post("/matches/:id/simulate", async (req, res) => {
     });
   } catch (err) {
     // A ranking write must never cost the player the match they just played.
-    req.log.error({ err }, "ranking point accrual failed");
+    ctx.log.error({ err }, "ranking point accrual failed");
   }
 
   // R-29: the other half of this result belongs to a real club — recorded on
   // its World Tour fixture and credited to the opponent from the same table.
   try {
     recordPlayerMatchResult({
-      careerSaveId: requireCareerSaveId(req.activeCareerSaveId),
-      matchId:      id,
+      careerSaveId: ctx.careerSaveId,
+      matchId:      match.id,
       playerWon:    homeWon,
       homeSets:     homeScore,
       awaySets:     awayScore,
       sets:         resolvedSets ?? null,
     });
   } catch (err) {
-    req.log.error({ err }, "World Tour fixture result failed");
+    ctx.log.error({ err }, "World Tour fixture result failed");
   }
 
   // The live-tick scratch row has served its purpose once the match is over.
   // Leaving it behind pinned the match row in place and broke any later
   // fixture rebuild with a FOREIGN KEY failure.
-  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, id));
+  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, match.id));
 
   if (homeWon) {
     const isChampionship = isFinal && homeWon;
@@ -855,7 +898,10 @@ router.post("/matches/:id/simulate", async (req, res) => {
 
   // Update career stats and check achievements (non-critical — never breaks match sim)
   try {
-    const isContFinalWin = match.tier === "Continental Final" && homeWon;
+    // R-77: seasons completed and the season's loss count reset at the season
+    // boundary (routes/calendar.ts), where every season ends — they used to be
+    // counted only here, on a World Final win. The continental title count is
+    // gone: no match is a continental final.
     const isChampionshipWin = isFinal && homeWon;
     const freshTeam = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, team.id) });
     const freshBudget = Number(freshTeam?.budget ?? team.budget);
@@ -863,22 +909,15 @@ router.post("/matches/:id/simulate", async (req, res) => {
       const u = { ...s };
       if (homeWon) u.matchesWon = s.matchesWon + 1;
       else u.currentSeasonLosses = s.currentSeasonLosses + 1;
-      if (match.continent && !s.continentsVisited.includes(match.continent)) {
+      if (homeWon && match.tier === "Gold") u.goldEventsWon = s.goldEventsWon + 1;
+      // Where the match was played. The World Finals are "world", not a continent.
+      if (isContinentKey(match.continent) && !s.continentsVisited.includes(match.continent)) {
         u.continentsVisited = [...s.continentsVisited, match.continent];
       }
-      if (isContFinalWin) u.continentalTitles = s.continentalTitles + 1;
       if (isChampionshipWin) {
         u.championshipsWon = s.championshipsWon + 1;
-        u.seasonsCompleted = s.seasonsCompleted + 1;
         if (s.currentSeasonLosses === 0) u.perfectSeasons = s.perfectSeasons + 1;
         if (freshBudget > 0) u.debtFreeSeasons = s.debtFreeSeasons + 1;
-        u.currentSeasonLosses = 0;
-        if (team.locationId !== null && team.locationId === s.currentLocationId) {
-          u.seasonsInCurrentLocation = s.seasonsInCurrentLocation + 1;
-        } else {
-          u.seasonsInCurrentLocation = 1;
-          u.currentLocationId = team.locationId ?? null;
-        }
       }
       if (freshBudget > s.highestBalanceReached) u.highestBalanceReached = freshBudget;
       return u;
@@ -889,7 +928,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   }
 
   // ── End-of-season history snapshot (World Final only) ────────────────────
-  if (isFinal && req.user?.id) {
+  if (isFinal && ctx.userId) {
     (async () => {
       try {
         // The season this final belongs to. This used to read the latest season
@@ -908,7 +947,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
           .from(managerSeasonSummaryTable)
           .where(
             and(
-              eq(managerSeasonSummaryTable.userId, req.user!.id),
+              eq(managerSeasonSummaryTable.userId, ctx.userId!),
               eq(managerSeasonSummaryTable.seasonYear, seasonYear),
             ),
           )
@@ -919,11 +958,11 @@ router.post("/matches/:id/simulate", async (req, res) => {
           const worldResult = homeWon ? "World Champion 🏆" : "Runner Up 🥈";
 
           // The player's World Tour position, from the standings every screen reads.
-          const playerRow = worldTourStandings(requireCareerSaveId(req.activeCareerSaveId), seasonYear)
+          const playerRow = worldTourStandings(ctx.careerSaveId, seasonYear)
             .find((s) => s.isPlayer && s.teamId === team.id) ?? null;
 
           await db.insert(managerSeasonSummaryTable).values({
-            userId: req.user!.id,
+            userId: ctx.userId!,
             teamId: team.id,
             seasonYear,
             clubName: team.name,
@@ -969,7 +1008,7 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // mid-season sacking is abandonment, in recordForfeit. R-09 moved confidence
   // +3/+8 on a win and -5 on a loss above, and sacked here at a read-time score
   // of zero after every result.
-  res.json({
+  return {
     match:        serializeMatch(updatedMatch),
     highlights,
     homeScore,
@@ -986,8 +1025,8 @@ router.post("/matches/:id/simulate", async (req, res) => {
     locationName: match.locationName,
     weatherImpact: wx.performancePenalty > 0.05 ? match.weather : null,
     playerEvents,
-  });
-});
+  };
+}
 
 // ─── POST /api/matches/:id/forfeit ───────────────────────────────────────────
 /**

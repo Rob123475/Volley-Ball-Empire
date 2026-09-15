@@ -24,6 +24,7 @@ estimated.
 | 10 | R-70 | `3f57266` | The top bar shows the round of the competition being played — Continental R7/10, World Tour R31/57, Finals · Semi-finals / Final, Off-season — and the dashboard pill counts the season's 69 rounds. 78 was the schedule's slots: 10 continental + 60 World Tour (57 events, 3 open dates) + 2 finals days + 6 off-season. Match Day, Simulate, the bye card, World Tour Results and the leaderboard stopped showing slots as rounds | season-phase 16/16 |
 | 11 | R-73 | `75e8ed8` | The wizard's colours were always sent for the home pair; the away pair was two club-less free agents with no kit, painted in Unity's red fallback. The away side is now the fixture's own AI club pair in that club's kit; all 60 AI clubs have two distinct hexes (12-primary palette, no primary repeated inside a continent); a null kit is logged as a warning. HUD team names ship with the Unity export | club-kits 14/14; unity-match-state-payload 9/9 |
 | 12 | R-75 | `85ca86c` | Pool players had no skin tone at all (the court showed stand-ins). All 120 now carry one, drawn from their nation's own tone counts among the 276 seeded players (continent counts for the 5 nations with none), reproducibly. 20 of 60 pairs share a tone — the seeded tones are themselves uniform random picks, so "same country looks alike" is as strong as that data allows | pool-skin-tones 4/4 |
+| 13 | R-77 | PENDING-R77 | A match watched in 3D never completed — it sat "in progress" with no win, purse, stats or achievements, and blocked the calendar. It now completes on its own through the same code as Sim Result. Achievements: 30 → 22; Continental Champion, the 10/20/30-season ones, 10 World Finals, 2 Olympic golds and First Pay Day deleted; every description states its real trigger | watched-match 10/10; rollover Local Legend check |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -186,6 +187,12 @@ now on are kept out of other careers.
 **R-75 — pool pairs' skin tones** (needs the same export)
 18. In that match, the opponent's two players have skin tones set, not the prefab default. The
     Unity console has no "skin tone … is not one of the known bands" error.
+
+**R-77 — watched matches and achievements**
+19. Watch a match in 3D to the end, then open the Dashboard. The record shows one more win or loss,
+    the Finances page has the purse, and the calendar is no longer stuck on that match day.
+20. Career → Achievements lists 22. None mentions loans, towns, 10+ seasons or a continental
+    championship. After your first win, First Steps is unlocked.
 
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game

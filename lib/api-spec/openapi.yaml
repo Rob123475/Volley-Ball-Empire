@@ -4707,8 +4707,6 @@ components:
           type: number
         seasonsCompleted:
           type: integer
-        seasonsInCurrentLocation:
-          type: integer
         continentsVisited:
           type: array
           items:
@@ -4719,13 +4717,15 @@ components:
           type: integer
         playersDevelopedToFiveStar:
           type: integer
-        continentalTitles:
-          type: integer
         olympicGolds:
           type: integer
         perfectSeasons:
           type: integer
         debtFreeSeasons:
+          type: integer
+        currentSeasonLosses:
+          type: integer
+        goldEventsWon:
           type: integer
 
     AttentionItem:
