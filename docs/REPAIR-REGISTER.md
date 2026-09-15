@@ -2703,7 +2703,7 @@ file was touched, so the two cannot collide. The survey so far, read-only, is fr
   - `Assets/Editor/BeachPlayerProof.cs` renders a scene camera to PNG without saving the scene.
   - `Assets/Editor/WebBuild.cs` Step 7 builds Web to `webgl-out` (outside the game repo).
 
-### R-70 — CLOSED (15 Sep, PENDING-R70) MEDIUM: the top bar showed the schedule slot as a round ("R7/78")
+### R-70 — CLOSED (15 Sep, 3f57266) MEDIUM: the top bar showed the schedule slot as a round ("R7/78")
 **Rob (15 Sep):** the top bar should show the round of the competition being played: Continental R7/10,
 then World Tour Rn/57, then Finals. Re-derive the season length and report what 78 was.
 
@@ -3621,7 +3621,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
-| R-70 The top bar shows the round of the competition being played (Continental R7/10, World Tour R31/57, Finals, Off-season); the season is 69 rounds and 78 was the schedule's slots; match screens name a match's round the same way | 15 Sep, PENDING-R70 | season-phase 16/16: every phase at its boundary slots including open date 41; all 57 events named R1–R57; upcoming events 28 of 69 remaining at World Tour R31; the label follows the real clock; smoke reads scheduleSlot |
+| R-70 The top bar shows the round of the competition being played (Continental R7/10, World Tour R31/57, Finals, Off-season); the season is 69 rounds and 78 was the schedule's slots; match screens name a match's round the same way | 15 Sep, 3f57266 | season-phase 16/16: every phase at its boundary slots including open date 41; all 57 events named R1–R57; upcoming events 28 of 69 remaining at World Tour R31; the label follows the real clock; smoke reads scheduleSlot; full run 35/35 passed |
 | R-68 Pressing Play gives visible feedback: the date re-animates each simulated day, a bar fills across the ticker interval, a dot pulses (interim; subsumed by R-72's 7-day strip) | 15 Sep, c787e14 | calendar-tick 7/7: source and served bundle carry the tick, the bar and the dot; reduced motion honoured |
 | R-67 Staff salaries were annual figures charged as monthly: starter DB and seed scripts to monthly, older saves repaired on boot, hired staff billed weekly | 15 Sep, 95f178e | wizard-career-economy 11/11: wizard careers $150,000 / $500,000; Head Coach hire $12,083 (was $145,000); weekly staff bill $2,788 (was $33,462 shown, never billed); 236 annual wages repaired on boot; Rob's save copy: 472 → 0 annual |
 | R-65 Rebuild 0.9.0: CompanyName Bean & Label and a description; no menu bar (dev tools only unpackaged); the starter DB only ever copied, never opened in the install folder, no sidecars in the package | 15 Sep, 7974e06 | build chain 32/32, after-pack guard OK; installer 336,204,338 bytes sha256 5d3d0237…; live-save run: no data changed, install folder 953 files unchanged; first run from a read-only install folder: fresh save, no profiles, no dev tools on Ctrl+Shift+I, install folder unchanged |
