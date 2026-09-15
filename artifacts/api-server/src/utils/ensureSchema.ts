@@ -385,6 +385,12 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
     "role", "base_salary", "skill_level", "image_url", "base_age", "overall_rating",
     "coach_speciality", "scouting_rating",
   ],
+  // R-73: AI clubs' kits, so a save made before them gets them on its next
+  // boot. Only these columns: nothing in the server updates an existing pool
+  // club row (the only writes are inserts — createCareerPoolTeam and the
+  // dev-only routes/dev.ts), and the values come from
+  // scripts/src/seed-pool-kits.ts alone.
+  continental_pool_teams: ["primary_color", "secondary_color"],
 };
 
 export type EnsureReferenceDataResult = {

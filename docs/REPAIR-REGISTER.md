@@ -2661,6 +2661,56 @@ starting budget on the dashboard.
 
 ## LOW
 
+### R-73 — CLOSED (15 Sep, PENDING-R73) HIGH: the wizard's club colours never reached the 3D Court
+**Rob (15 Sep):** he picked club colours for Sydney Riptide in the wizard, yet the 3D Court showed red
+and blue defaults. Brief:
+- Trace the break and fix it, so the wizard's colours reach the court.
+- Give every AI club its own two colours, so an away side never shows the fallback either.
+- Keep the fallback only for a genuinely null kit, and log a warning when it is used.
+
+**Traced** on a copy of Rob's live save. Careers 5, 8 and 10 are all Sydney Riptide, colours
+#AA0044/#FFFFFF.
+- **What the wizard saves.** It sends `primaryColor`/`secondaryColor` with POST /careers, which stores
+  them in `teams.logo_color` / `secondary_logo_color`. All three careers have them.
+- **The home pair was never broken.** `/unity/match-state` reads each player's kit from her current
+  team row. Rob's home pair carries #AA0044/#FFFFFF in the payload. The shipped WebGL build logs the
+  same when rendered from career 10, match 312: "kit #AA0044/#FFFFFF … appearance controller found".
+- **The away pair was the break.** Every match's away team row is the player's own club (R-29), so the
+  payload filled the away side with two unsigned free agents. They were Yaritza Mendez and Nyasha
+  Ncube in every match of all three careers. A free agent has no club, so no kit: the payload sent
+  null/null, and `UnityMatchDataLoader.ApplyAppearance` silently painted its red fallback. AI clubs
+  (`continental_pool_teams`) had no colour columns at all.
+- **The HUD.** It reads Unity's built-in team names "BLUE SHARKS" / "RED GIANTS". That is the Unity
+  half, and it ships with the R-71/74/76 export.
+
+**Fix:**
+- **New columns.** `continental_pool_teams` gains `primary_color` and `secondary_color`.
+- **The palette.** `scripts/src/seed-pool-kits.ts` sets them:
+  - 12 primaries, each paired with the first 6 secondaries that contrast with it (WCAG ≥ 2.2).
+  - Club j of continent c wears primary (j + 2c) mod 12 with that primary's c-th secondary.
+  - Result: 60 distinct pairs, no primary repeated inside a continent, lowest contrast 2.23. They are
+    not flag colours.
+- **Starter DB and older saves.** Applied to the starter DB. Older saves get the kits on boot, through
+  the update-only reference list in `ensureReferenceData`.
+- **The away side.** `/unity/match-state` now sends the match's own World Tour fixture opponent: that
+  club's pool pair, in its club's kit, tagged `source: "pool"`. Form, fitness and fatigue come from the
+  club row; height is sent as 0, meaning "not given".
+- **The fallback.** The free-agent fill remains only for a match with no opponent yet ("TBD", before
+  the draw). Every null kit is logged as a warning that names the players.
+
+**Harness (new):** `harness/club-kits.mjs`, 14/14.
+- The data checks above.
+- A career made from the wizard's payload (#12AB34/#FEDCBA), played to the World Tour draw (48 days,
+  57 fixtures):
+  - all 54 World Tour matches served with four players;
+  - all 108 home players in the exact hexes;
+  - every away pair is its fixture's pool pair, in that club's kit;
+  - 18 opponents wear 18 kits;
+  - no warning logged.
+- A club with its kit nulled is sent as null, and the warning names the players.
+- A save from before the columns gets all 60 kits on boot.
+- `unity-match-state-payload` 9/9: it now reads a pool player's source row from her own table.
+
 ### R-72 — OPEN, HIGH (registered 15 Sep): the week has no rhythm — DESIGN ONLY, build after the Steam upload
 **Rob's play-through:** no urgency before a match, no reason to train. **Rob (15 Sep):** a fixed weekly
 cadence — Monday results and board mood; Wednesday training day with a focus the player chooses
@@ -3621,6 +3671,7 @@ Original entry:
 | R-44 World Tour byes (57 rounds) | 14 Sep, 9a51dbd | world-tour-byes 18/18: 19 clubs x 54 matches + 3 byes, one per 19 rounds; full harness 19/19 |
 | R-45 All-Star events removed | 14 Sep, df28a24 | all-star-removed 12/12: 59-match season, no All-Star in source, bundle, starter DB or a migrated save; full run 19/20, rollover failure is R-47 (a sacking) |
 | R-46 Olympic qualification on World Tour points | 14 Sep, 93ba82b | olympic-qualification 29/29: two seasons, low-rated in / high-rated out, ratings swapped change nothing, rules text asserted; full run 20/21, rollover failure is R-47 |
+| R-73 The wizard's colours reach the court: the away pair is the fixture's own AI club in that club's kit (was two club-less free agents in Unity's red fallback); all 60 AI clubs have distinct two-hex kits; a null kit is warned about | 15 Sep, PENDING-R73 | club-kits 14/14: a wizard career played to the draw, 54 matches — 108 home players in the exact hexes, every away pair its fixture's pool pair in its kit, 18 opponents 18 kits, no warning; a nulled kit sent null with a warning; an older save given 60 kits on boot. unity-match-state-payload 9/9 |
 | R-70 The top bar shows the round of the competition being played (Continental R7/10, World Tour R31/57, Finals, Off-season); the season is 69 rounds and 78 was the schedule's slots; match screens name a match's round the same way | 15 Sep, 3f57266 | season-phase 16/16: every phase at its boundary slots including open date 41; all 57 events named R1–R57; upcoming events 28 of 69 remaining at World Tour R31; the label follows the real clock; smoke reads scheduleSlot; full run 35/35 passed |
 | R-68 Pressing Play gives visible feedback: the date re-animates each simulated day, a bar fills across the ticker interval, a dot pulses (interim; subsumed by R-72's 7-day strip) | 15 Sep, c787e14 | calendar-tick 7/7: source and served bundle carry the tick, the bar and the dot; reduced motion honoured |
 | R-67 Staff salaries were annual figures charged as monthly: starter DB and seed scripts to monthly, older saves repaired on boot, hired staff billed weekly | 15 Sep, 95f178e | wizard-career-economy 11/11: wizard careers $150,000 / $500,000; Head Coach hire $12,083 (was $145,000); weekly staff bill $2,788 (was $33,462 shown, never billed); 236 annual wages repaired on boot; Rob's save copy: 472 → 0 annual |

@@ -1,11 +1,43 @@
 import { Router } from "express";
-import { db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable } from "@workspace/db";
+import {
+  db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable,
+  worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
+} from "@workspace/db";
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
 import { selectPair } from "../utils/condition.js";
 
 const router = Router();
+
+type PoolOpponent = {
+  team: typeof continentalPoolTeamsTable.$inferSelect;
+  pair: Array<typeof continentalPoolPlayersTable.$inferSelect>;
+};
+
+/**
+ * R-73: the AI pool club a match is played against, from its World Tour
+ * fixture — the competitor that is not the career's own club. Null when the
+ * match has no fixture (nothing to identify an opponent by) or the other side is
+ * not a pool club.
+ */
+function poolOpponentFor(careerSaveId: number, matchId: number, teamId: number | null): PoolOpponent | null {
+  const fixture = db.select().from(worldTourFixturesTable)
+    .where(and(eq(worldTourFixturesTable.careerSaveId, careerSaveId), eq(worldTourFixturesTable.matchId, matchId)))
+    .limit(1).get();
+  if (!fixture || fixture.awayCompetitorId == null) return null;
+  const sides = db.select().from(competitorsTable)
+    .where(inArray(competitorsTable.id, [fixture.homeCompetitorId, fixture.awayCompetitorId])).all();
+  const other = sides.find((c) => c.poolTeamId != null && c.teamId !== teamId);
+  if (other?.poolTeamId == null) return null;
+  const team = db.select().from(continentalPoolTeamsTable)
+    .where(eq(continentalPoolTeamsTable.id, other.poolTeamId)).get();
+  if (!team) return null;
+  const pair = db.select().from(continentalPoolPlayersTable)
+    .where(eq(continentalPoolPlayersTable.poolTeamId, team.id))
+    .orderBy(continentalPoolPlayersTable.id).all();
+  return { team, pair: pair.slice(0, 2) };
+}
 
 // Compute overall rating from the six core stats (mirrors game-api.ts)
 function computeOverall(p: {
@@ -168,6 +200,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   type PlayerRow = PlayerDTO;
   let homePlayers: PlayerRow[] = [];
   let awayPlayers: PlayerRow[] = [];
+  let poolOpponent: PoolOpponent | null = null;
 
   if (lineupIds.length >= 4) {
     // Path A — explicit lineup (first 2 = home, last 2 = away)
@@ -189,15 +222,23 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       homePlayers = selectPair(await loadPlayers(careerSaveId, { teamId: match.homeTeamId }));
     }
 
+    // R-73: the club this match is actually against. A World Tour or World Finals
+    // match links to its fixture, and the other competitor is an AI pool club, so
+    // its own pair takes the court in its own kit. This used to fall straight
+    // through to the free-agent fill below: two unsigned players with no club and
+    // no kit, which Unity painted in its red fallback.
+    poolOpponent = poolOpponentFor(careerSaveId, match.id, career.teamId);
+
     // Away: top 2 active seniors on the away team, if it is a distinct DB team
     const awayIsDistinct = match.awayTeamId != null && match.awayTeamId !== match.homeTeamId;
-    if (awayIsDistinct) {
+    if (!poolOpponent && awayIsDistinct) {
       awayPlayers = selectPair(await loadPlayers(careerSaveId, { teamId: match.awayTeamId! }));
     }
 
-    // Fallback: AI opponent has no DB team — fill remaining slots from the
-    // unsigned senior pool, excluding anyone already selected for home.
-    if (awayPlayers.length < 2) {
+    // Fallback, only when the match names no opponent at all: fill the away
+    // slots from the unsigned senior pool, excluding anyone already selected for
+    // home. These players have no club, so no kit — the warning below says so.
+    if (!poolOpponent && awayPlayers.length < 2) {
       const needed    = 2 - awayPlayers.length;
       const excludeIds = [
         ...homePlayers.map((p) => p.id),
@@ -265,16 +306,55 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       primaryColor,
       secondaryColor,
       skinTone,
+      source:        "player" as const,
     };
   }
 
   const homeLabel = match.homeTeamName ?? null;
-  const awayLabel = match.awayTeamName ?? null;
+  const awayLabel = match.awayTeamName ?? poolOpponent?.team.teamName ?? null;
+
+  // R-73: a pool club's player. Pool clubs keep no per-player morale or
+  // condition, so the club row's own form, fitness and fatigue are sent. No
+  // height is recorded for a pool player; Unity reads 0 as "not given".
+  function serializePoolPlayer(pp: PoolOpponent["pair"][number], team: PoolOpponent["team"], teamLabel: string | null) {
+    const ratings = { speed: pp.speed, power: pp.power, defense: pp.defense, serve: pp.serve, block: pp.block, stamina: pp.stamina };
+    return {
+      id:             pp.id,
+      name:           pp.name,
+      team:           teamLabel,
+      position:       null,
+      ...ratings,
+      overall:        computeOverall(ratings),
+      morale:         team.form,
+      fatigue:        team.fatigue,
+      fitness:        team.fitness,
+      injured:        false,
+      injuryStatus:   "Healthy",
+      age:            pp.baseAge,
+      height:         0,
+      primaryColor:   team.primaryColor ?? null,
+      secondaryColor: team.secondaryColor ?? null,
+      // No tone is recorded for a pool player; Unity leaves the prefab skin and says so.
+      skinTone:       null,
+      source:         "pool" as const,
+    };
+  }
 
   const players = [
     ...homePlayers.map((p) => serializeMatchPlayer(p, homeLabel)),
-    ...awayPlayers.map((p) => serializeMatchPlayer(p, awayLabel)),
+    ...(poolOpponent
+      ? poolOpponent.pair.map((pp) => serializePoolPlayer(pp, poolOpponent!.team, awayLabel))
+      : awayPlayers.map((p) => serializeMatchPlayer(p, awayLabel))),
   ];
+
+  // The kit fallback is for a genuinely missing kit only, and it is never silent.
+  const bareKits = players.filter((p) => !p.primaryColor || !p.secondaryColor);
+  if (bareKits.length > 0) {
+    req.log.warn(
+      { matchId: match.id, careerSaveId, players: bareKits.map((p) => `${p.name} (${p.team ?? "no club"})`) },
+      "unity/match-state: kit colours missing, Unity will paint its fallback kit",
+    );
+  }
 
   req.log.info({ matchId: match.id, status: match.status, playerCount: players.length }, "unity/match-state served");
 

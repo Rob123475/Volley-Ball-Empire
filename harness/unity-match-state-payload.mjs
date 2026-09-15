@@ -148,12 +148,22 @@ try {
     // in the away fill-in slots on any given run. The correctness property
     // the code owns is: skinTone is present exactly when the source data has
     // it, for every player, never silently dropped and never invented.
+    // R-73: the away pair is now the fixture's pool club, whose players live in
+    // continental_pool_players, not players — so the source row is looked up in
+    // the table the payload says it came from.
     const src = new DatabaseSync(dbFile, { readOnly: true });
+    const poolHasTone = src.prepare("PRAGMA table_info(continental_pool_players)").all().some((c) => c.name === "skin_tone");
     let passThroughOk = true;
     const mismatches = [];
     for (const p of players) {
-      const row = src.prepare("SELECT player_v4 FROM players WHERE id = ?").get(p.id);
-      const sourceHasSkinTone = !!(row?.player_v4 && JSON.parse(row.player_v4)?.visual_identity?.skin_tone);
+      let sourceHasSkinTone;
+      if (p.source === "pool") {
+        const row = poolHasTone ? src.prepare("SELECT skin_tone FROM continental_pool_players WHERE id = ?").get(p.id) : null;
+        sourceHasSkinTone = !!row?.skin_tone;
+      } else {
+        const row = src.prepare("SELECT player_v4 FROM players WHERE id = ?").get(p.id);
+        sourceHasSkinTone = !!(row?.player_v4 && JSON.parse(row.player_v4)?.visual_identity?.skin_tone);
+      }
       const payloadHasSkinTone = typeof p.skinTone === "string" && p.skinTone.length > 0;
       if (sourceHasSkinTone !== payloadHasSkinTone) { passThroughOk = false; mismatches.push(p.name); }
     }

@@ -1137,6 +1137,12 @@ export const continentalPoolTeamsTable = sqliteTable("continental_pool_teams", {
   // career_pool_team_state.is_active_in_league holds the LIVE value that
   // promotion and relegation move, seeded from this.
   startsInLeague: integer("starts_in_league", { mode: "boolean" }).notNull().default(true),
+  // R-73: the club's kit, two hexes, so the 3D Court's away side wears the club
+  // it is playing. REFERENCE: written by scripts/src/seed-pool-kits.ts only,
+  // distinct across the 60 clubs. Null only for a club no seed has given
+  // colours (the court then falls back and says so).
+  primaryColor:   text("primary_color"),
+  secondaryColor: text("secondary_color"),
   createdAt:      integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
