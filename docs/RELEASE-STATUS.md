@@ -253,20 +253,38 @@ Honest, in the order it would have to happen. Nothing in this section was done i
 - **Dev route shipped.** `/dev/generation-test` is still routed in the production frontend with a
   dead API behind it (R-10 audit finding 9).
 
-### Steam — still between this build and the upload (nothing Steam exists in the repository)
-1. **Steamworks depot configuration.** App and Windows depot in the partner site; the depot's content
-   root is `win-unpacked`; launch option `Beach Volleyball Empire.exe`. No `steam_appid.txt` or
-   Steamworks SDK is needed for a plain depot, and none is in the repo.
-2. **Auto-Cloud.** Root **WinAppDataRoaming**, subdirectory **"Beach Volleyball Empire"**, pattern
-   **`*.sqlite`**. The whole save is `volleyball-empire.sqlite` (R-23); `*.sqlite` does not match the
-   `-wal`/`-shm` sidecars, and R-64 proved a normal quit checkpoints the WAL and leaves neither behind.
-   Not covered: after a crash the latest writes sit in `-wal`, and Auto-Cloud would sync the older
-   `.sqlite`.
-3. **Build upload.** SteamPipe: steamcmd with an app build VDF and a depot build VDF pointing at
-   `C:\build\vbe\win-unpacked`, uploaded to a branch, then set live for review.
-4. **Store assets.** Capsule images (header, small, main, vertical, library hero/logo), screenshots,
-   trailer, short and long descriptions, tags, system requirements, content survey.
-5. **Review copy.** Keys come from Steamworks once the app exists there.
+### Steam — first build uploaded (16 Sep 2026, v0.9.1, BuildID 25335748)
+Done on 16 Sep with Rob at the keyboard for every Steam login and website click; nothing below is
+estimated. Steamworks App ID **5233750**, Windows depot **5233751** ("Beach Volleyball Empire Content").
+
+1. **Depot configuration — done.** Content root `C:\build\vbe\win-unpacked`; launch option
+   `Beach Volleyball Empire.exe`, Windows only, added under Installation → General Installation.
+   No `steam_appid.txt` or Steamworks SDK is in the package, and none is needed for a plain depot.
+2. **Auto-Cloud — not configured.** Still as planned: root **WinAppDataRoaming**, subdirectory
+   **"Beach Volleyball Empire"**, pattern **`*.sqlite`**. The whole save is `volleyball-empire.sqlite`
+   (R-23); `*.sqlite` does not match the `-wal`/`-shm` sidecars, and R-64 proved a normal quit
+   checkpoints the WAL and leaves neither behind. Not covered: after a crash the latest writes sit
+   in `-wal`, and Auto-Cloud would sync the older `.sqlite`.
+3. **Build upload — done.** The brief said v0.9.0, but `win-unpacked` held the **0.9.1** build (exe
+   dated 15 Sep 4:24 PM, 15 seconds before the 0.9.1 installer; `latest.yml` says 0.9.1), so 0.9.1
+   is what went up — it carries R-66/71/73/74/75/76/77 on top of 0.9.0 and passed the harness 38/38.
+   Scripts `steam/app_build_5233750.vdf` and `steam/depot_build_5233751.vdf` (copies of the ones in
+   `C:\STEAMWORKS\steamworks_sdk_165\sdk\tools\ContentBuilder\scripts\`; SDK 1.65, already on
+   the PC). `SetLive` left empty in the script. Rob ran steamcmd himself:
+   `steamcmd.exe +login rtbonner +run_app_build ..\scripts\app_build_5233750.vdf +quit` — 952 files,
+   556.3 MB uploaded, "Successfully finished AppID 5233750 build (BuildID 25335748)" at 10:59 AM.
+   Set live on the **default** branch from the website (history: "Set live BuildID 25335748 for
+   branch default"), then Publish → Prepare for Publishing → Really Publish with the note
+   "v0.9.1 first review build (BuildID 25335748) set live on default; launch option added".
+   Checklist afterwards: every DEPOTS item ticked — At Least One Depot Configured, At Least One
+   Build Configured, Launch Options Defined, Install Directory Set, Depot Languages Configured,
+   Store And Devcomp Packages Match, Package Includes Windows Depot, All Depots Attached.
+4. **Store assets — open.** The STORE part of the same checklist is still unticked: Platform Support
+   Matches, Pricing For At Least One Package, Published Pricing For At Least One Package, Trailer
+   Uploaded (App Configuration is ticked). Capsule images, screenshots, descriptions, tags, system
+   requirements and the content survey are separate from the build and were not part of this batch.
+5. **Review copy.** Keys come from Steamworks once the store side is done. The App Admin page warns
+   that the specified release date is less than three weeks away.
 
 ### Known gaps in the game
 - **Academy graduates fill the senior squad** (found in R-63, not changed): a promoted graduate stays
