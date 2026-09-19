@@ -1324,31 +1324,83 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
-### R-79 — OPEN, MEDIUM (registered 19 Sep): the game is silent — no soundtrack, no volume, mute or skip
-**Rob's brief:** `docs/MUSIC-BRIEF.md` (16 Sep). Ten Suno tracks by Rob, already on disk at
-`artifacts/beach-volleyball/public/audio/music/` (32 MB, largest 5.5 MB — plain git, no LFS rule;
-`.gitattributes` only covers the Unity `.data` and `*.wasm`). Background music through the whole
-game with three controls: **volume**, **mute** and **skip**.
+### R-79 — CLOSED (19 Sep, `5c11336` + `81d5dfa`) MEDIUM: the game was silent — no soundtrack, no volume, mute or skip
+**Rob's brief:** `docs/MUSIC-BRIEF.md` (16 Sep). Ten Suno tracks by Rob, put in
+`artifacts/beach-volleyball/public/audio/music/` by the Cowork session and never committed (32 MB,
+largest 5.5 MB — plain git takes them; `.gitattributes` only routes the Unity `.data` and `*.wasm`
+to LFS). Background music through the whole game with volume, mute and skip.
 
-**Shape of the build (from the brief):**
-1. One `HTMLAudioElement` in a provider mounted **above** the top `<Switch>` in `src/App.tsx`, so a
-   page change never restarts or stops it. It cannot live in `Shell` or a page: `/login`,
-   `/new-career`, `/career-end` and `/court` all render outside `Shell`.
-2. Playlist in `src/data/music-tracks.ts`. Title track first, then shuffle without repeating a song
-   until all ten have played; the next song starts on its own when one ends.
-3. A compact bar — skip, mute, volume (the existing `components/ui/slider.tsx`), current title —
-   visible on every page inside `Shell` and on the profile picker.
-4. Volume and mute in `localStorage` under one key, restored on launch. Default 40%, not muted.
-   Reads and writes in try/catch so blocked storage never breaks the game.
-5. Autoplay: Chromium blocks audio until a gesture. Pick one fix and prove it.
-6. `/court`: report whether the Unity WebGL export plays sound of its own; if it does, duck the
-   music to about a third while on `/court` and restore it on leaving.
-7. A track that fails to load is skipped with a warning — never an error dialog.
+**Built.**
+- **One player, above the routes.** `components/music/music-provider.tsx` holds a single
+  `HTMLAudioElement` and is mounted above the top `<Switch>` in `App.tsx`. It could not live in
+  `Shell` or in a page: `/login`, `/new-career`, `/career-end` and `/court` all render outside
+  `Shell`, so music there would have stopped the moment the player opened the 3D Court, and music in
+  a page would have restarted on every navigation. The element is `document.createElement`d and kept
+  in a ref rather than rendered as JSX, so no re-render can reset playback. It sits inside
+  `WouterRouter` because it reads the location itself (see the /court duck below).
+- **Playlist.** `src/data/music-tracks.ts`, file + title. The title track first, then the other nine
+  shuffled; when all ten have played it reshuffles, never starting with the song that just finished
+  — otherwise a track can repeat across the seam between two passes. The next track starts on its
+  own when one ends.
+- **Controls.** `components/music/music-bar.tsx`: skip, mute, the existing `ui/slider.tsx` for
+  volume, and the song now playing. Placed in the sidebar footer **inside `NavContent`**, which is
+  the one tree both the `lg:` desktop rail and the mobile `Sheet` render — one copy covers both —
+  and on the profile picker, which is the title screen and is outside `Shell`.
+- **Settings.** One key, `bve.music`, default 40% and not muted, restored on launch. Every read and
+  write is wrapped: blocked site data throws rather than returning null, and a settings read must
+  never stop the game starting. Dragging the slider up from zero unmutes; dragging it to zero does
+  not mute, because the mute button is the control that remembers a level to come back to.
+- **Autoplay — the Electron fix, not the click fix.** `electron/main.js` sets
+  `webPreferences.autoplayPolicy: "no-user-gesture-required"`. This is a desktop game the player
+  deliberately launched, not a web page that ambushes them, so the policy is lifted rather than
+  worked around in the app. A plain browser (`vite dev`) has no such setting, so the provider also
+  retries once on the first real gesture and the bar says *Click anywhere to start the music* while
+  it waits. Only the browser path can ever show that line.
+- **The 3D Court — it does have its own audio.** Asked, not assumed: the WebGL `.data` archive
+  carries `Audio/CrowdAmbience.wav`, `CrowdCheer.wav` and `RefereeWhistle.wav`, and the build's own
+  symbols include `PlaceholderGenerator.GenerateAllPlaceholderAudio`, `CreateRefereeWhistle`,
+  `CreateCrowdCheer`, `CreateCrowdAmbience` and a `LowPassFilter`, with `AudioSource`, `AudioMixer`
+  and `AudioListener` instances. So the brief's condition is met and the music ducks to a third
+  (`COURT_DUCK = 1/3`) while `location === "/court"`, restored on leaving.
+- **A track that will not load** is skipped with a `console.warn`, never a dialog. Ten consecutive
+  failures — the whole folder gone — stops instead of spinning through the playlist forever.
 
-**Before Steam:** Rob to confirm which Suno plan the songs were made on — only songs downloaded on
-a paid plan (Pro/Premier) can be used commercially. The Steam AI disclosure already names
-generative AI and should name the music once this ships. Rob's website change, not code.
+**Proof.**
+- `harness/music-playlist.mjs`, new, **27/27** — 39 suites now, this is 33, placed beside
+  calendar-tick as the other frontend-only one. The load-bearing check is that
+  `src/data/music-tracks.ts` and `public/audio/music/` agree in **both** directions and that both
+  build outputs carry all ten: nothing in TypeScript ties a hand-written file name to a file on
+  disk, so a renamed mp3 compiles cleanly and turns into silence. Sabotage: renaming
+  `champions.mp3` failed the suite twice over (`missing: champions.mp3`, `not listed:
+  champions-RENAMED.mp3`).
+- Build chain green; all ten mp3s in `artifacts/beach-volleyball/dist/public/audio/music` and in the
+  served `artifacts/api-server/dist/public/audio/music`.
+- Full harness **39/39 suites, 830/830 checks** (`node harness/run-all.mjs`), "ALL HARNESSES PASSED". The first run of the same build was 37/39: *gameplay smoke* ("none of them was forfeited … 3 forfeited") and *watched match* (check 3, "one result, one purse … wins+losses moved 1; purses 0" — a forfeit completes the match but pays no purse). Both are R-78's chance failure, not this batch: nothing under `artifacts/api-server`, `lib` or `scripts` changed here, and *watched match* re-ran standalone at 10/10 before the full rerun. R-78 now has a third suite to its name.
+- **Packaged.** `electron-builder --dir` into `C:/build/vbe-r79` — a separate output folder on
+  purpose, so `C:/build/vbe/win-unpacked` (the exact tree uploaded to Steam as BuildID 25335748) and
+  the 0.9.1 installer are left untouched. `resources/public/audio/music/` holds all ten mp3s,
+  **sha256-identical to the repo copies**; the package contains exactly one copy of them (no
+  double-ship — `resources/server/dist` has no `public/`, so the `extraResources` filter still
+  holds); 564 MiB unpacked, the 32 MB of music being the whole increase. No new NSIS installer was
+  built and nothing was installed over Rob's copy: a version bump is a release decision, not this
+  item's, and installing would have opened the live save.
+- **Served, from the packaged copy.** The real server binary booted against a throwaway copy of the
+  *starter* database (never the live save) with `PUBLIC_DIR` pointed at
+  `C:/build/vbe-r79/win-unpacked/resources/public`: all ten tracks answer `HTTP 200`, `audio/mpeg`,
+  the full byte length, with a real mp3 frame header — at the exact URLs `musicTrackUrl` builds.
+- **Incidental, pre-existing, not introduced here:** a request for a track that does not exist gets
+  `HTTP 200` and `index.html` from the SPA catch-all rather than a 404 — the same catch-all
+  `scripts/sync-public.cjs` warns about for assets. Harmless for audio: the element cannot decode
+  HTML, fires `error`, and R-79 skips to the next track with a warning. Reported, not changed.
 
+**On screen — Rob's, not done here** (RELEASE-STATUS section 2): music starts by itself on the
+profile picker; it keeps playing across Dashboard → Team → Finances without restarting; skip moves
+to the next title; mute silences it; the slider works; the settings survive a restart; it drops to a
+third on the 3D Court and comes back.
+
+**Before Steam, Rob's:** confirm which Suno plan the songs were downloaded on — only a paid plan
+(Pro/Premier) grants commercial use. The Steam AI disclosure already names generative AI and should
+name the music too. Website, not code.
 
 ### R-54 — CLOSED (14 Sep, 8bc38c2): tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier
 **Symptom (R-52 final run):**
@@ -2714,6 +2766,13 @@ and `scripts/installer.nsh`.
 - The failure: "no champion in 8 seasons". R-77's first full run failed the same way, and its rerun
   passed.
 - The suite needs one of 8 simulated seasons to end in a World Final win, and that is not guaranteed.
+
+**19 Sep (R-79 batch): a third suite, `watched-match`, failed the same way.** Check 3 ("watched,
+then simulated mid-play, counts once") reported "one result, one purse … wins+losses moved 1; purses 0":
+the match completed but paid no purse, which is what a forfeit does. Same root cause as the two above —
+`recordForfeit` completes a fixture with no purse and no set array. The suite passed 10/10 standalone
+immediately afterwards, and 39/39 on the full rerun. Whatever fix is chosen below should cover this
+check too.
 
 **Rerun:** the full harness straight after, same build, passed: "ALL HARNESSES PASSED", 38/38 suites,
 845 checks.
@@ -4142,6 +4201,7 @@ Original entry:
 
 | Item | Closed | Proof |
 |---|---|---|
+| R-79 Background music through the whole game, with volume, mute and skip. Ten Suno tracks; one <audio> element in a provider above the top <Switch> so a page change never restarts or stops it; title track first then shuffled, no repeat until all ten have played; settings in localStorage; ducked to a third on the 3D Court, which has audio of its own | 19 Sep, 5c11336 + 81d5dfa | music-playlist 27/27, including both build outputs and a sabotage rename caught in both directions; full harness 39/39, 830/830 checks. Packaged to C:/build/vbe-r79 (Steam's win-unpacked untouched): ten mp3s in resources/public/audio/music, sha256-identical to the repo, one copy only; the real server serving that packaged directory answers all ten at HTTP 200 audio/mpeg with full byte length |
 | R-01 Saves fall behind the code | 2 Sep, adad32b | derived schema diff at boot; harness schema-drift; live save 0 missing |
 | R-02 One real career has never reached the Dashboard | 2 Sep | Rob reached the dashboard; full launch path verified on screen |
 | R-03 Overwrite/delete a played career fails on FK | 2 Sep, cc319d3 | one shared `deleteCareerSave` cascade; smoke case 10; live-save proof via R-19 |

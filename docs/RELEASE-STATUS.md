@@ -1,5 +1,8 @@
 # Release status — Rob's four design decisions (15 Sep 2026)
 
+**Added 19 Sep 2026:** the R-79 soundtrack batch — item 19 in the table below, checks 27-33 in section 2,
+and a Steam item in section 3 that needs Rob's answer before the music can ship.
+
 Written at the end of the batch that carried out Rob's decisions on R-55, R-60, R-61 and R-62, on top
 of the overnight batch of 14 Sep (R-50, R-42, R-43, R-49/56/57/59, R-58 — section 1b). Rules:
 `docs/REPAIR-REGISTER.md` rules of engagement — never the live save, commit per item, decide-and-go on
@@ -30,6 +33,7 @@ estimated.
 | 16 | R-74 | `2d23dcc` | Spectators: 25 of 25 animate on the spot (clapping, cheering, photo, idles already in the project); no controller holds a walk, so the three walkers on the left stand and animate. Unity `415375c` | CourtPlayProbe: 25/25, 0/25 controllers with a walk clip, walkers moved 0.00 m |
 | 17 | R-66 | `b85ae80` | The installer's folder is always "Beach Volleyball Empire" under Programs. It used to offer whatever folder an earlier install had recorded: on this machine a test folder, and before that "Volley-Ball-Empire" from the build before the rename. The old version is still removed from its own folder | install test: stale folder recreated with the 0.9.0 installer; the 0.9.1 directory page offers …\Programs\Beach Volleyball Empire; the silent install lands there, old folder 953 → 0 files; live save unchanged |
 | 18 | 0.9.1 | `b85ae80` | Release build 0.9.1, carrying R-66/71/73/74/75/76/77. Installer 335,301,232 bytes (sha256 `548f6206…`); win-unpacked 952 files / 556,297,102 bytes (manifest `ab3b700e…`); native ABI OK, only Brotli Unity files, no starter DB sidecars, no menu bar | full harness 38/38 on the rerun (first run 35/38, see R-78) |
+| 19 | R-79 | `5c11336` + `81d5dfa` | The game was silent. Rob's ten Suno tracks now play through it, with volume, mute and skip. One `<audio>` element in a provider above the top `<Switch>` in `App.tsx` — it cannot live in `Shell`, because `/login`, `/new-career`, `/career-end` and `/court` render outside it, so music there would stop the moment the 3D Court opened. Title track first, then shuffled, nothing repeating until all ten have played. The bar (skip, mute, slider, current title) is in the sidebar footer — one copy covers the desktop rail and the mobile sheet — and on the profile picker. Volume and mute persist under `bve.music`, 40% and unmuted by default. Electron now sets `autoplayPolicy: "no-user-gesture-required"`, so it starts by itself. The Unity export does have audio of its own (crowd ambience, cheer, referee whistle), so the music ducks to a third on `/court` | music playlist 27/27; full harness 39/39, 830/830; ten mp3s in the packaged `resources/public/audio/music`, sha256-identical, all served at HTTP 200 `audio/mpeg` |
 
 ### Rob's questions, answered
 - **R-61, the brief's harness line said 16 knockout matches.** Four groups of 3 with the top two to
@@ -221,6 +225,26 @@ now on are kept out of other careers.
 26. Finish the install and start the game from the Start menu. There is no File/Edit/View menu bar,
     and your profiles are there.
 
+**R-79 — the soundtrack** (needs a rebuilt app; `pnpm run electron:dev` in your own cmd window)
+27. The profile picker plays music the moment it appears, with no click. The bar under *New Profile*
+    names the song — the first one is always *Beach Volleyball Empire*.
+28. Open a career and walk Dashboard → Team → Finances. The song keeps playing straight
+    through; it does not restart or cut out, and the title in the sidebar does not change until the
+    song ends.
+29. Skip: the title changes and a different song starts. Keep skipping — no song comes back
+    until all ten have played.
+30. Mute silences it and the icon changes; unmute returns at the same level. Drag the slider: the
+    volume follows it.
+31. Quit and relaunch: your volume and mute setting are as you left them. (They live in
+    `bve.music` in localStorage.)
+32. Open Match Day → 3D Court. The music drops to about a third under the crowd and the
+    whistle, and comes back up when you leave the court.
+33. Nothing ever shows an error dialog about music. To prove the skip-on-failure path, rename one
+    mp3 in the directory the run actually serves — `artifacts/api-server/dist/public/audio/music`
+    for `electron:dev`, `resources/public/audio/music` in an installed copy — then launch and watch it
+    move straight to the next song, with one warning in the console. Rename it back afterwards: the
+    harness fails on a missing file by design.
+
 **Still open from 14 Sep** (unchanged): R-50 fitness and injury display (Team, Dashboard Next Match,
 lineup picker); R-42 honours in the season review and the Trophy Cabinet; R-43 — Club News with game
 dates, no Manager Movements, no Youth League, no Job Market, no Reputation Bonus, a test profile still
@@ -285,6 +309,16 @@ estimated. Steamworks App ID **5233750**, Windows depot **5233751** ("Beach Voll
    requirements and the content survey are separate from the build and were not part of this batch.
 5. **Review copy.** Keys come from Steamworks once the store side is done. The App Admin page warns
    that the specified release date is less than three weeks away.
+
+### The soundtrack, before Steam (R-79) — Rob's, not code
+- **Confirm the Suno plan.** Only songs downloaded while on a paid plan (Pro/Premier) carry
+  commercial rights. If the ten were made on the free plan they cannot ship as they are. This is the
+  one thing that could force the music back out of the build, so it is worth settling before the
+  store page goes up.
+- **Update the AI disclosure.** The Steam AI content disclosure already says generative AI was used;
+  it should now also say the music is generative. Website change on the App Admin page, not code.
+- **Credit.** Nothing in the game names the tracks' origin. If the store page or the credits should
+  say so, that is a decision for Rob, not something this batch assumed.
 
 ### Known gaps in the game
 - **Academy graduates fill the senior squad** (found in R-63, not changed): a promoted graduate stays
