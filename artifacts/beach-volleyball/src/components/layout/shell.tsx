@@ -37,6 +37,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
+import { MusicBar } from "@/components/music/music-bar";
 
 // ── Nav data ─────────────────────────────────────────────────────────────────
 
@@ -275,6 +276,14 @@ export function Sidebar() {
           })}
         </div>
       </nav>
+
+      {/* ── Music (R-79) ── */}
+      {/* In NavContent, so it is in the desktop rail AND the mobile sheet —
+          both render this same tree. Above the manager block so it sits with
+          the other always-there controls rather than in the scrolling nav. */}
+      <div className="px-1 shrink-0">
+        <MusicBar variant="sidebar" />
+      </div>
 
       {/* ── User + logout ── */}
       <div className="px-3 pb-4 pt-2 border-t border-sidebar-border shrink-0">

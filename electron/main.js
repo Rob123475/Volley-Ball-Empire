@@ -308,6 +308,14 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      // R-79: Chromium refuses to start audio until the user has interacted
+      // with the page, so the soundtrack would sit silent on the profile
+      // picker until the first click. This is a desktop game the player
+      // deliberately launched, not a web page that ambushes them, so the
+      // policy is lifted here rather than worked around in the app. The
+      // provider still has a first-gesture retry for a plain browser run
+      // (vite dev), where this setting does not exist.
+      autoplayPolicy: "no-user-gesture-required",
     },
   });
 

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LightboxProvider } from "@/components/image-lightbox";
 import { AuthGuard } from "@/components/layout/auth-guard";
 import { Shell } from "@/components/layout/shell";
+import { MusicProvider } from "@/components/music/music-provider";
 
 // Pages
 import Dashboard        from "@/pages/dashboard";
@@ -221,7 +222,13 @@ function App() {
       <TooltipProvider>
         <LightboxProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
+            {/* R-79: above the top <Switch>, so the one <audio> element is never
+                unmounted by a route change and the music plays straight through
+                a navigation. Inside WouterRouter because the provider reads the
+                location itself to duck the volume on /court. */}
+            <MusicProvider>
+              <Router />
+            </MusicProvider>
           </WouterRouter>
           <Toaster />
         </LightboxProvider>

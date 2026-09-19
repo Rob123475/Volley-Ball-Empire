@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { MusicBar } from "@/components/music/music-bar";
 
 type Profile = { id: string; name: string; profileImage: string | null };
 
@@ -218,6 +219,10 @@ export default function ProfilePicker() {
         {actionError && (
           <p className="text-center text-sm text-red-400/90" role="alert">{actionError}</p>
         )}
+
+        {/* R-79: the title screen is outside Shell, so it needs its own copy of
+            the bar — this is where the music first starts. */}
+        <MusicBar variant="dark" />
       </div>
     </div>
   );
