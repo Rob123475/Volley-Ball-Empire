@@ -1324,6 +1324,32 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
+### R-79 — OPEN, MEDIUM (registered 19 Sep): the game is silent — no soundtrack, no volume, mute or skip
+**Rob's brief:** `docs/MUSIC-BRIEF.md` (16 Sep). Ten Suno tracks by Rob, already on disk at
+`artifacts/beach-volleyball/public/audio/music/` (32 MB, largest 5.5 MB — plain git, no LFS rule;
+`.gitattributes` only covers the Unity `.data` and `*.wasm`). Background music through the whole
+game with three controls: **volume**, **mute** and **skip**.
+
+**Shape of the build (from the brief):**
+1. One `HTMLAudioElement` in a provider mounted **above** the top `<Switch>` in `src/App.tsx`, so a
+   page change never restarts or stops it. It cannot live in `Shell` or a page: `/login`,
+   `/new-career`, `/career-end` and `/court` all render outside `Shell`.
+2. Playlist in `src/data/music-tracks.ts`. Title track first, then shuffle without repeating a song
+   until all ten have played; the next song starts on its own when one ends.
+3. A compact bar — skip, mute, volume (the existing `components/ui/slider.tsx`), current title —
+   visible on every page inside `Shell` and on the profile picker.
+4. Volume and mute in `localStorage` under one key, restored on launch. Default 40%, not muted.
+   Reads and writes in try/catch so blocked storage never breaks the game.
+5. Autoplay: Chromium blocks audio until a gesture. Pick one fix and prove it.
+6. `/court`: report whether the Unity WebGL export plays sound of its own; if it does, duck the
+   music to about a third while on `/court` and restore it on leaving.
+7. A track that fails to load is skipped with a warning — never an error dialog.
+
+**Before Steam:** Rob to confirm which Suno plan the songs were made on — only songs downloaded on
+a paid plan (Pro/Premier) can be used commercially. The Steam AI disclosure already names
+generative AI and should name the music once this ships. Rob's website change, not code.
+
+
 ### R-54 — CLOSED (14 Sep, 8bc38c2): tiers follow the standings: every win scores, no head start, Silver 55 / Gold 63, full purses up to last season's tier
 **Symptom (R-52 final run):**
 - RollStrong (established) earned 63 points and Gold in season 1 at 31W 24L, with the 20-point head
