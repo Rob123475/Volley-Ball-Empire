@@ -1324,7 +1324,7 @@ itself ran entirely through the app's own boot code path, not a direct write.
 
 ## MEDIUM
 
-### R-79 — CLOSED (19 Sep, `5c11336` + `81d5dfa`) MEDIUM: the game was silent — no soundtrack, no volume, mute or skip
+### R-79 — CLOSED (19 Sep, `5c11336` + `81d5dfa` + `a148c01`) MEDIUM: the game was silent — no soundtrack, no volume, mute or skip
 **Rob's brief:** `docs/MUSIC-BRIEF.md` (16 Sep). Ten Suno tracks by Rob, put in
 `artifacts/beach-volleyball/public/audio/music/` by the Cowork session and never committed (32 MB,
 largest 5.5 MB — plain git takes them; `.gitattributes` only routes the Unity `.data` and `*.wasm`
@@ -1392,6 +1392,39 @@ to LFS). Background music through the whole game with volume, mute and skip.
   `HTTP 200` and `index.html` from the SPA catch-all rather than a 404 — the same catch-all
   `scripts/sync-public.cjs` warns about for assets. Harmless for audio: the element cannot decode
   HTML, fires `error`, and R-79 skips to the next track with a warning. Reported, not changed.
+
+**Looked at on screen here (a148c01), on a throwaway copy of the starter database — never the live
+save.** The brief delegated one on-screen question to this side rather than Rob's: whether the bar
+fits the `lg:` sidebar and the mobile layout. It did not, at first.
+
+- **The volume slider was invisible in the sidebar.** `ui/slider.tsx` paints its track
+  `bg-primary/20` and its filled range `bg-primary`, and in this theme `--primary` and `--sidebar`
+  are the same value, `200 100% 36%`. Measured in the running app: the range resolved to
+  `rgb(0, 122, 184)` against a sidebar of `rgb(0, 122, 184)`. All the player could see was the thumb
+  floating on a blue field. Both skins now set track, range and thumb explicitly — sidebar uses the
+  orange `--sidebar-primary` the logo already uses. The `dark` skin needed it too: its old
+  `[&_[data-orientation]]` selector matched the range as well as the track, so it would have
+  flattened the fill on the title screen in the same way. After the fix, at 55%: range
+  `rgb(247, 171, 95)`, 74px of a 135px track.
+- **Fit.** Desktop rail: the bar is 215px in the 224px sidebar, 61px tall, nothing overflows, the
+  title truncates with an ellipsis rather than wrapping. Mobile sheet at 375x812: the same bar at
+  247px with a 167px track, 92px filled, title not truncated, both buttons 26x26. One copy of the
+  component serves both, because both render `NavContent`.
+- **The playlist rules, driven live.** Pass 1 was *Beach Volleyball Empire* (the title track, first,
+  as specified) then Golden Coast Break, Championship Heat, Champions, Rum Under the Palms, Teeth of
+  Foam, Built for This, Summer by the Sea, Volleyball and Reggae, Endless Summer — ten distinct.
+  Pass 2 was a different order, also ten distinct, and began on a different song from the one that
+  ended pass 1.
+- **Skip, mute and persistence.** Skip advanced the title and fetched the next mp3. Mute wrote
+  `{"volume":0.4,"muted":true}` to `bve.music`, and that setting was still there after a reload.
+- **The element is not in the React tree** (`document.querySelector('audio')` is null), and the
+  title track really loaded — 2,949,374 bytes over the wire.
+- **Autoplay, both paths seen.** In a browser the bar read *Click anywhere to start the music* after
+  a reload and one real click started it on the title track — that is the fallback. The packaged
+  game does not use it: `autoplayPolicy` makes Chromium start without a gesture. Rob's check 27 is
+  what confirms that in Electron.
+- **Not checked here:** the music playing in an installed copy, and the `/court` duck by ear. Both
+  need the app running against a real career on Rob's screen.
 
 **On screen — Rob's, not done here** (RELEASE-STATUS section 2): music starts by itself on the
 profile picker; it keeps playing across Dashboard → Team → Finances without restarting; skip moves
