@@ -1375,7 +1375,7 @@ to LFS). Background music through the whole game with volume, mute and skip.
   champions-RENAMED.mp3`).
 - Build chain green; all ten mp3s in `artifacts/beach-volleyball/dist/public/audio/music` and in the
   served `artifacts/api-server/dist/public/audio/music`.
-- Full harness **39/39 suites, 830/830 checks** (`node harness/run-all.mjs`), "ALL HARNESSES PASSED". The first run of the same build was 37/39: *gameplay smoke* ("none of them was forfeited … 3 forfeited") and *watched match* (check 3, "one result, one purse … wins+losses moved 1; purses 0" — a forfeit completes the match but pays no purse). Both are R-78's chance failure, not this batch: nothing under `artifacts/api-server`, `lib` or `scripts` changed here, and *watched match* re-ran standalone at 10/10 before the full rerun. R-78 now has a third suite to its name.
+- **Harness.** The best clean full run in this batch was **39/39 suites, 830/830 checks** ("ALL HARNESSES PASSED"), on `81d5dfa`. The final run, on `a148c01`, was **38/39** — the only failure *gameplay smoke*, "none of them was forfeited … 1 forfeited", 74/75 checks. That is R-78's chance forfeit, and it was measured rather than assumed: smoke run **6 times on identical code passed 4 and failed 2**, always the same check (see R-78). `a148c01` changes one Tailwind class string in one React component, and smoke never loads the frontend at all. `music-playlist` is 27/27 on every run including the final one.
 - **Packaged.** `electron-builder --dir` into `C:/build/vbe-r79` — a separate output folder on
   purpose, so `C:/build/vbe/win-unpacked` (the exact tree uploaded to Steam as BuildID 25335748) and
   the 0.9.1 installer are left untouched. `resources/public/audio/music/` holds all ten mp3s,
@@ -2812,6 +2812,14 @@ check too.
 - world tour competitors: A and B 108 legal results each.
 - smoke: 0 forfeited.
 - season trophies: a champion in season 4.
+
+**19 Sep: the rate measured.** `harness/smoke.mjs` was run **6 times on identical code**, each on
+its own fresh copy of the starter database: **4 passed 75/75, 2 failed 74/75**, every failure the
+same "none of them was forfeited … 1 forfeited". So this suite alone fails roughly one run in three.
+That is the number this item was missing: with `watched-match` and `world-tour-competitors` rolling
+the same dice, a clean 39/39 full run is a coin-toss rather than the norm, which is why three of the
+four full runs in the R-79 batch came back one or two suites short and the reruns passed. A
+deterministic failure would have been 0 of 6.
 
 **Not changed tonight.** This needs a decision on how the harness should handle chance:
 - give the harness's own clubs a way to switch off injury rolls;
