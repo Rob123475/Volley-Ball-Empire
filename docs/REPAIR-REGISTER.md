@@ -27,6 +27,24 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
+### R-80 — OPEN (registered 21 Sep): full pre-push check of the whole game
+**Rob's words:** "I need a complete check on everything in the game to make sure it is error and bug
+free before we commit and push." Brief: `docs/PRE-PUSH-CHECK-BRIEF.md` (deleted at the end; the
+report it produces is `docs/PRE-PUSH-CHECK.md`).
+
+`main` was 6 commits ahead of `origin/main` at the start (R-79's soundtrack, `5c11336`, `81d5dfa`,
+`068656e`, `a148c01`, `507f2f0`, and R-78's measurement `fb52e15`). Nothing is pushed until every
+gate is green.
+
+**Gate 0** starting state · **Gate 1** close R-78 so the harness stops being a coin-toss ·
+**Gate 2** the build chain · **Gate 3** the full harness three times on the final commit ·
+**Gate 4** dead code and dead routes · **Gate 5** every screen driven on a throwaway starter
+database · **Gate 6** Rob's real data, on a copy, never the original · **Gate 7** a packaged build
+to a new folder, leaving Steam's `C:/build/vbe` untouched.
+
+Findings and fixes are recorded per gate in `docs/PRE-PUSH-CHECK.md`, each with its own commit.
+
+
 ### R-55 — CLOSED (15 Sep, Rob's decision; code 51f83ab): the board's expectation is a band, not a rank — kept as is
 **Rob's decision (15 Sep):** KEEP. A 1-in-10 established sacking over four seasons is intended. No
 code change; the "near 0%" target no longer applies. Harness case: `harness/board-review.mjs`
