@@ -27,23 +27,52 @@ this refresh folds in what was verified on screen on 7 Sep and what R-20's inves
 
 ## HIGH
 
-### R-80 — OPEN (registered 21 Sep): full pre-push check of the whole game
-**Rob's words:** "I need a complete check on everything in the game to make sure it is error and bug
-free before we commit and push." Brief: `docs/PRE-PUSH-CHECK-BRIEF.md` (deleted at the end; the
-report it produces is `docs/PRE-PUSH-CHECK.md`).
+### R-80 — CLOSED (21 Sep) : full pre-push check of the whole game
+**Rob:** "I need a complete check on everything in the game to make sure it is error and bug free
+before we commit and push." Report: `docs/PRE-PUSH-CHECK.md`. The brief that set it out has been
+deleted, as it asked.
 
-`main` was 6 commits ahead of `origin/main` at the start (R-79's soundtrack, `5c11336`, `81d5dfa`,
-`068656e`, `a148c01`, `507f2f0`, and R-78's measurement `fb52e15`). Nothing is pushed until every
-gate is green.
+**The live save was never opened.** Gate 6 used a copy taken while the game was closed; the
+original's sha256 `e887920d…` was identical before the copy and after the last gate, with no `-wal`
+or `-shm` beside it. `C:\build\vbe` — the tree Steam has as BuildID 25335748, and the 0.9.1
+installer — was never written to; Gate 7 packaged to `C:\build\vbe-r80`.
 
-**Gate 0** starting state · **Gate 1** close R-78 so the harness stops being a coin-toss ·
-**Gate 2** the build chain · **Gate 3** the full harness three times on the final commit ·
-**Gate 4** dead code and dead routes · **Gate 5** every screen driven on a throwaway starter
-database · **Gate 6** Rob's real data, on a copy, never the original · **Gate 7** a packaged build
-to a new folder, leaving Steam's `C:/build/vbe` untouched.
+**Gates.** 0 starting state · 1 R-78 closed · 2 build chain · 3 harness ×3 · 4 dead code ·
+5 every screen · 6 Rob's real data on a copy · 7 packaged build. All PASS; the numbers are in the
+report.
 
-Findings and fixes are recorded per gate in `docs/PRE-PUSH-CHECK.md`, each with its own commit.
+**Nine fixes, one commit each.** Five are the game's, four are the harness's:
 
+| | What | Commit |
+|---|---|---|
+| 1 | *(harness)* four suites failed 8 runs in 36 on identical code — the R-50 injury roll emptying a two-player harness club (R-78) | `7e12484` |
+| 2 | A dead dev page still routed in the production build with a dead API behind it; 5 dev routes with no caller, one of them destructive; 9 more uncalled routes; 3 rewrites to an endpoint that does not exist | `f31c641` |
+| 3 | The server's refusal reasons never reached the player — 19 places read the axios error shape, and axios is not a dependency | `21aaacf` |
+| 4 | The staff hire dialog had no role, and every staff card showed "Age" with no number | `3b85abb` |
+| 5 | Nine routes answered 500 instead of 401 with no session, so an expired session never triggered the login redirect | `c2e97cc` |
+| 6 | Every real save logged an error-level line on boot for correct World Finals data | `1454394` |
+| 7 | *(harness)* six log reads raced the server's own writer — caught by Gate 3's third run after two clean ones | `5eee421` |
+| 8 | *(harness)* rollover asserted a strong club must drop a title, which the game does not guarantee | `96f06d8` |
+| 9 | *(harness)* the fitness-rating sample could be taken from a forfeit; then every one of the 16 unguarded fixture-completing sites was guarded and the underdog check rebuilt as a structural invariant | `3f4d7a0` `7c36cef` |
+
+**Found and NOT fixed, with reasons** (all in the report): `/api/game/*` is uncalled by everything
+including the Unity build, but is an intended Unity contract and so Rob's call; `@workspace/
+replit-auth-web` is a dead dependency whose removal would churn the lockfile during a release push;
+the SPA catch-all answers 200 for a missing static file; `run-all.mjs` waits on `/api/health`, which
+is not a route, and works by accident; the Unity court did not finish rendering in the sandboxed
+test browser, which stays Rob's on-screen check.
+
+**R-78 is closed by this item.** The cause was proven before anything changed: every forfeit
+observed carried the server's own R-48 reason with a squad of two, both contracted, exactly one
+injured — so it was the R-50 roll emptying a two-player harness club, and the game was behaving
+correctly. The fix is in the harness only, and every changed check was sabotaged and had to go red
+before it was accepted.
+
+**What the gates cost, and what they bought.** Gate 3 asks for three identical clean runs. Runs 1
+and 2 were 869/869; run 3 failed one check, and that was fix 7 — a race that a single run would have
+shipped. Gate 5 and Gate 2 were both re-run because they had been executed before the last code fix,
+and Gate 7 was repackaged and re-checked for the same reason. Nothing in the report describes a run
+that happened before the code it claims to verify.
 
 ### R-55 — CLOSED (15 Sep, Rob's decision; code 51f83ab): the board's expectation is a band, not a rank — kept as is
 **Rob's decision (15 Sep):** KEEP. A 1-in-10 established sacking over four seasons is intended. No
