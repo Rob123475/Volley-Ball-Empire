@@ -41,6 +41,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -161,6 +162,7 @@ let careerSaveId = null, teamId = null, initialPoints = 0;
       if (adv.status >= 400) { trouble = `advance ${adv.status} ${JSON.stringify(adv.data)}`; break; }
       const pending = adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : adv.data?.matchDay?.matchId;
       if (pending) {
+        healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
         const sim = await api("POST", `/matches/${pending}/simulate`, {});
         if (sim.status >= 400) { trouble = `simulate ${sim.status} ${JSON.stringify(sim.data)}`; break; }
         if (sim.data?.fired) { trouble = "the career was sacked (R-47) before the round was reached"; break; }

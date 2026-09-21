@@ -39,6 +39,7 @@ import { pathToFileURL } from "node:url";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const { nationName, CORE_NATIONS, continentKeyForNationality } =
@@ -186,6 +187,7 @@ async function play(career, stopAfter) {
     if (r.status >= 400) throw new Error(`advance ${r.status} ${JSON.stringify(r.data)}`);
     if (r.data?.fired) return { rolls, sacked: true };
     if (r.data?.blocked === "pending_match") {
+      healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
       let sim = await api("POST", `/matches/${r.data.pendingMatchId}/simulate`, {});
       if (sim.status >= 400) sim = await api("POST", `/matches/${r.data.pendingMatchId}/forfeit`, {});
       if (sim.data?.fired) return { rolls, sacked: true };

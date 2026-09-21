@@ -30,6 +30,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -139,6 +140,7 @@ try {
     const adv = await api("POST", "/calendar/advance", {});
     const pending = adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : null;
     if (pending) {
+      healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
       const sim = await api("POST", `/matches/${pending}/simulate`, {});
       if (sim.status >= 400) await api("POST", `/matches/${pending}/forfeit`, {});
     }

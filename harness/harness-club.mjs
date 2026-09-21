@@ -124,3 +124,43 @@ export function maxOutSquad(dbPath, careerSaveId, teamId) {
     db.close();
   }
 }
+
+/**
+ * Make EVERY club in the throwaway database fit.
+ *
+ * ── R-80: why this exists as well as healSquad ──────────────────────────────
+ * The R-78 root cause turned up six times before anyone swept for it: a
+ * harness club is at most three seniors (MAX_SENIORS), the R-50 roll injures
+ * 3% of players per match, and R-48 correctly forfeits a club that cannot put
+ * two on the sand. A forfeit completes the fixture with no sets, no purse and
+ * no squadRating, which quietly breaks any check that was measuring a PLAYED
+ * match — scores, purses, ranking points, tier access, board confidence, the
+ * lot.
+ *
+ * A sweep of every fixture-completing call in the harness found sixteen sites
+ * across thirteen suites with no guard at all. Rather than wait for Gate 3 to
+ * surface them one full run at a time, they all call this.
+ *
+ * Every club rather than one, because most of these suites never hold their own
+ * team id at the point they simulate, and healing the AI clubs changes nothing:
+ * a World Tour opponent's strength comes from `opponentRatingFromTier`, not
+ * from its players' condition, so their injuries are not an input to any
+ * result. The file is this run's own copy and nothing else reads it.
+ *
+ * NOT used by harness/squad-forfeit.mjs, which exists to prove that a club
+ * which cannot field a pair forfeits — healing it would delete the thing it
+ * measures.
+ */
+export function healAllSquads(dbPath) {
+  const db = new DatabaseSync(dbPath);
+  try {
+    const info = db.prepare(
+      `UPDATE career_player_state
+          SET injury_status = 'Healthy', injury_weeks_remaining = 0, is_injured = 0
+        WHERE is_injured = 1 OR injury_status <> 'Healthy'`,
+    ).run();
+    return Number(info.changes ?? 0);
+  } finally {
+    db.close();
+  }
+}

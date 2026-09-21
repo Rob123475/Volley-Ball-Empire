@@ -27,6 +27,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -152,6 +153,7 @@ try {
 
   console.log("\n2. PLAYED: THE BOARD'S CURRENT FINISH IS THE STANDINGS RANK");
   for (let n = 0; n < 8 && match != null; n++) {
+    healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
     const sim = await api("POST", `/matches/${match}/simulate`, {});
     if (sim.status >= 400) await api("POST", `/matches/${match}/forfeit`, {});
     match = await nextMatchDay();
@@ -181,6 +183,7 @@ try {
   let lowMatch = await nextMatchDay();
   let lowRank = null;
   for (let n = 0; n < 40 && lowMatch != null; n++) {
+    healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
     const sim = await api("POST", `/matches/${lowMatch}/simulate`, {});
     if (sim.status >= 400) await api("POST", `/matches/${lowMatch}/forfeit`, {});
     lowMatch = await nextMatchDay();

@@ -9,7 +9,15 @@
  *
  * Usage: node harness/rollover.mjs [baseUrl]
  */
+import { healAllSquads } from "./harness-club.mjs";
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
+
+/**
+ * R-80: the throwaway database this run is driving, passed by run-all.mjs.
+ * Optional - run the suite by hand against any server and the heal below is
+ * simply skipped.
+ */
+const DB_FILE = process.argv[3] ?? null;
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
@@ -58,6 +66,7 @@ async function newCareer(api, label, difficulty) {
  * a workaround.
  */
 async function playPendingMatch(api, matchId) {
+  if (DB_FILE) healAllSquads(DB_FILE); // R-80: a forfeit here would be measured as a played match
   const sim = await api("POST", `/matches/${matchId}/simulate`, {});
   if (sim.status < 400) return sim;
   const forfeit = await api("POST", `/matches/${matchId}/forfeit`, {});
@@ -658,13 +667,36 @@ async function advanceToBoundary(api, maxDays = 500) {
     measured.length > 0 && playerTitles < measured.length,
     `${playerTitles} of ${measured.length} measured seasons won by the player's club`);
 
-  // And the other half of the same property: a squad that is not good enough
-  // does not win the World Final. Under the same bug this goes to 4 of 4.
+  // R-80, second pass: "an underdog never wins the World Final" was measured at
+  // 0 failures in 72 underdog seasons (best finish #9 of 19, never qualified) -
+  // but it is a PROBABILITY, not a guarantee. A season is simulated, so nothing
+  // about its outcome can be certain. Asserting it would leave a check that can
+  // fail on correct behaviour, which is the fault this whole gate exists to
+  // remove.
+  //
+  // So the property is asserted structurally instead, over two records that are
+  // produced independently: the standings rank, and the finals bracket. Only
+  // four clubs reach the semi-finals (worldFinalsSummaryTx: a club qualifies by
+  // appearing in a semi-final fixture), and the champion is read off the final
+  // match own set scores. A club crowned champion from outside the top four
+  // therefore cannot happen while the engine is honest, and must happen the
+  // moment a title is handed out by standing rather than played for. No dice.
+  //
+  // The "results follow ratings, not default" property itself is proven far
+  // more strongly, and deterministically, by condition.mjs: 5,000 matches per
+  // fitness level, win rate 65.6% / 37.3% / 14.0%, z = 52.8.
+  const FINALS_QUALIFIERS = 4;
+  const crowned = measured.filter((r) => r.finals === "champion");
+  const unqualifiedChampions = crowned.filter((r) => r.rank == null || r.rank > FINALS_QUALIFIERS);
+  check("a club is only crowned champion in a season it finished inside the finals places",
+    unqualifiedChampions.length === 0,
+    unqualifiedChampions.length
+      ? unqualifiedChampions.map((r) => `season ${r.season} champion from #${r.rank}`).join("; ")
+      : `${crowned.length} title(s), every one from inside the top ${FINALS_QUALIFIERS}`);
+
   const weakSeasons = weakRuns.flatMap((arc) => arc.seasons);
   const weakTitles = weakSeasons.filter((r) => r.finals === "champion").length;
-  check("an underdog squad does not win the World Final",
-    weakSeasons.length > 0 && weakTitles === 0,
-    `${weakTitles} title(s) across ${weakSeasons.length} underdog seasons`);
+  console.log(`  REPORT  underdog arcs: ${weakTitles} title(s) across ${weakSeasons.length} seasons, best finish #${Math.min(...weakSeasons.map((r) => r.rank ?? 99))}`);
   const champions = [...strongRuns, ...weakRuns].flatMap((arc) => arc.seasons.map((r) => r.champion));
   check("every measured season crowned a real champion from the field",
     champions.length > 0 && champions.every((c) => c && c !== "?"), `${champions.length} seasons: ${champions.join(" | ")}`);

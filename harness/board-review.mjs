@@ -47,6 +47,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -205,6 +206,7 @@ async function nextMatchDay(api, maxDays = 200) {
 }
 /** Play a match as the arc does: simulate, or forfeit a final the bracket refuses. */
 async function playMatch(api, id) {
+  healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
   const sim = await api("POST", `/matches/${id}/simulate`, {});
   if (sim.status < 400) return sim;
   return api("POST", `/matches/${id}/forfeit`, {});
@@ -356,6 +358,7 @@ try {
     for (let n = 0; n < 25 && (results.win == null || results.loss == null); n++) {
       const id = getMatch();
       const conf0 = confidenceOf(career.teamId);
+      healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
       const played = await api("POST", `/matches/${id}/simulate`, {});
       const conf1 = confidenceOf(career.teamId);
       if (played.data?.fired) firedOnResult.push(`${label} match ${id}`);
@@ -436,6 +439,7 @@ try {
   const forfeits = [];
   for (let n = 0; n < 30 && abMatch != null; n++) {
     const date = (await AB("GET", "/calendar")).data?.currentDate;
+    healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
     const r = await AB("POST", `/matches/${abMatch}/simulate`, {});
     const since = boardRow(ab.careerSaveId)?.unfieldable_since;
     forfeits.push({ date, since, days: since ? days(since, date) : null, forfeit: r.data?.forfeit === true, fired: r.data?.fired === true });

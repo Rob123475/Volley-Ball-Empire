@@ -37,6 +37,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -136,6 +137,7 @@ try {
     check("the fixture's away side is the World Tour shape this bug needs (awayTeamId === homeTeamId)",
       match.awayTeamId === match.homeTeamId, `home ${match.homeTeamId}, away ${match.awayTeamId}`);
 
+    healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
     const watchRes = await api("POST", `/matches/${match.id}/watch`);
     check("the live tick loop starts", watchRes.status === 200 && watchRes.data?.ok, JSON.stringify(watchRes.data));
 

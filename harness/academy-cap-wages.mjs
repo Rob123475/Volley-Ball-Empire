@@ -31,6 +31,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healAllSquads } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -201,6 +202,7 @@ async function playSeasonCheckingWages(career) {
     if (r.data?.fired) throw new Error("sacked");
     if (r.data?.blocked === "pending_match") {
       const b0 = budget(teamId), t0 = maxTx();
+      healAllSquads(dbFile); // R-80: a forfeit here would be measured as a played match
       let sim = await api("POST", `/matches/${r.data.pendingMatchId}/simulate`, {});
       if (sim.status >= 400) sim = await api("POST", `/matches/${r.data.pendingMatchId}/forfeit`, {});
       if (sim.data?.fired) throw new Error("sacked");

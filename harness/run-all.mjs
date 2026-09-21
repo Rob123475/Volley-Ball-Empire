@@ -312,7 +312,7 @@ console.log("\n########## 38/39  GAMEPLAY SMOKE ##########");
     const rollStart = Date.now();
     const rr = spawnSync(
       process.execPath,
-      [path.join(REPO, "harness", "rollover.mjs"), `http://localhost:${port}`],
+      [path.join(REPO, "harness", "rollover.mjs"), `http://localhost:${port}`, db],
       { stdio: "inherit", cwd: REPO },
     );
     results.push({
