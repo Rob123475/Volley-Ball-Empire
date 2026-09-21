@@ -212,7 +212,7 @@ function MedicalMarketCard({
 
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
-          <div className="text-xs text-white/70">{member.nationality} · Age {member.age}</div>
+          <div className="text-xs text-white/70">{member.nationality} · Age {member.baseAge}</div>
         </div>
       </div>
 
@@ -275,7 +275,7 @@ function MedicalMarketCard({
               <AlertDialogHeader>
                 <AlertDialogTitle>Hire {member.name}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will add {member.name} to your Medical Department as {ROLE_LABELS[member.role]}.
+                  This will add {member.name} to your Medical Department as {ROLE_LABELS[member.role] ?? member.role}.
                   Monthly salary: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(member.salary)}.
                 </AlertDialogDescription>
               </AlertDialogHeader>

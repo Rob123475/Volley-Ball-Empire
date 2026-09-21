@@ -337,7 +337,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
 
         <div className="absolute bottom-0 left-0 right-0 p-3 pr-16">
           <div className="font-bold text-base text-white drop-shadow leading-tight">{member.name}</div>
-          <div className="text-xs text-white/70">{member.nationality} · Age {member.age}</div>
+          <div className="text-xs text-white/70">{member.nationality} · Age {member.baseAge}</div>
         </div>
       </div>
 
