@@ -21,6 +21,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { serverMessage } from "@/lib/api-error";
 import {
   Save,
   Trash2,
@@ -961,7 +962,7 @@ export default function CareerManagement() {
         },
         onError: (err) => {
           const raw = err as { response?: { data?: { error?: string } }; message?: string };
-          const detail = raw?.response?.data?.error ?? raw?.message ?? "Unknown error";
+          const detail = serverMessage(raw, "Unknown error");
           console.error("[Delete save slot] failed:", detail, err);
           toast({
             title: "Delete failed",

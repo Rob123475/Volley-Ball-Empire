@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, AlertTriangle, Sparkles, Clock } from "lucide-react";
 import { useState } from "react";
+import { serverMessage } from "@/lib/api-error";
 
 // ── Camp definitions (mirrors backend CAMPS) ─────────────────────────────────
 
@@ -149,7 +150,7 @@ export default function WellbeingCamps() {
         setConfirming(null);
       },
       onError: (err: unknown) => {
-        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? "Something went wrong";
+        const msg = serverMessage(err, "Something went wrong");
         toast({ title: "Camp failed", description: msg, variant: "destructive" });
         setConfirming(null);
       },

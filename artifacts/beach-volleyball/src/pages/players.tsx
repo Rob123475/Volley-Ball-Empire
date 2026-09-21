@@ -54,6 +54,7 @@ import { PlayerPortrait } from "@/components/player-portrait";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { format, addMonths } from "date-fns";
 import { cn } from "@/lib/utils";
+import { serverMessage } from "@/lib/api-error";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -670,7 +671,7 @@ export default function PlayerMarket() {
         toast({ title: "Contract Signed!", description: "Welcome to the team!" });
       },
       onError: (err: any) => {
-        toast({ title: "Cannot Sign Player", description: err?.response?.data?.error ?? "Unable to sign this player.", variant: "destructive" });
+        toast({ title: "Cannot Sign Player", description: serverMessage(err, "Unable to sign this player."), variant: "destructive" });
       },
     });
   };
@@ -684,7 +685,7 @@ export default function PlayerMarket() {
         toast({ title: "Scout Report", description: `${result.scoutName} rates this player as ${cfg?.label ?? result.scoutedPotential} potential. (${confidenceText} assessment)` });
       },
       onError: (err: any) => {
-        toast({ title: "No Scout Available", description: err?.response?.data?.error ?? "Hire a scout to assess player potential.", variant: "destructive" });
+        toast({ title: "No Scout Available", description: serverMessage(err, "Hire a scout to assess player potential."), variant: "destructive" });
       },
     });
   };
@@ -696,7 +697,7 @@ export default function PlayerMarket() {
         toast({ title: "Signed to Squad!", description: "The player has joined your team on a 6-month contract." });
       },
       onError: (err: any) => {
-        toast({ title: "Cannot Sign", description: err?.response?.data?.error ?? "Unable to sign this player.", variant: "destructive" });
+        toast({ title: "Cannot Sign", description: serverMessage(err, "Unable to sign this player."), variant: "destructive" });
       },
     });
   };

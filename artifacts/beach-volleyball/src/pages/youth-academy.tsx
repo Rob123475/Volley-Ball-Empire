@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/player-portrait";
 import { YouthPlayerCard, type YouthPlayerData } from "@/components/youth-player-card";
 import rawYouthPlayers from "@/data/players_youth.json";
+import { serverMessage } from "@/lib/api-error";
 import {
   Globe,
   MapPin,
@@ -145,7 +146,7 @@ export default function YouthAcademy() {
         toast({ title: "Youth Signed!", description: `${name} has joined the Youth Academy.` });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not sign prospect.";
+        const msg = serverMessage(err, "Could not sign prospect.");
         toast({ title: "Signing Failed", description: msg, variant: "destructive" });
       },
     });

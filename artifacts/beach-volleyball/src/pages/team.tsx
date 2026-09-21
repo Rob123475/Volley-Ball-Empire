@@ -94,6 +94,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { cn } from "@/lib/utils";
+import { serverMessage } from "@/lib/api-error";
 
 type Role = "starter" | "interchange" | "reserve";
 
@@ -302,7 +303,7 @@ export default function TeamRoster() {
         toast({ title: "Squad Updated", description: `Player moved to ${ROLE_CONFIG[role].label}.` });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not update squad role.";
+        const msg = serverMessage(err, "Could not update squad role.");
         toast({ title: "Squad Update Failed", description: msg, variant: "destructive" });
       },
     });
@@ -324,7 +325,7 @@ export default function TeamRoster() {
       {
         onSuccess: () => invalidate(),
         onError: (err: any) => {
-          const msg = err?.response?.data?.error ?? "Could not update focus.";
+          const msg = serverMessage(err, "Could not update focus.");
           toast({ title: "Error", description: msg, variant: "destructive" });
         },
       }
@@ -392,7 +393,7 @@ export default function TeamRoster() {
             toast({ title: "Player Updated", description: `${editForm.name} saved.` });
           },
           onError: (err: any) => {
-            toast({ title: "Save Failed", description: err?.response?.data?.error ?? "Could not save player.", variant: "destructive" });
+            toast({ title: "Save Failed", description: serverMessage(err, "Could not save player."), variant: "destructive" });
           },
         }
       );
@@ -408,7 +409,7 @@ export default function TeamRoster() {
             toast({ title: "Nationality Updated", description: `${player.name} now represents ${natForm.nationality}.` });
           },
           onError: (err: any) => {
-            toast({ title: "Save Failed", description: err?.response?.data?.error ?? "Could not update nationality.", variant: "destructive" });
+            toast({ title: "Save Failed", description: serverMessage(err, "Could not update nationality."), variant: "destructive" });
           },
         }
       );

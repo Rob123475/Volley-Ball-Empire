@@ -45,6 +45,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "wouter";
+import { serverMessage } from "@/lib/api-error";
 
 const MAX_LEVEL = 10;
 
@@ -306,7 +307,7 @@ export default function FacilitiesPage() {
         onError: (err: any) => {
           toast({
             title: "Upgrade failed",
-            description: err?.response?.data?.error ?? err?.message ?? "Unknown error",
+            description: serverMessage(err, "Unknown error"),
             variant: "destructive",
           });
           setConfirming(null);

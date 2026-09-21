@@ -71,6 +71,7 @@ import {
 import { Link } from "wouter";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { cn } from "@/lib/utils";
+import { serverMessage } from "@/lib/api-error";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
@@ -1289,7 +1290,7 @@ function MedicalCentreFacilityCard() {
           setConfirming(false);
         },
         onError: (err: any) => {
-          toast({ title: "Upgrade failed", description: err?.response?.data?.error ?? err?.message ?? "Insufficient funds.", variant: "destructive" });
+          toast({ title: "Upgrade failed", description: serverMessage(err, "Insufficient funds."), variant: "destructive" });
           setConfirming(false);
         },
       },

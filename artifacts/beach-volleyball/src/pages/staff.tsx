@@ -55,6 +55,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
+import { serverMessage } from "@/lib/api-error";
 
 const MAX_STAFF = 4;
 
@@ -231,7 +232,7 @@ function StaffCard({
           toast({ title: "Staff Updated", description: `${editForm.name} saved.` });
         },
         onError: (err: any) => {
-          toast({ title: "Save Failed", description: err?.response?.data?.error ?? "Could not save.", variant: "destructive" });
+          toast({ title: "Save Failed", description: serverMessage(err, "Could not save."), variant: "destructive" });
         },
       }
     );
@@ -616,7 +617,7 @@ export default function StaffManagement() {
         });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not terminate contract.";
+        const msg = serverMessage(err, "Could not terminate contract.");
         toast({ title: "Termination Failed", description: msg, variant: "destructive" });
       },
     });

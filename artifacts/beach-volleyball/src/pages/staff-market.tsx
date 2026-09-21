@@ -54,6 +54,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
+import { serverMessage } from "@/lib/api-error";
 
 const MAX_STAFF = 8;
 
@@ -412,7 +413,7 @@ export default function StaffMarket() {
         toast({ title: "Staff Hired!", description: "Your new specialist has joined the team." });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not hire staff member.";
+        const msg = serverMessage(err, "Could not hire staff member.");
         toast({ title: "Hire Failed", description: msg, variant: "destructive" });
       },
     });
@@ -428,7 +429,7 @@ export default function StaffMarket() {
         });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not scout this staff member.";
+        const msg = serverMessage(err, "Could not scout this staff member.");
         toast({ title: "Scout Failed", description: msg, variant: "destructive" });
       },
     });

@@ -46,6 +46,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
+import { serverMessage } from "@/lib/api-error";
 
 const MAX_MEDICAL_STAFF = 4;
 
@@ -326,7 +327,7 @@ export default function MedicalMarket() {
         toast({ title: "Staff Hired!", description: "Your new specialist has joined the Medical Department." });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not hire this staff member.";
+        const msg = serverMessage(err, "Could not hire this staff member.");
         toast({ title: "Hire Failed", description: msg, variant: "destructive" });
       },
     });
@@ -339,7 +340,7 @@ export default function MedicalMarket() {
         toast({ title: "Scouted!", description: "Staff stats and traits have been revealed." });
       },
       onError: (err: any) => {
-        const msg = err?.response?.data?.error ?? "Could not scout this staff member.";
+        const msg = serverMessage(err, "Could not scout this staff member.");
         toast({ title: "Scout Failed", description: msg, variant: "destructive" });
       },
     });

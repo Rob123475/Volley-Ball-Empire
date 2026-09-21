@@ -34,6 +34,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AvatarPortrait } from "@/components/player-portrait";
 import { FileText, Trash2, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
+import { serverMessage } from "@/lib/api-error";
 
 const formatPosition = (pos: string | null | undefined): string => {
   if (!pos) return "—";
@@ -51,7 +52,7 @@ const daysBetween = (from: string, to: string) =>
 
 const errorMessage = (err: unknown): string => {
   const e = err as { data?: { error?: string }; response?: { data?: { error?: string } }; message?: string };
-  return e?.data?.error ?? e?.response?.data?.error ?? e?.message ?? "Something went wrong";
+  return serverMessage(e, "Something went wrong");
 };
 
 export default function Contracts() {
