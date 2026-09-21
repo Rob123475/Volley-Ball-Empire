@@ -57,6 +57,41 @@ export type ContinentMigrationResult = {
 
 const NULL_BUCKET = "(null)";
 
+/**
+ * Values that are deliberately NOT a continent, and the column they may appear
+ * on.
+ *
+ * ── R-80 gate 6 ────────────────────────────────────────────────────────────
+ * Booting the server on Rob's real save logged, at ERROR level, "continent
+ * values outside the canonical set" for 12 `matches` rows holding "world".
+ * Those rows are correct. The World Finals belong to no continent, and the game
+ * says so in two places of its own:
+ *
+ *   data/worldTour.ts   `continent: ContinentKey | "world"`, commented
+ *                       "Canonical continent KEY, or 'world' for the two
+ *                        events that belong to no continent"
+ *   routes/matches.ts   writes it with "The World Finals are 'world', not a
+ *                       continent."
+ *
+ * The starter database ships with no played World Finals, so
+ * scripts/check-continents.cjs never met one and the build gate stayed green.
+ * This only ever fired on a save that had actually played a season - which is
+ * every real player, on every boot, about data the game wrote on purpose. That
+ * is the noise that hides a real one, so the migration is told about the
+ * sentinel rather than the log line being turned down.
+ *
+ * Deliberately narrow: "world" is accepted on a `continent` column and nowhere
+ * else, and any other unknown spelling is still left in place and still
+ * reported.
+ */
+const SENTINELS: ReadonlyArray<{ column: string; value: string }> = [
+  { column: "continent", value: "world" },
+];
+
+function isSentinel(column: string, value: string): boolean {
+  return SENTINELS.some((s) => s.column === column && s.value === value);
+}
+
 /** Every column in the live database that holds a continent. */
 export function findContinentColumns(): ContinentColumn[] {
   const tables = sqlite
@@ -114,6 +149,7 @@ export function normaliseContinentsOnce(): ContinentMigrationResult {
 
       for (const { v, n } of distinct) {
         if (isContinentKey(v)) continue; // already a key
+        if (isSentinel(column, v)) continue; // deliberately not a continent
 
         const key = continentKeyFrom(v);
         if (!key) {
