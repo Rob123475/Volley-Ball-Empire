@@ -636,9 +636,35 @@ async function advanceToBoundary(api, maxDays = 500) {
       console.log(`  ${arc.label.padEnd(12)} season ${r.season}: finished #${r.rank ?? "?"}, finals: ${r.finals}, champion: ${r.champion}`);
     }
     const titles = arc.seasons.filter((r) => r.finals === "champion").length;
-    check(`${arc.label}: did not win the World Final every season by default`,
-      arc.seasons.length === 0 || titles < arc.seasons.length, `${titles} title(s) in ${arc.seasons.length} seasons`);
+    console.log(`  REPORT  ${arc.label.padEnd(12)} ${titles} title(s) in ${arc.seasons.length} seasons`);
   }
+
+  // R-80: this used to assert, PER ARC, that the club dropped at least one
+  // title — and it failed a Gate 3 run when RollStrong won 4 of 4. That is not
+  // a bug. A deliberately strong squad sweeping four seasons is the engine
+  // working. Measured across three full runs, the three strong arcs returned
+  // 4,3,3 · 0,1,1 · 2,2,1 titles in 4 seasons: the whole range, so "this arc
+  // must drop one" is a coin toss, not a property of the game.
+  //
+  // What R-29 actually guards is that the title is not GIVEN to the player.
+  // Under that bug every arc wins every season, weak ones included. So the
+  // assertion is made over the whole measured population instead, where it is
+  // deterministic: the underdog arcs finish ~#18 and never qualify, returning
+  // 0 titles in every run, so this holds whenever the engine is honest and
+  // fails the moment the title is handed out by default.
+  const measured = [...strongRuns, ...weakRuns].flatMap((arc) => arc.seasons);
+  const playerTitles = measured.filter((r) => r.finals === "champion").length;
+  check("the title is contested — the player's clubs did not win every measured season",
+    measured.length > 0 && playerTitles < measured.length,
+    `${playerTitles} of ${measured.length} measured seasons won by the player's club`);
+
+  // And the other half of the same property: a squad that is not good enough
+  // does not win the World Final. Under the same bug this goes to 4 of 4.
+  const weakSeasons = weakRuns.flatMap((arc) => arc.seasons);
+  const weakTitles = weakSeasons.filter((r) => r.finals === "champion").length;
+  check("an underdog squad does not win the World Final",
+    weakSeasons.length > 0 && weakTitles === 0,
+    `${weakTitles} title(s) across ${weakSeasons.length} underdog seasons`);
   const champions = [...strongRuns, ...weakRuns].flatMap((arc) => arc.seasons.map((r) => r.champion));
   check("every measured season crowned a real champion from the field",
     champions.length > 0 && champions.every((c) => c && c !== "?"), `${champions.length} seasons: ${champions.join(" | ")}`);
