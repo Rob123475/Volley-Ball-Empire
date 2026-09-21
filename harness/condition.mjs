@@ -250,6 +250,15 @@ try {
   for (const [fitness, factor] of [[0, 0.6], [100, 1.0]]) {
     matchId = await nextMatchDay();
     for (const p of [A, B, C]) setCondition(p.id, fitness, 0);
+    // R-80: this section measures the FITNESS factor, nothing else, so the two
+    // players it means to field have to be fit to play. Section 3 leaves A
+    // injured on purpose, and every match here rolls injuries for the pair that
+    // played (the same reason section 5 below re-heals C rather than assuming).
+    // With A already out, one more roll on B or C left the club unable to field
+    // a pair, R-48 forfeited the match, and a forfeit carries no lineup and no
+    // squadRating - so the check read "squadRating undefined, pair stats NaN".
+    // Caught by Gate 3 run 2 after run 1 passed on identical code.
+    for (const p of [B, C]) setInjury(p.id, "Healthy", 0);
     const sim = await api("POST", `/matches/${matchId}/simulate`, {});
     const pair = (sim.data?.lineup ?? []).map(byId);
     const raw = pair.reduce((s, p) => s + mean6(p), 0) / pair.length;
