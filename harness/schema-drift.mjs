@@ -237,13 +237,14 @@ console.log("\nB. A REAL SAVE MISSING teams.crest_shape_index — THE 1 SEP BUG"
   check("GET /api/team no longer 500s", team.status < 500,
     `HTTP ${team.status}`);
 
+  await srv.stop();
+
   // And the repair said what it did, rather than fixing it silently.
+  // R-80: read AFTER stop — the stream is closed, so the log is complete.
   const log = srv.log();
   check("the boot log names the repair it performed",
     /crest_shape_index/.test(log) && /schema brought forward/.test(log),
     /crest_shape_index/.test(log) ? "" : "log never mentions the column");
-
-  await srv.stop();
 }
 
 // ── C. a clean save must be a no-op, and must say so ─────────────────────────
@@ -255,8 +256,9 @@ console.log("\nC. AN UP-TO-DATE SAVE — THE REPAIR MUST DO NOTHING, LOUDLY");
 
   const srv = await boot(clean, "clean");
   const team = await srv.api("GET", "/team");
-  const log = srv.log();
   await srv.stop();
+  // R-80: read AFTER stop — the stream is closed, so the log is complete.
+  const log = srv.log();
 
   check("schema is byte-for-byte unchanged by a boot", JSON.stringify(schemaShape(clean)) === shapeBefore);
   check("boot log proves the check RAN and found nothing",

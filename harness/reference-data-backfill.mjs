@@ -157,11 +157,6 @@ console.log("\nA/B/C. A SAVE MISSING LOCATIONS 9-11 — THE ROOT CAUSE OF THE LI
   check("boot put locations 9, 10 and 11 back",
     [9, 10, 11].every((id) => idsAfter.includes(id)), `ids: ${idsAfter.join(",")}`);
 
-  const log = srv.log();
-  check("the boot log names the backfill and each id it inserted",
-    /reference data backfilled/.test(log) && /9/.test(log) && /10/.test(log) && /11/.test(log),
-    /reference data backfilled/.test(log) ? "" : "log never mentions the backfill");
-
   check("an existing row (locations id 1) is byte-for-byte untouched — additive only",
     JSON.stringify(rowAfter) === JSON.stringify(rowBefore),
     JSON.stringify(rowAfter) !== JSON.stringify(rowBefore) ? "row 1 changed — this must never UPDATE" : "");
@@ -180,6 +175,12 @@ console.log("\nA/B/C. A SAVE MISSING LOCATIONS 9-11 — THE ROOT CAUSE OF THE LI
     careerRes.status >= 200 && careerRes.status < 300, `HTTP ${careerRes.status} ${JSON.stringify(careerRes.data).slice(0, 200)}`);
 
   await srv.stop();
+
+  // R-80: read AFTER stop — the stream is closed, so the log is complete.
+  const log = srv.log();
+  check("the boot log names the backfill and each id it inserted",
+    /reference data backfilled/.test(log) && /9/.test(log) && /10/.test(log) && /11/.test(log),
+    /reference data backfilled/.test(log) ? "" : "log never mentions the backfill");
 }
 
 // ── D. STARTER_DB_PATH unset — no starter DB to compare against, no crash ────
@@ -195,8 +196,9 @@ console.log("\nD. STARTER_DB_PATH NOT SET — MUST NO-OP, NOT CRASH");
 
   const srv = await boot(dbFile, "no-starter-path"); // no STARTER_DB_PATH in extraEnv
   const health = await srv.api("GET", "/healthz");
-  const log = srv.log();
   await srv.stop();
+  // R-80: read AFTER stop — the stream is closed, so the log is complete.
+  const log = srv.log();
 
   check("server still boots cleanly with no STARTER_DB_PATH", health.status === 200, `HTTP ${health.status}`);
   check("the boot log says the backfill was skipped, not silent",

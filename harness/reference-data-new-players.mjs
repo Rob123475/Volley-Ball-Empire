@@ -198,7 +198,6 @@ console.log("\nA/B/C/D/E. AN EXISTING CAREER GAINS 3 NEW STARTER-DB PLAYERS AT B
   // DB carrying the 4 new rows. A fresh boot means a fresh session, so
   // re-select the same profile/career before reading the market.
   const srv = await boot(dbFile, "sync-boot", { STARTER_DB_PATH: starterExtra });
-  const log = srv.log();
   await srv.api("POST", `/profiles/${profileId}/select`);
   await srv.api("POST", `/careers/${careerSaveId}/load`);
   const freeAgents = await srv.api("GET", "/players/free-agents");
@@ -207,6 +206,8 @@ console.log("\nA/B/C/D/E. AN EXISTING CAREER GAINS 3 NEW STARTER-DB PLAYERS AT B
   await srv.stop();
   await new Promise((r) => setTimeout(r, 600));
 
+  // R-80: read AFTER stop — the stream is closed, so the log is complete.
+  const log = srv.log();
   check("the boot log names the players insert and the career it seeded",
     /reference data backfilled/.test(log) && /players/.test(log) && /seededIntoCareers/.test(log),
     /reference data backfilled/.test(log) ? "" : "log never mentions the backfill");

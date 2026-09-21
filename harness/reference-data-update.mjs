@@ -208,8 +208,9 @@ console.log("\nA/B/C. A SAVE WITH STALE REFERENCE DATA AND REAL CAREER PROGRESS"
 
   // ── The actual boot under test ──────────────────────────────────────────
   const srv = await boot(dbFile, "stale-save-boot", { STARTER_DB_PATH: SHIPPED });
-  const log = srv.log();
   await srv.stop();
+  // R-80: read AFTER stop — the stream is closed, so the log is complete.
+  const log = srv.log();
 
   const after = new DatabaseSync(dbFile, { readOnly: true });
   const rowAfter = after.prepare("SELECT id, name, height FROM players WHERE id = ?").get(PLAYER_ID);
