@@ -611,24 +611,4 @@ router.post("/finances/sponsor-active/:id/terminate", async (req, res) => {
 
 /* ── Get termination fee preview ─────────────────────────────── */
 
-router.get("/finances/sponsor-active/:id/terminate-preview", async (req, res) => {
-  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getActiveTeam(req);
-  if (!team) { res.status(404).json({ error: "No team" }); return; }
-  const id   = parseInt(req.params.id);
-
-  const contract = await db.query.promoDealsTable.findFirst({
-    where: and(eq(promoDealsTable.id, id), eq(promoDealsTable.teamId, team.id)),
-  });
-  if (!contract) { res.status(404).json({ error: "Contract not found" }); return; }
-
-  const gameDate   = await getGameDate(team.id);
-  const monthly    = Number(contract.monthlyPayment ?? 0);
-  const daysLeft   = contract.contractEndDate ? Math.max(0, daysDiff(gameDate, contract.contractEndDate)) : 0;
-  const monthsLeft = Math.ceil(daysLeft / 30);
-  const cancelFee  = Math.round(monthly * Math.min(monthsLeft, 2) / 100) * 100;
-
-  res.json({ cancellationFee: cancelFee, daysLeft, monthsLeft });
-});
-
 export default router;

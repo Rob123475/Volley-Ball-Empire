@@ -142,16 +142,6 @@ router.get("/facilities", async (req, res) => {
   res.json(enriched);
 });
 
-router.get("/facilities/upgrade-times", async (_req, res) => {
-  res.json(
-    Object.entries(BUILD_ROUNDS).map(([level, rounds]) => ({
-      fromLevel: Number(level),
-      rounds,
-      label: BUILD_LABEL[Number(level)] ?? "",
-    })),
-  );
-});
-
 router.post("/facilities/:type/upgrade", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 

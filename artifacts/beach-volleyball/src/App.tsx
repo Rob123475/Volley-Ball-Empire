@@ -17,7 +17,6 @@ import Finances         from "@/pages/finances";
 import NewCareer        from "@/pages/new-career";
 import CareerEnd        from "@/pages/career-end";
 import ProfilePicker    from "@/pages/profile-picker";
-import DevGenerationTest from "@/pages/dev-generation-test";
 import NotFound         from "@/pages/not-found";
 
 // Hub pages
@@ -132,7 +131,6 @@ queryClient.getQueryCache().subscribe((event) => {
 function Router() {
   return (
     <Switch>
-      <Route path="/dev/generation-test" component={DevGenerationTest} />
       <Route path="/login" component={ProfilePicker} />
       <Route path="/new-career" component={NewCareer} />
       {/* R-09: reached only after a career has been fully retired by the

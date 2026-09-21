@@ -139,18 +139,6 @@ export const IMAGE_REGISTRY:  Record<string, ImageEntry>       = {
 
 // ── URL normalisation ─────────────────────────────────────────────────────────
 
-/**
- * Object-storage paths are seeded as `/objects/...` but the browser must reach
- * them via the API server route at `/api/storage/objects/...`.
- * This rewrites the prefix so images load correctly in the browser.
- */
-function normaliseObjectUrl(url: string): string {
-  if (url.startsWith("/objects/")) {
-    return `/api/storage/objects/${url.slice("/objects/".length)}`;
-  }
-  return url;
-}
-
 // ── Resolution helpers ────────────────────────────────────────────────────────
 
 /**
@@ -180,10 +168,10 @@ export function resolvePlayerImageUrl(
   continent:  string | null | undefined,
   nationality?: string | null,
 ): string | null {
-  if (imageUrl)  return normaliseObjectUrl(imageUrl);
+  if (imageUrl)  return imageUrl;
   if (imageKey) {
     const entry = IMAGE_REGISTRY[imageKey];
-    if (entry)   return normaliseObjectUrl(entry.imageUrl);
+    if (entry)   return entry.imageUrl;
   }
   // Fall through to null — PlayerPortrait will call getPortraitUrl itself
   return null;
@@ -199,10 +187,10 @@ export function resolveStaffImageUrl(
   name:      string,
   role?:     string,
 ): string {
-  if (imageUrl) return normaliseObjectUrl(imageUrl);
+  if (imageUrl) return imageUrl;
   if (imageKey) {
     const entry = IMAGE_REGISTRY[imageKey];
-    if (entry)   return normaliseObjectUrl(entry.imageUrl);
+    if (entry)   return entry.imageUrl;
   }
   return DICEBEAR_STAFF(name);
 }

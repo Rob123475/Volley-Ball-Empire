@@ -123,18 +123,6 @@ router.get("/wellbeing/status", async (req, res) => {
   });
 });
 
-router.get("/wellbeing/camps", async (_req, res) => {
-  res.json(
-    Object.entries(CAMPS).map(([id, c]) => ({
-      id,
-      name:          c.name,
-      cost:          c.cost,
-      durationRounds: c.durationRounds,
-      durationLabel: c.durationLabel,
-    })),
-  );
-});
-
 router.post("/wellbeing/run", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);

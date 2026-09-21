@@ -466,22 +466,6 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
   res.json({ ok: true, matchId: id });
 });
 
-/**
- * GET /matches/:id/live-state
- * Returns the latest tick state from matchLiveStateTable. Returns 404 if
- * the match hasn't been started via /watch yet.
- */
-router.get("/matches/:id/live-state", async (req, res): Promise<void> => {
-  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) { res.status(400).json({ error: "Invalid match id" }); return; }
-  const liveState = await db.query.matchLiveStateTable.findFirst({
-    where: eq(matchLiveStateTable.matchId, id),
-  });
-  if (!liveState) { res.status(404).json({ error: "No live state for this match" }); return; }
-  res.json(liveState);
-});
-
 router.post("/matches/:id/simulate", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);

@@ -350,26 +350,4 @@ router.post("/youth-scouting/prospects/:id/ignore", async (req, res) => {
 
 // ── Dev helper — force-complete a mission (for testing) ───────────────────
 
-router.post("/youth-scouting/dev-complete", async (req, res) => {
-  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const team = await getActiveTeam(req);
-  if (!team) { res.status(404).json({ error: "No team found" }); return; }
-
-  if (team.youthScoutingStatus !== "active") {
-    res.status(422).json({ error: "No active mission to complete." });
-    return;
-  }
-
-  await db.update(teamsTable).set({
-    youthScoutingStatus:         "complete",
-    youthScoutingWeeksRemaining: 0,
-  }).where(eq(teamsTable.id, team.id));
-
-  await generateScoutingProspects(team.id, team.youthScoutingContinent!);
-
-  const updated = await getActiveTeam(req);
-  if (!updated) { res.status(404).json({ error: "No team" }); return; }
-  res.json(serializeMission(updated));
-});
-
 export default router;

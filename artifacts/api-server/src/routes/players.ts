@@ -323,30 +323,6 @@ router.get("/players/validation", async (req, res) => {
   });
 });
 
-/**
- * Market summary counts.
- *
- * This read the reference table directly and had been quietly wrong since
- * squad membership moved to career state: `hasteam` was hardcoded to 0, so
- * signedCount was ALWAYS 0 and every signed player was counted as a free
- * agent. It compiled, so nothing caught it. Retirement and draft status have
- * now moved too, which is what finally broke the build.
- *
- * Counting from the career's own merged view fixes all three at once.
- */
-router.get("/players/summary", async (req, res) => {
-  const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), {
-    playerType: "senior",
-  });
-
-  const totalSenior    = all.length;
-  const freeAgentCount = all.filter(p => !p.teamId && !p.isDraftPlayer).length;
-  const draftPoolCount = all.filter(p => p.isDraftPlayer && !p.teamId).length;
-  const signedCount    = all.filter(p => p.teamId).length;
-
-  res.json({ totalSenior, freeAgentCount, draftPoolCount, signedCount });
-});
-
 // All senior players with status — powers the Player Market filter pills
 router.get("/players/market-all", async (req, res) => {
   const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" });

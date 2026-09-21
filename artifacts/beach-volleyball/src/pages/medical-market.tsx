@@ -181,9 +181,7 @@ function MedicalMarketCard({
   const attrs = extractSkillAttrs(member.attributes ?? {});
 
   function normaliseImageUrl(url: string | null | undefined): string | undefined {
-    if (!url) return undefined;
-    if (url.startsWith("/objects/")) return `/api/storage${url}`;
-    return url;
+    return url ?? undefined;
   }
 
   return (

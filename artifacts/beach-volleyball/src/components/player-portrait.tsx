@@ -77,20 +77,12 @@ function nameSlug(name: string): string {
   return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
-/** Rewrite `/objects/...` sidecar paths to the browser-accessible API route */
-function normaliseObjectUrl(url: string): string {
-  if (url.startsWith("/objects/")) {
-    return `/api/storage/objects/${url.slice("/objects/".length)}`;
-  }
-  return url;
-}
-
 export function resolvePortraitSrc(
   imageUrl:   string | null | undefined,
   name:       string,
   playerType: string | null | undefined,
 ): string {
-  if (imageUrl && !LEGACY_POOL_PATH.test(imageUrl)) return normaliseObjectUrl(imageUrl);
+  if (imageUrl && !LEGACY_POOL_PATH.test(imageUrl)) return imageUrl;
   const folder = playerType === "youth" ? "youth" : "seniors";
   return `/images/players/${folder}/${nameSlug(name)}.png`;
 }

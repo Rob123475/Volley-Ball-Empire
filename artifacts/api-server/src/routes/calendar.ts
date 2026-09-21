@@ -760,18 +760,6 @@ router.post("/calendar/skip-match", async (req, res) => {
 // ── GET /api/calendar/season-structure ────────────────────────────────────
 // Returns the full 78-slot season structure for UI display
 
-router.get("/calendar/season-structure", (_req, res) => {
-  res.json({
-    totalSlots: TOTAL_SLOTS,
-    phases: [
-      { name: "Regional Period",      slots: `${REGIONAL_START}–${REGIONAL_END}`,     count: 10, description: `All ${CONTINENT_COUNT} continents play one round per slot` },
-      { name: "World Tour",           slots: `${WORLD_TOUR_START}–${WORLD_TOUR_END}`, count: WORLD_TOUR_EVENT_ROUNDS.length, description: `${WORLD_TOUR_EVENT_ROUNDS.length} events; 19 clubs, one bye per round` },
-      { name: "World Finals",         slots: `${FINALS_START}–${FINALS_END}`,          count: 2,  description: "Semifinals + World Final" },
-      { name: "Holiday / Off-Season", slots: `${HOLIDAY_START}–${HOLIDAY_END}`,       count: 6,  description: "Rest & preparation for next season" },
-    ],
-  });
-});
-
 // ── GET /api/calendar/round-names ─────────────────────────────────────────
 // R-70: every schedule slot named in the competition's own rounds, for any
 // screen that shows a match's round. One source: utils/seasonPhase.ts.
