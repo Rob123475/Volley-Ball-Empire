@@ -103,6 +103,7 @@ router.post("/players", async (req, res) => {
 });
 
 router.get("/players/free-agents", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const freeAgents = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { freeAgents: true });
   // Senior free agents only — youth players have their own pool endpoint
   res.json(
@@ -153,6 +154,7 @@ router.get("/players/transfer-window", async (req, res) => {
 
 // Youth free agent pool — only youth players not on any team
 router.get("/players/youth-pool", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const { continent } = req.query;
   const youth = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { freeAgents: true });
   let result = youth.filter(p => isYouthPlayer(p) && p.academyContractYears == null);
@@ -197,6 +199,7 @@ router.get("/players/youth-pool", async (req, res) => {
  * be exact, and scripts/check-roster.cjs already holds it there on every build.
  */
 router.get("/players/validation", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId));
 
   const seniors = all.filter(p => isSeniorPlayer(p));
@@ -325,6 +328,7 @@ router.get("/players/validation", async (req, res) => {
 
 // All senior players with status — powers the Player Market filter pills
 router.get("/players/market-all", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" });
 
   // Build team name lookup for signed players
@@ -379,6 +383,7 @@ router.get("/players/market-all", async (req, res) => {
 });
 
 router.get("/players/:id", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }

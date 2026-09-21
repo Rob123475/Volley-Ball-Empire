@@ -130,6 +130,7 @@ router.post("/draft/generate-class", async (req, res) => {
 });
 
 router.get("/draft", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const draftPlayers = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" }))
     .filter((p) => p.isDraftPlayer && p.age >= 18);
   res.json(draftPlayers.filter(p => !p.teamId).map(p => ({

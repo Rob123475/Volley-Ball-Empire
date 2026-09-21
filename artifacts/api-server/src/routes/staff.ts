@@ -109,6 +109,7 @@ router.post("/staff", async (req, res) => {
 });
 
 router.get("/staff/market", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const { role, search } = req.query as Record<string, string>;
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
@@ -161,6 +162,7 @@ router.get("/staff/market", async (req, res) => {
 });
 
 router.get("/staff/available", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { unhired: true });
   res.json(staff.map(serializeStaff));
 });

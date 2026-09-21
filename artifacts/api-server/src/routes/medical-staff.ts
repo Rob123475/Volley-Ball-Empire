@@ -95,6 +95,7 @@ router.post("/medical-staff", async (req, res) => {
 });
 
 router.get("/medical-staff/market", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const { role, search } = req.query as Record<string, string>;
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
