@@ -13,8 +13,16 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { healSquadByTeam } from "./harness-club.mjs";
 
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
+
+/**
+ * R-80: the throwaway database this run is driving, passed by run-all.mjs.
+ * Optional - run the suite by hand against any server and it simply skips the
+ * heal below.
+ */
+const DB_PATH = process.argv[3] ?? null;
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
@@ -158,18 +166,28 @@ const roster = async (api) => {
   const condBefore = (await roster(A)).find(p => p.id === target.id);
   await A("GET", "/matches/fixture");
   await A("PATCH", "/calendar/speed", { speed: "pause" });
-  let played = 0, forfeited = 0;
+  let played = 0, forfeited = 0, healed = 0;
   for (let d = 0; d < 120 && played < 6; d++) {
     const r = await A("POST", "/calendar/advance", {});
     if (r.status >= 400 || r.data?.blocked === "season_end") break;
     const mid = r.data?.pendingMatchId ?? r.data?.matchDay?.id;
     if (mid) {
+      // R-80 (R-78): this club is two players, because that is what the R-48
+      // check above deliberately signs it down to. The R-50 injury roll is 3%
+      // per player per match, so across the twelve player-matches below one of
+      // the pair was injured in about a quarter of runs, the club could not
+      // field a side, and R-48 correctly forfeited the match - failing a check
+      // that is not about injuries at all. The squad is made fit again in the
+      // throwaway database this run owns. The injury SYSTEM is still asserted
+      // on, in its own suite (condition.mjs, R-50).
+      if (DB_PATH) healed += healSquadByTeam(DB_PATH, teamA.id);
       const sim = await A("POST", `/matches/${mid}/simulate`, {});
       if (sim.data?.forfeit) forfeited++;
       played++;
       await A("POST", "/calendar/dismiss-match", {});
     }
   }
+  if (DB_PATH) console.log(`  REPORT  injuries healed between matches: ${healed}`);
   const condAfter = (await roster(A)).find(p => p.id === target.id);
   check("matches were played", played > 0, `${played} matches`);
   check("none of them was forfeited (the pair was on the sand)", forfeited === 0, `${forfeited} forfeited`);

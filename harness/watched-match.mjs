@@ -32,6 +32,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healSquadByTeam } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -119,11 +120,19 @@ try {
     `${byKey.world_traveller?.description} / ${byKey.globe_trotter?.description}`);
 
   // Play the calendar to the next match day and return its match id.
+  //
+  // R-80 (R-78): the squad is made fit before the match is handed back. This
+  // club is small enough that the R-50 injury roll could leave it unable to
+  // field a pair, at which point R-48 forfeits the match - and a forfeit
+  // completes with no purse, which failed check 3 ("one result, one purse")
+  // at random, roughly one run in five. Nothing here is trying to measure
+  // injuries; R-50 has its own suite. The file being edited is this run's own
+  // throwaway copy.
   async function nextMatchDay(maxDays = 120) {
     for (let d = 0; d < maxDays; d++) {
       const adv = await api("POST", "/calendar/advance", {});
       const id = adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : adv.data?.matchDay?.matchId;
-      if (id) return id;
+      if (id) { healSquadByTeam(dbFile, teamId); return id; }
     }
     return null;
   }

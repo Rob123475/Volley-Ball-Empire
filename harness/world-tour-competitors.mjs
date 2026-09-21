@@ -38,6 +38,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healSquad } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -131,13 +132,24 @@ async function makeCareer(api, label, slot) {
   return { careerSaveId: c.data.id, teamId: c.data.teamId, initialPoints: ranking.data?.rankingPoints ?? 0 };
 }
 
-/** Advance the calendar, playing every pending match, until `round` is fully played. */
-async function playThroughRound(api, round, maxDays = 400) {
+/**
+ * Advance the calendar, playing every pending match, until `round` is fully played.
+ *
+ * R-80 (R-78): the club is made fit before each match. This suite reconciles
+ * every one of 108 fixtures against `legalResult`, which rejects a fixture with
+ * no set array - and a forfeit is exactly that. The R-50 injury roll could empty
+ * this two-player club, R-48 would correctly forfeit, and the run failed on
+ * "every result is a legal best-of-three ... illegal: 662". Injuries are R-50's
+ * own suite's business; this one is about the World Tour. The database is this
+ * run's own throwaway copy.
+ */
+async function playThroughRound(api, round, maxDays = 400, fit = null) {
   for (let day = 0; day < maxDays; day++) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) throw new Error(`advance failed ${r.status}: ${JSON.stringify(r.data)}`);
     const pending = r.data?.blocked === "pending_match" ? r.data.pendingMatchId : r.data?.matchDay?.matchId;
     if (pending) {
+      if (fit) fit();
       const sim = await api("POST", `/matches/${pending}/simulate`, {});
       if (sim.status >= 400) throw new Error(`simulate ${pending} failed ${sim.status}: ${JSON.stringify(sim.data)}`);
       await api("POST", "/calendar/dismiss-match", {});
@@ -236,7 +248,8 @@ const careerB = await makeCareer(B, "WorldTourB", 1);
 check("two careers in one database", careerA.careerSaveId !== careerB.careerSaveId,
   `A=${careerA.careerSaveId} (team ${careerA.teamId}), B=${careerB.careerSaveId} (team ${careerB.teamId})`);
 
-const daysA = await playThroughRound(A, LAST_ROUND);
+const daysA = await playThroughRound(A, LAST_ROUND, 400,
+  () => healSquad(dbFile, careerA.careerSaveId, careerA.teamId));
 check(`career A played through World Tour round ${LAST_ROUND}`, daysA !== null, `${daysA} calendar days`);
 
 const fixturesA11 = await A("GET", `/world-tour/fixtures?round=${FIRST_WT_ROUND}`);
@@ -255,7 +268,8 @@ dbh.close();
 
 child = boot(dbFile, "main-b");
 await waitUp("main-b");
-const daysB = await playThroughRound(B, LAST_ROUND);
+const daysB = await playThroughRound(B, LAST_ROUND, 400,
+  () => healSquad(dbFile, careerB.careerSaveId, careerB.teamId));
 check(`career B played through World Tour round ${LAST_ROUND}`, daysB !== null, `${daysB} calendar days`);
 
 const fixturesB11 = await B("GET", `/world-tour/fixtures?round=${FIRST_WT_ROUND}`);
@@ -406,6 +420,23 @@ const sabRec = reconcile(sdb, careerB.careerSaveId, playerCompetitorB, careerB.i
 sdb.close();
 check("S2: with one AI club's points off by 1, the points check FAILS (it caught it)",
   sabRec.pointMismatch.length === 1, sabRec.pointMismatch.join("; "));
+
+// S3 (R-80): a forfeit leaves a completed fixture with NO set array, which is
+// exactly what R-78's random failure looked like ("illegal: 662"). R-80 stopped
+// those forfeits happening by accident (harness-club.mjs keeps this club fit),
+// so this proves the legality check itself would still catch one if it did.
+// The rows carry the real shape: sets are {home, away} objects, and the set
+// tally has to agree with the fixture's own home_sets/away_sets.
+const legalRow    = { sets: JSON.stringify([{"home":21,"away":19},{"home":21,"away":18}]), home_sets: 2, away_sets: 0 };
+const forfeitRow  = { sets: null,  home_sets: 0, away_sets: 2 };
+const emptyRow    = { sets: "[]", home_sets: 0, away_sets: 2 };
+const oneSetRow   = { sets: JSON.stringify([{"home":21,"away":19}]), home_sets: 1, away_sets: 0 };
+const notByTwoRow = { sets: JSON.stringify([{"home":21,"away":20},{"home":21,"away":18}]), home_sets: 2, away_sets: 0 };
+const tallyLieRow = { sets: JSON.stringify([{"home":21,"away":19},{"home":21,"away":18}]), home_sets: 0, away_sets: 2 };
+check("S3: a forfeit-shaped result (completed, no sets) FAILS the legality check",
+  legalResult(legalRow) && !legalResult(forfeitRow) && !legalResult(emptyRow)
+    && !legalResult(oneSetRow) && !legalResult(notByTwoRow) && !legalResult(tallyLieRow),
+  "a real best-of-three passes; null, [], one set, 21-20 and a lying set tally are all rejected");
 
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 try { fs.rmSync(WORK, { recursive: true, force: true }); } catch { /* best effort */ }

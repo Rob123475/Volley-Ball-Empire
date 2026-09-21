@@ -297,7 +297,7 @@ console.log("\n########## 38/39  GAMEPLAY SMOKE ##########");
   } else {
     const r = spawnSync(
       process.execPath,
-      [path.join(REPO, "harness", "smoke.mjs"), `http://localhost:${port}`],
+      [path.join(REPO, "harness", "smoke.mjs"), `http://localhost:${port}`, db],
       { stdio: "inherit", cwd: REPO },
     );
     results.push({

@@ -24,6 +24,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { healSquad, maxOutSquad } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -110,11 +111,19 @@ async function newCareer(api, label) {
   });
   return { careerSaveId: c.data?.id, teamId: c.data?.teamId };
 }
-async function playSeason(api) {
+/**
+ * R-80 (R-78): `fit` is called before each match. Injuries could empty this
+ * two-player club, R-48 would forfeit, and a season full of forfeits cannot
+ * reach the World Finals - which is what left "no champion in 8 seasons"
+ * to chance. Injuries are R-50's own suite's business. The database is this
+ * run's own throwaway copy.
+ */
+async function playSeason(api, fit = null) {
   for (let i = 0; i < 500; i++) {
     const r = await api("POST", "/calendar/advance", {});
     if (r.status >= 400) return { error: r.data };
     if (r.data?.blocked === "pending_match") {
+      if (fit) fit();
       const sim = await api("POST", `/matches/${r.data.pendingMatchId}/simulate`, {});
       if (sim.status >= 400) await api("POST", `/matches/${r.data.pendingMatchId}/forfeit`, {});
       continue;
@@ -135,32 +144,62 @@ try {
     `${freshRows} rows; cabinet ${JSON.stringify(Object.fromEntries(Object.entries(freshCabinet).map(([k, v]) => [k, Array.isArray(v) ? v.length : v])))}`);
 
   console.log("\n2. EACH SEASON EARNS EXACTLY WHAT HAPPENED IN IT");
+  //
+  // R-80 (R-78): this section used to emit two checks PER CAREER and stop as
+  // soon as a champion turned up, so the number of checks it printed changed
+  // with the dice - 10 one run, 16 the next - and it failed outright with "no
+  // champion in 8 seasons" when the dice never obliged. Both are fixed here:
+  // every season played is collected and then asserted in ONE check, so the
+  // count is the same every run, and the club is put at the engine's ceiling
+  // (maxOutSquad) so it reaches the World Finals every season instead of
+  // scraping in. Winning the final itself cannot be forced - the opponent is
+  // rated 86 and clampRating caps everyone at 99 - so the loop still plays up
+  // to MAX_CAREERS looking for one, but it now starts from a club that makes
+  // the final every time rather than one that often missed it.
+  //
+  // Nothing is weakened: every season still has to produce EXACTLY the trophy
+  // rows it earned, and the champion season still has to produce exactly the
+  // title plus its tier.
+  const seasons = [];
   let champion = null;
-  for (let k = 1; k <= MAX_CAREERS && !(champion && k > 2); k++) {
+  for (let k = 1; k <= MAX_CAREERS && !champion; k++) {
     const api = session();
     const c = await newCareer(api, `Trophy${k}`);
-    const played = await playSeason(api);
-    if (played.error) { check(`Trophy${k}: season 1 reaches its boundary`, false, JSON.stringify(played.error)); continue; }
+    maxOutSquad(dbFile, c.careerSaveId, c.teamId);
+    const played = await playSeason(api, () => healSquad(dbFile, c.careerSaveId, c.teamId));
+    if (played.error) { seasons.push({ k, boundary: false, why: JSON.stringify(played.error) }); continue; }
     const review = (await api("GET", `/seasons/${YEAR}/review`)).data;
     const finals = review?.worldFinals?.playerResult ?? null;
     const points = review?.ranking?.rankingPoints ?? 0;
     const expected = expectedRows(finals, points);
     const dbRows = read(`SELECT type, name, year, season FROM trophies WHERE team_id = ?`, c.teamId);
-    check(`Trophy${k}: ${finals}, ${points} points (${tierFor(points)}) -> exactly the rows that season earned`,
-      key(dbRows) === key(expected) && dbRows.every((r) => r.year === YEAR && r.season === 1),
-      `expected [${key(expected) || "none"}], got [${key(dbRows) || "none"}]`);
-    check(`Trophy${k}: the season review shows the same rows`, key(review?.trophies ?? []) === key(expected),
-      `review [${key(review?.trophies ?? []) || "none"}]`);
+    seasons.push({
+      k, boundary: true, finals, points,
+      rowsMatch: key(dbRows) === key(expected) && dbRows.every((r) => r.year === YEAR && r.season === 1),
+      reviewMatch: key(review?.trophies ?? []) === key(expected),
+      expected, dbRows,
+    });
     if (finals === "champion") {
-      const honours = (await api("GET", "/trophies/cabinet")).data?.honours;
-      champion = { k, expected, dbRows, honours };
+      champion = { k, expected, dbRows, honours: (await api("GET", "/trophies/cabinet")).data?.honours };
     }
   }
+
+  const summary = seasons.map((s) => s.boundary ? `T${s.k} ${s.finals}/${s.points}` : `T${s.k} NO BOUNDARY`).join(", ");
+  check("every season played reached its boundary", seasons.every((s) => s.boundary),
+    seasons.filter((s) => !s.boundary).map((s) => `T${s.k}: ${s.why}`).join("; ") || summary);
+  check("every season wrote exactly the trophy rows it earned, dated to that season",
+    seasons.length > 0 && seasons.filter((s) => s.boundary).every((s) => s.rowsMatch),
+    seasons.filter((s) => s.boundary && !s.rowsMatch)
+      .map((s) => `T${s.k} expected [${key(s.expected) || "none"}] got [${key(s.dbRows) || "none"}]`)
+      .join("; ") || summary);
+  check("every season review showed the same rows as the database",
+    seasons.length > 0 && seasons.filter((s) => s.boundary).every((s) => s.reviewMatch),
+    summary);
   check("a champion season was played and produced exactly World Champions 2026 plus its tier",
     champion != null && champion.dbRows.filter((r) => r.type === "world_championship").length === 1
       && champion.dbRows.some((r) => r.name === `World Champions ${YEAR}`)
       && champion.dbRows.length === champion.expected.length,
-    champion ? `Trophy${champion.k}: ${key(champion.dbRows)}` : `no champion in ${MAX_CAREERS} seasons`);
+    champion ? `Trophy${champion.k}: ${key(champion.dbRows)}` : `no champion in ${seasons.length} seasons`);
   check("the champion's trophy cabinet shows the title and its tier season",
     champion != null && champion.honours?.worldChampionships?.length === 1
       && champion.honours.worldChampionships[0].name === `World Champions ${YEAR}`
