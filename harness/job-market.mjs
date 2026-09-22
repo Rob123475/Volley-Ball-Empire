@@ -284,14 +284,35 @@ try {
   check("a manager with a club cannot retire through the job market", notSeeking.status === 409,
     `HTTP ${notSeeking.status} ${notSeeking.data?.error ?? ""}`);
 
-  // Put the career back out of work, the way the sale does, and decline.
-  write(`UPDATE career_saves SET team_id = NULL, seeking_club_since = ? WHERE id = ?`,
-    Date.now(), careerSaveId);
+  // Put the career back out of work the way the sale does — which includes
+  // remembering the club it just lost, because that is the club the career is
+  // archived under when the manager stops.
+  write(`UPDATE career_saves SET team_id = NULL, former_team_id = ?, seeking_club_since = ? WHERE id = ?`,
+    team?.id, Date.now(), careerSaveId);
   const retired = await api("POST", "/job-market/retire", {});
   check("declining them all ends the career", retired.status === 200 && retired.data?.retired === true,
     `HTTP ${retired.status} ${JSON.stringify(retired.data)}`);
   check("and the save is finished, not left hanging",
     save()?.retired != null && save()?.seeking == null, JSON.stringify(save()));
+
+  // A career that ends has to end the way every other ending does, or the
+  // career-end screen falls back to its default and tells a manager who chose
+  // to stop that they were sacked.
+  const ending = read(
+    `SELECT type, description FROM career_history_entries
+      WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, careerSaveId)[0];
+  check("the history says they retired, in the game's own words",
+    ending?.type === "retirement" && /retired rather than take another club/.test(ending?.description ?? ""),
+    `${ending?.type}: ${ending?.description}`);
+  const archived = read(
+    `SELECT manager_name AS m, club_name AS c FROM hall_of_fame ORDER BY id DESC LIMIT 1`)[0];
+  check("and the career is archived to the Hall of Fame, under the club they last had",
+    archived?.m === "JobMarket", `${archived?.m} of ${archived?.c}`);
+  const screen = fs.readFileSync(
+    path.join(REPO, "artifacts/beach-volleyball/src/pages/career-end.tsx"), "utf8");
+  check("and the career-end screen has a title for it",
+    /retirement:\s*\{ title: "You Retired"/.test(screen) && !/club_sold:/.test(screen),
+    "retirement titled; club_sold deliberately absent — the club ending is not the career ending");
 
 } finally {
   await stopServer(child);

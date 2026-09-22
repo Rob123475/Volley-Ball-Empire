@@ -20,6 +20,12 @@ const ENDINGS = {
   dismissal:      { title: "You've Been Sacked",        Icon: ShieldX,  tone: "rose"  },
   resignation:    { title: "You Resigned",              Icon: LogOut,   tone: "amber" },
   contract_break: { title: "You Broke Your Contract",   Icon: Scissors, tone: "rose"  },
+  // L-02e: a manager whose club was sold may take another or stop. Stopping
+  // is a choice, and without this line the screen fell back to its default and
+  // told them they had been sacked. `club_sold` is deliberately NOT here: the
+  // club ending is not the career ending, and the career carries on at the job
+  // market.
+  retirement:     { title: "You Retired",               Icon: LogOut,   tone: "amber" },
 } as const;
 
 type EndingType = keyof typeof ENDINGS;

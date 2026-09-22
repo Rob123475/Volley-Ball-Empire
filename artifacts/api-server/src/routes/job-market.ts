@@ -265,12 +265,31 @@ router.post("/job-market/retire", async (req, res) => {
     return;
   }
 
-  // Declining every vacancy is retirement, and retirement ends the career.
-  // endCareer archives the club's record to the Hall of Fame; there is no club
-  // any more, so the save is finished directly and its history says why.
-  await db.update(careerSavesTable)
-    .set({ retiredAt: new Date(), seekingClubSince: null })
-    .where(eq(careerSavesTable.id, save.id));
+  // Declining every vacancy is retirement, and retirement ends a career the
+  // way every other ending does: archived to the Hall of Fame, with a history
+  // entry in the game's own words, so the career-end screen can say what
+  // happened. It is built from the club the manager last had — there is no
+  // current one — and the save is named explicitly, because a career between
+  // clubs cannot be found by its club.
+  //
+  // Without this the save was simply stamped retired: no archive, no history,
+  // and a career-end screen that fell back to its default and told a manager
+  // who had CHOSEN to stop that they had been sacked.
+  const summary = save.formerTeamId
+    ? await endCareer(req as never, save.formerTeamId, req.user.id, {
+        type: "retirement",
+        careerSaveId: save.id,
+        description: (sum) =>
+          `${sum.managerName} retired rather than take another club after ` +
+          `${save.clubName} was sold.`,
+      })
+    : null;
+
+  if (!summary) {
+    await db.update(careerSavesTable)
+      .set({ retiredAt: new Date(), seekingClubSince: null, formerTeamId: null })
+      .where(eq(careerSavesTable.id, save.id));
+  }
 
   res.json({ retired: true, managerName: save.managerName, formerClub: save.clubName });
 });

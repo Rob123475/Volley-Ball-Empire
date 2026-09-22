@@ -425,6 +425,16 @@ worth a couple of hundred thousand and not a million.
   clubless career now and comes back to the job market, and the suite shuts the
   session and reopens it to prove that.
 
+- **Retiring from the job market told the manager they had been sacked.**
+  Turning down every vacancy just stamped the save retired: no Hall of Fame
+  archive, no history entry — and the career-end screen picks its words from
+  the newest history entry, so with none to find it fell back to its default,
+  "You've Been Sacked", for a manager who had chosen to stop. It ends the
+  career properly now: archived under the club they last had, a `retirement`
+  entry in the game's own words, and a screen that says "You Retired".
+  (`club_sold` is deliberately NOT an ending — the club ending is not the
+  career ending.)
+
 - **One harness check could fail by chance, and did.** "A club at the top of
   the Gold tour went forwards" held for a club that finished 1st or 2nd — and
   a 2nd-place season lost $50,120 for the tier-access reason above. A check

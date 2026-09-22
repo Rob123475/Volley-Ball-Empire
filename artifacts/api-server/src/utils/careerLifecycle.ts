@@ -25,11 +25,22 @@ export function computeManagerSalary(managerReputation: number): number {
 // Shared by /careers/summary and every path that ends a career, so the Hall of
 // Fame archive is always built from the same numbers the player last saw.
 
-export async function buildCareerSummary(teamId: number, userId: string) {
-  const [save] = await db
-    .select()
-    .from(careerSavesTable)
-    .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, userId)));
+/**
+ * `careerSaveId` is for a career that no longer holds the club it is being
+ * summarised from: L-02e leaves a manager between clubs with no team_id, and
+ * the summary of their career is still built from the club they last had.
+ * Without it the save is not found and every field falls back to "Unknown".
+ */
+export async function buildCareerSummary(teamId: number, userId: string, careerSaveId?: number) {
+  const [save] = careerSaveId
+    ? await db.select().from(careerSavesTable).where(and(
+        eq(careerSavesTable.id, careerSaveId),
+        eq(careerSavesTable.userId, userId),
+      ))
+    : await db.select().from(careerSavesTable).where(and(
+        eq(careerSavesTable.teamId, teamId),
+        eq(careerSavesTable.userId, userId),
+      ));
 
   const [team] = await db.select().from(teamsTable).where(eq(teamsTable.id, teamId));
 
@@ -128,13 +139,23 @@ export async function loseClub(
   return { clubName };
 }
 
+/**
+ * `careerSaveId` is for the one case where the save is not found by its club:
+ * L-02e leaves a career between clubs with no team_id, and a manager who
+ * retires from the job market is ending THAT career while the summary is built
+ * from the club they last had.
+ */
 export async function endCareer(
   req: Request,
   teamId: number,
   userId: string,
-  opts: { type: string; description: (summary: CareerSummary) => string },
+  opts: {
+    type: string;
+    description: (summary: CareerSummary) => string;
+    careerSaveId?: number;
+  },
 ): Promise<CareerSummary> {
-  const summary = await buildCareerSummary(teamId, userId);
+  const summary = await buildCareerSummary(teamId, userId, opts.careerSaveId);
 
   await db.insert(hallOfFameTable).values({
     userId,
@@ -149,10 +170,15 @@ export async function endCareer(
     totalLosses:           summary.totalLosses,
   });
 
-  const [activeSave] = await db
-    .select()
-    .from(careerSavesTable)
-    .where(and(eq(careerSavesTable.teamId, teamId), eq(careerSavesTable.userId, userId)));
+  const [activeSave] = opts.careerSaveId
+    ? await db.select().from(careerSavesTable).where(and(
+        eq(careerSavesTable.id, opts.careerSaveId),
+        eq(careerSavesTable.userId, userId),
+      ))
+    : await db.select().from(careerSavesTable).where(and(
+        eq(careerSavesTable.teamId, teamId),
+        eq(careerSavesTable.userId, userId),
+      ));
 
   if (activeSave) {
     await db.insert(careerHistoryEntriesTable).values({
@@ -166,7 +192,8 @@ export async function endCareer(
 
     await db
       .update(careerSavesTable)
-      .set({ retiredAt: new Date() })
+      // L-02e: a career that ends while between clubs stops seeking one.
+      .set({ retiredAt: new Date(), seekingClubSince: null, formerTeamId: null })
       .where(eq(careerSavesTable.id, activeSave.id));
   }
 
