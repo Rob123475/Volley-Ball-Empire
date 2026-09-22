@@ -65,7 +65,45 @@ export const FIELD_CLUBS = 19;
 export const MET_WITHIN = 3;
 /** Failed: a finish this many places or more below the pair's strength rank. */
 export const FAILED_FROM = 8;
-export const STRIKES_TO_SACK = 2;
+/**
+ * L-02e — Rob's rule (22 Sep, final): "the board never sacks for on-field
+ * collapse". A club that cannot win is a club with a problem; a club that
+ * cannot pay is a club that gets sold. Strikes and confidence still say what
+ * the board thinks — they warn, and they freeze spending — but they no longer
+ * end a career.
+ *
+ * What ends one is money: LOSS_MAKING_SEASONS_TO_SALE consecutive seasons
+ * finishing on less than the club started them with, and the club is sold out
+ * from under the manager. That is the only verdict a review can pass now.
+ *
+ * (R-48's mid-season abandonment is untouched and is not a sacking for
+ * results: a club 30 game days without two fit contracted players is not
+ * losing matches, it is not fielding a side at all.)
+ */
+export const LOSS_MAKING_SEASONS_TO_SALE = 5;
+
+/**
+ * How much a club has to be down on a season for it to count as loss-making.
+ *
+ * A fraction of what it opened the season on, because "lost money" has to mean
+ * something at every size of club. Without it, a club sitting on $4.6 million
+ * and finishing a season $260 down had a loss-making season — and five of
+ * those in a row sold it, which is not what anybody means by a club going
+ * broke. Measured: that is exactly what the thirty-season youth runs did,
+ * selling clubs in season nineteen that were in no trouble at all.
+ *
+ * A season that ends in debt always counts, whatever the percentage says: a
+ * club in the red is in trouble by definition.
+ */
+export const MATERIAL_SEASON_LOSS = 0.02;
+
+/** Did this season cost the club real money? */
+export function isLossMakingSeason(startBalance: number, endBalance: number): boolean {
+  if (endBalance < 0) return true;
+  if (endBalance >= startBalance) return false;
+  return startBalance - endBalance > Math.abs(startBalance) * MATERIAL_SEASON_LOSS;
+}
+export const STRIKES_TO_FINAL_WARNING = 2;
 export const SACK_AT = 20;
 export const FINAL_WARNING_AT = 35;
 export const FREEZE_AT = 30;
@@ -81,7 +119,7 @@ export const GRADE_WORDS: Record<Grade, string> = {
   met: "met expectations", below: "below expectations", failed: "failed",
 };
 export type FinalsResult = "champion" | "runner-up" | "semi-finalist" | "did not qualify" | null;
-export type Outcome = "safe" | "warning" | "final_warning" | "sacked";
+export type Outcome = "safe" | "warning" | "final_warning" | "sold";
 export type BoardStage = "safe" | "warning" | "spending_freeze" | "final_warning";
 
 export const SPENDING_FROZEN_MESSAGE =
@@ -150,6 +188,12 @@ export type ReviewInput = {
   seasonStartBalance: number;
   seasonEndBalance: number;
   previousStrikes: number;
+  /**
+   * L-02e: how many seasons in a row, INCLUDING this one, the club has finished
+   * on less than it started with. Counted from the board's own rows, which have
+   * recorded both balances since R-53.
+   */
+  lossMakingRun?: number;
 };
 
 export type ReviewResult = {
@@ -172,8 +216,13 @@ export function reviewSeason(input: ReviewInput): ReviewResult {
   const confidenceBefore = clamp(input.confidenceBefore, 0, 100);
   const confidenceAfter = clamp(confidenceBefore + g.points + hp + mp, 0, 100);
   const strikes = strikesAfter(input.previousStrikes, g.grade);
-  const outcome: Outcome = strikes >= STRIKES_TO_SACK || confidenceAfter <= SACK_AT ? "sacked"
-    : strikes > 0 || confidenceAfter <= FINAL_WARNING_AT ? "final_warning"
+  // L-02e: results warn, money decides. Two strikes or a confidence of 20 used
+  // to be a sacking; they are the board's loudest warning now, and the only
+  // thing that ends the manager's time at the club is the club being sold.
+  const lossMakingRun = input.lossMakingRun ?? 0;
+  const outcome: Outcome = lossMakingRun >= LOSS_MAKING_SEASONS_TO_SALE ? "sold"
+    : strikes >= STRIKES_TO_FINAL_WARNING || confidenceAfter <= FINAL_WARNING_AT ? "final_warning"
+    : strikes > 0 ? "final_warning"
     : g.grade === "below" ? "warning"
     : "safe";
   return {
@@ -229,7 +278,7 @@ export function boardReviewTable(career: BoardTableCareer): { label: string | nu
     rows.push({ ...r, ...bandsFor(s.strengthRank), season: i + 1, strengthRank: s.strengthRank, finish: s.finish });
     confidence = r.confidenceAfter;
     strikes = r.strikes;
-    if (r.outcome === "sacked") break;
+    if (r.outcome === "sold") break;
   }
   return { label: career.label ?? null, rows };
 }
@@ -289,8 +338,8 @@ export function bandWords(b: Bands): string {
 const OUTCOME_WORDS: Record<Outcome, string> = {
   safe: "Safe.",
   warning: "Below expectations: a warning, but no strike.",
-  final_warning: "Final warning: a failed season before one that meets expectations, or confidence of 20 or less at a review, ends your time here.",
-  sacked: "Sacked.",
+  final_warning: "Final warning: the board has lost patience with the results. It cannot sack you for them — but a club that keeps losing money gets sold.",
+  sold: "The club has been sold.",
 };
 
 export function expectationText(row: BoardSeason, fieldClubs: number | null, previous: BoardSeason | null): string {
@@ -547,6 +596,49 @@ function storedReviewTx(tx: Tx, row: BoardSeason): SeasonReview {
   };
 }
 
+/**
+ * L-02e: how many seasons in a row, ending with this one, the club has finished
+ * on less than it started with.
+ *
+ * Read from the board's own rows, which have recorded both balances since R-53,
+ * so there is no new counter to keep in step with anything — and a save made
+ * before this rule existed already has the history to be judged on.
+ */
+export function lossMakingRunTx(
+  tx: Tx, careerSaveId: number, seasonYear: number, endBalance: number,
+): number {
+  // Every season's row is OPENED on the balance the club carries into it
+  // (ensureBoardSeasonTx), so one season's opening balance is the season
+  // before it's closing balance. That is why there is no end-balance column
+  // to keep in step with anything: the chain of openings IS the history, and
+  // a save made before this rule existed already has it.
+  const opens = new Map<number, number>(
+    tx.select({
+      year: boardSeasonsTable.seasonYear,
+      start: boardSeasonsTable.seasonStartBalance,
+    })
+      .from(boardSeasonsTable)
+      .where(eq(boardSeasonsTable.careerSaveId, careerSaveId))
+      .all()
+      .map((r) => [r.year, Number(r.start)] as [number, number]),
+  );
+
+  const thisStart = opens.get(seasonYear);
+  if (thisStart === undefined || !isLossMakingSeason(thisStart, endBalance)) return 0;
+
+  let run = 1;
+  for (let y = seasonYear - 1; ; y--) {
+    const opened = opens.get(y);
+    const closed = opens.get(y + 1);
+    // A missing row breaks the chain rather than being read as a loss: a club
+    // is not sold on the strength of a season nobody recorded.
+    if (opened === undefined || closed === undefined) break;
+    if (!isLossMakingSeason(opened, closed)) break;
+    run++;
+  }
+  return run;
+}
+
 /** The season-end review, inside the rollover's transaction. Idempotent. */
 export function boardReviewTx(
   tx: Tx, careerSaveId: number, seasonYear: number, teamId: number,
@@ -573,6 +665,7 @@ export function boardReviewTx(
     seasonStartBalance: row.seasonStartBalance,
     seasonEndBalance: Number(team?.budget ?? 0),
     previousStrikes: strikesBeforeTx(tx, careerSaveId, seasonYear),
+    lossMakingRun: lossMakingRunTx(tx, careerSaveId, seasonYear, Number(team?.budget ?? 0)),
   });
 
   tx.update(boardSeasonsTable).set({

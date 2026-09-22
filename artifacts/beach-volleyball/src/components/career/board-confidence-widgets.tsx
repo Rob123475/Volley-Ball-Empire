@@ -83,8 +83,9 @@ export function BoardRulesExplainer() {
       <p className="text-[9px] uppercase tracking-widest text-white/35 font-semibold">How the board judges you</p>
       <p>When the World Tour field is drawn, the board ranks your best pair against it. Finishing within 3 places of that rank meets expectations; 4 to 7 places below is below expectations; 8 or more below is a failed season. With the strongest pair in the field that means: top 4 met, 5th to 8th below, 9th or worse failed.</p>
       <p>Results never cost you your job mid-season. A month into the World Tour, and every month after, the board checks the standings: a poor projection brings a warning or freezes new signings, hires and upgrades.</p>
-      <p>At the end of each season it reviews your finish, plus any World Finals honours; debt or a collapsing balance counts against you. A season below expectations is a warning, not a strike. A failed season, or one spent forfeiting, is a strike, and a season that meets expectations clears it. Two strikes in a row, or confidence of 20 or less, ends your time at the club.</p>
-      <p>The one exception: if you cannot put two contracted players on the sand for 30 days, you are sacked at your next forfeit. There is no final season: your career runs for as long as the board keeps you.</p>
+      <p>At the end of each season it reviews your finish, plus any World Finals honours; debt or a collapsing balance counts against you. A season below expectations is a warning, not a strike. A failed season, or one spent forfeiting, is a strike, and a season that meets expectations clears it. Two strikes in a row, or confidence of 20 or less, is the board's final warning.</p>
+      <p>The board will not sack you for results, however bad they get. What ends your time at a club is money: five seasons in a row finishing on less than you started them with and the owners sell up. You lose the job, not the career — there are other clubs, and what you have done follows you to them.</p>
+      <p>The one exception: if you cannot put two contracted players on the sand for 30 days, you are sacked at your next forfeit. There is no final season: your career runs until you run out of clubs or choose to stop.</p>
     </div>
   );
 }

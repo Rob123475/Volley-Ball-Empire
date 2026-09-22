@@ -4,22 +4,43 @@ Branch `achievements`, from e4caeda. The previous report that lived in this file
 night of 15 Sep — 3D court, cameras, installer 0.9.1) is kept as
 `docs/OVERNIGHT-STATUS-15SEP.md`.
 
-Written as the night goes, so the state below is whatever was true when the last
-item finished. The live save in AppData was not touched:
-every suite drives its own throwaway database.
+The live save in `AppData\Roaming\Beach Volleyball Empire` was never opened.
+Every suite drives its own throwaway copy of the shipped database, and the game
+itself was never launched.
+
+## The short version
+
+Everything in the brief is built and on GitHub. The harness is 47 suites and
+about 1,100 checks, green on the commit each item was pushed on. Nine new
+suites were written tonight; six of the eight game items turned up defects in
+the game itself rather than in the tests, and those are listed under each item.
+
+The three things most worth your attention in the morning:
+
+1. **Money now means something, and the numbers are in this report.** A club at
+   the bottom of the field loses money every season and is sold after five of
+   them; a club at the top of the Gold tour makes $100,000-$300,000 a season.
+2. **The board no longer sacks anybody for results** — your rule — which is a
+   bigger change to how a career ends than it sounds. What ends it is the club
+   being sold, or you turning down every job that is offered.
+3. **Steam is wired but unproven on screen.** steamworks.js loads under
+   Electron 32 with no rebuild and `init(5233750)` connected to your running
+   Steam client, the server announces every unlock and the catch-up works — but
+   nobody has watched an achievement pop on the overlay. That needs a launch
+   under Steam, which is yours to do.
 
 ## Items
 
 | # | Item | State | Commit |
 |---|------|-------|--------|
 | 1 | L-02a — contract lengths and coverage | DONE | `d44065f` |
-| 2 | L-02b — retirement | IN PROGRESS | — |
-| 3 | L-02c — youth rebirth | NOT STARTED | — |
-| 4 | L-02d — graduates cap and trading | NOT STARTED | — |
-| 5 | HOF — club Hall of Fame | NOT STARTED | — |
-| 6 | ACH — seasons, cabinet, 30 achievements, Steam | NOT STARTED | — |
-| 7 | L-04 — money means something | NOT STARTED | — |
-| 8 | L-02e — broke clubs sold, job market | NOT STARTED | — |
+| 2 | L-02b — retirement | DONE | `ffeff99` |
+| 3 | L-02c — youth rebirth | DONE | `a31a302` |
+| 4 | L-02d — graduates cap and trading | DONE | `a31a302` |
+| 5 | HOF — club Hall of Fame | DONE | `83dfea4` |
+| 6 | ACH — seasons, cabinet, 30 achievements, Steam | DONE | `5420a02` |
+| 7 | L-04 — money means something | IN PROGRESS | — |
+| 8 | L-02e — broke clubs sold, job market | IN PROGRESS | — |
 | 9 | BUILD — v0.9.2 to C:\build\vbe | NOT STARTED | — |
 | 10 | REPORT | this file | — |
 
@@ -93,6 +114,216 @@ Seven defects, all of them things a career would have hit:
 7. **A client could name a contract's end date.** The server owns it now, which
    is what R-51's game-clock rule was for.
 
+## Calls I made on items 2 and 3
+
+9. **A Hall of Fame table had to exist before item 5.** Retirement cannot decide
+   what to delete without knowing who has been honoured, so `club_hall_of_fame`
+   is created with retirement and the induction window (recommendations, the
+   two-season cycle, the cap of six) is still the Hall of Fame item's job.
+
+10. **"Delete her career record" means this career's record.** `players` is the
+    world's reference list, shared by every save on the machine — deleting rows
+    from it would reach into your other saves. What goes is
+    `career_player_state`, which is her career: after it, this career cannot
+    see her at all.
+
+11. **The season review reads retirements from their own table.** It used to
+    filter career state for `isRetired`, which stops working the moment a
+    record is deleted — the review would have said "Nobody retired" for a
+    season that retired three.
+
+12. **"Youth count identical every season" needed a level to be identical AT.**
+    Replacing graduates one for one keeps the count where it is — and a career
+    starts with no academy at all, so that would have kept it at nought for
+    ever. The intake now takes every graduate's place plus up to three more,
+    never past the academy cap of 12: a new club is full in four seasons and
+    holds exactly twelve from then on, which is the rule as a career can
+    actually reach it.
+
+13. **"The 89 spares" are twelve.** There were 89 unused adult portraits when
+    R-62 was written; the pool clubs took most of them since. What is left
+    unattached in the shipped database is the twelve cards belonging to
+    `player_type = 'spare'` athletes, who appear in no market, squad or
+    tournament. The intake counts them rather than trusting a number, so it
+    cannot go stale. Order: a retiree's face first, then a spare, then the blank
+    youth card.
+
+14. **A recycled name is only reused for its own nation.** The intake's
+    nationality rule (R-62) is the club's country and the other nations of its
+    region; a Brazilian name on a Norwegian youth player would be a stranger
+    thing than a new name. Names are recycled within a nation, and the region's
+    own name pool covers the rest.
+
+15. **The graduate cap is enforced twice, for two different reasons.** The Team
+    page refuses a promotion that would make five, so the manager is told the
+    rule at the moment he meets it. The season boundary then releases whatever
+    is still over four, because the rollover promotes every academy player who
+    turns 19 whether the club has room or not — she is too old for the academy,
+    so she cannot stay in it. The weakest go, by the same overall rating the
+    screens show.
+
+16. **There is nothing to do about AI clubs over the cap.** The brief says
+    "gamer AND AI", but AI clubs have no academy: R-62 made the intake the
+    player's club only, and the pool clubs are fixed pairs. No AI club can hold
+    a graduate, so the cap is enforced everywhere graduates can exist. If AI
+    squad turnover lands later, this is where its cap goes.
+
+17. **One overall-rating formula.** It was written out twice, in `game-api.ts`
+    and `unity.ts`, the second carrying the comment "mirrors game-api.ts". The
+    graduate cap needed a third caller, and the number that decides who loses
+    their place should be the number the screens show, so it is now one
+    function.
+
+18. **Graduates are held on top of the squad, not inside it.** The three
+    signing places (2 starters + 1 interchange) counted a club's own graduates,
+    so a club that developed four players could never sign anybody again — and
+    "graduates can be bought and sold" would have been impossible for exactly
+    the clubs that have graduates. Graduates now have their own limit of four
+    and do not fill the signing places. They still take a place on the sand
+    like anyone else.
+
+19. **Running costs are what the money rule turned on.** The one cost that was
+    not a wage was `weeklySalary * 0.2`, described as "staff & operational
+    costs" — so a club with a cheap squad had cheap running costs, which is
+    backwards. The beach, the medical room, the flights and the entry fees do
+    not get cheaper because the squad is cheap. It is three real things now:
+    the club itself, everyone on the books, and the tour the club has access
+    to. The tour line is much the biggest, and the Gold circuit costs four
+    times what the Bronze one does: tier access is the dominant income lever by
+    design, so it had to be the dominant cost lever too, or the top tier was
+    free money.
+
+20. **The numbers were tuned against the harness, not guessed.** Three
+    measured passes: the first left a brand-new club finishing last in its
+    first season a few thousand either side of nought — a coin flip, not a
+    rule — so weight moved off the squad line and onto the club line, because
+    a club enters fifty-odd events whether it takes three players or sixteen.
+    What the table says now is in the report below.
+
+21. **The board no longer sacks anybody for results.** That is your rule, and
+    it went further than expected: two strikes or a confidence of 20 used to
+    end a career, and now they are the board's loudest warning. The only thing
+    a review can end is a club, by selling it.
+
+22. **A club's loss-making run is counted from rows that already existed.**
+    Every season's board row OPENS on the balance carried into it, so one
+    season's opening is the previous one's closing — the chain of openings is
+    the history, and no new counter has to be kept in step with anything. A
+    save made before tonight can be judged on it.
+
+23. **The club is sold, and the career carries on.** A sale does not end a
+    career: the save keeps everything that is the manager's and is left
+    looking for a club, which is the one case where a save without a club is
+    not a finished one (R-60 finished those at boot; it now checks first).
+
+24. **A vacancy is a real club outside the World Tour field.** The world has
+    sixty clubs and the field is nineteen, so the other forty-one are clubs a
+    manager can go to without any club being in the world twice. Taking one
+    puts it in the field in the sold club's seat and takes it out of its
+    regional league — it is not an AI club any more. There is no AI-manager
+    model in this game, so nothing is competing for the job; that is stated in
+    the route rather than dressed up as a shortlist.
+
+25. **What the manager takes to the new club is the career, not the club.**
+    Seasons, achievements and reputation come along (ACH put them on the
+    career save for exactly this). The squad, the academy, the staff, the
+    trophies and the balance stay with the club that was sold, and the new
+    club starts as a new club does — an underdog's budget and a squad signed
+    from the free agents.
+
+26. **"Loss-making" had to be given a size.** Taken literally, a season the
+    club finishes one dollar down is a loss-making season — and five of those
+    in a row sells the club. The thirty-season runs did exactly that: clubs
+    sitting on $4.6 million, losing $260 in a season, sold in season nineteen
+    while in no trouble whatever. A season now counts as loss-making if the
+    club ends it more than 2% below what it opened on, or ends it in debt at
+    all. Your rule is unchanged — five loss-making seasons and the club is
+    sold — but "loss-making" now means what you meant by it. Change the 2% in
+    `utils/board-confidence.ts` if you want it tighter or looser.
+
+## The money, season by season (L-04)
+
+The table the brief asked for, printed by `harness/economy.mjs` and copied here
+exactly. It walks two clubs and reads every pound in and out of
+`finance_transactions`; run `node harness/economy.mjs` and it prints this and
+then checks it.
+
+**An established club, twelve seasons.** Started on $500,000.
+
+| Season | Tier | Finish | Prize | Sponsor | Wages | Running | Change | Balance |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Gold | #2 | $507,400 | $596,600 | -$364,780 | -$509,600 | **+$229,620** | $729,620 |
+| 2 | Gold | #4 | $722,550 | $618,600 | -$380,380 | -$811,200 | **+$149,570** | $879,190 |
+| 3 | Gold | #1 | $901,350 | $626,400 | -$395,980 | -$826,800 | **+$304,970** | $1,184,160 |
+| 4 | Gold | #2 | $783,150 | $629,600 | -$427,180 | -$852,800 | **+$132,770** | $1,316,930 |
+| 5 | Silver | #6 | $623,250 | $618,600 | -$454,480 | -$873,600 | **-$86,230** | $1,230,700 |
+| 6 | Gold | #1 | $618,140 | $636,600 | -$454,480 | -$592,800 | **+$207,460** | $1,438,160 |
+| 7 | Gold | #4 | $698,750 | $636,000 | -$465,870 | -$895,700 | **-$26,820** | $1,411,340 |
+| 8 | Gold | #1 | $901,750 | $626,000 | -$453,180 | -$878,800 | **+$195,770** | $1,607,110 |
+| 9 | Gold | #7 | $643,650 | $624,200 | -$458,380 | -$878,800 | **-$69,330** | $1,537,780 |
+| 10 | Gold | #1 | $879,350 | $628,400 | -$457,080 | -$878,800 | **+$171,870** | $1,709,650 |
+| 11 | Gold | #2 | $799,150 | $626,600 | -$450,580 | -$878,800 | **+$96,370** | $1,806,020 |
+| 12 | Silver | #8 | $620,050 | $572,400 | -$454,480 | -$878,800 | **-$140,830** | $1,665,190 |
+
+Winning the Gold tour is worth $100,000 to $300,000 a season. Fourth is about
+break even, seventh loses money, and a season that drops to Silver costs more
+than a good one earns. Twelve seasons took it from $500,000 to $1.67 million —
+up, but only by keeping at the top of the field, and never runaway.
+
+**An underdog, from $150,000.** It finished 18th and 19th of 19.
+
+| Season | Tier | Finish | Prize | Sponsor | Wages | Running | Change | Balance |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Bronze | #18 | $136,000 | $472,600 | -$234,000 | -$405,600 | **-$31,000** | $119,000 |
+| 2 | Bronze | #18 | $130,100 | $428,400 | -$249,600 | -$421,200 | **-$112,300** | $6,700 |
+| 3 | Bronze | #18 | $135,840 | $428,800 | -$265,200 | -$436,800 | **-$137,360** | -$130,660 |
+| 4 | Bronze | #19 | $130,160 | $428,600 | -$288,600 | -$457,600 | **-$187,440** | -$318,100 |
+| 5 | — | — | — | — | — | — | **the club is sold** | — |
+
+Four seasons at the bottom cost $468,100 against a club that started with
+$150,000, and the fifth sold it: the board's five-loss-making-season rule
+(L-02e) firing on numbers the money rule produced, not on anything aimed at it.
+
+**Where it goes.** Income is prize money and sponsors, as you said. The change
+is all on the other side. Running costs are three real things: the club itself
+($5,000 a week), everyone on the books ($100 each a week), and the tour the
+club has access to — $2,500 a week in Bronze, $4,500 in Silver, $10,000 in
+Gold. The Gold circuit costs most of what it pays, which is why winning it is
+worth a couple of hundred thousand and not a million.
+
+## Found on the way, NOT fixed (out of these items' scope)
+
+- **The squad-role route does not enforce the 2-starter / 1-interchange
+  limits.** Signing does (`POST /contracts` refuses a fourth senior or a third
+  starter), but `PATCH /team/roster/:id/role` will put any number of players in
+  any slot — the Team page warns, the server does not. It is how the harness
+  fields four players, and how a manager could field four. Not touched tonight
+  because enforcing it would change what every long-running suite is allowed to
+  do, and that is a bigger change than "max 4 graduates" asked for. Worth a
+  repair of its own.
+
+- **AI clubs are not sold, and do not induct.** Both were in the brief and
+  neither can be done honestly yet, for the same reason: an AI club is a
+  `continental_pool_teams` row with a name, a continent and a rating. It has no
+  balance sheet, so there is no such thing as a loss-making season for it, and
+  no roster of `players` with contracts, so there is nothing to rank its
+  players' service by. Inventing either would be inventing the numbers the
+  rules are supposed to be made of. Both functions are written so the AI half
+  drops in when AI clubs get real squads and real books: `candidatesFor()` in
+  routes/hall-of-fame.ts, and the loss-making run in board-confidence.ts.
+
+- **`local_legend` is now inexact.** "Complete 5 seasons with the same club"
+  counts seasons on the CAREER, which after tonight can span two clubs. It
+  wants a per-club season count. Small, and it needs a decision from you about
+  what the achievement should mean once a manager can move.
+
+- **The academy's own contract years still count down to zero and stop there.**
+  `tickAcademyContracts` takes a week off every academy deal and floors it at
+  nought rather than ending it. Item 4's brief line — "graduate contracts have
+  end dates; expired and unused -> back to the graduate pool" — is satisfied
+  for GRADUATES, whose senior contracts expire properly. The academy deal
+  underneath is still a number that runs out and does nothing.
+
 ## Anything Rob must check on screen
 
 - **Team page → moving a youth into Match Player or Interchange** now opens "Promote
@@ -104,5 +335,24 @@ Seven defects, all of them things a career would have hit:
   three lengths.
 - **Staff and Medical pages**: every card shows when the contract ends, in
   orange inside the last four weeks, with a Renew button beside it.
-- **Club balances go deeply negative** in a long career (the 30-season table below). That
-  is what item 7 (L-04) is for; item 1 did not change any wage or prize figure.
+- **Trophy Cabinet → Hall of Fame tab** is now the club's own honour board, with
+  the induction window when it is open: the game's recommendations, the full
+  list of everyone eligible, up to six picks, and a "Honour nobody this time"
+  button. The old tab listed retired players still at the club, which is
+  nobody.
+- **Finances page** has a new "Running Costs" line — for most clubs the biggest
+  number on the page. It is the ground, the squad and the tour, and it is what
+  makes finishing last cost something.
+- **The board's "How the board judges you" panel** now says what is true: the
+  board will not sack you for results, and what ends your time at a club is
+  five seasons of losing money.
+- **The job market** (`/job-market`) is a new screen. You will only see it if a
+  club of yours is sold. It lists real clubs with vacancies, takes one, or
+  retires you.
+- **Achievements**: thirty now. `docs/achievements-table.md` is the list to
+  copy into Steamworks — API name, display name, description — generated from
+  the game's own definitions by `node scripts/achievements-table.cjs`.
+- **Steam**: launching through Steam should log one line either way. Winning a
+  first match should pop "First Steps" on the overlay; the boot catch-up should
+  hand Steam whatever your existing save has already unlocked. This is the one
+  thing I could not prove on screen for you — it needs a launch under Steam.

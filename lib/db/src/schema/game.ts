@@ -1079,6 +1079,23 @@ export const careerSavesTable = sqliteTable("career_saves", {
    * time a career asks for it.
    */
   careerStats:  text("career_stats", { mode: "json" }).$type<CareerStats>(),
+  /**
+   * L-02e: the manager is between clubs.
+   *
+   * Set when a club is sold out from under them (five loss-making seasons) and
+   * cleared when they take one of the vacancies on offer. While it is set the
+   * save has no team_id and is NOT finished — which is the one exception to
+   * R-60's rule that a save without a club is a save that has ended, and the
+   * reason utils/clublessCareers.ts checks this column before finishing
+   * anything.
+   */
+  seekingClubSince: integer("seeking_club_since", { mode: "timestamp" }),
+  /**
+   * L-02e: the club that was sold, kept only until the manager takes another.
+   * The new club inherits its seat in the World Tour field, so the field stays
+   * nineteen and no club is in it twice.
+   */
+  formerTeamId: integer("former_team_id").references(() => teamsTable.id),
   retiredAt:    integer("retired_at", { mode: "timestamp" }),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),

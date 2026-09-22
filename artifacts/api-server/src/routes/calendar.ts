@@ -29,13 +29,15 @@ import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
 } from "../utils/seasonRollover.js";
 import { boardDay } from "../utils/board-confidence.js";
-import { endCareer } from "../utils/careerLifecycle.js";
+import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
 import { REST_RECOVERY, applyWeeklyInjuryRecovery } from "../utils/condition.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
 import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
+import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts.js";
+import { purseAccessTierFor } from "../utils/rankingPoints.js";
 
 // 52 weeks / 12 months — the divisor that turns a monthly salary into the
 // weekly instalment actually charged.
@@ -490,7 +492,17 @@ router.post("/calendar/advance", async (req, res) => {
     const monthlySalary = teamPlayers.filter((p) => !isYouthPlayer(p)).reduce((s, p) => s + Number(p.salary), 0);
     const academyWeekly = academy.reduce((s, p) => s + academyWeeklyWage(p.potential), 0);
     const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH) + academyWeekly;
-    const weeklyStaff   = Math.round(weeklySalary * 0.2);
+
+    // L-04: what it costs to be a club this week — the ground, everyone on the
+    // books, and the tour the club has access to (utils/runningCosts.ts).
+    //
+    // This was `weeklySalary * 0.2`, so a club with a cheap squad had cheap
+    // running costs. That is backwards: the beach, the medical room, the
+    // flights and the entry fees do not get cheaper because the squad is
+    // cheap, and it is why a club that finished last for nine seasons running
+    // still banked $440,000 a season.
+    const runningTier   = await purseAccessTierFor(careerSaveId, team.id, season.year);
+    const weeklyStaff   = weeklyRunningCost(teamPlayers.length, runningTier);
     // R-67: hired staff are paid like players — a monthly salary, dripped weekly
     // at salary / (52/12). Until now nothing billed them after the hire fee, so a
     // staff member cost one month and then nothing, while the Finances page
@@ -551,8 +563,8 @@ router.post("/calendar/advance", async (req, res) => {
         teamId:      team.id,
         type:        "expense",
         amount:      weeklyStaff,
-        description: "Weekly staff & operational costs",
-        category:    "staff",
+        description: runningCostDescription(teamPlayers.length, runningTier),
+        category:    "running_costs",
         date:        nextDate,
       },
     ]);
@@ -669,8 +681,12 @@ router.post("/calendar/advance", async (req, res) => {
               ? `The academy is full (${academySize}/${ACADEMY_CAP}): no intake this year`
               : "The academy found no one this year");
         }
-      } else if (rollover.kind === "sacked") {
-        events.push(`Season ${rollover.fromSeason} complete — the board has sacked you`);
+      }
+      if (rollover.kind === "rolled" && rollover.clubSold) {
+        events.push(
+          `${team.name} has been sold. Five seasons of losses and the owners are out — ` +
+          "you are out of a job.",
+        );
       }
     } catch (err) {
       // A failed rollover must not eat the day the player just advanced.
@@ -692,20 +708,24 @@ router.post("/calendar/advance", async (req, res) => {
     }
   }
 
-  // R-53: sacked at the season review. The review committed with the season it
-  // judged; ending the career (Hall of Fame, history, session) is the same
-  // endCareer every dismissal goes through, and the history entry carries the
-  // review in the board's own words.
+  // L-02e: the club is sold at the season review, and the manager is out of a
+  // job — but not out of the game. The career is left seeking a club, which is
+  // a state it can only leave by taking one of the vacancies on offer
+  // (routes/job-market.ts) or by retiring. That is why this does NOT call
+  // endCareer: R-60's rule is that no save is left without a club by accident,
+  // and this is on purpose.
+  //
+  // (R-53's sacking for results is gone, on Rob's rule that the board never
+  // sacks for on-field collapse. R-48's mid-season abandonment still ends a
+  // career, in routes/matches.ts, and is a different thing: a club that cannot
+  // put two players on the sand is not losing, it is not playing.)
   let fired = false;
+  let clubSold = false;
   let dismissalClubName: string | null = null;
-  if (rollover.kind === "sacked" && req.user?.id) {
-    const verdict = rollover.review.text;
-    const summary = await endCareer(req, team.id, req.user.id, {
-      type: "dismissal",
-      description: (s) => `${s.managerName} was sacked by ${s.clubName}. ${verdict}`,
-    });
-    dismissalClubName = summary.clubName;
-    fired = true;
+  if (rollover.kind === "rolled" && rollover.clubSold && req.user?.id) {
+    await loseClub(req, team.id, rollover.review.text);
+    dismissalClubName = team.name;
+    clubSold = true;
   }
 
   res.json({
@@ -715,6 +735,8 @@ router.post("/calendar/advance", async (req, res) => {
     atSeasonEnd,
     seasonRollover: rollover,
     fired,
+    // L-02e: the club is gone and the manager is looking for another.
+    clubSold,
     careerEnded: fired,
     dismissalClubName,
     // The YEAR of the season that just ended, so the client can open its review

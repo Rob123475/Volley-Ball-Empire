@@ -9,6 +9,7 @@
 export type FinanceSummaryExpenseBreakdown = {
   playerSalaries?: number;
   staffSalaries?: number;
+  runningCosts?: number;
   trainingCosts?: number;
   other?: number;
 };

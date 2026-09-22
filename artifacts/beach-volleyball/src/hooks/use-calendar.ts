@@ -92,7 +92,7 @@ export type BoardReview = {
   target: number;
   finish: number;
   grade: string;
-  outcome: "safe" | "warning" | "final_warning" | "sacked";
+  outcome: "safe" | "warning" | "final_warning" | "sold";
   confidenceBefore: number;
   confidenceAfter: number;
   text: string;
@@ -100,7 +100,18 @@ export type BoardReview = {
 
 /** A forfeit can end the career for abandonment (R-53); the career-end screen says why. */
 function endIfFired(result: unknown, clear: () => void): boolean {
-  if ((result as { fired?: boolean } | null)?.fired !== true) return false;
+  const r = result as { fired?: boolean; clubSold?: boolean } | null;
+
+  // L-02e: the club has been sold and the manager is out of a job — but the
+  // career is not over. The job market is the only screen that works from here
+  // (every club route now answers "no team"), so that is where this goes.
+  if (r?.clubSold === true) {
+    clear();
+    window.location.href = "/job-market";
+    return true;
+  }
+
+  if (r?.fired !== true) return false;
   clear();
   window.location.href = "/career-end";
   return true;
@@ -121,10 +132,16 @@ export type AdvanceResult = {
   // that ended the career.
   seasonRollover?:
     | { kind: "none" }
-    | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: BoardReview }
-    | { kind: "sacked"; fromSeason: number; review: BoardReview };
-  /** R-53: the board sacked the manager at the season review. Route to the career-end screen. */
+    | {
+        kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number;
+        review: BoardReview;
+        /** L-02e: the club was sold at this review. The season still opened. */
+        clubSold?: boolean;
+      };
+  /** R-48: abandonment ended the career. Route to the career-end screen. */
   fired?: boolean;
+  /** L-02e: the club was sold. Route to the job market. */
+  clubSold?: boolean;
   /** Year of the season that just ended, or null. Server-derived on purpose. */
   reviewYear?: number | null;
 };

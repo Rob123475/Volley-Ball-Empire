@@ -215,3 +215,35 @@ export async function keepSideFielded(api) {
   }
   return { moved };
 }
+
+/**
+ * Keep a harness club in the black, in the harness's own throwaway database.
+ *
+ * L-04 made a club that finishes at the bottom lose money every season, and
+ * L-02e sells a club that has lost money five seasons running. That is the
+ * game working — and it ends the long walks that are measuring something else
+ * entirely. youth-rebirth walks thirty seasons to count an academy; it manages
+ * no budget, and its clubs were sold in season nineteen.
+ *
+ * It GRANTS money rather than topping the balance up to a floor, and the
+ * difference matters: the board counts a loss-making season by comparing what
+ * a club finishes a season with against what it opened it on. A club held at a
+ * floor spends down from that floor and is topped back up, so it ends every
+ * season below where it started and is sold exactly as before — which is what
+ * the first version of this did. A grant at the start of a season leaves the
+ * club finishing ahead of where the board opened it, and the run resets.
+ *
+ * harness/economy.mjs must never call this. It is the suite that measures
+ * exactly what this hides.
+ */
+export function keepClubSolvent(dbPath, teamId, grant = 1_500_000, below = 3_000_000) {
+  const db = new DatabaseSync(dbPath);
+  try {
+    const row = db.prepare(`SELECT budget FROM teams WHERE id = ?`).get(teamId);
+    if (!row || Number(row.budget) >= below) return { granted: 0 };
+    db.prepare(`UPDATE teams SET budget = budget + ? WHERE id = ?`).run(grant, teamId);
+    return { granted: grant, from: Number(row.budget), to: Number(row.budget) + grant };
+  } finally {
+    db.close();
+  }
+}

@@ -27,7 +27,9 @@ import os from "node:os";
 import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, renewExpiringContracts, keepSideFielded } from "./harness-club.mjs";
+import {
+  healAllSquads, renewExpiringContracts, keepSideFielded, keepClubSolvent,
+} from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -80,7 +82,12 @@ function session(base) {
 }
 
 /** Walk one career to the next boundary, playing whatever the calendar blocks on. */
-async function toBoundary(api, dbFile, maxDays = 600) {
+async function toBoundary(api, dbFile, teamId, maxDays = 600) {
+  // L-04 and L-02e: a club at the bottom of the field loses money and is sold
+  // after five such seasons. This suite counts an academy over thirty seasons
+  // and manages no budget at all, so its clubs were sold around season twenty.
+  // Kept solvent here for the same reason their squads are kept fit.
+  keepClubSolvent(dbFile, teamId);
   await keepSideFielded(api);
   await renewExpiringContracts(api);
   for (let i = 0; i < maxDays; i++) {
@@ -143,7 +150,7 @@ async function runSeed(seed) {
     const census = [];
     let sacked = null, stopped = null;
     for (let s = 1; s <= SEASONS; s++) {
-      const step = await toBoundary(api, dbFile);
+      const step = await toBoundary(api, dbFile, teamId);
       if (step.stopped) { stopped = { season: s, why: step.stopped }; break; }
       if (step.roll?.review?.dismissed || step.roll?.kind === "career_over") { sacked = { season: s }; break; }
 

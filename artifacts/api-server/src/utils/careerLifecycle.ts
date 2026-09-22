@@ -71,6 +71,63 @@ export type CareerSummary = Awaited<ReturnType<typeof buildCareerSummary>>;
  * a contract: same termination, different history `type`/`description`. The
  * save keeps its club link; nothing ever leaves a save without a club.
  */
+/**
+ * L-02e — the club is sold, and the manager is out of a job but not out of the
+ * game.
+ *
+ * Rob's rule: five loss-making seasons and the club is sold; for the manager's
+ * own club that means losing the job, and then being shown what vacancies
+ * there are. So this deliberately does NOT end the career: it detaches the
+ * save from the club and marks it as seeking one. The career keeps everything
+ * that is the MANAGER's — seasons completed, achievements, reputation (ACH
+ * moved those onto the career save for exactly this) — and loses everything
+ * that was the CLUB's, because the club is somebody else's now.
+ *
+ * The save is left with no team_id, which R-60 treats as a finished career.
+ * That is why `seeking_club_since` exists and why finishClublessCareers()
+ * checks it: this is the one time a save is without a club on purpose.
+ */
+export async function loseClub(
+  req: Request, teamId: number, verdict: string,
+): Promise<{ clubName: string }> {
+  const [save] = await db
+    .select()
+    .from(careerSavesTable)
+    .where(eq(careerSavesTable.teamId, teamId));
+  const [team] = await db.select().from(teamsTable).where(eq(teamsTable.id, teamId));
+  const clubName = team?.name ?? save?.clubName ?? "The club";
+
+  if (save) {
+    await db.insert(careerHistoryEntriesTable).values({
+      userId:       save.userId,
+      careerSaveId: save.id,
+      type:         "club_sold",
+      clubName,
+      season:       save.season,
+      description:
+        `${clubName} was sold after five seasons of losses. ` +
+        `${save.managerName} is out of a job. ${verdict}`,
+    });
+
+    await db.update(careerSavesTable)
+      .set({ teamId: null, formerTeamId: teamId, seekingClubSince: new Date() })
+      .where(eq(careerSavesTable.id, save.id));
+  }
+
+  // The session keeps the career but loses the club, so every club route says
+  // "no team" until one is taken.
+  const sid = getSessionId(req);
+  if (sid) {
+    const session = await getSession(sid);
+    if (session) {
+      const { activeTeamId: _, ...rest } = session;
+      await updateSession(sid, { ...rest });
+    }
+  }
+
+  return { clubName };
+}
+
 export async function endCareer(
   req: Request,
   teamId: number,

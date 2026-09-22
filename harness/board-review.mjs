@@ -30,8 +30,11 @@
  *              scan is proven to fire on the old lines planted back in
  *   freeze     the real monthly check freezes a club at low confidence: a
  *              signing is refused, a renewal on the same terms goes through
- *   review     at the season boundary a club at confidence 0 is sacked by its
- *              review: the season closes, no next season opens, the career ends
+ *   review     at the season boundary a club at confidence 0 is given the
+ *              board's loudest warning and the season rolls on. L-02e, Rob's
+ *              rule: the board never sacks for on-field collapse. What ends a
+ *              career is the club being SOLD — five loss-making seasons — and
+ *              harness/job-market.mjs drives that
  *   abandon    a club without two contracted players is not sacked for its
  *              forfeits inside 30 days, and is sacked at the first one after
  *   dashboard  the dashboard always shows the board's expectation and verdict
@@ -234,35 +237,35 @@ try {
     { label: "RollWeak2 (+ season 5: L-01, an ordinary review, not a verdict)", seasons: [s(19, 150000, 485200, 12), s(19, 485200, 761920, 19), s(19, 761920, 1051680, 18), s(19, 1051680, 1200000, 19), s(19, 1200000, 1300000, 19)],
       expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0), e("met", 85, 0)] },
     // L-01 — there is no final season: a failed 5th and 6th season sack like any other pair
-    { label: "L-01: seasons 5 and 6 can sack — two failed seasons in a row after four met",
+    { label: "L-02e: two failed seasons in a row are a final warning, not a sacking — results never end a career",
       seasons: [s(1, 500000, 1000000, 4, DNQ), s(1, 1000000, 1500000, 4, DNQ), s(1, 1500000, 2000000, 4, DNQ), s(1, 2000000, 2500000, 4, DNQ), s(1, 2500000, 3000000, 9, DNQ), s(1, 3000000, 3500000, 10, DNQ)],
-      expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0), e("failed", 55, 1, "final_warning"), e("failed", 30, 2, "sacked")] },
+      expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0), e("failed", 55, 1, "final_warning"), e("failed", 30, 2, "final_warning")] },
     // §5.1 — the earlier cases, judged without the abandonment rule
     { label: "R-48 run 1 RollStrong", seasons: [s(1, 500000, 1100000, 1, RU), s(1, 1100000, 1600000, 11, DNQ), s(1, 1600000, 2300000, 6, DNQ), s(1, 2300000, 2350000, 19, DNQ, 54, 54)],
-      expect: [e("met", 73, 0), e("failed", 48, 1, "final_warning"), e("below", 48, 1, "final_warning"), e("failed", 23, 2, "sacked")] },
+      expect: [e("met", 73, 0), e("failed", 48, 1, "final_warning"), e("below", 48, 1, "final_warning"), e("failed", 23, 2, "final_warning")] },
     { label: "R-48 run 2 RollWeak2", seasons: [s(19, 150000, 456300, 19), s(19, 456300, 1060000, 19), s(19, 1060000, 1390000, 19, DNQ, 54, 54), s(19, 1390000, 1400000, 19, DNQ, 54, 54)],
-      expect: [e("met", 65, 0), e("met", 70, 0), e("failed", 45, 1, "final_warning"), e("failed", 20, 2, "sacked")] },
+      expect: [e("met", 65, 0), e("met", 70, 0), e("failed", 45, 1, "final_warning"), e("failed", 20, 2, "final_warning")] },
     { label: "R-48 run 2 RollWeak3", seasons: [s(19, 150000, 510100, 7), s(19, 510100, 1160000, 16), s(19, 1160000, 1500000, 19, DNQ, 54, 54), s(19, 1500000, 1510000, 19, DNQ, 54, 54)],
-      expect: [e("met", 65, 0), e("met", 70, 0), e("failed", 45, 1, "final_warning"), e("failed", 20, 2, "sacked")] },
+      expect: [e("met", 65, 0), e("met", 70, 0), e("failed", 45, 1, "final_warning"), e("failed", 20, 2, "final_warning")] },
     // R-55's bands
-    { label: "R-55: 6th, 7th, 8th, 5th is four warnings and no strike (R-54's RollA went 7th, 7th and was sacked)",
+    { label: "R-55: 6th, 7th, 8th, 5th is four warnings and no strike (R-54's RollA went 7th, 7th and was sacked for it)",
       seasons: [s(1, 500000, 1000000, 6, DNQ), s(1, 1000000, 1500000, 7, DNQ), s(1, 1500000, 2000000, 8, DNQ), s(1, 2000000, 2500000, 5, DNQ)],
       expect: [e("below", 60, 0, "warning"), e("below", 60, 0, "warning"), e("below", 60, 0, "warning"), e("below", 60, 0, "warning")] },
-    { label: "R-55: two failed seasons in a row still sack",
+    { label: "R-55: two failed seasons in a row are a second strike (L-02e: a warning now, not a sacking)",
       seasons: [s(1, 500000, 1000000, 9, DNQ), s(1, 1000000, 1500000, 10, DNQ)],
-      expect: [e("failed", 35, 1, "final_warning"), e("failed", 10, 2, "sacked")] },
+      expect: [e("failed", 35, 1, "final_warning"), e("failed", 10, 2, "final_warning")] },
     { label: "R-55: a below season between two failed seasons resets nothing and adds nothing",
       seasons: [s(1, 500000, 1000000, 9, DNQ), s(1, 1000000, 1500000, 6, DNQ), s(1, 1500000, 2000000, 12, DNQ)],
-      expect: [e("failed", 35, 1, "final_warning"), e("below", 35, 1, "final_warning"), e("failed", 10, 2, "sacked")] },
+      expect: [e("failed", 35, 1, "final_warning"), e("below", 35, 1, "final_warning"), e("failed", 10, 2, "final_warning")] },
     { label: "R-55: a season that meets expectations clears the strike",
       seasons: [s(1, 500000, 1000000, 9, DNQ), s(1, 1000000, 1500000, 1, CHAMP), s(1, 1500000, 2000000, 9, DNQ), s(1, 2000000, 2500000, 2, RU)],
       expect: [e("failed", 35, 1, "final_warning"), e("met", 55, 0), e("failed", 30, 1, "final_warning"), e("met", 43, 0)] },
     { label: "R-55: an underdog is judged at its level (a #10 squad: top 13 met, 14th-17th below, 18th or worse failed)",
       seasons: [s(10, 500000, 700000, 13), s(10, 700000, 900000, 15), s(10, 900000, 1100000, 18), s(10, 1100000, 1300000, 19)],
-      expect: [e("met", 65, 0), e("below", 65, 0, "warning"), e("failed", 40, 1, "final_warning"), e("failed", 15, 2, "sacked")] },
-    { label: "money is never an immunity: $5M, two failed seasons in a row",
+      expect: [e("met", 65, 0), e("below", 65, 0, "warning"), e("failed", 40, 1, "final_warning"), e("failed", 15, 2, "final_warning")] },
+    { label: "money is never an immunity either way: $5M and two failed seasons is still a final warning",
       seasons: [s(1, 5000000, 5100000, 10, DNQ), s(1, 5100000, 5200000, 9, DNQ)],
-      expect: [e("failed", 35, 1, "final_warning"), e("failed", 10, 2, "sacked")] },
+      expect: [e("failed", 35, 1, "final_warning"), e("failed", 10, 2, "final_warning")] },
     { label: "in debt at season end costs 15", seasons: [s(19, 150000, -20000, 19)], expect: [e("met", 50, 0, "safe", -15)] },
     { label: "a balance that fell more than 25% costs 5", seasons: [s(1, 1000000, 700000, 2)], expect: [e("met", 60, 0, "safe", -5)] },
     { label: "a balance that fell 20% costs nothing", seasons: [s(1, 1000000, 800000, 2)], expect: [e("met", 65, 0)] },
@@ -464,8 +467,15 @@ try {
     !!abSave?.retired_at && abHistory?.type === "dismissal" && /days without two contracted players/.test(abHistory?.description ?? ""),
     abHistory?.description);
 
-  // ── 7. The season review sacks ───────────────────────────────────────────
-  console.log("\n7. THE SEASON REVIEW: A CLUB AT CONFIDENCE 0 IS SACKED AT THE BOUNDARY");
+  // ── 7. The season review does not sack ──────────────────────────────────
+  //
+  // L-02e, Rob's rule: "the board never sacks for on-field collapse". This
+  // career has been driven to confidence 0 against a #19 squad's expectation —
+  // the exact case that used to end it at the boundary. It must now roll on:
+  // the board says its piece, the season opens, and the manager keeps the job.
+  // What ends a career is the club being sold, which is money, and which
+  // harness/job-market.mjs drives.
+  console.log("\n7. THE SEASON REVIEW WARNS; IT DOES NOT SACK (L-02e)");
   let boundary = null;
   for (let n = 0; n < 400 && !boundary; n++) {
     const r = await UND("POST", "/calendar/advance", {});
@@ -475,20 +485,22 @@ try {
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") boundary = r;
   }
   const roll = boundary?.data?.seasonRollover;
-  check("the boundary comes back as a sacking, with the review that decided it",
-    roll?.kind === "sacked" && boundary.data?.fired === true && roll.review?.outcome === "sacked"
-      && roll.review.confidenceBefore === 0 && roll.review.confidenceAfter <= 20 && /Sacked\./.test(roll.review.text ?? ""),
+  check("the boundary rolls into a new season rather than ending the career",
+    roll?.kind === "rolled" && boundary.data?.fired === false && boundary.data?.clubSold === false,
+    `${roll?.kind}, fired ${boundary?.data?.fired}, sold ${boundary?.data?.clubSold}`);
+  check("the review is a final warning, at the confidence that used to be a sacking",
+    roll?.review?.outcome === "final_warning" && roll.review.confidenceBefore === 0
+      && roll.review.confidenceAfter <= 20 && /cannot sack you/.test(roll.review.text ?? ""),
     roll?.review?.text ?? JSON.stringify(boundary?.data ?? boundary?.error?.data));
   const undBoard = boardRow(und.careerSaveId);
-  check("the review is recorded on the season", undBoard?.outcome === "sacked" && undBoard?.reviewed_on === `${YEAR}-12-31`
+  check("the review is recorded on the season", undBoard?.outcome === "final_warning" && undBoard?.reviewed_on === `${YEAR}-12-31`
     && undBoard?.finish != null && undBoard?.grade != null, `finish #${undBoard?.finish} vs top-${undBoard?.target}, ${undBoard?.grade}, ${undBoard?.confidence_before} -> ${undBoard?.confidence_after}`);
   const nextSeason = read(`SELECT COUNT(*) AS n FROM seasons WHERE career_save_id = ? AND year = ?`, und.careerSaveId, YEAR + 1)[0].n;
-  const undSave = read(`SELECT retired_at FROM career_saves WHERE id = ?`, und.careerSaveId)[0];
-  const undHistory = read(`SELECT type, description FROM career_history_entries WHERE career_save_id = ? AND type = 'dismissal'`, und.careerSaveId)[0];
+  const undSave = read(`SELECT retired_at, team_id FROM career_saves WHERE id = ?`, und.careerSaveId)[0];
   const afterTeam = await UND("GET", "/board-confidence");
-  check("no next season opened, the career is retired, and the dismissal carries the review",
-    nextSeason === 0 && !!undSave?.retired_at && /Season 1 review/.test(undHistory?.description ?? "") && afterTeam.status === 404,
-    `${nextSeason} seasons in ${YEAR + 1}; retired ${!!undSave?.retired_at}; GET /board-confidence ${afterTeam.status}; ${undHistory?.description}`);
+  check("the next season opened, the career is still going, and the club is still the manager's",
+    nextSeason === 1 && !undSave?.retired_at && undSave?.team_id === und.teamId && afterTeam.status === 200,
+    `${nextSeason} season(s) in ${YEAR + 1}; retired ${!!undSave?.retired_at}; GET /board-confidence ${afterTeam.status}`);
 } finally {
   await stopServer(child);
   try { fs.closeSync(out); } catch { /* closed */ }

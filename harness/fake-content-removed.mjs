@@ -66,7 +66,13 @@ const PATTERNS = [
   ["the youth league's results, ladder and championship", /youthLeague|youth-league|youth_league|youthLadder|youth_ladder|youthChampionship|youth_championship|YouthLeague|YouthLadder|YouthChampionship|AI_LADDER_TEAMS|OPPOSITION_NAMES/, "const AI_LADDER_TEAMS = [\"Valley Smashers\"];"],
   ["the youth form strip hashed from a club name", /mockForm/, "const form = mockForm(entry.competitorName, entry.wins, entry.losses);"],
   ["poaching offers from a hardcoded club pool", /POACHING_POOL|poaching|Poaching/, "const POACHING_POOL = [{ clubName: \"Rio Praia SC\" }];"],
-  ["the hardcoded Job Market", /JOB_OFFERS|apply-job|applyJob|ApplyJob|JobMarket|job-market/, "const JOB_OFFERS: JobOffer[] = [];"],
+  // L-02e: the pattern used to include `JobMarket|job-market`, which banned
+  // the WORDS rather than the invented thing. What R-43 deleted was a
+  // hardcoded list of offers from clubs that did not exist. There is a real
+  // job market now — routes/job-market.ts offers clubs of this game's world
+  // that its World Tour field does not hold, and a manager goes to one when
+  // their club is sold — so what stays banned is the invented list itself.
+  ["the hardcoded Job Market offers", /JOB_OFFERS|apply-job|applyJob|ApplyJob/, "const JOB_OFFERS: JobOffer[] = [];"],
   ["the leaderboard's Reputation Bonus card", /Reputation Bonus/, "label=\"Reputation Bonus\""],
   ["Olympic results rolled on every read", /simResult/, "const [hs, as_] = simResult(70, 70, 200 + i);"],
   ["the youth result carried into season summaries", /youthResult|youth_result/, "youthResult: text(\"youth_result\"),"],

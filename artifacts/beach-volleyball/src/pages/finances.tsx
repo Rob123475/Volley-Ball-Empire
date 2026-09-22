@@ -431,12 +431,16 @@ export default function Finances() {
             {(() => {
               const playerSalaries = summary?.expenseBreakdown?.playerSalaries || 0;
               const staffSalaries  = summary?.expenseBreakdown?.staffSalaries  || 0;
+              // L-04: the ground, the squad and the tour. The biggest line on
+              // most clubs' books, so it is named rather than left in "Other".
+              const runningCosts   = summary?.expenseBreakdown?.runningCosts   || 0;
               const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
               const other          = summary?.expenseBreakdown?.other          || 0;
-              const hasExpenses    = playerSalaries + staffSalaries + trainingCosts + other > 0;
+              const hasExpenses    = playerSalaries + staffSalaries + runningCosts + trainingCosts + other > 0;
               return hasExpenses ? (
                 <div className="space-y-2">
                   <BreakdownRow label="Player Salaries" amount={playerSalaries} total={summary?.monthlyExpenses || 1} color="bg-red-500" />
+                  <BreakdownRow label="Running Costs" amount={runningCosts} total={summary?.monthlyExpenses || 1} color="bg-amber-500" />
                   <BreakdownRow label="Staff" amount={staffSalaries} total={summary?.monthlyExpenses || 1} color="bg-orange-500" />
                   <BreakdownRow label="Training" amount={trainingCosts} total={summary?.monthlyExpenses || 1} color="bg-purple-500" />
                   <BreakdownRow label="Other" amount={other} total={summary?.monthlyExpenses || 1} color="bg-gray-500" />
@@ -716,6 +720,7 @@ function CashflowForecastCard({
                     <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Expense breakdown</p>
                     {[
                       { label: "Player Salaries", value: summary?.expenseBreakdown.playerSalaries ?? 0 },
+                      { label: "Running Costs",    value: summary?.expenseBreakdown.runningCosts   ?? 0 },
                       { label: "Staff",            value: summary?.expenseBreakdown.staffSalaries  ?? 0 },
                       { label: "Training",         value: summary?.expenseBreakdown.trainingCosts  ?? 0 },
                       { label: "Other",            value: summary?.expenseBreakdown.other          ?? 0 },

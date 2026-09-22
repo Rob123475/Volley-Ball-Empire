@@ -161,7 +161,7 @@ router.get("/finances/summary", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) {
-    res.json({ totalBalance: 0, totalIncome: 0, totalExpenses: 0, monthlyIncome: 0, monthlyExpenses: 0, incomeSources: { prizeMoney: 0, sponsorships: 0, promoDeals: 0 }, expenseBreakdown: { playerSalaries: 0, staffSalaries: 0, trainingCosts: 0, other: 0 }, recentTransactions: [] });
+    res.json({ totalBalance: 0, totalIncome: 0, totalExpenses: 0, monthlyIncome: 0, monthlyExpenses: 0, incomeSources: { prizeMoney: 0, sponsorships: 0, promoDeals: 0 }, expenseBreakdown: { playerSalaries: 0, staffSalaries: 0, runningCosts: 0, trainingCosts: 0, other: 0 }, recentTransactions: [] });
     return;
   }
   const txs = await db.select().from(financeTransactionsTable)

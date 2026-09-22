@@ -17,7 +17,7 @@
  * Usage: node harness/rollover.mjs [baseUrl]
  */
 import { DatabaseSync } from "node:sqlite";
-import { healAllSquads } from "./harness-club.mjs";
+import { healAllSquads, keepClubSolvent } from "./harness-club.mjs";
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
 /**
@@ -532,6 +532,12 @@ async function advanceToBoundary(api, maxDays = 500) {
       // already have a fixture. Season 1 comes from POST /careers, every later
       // season from the rollover itself (R-35).
       const activeYear = 2026 + season - 1;
+      // L-04 and L-02e: a club that finishes low loses money, and five such
+      // seasons has it sold out from under the manager. This arc measures
+      // seasons, squads and the board's verdicts; harness/economy.mjs measures
+      // the money. Kept solvent here for the same reason the squad is kept fit
+      // — so the thing being measured is the thing that decides the result.
+      if (DB_FILE) keepClubSolvent(DB_FILE, team.id);
       const readyAtStart = await scheduledForYear(api, activeYear);
       const fielded = await keepSideFielded(api);
 

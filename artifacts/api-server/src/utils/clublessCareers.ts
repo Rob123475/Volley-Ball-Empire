@@ -18,7 +18,14 @@ import { and, isNull } from "drizzle-orm";
 export function finishClublessCareers(): { finished: number } {
   const result = db.update(careerSavesTable)
     .set({ retiredAt: new Date() })
-    .where(and(isNull(careerSavesTable.teamId), isNull(careerSavesTable.retiredAt)))
+    .where(and(
+      isNull(careerSavesTable.teamId),
+      isNull(careerSavesTable.retiredAt),
+      // L-02e: a manager whose club was sold is without a club ON PURPOSE,
+      // and is looking at the vacancies. Finishing them here would end a
+      // career between two jobs — the one case R-60 was never about.
+      isNull(careerSavesTable.seekingClubSince),
+    ))
     .run();
   return { finished: Number(result.changes ?? 0) };
 }

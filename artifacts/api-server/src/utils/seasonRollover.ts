@@ -80,12 +80,16 @@ export const yearForSeasonNumber = (n: number) => FIRST_SEASON_YEAR + n - 1;
 /** Every closed season carries the board's review of it (R-53). */
 export type RolloverResult =
   | { kind: "none" }
-  | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: SeasonReview; intake: IntakeResult | null }
-  | { kind: "sacked"; fromSeason: number; review: SeasonReview };
+  | {
+      kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number;
+      review: SeasonReview; intake: IntakeResult | null;
+      /** L-02e: the club was sold at this review. The season still opened. */
+      clubSold?: boolean;
+    };
+
 
 /**
- * Close the active season and open the next one, or end the career on a
- * sacking.
+ * Close the active season and open the next one.
  *
  * Idempotent by construction: it reads the ACTIVE season and completes it, so a
  * second call finds nothing active and returns "none" rather than creating a
@@ -191,9 +195,16 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // written once, here, from the finals and the season's ranking points.
     awardSeasonTrophiesTx(tx, careerSaveId, season.year, current, teamId);
 
-    if (review.outcome === "sacked") {
-      return { kind: "sacked", fromSeason: current, review } as const;
-    }
+    // L-02e: the club has been sold out from under the manager after five
+    // loss-making seasons.
+    //
+    // The rollover carries on regardless, and deliberately: the new season
+    // opens, the world plays it, and the manager is the one who is not there.
+    // Stopping here instead would have left the career in a season that had
+    // ended and no season that had begun — nowhere for the club the manager
+    // takes next to play. The flag rides out with the roll and the calendar
+    // route detaches the manager once it has committed.
+    const clubSold = review.outcome === "sold";
 
     const nextNumber = current + 1;
     const nextYear = yearForSeasonNumber(nextNumber);
@@ -278,6 +289,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       newSeasonId: created!.id,
       review,
       intake,
+      clubSold,
       releasedGraduates,
       contractsFilled,
     } as const;
