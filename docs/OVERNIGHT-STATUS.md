@@ -435,6 +435,12 @@ worth a couple of hundred thousand and not a million.
   (`club_sold` is deliberately NOT an ending — the club ending is not the
   career ending.)
 
+- **Deleting a profile while a career is between clubs** now has a check
+  behind it. The sale remembers the club it took, as a foreign key to a team
+  that deleting a profile also deletes, and a cascade that trips over its own
+  key would be a crash at the Select Manager screen. It does not — but that
+  was reasoning, and now it is a test.
+
 - **One harness check could fail by chance, and did.** "A club at the top of
   the Gold tour went forwards" held for a club that finished 1st or 2nd — and
   a 2nd-place season lost $50,120 for the tier-access reason above. A check

@@ -314,6 +314,37 @@ try {
     /retirement:\s*\{ title: "You Retired"/.test(screen) && !/club_sold:/.test(screen),
     "retirement titled; club_sold deliberately absent — the club ending is not the career ending");
 
+  // ── 7. Throwing away a career that is between clubs ───────────────────────
+  //
+  // `career_saves.former_team_id` is a foreign key to a team that a profile
+  // deletion also deletes. Deleting a profile is something a player does from
+  // the Select Manager screen, and a cascade that trips over its own key is a
+  // crash at exactly the wrong moment.
+  console.log("\n7. A PROFILE CAN STILL BE DELETED WHILE A CAREER IS BETWEEN CLUBS");
+  cookie = "";
+  const prof2 = await api("POST", "/profiles", { name: "JobMarketGone" });
+  await api("POST", `/profiles/${prof2.data.id}/select`);
+  const career2 = await api("POST", "/careers", {
+    slotNumber: 1, managerName: "JobMarketGone", managerNationality: "Australia",
+    clubName: "JobMarketGone FC", originalClubName: "JobMarketGone FC",
+    budget: "500000", difficulty: "established",
+    primaryColor: "#0a0", secondaryColor: "#00a", crestShapeIndex: 0,
+    season: "Season 1", locationId: 1,
+  });
+  check("a second career was created", career2.status === 200, `HTTP ${career2.status}`);
+  write(`UPDATE career_saves SET team_id = NULL, former_team_id = ?, seeking_club_since = ? WHERE id = ?`,
+    career2.data.teamId, Date.now(), career2.data.id);
+
+  const gone = await api("DELETE", `/profiles/${prof2.data.id}`);
+  check("deleting the profile is accepted", gone.status < 300,
+    `HTTP ${gone.status} ${JSON.stringify(gone.data).slice(0, 90)}`);
+  const leftovers = read(
+    `SELECT (SELECT COUNT(*) FROM career_saves WHERE id = ?) AS saves,
+            (SELECT COUNT(*) FROM teams WHERE id = ?) AS teams`,
+    career2.data.id, career2.data.teamId)[0];
+  check("and it took the career and the club with it, key and all",
+    leftovers?.saves === 0 && leftovers?.teams === 0, JSON.stringify(leftovers));
+
 } finally {
   await stopServer(child);
   try { fs.closeSync(out); } catch { /* already closed */ }
