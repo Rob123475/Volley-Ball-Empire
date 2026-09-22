@@ -3,6 +3,9 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { readContractLength } from "../utils/contractTerms.js";
+import { staffContractPatch } from "../utils/seasonDates.js";
+import { getGameDate } from "../utils/gameDate.js";
 import {
   loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
   createCareerStaff, requireCareerSaveId, type StaffDTO,
@@ -90,7 +93,13 @@ router.post("/medical-staff", async (req, res) => {
   if (!MEDICAL_ROLE_SET.has(member.role)) { res.status(400).json({ error: "Not a medical staff member" }); return; }
   if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
-  await updateStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false });
+  // L-02a: medical staff get a contract on the same three lengths, and it
+  // expires on the calendar tick like any other.
+  const wantedTerm = readContractLength(req.body);
+  if ("error" in wantedTerm) { res.status(400).json({ error: wantedTerm.error }); return; }
+  const hireDate = await getGameDate(team.id);
+  const termPatch = await staffContractPatch(cid, wantedTerm.length, hireDate);
+  await updateStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false, ...termPatch });
   res.status(201).json(serializeStaff({ ...member, teamId: team.id, isAvailable: false }));
 });
 

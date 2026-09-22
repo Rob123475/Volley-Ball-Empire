@@ -248,7 +248,8 @@ try {
   // ── 3. The players ────────────────────────────────────────────────────────
   console.log("\n3. THE NEW PLAYERS");
   const ids = rows.flatMap((r) => r.ids);
-  const players = ids.map((id) => read(`SELECT p.*, s.team_id AS state_team, s.academy_contract_years AS academy_years
+  const players = ids.map((id) => read(`SELECT p.*, s.team_id AS state_team, s.academy_contract_years AS academy_years,
+           s.is_promoted AS promoted
     FROM players p JOIN career_player_state s ON s.player_id = p.id AND s.career_save_id = ? WHERE p.id = ?`, careerSaveId, id)[0]).filter(Boolean);
   const template = /YOUTH_TEMPLATE_IMAGE = "([^"]+)"/.exec(intakeSrc)?.[1];
   check("every new player has a card, and the file exists on disk",
@@ -259,8 +260,23 @@ try {
   check("every one a youth player aged 16-18 at intake, owned by this career",
     players.every((p) => p.player_type === "youth" && p.base_age >= 16 && p.base_age <= 18 && p.origin_career_save_id === careerSaveId),
     `ages ${players.map((p) => p.base_age).join(",")}`);
-  check("every one still at the club with an academy contract at the end of the career",
-    players.every((p) => p.state_team === teamId && p.academy_years != null));
+  // L-02a: still at the club, on terms — the academy's while she is in it, and
+  // a senior contract once she is promoted out of it. Promotion now clears the
+  // academy years, because "has academy years" and "is in the academy" have to
+  // mean the same thing: while they did not, the contracts route went on
+  // refusing to renew a promoted graduate as a youth player.
+  const notHeld = players.filter((p) =>
+    p.state_team !== teamId || (p.academy_years == null && !p.promoted));
+  check("every one still at the club at the end of the career, on the academy's terms or promoted off them",
+    notHeld.length === 0,
+    notHeld.length === 0
+      ? `${players.filter((p) => p.promoted).length} promoted, ${players.filter((p) => !p.promoted).length} still in the academy`
+      : notHeld.map((p) => `${p.name}: team ${p.state_team}, years ${p.academy_years}, promoted ${p.promoted}`).join("; "));
+  const promotedNoDeal = players.filter((p) => p.promoted && read(
+    `SELECT COUNT(*) AS n FROM contracts WHERE player_id = ? AND team_id = ? AND status = 'active'`,
+    p.id, teamId)[0].n === 0);
+  check("and every promoted graduate has the senior contract promotion writes",
+    promotedNoDeal.length === 0, promotedNoDeal.map((p) => p.name).join(", ") || "no graduate without one");
   const RANGE = { speed: [44, 64], power: [34, 74], defense: [34, 64], serve: [36, 68], block: [32, 76], stamina: [40, 66], height: [163, 193] };
   const outOfRange = players.filter((p) => Object.entries(RANGE).some(([k, [lo, hi]]) => p[k] < lo || p[k] > hi));
   const avg = (k) => (players.reduce((a, p) => a + p[k], 0) / players.length).toFixed(1);

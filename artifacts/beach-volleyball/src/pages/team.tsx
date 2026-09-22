@@ -65,10 +65,12 @@ const ELITE_EVENT_CONFIG: Record<string, {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import {
   Select,
   SelectContent,
@@ -275,10 +277,23 @@ export default function TeamRoster() {
     });
   };
 
+  const [promotion, setPromotion] =
+    useState<{ playerId: number; role: Role; name: string } | null>(null);
+
   const handleOutfitChange = (playerId: number, outfitId: number) => {
     outfitMutation.mutate({ id: playerId, data: { outfitId } }, {
       onSuccess: () => { invalidate(); toast({ title: "Outfit Changed" }); },
     });
+  };
+
+  /**
+   * L-02a: moving an academy player into a senior slot signs him, so it asks
+   * for one of Rob's three lengths first. A move between two senior slots
+   * signs nothing and opens nothing.
+   */
+  const promoteWithLength = (playerId: number, role: Role, length: ContractLength) => {
+    setPromotion(null);
+    applyRoleChange(playerId, role, length);
   };
 
   const handleRoleChange = (playerId: number, role: Role) => {
@@ -297,7 +312,20 @@ export default function TeamRoster() {
     const warning = limitWarnings[role];
     if (warning) { toast({ title: "Slot Full", description: warning, variant: "destructive" }); return; }
 
-    roleMutation.mutate({ id: playerId, data: { role } }, {
+    // Out of the academy and into the senior squad: a contract is about to be
+    // written, so the manager chooses its length rather than being given one.
+    const leavingAcademy =
+      movingPlayer?.academyContractYears != null && (role === "starter" || role === "interchange");
+    if (leavingAcademy) {
+      setPromotion({ playerId, role, name: movingPlayer.name });
+      return;
+    }
+
+    applyRoleChange(playerId, role);
+  };
+
+  const applyRoleChange = (playerId: number, role: Role, length?: ContractLength) => {
+    roleMutation.mutate({ id: playerId, data: { role, ...(length ? { length } : {}) } }, {
       onSuccess: () => {
         invalidate();
         toast({ title: "Squad Updated", description: `Player moved to ${ROLE_CONFIG[role].label}.` });
@@ -1237,6 +1265,31 @@ export default function TeamRoster() {
           {reserves.length === 0 && <EmptySection role="reserve" />}
         </div>
       </section>
+
+      {/* L-02a: the terms a graduate leaves the academy on. */}
+      <Dialog open={promotion !== null} onOpenChange={(o) => { if (!o) setPromotion(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Promote {promotion?.name}</DialogTitle>
+            <DialogDescription>
+              His academy deal ends here. Choose the senior contract he signs.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-1.5">
+            {CONTRACT_LENGTHS.map((l) => (
+              <button
+                key={l}
+                type="button"
+                data-testid={`button-promote-${l}`}
+                onClick={() => promotion && promoteWithLength(promotion.playerId, promotion.role, l)}
+                className="rounded-md border border-border bg-muted/40 px-2 py-2 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:bg-muted/70"
+              >
+                {CONTRACT_LENGTH_LABELS[l]}
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

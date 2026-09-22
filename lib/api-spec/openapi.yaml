@@ -585,7 +585,7 @@ paths:
     post:
       operationId: renewContract
       tags: [contracts]
-      summary: "R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not"
+      summary: "R-51/L-02a: renew a contract for another term (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not"
       parameters:
         - name: id
           in: path
@@ -602,6 +602,10 @@ paths:
                 salary:
                   type: number
                   description: "Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending."
+                length:
+                  type: string
+                  enum: ["6m", "1s", "2s"]
+                  description: "L-02a: how long the new term runs, measured on from the day the current contract ends. Omitted means one season."
       responses:
         "200":
           description: Contract renewed
@@ -686,6 +690,37 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/StaffMember"
+
+  /staff/{id}/renew:
+    post:
+      operationId: renewStaffContract
+      tags: [staff]
+      summary: Renew a staff or medical contract for another term
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractRenewal"
+      responses:
+        "200":
+          description: The contract, with its new end date
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "400":
+          description: Not one of the three contract lengths
+        "404":
+          description: No such staff member at your club
+        "409":
+          description: Nothing to renew
 
   /staff/{id}:
     patch:
@@ -2584,6 +2619,15 @@ components:
           type: string
           description: "Training focus to assign. One of: Attack, Defence, Serving, Blocking, Athleticism, Leadership. Send empty string to clear."
 
+    # L-02a: a renewal names one of the three lengths, measured on from the day
+    # the current contract ends. Salary is unchanged, so no freeze applies.
+    ContractRenewal:
+      type: object
+      properties:
+        length:
+          type: string
+          enum: ["6m", "1s", "2s"]
+
     PlayerRoleUpdate:
       type: object
       required: [role]
@@ -2591,6 +2635,12 @@ components:
         role:
           type: string
           enum: [starter, interchange, reserve]
+        # L-02a: promoting an academy player into a senior slot is a signing, so
+        # it carries the same three contract lengths. Ignored for a move between
+        # senior slots, where nothing new is signed. Defaults to one season.
+        length:
+          type: string
+          enum: ["6m", "1s", "2s"]
 
     PlayerSwap:
       type: object
@@ -2629,14 +2679,21 @@ components:
 
     ContractInput:
       type: object
-      required: [playerId, salary, endDate, bonusPerWin]
+      required: [playerId, salary, bonusPerWin]
       properties:
         playerId:
           type: integer
         salary:
           type: number
-        endDate:
+        length:
           type: string
+          enum: ["6m", "1s", "2s"]
+          description: >-
+            L-02a: how long the contract runs — 6 months, 1 season or 2 seasons,
+            and nothing else. The server resolves the end date from the real
+            season rows, so the caller does not send a date: a season is 418-421
+            days, and the old endDate was computed from the CALLER's clock.
+            Defaults to 1 season when omitted.
         bonusPerWin:
           type: number
         squadRole:

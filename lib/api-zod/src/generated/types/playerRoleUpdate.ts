@@ -5,8 +5,10 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { PlayerRoleUpdateLength } from './playerRoleUpdateLength';
 import type { PlayerRoleUpdateRole } from './playerRoleUpdateRole';
 
 export interface PlayerRoleUpdate {
   role: PlayerRoleUpdateRole;
+  length?: PlayerRoleUpdateLength;
 }

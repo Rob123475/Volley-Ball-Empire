@@ -276,6 +276,12 @@ export type CareerStaffFields = {
   isAvailable: boolean;
   contractLength: number;
   isScoutRevealed: boolean;
+  // L-02a: staff and medical contracts expire like players. contractLength was
+  // a months integer nothing ever read, so staff were hired forever; these are
+  // what the calendar tick acts on.
+  contractTerm: string | null;
+  contractStartDate: string | null;
+  contractEndDate: string | null;
 };
 
 export type StaffDTO = StaffReference & CareerStaffFields;
@@ -288,6 +294,9 @@ export function assembleStaff(reference: StaffReference, state: CareerStaffState
     isAvailable:     state.isAvailable,
     contractLength:  state.contractLength,
     isScoutRevealed: state.isScoutRevealed,
+    contractTerm:      state.contractTerm ?? null,
+    contractStartDate: state.contractStartDate ?? null,
+    contractEndDate:   state.contractEndDate ?? null,
   };
 }
 
@@ -563,7 +572,13 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
 
       for (const g of going) {
         tx.update(careerPlayerStateTable)
-          .set({ isPromoted: true, updatedAt: new Date() })
+          // L-02a: out of the academy means out of the academy's terms. The
+          // years used to be left behind on a promoted player, so "has academy
+          // years" and "is in the academy" stopped meaning the same thing: the
+          // contract route went on refusing to renew him as a youth player, and
+          // the backfill went on skipping him as one, leaving a senior at the
+          // club with no contract anything could see.
+          .set({ isPromoted: true, academyContractYears: null, updatedAt: new Date() })
           .where(and(
             eq(careerPlayerStateTable.careerSaveId, careerSaveId),
             eq(careerPlayerStateTable.playerId, g.playerId),

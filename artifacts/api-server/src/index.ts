@@ -12,6 +12,7 @@ import { dropRemovedContent } from "./utils/removedContent";
 import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
+import { backfillContracts } from "./utils/backfillContracts";
 
 // R-31: electron/main.js forks this process and already has a live IPC
 // channel to it (confirmed by its own pre-existing child.disconnect() call
@@ -116,6 +117,20 @@ try {
   if (staffUnits.repaired > 0) logger.info({ repaired: staffUnits.repaired }, "staff salaries repaired to monthly figures");
 } catch (err) {
   logger.error({ err }, "staff salary repair failed");
+}
+
+// L-02a: nobody at a club is there without a contract. Saves made before staff
+// contracts existed carry coaches with no term at all, and any path that
+// attaches someone to a club without writing one leaves the same gap. Closed
+// here at boot, and again at every rollover (seasonRollover.ts).
+try {
+  const filled = backfillContracts();
+  if (filled.players > 0 || filled.staff > 0) {
+    logger.info(filled, "contracts backfilled for people who had none");
+  }
+} catch (err) {
+  // Never block startup on a data repair; the game is still playable.
+  logger.error({ err }, "contract backfill failed");
 }
 
 // Data migration: move every continent column onto the canonical KEYS and

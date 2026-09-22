@@ -16,6 +16,7 @@
  *
  * Usage: node harness/rollover.mjs [baseUrl]
  */
+import { DatabaseSync } from "node:sqlite";
 import { healAllSquads } from "./harness-club.mjs";
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
@@ -31,6 +32,41 @@ function check(label, cond, detail = "") {
   checks++;
   if (cond) console.log(`  PASS  ${label}${detail ? "  " + detail : ""}`);
   else { failures++; console.log(`  FAIL  ${label}${detail ? "  " + detail : ""}`); }
+}
+
+/**
+ * L-02a: nobody at a club is there without a contract - still true after thirty
+ * seasons, not only on the day a career is created.
+ *
+ * Thirty seasons of expiry, renewal, retirement, youth promotion and free-agent
+ * signings is exactly where a gap would open: one path that attaches a player
+ * or a coach to a club without writing a term, run 30 times. Read straight from
+ * the throwaway database, because a contract-less person is invisible over HTTP
+ * - the squad screen lists them like anyone else.
+ */
+function contractlessAtClub(label) {
+  if (!DB_FILE) return null;
+  const db = new DatabaseSync(DB_FILE, { readOnly: true });
+  try {
+    const save = db.prepare(
+      `SELECT id FROM career_saves WHERE manager_name = ? ORDER BY id DESC LIMIT 1`).get(label);
+    if (!save) return null;
+    const careerSaveId = save.id;
+    const players = db.prepare(
+      `SELECT COUNT(*) AS n FROM career_player_state ps
+         JOIN players p ON p.id = ps.player_id
+        WHERE ps.career_save_id = ? AND ps.team_id IS NOT NULL
+          AND ps.is_retired = 0
+          AND (p.player_type <> 'youth' OR ps.is_promoted = 1)
+          AND NOT EXISTS (SELECT 1 FROM contracts c
+                           WHERE c.player_id = ps.player_id AND c.team_id = ps.team_id
+                             AND c.status = 'active')`).get(careerSaveId).n;
+    const staff = db.prepare(
+      `SELECT COUNT(*) AS n FROM career_staff_state
+        WHERE career_save_id = ? AND team_id IS NOT NULL
+          AND (contract_end_date IS NULL OR contract_end_date = '')`).get(careerSaveId).n;
+    return { players: Number(players), staff: Number(staff) };
+  } finally { db.close(); }
 }
 
 function session() {
@@ -593,7 +629,10 @@ async function advanceToBoundary(api, maxDays = 500) {
       localLegend: ((await api("GET", "/achievements")).data ?? []).find((a) => a.key === "local_legend")?.unlocked ?? null,
     };
 
-    return { label, difficulty, seasons, fixtureSize, sacked, renewals, careerEnd };
+    // L-02a: read after the last boundary, so it covers every rollover above.
+    const contractless = contractlessAtClub(label);
+
+    return { label, difficulty, seasons, fixtureSize, sacked, renewals, careerEnd, contractless };
   }
 
   // R-47: a sacking is a legitimate result, so one career per arc could only say
@@ -833,6 +872,17 @@ async function advanceToBoundary(api, maxDays = 500) {
   const longRefusals = longRun.renewals.flatMap((r) => r.refused.map((x) => `season ${r.season}: ${x.status} ${x.error}`));
   check(`${longRun.label}: contracts renewed at the start of every season, none refused`,
     longRun.renewals.length > 0 && longRefusals.length === 0, longRefusals.slice(0, 5).join("; ") || `${longRun.renewals.length} seasons renewed`);
+  // L-02a: Rob's rule is "EVERY player, staff member and medical staff member
+  // has a contract". A fresh career proves it on day one (contract-terms.mjs);
+  // this proves it survives thirty seasons of expiry, renewal, retirement,
+  // promotion and signing.
+  if (longRun.contractless) {
+    const cl = longRun.contractless;
+    check(`${longRun.label}: after ${longRun.seasons.length} seasons, nobody at the club is there without a contract`,
+      cl.players === 0 && cl.staff === 0,
+      `${cl.players} player(s), ${cl.staff} staff without one`);
+  }
+
   if (long) {
     const lastYear = 2026 + LONG_SEASONS;
     check(`${long.label}: season ${LONG_SEASONS + 1} (${lastYear}) opened after the ${LONG_SEASONS}th boundary`,

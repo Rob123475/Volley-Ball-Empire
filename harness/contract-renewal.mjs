@@ -233,9 +233,28 @@ try {
     playerId: target?.id, salary: target?.salary ?? 5000, endDate: "2030-12-31", bonusPerWin: 0, squadRole: "starter",
   });
   check("signing on game day 20 Dec 2026 succeeds", sign.status === 201, `HTTP ${sign.status} ${JSON.stringify(sign.data)}`);
-  check("the contract starts on the game date and is capped one year after it",
-    sign.data?.startDate === "2026-12-20" && sign.data?.endDate === "2027-12-20",
+  // L-02a: the one-year cap is gone — a deal runs 6 months, 1 season or 2, and
+  // a length the client did not name is one season, which ends when the season
+  // ends. The endDate posted above is ignored: the server owns that date, which
+  // is the whole point of R-51's game-clock rule.
+  check("the contract starts on the game date, and ends when the season does — not a year after signing",
+    sign.data?.startDate === "2026-12-20" && sign.data?.endDate === "2026-12-31",
     `start ${sign.data?.startDate}, end ${sign.data?.endDate}`);
+  check("the end date the client sent is ignored",
+    sign.data?.endDate !== "2030-12-31", `sent 2030-12-31, got ${sign.data?.endDate}`);
+
+  console.log("\n4b. A RENEWAL RUNS FOR ONE OF THE THREE LENGTHS (L-02a)");
+  const sixRes = await A("POST", "/contracts", {
+    playerId: target?.id, salary: 5000, bonusPerWin: 0, length: "9s",
+  });
+  check("a length outside the three is refused at signing", sixRes.status === 400,
+    `HTTP ${sixRes.status} ${sixRes.data?.error ?? ""}`);
+  const renewBad = await A("POST", `/contracts/${sign.data?.id}/renew`, { length: "3y" });
+  check("and at renewal", renewBad.status === 400, `HTTP ${renewBad.status} ${renewBad.data?.error ?? ""}`);
+  const renew2s = await A("POST", `/contracts/${sign.data?.id}/renew`, { length: "2s" });
+  check("a 2-season renewal ends two seasons past the old contract, not one",
+    renew2s.status === 200 && renew2s.data?.endDate === "2028-12-31",
+    `HTTP ${renew2s.status} ${sign.data?.endDate} -> ${renew2s.data?.endDate}`);
 } finally {
   await stopServer(child);
   try { fs.closeSync(out); } catch { /* closed */ }
@@ -243,8 +262,8 @@ try {
 
 console.log("\n5. THE CONTRACTS PAGE");
 const page = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", "pages", "contracts.tsx"), "utf8");
-check("the page renews through the API (useRenewContract) and offers a Renew button",
-  /useRenewContract/.test(page) && /Renew \+1 season/.test(page));
+check("the page renews through the API (useRenewContract) and offers the three lengths",
+  /useRenewContract/.test(page) && /CONTRACT_LENGTHS/.test(page) && !/Renew \+1 season/.test(page));
 check("the page counts days from the game date, not the machine's clock",
   /calendar\?\.currentDate/.test(page) && !/new Date\(\)\.getTime\(\)/.test(page));
 

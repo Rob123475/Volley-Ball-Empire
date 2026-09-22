@@ -5,12 +5,14 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { ContractInputLength } from './contractInputLength';
 import type { ContractInputSquadRole } from './contractInputSquadRole';
 
 export interface ContractInput {
   playerId: number;
   salary: number;
-  endDate: string;
+  /** L-02a: how long the contract runs — 6 months, 1 season or 2 seasons, and nothing else. The server resolves the end date from the real season rows, so the caller does not send a date: a season is 418-421 days, and the old endDate was computed from the CALLER's clock. Defaults to 1 season when omitted. */
+  length?: ContractInputLength;
   bonusPerWin: number;
   /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
   squadRole?: ContractInputSquadRole;

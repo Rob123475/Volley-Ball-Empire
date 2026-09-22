@@ -38,6 +38,7 @@ import type {
   ContinentalScoutingMission,
   Contract,
   ContractInput,
+  ContractRenewal,
   Dashboard,
   DeleteCareerSave200,
   DraftPickInput,
@@ -2358,7 +2359,7 @@ export const getRenewContractUrl = (id: number,) => {
 }
 
 /**
- * @summary R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
+ * @summary R-51/L-02a: renew a contract for another term (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
  */
 export const renewContract = async (id: number,
     renewContractBody?: RenewContractBody, options?: RequestInit): Promise<Contract> => {
@@ -2408,7 +2409,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RenewContractMutationError = ErrorType<void>
 
     /**
- * @summary R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
+ * @summary R-51/L-02a: renew a contract for another term (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
  */
 export const useRenewContract = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewContract>>, TError,{id: number;data?: BodyType<RenewContractBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -2729,6 +2730,78 @@ export function useGetStaffMarket<TData = Awaited<ReturnType<typeof getStaffMark
 
 
 
+
+export const getRenewStaffContractUrl = (id: number,) => {
+
+
+
+
+  return `/api/staff/${id}/renew`
+}
+
+/**
+ * @summary Renew a staff or medical contract for another term
+ */
+export const renewStaffContract = async (id: number,
+    contractRenewal: ContractRenewal, options?: RequestInit): Promise<StaffMember> => {
+
+  return customFetch<StaffMember>(getRenewStaffContractUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      contractRenewal,)
+  }
+);}
+
+
+
+
+export const getRenewStaffContractMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewStaffContract>>, TError,{id: number;data: BodyType<ContractRenewal>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof renewStaffContract>>, TError,{id: number;data: BodyType<ContractRenewal>}, TContext> => {
+
+const mutationKey = ['renewStaffContract'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof renewStaffContract>>, {id: number;data: BodyType<ContractRenewal>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  renewStaffContract(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RenewStaffContractMutationResult = NonNullable<Awaited<ReturnType<typeof renewStaffContract>>>
+    export type RenewStaffContractMutationBody = BodyType<ContractRenewal>
+    export type RenewStaffContractMutationError = ErrorType<void>
+
+    /**
+ * @summary Renew a staff or medical contract for another term
+ */
+export const useRenewStaffContract = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof renewStaffContract>>, TError,{id: number;data: BodyType<ContractRenewal>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof renewStaffContract>>,
+        TError,
+        {id: number;data: BodyType<ContractRenewal>},
+        TContext
+      > => {
+      return useMutation(getRenewStaffContractMutationOptions(options));
+    }
 
 export const getUpdateStaffUrl = (id: number,) => {
 

@@ -11,6 +11,8 @@ import {
   type StaffDTO, type StaffReferenceFields,
 } from "../lib/playerDto.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
+import { readContractLength, renewalEndDate } from "../utils/contractTerms.js";
+import { staffContractPatch, seasonEndsFrom } from "../utils/seasonDates.js";
 
 const router = Router();
 
@@ -86,9 +88,16 @@ router.post("/staff", async (req, res) => {
     return;
   }
 
+  // L-02a: a staff hire is a CONTRACT, on one of Rob's three lengths, and it
+  // expires on the calendar like a player's. Nothing ever ended a staff deal
+  // before this: contract_length was months and no code path read it.
+  const wantedTerm = readContractLength(req.body);
+  if ("error" in wantedTerm) { res.status(400).json({ error: wantedTerm.error }); return; }
+  const termPatch = await staffContractPatch(cid, wantedTerm.length, signingDate);
+
   // One transaction: the hire and the money move together or not at all.
   withCareerStateTx(({ tx, setStaffState }) => {
-    setStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false });
+    setStaffState(cid, Number(staffId), { teamId: team.id, isAvailable: false, ...termPatch });
 
     tx.update(teamsTable)
       .set({ budget: Number(team.budget) - signingCost })
@@ -106,6 +115,49 @@ router.post("/staff", async (req, res) => {
   });
 
   res.status(201).json(serializeStaff({ ...member, teamId: team.id, isAvailable: false }));
+});
+
+/**
+ * L-02a: renew a staff or medical contract before it runs out.
+ *
+ * The four-week warning (routes/attention.ts) and the automatic release on the
+ * calendar tick (routes/calendar.ts) are only half a rule without this: a coach
+ * whose deal was ending could be warned about and then lost, with no way to
+ * keep him. Medical staff share this route — they are the same rows, told apart
+ * by their role, and one route means the two cannot drift apart.
+ *
+ * The new term runs on from where the old one ends, on the same three lengths.
+ * Salary is unchanged, so no spending freeze applies (R-52): keeping the staff
+ * you already pay for is not new spending.
+ */
+router.post("/staff/:id/renew", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const member = await loadStaffMember(cid, Number(req.params.id));
+  if (!member || member.teamId !== team.id) {
+    res.status(404).json({ error: "Staff member not found at your club." });
+    return;
+  }
+  if (!member.contractEndDate) {
+    res.status(409).json({ error: "This staff member has no contract to renew." });
+    return;
+  }
+
+  const wanted = readContractLength(req.body);
+  if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
+
+  const newEnd = renewalEndDate(
+    wanted.length, member.contractEndDate, await seasonEndsFrom(cid, member.contractEndDate),
+  );
+  await updateStaffState(cid, Number(req.params.id), {
+    contractTerm: wanted.length,
+    contractEndDate: newEnd,
+  });
+
+  res.json(serializeStaff({ ...member, contractTerm: wanted.length, contractEndDate: newEnd }));
 });
 
 router.get("/staff/market", async (req, res) => {

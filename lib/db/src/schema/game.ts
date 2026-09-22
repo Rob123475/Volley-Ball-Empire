@@ -408,7 +408,15 @@ export const careerStaffStateTable = sqliteTable("career_staff_state", {
   teamId:       integer("team_id").references(() => teamsTable.id),
   salary:       real("salary").notNull().default(0),
   isAvailable:  integer("is_available", { mode: "boolean" }).notNull().default(true),
+  // L-02a (22 Sep): staff and medical contracts now EXPIRE like players.
+  // contract_length was months and nothing ever read it to end a contract -
+  // staff were hired forever, and the only exit was a manual termination. The
+  // dates are what the calendar tick acts on; contractLength is kept as the
+  // stored length code ("6m" / "1s" / "2s") so a renewal knows what it renews.
   contractLength: integer("contract_length").notNull().default(12),
+  contractTerm:      text("contract_term"),
+  contractStartDate: text("contract_start_date"),
+  contractEndDate:   text("contract_end_date"),
   isScoutRevealed: integer("is_scout_revealed", { mode: "boolean" }).notNull().default(false),
   updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [

@@ -783,6 +783,19 @@ export interface SetTrainingFocusBody {
   focus: string;
 }
 
+export type ContractRenewalLength = typeof ContractRenewalLength[keyof typeof ContractRenewalLength];
+
+
+export const ContractRenewalLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
+export interface ContractRenewal {
+  length?: ContractRenewalLength;
+}
+
 export type PlayerRoleUpdateRole = typeof PlayerRoleUpdateRole[keyof typeof PlayerRoleUpdateRole];
 
 
@@ -792,8 +805,18 @@ export const PlayerRoleUpdateRole = {
   reserve: 'reserve',
 } as const;
 
+export type PlayerRoleUpdateLength = typeof PlayerRoleUpdateLength[keyof typeof PlayerRoleUpdateLength];
+
+
+export const PlayerRoleUpdateLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
 export interface PlayerRoleUpdate {
   role: PlayerRoleUpdateRole;
+  length?: PlayerRoleUpdateLength;
 }
 
 export interface PlayerSwap {
@@ -824,6 +847,18 @@ export interface Contract {
 }
 
 /**
+ * L-02a: how long the contract runs — 6 months, 1 season or 2 seasons, and nothing else. The server resolves the end date from the real season rows, so the caller does not send a date: a season is 418-421 days, and the old endDate was computed from the CALLER's clock. Defaults to 1 season when omitted.
+ */
+export type ContractInputLength = typeof ContractInputLength[keyof typeof ContractInputLength];
+
+
+export const ContractInputLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
+/**
  * Squad assignment on signing. 'reserve' is youth-only (ages 14–18).
  */
 export type ContractInputSquadRole = typeof ContractInputSquadRole[keyof typeof ContractInputSquadRole];
@@ -838,7 +873,8 @@ export const ContractInputSquadRole = {
 export interface ContractInput {
   playerId: number;
   salary: number;
-  endDate: string;
+  /** L-02a: how long the contract runs — 6 months, 1 season or 2 seasons, and nothing else. The server resolves the end date from the real season rows, so the caller does not send a date: a season is 418-421 days, and the old endDate was computed from the CALLER's clock. Defaults to 1 season when omitted. */
+  length?: ContractInputLength;
   bonusPerWin: number;
   /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
   squadRole?: ContractInputSquadRole;
@@ -2308,9 +2344,23 @@ export interface HistoryHofResponse {
   managerEntries: HistoryHofManagerEntry[];
 }
 
+/**
+ * L-02a: how long the new term runs, measured on from the day the current contract ends. Omitted means one season.
+ */
+export type RenewContractBodyLength = typeof RenewContractBodyLength[keyof typeof RenewContractBodyLength];
+
+
+export const RenewContractBodyLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
 export type RenewContractBody = {
   /** Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending. */
   salary?: number;
+  /** L-02a: how long the new term runs, measured on from the day the current contract ends. Omitted means one season. */
+  length?: RenewContractBodyLength;
 };
 
 export type GetStaffMarketParams = {

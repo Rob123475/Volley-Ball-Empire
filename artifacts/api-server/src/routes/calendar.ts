@@ -23,7 +23,7 @@ import {
   FINALS_START, FINALS_END, HOLIDAY_START, HOLIDAY_END,
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
-import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState } from "../lib/playerDto.js";
+import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -601,6 +601,31 @@ router.post("/calendar/advance", async (req, res) => {
     const userExpiredCount = expired.filter(p => p.teamId === team.id).length;
     if (userExpiredCount > 0) {
       events.push(`${userExpiredCount} contract${userExpiredCount > 1 ? "s" : ""} expired — player${userExpiredCount > 1 ? "s" : ""} returned to free agency`);
+    }
+  }
+
+  // 5b. L-02a — staff and medical contracts expire the same way.
+  //
+  // Before this, NOTHING ever ended a staff contract. career_staff_state had a
+  // `contract_length` in months that no code path read, so a coach hired in
+  // season 1 was still on the payroll in season 30 and the only exit was a
+  // manual termination. Players already had this path (step 5 above); staff now
+  // take the identical one: freed to the pool, wage stopped, contract row
+  // cleared, one Club News line.
+  const expiredStaff = (await loadStaff(expiryCareerId, { teamId: team.id }))
+    .filter((m) => m.contractEndDate != null && m.contractEndDate < nextDate);
+
+  if (expiredStaff.length > 0) {
+    withCareerStateTx(({ setStaffState }) => {
+      for (const m of expiredStaff) {
+        setStaffState(expiryCareerId, m.id, {
+          teamId: null, isAvailable: true, salary: 0,
+          contractTerm: null, contractStartDate: null, contractEndDate: null,
+        });
+      }
+    });
+    for (const m of expiredStaff) {
+      events.push(`${m.name} (${m.role}) left the club — contract expired`);
     }
   }
 

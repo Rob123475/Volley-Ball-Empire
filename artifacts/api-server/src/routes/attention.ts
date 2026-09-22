@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, loadStaff, requireCareerSaveId } from "../lib/playerDto.js";
 import { MAX_STARTERS, MAX_SENIORS } from "../utils/squadRules.js";
 import { isAvailable } from "../utils/condition.js";
 import { db } from "@workspace/db";
@@ -13,6 +13,8 @@ import {
 } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
+import { CONTRACT_WARNING_DAYS } from "../utils/contractTerms.js";
+import { MEDICAL_ROLE_NAMES } from "../utils/medical-staff-generator.js";
 
 const router = Router();
 
@@ -50,8 +52,9 @@ router.get("/attention-items", async (req, res) => {
   const budget = Number(team.budget);
   const now = new Date();
 
-  const [players, prospects, completedMissions, allFacilities] = await Promise.all([
+  const [players, staff, prospects, completedMissions, allFacilities] = await Promise.all([
     loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true }),
+    loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }),
     db.select().from(youthProspectsTable).where(
       and(eq(youthProspectsTable.teamId, team.id), eq(youthProspectsTable.status, "pending"))
     ),
@@ -150,6 +153,32 @@ router.get("/attention-items", async (req, res) => {
         ? `Only ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left — renew on the Contracts page before the player leaves`
         : `${daysLeft} days remaining — renew on the Contracts page`,
       navigateTo: "/contracts",
+    });
+  }
+
+  // ── Staff and medical contracts expiring (L-02a) ─────────────────────────────
+  // Rob's rule: a coach's deal ends like a player's, with four weeks' notice on
+  // the GAME clock and automatic release to the pool if nothing is done. Before
+  // this, staff contracts had no end date at all: a coach hired in season one
+  // was still on the payroll in season thirty. The release itself is the
+  // calendar tick's (routes/calendar.ts); this is the warning before it.
+  for (const m of staff) {
+    if (!m.contractEndDate) continue;
+    const end = new Date(`${m.contractEndDate}T00:00:00Z`);
+    if (isNaN(end.getTime())) continue;
+    const daysLeft = Math.round((end.getTime() - gameToday.getTime()) / 86_400_000);
+    if (daysLeft < 0 || daysLeft > CONTRACT_WARNING_DAYS) continue;
+
+    const isMedical = MEDICAL_ROLE_NAMES.has(m.role);
+    items.push({
+      id: `staff-contract-${m.id}`,
+      priority: daysLeft <= 14 ? "red" : "orange",
+      category: isMedical ? "Medical" : "Staff",
+      title: `Contract Expiring: ${m.name}`,
+      description: daysLeft <= 14
+        ? `${m.role} — only ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left, and an unrenewed contract releases them to the pool`
+        : `${m.role} — ${daysLeft} days remaining, renew or they leave`,
+      navigateTo: isMedical ? "/medical" : "/staff",
     });
   }
 

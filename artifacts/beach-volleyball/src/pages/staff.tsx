@@ -9,6 +9,8 @@ import {
   getGetMyTeamQueryKey,
 } from "@workspace/api-client-react";
 import { StaffPortrait } from "@/components/ui/staff-portrait";
+import { ContractRenewBar } from "@/components/contract-renew-bar";
+import { useCalendar } from "@/hooks/use-calendar";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -170,6 +172,7 @@ function StaffCard({
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const RoleIcon = ROLE_ICONS[member.role] ?? Star;
+  const { calendar } = useCalendar();
 
   // V2 roles store skill numbers inside a nested *Attributes key (coachingAttributes,
   // fitnessAttributes, scoutingAttributes, etc.). Legacy roles (e.g. Doctor v1) store
@@ -468,6 +471,13 @@ function StaffCard({
       </div>
 
       <CardContent className="p-4 space-y-3">
+        {/* L-02a: when the deal ends, and the three lengths it can be renewed for. */}
+        <ContractRenewBar
+          staffId={member.id}
+          endDate={member.contractEndDate}
+          gameDate={calendar?.currentDate}
+        />
+
         {/* Special Trait */}
         {member.specialTrait && (
           <div className="flex items-center gap-1.5">

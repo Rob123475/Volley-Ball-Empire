@@ -1,3 +1,7 @@
+import { useState } from "react";
+import {
+  CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength,
+} from "@/lib/contract-lengths";
 import {
   useListContracts,
   useTerminateContract,
@@ -69,6 +73,7 @@ export default function Contracts() {
 
   const terminateMutation = useTerminateContract();
   const renewMutation = useRenewContract();
+  const [renewing, setRenewing] = useState<number | null>(null);
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
@@ -84,9 +89,10 @@ export default function Contracts() {
     });
   };
 
-  const handleRenew = (contractId: number, playerName: string) => {
-    renewMutation.mutate({ id: contractId }, {
+  const handleRenew = (contractId: number, playerName: string, length: ContractLength) => {
+    renewMutation.mutate({ id: contractId, data: { length } }, {
       onSuccess: (renewed) => {
+        setRenewing(null);
         refresh();
         toast({ title: "Contract Renewed", description: `${playerName} is signed until ${format(new Date(`${renewed.endDate}T00:00:00Z`), "MMM d, yyyy")}.` });
       },
@@ -171,17 +177,47 @@ export default function Contracts() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         {renewable ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-1"
-                            disabled={renewMutation.isPending}
-                            onClick={() => handleRenew(c.id, playerName)}
-                            data-testid={`button-renew-${c.id}`}
-                          >
-                            <RefreshCw className="h-3.5 w-3.5" />
-                            Renew +1 season
-                          </Button>
+                          renewing === c.id ? (
+                            // L-02a: a renewal runs for one of Rob's three
+                            // lengths, measured on from the day this contract
+                            // ends. "+1 season" was the only option there was,
+                            // because the route added a year and nothing else.
+                            <div className="flex items-center gap-1">
+                              {CONTRACT_LENGTHS.map((l) => (
+                                <Button
+                                  key={l}
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 px-2 text-xs"
+                                  disabled={renewMutation.isPending}
+                                  onClick={() => handleRenew(c.id, playerName, l)}
+                                  data-testid={`button-renew-${c.id}-${l}`}
+                                >
+                                  {CONTRACT_LENGTH_LABELS[l]}
+                                </Button>
+                              ))}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => setRenewing(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-1"
+                              disabled={renewMutation.isPending}
+                              onClick={() => setRenewing(c.id)}
+                              data-testid={`button-renew-${c.id}`}
+                            >
+                              <RefreshCw className="h-3.5 w-3.5" />
+                              Renew
+                            </Button>
+                          )
                         ) : (
                           <span className="text-xs text-muted-foreground mr-2">Runs past this season</span>
                         )}

@@ -10,15 +10,15 @@ import type { Contract } from "@workspace/db";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { seasonEndsFrom } from "../utils/seasonDates.js";
+import {
+  contractEndDate, renewalEndDate, terminationPayout, readContractLength,
+} from "../utils/contractTerms.js";
+import { financeTransactionsTable } from "@workspace/db";
 
 const router = Router();
 
-/** One year after a `YYYY-MM-DD` date; 29 February lands on 28 February. */
-function addOneYear(date: string): string {
-  const [y, m, d] = date.split("-");
-  const day = m === "02" && d === "29" ? "28" : d;
-  return `${Number(y) + 1}-${m}-${day}`;
-}
+
 
 const serializeContract = (c: Contract) => ({
   ...c,
@@ -53,7 +53,9 @@ router.post("/contracts", async (req, res) => {
   const spendingBlocked = await checkSpendingAllowed(requireCareerSaveId(req.activeCareerSaveId));
   if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
-  const { playerId, salary, endDate, bonusPerWin, squadRole: rawSquadRole } = req.body;
+  const { playerId, salary, bonusPerWin, squadRole: rawSquadRole } = req.body;
+  const wanted = readContractLength(req.body);
+  if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
   if (!player) { res.status(404).json({ error: "Player not found." }); return; }
@@ -127,11 +129,13 @@ router.post("/contracts", async (req, res) => {
   }
 
   // R-51: dated on the GAME clock. `new Date()` stamped a contract with the
-  // computer's date and capped it a year after THAT, so a contract signed in an
-  // in-game season could start and end in whatever year the machine was in.
+  // computer's date, so a contract signed in an in-game season could start and
+  // end in whatever year the machine was in.
+  // L-02a: the end date is the length Rob allows, resolved against the real
+  // seasons — the caller no longer supplies a date at all.
   const today = await getGameDate(team.id);
-  const maxEndStr = addOneYear(today);
-  const actualEnd = endDate > maxEndStr ? maxEndStr : endDate;
+  const cidForTerm = requireCareerSaveId(req.activeCareerSaveId);
+  const actualEnd = contractEndDate(wanted.length, today, await seasonEndsFrom(cidForTerm, today));
 
   const [contract] = await db.insert(contractsTable).values({
     playerId: Number(playerId),
@@ -222,7 +226,23 @@ router.post("/contracts/:id/renew", async (req, res) => {
     return;
   }
 
-  const newEnd = addOneYear(contract.endDate);
+  const wantedRenewal = readContractLength(req.body);
+  if ("error" in wantedRenewal) { res.status(400).json({ error: wantedRenewal.error }); return; }
+
+  // The new term runs on from where the old one ends, not from today — and it
+  // must run PAST it. A contract that already ends on the last day of the
+  // season is the normal case here (the guard above only lets a deal be renewed
+  // in its final season), and a renewal measured from a list that still
+  // contains that very date handed back the same date: the renewal appeared to
+  // succeed, changed nothing, and the player walked at the boundary anyway.
+  // Thirty-season runs then lost whole squads to R-48 abandonment.
+  const newEnd = renewalEndDate(
+    wantedRenewal.length, contract.endDate, await seasonEndsFrom(cid, contract.endDate),
+  );
+  if (newEnd <= contract.endDate) {
+    res.status(409).json({ error: "A renewal must end after the contract it renews." });
+    return;
+  }
   const [renewed] = await db.update(contractsTable)
     .set({ endDate: newEnd, salary: newSalary })
     .where(eq(contractsTable.id, id))
@@ -258,9 +278,31 @@ router.delete("/contracts/:id", async (req, res) => {
     return;
   }
 
+  // L-02a, Rob's rule: "Club ends a contract early -> the remainder of the
+  // contract is paid out from the club balance." Before this, tearing up a deal
+  // cost the club nothing at all, so there was no reason not to.
+  const team = await getActiveTeam(req);
+  const today = team ? await getGameDate(team.id) : contract.startDate;
+  const payout = terminationPayout(Number(contract.salary), today, contract.endDate);
+
   const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve" });
-  res.json(serializeContract(terminated));
+
+  if (team && payout > 0) {
+    await db.update(teamsTable)
+      .set({ budget: Number(team.budget) - payout })
+      .where(eq(teamsTable.id, team.id));
+    await db.insert(financeTransactionsTable).values({
+      teamId:      team.id,
+      type:        "expense",
+      amount:      payout,
+      description: `Contract paid out — ${player?.name ?? "player"} released to ${contract.endDate}`,
+      category:    "player_salary",
+      date:        today,
+    });
+  }
+
+  res.json({ ...serializeContract(terminated), payout });
 });
 
 export default router;

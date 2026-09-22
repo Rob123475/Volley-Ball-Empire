@@ -5551,7 +5551,8 @@ export const SetPlayerRoleParams = zod.object({
 })
 
 export const SetPlayerRoleBody = zod.object({
-  "role": zod.enum(['starter', 'interchange', 'reserve'])
+  "role": zod.enum(['starter', 'interchange', 'reserve']),
+  "length": zod.enum(['6m', '1s', '2s']).optional()
 })
 
 export const setPlayerRoleResponseStartersItemDoctorQualityMax = 5;
@@ -7173,7 +7174,7 @@ export const ListContractsResponse = zod.array(ListContractsResponseItem)
 export const SignContractBody = zod.object({
   "playerId": zod.number(),
   "salary": zod.number(),
-  "endDate": zod.string(),
+  "length": zod.enum(['6m', '1s', '2s']).optional().describe('L-02a: how long the contract runs — 6 months, 1 season or 2 seasons, and nothing else. The server resolves the end date from the real season rows, so the caller does not send a date: a season is 418-421 days, and the old endDate was computed from the CALLER\'s clock. Defaults to 1 season when omitted.'),
   "bonusPerWin": zod.number(),
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Squad assignment on signing. \'reserve\' is youth-only (ages 14–18).')
 })
@@ -7734,14 +7735,15 @@ export const TerminateContractResponse = zod.object({
 
 
 /**
- * @summary R-51: renew a contract for one more season (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
+ * @summary R-51/L-02a: renew a contract for another term (game clock; only in its final season). R-52: same terms go through a spending freeze; a raise does not
  */
 export const RenewContractParams = zod.object({
   "id": zod.coerce.number()
 })
 
 export const RenewContractBody = zod.object({
-  "salary": zod.number().optional().describe('Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending.')
+  "salary": zod.number().optional().describe('Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending.'),
+  "length": zod.enum(['6m', '1s', '2s']).optional().describe('L-02a: how long the new term runs, measured on from the day the current contract ends. Omitted means one season.')
 })
 
 export const renewContractResponsePlayerDoctorQualityMax = 5;
@@ -8106,6 +8108,40 @@ export const GetStaffMarketResponseItem = zod.object({
   "createdAt": zod.string()
 })
 export const GetStaffMarketResponse = zod.array(GetStaffMarketResponseItem)
+
+
+/**
+ * @summary Renew a staff or medical contract for another term
+ */
+export const RenewStaffContractParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RenewStaffContractBody = zod.object({
+  "length": zod.enum(['6m', '1s', '2s']).optional()
+})
+
+export const RenewStaffContractResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
+  "specialty": zod.string(),
+  "salary": zod.number(),
+  "skillLevel": zod.number(),
+  "age": zod.number(),
+  "overallRating": zod.number().describe('Staff quality rating 50–99.'),
+  "contractLength": zod.number().describe('Contract duration in months.'),
+  "coachSpeciality": zod.enum(['Technical', 'Athletic', 'Defensive', 'Conditioning', 'Youth Development', 'General']).describe('Determines which stats get a training bonus.'),
+  "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
+  "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
+  "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
+  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
+  "teamId": zod.number().nullable(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "createdAt": zod.string()
+})
 
 
 /**

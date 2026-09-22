@@ -16,6 +16,8 @@ import {
 } from "@workspace/api-client-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { ContractRenewBar } from "@/components/contract-renew-bar";
+import { useCalendar } from "@/hooks/use-calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -285,6 +287,8 @@ function AttributeBar({ name, value }: { name: string; value: number }) {
 }
 
 function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number) => void }) {
+  const { calendar } = useCalendar();
+  const queryClient = useQueryClient();
   const roleKey = normalizeMedicalRole(member.role);
   const RoleIcon = (roleKey ? MEDICAL_ROLE_ICONS[roleKey] : undefined) ?? Stethoscope;
   const roleLabel = (roleKey ? MEDICAL_ROLE_LABELS[roleKey] : undefined) ?? member.role;
@@ -342,6 +346,14 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
       </div>
 
       <CardContent className="p-4 space-y-3">
+        {/* L-02a: medical contracts end and are renewed like any other. */}
+        <ContractRenewBar
+          staffId={member.id}
+          endDate={member.contractEndDate}
+          gameDate={calendar?.currentDate}
+          onRenewed={() => queryClient.invalidateQueries({ queryKey: getListMedicalStaffQueryKey() })}
+        />
+
         {member.specialTrait && (
           <div className="flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />

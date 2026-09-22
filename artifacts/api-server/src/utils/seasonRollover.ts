@@ -10,6 +10,7 @@ import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-c
 import { awardSeasonTrophiesTx } from "./seasonTrophies.js";
 import { isOlympicYear } from "./olympics.js";
 import { youthIntakeTx, type IntakeResult } from "./youthIntake.js";
+import { backfillContractsTx } from "./backfillContracts.js";
 
 /**
  * Season rollover.
@@ -248,6 +249,12 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // season, dated its first day — so no season opens without its intake.
     const intake = team ? youthIntakeTx(w, careerSaveId, teamId, nextYear, `${nextYear}-01-01`) : null;
 
+    // L-02a: nobody crosses a season boundary without a contract. A gap opened
+    // during the season (any path that attaches someone to a club without
+    // writing one) is closed here rather than surviving into the next season.
+    // Boot does the same for saves made before staff contracts existed.
+    const contractsFilled = backfillContractsTx(w, careerSaveId, `${nextYear}-01-01`);
+
     return {
       kind: "rolled",
       fromSeason: current,
@@ -255,6 +262,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       newSeasonId: created!.id,
       review,
       intake,
+      contractsFilled,
     } as const;
   });
 }

@@ -52,7 +52,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerPortrait } from "@/components/player-portrait";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
-import { format, addMonths } from "date-fns";
+import { format } from "date-fns";
+import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
 
@@ -212,11 +213,10 @@ const SQUAD_DESTINATIONS: { role: SquadRole; label: string }[] = [
 function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v: any) => void; isPending: boolean }) {
   const [salary, setSalary]   = useState([5000]);
   const [winBonus, setWinBonus] = useState([500]);
-  const [months, setMonths]   = useState(6);
+  const [length, setLength]   = useState<ContractLength>("1s");
   const isYouth = player.age >= 14 && player.age <= 17;
   const defaultRole: SquadRole = isYouth ? "reserve" : "interchange";
   const [squadRole, setSquadRole] = useState<SquadRole>(defaultRole);
-  const endDate = format(addMonths(new Date(), months), "yyyy-MM-dd");
 
   return (
     <Dialog>
@@ -229,7 +229,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Contract Offer: {player.name}</DialogTitle>
-          <DialogDescription>Negotiate terms. Max contract is 12 months.</DialogDescription>
+          <DialogDescription>Negotiate terms. A contract runs 6 months, 1 season or 2 seasons.</DialogDescription>
         </DialogHeader>
         <div className="space-y-6 py-4">
           <div className="space-y-2">
@@ -247,12 +247,28 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
             <Slider min={0} max={5000} step={50} value={winBonus} onValueChange={setWinBonus} />
           </div>
           <div className="space-y-2">
-            <div className="flex justify-between text-sm font-medium">
-              <span>Contract Duration</span>
-              <span>{months} Months</span>
+            <p className="text-sm font-medium">Contract Length</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {CONTRACT_LENGTHS.map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLength(l)}
+                  data-testid={`button-length-${l}`}
+                  className={[
+                    "rounded-md border px-2 py-2 text-xs font-semibold transition-colors",
+                    length === l
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-muted/40 text-foreground hover:border-primary/60 hover:bg-muted/70",
+                  ].join(" ")}
+                >
+                  {CONTRACT_LENGTH_LABELS[l]}
+                </button>
+              ))}
             </div>
-            <Slider min={1} max={12} step={1} value={[months]} onValueChange={(v) => setMonths(v[0])} />
-            <p className="text-[10px] text-muted-foreground text-right">Ends: {endDate}</p>
+            <p className="text-[10px] text-muted-foreground text-right">
+              A season ends when the World Tour does — the club sets the date.
+            </p>
           </div>
           <div className="space-y-2">
             <p className="text-sm font-medium">Assign To</p>
@@ -286,7 +302,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
         </div>
         <Button
           className="w-full"
-          onClick={() => onSign({ salary: salary[0], winBonus: winBonus[0], endDate, squadRole })}
+          onClick={() => onSign({ salary: salary[0], winBonus: winBonus[0], length, squadRole })}
           disabled={isPending}
           data-testid="button-confirm-sign"
         >
@@ -665,7 +681,7 @@ export default function PlayerMarket() {
   };
 
   const handleSign = (playerId: number, values: any) => {
-    signMutation.mutate({ data: { playerId, salary: values.salary, endDate: values.endDate, bonusPerWin: values.winBonus, squadRole: values.squadRole } }, {
+    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole } }, {
       onSuccess: () => {
         invalidateAll();
         toast({ title: "Contract Signed!", description: "Welcome to the team!" });

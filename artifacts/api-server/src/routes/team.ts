@@ -2,8 +2,11 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
-import { teamsTable, playersTable, staffTable } from "@workspace/db";
+import { teamsTable, playersTable, staffTable, contractsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
+import { readContractLength, contractEndDate } from "../utils/contractTerms.js";
+import { seasonEndsFrom } from "../utils/seasonDates.js";
+import { getGameDate } from "../utils/gameDate.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import type { Team } from "@workspace/db";
 import { ACADEMY_CAP, academySize } from "../utils/academy.js";
@@ -107,25 +110,66 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     }
   }
 
+  // L-02a: a promotion may name its contract length; an unknown one is refused
+  // here rather than silently becoming something else.
+  const wantedLength = readContractLength(req.body);
+  if ("error" in wantedLength) { res.status(400).json({ error: wantedLength.error }); return; }
+  const promotionLength = wantedLength.length;
+  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+
   // Derive isActive from role for backward-compat with match simulation
   const isActive = role !== "reserve";
 
-  // When an 18-year-old youth player is promoted, their academy contract ends
-  const promotedPlayer = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
-  const endsAcademyContract =
-    (role === "starter" || role === "interchange") &&
-    promotedPlayer?.age === 18 &&
-    promotedPlayer?.academyContractYears != null;
-
+  // Leaving the academy for a senior slot ends the academy deal.
+  //
+  // L-02a: this used to fire only at EXACTLY 18, while the promotion itself was
+  // allowed at any age from 18 up. A graduate promoted at 19 or older therefore
+  // kept his academy contract years for ever: he was a senior in the squad that
+  // routes/contracts.ts still refused to renew ("Academy contracts are managed
+  // by the youth academy"), so his deal could only run out. Thirty-season runs
+  // showed it as a wall of 403s at the start of every season.
+  const promotedPlayer = await loadPlayer(careerSaveId, playerId);
   const isYouthPromotion =
     (role === "starter" || role === "interchange") &&
     promotedPlayer?.academyContractYears != null;
+  const endsAcademyContract = isYouthPromotion;
 
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, {
     squadRole: role,
     isActive,
     ...(endsAcademyContract ? { academyContractYears: null } : {}),
   });
+
+  // L-02a: promotion out of the academy is a senior signing, so it writes a
+  // senior contract. It used to end the academy deal and write nothing, leaving
+  // a player at the club on no terms at all — he could never expire, never be
+  // renewed and never be paid out, and only the rollover backfill noticed.
+  // The length comes from the request when the screen offers one; otherwise the
+  // shortest term that reaches a natural decision point, one season.
+  if (isYouthPromotion && promotedPlayer) {
+    const alreadySigned = await db.select({ id: contractsTable.id }).from(contractsTable)
+      .where(and(
+        eq(contractsTable.playerId, playerId),
+        eq(contractsTable.teamId, team.id),
+        eq(contractsTable.status, "active"),
+      )).limit(1);
+    if (alreadySigned.length === 0) {
+      const today = (await getGameDate(team.id)).slice(0, 10);
+      const ends  = await seasonEndsFrom(careerSaveId, today);
+      const salary = Number(promotedPlayer.salary ?? 0);
+      await db.insert(contractsTable).values({
+        playerId,
+        teamId: team.id,
+        salary,
+        startDate: today,
+        endDate: contractEndDate(promotionLength, today, ends),
+        bonusPerWin: 0,
+      });
+      await updatePlayerState(careerSaveId, playerId, {
+        contractEndDate: contractEndDate(promotionLength, today, ends),
+      });
+    }
+  }
 
   // Track youth promotions for achievements
   if (isYouthPromotion) {

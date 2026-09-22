@@ -5,8 +5,11 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { RenewContractBodyLength } from './renewContractBodyLength';
 
 export type RenewContractBody = {
   /** Monthly salary for the renewal. Omitted means unchanged. A raise is new spending and is refused while the board freezes spending. */
   salary?: number;
+  /** L-02a: how long the new term runs, measured on from the day the current contract ends. Omitted means one season. */
+  length?: RenewContractBodyLength;
 };
