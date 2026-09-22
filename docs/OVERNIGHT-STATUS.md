@@ -41,7 +41,7 @@ The three things most worth your attention in the morning:
 | 6 | ACH — seasons, cabinet, 30 achievements, Steam | DONE | `5420a02` |
 | 7 | L-04 — money means something | DONE | `bdff326` |
 | 8 | L-02e — broke clubs sold, job market | DONE | `bdff326` |
-| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `66068d3` |
+| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `5ac755c` |
 | 10 | REPORT | this file | — |
 
 Items 3 and 4 share a commit, and so do 7 and 8: each pair changes the same
@@ -253,11 +253,13 @@ Seven defects, all of them things a career would have hit:
 
 ## The harness
 
-47 suites, 1,077 checks, all green on `66068d3` — the commit the build was made
+47 suites, 1,079 checks, all green on `5ac755c` — the commit the build was made
 from. It was 1,044 when the ten items were done; the rest are the checks that
-came with the defects found afterwards, listed below. `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck,
-the builds and then the harness, which is how every item was verified before it
-was pushed.
+came with the defects found afterwards, listed below.
+
+`pnpm run test:harness` runs them; `pnpm run build` runs the typecheck, the
+builds and then the harness, which is how every item was verified before it was
+pushed.
 
 Nine suites are new tonight:
 
@@ -273,10 +275,11 @@ Nine suites are new tonight:
 | `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across — seasons, achievements and all — the new club judged on its own seasons, a club never offered twice, retirement by declining |
 | plus the shared `harness-club.mjs` helpers | renewing, fielding and keeping a club solvent, so three long walks stopped losing their clubs to rules they were not testing |
 
-**It is stable, and that is measured rather than asserted.** Seven full runs
+**It is stable, and that is measured rather than asserted.** Eight full runs
 end to end tonight. The three on the ten items came back green every time
-(1,044, 1,044 and 1,047 checks); the four after them were green, green, RED and
-green (1,077, 1,076, two failed checks, 1,077) — the same 47 suites throughout.
+(1,044, 1,044 and 1,047 checks); the five after them were green, green, RED,
+green and green (1,077, 1,076, two failed checks, 1,077, 1,079) — the same 47
+suites throughout.
 
 The red one is the point of running it more than once. Nothing had changed
 between it and the green run before it: twelve simulated seasons simply gave
@@ -294,8 +297,8 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 
 ## The build
 
-`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,095 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `66068d3`, the last commit that
+`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,345 bytes) and
+`C:\build\vbe\win-unpacked\`, from commit `5ac755c`, the last commit that
 changed the game — the one after it is this report. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
@@ -459,6 +462,21 @@ worth a couple of hundred thousand and not a million.
   board, it is one line — `seasonsAtClub` already exists and is already
   counted. I left it reading your rule as written rather than guess.
 
+- **Nothing checks that a route returns what the API spec promises.** The
+  Running Costs line below is what that costs: the spec declared the field, the
+  generated client type had it, the page read it by name, the server never sent
+  it, and all three typechecked. A suite that walks the spec's response schemas
+  against live responses would have caught it the day the field was added. It
+  needs care to be worth having — an absent optional field is not always a
+  fault — which is why it is a job of its own rather than something to bolt on
+  at four in the morning.
+
+- **`DELETE /contracts/:id` does not check the contract belongs to your club.**
+  Every other route on that file does. Nothing can reach it today, because the
+  only list of contract ids a client ever sees is its own club's, so it is
+  defence that is missing rather than a bug that fires. Worth two lines the
+  next time that file is open.
+
 ## Fixed after the ten items, with time left over
 
 - **"Local Legend" and "Mr Loyalty" were counting the wrong seasons.** Both say
@@ -584,6 +602,17 @@ worth a couple of hundred thousand and not a million.
   bottom-three check and the sale, which are certain by construction: a club at
   the bottom cannot earn its costs at any tier.
 
+- **The Finances page's new "Running Costs" line read $0.** L-04 put the line
+  on the page and the weekly charge writes the category, but the summary the
+  page asks the server for never returned the field — so the biggest expense
+  most clubs have showed as nothing, and the money itself fell through to
+  "Other". Every layer agreed it was fine: the API spec declares
+  `expenseBreakdown.runningCosts`, the generated client type has it, the page
+  reads it, and the server is plain Express and is not typed against the spec.
+  It is returned now, and `economy.mjs` checks the summary against the ledger
+  for both clubs it walks — $10,042,500 against $10,042,500, and $1,726,400
+  against $1,726,400 on the run that wrote this line.
+
 ## Anything Rob must check on screen
 
 - **Team page → moving a youth into Match Player or Interchange** now opens "Promote
@@ -602,7 +631,8 @@ worth a couple of hundred thousand and not a million.
   nobody.
 - **Finances page** has a new "Running Costs" line — for most clubs the biggest
   number on the page. It is the ground, the squad and the tour, and it is what
-  makes finishing last cost something.
+  makes finishing last cost something. Check it is not $0: it was, until late
+  tonight, and that is written up below.
 - **The board's "How the board judges you" panel** now says what is true: the
   board will not sack you for results, and what ends your time at a club is
   five seasons of losing money.
