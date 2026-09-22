@@ -96,12 +96,32 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     progress: (team) => ({ current: Math.min(team.titlesWon, 3), target: 3 }),
   },
   {
+    // L-01: restored from R-77 (def721c~1), same key and name; the text follows
+    // R-77's "World Final" wording. titlesWon moves on a World Final win.
+    key: "volleyball_empire",
+    name: "Beach Volleyball Empire",
+    description: "Win the World Final ten times.",
+    category: "competition",
+    check: (team) => team.titlesWon >= 10,
+    progress: (team) => ({ current: Math.min(team.titlesWon, 10), target: 10 }),
+  },
+  {
     key: "olympic_gold",
     name: "Olympic Gold",
     description: "Have a player from your club win Olympic gold.",
     category: "competition",
     check: (_t, stats) => stats.olympicGolds >= 1,
     progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 1), target: 1 }),
+  },
+  {
+    // L-01: restored from R-77. The Games are every fourth year (2028, 2032,
+    // 2036, ...), so two golds need a career at least seven seasons long.
+    key: "double_olympic_gold",
+    name: "Back-to-Back Gold",
+    description: "Have players from your club win Olympic gold at two Games.",
+    category: "competition",
+    check: (_t, stats) => stats.olympicGolds >= 2,
+    progress: (_t, stats) => ({ current: Math.min(stats.olympicGolds, 2), target: 2 }),
   },
 
   // ── Finance ───────────────────────────────────────────────────────────────
@@ -197,6 +217,43 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     category: "legacy",
     check: (_t, stats) => stats.seasonsCompleted >= 5,
     progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 5), target: 5 }),
+  },
+  {
+    // L-01: restored from R-77, reworded the way R-77 reworded Local Legend
+    // (its old counter, seasonsInCurrentLocation, never moved and is gone).
+    key: "mr_loyalty",
+    name: "Mr Loyalty",
+    description: "Complete 10 seasons with the same club.",
+    category: "legacy",
+    check: (_t, stats) => stats.seasonsCompleted >= 10,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 10), target: 10 }),
+  },
+  {
+    // L-01: restored from R-77, unchanged.
+    key: "decade_in_sand",
+    name: "Decade in the Sand",
+    description: "Complete 10 seasons as a beach volleyball manager.",
+    category: "legacy",
+    check: (_t, stats) => stats.seasonsCompleted >= 10,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 10), target: 10 }),
+  },
+  {
+    // L-01: restored from R-77, unchanged.
+    key: "veteran_coach",
+    name: "Veteran Coach",
+    description: "Complete 20 seasons on the beach circuit.",
+    category: "legacy",
+    check: (_t, stats) => stats.seasonsCompleted >= 20,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 20), target: 20 }),
+  },
+  {
+    // L-01: restored from R-77, unchanged. The reason the cap had to go.
+    key: "hall_of_fame",
+    name: "Hall of Fame",
+    description: "Reach 30 career seasons.",
+    category: "legacy",
+    check: (_t, stats) => stats.seasonsCompleted >= 30,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 30), target: 30 }),
   },
   {
     key: "world_traveller",
