@@ -91,11 +91,17 @@ router.post("/contracts", async (req, res) => {
     const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
     const youthNow = squad.filter(isYouthPlayer);
     const seniorNow = squad.filter((p) => !isYouthPlayer(p));
+    // L-02d: a club's own graduates are held on top of the squad, under their
+    // own cap of GRADUATE_CAP. They still take a place on the sand like anybody
+    // else, so they count toward the starter and interchange slots — but they
+    // do not fill the three signing places, or a club that developed four
+    // players could never sign another.
+    const signedSeniors = seniorNow.filter((p) => !(p.playerType === "youth" && p.isPromoted));
     const refusal = refusalReason(
       {
         starters:    seniorNow.filter((p) => p.squadRole === "starter").length,
         interchange: seniorNow.filter((p) => p.squadRole === "interchange").length,
-        seniors:     seniorNow.length,
+        seniors:     signedSeniors.length,
         youth:       youthNow.length,
       },
       { isYouth, squadRole },

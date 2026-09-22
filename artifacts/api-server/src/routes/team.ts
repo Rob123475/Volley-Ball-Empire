@@ -10,6 +10,7 @@ import { getGameDate } from "../utils/gameDate.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import type { Team } from "@workspace/db";
 import { ACADEMY_CAP, academySize } from "../utils/academy.js";
+import { GRADUATE_CAP } from "../utils/squadRules.js";
 
 const router = Router();
 
@@ -134,9 +135,33 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     promotedPlayer?.academyContractYears != null;
   const endsAcademyContract = isYouthPromotion;
 
+  // L-02d: four graduates, and no more. A club that is already holding four of
+  // its own is told to make room rather than quietly holding five — the
+  // boundary would take the weakest back off it anyway (utils/graduates.ts),
+  // and a rule the manager only meets after the fact is not a rule he can play
+  // around.
+  if (isYouthPromotion) {
+    const squad = await loadPlayers(careerSaveId, { teamId: team.id });
+    const held = squad.filter((p) => p.playerType === "youth" && p.isPromoted && !p.isRetired).length;
+    if (held >= GRADUATE_CAP) {
+      res.status(422).json({
+        error: `You already hold ${held} of your own graduates, and a club may keep ${GRADUATE_CAP}. ` +
+               `Sell or release one before promoting another.`,
+      });
+      return;
+    }
+  }
+
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, {
     squadRole: role,
     isActive,
+    // L-02d: promotion out of the academy is what `is_promoted` MEANS
+    // (utils/playerClassification.ts), and this route never set it. Only the
+    // rollover's own promotion at 19 did, so a youth player the manager moved
+    // into the side by hand stayed an academy player everywhere else: counted
+    // against the academy cap, listed on the academy screen, billed at the
+    // academy's wage, and — once there was a cap on graduates — invisible to it.
+    ...(isYouthPromotion ? { isPromoted: true } : {}),
     ...(endsAcademyContract ? { academyContractYears: null } : {}),
   });
 

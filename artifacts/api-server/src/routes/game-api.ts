@@ -24,17 +24,11 @@ import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerF
 import { creditRankingPoints } from "../utils/rankingPoints.js";
 import { worldTourGate, recordPlayerMatchResult } from "../utils/worldTour.js";
 import { selectPair } from "../utils/condition.js";
+import { overallRating } from "../utils/overallRating.js";
 
 const router = Router();
 
 // ─── helpers ────────────────────────────────────────────────────────────────
-
-function computeOverall(p: {
-  speed: number; power: number; defense: number;
-  serve: number; block: number; stamina: number;
-}): number {
-  return Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
-}
 
 function serializePlayer(p: any) {
   return {
@@ -52,7 +46,7 @@ function serializePlayer(p: any) {
       serve:    p.serve,
       block:    p.block,
       stamina:  p.stamina,
-      overall:  computeOverall(p),
+      overall:  overallRating(p),
     },
     status: {
       morale:                p.morale,

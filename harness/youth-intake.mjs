@@ -2,11 +2,17 @@
  * R-62 — an academy intake at every season boundary.
  *
  * Rob's decisions (15 Sep): the player's club only (AI clubs stay fixed pairs);
- * 3 per intake; ages 16-18; the blank youth template card the 72 shipped youth
- * wear (the 89 unused adult portraits are not for youth); name and nationality
- * from the club's country and region; ratings from the shipped youth's
- * distribution; Club News reports each intake, and says so when the academy
- * finds no one.
+ * ages 16-18; name and nationality from the club's country and region; ratings
+ * from the shipped youth's distribution; Club News reports each intake, and
+ * says so when the academy finds no one.
+ *
+ * L-02c (22 Sep) changed two of them:
+ *   how many   no longer a flat 3 — at least 3, and never fewer than the number
+ *              who graduated out of the academy at that boundary, so the youth
+ *              count does not drain away one graduate at a time
+ *   the card   no longer always the blank youth template. A retiree nobody
+ *              honoured leaves her portrait behind and the next intake wears it;
+ *              after that, one of the spare cards; the template last.
  *
  * ── What this asserts ───────────────────────────────────────────────────────
  *   code       the seeded distribution in utils/youthIntake.ts IS the 72 shipped
@@ -54,6 +60,7 @@ const PORT = 4820;
 const BASE = `http://localhost:${PORT}/api`;
 const CLUB_COUNTRY = "Brazil"; // locationId 1, Copacabana Beach
 const INTAKE_SIZE = 3;
+const ACADEMY_CAP = 12;
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
@@ -236,8 +243,11 @@ try {
   check("four intakes, one for each season the career opened (2027-2030), none at career creation",
     rows.length === 4 && JSON.stringify(rows.map((r) => r.season_year)) === JSON.stringify([2027, 2028, 2029, 2030]),
     JSON.stringify(rows.map((r) => r.season_year)));
-  check(`each intake is ${INTAKE_SIZE} players, for the player's club, dated the new season's first day`,
-    rows.every((r) => r.ids.length === INTAKE_SIZE && r.team_id === teamId && r.intake_on === `${r.season_year}-01-01`),
+  // L-02c: at least INTAKE_SIZE, and as many as graduated when more than that
+  // went up. Never past the academy's cap.
+  check(`each intake is for the player's club on the new season's first day, at least ${INTAKE_SIZE} strong and never past the cap of ${ACADEMY_CAP}`,
+    rows.every((r) => r.ids.length >= INTAKE_SIZE && r.ids.length <= ACADEMY_CAP
+      && r.team_id === teamId && r.intake_on === `${r.season_year}-01-01`),
     rows.map((r) => `${r.season_year}: ${r.ids.length} on ${r.intake_on}`).join(" | "));
   check("each rollover reports the intake it made",
     run.rolls.length === 4 && run.rolls.every((x, i) => JSON.stringify(x.roll.intake?.players.map((p) => p.id)) === JSON.stringify(rows[i]?.ids)));
@@ -255,8 +265,16 @@ try {
   check("every new player has a card, and the file exists on disk",
     players.length === ids.length && players.every((p) => p.image_url && fs.existsSync(path.join(PUBLIC, p.image_url))),
     `${players.length} players`);
-  check("every card is the youth template card, as for the 72 shipped youth (Rob: the adult portraits are not for youth)",
-    players.every((p) => p.image_url === template));
+  // L-02c: a recycled retiree's face first, then a spare card, then the blank
+  // youth template. In a career's first four seasons nobody has retired yet, so
+  // these are spares and templates — what matters is that every one of them is
+  // a card that exists on disk, checked above.
+  const faces = new Map();
+  for (const p of players) faces.set(p.image_url, (faces.get(p.image_url) ?? 0) + 1);
+  const sharedFace = [...faces.entries()].filter(([u, n]) => n > 1 && u !== template);
+  check("every card is a real card, and no two of them share a face unless it is the blank template",
+    players.every((p) => !!p.image_url) && sharedFace.length === 0,
+    [...faces.entries()].map(([u, n]) => `${u.split("/").pop()} x${n}`).join(", "));
   check("every one a youth player aged 16-18 at intake, owned by this career",
     players.every((p) => p.player_type === "youth" && p.base_age >= 16 && p.base_age <= 18 && p.origin_career_save_id === careerSaveId),
     `ages ${players.map((p) => p.base_age).join(",")}`);
@@ -265,18 +283,31 @@ try {
   // academy years, because "has academy years" and "is in the academy" have to
   // mean the same thing: while they did not, the contracts route went on
   // refusing to renew a promoted graduate as a youth player.
-  const notHeld = players.filter((p) =>
-    p.state_team !== teamId || (p.academy_years == null && !p.promoted));
-  check("every one still at the club at the end of the career, on the academy's terms or promoted off them",
-    notHeld.length === 0,
-    notHeld.length === 0
-      ? `${players.filter((p) => p.promoted).length} promoted, ${players.filter((p) => !p.promoted).length} still in the academy`
-      : notHeld.map((p) => `${p.name}: team ${p.state_team}, years ${p.academy_years}, promoted ${p.promoted}`).join("; "));
-  const promotedNoDeal = players.filter((p) => p.promoted && read(
+  // Where an intake player can legitimately be: in the academy, a graduate the
+  // club still holds, or — L-02d — a graduate the club let go at a boundary
+  // because it was over the cap of four. What must never happen is a player at
+  // the club on neither the academy's terms nor a senior contract.
+  const lost = players.filter((p) => {
+    if (p.state_team === teamId) return p.academy_years == null && !p.promoted;
+    return p.state_team !== null || !p.promoted;   // off the club: only a released graduate
+  });
+  const atClub = players.filter((p) => p.state_team === teamId);
+  const letGo = players.filter((p) => p.state_team === null && p.promoted);
+  check("every one is in the academy, a graduate the club holds, or a graduate it let go",
+    lost.length === 0,
+    lost.length === 0
+      ? `${atClub.filter((p) => p.promoted).length} promoted, ${atClub.filter((p) => !p.promoted).length} in the academy, ${letGo.length} released over the cap`
+      : lost.map((p) => `${p.name}: team ${p.state_team}, years ${p.academy_years}, promoted ${p.promoted}`).join("; "));
+  const promotedNoDeal = atClub.filter((p) => p.promoted && read(
     `SELECT COUNT(*) AS n FROM contracts WHERE player_id = ? AND team_id = ? AND status = 'active'`,
     p.id, teamId)[0].n === 0);
-  check("and every promoted graduate has the senior contract promotion writes",
+  check("and every graduate still at the club has the senior contract promotion writes",
     promotedNoDeal.length === 0, promotedNoDeal.map((p) => p.name).join(", ") || "no graduate without one");
+  const looseDeals = letGo.filter((p) => read(
+    `SELECT COUNT(*) AS n FROM contracts WHERE player_id = ? AND team_id = ? AND status = 'active'`,
+    p.id, teamId)[0].n > 0);
+  check("and every graduate it let go left no contract open behind her",
+    looseDeals.length === 0, looseDeals.map((p) => p.name).join(", ") || `${letGo.length} released cleanly`);
   const RANGE = { speed: [44, 64], power: [34, 74], defense: [34, 64], serve: [36, 68], block: [32, 76], stamina: [40, 66], height: [163, 193] };
   const outOfRange = players.filter((p) => Object.entries(RANGE).some(([k, [lo, hi]]) => p[k] < lo || p[k] > hi));
   const avg = (k) => (players.reduce((a, p) => a + p[k], 0) / players.length).toFixed(1);
@@ -314,11 +345,11 @@ try {
     const item = x.news.find((n) => n.id === `academy-${r?.season_year}`);
     const names = players.filter((p) => r?.ids.includes(p.id)).map((p) => p.name);
     const ok = !!item && !!r && item.type === "academy" && item.date === r.intake_on
-      && /^3 youth players join the .+ academy$/.test(item.headline)
-      && names.length === INTAKE_SIZE && names.every((n) => item.detail.includes(n));
+      && new RegExp(`^${r.ids.length} youth players? join the .+ academy$`).test(item.headline)
+      && names.length === r.ids.length && names.every((n) => item.detail.includes(n));
     return { year: r?.season_year, ok, item };
   });
-  check("Club News reports each intake, with its three names, on its date",
+  check("Club News reports each intake, with every name in it, on its date",
     newsOk.length === 4 && newsOk.every((n) => n.ok), newsOk.map((n) => `${n.year}: ${n.item ? `"${n.item.headline}"` : "missing"}`).join(" | "));
 
   // ── 5. Another career, and a dry academy ──────────────────────────────────
@@ -350,7 +381,7 @@ try {
   console.log(`  REPORT  the club's region (${region}) still holds ${regionNames} unused names after this career's ${ids.length}: ` +
     `${Math.floor(regionNames / INTAKE_SIZE)} more seasons of intakes of ${INTAKE_SIZE} (${perNation.join(", ")}). The card is a template, so cards never run out.`);
   check("the academy never ran dry in four intakes, and the region holds names for many more",
-    rows.every((r) => r.ids.length === INTAKE_SIZE) && regionNames >= 5 * INTAKE_SIZE, `${regionNames} names left`);
+    rows.every((r) => r.ids.length >= INTAKE_SIZE) && regionNames >= 5 * INTAKE_SIZE, `${regionNames} names left`);
 
   // Test setup on this harness's own DB copy: every first name x surname in the
   // world is given to a parked athlete (player_type 'spare', owned by no real

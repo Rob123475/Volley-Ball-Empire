@@ -7,6 +7,7 @@ import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm
 import { logger } from "../lib/logger.js";
 import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
 import { selectPair } from "../utils/condition.js";
+import { overallRating } from "../utils/overallRating.js";
 
 const router = Router();
 
@@ -37,14 +38,6 @@ function poolOpponentFor(careerSaveId: number, matchId: number, teamId: number |
     .where(eq(continentalPoolPlayersTable.poolTeamId, team.id))
     .orderBy(continentalPoolPlayersTable.id).all();
   return { team, pair: pair.slice(0, 2) };
-}
-
-// Compute overall rating from the six core stats (mirrors game-api.ts)
-function computeOverall(p: {
-  speed: number; power: number; defense: number;
-  serve: number; block: number; stamina: number;
-}): number {
-  return Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
 }
 
 // Crowd size estimate by match tier
@@ -262,7 +255,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       });
       const fillPlayers = freeAgents
         .filter((p) => !excludeIds.includes(p.id))
-        .sort((x, y) => computeOverall(y) - computeOverall(x))
+        .sort((x, y) => overallRating(y) - overallRating(x))
         .slice(0, needed);
 
       awayPlayers = [...awayPlayers, ...fillPlayers];
@@ -295,7 +288,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       serve:         p.serve,
       block:         p.block,
       stamina:       p.stamina,
-      overall:       computeOverall(p),
+      overall:       overallRating(p),
       morale:        p.morale,
       fatigue:       p.fatigue,
       fitness:       p.fitness,
@@ -324,7 +317,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       team:           teamLabel,
       position:       null,
       ...ratings,
-      overall:        computeOverall(ratings),
+      overall:        overallRating(ratings),
       morale:         team.form,
       fatigue:        team.fatigue,
       fitness:        team.fitness,

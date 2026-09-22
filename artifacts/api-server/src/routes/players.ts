@@ -6,7 +6,7 @@ import {
 } from "../utils/playerClassification.js";
 import { RETIREMENT_AGE } from "../utils/seasonRollover.js";
 import { db } from "@workspace/db";
-import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable } from "@workspace/db";
+import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable, contractsTable } from "@workspace/db";
 import {
   CONTINENT_KEYS, CONTINENT_LABEL, RESERVE_NATIONS, PLAYERS_PER_NATION,
   coreNationsFor, isCoreNation, isReserveNation, isContinentKey, type ContinentKey,
@@ -456,6 +456,21 @@ router.post("/players/:id/release", async (req, res) => {
   const before = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
 
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), id, { teamId: null, contractEndDate: null, academyContractYears: null, isActive: false, squadRole: "reserve" });
+
+  // L-02d: the contract ends with the release. It used to be left `active`,
+  // so a released player stayed on the club's Contracts page for ever — the
+  // same open row retirement used to leave behind (L-02b), and the same
+  // "no longer in your squad" refusal when the club tried to renew it.
+  if (before?.teamId != null) {
+    await db.update(contractsTable)
+      .set({ status: "terminated" })
+      .where(and(
+        eq(contractsTable.playerId, id),
+        eq(contractsTable.teamId, before.teamId),
+        eq(contractsTable.status, "active"),
+      ));
+  }
+
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), id);
 
   // Record a Youth Academy release transaction so it appears in Transaction History

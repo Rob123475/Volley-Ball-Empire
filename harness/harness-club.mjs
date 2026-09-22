@@ -164,3 +164,54 @@ export function healAllSquads(dbPath) {
     db.close();
   }
 }
+
+/**
+ * Keep a harness club under contract and on the sand, through the real routes.
+ *
+ * Three suites (retirement, youth rebirth, hall of fame) walk a career across
+ * season boundaries for reasons that have nothing to do with squad management,
+ * and every one of them was sacked for abandonment (R-48) until it did these
+ * two things — which is exactly what a manager does without thinking:
+ *
+ *   renew    a contract that ends this season is renewed for another, through
+ *            POST /contracts/:id/renew. Contracts expire on the game clock
+ *            (R-51); a squad nobody re-signs is gone at the boundary.
+ *   field    the starting seniors retire at 40 (L-02b) and an academy graduate
+ *            promoted by the rollover stays a reserve until somebody gives her
+ *            a squad role. Without this the club ends up with a shelf of
+ *            graduates and nobody in the side.
+ *
+ * `api` is the suite's own authenticated caller: (method, path, body).
+ */
+export async function renewExpiringContracts(api) {
+  const season = (await api("GET", "/seasons/current")).data;
+  const contracts = (await api("GET", "/contracts")).data;
+  if (!season?.endDate || !Array.isArray(contracts)) return { renewed: 0 };
+  let renewed = 0;
+  for (const c of contracts.filter((k) => k.endDate <= season.endDate)) {
+    const r = await api("POST", `/contracts/${c.id}/renew`, { length: "1s" });
+    if (r.status === 200) renewed++;
+  }
+  return { renewed };
+}
+
+/** How many players a harness club keeps active. Two is the legal minimum (R-48). */
+export const FIELDED = 4;
+
+export async function keepSideFielded(api) {
+  const roster = (await api("GET", "/team/roster")).data;
+  if (!roster) return { moved: 0 };
+  let starters = (roster.starters ?? []).length;
+  let active = starters + (roster.interchanges ?? []).length;
+  const bench = (roster.reserves ?? [])
+    .filter((p) => p.age >= 18 && !p.isRetired && !p.isInjured)
+    .sort((a, b) => (b.overallRating ?? b.rating ?? 0) - (a.overallRating ?? a.rating ?? 0));
+  let moved = 0;
+  for (const p of bench) {
+    if (active >= FIELDED) break;
+    const role = starters < 2 ? "starter" : "interchange";
+    const r = await api("PATCH", `/team/roster/${p.id}/role`, { role });
+    if (r.status === 200) { moved++; active++; if (role === "starter") starters++; }
+  }
+  return { moved };
+}

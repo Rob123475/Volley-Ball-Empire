@@ -20,13 +20,23 @@
  * once, in the weekly wage run (routes/calendar.ts, utils/academy.ts).
  */
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
+import { isYouthPlayer } from "./playerClassification.js";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
 
-/** Take a week off each academy contract. Charges nothing. */
+/**
+ * Take a week off each academy contract. Charges nothing.
+ *
+ * L-02d: "in the academy" is a youth player this career has not promoted
+ * (utils/playerClassification.ts), not "aged 14 to 18". Selecting by age put
+ * academy years back onto an 18-year-old the club had just promoted — and a
+ * player with academy years is one routes/contracts.ts refuses to renew, so a
+ * graduate's senior contract could only run out. The thirty-season runs showed
+ * it as "Academy contracts are managed by the youth academy" at the start of
+ * every season.
+ */
 export async function tickAcademyContracts(teamId: number): Promise<{ playerCount: number }> {
   const careerSaveId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
-  const youthPlayers = (await loadPlayers(careerSaveId, { teamId }))
-    .filter((p) => p.age >= 14 && p.age <= 18);
+  const youthPlayers = (await loadPlayers(careerSaveId, { teamId })).filter(isYouthPlayer);
 
   for (const player of youthPlayers) {
     const currentYears = player.academyContractYears != null
@@ -56,10 +66,10 @@ export function academyXpFor(rating: number): number {
   return rating >= 75 ? 21 : rating >= 60 ? 19 : 16;
 }
 
+/** Academy training, for the academy — see tickAcademyContracts on who that is. */
 export async function developAcademyPlayers(teamId: number): Promise<void> {
   const careerSaveId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
-  const youthPlayers = (await loadPlayers(careerSaveId, { teamId }))
-    .filter((p) => p.age >= 14 && p.age <= 18);
+  const youthPlayers = (await loadPlayers(careerSaveId, { teamId })).filter(isYouthPlayer);
 
   for (const player of youthPlayers) {
     const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);

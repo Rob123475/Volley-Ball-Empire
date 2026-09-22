@@ -436,7 +436,7 @@ export type CareerStateTx = {
    * team. Returns who went up. Promotion is career state: players.player_type
    * stays 'youth' forever because it is shared by every save.
    */
-  promoteAgedYouth(careerSaveId: number, minAge: number): Array<{ playerId: number; age: number }>;
+  promoteAgedYouth(careerSaveId: number, minAge: number): Array<{ playerId: number; age: number; teamId: number | null }>;
   /**
    * R-62: create an athlete this career owns — the reference row and this
    * career's state for them, both or neither, inside the caller's transaction.
@@ -628,6 +628,11 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
       const going = tx.select({
         playerId: careerPlayerStateTable.playerId,
         age:      careerPlayerStateTable.age,
+        // L-02c: which club's academy she left, if any. This runs over the whole
+        // career, not one club: the shipped youth who are nobody's players age
+        // into the senior market the same way, and an intake that counted them
+        // as its own graduates took twelve players in a season.
+        teamId:   careerPlayerStateTable.teamId,
       })
         .from(careerPlayerStateTable)
         .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))

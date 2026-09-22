@@ -218,10 +218,27 @@ try {
 
   check("the player nobody honoured has her career record deleted",
     state(journeyman.id) === null, JSON.stringify(state(journeyman.id)));
-  check("but what she was is remembered, with her name and face free to use again",
-    otherRow?.name === journeyman.name && otherRow?.in_hall_of_fame === 0 &&
-    otherRow?.name_reused_at == null && otherRow?.portrait_reused_at == null,
+  check("but what she was is remembered — the record is gone, the person is not",
+    otherRow?.name === journeyman.name && otherRow?.in_hall_of_fame === 0 && otherRow?.age === 40,
     `${otherRow?.name}, age ${otherRow?.age}, ${otherRow?.image_url}`);
+
+  // Her name and face go back into circulation. The academy intake at this same
+  // boundary draws from that pool first (L-02c), so by the time the suite looks
+  // they are either still free or already worn by somebody who was born this
+  // season — both of which are the pool working. What must never happen is a
+  // name marked used with nobody wearing it.
+  const heirs = read(
+    `SELECT p.name, p.image_url AS face FROM players p
+       JOIN career_player_state ps ON ps.player_id = p.id AND ps.career_save_id = ?
+      WHERE p.origin_career_save_id = ?`, careerSaveId, careerSaveId);
+  const nameTaken = otherRow?.name_reused_at != null;
+  const faceTaken = otherRow?.portrait_reused_at != null;
+  check("her name is either still in the pool or being worn by a new player",
+    !nameTaken || heirs.some((h) => h.name === otherRow.name),
+    nameTaken ? `taken by ${heirs.find((h) => h.name === otherRow.name)?.name ?? "nobody"}` : "still free");
+  check("and so is her face",
+    !faceTaken || heirs.some((h) => h.face === otherRow.image_url),
+    faceTaken ? `worn by ${heirs.find((h) => h.face === otherRow.image_url)?.name ?? "nobody"}` : "still free");
 
   // ── 4. The season review still knows who left ─────────────────────────────
   console.log("\n4. THE SEASON REVIEW STILL NAMES EVERY RETIREMENT");
