@@ -13,6 +13,8 @@ import {
   olympicMatchesTable,
   olympicMedalsTable,
   youthIntakesTable,
+  playerRetirementsTable,
+  clubHallOfFameTable,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
@@ -55,6 +57,11 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(olympicTournamentsTable).where(eq(olympicTournamentsTable.careerSaveId, careerSaveId)).run();
     // R-62: the academy intakes reference the save (NOT NULL).
     t.delete(youthIntakesTable).where(eq(youthIntakesTable.careerSaveId, careerSaveId)).run();
+    // L-02b: who retired in this career, and who its clubs honoured. Both
+    // reference the save (NOT NULL); the honours go first because a retirement
+    // row and an induction can name the same athlete.
+    t.delete(clubHallOfFameTable).where(eq(clubHallOfFameTable.careerSaveId, careerSaveId)).run();
+    t.delete(playerRetirementsTable).where(eq(playerRetirementsTable.careerSaveId, careerSaveId)).run();
     t.delete(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).run();
   };
 

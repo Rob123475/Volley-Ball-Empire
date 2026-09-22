@@ -1,7 +1,8 @@
 import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateTable,
   continentalPoolTeamsTable, careerPoolTeamStateTable,
   regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
-  regionalLeagueResultsTable } from "@workspace/db";
+  regionalLeagueResultsTable, contractsTable,
+  playerRetirementsTable, clubHallOfFameTable } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
 import { and, eq, gte, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
 
@@ -522,11 +523,16 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
     },
     retireAgedPlayers(careerSaveId, minAge, seasonYear) {
       const going = tx.select({
-        playerId: careerPlayerStateTable.playerId,
-        teamId:   careerPlayerStateTable.teamId,
-        age:      careerPlayerStateTable.age,
+        playerId:    careerPlayerStateTable.playerId,
+        teamId:      careerPlayerStateTable.teamId,
+        age:         careerPlayerStateTable.age,
+        name:        playersTable.name,
+        nationality: playersTable.nationality,
+        continent:   playersTable.continent,
+        imageUrl:    playersTable.imageUrl,
       })
         .from(careerPlayerStateTable)
+        .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
@@ -534,25 +540,89 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         ))
         .all();
 
-      if (going.length > 0) {
-        tx.update(careerPlayerStateTable)
-          .set({
-            isRetired: true,
-            retiredSeasonYear: seasonYear,
-            // Leaving the club frees the squad slot; a retired player holding a
-            // roster place would quietly shrink the squad every season.
-            teamId: null,
-            isActive: false,
-            updatedAt: new Date(),
-          })
-          .where(and(
-            eq(careerPlayerStateTable.careerSaveId, careerSaveId),
-            eq(careerPlayerStateTable.isRetired, false),
-            gte(careerPlayerStateTable.age, minAge),
-          ))
-          .run();
+      if (going.length === 0) return [];
+
+      // L-02b: who this career's clubs have honoured. An inducted player is
+      // kept whole — her record, her name and her face — because a Hall of Fame
+      // of deleted rows is not a Hall of Fame.
+      const honoured = new Set(
+        tx.select({ playerId: clubHallOfFameTable.playerId })
+          .from(clubHallOfFameTable)
+          .where(eq(clubHallOfFameTable.careerSaveId, careerSaveId))
+          .all()
+          .map((r) => r.playerId),
+      );
+
+      const now = new Date();
+      for (const g of going) {
+        const inHallOfFame = honoured.has(g.playerId);
+
+        // What the career keeps of her once the state row is gone: the season
+        // review names her, and the reusable-name and reusable-portrait pools
+        // are this table (utils/youthIntake.ts draws from it).
+        tx.insert(playerRetirementsTable).values({
+          careerSaveId,
+          playerId:    g.playerId,
+          name:        g.name,
+          nationality: g.nationality,
+          continent:   g.continent,
+          imageUrl:    g.imageUrl,
+          age:         g.age,
+          seasonYear,
+          lastTeamId:  g.teamId,
+          inHallOfFame,
+          // An honoured player's name and face are hers for good, so they are
+          // stamped as used the moment she retires and no pool can draw them.
+          nameReusedAt:     inHallOfFame ? now : null,
+          portraitReusedAt: inHallOfFame ? now : null,
+        }).run();
+
+        // The contract ends with the career. It used to be left `active`, so a
+        // retired player stayed on the Contracts page for ever and every season
+        // opened with renewals refused as "no longer in your squad" — 53 of
+        // them across the thirty-season run. Scoped to the club she was at, so
+        // another career's contract for the same shared athlete is untouched.
+        if (g.teamId != null) {
+          tx.update(contractsTable)
+            .set({ status: "expired" })
+            .where(and(
+              eq(contractsTable.playerId, g.playerId),
+              eq(contractsTable.teamId, g.teamId),
+              eq(contractsTable.status, "active"),
+            ))
+            .run();
+        }
+
+        if (inHallOfFame) {
+          tx.update(careerPlayerStateTable)
+            .set({
+              isRetired: true,
+              retiredSeasonYear: seasonYear,
+              // Leaving the club frees the squad slot; a retired player holding
+              // a roster place would quietly shrink the squad every season.
+              teamId: null,
+              isActive: false,
+              updatedAt: now,
+            })
+            .where(and(
+              eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+              eq(careerPlayerStateTable.playerId, g.playerId),
+            ))
+            .run();
+        } else {
+          // Rob's rule: a retiree nobody honoured leaves the career altogether.
+          // Only THIS career's record of her goes — `players` is the world's
+          // reference list, shared by every save on the machine.
+          tx.delete(careerPlayerStateTable)
+            .where(and(
+              eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+              eq(careerPlayerStateTable.playerId, g.playerId),
+            ))
+            .run();
+        }
       }
-      return going;
+
+      return going.map((g) => ({ playerId: g.playerId, teamId: g.teamId, age: g.age }));
     },
     promoteAgedYouth(careerSaveId, minAge) {
       const going = tx.select({

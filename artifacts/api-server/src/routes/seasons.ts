@@ -1,13 +1,12 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable, trophiesTable } from "@workspace/db";
+import { seasonsTable, matchesTable, teamsTable, seasonFinalStandingsTable, careerHistoryEntriesTable, competitorRankingsTable, competitorsTable, trophiesTable, playerRetirementsTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import { currentRanking, purseAccessTierFor, TIER_RANKING_POINTS } from "../utils/rankingPoints.js";
 import { TIER_THRESHOLDS } from "../utils/tierQualification.js";
-import { loadPlayers } from "../lib/playerDto.js";
 import { seasonNumberForYear } from "../utils/seasonRollover.js";
 import { worldTourStandings, worldFinalsSummary } from "../utils/worldTour.js";
 
@@ -88,11 +87,19 @@ router.get("/seasons/:year/review", async (req, res) => {
 
   const ranking = await currentRanking(cid, team.id, year);
 
-  // Who left and who came up, from career state rather than a recomputation.
-  const retired = await loadPlayers(cid, { includeRetired: true });
-  const retiredThisSeason = retired
-    .filter((p) => p.isRetired && p.retiredSeasonYear === year)
-    .map((p) => ({ id: p.id, name: p.name, age: p.age }));
+  // Who left, from the rows retirement itself wrote.
+  //
+  // L-02b: this read career state and filtered on isRetired, which stopped
+  // working the moment a retiree nobody had honoured had her career record
+  // deleted — the review would have shown "Nobody retired" for a season that
+  // retired three players. `player_retirements` is written by the boundary that
+  // retires them and outlives the state row on purpose.
+  const retiredThisSeason = (await db.select().from(playerRetirementsTable)
+    .where(and(
+      eq(playerRetirementsTable.careerSaveId, cid),
+      eq(playerRetirementsTable.seasonYear, year),
+    )))
+    .map((r) => ({ id: r.playerId, name: r.name, age: r.age }));
 
   const [history] = await db.select().from(careerHistoryEntriesTable).where(and(
     eq(careerHistoryEntriesTable.careerSaveId, cid),

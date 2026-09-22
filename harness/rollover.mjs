@@ -872,6 +872,18 @@ async function advanceToBoundary(api, maxDays = 500) {
   const longRefusals = longRun.renewals.flatMap((r) => r.refused.map((x) => `season ${r.season}: ${x.status} ${x.error}`));
   check(`${longRun.label}: contracts renewed at the start of every season, none refused`,
     longRun.renewals.length > 0 && longRefusals.length === 0, longRefusals.slice(0, 5).join("; ") || `${longRun.renewals.length} seasons renewed`);
+  // L-02b: a retired player used to keep an active contract row for ever, so
+  // every season opened with renewals refused as "no longer in your squad" —
+  // 53 of them across the thirty-season run, and the club carrying a wage for
+  // somebody who had left the game. Retirement closes the contract now.
+  {
+    const staleTotal = longRun.renewals.reduce((a, r) => a + (r.stale ?? 0), 0);
+    const staleSeasons = longRun.renewals.filter((r) => (r.stale ?? 0) > 0).map((r) => `S${r.season}:${r.stale}`);
+    check(`${longRun.label}: no renewal over ${longRun.seasons.length} seasons was refused as "no longer in your squad"`,
+      staleTotal === 0,
+      staleTotal === 0 ? "0 stale contract rows" : `${staleTotal} refused (${staleSeasons.join(" ")})`);
+  }
+
   // L-02a: Rob's rule is "EVERY player, staff member and medical staff member
   // has a contract". A fresh career proves it on day one (contract-terms.mjs);
   // this proves it survives thirty seasons of expiry, renewal, retirement,
@@ -940,10 +952,7 @@ async function advanceToBoundary(api, maxDays = 500) {
       (titles >= 0.8 * rows.length && rows.length >= 10 ? " — dominant: the AI field does not age or turn over (L-03)" : ""));
     const odd = rows.filter((r) => r.rank == null || r.rankingPoints == null || r.champion === "?" || r.champion == null);
     console.log(`  STANDINGS ${odd.length === 0 ? "every season had a rank, ranking points and a real champion" : `ANOMALIES in season(s) ${odd.map((r) => r.season).join(", ")}: missing rank, points or champion`}`);
-    const staleTotal = longRun.renewals.reduce((a, r) => a + (r.stale ?? 0), 0);
-    const staleSeasons = longRun.renewals.filter((r) => (r.stale ?? 0) > 0).map((r) => `S${r.season}:${r.stale}`);
-    console.log(`  CONTRACTS ${staleTotal} renewal(s) refused as "no longer in your squad" — a retired player's contract row stays in GET /contracts` +
-      (staleSeasons.length ? ` (${staleSeasons.join(" ")})` : "") + (staleTotal ? "; nothing expires or removes it (L-02)" : ""));
+    console.log(`  CONTRACTS see the retirement check above`);
     const fieldedTotal = rows.reduce((a, r) => a + r.fielded, 0);
     const fieldRefusals = rows.flatMap((r) => r.fieldedRefused.map((x) => `S${r.season}: ${x.status} ${x.error}`));
     console.log(`  SIDE     ${fieldedTotal} reserve(s) moved into the side by the harness over the run (the manager's minimum: keep ${FIELDED} active)` +

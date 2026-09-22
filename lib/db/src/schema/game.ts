@@ -1306,3 +1306,74 @@ export const worldTourFixturesTable = sqliteTable("world_tour_fixtures", {
 ]);
 
 export type WorldTourFixture = typeof worldTourFixturesTable.$inferSelect;
+
+// ── Retirement, and what a retired athlete leaves behind (L-02b) ─────────────
+/**
+ * One row per player who has retired in this career.
+ *
+ * Rob's rule (22 Sep): a player retires at the end of the season she turns 40;
+ * her contract closes and she leaves the squad. If no club has put her in its
+ * Hall of Fame, her career record is DELETED and her name and portrait go back
+ * into circulation for the next generation of youth players.
+ *
+ * That deletion is why this table exists. The season review lists who retired,
+ * and Club News and the career history refer to them, so the facts a career
+ * needs about a retirement have to outlive the career_player_state row that is
+ * about to be removed. It is also the reusable-name and reusable-portrait pool
+ * itself: `name_reused_at` and `portrait_reused_at` are stamped when a new
+ * youth player takes one, so nobody is ever handed the same name twice.
+ *
+ * A Hall of Fame retiree keeps her career_player_state row (the club's honour
+ * board is a list of real records, not names), and her name and portrait are
+ * never recycled: `in_hall_of_fame` says so, and both reuse columns are set on
+ * insert so no pool can draw from her.
+ */
+export const playerRetirementsTable = sqliteTable("player_retirements", {
+  id:              integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:    integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:        integer("player_id").notNull().references(() => playersTable.id),
+  name:            text("name").notNull(),
+  nationality:     text("nationality"),
+  continent:       text("continent"),
+  imageUrl:        text("image_url"),
+  age:             integer("age").notNull(),
+  seasonYear:      integer("season_year").notNull(),
+  lastTeamId:      integer("last_team_id").references(() => teamsTable.id),
+  inHallOfFame:    integer("in_hall_of_fame", { mode: "boolean" }).notNull().default(false),
+  /** Stamped when a new youth player is given this name. Null = still free. */
+  nameReusedAt:    integer("name_reused_at", { mode: "timestamp" }),
+  /** Stamped when a new youth player is given this portrait. Null = still free. */
+  portraitReusedAt: integer("portrait_reused_at", { mode: "timestamp" }),
+  createdAt:       integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  index("player_retirements_career_season").on(t.careerSaveId, t.seasonYear),
+]);
+
+export type PlayerRetirement = typeof playerRetirementsTable.$inferSelect;
+
+/**
+ * A club's Hall of Fame: the players it has honoured.
+ *
+ * Distinct from `hall_of_fame`, which is the MANAGER's — one row per finished
+ * career, for the profile screen. This one is per club, per career, and holds
+ * players, current or retired.
+ *
+ * Created with retirement (L-02b) because retirement has to ask the question
+ * before it deletes anybody: an inducted player's record is kept for ever.
+ * Inductions themselves — the recommendation list, the two-season window, the
+ * cap of six — are the Hall of Fame item.
+ */
+export const clubHallOfFameTable = sqliteTable("club_hall_of_fame", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:   integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  teamId:         integer("team_id").notNull().references(() => teamsTable.id),
+  playerId:       integer("player_id").notNull().references(() => playersTable.id),
+  /** Kept alongside the id so the board reads correctly after a career record goes. */
+  playerName:     text("player_name").notNull(),
+  seasonInducted: integer("season_inducted").notNull(),
+  createdAt:      integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("club_hall_of_fame_once").on(t.careerSaveId, t.teamId, t.playerId),
+]);
+
+export type ClubHallOfFameEntry = typeof clubHallOfFameTable.$inferSelect;
