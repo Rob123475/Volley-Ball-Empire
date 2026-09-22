@@ -305,9 +305,10 @@ console.log("\n########## 38/39  GAMEPLAY SMOKE ##########");
       secs: ((Date.now() - started) / 1000).toFixed(1),
     });
 
-    // Rollover reuses the same server: it walks a fresh career through all five
-    // season boundaries, which is slow but is the only way to prove the arc
-    // actually completes rather than compiling.
+    // Rollover reuses the same server: it walks a fresh career through five
+    // season boundaries and on, plays five-season strong/weak arcs, and (L-01)
+    // one established career to season 30 — slow, but the only way to prove a
+    // career keeps rolling rather than compiling.
     console.log("\n########## 39/39  SEASON ROLLOVER ##########");
     const rollStart = Date.now();
     const rr = spawnSync(

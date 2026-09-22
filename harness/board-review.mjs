@@ -14,8 +14,9 @@
  *              a warning; two failed in a row sacks; a below season between
  *              them resets nothing; a met season clears the strike), an
  *              underdog judged at its level, money never an immunity, debt,
- *              a collapsing balance, half the season forfeited, season 5 as a
- *              verdict — all through the server's own rule functions
+ *              a collapsing balance, half the season forfeited, season 5 and
+ *              later judged like any other season (L-01: no verdict season) —
+ *              all through the server's own rule functions
  *              (POST /dev/board/review-table, dev-only)
  *   monthly    the projection: below and failed warn; the freeze at 30, lifted
  *              above 35, held in between
@@ -230,8 +231,12 @@ try {
       expect: [e("met", 73, 0), e("below", 73, 0, "warning"), e("below", 73, 0, "warning"), e("met", 82, 0)] },
     { label: "RollWeak", seasons: [s(19, 150000, 532420, 8), s(19, 532420, 861040, 15), s(19, 861040, 1120200, 19), s(19, 1120200, 1300000, 18)],
       expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0)] },
-    { label: "RollWeak2 (+ season 5)", seasons: [s(19, 150000, 485200, 12), s(19, 485200, 761920, 19), s(19, 761920, 1051680, 18), s(19, 1051680, 1200000, 19), s(19, 1200000, 1300000, 19)],
-      expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0), e("met", 85, 0, "verdict")] },
+    { label: "RollWeak2 (+ season 5: L-01, an ordinary review, not a verdict)", seasons: [s(19, 150000, 485200, 12), s(19, 485200, 761920, 19), s(19, 761920, 1051680, 18), s(19, 1051680, 1200000, 19), s(19, 1200000, 1300000, 19)],
+      expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0), e("met", 85, 0)] },
+    // L-01 — there is no final season: a failed 5th and 6th season sack like any other pair
+    { label: "L-01: seasons 5 and 6 can sack — two failed seasons in a row after four met",
+      seasons: [s(1, 500000, 1000000, 4, DNQ), s(1, 1000000, 1500000, 4, DNQ), s(1, 1500000, 2000000, 4, DNQ), s(1, 2000000, 2500000, 4, DNQ), s(1, 2500000, 3000000, 9, DNQ), s(1, 3000000, 3500000, 10, DNQ)],
+      expect: [e("met", 65, 0), e("met", 70, 0), e("met", 75, 0), e("met", 80, 0), e("failed", 55, 1, "final_warning"), e("failed", 30, 2, "sacked")] },
     // §5.1 — the earlier cases, judged without the abandonment rule
     { label: "R-48 run 1 RollStrong", seasons: [s(1, 500000, 1100000, 1, RU), s(1, 1100000, 1600000, 11, DNQ), s(1, 1600000, 2300000, 6, DNQ), s(1, 2300000, 2350000, 19, DNQ, 54, 54)],
       expect: [e("met", 73, 0), e("failed", 48, 1, "final_warning"), e("below", 48, 1, "final_warning"), e("failed", 23, 2, "sacked")] },

@@ -176,7 +176,6 @@ async function careerToOlympics() {
       }
       const roll = r.data?.seasonRollover?.kind;
       if (roll === "sacked") { sacked = true; break; }
-      if (roll === "career-complete") throw new Error("the career completed without an Olympic tournament");
       if (roll && roll !== "none") await renewExpiringContracts(api);
     }
     console.log(`  (career ${attempt} was sacked before ${OLYMPIC_YEAR}; starting another)`);

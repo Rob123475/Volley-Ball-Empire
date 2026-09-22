@@ -42,17 +42,17 @@ const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-watched-match-"));
 const PORT = 4900;
 const BASE = `http://localhost:${PORT}/api`;
 
+// L-01 (22 Sep 2026): a career has no last season, so the six R-77 deleted
+// only because of the five-season cap are back — same keys, same names.
+// Continental Champion and First Pay Day stay out until Rob defines them.
 const EXPECTED_KEYS = [
   "first_steps", "battle_hardened", "century_wins", "perfect_season",
-  "tournament_winner", "champion", "world_champion", "dynasty_begins", "olympic_gold",
+  "tournament_winner", "champion", "world_champion", "dynasty_begins", "volleyball_empire", "olympic_gold", "double_olympic_gold",
   "making_money", "millionaires_club", "debt_free", "financially_secure",
   "talent_spotter", "youth_pipeline", "youth_graduate", "youth_factory", "future_superstar", "star_factory",
-  "local_legend", "world_traveller", "globe_trotter",
+  "local_legend", "mr_loyalty", "decade_in_sand", "veteran_coach", "hall_of_fame", "world_traveller", "globe_trotter",
 ];
-const DELETED_KEYS = [
-  "first_pay_day", "continental_champion", "decade_in_sand", "veteran_coach", "hall_of_fame",
-  "volleyball_empire", "mr_loyalty", "double_olympic_gold",
-];
+const DELETED_KEYS = ["first_pay_day", "continental_champion"];
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {

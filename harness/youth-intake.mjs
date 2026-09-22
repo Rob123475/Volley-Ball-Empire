@@ -13,9 +13,10 @@
  *              youth, measured again from the starter DB; the template card is on
  *              disk; the rules page says what the intake does; the starter DB owns
  *              no players and has no intakes
- *   intakes    a five-season career: the four boundaries that open a season each
- *              bring one intake of 3 (the fifth boundary ends the career), dated
- *              the new season's first day, none at career creation
+ *   intakes    the first four season boundaries of a career each open a season
+ *              and bring one intake of 3, dated the new season's first day, none
+ *              at career creation (L-01: a career has no last season, so the
+ *              walk stops after four boundaries rather than at a cap)
  *   players    every new player: the template card, and that file exists on disk;
  *              a youth player aged 16-18, owned by this career, in the club's
  *              academy (reserve, not active, academy contract); every rating inside
@@ -175,7 +176,7 @@ async function newCareer(name) {
 
 /**
  * Play a career day by day, renewing contracts at each season start, until it
- * has rolled `stopAfter` times or completed. Each boundary that opens a season
+ * has rolled `stopAfter` times or was sacked. Each boundary that opens a season
  * is recorded with its rollover body, the club's news and roster right after it.
  */
 async function play(career, stopAfter) {
@@ -195,7 +196,6 @@ async function play(career, stopAfter) {
     }
     const roll = r.data?.seasonRollover;
     if (roll?.kind === "sacked") return { rolls, sacked: true };
-    if (roll?.kind === "career-complete") return { rolls, complete: roll };
     if (roll?.kind === "rolled") {
       rolls.push({
         roll,
@@ -210,24 +210,29 @@ async function play(career, stopAfter) {
 }
 
 try {
-  // ── 1. A five-season career ───────────────────────────────────────────────
-  console.log("\n1. A FIVE-SEASON CAREER");
+  // ── 1. The first four season boundaries of a career ──────────────────────
+  console.log("\n1. THE FIRST FOUR SEASON BOUNDARIES OF A CAREER");
+  const BOUNDARIES = 4;
   let career, run;
   for (let attempt = 1; attempt <= 3; attempt++) {
     career = await newCareer(`Academy${attempt}`);
-    run = await play(career, 99);
+    run = await play(career, BOUNDARIES);
     if (!run.sacked) break;
-    console.log(`  (career ${attempt} was sacked before season 5; starting another)`);
+    console.log(`  (career ${attempt} was sacked before its ${BOUNDARIES}th boundary; starting another)`);
   }
   const { careerSaveId, teamId } = career;
-  check("the career played all five seasons", !!run.complete && run.complete.finalSeason === 5,
-    run.complete ? `final season ${run.complete.finalSeason}` : "sacked three times");
+  check(`the career crossed ${BOUNDARIES} boundaries, every one of them opening a season (no career-complete result exists any more)`,
+    !run.sacked && run.rolls.length === BOUNDARIES && run.rolls.every((x) => x.roll.kind === "rolled"),
+    run.sacked ? "sacked three times" : run.rolls.map((x) => `${x.roll.fromSeason}->${x.roll.toSeason}`).join(", "));
+  const seasonNow = (await career.api("GET", "/seasons/current")).data;
+  check("the career is still going after them — season 5 is active, not the end",
+    Number(seasonNow?.year) === 2030 && seasonNow?.status === "active", `year ${seasonNow?.year}, ${seasonNow?.name}, ${seasonNow?.status}`);
 
   // ── 2. The intakes ────────────────────────────────────────────────────────
   console.log("\n2. THE INTAKES");
   const rows = read(`SELECT season_year, intake_on, player_ids, team_id FROM youth_intakes WHERE career_save_id = ? ORDER BY season_year`, careerSaveId)
     .map((r) => ({ ...r, ids: JSON.parse(r.player_ids) }));
-  console.log(`  REPORT  a five-season career crosses 5 boundaries: 4 open a season (2027-2030) and bring an intake; the 5th ends the career`);
+  console.log(`  REPORT  the first 4 boundaries each open a season (2027-2030) and bring an intake; the career carries on past them`);
   check("four intakes, one for each season the career opened (2027-2030), none at career creation",
     rows.length === 4 && JSON.stringify(rows.map((r) => r.season_year)) === JSON.stringify([2027, 2028, 2029, 2030]),
     JSON.stringify(rows.map((r) => r.season_year)));
@@ -328,7 +333,7 @@ try {
   }
   console.log(`  REPORT  the club's region (${region}) still holds ${regionNames} unused names after this career's ${ids.length}: ` +
     `${Math.floor(regionNames / INTAKE_SIZE)} more seasons of intakes of ${INTAKE_SIZE} (${perNation.join(", ")}). The card is a template, so cards never run out.`);
-  check("the academy never ran dry in five seasons, and the region holds names for many more",
+  check("the academy never ran dry in four intakes, and the region holds names for many more",
     rows.every((r) => r.ids.length === INTAKE_SIZE) && regionNames >= 5 * INTAKE_SIZE, `${regionNames} names left`);
 
   // Test setup on this harness's own DB copy: every first name x surname in the

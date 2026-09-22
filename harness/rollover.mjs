@@ -3,9 +3,16 @@
  *
  * Before Phase 1 a career ran off the end of season one: the calendar advanced
  * past endDate, `atSeasonEnd` was returned to the client, and nothing acted on
- * it. This walks a career through every season boundary to the terminal one and
- * asserts on state that MOVES — season number, year, dates, ages, balance —
- * rather than on the endpoint returning 200.
+ * it. This walks a career through its first five season boundaries and asserts
+ * on state that MOVES — season number, year, dates, ages, balance — rather than
+ * on the endpoint returning 200.
+ *
+ * L-01 (22 Sep 2026): a career has no last season. The walk used to stop at a
+ * "career-complete" result after season 5; now every boundary rolls, and the
+ * suite asserts that the career is still going after the fifth. The R-08 arcs
+ * below play five full seasons each, and the last section plays ONE
+ * established career to season 30 and prints the per-season table Rob's
+ * economy decisions (L-04) are read from.
  *
  * Usage: node harness/rollover.mjs [baseUrl]
  */
@@ -87,11 +94,51 @@ async function playPendingMatch(api, matchId) {
 async function renewExpiringContracts(api) {
   const season = (await api("GET", "/seasons/current")).data;
   const contracts = (await api("GET", "/contracts")).data;
-  const result = { renewed: 0, refused: [] };
+  const result = { renewed: 0, refused: [], stale: 0 };
   if (!season?.endDate || !Array.isArray(contracts)) return result;
   for (const c of contracts.filter((k) => k.endDate <= season.endDate)) {
     const r = await api("POST", `/contracts/${c.id}/renew`);
     if (r.status === 200) result.renewed++;
+    // L-01 finding: a retired player's contract row stays in GET /contracts
+    // and renewing it is refused with "no longer in your squad". That is a
+    // stale row, not a spending refusal, and is counted separately so the
+    // 30-season run can report it (L-02 owns the fix).
+    else if (r.status === 409 && /no longer in your squad/.test(r.data?.error ?? "")) result.stale++;
+    else result.refused.push({ status: r.status, error: r.data?.error ?? null });
+  }
+  return result;
+}
+
+/**
+ * L-01: the one thing a manager MUST do over a long career that this walk
+ * never did — put players on the sand. The starting seniors retire at 40, and
+ * an academy graduate is promoted by the rollover (isPromoted) but stays a
+ * reserve until the manager gives her a squad role (PATCH /team/roster/:id/role,
+ * the Team page's own action). Without this, the first three 30-season
+ * attempts were all sacked for abandonment in season 13 (2038): the starting
+ * pair, 28 in 2026, turned 40 together, and the club had 25 graduates on its
+ * books and not one of them in the side.
+ *
+ * So, at the start of every season: if fewer than FIELDED players are active,
+ * move the best-rated reserves aged 18+ into the side through the real route —
+ * starters up to two, then interchange. Nothing else: no signings, no
+ * training, no releases. The count is reported per season as "fielded".
+ */
+const FIELDED = 4;
+async function keepSideFielded(api) {
+  const roster = (await api("GET", "/team/roster")).data;
+  if (!roster) return { moved: 0, refused: [] };
+  let starters = (roster.starters ?? []).length;
+  let active = starters + (roster.interchanges ?? []).length;
+  const bench = (roster.reserves ?? [])
+    .filter((p) => p.age >= 18 && !p.isRetired && !p.isInjured)
+    .sort((a, b) => (b.overallRating ?? b.rating ?? 0) - (a.overallRating ?? a.rating ?? 0));
+  const result = { moved: 0, refused: [] };
+  for (const p of bench) {
+    if (active >= FIELDED) break;
+    const role = starters < 2 ? "starter" : "interchange";
+    const r = await api("PATCH", `/team/roster/${p.id}/role`, { role });
+    if (r.status === 200) { result.moved++; active++; if (role === "starter") starters++; }
     else result.refused.push({ status: r.status, error: r.data?.error ?? null });
   }
   return result;
@@ -185,11 +232,11 @@ async function advanceToBoundary(api, maxDays = 500) {
   check("career starts in season 1", s0 && Number(s0.year) === 2026,
     `year ${s0?.year}, name ${s0?.name}`);
 
-  // ── Walk every boundary to the terminal one ──────────────────────────────
+  // ── Walk the first five boundaries; every one of them must roll ─────────
+  const WALK_BOUNDARIES = 5;
   const seen = [];
   const seenBodies = [];
-  let complete = null;
-  for (let season = 1; season <= 6; season++) {
+  for (let season = 1; season <= WALK_BOUNDARIES; season++) {
     const hit = await advanceToBoundary(A);
     if (!hit) { check(`reached boundary ${season}`, false, "never rolled over"); break; }
     // R-53: a sacking at the review is a legitimate board result, but this walk
@@ -198,7 +245,10 @@ async function advanceToBoundary(api, maxDays = 500) {
       check(`RollA crossed boundary ${season}`, false, `sacked at the season ${hit.roll.fromSeason} review: ${hit.roll.review?.text}`);
       break;
     }
-    if (hit.roll.kind === "career-complete") { complete = hit; break; }
+    if (hit.roll.kind !== "rolled") {
+      check(`boundary ${season} rolled into a new season`, false, `unexpected rollover kind "${hit.roll.kind}"`);
+      break;
+    }
     seen.push(hit.roll);
     seenBodies.push(hit.body);
 
@@ -211,12 +261,12 @@ async function advanceToBoundary(api, maxDays = 500) {
   // Ageing: everyone should be exactly one year older per boundary crossed.
   const rosterN = (await A("GET", "/players/market-all?playerType=senior")).data;
   const list = Array.isArray(rosterN) ? rosterN : [];
-  const boundaries = seen.length + (complete ? 1 : 0);
+  const boundaries = seen.length;
   const known = list.filter((p) => ages0.has(p.id));
   const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
   // R-62: each boundary that opens a season brings an academy intake. Those
   // players are traced to the intake that created them (boundary i + 1) and age
-  // from the age they arrived at; a promoted one is a senior by season 5.
+  // from the age they arrived at; a promoted one is a senior within five seasons.
   const intakeAge = new Map();
   seen.forEach((r, i) => { for (const p of r.intake?.players ?? []) intakeAge.set(p.id, { age: p.age, boundary: i + 1 }); });
   const fromIntake = list.filter((p) => !ages0.has(p.id) && intakeAge.has(p.id));
@@ -228,20 +278,23 @@ async function advanceToBoundary(api, maxDays = 500) {
     known.length + fromIntake.length === list.length,
     `${known.length} + ${fromIntake.length} intake of ${list.length} traceable`);
 
-  check("rolled through four boundaries", seen.length === 4,
+  check(`rolled through ${WALK_BOUNDARIES} boundaries`, seen.length === WALK_BOUNDARIES,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));
-  check("career terminates after season 5", complete !== null,
-    complete ? `finalSeason ${complete.roll.finalSeason}` : "never completed");
-  if (complete) {
-    check("terminal season is 5", complete.roll.finalSeason === 5);
-    check("careerComplete flag returned", complete.body.careerComplete === true);
-    check("the final season is reviewable too",
-      complete.body.reviewYear === 2026 + complete.roll.finalSeason - 1,
-      `reviewYear ${complete.body.reviewYear}`);
-  }
+  // L-01: the fifth boundary used to end the career. Now it opens season 6
+  // like any other, and nothing in the response says the career is over.
+  const s6 = (await A("GET", "/seasons/current")).data;
+  check("the career keeps going past season 5: season 6 (2031) is active", 
+    Number(s6?.year) === 2031 && s6?.status === "active", `year ${s6?.year}, ${s6?.name}, ${s6?.status}`);
+  check("no rollover ever reported the career complete (careerComplete is gone from the response)",
+    seenBodies.every((b) => !("careerComplete" in (b ?? {})) && b?.seasonRollover?.kind === "rolled"),
+    seenBodies.map((b) => b?.seasonRollover?.kind).join(", "));
+  const savesNow = (await A("GET", "/careers")).data?.saves;
+  const saveNow = (Array.isArray(savesNow) ? savesNow : []).find((c) => c.slotNumber === 1) ?? null;
+  check("the save is not retired after five boundaries", saveNow ? saveNow.retiredAt == null : false,
+    saveNow ? `retiredAt ${saveNow.retiredAt}` : "career slot not found");
 
   // The season review has to REACH the client. The rollover returned
-  // seasonRollover and careerComplete for weeks and the client read neither, so
+  // seasonRollover for weeks and the client never read it, so
   // asserting the rollover happened is not the same as asserting it is visible.
   // reviewYear is what opens the screen; without it the dialog never fires.
   const withYear = seenBodies.filter((b) => Number.isFinite(b?.reviewYear));
@@ -264,7 +317,7 @@ async function advanceToBoundary(api, maxDays = 500) {
   const hist = (await A("GET", "/careers/history")).data;
   const entries = Array.isArray(hist) ? hist : (hist?.entries ?? []);
   const seasonEntries = entries.filter((e) => e.type === "season_completed");
-  check("a history entry per completed season", seasonEntries.length === 5,
+  check("a history entry per completed season", seasonEntries.length === WALK_BOUNDARIES,
     `${seasonEntries.length} season_completed entries`);
 
   // Retirement: nobody left alive may be at or past the threshold, and the
@@ -282,7 +335,7 @@ async function advanceToBoundary(api, maxDays = 500) {
   const tooOld = aliveList.filter((p) => p.age >= declaredAge);
   check("no active player is at or past the retirement age", tooOld.length === 0,
     `${tooOld.length} over-age still active (threshold ${declaredAge})`);
-  // Promotion. All 72 youth cross 19 during the arc, so the academy should be
+  // Promotion. All 72 youth cross 19 within five seasons, so the academy should be
   // largely emptied into the senior pool and the two views must AGREE — a
   // player counted in both, or in neither, is the failure this chunk is about.
   const seniorsNow = (await A("GET", "/players/market-all?playerType=senior")).data;
@@ -306,8 +359,8 @@ async function advanceToBoundary(api, maxDays = 500) {
     mentions.map((e) => e.description.match(/(\d+) players? retired/)?.[1] ?? "?").join(", ") + " per season");
 
   // ── Season Review (Phase 8 row 6) ────────────────────────────────────────
-  // The rollover has returned seasonRollover and careerComplete since 1.1 and
-  // nothing consumed either, so five boundaries passed with nothing to show.
+  // The rollover has returned seasonRollover since 1.1 and nothing consumed
+  // it, so season boundaries passed with nothing to show.
   const review = await A("GET", "/seasons/2027/review");
   check("season review responds for a completed season", review.status === 200,
     `HTTP ${review.status}`);
@@ -326,9 +379,11 @@ async function advanceToBoundary(api, maxDays = 500) {
     check("review reports retirements", Array.isArray(r.retired),
       `${r.retired?.length} retired that season`);
   }
-  const finalReview = await A("GET", "/seasons/2030/review");
-  check("final season is flagged as final",
-    finalReview.status === 200 && finalReview.data?.isFinalSeason === true);
+  // L-01: season 5's review is an ordinary season review — no "final" flag.
+  const fifthReview = await A("GET", "/seasons/2030/review");
+  check("season 5's review is an ordinary review with no final-season flag",
+    fifthReview.status === 200 && !("isFinalSeason" in (fifthReview.data ?? {})),
+    `HTTP ${fifthReview.status}, keys ${Object.keys(fifthReview.data ?? {}).length}`);
 
   // ── R-08: real fixtures across the arc, strong squad vs weak squad ────────
   //
@@ -365,7 +420,7 @@ async function advanceToBoundary(api, maxDays = 500) {
   // counter could not tell. Hence the two rules this section now follows:
   // count from an uncapped source (the win/loss delta), and assert on EVERY
   // season rather than on the existence of one.
-  console.log("\n=== R-08: FIVE-SEASON ARC, REAL FIXTURES — STRONG vs WEAK SQUAD ===\n");
+  console.log("\n=== R-08: FIVE SEASONS, REAL FIXTURES — STRONG vs WEAK SQUAD ===\n");
 
   // Mirrors utils/tierQualification.ts's TIER_THRESHOLDS (R-54: derived from
   // real seasons, every win scored). Not tunable from here — this harness
@@ -411,7 +466,12 @@ async function advanceToBoundary(api, maxDays = 500) {
     return rows.filter((m) => m.season === year && m.status === "scheduled").length;
   }
 
-  async function runArc(label, difficulty) {
+  /**
+   * Play `arcSeasons` full seasons of one career and measure each. Used for
+   * the R-08 strong/weak arcs (five seasons) and for the L-01 thirty-season
+   * run. Stops early only on a sacking — L-01: nothing else ends a career.
+   */
+  async function runArc(label, difficulty, arcSeasons = ARC_SEASONS) {
     const api = session();
     let team = await newCareer(api, label, difficulty);
     const fixtureSize = await fullFixtureSize(api);
@@ -422,17 +482,22 @@ async function advanceToBoundary(api, maxDays = 500) {
 
     const seasons = [];
     let sacked = null;
-    let verdict = null;
-    let careerEnd = null;
     const renewals = [];
     let prevWins = team.wins, prevLosses = team.losses;
+    // L-01: the squad the club started with, so squad size, average age and
+    // retirements can be reported per season. GET /players is the club's own
+    // list — seniors and the academy — and does not generate anything.
+    const squadOf = (list) => (Array.isArray(list) ? list : []).filter((p) => !p.isRetired);
+    const isAcademy = (p) => p.playerType === "youth" && !p.isPromoted;
+    let prevSquadIds = new Set(squadOf((await api("GET", "/players")).data).filter((p) => !isAcademy(p)).map((p) => p.id));
 
-    for (let season = 1; season <= 6; season++) {
+    for (let season = 1; season <= arcSeasons; season++) {
       // Before playing anything: the season the career is sitting in must
       // already have a fixture. Season 1 comes from POST /careers, every later
       // season from the rollover itself (R-35).
       const activeYear = 2026 + season - 1;
       const readyAtStart = await scheduledForYear(api, activeYear);
+      const fielded = await keepSideFielded(api);
 
       const hit = await advanceToBoundaryPlaying(api);
       if (!hit) { console.log(`    season ${season}: never reached a boundary — stopping`); break; }
@@ -447,15 +512,8 @@ async function advanceToBoundary(api, maxDays = 500) {
         break;
       }
 
-      if (hit.roll.kind === "career-complete") {
-        verdict = hit.roll.review ?? null;
-        console.log(`    career complete after season ${hit.roll.finalSeason} — ${verdict?.text}`);
-        // R-77: every season boundary counts a completed season, the last one
-        // included, and five of them unlock Local Legend.
-        careerEnd = {
-          seasonsCompleted: (await api("GET", "/achievements/career-stats")).data?.seasonsCompleted ?? null,
-          localLegend: ((await api("GET", "/achievements")).data ?? []).find((a) => a.key === "local_legend")?.unlocked ?? null,
-        };
+      if (hit.roll.kind !== "rolled") {
+        console.log(`    season ${season}: unexpected rollover kind "${hit.roll.kind}" — stopping`);
         break;
       }
 
@@ -463,6 +521,16 @@ async function advanceToBoundary(api, maxDays = 500) {
       const review = await api("GET", `/seasons/${endedYear}/review`);
       const teamNow = await api("GET", "/team");
       team = teamNow.data;
+
+      // L-01: the squad after the boundary — ageing, retirement and promotion
+      // have all run. "Retired" is read from the review (the rollover wrote it).
+      const everyone = squadOf((await api("GET", "/players")).data);
+      const squad = everyone.filter((p) => !isAcademy(p));
+      const academy = everyone.filter(isAcademy);
+      const squadIds = new Set(squad.map((p) => p.id));
+      const promotedThisSeason = squad.filter((p) => p.isPromoted && !prevSquadIds.has(p.id)).length;
+      prevSquadIds = squadIds;
+      const avgAge = squad.length ? squad.reduce((a, p) => a + (p.age ?? 0), 0) / squad.length : 0;
 
       // Played = the win/loss delta across the season. This is the uncapped,
       // non-generating count: every completed fixture credits exactly one win
@@ -498,17 +566,34 @@ async function advanceToBoundary(api, maxDays = 500) {
         // R-53: the board's review of this season, as the rollover returned it.
         board: hit.roll.review ?? null,
         nextAccess: openedFixture?.purse?.accessTier ?? null,
+        // L-01: the squad after the boundary.
+        squadSize: squad.length,
+        avgAge: Math.round(avgAge * 10) / 10,
+        academy: academy.length,
+        retired: Array.isArray(review.data?.retired) ? review.data.retired.length : null,
+        promoted: promotedThisSeason,
+        intake: hit.roll.intake?.players?.length ?? 0,
+        fielded: fielded.moved,
+        fieldedRefused: fielded.refused,
       };
       seasons.push(row);
       console.log(
         `    season ${row.season} (${row.year}): ${row.record}  ·  ${row.played}/${fixtureSize} played  ·  ` +
         `${row.rankingPoints ?? "?"} ranking pts  ·  ${row.tier} tier  ·  $${row.balance.toLocaleString()} balance  ·  ` +
-        `#${row.rank ?? "?"} in the field  ·  finals: ${row.finals}  ·  champion: ${row.champion}`,
+        `#${row.rank ?? "?"} in the field  ·  finals: ${row.finals}  ·  champion: ${row.champion}  ·  ` +
+        `squad ${row.squadSize} (avg age ${row.avgAge})  ·  academy ${row.academy}  ·  retired ${row.retired ?? "?"}  ·  promoted ${row.promoted}  ·  intake ${row.intake}  ·  fielded ${row.fielded}`,
       );
       console.log(`      board: ${row.board?.text ?? "NO REVIEW"}`);
     }
 
-    return { label, difficulty, seasons, fixtureSize, sacked, renewals, verdict, careerEnd };
+    // R-77: every season boundary counts a completed season. Read once the
+    // arc is over, for the Local Legend check below.
+    const careerEnd = sacked ? null : {
+      seasonsCompleted: (await api("GET", "/achievements/career-stats")).data?.seasonsCompleted ?? null,
+      localLegend: ((await api("GET", "/achievements")).data ?? []).find((a) => a.key === "local_legend")?.unlocked ?? null,
+    };
+
+    return { label, difficulty, seasons, fixtureSize, sacked, renewals, careerEnd };
   }
 
   // R-47: a sacking is a legitimate result, so one career per arc could only say
@@ -516,18 +601,21 @@ async function advanceToBoundary(api, maxDays = 500) {
   // of the arc or to its sacking, and reports how many were sacked. The first
   // career of each arc is the one the summary table shows.
   const ARC_CAREERS = 3;
+  // L-01: five full seasons each, every boundary a rollover. Before L-01 the
+  // arc measured four seasons and the fifth boundary ended the career.
+  const ARC_SEASONS = 5;
   const strongRuns = [], weakRuns = [];
   for (let i = 1; i <= ARC_CAREERS; i++) strongRuns.push(await runArc(i === 1 ? "RollStrong" : `RollStrong${i}`, "established"));
   for (let i = 1; i <= ARC_CAREERS; i++) weakRuns.push(await runArc(i === 1 ? "RollWeak" : `RollWeak${i}`, "underdog"));
   const strong = strongRuns[0];
   const weak   = weakRuns[0];
 
-  // The arc has to actually cover the arc: four boundaries means four measured
+  // The arc has to actually cover the arc: five boundaries means five measured
   // seasons, so "at least one" is not good enough — that is precisely what let
   // the first version of this section pass with seasons 2-5 empty.
-  const EXPECTED_SEASONS = 4;
+  const EXPECTED_SEASONS = ARC_SEASONS;
   for (const arc of [...strongRuns, ...weakRuns]) {
-    // R-47: every season the career played is measured — all four, or every
+    // R-47: every season the career played is measured — all five, or every
     // season before the one it was sacked in.
     const sackedAfterMeasured = !!arc.sacked && arc.sacked.season === arc.seasons.length + 1;
     check(`${arc.label} (${arc.difficulty}) measured every season it played: all ${EXPECTED_SEASONS}, or up to its sacking`,
@@ -571,17 +659,18 @@ async function advanceToBoundary(api, maxDays = 500) {
       arc.seasons.map((r) => r.record).join(" | "));
 
     // R-53: every season the board closed carries its review — each measured
-    // season, the season a review sacked in, and the season-5 verdict.
-    const reviews = [...arc.seasons.map((r) => r.board), ...(arc.sacked?.why === "review" ? [arc.sacked.review] : []), ...(arc.verdict ? [arc.verdict] : [])];
-    const expectedReviews = arc.seasons.length + (arc.sacked?.why === "review" ? 1 : 0) + (arc.sacked ? 0 : 1);
-    check(`${arc.label}: the board reviewed every season it closed`,
-      reviews.length === expectedReviews && reviews.every((v) => v && typeof v.text === "string" && v.outcome),
-      `${reviews.filter(Boolean).length}/${expectedReviews} reviews`);
+    // season and the season a review sacked in. L-01: no review is a verdict.
+    const reviews = [...arc.seasons.map((r) => r.board), ...(arc.sacked?.why === "review" ? [arc.sacked.review] : [])];
+    const expectedReviews = arc.seasons.length + (arc.sacked?.why === "review" ? 1 : 0);
+    check(`${arc.label}: the board reviewed every season it closed, and none of them was a "verdict"`,
+      reviews.length === expectedReviews && reviews.every((v) => v && typeof v.text === "string" && v.outcome && v.outcome !== "verdict"),
+      `${reviews.filter(Boolean).length}/${expectedReviews} reviews: ${reviews.map((v) => v?.outcome).join(", ")}`);
 
-    // R-77: seasons are counted at every season boundary, the final one included,
-    // so a career that runs its five seasons completes five and unlocks Local Legend.
+    // R-77: seasons are counted at every season boundary, so a career that
+    // plays five seasons has completed five and unlocks Local Legend — and
+    // L-01: it is still going.
     if (!arc.sacked) {
-      check(`${arc.label}: a five-season career counts five completed seasons and unlocks Local Legend`,
+      check(`${arc.label}: five seasons played counts five completed seasons and unlocks Local Legend`,
         arc.careerEnd?.seasonsCompleted === 5 && arc.careerEnd?.localLegend === true,
         `seasonsCompleted ${arc.careerEnd?.seasonsCompleted}, Local Legend ${arc.careerEnd?.localLegend}`);
     }
@@ -616,7 +705,7 @@ async function advanceToBoundary(api, maxDays = 500) {
     console.log(`  ${label}: sacked in ${sackedRuns.length} of ${runs.length} careers (${Math.round(100 * sackedRuns.length / runs.length)}%)`);
     for (const r of runs) {
       const seasonsText = r.seasons.map((x) => x.record).join(" | ");
-      console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED (${r.sacked.why}) in season ${r.sacked.season} after ${r.sacked.record}` : "  ->  career complete"}`);
+      console.log(`    ${r.label.padEnd(12)} ${seasonsText || "(no full season)"}${r.sacked ? `  ->  SACKED (${r.sacked.why}) in season ${r.sacked.season} after ${r.sacked.record}` : `  ->  still in the job after ${r.seasons.length} seasons`}`);
       // R-48: a refused renewal lapses the squad at the FOLLOWING season boundary.
       const refusedSeasons = (r.renewals ?? []).filter((x) => x.refused.length > 0).map((x) => x.season);
       if (refusedSeasons.length > 0) {
@@ -632,7 +721,6 @@ async function advanceToBoundary(api, maxDays = 500) {
       ...arc.seasons.map((r) => r.board?.text ?? `Season ${r.season}: NO REVIEW`),
       ...(arc.sacked?.why === "review" ? [arc.sacked.review?.text] : []),
       ...(arc.sacked?.why === "abandonment" ? [`Season ${arc.sacked.season}: sacked for abandonment after ${arc.sacked.record}`] : []),
-      ...(arc.verdict ? [arc.verdict.text] : []),
     ];
     for (const line of lines) console.log(`  ${arc.label.padEnd(12)} ${line}`);
   }
@@ -700,6 +788,123 @@ async function advanceToBoundary(api, maxDays = 500) {
   const champions = [...strongRuns, ...weakRuns].flatMap((arc) => arc.seasons.map((r) => r.champion));
   check("every measured season crowned a real champion from the field",
     champions.length > 0 && champions.every((c) => c && c !== "?"), `${champions.length} seasons: ${champions.join(" | ")}`);
+
+  // ── L-01: thirty seasons, one established career ─────────────────────────
+  //
+  // Rob's decision, 22 Sep 2026: a career must be able to run 30-40 seasons.
+  // This plays ONE established career, real fixtures, through thirty season
+  // boundaries and prints the per-season table Rob reads before any economy
+  // decision (L-04). It is MEASUREMENT: nothing here is tuned or judged
+  // against a "should be" figure. What IS asserted is the L-01 rule itself —
+  // a career that is not sacked keeps rolling — and that the run reached
+  // season 30 with every season played and its fixture in place.
+  //
+  // A sacking is a legitimate board result, not a bug, so the run starts
+  // another career if one is sacked, up to LONG_ATTEMPTS. Every attempt is
+  // reported. If every attempt is sacked the check fails, because then nothing
+  // has proven thirty seasons.
+  const LONG_SEASONS = Number(process.env.LONG_SEASONS ?? 30);
+  const LONG_ATTEMPTS = 3;
+  console.log(`\n=== L-01: ${LONG_SEASONS} SEASONS, ONE ESTABLISHED CAREER, REAL FIXTURES ===\n`);
+  let long = null;
+  const longAttempts = [];
+  for (let attempt = 1; attempt <= LONG_ATTEMPTS; attempt++) {
+    const run = await runArc(attempt === 1 ? "Long" : `Long${attempt}`, "established", LONG_SEASONS);
+    longAttempts.push(run);
+    if (!run.sacked) { long = run; break; }
+    console.log(`  (${run.label} was sacked in season ${run.sacked.season}; starting another career)`);
+  }
+  const longRun = long ?? longAttempts[longAttempts.length - 1];
+
+  check(`one established career played ${LONG_SEASONS} seasons and is still in the job`,
+    long !== null && long.seasons.length === LONG_SEASONS,
+    long ? `${long.label}: ${long.seasons.length} seasons, no sacking` : `every one of ${LONG_ATTEMPTS} careers was sacked: ${longAttempts.map((r) => `${r.label} in season ${r.sacked?.season}`).join(", ")}`);
+  check(`every one of its ${LONG_SEASONS} boundaries rolled into a new season (a career ends only by sacking)`,
+    longRun.seasons.length > 0 && longRun.seasons.every((r) => r.board && r.board.outcome !== "verdict"),
+    `${longRun.seasons.length} rollovers`);
+  const longUnready = longRun.seasons.filter((r) => r.readyAtStart === 0);
+  check(`${longRun.label}: every season had its fixture before anything asked for it`,
+    longUnready.length === 0,
+    longUnready.length === 0 ? `all ${longRun.seasons.length} seasons scheduled at their start` : `empty fixture at start of season(s) ${longUnready.map((r) => r.season).join(", ")}`);
+  const longShort = longRun.seasons.filter((r) => r.notQualified == null || r.byes == null || r.played !== longRun.fixtureSize - r.notQualified - r.byes);
+  check(`${longRun.label}: every season played every match it was entitled to`,
+    longShort.length === 0,
+    longShort.length === 0 ? `${longRun.seasons.length} full seasons` : longShort.map((r) => `season ${r.season} played ${r.played}, byes ${r.byes}, not qualified for ${r.notQualified}`).join("; "));
+  const longRefusals = longRun.renewals.flatMap((r) => r.refused.map((x) => `season ${r.season}: ${x.status} ${x.error}`));
+  check(`${longRun.label}: contracts renewed at the start of every season, none refused`,
+    longRun.renewals.length > 0 && longRefusals.length === 0, longRefusals.slice(0, 5).join("; ") || `${longRun.renewals.length} seasons renewed`);
+  if (long) {
+    const lastYear = 2026 + LONG_SEASONS;
+    check(`${long.label}: season ${LONG_SEASONS + 1} (${lastYear}) opened after the ${LONG_SEASONS}th boundary`,
+      long.seasons[long.seasons.length - 1]?.year === lastYear - 1 && long.careerEnd?.seasonsCompleted === LONG_SEASONS,
+      `last measured season ${long.seasons[long.seasons.length - 1]?.year}, seasonsCompleted ${long.careerEnd?.seasonsCompleted}`);
+  }
+
+  // The table. Every column is read, none is judged.
+  console.log(`\n  ── ${longRun.label}: per-season table (L-01 — report only, nothing tuned; the input to L-04) ──`);
+  console.log("  Squad = the club's non-academy players after the boundary; Retired = retirements that season across the whole career world (the review's list), not only the club's.");
+  console.log("  Season  Year  Record   Played  Pts  Tier    Finish  Finals            Balance        Squad  AvgAge  Academy  Retired  Promoted  Intake  Fielded  Board");
+  for (const r of longRun.seasons) {
+    console.log(
+      `  ${String(r.season).padStart(6)}  ${r.year}  ${r.record.padEnd(8)} ${String(r.played).padStart(6)}  ${String(r.rankingPoints ?? "?").padStart(3)}  ${String(r.tier).padEnd(7)} ${("#" + (r.rank ?? "?")).padStart(6)}  ${String(r.finals).padEnd(17)} ${("$" + r.balance.toLocaleString()).padStart(14)}  ${String(r.squadSize).padStart(5)}  ${String(r.avgAge).padStart(6)}  ${String(r.academy).padStart(7)}  ${String(r.retired ?? "?").padStart(7)}  ${String(r.promoted).padStart(8)}  ${String(r.intake).padStart(6)}  ${String(r.fielded).padStart(7)}  ${r.board?.outcome ?? "?"} (${r.board?.confidenceBefore ?? "?"}->${r.board?.confidenceAfter ?? "?"})`,
+    );
+  }
+  if (longRun.sacked) console.log(`  ${String(longRun.sacked.season).padStart(6)}  ${longRun.sacked.year}  SACKED (${longRun.sacked.why}) after ${longRun.sacked.record} — ${longRun.sacked.review?.text ?? ""}`);
+
+  // What goes wrong over thirty years — said plainly, from the numbers above.
+  // These are observations for Rob, not pass/fail checks: the brief says the
+  // run does not have to look good, it has to run and the report has to be
+  // honest about what it found.
+  console.log(`\n  ── ${longRun.label}: what the ${longRun.seasons.length}-season run shows (observations, not checks) ──`);
+  const rows = longRun.seasons;
+  if (rows.length > 0) {
+    const first = rows[0], last = rows[rows.length - 1];
+    const peakBal = rows.reduce((m, r) => Math.max(m, r.balance), -Infinity);
+    const minBal = rows.reduce((m, r) => Math.min(m, r.balance), Infinity);
+    const perSeason = rows.length > 1 ? (last.balance - first.balance) / (rows.length - 1) : 0;
+    console.log(`  MONEY    balance $${first.balance.toLocaleString()} after season 1 -> $${last.balance.toLocaleString()} after season ${last.season}; ` +
+      `peak $${peakBal.toLocaleString()}, low $${minBal.toLocaleString()}; average change $${Math.round(perSeason).toLocaleString()} per season` +
+      (minBal < 0 ? " — WENT INTO DEBT" : "") +
+      (last.balance > 10 * Math.max(1, first.balance) ? " — RUNAWAY: more than 10x the season-1 balance, money stops meaning anything" : "") +
+      (last.balance < first.balance ? " — DECLINING" : ""));
+    const ages = rows.map((r) => r.avgAge);
+    const sizes = rows.map((r) => r.squadSize);
+    console.log(`  SQUAD    size ${first.squadSize} -> ${last.squadSize} (min ${Math.min(...sizes)}, max ${Math.max(...sizes)}); average age ${first.avgAge} -> ${last.avgAge} (min ${Math.min(...ages)}, max ${Math.max(...ages)})` +
+      (Math.min(...sizes) < 2 ? " — FELL BELOW A PAIR: the club could not field a side" : "") +
+      (Math.max(...ages) >= 34 ? " — AGEING OUT: average age reached the mid-thirties" : ""));
+    const retiredTotal = rows.reduce((a, r) => a + (r.retired ?? 0), 0);
+    const retireWave = rows.filter((r) => (r.retired ?? 0) >= 3).map((r) => `S${r.season}:${r.retired}`);
+    console.log(`  RETIRED  ${retiredTotal} players retired across ${rows.length} seasons` + (retireWave.length ? `; seasons with 3+ retirements: ${retireWave.join(" ")}` : "; never more than 2 in a season"));
+    const promotedTotal = rows.reduce((a, r) => a + r.promoted, 0);
+    const intakeTotal = rows.reduce((a, r) => a + r.intake, 0);
+    const emptyAcademy = rows.filter((r) => r.academy === 0).map((r) => r.season);
+    const noIntake = rows.filter((r) => r.intake === 0).map((r) => r.season);
+    console.log(`  ACADEMY  ${intakeTotal} youth taken in, ${promotedTotal} promoted to the senior squad; academy size ${first.academy} -> ${last.academy}` +
+      (emptyAcademy.length ? ` — EMPTY in season(s) ${emptyAcademy.join(", ")}` : "; never empty") +
+      (noIntake.length ? `; no intake in season(s) ${noIntake.join(", ")}` : ""));
+    const tiers = {}; for (const r of rows) tiers[r.tier] = (tiers[r.tier] ?? 0) + 1;
+    const titles = rows.filter((r) => r.finals === "champion").length;
+    const finishes = rows.map((r) => r.rank ?? 99);
+    console.log(`  RESULTS  ${titles} World Final title(s) in ${rows.length} seasons; finishes #${Math.min(...finishes)} to #${Math.max(...finishes)}; tiers ${Object.entries(tiers).map(([t, n]) => `${t} x${n}`).join(", ")}` +
+      (titles === rows.length ? " — WON EVERY SEASON: the field never catches up" : "") +
+      (titles >= 0.8 * rows.length && rows.length >= 10 ? " — dominant: the AI field does not age or turn over (L-03)" : ""));
+    const odd = rows.filter((r) => r.rank == null || r.rankingPoints == null || r.champion === "?" || r.champion == null);
+    console.log(`  STANDINGS ${odd.length === 0 ? "every season had a rank, ranking points and a real champion" : `ANOMALIES in season(s) ${odd.map((r) => r.season).join(", ")}: missing rank, points or champion`}`);
+    const staleTotal = longRun.renewals.reduce((a, r) => a + (r.stale ?? 0), 0);
+    const staleSeasons = longRun.renewals.filter((r) => (r.stale ?? 0) > 0).map((r) => `S${r.season}:${r.stale}`);
+    console.log(`  CONTRACTS ${staleTotal} renewal(s) refused as "no longer in your squad" — a retired player's contract row stays in GET /contracts` +
+      (staleSeasons.length ? ` (${staleSeasons.join(" ")})` : "") + (staleTotal ? "; nothing expires or removes it (L-02)" : ""));
+    const fieldedTotal = rows.reduce((a, r) => a + r.fielded, 0);
+    const fieldRefusals = rows.flatMap((r) => r.fieldedRefused.map((x) => `S${r.season}: ${x.status} ${x.error}`));
+    console.log(`  SIDE     ${fieldedTotal} reserve(s) moved into the side by the harness over the run (the manager's minimum: keep ${FIELDED} active)` +
+      (fieldRefusals.length ? `; refused: ${fieldRefusals.slice(0, 5).join("; ")}` : ""));
+    const outcomes = {}; for (const r of rows) outcomes[r.board?.outcome ?? "?"] = (outcomes[r.board?.outcome ?? "?"] ?? 0) + 1;
+    const lastPlace = rows.filter((r) => (r.rank ?? 0) >= 18).length;
+    console.log(`  BOARD    ${Object.entries(outcomes).map(([o, n]) => `${o} x${n}`).join(", ")}; confidence ended at ${last.board?.confidenceAfter ?? "?"}` +
+      (lastPlace >= 5 && !outcomes.final_warning && !outcomes.sacked
+        ? ` — ${lastPlace} seasons finished 18th or 19th and the board never went past a warning: a squad ranked weakest in the field cannot fail on position (R-55 bands), so a collapsed club is never at risk`
+        : ""));
+  }
 
   console.log(`\n=== ${checks - failures}/${checks} passed ===`);
   process.exit(failures > 0 ? 1 : 0);
