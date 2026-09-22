@@ -300,6 +300,21 @@ Checked in the package rather than assumed:
   save gets all of them on its next boot: the packaged build reported "schema
   check: save is up to date, 0 missing columns" over 52 tables and 646 columns
   derived from the model it queries through.
+- **your own save opens on it.** This is the one thing the harness cannot
+  prove, because every suite starts from the shipped database and yours has a
+  history. I took a COPY of
+  `AppData\Roaming\Beach Volleyball Empire\volleyball-empire.sqlite` — the
+  original was never opened for writing, and its fingerprint
+  (`e887920d...9b9d2fe76`) is the same before and after — and started tonight's
+  server on the copy. It came up on the first try: 50 tables became 52,
+  `club_hall_of_fame` and `player_retirements` created, eight columns added
+  (including `board_seasons.team_id` and `career_pool_team_state.taken_over_at`),
+  two indexes, `problems: []`, one staff member given the contract they never
+  had, and all four of your recorded board seasons matched to the club that
+  played them. Then it checkpointed and closed cleanly. Your save is not
+  migrated by a script anyone wrote by hand: the repair is derived at boot from
+  the same schema the code queries through.
+
 - steamworks.js is unpacked beside `steam_api64.dll` where the loader can find
   it, and after-pack now FAILS the build if it is not
 - no `steam_appid.txt` in the package, and after-pack fails the build if one
