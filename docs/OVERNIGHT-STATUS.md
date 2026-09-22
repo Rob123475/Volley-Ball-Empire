@@ -471,6 +471,15 @@ worth a couple of hundred thousand and not a million.
   fault — which is why it is a job of its own rather than something to bolt on
   at four in the morning.
 
+- **The four-week contract warning is written down in three places.**
+  `CONTRACT_WARNING_DAYS = 28` on the server, `daysLeft <= 28` in
+  `contract-renew-bar.tsx`, and `28` again in `harness/contract-terms.mjs`.
+  They agree today. If the server's ever changes, the page will warn on the old
+  window and the harness will assert the old window and stay green — which is
+  the drift this project keeps finding, and which `contract-terms.mjs` already
+  guards against for the three contract LENGTHS by reading both lists and
+  comparing them. The same trick would do here.
+
 - **`DELETE /contracts/:id` does not check the contract belongs to your club.**
   Every other route on that file does. Nothing can reach it today, because the
   only list of contract ids a client ever sees is its own club's, so it is
@@ -666,10 +675,14 @@ worth a couple of hundred thousand and not a million.
    the number that decides how forgiving the sale rule is.
 3. **Create the thirty achievements in Steamworks** from
    `docs/achievements-table.md`, then prove one pops.
-4. **The three things left undone** are listed above under "Found on the way" —
-   the squad-role slot limits, AI clubs having no books of their own, and
-   `local_legend` now that a manager can change clubs. None of them blocks a
-   release; all three are the kind of thing that gets worse the longer it sits.
+4. **What is left undone** is listed above under "Found on the way", and it
+   grew over the night as I kept reading: the squad-role slot limits, AI clubs
+   having no books of their own, the academy's own contract years, nothing
+   checking a route against the API spec, the ownership check on
+   `DELETE /contracts/:id`, and the frontend's own copy of the four-week
+   contract warning. (`local_legend` was on this list earlier in the night and
+   is not any more — it is fixed, and written up below.) None of them blocks a
+   release; all of them get worse the longer they sit.
 
 ## If something in here is wrong
 
