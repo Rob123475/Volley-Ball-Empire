@@ -282,7 +282,8 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 ## The build
 
 `C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,066 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `8897343` — the branch tip. It was
+`C:\build\vbe\win-unpacked\`, from commit `8897343`, the last commit that
+changed the game — the one after it is this report. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
 electron-builder 25.1.8, Electron 32.3.3, x64.
@@ -327,9 +328,17 @@ came from has been replaced, as the brief asked.
 ## The money, season by season (L-04)
 
 The table the brief asked for, printed by `harness/economy.mjs` and copied here
-exactly. It walks two clubs and reads every pound in and out of
-`finance_transactions`; run `node harness/economy.mjs` and it prints this and
-then checks it.
+exactly as that run printed it. It walks two clubs and reads every dollar in and
+out of `finance_transactions`.
+
+**The numbers are one run's, not the rule's.** These are real simulated seasons,
+so `node harness/economy.mjs` prints different figures every time — a later run
+took the established club to $2.13 million rather than $1.67 million, and its
+underdog finished 15th in its fourth season rather than 19th. What does not move
+is what the suite asserts: a club in the bottom three goes backwards every
+season, a club that wins the Gold tour goes forwards every time and by under
+$500,000, and four seasons at the bottom cost more than the club started with.
+Read the table for the shape of it, and the run for the numbers.
 
 **An established club, twelve seasons.** Started on $500,000.
 
