@@ -267,11 +267,25 @@ router.get("/contracts/:id", async (req, res) => {
 
 router.delete("/contracts/:id", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) { res.status(400).json({ error: "Invalid contract id" }); return; }
+
+  // The contract has to be YOURS. Every other route on this file checks it and
+  // this one did not: it took the id it was given, released that player from
+  // this career's squad and charged the payout to whichever club was active.
+  // Nothing could reach it, because the only list of contract ids a client
+  // ever sees is its own club's (GET /contracts is team-scoped) - but "no
+  // caller does that today" is not the same as a rule, and terminating
+  // somebody else's contract is not a thing this route should be able to do.
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   // Resolve the player before mutating anything
   const contract = await db.query.contractsTable.findFirst({ where: eq(contractsTable.id, id) });
-  if (!contract) { res.status(404).json({ error: "Contract not found" }); return; }
+  if (!contract || contract.teamId !== team.id) {
+    res.status(404).json({ error: "Contract not found" });
+    return;
+  }
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), contract.playerId);
 
@@ -287,14 +301,13 @@ router.delete("/contracts/:id", async (req, res) => {
   // L-02a, Rob's rule: "Club ends a contract early -> the remainder of the
   // contract is paid out from the club balance." Before this, tearing up a deal
   // cost the club nothing at all, so there was no reason not to.
-  const team = await getActiveTeam(req);
-  const today = team ? await getGameDate(team.id) : contract.startDate;
+  const today = await getGameDate(team.id);
   const payout = terminationPayout(Number(contract.salary), today, contract.endDate);
 
   const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve" });
 
-  if (team && payout > 0) {
+  if (payout > 0) {
     await db.update(teamsTable)
       .set({ budget: Number(team.budget) - payout })
       .where(eq(teamsTable.id, team.id));

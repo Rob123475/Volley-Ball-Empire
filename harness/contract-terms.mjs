@@ -399,6 +399,56 @@ try {
       badPromote.status === 400, `HTTP ${badPromote.status} ${badPromote.data?.error ?? ""}`);
   }
 
+  // ── 8. A CONTRACT YOU CAN END IS ONE OF YOURS ────────────────────────
+  //
+  // Terminating a contract releases the player and charges the remainder to
+  // the club. DELETE /contracts/:id took the id it was given and checked
+  // nothing: the id of a contract at a DIFFERENT club released that player
+  // from this career's squad and billed the payout to whichever club happened
+  // to be active. Nothing reaches it through the game - GET /contracts only
+  // ever lists your own - so this is the rule written down rather than a bug
+  // being closed.
+  //
+  // Done last, and with the first career loaded again afterwards, so nothing
+  // above it is played out on a second career by accident.
+  console.log("\n8. A CONTRACT YOU CAN END IS ONE OF YOURS");
+  const second = await api("POST", "/careers", {
+    slotNumber: 2, managerName: "SecondClub", managerNationality: "Australia",
+    clubName: "Second Club FC", originalClubName: "Second Club FC",
+    budget: "500000", difficulty: "established",
+    primaryColor: "#00a", secondaryColor: "#0a0", crestShapeIndex: 0,
+    season: "Season 1", locationId: 1,
+  });
+  check("a second career was created, with a club of its own",
+    second.status === 200 && second.data?.teamId && second.data.teamId !== teamId,
+    `HTTP ${second.status}, team ${second.data?.teamId} vs ${teamId}`);
+
+  const theirs = read(
+    `SELECT id, player_id AS player FROM contracts WHERE team_id = ? AND status = 'active' LIMIT 1`,
+    second.data?.teamId)[0];
+  check("and a squad under contract to it", !!theirs, theirs ? `contract ${theirs.id}` : "none");
+
+  const backIn = await api("POST", `/careers/${careerSaveId}/load`);
+  check("the first career is the one being played again",
+    backIn.status < 400 && (await api("GET", "/team")).data?.id === teamId,
+    `HTTP ${backIn.status}`);
+
+  if (theirs) {
+    const balBeforeTheirs = Number((await api("GET", "/team")).data?.budget ?? 0);
+    const refused = await api("DELETE", `/contracts/${theirs.id}`);
+    const stillTheirs = read(
+      `SELECT status AS s, team_id AS team FROM contracts WHERE id = ?`, theirs.id)[0];
+    const balAfterTheirs = Number((await api("GET", "/team")).data?.budget ?? 0);
+    check("another club's contract cannot be torn up from yours",
+      refused.status === 404, `HTTP ${refused.status} ${refused.data?.error ?? ""}`);
+    check("and it is still their player, on their books",
+      stillTheirs?.s === "active" && stillTheirs?.team === second.data?.teamId,
+      `${stillTheirs?.s} at club ${stillTheirs?.team}`);
+    check("and nobody was charged a payout for it",
+      Math.round(balBeforeTheirs) === Math.round(balAfterTheirs),
+      `$${Math.round(balBeforeTheirs)} -> $${Math.round(balAfterTheirs)}`);
+  }
+
 } finally {
   await stopServer(child);
   try { fs.closeSync(out); } catch { /* already closed */ }
