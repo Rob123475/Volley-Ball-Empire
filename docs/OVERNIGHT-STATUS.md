@@ -447,6 +447,14 @@ worth a couple of hundred thousand and not a million.
   repeats, so `[7, 7]` reached the database and failed the constraint. It is
   one induction now, which is what it always meant.
 
+- **A club taken over played out of the wrong continent.** The comment said
+  the club takes "the first location on its own continent" and the code took
+  the first location full stop — so Tokyo Surf Samurai would have run out of
+  Copacabana Beach. It matches the continent now. (The game ships eleven
+  beaches and its clubs carry a continent but no country, so a north American
+  club may get Cancún rather than a US beach; that is as close as the data
+  goes, and it is checked.)
+
 - **One harness check could fail by chance, and did.** "A club at the top of
   the Gold tour went forwards" held for a club that finished 1st or 2nd — and
   a 2nd-place season lost $50,120 for the tier-access reason above. A check

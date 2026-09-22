@@ -36,7 +36,7 @@ import { Router } from "express";
 import {
   db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable,
   careerPoolTeamStateTable, locationsTable, seasonsTable,
-  worldTourQualificationsTable, CONTINENT_LABEL,
+  worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality,
   type ContinentKey,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
@@ -169,11 +169,15 @@ router.post("/job-market/accept", async (req, res) => {
     .where(eq(continentalPoolTeamsTable.id, poolTeamId)).limit(1);
   if (!pool) { res.status(404).json({ error: "No such club" }); return; }
 
-  // A home for it. Locations are the eleven the game ships; the club takes the
-  // first one on its own continent, which is as close to "its town" as the
-  // data goes.
+  // A home for it. The game ships eleven locations, and the club takes the
+  // first one on its OWN continent — Tokyo Surf Samurai playing out of
+  // Copacabana Beach is the kind of thing a player notices immediately. Six
+  // continents, eleven beaches: every continent the pool clubs come from has
+  // one, and the first location is the fallback for any that does not.
   const locations = await db.select().from(locationsTable).orderBy(asc(locationsTable.id));
-  const home = locations[0];
+  const home =
+    locations.find((l) => continentKeyForNationality(l.country) === pool.continent)
+    ?? locations[0];
 
   // A club that has just changed hands is not a rich one: the underdog budget
   // is the game's own number for a club starting with nothing to spare.

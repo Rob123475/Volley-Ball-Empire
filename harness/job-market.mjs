@@ -262,6 +262,25 @@ try {
     save()?.seeking == null && save()?.team === team?.id && save()?.club === pick.name,
     JSON.stringify(save()));
 
+  // The club plays out of a beach on its OWN continent. Tokyo Surf Samurai
+  // running out of Copacabana Beach is the kind of thing a player notices in
+  // the first minute.
+  const home = read(
+    `SELECT l.country AS country FROM teams t JOIN locations l ON l.id = t.location_id
+      WHERE t.id = ?`, team?.id)[0];
+  const CONTINENT_COUNTRIES = {
+    south_america: ["Brazil", "Argentina", "Peru", "Chile", "Uruguay", "Colombia", "Mexico"],
+    north_america: ["USA", "Canada", "Mexico"],
+    europe: ["Spain", "France", "Germany", "Italy", "Netherlands", "Norway", "Poland", "Monaco"],
+    asia: ["Thailand", "Indonesia", "Japan", "China", "South Korea"],
+    oceania: ["Australia", "New Zealand", "Fiji", "Samoa", "Tonga"],
+    africa_middle_east: ["Egypt", "Morocco", "Nigeria", "Israel", "Qatar"],
+  };
+  const expected = CONTINENT_COUNTRIES[pick.continent] ?? [];
+  check("the new club plays out of a beach on its own continent",
+    expected.length === 0 || expected.includes(home?.country),
+    `${pick.name} (${pick.continent}) is at a beach in ${home?.country}`);
+
   const roster = (await api("GET", "/team/roster")).data ?? {};
   const squad = [...(roster.activePlayers ?? []), ...(roster.benchPlayers ?? [])];
   check("the new club has a squad it can field", squad.length >= 2, `${squad.length} players`);
