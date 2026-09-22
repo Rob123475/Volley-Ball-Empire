@@ -212,11 +212,15 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     key: "local_legend",
     name: "Local Legend",
-    // There is no job market: every season of a career is at the same club.
+    // L-02e: a manager can change clubs now, so "with the same club" is no
+    // longer the same number as "in this career". It counts the seasons this
+    // CLUB has completed (check-achievements.ts derives it from the club's own
+    // season records); the comment that used to sit here said the opposite,
+    // because until tonight it was true.
     description: "Complete 5 seasons with the same club.",
     category: "legacy",
-    check: (_t, stats) => stats.seasonsCompleted >= 5,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 5), target: 5 }),
+    check: (_t, stats) => stats.seasonsAtClub >= 5,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsAtClub, 5), target: 5 }),
   },
   {
     // L-01: restored from R-77, reworded the way R-77 reworded Local Legend
@@ -225,8 +229,8 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     name: "Mr Loyalty",
     description: "Complete 10 seasons with the same club.",
     category: "legacy",
-    check: (_t, stats) => stats.seasonsCompleted >= 10,
-    progress: (_t, stats) => ({ current: Math.min(stats.seasonsCompleted, 10), target: 10 }),
+    check: (_t, stats) => stats.seasonsAtClub >= 10,
+    progress: (_t, stats) => ({ current: Math.min(stats.seasonsAtClub, 10), target: 10 }),
   },
   {
     // L-01: restored from R-77, unchanged.

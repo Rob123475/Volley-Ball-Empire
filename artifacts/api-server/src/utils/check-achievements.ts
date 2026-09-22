@@ -1,4 +1,4 @@
-import { db, teamsTable, achievementsTable, playersTable, trophiesTable, careerSavesTable } from "@workspace/db";
+import { db, teamsTable, achievementsTable, playersTable, trophiesTable, careerSavesTable, seasonFinalStandingsTable } from "@workspace/db";
 import type { CareerStats } from "@workspace/db";
 import { eq, and, gte } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions";
@@ -21,6 +21,7 @@ export const DEFAULT_CAREER_STATS: CareerStats = {
   goldEventsWon: 0,
   hallOfFameInductions: 0,
   clubsSoldFromUnder: 0,
+  seasonsAtClub: 0,
 };
 
 /**
@@ -48,6 +49,7 @@ export function getCareerStats(raw: unknown): CareerStats {
     goldEventsWon:              n("goldEventsWon"),
     hallOfFameInductions:       n("hallOfFameInductions"),
     clubsSoldFromUnder:         n("clubsSoldFromUnder"),
+    seasonsAtClub:              n("seasonsAtClub"),
   };
 }
 
@@ -102,11 +104,21 @@ export async function checkAchievements(teamId: number, season?: number): Promis
     .from(trophiesTable)
     .where(and(eq(trophiesTable.teamId, teamId), eq(trophiesTable.type, "olympic_gold")));
 
+  // L-02e: seasons at THIS club, which is no longer the same as the manager's
+  // seasons. One row set per season per club is written at every boundary
+  // (R-29), so the club's own record is the count — nothing to store, and a
+  // manager who moves starts this at nought without anything being reset.
+  const clubSeasons = await db
+    .selectDistinct({ year: seasonFinalStandingsTable.seasonYear })
+    .from(seasonFinalStandingsTable)
+    .where(eq(seasonFinalStandingsTable.teamId, teamId));
+
   const derivedStats: CareerStats = {
     ...stats,
     playersDevelopedToFiveStar: Math.max(stats.playersDevelopedToFiveStar, fiveStarRows.length),
     highestBalanceReached: Math.max(stats.highestBalanceReached, Number(team.budget)),
     olympicGolds: Math.max(stats.olympicGolds, olympicGoldRows.length),
+    seasonsAtClub: clubSeasons.length,
   };
 
   // Persist derived improvements back to careerStats if anything changed

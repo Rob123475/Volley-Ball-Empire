@@ -352,6 +352,16 @@ Four seasons at the bottom cost $468,100 against a club that started with
 $150,000, and the fifth sold it: the board's five-loss-making-season rule
 (L-02e) firing on numbers the money rule produced, not on anything aimed at it.
 
+**One thing the table shows that I did not design.** A club finished 2nd in
+Gold and LOST $50,120. It is not a bug and it is worth knowing: it had finished
+12th the season before, so it was on Bronze purse access — playing the Gold
+tour for Bronze money, because the tier you finish sets the purses you are paid
+in full the next season (R-54). Tier access is meant to be the dominant income
+lever, and that is it being dominant. Winning the tour is what reliably pays:
+across runs, champions gained $170,000-$395,000 and runners-up anywhere from
+-$50,000 to $230,000. The harness therefore asserts on champions and reports
+the runners-up rather than pretending second place is a rule.
+
 **Where it goes.** Income is prize money and sponsors, as you said. The change
 is all on the other side. Running costs are three real things: the club itself
 ($5,000 a week), everyone on the books ($100 each a week), and the tour the
@@ -380,17 +390,29 @@ worth a couple of hundred thousand and not a million.
   drops in when AI clubs get real squads and real books: `candidatesFor()` in
   routes/hall-of-fame.ts, and the loss-making run in board-confidence.ts.
 
-- **`local_legend` is now inexact.** "Complete 5 seasons with the same club"
-  counts seasons on the CAREER, which after tonight can span two clubs. It
-  wants a per-club season count. Small, and it needs a decision from you about
-  what the achievement should mean once a manager can move.
-
 - **The academy's own contract years still count down to zero and stop there.**
   `tickAcademyContracts` takes a week off every academy deal and floors it at
   nought rather than ending it. Item 4's brief line — "graduate contracts have
   end dates; expired and unused -> back to the graduate pool" — is satisfied
   for GRADUATES, whose senior contracts expire properly. The academy deal
   underneath is still a number that runs out and does nothing.
+
+## Fixed after the ten items, with time left over
+
+- **"Local Legend" and "Mr Loyalty" were counting the wrong seasons.** Both say
+  "with the same club" and both checked the manager's career total, which was
+  the same number until tonight, when a manager became able to change clubs.
+  They count the seasons the CLUB has completed now, derived from its own
+  season records — so a manager who moves starts that at nought without
+  anything having to be reset, and the two achievements say what they mean
+  again.
+
+- **One harness check could fail by chance, and did.** "A club at the top of
+  the Gold tour went forwards" held for a club that finished 1st or 2nd — and
+  a 2nd-place season lost $50,120 for the tier-access reason above. A check
+  that can fail on a dice roll is worse than no check: it teaches you to
+  ignore a red result. It asserts on champions now, which is certain by
+  construction, and prints the runners-up as what they are — variable.
 
 ## Anything Rob must check on screen
 

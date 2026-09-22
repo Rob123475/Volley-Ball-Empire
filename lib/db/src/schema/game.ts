@@ -176,6 +176,16 @@ export type CareerStats = {
   hallOfFameInductions: number;
   /** L-02e: times a club has been sold out from under this manager. */
   clubsSoldFromUnder: number;
+  /**
+   * Seasons completed at the CURRENT club, as against seasonsCompleted, which
+   * is the manager's whole career. The two were the same number until a
+   * manager could change clubs (L-02e).
+   *
+   * Derived at every achievement check from the club's own season records
+   * rather than counted, so it cannot drift and needs nothing written when a
+   * manager moves.
+   */
+  seasonsAtClub: number;
 };
 
 export const teamsTable = sqliteTable("teams", {
