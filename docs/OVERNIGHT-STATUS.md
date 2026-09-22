@@ -41,7 +41,7 @@ The three things most worth your attention in the morning:
 | 6 | ACH — seasons, cabinet, 30 achievements, Steam | DONE | `5420a02` |
 | 7 | L-04 — money means something | DONE | `bdff326` |
 | 8 | L-02e — broke clubs sold, job market | DONE | `bdff326` |
-| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `794048d` |
+| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `8897343` |
 | 10 | REPORT | this file | — |
 
 Items 3 and 4 share a commit, and so do 7 and 8: each pair changes the same
@@ -247,8 +247,9 @@ Seven defects, all of them things a career would have hit:
 
 ## The harness
 
-47 suites, 1,044 checks, all green on `bdff326` — the commit the build was made
-from. `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck,
+47 suites, 1,077 checks, all green on `8897343` — the commit the build was made
+from. It was 1,044 when the ten items were done; the rest are the checks that
+came with the defects found afterwards, listed below. `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck,
 the builds and then the harness, which is how every item was verified before it
 was pushed.
 
@@ -263,7 +264,7 @@ Nine suites are new tonight:
 | `hall-of-fame.mjs` | the window every two seasons, the cap of six, honours before numbers, an inducted player kept whole |
 | `achievement-ipc.mjs` | every unlock announced to Electron once, the boot catch-up answered, and a sabotage check that it is reading the messages |
 | `economy.mjs` | the money table above, and the rule under it |
-| `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across, retirement by declining |
+| `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across — seasons, achievements and all — the new club judged on its own seasons, a club never offered twice, retirement by declining |
 | plus the shared `harness-club.mjs` helpers | renewing, fielding and keeping a club solvent, so three long walks stopped losing their clubs to rules they were not testing |
 
 **It is stable, not lucky.** The full harness was run three times end to end on
@@ -280,8 +281,8 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 
 ## The build
 
-`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,070,325 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `794048d` — the branch tip. It was
+`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,066 bytes) and
+`C:\build\vbe\win-unpacked\`, from commit `8897343` — the branch tip. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
 electron-builder 25.1.8, Electron 32.3.3, x64.
@@ -291,8 +292,13 @@ Checked in the package rather than assumed:
 - the packaged server carries tonight's rules — the running costs, the sale
   after five loss-making seasons, the three contract lengths, the graduate cap
   and `first_inductee`
-- the packaged starter database has `player_retirements`, `club_hall_of_fame`
-  and the three new `career_saves` columns (53 tables)
+- the packaged starter database has `player_retirements`, `club_hall_of_fame`,
+  the three new `career_saves` columns and the two added since —
+  `board_seasons.team_id` and `career_pool_team_state.taken_over_at` — 52
+  tables, counted in the package rather than in the repository. An upgrading
+  save gets all of them on its next boot: the packaged build reported "schema
+  check: save is up to date, 0 missing columns" over 52 tables and 646 columns
+  derived from the model it queries through.
 - steamworks.js is unpacked beside `steam_api64.dll` where the loader can find
   it, and after-pack now FAILS the build if it is not
 - no `steam_appid.txt` in the package, and after-pack fails the build if one
@@ -406,6 +412,16 @@ worth a couple of hundred thousand and not a million.
   for GRADUATES, whose senior contracts expire properly. The academy deal
   underneath is still a number that runs out and does nothing.
 
+- **One question I did not answer for you: whose seasons open the Hall of
+  Fame?** The window is "every two seasons", counted on the manager's whole
+  career, because that is what your rule says seasons are counted on. Now that
+  a manager can change clubs, the two readings come apart: a manager on their
+  thirteenth season who takes over a new club can induct into that club's
+  honour board immediately, and the players they would be honouring have
+  played nothing for it. If you meant the CLUB's own seasons for its own
+  board, it is one line — `seasonsAtClub` already exists and is already
+  counted. I left it reading your rule as written rather than guess.
+
 ## Fixed after the ten items, with time left over
 
 - **"Local Legend" and "Mr Loyalty" were counting the wrong seasons.** Both say
@@ -462,6 +478,55 @@ worth a couple of hundred thousand and not a million.
   ignore a red result. It asserts on champions now, which is certain by
   construction, and prints the runners-up as what they are — variable.
 
+- **A manager's achievements stayed with the club that was sold.** The job
+  market screen promises that everything the manager has done comes with them,
+  and for the seasons and the reputation it did. The achievements did not: they
+  are stored against a team id, and nothing moved them. The cabinet read empty
+  at the new club, the career-end screen counted nought — and the achievement
+  check, seeing a club with nothing unlocked, would have popped all thirty a
+  second time. They move with the manager now. The trophies do not: they were
+  won by the club that was sold and they stay with it.
+
+- **The career-end screen counted out of 25.** The total was a number written
+  into `careerLifecycle.ts` while the game shipped 25 achievements. It ships
+  thirty. A manager who had unlocked 28 of them was told "28 / 25", over a
+  progress bar drawn past its own end. It counts the list now, so the list is
+  the only place the number lives.
+
+- **A club taken over inherited the sold club's five losing seasons, and was
+  sold at the end of the manager's first.** This is the one I would have been
+  sorriest to ship. There is one board row per career per season, which was the
+  same thing as one per club until tonight. The rollover opens the next
+  season's row for the club it is about to sell, and the manager joins that
+  same season at a new club days later — so the new club's first season was
+  measured against the sold club's opening balance, which made it loss-making
+  by arithmetic, and the losing run was counted off the career, which made it
+  the sixth. Take a job, have one bad season, and the board sells that club too
+  and tells you it was five. Board seasons now name the club that played them,
+  and the run, the strikes and the previous season's verdict are each that
+  club's. A save made before the column existed has every row matched to its
+  team on the next boot — a career had exactly one club until tonight, so its
+  rows can only be that club's — and the suite shuts the game down, blanks the
+  column and starts it again to prove the repair.
+
+- **League Ladders showed a career that had played five seasons as having
+  played none.** The manager's record moved onto the career save earlier
+  tonight, and `teams.career_stats` has not been written since. `/history/records`
+  was still reading it, and three of its numbers are headline tiles on that
+  page: Seasons Completed, Perfect Seasons and Peak Balance. On any career
+  started on this build all three read nought. They read the career now, and
+  the column is marked in the schema as read-once, for the migration and
+  nothing else.
+
+- **A second sale offered the manager the club it had just sold.** The
+  vacancies are the highest-rated clubs outside the World Tour field, and a
+  club the manager has just lost is exactly that — so a career that lost two
+  clubs would have been shown the second one, by name, in the list of jobs
+  going. A club the manager has run is stamped as taken over now. That is a
+  different question from whether it is in its regional league, which clubs
+  leave and re-enter by relegation and promotion, and it is why the stamp had
+  to be its own column.
+
 ## Anything Rob must check on screen
 
 - **Team page → moving a youth into Match Player or Interchange** now opens "Promote
@@ -487,6 +552,10 @@ worth a couple of hundred thousand and not a million.
 - **The job market** (`/job-market`) is a new screen. You will only see it if a
   club of yours is sold. It lists real clubs with vacancies, takes one, or
   retires you.
+- **The title screen after a sale** says CONTINUE and takes you back to the job
+  market. Quitting at the job market is the obvious moment to stop — you have
+  just lost your club — and until tonight coming back offered you START NEW
+  CAREER over the top of the career you still had.
 - **Achievements**: thirty now. `docs/achievements-table.md` is the list to
   copy into Steamworks — API name, display name, description — generated from
   the game's own definitions by `node scripts/achievements-table.cjs`.
