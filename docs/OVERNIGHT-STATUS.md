@@ -41,7 +41,7 @@ The three things most worth your attention in the morning:
 | 6 | ACH — seasons, cabinet, 30 achievements, Steam | DONE | `5420a02` |
 | 7 | L-04 — money means something | DONE | `bdff326` |
 | 8 | L-02e — broke clubs sold, job market | DONE | `bdff326` |
-| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `d468ce1` |
+| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `794048d` |
 | 10 | REPORT | this file | — |
 
 Items 3 and 4 share a commit, and so do 7 and 8: each pair changes the same
@@ -280,8 +280,8 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 
 ## The build
 
-`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,070,114 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `d468ce1` — the branch tip. It was
+`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,070,325 bytes) and
+`C:\build\vbe\win-unpacked\`, from commit `794048d` — the branch tip. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
 electron-builder 25.1.8, Electron 32.3.3, x64.
