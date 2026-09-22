@@ -253,9 +253,10 @@ Seven defects, all of them things a career would have hit:
 
 ## The harness
 
-47 suites, 1,079 checks, all green on `5ac755c` — the commit the build was made
-from. It was 1,044 when the ten items were done; the rest are the checks that
-came with the defects found afterwards, listed below.
+47 suites, 1,081 checks, all green on `04d44a0`. The build is from `5ac755c`,
+the last commit that changed the game; everything after it is this report and
+one harness repair. It was 1,044 when the ten items were done; the rest are the
+checks that came with the defects found afterwards, listed below.
 
 `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck, the
 builds and then the harness, which is how every item was verified before it was
@@ -275,11 +276,11 @@ Nine suites are new tonight:
 | `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across — seasons, achievements and all — the new club judged on its own seasons, a club never offered twice, retirement by declining |
 | plus the shared `harness-club.mjs` helpers | renewing, fielding and keeping a club solvent, so three long walks stopped losing their clubs to rules they were not testing |
 
-**It is stable, and that is measured rather than asserted.** Eight full runs
+**It is stable, and that is measured rather than asserted.** Nine full runs
 end to end tonight. The three on the ten items came back green every time
-(1,044, 1,044 and 1,047 checks); the five after them were green, green, RED,
-green and green (1,077, 1,076, two failed checks, 1,077, 1,079) — the same 47
-suites throughout.
+(1,044, 1,044 and 1,047 checks); the six after them were green, green, RED,
+green, green and green (1,077, 1,076, two failed checks, 1,077, 1,079 and
+1,081) — the same 47 suites throughout.
 
 The red one is the point of running it more than once. Nothing had changed
 between it and the green run before it: twelve simulated seasons simply gave
@@ -299,7 +300,8 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 
 `C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,345 bytes) and
 `C:\build\vbe\win-unpacked\`, from commit `5ac755c`, the last commit that
-changed the game — the one after it is this report. It was
+changed the game — everything after it is this report and one harness
+repair, neither of which is packaged. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
 electron-builder 25.1.8, Electron 32.3.3, x64.
@@ -471,15 +473,6 @@ worth a couple of hundred thousand and not a million.
   fault — which is why it is a job of its own rather than something to bolt on
   at four in the morning.
 
-- **The four-week contract warning is written down in three places.**
-  `CONTRACT_WARNING_DAYS = 28` on the server, `daysLeft <= 28` in
-  `contract-renew-bar.tsx`, and `28` again in `harness/contract-terms.mjs`.
-  They agree today. If the server's ever changes, the page will warn on the old
-  window and the harness will assert the old window and stay green — which is
-  the drift this project keeps finding, and which `contract-terms.mjs` already
-  guards against for the three contract LENGTHS by reading both lists and
-  comparing them. The same trick would do here.
-
 - **`DELETE /contracts/:id` does not check the contract belongs to your club.**
   Every other route on that file does. Nothing can reach it today, because the
   only list of contract ids a client ever sees is its own club's, so it is
@@ -622,6 +615,17 @@ worth a couple of hundred thousand and not a million.
   for both clubs it walks — $10,042,500 against $10,042,500, and $1,726,400
   against $1,726,400 on the run that wrote this line.
 
+- **The four-week contract warning was written down in three places.**
+  `CONTRACT_WARNING_DAYS = 28` on the server, `daysLeft <= 28` in
+  `contract-renew-bar.tsx`, and `28` again in the suite that tests it. They
+  agreed — and would have gone on agreeing on the wrong number the day the
+  server's changed: the page would warn on the old window and the harness would
+  assert the old window and stay green. The suite reads the server's constant
+  now and holds the renew bar's copy against it, which is the same trick it
+  already used on the three contract lengths. The browser cannot import the
+  server's module (lib/db opens a SQLite connection the moment it loads), so
+  the copy stays; the drift does not.
+
 ## Anything Rob must check on screen
 
 - **Team page → moving a youth into Match Player or Interchange** now opens "Promote
@@ -678,11 +682,11 @@ worth a couple of hundred thousand and not a million.
 4. **What is left undone** is listed above under "Found on the way", and it
    grew over the night as I kept reading: the squad-role slot limits, AI clubs
    having no books of their own, the academy's own contract years, nothing
-   checking a route against the API spec, the ownership check on
-   `DELETE /contracts/:id`, and the frontend's own copy of the four-week
-   contract warning. (`local_legend` was on this list earlier in the night and
-   is not any more — it is fixed, and written up below.) None of them blocks a
-   release; all of them get worse the longer they sit.
+   checking a route against the API spec, and the ownership check on
+   `DELETE /contracts/:id`. (Two things were on this list earlier in the night
+   and are not any more — `local_legend` and the four-week warning window —
+   both fixed and written up below.) None of them blocks a release; all of them
+   get worse the longer they sit.
 
 ## If something in here is wrong
 
