@@ -36,6 +36,14 @@ const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-contract-terms-"));
 const PORT = 4521;
 
+// READ, not restated. This suite used to say 28 in its own right, which would
+// have kept asserting the old window - and passing - the day the server's
+// constant moved. The same reason the retirement age is read from the server
+// in harness/rollover.mjs.
+const TERMS_SRC = fs.readFileSync(
+  path.join(REPO, "artifacts/api-server/src/utils/contractTerms.ts"), "utf8");
+const WARNING_DAYS = Number(/CONTRACT_WARNING_DAYS = (\d+)/.exec(TERMS_SRC)?.[1]);
+
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
   checks++;
@@ -259,7 +267,7 @@ try {
     const now = (await api("GET", "/calendar")).data?.currentDate;
     if (now && warned === null) {
       const daysLeft = Math.round((Date.parse(staffEnd) - Date.parse(now)) / 86_400_000);
-      if (daysLeft >= 0 && daysLeft <= 28) {
+      if (daysLeft >= 0 && daysLeft <= WARNING_DAYS) {
         const attn = (await api("GET", "/attention-items")).data;
         const list = Array.isArray(attn) ? attn : (attn?.items ?? []);
         const hit = list.find((it) => it.id === `staff-contract-${market[0].id}`);
@@ -268,8 +276,10 @@ try {
     }
     if (now && now > staffEnd) break;
   }
+  check("the harness knows the real warning window", Number.isFinite(WARNING_DAYS) && WARNING_DAYS > 0,
+    `CONTRACT_WARNING_DAYS = ${WARNING_DAYS}`);
   check("the club was warned four weeks before the coach's contract ran out",
-    warned !== null, warned ? `"${warned.title}" (${warned.priority}, ${warnedAt})` : "no attention item appeared inside the 28-day window");
+    warned !== null, warned ? `"${warned.title}" (${warned.priority}, ${warnedAt})` : `no attention item appeared inside the ${WARNING_DAYS}-day window`);
   const afterRow = read(
     `SELECT team_id AS team, is_available AS avail, contract_end_date AS end
        FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`,
@@ -324,6 +334,15 @@ try {
     `server [${keysOf(serverSrc)}] ui [${keysOf(uiSrc)}]`);
   check("and so are the labels the player reads",
     labelsOf(serverSrc) === labelsOf(uiSrc), labelsOf(uiSrc));
+
+  // The renew bar colours the end date orange inside the same window and has
+  // its own copy of the number, for the reason the lengths above have one: the
+  // browser cannot import lib/db. So the copy is allowed and the drift is not.
+  const barSrc = fs.readFileSync(
+    path.join(REPO, "artifacts/beach-volleyball/src/components/contract-renew-bar.tsx"), "utf8");
+  const barDays = Number(/daysLeft <= (\d+)/.exec(barSrc)?.[1]);
+  check("the renew bar warns on the server's window, not a number of its own",
+    barDays === WARNING_DAYS, `bar ${barDays}, server ${WARNING_DAYS}`);
 
   check("no screen offers a month-count contract any more",
     !/Max contract is 12 months/.test(
