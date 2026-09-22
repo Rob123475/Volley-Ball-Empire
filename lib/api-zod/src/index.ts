@@ -38,7 +38,6 @@ export type * from "./generated/types/financeTransaction";
 export type * from "./generated/types/financeTransactionType";
 export type * from "./generated/types/getMedicalStaffMarketParams";
 export type * from "./generated/types/getStaffMarketParams";
-export type * from "./generated/types/hallOfFameEntry";
 export type * from "./generated/types/healthStatus";
 export type * from "./generated/types/injuryHistoryEntry";
 export type * from "./generated/types/ladderEntry";

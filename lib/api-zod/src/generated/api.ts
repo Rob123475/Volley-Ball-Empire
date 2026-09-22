@@ -10109,6 +10109,7 @@ export const GetFinanceSummaryResponse = zod.object({
   "expenseBreakdown": zod.object({
   "playerSalaries": zod.number().optional(),
   "staffSalaries": zod.number().optional(),
+  "runningCosts": zod.number().optional(),
   "trainingCosts": zod.number().optional(),
   "other": zod.number().optional()
 }),
@@ -11479,26 +11480,57 @@ export const GetCareerStatsResponse = zod.object({
 
 
 /**
- * @summary Get all retired players in the Hall of Fame
+ * @summary HOF: the club's Hall of Fame, the induction window, and who it should honour
  */
-export const GetHallOfFameResponseItem = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "nationality": zod.string(),
-  "position": zod.string(),
+export const GetClubHallOfFameResponse = zod.object({
+  "clubName": zod.string().optional(),
+  "seasonsCompleted": zod.number().optional(),
+  "window": zod.object({
+  "open": zod.boolean().optional(),
+  "seasonsUntilNext": zod.number().optional(),
+  "maxThisWindow": zod.number().optional(),
+  "everySeasons": zod.number().optional()
+}).optional(),
+  "inducted": zod.array(zod.object({
+  "playerId": zod.number().optional(),
+  "name": zod.string().optional(),
+  "seasonInducted": zod.number().optional()
+})).optional(),
+  "recommendations": zod.array(zod.object({
+  "playerId": zod.number().optional(),
+  "name": zod.string().optional(),
+  "nationality": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
-  "peakOverallRating": zod.number(),
-  "careerSeasons": zod.number(),
-  "careerWins": zod.number(),
-  "careerTitles": zod.number(),
-  "continentalTitles": zod.number(),
-  "worldTitles": zod.number(),
-  "olympicMedalsCount": zod.number(),
-  "retiredSeasonYear": zod.number().nullish(),
-  "yearsActive": zod.string().nullish(),
-  "legendScore": zod.number()
+  "retired": zod.boolean().optional(),
+  "olympicGolds": zod.number().optional(),
+  "worldTitles": zod.number().optional(),
+  "seasonsAtClub": zod.number().optional(),
+  "rankingPoints": zod.number().optional(),
+  "inducted": zod.boolean().optional(),
+  "seasonInducted": zod.number().nullish()
+})).optional(),
+  "eligible": zod.array(zod.object({
+  "playerId": zod.number().optional(),
+  "name": zod.string().optional(),
+  "nationality": zod.string().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "retired": zod.boolean().optional(),
+  "olympicGolds": zod.number().optional(),
+  "worldTitles": zod.number().optional(),
+  "seasonsAtClub": zod.number().optional(),
+  "rankingPoints": zod.number().optional(),
+  "inducted": zod.boolean().optional(),
+  "seasonInducted": zod.number().nullish()
+})).optional()
 })
-export const GetHallOfFameResponse = zod.array(GetHallOfFameResponseItem)
+
+
+/**
+ * @summary HOF: induct up to six players, or none. Open every two seasons
+ */
+export const InductIntoHallOfFameBody = zod.object({
+  "playerIds": zod.array(zod.number()).describe('Up to six. An empty list is a deliberate skip.')
+})
 
 
 /**

@@ -1743,22 +1743,50 @@ paths:
         "404":
           description: Team not found
 
-  /trophies/hall-of-fame:
+  /hall-of-fame:
     get:
-      operationId: getHallOfFame
+      operationId: getClubHallOfFame
       tags: [trophies]
-      summary: Get all retired players in the Hall of Fame
+      summary: "HOF: the club's Hall of Fame, the induction window, and who it should honour"
       responses:
         "200":
-          description: Hall of Fame entries
+          description: The honour board, the window, and the candidates
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HallOfFameEntry"
+                $ref: "#/components/schemas/ClubHallOfFame"
         "401":
-          description: Unauthorized
+          description: Not authenticated
+        "404":
+          description: No active club
+
+  /hall-of-fame/induct:
+    post:
+      operationId: inductIntoHallOfFame
+      tags: [trophies]
+      summary: "HOF: induct up to six players, or none. Open every two seasons"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [playerIds]
+              properties:
+                playerIds:
+                  type: array
+                  items:
+                    type: integer
+                  description: "Up to six. An empty list is a deliberate skip."
+      responses:
+        "200":
+          description: The club chose to honour nobody
+        "201":
+          description: Inducted
+        "409":
+          description: The window is not open
+        "422":
+          description: Too many, or somebody who is not eligible
 
   /trophies/cabinet:
     get:
@@ -2628,6 +2656,50 @@ components:
           type: string
           enum: ["6m", "1s", "2s"]
 
+    HallOfFameCandidate:
+      type: object
+      properties:
+        playerId:      { type: integer }
+        name:          { type: string }
+        nationality:   { type: string, nullable: true }
+        imageUrl:      { type: string, nullable: true }
+        retired:       { type: boolean }
+        olympicGolds:  { type: integer }
+        worldTitles:   { type: integer }
+        seasonsAtClub: { type: integer }
+        rankingPoints: { type: integer }
+        inducted:      { type: boolean }
+        seasonInducted: { type: integer, nullable: true }
+
+    ClubHallOfFame:
+      type: object
+      properties:
+        clubName:         { type: string }
+        seasonsCompleted: { type: integer }
+        window:
+          type: object
+          properties:
+            open:             { type: boolean }
+            seasonsUntilNext: { type: integer }
+            maxThisWindow:    { type: integer }
+            everySeasons:     { type: integer }
+        inducted:
+          type: array
+          items:
+            type: object
+            properties:
+              playerId:       { type: integer }
+              name:           { type: string }
+              seasonInducted: { type: integer }
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/HallOfFameCandidate"
+        eligible:
+          type: array
+          items:
+            $ref: "#/components/schemas/HallOfFameCandidate"
+
     PlayerRoleUpdate:
       type: object
       required: [role]
@@ -3167,6 +3239,9 @@ components:
           properties:
             playerSalaries: { type: number }
             staffSalaries: { type: number }
+            # L-04: the ground, the squad and the tour — big enough that the
+            # player has to be able to see it (utils/runningCosts.ts).
+            runningCosts: { type: number }
             trainingCosts: { type: number }
             other: { type: number }
         recentTransactions:
@@ -4082,56 +4157,6 @@ components:
         activeCamp:
           nullable: true
           $ref: "#/components/schemas/ActiveCamp"
-
-    HallOfFameEntry:
-      type: object
-      required:
-        - id
-        - name
-        - nationality
-        - position
-        - peakOverallRating
-        - careerSeasons
-        - careerWins
-        - careerTitles
-        - continentalTitles
-        - worldTitles
-        - olympicMedalsCount
-        - legendScore
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        nationality:
-          type: string
-        position:
-          type: string
-        imageUrl:
-          type: string
-          nullable: true
-        peakOverallRating:
-          type: integer
-        careerSeasons:
-          type: integer
-        careerWins:
-          type: integer
-        careerTitles:
-          type: integer
-        continentalTitles:
-          type: integer
-        worldTitles:
-          type: integer
-        olympicMedalsCount:
-          type: integer
-        retiredSeasonYear:
-          type: integer
-          nullable: true
-        yearsActive:
-          type: string
-          nullable: true
-        legendScore:
-          type: integer
 
     LeaderboardEntry:
       type: object

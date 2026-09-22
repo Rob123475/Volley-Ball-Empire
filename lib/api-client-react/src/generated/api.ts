@@ -30,6 +30,7 @@ import type {
   CareerSaveSlot,
   CareerStats,
   CareerSummary,
+  ClubHallOfFame,
   ClubNewsFeed,
   ClubRating,
   ClubTemplateList,
@@ -50,7 +51,6 @@ import type {
   FinanceTransactionInput,
   GetMedicalStaffMarketParams,
   GetStaffMarketParams,
-  HallOfFameEntry,
   HealthStatus,
   HireMedicalStaffBody,
   HistoryHofResponse,
@@ -59,6 +59,7 @@ import type {
   HistorySeason,
   HistorySeasonSummaryResponse,
   HistoryStandingsResponse,
+  InductIntoHallOfFameBody,
   InjuryHistoryEntry,
   LadderEntry,
   LeaderboardEntry,
@@ -7210,20 +7211,20 @@ export function useGetCareerStats<TData = Awaited<ReturnType<typeof getCareerSta
 
 
 
-export const getGetHallOfFameUrl = () => {
+export const getGetClubHallOfFameUrl = () => {
 
 
 
 
-  return `/api/trophies/hall-of-fame`
+  return `/api/hall-of-fame`
 }
 
 /**
- * @summary Get all retired players in the Hall of Fame
+ * @summary HOF: the club's Hall of Fame, the induction window, and who it should honour
  */
-export const getHallOfFame = async ( options?: RequestInit): Promise<HallOfFameEntry[]> => {
+export const getClubHallOfFame = async ( options?: RequestInit): Promise<ClubHallOfFame> => {
 
-  return customFetch<HallOfFameEntry[]>(getGetHallOfFameUrl(),
+  return customFetch<ClubHallOfFame>(getGetClubHallOfFameUrl(),
   {
     ...options,
     method: 'GET'
@@ -7236,45 +7237,45 @@ export const getHallOfFame = async ( options?: RequestInit): Promise<HallOfFameE
 
 
 
-export const getGetHallOfFameQueryKey = () => {
+export const getGetClubHallOfFameQueryKey = () => {
     return [
-    `/api/trophies/hall-of-fame`
+    `/api/hall-of-fame`
     ] as const;
     }
 
 
-export const getGetHallOfFameQueryOptions = <TData = Awaited<ReturnType<typeof getHallOfFame>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetClubHallOfFameQueryOptions = <TData = Awaited<ReturnType<typeof getClubHallOfFame>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getClubHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetHallOfFameQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetClubHallOfFameQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHallOfFame>>> = ({ signal }) => getHallOfFame({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getClubHallOfFame>>> = ({ signal }) => getClubHallOfFame({ signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHallOfFame>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getClubHallOfFame>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetHallOfFameQueryResult = NonNullable<Awaited<ReturnType<typeof getHallOfFame>>>
-export type GetHallOfFameQueryError = ErrorType<void>
+export type GetClubHallOfFameQueryResult = NonNullable<Awaited<ReturnType<typeof getClubHallOfFame>>>
+export type GetClubHallOfFameQueryError = ErrorType<void>
 
 
 /**
- * @summary Get all retired players in the Hall of Fame
+ * @summary HOF: the club's Hall of Fame, the induction window, and who it should honour
  */
 
-export function useGetHallOfFame<TData = Awaited<ReturnType<typeof getHallOfFame>>, TError = ErrorType<void>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetClubHallOfFame<TData = Awaited<ReturnType<typeof getClubHallOfFame>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getClubHallOfFame>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetHallOfFameQueryOptions(options)
+  const queryOptions = getGetClubHallOfFameQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7286,6 +7287,77 @@ export function useGetHallOfFame<TData = Awaited<ReturnType<typeof getHallOfFame
 
 
 
+
+export const getInductIntoHallOfFameUrl = () => {
+
+
+
+
+  return `/api/hall-of-fame/induct`
+}
+
+/**
+ * @summary HOF: induct up to six players, or none. Open every two seasons
+ */
+export const inductIntoHallOfFame = async (inductIntoHallOfFameBody: InductIntoHallOfFameBody, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getInductIntoHallOfFameUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      inductIntoHallOfFameBody,)
+  }
+);}
+
+
+
+
+export const getInductIntoHallOfFameMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof inductIntoHallOfFame>>, TError,{data: BodyType<InductIntoHallOfFameBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof inductIntoHallOfFame>>, TError,{data: BodyType<InductIntoHallOfFameBody>}, TContext> => {
+
+const mutationKey = ['inductIntoHallOfFame'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof inductIntoHallOfFame>>, {data: BodyType<InductIntoHallOfFameBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  inductIntoHallOfFame(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InductIntoHallOfFameMutationResult = NonNullable<Awaited<ReturnType<typeof inductIntoHallOfFame>>>
+    export type InductIntoHallOfFameMutationBody = BodyType<InductIntoHallOfFameBody>
+    export type InductIntoHallOfFameMutationError = ErrorType<void>
+
+    /**
+ * @summary HOF: induct up to six players, or none. Open every two seasons
+ */
+export const useInductIntoHallOfFame = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof inductIntoHallOfFame>>, TError,{data: BodyType<InductIntoHallOfFameBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof inductIntoHallOfFame>>,
+        TError,
+        {data: BodyType<InductIntoHallOfFameBody>},
+        TContext
+      > => {
+      return useMutation(getInductIntoHallOfFameMutationOptions(options));
+    }
 
 export const getGetTrophyCabinetUrl = () => {
 

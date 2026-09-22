@@ -796,6 +796,42 @@ export interface ContractRenewal {
   length?: ContractRenewalLength;
 }
 
+export interface HallOfFameCandidate {
+  playerId?: number;
+  name?: string;
+  nationality?: string | null;
+  imageUrl?: string | null;
+  retired?: boolean;
+  olympicGolds?: number;
+  worldTitles?: number;
+  seasonsAtClub?: number;
+  rankingPoints?: number;
+  inducted?: boolean;
+  seasonInducted?: number | null;
+}
+
+export type ClubHallOfFameWindow = {
+  open?: boolean;
+  seasonsUntilNext?: number;
+  maxThisWindow?: number;
+  everySeasons?: number;
+};
+
+export type ClubHallOfFameInductedItem = {
+  playerId?: number;
+  name?: string;
+  seasonInducted?: number;
+};
+
+export interface ClubHallOfFame {
+  clubName?: string;
+  seasonsCompleted?: number;
+  window?: ClubHallOfFameWindow;
+  inducted?: ClubHallOfFameInductedItem[];
+  recommendations?: HallOfFameCandidate[];
+  eligible?: HallOfFameCandidate[];
+}
+
 export type PlayerRoleUpdateRole = typeof PlayerRoleUpdateRole[keyof typeof PlayerRoleUpdateRole];
 
 
@@ -1249,6 +1285,7 @@ export type FinanceSummaryIncomeSources = {
 export type FinanceSummaryExpenseBreakdown = {
   playerSalaries?: number;
   staffSalaries?: number;
+  runningCosts?: number;
   trainingCosts?: number;
   other?: number;
 };
@@ -1833,24 +1870,6 @@ export interface WellbeingResult {
   activeCamp?: ActiveCamp | null;
 }
 
-export interface HallOfFameEntry {
-  id: number;
-  name: string;
-  nationality: string;
-  position: string;
-  imageUrl?: string | null;
-  peakOverallRating: number;
-  careerSeasons: number;
-  careerWins: number;
-  careerTitles: number;
-  continentalTitles: number;
-  worldTitles: number;
-  olympicMedalsCount: number;
-  retiredSeasonYear?: number | null;
-  yearsActive?: string | null;
-  legendScore: number;
-}
-
 /**
  * This career's World Tour standings (R-29). AI clubs have no manager, budget or reputation, so those are null.
  */
@@ -2380,6 +2399,11 @@ export type LoadCareerSave200 = {
 
 export type DeleteCareerSave200 = {
   ok: boolean;
+};
+
+export type InductIntoHallOfFameBody = {
+  /** Up to six. An empty list is a deliberate skip. */
+  playerIds: number[];
 };
 
 export type HireMedicalStaffBody = {

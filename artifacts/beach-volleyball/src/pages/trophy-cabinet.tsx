@@ -1,4 +1,5 @@
-import { useGetTrophyCabinet, getGetTrophyCabinetQueryKey, useGetHallOfFame, useGetMyTeam } from "@workspace/api-client-react";
+import { useGetTrophyCabinet, getGetTrophyCabinetQueryKey, useGetMyTeam } from "@workspace/api-client-react";
+import { ClubHallOfFame } from "@/components/club-hall-of-fame";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -206,7 +207,6 @@ export default function TrophyCabinet() {
   const { data, isLoading } = useGetTrophyCabinet({
     query: { queryKey: getGetTrophyCabinetQueryKey() },
   });
-  const { data: hofPlayers, isLoading: hofLoading } = useGetHallOfFame();
   const { data: team } = useGetMyTeam();
 
   if (isLoading) {
@@ -442,90 +442,11 @@ export default function TrophyCabinet() {
         </TabsContent>
 
         {/* ── Hall of Fame ── */}
+        {/* HOF: the club's own honour board and its induction window. This tab
+            used to list "retired players still at the club", which is nobody:
+            retiring a player is what takes her off the club (L-02b). */}
         <TabsContent value="hall-of-fame" className="mt-6">
-          {hofLoading ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
-            </div>
-          ) : !hofPlayers || hofPlayers.length === 0 ? (
-            <Card className="border-2 border-dashed text-center p-12">
-              <Crown className="h-10 w-10 mx-auto mb-3 text-amber-400 opacity-40" />
-              <p className="font-semibold text-muted-foreground">No legends yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Retire a player from the Team &amp; Roster page to induct them here.
-              </p>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {hofPlayers.map((p) => (
-                <Card key={p.id} className="overflow-hidden border-2 border-amber-400/40 bg-amber-50/30 dark:bg-amber-950/10">
-                  <div className="relative h-40 overflow-hidden bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/20">
-                    {p.imageUrl ? (
-                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover object-[center_20%]" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Crown className="h-16 w-16 text-amber-400/40" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute top-2 right-2">
-                      <Badge className="bg-amber-500 text-white border-0 font-black text-sm px-2">{p.peakOverallRating} OVR</Badge>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <div className="text-lg font-black text-white leading-tight drop-shadow">{p.name}</div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <Flag className="h-3 w-3 text-white/70" />
-                        <span className="text-xs text-white/80">{p.nationality}</span>
-                        <span className="text-white/40 text-xs">·</span>
-                        <span className="text-xs text-white/80">{p.position.replace(/_/g, " ")}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-4 space-y-3">
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div className="rounded-lg bg-muted/50 p-2">
-                        <div className="text-base font-black text-yellow-600">{p.careerTitles}</div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Titles</div>
-                      </div>
-                      <div className="rounded-lg bg-muted/50 p-2">
-                        <div className="text-base font-black text-green-600">{p.careerWins}</div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Wins</div>
-                      </div>
-                      <div className="rounded-lg bg-muted/50 p-2">
-                        <div className="text-base font-black text-blue-600">{p.olympicMedalsCount}</div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Olympics</div>
-                      </div>
-                    </div>
-
-                    {(p.worldTitles > 0 || p.continentalTitles > 0) && (
-                      <div className="flex gap-1.5 flex-wrap">
-                        {p.worldTitles > 0 && (
-                          <Badge variant="outline" className="text-[10px] gap-1 border-yellow-500/50 text-yellow-700">
-                            <Trophy className="h-2.5 w-2.5" /> {p.worldTitles} World {p.worldTitles === 1 ? "Title" : "Titles"}
-                          </Badge>
-                        )}
-                        {p.continentalTitles > 0 && (
-                          <Badge variant="outline" className="text-[10px] gap-1 border-blue-500/50 text-blue-700">
-                            <Globe className="h-2.5 w-2.5" /> {p.continentalTitles} Continental
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    <LegendScoreBar score={p.legendScore} />
-
-                    {p.retiredSeasonYear && (
-                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground pt-1 border-t border-border/50">
-                        <Shirt className="h-3 w-3" />
-                        <span>Retired {p.retiredSeasonYear}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          <ClubHallOfFame />
         </TabsContent>
 
         {/* ── Manager Reputation ── */}
