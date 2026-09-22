@@ -363,8 +363,9 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
    * players.player_type is reference data shared by every save, so promotion
    * cannot flip it: that would promote the athlete in every career at once —
    * the exact cross-career bleed this whole phase removed. All 72 youth age
-   * into seniority across a five-season arc, so this is not an edge case; by
-   * season five a large part of the senior squad is promoted academy players.
+   * into seniority within five seasons, so this is not an edge case; by
+   * season five a large part of the senior squad is promoted academy players,
+   * and over a long career nearly all of it is.
    *
    * "Senior" therefore means player_type = 'senior' OR is_promoted, everywhere.
    */
@@ -1128,8 +1129,8 @@ export const continentalPoolTeamsTable = sqliteTable("continental_pool_teams", {
   form:           integer("form").notNull().default(50),
   fitness:        integer("fitness").notNull().default(80),
   fatigue:        integer("fatigue").notNull().default(0),
-  // NOT WRITTEN BY ANYTHING. Seeded and then frozen for the whole five-season
-  // arc. Left as reference deliberately rather than moved on a prediction, and
+  // NOT WRITTEN BY ANYTHING. Seeded and then frozen for the whole career.
+  // Left as reference deliberately rather than moved on a prediction, and
   // recorded in docs/economy-design.md as a Phase 2 requirement: it is displayed
   // beside the live competitor_rankings that gate tier qualification, so the
   // player sees two rankings and only one of them moves.

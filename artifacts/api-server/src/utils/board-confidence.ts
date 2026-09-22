@@ -26,7 +26,9 @@
  *                nothing, and a met season clears the strikes — or confidence
  *                of 20 or less. Mid-season, only abandonment: 30 game days
  *                unable to field a side, sacked at the next forfeit
- *   season 5     the review is the career verdict and cannot sack
+ *   no last season: every season's review can sack. Until L-01 (22 Sep 2026)
+ *                season 5 was terminal and its review a "verdict" that could
+ *                not sack; a career now runs until the board ends it
  *
  * R-55 replaced R-53's rank target (strength rank + difficulty allowance -
  * money places, graded on six steps): the strongest pair in the field finishes
@@ -49,7 +51,7 @@ import { and, desc, eq, gte, isNotNull, lt, or } from "drizzle-orm";
 import { worldTourFieldTx, poolClubRatingsTx, worldTourStandingsTx, worldFinalsSummaryTx } from "./worldTour.js";
 import { sideRating } from "./matchEngine.js";
 import { WORLD_TOUR_START } from "./calendarSlots.js";
-import { seasonNumberForYear, FINAL_SEASON } from "./seasonRollover.js";
+import { seasonNumberForYear } from "./seasonRollover.js";
 import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -79,7 +81,7 @@ export const GRADE_WORDS: Record<Grade, string> = {
   met: "met expectations", below: "below expectations", failed: "failed",
 };
 export type FinalsResult = "champion" | "runner-up" | "semi-finalist" | "did not qualify" | null;
-export type Outcome = "safe" | "warning" | "final_warning" | "sacked" | "verdict";
+export type Outcome = "safe" | "warning" | "final_warning" | "sacked";
 export type BoardStage = "safe" | "warning" | "spending_freeze" | "final_warning";
 
 export const SPENDING_FROZEN_MESSAGE =
@@ -148,7 +150,6 @@ export type ReviewInput = {
   seasonStartBalance: number;
   seasonEndBalance: number;
   previousStrikes: number;
-  isFinalSeason: boolean;
 };
 
 export type ReviewResult = {
@@ -171,8 +172,7 @@ export function reviewSeason(input: ReviewInput): ReviewResult {
   const confidenceBefore = clamp(input.confidenceBefore, 0, 100);
   const confidenceAfter = clamp(confidenceBefore + g.points + hp + mp, 0, 100);
   const strikes = strikesAfter(input.previousStrikes, g.grade);
-  const outcome: Outcome = input.isFinalSeason ? "verdict"
-    : strikes >= STRIKES_TO_SACK || confidenceAfter <= SACK_AT ? "sacked"
+  const outcome: Outcome = strikes >= STRIKES_TO_SACK || confidenceAfter <= SACK_AT ? "sacked"
     : strikes > 0 || confidenceAfter <= FINAL_WARNING_AT ? "final_warning"
     : g.grade === "below" ? "warning"
     : "safe";
@@ -225,7 +225,6 @@ export function boardReviewTable(career: BoardTableCareer): { label: string | nu
       seasonStartBalance: s.seasonStartBalance,
       seasonEndBalance: s.seasonEndBalance,
       previousStrikes: strikes,
-      isFinalSeason: i + 1 >= FINAL_SEASON,
     });
     rows.push({ ...r, ...bandsFor(s.strengthRank), season: i + 1, strengthRank: s.strengthRank, finish: s.finish });
     confidence = r.confidenceAfter;
@@ -292,7 +291,6 @@ const OUTCOME_WORDS: Record<Outcome, string> = {
   warning: "Below expectations: a warning, but no strike.",
   final_warning: "Final warning: a failed season before one that meets expectations, or confidence of 20 or less at a review, ends your time here.",
   sacked: "Sacked.",
-  verdict: "This review is the verdict on your career.",
 };
 
 export function expectationText(row: BoardSeason, fieldClubs: number | null, previous: BoardSeason | null): string {
@@ -318,7 +316,16 @@ export function reviewText(row: BoardSeason): string {
   const cash = row.moneyPoints ? `, money ${signed(row.moneyPoints)}` : "";
   return `Season ${n} review: finished ${ordinal(row.finish ?? FIELD_CLUBS)} against ${targetWords(row.target ?? FIELD_CLUBS)}, `
     + `${gradePart}${honours}${cash}. `
-    + `Confidence ${row.confidenceBefore} → ${row.confidenceAfter}. ${OUTCOME_WORDS[row.outcome as Outcome]}`;
+    + `Confidence ${row.confidenceBefore} → ${row.confidenceAfter}. ${outcomeWords(row.outcome)}`;
+}
+
+/**
+ * A save from before L-01 can hold a season-5 review stored with the retired
+ * outcome "verdict" (its career is over — `retiredAt` was set at the same
+ * time). It is read as what it was: a review that did not sack.
+ */
+function outcomeWords(outcome: string | null): string {
+  return OUTCOME_WORDS[outcome as Outcome] ?? OUTCOME_WORDS.safe;
 }
 
 export function verdictText(
@@ -542,7 +549,7 @@ function storedReviewTx(tx: Tx, row: BoardSeason): SeasonReview {
 
 /** The season-end review, inside the rollover's transaction. Idempotent. */
 export function boardReviewTx(
-  tx: Tx, careerSaveId: number, seasonYear: number, teamId: number, isFinalSeason: boolean,
+  tx: Tx, careerSaveId: number, seasonYear: number, teamId: number,
 ): SeasonReview {
   const row = setBoardTargetTx(tx, careerSaveId, seasonYear, teamId);
   if (row.reviewedOn && row.outcome) return storedReviewTx(tx, row);
@@ -566,7 +573,6 @@ export function boardReviewTx(
     seasonStartBalance: row.seasonStartBalance,
     seasonEndBalance: Number(team?.budget ?? 0),
     previousStrikes: strikesBeforeTx(tx, careerSaveId, seasonYear),
-    isFinalSeason,
   });
 
   tx.update(boardSeasonsTable).set({

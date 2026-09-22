@@ -7,7 +7,7 @@
  * `GET /dashboard` / `GET /matches/fixture`, which call `ensureSeasonFixture`
  * defensively — so the dashboard silently repaired the season the first time a
  * player happened to open it, and any path that did not open a page saw an
- * empty season indefinitely. That is why the five-season harness walked seasons
+ * empty season indefinitely. That is why the rollover harness walked seasons
  * 2-5 at 0W 0L: it advances the calendar and plays whatever is scheduled, never
  * opens the dashboard, and so found nothing to play.
  *

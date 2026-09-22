@@ -97,7 +97,8 @@ const TIER_BASE_RATING: Record<string, number> = {
  * ends the arc able to field an 89.5 squad against a Bronze field rated 64.
  * The game got monotonically easier by construction, and I8 could not hold.
  *
- * k = 2 takes Bronze 64 -> 72 and the World Final 86 -> 94 across five seasons.
+ * k = 2 takes Bronze 64 -> 72 and the World Final 86 -> 94 across the first
+ * five seasons; the curve keeps climbing for as long as the career runs.
  * Still favours a well-run club; it just stops the curve flattening.
  *
  * NOTE: this fixes EASING, not farming. Nothing here stops a club entering 30

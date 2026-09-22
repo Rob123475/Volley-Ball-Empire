@@ -3,8 +3,8 @@
  *
  * More careers than the rollover arc's three per difficulty, walked the same
  * way (renew every season on the same terms, play every match through
- * /simulate, no signings, no training) through four season reviews — the
- * reviews that can sack; season 5's is a verdict. Runs on a COPY of the
+ * /simulate, no signings, no training) through four season reviews, every
+ * one of which can sack (L-01: there is no final season). Runs on a COPY of the
  * starter DB and prints every review and the sack rate per difficulty.
  *
  * Usage: node scripts/r55-sack-rate.mjs [careersPerDifficulty=8]   (needs the api-server build)

@@ -282,7 +282,7 @@ async function resolveOpponentRating(
     if (rating != null) return clampRating(rating);
   }
 
-  // matches.season carries the calendar year (2026..2030); the engine wants
+  // matches.season carries the calendar year (2026, 2027, ...); the engine wants
   // the season NUMBER, so the tier stiffens once per season rather than by
   // two thousand.
   return opponentRatingFromTier(

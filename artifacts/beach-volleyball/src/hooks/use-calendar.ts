@@ -92,7 +92,7 @@ export type BoardReview = {
   target: number;
   finish: number;
   grade: string;
-  outcome: "safe" | "warning" | "final_warning" | "sacked" | "verdict";
+  outcome: "safe" | "warning" | "final_warning" | "sacked";
   confidenceBefore: number;
   confidenceAfter: number;
   text: string;
@@ -115,16 +115,14 @@ export type AdvanceResult = {
   blocked?: "pending_match" | "season_end";
   pendingMatchId?: number;
   currentDate?: string;
-  // The season boundary. All three have been returned by the server since the
-  // rollover was built and nothing in the client read any of them.
+  // The season boundary. Returned by the server since the rollover was built
+  // and, for a long time, read by nothing in the client.
   // R-53: every closed season carries the board's review; "sacked" is a review
   // that ended the career.
   seasonRollover?:
     | { kind: "none" }
     | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: BoardReview }
-    | { kind: "career-complete"; finalSeason: number; review: BoardReview }
     | { kind: "sacked"; fromSeason: number; review: BoardReview };
-  careerComplete?: boolean;
   /** R-53: the board sacked the manager at the season review. Route to the career-end screen. */
   fired?: boolean;
   /** Year of the season that just ended, or null. Server-derived on purpose. */

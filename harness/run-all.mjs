@@ -201,8 +201,8 @@ runSuite("career ends", path.join(REPO, "harness", "career-ends.mjs"));
 console.log("\n########## 28/39  OLYMPIC TOURNAMENT (R-61) ##########");
 runSuite("olympic tournament", path.join(REPO, "harness", "olympics-tournament.mjs"));
 
-// R-62: an academy intake at every season boundary. A five-season career: four
-// intakes of three, the template card on disk, ages 16-18, ratings in the
+// R-62: an academy intake at every season boundary: one intake of three per
+// season opened, the template card on disk, ages 16-18, ratings in the
 // shipped youth's range, nations of the club's region, names new and real;
 // Club News; never seeded into another career; a dry academy creates no one
 // and says so. Own DB and server.

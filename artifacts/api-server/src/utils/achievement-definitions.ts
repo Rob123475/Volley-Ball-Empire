@@ -13,11 +13,13 @@ export type AchievementDef = {
 };
 
 /**
- * R-77: every description says what actually unlocks it. Careers last
- * FINAL_SEASON (5) seasons, with one Olympic Games (2028) in them. These were
- * deleted:
- *   - "10 seasons", "20 seasons", "30 seasons", "10 World Finals" and
- *     "2 Olympic golds": not reachable inside a career.
+ * R-77: every description says what actually unlocks it. A career has no
+ * fixed length (L-01): it runs until the board ends it, with an Olympic Games
+ * every fourth year from 2028. R-77 deleted eight achievements while careers
+ * were capped at five seasons; L-01 step 4 restores the six the cap alone had
+ * made unreachable ("10 seasons", "20 seasons", "30 seasons", "10 World
+ * Finals", "2 Olympic golds" and "10 seasons with the same club"). Still out,
+ * pending Rob's definition:
  *   - "Continental Champion": the player's club never plays a continental
  *     tournament, and no match is a continental final.
  *   - "First Pay Day" ($100,000): every new career starts above it.

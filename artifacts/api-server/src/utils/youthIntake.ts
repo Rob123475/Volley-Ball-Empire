@@ -7,8 +7,8 @@
  *   how many   3 per club per intake — R-63: never past the academy's cap
  *              (ACADEMY_CAP, 12). An intake takes the places left, up to 3; an
  *              academy already full takes no one and says so
- *   when       every rollover that opens a new season — so a five-season career has
- *              four intakes, at the start of seasons 2 to 5
+ *   when       every rollover that opens a new season, for as long as the career
+ *              runs — one intake at the start of every season from season 2 on
  *   image      the same blank youth template card as the 72 shipped youth; the 89
  *              unused adult portraits are NOT for youth (a senior free-agent refresh,
  *              V2)

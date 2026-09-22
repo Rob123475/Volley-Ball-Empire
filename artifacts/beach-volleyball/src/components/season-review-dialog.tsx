@@ -1,8 +1,8 @@
 /**
  * Season Review — Phase 8 row 6.
  *
- * The rollover has returned `seasonRollover` and `careerComplete` since the
- * season boundary was built, and nothing in the client read either one. A
+ * The rollover had returned `seasonRollover` since the season boundary was
+ * built, and nothing in the client read it. A
  * season ended, five players retired, the academy promoted a cohort and the
  * ladder finished — and the player saw the date change. This is the screen that
  * tells them what happened.
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Trophy, TrendingUp, UserMinus, Wallet, Flag } from "lucide-react";
+import { Trophy, TrendingUp, UserMinus, Wallet } from "lucide-react";
 
 export type SeasonReview = {
   seasonYear: number;
@@ -33,7 +33,6 @@ export type SeasonReview = {
   standings: Array<{ rank: number; teamName: string | null; isPlayer: boolean; points: number | null }>;
   retired: Array<{ id: number; name: string | null; age: number | null }>;
   summary: string | null;
-  isFinalSeason: boolean;
   /** R-42: honours this season earned, written at the season boundary. */
   trophies?: Array<{ id: number; type: string; name: string; notes: string | null }>;
 };
@@ -68,22 +67,17 @@ export function SeasonReviewDialog({ year, onClose }: { year: number | null; onC
   });
 
   const open = year != null;
-  const finished = data?.isFinalSeason ?? false;
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="max-w-2xl" data-testid="season-review">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {finished ? <Flag className="h-5 w-5" /> : <Trophy className="h-5 w-5" />}
-            {finished
-              ? "Career complete"
-              : `${data?.name ?? `Season ${data?.seasonNumber ?? ""}`} complete`}
+            <Trophy className="h-5 w-5" />
+            {`${data?.name ?? `Season ${data?.seasonNumber ?? ""}`} complete`}
           </DialogTitle>
           <DialogDescription>
-            {finished
-              ? "This was the final season of your career. Here is how it ended."
-              : "How the season finished, before the next one begins."}
+            How the season finished, before the next one begins.
           </DialogDescription>
         </DialogHeader>
 
@@ -181,7 +175,7 @@ export function SeasonReviewDialog({ year, onClose }: { year: number | null; onC
 
         <DialogFooter>
           <Button onClick={onClose} data-testid="season-review-continue">
-            {finished ? "Close" : "Continue"}
+            Continue
           </Button>
         </DialogFooter>
       </DialogContent>

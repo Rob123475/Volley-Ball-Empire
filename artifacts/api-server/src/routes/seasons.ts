@@ -8,7 +8,7 @@ import { requireCareerSaveId } from "../lib/playerDto.js";
 import { currentRanking, purseAccessTierFor, TIER_RANKING_POINTS } from "../utils/rankingPoints.js";
 import { TIER_THRESHOLDS } from "../utils/tierQualification.js";
 import { loadPlayers } from "../lib/playerDto.js";
-import { seasonNumberForYear, FINAL_SEASON } from "../utils/seasonRollover.js";
+import { seasonNumberForYear } from "../utils/seasonRollover.js";
 import { worldTourStandings, worldFinalsSummary } from "../utils/worldTour.js";
 
 const router = Router();
@@ -59,9 +59,9 @@ router.get("/seasons/ranking", async (req, res) => {
 /**
  * Everything that happened in a completed season.
  *
- * Phase 8 row 6. The rollover has returned `seasonRollover` and `careerComplete`
- * since Phase 1.1 and the client ignored both, so five season boundaries passed
- * with nothing to show for them. This is the data behind the screen that fixes
+ * Phase 8 row 6. The rollover had returned `seasonRollover` since Phase 1.1 and
+ * the client ignored it, so season boundaries passed with nothing to show for
+ * them. This is the data behind the screen that fixes
  * that, and every field is something already recorded at the boundary rather
  * than computed fresh — the review reports what happened, it does not decide it.
  */
@@ -122,7 +122,6 @@ router.get("/seasons/:year/review", async (req, res) => {
     standings:    standings.slice(0, 10),
     retired:      retiredThisSeason,
     summary:      history?.description ?? null,
-    isFinalSeason: seasonNumberForYear(year) >= FINAL_SEASON,
     fixture,
     worldFinals:  worldFinalsSummary(cid, year, team.id),
     // R-42: the honours this season earned, as the rollover wrote them.

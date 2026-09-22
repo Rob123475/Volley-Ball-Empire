@@ -644,8 +644,6 @@ router.post("/calendar/advance", async (req, res) => {
               ? `The academy is full (${academySize}/${ACADEMY_CAP}): no intake this year`
               : "The academy found no one this year");
         }
-      } else if (rollover.kind === "career-complete") {
-        events.push(`Season ${rollover.finalSeason} complete — your career has ended`);
       } else if (rollover.kind === "sacked") {
         events.push(`Season ${rollover.fromSeason} complete — the board has sacked you`);
       }
@@ -654,7 +652,7 @@ router.post("/calendar/advance", async (req, res) => {
       req.log.error({ err }, "season rollover failed");
     }
 
-    // R-77: a season ends here for every career — rolled on, complete, or sacked —
+    // R-77: a season ends here for every career — rolled on or sacked —
     // so this is where seasons are counted and the season's loss count resets.
     // Both used to move only on a World Final win, so "Perfect Season" counted
     // losses from the start of the career and a season without a title never
@@ -691,17 +689,13 @@ router.post("/calendar/advance", async (req, res) => {
     isQuietDay,
     atSeasonEnd,
     seasonRollover: rollover,
-    careerComplete: rollover.kind === "career-complete",
     fired,
     careerEnded: fired,
     dismissalClubName,
     // The YEAR of the season that just ended, so the client can open its review
     // without re-deriving the season-number-to-year mapping. That mapping lives
     // in seasonRollover.ts and duplicating it in the client is how the two drift.
-    reviewYear:
-      rollover.kind === "rolled"          ? yearForSeasonNumber(rollover.fromSeason)
-    : rollover.kind === "career-complete" ? yearForSeasonNumber(rollover.finalSeason)
-    : null,
+    reviewYear: rollover.kind === "rolled" ? yearForSeasonNumber(rollover.fromSeason) : null,
   });
 });
 

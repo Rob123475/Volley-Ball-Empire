@@ -14,46 +14,44 @@ import { youthIntakeTx, type IntakeResult } from "./youthIntake.js";
 /**
  * Season rollover.
  *
- * The arc is bounded at five seasons, so this is deliberately minimal: no deep
- * ageing curves, no self-sustaining world. Those are only needed for an endless
- * mode, which is deferred. The one thing it does create is the player's club's
- * academy intake (R-62, utils/youthIntake.ts): three youth players each season
- * it opens.
+ * A career has no fixed length (L-01, 22 Sep 2026, Rob's call): it runs for as
+ * many seasons as the manager keeps the job. Until L-01 the arc was capped at
+ * five seasons by a `FINAL_SEASON` constant and season five's review was a
+ * "verdict" that could not sack; that cap and everything that hung off it
+ * (the `career-complete` result, `careerComplete`, `isFinalSeason`) are gone.
+ * A career now ends ONLY by sacking at a season review, abandonment at a
+ * forfeit, resignation, or breaking the contract — never by a season number.
+ *
+ * Everything here already runs at every boundary with no season number in it:
+ * ageing, retirement at RETIREMENT_AGE, academy promotion at PROMOTION_AGE,
+ * the academy intake (R-62, utils/youthIntake.ts), the standings snapshot, the
+ * board review (R-53), trophies (R-42) and the next season's fixture (R-35).
  *
  * Before this existed a career simply ran off the end of season one: the date
  * advanced past endDate, `atSeasonEnd` was computed and returned to the client,
  * and nothing acted on it.
  */
 
-/** The arc. Season five is terminal. */
-export const FINAL_SEASON = 5;
-
 /**
  * Retirement age.
  *
  * Set to 40 on 3 September 2026, on Rob's call. It was 34, and that number had
  * been chosen from the shipped roster rather than picked: the senior pool peaks
- * at 22-25, so retirement is back-loaded, and 34 retired [1, 0, 2, 1, 5] over a
- * five-season arc — a handful per season, never a cliff.
+ * at 22-25, so retirement is back-loaded, and 34 retired [1, 0, 2, 1, 5] over
+ * the first five seasons — a handful per season, never a cliff.
  *
  * ── What 40 costs, measured against the shipped roster ──────────────────────
  * The oldest senior in the world is 37 and the next oldest is 31, so at 40 the
- * same arc retires [0, 0, 1, 0, 0]: ONE player across five seasons, and that
- * player is Martha Kera, the 37-year-old this change was made to accommodate.
- * Nobody else ever reaches the threshold.
+ * same five seasons retire [0, 0, 1, 0, 0]: ONE player, and that player is
+ * Martha Kera, the 37-year-old this change was made to accommodate.
  *
- * So retirement is now effectively off for a five-season career. That is a real
- * loss of a mechanic, not a tuning tweak, and it is recorded here rather than
- * discovered later: `retireAgedPlayers` still runs every boundary, the rule is
- * still live and still tested, it just has almost nothing to act on.
- *
- * If retirement should bite again without moving this number back, the lever is
- * the roster's age spread, not the threshold — the world would need seniors in
- * their mid-to-late thirties rather than one outlier at 37.
+ * Over a long career the threshold does bite: a 25-year-old in 2026 reaches it
+ * in season 16, so the shipped seniors retire in a wave around seasons 15-18
+ * and the academy is what keeps the squad alive after that. That is the world
+ * the 30-season harness run (harness/rollover.mjs) measures.
  *
  * Deliberately a flat threshold and not a probability curve: the spec asks for
- * "a handful per season, not a system", and a bounded five-season arc does not
- * need decline modelling.
+ * "a handful per season, not a system".
  */
 export const RETIREMENT_AGE = 40;
 
@@ -61,15 +59,17 @@ export const RETIREMENT_AGE = 40;
  * Academy players graduate the season after they pass the youth age band.
  *
  * The shipped academy is 14-18 (YOUTH_AGE_MAX), so 19 is the first age that is
- * no longer youth. All 72 of them cross it during a five-season arc — which is
- * exactly why the spec deletes senior generation: the academy IS the pipeline.
+ * no longer youth. Every academy player crosses it within five seasons of
+ * joining — which is exactly why the spec deletes senior generation: the
+ * academy IS the pipeline.
  */
 export const PROMOTION_AGE = 19;
 
 /**
  * Seasons are numbered from their year. Career creation starts at 2026, so
- * 2026 is season 1 and 2030 is season 5. Keeping the mapping in one place stops
- * "season 3" meaning two different things in two files.
+ * 2026 is season 1, 2035 is season 10 and 2055 is season 30. Keeping the
+ * mapping in one place stops "season 3" meaning two different things in two
+ * files. It is arithmetic, so there is no table to outgrow.
  */
 export const FIRST_SEASON_YEAR = 2026;
 export const seasonNumberForYear = (year: number) => year - FIRST_SEASON_YEAR + 1;
@@ -78,12 +78,12 @@ export const yearForSeasonNumber = (n: number) => FIRST_SEASON_YEAR + n - 1;
 /** Every closed season carries the board's review of it (R-53). */
 export type RolloverResult =
   | { kind: "none" }
-  | { kind: "career-complete"; finalSeason: number; review: SeasonReview }
   | { kind: "rolled"; fromSeason: number; toSeason: number; newSeasonId: number; review: SeasonReview; intake: IntakeResult | null }
   | { kind: "sacked"; fromSeason: number; review: SeasonReview };
 
 /**
- * Close the active season and open the next one, or end the career.
+ * Close the active season and open the next one, or end the career on a
+ * sacking.
  *
  * Idempotent by construction: it reads the ACTIVE season and completes it, so a
  * second call finds nothing active and returns "none" rather than creating a
@@ -108,7 +108,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     const current = seasonNumberForYear(season.year);
 
     // Everyone this career owns gets a year older. Nothing did this before: a
-    // five-season career finished with the squad ages it started with.
+    // career finished with the squad ages it started with.
     const agedCount = ageAllPlayers(careerSaveId);
     void agedCount;
 
@@ -182,25 +182,15 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // Finish against the target set at the draw, honours, money. In the same
     // transaction as the season closing, so no season closes without its
     // verdict. A sacking closes this season and opens no other: the calendar
-    // route ends the career once this commits. Season 5's review is the
-    // career verdict and cannot sack.
-    const review = boardReviewTx(tx, careerSaveId, season.year, teamId, current >= FINAL_SEASON);
+    // route ends the career once this commits. Every season's review can sack;
+    // there is no final season (L-01).
+    const review = boardReviewTx(tx, careerSaveId, season.year, teamId);
     // R-42: the season's honours are the club's whatever the board decided —
     // written once, here, from the finals and the season's ranking points.
     awardSeasonTrophiesTx(tx, careerSaveId, season.year, current, teamId);
 
     if (review.outcome === "sacked") {
       return { kind: "sacked", fromSeason: current, review } as const;
-    }
-
-    if (current >= FINAL_SEASON) {
-      // Terminal. Phase 6 renders the career-end result and score; this only
-      // records that the arc is over so nothing keeps advancing.
-      tx.update(careerSavesTable)
-        .set({ retiredAt: new Date() })
-        .where(eq(careerSavesTable.id, careerSaveId))
-        .run();
-      return { kind: "career-complete", finalSeason: current, review } as const;
     }
 
     const nextNumber = current + 1;
@@ -238,7 +228,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // it, and the fixture appeared only when a page that calls
     // ensureSeasonFixture (the dashboard, or the fixtures screen) happened to be
     // opened — so the dashboard silently repaired the season for a player, while
-    // any path that never opens a page (the five-season harness, and any future
+    // any path that never opens a page (the rollover harness, and any future
     // headless or scripted run) saw an empty season and played no matches at
     // all. A season and its fixture are one atomic thing.
     //
