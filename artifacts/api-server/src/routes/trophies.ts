@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId, loadStaff } from "../lib/playerDto.js";
+import { careerStatsFor } from "../utils/check-achievements.js";
 
 const router = Router();
 
@@ -84,7 +85,17 @@ router.get("/trophies/cabinet", async (req, res) => {
   const totalMatches = completedMatches.filter(
     (m) => m.homeTeamId === team.id || m.awayTeamId === team.id,
   ).length;
-  const seasonsManaged = Math.max(1, Math.ceil(totalMatches / 10));
+
+  // ACH: seasons managed is a number the game counts — one per season boundary,
+  // sacking included (R-77, routes/calendar.ts) — and it is kept on the career,
+  // so it survives a change of club (L-02e).
+  //
+  // It used to be `Math.ceil(totalMatches / 10)`: a guess from the match count,
+  // with a season being ten matches. A real season is 54 to 57 played, so every
+  // season-based honour on this page unlocked five or six times too early —
+  // "Manage for 30 seasons" arrived in the fifth. It also could not have been
+  // right for a club whose matches were forfeited, or one that changed hands.
+  const seasonsManaged = (await careerStatsFor(team.id)).seasonsCompleted;
 
   const generationalOnTeam = teamPlayers.filter((p) => p.potential === "Generational");
   const scoutedPlayers      = teamPlayers.filter((p) => p.scoutedPotential != null);
@@ -310,35 +321,13 @@ router.get("/trophies/cabinet", async (req, res) => {
   });
 });
 
-router.get("/trophies/hall-of-fame", async (req, res) => {
-  if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-
-  const team = await getActiveTeam(req);
-  if (!team) return res.status(404).json({ error: "Team not found" });
-
-  const retired = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, includeRetired: true }))
-    .filter((p) => p.isRetired)
-    .sort((a, b) => (b.legendScore ?? 0) - (a.legendScore ?? 0));
-
-  return res.json(
-    retired.map((p) => ({
-      id: p.id,
-      name: p.name,
-      nationality: p.nationality,
-      position: p.position,
-      imageUrl: p.imageUrl ?? null,
-      peakOverallRating: p.peakOverallRating ?? 0,
-      careerSeasons: p.careerSeasons ?? 1,
-      careerWins: p.careerWins ?? 0,
-      careerTitles: p.careerTitles ?? 0,
-      continentalTitles: p.continentalTitles ?? 0,
-      worldTitles: p.worldTitles ?? 0,
-      olympicMedalsCount: p.olympicMedalsCount ?? 0,
-      retiredSeasonYear: p.retiredSeasonYear ?? null,
-      yearsActive: p.yearsActive ?? null,
-      legendScore: p.legendScore ?? 0,
-    })),
-  );
-});
+/*
+ * GET /trophies/hall-of-fame is gone (HOF).
+ *
+ * It listed "retired players still at this club", sorted by a legend score —
+ * a list that was always empty, because retiring a player is what takes her
+ * off the club (L-02b), and a score nothing computed. The club's Hall of Fame
+ * is now a table of real inductions: routes/hall-of-fame.ts.
+ */
 
 export default router;

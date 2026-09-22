@@ -156,6 +156,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      steamworks.js:
+        specifier: 0.4.0
+        version: 0.4.0
     devDependencies:
       '@electron/rebuild':
         specifier: ^4.2.0
@@ -4513,6 +4517,10 @@ packages:
   statuses@2.0.2:
     resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
     engines: {node: '>= 0.8'}
+
+  steamworks.js@0.4.0:
+    resolution: {integrity: sha512-O5TTRs7ucCRql4IA/kYUIQYeghTsXqf3rAm81sC22RDId264LQYqQjuaMEUSqL60I5LdULiGu0W2/A+ZDcKBKA==}
+    engines: {node: '>= 14'}
 
   stream-events@1.0.5:
     resolution: {integrity: sha512-E1GUzBSgvct8Jsb3v2X15pjzN1tYebtbLaMg+eBOUOAxgbLoSbT2NS91ckc5lJD1KfLjId+jXJRgo0qnV5Nerg==}
@@ -9104,6 +9112,10 @@ snapshots:
   stats.js@0.17.0: {}
 
   statuses@2.0.2: {}
+
+  steamworks.js@0.4.0:
+    dependencies:
+      '@types/node': 25.6.2
 
   stream-events@1.0.5:
     dependencies:

@@ -45,12 +45,19 @@ const BASE = `http://localhost:${PORT}/api`;
 // L-01 (22 Sep 2026): a career has no last season, so the six R-77 deleted
 // only because of the five-season cap are back — same keys, same names.
 // Continental Champion and First Pay Day stay out until Rob defines them.
+/**
+ * ACH (22 Sep): Rob's list is exactly thirty. The two the game never could
+ * unlock are gone (DELETED_KEYS), and two that a career can now reach are in:
+ * `first_inductee` (the club's Hall of Fame, HOF) and `sold_on` (losing a club
+ * to a sale and taking another, L-02e).
+ */
 const EXPECTED_KEYS = [
   "first_steps", "battle_hardened", "century_wins", "perfect_season",
   "tournament_winner", "champion", "world_champion", "dynasty_begins", "volleyball_empire", "olympic_gold", "double_olympic_gold",
   "making_money", "millionaires_club", "debt_free", "financially_secure",
   "talent_spotter", "youth_pipeline", "youth_graduate", "youth_factory", "future_superstar", "star_factory",
   "local_legend", "mr_loyalty", "decade_in_sand", "veteran_coach", "hall_of_fame", "world_traveller", "globe_trotter",
+  "first_inductee", "sold_on",
 ];
 const DELETED_KEYS = ["first_pay_day", "continental_champion"];
 
@@ -113,6 +120,19 @@ try {
     keys.length === EXPECTED_KEYS.length && EXPECTED_KEYS.every((k) => keys.includes(k)), `${keys.length}: ${keys.join(", ")}`);
   check("no deleted achievement is served", DELETED_KEYS.every((k) => !keys.includes(k)));
   const byKey = Object.fromEntries(list.map((a) => [a.key, a]));
+  // ACH: the table Rob types into Steamworks is generated from the same
+  // definitions this list comes from, and every Steam API name is the key.
+  const table = fs.readFileSync(path.join(REPO, "docs", "achievements-table.md"), "utf8");
+  const tabled = [...table.matchAll(/^\| `([a-z_]+)` \|/gm)].map((m) => m[1]);
+  check(`docs/achievements-table.md lists the same ${EXPECTED_KEYS.length} keys, in the same words`,
+    tabled.length === EXPECTED_KEYS.length &&
+    EXPECTED_KEYS.every((k) => tabled.includes(k)) &&
+    list.every((a) => table.includes(`| \`${a.key}\` | ${a.name} | ${a.description} |`)),
+    `${tabled.length} in the table, ${keys.length} served`);
+  check("and it says the same total the game does",
+    table.includes(`**Total: ${EXPECTED_KEYS.length}.**`),
+    (/\*\*Total: \d+/.exec(table) ?? ["no total line"])[0]);
+
   check("no description mentions loans; the continent ones say where matches were played",
     list.every((a) => !/loan/i.test(a.description))
       && byKey.world_traveller?.description === "Play matches on 6 continents."

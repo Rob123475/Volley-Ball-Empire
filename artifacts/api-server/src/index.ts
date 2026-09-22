@@ -13,6 +13,7 @@ import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
 import { backfillContracts } from "./utils/backfillContracts";
+import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
 // channel to it (confirmed by its own pre-existing child.disconnect() call
@@ -41,6 +42,12 @@ process.on("message", (msg) => {
     process.exit(0);
   }
 });
+
+// ACH: answer electron/main.js's boot question — everything this save has ever
+// unlocked — so Steam can be given whatever it is missing. Registered beside
+// the shutdown handler above, for the same reason: it belongs to the process,
+// not to a request.
+registerSteamCatchUp();
 
 const rawPort = process.env["PORT"];
 

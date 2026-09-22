@@ -225,6 +225,77 @@ function refreshStarterReference() {
   fs.copyFileSync(bundledDbPath, starterReferencePath);
 }
 
+// ── Steam ───────────────────────────────────────────────────────────────────
+/**
+ * ACH: the Steam connection lives here because Steam attaches to the process
+ * the player launched — this one — and not to the API server we fork.
+ *
+ * NO STEAM IS A NORMAL CONDITION. Rob's own launches are `pnpm run
+ * electron:dev`, with no Steam client and no app id; so is anybody running the
+ * game outside Steam. Every path below is wrapped, `steamClient` stays null,
+ * and the game behaves exactly as it did before this existed. One line is
+ * logged either way, so a launch that should have connected and did not is
+ * something we can see rather than guess at.
+ *
+ * steamworks.js is a napi-rs prebuild (N-API 9), proven to load under this
+ * Electron with no rebuild step — unlike better-sqlite3, which needs one
+ * (docs/toolchain-gotchas.md).
+ */
+const STEAM_APP_ID = 5233750;
+let steamClient = null;
+
+function initSteam() {
+  try {
+    const steamworks = require("steamworks.js");
+    steamClient = steamworks.init(STEAM_APP_ID);
+    const who = (() => {
+      try { return steamClient.localplayer.getName(); } catch { return "a Steam account"; }
+    })();
+    console.log(`[steam] connected (app ${STEAM_APP_ID}, ${who})`);
+  } catch (err) {
+    steamClient = null;
+    console.log(
+      `[steam] not connected (${err && err.message ? err.message : err}) — ` +
+      "the game runs exactly as it does without Steam",
+    );
+  }
+}
+
+/** Unlock one achievement. Silent and harmless when Steam is not there. */
+function activateAchievement(key) {
+  if (!steamClient || typeof key !== "string" || key.length === 0) return;
+  try {
+    if (steamClient.achievement.isActivated(key)) return;
+    steamClient.achievement.activate(key);
+    console.log(`[steam] achievement unlocked: ${key}`);
+  } catch (err) {
+    // A key Steam does not know (one added to the game before Rob has created
+    // it in Steamworks) must not take a match down with it.
+    console.warn(`[steam] could not unlock ${key}: ${err && err.message ? err.message : err}`);
+  }
+}
+
+/**
+ * Everything this save has ever unlocked, given to Steam at boot.
+ *
+ * Achievements are per STEAM ACCOUNT, not per career: a player who won their
+ * first match before the game was on Steam — or in a career they have since
+ * deleted — should still have "First Steps". Steam ignores a key it already
+ * has, and activateAchievement checks first anyway.
+ */
+function catchUpAchievements(keys) {
+  if (!steamClient || !Array.isArray(keys)) return;
+  let given = 0;
+  for (const key of keys) {
+    try {
+      if (steamClient.achievement.isActivated(key)) continue;
+      steamClient.achievement.activate(key);
+      given++;
+    } catch { /* see activateAchievement */ }
+  }
+  console.log(`[steam] catch-up: ${keys.length} unlocked in this save, ${given} new to Steam`);
+}
+
 // ── Spawn the API server as a child process ─────────────────────────────────
 function startServer() {
   return new Promise((resolve, reject) => {
@@ -244,6 +315,14 @@ function startServer() {
         STARTER_DB_PATH: starterReferencePath,
       },
       silent: true,
+    });
+
+    // ACH: the server tells us when an achievement unlocks, on the same fork
+    // channel the shutdown message already uses. It never calls Steam itself.
+    serverProcess.on("message", (msg) => {
+      if (!msg || typeof msg !== "object") return;
+      if (msg.type === "achievement") activateAchievement(msg.key);
+      else if (msg.type === "achievements:unlocked") catchUpAchievements(msg.keys);
     });
 
     serverProcess.stdout?.on("data", (d) => console.log(`[server] ${d}`));
@@ -361,7 +440,15 @@ if (!gotTheLock) {
       // R-65: no application menu. Electron's default File/Edit/View/Window/Help
       // bar is gone from the window in every build.
       Menu.setApplicationMenu(null);
+      // Before the server, so the catch-up below has somewhere to go.
+      initSteam();
       await startServer();
+      // ACH: ask the server for everything this save has ever unlocked. Fire
+      // and forget — the reply arrives on the message handler above, and a
+      // save with nothing unlocked simply answers with an empty list.
+      if (steamClient && serverProcess && serverProcess.connected) {
+        try { serverProcess.send({ type: "achievements:list" }); } catch { /* channel gone */ }
+      }
       createWindow();
     } catch (err) {
       // A packaged Windows app has no console, so console.error here was an

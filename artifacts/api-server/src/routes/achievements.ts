@@ -3,7 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, teamsTable, achievementsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "../utils/achievement-definitions";
-import { getCareerStats } from "../utils/check-achievements";
+import { careerStatsFor } from "../utils/check-achievements";
 
 
 const router = Router();
@@ -20,7 +20,7 @@ router.get("/achievements", async (req, res) => {
     .where(eq(achievementsTable.teamId, team.id));
 
   const unlockedMap = new Map(unlocked.map((a) => [a.achievementKey, a]));
-  const stats = getCareerStats(team.careerStats);
+  const stats = await careerStatsFor(team.id);
 
   const result = ACHIEVEMENT_DEFS.map((def) => {
     const record = unlockedMap.get(def.key);
@@ -46,7 +46,7 @@ router.get("/achievements/career-stats", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
-  res.json(getCareerStats(team.careerStats));
+  res.json(await careerStatsFor(team.id));
 });
 
 export default router;

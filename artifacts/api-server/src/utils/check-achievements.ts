@@ -1,8 +1,9 @@
-import { db, teamsTable, achievementsTable, playersTable, trophiesTable } from "@workspace/db";
+import { db, teamsTable, achievementsTable, playersTable, trophiesTable, careerSavesTable } from "@workspace/db";
 import type { CareerStats } from "@workspace/db";
 import { eq, and, gte } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions";
 import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import { announceUnlocked } from "./steamBridge.js";
 
 export const DEFAULT_CAREER_STATS: CareerStats = {
   matchesWon: 0,
@@ -18,6 +19,8 @@ export const DEFAULT_CAREER_STATS: CareerStats = {
   debtFreeSeasons: 0,
   currentSeasonLosses: 0,
   goldEventsWon: 0,
+  hallOfFameInductions: 0,
+  clubsSoldFromUnder: 0,
 };
 
 /**
@@ -43,18 +46,43 @@ export function getCareerStats(raw: unknown): CareerStats {
     debtFreeSeasons:            n("debtFreeSeasons"),
     currentSeasonLosses:        n("currentSeasonLosses"),
     goldEventsWon:              n("goldEventsWon"),
+    hallOfFameInductions:       n("hallOfFameInductions"),
+    clubsSoldFromUnder:         n("clubsSoldFromUnder"),
   };
+}
+
+/**
+ * The manager's record, read from the CAREER.
+ *
+ * ACH: it used to be read straight off `teams.career_stats` — the club's row —
+ * so a manager who changed clubs (L-02e) started again from nothing and
+ * "Manage for 30 seasons" was unreachable to anybody who ever moved. Seasons
+ * are counted across a manager's whole career, so the record lives on the
+ * career save. A save made before that is migrated here, once, the first time
+ * it is asked for; the club's column is left alone rather than cleared, so a
+ * downgrade to an older build still finds its numbers.
+ */
+export async function careerStatsFor(teamId: number): Promise<CareerStats> {
+  const careerSaveId = await careerSaveIdForTeamOrThrow(teamId);
+  const [save] = await db.select().from(careerSavesTable)
+    .where(eq(careerSavesTable.id, careerSaveId)).limit(1);
+  if (save?.careerStats) return getCareerStats(save.careerStats);
+
+  const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, teamId) });
+  const migrated = getCareerStats(team?.careerStats);
+  await db.update(careerSavesTable).set({ careerStats: migrated })
+    .where(eq(careerSavesTable.id, careerSaveId));
+  return migrated;
 }
 
 export async function updateCareerStats(
   teamId: number,
   updater: (stats: CareerStats) => CareerStats,
 ): Promise<CareerStats> {
-  const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, teamId) });
-  if (!team) throw new Error("Team not found");
-  const current = getCareerStats(team.careerStats);
-  const updated = updater(current);
-  await db.update(teamsTable).set({ careerStats: updated }).where(eq(teamsTable.id, teamId));
+  const careerSaveId = await careerSaveIdForTeamOrThrow(teamId);
+  const updated = updater(await careerStatsFor(teamId));
+  await db.update(careerSavesTable).set({ careerStats: updated })
+    .where(eq(careerSavesTable.id, careerSaveId));
   return updated;
 }
 
@@ -62,7 +90,7 @@ export async function checkAchievements(teamId: number, season?: number): Promis
   const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, teamId) });
   if (!team) return [];
 
-  const stats = getCareerStats(team.careerStats);
+  const stats = await careerStatsFor(teamId);
 
   // Derive 5-star players from DB (peakOverallRating >= 85 = 5 stars)
   const fiveStarRows = (await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId }))
@@ -88,7 +116,8 @@ export async function checkAchievements(teamId: number, season?: number): Promis
     derivedStats.olympicGolds > stats.olympicGolds;
 
   if (needsUpdate) {
-    await db.update(teamsTable).set({ careerStats: derivedStats }).where(eq(teamsTable.id, teamId));
+    await db.update(careerSavesTable).set({ careerStats: derivedStats })
+      .where(eq(careerSavesTable.id, await careerSaveIdForTeamOrThrow(teamId)));
   }
 
   const existing = await db
@@ -109,6 +138,14 @@ export async function checkAchievements(teamId: number, season?: number): Promis
       newlyUnlocked.push(def.key);
     }
   }
+
+  // ACH: Steam hears about it here rather than at each caller. There are five
+  // call sites (calendar, matches, team, youth-scouting, hall-of-fame) and a
+  // sixth would be one nobody remembered to wire — an achievement that pops in
+  // the game and not on Steam is the kind of bug a player reports and nobody
+  // can reproduce. Never throws, and does nothing when the server is not a
+  // fork child (the harness, and `node dist/index.mjs` by hand).
+  announceUnlocked(newlyUnlocked);
 
   return newlyUnlocked;
 }

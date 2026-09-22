@@ -40,13 +40,20 @@
       "output": "C:\\build\\vbe"
     },
     "files": [
-      "electron/**/*"
+      "electron/**/*",
+      "node_modules/steamworks.js/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/steamworks.js/**/*"
     ],
     "extraResources": [
       {
         "from": "artifacts/api-server/dist",
         "to": "server/dist",
-        "filter": ["**/*", "!public/**"]
+        "filter": [
+          "**/*",
+          "!public/**"
+        ]
       },
       {
         "from": "artifacts/beach-volleyball/dist/public",
@@ -66,5 +73,8 @@
       "allowToChangeInstallationDirectory": true,
       "include": "scripts/installer.nsh"
     }
+  },
+  "dependencies": {
+    "steamworks.js": "0.4.0"
   }
 }

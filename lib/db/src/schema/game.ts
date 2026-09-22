@@ -172,6 +172,10 @@ export type CareerStats = {
   currentSeasonLosses: number;
   /** R-77: Gold-tier World Tour events won. */
   goldEventsWon: number;
+  /** HOF: players this career's club has put in its Hall of Fame. */
+  hallOfFameInductions: number;
+  /** L-02e: times a club has been sold out from under this manager. */
+  clubsSoldFromUnder: number;
 };
 
 export const teamsTable = sqliteTable("teams", {
@@ -1063,6 +1067,18 @@ export const careerSavesTable = sqliteTable("career_saves", {
   // (before this column existed) default to "established" — the pre-R-11
   // behaviour (comfortable budget) is what they already got.
   difficulty:   text("difficulty").notNull().default("established"),
+  /**
+   * ACH: the MANAGER's record — seasons completed, matches won, youth promoted,
+   * Hall of Fame inductions and the rest.
+   *
+   * It used to live on `teams.career_stats`, which is the CLUB's row. A manager
+   * who changes clubs (L-02e) would have started again from nothing: thirty
+   * seasons of work, and "Manage for 30 seasons" unreachable by anyone who ever
+   * moved. Seasons are counted across a manager's whole career, so the record
+   * is kept where the manager is. The club's copy is migrated across the first
+   * time a career asks for it.
+   */
+  careerStats:  text("career_stats", { mode: "json" }).$type<CareerStats>(),
   retiredAt:    integer("retired_at", { mode: "timestamp" }),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),

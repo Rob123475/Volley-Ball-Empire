@@ -28,6 +28,46 @@ async function afterPack(context) {
     );
   }
   console.log("[after-pack] OK - resources/starter-db holds only volleyball-empire.sqlite (no -wal/-shm).");
+
+  // ── ACH: steam_appid.txt must not ship ────────────────────────────────────
+  //
+  // Steam gives a launched game its app id. A steam_appid.txt beside the exe
+  // overrides that, which is exactly what it is for in development (running
+  // the game outside Steam and still connecting), and exactly what must not be
+  // in a player's install: a shipped file that names an app id is a file that
+  // can name the WRONG app id after a depot change, and the game would then
+  // unlock achievements against something else.
+  for (const dir of [context.appOutDir, path.join(context.appOutDir, "resources")]) {
+    const stray = path.join(dir, "steam_appid.txt");
+    if (fs.existsSync(stray)) {
+      throw new Error(
+        `[after-pack] Aborting - ${stray} must never ship. It is a development ` +
+        "file: Steam gives a launched game its app id, and a shipped override " +
+        "can only ever be wrong. Remove it from the repo root before packaging.",
+      );
+    }
+  }
+  console.log("[after-pack] OK - no steam_appid.txt in the package (development file only).");
+
+  // ── ACH: steamworks.js must ship, unpacked ────────────────────────────────
+  //
+  // package.json build.files lists `electron/**/*`, which REPLACES
+  // electron-builder's default and takes node_modules with it; steamworks.js is
+  // named there explicitly, and asarUnpack keeps it outside app.asar so
+  // steam_api64.dll can be loaded by the OS loader. If either is dropped, Steam
+  // silently never connects in a packaged build and every achievement stops at
+  // the game's own screen — which nobody would notice until a player asked.
+  const steamDir = path.join(context.appOutDir, "resources", "app.asar.unpacked", "node_modules", "steamworks.js");
+  const dll = path.join(steamDir, "dist", "win64", "steam_api64.dll");
+  const node = path.join(steamDir, "dist", "win64", "steamworksjs.win32-x64-msvc.node");
+  const missing = [steamDir, dll, node].filter((f) => !fs.existsSync(f));
+  if (missing.length > 0) {
+    throw new Error(
+      "[after-pack] Aborting - steamworks.js is not in the package, unpacked: " +
+      `missing ${missing.join(", ")}. Check package.json build.files and build.asarUnpack.`,
+    );
+  }
+  console.log(`[after-pack] OK - steamworks.js unpacked at ${path.relative(context.appOutDir, steamDir)} (dll and .node present).`);
 }
 
 module.exports = afterPack;

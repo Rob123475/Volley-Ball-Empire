@@ -274,4 +274,26 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     check: (_t, stats) => stats.continentsVisited.length >= 4,
     progress: (_t, stats) => ({ current: Math.min(stats.continentsVisited.length, 4), target: 4 }),
   },
+  {
+    // HOF: the club's first honour board entry. Rob's rule: a club may induct
+    // up to six players every two seasons, and may induct nobody — so this is
+    // unlocked by a decision, not by time passing.
+    key: "first_inductee",
+    name: "First Inductee",
+    description: "Put a player in your club's Hall of Fame.",
+    category: "legacy",
+    check: (_t, stats) => stats.hallOfFameInductions >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.hallOfFameInductions, 1), target: 1 }),
+  },
+  {
+    // L-02e: five loss-making seasons and the club is sold. For an AI club that
+    // is a new name over the door; for the manager's, it is the job. Surviving
+    // it — taking another club and carrying on — is the achievement.
+    key: "sold_on",
+    name: "Sold On",
+    description: "Lose your club to a sale, take another one, and keep managing.",
+    category: "career",
+    check: (_t, stats) => stats.clubsSoldFromUnder >= 1 && stats.seasonsCompleted >= 1,
+    progress: (_t, stats) => ({ current: Math.min(stats.clubsSoldFromUnder, 1), target: 1 }),
+  },
 ];
