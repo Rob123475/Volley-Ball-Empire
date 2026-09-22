@@ -41,7 +41,7 @@ The three things most worth your attention in the morning:
 | 6 | ACH — seasons, cabinet, 30 achievements, Steam | DONE | `5420a02` |
 | 7 | L-04 — money means something | DONE | `bdff326` |
 | 8 | L-02e — broke clubs sold, job market | DONE | `bdff326` |
-| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `8897343` |
+| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253`, repackaged at `66068d3` |
 | 10 | REPORT | this file | — |
 
 Items 3 and 4 share a commit, and so do 7 and 8: each pair changes the same
@@ -229,11 +229,17 @@ Seven defects, all of them things a career would have hit:
     the route rather than dressed up as a shortlist.
 
 25. **What the manager takes to the new club is the career, not the club.**
-    Seasons, achievements and reputation come along (ACH put them on the
-    career save for exactly this). The squad, the academy, the staff, the
-    trophies and the balance stay with the club that was sold, and the new
-    club starts as a new club does — an underdog's budget and a squad signed
-    from the free agents.
+    Seasons and reputation come along because ACH put them on the career save
+    for exactly this; the achievements come along because their rows are moved
+    to the new club, which is a defect found later and written up below. The
+    squad, the academy, the staff, the trophies and the balance stay with the
+    club that was sold, and the new club starts as a new club does — an
+    underdog's budget and a squad signed from the free agents, whatever the
+    club's rating says about it. Its purse access for that first season is the
+    seat's, not the club's: it inherits the World Tour seat of the club that
+    was sold, so a manager relegated to the bottom takes a Bronze tour with
+    them — cheap to enter and cheap to travel, which is the right way round
+    for somebody starting again.
 
 26. **"Loss-making" had to be given a size.** Taken literally, a season the
     club finishes one dollar down is a loss-making season — and five of those
@@ -247,7 +253,7 @@ Seven defects, all of them things a career would have hit:
 
 ## The harness
 
-47 suites, 1,077 checks, all green on `8897343` — the commit the build was made
+47 suites, 1,077 checks, all green on `66068d3` — the commit the build was made
 from. It was 1,044 when the ten items were done; the rest are the checks that
 came with the defects found afterwards, listed below. `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck,
 the builds and then the harness, which is how every item was verified before it
@@ -267,12 +273,19 @@ Nine suites are new tonight:
 | `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across — seasons, achievements and all — the new club judged on its own seasons, a club never offered twice, retirement by declining |
 | plus the shared `harness-club.mjs` helpers | renewing, fielding and keeping a club solvent, so three long walks stopped losing their clubs to rules they were not testing |
 
-**It is stable, not lucky.** The full harness was run three times end to end on
-the same code and came back green every time — 1,044, 1,044 and 1,047 checks,
-the same 47 suites passing. That matters more than usual tonight because nine
-of these suites play real matches with real results: a check that only passes
-on a good roll is worse than no check, because it teaches you to ignore a red
-one. The one I found doing exactly that is written up below.
+**It is stable, and that is measured rather than asserted.** Seven full runs
+end to end tonight. The three on the ten items came back green every time
+(1,044, 1,044 and 1,047 checks); the four after them were green, green, RED and
+green (1,077, 1,076, two failed checks, 1,077) — the same 47 suites throughout.
+
+The red one is the point of running it more than once. Nothing had changed
+between it and the green run before it: twelve simulated seasons simply gave
+the established club eight second places and no first, and a check that
+required a winner failed. That is a check failing on a dice roll, it is the
+second of those found tonight, and both are written up below. A check that can
+fail on a good or bad roll is worse than no check, because it teaches you to
+ignore a red result — and the only thing that finds them is running the suite
+again on code you did not touch.
 
 Two older suites had to change because a rule changed under them, which is the
 point of having them: `board-review.mjs`'s table of verdicts (eight seasons that
@@ -281,8 +294,8 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 
 ## The build
 
-`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,066 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `8897343`, the last commit that
+`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,095 bytes) and
+`C:\build\vbe\win-unpacked\`, from commit `66068d3`, the last commit that
 changed the game — the one after it is this report. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
@@ -551,6 +564,26 @@ worth a couple of hundred thousand and not a million.
   leave and re-enter by relegation and promotion, and it is why the stamp had
   to be its own column.
 
+- **The Steam log could say "unlocked" when Steam had refused.**
+  `achievement.activate()` answers with a boolean and `electron/main.js` threw
+  it away, printing `[steam] achievement unlocked: first_steps` whether Steam
+  took the key or not. The likeliest reason for a refusal is the exact thing
+  that is true right now — the achievement has not been created in Steamworks
+  yet — so the one line you have to diagnose a missing pop with would have
+  told you the opposite of what happened. It now says which it was, and the
+  boot catch-up counts the ones Steam would not take.
+
+- **A second harness check could fail on a dice roll, and did.** Running the
+  full harness again on unchanged code turned `economy.mjs` red: "a club that
+  WON the Gold tour went forwards, every time" required the run to produce a
+  winner, and that run gave the established club eight second places and no
+  first. Twelve simulated seasons against eighteen real clubs is a race, not a
+  guarantee. It is a rule about seasons that WERE won now — if a run wins none
+  there is nothing to judge and the line says so, and the run prints how many
+  top-three Gold seasons it had instead. What carries the weight is the
+  bottom-three check and the sale, which are certain by construction: a club at
+  the bottom cannot earn its costs at any tier.
+
 ## Anything Rob must check on screen
 
 - **Team page → moving a youth into Match Player or Interchange** now opens "Promote
@@ -587,8 +620,12 @@ worth a couple of hundred thousand and not a million.
   (`[steam] connected (app 5233750, rbonner006)`) and ran the boot catch-up.
   What is left for you is the pop: play a career under Steam, win a match, and
   see whether "First Steps" appears on the overlay and then in your
-  achievements list. If Steam is not running the game behaves exactly as it
-  does today, and says so in one line.
+  achievements list. If it does not, the log now tells you which half failed:
+  `[steam] achievement unlocked: first_steps` means Steam took it, and
+  `[steam] Steam would not take first_steps — is it created in Steamworks?`
+  means it did not, which is what you would expect until the thirty are created
+  from `docs/achievements-table.md`. If Steam is not running the game behaves
+  exactly as it does today, and says so in one line.
 
 ## What I would do next, in your place
 
