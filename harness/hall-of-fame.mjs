@@ -244,6 +244,27 @@ try {
   const afterSkip = await api("GET", "/hall-of-fame");
   check("and skipping honours nobody", (afterSkip.data?.inducted ?? []).length === 2,
     `${(afterSkip.data?.inducted ?? []).length} on the board`);
+  check("skipping does not use the window up either", afterSkip.data?.window?.open === true,
+    `open ${afterSkip.data?.window?.open}`);
+
+  // ── 7. The same player twice ──────────────────────────────────────────────
+  //
+  // One induction, not two. The board has a unique index on (career, club,
+  // player), so a repeated id was a constraint violation and a 500 rather than
+  // a 201 — and a club cannot honour anybody twice in any case. Last, because
+  // it uses the window the skip above deliberately left open.
+  console.log("\n7. NAMING THE SAME PLAYER TWICE");
+  const spare = (afterSkip.data?.eligible ?? [])[0];
+  const twice = await api("POST", "/hall-of-fame/induct", {
+    playerIds: [spare?.playerId, spare?.playerId],
+  });
+  check("it is accepted, and inducts her once",
+    twice.status === 201 && (twice.data?.inducted ?? []).length === 1,
+    `HTTP ${twice.status} ${JSON.stringify(twice.data).slice(0, 80)}`);
+  const finalBoard = (await api("GET", "/hall-of-fame")).data?.inducted ?? [];
+  check("and she is on the board exactly once",
+    finalBoard.filter((r) => r.playerId === spare?.playerId).length === 1,
+    `${finalBoard.length} on the board: ${finalBoard.map((r) => r.name).join(", ")}`);
 
 } finally {
   await stopServer(child);

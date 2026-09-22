@@ -206,11 +206,16 @@ router.post("/hall-of-fame/induct", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team" }); return; }
   const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
 
-  const ids = Array.isArray(req.body?.playerIds) ? req.body.playerIds.map(Number) : null;
-  if (!ids || ids.some((n: number) => !Number.isInteger(n))) {
+  const sent = Array.isArray(req.body?.playerIds) ? req.body.playerIds.map(Number) : null;
+  if (!sent || sent.some((n: number) => !Number.isInteger(n))) {
     res.status(400).json({ error: "playerIds must be a list of player ids." });
     return;
   }
+  // The same player twice is one induction, not two. The honour board has a
+  // unique index on (career, club, player), so a repeated id would have been a
+  // constraint violation and a 500 rather than a 201 — and a player cannot be
+  // honoured twice by the same club anyway.
+  const ids = [...new Set<number>(sent)];
   if (ids.length > MAX_INDUCTIONS_PER_WINDOW) {
     res.status(422).json({
       error: `A club may induct ${MAX_INDUCTIONS_PER_WINDOW} players in a window; you chose ${ids.length}.`,

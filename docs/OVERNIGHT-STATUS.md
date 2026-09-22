@@ -441,6 +441,12 @@ worth a couple of hundred thousand and not a million.
   key would be a crash at the Select Manager screen. It does not — but that
   was reasoning, and now it is a test.
 
+- **Naming the same player twice in an induction was a 500.** The honour board
+  has a unique index on (career, club, player) — a club cannot honour anybody
+  twice — and the route counted the ids it was given without looking for
+  repeats, so `[7, 7]` reached the database and failed the constraint. It is
+  one induction now, which is what it always meant.
+
 - **One harness check could fail by chance, and did.** "A club at the top of
   the Gold tour went forwards" held for a club that finished 1st or 2nd — and
   a 2nd-place season lost $50,120 for the tier-access reason above. A check
