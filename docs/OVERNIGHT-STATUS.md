@@ -39,10 +39,14 @@ The three things most worth your attention in the morning:
 | 4 | L-02d — graduates cap and trading | DONE | `a31a302` |
 | 5 | HOF — club Hall of Fame | DONE | `83dfea4` |
 | 6 | ACH — seasons, cabinet, 30 achievements, Steam | DONE | `5420a02` |
-| 7 | L-04 — money means something | IN PROGRESS | — |
-| 8 | L-02e — broke clubs sold, job market | IN PROGRESS | — |
-| 9 | BUILD — v0.9.2 to C:\build\vbe | NOT STARTED | — |
+| 7 | L-04 — money means something | DONE | `bdff326` |
+| 8 | L-02e — broke clubs sold, job market | DONE | `bdff326` |
+| 9 | BUILD — v0.9.2 to C:\build\vbe | DONE | `06be253` |
 | 10 | REPORT | this file | — |
+
+Items 3 and 4 share a commit, and so do 7 and 8: each pair changes the same
+files, and in the second pair the sale rule cannot fire until losing money is
+possible. Every commit was pushed on a green 47-suite run.
 
 ## Calls I made
 
@@ -114,7 +118,7 @@ Seven defects, all of them things a career would have hit:
 7. **A client could name a contract's end date.** The server owns it now, which
    is what R-51's game-clock rule was for.
 
-## Calls I made on items 2 and 3
+## Calls I made on items 2 to 8
 
 9. **A Hall of Fame table had to exist before item 5.** Retirement cannot decide
    what to delete without knowing who has been honoured, so `club_hall_of_fame`
@@ -241,6 +245,70 @@ Seven defects, all of them things a career would have hit:
     sold — but "loss-making" now means what you meant by it. Change the 2% in
     `utils/board-confidence.ts` if you want it tighter or looser.
 
+## The harness
+
+47 suites, 1,044 checks, all green on `bdff326` — the commit the build was made
+from. `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck,
+the builds and then the harness, which is how every item was verified before it
+was pushed.
+
+Nine suites are new tonight:
+
+| Suite | What it holds to account |
+|---|---|
+| `contract-terms.mjs` | the three lengths, everyone under contract, staff expiry on the game clock, the four-week warning, the payout |
+| `retirement.mjs` | retirement at forty: the contract closed, the squad and market free of her, the honoured kept, the forgotten recycled |
+| `youth-rebirth.mjs` | 30 seasons in three regions at once — twelve in the academy from season four to thirty, never empty, nobody without a portrait |
+| `graduates.mjs` | four graduates, the fifth promotion refused, the boundary releasing the surplus weakest-first, a graduate sold |
+| `hall-of-fame.mjs` | the window every two seasons, the cap of six, honours before numbers, an inducted player kept whole |
+| `achievement-ipc.mjs` | every unlock announced to Electron once, the boot catch-up answered, and a sabotage check that it is reading the messages |
+| `economy.mjs` | the money table above, and the rule under it |
+| `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across, retirement by declining |
+| plus the shared `harness-club.mjs` helpers | renewing, fielding and keeping a club solvent, so three long walks stopped losing their clubs to rules they were not testing |
+
+Two older suites had to change because a rule changed under them, which is the
+point of having them: `board-review.mjs`'s table of verdicts (eight seasons that
+used to end a career are a final warning now) and `fake-content-removed.mjs`
+(which banned the words "job market" rather than the invented list R-43 deleted).
+
+## The build
+
+`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,068,232 bytes) and
+`C:\build\vbe\win-unpacked\`, from commit `06be253`, electron-builder 25.1.8,
+Electron 32.3.3, x64.
+
+Checked in the package rather than assumed:
+
+- the packaged server carries tonight's rules — the running costs, the sale
+  after five loss-making seasons, the three contract lengths, the graduate cap
+  and `first_inductee`
+- the packaged starter database has `player_retirements`, `club_hall_of_fame`
+  and the three new `career_saves` columns (53 tables)
+- steamworks.js is unpacked beside `steam_api64.dll` where the loader can find
+  it, and after-pack now FAILS the build if it is not
+- no `steam_appid.txt` in the package, and after-pack fails the build if one
+  appears
+
+Then launched from `win-unpacked` on a scratch profile, which is how I know it
+runs and not only that it built:
+
+```
+[steam] connected (app 5233750, rbonner006)
+[steam] catch-up: 0 unlocked in this save, 0 new to Steam
+healthz 200
+WAL checkpointed and database closed for shutdown
+```
+
+It quit on its own, left no `-wal` or `-shm` sidecar and no process behind it.
+
+**The live save was never opened.** Its fingerprint before and after the launch
+test is the same: `e887920d02a53fabf6fd780d1be5a92fa75c2b69a44ab134dcbecd9ab9d2fe76`.
+
+Steamworks was not touched — the depot upload is yours. One thing to know: the
+`win-unpacked` folder in `C:\build\vbe` is now 0.9.2. The 0.9.1 and 0.9.0
+installers are still beside it, but the unpacked folder Steam's reviewed build
+came from has been replaced, as the brief asked.
+
 ## The money, season by season (L-04)
 
 The table the brief asked for, printed by `harness/economy.mjs` and copied here
@@ -352,7 +420,33 @@ worth a couple of hundred thousand and not a million.
 - **Achievements**: thirty now. `docs/achievements-table.md` is the list to
   copy into Steamworks — API name, display name, description — generated from
   the game's own definitions by `node scripts/achievements-table.cjs`.
-- **Steam**: launching through Steam should log one line either way. Winning a
-  first match should pop "First Steps" on the overlay; the boot catch-up should
-  hand Steam whatever your existing save has already unlocked. This is the one
-  thing I could not prove on screen for you — it needs a launch under Steam.
+- **Steam**: the packaged build connected to your Steam client on its own
+  (`[steam] connected (app 5233750, rbonner006)`) and ran the boot catch-up.
+  What is left for you is the pop: play a career under Steam, win a match, and
+  see whether "First Steps" appears on the overlay and then in your
+  achievements list. If Steam is not running the game behaves exactly as it
+  does today, and says so in one line.
+
+## What I would do next, in your place
+
+1. **Play a season of your real save on 0.9.2** before anything else. The money
+   change is the one a career feels immediately, and your save has a history
+   these numbers were never run against.
+2. **Decide whether 2% is the right size for "loss-making"** (call 26). It is
+   the number that decides how forgiving the sale rule is.
+3. **Create the thirty achievements in Steamworks** from
+   `docs/achievements-table.md`, then prove one pops.
+4. **The three things left undone** are listed above under "Found on the way" —
+   the squad-role slot limits, AI clubs having no books of their own, and
+   `local_legend` now that a manager can change clubs. None of them blocks a
+   release; all three are the kind of thing that gets worse the longer it sits.
+
+## If something in here is wrong
+
+Every number in this report came out of a command, and the commands are all in
+the repo: `pnpm run test:harness` for the lot, or any single suite by name
+(`node harness/economy.mjs`, `node harness/job-market.mjs`, and so on). Nothing
+was measured once and quoted from memory — where a number moved between runs, I
+re-ran it and used the later one. If a rule reads wrong to you, the file that
+states it says why it is that way, and changing the constant at the top of it
+is usually the whole job.
