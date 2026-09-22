@@ -140,7 +140,6 @@ export function terminationPayout(monthlySalary: number, today: string, endDate:
   return Math.max(0, Math.round(monthlySalary * months));
 }
 
-/** 4 weeks, in game days: how long before an end date the warning appears. */
 /**
  * Where a RENEWAL ends: the same three lengths, measured on from the day the
  * old contract ends rather than from today.
@@ -176,6 +175,7 @@ export function renewalEndDate(
   return ends[need - 1]!;
 }
 
+/** 4 weeks, in game days: how long before an end date the warning appears. */
 export const CONTRACT_WARNING_DAYS = 28;
 
 /** Whether an end date is inside the warning window from `today`. */

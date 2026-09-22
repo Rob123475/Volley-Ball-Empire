@@ -5,6 +5,7 @@ import {
 } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
+import { ACHIEVEMENT_DEFS } from "./achievement-definitions.js";
 import type { Request } from "express";
 
 // ── Manager salary ─────────────────────────────────────────────────────────────
@@ -50,7 +51,11 @@ export async function buildCareerSummary(teamId: number, userId: string, careerS
   const worldTitles   = trophies.filter(t => t.type === "world_championship").length;
   const olympicMedals = trophies.filter(t => ["olympic_gold", "olympic_silver", "olympic_bronze"].includes(t.type)).length;
 
-  const TOTAL_ACHIEVEMENTS = 25;
+  // ACH: counted, not remembered. This was hardcoded at 25 while the game
+  // shipped 30, so the career-end screen told a manager who had unlocked 28
+  // of them "28 / 25" and drew a progress bar past its own end. Rob's rule
+  // is exactly 30 achievements; the list is the only place that says so.
+  const TOTAL_ACHIEVEMENTS = ACHIEVEMENT_DEFS.length;
 
   return {
     managerName:          save?.managerName ?? "Unknown",
@@ -90,8 +95,10 @@ export type CareerSummary = Awaited<ReturnType<typeof buildCareerSummary>>;
  * own club that means losing the job, and then being shown what vacancies
  * there are. So this deliberately does NOT end the career: it detaches the
  * save from the club and marks it as seeking one. The career keeps everything
- * that is the MANAGER's — seasons completed, achievements, reputation (ACH
- * moved those onto the career save for exactly this) — and loses everything
+ * that is the MANAGER's — seasons completed, reputation (ACH moved the
+ * counters onto the career save for exactly this) and the achievement rows,
+ * which follow the manager to the next club (routes/job-market.ts) — and
+ * loses everything
  * that was the CLUB's, because the club is somebody else's now.
  *
  * The save is left with no team_id, which R-60 treats as a finished career.

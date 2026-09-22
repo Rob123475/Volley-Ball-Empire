@@ -211,6 +211,15 @@ export const teamsTable = sqliteTable("teams", {
   youthScoutingContinent: text("youth_scouting_continent"),
   youthScoutingStatus: text("youth_scouting_status").notNull().default("idle"),
   youthScoutingWeeksRemaining: integer("youth_scouting_weeks_remaining").notNull().default(0),
+  /**
+   * READ ONCE, NEVER WRITTEN. The manager's record lives on the career save
+   * (`career_saves.career_stats`) since ACH, because a manager can now change
+   * clubs and the record is theirs, not the club's. This column is kept only so
+   * that a save made before that is migrated off it the first time it is asked
+   * for (utils/check-achievements.ts). Nothing should read it for display: it
+   * is frozen at whatever the club last wrote, and on a career started since,
+   * it is empty.
+   */
   careerStats: text("career_stats", { mode: "json" }).$type<CareerStats>(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
@@ -408,6 +417,15 @@ export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
   careerSaveId:    integer("career_save_id").notNull().references(() => careerSavesTable.id),
   poolTeamId:      integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
   isActiveInLeague:integer("is_active_in_league", { mode: "boolean" }).notNull().default(false),
+  /**
+   * L-02e: stamped when the manager took this club over through the job market.
+   * It is not the same question as `is_active_in_league`, which a club leaves
+   * and re-enters by relegation and promotion — this one is for ever. A club
+   * the manager has already run is never offered as a vacancy again, which
+   * without this is exactly what a second sale does: it sells the club and
+   * then lists it, by name, among the jobs going.
+   */
+  takenOverAt:     integer("taken_over_at", { mode: "timestamp" }),
   promotionCount:  integer("promotion_count").notNull().default(0),
   relegationCount: integer("relegation_count").notNull().default(0),
   updatedAt:       integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
@@ -999,6 +1017,13 @@ export const boardSeasonsTable = sqliteTable("board_seasons", {
   id:                 integer("id").primaryKey({ autoIncrement: true }),
   careerSaveId:       integer("career_save_id").notNull().references(() => careerSavesTable.id),
   seasonYear:         integer("season_year").notNull(),
+  // L-02e: WHICH club played this season. A career had exactly one club until
+  // the job market, so there was nothing to say — and the loss-making run, the
+  // strikes and the opening balance were all read straight off the career, so a
+  // manager who took over a new club inherited the sold club's five seasons of
+  // losses and was sold again at the end of their first. Null only in a save
+  // made before this column existed; backfilled at startup.
+  teamId:             integer("team_id").references(() => teamsTable.id),
   seasonStartBalance: real("season_start_balance").notNull().default(0),
   // the expectation, set at the draw
   pairRating:         real("pair_rating"),

@@ -13,6 +13,7 @@ import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
 import { backfillContracts } from "./utils/backfillContracts";
+import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -138,6 +139,17 @@ try {
 } catch (err) {
   // Never block startup on a data repair; the game is still playable.
   logger.error({ err }, "contract backfill failed");
+}
+
+// L-02e: say which club played each season the board has already recorded. A
+// career had exactly one club until the job market existed, so an older save's
+// rows all belong to its team — and the board needs to know, because the
+// loss-making run and the strikes are now the CLUB's, not the career's.
+try {
+  const named = backfillBoardSeasonClubs();
+  if (named > 0) logger.info({ seasons: named }, "board seasons matched to the club that played them");
+} catch (err) {
+  logger.error({ err }, "board season club backfill failed");
 }
 
 // Data migration: move every continent column onto the canonical KEYS and

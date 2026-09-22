@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   useGetCurrentAuthUser,
   useGetMyTeam,
@@ -33,7 +34,33 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const hasTeam    = !!user && slot === "present";
   const needsTeam  = !!user && slot === "absent";
   const teamFailed = !!user && slot === "unknown";
-  const isLoading  = authLoading || (!!user && teamLoading);
+  /**
+   * L-02e: a career can be between clubs.
+   *
+   * `GET /api/team` answers 404 for one, which is the same answer as "this
+   * profile has no career at all" — so a manager whose club had just been sold
+   * was shown START NEW CAREER on the title screen, and, if they had already
+   * dismissed the title, was bounced back to it. Quitting at the job market is
+   * the natural moment to stop playing, and it stranded the career.
+   *
+   * The job market is the one thing that can tell them apart, and it is only
+   * asked when there is no club to find.
+   */
+  const jobMarket = useQuery<{ seeking?: boolean }>({
+    queryKey: ["auth-guard/job-market"],
+    enabled: needsTeam,
+    retry: false,
+    queryFn: async () => {
+      const res = await fetch("/api/job-market", { credentials: "include" });
+      if (!res.ok) return {};
+      return res.json() as Promise<{ seeking?: boolean }>;
+    },
+  });
+  const seekingClub = needsTeam && jobMarket.data?.seeking === true;
+
+  // Until that answer is in, "no club" is not yet "no career": deciding early
+  // is what put the player on the new-career path.
+  const isLoading  = authLoading || (!!user && teamLoading) || (needsTeam && jobMarket.isLoading);
 
   // The season year was hardcoded to 2026 here, so a player in their third
   // season saw the wrong year on the front of the game.
@@ -57,6 +84,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     } else if (teamFailed) {
       // We could not read the save slot. Retry — do not offer a new career.
       refetchTeam();
+    } else if (seekingClub) {
+      sessionStorage.setItem("bvp-title-dismissed", "1");
+      window.location.href = "/job-market";
     } else if (!hasTeam) {
       sessionStorage.setItem("bvp-title-dismissed", "1");
       window.location.href = "/new-career";
@@ -115,7 +145,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 {isLoading
                   ? <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   : <Play className="mr-2 h-5 w-5 fill-white" />}
-                {teamFailed ? "RETRY" : hasTeam ? "CONTINUE" : "START NEW CAREER"}
+                {teamFailed ? "RETRY" : hasTeam || seekingClub ? "CONTINUE" : "START NEW CAREER"}
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
               </Button>
             </div>
@@ -124,7 +154,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               {user
                 ? teamFailed
                   ? "Could not reach your save data. Your career is safe — press Retry."
-                  : `Signed in · ${hasTeam ? "Your progress is saved." : "Set up your team to begin."}`
+                  : seekingClub
+                    ? "Your club was sold. Your career is waiting at the job market."
+                    : `Signed in · ${hasTeam ? "Your progress is saved." : "Set up your team to begin."}`
                 : "Select or create a manager profile to save your progress."}
             </p>
           </div>
@@ -145,6 +177,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // ── Not authenticated — redirect to login ───────────────────────────────────
   if (!user) {
     window.location.href = loginUrl;
+    return null;
+  }
+
+  // ── Between clubs — the career carries on at the job market ─────────────────
+  if (seekingClub) {
+    window.location.href = "/job-market";
     return null;
   }
 

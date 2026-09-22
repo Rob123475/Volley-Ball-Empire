@@ -392,7 +392,7 @@ export function RetireModal({ onClose, onRetired }: Props) {
               worldTitles: 0,
               olympicMedals: 0,
               achievementsCompleted: 0,
-              totalAchievements: 25,
+              totalAchievements: 30,
               totalWins: 0,
               totalLosses: 0,
               managerReputation: 50,

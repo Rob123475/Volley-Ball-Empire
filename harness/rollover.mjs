@@ -350,6 +350,22 @@ async function advanceToBoundary(api, maxDays = 500) {
   }
 
   // ── Carry-forward: history and standings ────────────────────────────────
+  // ── The manager's record, on the pages that show it ───────────────────
+  //
+  // ACH moved the record off the club and onto the career save, because a
+  // manager can change clubs now (L-02e). `teams.career_stats` has not been
+  // written since — so a page still reading it shows a career that has played
+  // five seasons as having played none. League Ladders shows three of these
+  // numbers as headline tiles.
+  const records = (await A("GET", "/history/records")).data ?? {};
+  const careerRecord = (await A("GET", "/achievements/career-stats")).data ?? {};
+  check("the records page counts the seasons the career actually completed",
+    records.seasonsCompleted === careerRecord.seasonsCompleted && records.seasonsCompleted > 0,
+    `records ${records.seasonsCompleted}, career save ${careerRecord.seasonsCompleted}`);
+  check("and the peak balance it actually reached",
+    records.highestBalance === careerRecord.highestBalanceReached && records.highestBalance > 0,
+    `records ${records.highestBalance}, career save ${careerRecord.highestBalanceReached}`);
+
   const hist = (await A("GET", "/careers/history")).data;
   const entries = Array.isArray(hist) ? hist : (hist?.entries ?? []);
   const seasonEntries = entries.filter((e) => e.type === "season_completed");

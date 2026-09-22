@@ -13,6 +13,7 @@ import {
 import { eq, and, desc, asc } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { careerStatsFor } from "../utils/check-achievements.js";
 
 const router = Router();
 
@@ -172,7 +173,11 @@ router.get("/history/records", async (req, res) => {
   const totalMatches = myMatches.length;
   const winRate = totalMatches > 0 ? Math.round((myWins / totalMatches) * 100) : 0;
 
-  const cs = team.careerStats;
+  // ACH moved the manager's record onto the career save, because a manager can
+  // now change clubs. `teams.career_stats` has not been written since: read
+  // here it showed a career that has completed nine seasons as having completed
+  // none.
+  const cs = await careerStatsFor(team.id);
   res.json({
     worldChampionships: byType("world_championship").length,
     continentalTitles: byType("continental_championship").length,
@@ -181,9 +186,9 @@ router.get("/history/records", async (req, res) => {
     totalLosses: team.losses,
     winRate,
     bestStreak,
-    seasonsCompleted: cs?.seasonsCompleted ?? 0,
-    perfectSeasons: cs?.perfectSeasons ?? 0,
-    highestBalance: cs?.highestBalanceReached ?? 0,
+    seasonsCompleted: cs.seasonsCompleted,
+    perfectSeasons: cs.perfectSeasons,
+    highestBalance: cs.highestBalanceReached,
   });
 });
 
@@ -227,13 +232,18 @@ router.get("/history/hall-of-fame", async (req, res) => {
     .where(eq(hallOfFameTable.userId, req.user.id))
     .orderBy(desc(hallOfFameTable.worldTitles));
 
+  // The club's titles, which is what this column has always shown against each
+  // of its retired players. Read from the career save since ACH moved the
+  // manager's record there; `teams.career_stats` is no longer written.
+  const hofStats = await careerStatsFor(team.id);
+
   res.json({
     players: retiredPlayers.slice(0, 20).map((p) => ({
       id: p.id,
       name: p.name,
       position: p.position,
       peakRating: Math.round((p.power + p.speed + p.defense + p.serve + p.block) / 5),
-      worldTitles: team.careerStats?.championshipsWon ?? 0,
+      worldTitles: hofStats.championshipsWon,
       careerWins: team.wins,
       retiredSeason: "Retired",
     })),

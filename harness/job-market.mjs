@@ -54,13 +54,13 @@ const dbFile = path.join(WORK, "jobs.sqlite");
 fs.copyFileSync(SHIPPED, dbFile);
 const out = fs.openSync(path.join(WORK, "server.log"), "w");
 
-const child = forkServer({
-  server: SERVER, electron: ELECTRON, out,
-  env: {
-    ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT),
-    NODE_ENV: "development", SESSION_SECRET: "job-market-secret",
-  },
-});
+const serverEnv = {
+  ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT),
+  NODE_ENV: "development", SESSION_SECRET: "job-market-secret",
+};
+// `let`, because section 2b shuts the game down and starts it again to prove
+// what a save made before this build is repaired into on the next boot.
+let child = forkServer({ server: SERVER, electron: ELECTRON, out, env: serverEnv });
 
 const BASE = `http://localhost:${PORT}/api`;
 let cookie = "";
@@ -90,11 +90,14 @@ const write = (q, ...a) => {
 };
 
 try {
-  const dl = Date.now() + 30000;
-  for (;;) {
-    if (Date.now() > dl) throw new Error("server never came up");
-    try { await fetch(`${BASE}/healthz`); break; } catch { await new Promise((r) => setTimeout(r, 250)); }
-  }
+  const waitForServer = async () => {
+    const dl = Date.now() + 30000;
+    for (;;) {
+      if (Date.now() > dl) throw new Error("server never came up");
+      try { await fetch(`${BASE}/healthz`); return; } catch { await new Promise((r) => setTimeout(r, 250)); }
+    }
+  };
+  await waitForServer();
 
   const prof = await api("POST", "/profiles", { name: "JobMarket" });
   await api("POST", `/profiles/${prof.data.id}/select`);
@@ -122,27 +125,55 @@ try {
 
   // ── 2. Four seasons of losses behind it ───────────────────────────────────
   // Each season's row opens on what the club carried into it, so a falling
-  // chain of openings IS a run of loss-making seasons.
+  // chain of openings IS a run of loss-making seasons. Every row names the club
+  // that played it: the run belongs to the club, not to the career, or the
+  // manager's next club would inherit this one's losses.
   console.log(`\n2. ${TO_SALE - 1} LOSS-MAKING SEASONS ALREADY BEHIND THE CLUB`);
   const opens = [900_000, 800_000, 700_000, 600_000];
   for (let i = 0; i < opens.length; i++) {
     const year = YEAR - (opens.length - i);
     write(
-      `INSERT INTO board_seasons (career_save_id, season_year, season_start_balance,
+      `INSERT INTO board_seasons (career_save_id, team_id, season_year, season_start_balance,
                                   confidence_before, confidence_after, outcome, reviewed_on,
                                   forfeits, strength_rank, target, finish, grade, created_at, updated_at)
-       VALUES (?, ?, ?, 60, 60, 'warning', ?, 0, 19, 19, 19, 'met', ?, ?)`,
-      careerSaveId, year, opens[i], `${year}-12-31`, Date.now(), Date.now());
+       VALUES (?, ?, ?, ?, 60, 60, 'warning', ?, 0, 19, 19, 19, 'met', ?, ?)`,
+      careerSaveId, teamId, year, opens[i], `${year}-12-31`, Date.now(), Date.now());
   }
   // This season opened on the last of them, and the club is going to end below it.
   write(`UPDATE board_seasons SET season_start_balance = ? WHERE career_save_id = ? AND season_year = ?`,
     500_000, careerSaveId, YEAR);
   const chain = read(
     `SELECT season_year AS y, season_start_balance AS b FROM board_seasons
-      WHERE career_save_id = ? ORDER BY season_year`, careerSaveId);
+      WHERE career_save_id = ? AND team_id = ? ORDER BY season_year`, careerSaveId, teamId);
   check(`${chain.length} seasons on record, each opening lower than the last`,
     chain.length === TO_SALE && chain.every((r, i) => i === 0 || r.b < chain[i - 1].b),
     chain.map((r) => `${r.y}:${money(r.b)}`).join(" > "));
+
+  // ── 2b. A save from before the board knew which club played ─────────────
+  //
+  // `board_seasons.team_id` is new. Every save on a player's disk was written
+  // without it, and the five-season rule is read off it - so without a repair
+  // at boot, every season a save has already played would be forgotten by the
+  // board. A career had exactly one club until the job market existed, which is
+  // what makes the repair possible at all: its rows can only be its team's.
+  console.log("\n2b. A SAVE MADE BEFORE THE BOARD KNEW WHICH CLUB PLAYED EACH SEASON");
+  await stopServer(child);
+  write(`UPDATE board_seasons SET team_id = NULL WHERE career_save_id = ?`, careerSaveId);
+  const unnamed = read(
+    `SELECT COUNT(*) AS n FROM board_seasons WHERE career_save_id = ? AND team_id IS NULL`,
+    careerSaveId)[0].n;
+  check("the save is left as an older build would have written it", unnamed === TO_SALE,
+    `${unnamed} season(s) with no club against them`);
+
+  child = forkServer({ server: SERVER, electron: ELECTRON, out, env: serverEnv });
+  await waitForServer();
+  cookie = "";
+  await api("POST", `/profiles/${prof.data.id}/select`);
+  const repaired = read(
+    `SELECT COUNT(*) AS n FROM board_seasons WHERE career_save_id = ? AND team_id = ?`,
+    careerSaveId, teamId)[0].n;
+  check("starting the game again matches every one of them to the club that played it",
+    repaired === TO_SALE, `${repaired} of ${TO_SALE} season(s) now name the club`);
 
   // The club will finish this season below what it opened on: everything it
   // has, minus a little, is spent.
@@ -151,6 +182,13 @@ try {
   // Read while the manager still has a club: career stats are read through the
   // club, and in a moment there will not be one.
   const seasonsBeforeSale = (await api("GET", "/achievements/career-stats")).data?.seasonsCompleted ?? 0;
+
+  // ACH: what the manager has already won, so that after the sale it can be
+  // checked that it came with them. `world_champion` is seeded rather than
+  // played for - winning a World Championship would be a harness of its own -
+  // and it is a key nothing here unlocks by accident.
+  write(`INSERT INTO achievements (team_id, achievement_key, unlocked_at) VALUES (?, 'world_champion', ?)`,
+    teamId, Math.floor(Date.now() / 1000));
 
   // ── 3. The season ends and the club is sold ───────────────────────────────
   console.log("\n3. THE FIFTH ENDS IT — THE CLUB IS SOLD, NOT THE MANAGER SACKED");
@@ -187,6 +225,11 @@ try {
   check("the career is without a club, and is NOT finished",
     save()?.team === null && save()?.seeking != null && save()?.retired == null,
     JSON.stringify(save()));
+  const keysBeforeSale = read(
+    `SELECT achievement_key AS k FROM achievements WHERE team_id = ?`, teamId).map((r) => r.k).sort();
+  check("the manager had achievements at the club that was sold",
+    keysBeforeSale.includes("world_champion") && keysBeforeSale.length >= 1,
+    keysBeforeSale.join(", ") || "nothing unlocked");
   const history = read(
     `SELECT type, description FROM career_history_entries
       WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, careerSaveId)[0];
@@ -297,6 +340,117 @@ try {
     ach.find((a) => a.key === "sold_on")?.unlocked === true,
     ach.filter((a) => a.unlocked).map((a) => a.key).join(", ") || "nothing unlocked");
 
+  // The achievements are the MANAGER's. They are stored against a team id,
+  // so unless they move with the manager the cabinet reads empty at the new
+  // club - and the achievement check, seeing a club with nothing unlocked,
+  // pops all thirty a second time.
+  const keysAfter = ach.filter((a) => a.unlocked).map((a) => a.key).sort();
+  const lost = keysBeforeSale.filter((k) => !keysAfter.includes(k));
+  check("everything the manager had unlocked came with them to the new club",
+    lost.length === 0,
+    `${keysBeforeSale.length} before the sale, ${keysAfter.length} after` +
+      (lost.length ? `, left behind: ${lost.join(", ")}` : ""));
+  const leftBehind = read(`SELECT COUNT(*) AS n FROM achievements WHERE team_id = ?`, teamId)[0].n;
+  check("and none of them was left with the club that was sold",
+    leftBehind === 0, `${leftBehind} row(s) still against the old club`);
+  const twice = read(
+    `SELECT achievement_key AS k, COUNT(*) AS n FROM achievements GROUP BY achievement_key HAVING n > 1`);
+  check("and nothing was unlocked a second time - no manager is told twice",
+    twice.length === 0, twice.map((d) => `${d.k} x${d.n}`).join(", "));
+
+  // Rob's rule: exactly thirty achievements. The career-end screen used to
+  // carry its own hardcoded 25 and told a manager with 28 of them "28 / 25".
+  const summary = (await api("GET", "/careers/summary")).data;
+  check("the career summary counts all thirty achievements, not a number of its own",
+    summary?.totalAchievements === 30,
+    `${summary?.achievementsCompleted} of ${summary?.totalAchievements}`);
+
+  // ── 5b. The new club is judged on its own seasons ─────────────────────
+  //
+  // There is one board row per career per season, and until L-02e that was the
+  // same thing as one per club. It is not any more. The rollover opens the next
+  // season's row for the club it is about to sell, and the manager joins that
+  // same season at a new club days later - so unless the row changes hands with
+  // it, the new club's first season is measured against the sold club's balance
+  // and its losing run is the sold club's five. The manager takes a job and is
+  // sold out of it again at the end of their first season, told it was five.
+  console.log("\n5b. THE NEW CLUB IS JUDGED ON ITS OWN SEASONS, NOT THE SOLD CLUB'S");
+  const joinedYear = read(
+    `SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'
+      ORDER BY year DESC LIMIT 1`, careerSaveId)[0]?.year;
+  const joinedRow = read(
+    `SELECT team_id AS team, season_start_balance AS opened, forfeits, reviewed_on AS reviewed
+       FROM board_seasons WHERE career_save_id = ? AND season_year = ?`, careerSaveId, joinedYear)[0];
+  check("the season the manager joined is the new club's season, not the sold club's",
+    joinedRow?.team === team?.id, `board row names club ${joinedRow?.team}, the new club is ${team?.id}`);
+  check("and it opens on the new club's own balance, with nothing on it",
+    Math.round(Number(joinedRow?.opened ?? -1)) === Math.round(Number(team?.budget ?? 0))
+      && joinedRow?.forfeits === 0 && joinedRow?.reviewed == null,
+    `opened on ${money(Number(joinedRow?.opened ?? 0))}, club has ${money(Number(team?.budget ?? 0))}, ` +
+      `${joinedRow?.forfeits} forfeit(s)`);
+  const soldClubSeasons = read(
+    `SELECT COUNT(*) AS n FROM board_seasons WHERE career_save_id = ? AND team_id = ?`,
+    careerSaveId, teamId)[0].n;
+  check("the sold club's seasons are still recorded under the sold club",
+    soldClubSeasons >= TO_SALE, `${soldClubSeasons} season(s) under the club that was sold`);
+
+  // Now lose money at the new club, once.
+  //
+  // $400,000 is chosen to be BELOW the sold club's last opening ($500,000), so
+  // a run read off the career rather than the club would not stop here: it
+  // would see a sixth falling season and sell the club the manager has just
+  // taken, at the end of their first season, in a review that said five. The
+  // club's balance is then held down through the season so that finishing
+  // below what it opened on is certain rather than likely.
+  const SOLD_CLUB_LAST_OPENING = Number(read(
+    `SELECT season_start_balance AS b FROM board_seasons
+      WHERE career_save_id = ? AND team_id = ? ORDER BY season_year DESC LIMIT 1`,
+    careerSaveId, teamId)[0]?.b ?? 0);
+  const NEW_CLUB_OPENING = 400_000;
+  const HELD_BALANCE = 100_000;
+  check("the new club's season is set up to continue the sold club's falling chain",
+    NEW_CLUB_OPENING < SOLD_CLUB_LAST_OPENING && HELD_BALANCE < NEW_CLUB_OPENING,
+    `${money(SOLD_CLUB_LAST_OPENING)} > ${money(NEW_CLUB_OPENING)} > ${money(HELD_BALANCE)}`);
+  write(`UPDATE board_seasons SET season_start_balance = ? WHERE career_save_id = ? AND season_year = ?`,
+    NEW_CLUB_OPENING, careerSaveId, joinedYear);
+  let secondBoundary = null, stopped2 = "";
+  for (let i = 0; i < 600; i++) {
+    healAllSquads(dbFile);
+    await keepSideFielded(api);
+    await renewExpiringContracts(api);
+    write(`UPDATE teams SET budget = ? WHERE id = ?`, HELD_BALANCE, team?.id);
+    const r = await api("POST", "/calendar/advance", {});
+    if (r.status >= 400) { stopped2 = `advance HTTP ${r.status} ${JSON.stringify(r.data).slice(0, 80)}`; break; }
+    if (r.data?.blocked === "pending_match") {
+      await api("POST", `/matches/${r.data.pendingMatchId}/simulate`, {});
+      await api("POST", "/calendar/skip-match", {});
+      continue;
+    }
+    const mid = r.data?.matchDay?.matchId;
+    if (mid) { await api("POST", `/matches/${mid}/simulate`, {}); await api("POST", "/calendar/dismiss-match", {}); }
+    if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") { secondBoundary = r.data; break; }
+  }
+  check("the new club's first season reached its boundary", secondBoundary !== null, stopped2 || "rolled");
+  const reviewed = read(
+    `SELECT outcome, money_points AS money, season_start_balance AS opened FROM board_seasons
+      WHERE career_save_id = ? AND season_year = ?`, careerSaveId, joinedYear)[0];
+  check("the board saw a loss-making season at the new club",
+    Number(reviewed?.money ?? 0) < 0,
+    `opened on ${money(Number(reviewed?.opened ?? 0))}, money ${reviewed?.money}`);
+  // Unscoped, the chain of openings from the sold club runs straight through
+  // this season: that is the run this suite exists to keep apart from it.
+  const unscoped = read(
+    `SELECT season_year AS y, season_start_balance AS b FROM board_seasons
+      WHERE career_save_id = ? ORDER BY season_year`, careerSaveId);
+  check("read off the career instead of the club, the chain would have reached the sale",
+    unscoped.length > TO_SALE && unscoped.every((r, i) => i === 0 || r.b < unscoped[i - 1].b),
+    unscoped.map((r) => `${r.y}:${money(r.b)}`).join(" > "));
+  check("a losing first season at the new club is ONE losing season, not the sixth",
+    reviewed?.outcome !== "sold" && secondBoundary?.clubSold !== true,
+    `the board said "${reviewed?.outcome}", sold ${secondBoundary?.clubSold === true}`);
+  check("and the manager still has the club they took",
+    save()?.team === team?.id && save()?.seeking == null, JSON.stringify(save()));
+
   // ── 6. Declining is retirement ────────────────────────────────────────────
   console.log("\n6. DECLINING EVERY VACANCY IS RETIREMENT");
   const notSeeking = await api("POST", "/job-market/retire", {});
@@ -308,6 +462,16 @@ try {
   // archived under when the manager stops.
   write(`UPDATE career_saves SET team_id = NULL, former_team_id = ?, seeking_club_since = ? WHERE id = ?`,
     team?.id, Date.now(), careerSaveId);
+
+  // A club the manager has already run is never offered again. The vacancies
+  // are the highest-rated clubs outside the World Tour field, and the club just
+  // lost is exactly that - so without saying it was taken over, a second sale
+  // sells the club and then lists it, by name, among the jobs going.
+  const second = (await api("GET", "/job-market")).data?.vacancies ?? [];
+  check("the club the manager has just run is not offered back to them",
+    second.length > 0 && second.every((v) => v.poolTeamId !== pick.poolTeamId),
+    `${second.length} offered: ${second.map((v) => v.name).join(", ")}`);
+
   const retired = await api("POST", "/job-market/retire", {});
   check("declining them all ends the career", retired.status === 200 && retired.data?.retired === true,
     `HTTP ${retired.status} ${JSON.stringify(retired.data)}`);
@@ -327,6 +491,18 @@ try {
     `SELECT manager_name AS m, club_name AS c FROM hall_of_fame ORDER BY id DESC LIMIT 1`)[0];
   check("and the career is archived to the Hall of Fame, under the club they last had",
     archived?.m === "JobMarket", `${archived?.m} of ${archived?.c}`);
+  // Quitting at the job market is the natural moment to stop playing: you have
+  // just lost your club. `GET /api/team` answers 404 for a career between
+  // clubs, which is the same answer as "no career at all" - so the title
+  // screen offered a NEW CAREER to a manager who already had one, and the
+  // dismissed-title path bounced them back to it.
+  const guard = fs.readFileSync(
+    path.join(REPO, "artifacts/beach-volleyball/src/components/layout/auth-guard.tsx"), "utf8");
+  check("the game comes back to the job market rather than offering a new career",
+    /seekingClub/.test(guard) && /href = "\/job-market"/.test(guard)
+      && /hasTeam \|\| seekingClub \? "CONTINUE"/.test(guard),
+    "auth-guard asks the job market before it decides a career has ended");
+
   const screen = fs.readFileSync(
     path.join(REPO, "artifacts/beach-volleyball/src/pages/career-end.tsx"), "utf8");
   check("and the career-end screen has a title for it",

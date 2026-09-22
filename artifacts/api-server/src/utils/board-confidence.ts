@@ -42,12 +42,13 @@ import {
   db,
   boardSeasonsTable,
   teamsTable,
+  careerSavesTable,
   careerPlayerStateTable,
   matchesTable,
   worldTourFixturesTable,
   type BoardSeason,
 } from "@workspace/db";
-import { and, desc, eq, gte, isNotNull, lt, or } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import { worldTourFieldTx, poolClubRatingsTx, worldTourStandingsTx, worldFinalsSummaryTx } from "./worldTour.js";
 import { sideRating } from "./matchEngine.js";
 import { WORLD_TOUR_START } from "./calendarSlots.js";
@@ -455,10 +456,20 @@ function boardRowTx(tx: Tx, careerSaveId: number, seasonYear: number): BoardSeas
   )).get();
 }
 
-/** Strikes carried into a season: its reviewed predecessors, newest first, counted back to the last met season. */
-function strikesBeforeTx(tx: Tx, careerSaveId: number, seasonYear: number): number {
+/**
+ * Strikes carried into a season: THIS CLUB's reviewed predecessors, newest
+ * first, counted back to the last met season.
+ *
+ * L-02e: scoped to the club rather than the career, because a career can now
+ * have had more than one. A manager who takes over after a sale arrives on
+ * nought — the strikes belonged to the club that was sold, and arriving on a
+ * final warning for somebody else's seasons is not a board, it is a bug.
+ */
+function strikesBeforeTx(tx: Tx, careerSaveId: number, seasonYear: number, teamId: number | null): number {
+  if (teamId == null) return 0;
   const reviewed = tx.select({ grade: boardSeasonsTable.grade }).from(boardSeasonsTable).where(and(
     eq(boardSeasonsTable.careerSaveId, careerSaveId),
+    eq(boardSeasonsTable.teamId, teamId),
     lt(boardSeasonsTable.seasonYear, seasonYear),
     isNotNull(boardSeasonsTable.reviewedOn),
   )).orderBy(desc(boardSeasonsTable.seasonYear)).all();
@@ -470,13 +481,86 @@ function strikesBeforeTx(tx: Tx, careerSaveId: number, seasonYear: number): numb
   return strikes;
 }
 
-/** The season's board row, created with the club's balance at that moment. */
+/**
+ * Which club played each season a save already recorded.
+ *
+ * Until L-02e a career had exactly one club for the whole of its life, so every
+ * board row of an older save belongs to that career's team and can be said so
+ * once. Without it the board forgets every season a save played before this
+ * build — no strikes, no loss-making run — which is lenient rather than wrong,
+ * but it is not what happened.
+ *
+ * Idempotent: it only ever fills a row that names no club, so it is safe on
+ * every boot and does nothing on the second.
+ */
+export function backfillBoardSeasonClubs(): number {
+  return db.transaction((tx) => {
+    const saves = tx.select({ id: careerSavesTable.id, teamId: careerSavesTable.teamId })
+      .from(careerSavesTable).all();
+    let filled = 0;
+    for (const save of saves) {
+      if (save.teamId == null) continue;   // a career between clubs owns no past season
+      const r = tx.update(boardSeasonsTable)
+        .set({ teamId: save.teamId })
+        .where(and(
+          eq(boardSeasonsTable.careerSaveId, save.id),
+          isNull(boardSeasonsTable.teamId),
+        ))
+        .run();
+      filled += Number(r.changes ?? 0);
+    }
+    return filled;
+  });
+}
+
+/**
+ * The season's board row, created with the club's balance at that moment.
+ *
+ * There is one row per career per season, and L-02e made the club that played
+ * it a question worth asking. Three cases:
+ *
+ *   no row          open one on this club's balance
+ *   this club's     it is already what it should be
+ *   somebody else's the season has changed hands. The rollover opens the next
+ *                   season's row for the club it is about to sell, and the
+ *                   manager joins that season at a new club days later — so
+ *                   the row re-opens on the new club's balance with nothing on
+ *                   it. Judging the new club against the sold one's opening
+ *                   balance made its first season loss-making by arithmetic.
+ *
+ * A row with no club at all is one written before the column existed, when a
+ * career had exactly one club: it is adopted rather than reset, which is the
+ * same thing the startup backfill does to the rest of that save.
+ */
 export function ensureBoardSeasonTx(tx: Tx, careerSaveId: number, seasonYear: number, teamId: number): BoardSeason {
   const existing = boardRowTx(tx, careerSaveId, seasonYear);
-  if (existing) return existing;
+  if (existing && existing.teamId === teamId) return existing;
+
   const team = tx.select({ budget: teamsTable.budget }).from(teamsTable).where(eq(teamsTable.id, teamId)).get();
+
+  if (existing && existing.teamId == null) {
+    tx.update(boardSeasonsTable).set({ teamId, updatedAt: new Date() })
+      .where(eq(boardSeasonsTable.id, existing.id)).run();
+    return boardRowTx(tx, careerSaveId, seasonYear)!;
+  }
+
+  if (existing) {
+    tx.update(boardSeasonsTable).set({
+      teamId,
+      seasonStartBalance: Number(team?.budget ?? 0),
+      pairRating: null, strengthRank: null, target: null,
+      projectedOn: null, projectedFinish: null, projectedGrade: null,
+      spendingFrozen: false, unfieldableSince: null, forfeits: 0,
+      finish: null, worldTourMatches: null, grade: null, gradePoints: null,
+      honours: null, honoursPoints: null, moneyPoints: null,
+      confidenceBefore: null, confidenceAfter: null, outcome: null, reviewedOn: null,
+      updatedAt: new Date(),
+    }).where(eq(boardSeasonsTable.id, existing.id)).run();
+    return boardRowTx(tx, careerSaveId, seasonYear)!;
+  }
+
   tx.insert(boardSeasonsTable)
-    .values({ careerSaveId, seasonYear, seasonStartBalance: Number(team?.budget ?? 0) })
+    .values({ careerSaveId, seasonYear, teamId, seasonStartBalance: Number(team?.budget ?? 0) })
     .onConflictDoNothing()
     .run();
   return boardRowTx(tx, careerSaveId, seasonYear)!;
@@ -585,7 +669,7 @@ function storedReviewTx(tx: Tx, row: BoardSeason): SeasonReview {
     moneyPoints: row.moneyPoints ?? 0,
     confidenceBefore: row.confidenceBefore ?? 0,
     confidenceAfter: row.confidenceAfter ?? 0,
-    strikes: strikesAfter(strikesBeforeTx(tx, row.careerSaveId, row.seasonYear), grade),
+    strikes: strikesAfter(strikesBeforeTx(tx, row.careerSaveId, row.seasonYear, row.teamId), grade),
     outcome: row.outcome as Outcome,
     seasonYear: row.seasonYear,
     strengthRank,
@@ -605,8 +689,13 @@ function storedReviewTx(tx: Tx, row: BoardSeason): SeasonReview {
  * before this rule existed already has the history to be judged on.
  */
 export function lossMakingRunTx(
-  tx: Tx, careerSaveId: number, seasonYear: number, endBalance: number,
+  tx: Tx, careerSaveId: number, seasonYear: number, endBalance: number, teamId: number | null,
 ): number {
+  // L-02e: the run belongs to the CLUB. Read off the career it counted the
+  // sold club's five losing seasons against the club the manager took over
+  // next, which sold that one at the end of their very first season — with a
+  // review that said five.
+  if (teamId == null) return 0;
   // Every season's row is OPENED on the balance the club carries into it
   // (ensureBoardSeasonTx), so one season's opening balance is the season
   // before it's closing balance. That is why there is no end-balance column
@@ -618,7 +707,10 @@ export function lossMakingRunTx(
       start: boardSeasonsTable.seasonStartBalance,
     })
       .from(boardSeasonsTable)
-      .where(eq(boardSeasonsTable.careerSaveId, careerSaveId))
+      .where(and(
+        eq(boardSeasonsTable.careerSaveId, careerSaveId),
+        eq(boardSeasonsTable.teamId, teamId),
+      ))
       .all()
       .map((r) => [r.year, Number(r.start)] as [number, number]),
   );
@@ -664,8 +756,8 @@ export function boardReviewTx(
     strengthRank, finish, forfeits: row.forfeits, worldTourMatches, finalsResult,
     seasonStartBalance: row.seasonStartBalance,
     seasonEndBalance: Number(team?.budget ?? 0),
-    previousStrikes: strikesBeforeTx(tx, careerSaveId, seasonYear),
-    lossMakingRun: lossMakingRunTx(tx, careerSaveId, seasonYear, Number(team?.budget ?? 0)),
+    previousStrikes: strikesBeforeTx(tx, careerSaveId, seasonYear, teamId),
+    lossMakingRun: lossMakingRunTx(tx, careerSaveId, seasonYear, Number(team?.budget ?? 0), teamId),
   });
 
   tx.update(boardSeasonsTable).set({
@@ -713,11 +805,12 @@ export function boardStatus(careerSaveId: number, seasonYear: number, teamId: nu
     const confidence = confidenceTx(tx, teamId);
     const previous = tx.select().from(boardSeasonsTable).where(and(
       eq(boardSeasonsTable.careerSaveId, careerSaveId),
+      eq(boardSeasonsTable.teamId, teamId),
       lt(boardSeasonsTable.seasonYear, seasonYear),
     )).orderBy(desc(boardSeasonsTable.seasonYear)).limit(1).get() ?? null;
     const reviewed = row.reviewedOn ? row : previous?.reviewedOn ? previous : null;
     const fieldClubs = row.target != null ? worldTourFieldTx(tx, careerSaveId, seasonYear).length + 1 : null;
-    const strikes = strikesBeforeTx(tx, careerSaveId, seasonYear);
+    const strikes = strikesBeforeTx(tx, careerSaveId, seasonYear, teamId);
 
     const stage: BoardStage = !row.reviewedOn && (strikes > 0 || previous?.outcome === "final_warning") ? "final_warning"
       : row.spendingFrozen ? "spending_freeze"

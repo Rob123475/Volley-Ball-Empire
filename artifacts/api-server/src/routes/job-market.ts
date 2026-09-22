@@ -35,11 +35,11 @@
 import { Router } from "express";
 import {
   db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable,
-  careerPoolTeamStateTable, locationsTable, seasonsTable,
+  careerPoolTeamStateTable, locationsTable, seasonsTable, achievementsTable,
   worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality,
   type ContinentKey,
 } from "@workspace/db";
-import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad.js";
 import { ensureSeasonFixtureRows } from "../utils/seasonFixture.js";
 import { ensureBoardSeason } from "../utils/board-confidence.js";
@@ -111,6 +111,20 @@ async function vacanciesFor(careerSaveId: number) {
     .where(eq(worldTourQualificationsTable.careerSaveId, careerSaveId)))
     .map((r) => r.poolTeamId);
 
+  // A club the manager has already taken over is never offered again. Without
+  // this, a second sale sells the club and then lists it among the jobs going:
+  // the vacancies are the highest-rated clubs outside the field, and the club
+  // just lost is exactly that. `is_active_in_league` cannot answer this — a
+  // club leaves and re-enters the regional league by relegation and promotion.
+  const takenOver = new Set(
+    (await db.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId })
+      .from(careerPoolTeamStateTable)
+      .where(and(
+        eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
+        isNotNull(careerPoolTeamStateTable.takenOverAt),
+      ))).map((r) => r.poolTeamId),
+  );
+
   const inLeague = new Set(
     (await db.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId })
       .from(careerPoolTeamStateTable)
@@ -124,7 +138,7 @@ async function vacanciesFor(careerSaveId: number) {
     .orderBy(desc(continentalPoolTeamsTable.rating));
 
   return clubs
-    .filter((c) => !inField.includes(c.id))
+    .filter((c) => !inField.includes(c.id) && !takenOver.has(c.id))
     .slice(0, VACANCIES_OFFERED)
     .map((c) => ({
       poolTeamId: c.id,
@@ -206,7 +220,7 @@ router.post("/job-market/accept", async (req, res) => {
   // And the club the manager has taken over stops being one of the world's own:
   // it is out of the regional league, because it is not an AI club any more.
   await db.update(careerPoolTeamStateTable)
-    .set({ isActiveInLeague: false })
+    .set({ isActiveInLeague: false, takenOverAt: new Date() })
     .where(and(
       eq(careerPoolTeamStateTable.careerSaveId, save.id),
       eq(careerPoolTeamStateTable.poolTeamId, poolTeamId),
@@ -240,6 +254,19 @@ router.post("/job-market/accept", async (req, res) => {
   if (sid) {
     const session = await getSession(sid);
     if (session) await updateSession(sid, { ...session, activeTeamId: newTeam!.id, activeCareerSaveId: save.id });
+  }
+
+  // ACH, L-02e: the manager's thirty achievements are the MANAGER's, and
+  // they are stored against a team id. Taking over a new club leaves them
+  // behind with the sold one unless they are moved: the cabinet reads empty,
+  // the career-end screen counts nought, and `checkAchievements` below — a
+  // team with nothing unlocked - pops every achievement the manager already
+  // holds a second time. The rows come with the manager. Trophies do not:
+  // they were won by the club that was sold and they stay with it.
+  if (save.formerTeamId != null) {
+    await db.update(achievementsTable)
+      .set({ teamId: newTeam!.id })
+      .where(eq(achievementsTable.teamId, save.formerTeamId));
   }
 
   // ACH: `sold_on` — lost a club to a sale, took another, still managing.

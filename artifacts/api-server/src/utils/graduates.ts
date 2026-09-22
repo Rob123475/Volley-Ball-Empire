@@ -35,7 +35,11 @@ export type ReleasedGraduate = { playerId: number; name: string; overall: number
  * "Promoted out of the academy" is `players.player_type = 'youth'` with this
  * career's `is_promoted` set — the same pair utils/playerClassification.ts uses
  * to tell a first-team player from an academy one. A player signed from the
- * market is not a graduate, however young: nobody developed her here.
+ * market is not a graduate, however young: nobody developed her here. The one
+ * exception is a graduate this career released and re-signed - `is_promoted`
+ * belongs to the career, not to the club that promoted her - and that is the
+ * behaviour the rule wants anyway: a club cannot get round the cap by cycling
+ * its own graduates through the pool.
  */
 export function clubGraduatesTx(
   w: CareerStateTx, careerSaveId: number, teamId: number,
