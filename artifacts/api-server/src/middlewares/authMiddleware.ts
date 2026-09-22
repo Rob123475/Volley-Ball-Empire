@@ -69,17 +69,38 @@ export async function authMiddleware(
   // (e.g. cookie cleared, new machine) but who already have a career going.
   if (!session.activeTeamId && !session.careerSessionRestored) {
     try {
+      // L-02e: the newest career that has not ended, WITH OR WITHOUT a club.
+      //
+      // This used to require a club (`isNotNull(teamId)`), which was true of
+      // every live career until a club could be sold out from under a manager.
+      // After a sale the career is alive and clubless on purpose, so requiring
+      // a club skipped it — and a player with a second career would have been
+      // dropped silently into that one instead of into the job market, with
+      // the sold career stranded.
       const [latestSave] = await db
-        .select({ id: careerSavesTable.id, teamId: careerSavesTable.teamId })
+        .select({
+          id: careerSavesTable.id,
+          teamId: careerSavesTable.teamId,
+          seekingClubSince: careerSavesTable.seekingClubSince,
+        })
         .from(careerSavesTable)
         .where(and(
           eq(careerSavesTable.userId, session.user.id),
-          isNotNull(careerSavesTable.teamId),
           isNull(careerSavesTable.retiredAt),
         ))
         .orderBy(desc(careerSavesTable.lastPlayedAt))
         .limit(1);
-      if (latestSave?.teamId) {
+      if (!latestSave?.teamId && latestSave?.seekingClubSince) {
+        // Between clubs: the career is restored, the club is not, and every
+        // club route keeps saying "no team" until one is taken.
+        const restored: SessionData = {
+          ...session,
+          activeCareerSaveId: latestSave.id,
+          careerSessionRestored: true,
+        };
+        await updateSession(sid, restored);
+        req.activeCareerSaveId = latestSave.id;
+      } else if (latestSave?.teamId) {
         const restored: SessionData = {
           ...session,
           activeTeamId: latestSave.teamId,

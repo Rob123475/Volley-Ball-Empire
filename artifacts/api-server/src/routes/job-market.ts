@@ -53,9 +53,32 @@ const router = Router();
 /** How many vacancies a manager is shown. Enough to choose from, few enough to read. */
 export const VACANCIES_OFFERED = 6;
 
-/** The career this request belongs to, whether or not it currently has a club. */
-async function seekingCareer(req: Parameters<typeof getSessionId>[0] & { user?: { id: string } }) {
+/**
+ * The career this request belongs to, whether or not it currently has a club.
+ *
+ * The session's own answer first: `activeCareerSaveId` survives a club being
+ * sold (only the team is cleared), and the middleware restores it for a fresh
+ * session too. The newest unfinished career is the fallback, for a session
+ * that has neither — a career is only ambiguous when the player has more than
+ * one, and the one they last loaded is the one they mean.
+ */
+async function seekingCareer(
+  req: Parameters<typeof getSessionId>[0] & {
+    user?: { id: string };
+    activeCareerSaveId?: number;
+  },
+) {
   if (!req.user?.id) return null;
+
+  if (req.activeCareerSaveId) {
+    const [byId] = await db.select().from(careerSavesTable).where(and(
+      eq(careerSavesTable.id, req.activeCareerSaveId),
+      eq(careerSavesTable.userId, req.user.id),
+      isNull(careerSavesTable.retiredAt),
+    )).limit(1);
+    if (byId) return byId;
+  }
+
   const [save] = await db.select().from(careerSavesTable).where(and(
     eq(careerSavesTable.userId, req.user.id),
     isNull(careerSavesTable.retiredAt),

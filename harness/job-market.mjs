@@ -222,6 +222,26 @@ try {
   check("a club that is not on offer cannot be taken", refused.status === 422,
     `HTTP ${refused.status} ${refused.data?.error ?? ""}`);
 
+  // ── 4b. Closing the game and coming back ──────────────────────────────────
+  //
+  // A career between clubs has no team, and the session restore used to want
+  // one: it looked up "the newest career that still has a club", which after a
+  // sale is a DIFFERENT career, or none. A player with a second career would
+  // have been dropped into that one without being told, and the sold career
+  // would have been stranded. This is that restart, with a session that knows
+  // nothing.
+  console.log("\n4b. SHUTTING THE GAME AND COMING BACK TO IT");
+  cookie = "";
+  const backIn = await api("POST", `/profiles/${prof.data.id}/select`);
+  check("the profile is selected again on a fresh session", backIn.status < 400, `HTTP ${backIn.status}`);
+  const resumed = await api("GET", "/job-market");
+  check("the game comes back to the job market, not to somebody else's club",
+    resumed.data?.seeking === true && resumed.data?.formerClub === "JobMarket FC",
+    `seeking ${resumed.data?.seeking}, former club ${resumed.data?.formerClub}`);
+  check("and the vacancies are still there",
+    (resumed.data?.vacancies ?? []).length === (market.data?.vacancies ?? []).length,
+    `${(resumed.data?.vacancies ?? []).length} offered`);
+
   // ── 5. Taking the job ─────────────────────────────────────────────────────
   console.log("\n5. TAKING ONE, AND KEEPING THE CAREER");
   const pick = vacancies[0];

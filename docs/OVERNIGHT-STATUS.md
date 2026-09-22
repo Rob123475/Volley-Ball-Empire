@@ -266,6 +266,13 @@ Nine suites are new tonight:
 | `job-market.mjs` | five loss-making seasons, the sale, the vacancies, the career carried across, retirement by declining |
 | plus the shared `harness-club.mjs` helpers | renewing, fielding and keeping a club solvent, so three long walks stopped losing their clubs to rules they were not testing |
 
+**It is stable, not lucky.** The full harness was run three times end to end on
+the same code and came back green every time — 1,044, 1,044 and 1,047 checks,
+the same 47 suites passing. That matters more than usual tonight because nine
+of these suites play real matches with real results: a check that only passes
+on a good roll is worse than no check, because it teaches you to ignore a red
+one. The one I found doing exactly that is written up below.
+
 Two older suites had to change because a rule changed under them, which is the
 point of having them: `board-review.mjs`'s table of verdicts (eight seasons that
 used to end a career are a final warning now) and `fake-content-removed.mjs`
@@ -408,6 +415,15 @@ worth a couple of hundred thousand and not a million.
   season records — so a manager who moves starts that at nought without
   anything having to be reset, and the two achievements say what they mean
   again.
+
+- **Closing the game while between clubs would have lost the career.** The
+  session restore looks up "the newest career that has not ended" when a
+  session knows nothing — and it required that career to have a CLUB, which was
+  true of every live career until tonight. After a sale it is not: a player who
+  quit at the job market and came back would have been dropped silently into
+  another career if they had one, with the sold career stranded. It keeps a
+  clubless career now and comes back to the job market, and the suite shuts the
+  session and reopens it to prove that.
 
 - **One harness check could fail by chance, and did.** "A club at the top of
   the Gold tour went forwards" held for a club that finished 1st or 2nd — and
