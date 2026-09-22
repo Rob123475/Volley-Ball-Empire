@@ -11,9 +11,18 @@ itself was never launched.
 ## The short version
 
 Everything in the brief is built and on GitHub. The harness is 47 suites and
-about 1,100 checks, green on the commit each item was pushed on. Nine new
-suites were written tonight; six of the eight game items turned up defects in
-the game itself rather than in the tests, and those are listed under each item.
+1,081 checks, green on the commit each item was pushed on. Nine new suites were
+written tonight; six of the eight game items turned up defects in the game
+itself rather than in the tests, and those are listed under each item.
+
+**The ten items took about half the night.** The rest went on re-reading what I
+had just written, and it found twelve more defects in the game — nearly all of
+them in the seam the job market opened between a CAREER and a CLUB, or in a
+number a page shows — plus four things wrong with the tests that are supposed
+to catch them. They are all under "Fixed after the ten items" below. Two would
+have been the first things you noticed: a club you took over was sold again at
+the end of your first season, in a review that said five; and the Finances
+page's new Running Costs line read $0 for every club in the game.
 
 The three things most worth your attention in the morning:
 
