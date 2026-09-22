@@ -120,6 +120,7 @@ async function runOne(spec) {
     // bottom of the field that is the expected end of the run, not a failure
     // of it — the whole point of the money rule.
     let soldAfter = null;
+    let finances = null;
     let lastBalance = Number((await api("GET", "/team")).data?.budget ?? 0);
     // teams.wins/losses are career totals, not a season's, so a season's
     // record is the difference across its boundary.
@@ -192,12 +193,24 @@ async function runOne(spec) {
       lastBalance = balance;
       lastWins = wins; lastLosses = losses;
 
+      // What the Finances page would show at this moment, beside what the
+      // ledger holds at the same moment. Taken inside the loop because a club
+      // that is sold has no summary to ask for afterwards - every club route
+      // answers "no team" - and the last season it played is the one to check.
+      finances = {
+        summary: (await api("GET", "/finances/summary")).data ?? null,
+        ledger: Number(read(
+          `SELECT COALESCE(SUM(amount), 0) AS total FROM finance_transactions
+            WHERE team_id = ? AND type = 'expense' AND category = 'running_costs'`,
+          teamId)[0]?.total ?? 0),
+      };
+
       // The rollover carries the sale out with it: the season still opened,
       // the manager is simply not there for it (utils/seasonRollover.ts).
       if (roll.clubSold) { soldAfter = s; break; }
     }
 
-    return { spec, rows, stopped, soldAfter };
+    return { spec, rows, stopped, soldAfter, finances };
   } finally {
     await stopServer(child);
     try { fs.closeSync(out); } catch { /* closed */ }
@@ -268,6 +281,19 @@ console.log(`  Gold runners-up: ${runnersUp.map((r) => money(r.change)).join(", 
 // construction - a club at the bottom cannot earn its costs at any tier.
 const topThree = all.filter((r) => r.tier === "Gold" && (r.rank ?? 99) <= 3);
 console.log(`  Gold top-three seasons: ${topThree.length} of ${all.filter((r) => r.tier === "Gold").length} Gold seasons`);
+
+// The Finances page asks the server for its breakdown by name. L-04 put a
+// "Running Costs" line on that page, and for every club it read $0 while the
+// money sat under "Other": the weekly charge writes the category, the summary
+// never read it back, and the API spec said it did - so nothing typechecked
+// its way into noticing.
+for (const run of runs) {
+  if (run.error || !run.finances?.summary) continue;
+  const shown = Number(run.finances.summary.expenseBreakdown?.runningCosts ?? -1);
+  check(`${run.spec.label}: the Finances page is told what the running costs were`,
+    shown === run.finances.ledger && run.finances.ledger > 0,
+    `summary says ${money(shown)}, the ledger says ${money(run.finances.ledger)}`);
+}
 
 check("a club that WON the Gold tour went forwards, every time",
   champions.every((r) => r.change > 0),

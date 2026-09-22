@@ -191,8 +191,15 @@ router.get("/finances/summary", async (req, res) => {
   // every wage row falls through to "Other".
   const PLAYER_SALARY_CATEGORIES = ["player_salary", "salaries"];
   const STAFF_SALARY_CATEGORIES  = ["staff_salary", "staff"];
+  // L-04's weekly charge writes "running_costs" (routes/calendar.ts). Nothing
+  // read it back: the breakdown had no `runningCosts` at all, so the Finances
+  // page — which asks for it by name, and which the API spec says returns it —
+  // showed $0 for what is the biggest expense most clubs have, and the money
+  // itself fell through to "Other". Counted here, and excluded from Other below.
+  const RUNNING_COST_CATEGORIES  = ["running_costs"];
   const txPlayerSalaries = expenses.filter(t => PLAYER_SALARY_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
   const txStaffSalaries  = expenses.filter(t => STAFF_SALARY_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
+  const txRunningCosts   = expenses.filter(t => RUNNING_COST_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
 
   res.json({
     totalBalance: Number(team.budget),
@@ -208,8 +215,11 @@ router.get("/finances/summary", async (req, res) => {
     expenseBreakdown: {
       playerSalaries: txPlayerSalaries + wageBill.monthlyWages + youthWageBill.monthlyWages,
       staffSalaries: txStaffSalaries + staffWageBill.monthlyWages,
+      runningCosts: txRunningCosts,
       trainingCosts: expenses.filter(t => t.category === "training_cost").reduce((acc, t) => acc + Number(t.amount), 0),
-      other: expenses.filter(t => ![...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, "training_cost"].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),
+      other: expenses.filter(t => ![
+        ...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, "training_cost",
+      ].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),
     },
     recentTransactions: txs.slice(0, 10).map(serializeTx),
   });
