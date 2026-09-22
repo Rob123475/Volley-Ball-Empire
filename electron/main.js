@@ -266,8 +266,14 @@ function activateAchievement(key) {
   if (!steamClient || typeof key !== "string" || key.length === 0) return;
   try {
     if (steamClient.achievement.isActivated(key)) return;
-    steamClient.achievement.activate(key);
-    console.log(`[steam] achievement unlocked: ${key}`);
+    // activate() ANSWERS. It returns false when Steam will not take the key —
+    // most often one that has not been created in Steamworks yet. Printing
+    // "unlocked" either way meant the one line there is to diagnose a missing
+    // pop with could say the opposite of what happened.
+    const taken = steamClient.achievement.activate(key);
+    console.log(taken
+      ? `[steam] achievement unlocked: ${key}`
+      : `[steam] Steam would not take ${key} — is it created in Steamworks?`);
   } catch (err) {
     // A key Steam does not know (one added to the game before Rob has created
     // it in Steamworks) must not take a match down with it.
@@ -286,14 +292,18 @@ function activateAchievement(key) {
 function catchUpAchievements(keys) {
   if (!steamClient || !Array.isArray(keys)) return;
   let given = 0;
+  let refused = 0;
   for (const key of keys) {
     try {
       if (steamClient.achievement.isActivated(key)) continue;
-      steamClient.achievement.activate(key);
-      given++;
-    } catch { /* see activateAchievement */ }
+      if (steamClient.achievement.activate(key)) given++;
+      else refused++;
+    } catch { refused++; /* see activateAchievement */ }
   }
-  console.log(`[steam] catch-up: ${keys.length} unlocked in this save, ${given} new to Steam`);
+  console.log(
+    `[steam] catch-up: ${keys.length} unlocked in this save, ${given} new to Steam` +
+    (refused > 0 ? `, ${refused} Steam would not take` : ""),
+  );
 }
 
 // ── Spawn the API server as a child process ─────────────────────────────────
