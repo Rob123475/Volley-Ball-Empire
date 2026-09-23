@@ -268,9 +268,10 @@ Seven defects, all of them things a career would have hit:
 
 ## The harness
 
-48 suites, 1,107 checks, all green on `410eedc` — the same commit the build in
-`C:\build\vbe` was made from, and the tip of `origin/achievements`. One hash
-for all three.
+48 suites, 1,107 checks. The harness, the build in `C:\build\vbe` and
+`origin/achievements` are all the SAME COMMIT — the one this report is
+committed in. `git log -1` on the branch names it, and nothing in this file
+can go stale by naming it here instead.
 
 `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck, the
 builds and then the harness, which is how every item was verified before it was
@@ -313,8 +314,9 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 ## The build
 
 `C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,088,160 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `410eedc`, which is also the
-commit the harness is green on and the tip of `origin/achievements`. It was
+`C:\build\vbe\win-unpacked\`, cut from the commit this report is committed
+in — the same one the harness is green on and the tip of
+`origin/achievements`. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
 electron-builder 25.1.8, Electron 32.3.3, x64.
@@ -661,8 +663,14 @@ that is the one that made the build stale, because it landed after the package
 was cut and I did not cut another. Three hashes is three chances to be wrong
 about what is in the folder you upload.
 
-**There is one hash now.** The harness, the build in `C:\build\vbe` and
-`origin/achievements` are all `410eedc`.
+**There is one hash now**, and this report does not write it down — writing it
+down is what made it wrong last time, because the commit that carries the
+report always comes after the commit the report describes. The rule instead:
+**the branch tip is the build and the harness.** The package was cut from the
+commit this report is committed in, the full harness was run green on it, and
+`git log -1` names it. If those three ever disagree again, the way to tell is
+`git log --oneline` — anything after the tip that touched `artifacts/`, `lib/`
+or `electron/` means the folder in `C:\build\vbe` is behind the code.
 
 ## Every club in this world keeps books
 
