@@ -37,16 +37,18 @@ import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
 import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts.js";
+// Rob, 23 Sep: one set of rules for every club. These are the rules — the
+// player's club is charged by the same functions that charge the other sixty
+// (utils/clubFinances.ts, utils/poolClubFinances.ts).
+import {
+  WEEKS_PER_MONTH, SPONSOR_REP_BASELINE, decayedReputation, sponsorWeeklyIncome,
+} from "../utils/clubFinances.js";
+import {
+  chargePoolClubsWeekTx, renewExpiredPoolContractsTx,
+} from "../utils/poolClubFinances.js";
+import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
 
-// 52 weeks / 12 months — the divisor that turns a monthly salary into the
-// weekly instalment actually charged.
-const WEEKS_PER_MONTH = 52 / 12;
-
-// Sponsor reputation pulls this fraction of the way back toward the baseline
-// every salary week. See the weekly economy block for why.
-const SPONSOR_REP_BASELINE = 50;
-const SPONSOR_REP_DECAY_PER_WEEK = 0.05;
 
 const router = Router();
 
@@ -518,8 +520,7 @@ router.post("/calendar/advance", async (req, res) => {
     // one-way trip. A winning club is unaffected in practice: the pull toward
     // 50 is negligible next to +1 per win once it is clear of the baseline.
     const rawRep     = teamRow[0]?.sponsorReputation ?? SPONSOR_REP_BASELINE;
-    const decayedRep = rawRep + (SPONSOR_REP_BASELINE - rawRep) * SPONSOR_REP_DECAY_PER_WEEK;
-    const sponsorRep = Math.max(0, Math.min(100, Math.round(decayedRep)));
+    const sponsorRep = decayedReputation(rawRep);
 
     if (sponsorRep !== rawRep) {
       await db.update(teamsTable)
@@ -527,7 +528,7 @@ router.post("/calendar/advance", async (req, res) => {
         .where(eq(teamsTable.id, team.id));
     }
 
-    const sponsorIncome = Math.round(sponsorRep * 200);
+    const sponsorIncome = sponsorWeeklyIncome(sponsorRep);
     const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages;
 
     await db.update(teamsTable)
@@ -568,6 +569,17 @@ router.post("/calendar/advance", async (req, res) => {
         date:        nextDate,
       },
     ]);
+
+    // Rob, 23 Sep: every club in this world keeps books, not just this one. The
+    // other sixty are charged the same week, on the same day, through the same
+    // functions - their wages under the same three contract lengths, the same
+    // running costs, and the same sponsor income on the same reputation rule
+    // (utils/poolClubFinances.ts). They are paid their prize money where they
+    // are scored, which is utils/rankingPoints.ts.
+    db.transaction((tx) => {
+      chargePoolClubsWeekTx(tx, careerSaveId, season.year);
+      renewExpiredPoolContractsTx(tx, careerSaveId, nextDate, seasonEndsForCareerTx(tx, careerSaveId));
+    });
 
     await db.update(calendarStateTable)
       .set({ lastSalaryDate: nextDate })

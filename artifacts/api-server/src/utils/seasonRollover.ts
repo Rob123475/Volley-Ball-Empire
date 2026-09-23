@@ -12,6 +12,12 @@ import { isOlympicYear } from "./olympics.js";
 import { youthIntakeTx, type IntakeResult } from "./youthIntake.js";
 import { releaseSurplusGraduatesTx, type ReleasedGraduate } from "./graduates.js";
 import { backfillContractsTx } from "./backfillContracts.js";
+import {
+  sellBrokePoolClubsTx, openPoolClubSeasonsTx, renewExpiredPoolContractsTx,
+  reconcileLeagueSizesTx,
+  type PoolClubSale,
+} from "./poolClubFinances.js";
+import { seasonEndsForCareerTx } from "./seasonDates.js";
 
 /**
  * Season rollover.
@@ -257,6 +263,23 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // club carries into it — what next season's money places are measured from.
     ensureBoardSeasonTx(tx, careerSaveId, nextYear, teamId);
 
+    // Rob, 23 Sep: the same judgement, on the same rule, for the sixty. The
+    // season that just ended is closed against the balance each club finished
+    // it on, five loss-making seasons in a row sells one, and the club that
+    // takes its place in the world's league is the best one not already in it.
+    // Then next season is opened for everybody on what they carry into it,
+    // which is the chain the rule is read from.
+    const poolSales = sellBrokePoolClubsTx(tx, careerSaveId, season.year);
+    // Six clubs to a continent, every season, whether anything was sold or not:
+    // the regional season's thirty fixtures are built on that number and it
+    // throws on any other. Restored rather than reasoned about
+    // (utils/poolClubFinances.ts).
+    reconcileLeagueSizesTx(tx, careerSaveId);
+    openPoolClubSeasonsTx(tx, careerSaveId, nextYear);
+    renewExpiredPoolContractsTx(
+      tx, careerSaveId, `${nextYear}-01-01`, seasonEndsForCareerTx(tx, careerSaveId),
+    );
+
     // R-62: the new season's academy intake, in the transaction that opened the
     // season, dated its first day — so no season opens without its intake.
     // L-02c: whoever went up is replaced, so the academy a career builds does
@@ -287,6 +310,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       fromSeason: current,
       toSeason: nextNumber,
       newSeasonId: created!.id,
+      poolSales,
       review,
       intake,
       clubSold,

@@ -14,6 +14,7 @@ import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
 import { backfillContracts } from "./utils/backfillContracts";
 import { backfillBoardSeasonClubs } from "./utils/board-confidence";
+import { backfillPoolClubBooks } from "./utils/poolClubFinances";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -150,6 +151,18 @@ try {
   if (named > 0) logger.info({ seasons: named }, "board seasons matched to the club that played them");
 } catch (err) {
   logger.error({ err }, "board season club backfill failed");
+}
+
+// Rob, 23 Sep: every AI club keeps books on the same rules the player's club
+// does. A save made before that has sixty clubs with no balance and no
+// contracts, which would read as sixty broke clubs. They open here, once.
+try {
+  const books = backfillPoolClubBooks();
+  if (books.clubs > 0 || books.contracts > 0) {
+    logger.info(books, "the world's clubs opened their books");
+  }
+} catch (err) {
+  logger.error({ err }, "pool club books backfill failed");
 }
 
 // Data migration: move every continent column onto the canonical KEYS and

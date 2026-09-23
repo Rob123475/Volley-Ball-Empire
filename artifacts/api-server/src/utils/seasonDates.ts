@@ -27,6 +27,25 @@ export async function seasonEndsFrom(careerSaveId: number, from: string): Promis
 }
 
 /**
+ * The same list, inside a transaction.
+ *
+ * The sixty AI clubs sign and renew on the same season ends the player's club
+ * does (utils/poolClubFinances.ts), and they do it inside the transaction that
+ * is already charging them, which better-sqlite3 cannot await.
+ */
+export function seasonEndsForCareerTx(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0], careerSaveId: number, from?: string,
+): string[] {
+  const rows = tx.select({ endDate: seasonsTable.endDate })
+    .from(seasonsTable)
+    .where(eq(seasonsTable.careerSaveId, careerSaveId))
+    .orderBy(asc(seasonsTable.endDate))
+    .all();
+  const ends = rows.map((r) => r.endDate);
+  return from ? ends.filter((e) => e >= from) : ends;
+}
+
+/**
  * The three career-state columns that make a staff or medical contract real.
  *
  * `career_staff_state.contract_length` was a months integer that no code path

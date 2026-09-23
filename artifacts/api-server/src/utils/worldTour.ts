@@ -435,9 +435,11 @@ export function playWorldTourUpToTx(
 
     creditCompetitorTx(tx, {
       careerSaveId, seasonYear, competitorId: fx.homeCompetitorId, tier: fx.tier, won: result.homeWon,
+      round: fx.round,
     });
     creditCompetitorTx(tx, {
       careerSaveId, seasonYear, competitorId: fx.awayCompetitorId, tier: fx.tier, won: !result.homeWon,
+      round: fx.round,
     });
   }
   return due.length;
@@ -478,6 +480,9 @@ export function recordPlayerMatchResultTx(tx: Tx, args: {
     competitorId: fx.awayCompetitorId,
     tier:         fx.tier,
     won:          !args.playerWon,
+    // The club the player just beat or lost to is paid its share of the same
+    // event, from the same purse, as it is scored on.
+    round:        fx.round,
   });
   return true;
 }

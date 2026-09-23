@@ -75,19 +75,38 @@ export const TOUR_COST_BY_TIER: Record<Tier, number> = {
  * money, which is the one thing this rule exists to stop.
  */
 
-export function weeklyRunningCost(squadSize: number, tier: Tier): number {
+/**
+ * The tour a club has access to, or null for one that is not in the World Tour
+ * field this season.
+ *
+ * Every club in this game's world has books (Rob, 23 Sep), and forty-one of the
+ * sixty are not in the nineteen-club field in any given season. They play their
+ * regional league, which is close to home: they pay the ground and the squad,
+ * and no tour. Charging them a Bronze circuit they are not on would send every
+ * club outside the field broke inside five seasons, which is the rule firing on
+ * a cost nobody incurred.
+ */
+export type RunningCostTier = Tier | null;
+
+export function weeklyRunningCost(squadSize: number, tier: RunningCostTier): number {
   return (
     RUNNING_COST_BASE +
     RUNNING_COST_PER_PLAYER * Math.max(0, squadSize) +
-    (TOUR_COST_BY_TIER[tier] ?? TOUR_COST_BY_TIER.Bronze)
+    tourCost(tier)
   );
 }
 
+/** What chasing `tier` costs for a week; nothing at all when there is no tour. */
+export function tourCost(tier: RunningCostTier): number {
+  if (tier == null) return 0;
+  return TOUR_COST_BY_TIER[tier] ?? TOUR_COST_BY_TIER.Bronze;
+}
+
 /** What the ledger line says, so a player can see where the money went. */
-export function runningCostDescription(squadSize: number, tier: Tier): string {
+export function runningCostDescription(squadSize: number, tier: RunningCostTier): string {
   return (
     `Weekly running costs — club ${RUNNING_COST_BASE.toLocaleString()}, ` +
     `squad of ${squadSize} ${(RUNNING_COST_PER_PLAYER * squadSize).toLocaleString()}, ` +
-    `${tier} tour ${(TOUR_COST_BY_TIER[tier] ?? TOUR_COST_BY_TIER.Bronze).toLocaleString()}`
+    `${tier == null ? "no tour 0" : `${tier} tour ${tourCost(tier).toLocaleString()}`}`
   );
 }

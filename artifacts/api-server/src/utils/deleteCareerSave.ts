@@ -8,6 +8,8 @@ import {
   worldTourFixturesTable,
   playerRankingPointsTable,
   boardSeasonsTable,
+  poolClubSeasonsTable,
+  poolPlayerContractsTable,
   careerHistoryEntriesTable,
   olympicTournamentsTable,
   olympicMatchesTable,
@@ -50,6 +52,12 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(playerRankingPointsTable).where(eq(playerRankingPointsTable.careerSaveId, careerSaveId)).run();
     // R-53: the board's season rows reference the save (NOT NULL).
     t.delete(boardSeasonsTable).where(eq(boardSeasonsTable.careerSaveId, careerSaveId)).run();
+    // Rob, 23 Sep: the sixty AI clubs' books are this career's too - their
+    // season openings and the contracts their pairs are on. Both reference the
+    // save (NOT NULL), and the contracts go first because a season row and a
+    // contract can name the same club.
+    t.delete(poolPlayerContractsTable).where(eq(poolPlayerContractsTable.careerSaveId, careerSaveId)).run();
+    t.delete(poolClubSeasonsTable).where(eq(poolClubSeasonsTable.careerSaveId, careerSaveId)).run();
     // R-61: the Olympic tournaments reference the save (NOT NULL); medals and
     // matches reference their tournament, so they go first.
     t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();

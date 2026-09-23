@@ -11,6 +11,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { competitorIdForTeam, competitorIdForTeamTx } from "./competitors.js";
 import { tierForPoints, type Tier } from "./tierQualification.js";
 import { isCareerDifficulty, SEASON_ONE_PURSE_TIER } from "./careerDifficulty.js";
+import { creditPoolClubResultTx } from "./poolClubFinances.js";
 
 /**
  * Ranking points.
@@ -91,7 +92,31 @@ export function creditCompetitorTx(tx: Tx, args: {
   competitorId: number;
   tier: string | null;
   won: boolean;
+  /**
+   * The round the result was played in. Rob, 23 Sep: an AI club is paid the
+   * same prize money from its real results as the player's club, and the purse
+   * is the round's (data/worldTour.ts). Absent for the player's own club, which
+   * is paid in routes/matches.ts from the purse carried on its match row.
+   */
+  round?: number | null;
 }): number {
+  // The money, in the one place the points are. A club is paid by the same
+  // event, in the same instant, as it is scored - and only a POOL club is paid
+  // here, so the player's club cannot be paid twice
+  // (utils/poolClubFinances.ts).
+  const poolTeamId = tx.select({ poolTeamId: competitorsTable.poolTeamId })
+    .from(competitorsTable).where(eq(competitorsTable.id, args.competitorId)).get()?.poolTeamId ?? null;
+  if (poolTeamId != null) {
+    creditPoolClubResultTx(tx, {
+      careerSaveId: args.careerSaveId,
+      seasonYear:   args.seasonYear,
+      poolTeamId,
+      eventTier:    args.tier,
+      round:        args.round ?? null,
+      won:          args.won,
+    });
+  }
+
   const existing = tx.select().from(competitorRankingsTable).where(and(
     eq(competitorRankingsTable.competitorId, args.competitorId),
     eq(competitorRankingsTable.careerSaveId, args.careerSaveId),

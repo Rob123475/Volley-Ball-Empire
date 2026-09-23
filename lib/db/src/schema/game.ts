@@ -426,12 +426,82 @@ export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
    * then lists it, by name, among the jobs going.
    */
   takenOverAt:     integer("taken_over_at", { mode: "timestamp" }),
+  /**
+   * The club's books. Rob, 23 Sep: every AI club has the same finances as the
+   * gamer's club - a balance, wages under the same contracts, the same running
+   * costs, and prize money and sponsors from its real World Tour results. The
+   * balance moves by the same functions that move the player's
+   * (utils/clubFinances.ts); this is simply where an AI club's sits, because an
+   * AI club is a pool row and has no `teams` row to keep it on.
+   */
+  balance:            real("balance").notNull().default(0),
+  sponsorReputation:  integer("sponsor_reputation").notNull().default(50),
+  /** Stamped when five loss-making seasons sold this club (L-02e, for AI clubs). */
+  soldAt:             integer("sold_at", { mode: "timestamp" }),
+  /** The season it was sold in, so the table of a run can say when. */
+  soldInSeason:       integer("sold_in_season"),
   promotionCount:  integer("promotion_count").notNull().default(0),
   relegationCount: integer("relegation_count").notNull().default(0),
   updatedAt:       integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
   uniqueIndex("career_pool_team_state_unique").on(t.careerSaveId, t.poolTeamId),
 ]);
+
+/**
+ * One AI club's season, opened on the balance it carried into it.
+ *
+ * The player's club records the same thing in `board_seasons`, which is one row
+ * per CAREER per season and cannot hold sixty clubs as well. The rules are not
+ * copied with the table: utils/board-confidence.ts owns what a loss-making
+ * season is and how many in a row sell a club, and utils/poolClubFinances.ts
+ * calls those same functions over these rows.
+ */
+export const poolClubSeasonsTable = sqliteTable("pool_club_seasons", {
+  id:                 integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:       integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  poolTeamId:         integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  seasonYear:         integer("season_year").notNull(),
+  seasonStartBalance: real("season_start_balance").notNull().default(0),
+  /** Whether it was in the World Tour field that season - it sets the tour it pays for. */
+  inField:            integer("in_field", { mode: "boolean" }).notNull().default(false),
+  createdAt:          integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("pool_club_seasons_unique").on(t.careerSaveId, t.poolTeamId, t.seasonYear),
+]);
+
+export type PoolClubSeason = typeof poolClubSeasonsTable.$inferSelect;
+
+/**
+ * An AI club's player, under contract, on one of the three lengths.
+ *
+ * Rob's rule is that every player at every club is on a 6m/1s/2s deal, and a
+ * pool player is not a `players` row, so `contracts` cannot hold her. The terms
+ * are not a second set: utils/contractTerms.ts decides the length and the end
+ * date here exactly as it does for the player's squad, and the salary comes
+ * from the shipped seniors' own price-by-rating curve
+ * (utils/clubFinances.ts monthlySalaryFor).
+ */
+export const poolPlayerContractsTable = sqliteTable("pool_player_contracts", {
+  id:            integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:  integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  poolPlayerId:  integer("pool_player_id").notNull().references(() => continentalPoolPlayersTable.id),
+  poolTeamId:    integer("pool_team_id").notNull().references(() => continentalPoolTeamsTable.id),
+  length:        text("length").notNull(),
+  startDate:     text("start_date").notNull(),
+  endDate:       text("end_date").notNull(),
+  /** MONTHLY, like every other salary in this game (R-67). */
+  salary:        real("salary").notNull(),
+  status:        text("status").notNull().default("active"),
+  createdAt:     integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  // One live deal per player per career. A renewal MOVES this row rather than
+  // closing it and opening another: a pool player never changes club, so the
+  // row is the deal she is on and there is no history anybody reads. Keying on
+  // status instead made a second expiry collide with the first.
+  uniqueIndex("pool_player_contracts_live").on(t.careerSaveId, t.poolPlayerId),
+]);
+
+export type PoolPlayerContract = typeof poolPlayerContractsTable.$inferSelect;
 
 export const careerStaffStateTable = sqliteTable("career_staff_state", {
   id:           integer("id").primaryKey({ autoIncrement: true }),

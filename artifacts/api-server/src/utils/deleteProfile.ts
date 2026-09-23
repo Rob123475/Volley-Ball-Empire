@@ -176,7 +176,8 @@ export function deleteProfileCascade(userId: string): void {
       // R-61 Olympic tables: olympicMedalsTable, olympicMatchesTable and
       // olympicTournamentsTable, R-62's academy intakes, youthIntakesTable, and
       // L-02b's retirements and club honours, playerRetirementsTable and
-      // clubHallOfFameTable.
+      // clubHallOfFameTable, and the sixty AI clubs' books,
+      // poolClubSeasonsTable and poolPlayerContractsTable.
       // The athletes an intake created stay: players is reference data, and a
       // new career is seeded only with athletes no career owns.
     }

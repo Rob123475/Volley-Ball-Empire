@@ -15,6 +15,10 @@ import { FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { ensureBoardSeason } from "../utils/board-confidence.js";
+import {
+  openPoolClubBooksTx, openPoolClubSeasonsTx,
+} from "../utils/poolClubFinances.js";
+import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
 import { isOlympicYear } from "../utils/olympics.js";
 import {
@@ -260,6 +264,16 @@ router.post("/careers", async (req, res) => {
   // R-53: the board's first season, opened on the starting budget — the
   // balance season 1's money places are measured from.
   ensureBoardSeason(inserted!.id, season1!.year, newTeam.id);
+
+  // Rob, 23 Sep: every club in this world has books, not only this one. The
+  // sixty open on the same balance an established career opens on, their pairs
+  // sign on the same three contract lengths, and season 1 is opened for them
+  // the way it is opened for the player - which is the chain the five
+  // loss-making seasons are read from (utils/poolClubFinances.ts).
+  db.transaction((tx) => {
+    openPoolClubBooksTx(tx, inserted!.id, `${firstYear}-01-01`, seasonEndsForCareerTx(tx, inserted!.id));
+    openPoolClubSeasonsTx(tx, inserted!.id, season1!.year);
+  });
 
   // A startup squad so the manager isn't staring at zero players (R-04).
   // R-11: quality now follows difficulty — see seedStartingSquad.ts.
