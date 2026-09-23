@@ -24,6 +24,12 @@ have been the first things you noticed: a club you took over was sold again at
 the end of your first season, in a review that said five; and the Finances
 page's new Running Costs line read $0 for every club in the game.
 
+**Since then: every club in this world keeps books.** Your 23 Sep rule — one
+set of rules for every club, and the broke-club rule firing for AI clubs too —
+is built, and there is a thirty-season table of all sixty clubs' balances below
+to read it off. It left you one decision I would not make for you, about clubs
+that never reach the World Tour.
+
 The three things most worth your attention in the morning:
 
 1. **Money now means something, and the numbers are in this report.** A club at
@@ -262,10 +268,9 @@ Seven defects, all of them things a career would have hit:
 
 ## The harness
 
-47 suites, 1,081 checks, all green on `04d44a0`. The build is from `5ac755c`,
-the last commit that changed the game; everything after it is this report and
-one harness repair. It was 1,044 when the ten items were done; the rest are the
-checks that came with the defects found afterwards, listed below.
+48 suites, 1,107 checks, all green on `410eedc` — the same commit the build in
+`C:\build\vbe` was made from, and the tip of `origin/achievements`. One hash
+for all three.
 
 `pnpm run test:harness` runs them; `pnpm run build` runs the typecheck, the
 builds and then the harness, which is how every item was verified before it was
@@ -307,10 +312,9 @@ used to end a career are a final warning now) and `fake-content-removed.mjs`
 
 ## The build
 
-`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,074,345 bytes) and
-`C:\build\vbe\win-unpacked\`, from commit `5ac755c`, the last commit that
-changed the game — everything after it is this report and one harness
-repair, neither of which is packaged. It was
+`C:\build\vbe\Beach Volleyball Empire Setup 0.9.2.exe` (370,088,160 bytes) and
+`C:\build\vbe\win-unpacked\`, from commit `410eedc`, which is also the
+commit the harness is green on and the tip of `origin/achievements`. It was
 first built at `06be253` and repackaged as each follow-up fix below landed, so
 what is on disk is what is on GitHub, and it was launch-tested every time.
 electron-builder 25.1.8, Electron 32.3.3, x64.
@@ -634,6 +638,173 @@ worth a couple of hundred thousand and not a million.
   already used on the three contract lengths. The browser cannot import the
   server's module (lib/db opens a SQLite connection the moment it loads), so
   the copy stays; the drift does not.
+
+## The three hashes, and why there were three
+
+You asked what `04d44a0`, `5ac755c` and `478fd3a` were doing in one report. They
+were the harness, the build and the branch tip, and they had come apart because
+I kept committing after the last package was made:
+
+```
+$ git log --oneline 5ac755c..HEAD
+2b494a2 L-02: a contract you can end is one of yours          CODE + harness
+478fd3a REPORT: the first page says what the second half...   docs only
+93a0c53 REPORT: the warning-window drift is fixed...          docs only
+04d44a0 L-02: the contract warning window is read...          harness only
+28994b8 REPORT: fact-checked against the repo...              docs only
+56edfef REPORT: the Finances line that read $0...             docs only
+```
+
+Four of the six touched nothing but `docs/OVERNIGHT-STATUS.md`. One touched a
+harness suite. One, `2b494a2`, touched the game — `routes/contracts.ts` — and
+that is the one that made the build stale, because it landed after the package
+was cut and I did not cut another. Three hashes is three chances to be wrong
+about what is in the folder you upload.
+
+**There is one hash now.** The harness, the build in `C:\build\vbe` and
+`origin/achievements` are all `410eedc`.
+
+## Every club in this world keeps books
+
+Your rule, and it is done: one set of rules for every club, not an AI economy
+beside the real one. The pieces that decide anything are shared, and the
+sharing is the point:
+
+| what | where it is decided | who reads it |
+|---|---|---|
+| a week's running costs | `utils/runningCosts.ts` | the player's club and all sixty |
+| a week's wages and sponsors | `utils/clubFinances.ts` | both — it was lifted out of the weekly block in `routes/calendar.ts`, which now imports it |
+| what a result pays | `prizeFor()` on `data/worldTour.ts`'s purses | both |
+| what purse a club may take | `purseAccessFor()` on last season's points | both |
+| contract lengths and end dates | `utils/contractTerms.ts` | both |
+| what a loss-making season is, and how many sell a club | `utils/board-confidence.ts` | both |
+
+What is new is only where an AI club has to keep something the player's club
+keeps in `teams`: a balance and a reputation on `career_pool_team_state`, the
+chain of season openings in `pool_club_seasons` (`board_seasons` is one row per
+career and cannot hold sixty clubs as well), and `pool_player_contracts` (a
+pool player is not a `players` row, so `contracts` cannot hold her).
+
+**No wage is invented.** The 192 priced seniors in the shipped database carry an
+asking price that is exactly twelve months of salary, so the game's own data
+already says what a player of a given standard is worth. A least squares fit
+through those 192 gives the salary an AI club pays, clamped to the range the
+shipped players actually span ($6,500 to $14,500 a month).
+
+**The results were always real.** Every AI-vs-AI fixture is played through the
+player's own engine and credited to `competitor_rankings` — that has been true
+since R-29. What was missing was somewhere to put the money, not a way to know
+what the money was. The 22 Sep report said AI clubs "have no balance sheet, so
+there is no such thing as a loss-making season for them". That was true of the
+tables and not of the game, and it was the wrong call.
+
+### Proved to the dollar
+
+`harness/ai-club-economy.mjs` is the new suite (48 of 48). It does not check
+that an AI club is charged *something*: it reads the constants out of the server
+source, works out what a club with no World Tour place owes for one week — the
+ground, its squad, no tour — advances one week and checks the balance moved by
+exactly that. On the run that wrote this: **moved $1,892, the rules say $1,892.**
+
+### Thirty seasons of the whole world
+
+Every club's balance at every season boundary, in thousands. Every fifth season
+shown to fit the page; the suite prints all thirty. `*` marks a season the club
+was sold in — the balance beside it is what it opened the next season on, under
+new owners.
+
+```
+  club                             1     5    10    15    20    25    30
+  Rio Copacabana Queens          525  1160  1994  2836  3887  4868  6141
+  Berlin Sand Queens             684  1014  1344  2492  3196  3454  4501
+  Miami Shoreline Queens         483   982  1522  1835  2580  2973  4079
+  LA Beach Legends               402   870  1474  2632  3674  3648  3728
+  Riyadh Dune Dominators         589   947  1397  1846  2293  2742  3190
+  Kuala Lumpur Monsoon FC        584   921  1344  1767  2188  2611  3032
+  Tonga Polynesian Power         584   921  1344  1767  2188  2611  3032
+  Buenos Aires Pampas Storm      661  1307  1637  1812  2015  2315  2840
+  Stockholm Northern Lights      564   822  1146  1470  1792  2116  2438
+  São Paulo Beach Warriors       519   579   987  1672  1869  2145  2238
+  Manila Bay Pearls              554   770  1041  1312  1583  1854  2124
+  San Juan Caribbean Pearls      554   770  1041  1312  1583  1854  2124
+  Tokyo Surf Samurai             418  500*   345   564   511  1804  2102
+  Lagos Surf Queens              473   835  1737  1616  1868  2257  2039
+  Barcelona Playa Elites         364   468   563   637  1039  1642  1950
+  Bondi Beach Legends            451   876  1061  1233  1243  1534  1881
+  Caracas Caribbean Coast        544   718   937  1155  1373  1592  1810
+  Vanuatu Coral Crushers         564   755  500*   824  1146  1470  1792
+  Seoul Han River Queens         439  500*    41   501   949  1355  1778
+  Rome Beach Gladiators          455  500*   640   778   916  1184  1482
+  Shanghai Yangtze Elites        540  1121  1273  1312  1501  1269  1468
+  Cairo Desert Eagles            455  500*   226   520  1005  1118  1373
+  Myrtle Beach Sunblazers        523   613   727   841   954  1068  1181
+  Dar es Salaam Swahili Stars    523   613   727   841   954  1068  1181
+  Gold Coast Thunderbirds        443  500*   327   457   419   879  1169
+  Warsaw Vistula Waves           533   671  500*   666   832   998  1164
+  Durban Indian Ocean Tides      466   243   462   513  500*  1015  1060
+  La Paz Andean Queens           517   587   675   763   850   938  1025
+  Cancún Coral Storm             470   401   517   368   756   783   938
+  Taipei Formosa Spikers         512   561   622   684   745   806   867
+  Nassau Island Blazers          512   561   622   684   745   806   867
+  Athens Aegean Stars            477  500*   561   623   684   745   806
+  Fiji Island Breakers           516   232   549   610   672   733   794
+  Montevideo Río Elites          512   534   512   574   635   696   757
+  Honolulu Hula Warriors         491   369   483   314   477   496   754
+  Paris Sables Royales           450  500*   191   666  1038   868   736
+  Tunis Mediterranean Aces       507   535   570   606   641   676   711
+  Ho Chi Minh City Delta Star    507   535   570   606   641   676   711
+  Wellington Southern Cross      507   535   570   606   641   676   711
+  Dublin Emerald Spikers         507   535   570   606   641   676   711
+  Lima Pacific Soarers           429   150   262   374   485   597   708
+  Casablanca Atlantic Spikers    544   638   648   658   668   678   687
+  Auckland Pacific Diamonds      460  500*  500*   630   750   383   658
+  Accra Goldcoast Waves          575   825   784   742   701   659   618
+  Nairobi Savannah Stars         523   281   584   523   334   356   556
+  Lisbon Atlantic Blaze          502   509   518   527   536   546   555
+  Vancouver Pacific Orcas        502   509   518   527   535   544   553
+  Mumbai Coastal Warriors        512   449   412   468   512   486   528
+  Bali Island Legends            484  500*   379   386   545   631  500*
+  Havana Salsa Spikers           427  500*   440   157   684   828  500*
+  Port Moresby Coral Aces        481  500*  500*  500*  500*  500*  500*
+  Georgetown Guyana Waves        439  500*  500*  500*  500*  500*  500*
+  Dubai Sand Aces                500   355  500*   298   330   469   490
+  Santiago Atacama Aces          481  500*  500*  500*  500*   186   443
+  Honolulu Aloha Warriors        470   379   470   346   441   441   441
+  Bangkok Palm Beach Stars       491   166   423   423   424   423   424
+  Kingston Reggae Spikers        497   483   466   448   431   414   397
+  Samoa Southern Swells          533   376   460   388   297   492   377
+  Amsterdam Dune Riders          491   231   262   366   395   180   160
+  Bogotá Altitude Queens         470   423   421   275   282   228    52
+```
+
+- **71 clubs were sold** across the thirty seasons, every one of them with five
+  falling season openings behind it. The first: $500,000 > $449,560 > $399,120
+  > $348,680 > $298,240.
+- **A sold club does not vanish.** There are sixty clubs in this world and no
+  more are written, so a broke club changes hands: new owners, the same opening
+  balance any club of this world gets, and it gives up its place in its
+  continent's league.
+- **Its place is taken by a club of the same continent**, and that club was in
+  the league at the boundary that gave it the place — 18 of 18 on this run.
+  Six clubs to a continent in all thirty seasons, which is what the regional
+  season's thirty fixtures are built on.
+
+### One thing in that table you should look at
+
+Two clubs — Port Moresby Coral Aces and Georgetown Guyana Waves — read `500*`
+at every sample. They are being sold every five seasons, for ever. They are
+clubs that never reach the World Tour field, and under your rule their only
+income is sponsors, which does not quite cover the ground and two players. So
+they bleed slowly, hit five seasons, change hands, and start again.
+
+Nothing is broken — that is the rule doing exactly what it says — but it is a
+decision you have not actually made yet: **whether a club outside the World Tour
+field should be able to pay for itself.** The three ways out are all yours to
+pick: the regional league pays something (there is no purse data for it, so
+that is a number you would have to give me), a club outside the field carries a
+smaller wage bill than one on the tour, or it stands as it is and the bottom of
+the world turns over every five years. I did not choose one, because choosing
+it is choosing how your world works.
 
 ## Anything Rob must check on screen
 
