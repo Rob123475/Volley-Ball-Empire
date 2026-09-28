@@ -104,11 +104,12 @@ try {
   const totalInserted = Object.values(r.inserted).reduce((n, ids) => n + ids.length, 0);
   const totalUpdated  = Object.values(r.updated).reduce((n, ids) => n + ids.length, 0);
   const totalSeeded   = Object.values(r.seededIntoCareers).reduce((n, ids) => n + ids.length, 0);
+  const totalRenamed  = r.renamedStaff.length;
   if (r.skipped) {
     logger.info({ starterDbPath: r.starterDbPath, reason: r.skipped }, "reference data backfill skipped");
-  } else if (totalInserted > 0 || totalUpdated > 0 || totalSeeded > 0) {
+  } else if (totalInserted > 0 || totalUpdated > 0 || totalSeeded > 0 || totalRenamed > 0) {
     logger.info(
-      { starterDbPath: r.starterDbPath, inserted: r.inserted, updated: r.updated, seededIntoCareers: r.seededIntoCareers },
+      { starterDbPath: r.starterDbPath, inserted: r.inserted, updated: r.updated, seededIntoCareers: r.seededIntoCareers, renamedStaff: r.renamedStaff },
       "reference data backfilled from starter DB",
     );
   } else {

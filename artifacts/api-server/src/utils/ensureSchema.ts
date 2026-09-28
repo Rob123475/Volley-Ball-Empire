@@ -9,6 +9,7 @@ import {
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import { seedPlayerStateRows } from "./migrateCareerState.js";
+import { PREVIOUS_STAFF_NAMES } from "./staffNameHistory.js";
 
 /**
  * Bring an older save up to the schema the running code expects.
@@ -407,6 +408,8 @@ export type EnsureReferenceDataResult = {
   updated: Record<string, Array<string | number>>;
   /** career_save id -> player ids just seeded into it (R-34). */
   seededIntoCareers: Record<number, number[]>;
+  /** Staff cards renamed in the starter DB and brought up to date here (P-11). */
+  renamedStaff: Array<{ id: number; from: string; to: string }>;
 };
 
 function primaryKeyColumn(table: string): string | null {
@@ -447,12 +450,13 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
   const inserted: Record<string, Array<string | number>> = {};
   const updated: Record<string, Array<string | number>> = {};
   const seededIntoCareers: Record<number, number[]> = {};
+  const renamedStaff: EnsureReferenceDataResult["renamedStaff"] = [];
 
   if (!starterDbPath) {
-    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated, seededIntoCareers };
+    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated, seededIntoCareers, renamedStaff };
   }
   if (!fs.existsSync(starterDbPath)) {
-    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated, seededIntoCareers };
+    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated, seededIntoCareers, renamedStaff };
   }
 
   const starter = new Database(starterDbPath, { readonly: true, fileMustExist: true });
@@ -597,11 +601,46 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
         }
       }
     }
+
+    // ── Pass 4 (P-11): staff renamed in the starter DB ──────────────────────
+    //
+    // `name` and `nationality` are left out of REFERENCE_UPDATE_ONLY on
+    // purpose: the player can edit both, and syncing them would undo that
+    // edit on every boot. But it also meant a card renamed in the starter DB
+    // never changed in an existing save - Rob's kept four doctors' old names
+    // after they were fixed, and would have kept all 28 of 28 Sep's.
+    //
+    // A name the starter DB itself once shipped for that id cannot be the
+    // player's: nobody typed it. Only then are name and nationality brought
+    // forward, together. Anything else in the save is the player's own
+    // edit and stays exactly as it is. One transaction, so cards whose names
+    // swap (Fiona Walsh <-> Henri Fontaine) are never half-done.
+    if (tableExists("staff")) {
+      const starterStaff = starter.prepare(`SELECT id, name, nationality FROM staff`).all() as { id: number; name: string; nationality: string | null }[];
+      const live = new Map(
+        db.all<{ id: number; name: string; nationality: string | null }>(sql.raw(`SELECT id, name, nationality FROM staff`))
+          .map((r) => [r.id, r]),
+      );
+      const due = starterStaff.filter((s) => {
+        const row = live.get(s.id);
+        return !!row && row.name !== s.name && (PREVIOUS_STAFF_NAMES[s.id] ?? []).includes(row.name);
+      });
+      if (due.length > 0) {
+        const rename = sqlite.prepare(`UPDATE staff SET name = ?, nationality = ? WHERE id = ? AND name = ?`);
+        sqlite.transaction(() => {
+          for (const s of due) {
+            const from = live.get(s.id)!.name;
+            rename.run(s.name, s.nationality, s.id, from);
+            renamedStaff.push({ id: s.id, from, to: s.name });
+          }
+        })();
+      }
+    }
   } finally {
     starter.close();
   }
 
-  return { starterDbPath, inserted, updated, seededIntoCareers };
+  return { starterDbPath, inserted, updated, seededIntoCareers, renamedStaff };
 }
 
 /**
