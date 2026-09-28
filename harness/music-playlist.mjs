@@ -125,7 +125,7 @@ check("the first pass is the title track then the rest shuffled",
   /function firstQueue\(\)/.test(provider)
   && /\[FIRST_TRACK_INDEX, \.\.\.shuffled\(rest\)\]/.test(provider));
 
-check("a later pass reshuffles all ten and never repeats across the seam",
+check("a later pass reshuffles every track and never repeats across the seam",
   /function nextQueue\(justPlayed: number\)/.test(provider) && /q\[0\] === justPlayed/.test(provider));
 
 check("the next track starts on its own when one ends",

@@ -99,8 +99,8 @@ function shuffled(indexes: number[]): number[] {
 }
 
 /**
- * The first pass through the playlist: the title track, then the other nine in
- * a random order. Nothing repeats until all ten have played.
+ * The first pass through the playlist: the title track, then all the others in
+ * a random order. Nothing repeats until every track has played.
  */
 function firstQueue(): number[] {
   const rest = MUSIC_TRACKS.map((_, i) => i).filter((i) => i !== FIRST_TRACK_INDEX);
@@ -108,7 +108,7 @@ function firstQueue(): number[] {
 }
 
 /**
- * Every later pass: all ten shuffled again, never starting with the track that
+ * Every later pass: every track shuffled again, never starting with the track that
  * just finished — otherwise a song can play twice in a row across the seam
  * between two passes, which sounds like a bug even though it is honest shuffle.
  */
