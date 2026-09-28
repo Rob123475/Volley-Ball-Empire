@@ -61,7 +61,7 @@ import {
   X,
   Users,
 } from "lucide-react";
-import { normaliseRole, SCOUTING_ROLE_KEYS } from "@shared/staff-roles";
+import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@shared/staff-roles";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -428,6 +428,19 @@ function RegionCard({
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 
+/** P-07: the one wording for "no scout", on the page and in the mission dialog. */
+function NeedAScoutMessage({ className }: { className?: string }) {
+  return (
+    <p className={className}>
+      You need a Scout on your staff to send scouting missions.{" "}
+      <Link href="/staff-market" className="text-primary underline underline-offset-2 hover:text-primary/80">
+        Visit the Staff Market
+      </Link>{" "}
+      to hire one.
+    </p>
+  );
+}
+
 export default function ContinentalScouting() {
   const qc    = useQueryClient();
   const { toast } = useToast();
@@ -461,6 +474,10 @@ export default function ContinentalScouting() {
   // Head Coach, Assistant Coach, and Scout all unlock scouting.
   const scoutingUnlocked = (staff ?? []).some((s: any) => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
   const hasScout = scoutingUnlocked;
+  // P-07: only a Scout can be assigned to a mission. The dropdown used to list
+  // every hired staff member - head coach, trainer, promotions manager - because
+  // GET /staff is the whole staff.
+  const scouts = (staff ?? []).filter((s) => isRole(s.role, "scout"));
 
   function handleSendScout() {
     if (!dialogRegion) return;
@@ -537,7 +554,7 @@ export default function ContinentalScouting() {
   }
 
   const selectedDurationOpt = DURATION_OPTIONS.find((d) => d.months === selDuration)!;
-  const selectedStaff = staff?.find((s) => String(s.id) === selStaffId);
+  const selectedStaff = scouts.find((s) => String(s.id) === selStaffId);
   const isMutating = signProspect.isPending || ignoreProspect.isPending;
 
   return (
@@ -581,13 +598,7 @@ export default function ContinentalScouting() {
           <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-amber-400">No Scout hired</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              You need a Scout on your staff to send scouting missions.{" "}
-              <Link href="/staff-market" className="text-primary underline underline-offset-2 hover:text-primary/80">
-                Visit the Staff Market
-              </Link>{" "}
-              to hire one.
-            </p>
+            <NeedAScoutMessage className="text-xs text-muted-foreground mt-0.5" />
           </div>
         </div>
       )}
@@ -700,7 +711,10 @@ export default function ContinentalScouting() {
             </div>
 
             {/* Scout assignment */}
-            {staff && staff.length > 0 && (
+            {staff !== undefined && scouts.length === 0 && (
+              <NeedAScoutMessage className="text-[11px] text-muted-foreground" />
+            )}
+            {scouts.length > 0 && (
               <div className="space-y-2">
                 <label className="text-sm font-semibold">Assign Scout <span className="text-muted-foreground font-normal">(optional)</span></label>
                 <Select value={selStaffId} onValueChange={setSelStaffId}>
@@ -709,7 +723,7 @@ export default function ContinentalScouting() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">No scout assigned</SelectItem>
-                    {staff.map((s) => {
+                    {scouts.map((s) => {
                       const tier = getScoutTier(s.scoutingRating);
                       return (
                         <SelectItem key={s.id} value={String(s.id)}>

@@ -104,6 +104,13 @@ console.log("\n0. ONE NORMALISER");
   check("the Staff page's bonus panel looks roles up normalised",
     /new Set<string \| null>\(staff\.map\(s => normaliseRole\(s\.role\)\)\)/.test(staffPage));
   const listed = HIRE.map((r) => roles.normaliseRole(r)).filter((k) => bonusKeys.includes(k));
+  // P-07: the scout mission dialog assigns a Scout, so it lists Scouts - GET
+  // /staff is every hired role, and it used to be mapped straight into the list.
+  const scouting = stripComments(read("artifacts/beach-volleyball/src/pages/continental-scouting.tsx"));
+  check("the scout mission dropdown lists hired Scouts only, and says so when there are none (P-07)",
+    /const scouts = \(staff \?\? \[\]\)\.filter\(\(s\) => isRole\(s\.role, "scout"\)\)/.test(scouting)
+      && /\{scouts\.map\(/.test(scouting) && !/\{staff\.map\(/.test(scouting)
+      && /scouts\.length === 0 && \(\s*<NeedAScoutMessage/.test(scouting));
   check("so all four hired Title-Case roles show a bonus there", listed.length === 4,
     `panel keys: ${bonusKeys.join(", ")}; hired -> ${HIRE.map((r) => roles.normaliseRole(r)).join(", ")}`);
 }
