@@ -14,7 +14,7 @@ import {
 import { eq, and } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { CONTRACT_WARNING_DAYS } from "../utils/contractTerms.js";
-import { MEDICAL_ROLE_NAMES } from "../utils/medical-staff-generator.js";
+import { isMedicalRole } from "@workspace/db";
 
 const router = Router();
 
@@ -169,7 +169,7 @@ router.get("/attention-items", async (req, res) => {
     const daysLeft = Math.round((end.getTime() - gameToday.getTime()) / 86_400_000);
     if (daysLeft < 0 || daysLeft > CONTRACT_WARNING_DAYS) continue;
 
-    const isMedical = MEDICAL_ROLE_NAMES.has(m.role);
+    const isMedical = isMedicalRole(m.role);
     items.push({
       id: `staff-contract-${m.id}`,
       priority: daysLeft <= 14 ? "red" : "orange",

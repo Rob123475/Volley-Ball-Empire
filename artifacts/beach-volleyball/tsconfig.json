@@ -12,7 +12,8 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/continents": ["../../lib/db/src/schema/continents.ts"]
+      "@shared/continents": ["../../lib/db/src/schema/continents.ts"],
+      "@shared/staff-roles": ["../../lib/db/src/schema/staff-roles.ts"]
     }
   },
   "references": [

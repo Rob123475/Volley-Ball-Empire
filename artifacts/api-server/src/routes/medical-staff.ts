@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { staffTable, teamsTable } from "@workspace/db";
+import { staffTable, teamsTable, isMedicalRole, normaliseRole } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { readContractLength } from "../utils/contractTerms.js";
 import { staffContractPatch } from "../utils/seasonDates.js";
@@ -15,26 +15,11 @@ import {
   generateMedicalAttributesForRole,
   pickMedicalTraitForRole,
   MEDICAL_ROLES,
-  MEDICAL_ROLE_NAMES,
   type MedicalRole,
 } from "../utils/medical-staff-generator";
 
 const router = Router();
 
-// Include both legacy snake_case names and current Title Case DB names
-// The shared set; this file used to keep its own copy.
-const MEDICAL_ROLE_SET = MEDICAL_ROLE_NAMES;
-
-// Map snake_case filter pill values → Title Case DB role names
-const ROLE_FILTER_MAP: Record<string, string> = {
-  team_doctor:        "Doctor",
-  medical_specialist: "Medical Specialist",
-  physiotherapist:    "Physiotherapist",
-  nutritionist:       "Nutritionist",
-  sports_scientist:   "Sports Scientist",
-  sports_chemist:     "Sports Scientist",
-  massage_therapist:  "Massage Therapist",
-};
 const MAX_MEDICAL_STAFF = 4;
 
 const serializeStaff = (s: StaffDTO) => ({
@@ -62,7 +47,7 @@ router.get("/medical-staff", async (req, res) => {
   if (!team) { res.json([]); return; }
 
   const staff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const medStaff = staff.filter(s => MEDICAL_ROLE_SET.has(s.role));
+  const medStaff = staff.filter(s => isMedicalRole(s.role));
   await backfillMedicalAttributes(medStaff);
 
   const refreshed = medStaff.map(s =>
@@ -80,7 +65,7 @@ router.post("/medical-staff", async (req, res) => {
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const allStaff = await loadStaff(cid, { teamId: team.id });
-  const medCount = allStaff.filter(s => MEDICAL_ROLE_SET.has(s.role)).length;
+  const medCount = allStaff.filter(s => isMedicalRole(s.role)).length;
 
   if (medCount >= MAX_MEDICAL_STAFF) {
     res.status(400).json({ error: `You can only have ${MAX_MEDICAL_STAFF} medical staff. Release one before hiring another.` });
@@ -90,7 +75,7 @@ router.post("/medical-staff", async (req, res) => {
   const { staffId } = req.body;
   const member = await loadStaffMember(cid, Number(staffId));
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
-  if (!MEDICAL_ROLE_SET.has(member.role)) { res.status(400).json({ error: "Not a medical staff member" }); return; }
+  if (!isMedicalRole(member.role)) { res.status(400).json({ error: "Not a medical staff member" }); return; }
   if (member.teamId !== null) { res.status(400).json({ error: "Staff member already hired" }); return; }
 
   // L-02a: medical staff get a contract on the same three lengths, and it
@@ -109,22 +94,22 @@ router.get("/medical-staff/market", async (req, res) => {
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   let available = await loadStaff(cid, { unhired: true });
-  let medAvailable = available.filter(s => MEDICAL_ROLE_SET.has(s.role));
+  let medAvailable = available.filter(s => isMedicalRole(s.role));
 
   if (medAvailable.length < 15) {
     for (const fresh of generateMedicalMarket(30)) {
       await createCareerStaff(cid, fresh as typeof staffTable.$inferInsert);
     }
     available = await loadStaff(cid, { unhired: true });
-    medAvailable = available.filter(s => MEDICAL_ROLE_SET.has(s.role));
+    medAvailable = available.filter(s => isMedicalRole(s.role));
   }
 
   await backfillMedicalAttributes(medAvailable);
 
   let filtered = medAvailable;
   if (role && role !== "all") {
-    const dbRole = ROLE_FILTER_MAP[role] ?? role;
-    filtered = filtered.filter(s => s.role === dbRole);
+    const key = normaliseRole(role);
+    filtered = filtered.filter(s => key !== null && normaliseRole(s.role) === key);
   }
   if (search) {
     const q = search.toLowerCase();

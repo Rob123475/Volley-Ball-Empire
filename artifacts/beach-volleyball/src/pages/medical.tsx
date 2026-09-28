@@ -74,6 +74,7 @@ import { Link } from "wouter";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
+import { normaliseRole, MEDICAL_ROLE_KEYS } from "@shared/staff-roles";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
@@ -122,20 +123,10 @@ type MedicalRoleKey =
   | "sports_scientist"
   | "massage_therapist";
 
+/** The medical department's view of the shared normaliser (P-09). */
 function normalizeMedicalRole(role: string | null | undefined): MedicalRoleKey | null {
-  if (!role) return null;
-  const key = role.trim().toLowerCase().replace(/\s+/g, "_");
-  if (key === "team_doctor" || key === "doctor") return "doctor";
-  if (
-    key === "medical_specialist" ||
-    key === "physiotherapist" ||
-    key === "nutritionist" ||
-    key === "sports_scientist" ||
-    key === "massage_therapist"
-  ) {
-    return key;
-  }
-  return null;
+  const key = normaliseRole(role);
+  return key !== null && MEDICAL_ROLE_KEYS.has(key) ? (key as MedicalRoleKey) : null;
 }
 
 const MEDICAL_ROLE_LABELS: Record<MedicalRoleKey, string> = {

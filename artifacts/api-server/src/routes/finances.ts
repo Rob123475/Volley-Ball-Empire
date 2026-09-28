@@ -9,6 +9,7 @@ import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassificati
 import { academyWeeklyWage } from "../utils/academy.js";
 import { loadPlayers, careerSaveIdForTeamOrThrow, loadStaff } from "../lib/playerDto.js";
 import type { FinanceTransaction, PromoDeal } from "@workspace/db";
+import { promotionsMultiplier } from "../utils/staffBonuses.js";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -328,10 +329,7 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
   if (!deal) { res.status(404).json({ error: "Deal not found" }); return; }
 
   const teamStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
-  const promoMgr = teamStaff.find(s => s.role === "promotions_manager");
-  const promoBonus = promoMgr
-    ? 1.0 + Math.max(0, promoMgr.skillLevel - 50) * (0.18 / 45)
-    : 1.0;
+  const promoBonus = promotionsMultiplier(teamStaff);
   const finalAmount = Math.round(Number(deal.amount) * promoBonus);
 
   await db.update(promoDealsTable).set({ isAccepted: true, teamId: team.id }).where(eq(promoDealsTable.id, id));
@@ -340,9 +338,7 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
     teamId: team.id,
     type: "income",
     amount: finalAmount,
-    description: promoMgr
-      ? `Promo deal: ${deal.sponsor} (+${Math.round((promoBonus - 1) * 100)}% Promotions Manager bonus)`
-      : `Promo deal: ${deal.sponsor}`,
+    description: `Promo deal: ${deal.sponsor}${promotionsNote(promoBonus)}`,
     category: "promo_deal",
     date: today,
   }).returning();
@@ -352,6 +348,12 @@ router.post("/finances/promo-deals/:id/accept", async (req, res) => {
 });
 
 /* ── Sponsor system helpers ──────────────────────────────────── */
+
+/** " (+17% Promotions Manager bonus)" on a boosted payment, nothing otherwise. */
+function promotionsNote(multiplier: number): string {
+  const pct = Math.round((multiplier - 1) * 100);
+  return pct > 0 ? ` (+${pct}% Promotions Manager bonus)` : "";
+}
 
 function daysDiff(from: string, to: string): number {
   const a = new Date(from).getTime();
@@ -454,10 +456,12 @@ router.get("/finances/sponsor-active", async (req, res) => {
       eq(promoDealsTable.status, "accepted"),
     ));
 
-  // Process due monthly payments
+  // Process due monthly payments. P-09: the promotions manager's bonus is paid
+  // on top, while one is employed.
+  const promoBonus = promotionsMultiplier(await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id }));
   let teamBudget = Number(team.budget);
   for (const contract of active) {
-    const monthly = Number(contract.monthlyPayment ?? 0);
+    const monthly = Math.round(Number(contract.monthlyPayment ?? 0) * promoBonus);
     if (monthly <= 0) continue;
     const lastPaid = contract.lastPaymentDate;
     if (!lastPaid || daysDiff(lastPaid, gameDate) >= 30) {
@@ -468,7 +472,7 @@ router.get("/finances/sponsor-active", async (req, res) => {
         teamId:      team.id,
         type:        "income",
         amount:      monthly,
-        description: `Monthly sponsorship: ${contract.sponsor}`,
+        description: `Monthly sponsorship: ${contract.sponsor}${promotionsNote(promoBonus)}`,
         category:    "sponsorship",
         date:        gameDate,
       });
@@ -535,7 +539,8 @@ router.post("/finances/sponsor-offers/:id/accept", async (req, res) => {
   const endDate         = new Date(gameDate);
   endDate.setDate(endDate.getDate() + contractLength * 90);
   const contractEndDate = endDate.toISOString().split("T")[0];
-  const signingBonus    = Number(deal.signingBonus ?? 0);
+  const promoBonus      = promotionsMultiplier(await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id }));
+  const signingBonus    = Math.round(Number(deal.signingBonus ?? 0) * promoBonus);
 
   await db.update(promoDealsTable).set({
     isAccepted:       true,
@@ -551,7 +556,7 @@ router.post("/finances/sponsor-offers/:id/accept", async (req, res) => {
       teamId:      team.id,
       type:        "income",
       amount:      signingBonus,
-      description: `Signing bonus: ${deal.sponsor}`,
+      description: `Signing bonus: ${deal.sponsor}${promotionsNote(promoBonus)}`,
       category:    "sponsorship",
       date:        gameDate,
     });

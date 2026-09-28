@@ -48,6 +48,7 @@ import {
 } from "../utils/poolClubFinances.js";
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
+import { promotionsMultiplier } from "../utils/staffBonuses.js";
 
 
 const router = Router();
@@ -528,7 +529,9 @@ router.post("/calendar/advance", async (req, res) => {
         .where(eq(teamsTable.id, team.id));
     }
 
-    const sponsorIncome = sponsorWeeklyIncome(sponsorRep);
+    // P-09: a promotions manager adds up to 18% while employed.
+    const promoBonus    = promotionsMultiplier(teamStaff);
+    const sponsorIncome = Math.round(sponsorWeeklyIncome(sponsorRep) * promoBonus);
     const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages;
 
     await db.update(teamsTable)
@@ -548,7 +551,9 @@ router.post("/calendar/advance", async (req, res) => {
         teamId:      team.id,
         type:        "income",
         amount:      sponsorIncome,
-        description: "Weekly sponsor & commercial income",
+        description: promoBonus > 1
+          ? `Weekly sponsor & commercial income (+${Math.round((promoBonus - 1) * 100)}% Promotions Manager bonus)`
+          : "Weekly sponsor & commercial income",
         category:    "sponsorship",
         date:        nextDate,
       },

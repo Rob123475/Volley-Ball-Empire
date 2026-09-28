@@ -55,6 +55,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
+import { normaliseRole, SCOUTING_ROLE_KEYS } from "@shared/staff-roles";
 
 const MAX_STAFF = 8;
 
@@ -170,7 +171,8 @@ function StaffMarketCard({
   canHire: boolean;
   hasCoach: boolean;
 }) {
-  const RoleIcon = ROLE_ICONS[member.role] ?? Star;
+  const roleKey = normaliseRole(member.role) ?? "";
+  const RoleIcon = ROLE_ICONS[roleKey] ?? Star;
   const revealed = member.isScoutRevealed || isOwned;
 
   // V2 roles store skill numbers in a nested *Attributes key; legacy roles store them flat.
@@ -204,9 +206,9 @@ function StaffMarketCard({
 
         {/* Role badge */}
         <div className="absolute top-2 left-2 flex gap-1.5">
-          <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[member.role] ?? "bg-slate-500")}>
+          <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[roleKey] ?? "bg-slate-500")}>
             <RoleIcon className="h-2.5 w-2.5" />
-            {ROLE_LABELS[member.role] ?? member.role}
+            {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
           </Badge>
           {isOwned && (
             <Badge className="bg-primary/80 text-white text-[10px] shadow">On Staff</Badge>
@@ -354,7 +356,7 @@ function StaffMarketCard({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Hire {member.name}?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will hire {member.name} as your {ROLE_LABELS[member.role] ?? member.role}.
+                    This will hire {member.name} as your {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}.
                     Monthly salary: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(member.salary)}.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -400,10 +402,7 @@ export default function StaffMarket() {
   const canHire = myStaff.length < MAX_STAFF;
 
   // Roles are stored as Title Case in the DB ("Head Coach", "Assistant Coach", "Scout").
-  // Normalise before comparing so the check is robust to casing/spacing differences.
-  const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
-  const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
-  const scoutingUnlocked = myStaff.some(s => SCOUTING_ROLES.has(normaliseRole(s.role)));
+  const scoutingUnlocked = myStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
 
   const handleHire = (staffId: number) => {
     hireMutation.mutate({ data: { staffId } }, {

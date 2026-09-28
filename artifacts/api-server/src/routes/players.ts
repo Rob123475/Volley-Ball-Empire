@@ -10,6 +10,7 @@ import { playersTable, teamsTable, staffTable, trophiesTable, financeTransaction
 import {
   CONTINENT_KEYS, CONTINENT_LABEL, RESERVE_NATIONS, PLAYERS_PER_NATION,
   coreNationsFor, isCoreNation, isReserveNation, isContinentKey, type ContinentKey,
+  normaliseRole, SCOUTING_ROLE_KEYS,
 } from "@workspace/db";
 
 // The youngest a senior may be. Not in continents.ts because it is a gameplay
@@ -551,9 +552,7 @@ router.post("/players/:id/scout", async (req, res) => {
   if (!team)  { res.status(404).json({ error: "No team found" }); return; }
 
   const allStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
-  const scouts   = allStaff.filter(s =>
-    ["head_coach", "assistant_coach", "scout"].includes(s.role)
-  );
+  const scouts   = allStaff.filter(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
 
   if (scouts.length === 0) {
     res.status(400).json({ error: "No Head Coach or Assistant Coach on staff. Hire one to assess player potential." });

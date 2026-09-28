@@ -149,6 +149,10 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/continents": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "continents.ts",
       ),
+      // P-09: staff roles, the same way and for the same reason.
+      "@shared/staff-roles": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "staff-roles.ts",
+      ),
     },
     dedupe: ["react", "react-dom"],
   },

@@ -3,6 +3,9 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
+import { normaliseRole } from "@workspace/db";
+import { INJURY_CARE_ROLE_KEYS } from "../utils/condition.js";
+import { trainingStaffBonuses } from "../utils/staffBonuses.js";
 import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession } from "@workspace/db";
@@ -13,11 +16,9 @@ const serializeSession = (s: TrainingSession) => ({ ...s, durationHours: Number(
 const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
 
-const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
-
 async function getBestMedicalSkill(teamId: number): Promise<number> {
   const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
-  const medics = staff.filter(s => MEDICAL_ROLES.includes(s.role));
+  const medics = staff.filter(s => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!));
   return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
 }
 
@@ -303,7 +304,9 @@ const applyFatigueAndStats = async (
       }
     }
   } else {
-    updates.fatigue = Math.min(100, player.fatigue + Math.max(0, program.fatigueEffect - newRoleFatigueReduction));
+    // Whole points: the fitness trainer's reduction is fractional (P-09), and
+    // fatigue has only ever been stored and shown as an integer.
+    updates.fatigue = Math.min(100, player.fatigue + Math.max(0, Math.round(program.fatigueEffect - newRoleFatigueReduction)));
     if (program.fitnessBonus > 0) {
       updates.fitness = Math.min(100, ((player.fitness as number) ?? 100) + program.fitnessBonus);
     }
@@ -418,13 +421,10 @@ router.post("/training/:id/complete", async (req, res) => {
   const nutritionLevel      = facilityLevels.nutrition_centre  ?? 1;
 
   const teamStaffAll = await loadStaff(await careerSaveIdForTeamOrThrow(session.teamId), { teamId: session.teamId });
-  const headCoachStaff = teamStaffAll.find(s => s.role === "head_coach");
-  const assistantCoachStaff = teamStaffAll.find(s => s.role === "assistant_coach");
-  const fitnessTrainerStaff = teamStaffAll.find(s => s.role === "fitness_trainer");
-  const hcBonus  = headCoachStaff      ? 1.0 + Math.max(0, headCoachStaff.skillLevel      - 50) * (0.15 / 45) : 1.0;
-  const acBonus  = assistantCoachStaff ? 1.0 + Math.max(0, assistantCoachStaff.skillLevel  - 50) * (0.08 / 45) : 1.0;
-  const newRoleXpBonus = hcBonus * acBonus;
-  const fitnessTrainerFatigueRed = fitnessTrainerStaff ? Math.max(0, fitnessTrainerStaff.skillLevel - 50) * (5 / 45) : 0;
+  // P-09: head coach, assistant coach and fitness trainer (utils/staffBonuses.ts).
+  const staffBonuses = trainingStaffBonuses(teamStaffAll);
+  const newRoleXpBonus = staffBonuses.xpMultiplier;
+  const fitnessTrainerFatigueRed = staffBonuses.fatigueReduction;
   const nutritionFatigueRed      = ((nutritionLevel - 1) * (3 / 9));
   const newRoleFatigueReduction  = fitnessTrainerFatigueRed + nutritionFatigueRed;
 
@@ -452,6 +452,9 @@ router.post("/training/:id/complete", async (req, res) => {
       philosophyMultiplier,
       programName,
       potentialMultiplier: result.potentialMultiplier,
+      // What the hired staff added to this session, so the harness (and any
+      // screen that wants it) can see the bonus was applied, not just promised.
+      staffBonuses,
     });
     return;
   }

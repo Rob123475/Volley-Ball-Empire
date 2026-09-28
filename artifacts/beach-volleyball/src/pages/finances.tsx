@@ -59,6 +59,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { useState } from "react";
+import { normaliseRole } from "@shared/staff-roles";
 
 function formatCompact(val: number): string {
   const abs = Math.abs(val);
@@ -861,13 +862,14 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
 
 /* ── Staff Wage Bill Card ───────────────────────────────────── */
 
+// Keyed by normalised role (P-09); the rows store "Head Coach", "Doctor", ...
 const ROLE_ICON: Record<string, string> = {
-  Coach:           "🧠",
-  "Fitness Trainer": "💪",
-  Physiotherapist: "🩺",
-  Scout:           "🔭",
-  Doctor:          "👩‍⚕️",
-  Psychologist:    "🧘",
+  head_coach:      "🧠",
+  assistant_coach: "🧠",
+  fitness_trainer: "💪",
+  physiotherapist: "🩺",
+  scout:           "🔭",
+  doctor:          "👩‍⚕️",
 };
 
 /* ── Sponsor Reputation Card ──────────────────────────────────── */
@@ -1060,7 +1062,7 @@ function StaffWageBillCard({ data, isLoading }: { data: StaffWageBill | undefine
                       .map((s, i) => (
                         <tr key={s.id} className={cn("border-b last:border-0", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
                           <td className="px-3 py-2 font-medium">
-                            <span className="mr-1.5">{ROLE_ICON[s.role] ?? "👤"}</span>
+                            <span className="mr-1.5">{ROLE_ICON[normaliseRole(s.role) ?? ""] ?? "👤"}</span>
                             {s.name}
                           </td>
                           <td className="px-3 py-2 text-muted-foreground hidden sm:table-cell">{s.role}</td>

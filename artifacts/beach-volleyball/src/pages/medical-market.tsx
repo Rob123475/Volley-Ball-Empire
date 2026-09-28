@@ -47,58 +47,41 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
+import { normaliseRole } from "@shared/staff-roles";
 
 const MAX_MEDICAL_STAFF = 4;
 
 const ROLE_LABELS: Record<string, string> = {
   all:                "All Roles",
-  team_doctor:        "Team Doctor",
-  "Doctor":           "Team Doctor",
+  doctor:             "Team Doctor",
   medical_specialist: "Medical Specialist",
-  "Medical Specialist": "Medical Specialist",
   physiotherapist:    "Physiotherapist",
-  "Physiotherapist":  "Physiotherapist",
   nutritionist:       "Nutritionist",
-  "Nutritionist":     "Nutritionist",
   sports_scientist:   "Sports Scientist",
-  "Sports Scientist": "Sports Scientist",
   massage_therapist:  "Massage Therapist",
-  "Massage Therapist": "Massage Therapist",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  team_doctor:          "bg-red-500",
-  "Doctor":             "bg-red-500",
+  doctor:               "bg-red-500",
   medical_specialist:   "bg-blue-600",
-  "Medical Specialist": "bg-blue-600",
   physiotherapist:      "bg-teal-500",
-  "Physiotherapist":    "bg-teal-500",
   nutritionist:         "bg-green-500",
-  "Nutritionist":       "bg-green-500",
   sports_scientist:     "bg-indigo-500",
-  "Sports Scientist":   "bg-indigo-500",
   massage_therapist:    "bg-pink-500",
-  "Massage Therapist":  "bg-pink-500",
 };
 
 type IconFC = React.FC<{ className?: string }>;
 
 const ROLE_ICONS: Record<string, IconFC> = {
-  team_doctor:          Stethoscope as IconFC,
-  "Doctor":             Stethoscope as IconFC,
+  doctor:               Stethoscope as IconFC,
   medical_specialist:   Microscope as IconFC,
-  "Medical Specialist": Microscope as IconFC,
   physiotherapist:      Activity as IconFC,
-  "Physiotherapist":    Activity as IconFC,
   nutritionist:         Salad as IconFC,
-  "Nutritionist":       Salad as IconFC,
   sports_scientist:     FlaskConical as IconFC,
-  "Sports Scientist":   FlaskConical as IconFC,
   massage_therapist:    Hand as IconFC,
-  "Massage Therapist":  Hand as IconFC,
 };
 
-const ROLE_FILTERS = ["all", "team_doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "massage_therapist"] as const;
+const ROLE_FILTERS = ["all", "doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "massage_therapist"] as const;
 
 function starTier(rating: number): { stars: number; color: string; label: string } {
   if (rating >= 90) return { stars: 5, color: "text-yellow-400",  label: "Elite"     };
@@ -162,7 +145,8 @@ function MedicalMarketCard({
   isScouting: boolean;
   onScout: (id: number) => void;
 }) {
-  const RoleIcon = ROLE_ICONS[member.role] ?? Stethoscope;
+  const roleKey = normaliseRole(member.role) ?? "";
+  const RoleIcon = ROLE_ICONS[roleKey] ?? Stethoscope;
   const revealed = member.isScoutRevealed || isOwned;
 
   function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
@@ -199,9 +183,9 @@ function MedicalMarketCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
 
         <div className="absolute top-2 left-2 flex gap-1.5">
-          <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[member.role] ?? "bg-slate-500")}>
+          <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[roleKey] ?? "bg-slate-500")}>
             <RoleIcon className="h-2.5 w-2.5" />
-            {ROLE_LABELS[member.role] ?? member.role}
+            {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
           </Badge>
           {isOwned && (
             <Badge className="bg-primary/80 text-white text-[10px] shadow">On Staff</Badge>
@@ -275,7 +259,7 @@ function MedicalMarketCard({
               <AlertDialogHeader>
                 <AlertDialogTitle>Hire {member.name}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will add {member.name} to your Medical Department as {ROLE_LABELS[member.role] ?? member.role}.
+                  This will add {member.name} to your Medical Department as {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}.
                   Monthly salary: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(member.salary)}.
                 </AlertDialogDescription>
               </AlertDialogHeader>

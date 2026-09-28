@@ -61,6 +61,7 @@ import {
   X,
   Users,
 } from "lucide-react";
+import { normaliseRole, SCOUTING_ROLE_KEYS } from "@shared/staff-roles";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -458,9 +459,7 @@ export default function ContinentalScouting() {
 
   // Roles stored as Title Case — normalise before comparing.
   // Head Coach, Assistant Coach, and Scout all unlock scouting.
-  const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
-  const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
-  const scoutingUnlocked = (staff ?? []).some((s: any) => SCOUTING_ROLES.has(normaliseRole(s.role)));
+  const scoutingUnlocked = (staff ?? []).some((s: any) => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
   const hasScout = scoutingUnlocked;
 
   function handleSendScout() {

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
+import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 import { getGameDate } from "../utils/gameDate.js";
@@ -179,26 +180,16 @@ router.get("/staff/market", async (req, res) => {
 
   // Massage Therapist moved to the Medical Market — no longer listed here.
   // (auto-refilled market rows use snake_case roles, real seeded rows use
-  // Title Case — exclude both so this actually holds regardless of source.)
-  available = available.filter(s => s.role !== "Massage Therapist" && s.role !== "massage_therapist");
+  // Title Case — the shared normaliser covers both.)
+  available = available.filter(s => !isRole(s.role, "massage_therapist"));
 
   await backfillStaffAttributes(available);
 
-  // Frontend sends snake_case filter keys; DB stores Title Case role names
-  const ROLE_FILTER_MAP: Record<string, string> = {
-    head_coach:           "Head Coach",
-    assistant_coach:      "Assistant Coach",
-    fitness_trainer:      "Fitness Trainer",
-    strength_conditioner: "Strength Coach",
-    massage_therapist:    "Massage Therapist",
-    promotions_manager:   "Promotional Manager",
-    scout:                "Scout",
-  };
-
+  // Frontend sends snake_case filter keys; rows hold either spelling.
   let filtered = available;
   if (role && role !== "all") {
-    const dbRole = ROLE_FILTER_MAP[role] ?? role;
-    filtered = filtered.filter(s => s.role === dbRole);
+    const key = normaliseRole(role);
+    filtered = filtered.filter(s => key !== null && normaliseRole(s.role) === key);
   }
   if (search) {
     const q = search.toLowerCase();
@@ -325,9 +316,7 @@ router.post("/staff/:id/scout", async (req, res) => {
 
   const teamStaff = await loadStaff(cid, { teamId: team.id });
   // Roles are stored as Title Case ("Head Coach", "Scout") — normalise before comparing.
-  const normaliseRole = (r: string) => (r ?? "").toLowerCase().replace(/[\s-]+/g, "_");
-  const SCOUTING_ROLES = new Set(["head_coach", "assistant_coach", "scout"]);
-  const hasCoach = teamStaff.some(s => SCOUTING_ROLES.has(normaliseRole(s.role)));
+  const hasCoach = teamStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
 
   if (!hasCoach) {
     res.status(400).json({ error: "You need a Head Coach, Assistant Coach, or Scout to scout staff." });

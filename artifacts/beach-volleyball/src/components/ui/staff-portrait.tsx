@@ -15,6 +15,7 @@
 import { useRef, useState } from "react";
 import { resolveStaffImageUrl } from "@/data/image-registry";
 import { useLightbox } from "@/components/image-lightbox";
+import { isMedicalRole, normaliseRole } from "@shared/staff-roles";
 
 // ── Role colours ──────────────────────────────────────────────────────────────
 
@@ -32,8 +33,11 @@ const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
 
 const DEFAULT_COLOR = { bg: "#1c1917", text: "#d6d3d1" };
 
+/** Keyed by normalised role (P-09): the rows store "Head Coach", not "head_coach". */
 function roleColor(role?: string | null): { bg: string; text: string } {
-  return (role ? ROLE_COLORS[role] : undefined) ?? DEFAULT_COLOR;
+  return ROLE_COLORS[normaliseRole(role) ?? ""]
+    ?? (isMedicalRole(role) ? ROLE_COLORS.medical : undefined)
+    ?? DEFAULT_COLOR;
 }
 
 // ── Initials helper ───────────────────────────────────────────────────────────

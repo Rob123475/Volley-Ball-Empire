@@ -58,25 +58,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
+import { isRole, normaliseRole } from "@shared/staff-roles";
 
 const MAX_STAFF = 4;
 
-type StaffRole =
-  | "head_coach"
-  | "assistant_coach"
-  | "fitness_trainer"
-  | "strength_conditioner"
-  | "massage_therapist"
-  | "promotions_manager"
-  | "scout";
-
+// P-09: every map below is keyed by the NORMALISED role and looked up with
+// normaliseRole(member.role). The rows store "Head Coach"; looked up as stored,
+// none of these ever matched and every card fell back to its defaults.
+// Labels are the names the player already sees on the cards.
 const ROLE_LABELS: Record<string, string> = {
   head_coach:           "Head Coach",
   assistant_coach:      "Assistant Coach",
   fitness_trainer:      "Fitness Trainer",
-  strength_conditioner: "Strength Conditioner",
+  strength_conditioner: "Strength Coach",
   massage_therapist:    "Massage Therapist",
-  promotions_manager:   "Promotions Manager",
+  promotions_manager:   "Promotional Manager",
   scout:                "Scout",
 };
 
@@ -171,7 +167,8 @@ function StaffCard({
 }) {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const RoleIcon = ROLE_ICONS[member.role] ?? Star;
+  const roleKey = normaliseRole(member.role) ?? "";
+  const RoleIcon = ROLE_ICONS[roleKey] ?? Star;
   const { calendar } = useCalendar();
 
   // V2 roles store skill numbers inside a nested *Attributes key (coachingAttributes,
@@ -264,9 +261,9 @@ function StaffCard({
 
         {/* Role badge */}
         <div className="absolute top-2 left-2">
-          <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[member.role] ?? "bg-slate-500")}>
+          <Badge className={cn("text-white text-[10px] gap-1 shadow", ROLE_COLORS[roleKey] ?? "bg-slate-500")}>
             <RoleIcon className="h-2.5 w-2.5" />
-            {ROLE_LABELS[member.role] ?? member.role}
+            {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
           </Badge>
         </div>
 
@@ -387,7 +384,7 @@ function StaffCard({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Role</span>
-                  <span className="font-semibold">{ROLE_LABELS[member.role] ?? member.role}</span>
+                  <span className="font-semibold">{ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Monthly salary</span>
@@ -487,7 +484,7 @@ function StaffCard({
         )}
 
         {/* Scouting Rating — scouts only */}
-        {member.scoutingRating != null && ["scout", "scouting", "talent_scout"].includes(member.role?.toLowerCase()) && (() => {
+        {member.scoutingRating != null && isRole(member.role, "scout") && (() => {
           const r = member.scoutingRating as number;
           const { label, color } = r >= 86 ? { label: "Elite Scout",  color: "text-amber-400"  } :
                                    r >= 71 ? { label: "Great Scout",  color: "text-orange-400" } :
@@ -555,7 +552,7 @@ function EmptySlot({ slotNumber }: { slotNumber: number }) {
 }
 
 function BonusPanel({ staff }: { staff: any[] }) {
-  const roleSet = new Set(staff.map(s => s.role));
+  const roleSet = new Set<string | null>(staff.map(s => normaliseRole(s.role)));
   const activeBonuses = Object.entries(BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role));
   const missingBonuses = Object.entries(BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role));
 

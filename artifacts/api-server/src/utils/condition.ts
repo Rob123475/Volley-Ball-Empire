@@ -34,7 +34,7 @@
  *              three-player squad with two out forfeits: 3% base risk a match;
  *              Minor 1 week (65%), Major 3 weeks (30%), Unavailable 6 weeks (5%).
  */
-import { db, facilitiesTable } from "@workspace/db";
+import { db, facilitiesTable, normaliseRole, type StaffRoleKey } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { sideRating, type RatedPlayer } from "./matchEngine.js";
 import { MAX_STARTERS } from "./squadRules.js";
@@ -152,7 +152,13 @@ export const REST_RECOVERY = {
   injured: { fitness: 1, fatigue: 3 },
 } as const;
 
-const MEDICAL_ROLES = ["fitness_trainer", "strength_conditioner", "massage_therapist", "physio", "physiotherapist"];
+/**
+ * Staff whose skill counts as "the best medic" for injury recovery. Compared by
+ * normalised key (P-09): the rows store "Fitness Trainer", not "fitness_trainer".
+ */
+export const INJURY_CARE_ROLE_KEYS: ReadonlySet<StaffRoleKey> = new Set([
+  "fitness_trainer", "strength_conditioner", "massage_therapist", "physiotherapist",
+]);
 
 /**
  * A week of injury recovery, run every 7 game days by the calendar. The best
@@ -165,7 +171,7 @@ export async function applyWeeklyInjuryRecovery(careerSaveId: number, teamId: nu
     loadStaff(careerSaveId, { teamId }),
     db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, teamId)),
   ]);
-  const medics = staff.filter((s) => MEDICAL_ROLES.includes(s.role));
+  const medics = staff.filter((s) => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!));
   const medicSkill = medics.length > 0 ? Math.max(...medics.map((s) => s.skillLevel)) : 0;
   const medCentreLevel = facilities.find((f) => f.type === "medical_centre")?.level ?? 1;
 

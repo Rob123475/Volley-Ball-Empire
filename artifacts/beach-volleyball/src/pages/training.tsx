@@ -60,6 +60,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
+import { normaliseRole } from "@shared/staff-roles";
+
+/** Staff who can take a training session. Compared by normalised role (P-09). */
+const SESSION_COACH_ROLES = new Set<string>(["head_coach", "assistant_coach", "strength_conditioner"]);
 
 // ── Training Programs data ────────────────────────────────────────────────────
 
@@ -564,7 +568,7 @@ function TrainingForm({
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {staff?.filter(s => ["head_coach", "assistant_coach", "strength_coach"].includes(s.role)).map(s => (
+                {staff?.filter(s => SESSION_COACH_ROLES.has(normaliseRole(s.role) ?? "")).map(s => (
                   <SelectItem key={s.id} value={s.id.toString()}>
                     {s.name} · OVR {s.overallRating}
                   </SelectItem>
