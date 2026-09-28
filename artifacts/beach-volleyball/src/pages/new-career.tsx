@@ -6,7 +6,8 @@ import {
   type ContinentKey,
 } from "@shared/continents";
 import { useState, useMemo } from "react";
-import { useLocation } from "wouter";
+import { Redirect, useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetCurrentAuthUser,
   useGetMyTeam,
@@ -180,6 +181,7 @@ function StepBar({ current }: { current: number }) {
 
 export default function NewCareer() {
   const [, navigate]   = useLocation();
+  const queryClient    = useQueryClient();
   const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
   const teamQuery = useGetMyTeam({
     query: { queryKey: getGetMyTeamQueryKey(), enabled: !!user, retry: false },
@@ -266,7 +268,14 @@ export default function NewCareer() {
       },
       {
         onSuccess: () => {
-          window.location.href = "/";
+          // P-03: in-app, so the soundtrack plays on into the dashboard. A page
+          // load used to start the next screen on an empty cache; removing the
+          // cached queries does the same. Marking them stale would not: the
+          // cached GET /team is a 404, and AuthGuard reads a 404 that is still
+          // being refetched as "no career" and sends the player back to the
+          // title screen. Removed, it waits for the fresh answer instead.
+          queryClient.removeQueries();
+          navigate("/");
         },
       },
     );
@@ -274,7 +283,7 @@ export default function NewCareer() {
 
   const handleCancel = () => {
     sessionStorage.removeItem("bvp-title-dismissed");
-    window.location.href = "/";
+    navigate("/");
   };
 
   if (authLoading || (!!user && teamLoading)) {
@@ -286,8 +295,7 @@ export default function NewCareer() {
   }
 
   if (!user) {
-    window.location.href = "/login";
-    return null;
+    return <Redirect to="/login" replace />;
   }
 
   // The slot check failed, so we cannot tell whether a career is already
@@ -314,7 +322,7 @@ export default function NewCareer() {
             </button>
             <button
               type="button"
-              onClick={() => { window.location.href = "/"; }}
+              onClick={() => navigate("/")}
               className="w-full rounded-xl border border-white/10 py-3 text-sm font-bold text-white/60 hover:text-white transition-all"
             >
               Back to Title
@@ -341,7 +349,7 @@ export default function NewCareer() {
           <div className="space-y-2">
             <button
               type="button"
-              onClick={() => { window.location.href = "/"; }}
+              onClick={() => navigate("/")}
               className="w-full rounded-xl bg-secondary hover:bg-secondary/90 py-3 text-sm font-black text-white transition-all shadow-[0_0_20px_rgba(244,162,97,0.3)]"
             >
               Continue Existing Career

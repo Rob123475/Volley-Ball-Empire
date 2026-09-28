@@ -508,7 +508,7 @@ try {
   const guard = fs.readFileSync(
     path.join(REPO, "artifacts/beach-volleyball/src/components/layout/auth-guard.tsx"), "utf8");
   check("the game comes back to the job market rather than offering a new career",
-    /seekingClub/.test(guard) && /href = "\/job-market"/.test(guard)
+    /seekingClub/.test(guard) && /navigate\("\/job-market"/.test(guard)
       && /hasTeam \|\| seekingClub \? "CONTINUE"/.test(guard),
     "auth-guard asks the job market before it decides a career has ended");
 

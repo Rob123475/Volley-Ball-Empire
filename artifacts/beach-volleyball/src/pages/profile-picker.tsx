@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, User, Plus, Play, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,14 +19,20 @@ import { MusicBar } from "@/components/music/music-bar";
 
 type Profile = { id: string; name: string; profileImage: string | null };
 
+/**
+ * Where to go once a profile is chosen: a router path ("/", "/team"), never an
+ * absolute URL, and never back to the picker itself.
+ */
 function getReturnTo(): string {
   const params = new URLSearchParams(window.location.search);
   const returnTo = params.get("returnTo");
-  return returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
+  const safe = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
+  return safe.startsWith("/login") ? "/" : safe;
 }
 
 export default function ProfilePicker() {
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
 
@@ -50,8 +57,11 @@ export default function ProfilePicker() {
     },
     onMutate: () => setActionError(null),
     onSuccess: () => {
+      // P-03: an in-app navigation, not a page load, so the soundtrack plays on.
+      // The page load used to be what threw away the previous profile's data;
+      // clear() does that on its own, and every screen after this refetches.
       queryClient.clear();
-      window.location.href = getReturnTo();
+      navigate(getReturnTo());
     },
     onError: () => setActionError("Could not open that profile. Please try again."),
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   useGetCurrentAuthUser,
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Activity, Loader2, Play } from "lucide-react";
 import CareerManagement from "@/pages/career-management";
 import { careerSlotStatus } from "@/lib/career-slot-status";
+import { useLocation } from "wouter";
 
 
 
@@ -19,6 +20,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const [showTitle, setShowTitle] = useState(
     () => sessionStorage.getItem("bvp-title-dismissed") !== "1"
   );
+  const [, navigate] = useLocation();
   const { data: user, isLoading: authLoading } = useGetCurrentAuthUser();
 
   const teamQuery = useGetMyTeam({
@@ -69,7 +71,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   });
   const seasonYear = currentSeason?.year ?? null;
 
-  const loginUrl = `/login?returnTo=${encodeURIComponent(import.meta.env.BASE_URL)}`;
+  const loginUrl = `/login?returnTo=${encodeURIComponent("/")}`;
 
   const dismissTitle = () => {
     sessionStorage.setItem("bvp-title-dismissed", "1");
@@ -80,20 +82,42 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (isLoading) return;
     if (!user) {
       sessionStorage.setItem("bvp-title-dismissed", "1");
-      window.location.href = loginUrl;
+      navigate(loginUrl);
     } else if (teamFailed) {
       // We could not read the save slot. Retry — do not offer a new career.
       refetchTeam();
     } else if (seekingClub) {
       sessionStorage.setItem("bvp-title-dismissed", "1");
-      window.location.href = "/job-market";
+      navigate("/job-market");
     } else if (!hasTeam) {
       sessionStorage.setItem("bvp-title-dismissed", "1");
-      window.location.href = "/new-career";
+      navigate("/new-career");
     } else {
       dismissTitle();
     }
   };
+
+  // ── Where a dismissed title sends a player who cannot see the game ─────────
+  // P-03: these used to be full page loads made during render. A page load
+  // restarts the soundtrack (and navigating from inside render is not something
+  // React allows anyway), so they run here, after render, as in-app
+  // navigations. "No career" does not need to go anywhere: the title screen is
+  // this component, so it is simply shown again.
+  const redirect: "login" | "job-market" | "title" | null =
+    showTitle || isLoading ? null
+    : !user ? "login"
+    : seekingClub ? "job-market"
+    : needsTeam ? "title"
+    : null;
+  useEffect(() => {
+    if (redirect === "login") navigate(loginUrl, { replace: true });
+    else if (redirect === "job-market") navigate("/job-market", { replace: true });
+    else if (redirect === "title") {
+      sessionStorage.removeItem("bvp-title-dismissed");
+      setShowTitle(true);
+      navigate("/", { replace: true });
+    }
+  }, [redirect, loginUrl, navigate]);
 
   // ── Title screen (shown to everyone on fresh session) ──────────────────────
   if (showTitle) {
@@ -174,24 +198,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // ── Not authenticated — redirect to login ───────────────────────────────────
-  if (!user) {
-    window.location.href = loginUrl;
-    return null;
-  }
-
-  // ── Between clubs — the career carries on at the job market ─────────────────
-  if (seekingClub) {
-    window.location.href = "/job-market";
-    return null;
-  }
-
-  // ── No active career — redirect to title screen ─────────────────────────────
-  if (needsTeam) {
-    sessionStorage.removeItem("bvp-title-dismissed");
-    window.location.href = "/";
-    return null;
-  }
+  // ── Not signed in, between clubs, or no career: the effect above is moving
+  //    the player on. Nothing of the game renders in the meantime. ─────────────
+  if (redirect) return null;
 
   // ── Could not read the save slot — say so, rather than rendering an empty
   //    game or bouncing the player into career creation over a live save. ─────

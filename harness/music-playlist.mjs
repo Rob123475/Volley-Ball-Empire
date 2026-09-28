@@ -116,6 +116,23 @@ check("the provider is mounted inside WouterRouter and wraps the whole Router",
 check("nothing renders the provider inside Shell or a page",
   !/MusicProvider/.test(shell) && !/MusicProvider/.test(picker));
 
+// P-03 (28 Sep 2026): the provider never unmounts on a route change, but a
+// full page load throws the whole document away, <audio> included. The screens
+// before the dashboard moved with `window.location.href = ...`, so the title
+// track started again on the profile picker, on New Career and on the
+// dashboard. They navigate in-app now; this keeps a page load from coming back.
+const preDashboard = {
+  "App.tsx (the 401 redirect to the picker)": app,
+  "auth-guard.tsx": read("artifacts/beach-volleyball/src/components/layout/auth-guard.tsx"),
+  "profile-picker.tsx": picker,
+  "new-career.tsx": read("artifacts/beach-volleyball/src/pages/new-career.tsx"),
+};
+const reloads = Object.entries(preDashboard)
+  .filter(([, src]) => /window\.location(\.href)?\s*=[^=]/.test(stripComments(src)))
+  .map(([name]) => name);
+check("no screen before the dashboard reloads the window (it restarts the music)",
+  reloads.length === 0, reloads.length ? `page load in: ${reloads.join(", ")}` : `${Object.keys(preDashboard).length} files, all in-app`);
+
 check("the audio element is created once, not rendered as JSX",
   /document\.createElement\("audio"\)/.test(provider) && !/<audio[\s/>]/.test(stripComments(provider)));
 

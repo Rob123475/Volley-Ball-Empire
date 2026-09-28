@@ -7,6 +7,7 @@ import { LightboxProvider } from "@/components/image-lightbox";
 import { AuthGuard } from "@/components/layout/auth-guard";
 import { Shell } from "@/components/layout/shell";
 import { MusicProvider } from "@/components/music/music-provider";
+import { appNavigate, currentRouterPath } from "@/lib/app-navigate";
 
 // Pages
 import Dashboard        from "@/pages/dashboard";
@@ -81,8 +82,17 @@ function isUnauthorized(error: unknown): boolean {
   return (error as { status?: number } | null)?.status === 401;
 }
 
+/**
+ * P-03: in-app, not a page load. With no profile chosen, GET /auth/user
+ * answers 401 on the very first screen, so this ran on every launch and
+ * restarted the soundtrack before the player had pressed anything. Already on
+ * the picker: stay there — every query it makes would otherwise send it to
+ * itself again, with itself as the place to come back to.
+ */
 function redirectToLogin() {
-  window.location.href = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
+  const here = currentRouterPath();
+  if (here.startsWith("/login")) return;
+  appNavigate(`/login?returnTo=${encodeURIComponent(here)}`);
 }
 
 /**
