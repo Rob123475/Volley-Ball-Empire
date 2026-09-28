@@ -66,6 +66,16 @@ console.log("\n0. ONE NORMALISER");
   const d = new DatabaseSync(SHIPPED, { readOnly: true });
   const stored = d.prepare("SELECT DISTINCT role FROM staff ORDER BY role").all().map((r) => r.role);
   d.close();
+  // P-08: the staff renames of 28 Sep swapped names between cards. No two of
+  // the starter staff may share a name - "Dr." is a title, not a different name.
+  {
+    const d2 = new DatabaseSync(SHIPPED, { readOnly: true });
+    const names = d2.prepare("SELECT name FROM staff").all().map((r) => r.name.replace(/^Dr\.\s+/, "").trim().toLowerCase());
+    d2.close();
+    const dupes = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
+    check("no two starter staff share a name, ignoring a leading \"Dr.\" (P-08)", names.length === 120 && dupes.length === 0,
+      dupes.length ? `duplicates: ${dupes.join(", ")}` : `${names.length} staff, all distinct`);
+  }
   const unmapped = stored.filter((r) => roles.normaliseRole(r) === null);
   check("every role the starter data stores normalises to a key", stored.length === 12 && unmapped.length === 0,
     `${stored.length} roles${unmapped.length ? `; unmapped: ${unmapped.join(", ")}` : ""}`);

@@ -26,14 +26,14 @@ const STAFF_FITNESS_TRAINERS = [
 
 const STAFF_ASSISTANT_COACHES = [
   { id: "assistant_coach_01", name: "Luca Bardi",       specialty: "Offense Strategy",           stars: 4.0, experience:  9, coachingBonus: 14, salary: 13000, nationality: "Australia",  age: 38, image: "images/staff/staff_assistant_coach_01.webp" },
-  { id: "assistant_coach_02", name: "Marcos Silva",      specialty: "Player Development",          stars: 2.5, experience: 17, coachingBonus:  7, salary:  8500, nationality: "Brazil",     age: 46, image: "images/staff/staff_assistant_coach_02.webp" },
-  { id: "assistant_coach_03", name: "Sofia Martinez",    specialty: "Defensive Strategy",          stars: 2.5, experience:  8, coachingBonus:  6, salary:  7500, nationality: "Spain",      age: 34, image: "images/staff/staff_assistant_coach_03.webp" },
+  { id: "assistant_coach_02", name: "Grace Lim",         specialty: "Player Development",          stars: 2.5, experience: 17, coachingBonus:  7, salary:  8500, nationality: "Singapore",  age: 46, image: "images/staff/staff_assistant_coach_02.webp" },
+  { id: "assistant_coach_03", name: "Kwame Adu",         specialty: "Defensive Strategy",          stars: 2.5, experience:  8, coachingBonus:  6, salary:  7500, nationality: "Ghana",      age: 34, image: "images/staff/staff_assistant_coach_03.webp" },
   { id: "assistant_coach_04", name: "Emma Watson",       specialty: "Defensive Strategy",          stars: 3.0, experience: 14, coachingBonus:  9, salary:  9500, nationality: "Australia",  age: 42, image: "images/staff/staff_assistant_coach_04.webp" },
   { id: "assistant_coach_05", name: "Anouk Van Dijk",    specialty: "All-Rounder Strategy",        stars: 2.5, experience: 15, coachingBonus:  7, salary:  8000, nationality: "Netherlands",age: 47, image: "images/staff/staff_assistant_coach_05.webp" },
   { id: "assistant_coach_06", name: "Jessica De Groot",  specialty: "Setting & Game Analysis",     stars: 4.5, experience: 11, coachingBonus: 16, salary: 14000, nationality: "Australia",  age: 38, image: "images/staff/staff_assistant_coach_06.webp" },
   { id: "assistant_coach_07", name: "Isabella Ricci",    specialty: "Defense & Court Positioning", stars: 4.5, experience:  8, coachingBonus: 15, salary: 12500, nationality: "Italy",      age: 34, image: "images/staff/staff_assistant_coach_07.webp" },
-  { id: "assistant_coach_08", name: "Kwame Adu",         specialty: "Strength & Conditioning",     stars: 4.5, experience: 14, coachingBonus: 17, salary: 15000, nationality: "Ghana",      age: 40, image: "images/staff/staff_assistant_coach_08.webp" },
-  { id: "assistant_coach_09", name: "Mei-Ling Tan",      specialty: "Technical Skills & Serve",    stars: 4.5, experience:  7, coachingBonus: 15, salary: 12000, nationality: "Singapore",  age: 31, image: "images/staff/staff_assistant_coach_09.webp" },
+  { id: "assistant_coach_08", name: "Carmen Romero",     specialty: "Strength & Conditioning",     stars: 4.5, experience: 14, coachingBonus: 17, salary: 15000, nationality: "Spain",      age: 40, image: "images/staff/staff_assistant_coach_08.webp" },
+  { id: "assistant_coach_09", name: "Marcos Silva",      specialty: "Technical Skills & Serve",    stars: 4.5, experience:  7, coachingBonus: 15, salary: 12000, nationality: "Brazil",     age: 31, image: "images/staff/staff_assistant_coach_09.webp" },
   { id: "assistant_coach_10", name: "Lukas Schmidt",     specialty: "Tactics & Game Strategy",     stars: 4.5, experience: 12, coachingBonus: 18, salary: 15000, nationality: "Germany",    age: 37, image: "images/staff/staff_assistant_coach_10.webp" },
 ];
 

@@ -51,7 +51,7 @@ const STAFF_PHYSIOTHERAPISTS = [
 ] as const;
 
 const STAFF_DOCTORS = [
-  { id: "doctor_01", name: "Dr. Alessandro Bianchi", specialty: "Team Doctor", stars: 4, experience: 16, recoveryBonus: 14, salary: 18000, contractYears: 2, nationality: "Italy",         age: 42, morale: 85, fatigue: 12, image: "images/staff/staff_medical_doctor_01.webp" },
+  { id: "doctor_01", name: "Dr. Joseph Falzon",      specialty: "Team Doctor", stars: 4, experience: 16, recoveryBonus: 14, salary: 18000, contractYears: 2, nationality: "Malta",         age: 42, morale: 85, fatigue: 12, image: "images/staff/staff_medical_doctor_01.webp" },
   { id: "doctor_02", name: "Dr. Sofia Petrova",      specialty: "Team Doctor", stars: 4, experience: 12, recoveryBonus: 12, salary: 14000, contractYears: 3, nationality: "Bulgaria",      age: 38, morale: 88, fatigue:  9, image: "images/staff/staff_medical_doctor_02.webp" },
   { id: "doctor_03", name: "Dr. Hiroshi Tanaka",     specialty: "Team Doctor", stars: 4, experience: 25, recoveryBonus: 18, salary: 24000, contractYears: 1, nationality: "Japan",         age: 51, morale: 80, fatigue: 16, image: "images/staff/staff_medical_doctor_03.webp" },
   { id: "doctor_04", name: "Dr. Anna Kowalska",      specialty: "Team Doctor", stars: 4, experience: 20, recoveryBonus: 16, salary: 20000, contractYears: 2, nationality: "Poland",        age: 46, morale: 83, fatigue: 13, image: "images/staff/staff_medical_doctor_04.webp" },
@@ -66,16 +66,16 @@ const STAFF_DOCTORS = [
 // Real overallRating comes straight from skillLevel (matches the actual seeded
 // roster) rather than a derived bonus formula like the other STAFF_* arrays use.
 const STAFF_MASSAGE_THERAPISTS = [
-  { id: "massage_01", name: "Yuki Hashimoto",   specialty: "Sports Massage & Deep Tissue",       skillLevel: 90, salary: 78000, nationality: "Japan",        age: 34, image: "images/staff/massage_therapist/staff-01.webp" },
+  { id: "massage_01", name: "Lena Bauer",       specialty: "Sports Massage & Deep Tissue",       skillLevel: 90, salary: 78000, nationality: "Germany",      age: 34, image: "images/staff/massage_therapist/staff-01.webp" },
   { id: "massage_02", name: "Camille Dupont",   specialty: "Relaxation & Recovery Massage",      skillLevel: 82, salary: 68000, nationality: "France",       age: 28, image: "images/staff/massage_therapist/staff-02.webp" },
   { id: "massage_03", name: "Amira Osman",      specialty: "Thai Sports Massage",                skillLevel: 85, salary: 72000, nationality: "Sudan",        age: 37, image: "images/staff/massage_therapist/staff-03.webp" },
   { id: "massage_04", name: "Nkechi Eze",       specialty: "Trigger Point & Myofascial Release", skillLevel: 87, salary: 75000, nationality: "Nigeria",      age: 31, image: "images/staff/massage_therapist/staff-04.webp" },
-  { id: "massage_05", name: "Lena Bauer",       specialty: "Lymphatic Drainage & Recovery",      skillLevel: 83, salary: 70000, nationality: "Germany",      age: 39, image: "images/staff/massage_therapist/staff-05.webp" },
+  { id: "massage_05", name: "Yuki Hashimoto",   specialty: "Lymphatic Drainage & Recovery",      skillLevel: 83, salary: 70000, nationality: "Japan",        age: 39, image: "images/staff/massage_therapist/staff-05.webp" },
   { id: "massage_06", name: "Maya Patel",       specialty: "Ayurvedic Sports Massage",           skillLevel: 78, salary: 63000, nationality: "India",        age: 26, image: "images/staff/massage_therapist/staff-06.webp" },
   { id: "massage_07", name: "Ingrid Svensson",  specialty: "Cold & Heat Therapy Massage",        skillLevel: 80, salary: 66000, nationality: "Norway",       age: 43, image: "images/staff/massage_therapist/staff-07.webp" },
   { id: "massage_08", name: "Rosa Gutierrez",   specialty: "Pre-Match Activation Massage",       skillLevel: 76, salary: 61000, nationality: "Peru",         age: 33, image: "images/staff/massage_therapist/staff-08.webp" },
-  { id: "massage_09", name: "Ji-Yeon Park",     specialty: "Acupressure & Meridian Therapy",     skillLevel: 81, salary: 67000, nationality: "South Korea",  age: 30, image: "images/staff/massage_therapist/staff-09.webp" },
-  { id: "massage_10", name: "Daniela Ferreira", specialty: "Structural Integration & Fascia",    skillLevel: 73, salary: 58000, nationality: "Brazil",       age: 48, image: "images/staff/massage_therapist/staff-10.webp" },
+  { id: "massage_09", name: "Ryan Mitchell",    specialty: "Acupressure & Meridian Therapy",     skillLevel: 81, salary: 67000, nationality: "Canada",       age: 30, image: "images/staff/massage_therapist/staff-09.webp" },
+  { id: "massage_10", name: "Daniel Ferreira",  specialty: "Structural Integration & Fascia",    skillLevel: 73, salary: 58000, nationality: "Brazil",       age: 48, image: "images/staff/massage_therapist/staff-10.webp" },
 ] as const;
 
 const NATIONALITIES = [

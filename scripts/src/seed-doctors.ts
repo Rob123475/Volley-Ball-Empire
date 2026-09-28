@@ -94,12 +94,12 @@ function attrs(
 
 const DOCTORS = [
   {
-    name: "Dr. Alessandro Bianchi", nationality: "Italy", gender: "Male",
+    name: "Dr. Joseph Falzon", nationality: "Malta", gender: "Male",
     age: 42, stars: 4, experienceYears: 15,
     specialty: "Team Doctor",
     coachSpeciality: "Sports Medicine",
     specialties: ["Sports Medicine", "Injury Diagnosis", "Athlete Health Management"],
-    description: "An experienced Italian team doctor with 15 years on the elite circuit. Dr. Bianchi is known for his rapid and accurate injury diagnosis and comprehensive athlete health programmes.",
+    description: "An experienced Maltese team doctor with 15 years on the elite circuit. Dr. Falzon is known for his rapid and accurate injury diagnosis and comprehensive athlete health programmes.",
     attributes: attrs(15, { injuryDiagnosis: 90, medicalKnowledge: 92 }),
     imageFile: "staff_medical_doctor_01_1783428250581.webp", slot: "staff-01",
   },

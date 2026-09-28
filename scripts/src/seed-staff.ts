@@ -89,7 +89,7 @@ interface StaffDef {
 // ─── HEAD COACHES ────────────────────────────────────────────────────────────
 const HEAD_COACHES: StaffDef[] = [
   {
-    name: "Valentina Greco",
+    name: "Valentino Greco",
     nationality: "Italy",
     age: 49,
     role: "Head Coach",
@@ -105,7 +105,7 @@ const HEAD_COACHES: StaffDef[] = [
     imageFile: "staff_head_coach_01_1783380284480.webp",
   },
   {
-    name: "Mariana Souza",
+    name: "Rafael Souza",
     nationality: "Brazil",
     age: 52,
     role: "Head Coach",
@@ -121,8 +121,8 @@ const HEAD_COACHES: StaffDef[] = [
     imageFile: "staff_head_coach_02_1783380288140.webp",
   },
   {
-    name: "Sun Li",
-    nationality: "China",
+    name: "Stefan Lindqvist",
+    nationality: "Sweden",
     age: 44,
     role: "Head Coach",
     specialty: "Defence & Blocking",
@@ -153,8 +153,8 @@ const HEAD_COACHES: StaffDef[] = [
     imageFile: "staff_head_coach_04_1783380292661.webp",
   },
   {
-    name: "Fatima Al-Rashid",
-    nationality: "Qatar",
+    name: "Li Wei",
+    nationality: "China",
     age: 41,
     role: "Head Coach",
     specialty: "Serve & Receive System",
@@ -233,7 +233,7 @@ const HEAD_COACHES: StaffDef[] = [
     imageFile: "staff_head_coach_09_1783380303547.webp",
   },
   {
-    name: "Zara Williams",
+    name: "Jack Williams",
     nationality: "Australia",
     age: 37,
     role: "Head Coach",
@@ -269,8 +269,8 @@ const ASSISTANT_COACHES: StaffDef[] = [
     imageFile: "staff_assistant_coach_01_1783380044229.webp",
   },
   {
-    name: "Mei-Ling Tan",
-    nationality: "Singapore",
+    name: "Marcos Silva",
+    nationality: "Brazil",
     age: 31,
     role: "Assistant Coach",
     specialty: "Technical Skills & Serve",
@@ -285,8 +285,8 @@ const ASSISTANT_COACHES: StaffDef[] = [
     imageFile: "staff_assistant_coach_02_1783380046835.webp",
   },
   {
-    name: "Kwame Adu",
-    nationality: "Ghana",
+    name: "Carmen Romero",
+    nationality: "Spain",
     age: 40,
     role: "Assistant Coach",
     specialty: "Strength & Conditioning",
@@ -365,8 +365,8 @@ const ASSISTANT_COACHES: StaffDef[] = [
     imageFile: "staff_assistant_coach_07_1783380058059.webp",
   },
   {
-    name: "Sofia Martinez",
-    nationality: "Spain",
+    name: "Kwame Adu",
+    nationality: "Ghana",
     age: 34,
     role: "Assistant Coach",
     specialty: "Defensive Strategy",
@@ -381,8 +381,8 @@ const ASSISTANT_COACHES: StaffDef[] = [
     imageFile: "staff_assistant_coach_08_1783380060168.webp",
   },
   {
-    name: "Marcos Silva",
-    nationality: "Brazil",
+    name: "Grace Lim",
+    nationality: "Singapore",
     age: 46,
     role: "Assistant Coach",
     specialty: "Player Development",
@@ -1321,8 +1321,8 @@ const MEDICAL_SPECIALISTS: StaffDef[] = [
 // ─── MASSAGE THERAPISTS ───────────────────────────────────────────────────────
 const MASSAGE_THERAPISTS: StaffDef[] = [
   {
-    name: "Yuki Hashimoto",
-    nationality: "Japan",
+    name: "Lena Bauer",
+    nationality: "Germany",
     age: 34,
     role: "Massage Therapist",
     specialty: "Sports Massage & Deep Tissue",
@@ -1385,8 +1385,8 @@ const MASSAGE_THERAPISTS: StaffDef[] = [
     imageFile: "staff_massage_therapist_04_1783385642163.webp",
   },
   {
-    name: "Lena Bauer",
-    nationality: "Germany",
+    name: "Yuki Hashimoto",
+    nationality: "Japan",
     age: 39,
     role: "Massage Therapist",
     specialty: "Lymphatic Drainage & Recovery",
@@ -1449,8 +1449,8 @@ const MASSAGE_THERAPISTS: StaffDef[] = [
     imageFile: "staff_massage_therapist_08_1783385542622.webp",
   },
   {
-    name: "Ji-Yeon Park",
-    nationality: "South Korea",
+    name: "Ryan Mitchell",
+    nationality: "Canada",
     age: 30,
     role: "Massage Therapist",
     specialty: "Acupressure & Meridian Therapy",
@@ -1465,7 +1465,7 @@ const MASSAGE_THERAPISTS: StaffDef[] = [
     imageFile: "staff_massage_therapist_09_1783385544706.webp",
   },
   {
-    name: "Daniela Ferreira",
+    name: "Daniel Ferreira",
     nationality: "Brazil",
     age: 48,
     role: "Massage Therapist",
@@ -1485,7 +1485,7 @@ const MASSAGE_THERAPISTS: StaffDef[] = [
 // ─── SCOUTS ───────────────────────────────────────────────────────────────────
 const SCOUTS: StaffDef[] = [
   {
-    name: "Marco Vieira",
+    name: "Ana Vieira",
     nationality: "Brazil",
     age: 45,
     role: "Scout",
@@ -1533,8 +1533,8 @@ const SCOUTS: StaffDef[] = [
     imageFile: "staff_scouts_03_1783386816013.webp",
   },
   {
-    name: "Chioma Obi",
-    nationality: "Nigeria",
+    name: "Kenji Tanaka",
+    nationality: "Japan",
     age: 36,
     role: "Scout",
     specialty: "African Beach Volleyball Talent",
@@ -1549,8 +1549,8 @@ const SCOUTS: StaffDef[] = [
     imageFile: "staff_scouts_04_1783387127598.webp",
   },
   {
-    name: "Sandra Kowalski",
-    nationality: "Poland",
+    name: "Lukas Höfer",
+    nationality: "Austria",
     age: 41,
     role: "Scout",
     specialty: "Video & Digital Scouting",
@@ -1565,8 +1565,8 @@ const SCOUTS: StaffDef[] = [
     imageFile: "staff_scouts_05_1783387138462.webp",
   },
   {
-    name: "Ahmad Khoury",
-    nationality: "Lebanon",
+    name: "Sandra Kowalski",
+    nationality: "Poland",
     age: 44,
     role: "Scout",
     specialty: "Middle East & North Africa Scouting",
@@ -1581,8 +1581,8 @@ const SCOUTS: StaffDef[] = [
     imageFile: "staff_scouts_06_1783387145717.webp",
   },
   {
-    name: "Rachel Thompson",
-    nationality: "Australia",
+    name: "Pete Harrison",
+    nationality: "New Zealand",
     age: 33,
     role: "Scout",
     specialty: "Oceania & Pacific Rim Scouting",
@@ -1597,8 +1597,8 @@ const SCOUTS: StaffDef[] = [
     imageFile: "staff_scouts_07_1783387156727.webp",
   },
   {
-    name: "Emeka Nwosu",
-    nationality: "Ghana",
+    name: "Chioma Obi",
+    nationality: "Nigeria",
     age: 39,
     role: "Scout",
     specialty: "Youth Academy Identification",
@@ -1629,8 +1629,8 @@ const SCOUTS: StaffDef[] = [
     imageFile: "staff_scouts_09_1783387174352.webp",
   },
   {
-    name: "Pete Harrison",
-    nationality: "New Zealand",
+    name: "Rachel Thompson",
+    nationality: "Australia",
     age: 58,
     role: "Scout",
     specialty: "General Talent Assessment",
@@ -1745,8 +1745,8 @@ const PROMOTIONAL_MANAGERS: StaffDef[] = [
     imageFile: "staff_promotional_manager_06_1783386418414.webp",
   },
   {
-    name: "Priya Sharma",
-    nationality: "India",
+    name: "Oliver Bennett",
+    nationality: "United Kingdom",
     age: 33,
     role: "Promotional Manager",
     specialty: "PR & Media Relations",
@@ -1777,8 +1777,8 @@ const PROMOTIONAL_MANAGERS: StaffDef[] = [
     imageFile: "staff_promotional_manager_08_1783386424440.webp",
   },
   {
-    name: "Fiona Walsh",
-    nationality: "Ireland",
+    name: "Henri Fontaine",
+    nationality: "Belgium",
     age: 27,
     role: "Promotional Manager",
     specialty: "Content Creation & Broadcasting",
@@ -1793,8 +1793,8 @@ const PROMOTIONAL_MANAGERS: StaffDef[] = [
     imageFile: "staff_promotional_manager_09_1783386427684.webp",
   },
   {
-    name: "Henri Fontaine",
-    nationality: "Belgium",
+    name: "Fiona Walsh",
+    nationality: "Ireland",
     age: 54,
     role: "Promotional Manager",
     specialty: "Corporate Hospitality & VIP Relations",
@@ -1829,8 +1829,8 @@ const STRENGTH_CONDITIONERS: StaffDef[] = [
     imageFile: "staff_strength_conditioner_01_1783386598159.webp",
   },
   {
-    name: "Elena Marchetti",
-    nationality: "Italy",
+    name: "Sione Taufa",
+    nationality: "New Zealand",
     age: 36,
     role: "Strength Coach",
     specialty: "Functional Strength & Movement",
@@ -1877,8 +1877,8 @@ const STRENGTH_CONDITIONERS: StaffDef[] = [
     imageFile: "staff_strength_conditioner_04_1783386632808.webp",
   },
   {
-    name: "Dmitri Volkov",
-    nationality: "Russia",
+    name: "Elena Marchetti",
+    nationality: "Italy",
     age: 48,
     role: "Strength Coach",
     specialty: "Core Stability & Balance",
@@ -1893,8 +1893,8 @@ const STRENGTH_CONDITIONERS: StaffDef[] = [
     imageFile: "staff_strength_conditioner_05_1783386644672.webp",
   },
   {
-    name: "Thabo Dlamini",
-    nationality: "South Africa",
+    name: "Katya Volkova",
+    nationality: "Russia",
     age: 35,
     role: "Strength Coach",
     specialty: "Sand Training & Resistance Work",
@@ -1941,7 +1941,7 @@ const STRENGTH_CONDITIONERS: StaffDef[] = [
     imageFile: "staff_strength_conditioner_08_1783386672394.webp",
   },
   {
-    name: "Mei Sun",
+    name: "Sun Hao",
     nationality: "China",
     age: 29,
     role: "Strength Coach",

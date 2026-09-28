@@ -20,14 +20,14 @@ function avg(vals: number[]): number {
 // ── ASSISTANT COACHES ──────────────────────────────────────────────────────────
 const ASSISTANT_COACHES = [
   { name: "Lukas Schmidt",    stars: 4.5, speciality: "Tactics & Game Strategy",        coachingAttributes: { matchPreparation: 95, tacticalKnowledge: 96, offense: 89, defense: 88, training: 84, playerDevelopment: 80, motivation: 85 } },
-  { name: "Mei-Ling Tan",     stars: 4.5, speciality: "Technical Skills & Serve",       coachingAttributes: { matchPreparation: 82, tacticalKnowledge: 86, offense: 92, defense: 80, training: 93, playerDevelopment: 90, motivation: 83 } },
-  { name: "Kwame Adu",        stars: 4.5, speciality: "Strength & Conditioning",        coachingAttributes: { matchPreparation: 85, tacticalKnowledge: 82, offense: 84, defense: 86, training: 98, playerDevelopment: 88, motivation: 94 } },
+  { name: "Marcos Silva",     stars: 4.5, speciality: "Technical Skills & Serve",       coachingAttributes: { matchPreparation: 82, tacticalKnowledge: 86, offense: 92, defense: 80, training: 93, playerDevelopment: 90, motivation: 83 } },
+  { name: "Carmen Romero",    stars: 4.5, speciality: "Strength & Conditioning",        coachingAttributes: { matchPreparation: 85, tacticalKnowledge: 82, offense: 84, defense: 86, training: 98, playerDevelopment: 88, motivation: 94 } },
   { name: "Isabella Ricci",   stars: 4.5, speciality: "Defense & Court Positioning",    coachingAttributes: { matchPreparation: 88, tacticalKnowledge: 90, offense: 77, defense: 96, training: 88, playerDevelopment: 85, motivation: 86 } },
   { name: "Jessica De Groot", stars: 4.5, speciality: "Setting & Game Analysis",        coachingAttributes: { matchPreparation: 93, tacticalKnowledge: 92, offense: 87, defense: 89, training: 86, playerDevelopment: 90, motivation: 84 } },
   { name: "Anouk Van Dijk",   stars: 2.5, speciality: "All-Rounder Strategy",           coachingAttributes: { matchPreparation: 72, tacticalKnowledge: 74, offense: 71, defense: 72, training: 70, playerDevelopment: 73, motivation: 78 } },
   { name: "Emma Watson",      stars: 3.0, speciality: "Defensive Strategy",             coachingAttributes: { matchPreparation: 78, tacticalKnowledge: 82, offense: 66, defense: 89, training: 80, playerDevelopment: 77, motivation: 84 } },
-  { name: "Sofia Martinez",   stars: 2.5, speciality: "Defensive Strategy",             coachingAttributes: { matchPreparation: 73, tacticalKnowledge: 75, offense: 65, defense: 82, training: 74, playerDevelopment: 76, motivation: 80 } },
-  { name: "Marcos Silva",     stars: 2.5, speciality: "Player Development",             coachingAttributes: { matchPreparation: 70, tacticalKnowledge: 73, offense: 75, defense: 73, training: 84, playerDevelopment: 94, motivation: 82 } },
+  { name: "Kwame Adu",        stars: 2.5, speciality: "Defensive Strategy",             coachingAttributes: { matchPreparation: 73, tacticalKnowledge: 75, offense: 65, defense: 82, training: 74, playerDevelopment: 76, motivation: 80 } },
+  { name: "Grace Lim",        stars: 2.5, speciality: "Player Development",             coachingAttributes: { matchPreparation: 70, tacticalKnowledge: 73, offense: 75, defense: 73, training: 84, playerDevelopment: 94, motivation: 82 } },
   { name: "Luca Bardi",       stars: 4.0, speciality: "Offensive Strategy",             coachingAttributes: { matchPreparation: 90, tacticalKnowledge: 89, offense: 95, defense: 74, training: 82, playerDevelopment: 84, motivation: 88 } },
 ];
 

@@ -1,14 +1,14 @@
 [
   {
     "id": "doctor_01",
-    "name": "Dr. Alessandro Bianchi",
+    "name": "Dr. Joseph Falzon",
     "specialty": "Team Doctor",
     "stars": 4,
     "experience": 16,
     "recoveryBonus": 14,
     "salary": 18000,
     "contractYears": 2,
-    "nationality": "Italy",
+    "nationality": "Malta",
     "age": 42,
     "morale": 85,
     "fatigue": 12,
