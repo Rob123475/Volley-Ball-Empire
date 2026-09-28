@@ -2,6 +2,7 @@ import { db, contractsTable } from "@workspace/db";
 import { loadPlayers, updatePlayerState } from "../lib/playerDto.js";
 import { MAX_STARTERS, MAX_INTERCHANGE } from "./squadRules.js";
 import type { CareerDifficulty } from "./careerDifficulty.js";
+import { STARTING_SQUAD } from "./contractTerms.js";
 
 /**
  * Give a brand-new career a squad it can actually field (R-04), instead of
@@ -61,6 +62,7 @@ export async function seedStartingSquad(
       startDate: term.startDate,
       endDate: term.endDate,
       bonusPerWin: 0,
+      origin: STARTING_SQUAD,
     });
 
     await updatePlayerState(careerSaveId, player.id, {

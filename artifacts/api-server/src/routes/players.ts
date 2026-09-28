@@ -19,6 +19,7 @@ const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
+import { releasePayout } from "../utils/contractTerms.js";
 
 const router = Router();
 
@@ -462,7 +463,36 @@ router.post("/players/:id/release", async (req, res) => {
   // so a released player stayed on the club's Contracts page for ever — the
   // same open row retirement used to leave behind (L-02b), and the same
   // "no longer in your squad" refusal when the club tried to renew it.
+  //
+  // P-05: and it is paid out, on the same rule as terminating it from the
+  // Contracts page (releasePayout) — free for the starting squad in a new
+  // career's first game week, the rest of the contract after that. Release
+  // used to cost nothing at all, whenever it happened, which made it the way
+  // round the 22 Sep payout rule. An academy player's release stays free, as
+  // it always has been: the academy's own terms, not a squad contract.
+  let payout = 0;
   if (before?.teamId != null) {
+    const [open] = await db.select().from(contractsTable).where(and(
+      eq(contractsTable.playerId, id),
+      eq(contractsTable.teamId, before.teamId),
+      eq(contractsTable.status, "active"),
+    ));
+    if (open && before.academyContractYears == null) {
+      const today = await getGameDate(before.teamId);
+      payout = releasePayout(open, today);
+      if (payout > 0) {
+        const [club] = await db.select({ budget: teamsTable.budget }).from(teamsTable).where(eq(teamsTable.id, before.teamId));
+        await db.update(teamsTable).set({ budget: Number(club?.budget ?? 0) - payout }).where(eq(teamsTable.id, before.teamId));
+        await db.insert(financeTransactionsTable).values({
+          teamId:      before.teamId,
+          type:        "expense",
+          amount:      payout,
+          description: `Contract paid out — ${before.name} released to ${open.endDate}`,
+          category:    "player_salary",
+          date:        today,
+        });
+      }
+    }
     await db.update(contractsTable)
       .set({ status: "terminated" })
       .where(and(
@@ -488,7 +518,7 @@ router.post("/players/:id/release", async (req, res) => {
   }
 
   if (!player) { res.status(404).json({ error: "Player not found" }); return; }
-  res.json(serializePlayer(player));
+  res.json({ ...serializePlayer(player), payout });
 });
 
 router.post("/players/:id/retire", async (req, res) => {

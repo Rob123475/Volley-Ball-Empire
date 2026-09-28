@@ -140,6 +140,33 @@ export function terminationPayout(monthlySalary: number, today: string, endDate:
   return Math.max(0, Math.round(monthlySalary * months));
 }
 
+/** contracts.origin for the squad a new career opens with (P-05). */
+export const STARTING_SQUAD = "starting_squad";
+
+/** The first game week: days 1-7 of the contract. It has passed on day 8. */
+const FIRST_WEEK_DAYS = 7;
+
+/**
+ * What releasing a contracted player costs — the one rule for both ways of
+ * doing it (Release on the Team page, Terminate on the Contracts page).
+ *
+ * Rob's rule (28 Sep): in a new career the starting squad can be changed for
+ * free until the first game week has passed. After that — and for any player
+ * signed since — ending a contract early pays out the rest of it, the 22 Sep
+ * rule (terminationPayout above).
+ */
+export function releasePayout(
+  contract: { salary: number; startDate: string; endDate: string; origin?: string | null },
+  today: string,
+): number {
+  if (contract.origin === STARTING_SQUAD) {
+    const weekOneEnds = new Date(`${contract.startDate}T00:00:00Z`);
+    weekOneEnds.setUTCDate(weekOneEnds.getUTCDate() + FIRST_WEEK_DAYS);
+    if (today < weekOneEnds.toISOString().slice(0, 10)) return 0;
+  }
+  return terminationPayout(Number(contract.salary), today, contract.endDate);
+}
+
 /**
  * Where a RENEWAL ends: the same three lengths, measured on from the day the
  * old contract ends rather than from today.

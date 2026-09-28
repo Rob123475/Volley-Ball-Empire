@@ -12,7 +12,7 @@ import { getGameDate } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { seasonEndsFrom } from "../utils/seasonDates.js";
 import {
-  contractEndDate, renewalEndDate, terminationPayout, readContractLength,
+  contractEndDate, renewalEndDate, releasePayout, readContractLength,
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
 
@@ -300,9 +300,10 @@ router.delete("/contracts/:id", async (req, res) => {
 
   // L-02a, Rob's rule: "Club ends a contract early -> the remainder of the
   // contract is paid out from the club balance." Before this, tearing up a deal
-  // cost the club nothing at all, so there was no reason not to.
+  // cost the club nothing at all, so there was no reason not to. P-05: except
+  // the starting squad in a new career's first game week (releasePayout).
   const today = await getGameDate(team.id);
-  const payout = terminationPayout(Number(contract.salary), today, contract.endDate);
+  const payout = releasePayout(contract, today);
 
   const [terminated] = await db.update(contractsTable).set({ status: "terminated" }).where(eq(contractsTable.id, id)).returning();
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), contract.playerId, { teamId: null, contractEndDate: null, isActive: false, squadRole: "reserve" });

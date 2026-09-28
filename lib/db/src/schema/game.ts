@@ -538,6 +538,11 @@ export const contractsTable = sqliteTable("contracts", {
   bonusPerWin: real("bonus_per_win").notNull().default(0),
   status: text("status").notNull().default("active"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  // P-05: "starting_squad" for the contracts a new career opens with
+  // (utils/seedStartingSquad.ts); null for every contract signed after. The
+  // start date cannot tell them apart - a player signed on day one has the
+  // same one - and only the starting squad may leave for free in week 1.
+  origin: text("origin"),
 });
 
 export type Contract = typeof contractsTable.$inferSelect;

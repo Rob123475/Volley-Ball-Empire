@@ -274,7 +274,16 @@ export default function TeamRoster() {
 
   const handleRelease = (playerId: number) => {
     releaseMutation.mutate({ id: playerId }, {
-      onSuccess: () => { invalidate(); toast({ title: "Player Released", description: "Contract terminated." }); },
+      // P-05: the server says what the release cost - nothing in a new
+      // career's first week for the starting squad, the rest of the contract after.
+      onSuccess: (data) => {
+        invalidate();
+        const payout = Number((data as { payout?: number }).payout ?? 0);
+        toast({
+          title: "Player Released",
+          description: payout > 0 ? `Contract paid out: $${payout.toLocaleString()}.` : "Contract ended at no cost.",
+        });
+      },
     });
   };
 
@@ -1015,7 +1024,7 @@ export default function TeamRoster() {
                   <AlertDialogDescription>
                     {role === "reserve"
                       ? "Are you sure you want to release this player? They will be removed from the Youth Academy and free one slot. No transfer fee is received."
-                      : "This will terminate their contract immediately."}
+                      : "This ends their contract immediately. In a new career your starting squad can leave for free during the first game week; after that, the rest of the contract is paid out from your balance."}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

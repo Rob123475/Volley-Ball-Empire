@@ -82,9 +82,13 @@ export default function Contracts() {
 
   const handleTerminate = (contractId: number) => {
     terminateMutation.mutate({ id: contractId }, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         refresh();
-        toast({ title: "Contract Terminated" });
+        const payout = Number((data as { payout?: number }).payout ?? 0);
+        toast({
+          title: "Contract Terminated",
+          description: payout > 0 ? `Paid out: ${formatCurrency(payout)}.` : "Ended at no cost.",
+        });
       }
     });
   };
@@ -231,7 +235,7 @@ export default function Contracts() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Terminate Contract?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to terminate {c.player?.name ?? "this player"}'s contract? This may incur a penalty fee.
+                                Are you sure you want to terminate {c.player?.name ?? "this player"}'s contract? In a new career your starting squad can leave for free during the first game week; after that, the rest of the contract is paid out from your balance.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
