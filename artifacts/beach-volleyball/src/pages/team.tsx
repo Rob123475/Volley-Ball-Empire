@@ -230,6 +230,16 @@ export default function TeamRoster() {
   const focusMutation        = useSetPlayerTrainingFocus();
   const updatePlayerMutation = useUpdatePlayer();
 
+  // 25 Sep 2026: this useState MUST stay above the isLoading early return
+  // below. It used to sit further down, after it - so a cold-cache first
+  // render ran 11 hooks and the second ran 12. That is React error #310,
+  // "Rendered more hooks than during the previous render", and it took out
+  // the whole Team screen. A warm React Query cache hid it for months:
+  // revisiting Team never produced a loading render, so the count never
+  // changed. Only a brand-new career crashed, and it crashed every time.
+  const [promotion, setPromotion] =
+    useState<{ playerId: number; role: Role; name: string } | null>(null);
+
   if (isLoading) {
     return (
       <div className="space-y-8">
@@ -277,8 +287,6 @@ export default function TeamRoster() {
     });
   };
 
-  const [promotion, setPromotion] =
-    useState<{ playerId: number; role: Role; name: string } | null>(null);
 
   const handleOutfitChange = (playerId: number, outfitId: number) => {
     outfitMutation.mutate({ id: playerId, data: { outfitId } }, {

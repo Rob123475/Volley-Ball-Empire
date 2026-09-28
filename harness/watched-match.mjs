@@ -50,6 +50,14 @@ const BASE = `http://localhost:${PORT}/api`;
  * unlock are gone (DELETED_KEYS), and two that a career can now reach are in:
  * `first_inductee` (the club's Hall of Fame, HOF) and `sold_on` (losing a club
  * to a sale and taking another, L-02e).
+ *
+ * ACH (23 Sep 2026): twenty-nine. `sold_on` was deleted from Steamworks and
+ * from ACHIEVEMENT_DEFS - its Steam wording described selling a player, and
+ * this game has no way to sell a player at all: release, retire or let a
+ * contract expire is the whole set, and nothing in the schema records a sale.
+ * It moves into DELETED_KEYS so this suite proves it is gone rather than just
+ * not asking for it. The club-sale mechanic and clubsSoldFromUnder are
+ * untouched - only the achievement went.
  */
 const EXPECTED_KEYS = [
   "first_steps", "battle_hardened", "century_wins", "perfect_season",
@@ -57,9 +65,9 @@ const EXPECTED_KEYS = [
   "making_money", "millionaires_club", "debt_free", "financially_secure",
   "talent_spotter", "youth_pipeline", "youth_graduate", "youth_factory", "future_superstar", "star_factory",
   "local_legend", "mr_loyalty", "decade_in_sand", "veteran_coach", "hall_of_fame", "world_traveller", "globe_trotter",
-  "first_inductee", "sold_on",
+  "first_inductee",
 ];
-const DELETED_KEYS = ["first_pay_day", "continental_champion"];
+const DELETED_KEYS = ["first_pay_day", "continental_champion", "sold_on"];
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {

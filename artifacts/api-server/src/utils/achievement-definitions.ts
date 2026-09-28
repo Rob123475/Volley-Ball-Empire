@@ -23,6 +23,12 @@ export type AchievementDef = {
  *   - "Continental Champion": the player's club never plays a continental
  *     tournament, and no match is a continental final.
  *   - "First Pay Day" ($100,000): every new career starts above it.
+ *   - "Sold On": removed on 23 Sep 2026. The Steamworks wording described
+ *     selling an academy graduate, and this game has no way to sell a player
+ *     at all - release, retire or let a contract expire is the whole set, and
+ *     nothing in the schema records a sale. Deleted from Steamworks rather
+ *     than reworded; there are 29 achievements. clubsSoldFromUnder stays -
+ *     the club-sale mechanic itself is untouched, only the achievement went.
  * A match counts whether it was simulated or watched to the end
  * (routes/matches.ts completeMatch).
  */
@@ -288,16 +294,5 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     category: "legacy",
     check: (_t, stats) => stats.hallOfFameInductions >= 1,
     progress: (_t, stats) => ({ current: Math.min(stats.hallOfFameInductions, 1), target: 1 }),
-  },
-  {
-    // L-02e: five loss-making seasons and the club is sold. For an AI club that
-    // is a new name over the door; for the manager's, it is the job. Surviving
-    // it — taking another club and carrying on — is the achievement.
-    key: "sold_on",
-    name: "Sold On",
-    description: "Lose your club to a sale, take another one, and keep managing.",
-    category: "career",
-    check: (_t, stats) => stats.clubsSoldFromUnder >= 1 && stats.seasonsCompleted >= 1,
-    progress: (_t, stats) => ({ current: Math.min(stats.clubsSoldFromUnder, 1), target: 1 }),
   },
 ];

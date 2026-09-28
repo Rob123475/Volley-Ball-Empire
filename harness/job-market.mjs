@@ -336,14 +336,20 @@ try {
     seats === 1, `${seats} club(s) with a seat of their own`);
 
   const ach = (await api("GET", "/achievements")).data ?? [];
-  check("and 'Sold On' is unlocked: a club lost, another taken, still managing",
-    ach.find((a) => a.key === "sold_on")?.unlocked === true,
+  // ACH (23 Sep 2026): `sold_on` was deleted - from Steamworks and from
+  // ACHIEVEMENT_DEFS. Its Steam wording described selling a PLAYER, and this
+  // game has no way to sell a player at all. The scenario below is unchanged
+  // and still the point of this section: a club is lost to a sale, another is
+  // taken, and the manager's cabinet must travel with them. Only the one
+  // achievement went. This check now proves it is gone rather than expecting it.
+  check("'Sold On' is not served - it was deleted, not reworded",
+    !ach.some((a) => a.key === "sold_on"),
     ach.filter((a) => a.unlocked).map((a) => a.key).join(", ") || "nothing unlocked");
 
   // The achievements are the MANAGER's. They are stored against a team id,
   // so unless they move with the manager the cabinet reads empty at the new
   // club - and the achievement check, seeing a club with nothing unlocked,
-  // pops all thirty a second time.
+  // pops all of them a second time.
   const keysAfter = ach.filter((a) => a.unlocked).map((a) => a.key).sort();
   const lost = keysBeforeSale.filter((k) => !keysAfter.includes(k));
   check("everything the manager had unlocked came with them to the new club",
@@ -358,12 +364,15 @@ try {
   check("and nothing was unlocked a second time - no manager is told twice",
     twice.length === 0, twice.map((d) => `${d.k} x${d.n}`).join(", "));
 
-  // Rob's rule: exactly thirty achievements. The career-end screen used to
-  // carry its own hardcoded 25 and told a manager with 28 of them "28 / 25".
+  // Rob's rule: the career-end screen counts the real list, never a number of
+  // its own. It used to carry a hardcoded 25 and told a manager with 28 of
+  // them "28 / 25". Twenty-nine since `sold_on` went on 23 Sep 2026 - and the
+  // second half of this check is the one that survives the next change: the
+  // summary's total must equal what GET /achievements actually serves.
   const summary = (await api("GET", "/careers/summary")).data;
-  check("the career summary counts all thirty achievements, not a number of its own",
-    summary?.totalAchievements === 30,
-    `${summary?.achievementsCompleted} of ${summary?.totalAchievements}`);
+  check("the career summary counts all 29 achievements, not a number of its own",
+    summary?.totalAchievements === 29 && summary?.totalAchievements === ach.length,
+    `${summary?.achievementsCompleted} of ${summary?.totalAchievements}; ${ach.length} served`);
 
   // ── 5b. The new club is judged on its own seasons ─────────────────────
   //
