@@ -15,7 +15,8 @@
       "@shared/continents": ["../../lib/db/src/schema/continents.ts"],
       "@shared/staff-roles": ["../../lib/db/src/schema/staff-roles.ts"],
       "@shared/career-difficulty": ["../../lib/db/src/schema/career-difficulty.ts"],
-      "@shared/facility-names": ["../../lib/db/src/schema/facility-names.ts"]
+      "@shared/facility-names": ["../../lib/db/src/schema/facility-names.ts"],
+      "@shared/training-programs": ["../../lib/db/src/schema/training-programs.ts"]
     }
   },
   "references": [

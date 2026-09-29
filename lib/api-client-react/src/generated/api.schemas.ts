@@ -948,6 +948,12 @@ export const TrainingSessionStatus = {
   cancelled: 'cancelled',
 } as const;
 
+/**
+ * What the finished session gave (XP, stat gains, fatigue and morale before and after).
+ * @nullable
+ */
+export type TrainingSessionResult = { [key: string]: unknown } | null;
+
 export interface TrainingSession {
   id: number;
   teamId: number;
@@ -962,6 +968,20 @@ export interface TrainingSession {
   player?: Player;
   coach?: StaffMember;
   createdAt?: string;
+  /** Unity brief item 19: the programme's length in game days. */
+  lengthDays?: number;
+  /**
+     * The game date the session finishes and its gains are applied.
+     * @nullable
+     */
+  finishesOn?: string | null;
+  daysLeft?: number;
+  progressPct?: number;
+  /**
+     * What the finished session gave (XP, stat gains, fatigue and morale before and after).
+     * @nullable
+     */
+  result?: TrainingSessionResult;
 }
 
 export type TrainingInputType = typeof TrainingInputType[keyof typeof TrainingInputType];
@@ -984,30 +1004,6 @@ export interface TrainingInput {
   scheduledAt: string;
   /** @nullable */
   coachId?: number | null;
-}
-
-export type TrainingResultStatGains = {
-  speed?: number;
-  power?: number;
-  defense?: number;
-  serve?: number;
-  block?: number;
-  stamina?: number;
-};
-
-export type TrainingResultCoachEffect = { [key: string]: unknown } | null;
-
-export interface TrainingResult {
-  session: TrainingSession;
-  statGains: TrainingResultStatGains;
-  newStats: Player;
-  xpGained?: number;
-  baseXp?: number;
-  xpToNextStat?: number;
-  ageModifier?: number;
-  philosophyMultiplier?: number;
-  programName?: string;
-  coachEffect?: TrainingResultCoachEffect;
 }
 
 export type TeamTrainingInputType = typeof TeamTrainingInputType[keyof typeof TeamTrainingInputType];

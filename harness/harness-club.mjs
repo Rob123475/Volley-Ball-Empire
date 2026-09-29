@@ -247,3 +247,27 @@ export function keepClubSolvent(dbPath, teamId, grant = 1_500_000, below = 3_000
     db.close();
   }
 }
+
+/**
+ * Unity brief item 19: a training session takes game days, and its gains are
+ * applied by the calendar when it finishes (there is no instant "Complete").
+ * Schedules one session with `body` (POST /training), then advances the
+ * calendar a day at a time (playing any match day that comes up) until the
+ * session has finished, and returns its row, whose `result` records what it
+ * gave: XP, stat gains, fatigue and morale before and after, staff bonuses.
+ * Squads are healed each day when `dbPath` is given, so match days cannot leave
+ * a player fatigued or injured before her session finishes.
+ */
+export async function trainThroughCalendar(api, body, dbPath = null, maxDays = 30) {
+  const s = await api("POST", "/training", body);
+  if (!s.data?.id) return { status: s.status, session: null, result: null, days: 0 };
+  for (let day = 0; day <= maxDays; day++) {
+    const row = ((await api("GET", "/training")).data ?? []).find((x) => x.id === s.data.id);
+    if (row?.status === "completed") return { status: 200, session: row, result: row.result, days: day };
+    if (dbPath) healAllSquads(dbPath);
+    const r = await api("POST", "/calendar/advance", {});
+    const pending = r.data?.blocked === "pending_match" ? r.data.pendingMatchId : r.data?.matchDay?.matchId;
+    if (pending) { await api("POST", `/matches/${pending}/simulate`); await api("POST", "/calendar/dismiss-match"); }
+  }
+  return { status: 408, session: null, result: null, days: maxDays };
+}

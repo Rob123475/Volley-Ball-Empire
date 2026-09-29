@@ -32,6 +32,7 @@ import { pathToFileURL } from "node:url";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { trainThroughCalendar } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -172,12 +173,13 @@ try {
 
   /** One Power Camp for `player`: what it awarded, and the fatigue it added. */
   async function powerCamp() {
-    const before = (await api("GET", "/team/roster")).data;
-    const f0 = squad(before).find((p) => p.id === player.id).fatigue;
-    const s = await api("POST", "/training", { playerId: player.id, type: "Power Camp", durationHours: 2, scheduledAt: new Date().toISOString() });
-    const done = await api("POST", `/training/${s.data.id}/complete`);
-    const f1 = done.data?.newStats?.fatigue;
-    return { ...done.data, fatigueAdded: f1 - f0, ratio: done.data.xpGained / done.data.baseXp, status: done.status };
+    // Item 19: the session runs its 7 game days; its row records what it gave.
+    const { status, result: r } = await trainThroughCalendar(api, { playerId: player.id, type: "Power Camp", durationHours: 2 }, dbFile);
+    return {
+      status, xpGained: r?.xpGained, baseXp: r?.baseXp,
+      staffBonuses: r ? { xpMultiplier: r.staffXpMultiplier, fatigueReduction: r.staffFatigueReduction } : null,
+      fatigueAdded: r?.fatigueAfter - r?.fatigueBefore, ratio: r?.xpGained / r?.baseXp,
+    };
   }
 
   // ── 1. Training, before and after ────────────────────────────────────────
@@ -224,10 +226,13 @@ try {
   console.log("\n2. SPONSORSHIP: PROMOTIONAL MANAGER");
   const wantPromo = 1 + above(hired.promotions_manager) * (0.18 / 45);
   let weekly = null;
+  // Only a week paid from here on: since item 19 the training sessions above take
+  // game days, so earlier weekly rows (before the manager was hired) are on the ledger.
+  const seen = new Set(((await api("GET", "/finances")).data ?? []).map((t) => t.id));
   for (let day = 0; day < 21 && !weekly; day++) {
     await api("POST", "/calendar/advance");
     const txs = (await api("GET", "/finances")).data ?? [];
-    weekly = txs.find((t) => t.category === "sponsorship" && /^Weekly sponsor & commercial income/.test(t.description));
+    weekly = txs.find((t) => !seen.has(t.id) && t.category === "sponsorship" && /^Weekly sponsor & commercial income/.test(t.description));
   }
   const amount = Number(weekly?.amount);
   const base = Math.round(amount / wantPromo / SPONSOR_INCOME_PER_REPUTATION) * SPONSOR_INCOME_PER_REPUTATION;

@@ -26,6 +26,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+import { trainThroughCalendar } from "./harness-club.mjs";
 import { FACILITY_BENEFIT, FACILITY_BENEFIT_SHORT } from "../artifacts/beach-volleyball/src/lib/facility-benefits.ts";
 import { FACILITY_PAGE_TYPES } from "../lib/db/src/schema/facility-names.ts";
 
@@ -155,10 +156,9 @@ try {
     d.close();
   }
   async function powerCamp(player) {
-    const f0 = squad((await api("GET", "/team/roster")).data).find((p) => p.id === player.id).fatigue;
-    const s = await api("POST", "/training", { playerId: player.id, type: "Power Camp", durationHours: 2, scheduledAt: new Date().toISOString() });
-    const done = await api("POST", `/training/${s.data.id}/complete`);
-    return { added: done.data?.newStats?.fatigue - f0, from: f0 };
+    // Item 19: the session runs its 7 game days; its row records what it gave.
+    const { result } = await trainThroughCalendar(api, { playerId: player.id, type: "Power Camp", durationHours: 2 }, dbFile);
+    return { added: result?.fatigueAfter - result?.fatigueBefore, from: result?.fatigueBefore };
   }
 
   // A fresh player per level, so fatigue is nowhere near the 100 cap.

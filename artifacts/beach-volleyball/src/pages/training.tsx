@@ -3,7 +3,7 @@ import {
   useListTrainingSessions,
   useScheduleTraining,
   useScheduleTeamTraining,
-  useCompleteTraining,
+  useCancelTraining,
   useListStaff,
   useListPlayers,
   useGetMyTeam,
@@ -61,6 +61,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { useCalendar } from "@/hooks/use-calendar";
+import { TRAINING_PROGRAM_DAYS } from "@shared/training-programs";
 import { normaliseRole } from "@shared/staff-roles";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
@@ -392,6 +393,8 @@ function ProgramGrid({ selected, onSelect }: { selected?: ProgramId; onSelect: (
           >
             <div className="text-lg mb-1">{p.emoji}</div>
             <div className="font-semibold text-xs leading-tight">{p.label}</div>
+            {/* Item 19: its length in game days, before it is scheduled. */}
+            <div className="text-[10px] font-semibold text-primary mt-0.5" data-testid={`program-days-${p.id}`}>{TRAINING_PROGRAM_DAYS[p.id]} days</div>
             <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{p.tagline}</div>
             <div className="mt-2 space-y-0.5">
               {p.benefits.map(b => (
@@ -665,25 +668,17 @@ export default function Training() {
   const { data: staff }    = useListStaff();
   const { data: team }     = useGetMyTeam({ query: { queryKey: getGetMyTeamQueryKey() } });
 
-  const completeMutation = useCompleteTraining();
+  // Item 19: a session runs its game days; the calendar applies its gains when
+  // it finishes. The only action on a running session is to cancel it (no gains).
+  const cancelMutation = useCancelTraining();
 
-  const handleComplete = (sessionId: number) => {
-    completeMutation.mutate({ id: sessionId }, {
-      onSuccess: (result) => {
+  const handleCancel = (sessionId: number) => {
+    cancelMutation.mutate({ id: sessionId }, {
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListTrainingSessionsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetTrainingPlanQueryKey() });
-
-        const gains = Object.entries(result.statGains ?? {})
-          .filter(([_, val]) => (val as number) > 0)
-          .map(([stat, val]) => `+${val} ${stat.charAt(0).toUpperCase() + stat.slice(1)}`)
-          .join(", ");
-
-        const xpLine = result.xpGained ? ` · ${result.xpGained} XP earned` : "";
-        toast({
-          title: "Training Complete!",
-          description: gains ? `${gains}${xpLine}` : `Good session — keep it up!${xpLine}`,
-        });
-      }
+        toast({ title: "Session cancelled", description: "No gains: the session did not finish." });
+      },
     });
   };
 
@@ -831,8 +826,11 @@ export default function Training() {
                         </Badge>
                       </div>
                       <div className="text-xs text-muted-foreground flex items-center gap-3 flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" /> {new Date(session.scheduledAt).toLocaleDateString()}
+                        <span className="flex items-center gap-1" data-testid={`session-when-${session.id}`}>
+                          <Calendar className="h-3 w-3" />
+                          {`${(session as any).lengthDays ?? TRAINING_PROGRAM_DAYS[session.type] ?? "?"} days, `}
+                          {session.status === "scheduled" ? "finishes " : session.status === "completed" ? "finished " : "cancelled, was to finish "}
+                          {(session as any).finishesOn ? new Date(`${(session as any).finishesOn}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—"}
                         </span>
                         {coachData && (
                           <span className="flex items-center gap-1 text-primary font-medium">
@@ -848,14 +846,25 @@ export default function Training() {
                   </div>
 
                   {session.status === "scheduled" ? (
-                    <Button
-                      size="sm"
-                      onClick={() => handleComplete(session.id)}
-                      disabled={completeMutation.isPending}
-                      data-testid={`button-complete-${session.id}`}
-                    >
-                      <CheckCircle2 className="h-4 w-4 mr-1" /> Complete
-                    </Button>
+                    <div className="flex items-center gap-3 shrink-0" data-testid={`session-running-${session.id}`}>
+                      <div className="w-28 space-y-1">
+                        <div className="text-[10px] text-muted-foreground text-right">
+                          {(session as any).daysLeft ?? "?"} day{(session as any).daysLeft === 1 ? "" : "s"} left
+                        </div>
+                        <Progress value={(session as any).progressPct ?? 0} className="h-1.5" />
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancel(session.id)}
+                        disabled={cancelMutation.isPending}
+                        data-testid={`button-cancel-${session.id}`}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : session.status === "cancelled" ? (
+                    <Badge variant="outline" className="text-muted-foreground">CANCELLED</Badge>
                   ) : (
                     <Badge className="bg-green-500/10 text-green-600 border-green-500/20">DONE</Badge>
                   )}

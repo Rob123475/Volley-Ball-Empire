@@ -7,6 +7,7 @@
  */
 import type { Player } from './player';
 import type { StaffMember } from './staffMember';
+import type { TrainingSessionResult } from './trainingSessionResult';
 import type { TrainingSessionStatus } from './trainingSessionStatus';
 import type { TrainingSessionType } from './trainingSessionType';
 
@@ -24,4 +25,18 @@ export interface TrainingSession {
   player?: Player;
   coach?: StaffMember;
   createdAt?: string;
+  /** Unity brief item 19: the programme's length in game days. */
+  lengthDays?: number;
+  /**
+     * The game date the session finishes and its gains are applied.
+     * @nullable
+     */
+  finishesOn?: string | null;
+  daysLeft?: number;
+  progressPct?: number;
+  /**
+     * What the finished session gave (XP, stat gains, fatigue and morale before and after).
+     * @nullable
+     */
+  result?: TrainingSessionResult;
 }

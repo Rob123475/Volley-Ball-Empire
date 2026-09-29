@@ -102,7 +102,6 @@ import type {
   TeamUpdate,
   TrainingInput,
   TrainingPlan,
-  TrainingResult,
   TrainingSession,
   TrophyCabinet,
   UpcomingEventsFeed,
@@ -3162,20 +3161,20 @@ export const useScheduleTraining = <TError = ErrorType<unknown>,
       return useMutation(getScheduleTrainingMutationOptions(options));
     }
 
-export const getCompleteTrainingUrl = (id: number,) => {
+export const getCancelTrainingUrl = (id: number,) => {
 
 
 
 
-  return `/api/training/${id}/complete`
+  return `/api/training/${id}/cancel`
 }
 
 /**
- * @summary Mark training as complete and apply stat gains
+ * @summary Cancel a running training session (Unity brief item 19): it gives nothing. Sessions finish on the game calendar; there is no instant Complete.
  */
-export const completeTraining = async (id: number, options?: RequestInit): Promise<TrainingResult> => {
+export const cancelTraining = async (id: number, options?: RequestInit): Promise<TrainingSession> => {
 
-  return customFetch<TrainingResult>(getCompleteTrainingUrl(id),
+  return customFetch<TrainingSession>(getCancelTrainingUrl(id),
   {
     ...options,
     method: 'POST'
@@ -3187,11 +3186,11 @@ export const completeTraining = async (id: number, options?: RequestInit): Promi
 
 
 
-export const getCompleteTrainingMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeTraining>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof completeTraining>>, TError,{id: number}, TContext> => {
+export const getCancelTrainingMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelTraining>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancelTraining>>, TError,{id: number}, TContext> => {
 
-const mutationKey = ['completeTraining'];
+const mutationKey = ['cancelTraining'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -3201,10 +3200,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeTraining>>, {id: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelTraining>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  completeTraining(id,requestOptions)
+          return  cancelTraining(id,requestOptions)
         }
 
 
@@ -3214,22 +3213,22 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type CompleteTrainingMutationResult = NonNullable<Awaited<ReturnType<typeof completeTraining>>>
+    export type CancelTrainingMutationResult = NonNullable<Awaited<ReturnType<typeof cancelTraining>>>
 
-    export type CompleteTrainingMutationError = ErrorType<unknown>
+    export type CancelTrainingMutationError = ErrorType<unknown>
 
     /**
- * @summary Mark training as complete and apply stat gains
+ * @summary Cancel a running training session (Unity brief item 19): it gives nothing. Sessions finish on the game calendar; there is no instant Complete.
  */
-export const useCompleteTraining = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeTraining>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+export const useCancelTraining = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelTraining>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
-        Awaited<ReturnType<typeof completeTraining>>,
+        Awaited<ReturnType<typeof cancelTraining>>,
         TError,
         {id: number},
         TContext
       > => {
-      return useMutation(getCompleteTrainingMutationOptions(options));
+      return useMutation(getCancelTrainingMutationOptions(options));
     }
 
 export const getScheduleTeamTrainingUrl = () => {

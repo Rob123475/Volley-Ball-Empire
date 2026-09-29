@@ -3,17 +3,26 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
-import { normaliseRole } from "@workspace/db";
+import { normaliseRole, TRAINING_PROGRAM_DAYS } from "@workspace/db";
 import { INJURY_CARE_ROLE_KEYS } from "../utils/condition.js";
 import { trainingStaffBonuses } from "../utils/staffBonuses.js";
 import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
-import type { TrainingSession } from "@workspace/db";
+import type { TrainingSession, TrainingSessionResult } from "@workspace/db";
 import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
 const serializeSession = (s: TrainingSession) => ({ ...s, durationHours: Number(s.durationHours) });
+
+/** Item 19: a session's length, finish date, days left and progress on the game date `today`. */
+function sessionTiming(s: TrainingSession, today: string) {
+  const lengthDays = PROGRAM_DAYS[resolveProgram(s.type)] ?? 5;
+  const finishesOn = s.finishesOn ?? addGameDays(s.scheduledAt, lengthDays);
+  const daysLeft = s.status === "scheduled" ? Math.max(0, dayGap(today, finishesOn)) : 0;
+  const progressPct = s.status === "completed" ? 100 : Math.min(100, Math.max(0, Math.round(((lengthDays - daysLeft) / lengthDays) * 100)));
+  return { lengthDays, finishesOn, daysLeft, progressPct };
+}
 const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: Number(p.salary) });
 
 
@@ -64,6 +73,18 @@ const LEGACY_TYPE_MAP: Record<string, string> = {
 
 const resolveProgram = (type: string): string =>
   PROGRAM_CONFIG[type] ? type : (LEGACY_TYPE_MAP[type] ?? "Conditioning");
+
+// Unity brief item 19: how many GAME days each programme takes (lib/db
+// training-programs.ts, shared with the Training page).
+const PROGRAM_DAYS = TRAINING_PROGRAM_DAYS;
+
+function addGameDays(date: string, days: number): string {
+  const d = new Date(`${date.slice(0, 10)}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+const dayGap = (from: string, to: string) =>
+  Math.round((Date.parse(`${to.slice(0, 10)}T00:00:00Z`) - Date.parse(`${from.slice(0, 10)}T00:00:00Z`)) / 86_400_000);
 
 // ── Philosophy bonuses ────────────────────────────────────────────────────────
 
@@ -178,6 +199,8 @@ const applyFatigueAndStats = async (
 ) => {
   const player = await loadPlayer(careerSaveId, playerId);
   if (!player) return null;
+  const fatigueBefore = player.fatigue;
+  const moraleBefore  = player.morale;
 
   const programName = resolveProgram(programType);
   const program     = PROGRAM_CONFIG[programName];
@@ -332,6 +355,8 @@ const applyFatigueAndStats = async (
     philosophyMultiplier,
     potentialMultiplier,
     programName,
+    fatigueBefore,
+    moraleBefore,
   };
 };
 
@@ -341,12 +366,13 @@ router.get("/training", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.json([]); return; }
+  const today = await getGameDate(team.id);
   const sessions = await db.select().from(trainingSessionsTable)
     .where(eq(trainingSessionsTable.teamId, team.id));
   const withPlayers = await Promise.all(sessions.map(async (s) => {
     const player = await db.query.playersTable.findFirst({ where: eq(playersTable.id, s.playerId) });
     const coach  = s.coachId ? await db.query.staffTable.findFirst({ where: eq(staffTable.id, s.coachId) }) : null;
-    return { ...serializeSession(s), player: player ? serializePlayer(player) : null, coach: coach ?? null };
+    return { ...serializeSession(s), ...sessionTiming(s, today), player: player ? serializePlayer(player) : null, coach: coach ?? null };
   }));
   res.json(withPlayers);
 });
@@ -368,9 +394,11 @@ router.post("/training", async (req, res) => {
     focus: focus || programName,
     durationHours: Number(durationHours || 2),
     scheduledAt,
+    // Item 19: it runs PROGRAM_DAYS game days from today.
+    finishesOn: addGameDays(scheduledAt, PROGRAM_DAYS[programName] ?? 5),
     coachId: coachId ? Number(coachId) : null,
   }).returning();
-  res.status(201).json(serializeSession(session));
+  res.status(201).json({ ...serializeSession(session), ...sessionTiming(session, scheduledAt) });
 });
 
 router.post("/training/team", async (req, res) => {
@@ -392,80 +420,96 @@ router.post("/training/team", async (req, res) => {
       focus: focus || programName,
       durationHours: Number(durationHours || 2),
       scheduledAt,
+      finishesOn: addGameDays(scheduledAt, PROGRAM_DAYS[programName] ?? 5),   // item 19
       coachId: coachId ? Number(coachId) : null,
     }).returning()
   ));
-  res.status(201).json(sessions.flat().map(serializeSession));
+  res.status(201).json(sessions.flat().map((s) => ({ ...serializeSession(s), ...sessionTiming(s, scheduledAt) })));
 });
 
-router.post("/training/:id/complete", async (req, res) => {
+// Item 19: a running session may be cancelled; it gives nothing. (There is no
+// "Complete": the calendar finishes a session on its finish date.)
+router.post("/training/:id/cancel", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
   const id = parseInt(req.params.id);
-  const session = await db.query.trainingSessionsTable.findFirst({ where: eq(trainingSessionsTable.id, id) });
+  const session = await db.query.trainingSessionsTable.findFirst({ where: and(eq(trainingSessionsTable.id, id), eq(trainingSessionsTable.teamId, team.id)) });
   if (!session) { res.status(404).json({ error: "Session not found" }); return; }
-
-  const [updatedSession] = await db.update(trainingSessionsTable).set({ status: "completed" })
+  if (session.status !== "scheduled") { res.status(409).json({ error: `This session is ${session.status}.` }); return; }
+  const [cancelled] = await db.update(trainingSessionsTable).set({ status: "cancelled" })
     .where(eq(trainingSessionsTable.id, id)).returning();
+  res.json(serializeSession(cancelled));
+});
 
-  const coach = session.coachId
-    ? await db.query.staffTable.findFirst({ where: eq(staffTable.id, session.coachId) })
-    : null;
+/**
+ * Item 19: finish every running session of this team whose finish date has come
+ * (`date` is the new game date), applying its gains once, exactly as the old
+ * instant "Complete" did: the programme's XP and stat milestones, morale,
+ * fatigue and fitness, the coach, philosophy, facilities and staff bonuses.
+ * Called by the calendar each day. Returns a line per finished session.
+ */
+export async function finishDueTrainingSessions(careerSaveId: number, teamId: number, date: string): Promise<string[]> {
+  const running = await db.select().from(trainingSessionsTable)
+    .where(and(eq(trainingSessionsTable.teamId, teamId), eq(trainingSessionsTable.status, "scheduled")));
+  const lines: string[] = [];
+  for (const session of running) {
+    // A session scheduled before this rule has no finish date: it runs its
+    // programme's days from the day it is first seen.
+    if (!session.finishesOn) {
+      await db.update(trainingSessionsTable).set({ finishesOn: addGameDays(date, PROGRAM_DAYS[resolveProgram(session.type)] ?? 5) })
+        .where(eq(trainingSessionsTable.id, session.id));
+      continue;
+    }
+    if (session.finishesOn > date) continue;
 
-  // Fetch team philosophy for bonus calculation
-  const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, session.teamId) });
-  const teamPhilosophy = team?.trainingPhilosophy ?? null;
+    const coach = session.coachId
+      ? await db.query.staffTable.findFirst({ where: eq(staffTable.id, session.coachId) })
+      : null;
+    const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, session.teamId) });
+    const teamPhilosophy = team?.trainingPhilosophy ?? null;
 
-  // Load all facility levels for training bonuses
-  const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, session.teamId));
-  const facilityLevels = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
+    const facilityRows = await db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, session.teamId));
+    const facilityLevels = Object.fromEntries(facilityRows.map(f => [f.type, f.level]));
+    const trainingComplexMult = 1 + ((facilityLevels.training_complex ?? 1) - 1) * (0.20 / 9);
+    const gymnasiumBoost      = ((facilityLevels.gymnasium ?? 1) - 1) * (0.15 / 9);
+    const facilityMultiplier  = trainingComplexMult * (1 + gymnasiumBoost);
+    const psychLevel          = facilityLevels.psychology_centre ?? 1;
+    const medCentreLevel      = facilityLevels.medical_centre    ?? 1;
+    const nutritionLevel      = facilityLevels.nutrition_centre  ?? 1;
 
-  const trainingComplexMult = 1 + ((facilityLevels.training_complex ?? 1) - 1) * (0.20 / 9);
-  const gymnasiumBoost      = ((facilityLevels.gymnasium ?? 1) - 1) * (0.15 / 9);
-  const facilityMultiplier  = trainingComplexMult * (1 + gymnasiumBoost);
-  const psychLevel          = facilityLevels.psychology_centre ?? 1;
-  const medCentreLevel      = facilityLevels.medical_centre    ?? 1;
-  const nutritionLevel      = facilityLevels.nutrition_centre  ?? 1;
+    const teamStaffAll = await loadStaff(careerSaveId, { teamId: session.teamId });
+    // P-09: head coach, assistant coach and fitness trainer (utils/staffBonuses.ts).
+    const staffBonuses = trainingStaffBonuses(teamStaffAll);
+    const newRoleFatigueReduction = staffBonuses.fatigueReduction + ((nutritionLevel - 1) * (3 / 9));
 
-  const teamStaffAll = await loadStaff(await careerSaveIdForTeamOrThrow(session.teamId), { teamId: session.teamId });
-  // P-09: head coach, assistant coach and fitness trainer (utils/staffBonuses.ts).
-  const staffBonuses = trainingStaffBonuses(teamStaffAll);
-  const newRoleXpBonus = staffBonuses.xpMultiplier;
-  const fitnessTrainerFatigueRed = staffBonuses.fatigueReduction;
-  const nutritionFatigueRed      = ((nutritionLevel - 1) * (3 / 9));
-  const newRoleFatigueReduction  = fitnessTrainerFatigueRed + nutritionFatigueRed;
+    // Marked finished first, so a session can never pay twice.
+    const [claimed] = await db.update(trainingSessionsTable).set({ status: "completed" })
+      .where(and(eq(trainingSessionsTable.id, session.id), eq(trainingSessionsTable.status, "scheduled"))).returning();
+    if (!claimed) continue;
 
-  const result = await applyFatigueAndStats(
-      requireCareerSaveId(req.activeCareerSaveId),
-      session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier, psychLevel, medCentreLevel, newRoleXpBonus, newRoleFatigueReduction);
-  if (result) {
-    const { newPlayer, statGains, xpGained, baseXp, totalXp, xpToNextStat, coachEffect, ageModifier, philosophyMultiplier, programName } = result;
-    // Young player development bonus — award manager rep when a player aged ≤22 gains a stat
+    const result = await applyFatigueAndStats(
+      careerSaveId, session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier,
+      psychLevel, medCentreLevel, staffBonuses.xpMultiplier, newRoleFatigueReduction);
+    if (!result) continue;
+    const { newPlayer, statGains, xpGained, baseXp, totalXp, programName, fatigueBefore, moraleBefore } = result;
+    // Young player development bonus: manager rep when a player aged 22 or under gains a stat.
     if (Object.keys(statGains).length > 0 && (newPlayer.age ?? 99) <= 22 && team) {
       await db.update(teamsTable)
         .set({ managerRepPoints: (team.managerRepPoints ?? 0) + 5 })
         .where(eq(teamsTable.id, team.id));
     }
-    res.json({
-      session: { ...serializeSession(updatedSession), player: newPlayer },
-      statGains,
-      newStats: newPlayer,
-      xpGained,
-      baseXp,
-      totalXp,
-      xpToNextStat,
-      coachEffect,
-      ageModifier,
-      philosophyMultiplier,
-      programName,
-      potentialMultiplier: result.potentialMultiplier,
-      // What the hired staff added to this session, so the harness (and any
-      // screen that wants it) can see the bonus was applied, not just promised.
-      staffBonuses,
-    });
-    return;
+    const record: TrainingSessionResult = {
+      programName, statGains, xpGained, baseXp, totalXp,
+      fatigueBefore, fatigueAfter: newPlayer.fatigue, moraleBefore, moraleAfter: newPlayer.morale,
+      staffXpMultiplier: staffBonuses.xpMultiplier, staffFatigueReduction: staffBonuses.fatigueReduction,
+    };
+    await db.update(trainingSessionsTable).set({ result: record }).where(eq(trainingSessionsTable.id, session.id));
+    const gains = Object.entries(statGains).map(([k, v]) => `+${v} ${k}`).join(", ");
+    lines.push(`Training finished: ${newPlayer.name}, ${programName}${gains ? ` (${gains})` : ""}`);
   }
-  res.json({ session: serializeSession(updatedSession), statGains: {}, newStats: null, coachEffect: null });
-});
+  return lines;
+}
 
 router.get("/training/plan", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }

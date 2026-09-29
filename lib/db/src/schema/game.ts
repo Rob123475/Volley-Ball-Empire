@@ -595,7 +595,27 @@ export const trainingSessionsTable = sqliteTable("training_sessions", {
   status: text("status").notNull().default("scheduled"),
   coachId: integer("coach_id").references(() => staffTable.id),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  // Unity brief item 19: a session runs from scheduledAt (a game date) to this
+  // game date, and its gains are applied then, by the calendar. What it gave is
+  // kept on the row.
+  finishesOn: text("finishes_on"),
+  result: text("result", { mode: "json" }).$type<TrainingSessionResult>(),
 });
+
+/** What a finished training session gave (item 19): kept on its row. */
+export interface TrainingSessionResult {
+  programName: string;
+  statGains: { [stat: string]: number };
+  xpGained: number;
+  baseXp: number;
+  totalXp: number;
+  fatigueBefore: number;
+  fatigueAfter: number;
+  moraleBefore: number;
+  moraleAfter: number;
+  staffXpMultiplier: number;
+  staffFatigueReduction: number;
+}
 
 export type TrainingSession = typeof trainingSessionsTable.$inferSelect;
 

@@ -819,11 +819,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/TrainingSession"
 
-  /training/{id}/complete:
+  /training/{id}/cancel:
     post:
-      operationId: completeTraining
+      operationId: cancelTraining
       tags: [training]
-      summary: Mark training as complete and apply stat gains
+      summary: "Cancel a running training session (Unity brief item 19): it gives nothing. Sessions finish on the game calendar; there is no instant Complete."
       parameters:
         - name: id
           in: path
@@ -832,11 +832,11 @@ paths:
             type: integer
       responses:
         "200":
-          description: Training completed with stat gains
+          description: The session, now cancelled
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TrainingResult"
+                $ref: "#/components/schemas/TrainingSession"
 
   /training/team:
     post:
@@ -2828,6 +2828,20 @@ components:
           $ref: "#/components/schemas/StaffMember"
         createdAt:
           type: string
+        lengthDays:
+          type: integer
+          description: "Unity brief item 19: the programme's length in game days."
+        finishesOn:
+          type: ["string", "null"]
+          description: The game date the session finishes and its gains are applied.
+        daysLeft:
+          type: integer
+        progressPct:
+          type: integer
+        result:
+          type: ["object", "null"]
+          description: What the finished session gave (XP, stat gains, fatigue and morale before and after).
+          additionalProperties: true
 
     TrainingInput:
       type: object
@@ -2846,39 +2860,6 @@ components:
           type: string
         coachId:
           type: ["integer", "null"]
-
-    TrainingResult:
-      type: object
-      required: [session, statGains, newStats]
-      properties:
-        session:
-          $ref: "#/components/schemas/TrainingSession"
-        statGains:
-          type: object
-          properties:
-            speed: { type: integer }
-            power: { type: integer }
-            defense: { type: integer }
-            serve: { type: integer }
-            block: { type: integer }
-            stamina: { type: integer }
-        newStats:
-          $ref: "#/components/schemas/Player"
-        xpGained:
-          type: integer
-        baseXp:
-          type: integer
-        xpToNextStat:
-          type: integer
-        ageModifier:
-          type: number
-        philosophyMultiplier:
-          type: number
-        programName:
-          type: string
-        coachEffect:
-          type: object
-          nullable: true
 
     TeamTrainingInput:
       type: object

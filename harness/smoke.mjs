@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { healSquadByTeam } from "./harness-club.mjs";
+import { healSquadByTeam, trainThroughCalendar } from "./harness-club.mjs";
 
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
@@ -132,13 +132,10 @@ const roster = async (api) => {
   // ── 2. Train ──────────────────────────────────────────────────────────────
   console.log("\n2. TRAIN");
   const before = (await roster(A)).find(p => p.id === target.id);
-  const tRes = await A("POST", "/training", {
-    playerId: target.id, type: "strength", focus: "power",
-    durationHours: 2, scheduledAt: "2026-02-01",
-  });
+  // Item 19: a session takes game days; the calendar applies it when it finishes.
+  const tRes = await trainThroughCalendar(A, { playerId: target.id, type: "strength", focus: "power", durationHours: 2 });
   let trained = null;
-  if (tRes.status < 400 && tRes.data?.id) {
-    await A("POST", `/training/${tRes.data.id}/complete`, {});
+  if (tRes.status === 200) {
     trained = (await roster(A)).find(p => p.id === target.id);
   }
   if (trained) {
