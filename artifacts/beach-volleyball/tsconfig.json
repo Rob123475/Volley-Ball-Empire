@@ -13,7 +13,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@shared/continents": ["../../lib/db/src/schema/continents.ts"],
-      "@shared/staff-roles": ["../../lib/db/src/schema/staff-roles.ts"]
+      "@shared/staff-roles": ["../../lib/db/src/schema/staff-roles.ts"],
+      "@shared/career-difficulty": ["../../lib/db/src/schema/career-difficulty.ts"]
     }
   },
   "references": [

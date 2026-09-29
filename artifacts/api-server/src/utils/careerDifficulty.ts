@@ -14,6 +14,7 @@
  * different number is wanted, not a magic literal buried in a route.
  */
 import type { Tier } from "./tierQualification.js";
+import { STARTING_BUDGET } from "@workspace/db";
 
 export const CAREER_DIFFICULTIES = ["underdog", "established"] as const;
 export type CareerDifficulty = (typeof CAREER_DIFFICULTIES)[number];
@@ -23,10 +24,13 @@ export function isCareerDifficulty(value: unknown): value is CareerDifficulty {
 }
 
 /** UNDERDOG: "tight from the first week." */
-export const UNDERDOG_STARTING_BUDGET = 150_000;
+export const UNDERDOG_STARTING_BUDGET = STARTING_BUDGET.underdog;
 
 /** ESTABLISHED: "comfortable but not rich." Unchanged from the pre-R-11 flat default. */
-export const ESTABLISHED_STARTING_BUDGET = 500_000;
+export const ESTABLISHED_STARTING_BUDGET = STARTING_BUDGET.established;
+
+// D-2: the figures live in lib/db/src/schema/career-difficulty.ts, which the
+// club picker reads too, so the picker cannot show a different number.
 
 /**
  * Season 1's purse access (R-54). A club is paid in full up to the tier it

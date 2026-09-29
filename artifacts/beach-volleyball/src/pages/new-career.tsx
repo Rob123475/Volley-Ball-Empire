@@ -27,6 +27,8 @@ import {
   DifficultyPicker,
   type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
+// D-2: the money the career will really start with — the server's own table.
+import { STARTING_BUDGET } from "@shared/career-difficulty";
 import {
   Loader2,
   User,
@@ -67,9 +69,9 @@ const UNRECOGNISED_STYLE: ContinentStyle = { emoji: "⚠️", colour: "text-red-
 const styleFor = (key: string): ContinentStyle =>
   isContinentKey(key) ? CONTINENT_STYLE[key] : UNRECOGNISED_STYLE;
 
-function formatBudget(v: string | null | undefined) {
-  if (!v) return "—";
-  const n = parseFloat(v);
+function formatBudget(v: number | string | null | undefined) {
+  if (v == null || v === "") return "—";
+  const n = typeof v === "number" ? v : parseFloat(v);
   if (isNaN(n)) return "—";
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
@@ -86,11 +88,13 @@ function ContinentGroup({
   selectedId,
   onSelect,
   defaultOpen,
+  startingMoney,
 }: {
   label: string;
   meta: ContinentStyle;
   warning?: string;
   clubs: ClubTemplate[];
+  startingMoney: number | null;
   selectedId: number | null;
   onSelect: (c: ClubTemplate) => void;
   defaultOpen: boolean;
@@ -134,7 +138,7 @@ function ContinentGroup({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-black text-white truncate">{c.name}</div>
-                <div className="text-[11px] text-white/40">{continentLabel(c.continent)} · Rating {c.rating} · {formatBudget(c.startingBudget)} budget</div>
+                <div className="text-[11px] text-white/40">{continentLabel(c.continent)} · Rating {c.rating} · {formatBudget(startingMoney)} budget</div>
               </div>
               {selectedId === c.id && <Check className="h-4 w-4 text-secondary shrink-0" />}
             </button>
@@ -232,6 +236,7 @@ export default function NewCareer() {
 
   const selectedNat = NATIONALITIES.find(n => n.name === nationality);
 
+  const startingMoney = difficulty ? STARTING_BUDGET[difficulty] : null;
   const canStep1 = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null;
   const canStep2 = selectedClub !== null;
 
@@ -480,7 +485,7 @@ export default function NewCareer() {
                   <ClubCrest name={selectedClub.name} primaryColor={selectedClub.primaryColor} secondaryColor={selectedClub.secondaryColor} size={32} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-black text-white">{selectedClub.name}</div>
-                    <div className="text-[11px] text-white/45">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
+                    <div className="text-[11px] text-white/45">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · {formatBudget(startingMoney)} budget</div>
                   </div>
                   <Check className="h-4 w-4 text-secondary shrink-0" />
                 </div>
@@ -509,6 +514,7 @@ export default function NewCareer() {
                         selectedId={selectedClub?.id ?? null}
                         onSelect={c => setSelectedClub(c)}
                         defaultOpen={selectedClub?.continent === key}
+                        startingMoney={startingMoney}
                       />
                     ))}
 
@@ -524,6 +530,7 @@ export default function NewCareer() {
                           `Still playable — but the data needs fixing.`
                         }
                         clubs={unrecognised}
+                        startingMoney={startingMoney}
                         selectedId={selectedClub?.id ?? null}
                         onSelect={c => setSelectedClub(c)}
                         defaultOpen

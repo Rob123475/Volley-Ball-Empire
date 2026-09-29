@@ -18,6 +18,8 @@ import {
   DifficultyPicker,
   type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
+// D-2: the money the career will really start with — the server's own table.
+import { STARTING_BUDGET } from "@shared/career-difficulty";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -57,9 +59,9 @@ type ClubTemplate  = import("@workspace/api-client-react").ClubTemplate;
 
 const SLOT_NUMBERS = [1, 2, 3] as const;
 
-function formatBudget(budget: string | null | undefined): string {
-  if (!budget) return "—";
-  const n = parseFloat(budget);
+function formatBudget(budget: number | string | null | undefined): string {
+  if (budget == null || budget === "") return "—";
+  const n = typeof budget === "number" ? budget : parseFloat(budget);
   if (isNaN(n)) return "—";
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
@@ -132,10 +134,12 @@ function ClubCard({
   club,
   selected,
   onSelect,
+  startingMoney,
 }: {
   club: ClubTemplate;
   selected: boolean;
   onSelect: () => void;
+  startingMoney: number | null;
 }) {
   const meta = styleFor(club.continent);
 
@@ -177,7 +181,7 @@ function ClubCard({
         )}>
           <div className="text-[9px] font-bold uppercase tracking-wide text-white/35">Budget</div>
           <div className={cn("text-xs font-black", selected ? "text-emerald-400" : "text-white/60")}>
-            {formatBudget(club.startingBudget)}
+            {formatBudget(startingMoney)}
           </div>
         </div>
       </div>
@@ -195,11 +199,13 @@ function ContinentGroup({
   selectedId,
   onSelect,
   defaultOpen,
+  startingMoney,
 }: {
   label: string;
   meta: ContinentStyle;
   warning?: string;
   clubs: ClubTemplate[];
+  startingMoney: number | null;
   selectedId: number | null;
   onSelect: (c: ClubTemplate) => void;
   defaultOpen: boolean;
@@ -245,6 +251,7 @@ function ContinentGroup({
               club={c}
               selected={c.id === selectedId}
               onSelect={() => onSelect(c)}
+              startingMoney={startingMoney}
             />
           ))}
         </div>
@@ -337,6 +344,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
     setStep(3);
   };
 
+  const startingMoney    = difficulty ? STARTING_BUDGET[difficulty] : null;
   const canProceedStep1  = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null;
   const canProceedStep2  = selectedClub !== null;
   const displayClubName  = customClubName.trim() || selectedClub?.name || "";
@@ -470,7 +478,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                       <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-black text-white truncate">{selectedClub.name}</div>
-                        <div className="text-[11px] text-white/45">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · {formatBudget(selectedClub.startingBudget)} budget</div>
+                        <div className="text-[11px] text-white/45">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · {formatBudget(startingMoney)} budget</div>
                       </div>
                     </div>
                   )}
@@ -498,6 +506,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                         selectedId={selectedClub?.id ?? null}
                         onSelect={c => { setSelectedClub(c); setCustomClubName(c.name); }}
                         defaultOpen={selectedClub?.continent === key}
+                        startingMoney={startingMoney}
                       />
                     ))}
 
@@ -517,6 +526,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                         selectedId={selectedClub?.id ?? null}
                         onSelect={c => { setSelectedClub(c); setCustomClubName(c.name); }}
                         defaultOpen
+                        startingMoney={startingMoney}
                       />
                     )}
                   </div>
@@ -536,7 +546,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   <div className="text-sm font-black text-white truncate">{selectedClub.name}</div>
                   <div className="text-[11px] text-white/40">{continentLabel(selectedClub.continent)} · Rating {selectedClub.rating} · Rep {selectedClub.reputation}</div>
                 </div>
-                <div className="text-sm font-black text-emerald-400">{formatBudget(selectedClub.startingBudget)}</div>
+                <div className="text-sm font-black text-emerald-400">{formatBudget(startingMoney)}</div>
               </div>
 
               {/* Custom name input */}

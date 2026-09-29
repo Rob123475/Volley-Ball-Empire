@@ -153,6 +153,10 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/staff-roles": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "staff-roles.ts",
       ),
+      // D-2: a career's starting money, the same table the server charges from.
+      "@shared/career-difficulty": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "career-difficulty.ts",
+      ),
     },
     dedupe: ["react", "react-dom"],
   },
