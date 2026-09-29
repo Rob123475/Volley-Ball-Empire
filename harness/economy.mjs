@@ -144,7 +144,24 @@ async function runOne(spec) {
           continue;
         }
         const mid = r.data?.matchDay?.matchId;
-        if (mid) { await api("POST", `/matches/${mid}/simulate`, {}); await api("POST", "/calendar/dismiss-match", {}); }
+        if (mid) {
+          await api("POST", `/matches/${mid}/simulate`, {}); await api("POST", "/calendar/dismiss-match", {});
+          // What the Finances page shows on a match day, beside the ledger at the
+          // same moment. Item 13 (Unity brief): the breakdown is THIS SEASON's
+          // ledger, so it is read inside the season, before the rollover opens
+          // the next one; and a club that is sold has no summary afterwards.
+          const summary = (await api("GET", "/finances/summary")).data ?? null;
+          const seasonFrom = summary?.periods?.season?.from, today = summary?.periods?.season?.to;
+          if (summary && seasonFrom) {
+            finances = {
+              summary,
+              ledger: Number(read(
+                `SELECT COALESCE(SUM(amount), 0) AS total FROM finance_transactions
+                  WHERE team_id = ? AND type = 'expense' AND category = 'running_costs' AND date >= ? AND date <= ?`,
+                teamId, seasonFrom, today)[0]?.total ?? 0),
+            };
+          }
+        }
         if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") { roll = r.data.seasonRollover; break; }
       }
       if (stopped || !roll) { stopped = stopped ?? { season: s, why: "no boundary" }; break; }
@@ -192,18 +209,6 @@ async function runOne(spec) {
       });
       lastBalance = balance;
       lastWins = wins; lastLosses = losses;
-
-      // What the Finances page would show at this moment, beside what the
-      // ledger holds at the same moment. Taken inside the loop because a club
-      // that is sold has no summary to ask for afterwards - every club route
-      // answers "no team" - and the last season it played is the one to check.
-      finances = {
-        summary: (await api("GET", "/finances/summary")).data ?? null,
-        ledger: Number(read(
-          `SELECT COALESCE(SUM(amount), 0) AS total FROM finance_transactions
-            WHERE team_id = ? AND type = 'expense' AND category = 'running_costs'`,
-          teamId)[0]?.total ?? 0),
-      };
 
       // The rollover carries the sale out with it: the season still opened,
       // the manager is simply not there for it (utils/seasonRollover.ts).
@@ -290,7 +295,7 @@ console.log(`  Gold top-three seasons: ${topThree.length} of ${all.filter((r) =>
 for (const run of runs) {
   if (run.error || !run.finances?.summary) continue;
   const shown = Number(run.finances.summary.expenseBreakdown?.runningCosts ?? -1);
-  check(`${run.spec.label}: the Finances page is told what the running costs were`,
+  check(`${run.spec.label}: the Finances page is told what the running costs were this season`,
     shown === run.finances.ledger && run.finances.ledger > 0,
     `summary says ${money(shown)}, the ledger says ${money(run.finances.ledger)}`);
 }

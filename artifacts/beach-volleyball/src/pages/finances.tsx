@@ -72,8 +72,25 @@ function formatCompact(val: number): string {
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
+// Unity brief item 13: what /finances/summary, /finances/wage-bill and
+// /finances/prize-money return now, beyond the generated types.
+interface FinanceForecast {
+  weeks: number; from: string; to: string;
+  income: { sponsorIncome: number; contractPayments: number; total: number };
+  expenses: { playerWages: number; staffWages: number; runningCosts: number; total: number };
+  net: number; projectedBalance: number;
+}
+type LedgerSummary = FinanceSummary & {
+  seasonIncome?: number; seasonExpenses?: number;
+  incomeSources: FinanceSummary["incomeSources"] & { other?: number };
+  forecast?: FinanceForecast | null;
+};
+type ContractWagePlayer = { id: number; name: string; monthlySalary: number; weeklySalary: number };
+
 interface SponsorOffer {
   id: number;
+  /** Days to expiry on the GAME calendar, from the server. */
+  daysLeft?: number | null;
   sponsor: string;
   description: string;
   amount: number;
@@ -121,7 +138,7 @@ export default function Finances() {
       return res.json() as Promise<{
         transactions: Array<{
           id: number; type: string; category: string; description: string;
-          amount: number; createdAt: string;
+          amount: number; createdAt: string; date: string;
         }>;
         total: number; limit: number; offset: number;
       }>;
@@ -255,7 +272,11 @@ export default function Finances() {
     return <div className="space-y-8"><Skeleton className="h-32 w-full" /><Skeleton className="h-96 w-full" /></div>;
   }
 
+  // Item 13: the ledger over the last 4 weeks (the 28 game days to today).
   const netPosition = (summary?.monthlyIncome || 0) - (summary?.monthlyExpenses || 0);
+  const ledger    = summary as LedgerSummary | undefined;
+  const seasonIn  = ledger?.seasonIncome  || 0;
+  const seasonOut = ledger?.seasonExpenses || 0;
 
   return (
     <div className="space-y-4 md:space-y-8">
@@ -267,10 +288,10 @@ export default function Finances() {
       {/* KPI Cards */}
       <div className="grid gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
         <KPICard title="Total Balance" value={formatCompact(summary?.totalBalance || 0)} icon={Wallet} />
-        <KPICard title="Monthly Income" value={formatCompact(summary?.monthlyIncome || 0)} icon={TrendingUp} color="text-green-500" />
-        <KPICard title="Monthly Expenses" value={formatCompact(summary?.monthlyExpenses || 0)} icon={TrendingDown} color="text-red-500" />
+        <KPICard title="Income, last 4 weeks" value={formatCompact(summary?.monthlyIncome || 0)} icon={TrendingUp} color="text-green-500" />
+        <KPICard title="Expenses, last 4 weeks" value={formatCompact(summary?.monthlyExpenses || 0)} icon={TrendingDown} color="text-red-500" />
         <KPICard
-          title="Net Position"
+          title="Net, last 4 weeks"
           value={formatCompact(netPosition)}
           icon={PieChart}
           color={netPosition >= 0 ? "text-green-500" : "text-red-500"}
@@ -406,29 +427,31 @@ export default function Finances() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>Income & Expenses</CardTitle>
-          <CardDescription>Visual breakdown of your cashflow.</CardDescription>
+          <CardDescription>This season, from the ledger: money that has moved. Each line's share of the season's income or expenses.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Income Sources</h4>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Income Sources · this season</h4>
             {(() => {
               const prizeMoney   = summary?.incomeSources?.prizeMoney   || 0;
               const sponsorships = summary?.incomeSources?.sponsorships || 0;
               const promoDeals   = summary?.incomeSources?.promoDeals   || 0;
-              const hasIncome    = prizeMoney + sponsorships + promoDeals > 0;
+              const otherIncome  = ledger?.incomeSources?.other        || 0;
+              const hasIncome    = seasonIn > 0;
               return hasIncome ? (
                 <div className="space-y-2">
-                  <BreakdownRow label="Prize Money" amount={prizeMoney} total={summary?.monthlyIncome || 1} color="bg-green-500" />
-                  <BreakdownRow label="Sponsorships" amount={sponsorships} total={summary?.monthlyIncome || 1} color="bg-blue-500" />
-                  <BreakdownRow label="Promo Deals" amount={promoDeals} total={summary?.monthlyIncome || 1} color="bg-gray-500" />
+                  <BreakdownRow label="Prize Money" amount={prizeMoney} total={seasonIn} color="bg-green-500" />
+                  <BreakdownRow label="Sponsorships" amount={sponsorships} total={seasonIn} color="bg-blue-500" />
+                  <BreakdownRow label="Promo Deals" amount={promoDeals} total={seasonIn} color="bg-gray-500" />
+                  {otherIncome > 0 && <BreakdownRow label="Other" amount={otherIncome} total={seasonIn} color="bg-gray-400" />}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">No income recorded yet.</p>
+                <p className="text-sm text-muted-foreground italic">No income this season yet.</p>
               );
             })()}
           </div>
           <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Expense Breakdown</h4>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Expense Breakdown · this season</h4>
             {(() => {
               const playerSalaries = summary?.expenseBreakdown?.playerSalaries || 0;
               const staffSalaries  = summary?.expenseBreakdown?.staffSalaries  || 0;
@@ -437,17 +460,17 @@ export default function Finances() {
               const runningCosts   = summary?.expenseBreakdown?.runningCosts   || 0;
               const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
               const other          = summary?.expenseBreakdown?.other          || 0;
-              const hasExpenses    = playerSalaries + staffSalaries + runningCosts + trainingCosts + other > 0;
+              const hasExpenses    = seasonOut > 0;
               return hasExpenses ? (
                 <div className="space-y-2">
-                  <BreakdownRow label="Player Salaries" amount={playerSalaries} total={summary?.monthlyExpenses || 1} color="bg-red-500" />
-                  <BreakdownRow label="Running Costs" amount={runningCosts} total={summary?.monthlyExpenses || 1} color="bg-amber-500" />
-                  <BreakdownRow label="Staff" amount={staffSalaries} total={summary?.monthlyExpenses || 1} color="bg-orange-500" />
-                  <BreakdownRow label="Training" amount={trainingCosts} total={summary?.monthlyExpenses || 1} color="bg-purple-500" />
-                  <BreakdownRow label="Other" amount={other} total={summary?.monthlyExpenses || 1} color="bg-gray-500" />
+                  <BreakdownRow label="Player Salaries" amount={playerSalaries} total={seasonOut} color="bg-red-500" />
+                  <BreakdownRow label="Running Costs" amount={runningCosts} total={seasonOut} color="bg-amber-500" />
+                  <BreakdownRow label="Staff" amount={staffSalaries} total={seasonOut} color="bg-orange-500" />
+                  <BreakdownRow label="Training" amount={trainingCosts} total={seasonOut} color="bg-purple-500" />
+                  <BreakdownRow label="Other" amount={other} total={seasonOut} color="bg-gray-500" />
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">No expenses recorded yet.</p>
+                <p className="text-sm text-muted-foreground italic">No expenses this season yet.</p>
               );
             })()}
           </div>
@@ -520,7 +543,7 @@ export default function Finances() {
               <TableBody>
                 {transactions.map((t) => (
                   <TableRow key={t.id}>
-                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{format(new Date(t.createdAt), "MMM d, yyyy")}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{format(new Date(`${t.date}T00:00:00`), "MMM d, yyyy")}</TableCell>
                     <TableCell>
                       {t.type === "income" ? (
                         <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1"><ArrowUpRight className="h-3 w-3" /> INCOME</Badge>
@@ -565,6 +588,9 @@ export default function Finances() {
 
 /* ── Cashflow Forecast Card ──────────────────────────────────── */
 
+// Item 13: the one forecast on the page. The next 4 weeks at this week's rates,
+// computed by the server the way the weekly run charges (GET /finances/summary).
+// It used to be "this month's" ledger plus a month of an invented wage bill.
 function CashflowForecastCard({
   summary,
   isLoading,
@@ -572,22 +598,24 @@ function CashflowForecastCard({
   summary: FinanceSummary | undefined;
   isLoading: boolean;
 }) {
-  const currentBalance    = summary?.totalBalance    ?? 0;
-  const expectedIncome    = summary?.monthlyIncome   ?? 0;
-  const expectedExpenses  = summary?.monthlyExpenses ?? 0;
-  const projectedBalance  = currentBalance + expectedIncome - expectedExpenses;
-  const net               = expectedIncome - expectedExpenses;
+  const forecast          = (summary as LedgerSummary | undefined)?.forecast ?? null;
+  const currentBalance    = summary?.totalBalance ?? 0;
+  const expectedIncome    = forecast?.income.total   ?? 0;
+  const expectedExpenses  = forecast?.expenses.total ?? 0;
+  const projectedBalance  = forecast?.projectedBalance ?? currentBalance;
+  const net               = forecast?.net ?? 0;
   const isPositive        = net >= 0;
+  const weeks             = forecast?.weeks ?? 4;
 
   return (
-    <Card className="border-primary/20 bg-primary/5">
+    <Card className="border-primary/20 bg-primary/5" data-testid="cashflow-forecast">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-primary" />
             <CardTitle className="text-base">Cashflow Forecast</CardTitle>
           </div>
-          <span className="text-xs text-muted-foreground">Based on this month's activity</span>
+          <span className="text-xs text-muted-foreground">Forecast: next {weeks} weeks at this week's rates. Prize money not included.</span>
         </div>
       </CardHeader>
 
@@ -600,50 +628,37 @@ function CashflowForecastCard({
           </div>
         ) : (
           <>
-            {/* Four stat blocks */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {/* Current Balance */}
               <div className="rounded-lg border bg-card p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Wallet className="h-3.5 w-3.5" />
                   Current Balance
                 </div>
-                <p className="text-lg font-bold text-primary truncate">
-                  {formatCompact(currentBalance)}
-                </p>
-                <p className="text-[10px] text-muted-foreground">Available now</p>
+                <p className="text-lg font-bold text-primary truncate">{formatCompact(currentBalance)}</p>
+                <p className="text-[10px] text-muted-foreground">Today</p>
               </div>
 
-              {/* Expected Income */}
               <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400">
                   <TrendingUp className="h-3.5 w-3.5" />
                   Expected Income
                 </div>
-                <p className="text-lg font-bold text-green-600 truncate">
-                  +{formatCompact(expectedIncome)}
-                </p>
-                <p className="text-[10px] text-muted-foreground">Next 30 days</p>
+                <p className="text-lg font-bold text-green-600 truncate">+{formatCompact(expectedIncome)}</p>
+                <p className="text-[10px] text-muted-foreground">Next {weeks} weeks</p>
               </div>
 
-              {/* Expected Expenses */}
               <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-red-700 dark:text-red-400">
                   <TrendingDown className="h-3.5 w-3.5" />
                   Expected Expenses
                 </div>
-                <p className="text-lg font-bold text-red-600 truncate">
-                  -{formatCompact(expectedExpenses)}
-                </p>
-                <p className="text-[10px] text-muted-foreground">Next 30 days</p>
+                <p className="text-lg font-bold text-red-600 truncate">-{formatCompact(expectedExpenses)}</p>
+                <p className="text-[10px] text-muted-foreground">Next {weeks} weeks</p>
               </div>
 
-              {/* Projected Balance */}
               <div className={cn(
                 "rounded-lg border p-3 space-y-1",
-                isPositive
-                  ? "border-blue-500/20 bg-blue-500/5"
-                  : "border-orange-500/20 bg-orange-500/5"
+                isPositive ? "border-blue-500/20 bg-blue-500/5" : "border-orange-500/20 bg-orange-500/5"
               )}>
                 <div className={cn(
                   "flex items-center gap-1.5 text-xs",
@@ -652,91 +667,46 @@ function CashflowForecastCard({
                   <DollarSign className="h-3.5 w-3.5" />
                   Projected Balance
                 </div>
-                <p className={cn(
-                  "text-lg font-bold truncate",
-                  isPositive ? "text-blue-600" : "text-orange-600"
-                )}>
+                <p className={cn("text-lg font-bold truncate", isPositive ? "text-blue-600" : "text-orange-600")}>
                   {formatCompact(projectedBalance)}
                 </p>
-                <p className={cn(
-                  "text-[10px] font-medium flex items-center gap-0.5",
-                  isPositive ? "text-green-600" : "text-red-600"
-                )}>
+                <p className={cn("text-[10px] font-medium flex items-center gap-0.5", isPositive ? "text-green-600" : "text-red-600")}>
                   {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                  {isPositive ? "+" : ""}{formatCompact(net)} net
+                  {isPositive ? "+" : ""}{formatCompact(net)} net in {weeks} weeks
                 </p>
               </div>
             </div>
 
-            {/* Income vs Expense bar */}
-            {(expectedIncome > 0 || expectedExpenses > 0) && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-green-500 inline-block" />
-                    Income
-                  </span>
-                  <span className="font-medium">vs</span>
-                  <span className="flex items-center gap-1">
-                    Expenses
-                    <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
-                  </span>
+            {forecast && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 pt-1">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Expected income, next {weeks} weeks</p>
+                  {[
+                    { label: "Weekly sponsor & commercial income", value: forecast.income.sponsorIncome },
+                    { label: "Sponsor contract payments due",      value: forecast.income.contractPayments },
+                  ].filter(r => r.value > 0).map(row => (
+                    <div key={row.label} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <ChevronRight className="h-3 w-3 text-green-500" />{row.label}
+                      </span>
+                      <span className="font-semibold text-green-600">{formatCompact(row.value)}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted gap-0.5">
-                  {(() => {
-                    const total = expectedIncome + expectedExpenses;
-                    const incomePct = total > 0 ? (expectedIncome / total) * 100 : 50;
-                    const expensePct = 100 - incomePct;
-                    return (
-                      <>
-                        <div className="h-full rounded-l-full bg-green-500 transition-all" style={{ width: `${incomePct}%` }} />
-                        <div className="h-full rounded-r-full bg-red-500 transition-all"   style={{ width: `${expensePct}%` }} />
-                      </>
-                    );
-                  })()}
-                </div>
-
-                {/* Breakdown detail rows */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 pt-1">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Income sources</p>
-                    {[
-                      { label: "Prize Money",   value: summary?.incomeSources.prizeMoney   ?? 0 },
-                      { label: "Sponsorships",  value: summary?.incomeSources.sponsorships ?? 0 },
-                      { label: "Promo Deals",   value: summary?.incomeSources.promoDeals   ?? 0 },
-                    ].filter(r => r.value > 0).map(row => (
-                      <div key={row.label} className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1.5 text-muted-foreground">
-                          <ChevronRight className="h-3 w-3 text-green-500" />{row.label}
-                        </span>
-                        <span className="font-semibold text-green-600">{formatCompact(row.value)}</span>
-                      </div>
-                    ))}
-                    {expectedIncome === 0 && (
-                      <p className="text-xs text-muted-foreground italic">No income this month</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Expense breakdown</p>
-                    {[
-                      { label: "Player Salaries", value: summary?.expenseBreakdown.playerSalaries ?? 0 },
-                      { label: "Running Costs",    value: summary?.expenseBreakdown.runningCosts   ?? 0 },
-                      { label: "Staff",            value: summary?.expenseBreakdown.staffSalaries  ?? 0 },
-                      { label: "Training",         value: summary?.expenseBreakdown.trainingCosts  ?? 0 },
-                      { label: "Other",            value: summary?.expenseBreakdown.other          ?? 0 },
-                    ].filter(r => r.value > 0).map(row => (
-                      <div key={row.label} className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1.5 text-muted-foreground">
-                          <ChevronRight className="h-3 w-3 text-red-500" />{row.label}
-                        </span>
-                        <span className="font-semibold text-red-600">{formatCompact(row.value)}</span>
-                      </div>
-                    ))}
-                    {expectedExpenses === 0 && (
-                      <p className="text-xs text-muted-foreground italic">No expenses this month</p>
-                    )}
-                  </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Expected expenses, next {weeks} weeks</p>
+                  {[
+                    { label: "Player wages (contracts)", value: forecast.expenses.playerWages },
+                    { label: "Staff wages (contracts)",  value: forecast.expenses.staffWages },
+                    { label: "Running costs",            value: forecast.expenses.runningCosts },
+                  ].filter(r => r.value > 0).map(row => (
+                    <div key={row.label} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <ChevronRight className="h-3 w-3 text-red-500" />{row.label}
+                      </span>
+                      <span className="font-semibold text-red-600">{formatCompact(row.value)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -748,14 +718,6 @@ function CashflowForecastCard({
 }
 
 /* ── Player Wage Bill Card ──────────────────────────────────── */
-
-const TIER_BADGE_STYLES: Record<string, string> = {
-  "Elite Player":    "bg-violet-500/10 text-violet-700 border-violet-500/20",
-  "Star Player":     "bg-yellow-500/10 text-yellow-700 border-yellow-500/20",
-  "Regular Player":  "bg-blue-500/10 text-blue-700 border-blue-500/20",
-  "Developing Player": "bg-slate-500/10 text-slate-600 border-slate-400/20",
-  "Rookie":          "bg-muted text-muted-foreground border-border",
-};
 
 function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; isLoading: boolean }) {
   const [expanded, setExpanded] = useState(false);
@@ -779,7 +741,7 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
 
   const weeklyWages  = data?.weeklyWages  ?? 0;
   const monthlyWages = data?.monthlyWages ?? 0;
-  const players      = data?.players      ?? [];
+  const players      = (data?.players ?? []) as unknown as ContractWagePlayer[];
 
   return (
     <Card>
@@ -791,17 +753,17 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
           </CardTitle>
           <Badge variant="outline" className="text-xs">{players.length} players</Badge>
         </div>
-        <CardDescription>Live wage bill based on player ratings</CardDescription>
+        <CardDescription>From the signed contracts. A week is the month's salary / (52/12), as charged every week.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Totals */}
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-muted/50 p-3">
-            <div className="text-xs text-muted-foreground mb-1">Weekly Wages</div>
-            <div className="text-base sm:text-xl font-bold text-red-600 truncate">{formatCurrency(weeklyWages)}</div>
+            <div className="text-xs text-muted-foreground mb-1">Per week</div>
+            <div className="text-base sm:text-xl font-bold text-red-600 truncate" data-testid="wages-weekly">{formatCurrency(weeklyWages)}</div>
           </div>
           <div className="rounded-lg bg-muted/50 p-3">
-            <div className="text-xs text-muted-foreground mb-1">Monthly Wages</div>
+            <div className="text-xs text-muted-foreground mb-1">Per month (contracts)</div>
             <div className="text-base sm:text-xl font-bold text-red-600 truncate">{formatCurrency(monthlyWages)}</div>
           </div>
         </div>
@@ -823,8 +785,8 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
               <thead>
                 <tr className="border-b bg-muted/40">
                   <th className="text-left px-3 py-2 font-medium text-muted-foreground">Player</th>
-                  <th className="text-left px-3 py-2 font-medium text-muted-foreground hidden sm:table-cell">Tier</th>
-                  <th className="text-right px-3 py-2 font-medium text-muted-foreground">Weekly</th>
+                  <th className="text-right px-3 py-2 font-medium text-muted-foreground hidden sm:table-cell">Per month</th>
+                  <th className="text-right px-3 py-2 font-medium text-muted-foreground">Per week</th>
                 </tr>
               </thead>
               <tbody>
@@ -833,9 +795,7 @@ function PlayerWageBillCard({ data, isLoading }: { data: WageBill | undefined; i
                   .map((p, i) => (
                     <tr key={p.id} className={cn("border-b last:border-0", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
                       <td className="px-3 py-2 font-medium">{p.name}</td>
-                      <td className="px-3 py-2 hidden sm:table-cell">
-                        <Badge className={cn("text-xs border", TIER_BADGE_STYLES[p.tier] ?? "bg-muted")}>{p.tier}</Badge>
-                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums hidden sm:table-cell">{formatCurrency(p.monthlySalary)}</td>
                       <td className="px-3 py-2 text-right tabular-nums text-red-600 font-medium">
                         {formatCurrency(p.weeklySalary)}
                       </td>
@@ -1105,7 +1065,7 @@ function computeHealthRating(balance: number, netPosition: number): {
     return {
       rating: "Critical",
       emoji: "🔴",
-      explanation: "Your balance is critically low and monthly expenses are exceeding income — act now.",
+      explanation: "Your balance is critically low and over the last 4 weeks expenses exceeded income — act now.",
     };
   }
   if (lowBalance || negativeNet) {
@@ -1126,14 +1086,14 @@ function computeHealthRating(balance: number, netPosition: number): {
     return {
       rating: "Warning",
       emoji: "🟠",
-      explanation: "Monthly expenses are exceeding income — review your spending to restore a positive cash flow.",
+      explanation: "Over the last 4 weeks expenses exceeded income — review your spending to restore a positive cash flow.",
     };
   }
   if (balance >= 250_000 && netPosition > 0) {
     return {
       rating: "Excellent",
       emoji: "🟢",
-      explanation: "Your finances are in great shape — strong balance with positive monthly cash flow.",
+      explanation: "Your finances are in great shape — strong balance with positive cash flow over the last 4 weeks.",
     };
   }
   return {
@@ -1195,7 +1155,7 @@ function FinancialHealthRatingCard({
               <div className="text-sm font-semibold">{formatCompact(balance)}</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Net / month</div>
+              <div className="text-xs text-muted-foreground">Net, last 4 weeks</div>
               <div className={cn("text-sm font-semibold", netPosition >= 0 ? "text-green-600" : "text-red-600")}>
                 {netPosition >= 0 ? "+" : ""}{formatCompact(netPosition)}
               </div>
@@ -1210,6 +1170,8 @@ function FinancialHealthRatingCard({
 /* ── Prize Money Tracker Card ───────────────────────────────── */
 
 const TOUR_COLORS: Record<string, string> = {
+  "Winner's prizes":   "bg-green-500",
+  "Runner-up prizes":  "bg-slate-400",
   "Local Tour":        "bg-slate-400",
   "Continental Tour":  "bg-blue-500",
   "World Tour":        "bg-violet-500",
@@ -1249,11 +1211,11 @@ function PrizeMoneyTrackerCard({
           <Medal className="h-4 w-4 text-yellow-500" />
           Prize Money Tracker
         </CardTitle>
-        <CardDescription>Season prize money earned by tour</CardDescription>
+        <CardDescription>Prize money paid this season, from the ledger</CardDescription>
       </CardHeader>
       <CardContent>
         {isEmpty ? (
-          <p className="text-sm text-muted-foreground italic">No prize money earned yet.</p>
+          <p className="text-sm text-muted-foreground italic">No prize money paid this season yet.</p>
         ) : (
           <div className="space-y-3">
             {data.breakdown.map(row => {
@@ -1266,7 +1228,7 @@ function PrizeMoneyTrackerCard({
                       <span className={cn("inline-block h-2 w-2 rounded-full shrink-0", barColor)} />
                       <span className="font-medium">{row.category}</span>
                       <span className="text-xs text-muted-foreground">
-                        ({row.matches} {row.matches === 1 ? "win" : "wins"})
+                        ({row.matches} {row.matches === 1 ? "payment" : "payments"})
                       </span>
                     </div>
                     <span className="font-semibold tabular-nums">{formatCurrency(row.amount)}</span>
@@ -1279,7 +1241,7 @@ function PrizeMoneyTrackerCard({
             })}
 
             <div className="mt-4 pt-3 border-t flex items-center justify-between">
-              <span className="text-sm font-semibold text-muted-foreground">Total Season Prize Money</span>
+              <span className="text-sm font-semibold text-muted-foreground">Prize money this season</span>
               <span className="text-lg font-bold text-green-600">{formatCurrency(data.total)}</span>
             </div>
           </div>
@@ -1478,10 +1440,9 @@ function SponsorOfferCard({
   onReject: () => void;
   isPending: boolean;
 }) {
-  const expiresDate = offer.expiresAt ? new Date(offer.expiresAt) : null;
-  const daysLeft = expiresDate
-    ? Math.max(0, Math.ceil((expiresDate.getTime() - Date.now()) / 86_400_000))
-    : null;
+  // Item 13: counted by the server on the GAME calendar. This used the PC's
+  // clock, months past the game's, so every offer said "Expires 0d".
+  const daysLeft = offer.daysLeft ?? null;
 
   return (
     <div className={cn(

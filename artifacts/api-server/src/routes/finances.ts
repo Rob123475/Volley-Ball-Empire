@@ -10,6 +10,10 @@ import { academyWeeklyWage } from "../utils/academy.js";
 import { loadPlayers, careerSaveIdForTeamOrThrow, loadStaff } from "../lib/playerDto.js";
 import type { FinanceTransaction, PromoDeal } from "@workspace/db";
 import { promotionsMultiplier } from "../utils/staffBonuses.js";
+import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
+import { purseAccessTierFor } from "../utils/rankingPoints.js";
+import { weeklyRunningCost } from "../utils/runningCosts.js";
+import { WEEKS_PER_MONTH, SPONSOR_REP_BASELINE, decayedReputation, sponsorWeeklyIncome } from "../utils/clubFinances.js";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -20,28 +24,6 @@ function scoreSponsorReputation(score: number): { label: string; stars: number }
   if (score <= 80) return { label: "Attractive", stars: 4 };
   return               { label: "Elite",       stars: 5 };
 }
-
-/* ── Player salary helpers ──────────────────────────────────── */
-
-type PlayerTier = "Rookie" | "Developing Player" | "Regular Player" | "Star Player" | "Elite Player";
-
-const WEEKLY_SALARY: Record<PlayerTier, number> = {
-  "Rookie":          400,
-  "Developing Player": 900,
-  "Regular Player":  1_500,
-  "Star Player":     3_000,
-  "Elite Player":    4_500,
-};
-
-function getPlayerTier(overallRating: number): PlayerTier {
-  if (overallRating >= 85) return "Elite Player";
-  if (overallRating >= 70) return "Star Player";
-  if (overallRating >= 55) return "Regular Player";
-  if (overallRating >= 40) return "Developing Player";
-  return "Rookie";
-}
-
-const WEEKS_PER_MONTH = 52 / 12;
 
 async function computeStaffWageBill(teamId: number) {
   // staff.salary is a MONTHLY figure — that is how the source data is written
@@ -61,20 +43,25 @@ async function computeStaffWageBill(teamId: number) {
   return { weeklyWages, monthlyWages, staffCount: roster.length, staff: roster };
 }
 
+// Unity brief item 13 (Rob, 29 Sep): the Player Wages box said $10,500 a week and
+// $45,500 a month for three players whose contracts total $24,600 a month. It
+// priced every player from a table by rating tier ("Star Player" $3,000 a week),
+// not from her contract. It now reads the signed contracts' monthly salaries, and
+// a week is the month / (52/12): exactly what routes/calendar.ts charges.
 async function computeWageBill(teamId: number) {
   const players = await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId });
-  // Exclude youth academy players — they have a separate wage system. Keyed on
-  // player_type, not an age guess: 9 shipped academy players are 19, and the
-  // old age test billed them at senior tier rates.
-  const seniorPlayers = players.filter(isSeniorPlayer);
-  const roster = seniorPlayers.map(p => {
-    const overallRating = Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
-    const tier       = getPlayerTier(overallRating);
-    const weeklySalary = WEEKLY_SALARY[tier];
-    return { id: p.id, name: p.name, tier, weeklySalary };
-  });
-  const weeklyWages  = roster.reduce((s, p) => s + p.weeklySalary, 0);
-  const monthlyWages = Math.round(weeklyWages * WEEKS_PER_MONTH);
+  // Academy players are paid on the academy's weekly table (computeYouthWageBill),
+  // as the weekly run pays them. Keyed on player_type, not an age guess.
+  const roster = players.filter(isSeniorPlayer).map(p => ({
+    id:            p.id,
+    name:          p.name,
+    monthlySalary: Number(p.salary),
+    weeklySalary:  Math.round(Number(p.salary) / WEEKS_PER_MONTH),
+    contractEnds:  p.contractEndDate ?? null,
+  }));
+  const monthlyWages = roster.reduce((sum, p) => sum + p.monthlySalary, 0);
+  // Rounded once, on the total, as the weekly charge rounds it.
+  const weeklyWages  = Math.round(monthlyWages / WEEKS_PER_MONTH);
   return { weeklyWages, monthlyWages, playerCount: roster.length, players: roster };
 }
 
@@ -158,73 +145,143 @@ router.post("/finances", async (req, res) => {
   res.status(201).json(serializeTx(tx));
 });
 
+/**
+ * GET /finances/summary. Unity brief item 13: every figure is one of three things.
+ *   - Money that MOVED, summed from the ledger (finance_transactions) over a
+ *     stated period: monthlyIncome/monthlyExpenses are the last 4 weeks (the 28
+ *     game days to today); incomeSources/expenseBreakdown and
+ *     seasonIncome/seasonExpenses are this season, from its first day.
+ *   - Wages OWED: /finances/wage-bill and /finances/staff-wage-bill, from the
+ *     signed contracts.
+ *   - The one FORECAST: the next 4 weeks at this week's rates, labelled so.
+ * The old monthly figures added a month of the (wrongly priced) wage bill on top
+ * of what the ledger had already charged, and the page divided all-time
+ * category totals by this month's, which is how 586% and 3145% appeared.
+ */
 router.get("/finances/summary", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) {
-    res.json({ totalBalance: 0, totalIncome: 0, totalExpenses: 0, monthlyIncome: 0, monthlyExpenses: 0, incomeSources: { prizeMoney: 0, sponsorships: 0, promoDeals: 0 }, expenseBreakdown: { playerSalaries: 0, staffSalaries: 0, runningCosts: 0, trainingCosts: 0, other: 0 }, recentTransactions: [] });
+    res.json({ totalBalance: 0, totalIncome: 0, totalExpenses: 0, monthlyIncome: 0, monthlyExpenses: 0, seasonIncome: 0, seasonExpenses: 0, incomeSources: { prizeMoney: 0, sponsorships: 0, promoDeals: 0, other: 0 }, expenseBreakdown: { playerSalaries: 0, staffSalaries: 0, runningCosts: 0, trainingCosts: 0, other: 0 }, forecast: null, recentTransactions: [] });
     return;
   }
+  const careerSaveId = await careerSaveIdForTeamOrThrow(team.id);
   const txs = await db.select().from(financeTransactionsTable)
     .where(eq(financeTransactionsTable.teamId, team.id))
     .orderBy(desc(financeTransactionsTable.createdAt));
 
   // Expense rows carry a positive magnitude and take their sign from `type`.
-  // A few routes used to store negatives; normalise so old saves total up
-  // correctly and the "other" bar cannot go negative.
-  const income = txs.filter(t => t.type === "income").map(t => ({ ...t, amount: Math.abs(Number(t.amount)) }));
-  const expenses = txs.filter(t => t.type === "expense").map(t => ({ ...t, amount: Math.abs(Number(t.amount)) }));
-  const totalIncome = income.reduce((acc, t) => acc + Number(t.amount), 0);
-  const totalExpenses = expenses.reduce((acc, t) => acc + Number(t.amount), 0);
+  // A few routes used to store negatives; normalise so old saves total up.
+  const amountOf = (t: FinanceTransaction) => Math.abs(Number(t.amount));
+  const total = (rows: FinanceTransaction[]) => rows.reduce((acc, t) => acc + amountOf(t), 0);
+  const income   = txs.filter(t => t.type === "income");
+  const expenses = txs.filter(t => t.type === "expense");
 
-  // In-game month, not the machine's — see dashboard.ts for the same fix.
-  const monthStr = (await getGameDate(team.id)).slice(0, 7);
-  const monthIncome = income.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
-  const monthExpenses = expenses.filter(t => t.date.startsWith(monthStr)).reduce((acc, t) => acc + Number(t.amount), 0);
+  // Periods on the GAME calendar, the ledger's own dates.
+  const today = await getGameDate(team.id);
+  const fourWeeksFrom = addDays(today, -27);
+  const season = await getActiveSeasonForCareer(careerSaveId);
+  const seasonFrom = season?.startDate ?? `${today.slice(0, 4)}-01-01`;
+  const within = (from: string) => (t: FinanceTransaction) => t.date >= from && t.date <= today;
+  const seasonIncomeRows  = income.filter(within(seasonFrom));
+  const seasonExpenseRows = expenses.filter(within(seasonFrom));
+  const inCategories = (rows: FinanceTransaction[], cats: string[]) => total(rows.filter(t => cats.includes(t.category)));
 
-  const [wageBill, staffWageBill, youthWageBill] = await Promise.all([
-    computeWageBill(team.id),
-    computeStaffWageBill(team.id),
-    computeYouthWageBill(team.id),
-  ]);
-  // The weekly charge in calendar.ts writes categories "salaries" and "staff";
-  // older/other rows use "player_salary" and "staff_salary". Accept both, or
-  // every wage row falls through to "Other".
+  // The weekly charge in calendar.ts writes "salaries" and "staff_salary"; older
+  // rows use "player_salary" and "staff". Accept both, or wages fall into Other.
   const PLAYER_SALARY_CATEGORIES = ["player_salary", "salaries"];
   const STAFF_SALARY_CATEGORIES  = ["staff_salary", "staff"];
-  // L-04's weekly charge writes "running_costs" (routes/calendar.ts). Nothing
-  // read it back: the breakdown had no `runningCosts` at all, so the Finances
-  // page — which asks for it by name, and which the API spec says returns it —
-  // showed $0 for what is the biggest expense most clubs have, and the money
-  // itself fell through to "Other". Counted here, and excluded from Other below.
+  // L-04's weekly charge writes "running_costs" (routes/calendar.ts).
   const RUNNING_COST_CATEGORIES  = ["running_costs"];
-  const txPlayerSalaries = expenses.filter(t => PLAYER_SALARY_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
-  const txStaffSalaries  = expenses.filter(t => STAFF_SALARY_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
-  const txRunningCosts   = expenses.filter(t => RUNNING_COST_CATEGORIES.includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0);
+  const TRAINING_CATEGORIES      = ["training_cost"];
+  const NAMED_EXPENSES = [...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, ...TRAINING_CATEGORIES];
+  const NAMED_INCOME   = ["prize_money", "sponsorship", "promo_deal"];
 
   res.json({
     totalBalance: Number(team.budget),
-    totalIncome,
-    totalExpenses,
-    monthlyIncome: monthIncome,
-    monthlyExpenses: monthExpenses + wageBill.monthlyWages + staffWageBill.monthlyWages + youthWageBill.monthlyWages,
+    // Every row ever, for the ledger's own reconciliation.
+    totalIncome:   total(income),
+    totalExpenses: total(expenses),
+    periods: { last4Weeks: { from: fourWeeksFrom, to: today }, season: { from: seasonFrom, to: today } },
+    monthlyIncome:   total(income.filter(within(fourWeeksFrom))),
+    monthlyExpenses: total(expenses.filter(within(fourWeeksFrom))),
+    seasonIncome:    total(seasonIncomeRows),
+    seasonExpenses:  total(seasonExpenseRows),
     incomeSources: {
-      prizeMoney: income.filter(t => t.category === "prize_money").reduce((acc, t) => acc + Number(t.amount), 0),
-      sponsorships: income.filter(t => t.category === "sponsorship").reduce((acc, t) => acc + Number(t.amount), 0),
-      promoDeals: income.filter(t => t.category === "promo_deal").reduce((acc, t) => acc + Number(t.amount), 0),
+      prizeMoney:   inCategories(seasonIncomeRows, ["prize_money"]),
+      sponsorships: inCategories(seasonIncomeRows, ["sponsorship"]),
+      promoDeals:   inCategories(seasonIncomeRows, ["promo_deal"]),
+      other:        total(seasonIncomeRows.filter(t => !NAMED_INCOME.includes(t.category))),
     },
     expenseBreakdown: {
-      playerSalaries: txPlayerSalaries + wageBill.monthlyWages + youthWageBill.monthlyWages,
-      staffSalaries: txStaffSalaries + staffWageBill.monthlyWages,
-      runningCosts: txRunningCosts,
-      trainingCosts: expenses.filter(t => t.category === "training_cost").reduce((acc, t) => acc + Number(t.amount), 0),
-      other: expenses.filter(t => ![
-        ...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, "training_cost",
-      ].includes(t.category)).reduce((acc, t) => acc + Number(t.amount), 0),
+      playerSalaries: inCategories(seasonExpenseRows, PLAYER_SALARY_CATEGORIES),
+      staffSalaries:  inCategories(seasonExpenseRows, STAFF_SALARY_CATEGORIES),
+      runningCosts:   inCategories(seasonExpenseRows, RUNNING_COST_CATEGORIES),
+      trainingCosts:  inCategories(seasonExpenseRows, TRAINING_CATEGORIES),
+      other:          total(seasonExpenseRows.filter(t => !NAMED_EXPENSES.includes(t.category))),
     },
+    forecast: await forecastWeeks(team, careerSaveId, today, season?.year ?? Number(today.slice(0, 4))),
     recentTransactions: txs.slice(0, 10).map(serializeTx),
   });
 });
+
+function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+const FORECAST_WEEKS = 4;
+
+/**
+ * The next 4 salary weeks, charged the way routes/calendar.ts charges them:
+ * sponsor income on the reputation as it decays toward the baseline week by
+ * week, player wages (contracts / (52/12) plus the academy table), staff wages,
+ * running costs; plus the monthly payments of signed sponsor contracts that fall
+ * due inside the 28 days. Prize money is not forecast: it depends on results.
+ */
+async function forecastWeeks(team: typeof teamsTable.$inferSelect, careerSaveId: number, today: string, seasonYear: number) {
+  const [wageBill, staffWageBill, youthWageBill, squad, staff, tier] = await Promise.all([
+    computeWageBill(team.id), computeStaffWageBill(team.id), computeYouthWageBill(team.id),
+    loadPlayers(careerSaveId, { teamId: team.id }), loadStaff(careerSaveId, { teamId: team.id }),
+    purseAccessTierFor(careerSaveId, team.id, seasonYear),
+  ]);
+  const promoBonus = promotionsMultiplier(staff);
+  let reputation = team.sponsorReputation ?? SPONSOR_REP_BASELINE;
+  let sponsorIncome = 0;
+  for (let w = 0; w < FORECAST_WEEKS; w++) {
+    reputation = decayedReputation(reputation);
+    sponsorIncome += Math.round(sponsorWeeklyIncome(reputation) * promoBonus);
+  }
+  const horizon = addDays(today, FORECAST_WEEKS * 7);
+  const contracts = await db.select().from(promoDealsTable)
+    .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.isAccepted, true), eq(promoDealsTable.status, "accepted")));
+  let contractPayments = 0;
+  for (const c of contracts) {
+    const monthly = Math.round(Number(c.monthlyPayment ?? 0) * promoBonus);
+    if (monthly <= 0) continue;
+    // Paid when 30 days have passed since the last payment (GET /finances/sponsor-active).
+    let due = c.lastPaymentDate ? addDays(c.lastPaymentDate, 30) : today;
+    while (due <= horizon && (!c.contractEndDate || due <= c.contractEndDate)) {
+      contractPayments += monthly;
+      due = addDays(due, 30);
+    }
+  }
+  const playerWages  = (wageBill.weeklyWages + youthWageBill.weeklyWages) * FORECAST_WEEKS;
+  const staffWages   = staffWageBill.weeklyWages * FORECAST_WEEKS;
+  const runningCosts = weeklyRunningCost(squad.length, tier) * FORECAST_WEEKS;
+  const income   = sponsorIncome + contractPayments;
+  const expenses = playerWages + staffWages + runningCosts;
+  return {
+    weeks: FORECAST_WEEKS,
+    from: today,
+    to: horizon,
+    income: { sponsorIncome, contractPayments, total: income },
+    expenses: { playerWages, staffWages, runningCosts, total: expenses },
+    net: income - expenses,
+    projectedBalance: Number(team.budget) + income - expenses,
+  };
+}
 
 router.get("/finances/wage-bill", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -248,42 +305,26 @@ router.get("/finances/staff-wage-bill", async (req, res) => {
   res.json(await computeStaffWageBill(team.id));
 });
 
-const TIER_TO_CATEGORY: Record<string, string> = {
-  Bronze:             "World Tour",
-  Silver:             "World Tour",
-  Gold:               "World Tour",
-  Elite:              "World Tour",
-  "Continental Final": "Continental Tour",
-  "Grand Final":       "World Championship",
-  Olympics:            "Olympics",
-};
-const CATEGORY_ORDER = ["Local Tour", "Continental Tour", "World Tour", "World Championship", "Olympics"];
-
+// Unity brief item 13: the tracker said "$14,500 (2 wins)" where the ledger held
+// $14,950 from 4 prizes. It summed the ADVERTISED purses of won matches. It now
+// sums the money PAID, from the ledger: winner's prizes and runner-up prizes,
+// this season (and all seasons, for the record).
 router.get("/finances/prize-money", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
-  if (!team) { res.json({ total: 0, breakdown: [] }); return; }
-
-  const completedMatches = await db.select().from(matchesTable)
-    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "completed")));
-
-  const wonMatches = completedMatches.filter(
-    m => (m.homeScore ?? 0) > (m.awayScore ?? 0) && m.prizeAmount && Number(m.prizeAmount) > 0
-  );
-
-  const grouped: Record<string, { amount: number; count: number }> = {};
-  for (const m of wonMatches) {
-    const cat = m.tier ? (TIER_TO_CATEGORY[m.tier] ?? "Local Tour") : "Local Tour";
-    if (!grouped[cat]) grouped[cat] = { amount: 0, count: 0 };
-    grouped[cat].amount += Number(m.prizeAmount);
-    grouped[cat].count  += 1;
-  }
-
-  const breakdown = CATEGORY_ORDER
-    .filter(cat => grouped[cat])
-    .map(cat => ({ category: cat, amount: grouped[cat].amount, matches: grouped[cat].count }));
-
-  res.json({ total: breakdown.reduce((s, b) => s + b.amount, 0), breakdown });
+  if (!team) { res.json({ total: 0, allSeasons: 0, breakdown: [] }); return; }
+  const rows = await db.select().from(financeTransactionsTable)
+    .where(and(eq(financeTransactionsTable.teamId, team.id), eq(financeTransactionsTable.category, "prize_money"), eq(financeTransactionsTable.type, "income")));
+  const season = await getActiveSeasonForCareer(await careerSaveIdForTeamOrThrow(team.id));
+  const seasonFrom = season?.startDate ?? "0000-00-00";
+  const thisSeason = rows.filter(r => r.date >= seasonFrom);
+  const paid = (list: typeof rows) => list.reduce((acc, r) => acc + Math.abs(Number(r.amount)), 0);
+  const isRunnerUp = (r: (typeof rows)[number]) => /^Runner-up prize/i.test(r.description);
+  const breakdown = [
+    { category: "Winner's prizes",  rows: thisSeason.filter(r => !isRunnerUp(r)) },
+    { category: "Runner-up prizes", rows: thisSeason.filter(isRunnerUp) },
+  ].filter(b => b.rows.length > 0).map(b => ({ category: b.category, amount: paid(b.rows), matches: b.rows.length }));
+  res.json({ total: paid(thisSeason), allSeasons: paid(rows), breakdown });
 });
 
 router.get("/finances/sponsor-progress", async (req, res) => {
@@ -421,11 +462,14 @@ router.get("/finances/sponsor-offers", async (req, res) => {
       .where(and(eq(promoDealsTable.teamId, team.id), eq(promoDealsTable.status, "available")));
   }
 
+  // Item 13: every offer said "Expires 0d". The page counted from the PC's
+  // date, months past the game's. Counted here, on the game calendar.
   res.json(available.map(d => ({
     ...d,
     amount:        Number(d.amount),
     signingBonus:  Number(d.signingBonus ?? 0),
     monthlyPayment: Number(d.monthlyPayment ?? 0),
+    daysLeft:      d.expiresAt ? Math.max(0, daysDiff(gameDate, d.expiresAt)) : null,
   })));
 });
 
