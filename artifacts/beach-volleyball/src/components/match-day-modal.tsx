@@ -130,7 +130,7 @@ export function MatchDayModal() {
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   <Trophy className="h-3.5 w-3.5 text-amber-500" />
-                  €{Number(match.prizeAmount).toLocaleString()}
+                  ${Number(match.prizeAmount).toLocaleString()}
                 </span>
               </>
             )}

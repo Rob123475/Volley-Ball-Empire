@@ -610,9 +610,9 @@ router.post("/calendar/advance", async (req, res) => {
     }
 
     events.push(
-      `Salary week: €${weeklySalary.toLocaleString()} wages` +
-        (teamStaff.length > 0 ? `, €${weeklyStaffWages.toLocaleString()} staff wages` : "") +
-        `, €${sponsorIncome.toLocaleString()} sponsor income`
+      `Salary week: $${weeklySalary.toLocaleString()} wages` +
+        (teamStaff.length > 0 ? `, $${weeklyStaffWages.toLocaleString()} staff wages` : "") +
+        `, $${sponsorIncome.toLocaleString()} sponsor income`
     );
   }
 
