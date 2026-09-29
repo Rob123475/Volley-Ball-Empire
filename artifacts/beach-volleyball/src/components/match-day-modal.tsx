@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { hideMatchDayBox, useMatchDayBoxHidden } from "@/hooks/use-match-day-box";
 
 function formatGameDate(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00Z");
@@ -49,7 +50,10 @@ export function MatchDayModal() {
   const describe = (err: unknown) =>
     (err instanceof Error ? err.message : String(err)).replace(/^HTTP \d+ [^:]*: /, "");
 
-  const isOpen = !!calendar?.pendingMatchId && !!calendar?.pendingMatch;
+  // Item 10: the player may close the box on match day; the dashboard's Next
+  // Match card reopens it ("Play match").
+  const closedByPlayer = useMatchDayBoxHidden(calendar?.pendingMatchId);
+  const isOpen = !!calendar?.pendingMatchId && !!calendar?.pendingMatch && !closedByPlayer;
 
   if (!isOpen || !calendar?.pendingMatch) return null;
 
@@ -95,11 +99,18 @@ export function MatchDayModal() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open && actionError) dismissMatch(); }}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (open) return;
+      // After a failed action the match can be let go of; otherwise closing
+      // only hides the box - the match day stays, and the Next Match card
+      // offers "Play match" (item 10).
+      if (actionError) dismissMatch();
+      else hideMatchDayBox(match.id);
+    }}>
       <DialogContent
-        className={actionError ? "max-w-sm" : "max-w-sm [&>button:first-child]:hidden"}
+        className="max-w-sm"
         onInteractOutside={e => { if (!actionError) e.preventDefault(); }}
-        onEscapeKeyDown={e => { if (!actionError) e.preventDefault(); }}
+        data-testid="match-day-box"
       >
         <DialogHeader className="space-y-1">
           <div className="flex items-center gap-2">

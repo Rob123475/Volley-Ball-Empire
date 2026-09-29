@@ -14,7 +14,6 @@ import {
   Building2,
   Globe,
   Star,
-  Monitor,
   FolderOpen,
   Medal,
   CalendarDays,
@@ -120,7 +119,6 @@ const NAV_GROUPS: NavGroup[] = [
   { id: "calendar", label: "Season Cal",   icon: CalendarDays, href: "/annual-calendar" },
   { id: "finances", label: "Finances",     icon: DollarSign,  href: "/finances"         },
   { id: "career",   label: "Career",   icon: FolderOpen, href: "/career"   },
-  { id: "matchday", label: "Match Day",icon: Monitor,    href: "/court"    },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

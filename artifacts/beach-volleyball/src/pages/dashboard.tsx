@@ -57,6 +57,7 @@ import {
   ExternalLink,
   ChevronUp,
   Zap,
+  Play,
   Settings,
   Save,
   FolderOpen,
@@ -74,6 +75,7 @@ import { BoardStatusCard } from "@/components/career/board-confidence-widgets";
 import { FACILITY_NAMES } from "@shared/facility-names";
 // D-4: bonus texts live in one module, and never print a zero bonus.
 import { FACILITY_BENEFIT_SHORT } from "@/lib/facility-benefits";
+import { showMatchDayBox, useMatchDayBoxHidden } from "@/hooks/use-match-day-box";
 
 const weatherIcons: Record<string, string> = {
   sunny: "☀️", windy: "💨", stormy: "⛈️", hot: "🔥", cloudy: "☁️", overcast: "⛅", perfect: "✨",
@@ -281,6 +283,8 @@ export default function Dashboard() {
   const [clubNewsOpen,     setClubNewsOpen]     = useState(false);
 
   const { calendar } = useCalendar();
+  // Item 10: before any early return - a hook must run on every render.
+  const matchDayBoxClosed = useMatchDayBoxHidden(calendar?.pendingMatchId);
   const roundName = useRoundNames();
 
   const { data: dashboard, isLoading: dashLoading } = useGetDashboard({
@@ -727,6 +731,18 @@ export default function Dashboard() {
                   <div className="text-[11px] text-white/40 mt-1 font-semibold">
                     {nextMatch ? `Prize: ${formatCurrency(nextMatch.prizeAmount)}` : "Schedule one"}
                   </div>
+                  {/* Item 10: on match day, if the player closed the MATCH DAY box,
+                      this reopens it. Only on that day: the button needs a pending match. */}
+                  {matchDayBoxClosed && (
+                    <button
+                      type="button"
+                      data-testid="button-play-match"
+                      onClick={showMatchDayBox}
+                      className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-white hover:bg-amber-400"
+                    >
+                      <Play className="h-3.5 w-3.5" /> Play match
+                    </button>
+                  )}
                   {/* R-50: who takes the court, how fit, and who cannot be selected */}
                   {dashboard?.nextMatchSelection && (
                     <div className="mt-1.5 space-y-0.5 text-[11px] font-semibold leading-snug" data-testid="next-match-selection">
