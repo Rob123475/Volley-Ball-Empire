@@ -48,6 +48,8 @@ import { useLocation, useSearch } from "wouter";
 import { serverMessage } from "@/lib/api-error";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
+// D-4: bonus texts live in one module, and never print a zero bonus.
+import { FACILITY_BENEFIT } from "@/lib/facility-benefits";
 
 const MAX_LEVEL = 10;
 
@@ -102,7 +104,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-blue-400/50",
     text: "text-blue-600 dark:text-blue-400",
     affects: ["Player development", "XP gain rate"],
-    benefitAt: (l) => l === 1 ? "Base training effectiveness" : `+${Math.round((l - 1) * (20 / 9))}% training XP`,
+    benefitAt: FACILITY_BENEFIT.training_complex,
   },
   medical_centre: {
     name: FACILITY_NAMES.medical_centre,
@@ -113,7 +115,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-rose-400/50",
     text: "text-rose-600 dark:text-rose-400",
     affects: ["Injury recovery", "Recovery retreats"],
-    benefitAt: (l) => l === 1 ? "Base recovery speed" : `+${Math.round((l - 1) * (25 / 9))}% recovery speed`,
+    benefitAt: FACILITY_BENEFIT.medical_centre,
   },
   gymnasium: {
     name: FACILITY_NAMES.gymnasium,
@@ -124,7 +126,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-orange-400/50",
     text: "text-orange-600 dark:text-orange-400",
     affects: ["Strength growth", "Power attribute", "Training effectiveness"],
-    benefitAt: (l) => l === 1 ? "Base strength training" : `+${Math.round((l - 1) * (15 / 9))}% strength/power development`,
+    benefitAt: FACILITY_BENEFIT.gymnasium,
   },
   nutrition_centre: {
     name: FACILITY_NAMES.nutrition_centre,
@@ -135,7 +137,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-lime-400/50",
     text: "text-lime-600 dark:text-lime-400",
     affects: ["Fatigue recovery", "Stamina growth", "Session endurance"],
-    benefitAt: (l) => l === 1 ? "Base nutrition support" : `−${Math.round((l - 1) * (3 / 9))} fatigue/session + −${Math.round((l - 1) * (5 / 9))} in retreats`,
+    benefitAt: FACILITY_BENEFIT.nutrition_centre,
   },
   youth_academy: {
     name: FACILITY_NAMES.youth_academy,
@@ -146,21 +148,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-amber-400/50",
     text: "text-amber-600 dark:text-amber-400",
     affects: ["Youth development", "Prospect quality", "Free agent attraction"],
-    benefitAt: (l) => {
-      const labels = [
-        "Basic prospects only",
-        "Slightly improved prospects",
-        "Improved prospect quality",
-        "Better chance of High potential",
-        "Good chance of High potential",
-        "Higher chance of Elite prospects",
-        "Regular Elite prospects",
-        "Strong Elite prospects",
-        "High chance of Elite & Generational",
-        "Maximum — Elite & Generational prospects",
-      ];
-      return labels[l - 1] ?? labels[0];
-    },
+    benefitAt: FACILITY_BENEFIT.youth_academy,
   },
   scouting_department: {
     name: FACILITY_NAMES.scouting_department,
@@ -171,7 +159,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-indigo-400/50",
     text: "text-indigo-600 dark:text-indigo-400",
     affects: ["Scouting effectiveness", "Free agent discovery", "Player recruitment"],
-    benefitAt: (l) => l === 1 ? "Basic scouting capability" : `+${Math.round((l - 1) * (30 / 9))}% scouting effectiveness`,
+    benefitAt: FACILITY_BENEFIT.scouting_department,
   },
   sports_science_lab: {
     name: FACILITY_NAMES.sports_science_lab,
@@ -182,7 +170,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-teal-400/50",
     text: "text-teal-600 dark:text-teal-400",
     affects: ["Injury prevention", "Staff effectiveness", "Match performance"],
-    benefitAt: (l) => l === 1 ? "Base injury prevention" : `−${Math.round((l - 1) * (20 / 9))}% injury risk`,
+    benefitAt: FACILITY_BENEFIT.sports_science_lab,
   },
   commercial_department: {
     name: FACILITY_NAMES.commercial_department,
@@ -193,7 +181,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-violet-400/50",
     text: "text-violet-600 dark:text-violet-400",
     affects: ["Sponsorship income", "Olympic prestige", "Club reputation"],
-    benefitAt: (l) => l === 1 ? "Base commercial activity" : `+${Math.round((l - 1) * (30 / 9))}% sponsorship value`,
+    benefitAt: FACILITY_BENEFIT.commercial_department,
   },
   beach_resort: {
     name: FACILITY_NAMES.beach_resort,
@@ -204,7 +192,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     border: "border-cyan-400/50",
     text: "text-cyan-600 dark:text-cyan-400",
     affects: ["Player morale", "Free agent attraction", "Camp bonuses"],
-    benefitAt: (l) => l === 1 ? "Base morale environment" : `+${Math.round((l - 1) * (8 / 9))} morale per camp`,
+    benefitAt: FACILITY_BENEFIT.beach_resort,
   },
 };
 
