@@ -38,13 +38,13 @@ const STORAGE_KEY = "bve.music";
 const DEFAULT_VOLUME = 0.4;
 
 /**
- * How loud the music is on /court, as a fraction of the player's own setting.
- * The Unity WebGL export has audio of its own — CrowdAmbience.wav,
- * CrowdCheer.wav and RefereeWhistle.wav, produced by its PlaceholderGenerator
- * and played through real AudioSources — so the brief asks for "about a third"
- * there.
+ * Unity brief item 9 (Rob, 29 Sep): the soundtrack does not play under the 3D
+ * match. The court has its own crowd sound, so on /court the music fades out
+ * over COURT_FADE_MS and stops; when the player leaves the court, the
+ * soundtrack carries on with the next song at the normal volume. This replaced
+ * a duck to a third of the volume.
  */
-const COURT_DUCK = 1 / 3;
+const COURT_FADE_MS = 1500;
 
 const COURT_PATH = "/court";
 
@@ -297,17 +297,47 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     };
   }, [blocked]);
 
-  // ── Volume, mute, and the /court duck ─────────────────────────────────────
+  // ── Volume and mute ───────────────────────────────────────────────────────
   //
-  // One effect owns the element's volume so the three inputs cannot fight over
-  // it. Mute uses the element's own flag rather than volume 0, so unmuting
-  // comes back at exactly the level the player set.
+  // Mute uses the element's own flag rather than volume 0, so unmuting comes
+  // back at exactly the level the player set. On /court the fade below owns
+  // the volume instead.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = muted;
-    audio.volume = volume * (onCourt ? COURT_DUCK : 1);
+    if (!onCourt) audio.volume = volume;
   }, [volume, muted, onCourt]);
+
+  // ── The 3D match: fade out, then the next song after it (item 9) ──────────
+  const wasOnCourt = useRef(onCourt);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const was = wasOnCourt.current;
+    wasOnCourt.current = onCourt;
+
+    if (onCourt && !was) {
+      const from = audio.volume;
+      const started = performance.now();
+      let raf = 0;
+      const step = () => {
+        const t = Math.min(1, (performance.now() - started) / COURT_FADE_MS);
+        audio.volume = from * (1 - t);
+        if (t < 1) raf = requestAnimationFrame(step);
+        else audio.pause();
+      };
+      raf = requestAnimationFrame(step);
+      return () => cancelAnimationFrame(raf);
+    }
+    if (!onCourt && was) {
+      audio.volume = volume;
+      failuresRef.current = 0;
+      advance();
+    }
+    return undefined;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onCourt]);
 
   const setVolume = useCallback((v: number) => {
     const next = clampVolume(v);

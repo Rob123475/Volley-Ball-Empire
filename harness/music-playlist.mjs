@@ -14,7 +14,7 @@
  * The rest is static: the provider mounted above the top <Switch> rather than
  * inside Shell (the whole point of R-79 — /court and /login render outside
  * Shell, so music there would stop), the storage key and defaults, the /court
- * duck, the skip-on-failure path, and Electron's autoplay policy.
+ * fade-out (item 9, 29 Sep), the skip-on-failure path, and Electron's autoplay policy.
  *
  * The on-screen and packaged checks are Rob's (RELEASE-STATUS).
  *
@@ -180,10 +180,13 @@ check("every storage access is wrapped so blocked storage cannot break the game"
 check("the defaults are 40% and not muted",
   /DEFAULT_VOLUME = 0\.4/.test(provider) && /muted: false/.test(provider));
 
-check("the music ducks to about a third on /court and is restored on leaving",
-  /COURT_DUCK = 1 \/ 3/.test(provider)
+// Unity brief item 9: no duck any more - out on /court, the next song after it.
+check("on /court the music fades out and stops; leaving the court plays the next song at the normal volume",
+  /COURT_FADE_MS = 1500/.test(provider)
   && /COURT_PATH = "\/court"/.test(provider)
-  && /audio\.volume = volume \* \(onCourt \? COURT_DUCK : 1\)/.test(provider));
+  && /else audio\.pause\(\);/.test(provider)
+  && /if \(!onCourt && was\) \{\s*audio\.volume = volume;\s*failuresRef\.current = 0;\s*advance\(\);/.test(provider)
+  && !/COURT_DUCK/.test(provider));
 
 check("Electron lifts Chromium's autoplay block so the music starts on its own",
   /autoplayPolicy: "no-user-gesture-required"/.test(main));
