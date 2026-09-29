@@ -9,7 +9,7 @@ import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
 import { worldTourStandings, BYE } from "../utils/worldTour.js";
-import { selectPair, isAvailable, fitnessFactor, PAIR_SIZE } from "../utils/condition.js";
+import { selectPair, isAvailable, fitnessFactor, PAIR_SIZE, isInjured } from "../utils/condition.js";
 import { currentRanking, purseAccessTierFor } from "../utils/rankingPoints.js";
 
 const router = Router();
@@ -73,7 +73,9 @@ router.get("/dashboard", async (req, res) => {
   const players = await loadPlayers(cid, { teamId: team.id });
   const topPlayers = players.sort((a, b) => (b.power + b.serve + b.defense) - (a.power + a.serve + a.defense))
     .slice(0, 5).map(p => ({ ...p, height: Number(p.height), salary: Number(p.salary) }));
-  const injuredCount = players.filter(p => p.isInjured).length;
+  // Unity brief item 14: injured by either flag, the one test (utils/condition.ts),
+  // so the Fitness tile never says "All Fit" while a player is out.
+  const injuredCount = players.filter(p => isInjured(p)).length;
 
   // R-50: who would take the court for the next match, how fit they are, and
   // who cannot be selected — the same selection /simulate will make.

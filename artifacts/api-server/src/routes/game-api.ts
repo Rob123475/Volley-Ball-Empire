@@ -234,9 +234,9 @@ router.get("/game/match-setup/:matchId", async (req, res) => {
   const allPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
 
   const lineup: number[] = Array.isArray(match.lineup) ? (match.lineup as number[]) : [];
-  const lineupPlayers = lineup.length > 0
-    ? allPlayers.filter(p => lineup.includes(p.id))
-    : selectPair(allPlayers);   // R-50: the pair that takes the court, never an injured player
+  // R-50 / item 14: the pair that takes the court, the stored lineup first, never
+  // an injured player (a stored lineup used to be taken as it stood).
+  const lineupPlayers = selectPair(allPlayers, lineup);
 
   const [save] = await db
     .select()

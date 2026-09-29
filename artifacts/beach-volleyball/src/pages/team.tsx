@@ -378,6 +378,8 @@ export default function TeamRoster() {
   };
 
   const PlayerCard = ({ player, role }: { player: any; role: Role }) => {
+    // Item 14: one test for injured, as the server's (utils/condition.ts isInjured).
+    const injured = !!player.isInjured || (player.injuryStatus ?? "Healthy") !== "Healthy";
     const rating  = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
     const fatigue = player.fatigue ?? 0;
     const cfg     = ROLE_CONFIG[role];
@@ -550,16 +552,17 @@ export default function TeamRoster() {
 
           {/* R-50: fitness scales what she brings to a match (mirror of
               utils/condition.ts: 0.6 + 0.4 × fitness / 100); an injured player
-              cannot be selected. */}
+              cannot be selected. Item 14: so an injured player does not "play
+              at" anything; her card says she does not play. */}
           <div className="space-y-1" data-testid={`fitness-${player.id}`}>
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold">Fitness {player.fitness ?? 100}%</span>
-              <span className="text-muted-foreground">
-                plays at {Math.round((0.6 + 0.4 * (player.fitness ?? 100) / 100) * 100)}%
+              <span className={cn("text-muted-foreground", injured && "text-red-600 dark:text-red-400 font-semibold")}>
+                {injured ? "does not play" : `plays at ${Math.round((0.6 + 0.4 * (player.fitness ?? 100) / 100) * 100)}%`}
               </span>
             </div>
             <Progress value={player.fitness ?? 100} className="h-1.5" />
-            {(player.isInjured || (player.injuryStatus ?? "Healthy") !== "Healthy") && (
+            {injured && (
               <div className="text-xs font-semibold text-red-600 dark:text-red-400">
                 Injured: {player.injuryStatus} · {Math.ceil(Number(player.injuryWeeksRemaining ?? 0))} week{Math.ceil(Number(player.injuryWeeksRemaining ?? 0)) === 1 ? "" : "s"} out · cannot be selected
               </div>
@@ -771,16 +774,18 @@ export default function TeamRoster() {
                   role === "reserve" &&
                   player.age >= 14 && player.age <= 17 &&
                   (r === "starter" || r === "interchange");
+                // Item 14: an injured player cannot be made a Match Player (the server refuses too).
+                const isInjuryLocked = r === "starter" && injured;
                 return (
                   <Button
                     key={r}
                     variant="outline"
                     size="sm"
-                    disabled={isFull || isYouthLocked || roleMutation.isPending}
-                    title={isYouthLocked ? "Under 18 – cannot join the senior squad yet" : undefined}
+                    disabled={isFull || isYouthLocked || isInjuryLocked || roleMutation.isPending}
+                    title={isYouthLocked ? "Under 18 – cannot join the senior squad yet" : isInjuryLocked ? "Injured – cannot be a Match Player until she recovers" : undefined}
                     className={cn(
                       "flex-1 text-xs gap-1 font-semibold border-2",
-                      isFull || isYouthLocked ? "opacity-40" : cn(c.color, c.border, "hover:" + c.bg)
+                      isFull || isYouthLocked || isInjuryLocked ? "opacity-40" : cn(c.color, c.border, "hover:" + c.bg)
                     )}
                     onClick={() => handleRoleChange(player.id, r)}
                     data-testid={`role-btn-${player.id}-${r}`}

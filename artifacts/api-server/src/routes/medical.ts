@@ -4,6 +4,7 @@ import { db, careerPlayerStateTable } from "@workspace/db";
 import { teamsTable, playersTable, seasonInjuryStatsTable, injuryHistoryTable, matchesTable, trainingSessionsTable } from "@workspace/db";
 import { eq, and, desc, gte } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
+import { isInjured } from "../utils/condition.js";
 
 const router = Router();
 
@@ -119,7 +120,7 @@ router.get("/medical/injury-stats", async (req, res) => {
         eq(seasonInjuryStatsTable.seasonId, currentSeason),
       ))
       .limit(1),
-    db.select({ injuryStatus: careerPlayerStateTable.injuryStatus })
+    db.select({ injuryStatus: careerPlayerStateTable.injuryStatus, isInjured: careerPlayerStateTable.isInjured })
       .from(careerPlayerStateTable)
       .where(and(
         eq(careerPlayerStateTable.careerSaveId, requireCareerSaveId(req.activeCareerSaveId)),
@@ -128,7 +129,8 @@ router.get("/medical/injury-stats", async (req, res) => {
   ]);
 
   const stat = statRow[0];
-  const currentInjuryCount = players.filter(p => p.injuryStatus !== "Healthy").length;
+  // Item 14: injured by either flag, the one test (utils/condition.ts).
+  const currentInjuryCount = players.filter(p => isInjured(p)).length;
 
   const totalInjuries       = stat?.totalInjuries       ?? 0;
   const daysLost            = stat?.daysLost            ?? 0;

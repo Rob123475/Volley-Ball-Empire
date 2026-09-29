@@ -58,6 +58,8 @@ export function MatchDayModal() {
   if (!isOpen || !calendar?.pendingMatch) return null;
 
   const match = calendar.pendingMatch;
+  // Item 14: GET /calendar's match-day squad (utils/matchDaySubstitution.ts on the server).
+  const team = (calendar as { matchDayTeam?: { pair: { id: number; name: string; fitness: number }[]; substitutions: string[]; willForfeit: boolean } | null }).matchDayTeam ?? null;
   const isHome = match.homeTeamId !== undefined;
 
   // Determine opponent name from the pending match
@@ -152,6 +154,27 @@ export function MatchDayModal() {
             </p>
           )}
         </DialogHeader>
+
+        {/* Item 14: who plays, and who came in for an injured Match Player. */}
+        {team && (
+          <div className="rounded-lg border px-3 py-2 text-xs space-y-1" data-testid="match-day-team">
+            {team.willForfeit ? (
+              <p className="font-semibold text-red-600 dark:text-red-400">
+                Not enough fit players: this match is forfeited when it is played.
+              </p>
+            ) : (
+              <p>
+                <span className="text-muted-foreground">Playing: </span>
+                <span className="font-semibold">{team.pair.map(p => `${p.name} (fitness ${p.fitness}%)`).join(" & ")}</span>
+              </p>
+            )}
+            {team.substitutions.map(line => (
+              <p key={line} className="font-semibold text-amber-600 dark:text-amber-400" data-testid="match-day-substitution">
+                {line}
+              </p>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-2 mt-2">
           <Button

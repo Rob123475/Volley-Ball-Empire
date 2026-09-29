@@ -6,7 +6,7 @@ import {
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
-import { selectPair } from "../utils/condition.js";
+import { isInjured, selectPair } from "../utils/condition.js";
 import { overallRating } from "../utils/overallRating.js";
 import { matchPointChance, completeMatch, type MatchContext } from "./matches.js";
 import { isLegalResult, isLegalProgress, type SetScore } from "../utils/matchEngine.js";
@@ -207,6 +207,10 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       loadPlayers(careerSaveId, { includeRetired: true })
         .then((all) => all.filter((p) => awayIds.includes(p.id))),
     ]);
+    // Item 14: an injured player is never sent to the court, lineup or not.
+    if (match.homeTeamId && homePlayers.some((p) => isInjured(p))) {
+      homePlayers = selectPair(await loadPlayers(careerSaveId, { teamId: match.homeTeamId }), homeIds);
+    }
   } else {
     // Path B — derive from team IDs
 

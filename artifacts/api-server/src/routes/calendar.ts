@@ -32,10 +32,12 @@ import {
 import { boardDay } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
-import { REST_RECOVERY, applyWeeklyInjuryRecovery } from "../utils/condition.js";
+import { REST_RECOVERY, applyWeeklyInjuryRecovery, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
+import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
+import { finishDueTrainingSessions } from "./training.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
-import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
+import { SEASON_LENGTH, seasonPhase, CONTINENTAL_ROUNDS, WORLD_TOUR_ROUNDS, FINALS_ROUNDS } from "../utils/seasonPhase.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts.js";
 // Rob, 23 Sep: one set of rules for every club. These are the rules — the
@@ -206,6 +208,7 @@ router.get("/calendar", async (req, res) => {
     fitness:      careerPlayerStateTable.fitness,
     fatigue:      careerPlayerStateTable.fatigue,
     injuryStatus: careerPlayerStateTable.injuryStatus,
+    isInjured:    careerPlayerStateTable.isInjured,
     isActive:     careerPlayerStateTable.isActive,
   }).from(careerPlayerStateTable).where(and(
     eq(careerPlayerStateTable.careerSaveId, requireCareerSaveId(req.activeCareerSaveId)),
@@ -215,7 +218,8 @@ router.get("/calendar", async (req, res) => {
   const active = players.filter(p => p.isActive);
   const avgFitness   = active.length ? Math.round(active.reduce((s, p) => s + p.fitness, 0) / active.length) : 0;
   const avgFatigue   = active.length ? Math.round(active.reduce((s, p) => s + p.fatigue, 0) / active.length) : 0;
-  const injuredCount = players.filter(p => p.injuryStatus !== "Healthy").length;
+  // Item 14: injured by either flag, the one test (utils/condition.ts).
+  const injuredCount = players.filter(p => isInjured(p)).length;
 
   // Today's events
   const todayRounds = todayRoundsForDate(calendar.currentDate, season.startDate, season.endDate, season.totalRounds);
@@ -227,9 +231,22 @@ router.get("/calendar", async (req, res) => {
 
   // Pending match details
   let pendingMatch = null;
+  // Item 14: on match day the MATCH DAY box says who plays, and who came in
+  // for an injured Match Player.
+  let matchDayTeam: { pair: { id: number; name: string; fitness: number }[]; substitutions: string[]; willForfeit: boolean } | null = null;
   if (calendar.pendingMatchId) {
+    const cid = requireCareerSaveId(req.activeCareerSaveId);
+    await substituteInjuredMatchPlayers(cid, team.id, calendar.pendingMatchId);
     const rows = await db.select().from(matchesTable).where(eq(matchesTable.id, calendar.pendingMatchId)).limit(1);
     pendingMatch = rows[0] ?? null;
+    if (pendingMatch && pendingMatch.status === "scheduled") {
+      const pair = selectPair(await loadPlayers(cid, { teamId: team.id }), Array.isArray(pendingMatch.lineup) ? pendingMatch.lineup : []);
+      matchDayTeam = {
+        pair: pair.map((p) => ({ id: p.id, name: p.name, fitness: Math.round(Number(p.fitness ?? 0)) })),
+        substitutions: substitutionNotes(pendingMatch),
+        willForfeit: pair.length < PAIR_SIZE,
+      };
+    }
   }
 
   // D-5: the club's name for the MATCH DAY box, resolved exactly as the
@@ -244,6 +261,7 @@ router.get("/calendar", async (req, res) => {
     calendarSpeed:     calendar.calendarSpeed,
     pendingMatchId:    calendar.pendingMatchId,
     pendingMatch,
+    matchDayTeam,
     clubName:          careerSave?.clubName ?? team.name,
     // F-1: why Next match cannot run right now (null when it can); the
     // button is disabled with exactly this reason.
@@ -256,6 +274,9 @@ router.get("/calendar", async (req, res) => {
     // a screen shows is the phase — the round of the competition being played.
     scheduleSlot:      season.currentRound,
     seasonPhase:       seasonPhase(season.currentRound),
+    // Item 20: the season's rounds by phase, so no page has to guess (the
+    // leaderboard said "69 rounds per season" while the top bar said R4/57).
+    roundsByPhase:      { continental: CONTINENTAL_ROUNDS, worldTour: WORLD_TOUR_ROUNDS, finals: FINALS_ROUNDS, total: SEASON_LENGTH },
     regionalRoundsProcessed: season.regionalRoundsProcessed,
     isOlympicSeason:   season.isOlympicSeason,
     teamFitness: { avgFitness, avgFatigue, injuredCount, totalActive: active.length },
@@ -440,6 +461,8 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
       await db.update(calendarStateTable)
         .set({ pendingMatchId: matchToday.id, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
         .where(eq(calendarStateTable.teamId, team.id));
+      // Item 14: an injured Match Player makes way for the fittest healthy interchange.
+      const subs = await substituteInjuredMatchPlayers(requireCareerSaveId(req.activeCareerSaveId), team.id, matchToday.id);
 
       return { status: 200, body: {
         matchDay: {
@@ -453,7 +476,8 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
           tier:        matchToday.tier,
         },
         currentDate: calendar.currentDate,
-        events: ["Match day — your team plays today!"],
+        events: ["Match day — your team plays today!",
+          ...subs.map((s) => `${s.inName} comes in for ${s.outName} (${s.injury.toLowerCase()})`)],
       } };
     }
   }
@@ -683,6 +707,10 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   await db.update(calendarStateTable)
     .set({ currentDate: nextDate, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
+
+  // Unity brief item 19: training sessions whose finish date has come give
+  // their gains now (they take game days; nothing trains in an instant).
+  events.push(...await finishDueTrainingSessions(requireCareerSaveId(req.activeCareerSaveId), team.id, nextDate));
 
   // 7. Keep season.currentRound in sync with the game date
   const newRound = dateToRound(nextDate, season.startDate, season.endDate, season.totalRounds);
@@ -927,6 +955,8 @@ router.post("/calendar/skip-match", async (req, res) => {
   await db.update(calendarStateTable)
     .set({ pendingMatchId: null, currentDate: nextDate, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
+  // Item 19: a skipped match day still moves the date, so training due today finishes.
+  await finishDueTrainingSessions(requireCareerSaveId(req.activeCareerSaveId), team.id, nextDate);
 
   res.json({ success: true, newDate: nextDate });
 });

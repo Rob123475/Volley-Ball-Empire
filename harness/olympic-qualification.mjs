@@ -158,6 +158,10 @@ let careerSaveId = null, teamId = null, initialPoints = 0;
 
     let decided = false, trouble = "";
     for (let day = 0; day < 400 && !decided && !trouble; day++) {
+      // Healed BEFORE the day: since Unity item 14 an injured Match Player is
+      // swapped for the interchange when match day arrives, and this suite
+      // measures that only the two starters play.
+      healAllSquads(dbFile);
       const adv = await api("POST", "/calendar/advance", {});
       if (adv.status >= 400) { trouble = `advance ${adv.status} ${JSON.stringify(adv.data)}`; break; }
       const pending = adv.data?.blocked === "pending_match" ? adv.data.pendingMatchId : adv.data?.matchDay?.matchId;

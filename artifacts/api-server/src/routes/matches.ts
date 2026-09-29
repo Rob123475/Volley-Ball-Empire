@@ -33,6 +33,7 @@ import {
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, careerSaveIdForTeamOrThrow, type CareerPlayerFields, loadStaff } from "../lib/playerDto.js";
+import { substituteInjuredMatchPlayers } from "../utils/matchDaySubstitution.js";
 import type { Match } from "@workspace/db";
 
 const router = Router();
@@ -449,6 +450,13 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
     // R-29: the live match needs its real drawn opponent before the first point.
     const wtBlocked = await worldTourGate(requireCareerSaveId(req.activeCareerSaveId), watchTeam.id, match);
     if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
+    // Item 14: an injured Match Player makes way for the fittest healthy interchange.
+    if (match.homeTeamId === watchTeam.id || match.awayTeamId === watchTeam.id) {
+      if ((await substituteInjuredMatchPlayers(requireCareerSaveId(req.activeCareerSaveId), watchTeam.id, match.id)).length > 0) {
+        const fresh = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, match.id) });
+        if (fresh) Object.assign(match, fresh);
+      }
+    }
     // R-48: a club without two players fit to play cannot take the court (R-50:
     // the same selection /simulate uses — injured players do not count).
     const watchSquad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: watchTeam.id });
@@ -506,6 +514,11 @@ router.post("/matches/:id/simulate", async (req, res) => {
   const wtBlocked = await worldTourGate(requireCareerSaveId(req.activeCareerSaveId), team.id, match);
   if (wtBlocked) { res.status(409).json({ error: wtBlocked }); return; }
   // The gate may have just drawn this match's opponent; read the row again.
+  // Item 14: an injured Match Player makes way for the fittest healthy
+  // interchange, and the match notes say so (utils/matchDaySubstitution.ts).
+  if (match.homeTeamId === team.id || match.awayTeamId === team.id) {
+    await substituteInjuredMatchPlayers(requireCareerSaveId(req.activeCareerSaveId), team.id, id);
+  }
   const drawnMatch = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
   if (drawnMatch) Object.assign(match, drawnMatch);
 

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadStaff, requireCareerSaveId } from "../lib/playerDto.js";
 import { MAX_STARTERS, MAX_SENIORS } from "../utils/squadRules.js";
-import { isAvailable } from "../utils/condition.js";
+import { isAvailable, isInjured } from "../utils/condition.js";
 import { db } from "@workspace/db";
 import {
   teamsTable,
@@ -114,8 +114,26 @@ router.get("/attention-items", async (req, res) => {
     });
   }
 
+  // ── An injured Match Player (red) ────────────────────────────────────────────
+  // Unity brief item 14: she sat in a Match Player slot, the Team page said she
+  // could not be selected, and nothing here said so. On match day the game
+  // brings on the fittest healthy interchange (utils/matchDaySubstitution.ts);
+  // until then, tell the manager, and take them to the Team page to choose.
+  for (const p of players.filter(p => p.squadRole === "starter" && isInjured(p))) {
+    const weeks = Math.ceil(p.injuryWeeksRemaining ?? 0);
+    items.push({
+      id: `match-player-injured-${p.id}`,
+      priority: "red",
+      category: "Squad",
+      title: `${p.name} is injured and still a Match Player`,
+      description: `${p.injuryStatus && p.injuryStatus !== "Healthy" ? p.injuryStatus : "Injured"}, ${weeks} week${weeks !== 1 ? "s" : ""} out. She cannot play: pick another Match Player on the Team page, or the fittest healthy interchange comes in on match day.`,
+      navigateTo: "/team",
+    });
+  }
+
   // ── Injured players (red) ────────────────────────────────────────────────────
-  for (const p of players.filter(p => p.isInjured)) {
+  // Item 14: injured by either flag (utils/condition.ts isInjured), as everywhere.
+  for (const p of players.filter(p => isInjured(p))) {
     const weeks = p.injuryWeeksRemaining ?? 0;
     items.push({
       id: `injured-${p.id}`,
@@ -199,7 +217,7 @@ router.get("/attention-items", async (req, res) => {
   }
 
   // ── Player morale concerns (orange) ──────────────────────────────────────────
-  for (const p of players.filter(p => p.morale < 50 && !p.isInjured)) {
+  for (const p of players.filter(p => p.morale < 50 && !isInjured(p))) {
     items.push({
       id: `morale-${p.id}`,
       priority: "orange",

@@ -34,6 +34,7 @@
  *              three-player squad with two out forfeits: 3% base risk a match;
  *              Minor 1 week (65%), Major 3 weeks (30%), Unavailable 6 weeks (5%).
  */
+import { INJURY_WEEKS } from "@workspace/db";
 import { db, facilitiesTable, normaliseRole, type StaffRoleKey } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { sideRating, type RatedPlayer } from "./matchEngine.js";
@@ -62,9 +63,19 @@ export function fitnessFactor(fitness: number | null | undefined): number {
   return FITNESS_FLOOR_FACTOR + (1 - FITNESS_FLOOR_FACTOR) * (f / 100);
 }
 
+/**
+ * Injured: either flag says so. Unity brief item 14: this is THE test. The
+ * dashboard's Fitness tile and the Attention card read is_injured alone, and
+ * GET /calendar and the medical count read injury_status alone, so a row where
+ * the two disagreed was fit on one screen and injured on the next.
+ */
+export function isInjured(p: Pick<SelectablePlayer, "isInjured" | "injuryStatus">): boolean {
+  return !!p.isInjured || (p.injuryStatus ?? "Healthy") !== "Healthy";
+}
+
 /** Contracted and active, and not injured: the only players who can be selected. */
 export function isAvailable(p: Pick<SelectablePlayer, "isActive" | "isInjured" | "injuryStatus">): boolean {
-  return p.isActive && !p.isInjured && (p.injuryStatus ?? "Healthy") === "Healthy";
+  return p.isActive && !isInjured(p);
 }
 
 /** The player with her six stats scaled by her fitness. */
@@ -139,9 +150,10 @@ export function injuryRisk(
 /** How bad a new injury is. */
 export function rollInjury(): { status: "Minor Injury" | "Major Injury" | "Unavailable"; weeks: number } {
   const roll = Math.random();
-  if (roll < 0.65) return { status: "Minor Injury", weeks: 1 };
-  if (roll < 0.95) return { status: "Major Injury", weeks: 3 };
-  return { status: "Unavailable", weeks: 6 };
+  // Item 20: the weeks are lib/db injuries.ts, shared with the Medical page.
+  if (roll < 0.65) return { status: "Minor Injury", weeks: INJURY_WEEKS["Minor Injury"]! };
+  if (roll < 0.95) return { status: "Major Injury", weeks: INJURY_WEEKS["Major Injury"]! };
+  return { status: "Unavailable", weeks: INJURY_WEEKS.Unavailable! };
 }
 
 // ── Rest ─────────────────────────────────────────────────────────────────────

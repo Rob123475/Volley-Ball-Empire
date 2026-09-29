@@ -11,6 +11,7 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import type { Team } from "@workspace/db";
 import { ACADEMY_CAP, academySize } from "../utils/academy.js";
 import { GRADUATE_CAP } from "../utils/squadRules.js";
+import { isInjured } from "../utils/condition.js";
 
 const router = Router();
 
@@ -107,6 +108,12 @@ router.patch("/team/roster/:id/role", async (req, res) => {
     const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
     if (player && player.age >= 14 && player.age <= 17) {
       res.status(422).json({ error: "Youth players under 18 cannot occupy Match Player or Interchange slots." });
+      return;
+    }
+    // Unity brief item 14: the Team page says an injured player "cannot be
+    // selected"; the server now agrees, so she cannot be put in a Match Player slot.
+    if (role === "starter" && player && isInjured(player)) {
+      res.status(422).json({ error: `${player.name} is injured (${player.injuryStatus && player.injuryStatus !== "Healthy" ? player.injuryStatus : "injured"}) and cannot be a Match Player until she recovers.` });
       return;
     }
   }
