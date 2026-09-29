@@ -13,6 +13,7 @@ import {
   regionalLeagueSeasonsTable,
   facilitiesTable,
   contractsTable,
+  careerSavesTable,
 } from "@workspace/db";
 import { eq, or, and, ne, sql, lte, inArray, isNotNull, desc } from "drizzle-orm";
 import { simulateRegionalRound, resolveRegionalSeason } from "../utils/regionalSeason.js";
@@ -229,11 +230,19 @@ router.get("/calendar", async (req, res) => {
     pendingMatch = rows[0] ?? null;
   }
 
+  // D-5: the club's name for the MATCH DAY box, resolved exactly as the
+  // dashboard's header resolves it (a custom name from career creation first).
+  const [careerSave] = await db.select({ clubName: careerSavesTable.clubName })
+    .from(careerSavesTable)
+    .where(eq(careerSavesTable.id, requireCareerSaveId(req.activeCareerSaveId)))
+    .limit(1);
+
   res.json({
     currentDate:       calendar.currentDate,
     calendarSpeed:     calendar.calendarSpeed,
     pendingMatchId:    calendar.pendingMatchId,
     pendingMatch,
+    clubName:          careerSave?.clubName ?? team.name,
     nextMatch,
     nextMatchDate,
     daysToNextMatch,

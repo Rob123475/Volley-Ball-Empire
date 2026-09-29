@@ -60,6 +60,8 @@ export function MatchDayModal() {
   const opponentName = calendar.todayEvents?.[0]?.opponent ?? "Opponent";
   const isHomeTeam   = calendar.todayEvents?.[0]?.isHome ?? true;
   const userSide     = isHomeTeam ? "HOME" : "AWAY";
+  // D-5: the club's own name, as the dashboard shows it (was a fixed placeholder).
+  const clubName     = calendar.clubName;
 
   const tierLabel = match.tier ? match.tier.toUpperCase() : "WORLD TOUR";
 
@@ -112,9 +114,9 @@ export function MatchDayModal() {
             </Badge>
           </div>
           <DialogTitle className="text-xl font-black leading-tight">
-            {isHomeTeam ? "Your Team" : opponentName}
+            {isHomeTeam ? clubName : opponentName}
             <span className="mx-2 text-muted-foreground font-normal">vs</span>
-            {isHomeTeam ? opponentName : "Your Team"}
+            {isHomeTeam ? opponentName : clubName}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-3 text-sm">
             <span className="flex items-center gap-1">

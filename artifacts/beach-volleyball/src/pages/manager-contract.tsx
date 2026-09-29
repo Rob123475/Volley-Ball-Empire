@@ -163,7 +163,9 @@ export default function ManagerContract() {
 
   const isLoading = summaryLoading || confLoading || contractLoading;
 
-  const clubName = summary?.clubName ?? "Your Club";
+  // D-5: the save always carries its club name; only a failed request lacks
+  // it, and then a dash, not a made-up name.
+  const clubName = summary?.clubName ?? "—";
   const salary     = contract?.salary     ?? 0;
   const releaseFee = contract?.releaseFee ?? 25_000;
   const status     = contract?.status     ?? "Active";

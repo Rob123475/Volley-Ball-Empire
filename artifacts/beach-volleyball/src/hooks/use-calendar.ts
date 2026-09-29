@@ -64,6 +64,8 @@ export type CalendarState = {
   calendarSpeed: CalendarSpeed;
   pendingMatchId: number | null;
   pendingMatch: CalendarMatch | null;
+  /** D-5: the player's club as the dashboard names it. */
+  clubName: string;
   nextMatch: CalendarMatch | null;
   nextMatchDate: string | null;
   daysToNextMatch: number | null;
