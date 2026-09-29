@@ -109,7 +109,9 @@ export default function Leaderboard() {
 
   const activeTeamCount = rankings?.length ?? 0;
   const venueCount      = locations?.length ?? 0;
-  const roundsPerSeason = calendar?.seasonPhase.length ?? null;
+  // Item 20: say which rounds. "69 rounds per season" was the whole season
+  // (continental + World Tour + finals) beside a top bar counting 57 World Tour rounds.
+  const rounds = (calendar as { roundsByPhase?: { continental: number; worldTour: number; finals: number } } | undefined)?.roundsByPhase ?? null;
 
   if (isLoading) {
     return (
@@ -346,7 +348,7 @@ export default function Leaderboard() {
           icon={<Globe className="h-6 w-6 text-white" />}
           label={`${activeTeamCount} ${activeTeamCount === 1 ? "Team" : "Teams"} Ranked`}
           sub={venueCount > 0 ? `Across ${venueCount} world venues` : "World Tour venues"}
-          detail={roundsPerSeason ? `${roundsPerSeason} rounds per season` : "One season per calendar year"}
+          detail={rounds ? `${rounds.worldTour} World Tour rounds a season (after ${rounds.continental} continental rounds; then the finals)` : "One season per calendar year"}
         />
       </div>
     </div>

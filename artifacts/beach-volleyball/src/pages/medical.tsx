@@ -75,18 +75,16 @@ import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
 import { normaliseRole, MEDICAL_ROLE_KEYS, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
+import { INJURY_WEEKS } from "@shared/injuries";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
 
-const INJURY_BASE_WEEKS: Record<string, number> = {
-  Healthy: 0,
-  "Minor Injury": 2,
-  "Major Injury": 6,
-  Unavailable: 12,
-};
+// Item 20: the game's own injury lengths (lib/db injuries.ts). This page had
+// Minor 2, Major 6, Unavailable 12 weeks: twice the game's.
+const INJURY_BASE_WEEKS: Record<string, number> = { Healthy: 0, ...INJURY_WEEKS };
 
 const INJURY_COLORS: Record<string, { text: string; border: string; bg: string }> = {
   Healthy:        { text: "text-green-600",  border: "border-green-500/30",  bg: "bg-green-500/5"  },
@@ -857,8 +855,12 @@ function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
                           <Icon className={`h-3 w-3 ${colors.text} shrink-0`} />
                           <span className={`text-xs font-medium ${colors.text} whitespace-nowrap`}>{status}</span>
                         </div>
-                        <div className="hidden sm:flex items-center gap-1 shrink-0">
+                        {/* Item 20: this % is the injury risk, not fatigue; it
+                            stood unlabelled next to the name, so 17% read as her
+                            fatigue while the monitor above said 31%. */}
+                        <div className="hidden sm:flex items-center gap-1 shrink-0" data-testid={`injury-risk-${player.id}`}>
                           <span className={`h-2 w-2 rounded-full shrink-0 ${riskLevel.dot}`} />
+                          <span className="text-[10px] text-muted-foreground">Injury risk</span>
                           <span className={`text-xs font-semibold ${riskLevel.text}`}>{risk}%</span>
                         </div>
                       </div>
@@ -867,14 +869,14 @@ function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
                         <div>
                           <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
                             <span>Fitness</span>
-                            <span className="font-semibold">{fitness}</span>
+                            <span className="font-semibold">{fitness}%</span>
                           </div>
                           <MiniProgress value={fitness} colorClass={fitnessColor(fitness)} />
                         </div>
                         <div>
-                          <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
+                          <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5" data-testid={`fatigue-${player.id}`}>
                             <span>Fatigue</span>
-                            <span className="font-semibold">{fatigue}</span>
+                            <span className="font-semibold">{fatigue}%</span>
                           </div>
                           <MiniProgress value={fatigue} colorClass={fatigueColor(fatigue)} />
                         </div>
@@ -903,8 +905,10 @@ function TreatmentQueue({ injuredPlayers, bestSkill }: { injuredPlayers: Injured
       const weeksLeft = (p.injuryWeeksRemaining as number) > 0
         ? (p.injuryWeeksRemaining as number)
         : recoveryWeeks(status, bestSkill);
-      const daysLeft = weeksLeft * 7;
-      const totalDays = baseWeeks * 7;
+      // Item 20: days left and the bar from the same figures. The whole of the
+      // injury is its rolled length (or what is left, if that is longer).
+      const daysLeft = Math.round(weeksLeft * 7);
+      const totalDays = Math.max(baseWeeks * 7, daysLeft);
       const progress = totalDays > 0 ? Math.round(Math.max(0, Math.min(100, ((totalDays - daysLeft) / totalDays) * 100))) : 0;
       return { ...p, status, daysLeft, progress };
     })

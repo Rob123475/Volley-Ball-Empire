@@ -5,3 +5,4 @@ export * from "./staff-roles";
 export * from "./career-difficulty";
 export * from "./facility-names";
 export * from "./training-programs";
+export * from "./injuries";

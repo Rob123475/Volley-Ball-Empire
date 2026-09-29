@@ -37,7 +37,7 @@ import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/match
 import { finishDueTrainingSessions } from "./training.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
-import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
+import { SEASON_LENGTH, seasonPhase, CONTINENTAL_ROUNDS, WORLD_TOUR_ROUNDS, FINALS_ROUNDS } from "../utils/seasonPhase.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts.js";
 // Rob, 23 Sep: one set of rules for every club. These are the rules — the
@@ -274,6 +274,9 @@ router.get("/calendar", async (req, res) => {
     // a screen shows is the phase — the round of the competition being played.
     scheduleSlot:      season.currentRound,
     seasonPhase:       seasonPhase(season.currentRound),
+    // Item 20: the season's rounds by phase, so no page has to guess (the
+    // leaderboard said "69 rounds per season" while the top bar said R4/57).
+    roundsByPhase:      { continental: CONTINENTAL_ROUNDS, worldTour: WORLD_TOUR_ROUNDS, finals: FINALS_ROUNDS, total: SEASON_LENGTH },
     regionalRoundsProcessed: season.regionalRoundsProcessed,
     isOlympicSeason:   season.isOlympicSeason,
     teamFitness: { avgFitness, avgFatigue, injuredCount, totalActive: active.length },

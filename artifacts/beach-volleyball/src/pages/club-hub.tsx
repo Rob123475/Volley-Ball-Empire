@@ -4,7 +4,6 @@ import { BarChart2, Building2, Heart, Crown, Trophy } from "lucide-react";
 import LeagueLadders  from "@/pages/league-ladders";
 import Facilities     from "@/pages/facilities";
 import MedicalCentre  from "@/pages/medical";
-import MedicalMarket  from "@/pages/medical-market";
 import Leaderboard    from "@/pages/leaderboard";
 import TrophyCabinet  from "@/pages/trophy-cabinet";
 
@@ -41,12 +40,9 @@ export default function ClubHub() {
       </div>
       {tab === "overview"   && <LeagueLadders />}
       {tab === "facilities" && <Facilities />}
-      {tab === "medical"    && (
-        <div className="space-y-8">
-          <MedicalCentre />
-          <MedicalMarket />
-        </div>
-      )}
+      {/* Item 20: the Medical Market is its own page (/medical-market), reached by
+          the Medical Centre's "Browse Medical Market" button, like the Staff Market. */}
+      {tab === "medical"    && <MedicalCentre />}
       {tab === "halloffame" && <Leaderboard />}
       {tab === "trophy"     && <TrophyCabinet />}
     </div>
