@@ -13,6 +13,7 @@ import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
 import { renameFacilityLedgerLines } from "./utils/facilityLedgerNames";
+import { finishAbandonedWatchedMatches } from "./utils/abandonedMatches";
 import { backfillContracts } from "./utils/backfillContracts";
 import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { backfillPoolClubBooks } from "./utils/poolClubFinances";
@@ -166,6 +167,13 @@ try {
 } catch (err) {
   logger.error({ err }, "pool club books backfill failed");
 }
+
+// Unity brief item 4: a match left "in_progress" by a closed window (the 3D
+// court never sent its result) is finished from the last score it did send,
+// with the game's engine, and recorded. A save is never left mid-match.
+finishAbandonedWatchedMatches()
+  .then((n) => { if (n.length > 0) logger.info({ finished: n }, "watched matches left open were finished from their last score"); })
+  .catch((err) => logger.error({ err }, "finishing abandoned watched matches failed"));
 
 // D-3: facility upgrades booked before facility names were shared read
 // "training complex"; they now read as the building's own name.

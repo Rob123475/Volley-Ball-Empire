@@ -18,7 +18,6 @@ import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
 import { endCareer } from "../utils/careerLifecycle.js";
-import { startMatchTick } from "../utils/match-tick-engine.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
   selectPair, pairSideRating, isAvailable, matchCosts, injuryRisk, rollInjury,
@@ -29,7 +28,7 @@ import {
 import { getGameDate } from "../utils/gameDate.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import {
-  sideRating, pointProbability, simulateMatch,
+  sideRating, pointProbability, simulateMatch, finishMatchFrom, isLegalProgress, type SetScore,
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
@@ -458,11 +457,18 @@ router.post("/matches/:id/watch", async (req, res): Promise<void> => {
       return;
     }
   }
-  const result = await startMatchTick(id);
-  if (!result.ok) {
-    res.status(500).json({ error: result.error ?? "Failed to start match" });
-    return;
+  // Unity brief item 4: the 3D court plays the match and decides its result
+  // (POST /unity/match-result); it reports the score after every point
+  // (POST /unity/match-progress) so a match left early can be finished from
+  // there. The server no longer plays a match of its own alongside it: that
+  // "tick engine" recorded ITS result while the court showed another.
+  if (match.status !== "in_progress") {
+    await db.update(matchesTable).set({ status: "in_progress", sets: [] }).where(eq(matchesTable.id, id));
   }
+  await db.insert(matchLiveStateTable).values({
+    matchId: id, currentSet: 1, homeSetScore: 0, awaySetScore: 0, setsWonHome: 0, setsWonAway: 0,
+    rallyState: "playing", matchTimeSeconds: 0,
+  }).onConflictDoNothing();
   res.json({ ok: true, matchId: id });
 });
 
@@ -478,6 +484,12 @@ router.post("/matches/:id/simulate", async (req, res) => {
   // guarded this; /simulate did not.
   if (match.status === "completed") {
     res.status(409).json({ error: "Match already completed" });
+    return;
+  }
+  // Unity brief item 4: a match on the 3D court is decided there. Nothing else
+  // may complete it while it is being watched.
+  if (match.status === "in_progress") {
+    res.status(409).json({ error: "This match is being played on the 3D court. Leave the court and it is finished from the score so far.", beingWatched: true });
     return;
   }
 
@@ -597,6 +609,52 @@ export async function matchPointChance(careerSaveId: number, team: Team, match: 
     wx, matchWindSpeed, matchTemp, isFinal, isWorldSemiFinal,
     facilityLevels, hasRecoveryCamp, wellbeingEffects,
   };
+}
+
+// ─── POST /api/matches/:id/leave ─────────────────────────────────────────────
+// Unity brief item 4: the player left the 3D court before the end. The match is
+// finished by the game's engine from the last score the court sent, and
+// recorded like any other result.
+router.post("/matches/:id/leave", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id);
+  const match = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, id) });
+  if (!match) { res.status(404).json({ error: "Match not found" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team || match.homeTeamId !== team.id) { res.status(404).json({ error: "Match not found" }); return; }
+  if (match.status === "completed") { res.json({ alreadyCompleted: true, match: serializeMatch(match) }); return; }
+  if (match.status !== "in_progress") { res.status(409).json({ error: "This match is not being watched." }); return; }
+  const result = await finishWatchedMatchFromProgress(
+    { careerSaveId: requireCareerSaveId(req.activeCareerSaveId), team, userId: req.user?.id ?? null, log: req.log },
+    match,
+  );
+  if (!result) { res.status(409).json({ error: "Match already completed" }); return; }
+  res.json({ ...result, finishedFrom: result.finishedFrom });
+});
+
+/** The last score the 3D court reported for a watched match: finished sets and the set in play. */
+export async function watchedProgress(match: Match): Promise<{ finished: SetScore[]; current: SetScore }> {
+  const live = await db.query.matchLiveStateTable.findFirst({ where: eq(matchLiveStateTable.matchId, match.id) });
+  const stored = Array.isArray(match.sets) ? (match.sets as SetScore[]) : [];
+  const finished = stored.filter((s) => s && Number.isInteger(s.home) && Number.isInteger(s.away));
+  const current = { home: live?.homeSetScore ?? 0, away: live?.awaySetScore ?? 0 };
+  return isLegalProgress(finished, current) ? { finished, current } : { finished: [], current: { home: 0, away: 0 } };
+}
+
+/**
+ * Finish a watched match from its last reported score, with the game's engine
+ * at the match's own chance (matchPointChance), and record it through
+ * completeMatch, exactly as Sim Result records. Used when the player leaves the
+ * court early, and at boot for a match left "in_progress" (the window closed).
+ */
+export async function finishWatchedMatchFromProgress(ctx: MatchContext, match: Match) {
+  const from = await watchedProgress(match);
+  const chance = await matchPointChance(ctx.careerSaveId, ctx.team, match);
+  const played = finishMatchFrom(chance.pointChanceHome, from.finished, from.current);
+  // completeMatch refuses nothing "in_progress"; it reads the match row fresh.
+  const result = await completeMatch(ctx, match, { homeScore: played.homeScore, awayScore: played.awayScore, sets: played.sets });
+  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, match.id));
+  return result ? { ...result, finishedFrom: from } : null;
 }
 
 export type MatchContext = {

@@ -92,7 +92,6 @@ check("the scan is real: each old line planted back is caught", caught.every((c)
   caught.map((c, i) => `#${i + 1} ${c.join("+") || "MISSED"}`).join(" | "));
 check("every match path picks the side through selectPair",
   /selectPair\(/.test(src("artifacts/api-server/src/routes/matches.ts"))
-    && /selectPair\(/.test(src("artifacts/api-server/src/utils/match-tick-engine.ts"))
     && /selectPair\(/.test(src("artifacts/api-server/src/routes/unity.ts"))
     && /selectPair\(/.test(src("artifacts/api-server/src/routes/game-api.ts")));
 check("the board's able-to-play check excludes the injured",

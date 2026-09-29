@@ -183,13 +183,13 @@ export function pointTarget(_setNumber: number): number {
   return POINTS_TO_WIN_SET;
 }
 
-/** A set is over at the target with a lead of two. No cap: a deuce ends with probability 1. */
-function playSet(pPoint: number, target: number): SetScore {
-  let home = 0, away = 0;
+/** A set, played on from `from` until one side has the target with a lead of two. No cap: a deuce ends with probability 1. */
+function playSet(pPoint: number, target: number, from: SetScore = { home: 0, away: 0 }): SetScore {
+  let home = from.home, away = from.away;
   for (;;) {
-    if (Math.random() < pPoint) home++; else away++;
     if (home >= target && home - away >= 2) break;
     if (away >= target && away - home >= 2) break;
+    if (Math.random() < pPoint) home++; else away++;
   }
   return { home, away };
 }
@@ -212,12 +212,55 @@ export function isLegalSet(home: number, away: number): boolean {
  * that expose the roll.
  */
 export function simulateMatch(pPoint: number): MatchResult {
-  const sets: SetScore[] = [];
-  let homeSets = 0, awaySets = 0;
+  return finishMatchFrom(pPoint, [], { home: 0, away: 0 });
+}
+
+/**
+ * Unity brief item 4: finish a match from a score part-way through: the sets
+ * already finished, and the points of the set in play. A watched match the
+ * player leaves early is completed this way, from the last score the 3D court
+ * sent, at the same per-point chance. From 0-0 it is simulateMatch.
+ */
+export function finishMatchFrom(pPoint: number, finished: SetScore[], current: SetScore): MatchResult {
+  const sets: SetScore[] = finished.map((s) => ({ ...s }));
+  let homeSets = sets.filter((s) => s.home > s.away).length;
+  let awaySets = sets.length - homeSets;
+  let from = { ...current };
   while (homeSets < 2 && awaySets < 2) {
-    const s = playSet(pPoint, pointTarget(sets.length + 1));
+    const s = playSet(pPoint, pointTarget(sets.length + 1), from);
     sets.push(s);
     if (s.home > s.away) homeSets++; else awaySets++;
+    from = { home: 0, away: 0 };
   }
   return { homeScore: homeSets, awayScore: awaySets, sets, homeWon: homeSets > awaySets };
+}
+
+/** A whole result that could really happen: 2 or 3 legal sets, the match decided by the last. */
+export function isLegalResult(sets: SetScore[]): boolean {
+  if (!Array.isArray(sets) || sets.length < 2 || sets.length > 3) return false;
+  let h = 0, a = 0;
+  for (const s of sets) {
+    if (h === 2 || a === 2) return false;
+    if (!isLegalSet(s?.home, s?.away)) return false;
+    if (s.home > s.away) h++; else a++;
+  }
+  return h === 2 || a === 2;
+}
+
+/** A score part-way through: finished sets legal and undecided, and the set in play not yet won. */
+export function isLegalProgress(finished: SetScore[], current: SetScore): boolean {
+  if (!Array.isArray(finished) || finished.length > 2) return false;
+  let h = 0, a = 0;
+  for (const s of finished) {
+    if (!isLegalSet(s?.home, s?.away)) return false;
+    if (s.home > s.away) h++; else a++;
+  }
+  if (h === 2 || a === 2) return false;
+  const { home, away } = current ?? ({} as SetScore);
+  if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) return false;
+  const won = (x: number, y: number) => x >= POINTS_TO_WIN_SET && x - y >= 2;
+  if (won(home, away) || won(away, home)) return false;
+  // Past 10-10 the lead can never be more than one while the set is open.
+  if (home >= POINTS_TO_WIN_SET && away >= POINTS_TO_WIN_SET && Math.abs(home - away) > 1) return false;
+  return true;
 }

@@ -8,7 +8,8 @@ import { logger } from "../lib/logger.js";
 import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
 import { selectPair } from "../utils/condition.js";
 import { overallRating } from "../utils/overallRating.js";
-import { matchPointChance } from "./matches.js";
+import { matchPointChance, completeMatch, type MatchContext } from "./matches.js";
+import { isLegalResult, isLegalProgress, type SetScore } from "../utils/matchEngine.js";
 
 const router = Router();
 
@@ -406,6 +407,98 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     matchTime:            liveState?.matchTimeSeconds ?? 0,
     players,
   });
+});
+
+// ── Unity brief item 4: the 3D court's result counts ────────────────────────
+//
+// The Unity build posts these from inside its iframe, which carries no app
+// session (see /unity/match-state), so a request names its career and match
+// and is accepted only for a match of that career that is being watched
+// (status "in_progress", set by POST /matches/:id/watch).
+
+type CourtBody = { careerSaveId?: unknown; matchId?: unknown; sets?: unknown; current?: unknown };
+
+function toSets(v: unknown): SetScore[] | null {
+  if (!Array.isArray(v)) return null;
+  const out: SetScore[] = [];
+  for (const s of v) {
+    const home = Number((s as { home?: unknown })?.home), away = Number((s as { away?: unknown })?.away);
+    if (!Number.isInteger(home) || !Number.isInteger(away)) return null;
+    out.push({ home, away });
+  }
+  return out;
+}
+
+/** The career and the watched match a court request is about, or why not. */
+async function courtMatch(body: CourtBody) {
+  const careerSaveId = Number(body.careerSaveId), matchId = Number(body.matchId);
+  if (!Number.isInteger(careerSaveId) || !Number.isInteger(matchId)) return { status: 400, error: "careerSaveId and matchId are required" } as const;
+  const save = await db.query.careerSavesTable.findFirst({ where: eq(careerSavesTable.id, careerSaveId) });
+  if (!save || save.teamId == null) return { status: 404, error: "Career not found" } as const;
+  const match = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, matchId) });
+  if (!match || match.homeTeamId !== save.teamId) return { status: 404, error: "That match is not this career's" } as const;
+  return { save, match } as const;
+}
+
+/**
+ * POST /unity/match-progress  { careerSaveId, matchId, sets: [{home,away}...finished], current: {home,away} }
+ * After every point: the score so far, kept so a match left early is finished from it.
+ */
+router.post("/unity/match-progress", async (req, res): Promise<void> => {
+  const found = await courtMatch(req.body ?? {});
+  if ("error" in found) { res.status(found.status ?? 400).json({ error: found.error }); return; }
+  const { match } = found;
+  if (match.status !== "in_progress") { res.status(409).json({ error: "This match is not being watched." }); return; }
+  const sets = toSets(req.body?.sets);
+  const cur = req.body?.current as { home?: unknown; away?: unknown } | undefined;
+  const current = { home: Number(cur?.home), away: Number(cur?.away) };
+  if (!sets || !isLegalProgress(sets, current)) { res.status(400).json({ error: "Not a legal score part-way through a best-of-3-to-11 match." }); return; }
+  const homeSets = sets.filter((s) => s.home > s.away).length;
+  await db.update(matchesTable).set({ sets }).where(eq(matchesTable.id, match.id));
+  await db.insert(matchLiveStateTable).values({
+    matchId: match.id, currentSet: sets.length + 1, homeSetScore: current.home, awaySetScore: current.away,
+    setsWonHome: homeSets, setsWonAway: sets.length - homeSets, rallyState: "playing", matchTimeSeconds: 0,
+  }).onConflictDoUpdate({
+    target: matchLiveStateTable.matchId,
+    set: { currentSet: sets.length + 1, homeSetScore: current.home, awaySetScore: current.away,
+      setsWonHome: homeSets, setsWonAway: sets.length - homeSets, rallyState: "playing", updatedAt: new Date() },
+  });
+  res.json({ ok: true });
+});
+
+/**
+ * POST /unity/match-result  { careerSaveId, matchId, sets: [{home,away}, ...] }
+ * The match is over on the court: record exactly that result through
+ * completeMatch, the path Sim Result uses (result, sets, prize, ranking points,
+ * fitness and injuries, board, news, achievements). Sent twice, the second
+ * changes nothing.
+ */
+router.post("/unity/match-result", async (req, res): Promise<void> => {
+  const found = await courtMatch(req.body ?? {});
+  if ("error" in found) { res.status(found.status ?? 400).json({ error: found.error }); return; }
+  const { save, match } = found;
+  const sets = toSets(req.body?.sets);
+  if (!sets || !isLegalResult(sets)) { res.status(400).json({ error: "Not a legal best-of-3-to-11 result (win by 2)." }); return; }
+  const homeScore = sets.filter((s) => s.home > s.away).length;
+  const awayScore = sets.length - homeScore;
+
+  if (match.status === "completed") {
+    const same = match.homeScore === homeScore && match.awayScore === awayScore
+      && JSON.stringify(match.sets ?? []) === JSON.stringify(sets);
+    res.status(same ? 200 : 409).json(same
+      ? { ok: true, alreadyRecorded: true }
+      : { error: "This match already has a different result." });
+    return;
+  }
+  if (match.status !== "in_progress") { res.status(409).json({ error: "This match is not being watched." }); return; }
+
+  const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, match.homeTeamId!) });
+  if (!team) { res.status(404).json({ error: "Team not found" }); return; }
+  const ctx: MatchContext = { careerSaveId: save.id, team, userId: save.userId ?? null, log: req.log ?? logger };
+  const result = await completeMatch(ctx, match, { homeScore, awayScore, sets });
+  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, match.id));
+  if (!result) { res.json({ ok: true, alreadyRecorded: true }); return; }
+  res.json({ ok: true, ...result });
 });
 
 export default router;

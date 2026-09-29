@@ -1,6 +1,12 @@
 /**
  * R-77 — a match watched in 3D counts, and the achievements say what unlocks them.
  *
+ * Unity brief 29 Sep, item 4: the point-tick engine described below is deleted.
+ * The 3D court decides a watched match and posts its result to
+ * POST /unity/match-result, which records it through completeMatch; this suite
+ * now posts that result the way the court does (no session) and checks the
+ * same counters. The R-77 history is kept below for the record.
+ *
  * Traced: POST /matches/:id/watch starts the point-tick engine
  * (utils/match-tick-engine.ts), which writes each point to match_live_state and
  * stopped at rallyState "finished". The match stayed "in_progress". The engine's
@@ -19,9 +25,8 @@
  *             score it played; the live row is cleared and the calendar freed;
  *             the first watched win unlocks First Steps
  *   simulated a simulated match moves the same counters the same way
- *   once      a match watched and then simulated mid-play counts once
- *
- * MATCH_TICK_MS=5 makes a watched match play in seconds instead of minutes.
+ *   once      a match being watched cannot be simulated; the court's result
+ *             counts once
  *
  * Usage: node harness/watched-match.mjs
  */
@@ -102,7 +107,7 @@ const out = fs.openSync(path.join(WORK, "server.log"), "w");
 const child = forkServer({
   server: SERVER, electron: ELECTRON, out,
   env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: dbFile, PORT: String(PORT), NODE_ENV: "development",
-    SESSION_SECRET: "watched-match", MATCH_TICK_MS: "5" },
+    SESSION_SECRET: "watched-match" },
 });
 for (let i = 0; i < 240; i++) { try { if ((await fetch(`${BASE}/healthz`)).ok) break; } catch { /* booting */ } await sleep(250); }
 
@@ -173,26 +178,37 @@ try {
 
   // ── 1. Watched ────────────────────────────────────────────────────────────
   console.log("\n1. A WATCHED MATCH COMPLETES AND COUNTS");
+  const careerSaveId = ((await api("GET", "/careers")).data?.saves ?? []).find((s) => s.teamId === teamId)?.id;
+  /** What the 3D court does at the final point: post its result, with no session. */
+  const courtResult = (matchId, sets) => fetch(`${BASE}/unity/match-result`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ careerSaveId, matchId, sets }),
+  }).then((r) => r.status);
+  // The court's results: a win, a loss, a win.
+  const RESULTS = [
+    [{ home: 11, away: 7 }, { home: 9, away: 11 }, { home: 11, away: 6 }],
+    [{ home: 8, away: 11 }, { home: 10, away: 12 }],
+    [{ home: 11, away: 5 }, { home: 11, away: 9 }],
+  ];
   let watchedWin = null;
   const watched = [];
-  for (let n = 0; n < 12 && !watchedWin; n++) {
+  for (const sets of RESULTS) {
     const matchId = await nextMatchDay();
     if (!matchId) break;
     const before = await snapshot();
     const w = await api("POST", `/matches/${matchId}/watch`, {});
     if (w.status !== 200) { watched.push({ matchId, error: `watch HTTP ${w.status} ${JSON.stringify(w.data)}` }); break; }
-    let m = null;
-    for (let i = 0; i < 600; i++) { m = (await api("GET", `/matches/${matchId}`)).data; if (m?.status === "completed") break; await sleep(100); }
-    await sleep(300);
+    const posted = await courtResult(matchId, sets);
+    const m = (await api("GET", `/matches/${matchId}`)).data;
+    if (posted !== 200) { watched.push({ matchId, error: `result HTTP ${posted}` }); break; }
     const after = await snapshot();
     const live = read("SELECT COUNT(*) AS n FROM match_live_state WHERE match_id = ?", matchId)[0].n;
     const cal = (await api("GET", "/calendar")).data;
     const homeWon = m?.homeScore > m?.awayScore;
     watched.push({ matchId, status: m?.status, score: `${m?.homeScore}-${m?.awayScore}`, homeWon, before, after, live, pending: cal?.pendingMatchId });
-    if (homeWon && m?.status === "completed") watchedWin = watched[watched.length - 1];
+    if (homeWon && m?.status === "completed" && !watchedWin) watchedWin = watched[watched.length - 1];
   }
   const done = watched.filter((w) => w.status === "completed");
-  check("every watched match completed on its own, with a finished score", done.length === watched.length && done.length > 0
+  check("every watched match completed with the court's result", done.length === watched.length && done.length === RESULTS.length
     && done.every((w) => /^(2-[01]|[01]-2)$/.test(w.score)), watched.map((w) => `${w.matchId} ${w.status ?? w.error} ${w.score ?? ""}`).join(" | "));
   check("each moved wins or losses by exactly one, the way its score went",
     done.every((w) => (w.homeWon ? w.after.wins - w.before.wins === 1 && w.after.losses === w.before.losses
@@ -204,7 +220,7 @@ try {
   const firstSteps = read("SELECT season_unlocked FROM achievements WHERE team_id = ? AND achievement_key = 'first_steps'", teamId);
   check("a completed watched match increments wins, and the first watched win unlocks First Steps",
     !!watchedWin && watchedWin.after.wins === watchedWin.before.wins + 1 && firstSteps.length === 1,
-    watchedWin ? `match ${watchedWin.matchId} ${watchedWin.score}: wins ${watchedWin.before.wins} -> ${watchedWin.after.wins}; First Steps ${firstSteps.length ? "unlocked" : "missing"}` : "no watched win in 12 matches");
+    watchedWin ? `match ${watchedWin.matchId} ${watchedWin.score}: wins ${watchedWin.before.wins} -> ${watchedWin.after.wins}; First Steps ${firstSteps.length ? "unlocked" : "missing"}` : "no watched win");
   console.log(`  REPORT  ${done.length} watched matches, ${done.filter((w) => w.homeWon).length} won`);
 
   // ── 2. Simulated ──────────────────────────────────────────────────────────
@@ -222,17 +238,19 @@ try {
   }
 
   // ── 3. Once ───────────────────────────────────────────────────────────────
-  console.log("\n3. WATCHED, THEN SIMULATED MID-PLAY, COUNTS ONCE");
+  console.log("\n3. WATCHED, SIMULATE REFUSED MID-PLAY, THE COURT'S RESULT COUNTS ONCE");
   {
     const matchId = await nextMatchDay();
     const before = await snapshot();
     await api("POST", `/matches/${matchId}/watch`, {});
     const sim = await api("POST", `/matches/${matchId}/simulate`, {});
-    await sleep(4000); // the watch loop finishes and finds the match already completed
+    const sets = [{ home: 11, away: 3 }, { home: 11, away: 4 }];
+    const first = await courtResult(matchId, sets);
+    const second = await courtResult(matchId, sets);
     const after = await snapshot();
     const played = (after.wins - before.wins) + (after.losses - before.losses);
-    check("one result, one purse", sim.status === 200 && played === 1 && after.prizes - before.prizes === 1,
-      `simulate HTTP ${sim.status}; wins+losses moved ${played}; purses ${after.prizes - before.prizes}`);
+    check("one result, one purse", sim.status === 409 && first === 200 && second === 200 && played === 1 && after.prizes - before.prizes === 1,
+      `simulate HTTP ${sim.status}; court result ${first}, again ${second}; wins+losses moved ${played}; purses ${after.prizes - before.prizes}`);
   }
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
