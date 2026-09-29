@@ -243,6 +243,9 @@ router.get("/calendar", async (req, res) => {
     pendingMatchId:    calendar.pendingMatchId,
     pendingMatch,
     clubName:          careerSave?.clubName ?? team.name,
+    // F-1: why Next match cannot run right now (null when it can); the
+    // button is disabled with exactly this reason.
+    nextMatchBlockedReason: await nextMatchBlockedReason(team.id, season, calendar),
     nextMatch,
     nextMatchDate,
     daysToNextMatch,
@@ -289,26 +292,32 @@ router.patch("/calendar/speed", async (req, res) => {
 
 // ── POST /api/calendar/advance ─────────────────────────────────────────────
 
-router.post("/calendar/advance", async (req, res) => {
+/** What one day of the clock returned: the HTTP status and body. */
+type DayResult = { status: number; body: Record<string, any> };
+
+/**
+ * One day of the clock: everything POST /calendar/advance does. F-1: Next
+ * match calls this same function once per day, so a day run by the button is
+ * processed exactly as a day run by Advance or the ticker.
+ */
+async function advanceOneDay(req: Request): Promise<DayResult> {
   const team = await getActiveTeam(req);
-  if (!team) { res.status(401).json({ error: "No active team" }); return; }
+  if (!team) return { status: 401, body: { error: "No active team" } };
 
   const season = await getActiveSeason(req);
-  if (!season) { res.status(400).json({ error: "No active season" }); return; }
+  if (!season) return { status: 400, body: { error: "No active season" } };
 
   let calendar = await getOrCreateCalendar(team.id, season);
 
   if (calendar.currentDate > season.endDate) {
-    res.json({ blocked: "season_end", currentDate: calendar.currentDate, events: [] });
-    return;
+    return { status: 200, body: { blocked: "season_end", currentDate: calendar.currentDate, events: [] } };
   }
 
   // Check pending match
   if (calendar.pendingMatchId) {
     const matchRows = await db.select().from(matchesTable).where(eq(matchesTable.id, calendar.pendingMatchId)).limit(1);
     if (matchRows[0]?.status !== "completed") {
-      res.json({ blocked: "pending_match", pendingMatchId: calendar.pendingMatchId, currentDate: calendar.currentDate });
-      return;
+      return { status: 200, body: { blocked: "pending_match", pendingMatchId: calendar.pendingMatchId, currentDate: calendar.currentDate } };
     }
     const advRestoreSpeed = (calendar.preMatchSpeed ?? "medium") as "slow" | "medium" | "fast";
     const updated = await db.update(calendarStateTable)
@@ -430,7 +439,7 @@ router.post("/calendar/advance", async (req, res) => {
         .set({ pendingMatchId: matchToday.id, calendarSpeed: "pause", preMatchSpeed: calendar.calendarSpeed, updatedAt: new Date() })
         .where(eq(calendarStateTable.teamId, team.id));
 
-      res.json({
+      return { status: 200, body: {
         matchDay: {
           matchId:     matchToday.id,
           round:       matchToday.round,
@@ -443,8 +452,7 @@ router.post("/calendar/advance", async (req, res) => {
         },
         currentDate: calendar.currentDate,
         events: ["Match day — your team plays today!"],
-      });
-      return;
+      } };
     }
   }
 
@@ -761,7 +769,7 @@ router.post("/calendar/advance", async (req, res) => {
     clubSold = true;
   }
 
-  res.json({
+  return { status: 200, body: {
     newDate: rollover.kind === "rolled" ? `${yearForSeasonNumber(rollover.toSeason)}-01-01` : nextDate,
     events,
     isQuietDay,
@@ -776,8 +784,101 @@ router.post("/calendar/advance", async (req, res) => {
     // without re-deriving the season-number-to-year mapping. That mapping lives
     // in seasonRollover.ts and duplicating it in the client is how the two drift.
     reviewYear: rollover.kind === "rolled" ? yearForSeasonNumber(rollover.fromSeason) : null,
-  });
+  } };
+}
+
+/**
+ * F-1: a team whose clock is being run by Next match. A day processed twice at
+ * once (the ticker firing mid-run) would pay two salary weeks for one, so
+ * while a run is in progress the single-day advance waits its turn.
+ */
+const clockBusy = new Set<number>();
+
+router.post("/calendar/advance", async (req, res) => {
+  const team = await getActiveTeam(req);
+  if (team && clockBusy.has(team.id)) { res.status(409).json({ error: "The calendar is already moving to the next match." }); return; }
+  const day = await advanceOneDay(req);
+  res.status(day.status).json(day.body);
 });
+
+// ── POST /api/calendar/next-match ──────────────────────────────────────────
+// F-1 (Rob, 29 Sep): run the clock to the day of the player's next match and
+// stop on the MATCH DAY box. Every day in between is advanceOneDay, the very
+// day Advance runs: salaries, AI results, facility builds, contracts, news.
+// A faster clock, not a skip.
+
+/** Upper bound on days in one press: a season is 365; the loop stops long before. */
+const NEXT_MATCH_MAX_DAYS = 400;
+
+router.post("/calendar/next-match", async (req, res) => {
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(401).json({ error: "No active team" }); return; }
+  const season = await getActiveSeason(req);
+  if (!season) { res.status(400).json({ error: "No active season" }); return; }
+  const calendar = await getOrCreateCalendar(team.id, season);
+
+  const reason = await nextMatchBlockedReason(team.id, season, calendar);
+  if (reason) { res.status(409).json({ reason }); return; }
+  if (clockBusy.has(team.id)) { res.status(409).json({ reason: "The calendar is already moving." }); return; }
+
+  const target = (await nextMatchFor(team.id, season, calendar.currentDate))!.date;
+  const events: string[] = [];
+  let last: DayResult = { status: 200, body: {} };
+  let days = 0;
+  let stoppedBecause = "limit";
+  clockBusy.add(team.id);
+  try {
+    while (days < NEXT_MATCH_MAX_DAYS) {
+      last = await advanceOneDay(req);
+      if (last.status !== 200) { stoppedBecause = "error"; break; }
+      const b = last.body;
+      events.push(...((b.events as string[] | undefined) ?? []));
+      if (b.matchDay)                        { stoppedBecause = "match_day"; break; }
+      if (b.blocked)                         { stoppedBecause = String(b.blocked); break; }
+      days++;
+      if (b.fired || b.clubSold)             { stoppedBecause = b.clubSold ? "club_sold" : "career_ended"; break; }
+      if (b.seasonRollover?.kind === "rolled") { stoppedBecause = "season_rollover"; break; }
+      // The fixture is gone (a bye, or the draw changed): stop where it was due.
+      if (typeof b.newDate === "string" && b.newDate > target) { stoppedBecause = "passed_target"; break; }
+    }
+  } finally {
+    clockBusy.delete(team.id);
+  }
+  if (last.status !== 200) { res.status(last.status).json(last.body); return; }
+  res.json({ ...last.body, events, daysAdvanced: days, stoppedBecause });
+});
+
+/** The player's next scheduled match on or after `fromDate`, as GET /calendar finds it. */
+async function nextMatchFor(teamId: number, season: typeof seasonsTable.$inferSelect, fromDate: string) {
+  const scheduled = await db.select().from(matchesTable).where(
+    and(
+      eq(matchesTable.season, season.year),
+      eq(matchesTable.status, "scheduled"),
+      or(eq(matchesTable.homeTeamId, teamId), eq(matchesTable.awayTeamId, teamId)),
+    ),
+  );
+  scheduled.sort((a, b) => a.round - b.round);
+  for (const m of scheduled) {
+    const date = roundToDate(season.startDate, season.endDate, m.round, season.totalRounds);
+    if (date >= fromDate) return { match: m, date };
+  }
+  return null;
+}
+
+/** Why Next match cannot run now, in a few words; null when it can. The button shows the same. */
+async function nextMatchBlockedReason(
+  teamId: number,
+  season: typeof seasonsTable.$inferSelect,
+  calendar: typeof calendarStateTable.$inferSelect,
+): Promise<string | null> {
+  if (calendar.pendingMatchId) {
+    const [m] = await db.select({ status: matchesTable.status }).from(matchesTable).where(eq(matchesTable.id, calendar.pendingMatchId)).limit(1);
+    if (m?.status !== "completed") return "Today's match comes first";
+  }
+  if (calendar.currentDate > season.endDate) return "The season is over";
+  if (!(await nextMatchFor(teamId, season, calendar.currentDate))) return "No match scheduled";
+  return null;
+}
 
 // ── POST /api/calendar/dismiss-match ──────────────────────────────────────
 

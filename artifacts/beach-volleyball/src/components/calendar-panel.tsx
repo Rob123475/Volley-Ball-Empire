@@ -10,6 +10,7 @@ import {
   Zap,
   Gauge,
   ChevronRight,
+  ChevronsRight,
   AlertTriangle,
   Trophy,
   Loader2,
@@ -37,7 +38,8 @@ function VDiv() {
 }
 
 export function CalendarPanel() {
-  const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed, advanceMutation } = useCalendar();
+  const { calendar, isLoading, isAdvancing, isSettingSpeed, advance, setSpeed, advanceMutation,
+    isRunningToMatch, runToNextMatch, nextMatchMutation } = useCalendar();
   const roundName = useRoundNames();
   const tickingRef = useRef(false);
   // A season boundary is an event, not a place: it has to interrupt. Opening
@@ -58,12 +60,17 @@ export function CalendarPanel() {
   useEffect(() => {
     if (lastReviewYear != null) setReviewYear(lastReviewYear);
   }, [lastReviewYear]);
+  // F-1: Next match stops at a season boundary too, and says so the same way.
+  const nextMatchReviewYear = nextMatchMutation.data?.reviewYear ?? null;
+  useEffect(() => {
+    if (nextMatchReviewYear != null) setReviewYear(nextMatchReviewYear);
+  }, [nextMatchReviewYear]);
 
   // R-53: the board's season review can sack the manager at the boundary. The
   // career is over and there is no next season to show: go to the end screen,
   // which reads the review from the dismissal entry.
   const queryClient = useQueryClient();
-  const sackedAtReview = advanceMutation.data?.fired === true;
+  const sackedAtReview = advanceMutation.data?.fired === true || nextMatchMutation.data?.fired === true;
   useEffect(() => {
     if (!sackedAtReview) return;
     queryClient.clear();
@@ -84,6 +91,8 @@ export function CalendarPanel() {
     const timer = setInterval(() => {
       if (tickingRef.current) return;
       if (advanceMutation.isPending) return;
+      // F-1: Next match is running the days; the ticker must not add one.
+      if (nextMatchMutation.isPending) return;
       tickingRef.current = true;
       advanceMutation.mutate(undefined, {
         onSuccess: (result) => {
@@ -248,7 +257,7 @@ export function CalendarPanel() {
         variant="outline"
         className="h-7 px-2.5 text-[11px] font-semibold gap-1 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent shrink-0 ml-1"
         onClick={advance}
-        disabled={isAdvancing || !!calendar.pendingMatchId}
+        disabled={isAdvancing || isRunningToMatch || !!calendar.pendingMatchId}
       >
         {isAdvancing ? (
           <Loader2 className="h-3 w-3 animate-spin" />
@@ -257,6 +266,36 @@ export function CalendarPanel() {
         )}
         <span className="hidden sm:inline">Advance</span>
       </Button>
+
+      {/* ── Next match ── F-1: the clock, run to the day of the next match. */}
+      {(() => {
+        const nextMatchBlockedReason = isRunningToMatch ? null : calendar.nextMatchBlockedReason;
+        const disabled = isRunningToMatch || isAdvancing || nextMatchBlockedReason != null;
+        const hint = nextMatchBlockedReason
+          ?? "Run the calendar day by day to your next match";
+        return (
+          <Button
+            size="sm"
+            variant="outline"
+            data-testid="button-next-match"
+            className="h-7 px-2.5 text-[11px] font-semibold gap-1 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent shrink-0 ml-1"
+            onClick={runToNextMatch}
+            disabled={disabled}
+            title={hint}
+            aria-label={nextMatchBlockedReason ? `Next match: ${nextMatchBlockedReason}` : "Next match"}
+          >
+            {isRunningToMatch ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <ChevronsRight className="h-3 w-3" />
+            )}
+            <span className="hidden sm:inline">Next match</span>
+            {nextMatchBlockedReason && (
+              <span className="hidden md:inline text-[10px] font-normal text-sidebar-foreground/50">· {nextMatchBlockedReason}</span>
+            )}
+          </Button>
+        );
+      })()}
 
       {totalActive > 0 && (
         <>

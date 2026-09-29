@@ -66,6 +66,8 @@ export type CalendarState = {
   pendingMatch: CalendarMatch | null;
   /** D-5: the player's club as the dashboard names it. */
   clubName: string;
+  /** F-1: why Next match cannot run now, or null when it can. */
+  nextMatchBlockedReason: string | null;
   nextMatch: CalendarMatch | null;
   nextMatchDate: string | null;
   daysToNextMatch: number | null;
@@ -146,6 +148,9 @@ export type AdvanceResult = {
   clubSold?: boolean;
   /** Year of the season that just ended, or null. Server-derived on purpose. */
   reviewYear?: number | null;
+  /** F-1, Next match only: how many days it ran, and why it stopped. */
+  daysAdvanced?: number;
+  stoppedBecause?: string;
 };
 
 export const SPEED_MS: Record<CalendarSpeed, number | null> = {
@@ -222,6 +227,31 @@ export function useCalendar() {
     },
   });
 
+  // F-1: Next match. The server runs the clock's own day, once per day, to
+  // the day of the next match; this is one request however many days it is.
+  // Everything a day can change may have changed, so every query is refreshed.
+  const nextMatchMutation = useMutation<AdvanceResult>({
+    mutationFn: () => apiFetch<AdvanceResult>("/api/calendar/next-match", { method: "POST" }),
+    onSuccess: (result) => {
+      if (result?.blocked === "season_end") {
+        setSpeedMutation.mutate("pause");
+        toast({
+          title: "Season complete",
+          description: "The season has finished. There is nothing left to play on the calendar.",
+        });
+      }
+    },
+    onError: (err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({
+        variant: "destructive",
+        title: "Could not run to the next match",
+        description: message.replace(/^HTTP \d+ [^:]*: /, "") || "Please try again.",
+      });
+    },
+    onSettled: () => { queryClient.invalidateQueries(); },
+  });
+
   const setSpeedMutation = useMutation<{ speed: string }, Error, CalendarSpeed>({
     mutationFn: (speed) =>
       apiFetch<{ speed: string }>("/api/calendar/speed", {
@@ -273,12 +303,14 @@ export function useCalendar() {
     isLoading,
     error,
     isAdvancing:       advanceMutation.isPending,
+    isRunningToMatch:  nextMatchMutation.isPending,
     isSettingSpeed:    setSpeedMutation.isPending,
     isDismissing:      dismissMatchMutation.isPending,
     isSkipping:        skipMatchMutation.isPending,
     isSimulating:      simulateMatchMutation.isPending,
     isStartingWatch:   watchMatchMutation.isPending,
     advance:           () => advanceMutation.mutate(),
+    runToNextMatch:    () => nextMatchMutation.mutate(),
     setSpeed:          (speed: CalendarSpeed) => setSpeedMutation.mutate(speed),
     dismissMatch:      () => dismissMatchMutation.mutate(),
     skipMatch:         (matchId: number) => skipMatchMutation.mutate(matchId),
@@ -286,6 +318,7 @@ export function useCalendar() {
     watchMatch:        (matchId: number) => watchMatchMutation.mutateAsync(matchId),
     lastAdvanceResult: advanceMutation.data,
     advanceMutation,
+    nextMatchMutation,
     simulateMatchMutation,
     skipMatchMutation,
   };
