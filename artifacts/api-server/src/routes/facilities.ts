@@ -20,7 +20,7 @@ const router = Router();
 
 // Was a local snake_case list that matched 10 of the 60 medical staff and
 // scored the other 50 as coaching. Use the shared set.
-import { isMedicalRole } from "@workspace/db";
+import { isMedicalRole, facilityName } from "@workspace/db";
 
 const FACILITY_TYPES = [
   "training_complex",
@@ -168,7 +168,7 @@ router.post("/facilities/:type/upgrade", async (req, res) => {
     teamId:      team.id,
     type:        "expense",
     amount:      cost,
-    description: `Facility upgrade: ${type.replace(/_/g, " ")} → Level ${facility.level + 1}`,
+    description: `Facility upgrade: ${facilityName(type)} → Level ${facility.level + 1}`,
     category:    "facilities",
     date:        today,
   });

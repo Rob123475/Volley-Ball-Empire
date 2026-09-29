@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, AlertTriangle, Sparkles, Clock } from "lucide-react";
 import { useState } from "react";
 import { serverMessage } from "@/lib/api-error";
+// D-3: every facility's name comes from one table, shared with the server.
+import { FACILITY_NAMES } from "@shared/facility-names";
 
 // ── Camp definitions (mirrors backend CAMPS) ─────────────────────────────────
 
@@ -65,7 +67,7 @@ const CAMP_DEFS = [
     costTier: "Medium" as const,
     benefits: ["Fatigue −20 for all active players", "Fitness +5 for all active players", "Reduced injury risk (6 matches)"],
     downsides: [] as string[],
-    facilityNote: "Medical Centre + Sports Science Lab: more fatigue reduction & longer duration",
+    facilityNote: `${FACILITY_NAMES.medical_centre} + ${FACILITY_NAMES.sports_science_lab}: more fatigue reduction & longer duration`,
     facilityType: "medical_centre",
     temporaryEffect: "recovery_camp",
     durationLabel: "2 rounds (~2 weeks)",
@@ -95,7 +97,7 @@ const CAMP_DEFS = [
     costTier: "Medium" as const,
     benefits: ["Bonus training XP for all active players", "Skills may improve sooner"],
     downsides: ["Fatigue +12 for all active players", "Morale −5 for all active players"],
-    facilityNote: "Training Complex: more XP bonus at higher levels",
+    facilityNote: `${FACILITY_NAMES.training_complex}: more XP bonus at higher levels`,
     facilityType: "training_complex",
     temporaryEffect: null,
     durationLabel: "3 rounds (~3 weeks)",

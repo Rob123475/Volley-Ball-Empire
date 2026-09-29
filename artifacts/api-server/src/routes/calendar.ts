@@ -50,6 +50,7 @@ import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
 import { promotionsMultiplier } from "../utils/staffBonuses.js";
 import { absoluteRound, completeDueUpgrades } from "../utils/facilityUpgrades.js";
+import { facilityName } from "@workspace/db";
 
 
 const router = Router();
@@ -947,7 +948,7 @@ router.get("/calendar/annual", async (req, res) => {
       if (f.upgradeCompletesAtRound && f.upgradeCompletesAtRound <= season.totalRounds) {
         const date = roundToDate(season.startDate, season.endDate, f.upgradeCompletesAtRound, season.totalRounds);
         if (date < yearStart || date > yearEnd) continue;
-        events.push({ date, type: "facility", title: `Upgrade Complete: ${f.type.replace(/_/g, " ")}`, subtitle: `Level ${f.upgradingToLevel ?? "?"} ready`, link: "/club" });
+        events.push({ date, type: "facility", title: `Upgrade Complete: ${facilityName(f.type)}`, subtitle: `Level ${f.upgradingToLevel ?? "?"} ready`, link: "/club" });
       }
     }
   }

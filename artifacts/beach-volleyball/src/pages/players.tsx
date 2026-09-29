@@ -56,6 +56,8 @@ import { format } from "date-fns";
 import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
+// D-3: every facility's name comes from one table, shared with the server.
+import { FACILITY_NAMES } from "@shared/facility-names";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -901,7 +903,7 @@ export default function PlayerMarket() {
           {filter === "player_pool" && (
             <FacilityBonusBanner
               facilityType="youth_academy"
-              facilityName="Youth Academy"
+              facilityName={FACILITY_NAMES.youth_academy}
               getBonusText={(level) => {
                 const elitePct = Math.round((0.12 + (level - 1) * (0.13 / 9)) * 100);
                 const genPct   = Math.round((0.03 + (level - 1) * (0.09 / 9)) * 100);

@@ -75,6 +75,8 @@ import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
 import { normaliseRole, MEDICAL_ROLE_KEYS } from "@shared/staff-roles";
+// D-3: every facility's name comes from one table, shared with the server.
+import { FACILITY_NAMES } from "@shared/facility-names";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
@@ -575,7 +577,7 @@ export default function MedicalCentre() {
 
       <FacilityBonusBanner
         facilityType="medical_centre"
-        facilityName="Medical Centre"
+        facilityName={FACILITY_NAMES.medical_centre}
         getBonusText={(level) => {
           const pct = Math.round((level - 1) * (100 / 9));
           return `~${pct}% faster injury recovery — applies to match rest and Recovery training`;

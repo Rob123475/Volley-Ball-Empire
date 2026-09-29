@@ -12,6 +12,7 @@ import { dropRemovedContent } from "./utils/removedContent";
 import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
+import { renameFacilityLedgerLines } from "./utils/facilityLedgerNames";
 import { backfillContracts } from "./utils/backfillContracts";
 import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { backfillPoolClubBooks } from "./utils/poolClubFinances";
@@ -164,6 +165,15 @@ try {
   }
 } catch (err) {
   logger.error({ err }, "pool club books backfill failed");
+}
+
+// D-3: facility upgrades booked before facility names were shared read
+// "training complex"; they now read as the building's own name.
+try {
+  const ledger = renameFacilityLedgerLines();
+  if (ledger.renamed > 0) logger.info(ledger, "facility ledger lines renamed");
+} catch (err) {
+  logger.error({ err }, "facility ledger rename failed");
 }
 
 // Data migration: move every continent column onto the canonical KEYS and

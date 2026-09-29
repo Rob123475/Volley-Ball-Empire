@@ -12,6 +12,7 @@ import {
 import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { completeDueUpgrades } from "../utils/facilityUpgrades.js";
+import { facilityName } from "@workspace/db";
 import { getActiveSeason, getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import { isOlympicYear, nextOlympicsYear, olympicDate, olympicTournament } from "../utils/olympics.js";
@@ -48,17 +49,6 @@ function formatPrize(amount: string | number | null | undefined): string | null 
   return `$${Math.round(n)}`;
 }
 
-const FACILITY_LABELS: Record<string, string> = {
-  training_centre:     "Training Centre",
-  medical_facility:    "Medical Facility",
-  gym:                 "Gym",
-  nutrition_centre:    "Nutrition Centre",
-  youth_academy:       "Youth Academy",
-  scouting_department: "Scouting Dept",
-  performance_lab:     "Performance Lab",
-  commercial_ops:      "Commercial Ops",
-  beachfront_resort:   "Beachfront Resort",
-};
 
 const CONTINENT_FLAGS: Record<string, string> = {
   "South America": "🌎", "North America": "🌎", "Europe": "🌍",
@@ -221,7 +211,7 @@ router.get("/events/upcoming", async (req, res) => {
   for (const fac of facilities) {
     if (!fac.upgradingToLevel || !fac.upgradeCompletesAtRound) continue;
     const roundsLeft = Math.max(0, fac.upgradeCompletesAtRound - currentRound);
-    const facLabel = fac.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    const facLabel = facilityName(fac.type);
     items.push({
       id: `upgrade_${fac.id}`,
       type: "facility_upgrade",

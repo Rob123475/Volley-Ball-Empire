@@ -130,7 +130,7 @@ export function injuryRisk(
   // Back-to-back matches wear the body down
   if      (consecutive >= 4) risk += 0.02;
   else if (consecutive >= 2) risk += 0.01;
-  // Sports Science Lab: 0% at L1, -25% at L10; Recovery Retreat camp: a further -15% while active
+  // Performance Centre (sports_science_lab): 0% at L1, -25% at L10; Recovery Retreat camp: a further -15% while active
   const labFactor  = 1 - (sportsLabLevel - 1) * (0.25 / 9);
   const campFactor = hasRecoveryCamp ? 0.85 : 1.0;
   return Math.min(risk * labFactor * campFactor, 0.60);

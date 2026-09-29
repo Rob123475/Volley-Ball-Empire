@@ -61,6 +61,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { normaliseRole } from "@shared/staff-roles";
+// D-3: every facility's name comes from one table, shared with the server.
+import { FACILITY_NAMES } from "@shared/facility-names";
 
 /** Staff who can take a training session. Compared by normalised role (P-09). */
 const SESSION_COACH_ROLES = new Set<string>(["head_coach", "assistant_coach", "strength_conditioner"]);
@@ -707,7 +709,7 @@ export default function Training() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-primary">Training Center</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary">{FACILITY_NAMES.training_complex}</h2>
           <p className="text-muted-foreground">Develop your athletes with strategic training programs.</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -743,7 +745,7 @@ export default function Training() {
 
       <FacilityBonusBanner
         facilityType="training_complex"
-        facilityName="Training Complex"
+        facilityName={FACILITY_NAMES.training_complex}
         getBonusText={(level) => `+${Math.round((level - 1) * (20 / 9))}% XP gain on all training sessions`}
       />
 

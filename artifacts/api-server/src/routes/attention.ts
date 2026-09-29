@@ -14,7 +14,7 @@ import {
 import { eq, and } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { CONTRACT_WARNING_DAYS } from "../utils/contractTerms.js";
-import { isMedicalRole } from "@workspace/db";
+import { isMedicalRole, facilityName, isFacilityPageType } from "@workspace/db";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { absoluteRound, canStartUpgrade, completeDueUpgrades, upgradeCost } from "../utils/facilityUpgrades.js";
 
@@ -33,17 +33,6 @@ interface AttentionItem {
 
 const PRIORITY_ORDER: Record<Priority, number> = { red: 0, orange: 1, blue: 2 };
 
-const FACILITY_LABELS: Record<string, string> = {
-  training_complex:      "Training Complex",
-  medical_centre:        "Medical Centre",
-  gymnasium:             "Gymnasium",
-  nutrition_centre:      "Nutrition Centre",
-  youth_academy:         "Youth Academy",
-  scouting_department:   "Scouting Dept",
-  sports_science_lab:    "Performance Centre",
-  commercial_department: "Commercial Dept",
-  beach_resort:          "Beach Resort",
-};
 
 router.get("/attention-items", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -270,7 +259,10 @@ router.get("/attention-items", async (req, res) => {
   // D-1: a building already under construction is not "ready" — its next
   // level has been bought.
   const upgradeable = allFacilities
-    .filter(f => canStartUpgrade(f) && budget >= upgradeCost(f.level))
+    // D-3: only the buildings the Facilities page shows — the card sends the
+    // player there, and the other rows (psychology centre, Olympic centre)
+    // cannot be upgraded anywhere.
+    .filter(f => isFacilityPageType(f.type) && canStartUpgrade(f) && budget >= upgradeCost(f.level))
     .sort((a, b) => a.level - b.level)
     .slice(0, 3);
 
@@ -280,7 +272,7 @@ router.get("/attention-items", async (req, res) => {
       id: `upgrade-${f.type}`,
       priority: "blue",
       category: "Facilities",
-      title: `Upgrade Ready: ${FACILITY_LABELS[f.type] ?? f.type}`,
+      title: `Upgrade Ready: ${facilityName(f.type)}`,
       description: `Level ${f.level} → ${f.level + 1} for $${cost.toLocaleString()}`,
       navigateTo: "/facilities",
     });

@@ -46,6 +46,8 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { serverMessage } from "@/lib/api-error";
+// D-3: every facility's name comes from one table, shared with the server.
+import { FACILITY_NAMES } from "@shared/facility-names";
 
 const MAX_LEVEL = 10;
 
@@ -92,7 +94,7 @@ const colourBar: Record<string, string> = {
 
 const FACILITY_CONFIG: Record<string, FacilityConfig> = {
   training_complex: {
-    name: "Training Centre",
+    name: FACILITY_NAMES.training_complex,
     icon: Dumbbell,
     purpose: "Boosts overall player development XP",
     colour: "blue",
@@ -103,7 +105,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Base training effectiveness" : `+${Math.round((l - 1) * (20 / 9))}% training XP`,
   },
   medical_centre: {
-    name: "Medical Centre",
+    name: FACILITY_NAMES.medical_centre,
     icon: Heart,
     purpose: "Accelerates injury recovery speed",
     colour: "rose",
@@ -114,7 +116,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Base recovery speed" : `+${Math.round((l - 1) * (25 / 9))}% recovery speed`,
   },
   gymnasium: {
-    name: "Gymnasium",
+    name: FACILITY_NAMES.gymnasium,
     icon: FlameKindling,
     purpose: "Increases strength and power growth",
     colour: "orange",
@@ -125,7 +127,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Base strength training" : `+${Math.round((l - 1) * (15 / 9))}% strength/power development`,
   },
   nutrition_centre: {
-    name: "Nutrition Centre",
+    name: FACILITY_NAMES.nutrition_centre,
     icon: Salad,
     purpose: "Speeds fatigue recovery and stamina growth",
     colour: "lime",
@@ -136,7 +138,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Base nutrition support" : `−${Math.round((l - 1) * (3 / 9))} fatigue/session + −${Math.round((l - 1) * (5 / 9))} in retreats`,
   },
   youth_academy: {
-    name: "Youth Academy",
+    name: FACILITY_NAMES.youth_academy,
     icon: Users,
     purpose: "Generates higher-potential youth prospects",
     colour: "amber",
@@ -161,7 +163,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     },
   },
   scouting_department: {
-    name: "Scouting Department",
+    name: FACILITY_NAMES.scouting_department,
     icon: Search,
     purpose: "Improves scouting accuracy and player discovery",
     colour: "indigo",
@@ -172,7 +174,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Basic scouting capability" : `+${Math.round((l - 1) * (30 / 9))}% scouting effectiveness`,
   },
   sports_science_lab: {
-    name: "Performance Centre",
+    name: FACILITY_NAMES.sports_science_lab,
     icon: Beaker,
     purpose: "Reduces injury risk and improves match performance",
     colour: "teal",
@@ -183,7 +185,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Base injury prevention" : `−${Math.round((l - 1) * (20 / 9))}% injury risk`,
   },
   commercial_department: {
-    name: "Commercial Department",
+    name: FACILITY_NAMES.commercial_department,
     icon: TrendingUp,
     purpose: "Increases sponsorship income and club prestige",
     colour: "violet",
@@ -194,7 +196,7 @@ const FACILITY_CONFIG: Record<string, FacilityConfig> = {
     benefitAt: (l) => l === 1 ? "Base commercial activity" : `+${Math.round((l - 1) * (30 / 9))}% sponsorship value`,
   },
   beach_resort: {
-    name: "Beach Resort",
+    name: FACILITY_NAMES.beach_resort,
     icon: Umbrella,
     purpose: "Boosts player morale and attracts free agents",
     colour: "cyan",
