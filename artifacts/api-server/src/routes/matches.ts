@@ -528,33 +528,16 @@ router.post("/matches/:id/simulate", async (req, res) => {
   res.json(result);
 });
 
-export type MatchContext = {
-  careerSaveId: number;
-  team: Team;
-  userId: string | null;
-  log: { error: (obj: object, msg?: string) => void };
-};
-
 /**
- * R-77: the whole result of a played match — the score, the purse, ranking
- * points, the World Tour fixture, injuries, career stats and achievements.
- *
- * POST /matches/:id/simulate calls it for "Sim Result". The live point-tick
- * engine calls it when a watched match ends, with the score it played. A watched
- * match used to stop at "finished" in the live-state table and never reach any
- * of this: the engine expected the page to call /simulate, and nothing did.
- *
- * Returns null when the match is already completed (the other path got there first).
+ * Unity match brief item 1 — the per-point chance that the home pair (the
+ * player's club) wins a point in this match, and what it was built from. The
+ * ONE place it is computed: Sim Result plays at it (completeMatch), and
+ * /unity/match-state sends it to the 3D court, which decides every point from
+ * it. Ratings (each player scaled by fitness, injured players never picked),
+ * the Psychology Centre and camp in high-pressure matches, the opponent's real
+ * rating, home advantage, form and weather.
  */
-export async function completeMatch(
-  ctx: MatchContext,
-  match: Match,
-  precomputedResult?: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] },
-) {
-  const team = ctx.team;
-  const current = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, match.id) });
-  if (!current || current.status === "completed") return null;
-
+export async function matchPointChance(careerSaveId: number, team: Team, match: Match) {
   // Load all facility levels and active wellbeing effects for match bonuses
   const [facilityRows, wellbeingEffects] = await Promise.all([
     db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, team.id)),
@@ -566,16 +549,13 @@ export async function completeMatch(
   const hasPsychCamp    = wellbeingEffects.some(e => e.effectType === "psych_camp");
   const hasRecoveryCamp = wellbeingEffects.some(e => e.effectType === "recovery_camp");
 
-  const players = await loadPlayers(ctx.careerSaveId, { teamId: team.id });
+  const players = await loadPlayers(careerSaveId, { teamId: team.id });
   // R-50: the side is a pair of AVAILABLE players — contracted, active and not
   // injured — picked by the one selection every match path uses, the stored
   // lineup first where its players are available. It used to be every active
   // player on the team, starters and interchange alike, injured or not.
   const pair = selectPair(players, Array.isArray(match.lineup) ? (match.lineup as number[]) : []);
 
-  // The caller has already forfeited a club that cannot put two players on the
-  // sand (R-48); a pair short here means the squad changed underneath it.
-  if (pair.length < MAX_STARTERS) throw new Error(SQUAD_INCOMPLETE);
   // Six-stat mean, the same OVR the UI shows, over the pair — each player scaled
   // by her fitness (R-50: 0.6 + 0.4 × fitness / 100).
   const squadRating = pairSideRating(pair);
@@ -603,15 +583,63 @@ export async function completeMatch(
     ? (psychLevel - 1) + psychBonusFromCamp
     : 0;
 
-  // Score source: either the point-tick engine already played this match live
-  // (body carries the real outcome) or we fall back to the instant random roll
-  // used by the "Sim Result" button.
-  const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
-    precomputedResult;
-
   // Opponent strength is REAL — see resolveOpponentRating. For a World Tour
   // match that is the drawn club's own players (R-29).
   const opponentRating = await resolveOpponentRating(match, team.id);
+
+  const pointChanceHome = pointProbability(squadRating + pressureRatingBonus, opponentRating, {
+    homeAdvantage:  true,
+    winStreak:      team.winStreak ?? 0,
+    weatherPenalty: wx.performancePenalty,
+  });
+  return {
+    pointChanceHome, pair, squadRating, opponentRating, pressureRatingBonus,
+    wx, matchWindSpeed, matchTemp, isFinal, isWorldSemiFinal,
+    facilityLevels, hasRecoveryCamp, wellbeingEffects,
+  };
+}
+
+export type MatchContext = {
+  careerSaveId: number;
+  team: Team;
+  userId: string | null;
+  log: { error: (obj: object, msg?: string) => void };
+};
+
+/**
+ * R-77: the whole result of a played match — the score, the purse, ranking
+ * points, the World Tour fixture, injuries, career stats and achievements.
+ *
+ * POST /matches/:id/simulate calls it for "Sim Result". The live point-tick
+ * engine calls it when a watched match ends, with the score it played. A watched
+ * match used to stop at "finished" in the live-state table and never reach any
+ * of this: the engine expected the page to call /simulate, and nothing did.
+ *
+ * Returns null when the match is already completed (the other path got there first).
+ */
+export async function completeMatch(
+  ctx: MatchContext,
+  match: Match,
+  precomputedResult?: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] },
+) {
+  const team = ctx.team;
+  const current = await db.query.matchesTable.findFirst({ where: eq(matchesTable.id, match.id) });
+  if (!current || current.status === "completed") return null;
+
+  const chance = await matchPointChance(ctx.careerSaveId, team, match);
+  const {
+    pair, squadRating, wx, matchWindSpeed, matchTemp, isFinal, isWorldSemiFinal,
+    facilityLevels, hasRecoveryCamp, wellbeingEffects,
+  } = chance;
+
+  // The caller has already forfeited a club that cannot put two players on the
+  // sand (R-48); a pair short here means the squad changed underneath it.
+  if (pair.length < MAX_STARTERS) throw new Error(SQUAD_INCOMPLETE);
+
+  // Score source: a watched match's own score (the 3D court played it), or the
+  // game's engine at the very chance the court was given.
+  const precomputed: { homeScore: number; awayScore: number; sets?: { home: number; away: number }[] } | undefined =
+    precomputedResult;
 
   let homeScore: number;
   let awayScore: number;
@@ -623,12 +651,7 @@ export async function completeMatch(
     awayScore = precomputed.awayScore;
     resolvedSets = precomputed.sets;
   } else {
-    const pPoint = pointProbability(squadRating + pressureRatingBonus, opponentRating, {
-      homeAdvantage: true,
-      winStreak:     team.winStreak ?? 0,
-      weatherPenalty: wx.performancePenalty,
-    });
-    const result = simulateMatch(pPoint);
+    const result = simulateMatch(chance.pointChanceHome);
     homeScore    = result.homeScore;   // sets won
     awayScore    = result.awayScore;
     resolvedSets = result.sets;
@@ -1003,6 +1026,9 @@ export async function completeMatch(
     isFinal,
     lineup:       pair.map((p) => p.id),
     squadRating,
+    // Unity brief item 1: the per-point chance this match was played at, the
+    // same number /unity/match-state gives the 3D court.
+    pointChanceHome: chance.pointChanceHome,
     weather:      match.weather,
     windSpeed:    matchWindSpeed,
     temperature:  matchTemp,

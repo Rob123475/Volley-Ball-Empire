@@ -19,7 +19,7 @@ const SPORT_RULES = [
   {
     icon: Trophy,
     title: "Match Format",
-    text: "Best of three sets: first two sets to 21 points, deciding third set to 15. Every set must be won by two clear points — if the score reaches 20–20 (or 14–14 in the third), play continues until one team leads by two.",
+    text: "Best of three sets, every set to 11 points. A set must be won by two clear points: at 10–10, play continues until one team leads by two.",
   },
   {
     icon: Users,

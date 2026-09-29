@@ -204,14 +204,14 @@ function reconcile(dbh, careerSaveId, playerCompetitorId, initialPlayerPoints) {
   return { rows: rows.length, fixtures: fixtures.length, pointMismatch, recordMismatch };
 }
 
-/** A best-of-three beach volleyball result: 21, 21, 15, win by two. */
+/** A best-of-three result in Rob's format (29 Sep): every set to 11, win by two. */
 function legalResult(f) {
   let sets;
   try { sets = JSON.parse(f.sets ?? "null"); } catch { return false; }
   if (!Array.isArray(sets) || sets.length < 2 || sets.length > 3) return false;
   let home = 0, away = 0;
   for (let i = 0; i < sets.length; i++) {
-    const target = i === 2 ? 15 : 21;
+    const target = 11;
     const s = sets[i];
     const hi = Math.max(s.home, s.away), lo = Math.min(s.home, s.away);
     if (hi < target || hi - lo < 2 || (hi > target && hi - lo !== 2)) return false;
@@ -345,7 +345,7 @@ for (const [label, career] of [["A", careerA], ["B", careerB]]) {
       && byeRows.every((f) => f.home_sets == null && f.away_sets == null && f.sets == null),
     `${matchRows.length} matches, ${byeRows.length} byes`);
   const illegal = matchRows.filter((f) => !legalResult(f));
-  check(`${label}: every result is a legal best-of-three (21/21/15, win by 2)`, illegal.length === 0,
+  check(`${label}: every result is a legal best-of-three (to 11, win by 2)`, illegal.length === 0,
     illegal.length ? `illegal: ${illegal.slice(0, 3).map((f) => f.id).join(", ")}` : `${matchRows.length} results`);
   check(`${label}: the player's own ${ROUNDS} rounds (matches and byes) are on the fixture list, linked to their match rows`,
     fixtures.filter((f) => f.home_competitor_id === playerCompetitor && f.match_id != null).length === ROUNDS);
@@ -427,16 +427,16 @@ check("S2: with one AI club's points off by 1, the points check FAILS (it caught
 // so this proves the legality check itself would still catch one if it did.
 // The rows carry the real shape: sets are {home, away} objects, and the set
 // tally has to agree with the fixture's own home_sets/away_sets.
-const legalRow    = { sets: JSON.stringify([{"home":21,"away":19},{"home":21,"away":18}]), home_sets: 2, away_sets: 0 };
+const legalRow    = { sets: JSON.stringify([{"home":11,"away":9},{"home":11,"away":8}]), home_sets: 2, away_sets: 0 };
 const forfeitRow  = { sets: null,  home_sets: 0, away_sets: 2 };
 const emptyRow    = { sets: "[]", home_sets: 0, away_sets: 2 };
-const oneSetRow   = { sets: JSON.stringify([{"home":21,"away":19}]), home_sets: 1, away_sets: 0 };
-const notByTwoRow = { sets: JSON.stringify([{"home":21,"away":20},{"home":21,"away":18}]), home_sets: 2, away_sets: 0 };
-const tallyLieRow = { sets: JSON.stringify([{"home":21,"away":19},{"home":21,"away":18}]), home_sets: 0, away_sets: 2 };
+const oneSetRow   = { sets: JSON.stringify([{"home":11,"away":9}]), home_sets: 1, away_sets: 0 };
+const notByTwoRow = { sets: JSON.stringify([{"home":11,"away":10},{"home":11,"away":8}]), home_sets: 2, away_sets: 0 };
+const tallyLieRow = { sets: JSON.stringify([{"home":11,"away":9},{"home":11,"away":8}]), home_sets: 0, away_sets: 2 };
 check("S3: a forfeit-shaped result (completed, no sets) FAILS the legality check",
   legalResult(legalRow) && !legalResult(forfeitRow) && !legalResult(emptyRow)
     && !legalResult(oneSetRow) && !legalResult(notByTwoRow) && !legalResult(tallyLieRow),
-  "a real best-of-three passes; null, [], one set, 21-20 and a lying set tally are all rejected");
+  "a real best-of-three passes; null, [], one set, 11-10 and a lying set tally are all rejected");
 
 console.log(`\n=== ${checks - failures}/${checks} passed ===`);
 try { fs.rmSync(WORK, { recursive: true, force: true }); } catch { /* best effort */ }

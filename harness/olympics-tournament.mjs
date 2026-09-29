@@ -257,7 +257,7 @@ try {
     const sets = JSON.parse(r.sets);
     const winnerSets = Math.max(r.home_sets, r.away_sets), loserSets = Math.min(r.home_sets, r.away_sets);
     const setsOk = sets.every((s, i) => {
-      const target = i >= 2 ? 15 : 21;
+      const target = 11; // Rob, 29 Sep: every set to 11, win by 2
       const hi = Math.max(s.home, s.away), lo = Math.min(s.home, s.away);
       return hi >= target && hi - lo >= 2 && (hi === target || hi - lo === 2);
     });

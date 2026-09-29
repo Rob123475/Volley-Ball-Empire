@@ -170,16 +170,23 @@ export type MatchResult = {
   homeWon: boolean;
 };
 
-/** Sets 1 and 2 play to 21, a deciding third set to 15; win by two. */
-export function pointTarget(setNumber: number): number {
-  return setNumber >= 3 ? 15 : 21;
+/**
+ * Rob, 29 Sep (Unity match brief): one format everywhere, the 3D court and
+ * this engine alike: best of 3 sets, EVERY set to 11, win by 2. It was 21, 21
+ * and a deciding 15; the court played its own 21-point, two-halves match.
+ * The court's copy is Unity's Assets/Scripts/PointModel.cs, and
+ * harness/one-set-of-odds.mjs holds the two to the same results.
+ */
+export const POINTS_TO_WIN_SET = 11;
+
+export function pointTarget(_setNumber: number): number {
+  return POINTS_TO_WIN_SET;
 }
 
+/** A set is over at the target with a lead of two. No cap: a deuce ends with probability 1. */
 function playSet(pPoint: number, target: number): SetScore {
   let home = 0, away = 0;
-  // Beach volleyball has no cap, but a runaway deuce is not worth simulating
-  // forever — 40 is far beyond any real scoreline.
-  while (home < target + 40 && away < target + 40) {
+  for (;;) {
     if (Math.random() < pPoint) home++; else away++;
     if (home >= target && home - away >= 2) break;
     if (away >= target && away - home >= 2) break;
@@ -188,9 +195,21 @@ function playSet(pPoint: number, target: number): SetScore {
 }
 
 /**
+ * A finished set that could really happen: 11 against 9 or fewer, or, past
+ * 10-10, a lead of exactly two.
+ */
+export function isLegalSet(home: number, away: number): boolean {
+  const w = Math.max(home, away), l = Math.min(home, away);
+  if (!Number.isInteger(home) || !Number.isInteger(away) || l < 0) return false;
+  if (w < POINTS_TO_WIN_SET) return false;
+  if (w === POINTS_TO_WIN_SET) return l <= POINTS_TO_WIN_SET - 2;
+  return w - l === 2;
+}
+
+/**
  * Play a best-of-three match at a fixed per-point probability.
- * Scorelines come out as real volleyball (21-14, 27-25, 15-12) rather than
- * numbers that expose the roll.
+ * Scorelines come out as real volleyball (11-7, 13-11) rather than numbers
+ * that expose the roll.
  */
 export function simulateMatch(pPoint: number): MatchResult {
   const sets: SetScore[] = [];

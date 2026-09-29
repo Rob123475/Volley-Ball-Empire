@@ -28,9 +28,8 @@ import { cn } from "@/lib/utils";
 
 const RULES = [
   { heading: "Scoring",     body: "Every rally awards a point to the winner — you don't need to be serving." },
-  { heading: "Sets",        body: "Sets 1 & 2: first to 21, win by 2. Set 3 (if needed): first to 15, win by 2." },
+  { heading: "Sets",        body: "Every set is first to 11, win by 2." },
   { heading: "Match",       body: "Best of 3 sets. Win 2 sets to take the match." },
-  { heading: "Court Swap",  body: "Teams swap ends every 7 combined points in sets 1 & 2, every 5 in set 3." },
   { heading: "Service",     body: "The team that wins a rally earns the right to serve next." },
   { heading: "Boosts",      body: "Attack & Defense boosts: 15 s active, 30 s cooldown. Use them on key rallies." },
   { heading: "Match Clock", body: "Two 3-minute halves. Clock pauses with the game. After Full Time the score stands." },

@@ -8,6 +8,7 @@ import { logger } from "../lib/logger.js";
 import { loadPlayers, type PlayerDTO } from "../lib/playerDto.js";
 import { selectPair } from "../utils/condition.js";
 import { overallRating } from "../utils/overallRating.js";
+import { matchPointChance } from "./matches.js";
 
 const router = Router();
 
@@ -354,6 +355,18 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   const highlights = match.highlights ?? [];
   const commentaryLine = highlights.length > 0 ? highlights[highlights.length - 1] : "";
 
+  // Unity brief item 1: the per-point chance the court decides every point
+  // from, computed by the same function Sim Result plays at. Null for a match
+  // that is over, or a club that cannot field a pair (it would be forfeited).
+  let pointChanceHome: number | null = null;
+  if (match.status !== "completed" && match.homeTeamId != null && match.homeTeamId === career.teamId) {
+    const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, match.homeTeamId) });
+    if (team) {
+      const chance = await matchPointChance(careerSaveId, team, match);
+      if (chance.pair.length >= 2) pointChanceHome = chance.pointChanceHome;
+    }
+  }
+
   res.json({
     matchId:              match.id,
     venue:                venueName,
@@ -368,6 +381,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     windSpeed:            match.windSpeed,
     crowdSize:            estimateCrowdSize(match.tier),
     commentaryLine:       liveState?.lastAction ?? commentaryLine,
+    pointChanceHome,
     // Boost mechanic isn't implemented in the API yet — always off for now.
     attackBoostActive:    false,
     defenceBoostActive:   false,

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Unity match brief item 1: runs the Unity project's own point model
+    (Assets/Scripts/PointModel.cs, compiled from the Unity repo as it is) so the
+    harness measures the court's code, not a copy of it.
+    Path overridable: dotnet run -p:UnityRepo=...
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UnityRepo Condition="'$(UnityRepo)' == ''">C:\Users\rbonn\Game_Dev\VolleyBall Empire\volleyball</UnityRepo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UnityRepo)\Assets\Scripts\PointModel.cs" Link="PointModel.cs" />
+  </ItemGroup>
+</Project>
