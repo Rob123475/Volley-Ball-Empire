@@ -47,9 +47,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { normaliseRole } from "@shared/staff-roles";
+import { normaliseRole, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 
-const MAX_MEDICAL_STAFF = 4;
 
 const ROLE_LABELS: Record<string, string> = {
   all:                "All Roles",

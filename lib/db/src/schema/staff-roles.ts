@@ -84,6 +84,16 @@ export function isRole(role: string | null | undefined, key: StaffRoleKey): bool
   return normaliseRole(role) === key;
 }
 
+/**
+ * Unity brief item 16: how many staff a club may employ, stated once for the
+ * server and every page. My Staff said "of 4" and the Staff Market "of 8"; the
+ * server has always refused the 9th hire. A club may employ MAX_STAFF people in
+ * all, medical staff included, and of those at most MAX_MEDICAL_STAFF in the
+ * medical department. Nothing in the game raises either number.
+ */
+export const MAX_STAFF = 8;
+export const MAX_MEDICAL_STAFF = 4;
+
 /** Roles that unlock scouting (staff market, continental scouting, youth prospects). */
 export const SCOUTING_ROLE_KEYS: ReadonlySet<StaffRoleKey> = new Set(["head_coach", "assistant_coach", "scout"]);
 

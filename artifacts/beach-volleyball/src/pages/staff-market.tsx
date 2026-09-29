@@ -55,9 +55,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { normaliseRole, SCOUTING_ROLE_KEYS } from "@shared/staff-roles";
-
-const MAX_STAFF = 8;
+import { normaliseRole, SCOUTING_ROLE_KEYS, MAX_STAFF } from "@shared/staff-roles";
 
 const ROLE_LABELS: Record<string, string> = {
   all:                  "All Roles",
@@ -234,8 +232,9 @@ function StaffMarketCard({
           </div>
         )}
 
-        {/* Scouting Rating */}
-        {member.scoutingRating != null && (() => {
+        {/* Scouting Rating: item 16, only a Scout's card has one (every card
+            showed "Scouting: Fair Scout (50)", head coaches included). */}
+        {member.scoutingRating != null && normaliseRole(member.role) === "scout" && (() => {
           const r = member.scoutingRating as number;
           const { label, color } = r >= 86 ? { label: "Elite Scout",  color: "text-amber-400"  } :
                                    r >= 71 ? { label: "Great Scout",  color: "text-orange-400" } :
@@ -391,8 +390,9 @@ export default function StaffMarket() {
     params,
     { query: { queryKey: getGetStaffMarketQueryKey(params) } }
   );
+  // Item 16: always fetched afresh, so this page and My Staff agree.
   const { data: myStaff = [] } = useListStaff({
-    query: { queryKey: getListStaffQueryKey() },
+    query: { queryKey: getListStaffQueryKey(), refetchOnMount: "always" },
   });
 
   const hireMutation  = useHireStaff();
@@ -446,7 +446,7 @@ export default function StaffMarket() {
           <p className="text-muted-foreground">
             Find the perfect specialists for your team.{" "}
             <span className={cn("font-semibold", canHire ? "text-green-600" : "text-destructive")}>
-              {myStaff.length}/{MAX_STAFF} staff slots used.
+              <span data-testid="staff-slots">{myStaff.length} of {MAX_STAFF} staff slots filled.</span>
             </span>
           </p>
         </div>

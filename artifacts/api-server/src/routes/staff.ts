@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db } from "@workspace/db";
+import { db, MAX_STAFF } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
 import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -25,8 +25,6 @@ const serializeStaff = (s: StaffDTO) => ({
   isScoutRevealed: s.isScoutRevealed ?? false,
 });
 
-
-const MAX_STAFF = 8;
 
 // attributes and specialTrait are REFERENCE fields — what a staff member is,
 // identical in every career — so this backfill writes the reference row.

@@ -58,9 +58,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { isRole, normaliseRole } from "@shared/staff-roles";
-
-const MAX_STAFF = 4;
+import { isRole, normaliseRole, MAX_STAFF, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 
 // P-09: every map below is keyed by the NORMALISED role and looked up with
 // normaliseRole(member.role). The rows store "Head Coach"; looked up as stored,
@@ -603,8 +601,9 @@ export default function StaffManagement() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Item 16: always fetched afresh, so this page and the Staff Market agree.
   const { data: myStaff = [], isLoading } = useListStaff({
-    query: { queryKey: getListStaffQueryKey() },
+    query: { queryKey: getListStaffQueryKey(), refetchOnMount: "always" },
   });
 
   const { data: team } = useGetMyTeam({ query: { queryKey: getGetMyTeamQueryKey() } });
@@ -650,7 +649,8 @@ export default function StaffManagement() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-primary">Staff Management</h2>
           <p className="text-muted-foreground">
-            {myStaff.length} of {MAX_STAFF} staff slots filled
+            <span data-testid="staff-slots">{myStaff.length} of {MAX_STAFF} staff slots filled</span>
+            <span className="text-xs"> (medical staff count too; at most {MAX_MEDICAL_STAFF} of them)</span>
           </p>
         </div>
         {myStaff.length < MAX_STAFF && (

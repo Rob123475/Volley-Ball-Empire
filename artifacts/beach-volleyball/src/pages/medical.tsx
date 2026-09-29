@@ -74,13 +74,12 @@ import { Link } from "wouter";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
-import { normaliseRole, MEDICAL_ROLE_KEYS } from "@shared/staff-roles";
+import { normaliseRole, MEDICAL_ROLE_KEYS, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
-const MAX_MEDICAL_STAFF = 4;
 
 const INJURY_BASE_WEEKS: Record<string, number> = {
   Healthy: 0,

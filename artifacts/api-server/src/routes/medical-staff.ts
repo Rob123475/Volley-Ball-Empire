@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { staffTable, teamsTable, isMedicalRole, normaliseRole } from "@workspace/db";
+import { staffTable, teamsTable, isMedicalRole, normaliseRole, MAX_STAFF, MAX_MEDICAL_STAFF } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { readContractLength } from "../utils/contractTerms.js";
 import { staffContractPatch } from "../utils/seasonDates.js";
@@ -20,7 +20,6 @@ import {
 
 const router = Router();
 
-const MAX_MEDICAL_STAFF = 4;
 
 const serializeStaff = (s: StaffDTO) => ({
   ...s,
@@ -69,6 +68,12 @@ router.post("/medical-staff", async (req, res) => {
 
   if (medCount >= MAX_MEDICAL_STAFF) {
     res.status(400).json({ error: `You can only have ${MAX_MEDICAL_STAFF} medical staff. Release one before hiring another.` });
+    return;
+  }
+  // Item 16: medical staff are staff; the club-wide limit counts them too, as
+  // POST /staff always has (it counts every member of staff).
+  if (allStaff.length >= MAX_STAFF) {
+    res.status(400).json({ error: `You can only have ${MAX_STAFF} staff members, medical staff included. Release one before hiring another.` });
     return;
   }
 
