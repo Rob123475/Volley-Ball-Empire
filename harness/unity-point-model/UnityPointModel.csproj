@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     Unity match brief item 1: runs the Unity project's own point model
-    (Assets/Scripts/PointModel.cs, compiled from the Unity repo as it is) so the
+    (Assets/Scripts/PointModel.cs and BoostClock.cs, compiled from the Unity repo as they are) so the
     harness measures the court's code, not a copy of it.
     Path overridable: dotnet run -p:UnityRepo=...
   -->
@@ -14,5 +14,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(UnityRepo)\Assets\Scripts\PointModel.cs" Link="PointModel.cs" />
+    <Compile Include="$(UnityRepo)\Assets\Scripts\BoostClock.cs" Link="BoostClock.cs" />
   </ItemGroup>
 </Project>

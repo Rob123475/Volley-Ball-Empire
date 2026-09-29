@@ -31,7 +31,7 @@ const RULES = [
   { heading: "Sets",        body: "Every set is first to 11, win by 2." },
   { heading: "Match",       body: "Best of 3 sets. Win 2 sets to take the match." },
   { heading: "Service",     body: "The team that wins a rally earns the right to serve next." },
-  { heading: "Boosts",      body: "Attack & Defense boosts: 15 s active, 30 s cooldown. Use them on key rallies." },
+  { heading: "Boosts",      body: "Attack & Defence boosts: each lasts 3 points, then both cool down for 5 points. They raise your pair's chance of winning each point they are on for. Use them on key points." },
   { heading: "Match Clock", body: "Two 3-minute halves. Clock pauses with the game. After Full Time the score stands." },
 ];
 

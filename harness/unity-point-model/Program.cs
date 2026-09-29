@@ -27,6 +27,7 @@ public static class Program
 
     public static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "boosts") return BoostsMode.Run(args);
         int n = int.Parse(args[0], CultureInfo.InvariantCulture);
         uint seed = uint.Parse(args[1], CultureInfo.InvariantCulture);
         StringBuilder sb = new StringBuilder("{\"runs\":[");
