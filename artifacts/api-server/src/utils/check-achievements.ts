@@ -2,7 +2,33 @@ import { db, teamsTable, achievementsTable, playersTable, trophiesTable, careerS
 import type { CareerStats } from "@workspace/db";
 import { eq, and, gte } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions";
-import { loadPlayers, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import { loadPlayers, careerSaveIdForTeamOrThrow, updatePlayerState } from "../lib/playerDto.js";
+import { overallRating } from "./overallRating.js";
+
+/** Item 21: the rating a "developed" player must reach. */
+export const DEVELOPED_RATING = 85;
+
+/**
+ * Item 21: remember the rating each squad player joined with (once per club:
+ * a player who leaves and comes back starts again). Called when a career is
+ * created, and on every achievement check for anyone not yet recorded (a
+ * signing, a promotion, a save from before this rule). Returns how many
+ * players in the squad joined below DEVELOPED_RATING and are at or above it now.
+ */
+export async function developedPlayers(teamId: number): Promise<number> {
+  const careerSaveId = await careerSaveIdForTeamOrThrow(teamId);
+  const squad = await loadPlayers(careerSaveId, { teamId });
+  let developed = 0;
+  for (const p of squad) {
+    const now = overallRating(p);
+    if (p.joinedTeamId !== teamId || p.ratingAtJoin == null) {
+      await updatePlayerState(careerSaveId, p.id, { ratingAtJoin: now, joinedTeamId: teamId });
+      continue;
+    }
+    if (p.ratingAtJoin < DEVELOPED_RATING && now >= DEVELOPED_RATING) developed++;
+  }
+  return developed;
+}
 import { announceUnlocked } from "./steamBridge.js";
 
 export const DEFAULT_CAREER_STATS: CareerStats = {
@@ -94,9 +120,8 @@ export async function checkAchievements(teamId: number, season?: number): Promis
 
   const stats = await careerStatsFor(teamId);
 
-  // Derive 5-star players from DB (peakOverallRating >= 85 = 5 stars)
-  const fiveStarRows = (await loadPlayers(await careerSaveIdForTeamOrThrow(teamId), { teamId }))
-    .filter((p) => (p.peakOverallRating ?? 0) >= 85);
+  // Item 21: players developed to 85 in this squad (see developedPlayers).
+  const developedNow = await developedPlayers(teamId);
 
   // Derive Olympic golds from trophies table
   const olympicGoldRows = await db
@@ -115,7 +140,7 @@ export async function checkAchievements(teamId: number, season?: number): Promis
 
   const derivedStats: CareerStats = {
     ...stats,
-    playersDevelopedToFiveStar: Math.max(stats.playersDevelopedToFiveStar, fiveStarRows.length),
+    playersDevelopedToFiveStar: Math.max(stats.playersDevelopedToFiveStar, developedNow),
     highestBalanceReached: Math.max(stats.highestBalanceReached, Number(team.budget)),
     olympicGolds: Math.max(stats.olympicGolds, olympicGoldRows.length),
     seasonsAtClub: clubSeasons.length,

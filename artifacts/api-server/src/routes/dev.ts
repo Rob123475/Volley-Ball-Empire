@@ -34,6 +34,8 @@
  * they read and write nothing.
  */
 import { Router } from "express";
+import { getActiveTeam } from "../lib/getActiveTeam.js";
+import { checkAchievements } from "../utils/check-achievements.js";
 import {
   boardReviewTable, boardProjection,
   type BoardTableCareer, type BoardProjectionInput,
@@ -84,6 +86,15 @@ router.post("/dev/condition/win-rate", (req, res) => {
     return { fitness, rating, wins, winRate: wins / samples };
   });
   res.json({ samples, opponentRating: body.opponentRating, results });
+});
+
+// Unity brief item 21: run the achievement check for the active team, as the
+// game does after a match or a season boundary, without playing one. Lets a
+// harness prove each of the 29 rules unlocks at its threshold (and not below).
+router.post("/dev/achievements/check", async (req, res) => {
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  res.json({ newlyUnlocked: await checkAchievements(team.id) });
 });
 
 export default router;

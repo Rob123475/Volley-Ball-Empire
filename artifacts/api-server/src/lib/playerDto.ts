@@ -51,6 +51,8 @@ export type CareerPlayerFields = {
   scoutedPotential: string | null;
   discoveredBy: string | null;
   scoutStartedOn: string | null;
+  ratingAtJoin: number | null;
+  joinedTeamId: number | null;
   isRetired: boolean;
   retiredSeasonYear: number | null;
   careerWins: number;
@@ -109,6 +111,8 @@ export function assemblePlayer(
     scoutedPotential:     state.scoutedPotential,
     discoveredBy:         state.discoveredBy,
     scoutStartedOn:       state.scoutStartedOn ?? null,
+    ratingAtJoin:         state.ratingAtJoin ?? null,
+    joinedTeamId:         state.joinedTeamId ?? null,
     isRetired:            state.isRetired,
     retiredSeasonYear:    state.retiredSeasonYear,
     careerWins:           state.careerWins,

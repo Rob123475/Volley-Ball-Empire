@@ -1,3 +1,4 @@
+import { developedPlayers } from "../utils/check-achievements.js";
 import { Router } from "express";
 import { db } from "@workspace/db";
 import {
@@ -302,6 +303,9 @@ router.post("/careers", async (req, res) => {
   // R-54: every club starts at zero. R-11's established head start is gone;
   // difficulty sets season 1's purse access instead (careerDifficulty.ts).
   await ensureCompetitorRanking(newTeam.id, inserted!.id, season1!.year);
+  // Item 21: the starting squad's ratings as they join, so a player the club
+  // already had at 90 is not "developed" (Future Superstar).
+  await developedPlayers(newTeam.id);
 
   const sid = getSessionId(req);
   if (sid) {

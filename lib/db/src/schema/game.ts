@@ -367,6 +367,11 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   // exact price and attributes show from 5 game days later
   // (utils/marketScouting.ts); cleared at season end while she has no club.
   scoutStartedOn:   text("scout_started_on"),
+  // Unity brief item 21: her rating (6-stat OVR) when she joined this club's
+  // squad, and which club: "Future Superstar" counts a player who joined below
+  // 85 and reached 85 while in it (utils/check-achievements.ts).
+  ratingAtJoin:     integer("rating_at_join"),
+  joinedTeamId:     integer("joined_team_id"),
 
   // career-long record. What a player ACHIEVES is per career: honours are
   // counted from this career's trophies table and derived from this career's

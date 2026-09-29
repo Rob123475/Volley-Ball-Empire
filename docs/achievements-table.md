@@ -45,8 +45,8 @@ Each one also needs two icons, 64x64: coloured for achieved, grey for not.
 | `youth_pipeline` | Talent Pipeline | Sign 20 youth prospects found by scouting. The yearly academy intake does not count. |
 | `youth_graduate` | Youth Graduate | Promote an academy player to starter or interchange. |
 | `youth_factory` | Youth Factory | Promote 10 academy players to starter or interchange. |
-| `future_superstar` | Future Superstar | Have a player in your squad whose peak rating reaches 85. |
-| `star_factory` | Star Factory | Have 3 players in your squad whose peak rating reaches 85. |
+| `future_superstar` | Future Superstar | Develop a player to an 85 rating: she joined your squad rated under 85 and reaches 85 while in it. |
+| `star_factory` | Star Factory | Develop 3 players to an 85 rating: each joined your squad rated under 85 and reached 85 while in it. |
 
 ## Legacy (8)
 

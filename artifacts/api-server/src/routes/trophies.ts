@@ -12,6 +12,24 @@ import {
 import { eq, desc, sql, and } from "drizzle-orm";
 import { loadPlayers, requireCareerSaveId, loadStaff } from "../lib/playerDto.js";
 import { careerStatsFor } from "../utils/check-achievements.js";
+import { ACHIEVEMENT_DEFS, type AchievementCategory } from "../utils/achievement-definitions.js";
+import { achievementsTable } from "@workspace/db";
+
+// Item 21: how each of the 29 is drawn in the cabinet (its tier colour and
+// icon). Display only: the list, names, descriptions and rules are
+// ACHIEVEMENT_DEFS, the same list Steam gets.
+const CABINET_TIER: Record<string, "bronze" | "silver" | "gold" | "platinum"> = {
+  first_steps: "bronze", battle_hardened: "silver", century_wins: "gold", perfect_season: "platinum",
+  tournament_winner: "silver", champion: "gold", world_champion: "gold", dynasty_begins: "platinum", volleyball_empire: "platinum",
+  olympic_gold: "gold", double_olympic_gold: "platinum",
+  making_money: "silver", millionaires_club: "gold", debt_free: "silver", financially_secure: "gold",
+  talent_spotter: "bronze", youth_pipeline: "gold", youth_graduate: "bronze", youth_factory: "gold", future_superstar: "silver", star_factory: "gold",
+  local_legend: "silver", mr_loyalty: "gold", decade_in_sand: "silver", veteran_coach: "gold", hall_of_fame: "platinum",
+  world_traveller: "gold", globe_trotter: "silver", first_inductee: "silver",
+};
+const CABINET_ICON: Record<AchievementCategory, string> = {
+  career: "trophy", competition: "crown", finance: "trending-up", youth: "sparkles", legacy: "calendar",
+};
 
 const router = Router();
 
@@ -51,23 +69,25 @@ router.get("/trophies/cabinet", async (req, res) => {
     }
   }
 
-  const teamPlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
-  const teamStaff = await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
 
-  const completedMatches = await db
+  // Item 21 (Rob, W L W L showing "4 in a row"): the streak read EVERY
+  // completed match in the database, and counted a match as won when
+  // "away = this club and away > home". Every fixture of the player's club has
+  // the club as both home and away (the opponent is only a name), so every
+  // decisive match counted as a win, and other careers' matches broke the run.
+  // Now: this club's own matches, in the order they were played (season,
+  // round), won when the club's side (home) took more sets.
+  const clubMatches = await db
     .select()
     .from(matchesTable)
-    .where(eq(matchesTable.status, "completed"))
-    .orderBy(desc(matchesTable.createdAt));
+    .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "completed")))
+    .orderBy(matchesTable.season, matchesTable.round);
 
   let bestStreak = 0;
   let currentStreak = 0;
-  for (const m of completedMatches) {
-    const won =
-      (m.homeTeamId === team.id && (m.homeScore ?? 0) > (m.awayScore ?? 0)) ||
-      (m.awayTeamId === team.id && (m.awayScore ?? 0) > (m.homeScore ?? 0));
-    if (won) {
+  for (const m of clubMatches) {
+    if ((m.homeScore ?? 0) > (m.awayScore ?? 0)) {
       currentStreak++;
       if (currentStreak > bestStreak) bestStreak = currentStreak;
     } else {
@@ -75,16 +95,14 @@ router.get("/trophies/cabinet", async (req, res) => {
     }
   }
 
+  // Item 21: "Most Prize Money Earned" is prize money (winner's and runner-up
+  // prizes), not every income row (it was $95,150 = prizes $14,950 + sponsorship).
   const [earningsRow] = await db
     .select({
-      total: sql<string>`COALESCE(SUM(CASE WHEN type = 'income' THEN CAST(amount AS NUMERIC) ELSE 0 END), 0)`,
+      total: sql<string>`COALESCE(SUM(CAST(amount AS NUMERIC)), 0)`,
     })
     .from(financeTransactionsTable)
-    .where(eq(financeTransactionsTable.teamId, team.id));
-
-  const totalMatches = completedMatches.filter(
-    (m) => m.homeTeamId === team.id || m.awayTeamId === team.id,
-  ).length;
+    .where(and(eq(financeTransactionsTable.teamId, team.id), eq(financeTransactionsTable.type, "income"), eq(financeTransactionsTable.category, "prize_money")));
 
   // ACH: seasons managed is a number the game counts — one per season boundary,
   // sacking included (R-77, routes/calendar.ts) — and it is kept on the career,
@@ -97,197 +115,30 @@ router.get("/trophies/cabinet", async (req, res) => {
   // right for a club whose matches were forfeited, or one that changed hands.
   const seasonsManaged = (await careerStatsFor(team.id)).seasonsCompleted;
 
-  const generationalOnTeam = teamPlayers.filter((p) => p.potential === "Generational");
-  const scoutedPlayers      = teamPlayers.filter((p) => p.scoutedPotential != null);
-  const eliteStaff          = teamStaff.filter((s) => s.overallRating >= 90);
-  const highOvrPlayers      = teamPlayers.filter(
-    (p) => Math.round((p.power + p.speed + p.defense + p.serve + p.block) / 5) >= 85,
-  );
-
   const olympicMedalCount = olympicGold.length + olympicSilver.length + olympicBronze.length;
 
-  const achievements = [
-    {
-      id: "first_win",
-      title: "First Tournament Win",
-      description: "Win your first match",
-      icon: "trophy",
-      tier: "bronze",
-      unlocked: team.wins > 0,
-      progress: Math.min(1, team.wins),
-      target: 1,
-    },
-    {
-      id: "five_wins",
-      title: "On a Roll",
-      description: "Win 5 matches",
-      icon: "zap",
-      tier: "bronze",
-      unlocked: team.wins >= 5,
-      progress: Math.min(5, team.wins),
-      target: 5,
-    },
-    {
-      id: "winning_streak_5",
-      title: "Unstoppable",
-      description: "Win 5 consecutive matches",
-      icon: "flame",
-      tier: "silver",
-      unlocked: bestStreak >= 5,
-      progress: Math.min(5, bestStreak),
-      target: 5,
-    },
-    {
-      id: "first_continental",
-      title: "First Continental Title",
-      description: "Win a continental championship",
-      icon: "globe",
-      tier: "silver",
-      unlocked: continentalChampionships.length > 0,
-      progress: Math.min(1, continentalChampionships.length),
-      target: 1,
-    },
-    {
-      id: "first_world",
-      title: "First World Championship",
-      description: "Win a World Tour Championship",
-      icon: "star",
-      tier: "gold",
-      unlocked: worldChampionships.length > 0,
-      progress: Math.min(1, worldChampionships.length),
-      target: 1,
-    },
-    {
-      id: "dynasty",
-      title: "Dynasty",
-      description: "Win 3 major titles (Continental or World)",
-      icon: "crown",
-      tier: "gold",
-      unlocked: worldChampionships.length + continentalChampionships.length >= 3,
-      progress: Math.min(3, worldChampionships.length + continentalChampionships.length),
-      target: 3,
-    },
-    {
-      id: "olympic_qual",
-      title: "Olympian",
-      description: "Have one of your players play at the Olympic Games",
-      icon: "medal",
-      tier: "gold",
-      unlocked: olympicAppearances.length > 0,
-      progress: Math.min(1, olympicAppearances.length),
-      target: 1,
-    },
-    {
-      id: "olympic_medal",
-      title: "Olympic Medal",
-      description: "Win any Olympic medal",
-      icon: "award",
-      tier: "gold",
-      unlocked: olympicMedalCount > 0,
-      progress: Math.min(1, olympicMedalCount),
-      target: 1,
-    },
-    {
-      id: "olympic_gold",
-      title: "Olympic Gold",
-      description: "Win the Olympic gold medal",
-      icon: "star",
-      tier: "platinum",
-      unlocked: olympicGold.length > 0,
-      progress: Math.min(1, olympicGold.length),
-      target: 1,
-    },
-    {
-      id: "develop_olympic_champ",
-      title: "Develop an Olympic Champion",
-      description: "Win Olympic gold with a player you coached",
-      icon: "star",
-      tier: "platinum",
-      unlocked: olympicGold.length > 0 && teamPlayers.length > 0,
-      progress: olympicGold.length > 0 && teamPlayers.length > 0 ? 1 : 0,
-      target: 1,
-    },
-    {
-      id: "seasons_5",
-      title: "5 Seasons Managed",
-      description: "Manage for 5 seasons",
-      icon: "calendar",
-      tier: "bronze",
-      unlocked: seasonsManaged >= 5,
-      progress: Math.min(5, seasonsManaged),
-      target: 5,
-    },
-    {
-      id: "seasons_10",
-      title: "10 Seasons Managed",
-      description: "Manage for 10 seasons",
-      icon: "calendar",
-      tier: "silver",
-      unlocked: seasonsManaged >= 10,
-      progress: Math.min(10, seasonsManaged),
-      target: 10,
-    },
-    {
-      id: "seasons_20_town",
-      title: "20 Seasons In One Town",
-      description: "Stay with the same home location for 20 seasons",
-      icon: "home",
-      tier: "gold",
-      unlocked: seasonsManaged >= 20 && !!team.locationId,
-      progress: Math.min(20, seasonsManaged),
-      target: 20,
-    },
-    {
-      id: "seasons_30",
-      title: "30 Season Legend",
-      description: "Manage for 30 seasons — a true legend",
-      icon: "flame",
-      tier: "platinum",
-      unlocked: seasonsManaged >= 30,
-      progress: Math.min(30, seasonsManaged),
-      target: 30,
-    },
-    {
-      id: "high_ovr",
-      title: "Develop the Best",
-      description: "Have a player reach 85+ OVR on your team",
-      icon: "trending-up",
-      tier: "silver",
-      unlocked: highOvrPlayers.length > 0,
-      progress: Math.min(1, highOvrPlayers.length),
-      target: 1,
-    },
-    {
-      id: "generational_talent",
-      title: "Sign a Generational Talent",
-      description: "Have a Generational potential player on your roster",
-      icon: "sparkles",
-      tier: "gold",
-      unlocked: generationalOnTeam.length > 0,
-      progress: Math.min(1, generationalOnTeam.length),
-      target: 1,
-    },
-    {
-      id: "hidden_gem",
-      title: "Discover a Hidden Gem",
-      description: "Scout a player and reveal their potential",
-      icon: "search",
-      tier: "bronze",
-      unlocked: scoutedPlayers.length > 0,
-      progress: Math.min(1, scoutedPlayers.length),
-      target: 1,
-    },
-    {
-      id: "elite_staff",
-      title: "Hire Elite Staff",
-      description: "Have a staff member with 90+ overall rating",
-      icon: "user-check",
-      tier: "gold",
-      unlocked: eliteStaff.length > 0,
-      progress: Math.min(1, eliteStaff.length),
-      target: 1,
-    },
-  ];
+  // Item 21: the cabinet shows the SAME achievements as Steam and Career >
+  // Achievements (ACHIEVEMENT_DEFS: 29, in their order), unlocked when the
+  // game unlocked them (the achievements table, which is what Steam is told).
+  // Its own 18 ("First Tournament Win", "Unstoppable", "Develop the Best",
+  // "5 Seasons Managed"...) were in-game only, with rules of their own.
+  const stats = await careerStatsFor(team.id);
+  const unlockedKeys = new Set((await db.select({ key: achievementsTable.achievementKey }).from(achievementsTable)
+    .where(eq(achievementsTable.teamId, team.id))).map((r) => r.key));
+  const achievements = ACHIEVEMENT_DEFS.map((def) => {
+    const { current, target } = def.progress(team, stats);
+    const unlocked = unlockedKeys.has(def.key);
+    return {
+      id: def.key,
+      title: def.name,
+      description: def.description,
+      icon: CABINET_ICON[def.category],
+      tier: CABINET_TIER[def.key] ?? "silver",
+      unlocked,
+      progress: unlocked ? target : Math.min(current, target),
+      target,
+    };
+  });
 
   return res.json({
     honours: {

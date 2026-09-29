@@ -400,11 +400,9 @@ export default function TrophyCabinet() {
             </div>
           </div>
 
-          {/* Unlocked first */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[...achievements]
-              .sort((a, b) => Number(b.unlocked) - Number(a.unlocked))
-              .map(a => <AchievementCard key={a.id} achievement={a} />)}
+          {/* Item 21: Steam's list, in its order (not re-sorted). */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="cabinet-achievements">
+            {achievements.map(a => <AchievementCard key={a.id} achievement={a} />)}
           </div>
         </TabsContent>
 

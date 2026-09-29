@@ -200,7 +200,11 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     key: "future_superstar",
     name: "Future Superstar",
-    description: "Have a player in your squad whose peak rating reaches 85.",
+    // Item 21: the name means developing a player, so the rule does too. It
+    // read "peak rating reaches 85" from a column only a retirement ever wrote,
+    // so it could never unlock; and the Trophy Cabinet's "Develop the Best"
+    // unlocked on day one for a squad that already had a 90.
+    description: "Develop a player to an 85 rating: she joined your squad rated under 85 and reaches 85 while in it.",
     category: "youth",
     check: (_t, stats) => stats.playersDevelopedToFiveStar >= 1,
     progress: (_t, stats) => ({ current: Math.min(stats.playersDevelopedToFiveStar, 1), target: 1 }),
@@ -208,7 +212,7 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     key: "star_factory",
     name: "Star Factory",
-    description: "Have 3 players in your squad whose peak rating reaches 85.",
+    description: "Develop 3 players to an 85 rating: each joined your squad rated under 85 and reached 85 while in it.",
     category: "youth",
     check: (_t, stats) => stats.playersDevelopedToFiveStar >= 3,
     progress: (_t, stats) => ({ current: Math.min(stats.playersDevelopedToFiveStar, 3), target: 3 }),
