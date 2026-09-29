@@ -34,10 +34,9 @@ import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
 import { REST_RECOVERY, applyWeeklyInjuryRecovery, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
 import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
-import { finishDueTrainingSessions } from "./training.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
-import { SEASON_LENGTH, seasonPhase, CONTINENTAL_ROUNDS, WORLD_TOUR_ROUNDS, FINALS_ROUNDS } from "../utils/seasonPhase.js";
+import { SEASON_LENGTH, seasonPhase } from "../utils/seasonPhase.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts.js";
 // Rob, 23 Sep: one set of rules for every club. These are the rules — the
@@ -274,9 +273,6 @@ router.get("/calendar", async (req, res) => {
     // a screen shows is the phase — the round of the competition being played.
     scheduleSlot:      season.currentRound,
     seasonPhase:       seasonPhase(season.currentRound),
-    // Item 20: the season's rounds by phase, so no page has to guess (the
-    // leaderboard said "69 rounds per season" while the top bar said R4/57).
-    roundsByPhase:      { continental: CONTINENTAL_ROUNDS, worldTour: WORLD_TOUR_ROUNDS, finals: FINALS_ROUNDS, total: SEASON_LENGTH },
     regionalRoundsProcessed: season.regionalRoundsProcessed,
     isOlympicSeason:   season.isOlympicSeason,
     teamFitness: { avgFitness, avgFatigue, injuredCount, totalActive: active.length },
@@ -708,10 +704,6 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     .set({ currentDate: nextDate, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
 
-  // Unity brief item 19: training sessions whose finish date has come give
-  // their gains now (they take game days; nothing trains in an instant).
-  events.push(...await finishDueTrainingSessions(requireCareerSaveId(req.activeCareerSaveId), team.id, nextDate));
-
   // 7. Keep season.currentRound in sync with the game date
   const newRound = dateToRound(nextDate, season.startDate, season.endDate, season.totalRounds);
   if (newRound > season.currentRound) {
@@ -955,8 +947,6 @@ router.post("/calendar/skip-match", async (req, res) => {
   await db.update(calendarStateTable)
     .set({ pendingMatchId: null, currentDate: nextDate, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
-  // Item 19: a skipped match day still moves the date, so training due today finishes.
-  await finishDueTrainingSessions(requireCareerSaveId(req.activeCareerSaveId), team.id, nextDate);
 
   res.json({ success: true, newDate: nextDate });
 });
