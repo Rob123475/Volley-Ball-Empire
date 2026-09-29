@@ -2,12 +2,9 @@ import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/conti
 import {
   useSignContract,
   useScoutPlayer,
-  useDraftPick,
-  useGenerateDraftClass,
   getListFreeAgentsQueryKey,
   getListTransferWindowQueryKey,
   getListContractsQueryKey,
-  getGetDraftPoolQueryKey,
   getGetTeamRosterQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
@@ -27,7 +24,6 @@ import {
   Search,
   Globe,
   Box,
-  RefreshCw,
   Lock,
   TrendingUp,
   Users,
@@ -51,13 +47,10 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerPortrait } from "@/components/player-portrait";
-import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
 import { format } from "date-fns";
 import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
-// D-3: every facility's name comes from one table, shared with the server.
-import { FACILITY_NAMES } from "@shared/facility-names";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -81,7 +74,7 @@ const POSITION_LABELS: Record<string, string> = {
 };
 
 type PageSection = "senior" | "youth";
-type MarketFilter = "all" | "available" | "free_agents" | "player_pool" | "signed" | "transfer";
+type MarketFilter = "all" | "free_agents" | "player_pool" | "signed" | "transfer";
 type PlayerStatus = "signed" | "free_agent" | "player_pool" | "transfer_available";
 
 // ── Status config ─────────────────────────────────────────────────────────────
@@ -212,7 +205,19 @@ const SQUAD_DESTINATIONS: { role: SquadRole; label: string }[] = [
   { role: "reserve",     label: "Youth Team" },
 ];
 
+const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
+
+/** Item 15: the price line a card and its confirm step show. */
+function priceText(player: any): string | null {
+  if (!player.priceRange) return null;
+  return player.price != null ? money(player.price) : `${money(player.priceRange.low)} - ${money(player.priceRange.high)}`;
+}
+
 function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v: any) => void; isPending: boolean }) {
+  // Item 15 (Rob's design): signing is a confirm step with her price on it:
+  // the exact price for a scouted player, the range for an unscouted one,
+  // whose exact price is revealed, with her attributes, when she signs.
+  const blind = !!player.priceRange && player.price == null;
   const [salary, setSalary]   = useState([5000]);
   const [winBonus, setWinBonus] = useState([500]);
   const [length, setLength]   = useState<ContractLength>("1s");
@@ -225,7 +230,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
       <DialogTrigger asChild>
         <Button className="w-full gap-2" data-testid={`button-sign-${player.id}`}>
           <UserPlus className="h-4 w-4" />
-          Sign Contract
+          {blind ? "Sign (unscouted)" : "Sign"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
@@ -233,6 +238,18 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
           <DialogTitle>Contract Offer: {player.name}</DialogTitle>
           <DialogDescription>Negotiate terms. A contract runs 6 months, 1 season or 2 seasons.</DialogDescription>
         </DialogHeader>
+        {player.priceRange && (
+          <div className={cn("rounded-lg border px-3 py-2 text-sm", blind ? "border-amber-500/40 bg-amber-500/10" : "border-border bg-muted/40")} data-testid="sign-price">
+            {blind ? (
+              <>
+                <p className="font-semibold">Unscouted: her price is between {money(player.priceRange.low)} and {money(player.priceRange.high)}.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Her exact price and attributes are revealed when she signs, and the price is charged then. Scouting her first (5 days) shows both before you buy.</p>
+              </>
+            ) : (
+              <p className="font-semibold">Her price: {money(player.price)}, charged when she signs, on top of her wage.</p>
+            )}
+          </div>
+        )}
         <div className="space-y-6 py-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm font-medium">
@@ -308,7 +325,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
           disabled={isPending}
           data-testid="button-confirm-sign"
         >
-          {isPending ? "Negotiating..." : "Finalize Contract"}
+          {isPending ? "Negotiating..." : player.priceRange ? (blind ? `Confirm: sign for ${money(player.priceRange.low)} - ${money(player.priceRange.high)}` : `Confirm: sign for ${money(player.price)}`) : "Finalize Contract"}
         </Button>
       </DialogContent>
     </Dialog>
@@ -330,11 +347,15 @@ function MarketPlayerCard({
   isScoutingThis: boolean;
   signPending: boolean;
 }) {
-  const overall   = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+  // Item 15: an unscouted player's attributes are not sent; she shows "?".
+  const revealed  = player.revealed !== false;
+  const overall   = revealed ? Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5) : null;
   const isScouted = !!player.scoutedPotential;
   const status: PlayerStatus = player.status ?? (player.currentTeamName ? "signed" : "free_agent");
   const statusCfg = STATUS_CONFIG[status];
-  const canSign = status === "free_agent" || status === "transfer_available";
+  const canSign = status === "free_agent" || status === "player_pool" || status === "transfer_available";
+  const scouting = player.scouting?.state ?? "none";
+  const price = priceText(player);
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all group">
@@ -350,7 +371,7 @@ function MarketPlayerCard({
         <NameStrip name={player.name} />
         <div className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10" style={{ width: "19%", gap: "5px", padding: "8px 3px" }}>
           <div className="text-center">
-            <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>{overall}</div>
+            <div className={cn("text-[22px] font-black leading-none", revealed ? "text-white" : "text-white/30")} style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>{overall ?? "?"}</div>
             <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
           </div>
           <div className="w-4/5 h-px bg-white/20" />
@@ -384,14 +405,26 @@ function MarketPlayerCard({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <StatMini label="Power"   value={player.power}   icon={Zap}      color="text-orange-500" />
-          <StatMini label="Speed"   value={player.speed}   icon={Wind}     color="text-blue-500"   />
-          <StatMini label="Defense" value={player.defense} icon={Shield}   color="text-green-500"  />
-          <StatMini label="Serve"   value={player.serve}   icon={Target}   color="text-purple-500" />
-          <StatMini label="Block"   value={player.block}   icon={Shield}   color="text-red-500"    />
-          <StatMini label="Stamina" value={player.stamina} icon={Activity} color="text-cyan-500"   />
-        </div>
+        {revealed ? (
+          <div className="grid grid-cols-2 gap-2">
+            <StatMini label="Power"   value={player.power}   icon={Zap}      color="text-orange-500" />
+            <StatMini label="Speed"   value={player.speed}   icon={Wind}     color="text-blue-500"   />
+            <StatMini label="Defense" value={player.defense} icon={Shield}   color="text-green-500"  />
+            <StatMini label="Serve"   value={player.serve}   icon={Target}   color="text-purple-500" />
+            <StatMini label="Block"   value={player.block}   icon={Shield}   color="text-red-500"    />
+            <StatMini label="Stamina" value={player.stamina} icon={Activity} color="text-cyan-500"   />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-1.5" data-testid={`locked-stats-${player.id}`}>
+            <LockedStatBar label="Power"   icon={Zap}      />
+            <LockedStatBar label="Speed"   icon={Wind}     />
+            <LockedStatBar label="Defense" icon={Shield}   />
+            <LockedStatBar label="Serve"   icon={Target}   />
+            <LockedStatBar label="Block"   icon={Shield}   />
+            <LockedStatBar label="Stamina" icon={Activity} />
+            <p className="text-[10px] text-muted-foreground/70 text-center pt-1">Scout her or sign her to see her attributes.</p>
+          </div>
+        )}
 
         <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1 text-muted-foreground">
@@ -401,8 +434,8 @@ function MarketPlayerCard({
           <span className="text-muted-foreground">{player.nationality}</span>
         </div>
 
-        <div className="flex items-center justify-between border-t border-border pt-2">
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+        {revealed && (
+          <div className="flex items-center gap-1.5 border-t border-border pt-2 text-xs text-muted-foreground">
             {isScouted ? (
               <>
                 <span className="font-medium text-foreground">Potential</span>
@@ -412,18 +445,7 @@ function MarketPlayerCard({
               <span className="italic">Potential not assessed</span>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2 text-[10px] gap-1"
-            onClick={() => onScout(player.id)}
-            disabled={isScoutingThis}
-            data-testid={`button-scout-${player.id}`}
-          >
-            <Search className="h-3 w-3" />
-            {isScoutingThis ? "Scouting…" : "Scout"}
-          </Button>
-        </div>
+        )}
 
         {player.contractEndDate && player.currentTeamName && (
           <div className="flex items-center justify-between text-xs border-t border-border pt-2">
@@ -442,88 +464,32 @@ function MarketPlayerCard({
             <DollarSign className="h-3 w-3" />
             Asking ${Number(player.salary).toLocaleString()}/mo
           </span>
+          {price && (
+            <span className="font-semibold text-foreground" data-testid={`price-${player.id}`}>
+              {player.price != null ? `Price ${price}` : `Price ${price}`}
+            </span>
+          )}
         </div>
 
         {canSign && (
           <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
         )}
-      </CardContent>
-    </Card>
-  );
-}
-
-// ── Player Pool card (locked stats, sign on set terms) ────────────────────────
-
-function PlayerPoolCard({
-  player,
-  onDraft,
-  isDrafting,
-}: {
-  player: any;
-  onDraft: (id: number) => void;
-  isDrafting: boolean;
-}) {
-  return (
-    <Card data-testid={`card-draft-${player.id}`} className="overflow-hidden hover:border-secondary hover:shadow-lg transition-all">
-      <div className="relative h-72 overflow-hidden bg-slate-800">
-        <PlayerPortrait
-          name={player.name}
-          imageUrl={player.imageUrl}
-          continent={player.continent}
-          nationality={player.nationality}
-          playerType={player.playerType}
-          heightClass="h-72"
-        />
-        <NameStrip name={player.name} />
-        <div className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10" style={{ width: "19%", gap: "5px", padding: "8px 3px" }}>
-          <div className="text-center">
-            <div className="text-[22px] font-black text-white/30 leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>?</div>
-            <div className="text-[7px] text-white/30 uppercase tracking-widest font-bold">OVR</div>
-          </div>
-          <div className="w-4/5 h-px bg-white/20" />
-          <div className="text-[8px] text-secondary font-black uppercase text-center leading-tight">
-            {formatPosition(player.position)}
-          </div>
-          <div className="w-4/5 h-px bg-white/20" />
-          <div className="text-center" style={{ fontSize: "8px", lineHeight: 1.4 }}>
-            <div className="text-white/80 font-medium leading-tight">{player.nationality}</div>
-            <div className="text-white/55 mt-0.5">{player.age}y</div>
-            <div className="text-white/55">{player.height}cm</div>
-          </div>
-        </div>
-      </div>
-
-      <CardContent className="p-4 space-y-4">
-        {/* Status badge */}
-        <Badge variant="outline" className={cn("text-[10px] gap-1 font-bold", STATUS_CONFIG.player_pool.badgeClass)}>
-          <Package className="h-2.5 w-2.5" />
-          Player Pool
-        </Badge>
-
-        <div className="grid grid-cols-1 gap-1.5">
-          <LockedStatBar label="Power"   icon={Zap}      />
-          <LockedStatBar label="Speed"   icon={Wind}     />
-          <LockedStatBar label="Defense" icon={Shield}   />
-          <LockedStatBar label="Serve"   icon={Target}   />
-          <LockedStatBar label="Block"   icon={Shield}   />
-          <LockedStatBar label="Stamina" icon={Activity} />
-        </div>
-
-        <div className="flex items-center justify-center text-xs border-t border-border pt-2">
-          <span className="flex items-center gap-1.5 text-muted-foreground/50">
-            <Shield className="h-3 w-3" />
-            Sign to reveal attributes
-          </span>
-        </div>
-
-        <Button
-          className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold"
-          onClick={() => onDraft(player.id)}
-          disabled={isDrafting}
-          data-testid={`button-draft-${player.id}`}
-        >
-          {isDrafting ? "Signing..." : "SIGN TO SQUAD"}
-        </Button>
+        {/* Item 15: a small "Scout player" under the sign button; 5 game days. */}
+        {canSign && scouting !== "done" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full h-7 text-[11px] gap-1 text-muted-foreground"
+            onClick={() => onScout(player.id)}
+            disabled={isScoutingThis || scouting === "in_progress"}
+            data-testid={`button-scout-${player.id}`}
+          >
+            <Search className="h-3 w-3" />
+            {scouting === "in_progress"
+              ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
+              : isScoutingThis ? "Sending the scout…" : "Scout player (5 days)"}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
@@ -623,9 +589,8 @@ type FilterPillConfig = {
 
 const FILTER_PILLS: FilterPillConfig[] = [
   { id: "all",         label: "All Players",        icon: Users       as any, desc: "All senior players in the game." },
-  { id: "available",   label: "Available",           icon: UserPlus    as any, desc: "All unsigned players — free agents and player pool combined." },
-  { id: "free_agents", label: "Free Agents",         icon: Users       as any, desc: "Unsigned players not in any pool. Sign on negotiated terms." },
-  { id: "player_pool", label: "Player Pool",         icon: Package     as any, desc: "Unsigned players in the Player Pool. Sign on a 6-month development contract." },
+  { id: "free_agents", label: "Free Agents",         icon: Users       as any, desc: "Unsigned players you have not scouted: a price range, no attributes. Scout one (5 game days) or sign her blind." },
+  { id: "player_pool", label: "Player Pool",         icon: Package     as any, desc: "Unsigned players your scouts have reported on: exact price and attributes. Reports lapse at the end of the season." },
   { id: "signed",      label: "Signed Players",      icon: CheckCircle2 as any, desc: "Players currently under contract with a club." },
   { id: "transfer",    label: "Transfer Available",  icon: Handshake   as any, desc: "Signed players whose contract expires within 6 months — approachable now." },
 ];
@@ -657,19 +622,12 @@ export default function PlayerMarket() {
     staleTime: 30_000,
   });
 
-  const { data: generateResult } = useQuery<any[]>({
-    queryKey: [getGetDraftPoolQueryKey()],
-    queryFn: () => fetch("/api/draft").then(r => r.json()),
-    staleTime: 30_000,
-    enabled: false,
-  });
-
   // ── Mutations ─────────────────────────────────────────────────────────────
 
   const signMutation     = useSignContract();
   const scoutMutation    = useScoutPlayer();
-  const draftMutation    = useDraftPick();
-  const generateMutation = useGenerateDraftClass();
+  // Item 15: what signing an unscouted player revealed.
+  const [revealedSigning, setRevealedSigning] = useState<any | null>(null);
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["players-market-all"] });
@@ -677,16 +635,17 @@ export default function PlayerMarket() {
     queryClient.invalidateQueries({ queryKey: getListFreeAgentsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getListTransferWindowQueryKey() });
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
-    queryClient.invalidateQueries({ queryKey: getGetDraftPoolQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
     queryClient.invalidateQueries({ queryKey: ["players-summary"] });
   };
 
   const handleSign = (playerId: number, values: any) => {
-    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole } }, {
-      onSuccess: () => {
+    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole, confirm: true } }, {
+      onSuccess: (result: any) => {
         invalidateAll();
-        toast({ title: "Contract Signed!", description: "Welcome to the team!" });
+        queryClient.invalidateQueries();
+        if (result?.fee > 0) setRevealedSigning(result);
+        else toast({ title: "Contract Signed!", description: "Welcome to the team!" });
       },
       onError: (err: any) => {
         toast({ title: "Cannot Sign Player", description: serverMessage(err, "Unable to sign this player."), variant: "destructive" });
@@ -696,38 +655,12 @@ export default function PlayerMarket() {
 
   const handleScout = (playerId: number) => {
     scoutMutation.mutate({ id: playerId }, {
-      onSuccess: (result) => {
+      onSuccess: (result: any) => {
         invalidateAll();
-        const cfg = POTENTIAL_CONFIG[result.scoutedPotential as PotentialTier];
-        const confidenceText = CONFIDENCE_LABEL[result.confidence] ?? result.confidence;
-        toast({ title: "Scout Report", description: `${result.scoutName} rates this player as ${cfg?.label ?? result.scoutedPotential} potential. (${confidenceText} assessment)` });
+        toast({ title: "Scout sent", description: `${result.scoutName}'s report is due in ${result.days} days${result.scouting?.readyOn ? ` (${format(new Date(`${result.scouting.readyOn}T00:00:00`), "d MMM")})` : ""}: her exact price, attributes and potential.` });
       },
       onError: (err: any) => {
-        toast({ title: "No Scout Available", description: serverMessage(err, "Hire a scout to assess player potential."), variant: "destructive" });
-      },
-    });
-  };
-
-  const handleDraft = (playerId: number) => {
-    draftMutation.mutate({ data: { draftPlayerId: playerId } }, {
-      onSuccess: () => {
-        invalidateAll();
-        toast({ title: "Signed to Squad!", description: "The player has joined your team on a 6-month contract." });
-      },
-      onError: (err: any) => {
-        toast({ title: "Cannot Sign", description: serverMessage(err, "Unable to sign this player."), variant: "destructive" });
-      },
-    });
-  };
-
-  const handleGenerate = () => {
-    generateMutation.mutate(undefined, {
-      onSuccess: () => {
-        invalidateAll();
-        toast({ title: "Player Pool Refreshed!", description: "New players are available in the Player Pool." });
-      },
-      onError: () => {
-        toast({ title: "Error", description: "Could not refresh the player pool.", variant: "destructive" });
+        toast({ title: "Cannot scout", description: serverMessage(err, "Hire a Scout, Head Coach or Assistant Coach to scout players."), variant: "destructive" });
       },
     });
   };
@@ -738,7 +671,6 @@ export default function PlayerMarket() {
 
   const counts = {
     all:         all.length,
-    available:   all.filter(p => !p.currentTeamId).length,
     free_agents: all.filter(p => p.status === "free_agent").length,
     player_pool: all.filter(p => p.status === "player_pool").length,
     signed:      all.filter(p => p.status === "signed" || p.status === "transfer_available").length,
@@ -754,7 +686,6 @@ export default function PlayerMarket() {
   const baseFiltered = (() => {
     switch (filter) {
       case "all":         return all;
-      case "available":   return all.filter(p => !p.currentTeamId);
       case "free_agents": return all.filter(p => p.status === "free_agent");
       case "player_pool": return all.filter(p => p.status === "player_pool");
       case "signed":      return all.filter(p => p.status === "signed" || p.status === "transfer_available");
@@ -800,11 +731,11 @@ export default function PlayerMarket() {
               </span>
               <span className="text-muted-foreground/40 text-xs">·</span>
               <span className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">{counts.available}</span> available
+                <span className="font-semibold text-foreground">{counts.free_agents}</span> free agents (unscouted)
               </span>
               <span className="text-muted-foreground/40 text-xs">·</span>
               <span className="text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">{counts.player_pool}</span> in Player Pool
+                <span className="font-semibold text-foreground">{counts.player_pool}</span> scouted (Player Pool)
               </span>
               <span className="text-muted-foreground/40 text-xs">·</span>
               <span className="text-xs text-muted-foreground">
@@ -821,18 +752,6 @@ export default function PlayerMarket() {
             onChange={e => setSearch(e.target.value)}
             className="w-44"
           />
-          {section === "senior" && filter === "player_pool" && (
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={handleGenerate}
-              disabled={generateMutation.isPending}
-              data-testid="button-generate-draft-class"
-            >
-              <RefreshCw className={`h-4 w-4 ${generateMutation.isPending ? "animate-spin" : ""}`} />
-              {generateMutation.isPending ? "Refreshing…" : "Refresh Pool"}
-            </Button>
-          )}
         </div>
       </div>
 
@@ -898,19 +817,6 @@ export default function PlayerMarket() {
               </button>
             ))}
           </div>
-
-          {/* Player Pool facility banner */}
-          {filter === "player_pool" && (
-            <FacilityBonusBanner
-              facilityType="youth_academy"
-              facilityName={FACILITY_NAMES.youth_academy}
-              getBonusText={(level) => {
-                const elitePct = Math.round((0.12 + (level - 1) * (0.13 / 9)) * 100);
-                const genPct   = Math.round((0.03 + (level - 1) * (0.09 / 9)) * 100);
-                return `${elitePct}% Elite + ${genPct}% Generational prospect chance on pool refresh`;
-              }}
-            />
-          )}
 
           {/* Continent + position filters */}
           <div className="flex gap-2 flex-wrap items-center">
@@ -1003,25 +909,16 @@ export default function PlayerMarket() {
           {/* Player grid */}
           {!marketLoading && (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {visiblePlayers.map((player) =>
-                player.status === "player_pool" ? (
-                  <PlayerPoolCard
-                    key={player.id}
-                    player={player}
-                    onDraft={handleDraft}
-                    isDrafting={draftMutation.isPending && (draftMutation.variables as any)?.data?.draftPlayerId === player.id}
-                  />
-                ) : (
-                  <MarketPlayerCard
-                    key={player.id}
-                    player={player}
-                    onSign={handleSign}
-                    onScout={handleScout}
-                    isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
-                    signPending={signMutation.isPending}
-                  />
-                )
-              )}
+              {visiblePlayers.map((player) => (
+                <MarketPlayerCard
+                  key={player.id}
+                  player={player}
+                  onSign={handleSign}
+                  onScout={handleScout}
+                  isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
+                  signPending={signMutation.isPending}
+                />
+              ))}
               {visiblePlayers.length === 0 && !marketLoading && (
                 <div className="col-span-full text-center py-16 text-muted-foreground">
                   <Box className="h-16 w-16 mx-auto mb-4 opacity-20" />
@@ -1032,8 +929,8 @@ export default function PlayerMarket() {
                     </>
                   ) : filter === "player_pool" && !search && posFilter === "ALL" && continent === "ALL" ? (
                     <>
-                      <p className="text-lg">Player pool is empty.</p>
-                      <p className="text-sm">Click "Refresh Pool" to add new prospects (influenced by your Youth Academy).</p>
+                      <p className="text-lg">No scouted players yet.</p>
+                      <p className="text-sm">Scout a free agent: her report arrives in 5 game days, and she moves here.</p>
                     </>
                   ) : (
                     <>
@@ -1103,6 +1000,30 @@ export default function PlayerMarket() {
           )}
         </>
       )}
+
+      {/* Item 15: what signing revealed: her exact price and, blind, her attributes. */}
+      <Dialog open={!!revealedSigning} onOpenChange={(open) => { if (!open) setRevealedSigning(null); }}>
+        <DialogContent className="sm:max-w-sm" data-testid="signing-revealed">
+          <DialogHeader>
+            <DialogTitle>{revealedSigning?.player?.name ?? "Player"} signed</DialogTitle>
+            <DialogDescription>
+              {revealedSigning?.signedBlind
+                ? `Signed unscouted. Her price was ${money(revealedSigning?.fee ?? 0)} (range ${money(revealedSigning?.priceRange?.low ?? 0)} - ${money(revealedSigning?.priceRange?.high ?? 0)}).`
+                : `Her price: ${money(revealedSigning?.fee ?? 0)}.`}
+            </DialogDescription>
+          </DialogHeader>
+          {revealedSigning?.player && (
+            <div className="grid grid-cols-2 gap-2">
+              <StatMini label="Power"   value={revealedSigning.player.power}   icon={Zap}      color="text-orange-500" />
+              <StatMini label="Speed"   value={revealedSigning.player.speed}   icon={Wind}     color="text-blue-500"   />
+              <StatMini label="Defense" value={revealedSigning.player.defense} icon={Shield}   color="text-green-500"  />
+              <StatMini label="Serve"   value={revealedSigning.player.serve}   icon={Target}   color="text-purple-500" />
+              <StatMini label="Block"   value={revealedSigning.player.block}   icon={Shield}   color="text-red-500"    />
+              <StatMini label="Stamina" value={revealedSigning.player.stamina} icon={Activity} color="text-cyan-500"   />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

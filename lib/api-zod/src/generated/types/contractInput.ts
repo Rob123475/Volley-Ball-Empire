@@ -16,4 +16,6 @@ export interface ContractInput {
   bonusPerWin: number;
   /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
   squadRole?: ContractInputSquadRole;
+  /** Unity brief item 15: a senior signed off the market costs her price (her exact price if scouted, else a range; the exact price is revealed and charged on signing). The caller confirms it with confirm=true; without it the server answers 400 with the price or range. */
+  confirm?: boolean;
 }

@@ -134,7 +134,7 @@ try {
   // Into whichever squad place the week-1 release just opened.
   let signed;
   for (const squadRole of ["starter", "interchange", "reserve"]) {
-    signed = await A("POST", "/contracts", { playerId: pool[0]?.id, salary: pool[0]?.salary ?? 5000, bonusPerWin: 0, squadRole, length: "1s" });
+    signed = await A("POST", "/contracts", { confirm: true, playerId: pool[0]?.id, salary: pool[0]?.salary ?? 5000, bonusPerWin: 0, squadRole, length: "1s" });
     if (signed.status === 201) break;
   }
   const signing = (await contracts(A)).find((c) => c.playerId === pool[0]?.id);

@@ -182,7 +182,7 @@ try {
   const spare = (signed.starters ?? []).find((p) => !(p.playerType === "youth" && p.isPromoted));
   await api("POST", `/players/${spare?.id}/release`, {});
 
-  const resign = await api("POST", "/contracts", {
+  const resign = await api("POST", "/contracts", { confirm: true,
     playerId: sold.id, salary: 4000, bonusPerWin: 0, squadRole: "starter", length: "1s",
   });
   check("and a club with a place free can sign her straight back", resign.status === 201,

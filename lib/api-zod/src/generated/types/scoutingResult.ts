@@ -5,13 +5,16 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
-import type { Player } from './player';
 import type { ScoutingResultConfidence } from './scoutingResultConfidence';
-import type { ScoutingResultScoutedPotential } from './scoutingResultScoutedPotential';
+import type { ScoutingResultScouting } from './scoutingResultScouting';
 
+/**
+ * Unity brief item 15: scouting takes `days` game days; the report (exact price, attributes, potential) shows on her card from scouting.readyOn.
+ */
 export interface ScoutingResult {
-  player: Player;
-  scoutedPotential: ScoutingResultScoutedPotential;
+  playerId: number;
+  scouting: ScoutingResultScouting;
+  days: number;
   /** How reliable the assessment is, based on scout skill. */
   confidence: ScoutingResultConfidence;
   scoutName: string;

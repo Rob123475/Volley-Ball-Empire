@@ -111,7 +111,7 @@ const roster = async (api) => {
   const target = marketA0[0];
   check("market non-empty", marketA0.length > 0, `${marketA0.length} free agents`);
 
-  const signRes = await A("POST", "/contracts", {
+  const signRes = await A("POST", "/contracts", { confirm: true,
     playerId: target.id, salary: target.salary ?? 8000,
     endDate: "2026-12-31", bonusPerWin: 0, squadRole: "starter",
   });
@@ -154,7 +154,7 @@ const roster = async (api) => {
   // R-48: a club needs two contracted players or its matches are forfeited, so
   // the tracked player gets a partner before any match is played.
   const partner = (await market(A)).find((p) => p.id !== target.id);
-  const partnerRes = await A("POST", "/contracts", {
+  const partnerRes = await A("POST", "/contracts", { confirm: true,
     playerId: partner?.id, salary: partner?.salary ?? 8000,
     endDate: "2026-12-31", bonusPerWin: 0, squadRole: "starter",
   });
@@ -341,7 +341,7 @@ const roster = async (api) => {
 
   const poolC = (await market(C)).filter((p) => (p.age ?? 99) >= 19);
   const signC = (p, squadRole) =>
-    C("POST", "/contracts", {
+    C("POST", "/contracts", { confirm: true,
       playerId: p.id, salary: p.salary ?? 8000, endDate: "2026-12-31",
       bonusPerWin: 0, squadRole,
     });

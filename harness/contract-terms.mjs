@@ -137,14 +137,14 @@ try {
   check("there are free agents to sign", freeAgents.length >= 4, `${freeAgents.length}`);
 
   // Anything not one of the three is refused, by name.
-  const badLength = await api("POST", "/contracts", {
+  const badLength = await api("POST", "/contracts", { confirm: true,
     playerId: freeAgents[0].id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length: "5s",
   });
   check("a 5-season contract is refused, and the message says what is allowed",
     badLength.status === 400 && /6m/.test(badLength.data?.error ?? "") && /2s/.test(badLength.data?.error ?? ""),
     `HTTP ${badLength.status} ${String(badLength.data?.error ?? "").slice(0, 90)}`);
 
-  const badMonths = await api("POST", "/contracts", {
+  const badMonths = await api("POST", "/contracts", { confirm: true,
     playerId: freeAgents[0].id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length: 12,
   });
   check("a numeric month count is refused too", badMonths.status === 400, `HTTP ${badMonths.status}`);
@@ -160,7 +160,7 @@ try {
       const c = read(`SELECT id FROM contracts WHERE player_id = ? AND status = 'active'`, p.id)[0];
       if (c) await api("DELETE", `/contracts/${c.id}`);
     }
-    const r = await api("POST", "/contracts", {
+    const r = await api("POST", "/contracts", { confirm: true,
       playerId: freeAgents[i].id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length,
     });
     signed[length] = r;
@@ -241,7 +241,7 @@ try {
   // working; the suite just has to stop creating an abandoned club.
   const forSquad = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => !p.teamId);
   for (const p of forSquad.slice(0, 2)) {
-    await api("POST", "/contracts", {
+    await api("POST", "/contracts", { confirm: true,
       playerId: p.id, salary: 5000, bonusPerWin: 0, squadRole: "starter", length: "2s",
     });
   }
@@ -301,7 +301,10 @@ try {
     const c = read(`SELECT id FROM contracts WHERE player_id = ? AND status = 'active'`, p.id)[0];
     if (c) await api("DELETE", `/contracts/${c.id}`);
   }
-  const long = await api("POST", "/contracts", {
+  // Paying the squad off above leaves the club in the red, and since Unity item
+  // 15 a signing costs the player's price: fund the club so the scene can sign.
+  write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);
+  const long = await api("POST", "/contracts", { confirm: true,
     playerId: target.id, salary: 8000, bonusPerWin: 0, squadRole: "interchange", length: "2s",
   });
   check("a 2-season deal to pay out was signed", long.status === 201, `HTTP ${long.status}`);
@@ -358,7 +361,8 @@ try {
   // Section 5 pays off the whole squad, so this brings in its own player.
   const pool3 = (await api("GET", "/players/free-agents")).data;
   const free3 = (Array.isArray(pool3) ? pool3 : (pool3?.players ?? [])).filter((p) => !p.teamId);
-  const signed3 = await api("POST", "/contracts", {
+  write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);   // see section 5
+  const signed3 = await api("POST", "/contracts", { confirm: true,
     playerId: free3[0]?.id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length: "1s",
   });
   const spare = signed3.status === 201 ? { id: free3[0].id } : null;

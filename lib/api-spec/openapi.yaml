@@ -29,8 +29,6 @@ tags:
     description: Training sessions
   - name: finances
     description: Financial management
-  - name: draft
-    description: Player draft system
   - name: outfits
     description: Player outfits
   - name: locations
@@ -1306,57 +1304,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FinanceTransaction"
-
-  /draft:
-    get:
-      operationId: getDraftPool
-      tags: [draft]
-      summary: Get current draft pool of available players
-      responses:
-        "200":
-          description: Draft pool
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DraftPlayer"
-
-  /draft/generate-class:
-    post:
-      operationId: generateDraftClass
-      tags: [draft]
-      summary: Generate a new draft class (quality influenced by Youth Academy level)
-      responses:
-        "200":
-          description: New draft class
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DraftPlayer"
-        "401":
-          description: Unauthorized
-
-  /draft/pick:
-    post:
-      operationId: draftPick
-      tags: [draft]
-      summary: Draft a player from the pool
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DraftPickInput"
-      responses:
-        "201":
-          description: Player drafted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Player"
 
   /club-templates:
     get:
@@ -2772,6 +2719,13 @@ components:
           type: string
           enum: [starter, interchange, reserve]
           description: "Squad assignment on signing. 'reserve' is youth-only (ages 14–18)."
+        confirm:
+          type: boolean
+          description: >-
+            Unity brief item 15: a senior signed off the market costs her price
+            (her exact price if scouted, else a range; the exact price is revealed
+            and charged on signing). The caller confirms it with confirm=true;
+            without it the server answers 400 with the price or range.
 
     StaffMember:
       type: object
@@ -3491,62 +3445,26 @@ components:
         imageUrl:
           type: ["string", "null"]
 
-    DraftPlayer:
-      type: object
-      required: [id, name, nationality, age, height, position, speed, power, defense, serve, block, stamina, askingPrice, available]
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        nationality:
-          type: string
-        age:
-          type: integer
-        height:
-          type: number
-        position:
-          type: string
-        speed:
-          type: integer
-        power:
-          type: integer
-        defense:
-          type: integer
-        serve:
-          type: integer
-        block:
-          type: integer
-        stamina:
-          type: integer
-        askingPrice:
-          type: number
-        available:
-          type: boolean
-        imageUrl:
-          type: ["string", "null"]
-        playerV4:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/PlayerV4"
-          description: "Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more."
-
-    DraftPickInput:
-      type: object
-      required: [draftPlayerId]
-      properties:
-        draftPlayerId:
-          type: integer
-
     ScoutingResult:
       type: object
-      required: [player, scoutedPotential, confidence, scoutName, scoutRating]
+      description: "Unity brief item 15: scouting takes `days` game days; the report (exact price, attributes, potential) shows on her card from scouting.readyOn."
+      required: [playerId, scouting, days, confidence, scoutName, scoutRating]
       properties:
-        player:
-          $ref: "#/components/schemas/Player"
-        scoutedPotential:
-          type: string
-          enum: [Low, Average, High, Elite, Generational]
+        playerId:
+          type: integer
+        scouting:
+          type: object
+          required: [state]
+          properties:
+            state:
+              type: string
+              enum: [none, in_progress, done]
+            readyOn:
+              type: string
+            daysLeft:
+              type: integer
+        days:
+          type: integer
         confidence:
           type: string
           enum: [uncertain, likely, confident]

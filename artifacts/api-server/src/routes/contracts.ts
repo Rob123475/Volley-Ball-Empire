@@ -15,6 +15,7 @@ import {
   contractEndDate, renewalEndDate, releasePayout, readContractLength,
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
+import { marketPrice, isRevealed } from "../utils/marketScouting.js";
 
 const router = Router();
 
@@ -109,6 +110,36 @@ router.post("/contracts", async (req, res) => {
     if (refusal) { res.status(422).json({ error: refusal }); return; }
   }
 
+  // ── Her price (Unity brief item 15, Rob's design) ──────────────────────────
+  // A senior signed off the market costs her price, once, on top of her wage.
+  // The caller must confirm it (the page's confirm step): the exact price if
+  // this club has scouted her, otherwise the range, and the exact price is then
+  // revealed and charged. Youth players have no price.
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const priceDay = await getGameDate(team.id);
+  const fee = isYouth ? null : marketPrice(cid, player);
+  const blind = !isYouth && !isRevealed(player, team.id, priceDay);
+  if (fee) {
+    if (req.body?.confirm !== true) {
+      res.status(400).json({
+        error: blind
+          ? `Confirm the price first: ${player.name} costs between $${fee.low.toLocaleString()} and $${fee.high.toLocaleString()}; the exact price is revealed when she signs.`
+          : `Confirm the price first: ${player.name} costs $${fee.price.toLocaleString()}.`,
+        needsConfirm: true,
+        priceRange: { low: fee.low, high: fee.high },
+        price: blind ? null : fee.price,
+      });
+      return;
+    }
+    // Blind, the club must be able to pay the top of the range: whether it can
+    // pay the exact price would give the price away.
+    const mustHave = blind ? fee.high : fee.price;
+    if (Number(team.budget) < mustHave) {
+      res.status(422).json({ error: `Not enough money: ${player.name} costs ${blind ? `up to $${fee.high.toLocaleString()}` : `$${fee.price.toLocaleString()}`}, the club has $${Math.round(Number(team.budget)).toLocaleString()}.` });
+      return;
+    }
+  }
+
   // Transfer window enforcement — if player is already contracted to another team,
   // they can only be approached in the last 6 months of their contract.
   if (player.teamId !== null) {
@@ -161,7 +192,27 @@ router.post("/contracts", async (req, res) => {
     squadRole,
   });
 
-  res.status(201).json(serializeContract(contract));
+  // Item 15: her price, charged and on the ledger.
+  if (fee) {
+    await db.insert(financeTransactionsTable).values({
+      teamId: team.id, type: "expense", amount: fee.price, category: "signing_fee", date: today,
+      description: `Signing fee: ${player.name}${blind ? ` (signed unscouted: $${fee.low.toLocaleString()}-$${fee.high.toLocaleString()})` : ""}`,
+    });
+    await db.update(teamsTable).set({ budget: Number(team.budget) - fee.price }).where(eq(teamsTable.id, team.id));
+  }
+  const signed = await loadPlayer(cid, Number(playerId));
+
+  res.status(201).json({
+    ...serializeContract(contract),
+    // What signing her revealed: her price, and (blind) her attributes.
+    fee: fee ? fee.price : 0,
+    priceRange: fee ? { low: fee.low, high: fee.high } : null,
+    signedBlind: blind,
+    player: signed ? {
+      id: signed.id, name: signed.name, speed: signed.speed, power: signed.power, defense: signed.defense,
+      serve: signed.serve, block: signed.block, stamina: signed.stamina,
+    } : null,
+  });
 });
 
 /**

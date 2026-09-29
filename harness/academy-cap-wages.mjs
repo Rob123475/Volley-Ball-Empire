@@ -153,7 +153,7 @@ async function signYouth(career, n) {
   const pool = ((await api("GET", "/players/youth-pool")).data ?? []).filter((p) => p.age <= 15).sort((a, b) => a.id - b.id);
   const signed = [];
   for (const p of pool.slice(0, n)) {
-    const r = await api("POST", "/contracts", { playerId: p.id, salary: p.salary ?? 0, endDate: season.endDate, bonusPerWin: 0, squadRole: "reserve" });
+    const r = await api("POST", "/contracts", { confirm: true, playerId: p.id, salary: p.salary ?? 0, endDate: season.endDate, bonusPerWin: 0, squadRole: "reserve" });
     if (r.status >= 400) throw new Error(`signing ${p.name}: ${r.status} ${JSON.stringify(r.data)}`);
     signed.push(p);
   }
@@ -233,7 +233,7 @@ try {
   check(`${CAP} youth players sign into the academy`, signed.length === CAP && r12?.academy?.size === CAP && r12?.academy?.cap === CAP,
     JSON.stringify(r12?.academy));
   const season = (await A.api("GET", "/seasons/current")).data;
-  const refused = await A.api("POST", "/contracts", { playerId: next.id, salary: next.salary ?? 0, endDate: season.endDate, bonusPerWin: 0, squadRole: "reserve" });
+  const refused = await A.api("POST", "/contracts", { confirm: true, playerId: next.id, salary: next.salary ?? 0, endDate: season.endDate, bonusPerWin: 0, squadRole: "reserve" });
   check(`the ${CAP + 1}th is refused, naming the cap`, refused.status === 422 && /Academy is full \(12\/12\)/.test(refused.data?.error ?? ""),
     `HTTP ${refused.status} ${JSON.stringify(refused.data?.error)}`);
   await A.api("POST", `/players/${signed[CAP - 1].id}/release`, {});

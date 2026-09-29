@@ -426,7 +426,7 @@ try {
     frozen.data?.verdict);
   const market = (await UND("GET", "/players/market-all?playerType=senior")).data ?? [];
   const freeAgent = (Array.isArray(market) ? market : []).find((p) => p.teamId == null && p.age >= 19);
-  const sign = await UND("POST", "/contracts", {
+  const sign = await UND("POST", "/contracts", { confirm: true,
     playerId: freeAgent?.id, salary: freeAgent?.salary ?? 5000, endDate: `${YEAR}-12-31`, bonusPerWin: 0, squadRole: "interchange",
   });
   check("a signing is refused while frozen", sign.status === 403, `HTTP ${sign.status} ${JSON.stringify(sign.data)}`);

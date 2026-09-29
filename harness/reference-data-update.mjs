@@ -163,7 +163,7 @@ console.log("\nA/B/C. A SAVE WITH STALE REFERENCE DATA AND REAL CAREER PROGRESS"
     teamId = careerRes.data.teamId;
 
     // Sign player 289 onto the new team so it has career_player_state.
-    await srv.api("POST", "/contracts", {
+    await srv.api("POST", "/contracts", { confirm: true,
       playerId: PLAYER_ID, salary: 9500, endDate: "2026-12-31", bonusPerWin: 0, squadRole: "interchange",
     });
     await srv.stop();

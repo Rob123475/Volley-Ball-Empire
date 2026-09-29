@@ -17,6 +17,7 @@ import {
 // rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
 const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
+import { marketView, scoutState, SCOUT_DAYS } from "../utils/marketScouting.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
 import { releasePayout } from "../utils/contractTerms.js";
@@ -163,7 +164,13 @@ router.get("/players/youth-pool", async (req, res) => {
   if (continent && typeof continent === "string") {
     result = result.filter(p => p.continent === continent);
   }
-  res.json(result.map(serializePlayer));
+  // Item 15: a scout's report on a youth player arrives after SCOUT_DAYS game days too.
+  const youthTeam = await getActiveTeam(req);
+  const youthToday = youthTeam ? await getGameDate(youthTeam.id) : null;
+  res.json(result.map((p) => {
+    const v = serializePlayer(p);
+    return youthToday && scoutState(p, youthToday).state !== "done" ? { ...v, scoutedPotential: null, scouting: scoutState(p, youthToday) } : v;
+  }));
 });
 
 /**
@@ -346,9 +353,11 @@ router.get("/players/market-all", async (req, res) => {
   // Compute 6-month transfer window from authenticated user's game date
   let currentDate = new Date().toISOString().split("T")[0]!;
   let transferCutoff: string | null = null;
+  let myTeamId: number | null = null;
   if (req.isAuthenticated()) {
     const team = await getActiveTeam(req);
     if (team) {
+      myTeamId = team.id;
       const calRows = await db.select({ currentDate: calendarStateTable.currentDate })
         .from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
       if (calRows[0]?.currentDate) {
@@ -360,24 +369,29 @@ router.get("/players/market-all", async (req, res) => {
     }
   }
 
+  // Unity brief item 15 (Rob's design): a player without a club is a FREE AGENT
+  // until this club has scouted her, then she is in its PLAYER POOL. An
+  // unscouted player's attributes are not sent; a player on the market carries
+  // a price range, and her exact price once scouted (utils/marketScouting.ts).
+  // The old pool (is_draft_player: stats hidden by the page only, signed on a
+  // fixed 6-month deal in one click) is gone.
+  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
   const result = all.map(p => {
     let status: "signed" | "free_agent" | "player_pool" | "transfer_available";
     if (p.teamId) {
-      const inWindow = transferCutoff && p.contractEndDate
+      const inWindow = p.teamId !== myTeamId && transferCutoff && p.contractEndDate
         && p.contractEndDate >= currentDate
         && p.contractEndDate <= transferCutoff;
       status = inWindow ? "transfer_available" : "signed";
-    } else if (p.isDraftPlayer) {
-      status = "player_pool";
     } else {
-      status = "free_agent";
+      status = scoutState(p, currentDate).state === "done" ? "player_pool" : "free_agent";
     }
+    const onMarket = status !== "signed";
     return {
-      ...serializePlayer(p),
+      ...marketView(careerSaveId, { ...p, ...serializePlayer(p) } as PlayerDTO, myTeamId, currentDate, onMarket),
       status,
       currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : null,
       currentTeamId: p.teamId ?? null,
-      isDraftPlayer: p.isDraftPlayer,
     };
   });
 
@@ -585,20 +599,31 @@ router.post("/players/:id/scout", async (req, res) => {
   const scouts   = allStaff.filter(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
 
   if (scouts.length === 0) {
-    res.status(400).json({ error: "No Head Coach or Assistant Coach on staff. Hire one to assess player potential." });
+    res.status(400).json({ error: "No Scout, Head Coach or Assistant Coach on staff. Hire one to scout players." });
+    return;
+  }
+
+  // Unity brief item 15: scouting takes SCOUT_DAYS game days; then her exact
+  // price, attributes and potential show on her card. It was instant, free and
+  // could be repeated to re-roll the potential.
+  if (player.teamId === team.id) { res.status(400).json({ error: `${player.name} is already in your squad.` }); return; }
+  const today = await getGameDate(team.id);
+  const now = scoutState(player, today);
+  if (now.state !== "none") {
+    res.status(409).json({ error: now.state === "done" ? `${player.name} has already been scouted.` : `${player.name} is already being scouted: ${now.daysLeft} day${now.daysLeft === 1 ? "" : "s"} left.`, scouting: now });
     return;
   }
 
   const bestScout = scouts.reduce((a, b) => a.overallRating > b.overallRating ? a : b);
   const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, bestScout.overallRating);
 
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential });
-  const updated = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), playerId);
-  if (!updated) { res.status(404).json({ error: "Player not found" }); return; }
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential, scoutStartedOn: today });
+  const scouting = scoutState({ scoutStartedOn: today, scoutedPotential }, today);
 
   res.json({
-    player:          serializePlayer(updated),
-    scoutedPotential,
+    playerId,
+    scouting,
+    days:        SCOUT_DAYS,
     confidence,
     scoutName:   bestScout.name,
     scoutRating: bestScout.overallRating,

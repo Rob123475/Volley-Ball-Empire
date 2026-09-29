@@ -132,6 +132,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // at the same one rather than sitting empty for a season.
     const promoted = promoteAgedYouth(careerSaveId, PROMOTION_AGE);
 
+    // Unity brief item 15: scout reports on players without a club lapse with
+    // the season (after retirements, so a player who retired is not counted).
+    w.lapseMarketScouting(careerSaveId);
+
     tx.update(seasonsTable)
       .set({ status: "completed" })
       .where(eq(seasonsTable.id, season.id))

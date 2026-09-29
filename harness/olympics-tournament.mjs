@@ -150,7 +150,7 @@ async function careerToOlympics() {
       const aus = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => p.nationality === "Australia").slice(0, 3);
       if (aus.length < 3) throw new Error(`only ${aus.length} Australian free-agent seniors to sign`);
       for (const [i, p] of aus.entries()) {
-        const s = await api("POST", "/contracts", { playerId: p.id, salary: p.salary ?? 8000, endDate: season.endDate, bonusPerWin: 0, squadRole: i < 2 ? "starter" : "interchange" });
+        const s = await api("POST", "/contracts", { confirm: true, playerId: p.id, salary: p.salary ?? 8000, endDate: season.endDate, bonusPerWin: 0, squadRole: i < 2 ? "starter" : "interchange" });
         if (s.status >= 400) throw new Error(`signing ${p.name}: ${s.status} ${JSON.stringify(s.data)}`);
       }
       const w = new DatabaseSync(dbFile);

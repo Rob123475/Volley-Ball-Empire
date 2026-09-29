@@ -50,6 +50,7 @@ export type CareerPlayerFields = {
   focusXp: number;
   scoutedPotential: string | null;
   discoveredBy: string | null;
+  scoutStartedOn: string | null;
   isRetired: boolean;
   retiredSeasonYear: number | null;
   careerWins: number;
@@ -107,6 +108,7 @@ export function assemblePlayer(
     focusXp:              state.focusXp,
     scoutedPotential:     state.scoutedPotential,
     discoveredBy:         state.discoveredBy,
+    scoutStartedOn:       state.scoutStartedOn ?? null,
     isRetired:            state.isRetired,
     retiredSeasonYear:    state.retiredSeasonYear,
     careerWins:           state.careerWins,
@@ -424,6 +426,12 @@ export type CareerStateTx = {
    */
   ageAllPlayers(careerSaveId: number): number;
   /**
+   * Unity brief item 15: scouting lapses at season end for every player without
+   * a club. Her scout report (start date and potential) is cleared; she must be
+   * scouted again next season. Returns how many lapsed.
+   */
+  lapseMarketScouting(careerSaveId: number): number;
+  /**
    * Retire everyone at or past the age threshold, returning who went. They also
    * leave their club, so the squad slot is free for the youth promotion that
    * follows in the same boundary.
@@ -517,6 +525,17 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
+        ))
+        .run();
+      return Number((r as { changes?: number }).changes ?? 0);
+    },
+    lapseMarketScouting(careerSaveId) {
+      const r = tx.update(careerPlayerStateTable)
+        .set({ scoutStartedOn: null, scoutedPotential: null, updatedAt: new Date() })
+        .where(and(
+          eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+          isNull(careerPlayerStateTable.teamId),
+          or(isNotNull(careerPlayerStateTable.scoutStartedOn), isNotNull(careerPlayerStateTable.scoutedPotential)),
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);

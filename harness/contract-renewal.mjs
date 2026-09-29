@@ -193,7 +193,7 @@ try {
     `HTTP ${unnamed.status} ${unnamed.data?.endDate} ${unnamed.data?.salary}`);
   const marketB = (await B("GET", "/players/market-all?playerType=senior")).data ?? [];
   const freeAgent = (Array.isArray(marketB) ? marketB : []).find((p) => p.teamId == null && p.age >= 19);
-  const signFrozen = await B("POST", "/contracts", {
+  const signFrozen = await B("POST", "/contracts", { confirm: true,
     playerId: freeAgent?.id, salary: freeAgent?.salary ?? 5000, endDate: "2026-12-31", bonusPerWin: 0, squadRole: "interchange",
   });
   check("signing a player is refused while frozen", signFrozen.status === 403,
@@ -229,7 +229,7 @@ try {
   await A("POST", `/players/${release?.playerId}/release`, {});
   const market = (await A("GET", "/players/market-all?playerType=senior")).data ?? [];
   const target = (Array.isArray(market) ? market : []).find((p) => p.teamId == null && p.age >= 19);
-  const sign = await A("POST", "/contracts", {
+  const sign = await A("POST", "/contracts", { confirm: true,
     playerId: target?.id, salary: target?.salary ?? 5000, endDate: "2030-12-31", bonusPerWin: 0, squadRole: "starter",
   });
   check("signing on game day 20 Dec 2026 succeeds", sign.status === 201, `HTTP ${sign.status} ${JSON.stringify(sign.data)}`);
@@ -244,7 +244,7 @@ try {
     sign.data?.endDate !== "2030-12-31", `sent 2030-12-31, got ${sign.data?.endDate}`);
 
   console.log("\n4b. A RENEWAL RUNS FOR ONE OF THE THREE LENGTHS (L-02a)");
-  const sixRes = await A("POST", "/contracts", {
+  const sixRes = await A("POST", "/contracts", { confirm: true,
     playerId: target?.id, salary: 5000, bonusPerWin: 0, length: "9s",
   });
   check("a length outside the three is refused at signing", sixRes.status === 400,

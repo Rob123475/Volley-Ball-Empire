@@ -914,6 +914,8 @@ export interface ContractInput {
   bonusPerWin: number;
   /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
   squadRole?: ContractInputSquadRole;
+  /** Unity brief item 15: a senior signed off the market costs her price (her exact price if scouted, else a range; the exact price is revealed and charged on signing). The caller confirms it with confirm=true; without it the server answers 400 with the price or range. */
+  confirm?: boolean;
 }
 
 export interface StaffInput {
@@ -1493,41 +1495,20 @@ export interface PromoDeal {
   imageUrl?: string | null;
 }
 
-export interface DraftPlayer {
-  id: number;
-  name: string;
-  nationality: string;
-  age: number;
-  height: number;
-  position: string;
-  speed: number;
-  power: number;
-  defense: number;
-  serve: number;
-  block: number;
-  stamina: number;
-  askingPrice: number;
-  available: boolean;
-  /** @nullable */
-  imageUrl?: string | null;
-  /** Full V4 player schema — covers visual kit, match engine, development, hidden DNA, regen, scouting and more. */
-  playerV4?: PlayerV4 | null;
-}
-
-export interface DraftPickInput {
-  draftPlayerId: number;
-}
-
-export type ScoutingResultScoutedPotential = typeof ScoutingResultScoutedPotential[keyof typeof ScoutingResultScoutedPotential];
+export type ScoutingResultScoutingState = typeof ScoutingResultScoutingState[keyof typeof ScoutingResultScoutingState];
 
 
-export const ScoutingResultScoutedPotential = {
-  Low: 'Low',
-  Average: 'Average',
-  High: 'High',
-  Elite: 'Elite',
-  Generational: 'Generational',
+export const ScoutingResultScoutingState = {
+  none: 'none',
+  in_progress: 'in_progress',
+  done: 'done',
 } as const;
+
+export type ScoutingResultScouting = {
+  state: ScoutingResultScoutingState;
+  readyOn?: string;
+  daysLeft?: number;
+};
 
 /**
  * How reliable the assessment is, based on scout skill.
@@ -1541,9 +1522,13 @@ export const ScoutingResultConfidence = {
   confident: 'confident',
 } as const;
 
+/**
+ * Unity brief item 15: scouting takes `days` game days; the report (exact price, attributes, potential) shows on her card from scouting.readyOn.
+ */
 export interface ScoutingResult {
-  player: Player;
-  scoutedPotential: ScoutingResultScoutedPotential;
+  playerId: number;
+  scouting: ScoutingResultScouting;
+  days: number;
   /** How reliable the assessment is, based on scout skill. */
   confidence: ScoutingResultConfidence;
   scoutName: string;

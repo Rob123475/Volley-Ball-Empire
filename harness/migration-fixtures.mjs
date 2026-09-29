@@ -132,7 +132,7 @@ async function buildPlayedSave() {
   const all = Array.isArray(mk.data) ? mk.data : (mk.data?.players ?? []);
   const target = all.filter((p) => !p.teamId && !p.currentTeamId)[0];
   if (target) {
-    await api("POST", "/contracts", {
+    await api("POST", "/contracts", { confirm: true,
       playerId: target.id, salary: target.salary ?? 8000,
       endDate: "2026-12-31", bonusPerWin: 0, squadRole: "starter",
     });

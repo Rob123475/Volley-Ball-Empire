@@ -363,6 +363,10 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   focusXp:          integer("focus_xp").notNull().default(0),
   scoutedPotential: text("scouted_potential"),
   discoveredBy:     text("discovered_by"),
+  // Unity brief item 15: the game date this club's scout started on her. Her
+  // exact price and attributes show from 5 game days later
+  // (utils/marketScouting.ts); cleared at season end while she has no club.
+  scoutStartedOn:   text("scout_started_on"),
 
   // career-long record. What a player ACHIEVES is per career: honours are
   // counted from this career's trophies table and derived from this career's

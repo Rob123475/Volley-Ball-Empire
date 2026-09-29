@@ -188,7 +188,12 @@ const free = all.filter((p) => !p.teamId && !p.currentTeamId);
 check("transfer market is populated", free.length > 100, `${free.length} free agents`);
 check("free agents have a wage", free.filter((p) => Number(p.salary) > 0).length > 100,
   `${free.filter((p) => Number(p.salary) > 0).length} priced`);
-check("free agents have stats", free.every((p) => Number(p.speed) > 0), "all non-zero speed");
+// Unity brief item 15: an unscouted player's attributes are not sent; she has a
+// price range instead (her exact price and stats show once scouted or signed).
+check("free agents have a price range, and unscouted ones no stats sent",
+  free.every((p) => p.priceRange && p.priceRange.low > 0 && p.priceRange.high > p.priceRange.low)
+  && free.filter((p) => p.revealed === false).every((p) => p.speed == null && p.price == null),
+  `${free.filter((p) => p.revealed === false).length} unscouted of ${free.length}`);
 
 const withState = inspect(userDb);
 check("career state seeded", withState.state > 0, `${withState.state} rows`);
