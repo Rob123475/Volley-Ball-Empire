@@ -60,6 +60,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { FacilityBonusBanner } from "@/components/facility-bonus-banner";
+import { useCalendar } from "@/hooks/use-calendar";
 import { normaliseRole } from "@shared/staff-roles";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
@@ -241,16 +242,15 @@ function estimateXp(
 
 const programIds = PROGRAMS.map(p => p.id) as [ProgramId, ...ProgramId[]];
 
+// Item 18: no date or time to pick: a session starts on today's GAME date.
 const individualSchema = z.object({
   playerId:     z.string().min(1, "Select a player"),
   type:         z.enum(programIds),
-  scheduledAt:  z.string().min(1, "Required"),
   coachId:      z.string().optional(),
 });
 
 const teamSchema = z.object({
   type:        z.enum(programIds),
-  scheduledAt: z.string().min(1, "Required"),
   coachId:     z.string().optional(),
 });
 
@@ -429,14 +429,11 @@ function TrainingForm({
   const scheduleTeamMutation = useScheduleTeamTraining();
   const isTeam = scope === "team";
 
-  const individualForm = useForm<IndividualFormValues>({
-    resolver: zodResolver(individualSchema),
-    defaultValues: { scheduledAt: new Date().toISOString().slice(0, 16) },
-  });
-  const teamForm = useForm<TeamFormValues>({
-    resolver: zodResolver(teamSchema),
-    defaultValues: { scheduledAt: new Date().toISOString().slice(0, 16) },
-  });
+  const individualForm = useForm<IndividualFormValues>({ resolver: zodResolver(individualSchema) });
+  const teamForm = useForm<TeamFormValues>({ resolver: zodResolver(teamSchema) });
+  // The game date the session starts on (the server dates it; shown here).
+  const { calendar } = useCalendar();
+  const gameDate = calendar?.currentDate ?? "";
 
   const form: any = isTeam ? teamForm : individualForm;
   const selectedProgram = form.watch("type") as ProgramId | undefined;
@@ -458,7 +455,7 @@ function TrainingForm({
         type: values.type,
         focus: values.type,
         durationHours: 2,
-        scheduledAt: values.scheduledAt,
+        scheduledAt: gameDate,
         coachId: values.coachId ? parseInt(values.coachId) : undefined,
       }
     }, {
@@ -476,7 +473,7 @@ function TrainingForm({
         type: values.type,
         focus: values.type,
         durationHours: 2,
-        scheduledAt: values.scheduledAt,
+        scheduledAt: gameDate,
         coachId: values.coachId ? parseInt(values.coachId) : undefined,
       }
     }, {
@@ -580,14 +577,12 @@ function TrainingForm({
           </FormItem>
         )} />
 
-        <FormField control={form.control} name="scheduledAt" render={({ field }: any) => (
-          <FormItem>
-            <FormLabel>Scheduled At</FormLabel>
-            <FormControl>
-              <Input type="datetime-local" {...field} data-testid="input-scheduled-at" />
-            </FormControl>
-          </FormItem>
-        )} />
+        <div className="space-y-1" data-testid="session-starts">
+          <p className="text-sm font-medium">Starts</p>
+          <p className="text-sm text-muted-foreground">
+            {gameDate ? new Date(`${gameDate}T00:00:00`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : "Today"} (today, game date)
+          </p>
+        </div>
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending} data-testid="button-confirm-session">

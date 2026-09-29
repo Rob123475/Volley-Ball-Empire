@@ -130,11 +130,11 @@ function getMissionLabel(durationMonths: number): string {
   return `${durationMonths}-month mission`;
 }
 
-function getMissionProgress(startDate: string, endDate: string): number {
-  const start = new Date(startDate).getTime();
-  const end   = new Date(endDate).getTime();
-  const now   = Date.now();
-  return Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100));
+/** Item 18: when a mission completes, on the game calendar (from the server). */
+function missionCompletes(mission: any): string {
+  if (!mission?.completesOn) return "";
+  const when = new Date(`${mission.completesOn}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return `Completes ${when} (${mission.daysLeft} day${mission.daysLeft === 1 ? "" : "s"})`;
 }
 
 function getScoutTier(rating: number | null | undefined): { label: string; className: string } {
@@ -299,9 +299,8 @@ function RegionCard({
   const isCompleted = mission?.status === "completed";
   const isCollected = mission?.status === "collected";
 
-  const progress = isActive && mission
-    ? getMissionProgress(mission.startDate, mission.endDate)
-    : 0;
+  // Item 18: progress on the game calendar, from the server (was the PC's clock).
+  const progress = isActive && mission ? ((mission as any).progressPct ?? 0) : 0;
 
   return (
     <div
@@ -370,6 +369,7 @@ function RegionCard({
               <span className="font-medium">{getMissionLabel(mission.durationMonths)}</span>
             </div>
             <Progress value={progress} className="h-1.5" />
+            <p className="text-[10px] text-muted-foreground" data-testid={`mission-completes-${mission.id}`}>{missionCompletes(mission)}</p>
             <div className="flex gap-2">
               {import.meta.env.DEV && (
                 <Button

@@ -10,6 +10,7 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import { seedPlayerStateRows } from "./migrateCareerState.js";
 import { PREVIOUS_STAFF_NAMES } from "./staffNameHistory.js";
+import { PREVIOUS_YOUTH_IDENTITIES } from "./youthNameHistory.js";
 
 /**
  * Bring an older save up to the schema the running code expects.
@@ -410,6 +411,8 @@ export type EnsureReferenceDataResult = {
   seededIntoCareers: Record<number, number[]>;
   /** Staff cards renamed in the starter DB and brought up to date here (P-11). */
   renamedStaff: Array<{ id: number; from: string; to: string }>;
+  /** Unity brief item 18: academy players brought up to the starter DB's name. */
+  renamedYouth: Array<{ id: number; from: string; to: string }>;
 };
 
 function primaryKeyColumn(table: string): string | null {
@@ -451,12 +454,13 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
   const updated: Record<string, Array<string | number>> = {};
   const seededIntoCareers: Record<number, number[]> = {};
   const renamedStaff: EnsureReferenceDataResult["renamedStaff"] = [];
+  const renamedYouth: EnsureReferenceDataResult["renamedYouth"] = [];
 
   if (!starterDbPath) {
-    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated, seededIntoCareers, renamedStaff };
+    return { starterDbPath: null, skipped: "STARTER_DB_PATH not set", inserted, updated, seededIntoCareers, renamedStaff, renamedYouth };
   }
   if (!fs.existsSync(starterDbPath)) {
-    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated, seededIntoCareers, renamedStaff };
+    return { starterDbPath, skipped: `starter DB not found at ${starterDbPath}`, inserted, updated, seededIntoCareers, renamedStaff, renamedYouth };
   }
 
   const starter = new Database(starterDbPath, { readonly: true, fileMustExist: true });
@@ -636,11 +640,41 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
         })();
       }
     }
+
+    // ── Pass 5 (Unity brief item 18): academy players renamed in the starter DB
+    //
+    // The same rule as Pass 4, for youth players: a [name, nationality] pair the
+    // starter DB itself once shipped for that id was not typed by the player, so
+    // name, nationality, position and continent are brought forward together.
+    // A name the player edited is left alone.
+    if (tableExists("players")) {
+      const starterYouth = starter.prepare(`SELECT id, name, nationality, position, continent FROM players WHERE player_type = 'youth'`)
+        .all() as { id: number; name: string; nationality: string | null; position: string; continent: string | null }[];
+      const live = new Map(
+        db.all<{ id: number; name: string; nationality: string | null }>(sql.raw(`SELECT id, name, nationality FROM players WHERE player_type = 'youth'`))
+          .map((r) => [r.id, r]),
+      );
+      const due = starterYouth.filter((y) => {
+        const row = live.get(y.id);
+        if (!row || (row.name === y.name && row.nationality === y.nationality)) return false;
+        return (PREVIOUS_YOUTH_IDENTITIES[y.id] ?? []).some(([n, nat]) => n === row.name && nat === row.nationality);
+      });
+      if (due.length > 0) {
+        const rename = sqlite.prepare(`UPDATE players SET name = ?, nationality = ?, position = ?, continent = ? WHERE id = ? AND name = ?`);
+        sqlite.transaction(() => {
+          for (const y of due) {
+            const from = live.get(y.id)!.name;
+            rename.run(y.name, y.nationality, y.position, y.continent, y.id, from);
+            renamedYouth.push({ id: y.id, from, to: y.name });
+          }
+        })();
+      }
+    }
   } finally {
     starter.close();
   }
 
-  return { starterDbPath, inserted, updated, seededIntoCareers, renamedStaff };
+  return { starterDbPath, inserted, updated, seededIntoCareers, renamedStaff, renamedYouth };
 }
 
 /**

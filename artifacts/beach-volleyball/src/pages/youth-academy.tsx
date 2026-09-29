@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import {
   useGetContinentalRegions,
@@ -25,7 +25,6 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/player-portrait";
 import { YouthPlayerCard, type YouthPlayerData } from "@/components/youth-player-card";
-import rawYouthPlayers from "@/data/players_youth.json";
 import { serverMessage } from "@/lib/api-error";
 import {
   Globe,
@@ -49,7 +48,33 @@ import {
   CreditCard,
 } from "lucide-react";
 
-const ALL_YOUTH_PLAYERS = rawYouthPlayers as YouthPlayerData[];
+// Unity brief item 18 (Rob, 29 Sep): the Youth Player Database read a file
+// shipped with the game (data/players_youth.json, 10 Aug: 60 entries, 24 of them
+// male, roles like "Server", a youth "Charlotte Wade"), not the save. It now
+// lists the same youth players the Player Market's Youth section lists
+// (GET /players/youth-pool), in this career, with the game's five positions.
+const POSITION_NAMES: Record<string, string> = {
+  setter: "Setter", spiker: "Spiker", defender: "Defender", blocker: "Blocker", all_rounder: "All-Rounder",
+};
+const POTENTIAL_STARS: Record<string, number> = { Low: 1, Average: 2, High: 3, Elite: 4, Generational: 5 };
+
+function toCard(p: any): YouthPlayerData {
+  return {
+    id:            String(p.id),
+    fullName:      p.name,
+    nationality:   p.nationality,
+    age:           p.age,
+    height:        Number(p.height),
+    primaryRole:   POSITION_NAMES[p.position] ?? "All-Rounder",
+    attackRating:  p.power,
+    defenceRating: p.defense,
+    serveRating:   p.serve,
+    speedRating:   p.speed,
+    staminaRating: p.stamina,
+    // Stars only for a scouted potential; unscouted shows none.
+    potential:     p.scoutedPotential ? (POTENTIAL_STARS[p.scoutedPotential] ?? 0) : 0,
+  };
+}
 
 // ── Elite event config ─────────────────────────────────────────────────────
 
@@ -121,6 +146,17 @@ export default function YouthAcademy() {
   const signMutation   = useSignYouthProspect();
   const ignoreMutation = useIgnoreYouthProspect();
 
+  // The Player Market's own query (same key), so both pages show one list.
+  const { data: youthPool = [], isLoading: youthLoading } = useQuery<any[]>({
+    queryKey: ["players-youth-pool"],
+    queryFn: () => fetch("/api/players/youth-pool").then(r => r.json()),
+    staleTime: 30_000,
+  });
+  const ALL_YOUTH_PLAYERS = useMemo(
+    () => youthPool.filter((p) => p.age >= 14 && p.age <= 17).map(toCard),
+    [youthPool],
+  );
+
   const filteredPlayers = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return ALL_YOUTH_PLAYERS;
@@ -130,7 +166,7 @@ export default function YouthAcademy() {
         p.nationality.toLowerCase().includes(q) ||
         p.primaryRole.toLowerCase().includes(q),
     );
-  }, [search]);
+  }, [search, ALL_YOUTH_PLAYERS]);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: getGetContinentalRegionsQueryKey() });
@@ -246,7 +282,11 @@ export default function YouthAcademy() {
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" />
-                    <span>Advance seasons to complete</span>
+                    <span data-testid={`mission-completes-${m.id}`}>
+                      {(m as any).completesOn
+                        ? `Completes ${new Date(`${(m as any).completesOn}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · ${(m as any).daysLeft} day${(m as any).daysLeft === 1 ? "" : "s"} left`
+                        : "In progress"}
+                    </span>
                   </div>
                 </div>
               );
@@ -427,7 +467,7 @@ export default function YouthAcademy() {
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground -mt-2">
-          Browse all youth players from the global talent pool. Click any player to view their full profile card.
+          Every unsigned youth player (14-17) in this career: the Player Market's Youth list. Click a player for her card.
         </p>
 
         {/* Search */}
@@ -435,14 +475,16 @@ export default function YouthAcademy() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by name, nationality or role…"
+            placeholder="Search by name, nationality or position…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
-        {filteredPlayers.length === 0 ? (
+        {youthLoading ? (
+          <Skeleton className="h-24 w-full rounded-xl" />
+        ) : filteredPlayers.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">No players match your search.</p>
         ) : (
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -465,8 +507,8 @@ export default function YouthAcademy() {
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <div className="text-amber-500 text-xs tracking-wider leading-none">{potStars}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">Potential</div>
+                    <div className="text-amber-500 text-xs tracking-wider leading-none">{p.potential > 0 ? potStars : "?"}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{p.potential > 0 ? "Potential" : "Not scouted"}</div>
                   </div>
                 </button>
               );

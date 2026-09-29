@@ -30,7 +30,7 @@ const REGIONS = [
     id:           "Asia",
     name:         "Asia",
     emoji:        "🌏",
-    specialties:  ["Server", "Defender"],
+    specialties:  ["Setter", "Defender"],   // item 18: "Server" is not a position
     description:  "Disciplined technique and serve precision. Known for methodical, consistent players.",
     talentLevel:  "High",
     talentColor:  "orange",
@@ -75,15 +75,30 @@ const REGIONS = [
 
 const MISSION_COSTS: Record<number, number> = { 1: 20000, 3: 45000, 6: 75000 };
 
-// Real-time days per in-game month. Keeping these short so gameplay stays
-// responsive; the display always shows game months, never real-day counts.
-const MISSION_DURATIONS_DAYS: Record<number, number> = { 1: 3, 3: 7, 6: 14 };
+// Unity brief item 18 (Rob, 29 Sep): a "1-month" mission ran 3 REAL days (3
+// months 7, 6 months 14) on the PC's clock, so the page could only say "Advance
+// seasons to complete". A mission now runs its months on the GAME calendar: it
+// starts on the game date it is sent and completes that many months later, and
+// the page says on which date.
+const DAY_MS = 86_400_000;
+/** A game date (YYYY-MM-DD) as the timestamp the mission columns store. */
+const gameDay = (date: string) => new Date(`${date}T00:00:00Z`);
+const isoDay = (d: Date) => new Date(d).toISOString().slice(0, 10);
+function addMonths(date: string, months: number): string {
+  const d = gameDay(date);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return isoDay(d);
+}
+/** Missions sent before this rule ran on real days (at most 14); none sent since is shorter than a month. */
+const isRealTimeMission = (m: { startDate: Date; endDate: Date }) =>
+  new Date(m.endDate).getTime() - new Date(m.startDate).getTime() <= 14.5 * DAY_MS;
 
 
 // ── Helper: auto-complete missions whose endDate has passed ───────────────
 
 export async function autoCompleteContinentalMissions(teamId: number): Promise<void> {
-  const now = new Date();
+  const today = await getGameDate(teamId);
+  const now = gameDay(today);
   const active = await db
     .select()
     .from(continentalScoutingMissionsTable)
@@ -95,6 +110,18 @@ export async function autoCompleteContinentalMissions(teamId: number): Promise<v
     );
 
   for (const mission of active) {
+    // Item 18: a mission sent under the old real-time rule keeps the real days
+    // it had left, as game days from today, and runs on the game calendar.
+    if (isRealTimeMission(mission)) {
+      const total = Math.round((new Date(mission.endDate).getTime() - new Date(mission.startDate).getTime()) / DAY_MS);
+      const left = Math.max(0, Math.ceil((new Date(mission.endDate).getTime() - Date.now()) / DAY_MS));
+      const endDate = new Date(now.getTime() + left * DAY_MS);
+      const startDate = new Date(endDate.getTime() - Math.max(total, 1) * DAY_MS);
+      await db.update(continentalScoutingMissionsTable)
+        .set({ startDate, endDate })
+        .where(eq(continentalScoutingMissionsTable.id, mission.id));
+      mission.endDate = endDate;
+    }
     if (new Date(mission.endDate) <= now) {
       await db
         .update(continentalScoutingMissionsTable)
@@ -112,6 +139,7 @@ router.get("/continental-scouting/regions", async (req, res) => {
   if (!team) { res.status(404).json({ error: "No team found" }); return; }
 
   await autoCompleteContinentalMissions(team.id);
+  const today = await getGameDate(team.id);
 
   const activeMissions = await db
     .select()
@@ -143,6 +171,11 @@ router.get("/continental-scouting/regions", async (req, res) => {
             durationMonths: m.durationMonths,
             startDate:      m.startDate,
             endDate:        m.endDate,
+            // Item 18: when it completes, on the game calendar.
+            completesOn:    isoDay(m.endDate),
+            daysLeft:       Math.max(0, Math.round((new Date(m.endDate).getTime() - gameDay(today).getTime()) / DAY_MS)),
+            progressPct:    Math.min(100, Math.max(0, Math.round(
+              ((gameDay(today).getTime() - new Date(m.startDate).getTime()) / Math.max(DAY_MS, new Date(m.endDate).getTime() - new Date(m.startDate).getTime())) * 100))),
             assignedStaffId: m.assignedStaffId,
             cost:           Number(m.cost),
             prospectsFound: m.prospectsFound,
@@ -206,8 +239,10 @@ router.post("/continental-scouting/start", async (req, res) => {
     return;
   }
 
-  const endDate = new Date();
-  endDate.setDate(endDate.getDate() + (MISSION_DURATIONS_DAYS[durationMonths as keyof typeof MISSION_DURATIONS_DAYS] ?? 1));
+  // Item 18: the mission's months, on the game calendar.
+  const sentOn = await getGameDate(team.id);
+  const startDate = gameDay(sentOn);
+  const endDate = gameDay(addMonths(sentOn, durationMonths));
 
   const [mission] = await db
     .insert(continentalScoutingMissionsTable)
@@ -216,6 +251,7 @@ router.post("/continental-scouting/start", async (req, res) => {
       region,
       status:         "active",
       durationMonths,
+      startDate,
       endDate,
       assignedStaffId: staffId ?? null,
       cost,
@@ -269,10 +305,10 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
     return;
   }
 
-  const now = new Date();
+  const now = gameDay(await getGameDate(team.id));
   if (mission.status === "active" && new Date(mission.endDate) > now) {
-    const remaining = Math.ceil((new Date(mission.endDate).getTime() - now.getTime()) / (1000 * 60 * 60));
-    res.status(422).json({ error: `Mission still in progress. ${remaining}h remaining.` });
+    const remaining = Math.ceil((new Date(mission.endDate).getTime() - now.getTime()) / DAY_MS);
+    res.status(422).json({ error: `Mission still in progress: it completes on ${isoDay(mission.endDate)}, ${remaining} game day${remaining === 1 ? "" : "s"} from now.` });
     return;
   }
 
@@ -428,7 +464,7 @@ router.post("/continental-scouting/missions/:id/dev-complete", async (req, res) 
     );
   if (!mission) { res.status(404).json({ error: "Mission not found" }); return; }
 
-  const past = new Date(Date.now() - 1000);
+  const past = gameDay(await getGameDate(team.id));
   await db
     .update(continentalScoutingMissionsTable)
     .set({ status: "completed", endDate: past })

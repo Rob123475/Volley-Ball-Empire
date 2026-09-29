@@ -9,6 +9,7 @@ import { trainingStaffBonuses } from "../utils/staffBonuses.js";
 import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession } from "@workspace/db";
+import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -354,8 +355,12 @@ router.post("/training", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
-  const { playerId, type, focus, durationHours, scheduledAt, coachId } = req.body;
+  const { playerId, type, focus, durationHours, coachId } = req.body;
   const programName = resolveProgram(type);
+  // Unity brief item 18: a session is dated on the GAME calendar. The page
+  // offered the PC's date and time (e.g. 29/09/2026 02:34 AM, in UTC) and sent
+  // it; a player does not pick a real-world time at all.
+  const scheduledAt = await getGameDate(team.id);
   const [session] = await db.insert(trainingSessionsTable).values({
     teamId: team.id,
     playerId: Number(playerId),
@@ -372,8 +377,9 @@ router.post("/training/team", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
-  const { type, focus, durationHours, scheduledAt, coachId } = req.body;
+  const { type, focus, durationHours, coachId } = req.body;
   const programName = resolveProgram(type);
+  const scheduledAt = await getGameDate(team.id);   // item 18: the game date, not the PC's
 
   const activePlayers = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true });
   if (activePlayers.length === 0) { res.status(400).json({ error: "No active players" }); return; }
@@ -472,9 +478,14 @@ router.get("/training/plan", async (req, res) => {
   const load = scheduled.length > 6 ? "peak" : scheduled.length > 4 ? "intense" : scheduled.length > 2 ? "moderate" : "light";
 
   const players = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
-  const avgFitness = players.length > 0 ? players.reduce((acc, p) => acc + p.stamina, 0) / players.length : 80;
+  // Unity brief item 18: ONE fitness figure. "Fitness" here was the squad's
+  // average STAMINA stat (80%) while the top bar said 98% FIT; it is now the
+  // top bar's own figure: average fitness of the active squad (GET /calendar's
+  // teamFitness), and fatigue likewise.
+  const active = players.filter((p) => p.isActive);
+  const avgFitness = active.length > 0 ? active.reduce((acc, p) => acc + p.fitness, 0) / active.length : 0;
   const avgMorale  = players.length > 0 ? players.reduce((acc, p) => acc + p.morale,  0) / players.length : 80;
-  const avgFatigue = players.length > 0 ? players.reduce((acc, p) => acc + p.fatigue, 0) / players.length : 0;
+  const avgFatigue = active.length > 0 ? active.reduce((acc, p) => acc + p.fatigue, 0) / active.length : 0;
 
   res.json({
     weeklyLoad: load,
