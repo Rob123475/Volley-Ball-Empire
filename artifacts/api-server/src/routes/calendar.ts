@@ -162,13 +162,15 @@ router.get("/calendar", async (req, res) => {
 
   let calendar = await getOrCreateCalendar(team.id, season);
 
-  // Auto-dismiss if pending match was completed elsewhere
+  // Auto-dismiss if pending match was completed elsewhere. Unity brief item 11:
+  // after every match the calendar stays PAUSED on the dashboard; the player
+  // starts it again (Advance, a speed button or Next match). It used to jump
+  // back to the speed it had before the match and run on to the next one.
   if (calendar.pendingMatchId) {
     const matchRows = await db.select().from(matchesTable).where(eq(matchesTable.id, calendar.pendingMatchId)).limit(1);
     if (matchRows[0]?.status === "completed") {
-      const restoreSpeed = (calendar.preMatchSpeed ?? "medium") as "slow" | "medium" | "fast";
       const updated = await db.update(calendarStateTable)
-        .set({ pendingMatchId: null, calendarSpeed: restoreSpeed, preMatchSpeed: null, updatedAt: new Date() })
+        .set({ pendingMatchId: null, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
         .where(eq(calendarStateTable.teamId, team.id))
         .returning();
       if (updated[0]) calendar = updated[0];
@@ -319,9 +321,9 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     if (matchRows[0]?.status !== "completed") {
       return { status: 200, body: { blocked: "pending_match", pendingMatchId: calendar.pendingMatchId, currentDate: calendar.currentDate } };
     }
-    const advRestoreSpeed = (calendar.preMatchSpeed ?? "medium") as "slow" | "medium" | "fast";
+    // Item 11: a match has just been played; the clock stays paused.
     const updated = await db.update(calendarStateTable)
-      .set({ pendingMatchId: null, calendarSpeed: advRestoreSpeed, preMatchSpeed: null, updatedAt: new Date() })
+      .set({ pendingMatchId: null, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
       .where(eq(calendarStateTable.teamId, team.id))
       .returning();
     if (updated[0]) calendar = updated[0];
@@ -436,7 +438,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
 
     if (matchToday) {
       await db.update(calendarStateTable)
-        .set({ pendingMatchId: matchToday.id, calendarSpeed: "pause", preMatchSpeed: calendar.calendarSpeed, updatedAt: new Date() })
+        .set({ pendingMatchId: matchToday.id, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
         .where(eq(calendarStateTable.teamId, team.id));
 
       return { status: 200, body: {
@@ -886,11 +888,9 @@ router.post("/calendar/dismiss-match", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(401).json({ error: "No active team" }); return; }
 
-  const calRows = await db.select().from(calendarStateTable).where(eq(calendarStateTable.teamId, team.id)).limit(1);
-  const restoreSpeed = (calRows[0]?.preMatchSpeed ?? "medium") as "slow" | "medium" | "fast";
-
+  // Item 11: after the match, paused.
   await db.update(calendarStateTable)
-    .set({ pendingMatchId: null, calendarSpeed: restoreSpeed, preMatchSpeed: null, updatedAt: new Date() })
+    .set({ pendingMatchId: null, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
 
   res.json({ success: true });
@@ -922,11 +922,10 @@ router.post("/calendar/skip-match", async (req, res) => {
     return;
   }
 
-  // Advance date by 1, clear pending, restore pre-match speed
+  // Advance date by 1 and clear pending. Item 11: the clock stays paused.
   const nextDate = addDays(calendar.currentDate, 1);
-  const restoreSpeed = (calendar.preMatchSpeed ?? "medium") as "slow" | "medium" | "fast";
   await db.update(calendarStateTable)
-    .set({ pendingMatchId: null, currentDate: nextDate, calendarSpeed: restoreSpeed, preMatchSpeed: null, updatedAt: new Date() })
+    .set({ pendingMatchId: null, currentDate: nextDate, calendarSpeed: "pause", preMatchSpeed: null, updatedAt: new Date() })
     .where(eq(calendarStateTable.teamId, team.id));
 
   res.json({ success: true, newDate: nextDate });
