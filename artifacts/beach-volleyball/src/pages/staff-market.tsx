@@ -287,7 +287,14 @@ function StaffMarketCard({
         {/* Actions */}
         {!isOwned && (
           <div className="flex gap-2">
-            {!revealed && (
+            {/* Item 17: a scouted card keeps its report; the Scout button
+                becomes a red "Scouted" label (no second charge). */}
+            {revealed ? (
+              <span className="inline-flex items-center gap-1 rounded-md border border-red-500/40 bg-red-500/10 px-2 text-xs font-bold text-red-600 dark:text-red-400 shrink-0 select-none" data-testid={`scouted-${member.id}`}>
+                <Eye className="h-3.5 w-3.5" />
+                Scouted
+              </span>
+            ) : (
               hasCoach ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

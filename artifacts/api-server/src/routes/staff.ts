@@ -330,6 +330,12 @@ router.post("/staff/:id/scout", async (req, res) => {
   await db.update(teamsTable)
     .set({ budget: currentBudget - STAFF_SCOUT_COST })
     .where(eq(teamsTable.id, team.id));
+  // Item 17: the $1,000 was taken from the balance with no ledger row, so the
+  // ledger stopped reconciling to the balance (item 13) after every scout.
+  await db.insert(financeTransactionsTable).values({
+    teamId: team.id, type: "expense", amount: STAFF_SCOUT_COST, category: "scouting",
+    description: `Staff scouting: ${member.name} (${member.role})`, date: await getGameDate(team.id),
+  });
 
   // Scouting is per-career knowledge: revealing someone in one save must not
   // reveal them in another.

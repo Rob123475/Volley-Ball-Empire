@@ -135,6 +135,8 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // Unity brief item 15: scout reports on players without a club lapse with
     // the season (after retirements, so a player who retired is not counted).
     w.lapseMarketScouting(careerSaveId);
+    // Item 17: and so do scout reports on staff and medical staff not hired.
+    w.lapseStaffScouting(careerSaveId);
 
     tx.update(seasonsTable)
       .set({ status: "completed" })

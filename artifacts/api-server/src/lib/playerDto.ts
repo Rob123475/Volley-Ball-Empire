@@ -432,6 +432,12 @@ export type CareerStateTx = {
    */
   lapseMarketScouting(careerSaveId: number): number;
   /**
+   * Unity brief item 17: a scout report on a member of staff (Staff or Medical
+   * Market) lasts until the end of the season, like a player's. Anyone the club
+   * has not hired is unrevealed again; a hired person keeps everything.
+   */
+  lapseStaffScouting(careerSaveId: number): number;
+  /**
    * Retire everyone at or past the age threshold, returning who went. They also
    * leave their club, so the squad slot is free for the youth promotion that
    * follows in the same boundary.
@@ -536,6 +542,17 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           isNull(careerPlayerStateTable.teamId),
           or(isNotNull(careerPlayerStateTable.scoutStartedOn), isNotNull(careerPlayerStateTable.scoutedPotential)),
+        ))
+        .run();
+      return Number((r as { changes?: number }).changes ?? 0);
+    },
+    lapseStaffScouting(careerSaveId) {
+      const r = tx.update(careerStaffStateTable)
+        .set({ isScoutRevealed: false, updatedAt: new Date() })
+        .where(and(
+          eq(careerStaffStateTable.careerSaveId, careerSaveId),
+          isNull(careerStaffStateTable.teamId),
+          eq(careerStaffStateTable.isScoutRevealed, true),
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);
