@@ -895,7 +895,7 @@ export default function Dashboard() {
           summary={`${facilitiesData.length} facilities`}
         >
           <FacilitiesSnapshot
-            facilities={facilitiesData.map(f => ({ type: f.type, level: f.level }))}
+            facilities={facilitiesData.map(f => ({ type: f.type, level: f.level, upgradingToLevel: f.upgradingToLevel ?? null }))}
             budget={finance?.balance ?? 0}
           />
         </CollapsiblePanel>
@@ -1670,13 +1670,14 @@ function FacilitiesSnapshot({
   facilities,
   budget,
 }: {
-  facilities: { type: string; level: number }[];
+  facilities: { type: string; level: number; upgradingToLevel: number | null }[];
   budget: number;
 }) {
   const [, navigate] = useLocation();
   if (!facilities || facilities.length === 0) return null;
 
   const byType = Object.fromEntries(facilities.map(f => [f.type, f.level]));
+  const buildingTo = Object.fromEntries(facilities.map(f => [f.type, f.upgradingToLevel]));
 
   return (
     <Card className="border-border/60">
@@ -1702,7 +1703,9 @@ function FacilitiesSnapshot({
             const level = byType[fac.key] ?? 1;
             const pct = (level / MAX_FAC_LEVEL) * 100;
             const upgradeCost = level * 20_000;
-            const canUpgrade = level < MAX_FAC_LEVEL && budget >= upgradeCost;
+            // D-1: a building under construction has its next level bought already.
+            const underConstruction = buildingTo[fac.key] != null;
+            const canUpgrade = !underConstruction && level < MAX_FAC_LEVEL && budget >= upgradeCost;
             const isMax = level >= MAX_FAC_LEVEL;
 
             return (
@@ -1764,6 +1767,12 @@ function FacilitiesSnapshot({
                 <div className="text-[9px] text-muted-foreground leading-tight line-clamp-2 min-h-[2em]">
                   {fac.benefitAt(level)}
                 </div>
+
+                {underConstruction && (
+                  <div className="mt-1.5 text-[9px] font-bold text-muted-foreground">
+                    Building Lv {buildingTo[fac.key]}
+                  </div>
+                )}
 
                 {/* Upgrade cost hint */}
                 {canUpgrade && (

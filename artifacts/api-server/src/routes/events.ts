@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { eq, and, or, desc, asc, isNotNull } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
+import { completeDueUpgrades } from "../utils/facilityUpgrades.js";
 import { getActiveSeason, getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import { isOlympicYear, nextOlympicsYear, olympicDate, olympicTournament } from "../utils/olympics.js";
@@ -211,6 +212,7 @@ router.get("/events/upcoming", async (req, res) => {
     ? (activeSeason.year - 2026) * 70 + activeSeason.currentRound
     : 0;
 
+  await completeDueUpgrades(team.id, currentRound);
   const facilities = await db
     .select()
     .from(facilitiesTable)

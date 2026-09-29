@@ -15,6 +15,8 @@ import { eq, and } from "drizzle-orm";
 import { getGameDate } from "../utils/gameDate.js";
 import { CONTRACT_WARNING_DAYS } from "../utils/contractTerms.js";
 import { isMedicalRole } from "@workspace/db";
+import { getActiveSeason } from "../lib/getActiveSeason.js";
+import { absoluteRound, canStartUpgrade, completeDueUpgrades, upgradeCost } from "../utils/facilityUpgrades.js";
 
 const router = Router();
 
@@ -51,6 +53,10 @@ router.get("/attention-items", async (req, res) => {
 
   const budget = Number(team.budget);
   const now = new Date();
+
+  // Collect any build that has finished, so the cards below read the level the
+  // building really is (saves from before builds finished on the clock).
+  await completeDueUpgrades(team.id, absoluteRound(await getActiveSeason(req)));
 
   const [players, staff, prospects, completedMissions, allFacilities] = await Promise.all([
     loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id, isActive: true }),
@@ -261,13 +267,15 @@ router.get("/attention-items", async (req, res) => {
   }
 
   // ── Facility upgrades affordable (blue, top 3 by upgrade impact) ─────────────
+  // D-1: a building already under construction is not "ready" — its next
+  // level has been bought.
   const upgradeable = allFacilities
-    .filter(f => f.level < 10 && budget >= f.level * 20_000)
+    .filter(f => canStartUpgrade(f) && budget >= upgradeCost(f.level))
     .sort((a, b) => a.level - b.level)
     .slice(0, 3);
 
   for (const f of upgradeable) {
-    const cost = f.level * 20_000;
+    const cost = upgradeCost(f.level);
     items.push({
       id: `upgrade-${f.type}`,
       priority: "blue",

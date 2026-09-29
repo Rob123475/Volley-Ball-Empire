@@ -49,6 +49,7 @@ import {
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
 import { promotionsMultiplier } from "../utils/staffBonuses.js";
+import { absoluteRound, completeDueUpgrades } from "../utils/facilityUpgrades.js";
 
 
 const router = Router();
@@ -670,6 +671,11 @@ router.post("/calendar/advance", async (req, res) => {
       .set({ currentRound: newRound })
       .where(eq(seasonsTable.id, season.id));
   }
+
+  // 7a. D-1: a facility build finishes on the day its round arrives, so its
+  // new level counts from that day for every bonus and every screen. It used
+  // to wait until someone opened the Facilities page.
+  await completeDueUpgrades(team.id, absoluteRound({ year: season.year, currentRound: Math.max(newRound, season.currentRound) }));
 
   // 7b. R-53: the board's day — the season target once the World Tour is
   // drawn, the monthly check of the standings (warning, spending freeze), and
