@@ -262,9 +262,17 @@ export function useCalendar() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["calendar"] }),
   });
 
+  // Unity brief item 12: a match result moves the record, the standings, the
+  // ranking points, the recent results, the ladder, the money and the board -
+  // every screen's data, not just the calendar's. The dashboard stays mounted
+  // under the MATCH DAY box and window-focus refetching is off, so anything
+  // not refreshed here stayed as it was before the match (Rob, 4 Mar: record
+  // 1-1 and "Currently: 11th" after four matches).
+  const refreshAfterMatch = () => queryClient.invalidateQueries();
+
   const dismissMatchMutation = useMutation({
     mutationFn: () => apiFetch("/api/calendar/dismiss-match", { method: "POST" }),
-    onSuccess:  () => queryClient.invalidateQueries({ queryKey: ["calendar"] }),
+    onSuccess:  refreshAfterMatch,
   });
 
   // R-29: "Skip for now (auto-sim in background)" plays the match through the
@@ -276,7 +284,7 @@ export function useCalendar() {
       if (endIfFired(played, () => queryClient.clear())) return played;
       return apiFetch("/api/calendar/skip-match", { method: "POST" });
     },
-    onSuccess:  () => queryClient.invalidateQueries({ queryKey: ["calendar"] }),
+    onSuccess:  refreshAfterMatch,
   });
 
   const simulateMatchMutation = useMutation<unknown, Error, number>({
@@ -284,6 +292,7 @@ export function useCalendar() {
       apiFetch(`/api/matches/${matchId}/simulate`, { method: "POST" }),
     onSuccess: (played) => {
       if (endIfFired(played, () => queryClient.clear())) return;
+      refreshAfterMatch();
       dismissMatchMutation.mutate();
     },
   });

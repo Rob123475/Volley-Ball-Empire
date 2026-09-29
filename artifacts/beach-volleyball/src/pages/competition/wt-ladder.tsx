@@ -79,7 +79,7 @@ export default function WtLadder() {
                   <th className="h-8 px-3 text-left text-[10px] font-medium text-muted-foreground">Team</th>
                   <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-10">W</th>
                   <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-10">L</th>
-                  <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-20 hidden md:table-cell">Sets +/−</th>
+                  <th className="h-8 px-2 text-center text-[10px] font-medium text-muted-foreground w-20 hidden md:table-cell">Sets</th>
                   <th className="h-8 px-3 text-right text-[10px] font-medium text-muted-foreground w-14">Pts</th>
                 </tr>
               </thead>

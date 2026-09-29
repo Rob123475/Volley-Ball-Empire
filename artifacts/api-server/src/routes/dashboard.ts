@@ -35,7 +35,9 @@ router.get("/dashboard", async (req, res) => {
 
   const recentMatches = await db.select().from(matchesTable)
     .where(and(eq(matchesTable.homeTeamId, team.id), eq(matchesTable.status, "completed")))
-    .orderBy(desc(matchesTable.createdAt)).limit(5);
+    // Item 12: newest PLAYED first. Every fixture of a season is created at the
+    // same moment with the career, so createdAt put them in no useful order.
+    .orderBy(desc(matchesTable.season), desc(matchesTable.round)).limit(5);
 
   // Ordered by round: with no order, findFirst returned whichever row SQLite
   // handed back first, which only matched round order by accident.

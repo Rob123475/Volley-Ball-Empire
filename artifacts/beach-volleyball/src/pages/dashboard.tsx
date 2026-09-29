@@ -335,8 +335,10 @@ export default function Dashboard() {
   const team        = dashboard?.team;
   const finance     = dashboard?.financeSummary;
   const monthlyNet  = finance?.monthlyNet ?? 0;
-  const wins        = team?.wins  ?? 0;
-  const losses      = team?.losses ?? 0;
+  // Item 12: this season's record, from the standings (the WT Standings page's
+  // own source). team.wins/losses count every season the club has played.
+  const wins        = dashboard?.seasonStanding?.wins ?? 0;
+  const losses      = dashboard?.seasonStanding?.losses ?? 0;
   const streak      = team?.winStreak ?? 0;
   const rank        = dashboard?.seasonStanding?.rank ?? null;
   const rankPts     = dashboard?.seasonStanding?.points ?? 0;
