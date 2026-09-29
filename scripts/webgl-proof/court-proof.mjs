@@ -118,10 +118,21 @@ try {
     await size(SIZES[0]);
   }
   if (UNTIL_FINISHED > 0) {
+    // Frames every 2 s, the last four kept: the ones just before
+    // "unity-match-finished" show the result banner (item 8).
+    const ring = [];
     while (Date.now() - t0 < UNTIL_FINISHED * 1000) {
       const msgs = await evalJs("window.__msgs");
       if ((msgs ?? []).some((m) => m.data === "unity-match-finished")) break;
-      await sleep(1000);
+      const shot = await send("Page.captureScreenshot", { format: "png" });
+      ring.push({ at: Math.round((Date.now() - t0) / 1000), data: shot.result.data });
+      if (ring.length > 4) ring.shift();
+      await sleep(2000);
+    }
+    for (const f of ring) {
+      const file = path.join(outDir, `court-end-t${String(f.at).padStart(4, "0")}.png`);
+      fs.writeFileSync(file, Buffer.from(f.data, "base64"));
+      summary.shots.push(path.basename(file));
     }
   }
   summary.messages = await evalJs("window.__msgs.map(m => ({ data: m.data, afterSeconds: Math.round((m.t - window.__opened) / 100) / 10 }))");
