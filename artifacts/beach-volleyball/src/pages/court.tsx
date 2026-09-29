@@ -169,7 +169,10 @@ export default function ThreeDCourt() {
             <Loader2
               style={{ width: 12, height: 12, animation: "spin 1s linear infinite" }}
             />
-            <span>Loading Unity 3D build — this may take 1–2 minutes on first load (637 MB)…</span>
+            {/* Unity brief item 6: the download size shown here was stale
+                and changes with every export, so no number. The court's page
+                posts "unity-loaded" when it is ready, which hides this strip. */}
+            <span>Loading the 3D court…</span>
           </div>
         )}
       </div>
