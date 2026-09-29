@@ -218,10 +218,20 @@ try {
   const sales = [];
   const leagueSizes = [];
   let seasons = 0, stopped = "";
+  // The player's own club is not this suite's subject: its sale is L-02e's
+  // (harness/job-market.mjs). Five loss-making seasons in a row would sell it
+  // and end the world's run early, which happened about 1 run in 6 (29 Sep).
+  // So its balance never ends a day below where its season began.
+  const budgetOf = () => Number(read(`SELECT budget AS b FROM teams WHERE id = ?`, teamId)[0].b);
+  let seasonStart = budgetOf();
 
   for (let i = 0; i < 20000 && seasons < SEASONS; i++) {
     healAllSquads(dbFile);
     keepClubSolvent(dbFile, teamId);
+    {
+      const now = budgetOf();
+      if (now < seasonStart) keepClubSolvent(dbFile, teamId, seasonStart - now + 1, Number.MAX_SAFE_INTEGER);
+    }
     await keepSideFielded(api);
     await renewExpiringContracts(api);
     const r = await api("POST", "/calendar/advance", {});
@@ -236,6 +246,7 @@ try {
     if (!r.data?.seasonRollover || r.data.seasonRollover.kind === "none") continue;
 
     seasons++;
+    seasonStart = budgetOf();
     for (const row of read(
       `SELECT pool_team_id AS id, balance AS b FROM career_pool_team_state WHERE career_save_id = ?`,
       careerSaveId)) {

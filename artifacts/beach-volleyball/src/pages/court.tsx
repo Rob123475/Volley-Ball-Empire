@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Monitor, UploadCloud, Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
+import { Monitor, UploadCloud, Loader2, LogOut } from "lucide-react";
 import {
   useListCareerSaves,
   getListCareerSavesQueryKey,
@@ -11,6 +13,10 @@ export default function ThreeDCourt() {
   const [buildState, setBuildState] = useState<BuildState>("checking");
   const [unityLoaded, setUnityLoaded] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
+  const [leaving, setLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
   // Unity reads this from its own iframe location and calls
@@ -50,13 +56,67 @@ export default function ThreeDCourt() {
   // Listen for a postMessage from the Unity iframe to know it finished loading.
   // Unity calls this automatically when the game is ready if we add the hook.
   // As a fallback we also poll a flag set by the Unity HTML when it finishes.
+  // Unity brief item 5: when the match is over the court shows its result for
+  // five seconds, then says "unity-match-finished": the result is already
+  // recorded, so this goes straight back to the dashboard, with every screen's
+  // data refreshed.
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
       if (e.data === "unity-loaded") setUnityLoaded(true);
+      if (e.data === "unity-match-finished") {
+        queryClient.invalidateQueries();
+        navigate("/");
+      }
     }
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [navigate, queryClient]);
+
+  // Unity brief item 5: the only way out used to be closing the game. Leaving
+  // mid-match finishes it from the last score the court sent (item 4) and goes
+  // back to the dashboard.
+  async function leaveMatch() {
+    setLeaving(true);
+    setLeaveError(null);
+    try {
+      if (matchId) {
+        const r = await fetch(`/api/matches/${matchId}/leave`, { method: "POST", credentials: "same-origin" });
+        if (!r.ok && r.status !== 409) throw new Error(`HTTP ${r.status}`);
+      }
+      queryClient.invalidateQueries();
+      navigate("/");
+    } catch (err) {
+      setLeaveError(err instanceof Error ? err.message : String(err));
+      setLeaving(false);
+    }
+  }
+
+  const leaveBar = (
+    <div
+      data-testid="court-leave-bar"
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
+        padding: "6px 12px", background: "rgba(0,0,0,0.9)", borderBottom: "1px solid rgba(255,255,255,0.1)",
+        flexShrink: 0, color: "rgba(255,255,255,0.7)", fontSize: "12px",
+      }}
+    >
+      <span>{leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving now finishes the match from the score so far." : ""}</span>
+      <button
+        type="button"
+        data-testid="button-leave-match"
+        onClick={leaveMatch}
+        disabled={leaving}
+        style={{
+          display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "6px",
+          background: "rgba(255,255,255,0.12)", color: "white", fontWeight: 700, fontSize: "12px",
+          border: "1px solid rgba(255,255,255,0.25)", cursor: leaving ? "default" : "pointer", opacity: leaving ? 0.6 : 1,
+        }}
+      >
+        {leaving ? <Loader2 style={{ width: 14, height: 14 }} /> : <LogOut style={{ width: 14, height: 14 }} />}
+        {matchId ? "Leave match" : "Back to dashboard"}
+      </button>
+    </div>
+  );
 
   if (buildState === "checking" || !careerSettled) {
     return (
@@ -72,6 +132,7 @@ export default function ThreeDCourt() {
   if (buildState === "available") {
     return (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+        {leaveBar}
         <iframe
           ref={iframeRef}
           src={`${import.meta.env.BASE_URL}unity-build/index.html${unityQuery}`}
