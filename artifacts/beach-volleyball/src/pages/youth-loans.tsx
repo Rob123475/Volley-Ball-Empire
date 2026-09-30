@@ -95,7 +95,7 @@ export default function YouthLoans() {
           <span className="text-sm text-muted-foreground" data-testid="academy-count">{data.academySize} of {data.cap} places (your youths out on loan included)</span>
         </div>
         {data.academy.length === 0 && <p className="text-sm text-muted-foreground">No one in the academy yet.</p>}
-        {[["Youth team", team], ["Reserves", reserves]].map(([label, rows]) => (
+        {[["Youth team", team], ["Reserves", reserves]].filter(([, rows]) => (rows as AcademyRow[]).length > 0).map(([label, rows]) => (
           <div key={label as string} className="space-y-2">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label as string}</div>
             {(rows as AcademyRow[]).map((a) => (
