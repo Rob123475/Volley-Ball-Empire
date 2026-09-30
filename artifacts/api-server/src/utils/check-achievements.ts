@@ -30,6 +30,7 @@ export async function developedPlayers(teamId: number): Promise<number> {
   return developed;
 }
 import { announceUnlocked } from "./steamBridge.js";
+import { getGameDate } from "./gameDate.js";
 
 export const DEFAULT_CAREER_STATS: CareerStats = {
   matchesWon: 0,
@@ -170,7 +171,8 @@ export async function checkAchievements(teamId: number, season?: number): Promis
     if (def.check(team, derivedStats)) {
       await db
         .insert(achievementsTable)
-        .values({ teamId, achievementKey: def.key, seasonUnlocked: season ?? null })
+        // Overnight 30 Sep item 3: dated on the GAME calendar (it was the PC's clock).
+        .values({ teamId, achievementKey: def.key, seasonUnlocked: season ?? null, unlockedAt: new Date(`${await getGameDate(teamId)}T00:00:00Z`) })
         .onConflictDoNothing();
       newlyUnlocked.push(def.key);
     }

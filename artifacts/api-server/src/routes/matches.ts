@@ -947,8 +947,9 @@ export async function completeMatch(
       });
     }
 
-    // Record individual injury history entries
-    const now = new Date();
+    // Record individual injury history entries. Overnight 30 Sep item 3: on the
+    // game date (it was the PC's clock).
+    const now = new Date(`${await getGameDate(team.id)}T00:00:00Z`);
     await db.insert(injuryHistoryTable).values(
       newInjuryEvents.map(e => ({
         teamId:      team.id,

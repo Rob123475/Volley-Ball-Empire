@@ -1,3 +1,4 @@
+import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { sqlite } from "@workspace/db";
@@ -174,6 +175,16 @@ try {
 finishAbandonedWatchedMatches()
   .then((n) => { if (n.length > 0) logger.info({ finished: n }, "watched matches left open were finished from their last score"); })
   .catch((err) => logger.error({ err }, "finishing abandoned watched matches failed"));
+
+// Overnight 30 Sep item 3: records written on the PC's clock before the game
+// dated them itself (achievement unlocks, training sessions, injuries, ledger
+// lines, contract starts, finished scouting missions) move to their game date.
+try {
+  const dates = convertRealWorldDates();
+  if (Object.keys(dates).length > 0) logger.info({ converted: dates }, "real-world dates converted to game dates");
+} catch (err) {
+  logger.error({ err }, "real-world date conversion failed");
+}
 
 // D-3: facility upgrades booked before facility names were shared read
 // "training complex"; they now read as the building's own name.
