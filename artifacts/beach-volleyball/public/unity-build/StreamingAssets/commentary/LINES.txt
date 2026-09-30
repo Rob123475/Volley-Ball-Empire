@@ -1,0 +1,52 @@
+Commentary clips the 3D match plays (overnight brief 30 Sep, item 21).
+Replace any file with one of the same name (MP3). Lines: Downloads\bve-commentary\COMMENTARY-SCRIPT.md.
+Voices: ElevenLabs, A = Kailey, B = Hukum (eleven_v4, [excited]); scripts/elevenlabs-commentary.mjs regenerates them.
+
+A_serve_1.mp3	Jump float serve, dancing over the net!
+A_serve_2.mp3	She goes deep to the back corner!
+A_serve_3.mp3	Short serve, right at the seam!
+A_dig_1.mp3	What a dig! She read that cut shot!
+A_dig_2.mp3	Full stretch in the sand, and she gets it up!
+A_dig_3.mp3	Great defence! Pure anticipation!
+A_set_1.mp3	A clean hand set, right on the money!
+A_set_2.mp3	Nice bump set, tight to the net!
+A_set_3.mp3	Perfect set! Now she has options!
+A_spike_1.mp3	She winds up and swings hard!
+A_spike_2.mp3	Here comes the cut shot!
+A_spike_3.mp3	Big swing, looking for the line!
+A_blockattempt_1.mp3	She's up at the net to block!
+A_blockattempt_2.mp3	The blocker takes away the line!
+A_blockattempt_3.mp3	Big block jump, arms reaching over!
+A_block_1.mp3	What a block!
+A_block_2.mp3	She gets both hands on it!
+A_block_3.mp3	Huge block at the net!
+A_point_1.mp3	And that's the point!
+A_point_2.mp3	Point won! The crowd loves it!
+A_point_3.mp3	They take the point!
+A_rally_1.mp3	What a rally that was!
+A_rally_2.mp3	Long exchange! Both teams dug deep!
+A_rally_3.mp3	The crowd's on its feet after that one!
+B_serve_1.mp3	Big topspin serve, heavy on the receiver!
+B_serve_2.mp3	She serves at the weaker passer again!
+B_serve_3.mp3	A sky ball! She's using the sun!
+B_dig_1.mp3	She pulls off the net and digs it!
+B_dig_2.mp3	Tomahawk dig! The rally lives on!
+B_dig_3.mp3	Sand everywhere, but the ball's still up!
+B_set_1.mp3	She puts it right where her partner likes it!
+B_set_2.mp3	A lovely high set into the wind!
+B_set_3.mp3	Tidy set! Here comes the attack!
+B_spike_1.mp3	She hammers it cross-court!
+B_spike_2.mp3	A clever pokey over the block!
+B_spike_3.mp3	She rises high and swings!
+B_blockattempt_1.mp3	She jumps with the hitter!
+B_blockattempt_2.mp3	Blocking the angle, her partner's on the line!
+B_blockattempt_3.mp3	Hands up at the net! Can she stop it?
+B_block_1.mp3	Blocked! Great timing at the net!
+B_block_2.mp3	Denied at the net!
+B_block_3.mp3	What a wall she makes!
+B_point_1.mp3	Another point on the board!
+B_point_2.mp3	What a finish to the rally!
+B_point_3.mp3	That point could be huge in this set!
+B_rally_1.mp3	Brilliant rally! Great defence on both sides!
+B_rally_2.mp3	They'll need a breather after that!
+B_rally_3.mp3	That's beach volleyball at its best!

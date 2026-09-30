@@ -1243,7 +1243,7 @@ export default function TeamRoster() {
       <section className="space-y-4 pb-8">
         <SectionHeader
           title="Youths"
-          subtitle={`All remaining signed players. The Youth Academy holds up to ${academyCap} players.`}
+          subtitle={`All remaining signed players. The Youth Academy holds up to ${academyCap} players: 3 on the youth team and 3 reserves.`}
           icon={Shield}
           count={reserves.length}
           role="reserve"
@@ -1294,7 +1294,7 @@ export default function TeamRoster() {
           <DialogHeader>
             <DialogTitle>Promote {promotion?.name}</DialogTitle>
             <DialogDescription>
-              His academy deal ends here. Choose the senior contract he signs.
+              Her academy deal ends here. Choose the senior contract she signs.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-3 gap-1.5">
