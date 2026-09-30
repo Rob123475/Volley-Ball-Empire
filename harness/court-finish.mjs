@@ -63,8 +63,8 @@ if (!fs.existsSync(unityFile("Scripts", "MatchManager.cs"))) {
   const gui = mm.slice(mm.indexOf("private void OnGUI()"));
   check("Unity: the in-play header is the set, sets won and points: no clock, no halves",
     /SET \{Score\.SetNumber\}/.test(gui) && !/Time:|HALF|currentTime/.test(mm));
-  check("Unity: at the end, boosts stop, the serve text goes, the crowd stops",
-    /Boost\.Stop\(\);[\s\S]{0,200}_serveMessage = "";[\s\S]{0,120}StopCrowd\(/.test(mm));
+  check("Unity: at the end, boosts stop, the serve text and the action word go, the commentators stop, the crowd stops",
+    /Boost\.Stop\(\);[\s\S]{0,200}_serveMessage = "";\s*ActionWordBanner\.Clear\(\);\s*if \(CommentaryManager\.Instance != null\) CommentaryManager\.Instance\.Stop\(\);[\s\S]{0,80}StopCrowd\(/.test(mm));
   const scene = read(unityFile("BeachVolleyball V19.unity"));
   check("Unity: no A1/A2/B1/B2 name labels in the V19 scene, and the label script is gone",
     !/m_text: [AB][12]\r?$/m.test(scene) && !fs.existsSync(unityFile("Scripts", "PlayerNameLabel.cs")));
