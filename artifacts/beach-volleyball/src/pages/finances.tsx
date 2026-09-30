@@ -877,7 +877,10 @@ function SponsorReputationCard({ data, isLoading }: { data: SponsorReputation | 
             <Star className="h-4 w-4 text-yellow-500" />
             Sponsor Reputation
           </CardTitle>
-          <Badge variant="secondary" className={cn("text-xs font-bold uppercase", tier.color)}>
+          {/* Overnight 30 Sep, item 28: the tier's colour on the card's dark
+              ground, with its border (it was yellow text on the sand-gold
+              "secondary" badge: RELIABLE was unreadable). */}
+          <Badge variant="outline" data-testid="sponsor-tier-badge" className={cn("text-xs font-bold uppercase bg-card border-2", tier.color, tier.bg)}>
             {tier.label}
           </Badge>
         </div>
