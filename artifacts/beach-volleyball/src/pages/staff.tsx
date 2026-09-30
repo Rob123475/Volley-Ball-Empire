@@ -59,7 +59,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { isRole, normaliseRole, MAX_STAFF, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
+import { isRole, normaliseRole, isMedicalRole, MAX_STAFF, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 
 // P-09: every map below is keyed by the NORMALISED role and looked up with
 // normaliseRole(member.role). The rows store "Head Coach"; looked up as stored,
@@ -621,7 +621,9 @@ export default function StaffManagement() {
     );
   }
 
-  const emptySlots = Math.max(0, MAX_STAFF - myStaff.length);
+  // Item 33: the staff department's own 4 places (medical has its own 4, on the Medical page).
+  const staffInDept = myStaff.filter((s) => !isMedicalRole(s.role)).length;
+  const emptySlots = Math.max(0, MAX_STAFF - staffInDept);
 
   return (
     <div className="space-y-8">
@@ -630,11 +632,11 @@ export default function StaffManagement() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-primary">Staff Management</h2>
           <p className="text-muted-foreground">
-            <span data-testid="staff-slots">{myStaff.length} of {MAX_STAFF} staff slots filled</span>
-            <span className="text-xs"> (medical staff count too; at most {MAX_MEDICAL_STAFF} of them)</span>
+            <span data-testid="staff-slots">{staffInDept} of {MAX_STAFF} staff places filled</span>
+            <span className="text-xs"> (the medical department has its own {MAX_MEDICAL_STAFF})</span>
           </p>
         </div>
-        {myStaff.length < MAX_STAFF && (
+        {staffInDept < MAX_STAFF && (
           <Link href="/staff-market">
             <Button className="gap-2">
               <UserPlus className="h-4 w-4" />

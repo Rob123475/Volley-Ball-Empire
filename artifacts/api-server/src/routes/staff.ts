@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db, MAX_STAFF } from "@workspace/db";
+import { db, MAX_STAFF, MAX_MEDICAL_STAFF, isMedicalRole } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
 import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -10,7 +10,7 @@ import { staffScoutState, withStaffScouting, SCOUT_DAYS, SCOUT_COST } from "../u
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import {
   loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
-  createCareerStaff, countTeamStaff, requireCareerSaveId, withCareerStateTx,
+  createCareerStaff, requireCareerSaveId, withCareerStateTx,
   type StaffDTO, type StaffReferenceFields,
 } from "../lib/playerDto.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
@@ -62,10 +62,11 @@ router.post("/staff", async (req, res) => {
   if (spendingBlocked) { res.status(403).json({ error: spendingBlocked }); return; }
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
-  const staffCount = await countTeamStaff(cid, team.id);
+  // Item 33: the staff department counts its own people; medical has its own 4.
+  const staffCount = (await loadStaff(cid, { teamId: team.id })).filter((s) => !isMedicalRole(s.role)).length;
 
   if (staffCount >= MAX_STAFF) {
-    res.status(400).json({ error: `You can only have ${MAX_STAFF} staff members. Fire one before hiring another.` });
+    res.status(400).json({ error: `Your staff is full (${staffCount} of ${MAX_STAFF}). The medical department has its own ${MAX_MEDICAL_STAFF} places. Release a member of staff before hiring another.` });
     return;
   }
 

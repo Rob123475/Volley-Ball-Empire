@@ -382,7 +382,7 @@ export default function MedicalMarket() {
           <p className="text-muted-foreground">
             Find specialists for your Medical Department.{" "}
             <span className={cn("font-semibold", canHire ? "text-green-600" : "text-destructive")}>
-              {myMedStaff.length}/{MAX_MEDICAL_STAFF} slots used.
+              <span data-testid="medical-slots">{myMedStaff.length} of {MAX_MEDICAL_STAFF} medical places filled.</span>
             </span>
           </p>
         </div>

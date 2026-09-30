@@ -406,7 +406,7 @@ runSuite("injured match player", path.join(REPO, "harness", "injured-match-playe
 console.log("\n########## 64/84  PLAYER MARKET - PRICES, SCOUTING AND BUYING BLIND (UNITY 15) ##########");
 runSuite("player market", path.join(REPO, "harness", "player-market.mjs"));
 
-// Unity brief item 16: 8 staff in all with at most 4 medical, one constant for every page.
+// Unity brief item 16, overnight 30 Sep item 33: 4 staff and 4 medical, two departments, one constant each for every page.
 console.log("\n########## 65/84  ONE STAFF SLOT COUNT, AND SCOUTING ONLY ON SCOUTS (UNITY 16) ##########");
 runSuite("staff slots", path.join(REPO, "harness", "staff-slots.mjs"));
 

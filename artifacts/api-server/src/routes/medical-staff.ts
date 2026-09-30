@@ -2,7 +2,7 @@ import { withStaffScouting } from "../utils/marketScouting.js";
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
-import { staffTable, teamsTable, isMedicalRole, normaliseRole, MAX_STAFF, MAX_MEDICAL_STAFF } from "@workspace/db";
+import { staffTable, teamsTable, isMedicalRole, normaliseRole, MAX_MEDICAL_STAFF } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { readContractLength } from "../utils/contractTerms.js";
 import { staffContractPatch } from "../utils/seasonDates.js";
@@ -67,14 +67,9 @@ router.post("/medical-staff", async (req, res) => {
   const allStaff = await loadStaff(cid, { teamId: team.id });
   const medCount = allStaff.filter(s => isMedicalRole(s.role)).length;
 
+  // Item 33: the medical department is its own 4 places; the staff's 4 are separate.
   if (medCount >= MAX_MEDICAL_STAFF) {
-    res.status(400).json({ error: `You can only have ${MAX_MEDICAL_STAFF} medical staff. Release one before hiring another.` });
-    return;
-  }
-  // Item 16: medical staff are staff; the club-wide limit counts them too, as
-  // POST /staff always has (it counts every member of staff).
-  if (allStaff.length >= MAX_STAFF) {
-    res.status(400).json({ error: `You can only have ${MAX_STAFF} staff members, medical staff included. Release one before hiring another.` });
+    res.status(400).json({ error: `Your medical department is full (${medCount} of ${MAX_MEDICAL_STAFF}). Release one before hiring another.` });
     return;
   }
 

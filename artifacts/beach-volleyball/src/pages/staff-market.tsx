@@ -56,7 +56,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Link } from "wouter";
 import { serverMessage } from "@/lib/api-error";
-import { normaliseRole, SCOUTING_ROLE_KEYS, MAX_STAFF } from "@shared/staff-roles";
+import { normaliseRole, isMedicalRole, SCOUTING_ROLE_KEYS, MAX_STAFF } from "@shared/staff-roles";
 
 const ROLE_LABELS: Record<string, string> = {
   all:                  "All Roles",
@@ -412,7 +412,9 @@ export default function StaffMarket() {
   const scoutMutation = useScoutStaff();
 
   const myStaffIds = new Set(myStaff.map(s => s.id));
-  const canHire = myStaff.length < MAX_STAFF;
+  // Item 33: this market fills the staff department (4); medical has its own 4.
+  const staffInDept = myStaff.filter((s) => !isMedicalRole(s.role)).length;
+  const canHire = staffInDept < MAX_STAFF;
 
   // Roles are stored as Title Case in the DB ("Head Coach", "Assistant Coach", "Scout").
   const scoutingUnlocked = myStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
@@ -460,7 +462,7 @@ export default function StaffMarket() {
           <p className="text-muted-foreground">
             Find the perfect specialists for your team.{" "}
             <span className={cn("font-semibold", canHire ? "text-green-600" : "text-destructive")}>
-              <span data-testid="staff-slots">{myStaff.length} of {MAX_STAFF} staff slots filled.</span>
+              <span data-testid="staff-slots">{staffInDept} of {MAX_STAFF} staff places filled.</span>
             </span>
           </p>
         </div>

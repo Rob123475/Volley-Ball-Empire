@@ -8,12 +8,16 @@
  * 4 medical places. And every Staff Market card showed "Scouting: Fair Scout
  * (50)", head coaches included.
  *
- * The rule, now stated once (lib/db staff-roles.ts): 8 staff in all, medical
- * included, at most 4 of them medical. Nothing raises either number.
+ * The rule, stated once (lib/db staff-roles.ts). Overnight brief 30 Sep,
+ * item 33 (Rob, Q-11): two separate departments, 4 staff and 4 medical staff;
+ * the old limit of 8 in all is gone; nobody is sacked, a department over 4
+ * from an older save just cannot hire until it is under.
  *
- * Asserted: hiring from the Staff Market stops at exactly 8, and a medical hire
- * is refused at 8 too; the medical department stops at 4; both pages read the
- * one constant and fetch the staff list afresh; the Scouting line is only on a
+ * Asserted: the medical department takes 4 and refuses the 5th; the staff
+ * department takes 4 more alongside them (8 people) and refuses its 5th,
+ * naming 4 of 4; a club made to hold 5 staff (an older save) keeps all 5 and
+ * is refused; every page counts its own department ("2 of 4") from the one
+ * constant and fetches the list afresh; the Scouting line is only on a
  * Scout's card.
  *
  * Usage: node harness/staff-slots.mjs
@@ -21,6 +25,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
@@ -75,11 +80,13 @@ try {
     slotNumber: 1, managerName: "Staff Test", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: 5000000, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
   });
+  const teamId = (await api("GET", "/team")).data?.id;
+  const careerSaveId = ((await api("GET", "/careers")).data?.saves ?? [])[0]?.id;
   const src = (p) => fs.readFileSync(path.join(REPO, p), "utf8");
   const roles = src("lib/db/src/schema/staff-roles.ts");
   const MAX = Number(roles.match(/export const MAX_STAFF = (\d+);/)?.[1]);
   const MED = Number(roles.match(/export const MAX_MEDICAL_STAFF = (\d+);/)?.[1]);
-  check("the rule is stated once: 8 staff in all, at most 4 medical", MAX === 8 && MED === 4, `MAX_STAFF ${MAX}, MAX_MEDICAL_STAFF ${MED}`);
+  check("the rule is stated once: 4 staff and 4 medical staff, separate departments", MAX === 4 && MED === 4, `MAX_STAFF ${MAX}, MAX_MEDICAL_STAFF ${MED}`);
 
   // Medical first: 4 places, then refused.
   const medMarket = (await api("GET", "/medical-staff/market")).data ?? [];
@@ -91,35 +98,40 @@ try {
   }
   check("the medical department takes 4, and refuses the 5th", medHired === MED && medRefused?.status === 400, `${medHired} hired; then ${medRefused?.status}: ${medRefused?.data?.error ?? ""}`);
 
-  // Then the Staff Market: the club-wide limit counts the medical staff.
+  // Then the Staff Market: its own 4 places, alongside the 4 medical.
+  const isMed = (s) => /doctor|physio|nutrition|scientist|massage|medical/i.test(s.role);
   const market = (await api("GET", "/staff/market")).data ?? [];
-  let hired = (await api("GET", "/staff")).data?.length ?? 0, refused = null;
+  let refused = null;
   for (const m of market) {
-    if (hired >= MAX + 1) break;
+    const inDept = ((await api("GET", "/staff")).data ?? []).filter((s) => !isMed(s)).length;
+    if (inDept > MAX) break;
     const r = await api("POST", "/staff", { staffId: m.id, length: "6m" });
-    if (r.status < 300) hired++; else { refused = r; break; }
+    if (r.status >= 300) { refused = r; break; }
   }
   const mine = (await api("GET", "/staff")).data ?? [];
-  check("hiring stops at exactly 8 staff in all, medical included", mine.length === MAX && refused?.status === 400 && /8 staff/.test(refused?.data?.error ?? ""),
-    `${mine.length} on the books (${mine.filter((s) => /doctor|physio|nutrition|scientist|massage|medical/i.test(s.role)).length} medical); then ${refused?.status}: ${refused?.data?.error ?? ""}`);
-  // Release a medic and hire another staffer, then a medical hire must be refused at 8.
-  const medic = mine.find((s) => /doctor|physio|nutrition|scientist|massage|medical/i.test(s.role));
-  const fire = await api("DELETE", `/medical-staff/${medic.id}`);
-  const fire2 = fire.status < 300 ? fire : await api("DELETE", `/staff/${medic.id}`);
-  const refill = market.find((m) => !mine.some((s) => s.id === m.id));
-  await api("POST", "/staff", { staffId: refill?.id, length: "6m" });
-  const med2 = (medList.find((m) => !mine.some((s) => s.id === m.id)));
-  const medAt8 = await api("POST", "/medical-staff", { staffId: med2?.id, length: "6m" });
-  check("at 8 staff, a medical hire is refused too (it used to count only the 4 medical places)",
-    ((await api("GET", "/staff")).data?.length ?? 0) === MAX && medAt8.status === 400 && /8 staff/.test(medAt8.data?.error ?? ""),
-    `release ${fire2.status}; medical hire ${medAt8.status}: ${medAt8.data?.error ?? ""}`);
+  const staffNow = mine.filter((s) => !isMed(s)).length, medNow = mine.filter(isMed).length;
+  check("the staff department takes 4 more beside the 4 medical (8 people), and refuses its 5th, naming 4 of 4",
+    staffNow === MAX && medNow === MED && refused?.status === 400 && /4 of 4/.test(refused?.data?.error ?? ""),
+    `${staffNow} staff + ${medNow} medical; then ${refused?.status}: ${refused?.data?.error ?? ""}`);
+  // An older save with 5 staff (the old limit allowed it): nobody is sacked, no hire.
+  const extra = market.find((m) => !mine.some((s) => s.id === m.id));
+  { const d = new DatabaseSync(dbFile); d.prepare(`UPDATE career_staff_state SET team_id = ? WHERE career_save_id = ? AND staff_id = ?`).run(teamId, careerSaveId, extra.id); d.close(); }
+  const five = ((await api("GET", "/staff")).data ?? []).filter((s) => !isMed(s)).length;
+  const another = market.find((m) => m.id !== extra.id && !mine.some((s) => s.id === m.id));
+  const refusedOver = await api("POST", "/staff", { staffId: another?.id, length: "6m" });
+  check("a club over 4 from an older save keeps all 5 and cannot hire until under 4",
+    five === MAX + 1 && refusedOver.status === 400 && /5 of 4/.test(refusedOver.data?.error ?? ""), `${five} staff; ${refusedOver.status}: ${refusedOver.data?.error ?? ""}`);
 
   // The pages.
   const staffPage = src("artifacts/beach-volleyball/src/pages/staff.tsx");
   const marketPage = src("artifacts/beach-volleyball/src/pages/staff-market.tsx");
   check("My Staff and the Staff Market read the one constant (no page-local number) and fetch the list afresh",
     [staffPage, marketPage].every((t) => /MAX_STAFF[^\n]*from "@shared\/staff-roles"/.test(t) && !/const MAX_STAFF = \d/.test(t) && /refetchOnMount: "always"/.test(t))
-    && /staff slots filled/.test(staffPage) && /staff slots filled/.test(marketPage));
+    && /\{staffInDept\} of \{MAX_STAFF\} staff places filled/.test(staffPage) && /\{staffInDept\} of \{MAX_STAFF\} staff places filled/.test(marketPage)
+    && /filter\(\(s\) => !isMedicalRole\(s\.role\)\)/.test(staffPage) && /filter\(\(s\) => !isMedicalRole\(s\.role\)\)/.test(marketPage));
+  check("the medical pages say \"n of 4\" for the medical department",
+    /\{myMedStaff\.length\} of \{MAX_MEDICAL_STAFF\} medical places filled/.test(src("artifacts/beach-volleyball/src/pages/medical-market.tsx"))
+    && /\{medStaff\.length\} of \{MAX_MEDICAL_STAFF\} slots filled/.test(src("artifacts/beach-volleyball/src/pages/medical.tsx")));
   check("medical pages read the one medical constant", ["medical.tsx", "medical-market.tsx"].every((f) => !/const MAX_MEDICAL_STAFF = \d/.test(src(`artifacts/beach-volleyball/src/pages/${f}`))));
   check("the Scouting line is only on a Scout's card", /member\.scoutingRating != null && normaliseRole\(member\.role\) === "scout"/.test(marketPage));
   // Overnight 30 Sep, item 7: an unscouted card carries no scouting rating at all now.

@@ -85,13 +85,14 @@ export function isRole(role: string | null | undefined, key: StaffRoleKey): bool
 }
 
 /**
- * Unity brief item 16: how many staff a club may employ, stated once for the
- * server and every page. My Staff said "of 4" and the Staff Market "of 8"; the
- * server has always refused the 9th hire. A club may employ MAX_STAFF people in
- * all, medical staff included, and of those at most MAX_MEDICAL_STAFF in the
- * medical department. Nothing in the game raises either number.
+ * How many staff a club may employ, stated once for the server and every page.
+ * Overnight brief 30 Sep, item 33 (Rob, Q-11): two separate departments, 4
+ * staff (coaches, trainers, promotions, scouts) and 4 medical staff; hiring
+ * is meant to be a decision that can make or break a club. The old limit of 8
+ * in all, medical included, is gone. A club over either from an older save
+ * sacks nobody: it cannot hire into that department until it is under.
  */
-export const MAX_STAFF = 8;
+export const MAX_STAFF = 4;
 export const MAX_MEDICAL_STAFF = 4;
 
 /** Roles that unlock scouting (staff market, continental scouting, youth prospects). */

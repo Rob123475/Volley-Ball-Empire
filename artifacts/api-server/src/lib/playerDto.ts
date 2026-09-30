@@ -742,17 +742,6 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
   }));
 }
 
-/** How many staff this career has signed to a team. */
-export async function countTeamStaff(careerSaveId: number, teamId: number): Promise<number> {
-  const rows = await db
-    .select({ id: careerStaffStateTable.id })
-    .from(careerStaffStateTable)
-    .where(and(
-      eq(careerStaffStateTable.careerSaveId, careerSaveId),
-      eq(careerStaffStateTable.teamId, teamId),
-    ));
-  return rows.length;
-}
 
 // ── AI pool clubs, same shape ────────────────────────────────────────────────
 
