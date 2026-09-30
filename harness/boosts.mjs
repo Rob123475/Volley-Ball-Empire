@@ -10,10 +10,13 @@
  *
  * Asserted (Rob's brief): each boost raises the chance of every point it is on
  * for, and never lowers it; using the boosts every time they are ready wins
- * noticeably more often than Sim Result (at least 5 points of match win rate in
- * an even match); and a pair 10 rating points weaker still loses more often
- * than not, however the boosts are used. The measured numbers are printed for
- * the status file; Rob tunes after.
+ * noticeably more often than Sim Result.
+ *
+ * Overnight brief 30 Sep, item 31 (Rob, Q-7: boosts should matter more): used
+ * every time they are ready, an even match goes from ~52% to about 65%, and a
+ * pair 10 rating points weaker from ~40% to about 52% (they turned it only to
+ * ~49%). Asserted within 3 points of each target, for Attack, Defence and the
+ * two in turn. The measured numbers are printed for the status file; Rob tunes after.
  *
  * Usage: node harness/boosts.mjs
  */
@@ -64,10 +67,10 @@ console.log("");
 
 const even = 0, weak = 1, strong = 2;
 for (const pol of ["attack", "defence", "alternate"]) {
-  check(`even match: ${pol} every time it is ready wins noticeably more than Sim Result (>= 5 points)`,
-    rate(even, pol) - rate(even, "none") >= 5, `${rate(even, "none").toFixed(1)}% -> ${rate(even, pol).toFixed(1)}%`);
-  check(`10 points weaker: ${pol} every time still cannot turn it (under 50%)`,
-    rate(weak, pol) < 50, `${rate(weak, "none").toFixed(1)}% -> ${rate(weak, pol).toFixed(1)}%`);
+  check(`even match: ${pol} every time it is ready goes from ~52% to about 65%`,
+    Math.abs(rate(even, "none") - 52) <= 3 && Math.abs(rate(even, pol) - 65) <= 3, `${rate(even, "none").toFixed(1)}% -> ${rate(even, pol).toFixed(1)}%`);
+  check(`10 points weaker: ${pol} every time goes from ~40% to about 52%`,
+    Math.abs(rate(weak, "none") - 40) <= 3 && Math.abs(rate(weak, pol) - 52) <= 3, `${rate(weak, "none").toFixed(1)}% -> ${rate(weak, pol).toFixed(1)}%`);
   check(`10 points stronger: ${pol} still helps`, rate(strong, pol) > rate(strong, "none"),
     `${rate(strong, "none").toFixed(1)}% -> ${rate(strong, pol).toFixed(1)}%`);
 }
