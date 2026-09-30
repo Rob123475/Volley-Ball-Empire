@@ -6,7 +6,7 @@ using System.Text;
 // For each chance, match wins under four ways of using the boosts: never,
 // Attack every time it is ready, Defence every time, or the two in turn.
 // Runs Unity's own BoostClock.cs and PointModel.cs, exactly as MatchManager
-// uses them: a boost switched on before a point is decided counts for it.
+// uses them: a boost pressed before a serve counts from that point on.
 public static class BoostsMode
 {
     public static int Run(string[] args)
@@ -43,6 +43,7 @@ public static class BoostsMode
                                 : (nextAttack ? BoostMode.Attack : BoostMode.Defence);
                             if (clock.TryActivate(use)) nextAttack = !nextAttack;
                         }
+                        clock.OnServe();   // the serve: a pressed boost is in effect from here (item 19)
                         m.AddPoint(PointModel.HomeWinsPoint(chance, clock.CurrentShift, rng.NextDouble()));
                         clock.OnPointPlayed();
                     }
