@@ -10482,8 +10482,9 @@ export const GetDashboardResponse = zod.object({
   "ranking": zod.object({
   "points": zod.number(),
   "tier": zod.enum(['Bronze', 'Silver', 'Gold']),
+  "pointsTier": zod.enum(['Bronze', 'Silver', 'Gold']),
   "purseAccessTier": zod.enum(['Bronze', 'Silver', 'Gold'])
-}).nullish().describe('R-58 — this season\'s ranking points and the tier they reach (R-54), and the tier whose purses the club is paid in full this season.'),
+}).nullish().describe('R-58 — this season\'s ranking points, the club\'s tier (overnight 30 Sep, item 30: the higher of the tier it is paid at this season and the tier its points reach, so an Established career is Silver from day one), the tier the points alone reach, and the tier whose purses the club is paid in full.'),
   "nextMatchSelection": zod.object({
   "players": zod.array(zod.object({
   "id": zod.number(),

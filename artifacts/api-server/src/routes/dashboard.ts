@@ -1,3 +1,4 @@
+import { TIERS } from "../utils/tierQualification.js";
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
@@ -108,11 +109,19 @@ router.get("/dashboard", async (req, res) => {
 
   // R-58: the tier badge — this season's ranking points and the tier they reach
   // (R-54), and the tier whose purses the club is paid in full this season.
+  // Overnight brief 30 Sep, item 30 (Rob, Q-1): the badge shows the club's
+  // tier, the higher of the tier it is paid at this season and the tier this
+  // season's points reach. An Established career is paid Silver purses from
+  // day one, so it shows Silver from day one (it showed Bronze until its points
+  // got there); an Underdog, Bronze. The season review's "next season pays"
+  // stays the tier the points reach.
   const ranking = activeSeason
-    ? {
-        ...(({ rankingPoints, tier }) => ({ points: rankingPoints, tier }))(await currentRanking(cid, team.id, activeSeason.year)),
-        purseAccessTier: await purseAccessTierFor(cid, team.id, activeSeason.year),
-      }
+    ? await (async () => {
+        const now = await currentRanking(cid, team.id, activeSeason.year);
+        const purseAccessTier = await purseAccessTierFor(cid, team.id, activeSeason.year);
+        const tier = TIERS[Math.max(TIERS.indexOf(now.tier), TIERS.indexOf(purseAccessTier))]!;
+        return { points: now.rankingPoints, tier, pointsTier: now.tier, purseAccessTier };
+      })()
     : null;
 
   // Career save: the session-tracked save ID is the only source of truth —

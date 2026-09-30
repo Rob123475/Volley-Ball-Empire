@@ -7,11 +7,12 @@
  */
 
 /**
- * R-58 — this season's ranking points and the tier they reach (R-54), and the tier whose purses the club is paid in full this season.
+ * R-58 — this season's ranking points, the club's tier (overnight 30 Sep, item 30: the higher of the tier it is paid at this season and the tier its points reach, so an Established career is Silver from day one), the tier the points alone reach, and the tier whose purses the club is paid in full.
  * @nullable
  */
 export type DashboardRanking = {
   points: number;
   tier: 'Bronze' | 'Silver' | 'Gold';
+  pointsTier: 'Bronze' | 'Silver' | 'Gold';
   purseAccessTier: 'Bronze' | 'Silver' | 'Gold';
 } | null;

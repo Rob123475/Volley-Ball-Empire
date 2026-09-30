@@ -140,8 +140,10 @@ try {
   check("before the draw: no standing, no current finish", pre?.standing === null && pre?.currentFinish === null && pre?.currentGrade === null,
     JSON.stringify({ standing: pre?.standing, currentFinish: pre?.currentFinish, currentGrade: pre?.currentGrade }));
   const preDash = (await api("GET", "/dashboard")).data;
-  check("a new established career: Bronze on 0 points, paid Silver purses in season 1 (R-54)",
-    preDash?.ranking?.points === 0 && preDash?.ranking?.tier === "Bronze" && preDash?.ranking?.purseAccessTier === "Silver",
+  // Overnight 30 Sep, item 30 (Rob, Q-1): the badge is the club's tier, Silver
+  // from day one for an Established career (paid Silver purses); it showed Bronze.
+  check("a new established career: the badge shows Silver from day one (0 points, paid Silver purses)",
+    preDash?.ranking?.points === 0 && preDash?.ranking?.tier === "Silver" && preDash?.ranking?.pointsTier === "Bronze" && preDash?.ranking?.purseAccessTier === "Silver",
     JSON.stringify(preDash?.ranking));
 
   let match = await nextMatchDay();
@@ -180,6 +182,9 @@ try {
     slotNumber: 1, managerName: "Standing Low", managerNationality: "Australia", clubName: "Standing Low FC", originalClubName: "Standing Low FC",
     season: "Season 1", budget: "150000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "underdog",
   });
+  const lowDash = (await api("GET", "/dashboard")).data;
+  check("a new underdog career: the badge shows Bronze",
+    lowDash?.ranking?.points === 0 && lowDash?.ranking?.tier === "Bronze" && lowDash?.ranking?.purseAccessTier === "Bronze", JSON.stringify(lowDash?.ranking));
   let lowMatch = await nextMatchDay();
   let lowRank = null;
   for (let n = 0; n < 40 && lowMatch != null; n++) {
@@ -208,8 +213,10 @@ try {
   console.log("\n4. THE TIER BADGE IS THE SEASON'S RANKING ROW");
   const row = read(`SELECT cr.ranking_points AS p FROM competitor_rankings cr JOIN competitors co ON co.id = cr.competitor_id
                     WHERE co.team_id = ? AND cr.career_save_id = ? AND cr.season_year = 2026`, teamId, careerSaveId)[0];
-  check("points and tier are the ranking row's, on R-54's thresholds",
-    row != null && dashboard?.ranking?.points === row.p && dashboard?.ranking?.tier === tierFor(row.p),
+  const TIERS = ["Bronze", "Silver", "Gold"];
+  const clubTier = (p) => TIERS[Math.max(TIERS.indexOf(tierFor(p)), TIERS.indexOf("Silver"))];
+  check("points are the ranking row's; the badge is the higher of the tier they reach (R-54) and Silver, the tier it is paid at",
+    row != null && dashboard?.ranking?.points === row.p && dashboard?.ranking?.pointsTier === tierFor(row.p) && dashboard?.ranking?.tier === clubTier(row.p),
     `row ${row?.p}, dashboard ${JSON.stringify(dashboard?.ranking)}`);
 } finally {
   await stopServer(child);
