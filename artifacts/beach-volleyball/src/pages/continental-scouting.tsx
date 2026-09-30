@@ -1,3 +1,14 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { continentKeyFrom, continentLabel, type ContinentKey } from "@shared/continents";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -242,15 +253,27 @@ function ProspectCard({
 
       {/* Actions */}
       <div className="flex gap-2 pt-1 border-t border-border mt-auto">
-        <Button
-          size="sm"
-          className="flex-1 gap-1 text-xs h-8"
-          onClick={() => onSign(prospect.id, prospect.name)}
-          disabled={isMutating}
-        >
-          <UserPlus className="h-3.5 w-3.5" />
-          Sign to Academy
-        </Button>
+        {/* Overnight 30 Sep, item 13: signing is a confirm step with her price on it. */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button size="sm" className="flex-1 gap-1 text-xs h-8" disabled={isMutating} data-testid={`button-sign-prospect-${prospect.id}`}>
+              <UserPlus className="h-3.5 w-3.5" />
+              Sign
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Sign {prospect.name}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                She joins your Youth Academy for ${prospect.signingCost.toLocaleString()}, charged now.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onSign(prospect.id, prospect.name)}>Sign for ${prospect.signingCost.toLocaleString()}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <Button
           size="sm"
           variant="outline"
@@ -259,7 +282,7 @@ function ProspectCard({
           disabled={isMutating}
         >
           <Ban className="h-3.5 w-3.5" />
-          Dismiss
+          Reject
         </Button>
       </div>
     </div>
@@ -397,11 +420,10 @@ function RegionCard({
 
         {isCompleted && mission && (
           <>
+            {/* Item 13: the finds are made when the report is collected (this said "0 prospects found!"). */}
             <div className="flex items-center gap-1.5 text-[11px]">
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span className="font-semibold text-amber-400">
-                {mission.prospectsFound} prospect{mission.prospectsFound !== 1 ? "s" : ""} found!
-              </span>
+              <span className="font-semibold text-amber-400">The scout's report is ready.</span>
             </div>
             <Button
               size="sm"
@@ -418,7 +440,7 @@ function RegionCard({
         {isCollected && (
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500/60" />
-            <span>Prospects collected — send a new scout anytime</span>
+            <span data-testid={`mission-report-${mission?.id}`}>{mission?.report ?? "Prospects collected"} Send a new scout any time.</span>
           </div>
         )}
       </div>
@@ -501,7 +523,7 @@ export default function ContinentalScouting() {
   function handleCollect(id: number) {
     collectMission.mutate({ id }, {
       onSuccess: (result) => {
-        toast({ title: "Prospects collected!", description: `${result.prospectsFound} prospect${result.prospectsFound !== 1 ? "s" : ""} added to your scouting list.` });
+        toast({ title: result.prospectsFound > 0 ? `${result.prospectsFound} youth${result.prospectsFound !== 1 ? "s" : ""} recommended` : "No one recommended", description: result.report });
         invalidate();
       },
       onError: (err: any) => {
@@ -619,7 +641,7 @@ export default function ContinentalScouting() {
               onSendScout={(r) => {
                 setDialogRegion(r);
                 setSelDuration(1);
-                setSelStaffId("none");
+                setSelStaffId(scouts[0] ? String(scouts[0].id) : "none");
               }}
               onCollect={handleCollect}
               onCancel={handleCancel}
@@ -716,13 +738,12 @@ export default function ContinentalScouting() {
             )}
             {scouts.length > 0 && (
               <div className="space-y-2">
-                <label className="text-sm font-semibold">Assign Scout <span className="text-muted-foreground font-normal">(optional)</span></label>
+                <label className="text-sm font-semibold">Send which Scout?</label>
                 <Select value={selStaffId} onValueChange={setSelStaffId}>
                   <SelectTrigger className="text-sm">
-                    <SelectValue placeholder="No scout assigned" />
+                    <SelectValue placeholder="Choose a Scout" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No scout assigned</SelectItem>
                     {scouts.map((s) => {
                       const tier = getScoutTier(s.scoutingRating);
                       return (
@@ -768,7 +789,7 @@ export default function ContinentalScouting() {
             </Button>
             <Button
               onClick={handleSendScout}
-              disabled={startMission.isPending}
+              disabled={startMission.isPending || !scouts.some((x) => String(x.id) === selStaffId)}
               className="gap-1.5"
             >
               <Radar className="h-4 w-4" />

@@ -4242,6 +4242,9 @@ components:
           type: number
         prospectsFound:
           type: integer
+        report:
+          type: ["string", "null"]
+          description: "Overnight 30 Sep, item 13: the scout's report, written when the mission is collected; a blank explains itself."
 
     ContinentalRegion:
       type: object
@@ -4286,10 +4289,17 @@ components:
 
     CollectMissionResult:
       type: object
-      required: [prospectsFound, scoutingRating, prospects]
+      required: [prospectsFound, scoutingRating, prospects, report, departmentLevel]
       properties:
         prospectsFound:
           type: integer
+          description: "0 to 4 (item 13): the odds are in utils/missionFinds.ts."
+        report:
+          type: string
+          description: "What the scout reported; a blank says how many players she watched and that none were good enough."
+        departmentLevel:
+          type: integer
+          description: "The Scouting Department's level, which shifts the odds (item 13)."
         scoutName:
           type: ["string", "null"]
         scoutingRating:

@@ -1997,6 +1997,11 @@ export interface ContinentalScoutingMission {
   assignedStaffId?: number | null;
   cost: number;
   prospectsFound: number;
+  /**
+     * Overnight 30 Sep, item 13: the scout's report, written when the mission is collected; a blank explains itself.
+     * @nullable
+     */
+  report?: string | null;
 }
 
 export type ContinentalRegionCosts = {[key: string]: number};
@@ -2105,7 +2110,12 @@ export interface YouthProspect {
 }
 
 export interface CollectMissionResult {
+  /** 0 to 4 (item 13): the odds are in utils/missionFinds.ts. */
   prospectsFound: number;
+  /** What the scout reported; a blank says how many players she watched and that none were good enough. */
+  report: string;
+  /** The Scouting Department's level, which shifts the odds (item 13). */
+  departmentLevel: number;
   /** @nullable */
   scoutName?: string | null;
   scoutingRating: number;

@@ -7,9 +7,13 @@ import {
   youthProspectsTable,
   staffTable,
   continentalScoutingMissionsTable,
+  facilitiesTable,
+  normaliseRole,
 } from "@workspace/db";
 import { eq, and, inArray } from "drizzle-orm";
 import { generateContinentalProspects } from "../utils/prospect-generator";
+import { blankReport } from "../utils/missionFinds.js";
+import { loadStaff, requireCareerSaveId } from "../lib/playerDto.js";
 import { getGameDate } from "../utils/gameDate.js";
 
 const router = Router();
@@ -211,6 +215,20 @@ router.post("/continental-scouting/start", async (req, res) => {
 
   await autoCompleteContinentalMissions(team.id);
 
+  // Overnight 30 Sep, item 13: a mission is a Scout's job: one of this club's
+  // Scouts must be sent (a mission used to go with no one, at rating 50).
+  const scouts = (await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
+    .filter((s) => normaliseRole(s.role) === "scout");
+  if (!scouts.some((s) => s.id === Number(staffId))) {
+    res.status(400).json({
+      error: scouts.length === 0
+        ? "You have no Scout. Hire a Scout on the Staff Market to send on a mission."
+        : "Choose which of your Scouts goes on the mission.",
+      noScout: scouts.length === 0,
+    });
+    return;
+  }
+
   const existing = await db
     .select()
     .from(continentalScoutingMissionsTable)
@@ -326,18 +344,29 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
     }
   }
 
-  const count = await generateContinentalProspects({
+  // Item 13: the Scouting Department's level shifts the odds (it did nothing before).
+  const department = await db.query.facilitiesTable.findFirst({
+    where: and(eq(facilitiesTable.teamId, team.id), eq(facilitiesTable.type, "scouting_department")),
+  });
+  const departmentLevel = department?.level ?? 1;
+  const { count, watched } = await generateContinentalProspects({
     teamId:        team.id,
     region:        mission.region,
     missionId,
     scoutingRating,
     scoutName,
     durationMonths: mission.durationMonths,
+    departmentLevel,
   });
+  // A blank explains itself; a find says how many she recommends of how many.
+  const who = scoutName ?? "Your scout";
+  const report = count === 0
+    ? blankReport(who, watched, mission.region)
+    : `${who} watched ${watched} players in ${mission.region} and recommends ${count}.`;
 
   await db
     .update(continentalScoutingMissionsTable)
-    .set({ status: "collected", prospectsFound: count })
+    .set({ status: "collected", prospectsFound: count, report })
     .where(eq(continentalScoutingMissionsTable.id, missionId));
 
   const prospects = await db
@@ -352,6 +381,8 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
 
   res.json({
     prospectsFound: count,
+    report,
+    departmentLevel,
     scoutName,
     scoutingRating,
     prospects: prospects.map((p) => ({

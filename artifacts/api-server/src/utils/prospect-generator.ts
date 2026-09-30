@@ -1,4 +1,6 @@
 import { db } from "@workspace/db";
+import { missionQuality, findOdds, rollFound, playersWatched } from "./missionFinds.js";
+import { youthTierPrice } from "./marketScouting.js";
 import { youthProspectsTable } from "@workspace/db";
 import { generateScoutingReport } from "./scouting-report-generator";
 
@@ -103,8 +105,8 @@ function rollEliteEvent(): EliteEventType | null {
 
 function applyEliteBoosts(
   event: EliteEventType,
-  base: { currentRating: number; potentialStars: string; age: number; signingCost: number; speciality: string },
-): { currentRating: number; potentialStars: string; age: number; signingCost: number; speciality: string } {
+  base: { currentRating: number; potentialStars: string; age: number; speciality: string },
+): { currentRating: number; potentialStars: string; age: number; speciality: string } {
   switch (event) {
     case "Generational Talent":
       return {
@@ -112,7 +114,6 @@ function applyEliteBoosts(
         age:            rand(14, 16),
         currentRating:  Math.min(99, base.currentRating + rand(18, 28)),
         potentialStars: "Generational",
-        signingCost:    Math.round(base.signingCost * (2.0 + Math.random())),
       };
     case "Olympic Wonderkid":
       return {
@@ -120,7 +121,6 @@ function applyEliteBoosts(
         age:            rand(14, 16),
         currentRating:  Math.min(99, base.currentRating + rand(12, 20)),
         potentialStars: Math.random() < 0.55 ? "Generational" : "Elite",
-        signingCost:    Math.round(base.signingCost * (1.6 + Math.random() * 0.7)),
       };
     case "Physical Freak":
       return {
@@ -129,7 +129,6 @@ function applyEliteBoosts(
         currentRating:  Math.min(99, base.currentRating + rand(8, 15)),
         potentialStars: Math.random() < 0.4 ? "Elite" : "High",
         speciality:     Math.random() < 0.5 ? "Power" : "Speed",
-        signingCost:    Math.round(base.signingCost * (1.4 + Math.random() * 0.5)),
       };
     case "Local Hero":
       return {
@@ -137,7 +136,6 @@ function applyEliteBoosts(
         age:            rand(15, 18),
         currentRating:  Math.min(99, base.currentRating + rand(6, 13)),
         potentialStars: Math.random() < 0.35 ? "Elite" : "High",
-        signingCost:    Math.round(base.signingCost * 0.8),
       };
   }
 }
@@ -172,13 +170,6 @@ function getScoutedPotential(
     else                  error = 2;
   } else { error = Math.floor(Math.random() * 5) - 2; }
   return SCOUTED_LABELS[Math.max(0, Math.min(4, baseIdx + error))]!;
-}
-
-function getProspectCount(scoutingRating: number, durationMonths: number): number {
-  let base = scoutingRating >= 86 ? 4 : scoutingRating >= 71 ? 3 : scoutingRating >= 51 ? 3 : scoutingRating >= 31 ? 2 : 1;
-  const durationBonus = durationMonths >= 6 ? 2 : durationMonths >= 3 ? 1 : 0;
-  const luck = Math.random() < 0.35 ? 1 : 0;
-  return Math.min(5, base + durationBonus + luck);
 }
 
 function getRatingBonus(scoutingRating: number): number {
@@ -239,6 +230,13 @@ export async function generateScoutingProspects(teamId: number, continent: strin
 
 // ── Continental scouting: scout quality–aware generation ──────────────────
 
+/**
+ * Overnight brief 30 Sep, item 13: a mission finds youth (14-18), 0 to 4 of
+ * them, by the odds in utils/missionFinds.ts (scout rating, Scouting
+ * Department level, mission length). Each is priced by the youth market's
+ * rule ($500-$2,000 by talent). Returns how many were found and how many
+ * players the scout watched (a blank report says so).
+ */
 export async function generateContinentalProspects(params: {
   teamId: number;
   region: string;
@@ -246,13 +244,15 @@ export async function generateContinentalProspects(params: {
   scoutingRating: number;
   scoutName: string | null;
   durationMonths: number;
-}): Promise<number> {
-  const { teamId, region, missionId, scoutingRating, scoutName, durationMonths } = params;
+  departmentLevel: number;
+}): Promise<{ count: number; watched: number }> {
+  const { teamId, region, missionId, scoutingRating, scoutName, durationMonths, departmentLevel } = params;
 
   const talentKey   = CONTINENT_TALENT[region] ?? "Average";
   const cfg         = TALENT_CONFIG[talentKey]!;
   const ratingBonus = getRatingBonus(scoutingRating);
-  const count       = getProspectCount(scoutingRating, durationMonths);
+  const count       = rollFound(findOdds(missionQuality(scoutingRating, departmentLevel, durationMonths)), Math.random());
+  const watched     = Math.max(count, playersWatched(durationMonths, Math.random()));
   const used        = new Set<string>();
 
   const discoveredBy = scoutName
@@ -269,18 +269,17 @@ export async function generateContinentalProspects(params: {
     let speciality    = pickSpeciality(region);
     let truePotential = cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!;
     let currentRating = Math.min(99, Math.max(40, rand(cfg.ratingMin, cfg.ratingMax) + ratingBonus));
-    let signingCost   = Math.max(3000, Math.min(35000, rand(cfg.costMin, cfg.costMax)));
 
     // Roll for rare elite event
     const eliteEvent = rollEliteEvent();
     if (eliteEvent) {
-      const boosted = applyEliteBoosts(eliteEvent, { currentRating, potentialStars: truePotential, age, signingCost, speciality });
+      const boosted = applyEliteBoosts(eliteEvent, { currentRating, potentialStars: truePotential, age, speciality });
       age           = boosted.age;
       speciality    = boosted.speciality;
       truePotential = boosted.potentialStars;
       currentRating = boosted.currentRating;
-      signingCost   = Math.min(80000, boosted.signingCost);
     }
+    const signingCost = youthTierPrice(truePotential, Math.random()).price;
 
     const scoutedLabel = getScoutedPotential(truePotential, scoutingRating, eliteEvent);
 
@@ -312,5 +311,5 @@ export async function generateContinentalProspects(params: {
     });
   }
 
-  return count;
+  return { count, watched };
 }

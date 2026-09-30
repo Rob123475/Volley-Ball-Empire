@@ -124,7 +124,11 @@ try {
     `${pool.length} in the list, ${allYouth.length} in the starter DB`);
 
   // A 1-month mission on the game calendar.
-  const start = await api("POST", "/continental-scouting/start", { region: "Europe", durationMonths: 1 });
+  // Overnight 30 Sep item 13: a mission goes with one of the club's Scouts.
+  const offer = ((await api("GET", "/staff/market?role=scout")).data ?? []).find((m) => /scout/i.test(m.role));
+  await api("POST", "/staff", { staffId: offer?.id, length: "2s" });
+  const scout = ((await api("GET", "/staff")).data ?? []).find((s) => /^scout$/i.test(s.role));
+  const start = await api("POST", "/continental-scouting/start", { region: "Europe", durationMonths: 1, staffId: scout?.id });
   const regions = (await api("GET", "/continental-scouting/regions")).data ?? [];
   const m = regions.find((r) => r.id === "Europe")?.activeMission;
   const expect = (() => { const d = new Date(`${cal.currentDate}T00:00:00Z`); d.setUTCMonth(d.getUTCMonth() + 1); return d.toISOString().slice(0, 10); })();

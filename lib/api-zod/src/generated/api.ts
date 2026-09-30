@@ -11131,7 +11131,8 @@ export const GetContinentalRegionsResponseItem = zod.object({
   "endDate": zod.string(),
   "assignedStaffId": zod.number().nullish(),
   "cost": zod.number(),
-  "prospectsFound": zod.number()
+  "prospectsFound": zod.number(),
+  "report": zod.string().nullish().describe('Overnight 30 Sep, item 13: the scout\'s report, written when the mission is collected; a blank explains itself.')
 }).nullish()
 })
 export const GetContinentalRegionsResponse = zod.array(GetContinentalRegionsResponseItem)
@@ -11155,7 +11156,9 @@ export const CollectContinentalMissionParams = zod.object({
 })
 
 export const CollectContinentalMissionResponse = zod.object({
-  "prospectsFound": zod.number(),
+  "prospectsFound": zod.number().describe('0 to 4 (item 13): the odds are in utils\/missionFinds.ts.'),
+  "report": zod.string().describe('What the scout reported; a blank says how many players she watched and that none were good enough.'),
+  "departmentLevel": zod.number().describe('The Scouting Department\'s level, which shifts the odds (item 13).'),
   "scoutName": zod.string().nullish(),
   "scoutingRating": zod.number(),
   "prospects": zod.array(zod.object({
@@ -11192,7 +11195,8 @@ export const CancelContinentalMissionResponse = zod.object({
   "endDate": zod.string(),
   "assignedStaffId": zod.number().nullish(),
   "cost": zod.number(),
-  "prospectsFound": zod.number()
+  "prospectsFound": zod.number(),
+  "report": zod.string().nullish().describe('Overnight 30 Sep, item 13: the scout\'s report, written when the mission is collected; a blank explains itself.')
 })
 
 

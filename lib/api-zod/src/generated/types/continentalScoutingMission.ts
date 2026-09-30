@@ -17,4 +17,9 @@ export interface ContinentalScoutingMission {
   assignedStaffId?: number | null;
   cost: number;
   prospectsFound: number;
+  /**
+     * Overnight 30 Sep, item 13: the scout's report, written when the mission is collected; a blank explains itself.
+     * @nullable
+     */
+  report?: string | null;
 }

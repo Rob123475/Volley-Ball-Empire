@@ -67,10 +67,19 @@ const YOUTH_TIER_PRICE: Record<string, number> = { Low: 600, Average: 900, High:
 export const YOUTH_PRICE_MIN = 500, YOUTH_PRICE_MAX = 2000;
 
 export function youthPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "potential">): MarketPrice {
-  const base = YOUTH_TIER_PRICE[p.potential ?? "Average"] ?? YOUTH_TIER_PRICE["Average"]!;
+  return youthTierPrice(p.potential, unitHash(careerSaveId, p.id));
+}
+
+/**
+ * A youth's price by her potential tier, `unit` in [0, 1) placing it in the
+ * tier's range. Item 13: a youth a scouting mission finds is priced by the
+ * same rule (she cost $3,000-$35,000 before, up to $80,000).
+ */
+export function youthTierPrice(potential: string | null | undefined, unit: number): MarketPrice {
+  const base = YOUTH_TIER_PRICE[potential ?? "Average"] ?? YOUTH_TIER_PRICE["Average"]!;
   const low  = Math.max(YOUTH_PRICE_MIN, Math.floor((base * RANGE_LOW) / 100) * 100);
   const high = Math.min(YOUTH_PRICE_MAX, Math.ceil((base * RANGE_HIGH) / 100) * 100);
-  const price = Math.min(high, Math.max(low, Math.round((low + (high - low) * unitHash(careerSaveId, p.id)) / 50) * 50));
+  const price = Math.min(high, Math.max(low, Math.round((low + (high - low) * unit) / 50) * 50));
   return { low, high, price };
 }
 

@@ -1025,6 +1025,10 @@ export const continentalScoutingMissionsTable = sqliteTable("continental_scoutin
   endDate:         integer("end_date", { mode: "timestamp" }).notNull(),
   assignedStaffId: integer("assigned_staff_id").references(() => staffTable.id),
   prospectsFound:  integer("prospects_found").notNull().default(0),
+  // Overnight brief 30 Sep, item 13: what the scout reported, written when the
+  // mission is collected. A blank explains itself ("Ana Vieira watched 14
+  // players in Europe; none were good enough to recommend").
+  report:          text("report"),
   cost:            real("cost").notNull().default(0),
   createdAt:       integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
