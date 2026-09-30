@@ -1,0 +1,2 @@
+Player_A1 (spike): 1.78 m tall; clip lifts 0.25 m, MatchManager adds 0.59 m; at the apex feet 0.81 m, shoulders 2.27 m; net top 2.24 m
+Player_B1 (block): 1.78 m tall; clip lifts 0.34 m, MatchManager adds 0.47 m; at the apex feet 0.79 m, shoulders 2.25 m; net top 2.24 m

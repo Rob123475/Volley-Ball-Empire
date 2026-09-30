@@ -1,0 +1,5 @@
+Item 20b: action words in one fixed place, one at a time (4 rendered)
+  3.8 s: "SPIKE" in the banner (one word, top centre); action words drawn on players: 0
+  4.3 s: "BLOCK" in the banner (one word, top centre); action words drawn on players: 0
+  5.8 s: "SPIKE" in the banner (one word, top centre); action words drawn on players: 0
+  5.9 s: "BLOCK" in the banner (one word, top centre); action words drawn on players: 0

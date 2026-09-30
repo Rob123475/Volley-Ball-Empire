@@ -1,0 +1,32 @@
+Item 21 commentary proof: V19, 120 s of play, scene not saved; clips loaded 48 of 48
+lines spoken 30; A/B alternation breaks 0; lines starting before the last ended 0; same line twice in a row 0; crowd ducked (under 0.5) in 138212 of 138212 frames mid-clip, back to full in 51079 of 51079 quiet frames; subtitle names the speaker in 175189 of 175189 frames
+     2.6 s  A:point:3          1.78 s  They take the point!
+     7.3 s  B:set:3            2.81 s  Tidy set! Here comes the attack!
+    11.6 s  A:point:1          1.78 s  And that's the point!
+    13.6 s  B:rally:1          3.79 s  Brilliant rally! Great defence on both sides!
+    17.7 s  A:point:3          1.78 s  They take the point!
+    19.7 s  B:rally:2          2.33 s  They'll need a breather after that!
+    24.6 s  A:blockattempt:3   3.22 s  Big block jump, arms reaching over!
+    29.5 s  B:point:2          2.33 s  What a finish to the rally!
+    32.1 s  A:rally:3          2.81 s  The crowd's on its feet after that one!
+    37.9 s  B:set:1            2.81 s  She puts it right where her partner likes it!
+    41.0 s  A:rally:2          3.89 s  Long exchange! Both teams dug deep!
+    47.7 s  B:set:2            2.74 s  A lovely high set into the wind!
+    50.7 s  A:rally:3          2.81 s  The crowd's on its feet after that one!
+    56.2 s  B:blockattempt:2   2.81 s  Blocking the angle, her partner's on the line!
+    61.3 s  A:spike:3          2.90 s  Big swing, looking for the line!
+    64.5 s  B:rally:3          2.81 s  That's beach volleyball at its best!
+    69.7 s  A:dig:2            3.72 s  Full stretch in the sand, and she gets it up!
+    73.7 s  B:rally:2          2.33 s  They'll need a breather after that!
+    78.4 s  A:set:1            2.90 s  A clean hand set, right on the money!
+    81.6 s  B:point:3          2.74 s  That point could be huge in this set!
+    84.6 s  A:rally:1          2.33 s  What a rally that was!
+    89.7 s  B:set:1            2.81 s  She puts it right where her partner likes it!
+    92.7 s  A:rally:2          3.89 s  Long exchange! Both teams dug deep!
+    96.9 s  B:point:2          2.33 s  What a finish to the rally!
+   102.0 s  A:blockattempt:2   2.33 s  The blocker takes away the line!
+   104.6 s  B:rally:1          3.79 s  Brilliant rally! Great defence on both sides!
+   108.6 s  A:point:2          3.05 s  Point won! The crowd loves it!
+   111.9 s  B:rally:2          2.33 s  They'll need a breather after that!
+   115.7 s  A:point:3          1.78 s  They take the point!
+   117.8 s  B:rally:1          3.79 s  Brilliant rally! Great defence on both sides!

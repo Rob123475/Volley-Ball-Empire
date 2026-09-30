@@ -1,0 +1,1 @@
+Item 20: Attack boost in effect (3 points left). Rings showing: 2 (Team A's pair). Floating squares (BoostParticle objects): 0.

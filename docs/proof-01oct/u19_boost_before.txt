@@ -1,0 +1,51 @@
+Item 19 boost button proof (before): V19 at 3x for up to 150 s, scene not saved
+presses 5 (4 mid-rally), presses that did nothing 0
+points with a boost running or cooling down: 34; points at which the buttons did not change: 4
+     2.6 s  pressed ATTACK mid-rally
+     3.7 s  point   1: clock Attack 3 left, cooldown 0 | [ATTACK ACTIVE 3 pts left] [DEFENCE BOOST (Unavailable)]
+           STUCK: the buttons did not change at this point
+     6.2 s  point   2: clock Attack 2 left, cooldown 0 | [ATTACK ACTIVE 3 pts left] [DEFENCE BOOST (Unavailable)]
+    11.2 s  point   3: clock Attack 1 left, cooldown 0 | [ATTACK ACTIVE 2 pts left] [DEFENCE BOOST (Unavailable)]
+    16.9 s  point   4: clock Normal 0 left, cooldown 5 | [ATTACK ACTIVE 1 pt left] [DEFENCE BOOST (Unavailable)]
+    19.9 s  point   5: clock Normal 0 left, cooldown 4 | [COOLDOWN 5 pts] [COOLDOWN 5 pts]
+    25.3 s  point   6: clock Normal 0 left, cooldown 3 | [COOLDOWN 4 pts] [COOLDOWN 4 pts]
+    28.9 s  point   7: clock Normal 0 left, cooldown 2 | [COOLDOWN 3 pts] [COOLDOWN 3 pts]
+    30.3 s  point   8: clock Normal 0 left, cooldown 1 | [COOLDOWN 2 pts] [COOLDOWN 2 pts]
+    33.3 s  point   9: clock Normal 0 left, cooldown 0 | [COOLDOWN 1 pt] [COOLDOWN 1 pt]
+    34.8 s  pressed DEFENCE mid-rally
+    35.2 s  point  10: clock Defence 3 left, cooldown 0 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 3 pts left]
+           STUCK: the buttons did not change at this point
+    40.0 s  point  11: clock Defence 2 left, cooldown 0 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 3 pts left]
+    45.8 s  point  12: clock Defence 1 left, cooldown 0 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 2 pts left]
+    46.7 s  point  13: clock Normal 0 left, cooldown 5 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 1 pt left]
+    49.9 s  point  14: clock Normal 0 left, cooldown 4 | [COOLDOWN 5 pts] [COOLDOWN 5 pts]
+    51.7 s  point  15: clock Normal 0 left, cooldown 3 | [COOLDOWN 4 pts] [COOLDOWN 4 pts]
+    52.6 s  point  16: clock Normal 0 left, cooldown 2 | [COOLDOWN 3 pts] [COOLDOWN 3 pts]
+    55.0 s  point  17: clock Normal 0 left, cooldown 1 | [COOLDOWN 2 pts] [COOLDOWN 2 pts]
+    57.5 s  point  18: clock Normal 0 left, cooldown 0 | [COOLDOWN 1 pt] [COOLDOWN 1 pt]
+    57.7 s  pressed ATTACK between points
+    61.8 s  point  19: clock Attack 2 left, cooldown 0 | [ATTACK ACTIVE 3 pts left] [DEFENCE BOOST (Unavailable)]
+    63.8 s  point  20: clock Attack 1 left, cooldown 0 | [ATTACK ACTIVE 2 pts left] [DEFENCE BOOST (Unavailable)]
+    68.4 s  point  21: clock Normal 0 left, cooldown 5 | [ATTACK ACTIVE 1 pt left] [DEFENCE BOOST (Unavailable)]
+    70.9 s  point  22: clock Normal 0 left, cooldown 4 | [COOLDOWN 5 pts] [COOLDOWN 5 pts]
+    72.2 s  point  23: clock Normal 0 left, cooldown 3 | [COOLDOWN 4 pts] [COOLDOWN 4 pts]
+    75.3 s  point  24: clock Normal 0 left, cooldown 2 | [COOLDOWN 3 pts] [COOLDOWN 3 pts]
+    78.0 s  point  25: clock Normal 0 left, cooldown 1 | [COOLDOWN 2 pts] [COOLDOWN 2 pts]
+    81.1 s  point  26: clock Normal 0 left, cooldown 0 | [COOLDOWN 1 pt] [COOLDOWN 1 pt]
+    83.5 s  pressed DEFENCE mid-rally
+    84.1 s  point  27: clock Defence 3 left, cooldown 0 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 3 pts left]
+           STUCK: the buttons did not change at this point
+    91.1 s  point  28: clock Defence 2 left, cooldown 0 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 3 pts left]
+    91.9 s  point  29: clock Defence 1 left, cooldown 0 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 2 pts left]
+    95.5 s  point  30: clock Normal 0 left, cooldown 5 | [ATTACK BOOST (Unavailable)] [DEFENCE ACTIVE 1 pt left]
+    98.1 s  point  31: clock Normal 0 left, cooldown 4 | [COOLDOWN 5 pts] [COOLDOWN 5 pts]
+   101.7 s  point  32: clock Normal 0 left, cooldown 3 | [COOLDOWN 4 pts] [COOLDOWN 4 pts]
+   102.5 s  point  33: clock Normal 0 left, cooldown 2 | [COOLDOWN 3 pts] [COOLDOWN 3 pts]
+   105.7 s  point  34: clock Normal 0 left, cooldown 1 | [COOLDOWN 2 pts] [COOLDOWN 2 pts]
+   108.0 s  point  35: clock Normal 0 left, cooldown 0 | [COOLDOWN 1 pt] [COOLDOWN 1 pt]
+   110.2 s  point  36: clock Normal 0 left, cooldown 0 | [ATTACK BOOST (Ready [A])] [DEFENCE BOOST (Ready [D])]
+   111.2 s  pressed ATTACK mid-rally
+   111.5 s  point  37: clock Attack 3 left, cooldown 0 | [ATTACK ACTIVE 3 pts left] [DEFENCE BOOST (Unavailable)]
+           STUCK: the buttons did not change at this point
+   113.8 s  point  38: clock Attack 2 left, cooldown 0 | [ATTACK ACTIVE 3 pts left] [DEFENCE BOOST (Unavailable)]
+   114.7 s  point  39: clock Attack 1 left, cooldown 0 | [ATTACK ACTIVE 2 pts left] [DEFENCE BOOST (Unavailable)]

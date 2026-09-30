@@ -1,0 +1,15 @@
+Item 18 crowd audio proof (V19, 60 s of play, scene not saved)
+clips (loaded through Resources/Audio; the editor-only lookup is gone):
+  ambience: CrowdAmbience, 8.0 s
+  cheer: CrowdCheer, 2.5 s
+  whistle: RefereeWhistle, 0.8 s
+ambience loop playing: True, volume 0.30, clip CrowdAmbience
+points in 60 s: 7
+listener loudness (RMS): between points 0.0239; peak in the 2 s after a point, average 0.1928
+  point 1 at 11.4 s: the point routine ran (buzzer, cheer clip, swell)
+  point 2 at 26.1 s: the point routine ran (buzzer, cheer clip, swell)
+  point 3 at 28.4 s: the point routine ran (buzzer, cheer clip, swell)
+  point 4 at 35.5 s: the point routine ran (buzzer, cheer clip, swell)
+  point 5 at 42.9 s: the point routine ran (buzzer, cheer clip, swell)
+  point 6 at 45.5 s: the point routine ran (buzzer, cheer clip, swell)
+  point 7 at 55.6 s: the point routine ran (buzzer, cheer clip, swell)
