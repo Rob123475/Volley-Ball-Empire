@@ -41,6 +41,13 @@ const court = read(path.join(REPO, "artifacts", "beach-volleyball", "src", "page
 const iframeAt = court.indexOf("<iframe"), leaveAt = court.indexOf("{leaveBar}");
 check("court.tsx: the Leave match bar sits outside the Unity canvas, above it, whenever the court is up",
   leaveAt > 0 && leaveAt < iframeAt && /data-testid="button-leave-match"/.test(court) && /"Leave match"/.test(court));
+// Overnight brief 30 Sep, item 23: a confirm box first, in Rob's words; no sim option.
+check("court.tsx: Leave match asks first: \"Leave the match?\" / \"Leaving forfeits it: it counts as a loss and pays no prize money.\", Stay or Leave and forfeit",
+  /onClick=\{\(\) => \(matchId \? setConfirmLeave\(true\) : leaveMatch\(\)\)\}/.test(court)
+  && /<AlertDialogTitle>Leave the match\?<\/AlertDialogTitle>/.test(court)
+  && /Leaving forfeits it: it counts as a loss and pays no prize money\./.test(court)
+  && /data-testid="button-confirm-leave" onClick=\{leaveMatch\}/.test(court) && />Stay</.test(court));
+check("court.tsx: no option to simulate the rest of the match", !/[Ss]im(ulate)?|finishes the match from the score/.test(court.replace(/\/\/.*$/gm, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "")));
 check("court.tsx: leaving POSTs /matches/:id/leave, then goes to the dashboard",
   /fetch\(`\/api\/matches\/\$\{matchId\}\/leave`, \{ method: "POST"/.test(court) && /navigate\("\/"\)/.test(court));
 check("court.tsx: on \"unity-match-finished\" it goes straight to the dashboard, every screen refreshed",

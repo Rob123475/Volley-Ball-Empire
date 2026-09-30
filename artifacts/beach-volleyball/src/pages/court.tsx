@@ -3,6 +3,16 @@ import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Monitor, UploadCloud, Loader2, LogOut } from "lucide-react";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   useListCareerSaves,
   getListCareerSavesQueryKey,
 } from "@workspace/api-client-react";
@@ -17,6 +27,8 @@ export default function ThreeDCourt() {
   const queryClient = useQueryClient();
   const [leaving, setLeaving] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
+  // Overnight brief 30 Sep, item 23: leaving a match in play asks first.
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
   // Unity reads this from its own iframe location and calls
@@ -100,11 +112,11 @@ export default function ThreeDCourt() {
         flexShrink: 0, color: "rgba(255,255,255,0.7)", fontSize: "12px",
       }}
     >
-      <span>{leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving now finishes the match from the score so far." : ""}</span>
+      <span>{leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving forfeits the match." : ""}</span>
       <button
         type="button"
         data-testid="button-leave-match"
-        onClick={leaveMatch}
+        onClick={() => (matchId ? setConfirmLeave(true) : leaveMatch())}
         disabled={leaving}
         style={{
           display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "6px",
@@ -115,6 +127,22 @@ export default function ThreeDCourt() {
         {leaving ? <Loader2 style={{ width: 14, height: 14 }} /> : <LogOut style={{ width: 14, height: 14 }} />}
         {matchId ? "Leave match" : "Back to dashboard"}
       </button>
+      <AlertDialog open={confirmLeave} onOpenChange={setConfirmLeave}>
+        <AlertDialogContent data-testid="dialog-leave-match">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave the match?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Leaving forfeits it: it counts as a loss and pays no prize money.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-stay-in-match">Stay</AlertDialogCancel>
+            <AlertDialogAction data-testid="button-confirm-leave" onClick={leaveMatch}>
+              Leave and forfeit
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 

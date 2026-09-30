@@ -75,6 +75,10 @@ try {
 
   const left = await ev(`(() => { const b = document.querySelector('[data-testid="button-leave-match"]'); if (b) b.click(); return !!b; })()`);
   out.steps.push({ step: `pressed Leave match (${left ? "found" : "NOT FOUND"})` });
+  // Overnight 30 Sep, item 23: leaving asks first; confirm it.
+  await sleep(400);
+  const confirmed = await ev(`(() => { const b = document.querySelector('[data-testid="button-confirm-leave"]'); if (b) b.click(); return !!b; })()`);
+  out.steps.push({ step: `confirmed "Leave and forfeit" (${confirmed ? "found" : "NOT FOUND"})` });
   await sleep(3000);
   out.steps.push({ step: "back on the dashboard, 3 s after leaving", ...(await state()) });
   ws.close();
