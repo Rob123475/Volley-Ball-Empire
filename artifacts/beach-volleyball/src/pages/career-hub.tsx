@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { UserCog, Star, Flame, Activity, Briefcase } from "lucide-react";
 import ManagerProfile   from "@/pages/profile";
 import Achievements     from "@/pages/achievements";
-import TrophyCabinet    from "@/pages/trophy-cabinet";
+import ManagerRecords   from "@/pages/manager-records";
 import CareerHistory    from "@/pages/career-history";
 import ManagerContract  from "@/pages/manager-contract";
 
@@ -40,7 +40,9 @@ export default function CareerHub() {
       </div>
       {tab === "overview"     && <ManagerProfile />}
       {tab === "achievements" && <Achievements />}
-      {tab === "records"      && <TrophyCabinet />}
+      {/* Overnight 30 Sep item 1: the manager's own records. The club's
+          honours (Trophy Cabinet) are under Club. */}
+      {tab === "records"      && <ManagerRecords />}
       {tab === "history"      && <CareerHistory />}
       {/* R-43: the Job Market's listings were hardcoded clubs, and applying
           created a club with no squad and no fixtures. Removed. */}

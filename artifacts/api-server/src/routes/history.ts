@@ -10,7 +10,8 @@ import {
   matchesTable,
   playersTable,
 } from "@workspace/db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, inArray } from "drizzle-orm";
+import { careerSavesTable, financeTransactionsTable } from "@workspace/db";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { careerStatsFor } from "../utils/check-achievements.js";
@@ -135,64 +136,66 @@ router.get("/history/records", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
-  const trophies = await db
-    .select()
-    .from(trophiesTable)
-    .where(eq(trophiesTable.teamId, team.id));
+  // Overnight 30 Sep item 1: the MANAGER's record (Career > Records), not the
+  // club's honours (those are the Trophy Cabinet, under Club). It used to
+  // count every completed match in the database, other careers' too, and read
+  // every decisive match as a win (the fixture has the club as both home and
+  // away), the same fault the Trophy Cabinet had until 29 Sep.
+  const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+  const [save] = await db.select().from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).limit(1);
+  // The clubs this manager has run in this career: the one now, and the one
+  // before a change of club (L-02e), while the save still names it.
+  const teamIds = [...new Set([team.id, save?.formerTeamId].filter((x): x is number => x != null))];
+  const clubs = await db.select({ id: teamsTable.id, name: teamsTable.name }).from(teamsTable).where(inArray(teamsTable.id, teamIds));
 
-  const byType = (type: string) => trophies.filter((t) => t.type === type);
-
-  const completedMatches = await db
-    .select()
-    .from(matchesTable)
-    .where(eq(matchesTable.status, "completed"))
-    .orderBy(asc(matchesTable.createdAt));
-
-  let bestStreak = 0;
-  let currentStreak = 0;
-  for (const m of completedMatches) {
-    const won =
-      (m.homeTeamId === team.id && (m.homeScore ?? 0) > (m.awayScore ?? 0)) ||
-      (m.awayTeamId === team.id && (m.awayScore ?? 0) > (m.homeScore ?? 0));
-    if (won) {
-      currentStreak++;
-      if (currentStreak > bestStreak) bestStreak = currentStreak;
-    } else {
-      currentStreak = 0;
-    }
+  const matches = await db.select().from(matchesTable)
+    .where(and(inArray(matchesTable.homeTeamId, teamIds), eq(matchesTable.status, "completed")))
+    .orderBy(asc(matchesTable.season), asc(matchesTable.round));
+  let wins = 0, bestStreak = 0, run = 0;
+  for (const m of matches) {
+    // The club is the home side of every one of its fixtures; a forfeit is 0-2.
+    if ((m.homeScore ?? 0) > (m.awayScore ?? 0)) { wins++; run++; bestStreak = Math.max(bestStreak, run); }
+    else run = 0;
   }
+  const losses = matches.length - wins;
 
-  const myMatches = completedMatches.filter(
-    (m) => m.homeTeamId === team.id || m.awayTeamId === team.id,
-  );
-  const myWins = myMatches.filter(
-    (m) =>
-      (m.homeTeamId === team.id && (m.homeScore ?? 0) > (m.awayScore ?? 0)) ||
-      (m.awayTeamId === team.id && (m.awayScore ?? 0) > (m.homeScore ?? 0)),
-  ).length;
-  const totalMatches = myMatches.length;
-  const winRate = totalMatches > 0 ? Math.round((myWins / totalMatches) * 100) : 0;
-
-  // ACH moved the manager's record onto the career save, because a manager can
-  // now change clubs. `teams.career_stats` has not been written since: read
-  // here it showed a career that has completed nine seasons as having completed
-  // none.
   const cs = await careerStatsFor(team.id);
+  const seasons = await db.select().from(managerSeasonSummaryTable)
+    .where(and(eq(managerSeasonSummaryTable.userId, req.user.id), inArray(managerSeasonSummaryTable.teamId, teamIds)))
+    .orderBy(asc(managerSeasonSummaryTable.seasonYear));
+  const finishes = seasons.map((s) => s.leaguePosition).filter((x): x is number => x != null);
+  const prizeRows = await db.select({ amount: financeTransactionsTable.amount }).from(financeTransactionsTable)
+    .where(and(inArray(financeTransactionsTable.teamId, teamIds), eq(financeTransactionsTable.type, "income"), eq(financeTransactionsTable.category, "prize_money")));
+  const olympicGolds = (await db.select({ id: trophiesTable.id }).from(trophiesTable)
+    .where(and(inArray(trophiesTable.teamId, teamIds), eq(trophiesTable.type, "olympic_gold")))).length;
+
   res.json({
-    worldChampionships: byType("world_championship").length,
-    continentalTitles: byType("continental_championship").length,
-    olympicGolds: byType("olympic_gold").length,
-    totalWins: team.wins,
-    totalLosses: team.losses,
-    winRate,
+    managerName:        save?.managerName ?? null,
+    clubs:              clubs.map((c) => c.name),
+    seasonsCompleted:   cs.seasonsCompleted,
+    matches:            matches.length,
+    wins,
+    losses,
+    winRate:            matches.length > 0 ? Math.round((wins / matches.length) * 100) : 0,
     bestStreak,
-    seasonsCompleted: cs.seasonsCompleted,
-    perfectSeasons: cs.perfectSeasons,
-    highestBalance: cs.highestBalanceReached,
+    currentStreak:      run,
+    worldFinalsWon:     cs.championshipsWon,
+    goldEventsWon:      cs.goldEventsWon,
+    perfectSeasons:     cs.perfectSeasons,
+    olympicGolds,
+    prizeMoneyWon:      prizeRows.reduce((a, r) => a + Math.abs(Number(r.amount)), 0),
+    bestFinish:         finishes.length > 0 ? Math.min(...finishes) : null,
+    youthSigned:        cs.youthSigned,
+    youthPromoted:      cs.youthPromoted,
+    hallOfFameInductions: cs.hallOfFameInductions,
+    highestBalance:     cs.highestBalanceReached,
+    seasons: seasons.map((s) => ({
+      seasonYear: s.seasonYear, clubName: s.clubName, leaguePosition: s.leaguePosition ?? null,
+      wins: s.wins, losses: s.losses, worldResult: s.worldResult ?? null,
+    })),
   });
 });
 
-// ── GET /history/manager-seasons ─────────────────────────────────────────────
 router.get("/history/manager-seasons", async (req, res) => {
   if (!req.user) { res.status(401).json({ error: "Unauthorized" }); return; }
 
