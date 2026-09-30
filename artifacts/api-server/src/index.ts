@@ -1,6 +1,7 @@
 import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
+import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { sqlite } from "@workspace/db";
@@ -199,6 +200,14 @@ try {
 
 // Overnight 30 Sep item 33b: a staff or medical hire with no contract end
 // (an older save) gets one: the end of the current season.
+// Overnight 30 Sep item 26: scouting missions filed as youth academy are refiled as scouting.
+try {
+  const refiled = refileScoutingLines();
+  if (refiled > 0) logger.info({ refiled }, "scouting lines on the ledger refiled from youth academy to scouting");
+} catch (err) {
+  logger.error({ err }, "refiling scouting lines failed");
+}
+
 giveOpenStaffContractsAnEnd()
   .then((n) => { if (n.length > 0) logger.info({ ended: n }, "staff contracts with no end date given the end of the season"); })
   .catch((err) => logger.error({ err }, "giving staff contracts an end failed"));

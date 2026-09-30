@@ -1,3 +1,4 @@
+import { ledgerCategoryLabel } from "@/lib/ledger-categories";
 import { 
   useGetFinanceSummary, 
   useListPromoDeals, 
@@ -551,7 +552,7 @@ export default function Finances() {
                         <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1"><ArrowDownRight className="h-3 w-3" /> EXPENSE</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell"><Badge variant="secondary" className="uppercase text-[10px]">{t.category}</Badge></TableCell>
+                    <TableCell className="hidden sm:table-cell"><Badge variant="secondary" className="text-[10px]">{ledgerCategoryLabel(t.category)}</Badge></TableCell>
                     <TableCell className="font-medium max-w-[140px] truncate">{t.description}</TableCell>
                     <TableCell className={cn("text-right font-bold whitespace-nowrap tabular-nums", t.type === "income" ? "text-green-600" : "text-red-600")}>
                       {/* The row's sign comes from t.type; some older saves stored

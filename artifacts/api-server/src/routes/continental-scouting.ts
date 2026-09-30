@@ -286,7 +286,7 @@ router.post("/continental-scouting/start", async (req, res) => {
     type:        "expense",
     amount:      cost,
     description: `Continental scouting — ${region} (${durationMonths} month${durationMonths > 1 ? "s" : ""})`,
-    category:    "youth_academy",
+    category:    "scouting",   // item 26: a mission is scouting (it was filed as youth academy)
     date:        today,
   });
 

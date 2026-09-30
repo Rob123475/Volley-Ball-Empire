@@ -158,7 +158,7 @@ router.post("/youth-scouting/start", async (req, res) => {
     type:        "expense",
     amount:      SCOUTING_COST,
     description: `Youth scouting — ${continentLabel(continentKey)}`,
-    category:    "youth_academy",
+    category:    "scouting",   // item 26: a scouting trip is scouting
     date:        today,
   });
 
