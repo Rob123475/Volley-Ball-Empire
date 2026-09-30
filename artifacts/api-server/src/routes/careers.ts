@@ -1,4 +1,5 @@
 import { developedPlayers } from "../utils/check-achievements.js";
+import { MANAGER_SALARY_PER_SEASON } from "@workspace/db";
 import { Router } from "express";
 import { db } from "@workspace/db";
 import {
@@ -20,7 +21,7 @@ import {
   openPoolClubBooksTx, openPoolClubSeasonsTx,
 } from "../utils/poolClubFinances.js";
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
-import { buildCareerSummary, endCareer, computeManagerSalary } from "../utils/careerLifecycle.js";
+import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
 import { isOlympicYear } from "../utils/olympics.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -123,7 +124,7 @@ router.get("/careers/contract", async (req, res) => {
     clubName:   save.clubName,
     season:     save.season,
     status:     "Active" as const,
-    salary:     computeManagerSalary(save.managerReputation ?? 50),
+    salary:     MANAGER_SALARY_PER_SEASON,   // overnight 30 Sep item 2
     releaseFee: BREAK_CONTRACT_FEE,
   });
 });

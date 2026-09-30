@@ -1,3 +1,4 @@
+import { managerLevelFor } from "@shared/manager-levels";
 import { continentLabel, continentKeyFrom } from "@shared/continents";
 import { ClubCrest } from "@/components/club-crest";
 import {
@@ -85,16 +86,13 @@ function cn(...inputs: (string | undefined | null | false)[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
-const REP_LEVELS = [
-  { name: "Local Coach",       min: 0,    next: 100,  colour: "text-slate-300"  },
-  { name: "Regional Coach",    min: 100,  next: 300,  colour: "text-blue-300"   },
-  { name: "National Coach",    min: 300,  next: 700,  colour: "text-violet-300" },
-  { name: "World Class Coach", min: 700,  next: 1500, colour: "text-amber-300"  },
-  { name: "Legend",            min: 1500, next: null, colour: "text-yellow-300" },
-];
+// Overnight 30 Sep item 2: the levels are lib/db manager-levels.ts (one measure,
+// one wording, everywhere); only the colours are this page's.
+const REP_COLOURS = ["text-slate-300", "text-blue-300", "text-violet-300", "text-amber-300", "text-yellow-300"];
 
 function getRepLevel(pts: number) {
-  return REP_LEVELS.slice().reverse().find(l => pts >= l.min) ?? REP_LEVELS[0]!;
+  const l = managerLevelFor(pts);
+  return { ...l, colour: REP_COLOURS[l.level - 1]! };
 }
 
 // ── Hero stat tile ─────────────────────────────────────────────────────────────

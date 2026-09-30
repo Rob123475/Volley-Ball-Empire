@@ -6,3 +6,4 @@ export * from "./career-difficulty";
 export * from "./facility-names";
 export * from "./training-programs";
 export * from "./injuries";
+export * from "./manager-levels";

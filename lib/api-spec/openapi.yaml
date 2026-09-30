@@ -3733,7 +3733,7 @@ components:
 
     CareerSummary:
       type: object
-      required: [managerName, clubName, season, worldTitles, olympicMedals, achievementsCompleted, totalWins, totalLosses, managerReputation, managerSalary]
+      required: [managerName, clubName, season, worldTitles, olympicMedals, achievementsCompleted, totalWins, totalLosses, managerRepPoints, managerLevel, managerLevelName, managerSalary, careerEarnings]
       properties:
         managerName:
           type: string
@@ -3759,11 +3759,21 @@ components:
           type: integer
         totalLosses:
           type: integer
-        managerReputation:
+        managerRepPoints:
           type: integer
+          description: "Overnight 30 Sep item 2: the one measure of the manager's standing (wins, titles, upgrades, developing players move it)."
+        managerLevel:
+          type: integer
+          description: "1-5, from managerRepPoints (lib/db manager-levels.ts); the stars shown."
+        managerLevelName:
+          type: string
+          description: "Local Coach, Regional Coach, National Coach, World Class Coach, Legend."
         managerSalary:
           type: integer
-          description: Derived from manager reputation — computeManagerSalary().
+          description: "A season's salary (MANAGER_SALARY_PER_SEASON)."
+        careerEarnings:
+          type: integer
+          description: "Salary earned to date: each season's salary pro rata on the game days served."
 
     CareerSaveList:
       type: object

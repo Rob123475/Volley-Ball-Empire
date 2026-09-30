@@ -161,6 +161,10 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/facility-names": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "facility-names.ts",
       ),
+      // Overnight 30 Sep item 2: the manager's levels, one measure everywhere.
+      "@shared/manager-levels": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "manager-levels.ts",
+      ),
       // Unity brief item 20: how many weeks each injury keeps a player out.
       "@shared/injuries": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "injuries.ts",

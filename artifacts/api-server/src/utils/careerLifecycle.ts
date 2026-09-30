@@ -4,22 +4,34 @@ import {
   hallOfFameTable, careerHistoryEntriesTable,
 } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
+import { seasonsTable, managerLevelFor, MANAGER_SALARY_PER_SEASON } from "@workspace/db";
+import { getGameDate } from "./gameDate.js";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions.js";
 import type { Request } from "express";
 
 // ── Manager salary ─────────────────────────────────────────────────────────────
 /**
- * There is no contract-negotiation system in this game (R-12 removed the
- * stub UI for one) — salary is not a number the player sets or a row in a
- * table, so it is derived from the one real, per-career figure that already
- * stands in for a manager's standing: reputation. $2,000 base plus $80 per
- * reputation point keeps it in the same ballpark the old hardcoded "$5,000"
- * placeholder was ($6,000 at the default rep of 50), but now moves with the
- * manager's actual career instead of being the same number for everyone.
+ * Overnight 30 Sep item 2: the salary is MANAGER_SALARY_PER_SEASON (lib/db
+ * manager-levels.ts). It was derived from career_saves.manager_reputation,
+ * which nothing ever changed, so it was always this figure.
+ *
+ * "Career Earnings" is the salary EARNED to date: each season pays it pro rata
+ * on the game days the manager has spent in it (a finished season in full, the
+ * current one up to today). It used to show the club's prize money.
  */
-export function computeManagerSalary(managerReputation: number): number {
-  return 2_000 + managerReputation * 80;
+export async function managerEarnings(careerSaveId: number, today: string): Promise<number> {
+  const seasons = await db.select({ startDate: seasonsTable.startDate, endDate: seasonsTable.endDate, status: seasonsTable.status })
+    .from(seasonsTable).where(eq(seasonsTable.careerSaveId, careerSaveId));
+  const day = (d: string) => Date.parse(`${d.slice(0, 10)}T00:00:00Z`) / 86_400_000;
+  let earned = 0;
+  for (const s of seasons) {
+    const length = day(s.endDate) - day(s.startDate) + 1;
+    if (length <= 0) continue;
+    const served = s.status === "completed" ? length : Math.max(0, Math.min(length, day(today) - day(s.startDate) + 1));
+    earned += MANAGER_SALARY_PER_SEASON * served / length;
+  }
+  return Math.round(earned);
 }
 
 // ── Career summary ────────────────────────────────────────────────────────────
@@ -69,8 +81,12 @@ export async function buildCareerSummary(teamId: number, userId: string, careerS
     totalAchievements:    TOTAL_ACHIEVEMENTS,
     totalWins:            team?.wins   ?? 0,
     totalLosses:          team?.losses ?? 0,
-    managerReputation:    save?.managerReputation ?? 50,
-    managerSalary:        computeManagerSalary(save?.managerReputation ?? 50),
+    // Item 2: one measure, the manager's reputation points and their level.
+    managerRepPoints:     team?.managerRepPoints ?? 0,
+    managerLevel:         managerLevelFor(team?.managerRepPoints ?? 0).level,
+    managerLevelName:     managerLevelFor(team?.managerRepPoints ?? 0).name,
+    managerSalary:        MANAGER_SALARY_PER_SEASON,
+    careerEarnings:       save ? await managerEarnings(save.id, await getGameDate(teamId)) : 0,
   };
 }
 

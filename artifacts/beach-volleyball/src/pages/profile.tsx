@@ -28,16 +28,6 @@ import { RetireModal } from "@/components/career/RetireModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function repToStars(rep: number): number {
-  if (rep >= 80) return 5;
-  if (rep >= 60) return 4;
-  if (rep >= 40) return 3;
-  if (rep >= 20) return 2;
-  return 1;
-}
-
-const REP_LABELS = ["Novice", "Developing", "Experienced", "Elite", "Legendary"] as const;
-
 function calcWinPct(wins: number, total: number): string {
   if (total === 0) return "—";
   return `${Math.round((wins / total) * 100)}%`;
@@ -216,15 +206,11 @@ export default function ManagerProfile() {
   const olympicMedals  = summary?.olympicMedals ?? 0;
   const matchesPlayed  = totalWins + totalLosses;
   const seasonsManaged = records?.seasonsManaged ?? 0;
-  const careerEarnings = records?.mostPrizeMoney ?? "0";
-
-  // managerReputation is already on the career summary — no need for a
-  // placeholder that showed every manager as a flat 50.
-  const managerReputation = summary?.managerReputation ?? 50;
-  const stars = repToStars(managerReputation);
-
-  // R-09/R-14: derived from managerReputation server-side
-  // (computeManagerSalary) — no longer a flat "$5,000" shown to everyone.
+  // Overnight 30 Sep item 2: the salary EARNED to date (it showed the club's
+  // prize money), and the one standing measure: level and name, stars = level.
+  const careerEarnings = summary?.careerEarnings ?? 0;
+  const stars = summary?.managerLevel ?? 1;
+  const levelName = summary?.managerLevelName ?? "Local Coach";
   const managerSalary = `${fmtMoney(summary?.managerSalary ?? 0)} / season`;
 
   const seasonsLabel =
@@ -262,7 +248,7 @@ export default function ManagerProfile() {
           <div className="flex flex-wrap items-center gap-3">
             <RepStars stars={stars} />
             <span className="text-[10px] text-white/35 uppercase tracking-widest font-semibold">
-              {REP_LABELS[stars - 1]} Manager
+              Level {stars} · {levelName}
             </span>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { MANAGER_LEVELS } from "@shared/manager-levels";
 import { useGetTrophyCabinet, getGetTrophyCabinetQueryKey, useGetMyTeam } from "@workspace/api-client-react";
 import { ClubHallOfFame } from "@/components/club-hall-of-fame";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -451,11 +452,11 @@ export default function TrophyCabinet() {
         <TabsContent value="manager" className="mt-6">
           {(() => {
             const REP_LEVELS = [
-              { level: 1, name: "Local Coach",       min: 0,    next: 100,  colour: "text-zinc-400",   ring: "border-zinc-500",     bg: "bg-zinc-500",     desc: "Just getting started. Players and staff take a chance on you." },
-              { level: 2, name: "Regional Coach",    min: 100,  next: 300,  colour: "text-green-400",  ring: "border-green-500",    bg: "bg-green-500",    desc: "Your results are turning heads. Better signings become possible." },
-              { level: 3, name: "National Coach",    min: 300,  next: 700,  colour: "text-blue-400",   ring: "border-blue-500",     bg: "bg-blue-500",     desc: "Respected on the national circuit. Top staff want to work with you." },
-              { level: 4, name: "World Class Coach", min: 700,  next: 1500, colour: "text-purple-400", ring: "border-purple-500",   bg: "bg-purple-500",   desc: "Elite players seek you out. Premium sponsors come calling." },
-              { level: 5, name: "Legend",            min: 1500, next: null, colour: "text-yellow-400", ring: "border-yellow-400",   bg: "bg-yellow-400",   desc: "The pinnacle. Unlocks the best national team offers and sponsorships." },
+              { ...MANAGER_LEVELS[0],  colour: "text-zinc-400",   ring: "border-zinc-500",     bg: "bg-zinc-500",     desc: "Just getting started. Players and staff take a chance on you." },
+              { ...MANAGER_LEVELS[1],  colour: "text-green-400",  ring: "border-green-500",    bg: "bg-green-500",    desc: "Your results are turning heads. Better signings become possible." },
+              { ...MANAGER_LEVELS[2],  colour: "text-blue-400",   ring: "border-blue-500",     bg: "bg-blue-500",     desc: "Respected on the national circuit. Top staff want to work with you." },
+              { ...MANAGER_LEVELS[3], colour: "text-purple-400", ring: "border-purple-500",   bg: "bg-purple-500",   desc: "Elite players seek you out. Premium sponsors come calling." },
+              { ...MANAGER_LEVELS[4], colour: "text-yellow-400", ring: "border-yellow-400",   bg: "bg-yellow-400",   desc: "The pinnacle. Unlocks the best national team offers and sponsorships." },
             ];
             const EARN_WAYS = [
               { icon: "🏆", label: "Tournament win",       pts: "+10"  },

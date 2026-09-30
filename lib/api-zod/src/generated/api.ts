@@ -9869,8 +9869,11 @@ export const GetCareerSummaryResponse = zod.object({
   "totalAchievements": zod.number().optional(),
   "totalWins": zod.number(),
   "totalLosses": zod.number(),
-  "managerReputation": zod.number(),
-  "managerSalary": zod.number().describe('Derived from manager reputation — computeManagerSalary().')
+  "managerRepPoints": zod.number().describe('Overnight 30 Sep item 2: the one measure of the manager\'s standing (wins, titles, upgrades, developing players move it).'),
+  "managerLevel": zod.number().describe('1-5, from managerRepPoints (lib\/db manager-levels.ts); the stars shown.'),
+  "managerLevelName": zod.string().describe('Local Coach, Regional Coach, National Coach, World Class Coach, Legend.'),
+  "managerSalary": zod.number().describe('A season\'s salary (MANAGER_SALARY_PER_SEASON).'),
+  "careerEarnings": zod.number().describe('Salary earned to date: each season\'s salary pro rata on the game days served.')
 })
 
 

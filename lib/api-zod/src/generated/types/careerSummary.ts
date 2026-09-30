@@ -18,7 +18,14 @@ export interface CareerSummary {
   totalAchievements?: number;
   totalWins: number;
   totalLosses: number;
-  managerReputation: number;
-  /** Derived from manager reputation — computeManagerSalary(). */
+  /** Overnight 30 Sep item 2: the one measure of the manager's standing (wins, titles, upgrades, developing players move it). */
+  managerRepPoints: number;
+  /** 1-5, from managerRepPoints (lib/db manager-levels.ts); the stars shown. */
+  managerLevel: number;
+  /** Local Coach, Regional Coach, National Coach, World Class Coach, Legend. */
+  managerLevelName: string;
+  /** A season's salary (MANAGER_SALARY_PER_SEASON). */
   managerSalary: number;
+  /** Salary earned to date: each season's salary pro rata on the game days served. */
+  careerEarnings: number;
 }
