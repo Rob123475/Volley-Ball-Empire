@@ -28,7 +28,7 @@ import {
 import { getGameDate } from "../utils/gameDate.js";
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import {
-  sideRating, pointProbability, simulateMatch, finishMatchFrom, isLegalProgress, type SetScore,
+  sideRating, pointProbability, simulateMatch,
   opponentRatingFromTier, clampRating,
 } from "../utils/matchEngine.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
@@ -625,9 +625,10 @@ export async function matchPointChance(careerSaveId: number, team: Team, match: 
 }
 
 // ─── POST /api/matches/:id/leave ─────────────────────────────────────────────
-// Unity brief item 4: the player left the 3D court before the end. The match is
-// finished by the game's engine from the last score the court sent, and
-// recorded like any other result.
+// Overnight brief 30 Sep, item 24 (replaces the leave-early rule of 29 Sep,
+// which finished the match from the court's last score): leaving the 3D court
+// before the end forfeits the match (recordForfeit). The window's X mid-match
+// is the same, at the next boot (utils/abandonedMatches.ts).
 router.post("/matches/:id/leave", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
@@ -637,38 +638,8 @@ router.post("/matches/:id/leave", async (req, res) => {
   if (!team || match.homeTeamId !== team.id) { res.status(404).json({ error: "Match not found" }); return; }
   if (match.status === "completed") { res.json({ alreadyCompleted: true, match: serializeMatch(match) }); return; }
   if (match.status !== "in_progress") { res.status(409).json({ error: "This match is not being watched." }); return; }
-  const result = await finishWatchedMatchFromProgress(
-    { careerSaveId: requireCareerSaveId(req.activeCareerSaveId), team, userId: req.user?.id ?? null, log: req.log },
-    match,
-  );
-  if (!result) { res.status(409).json({ error: "Match already completed" }); return; }
-  res.json({ ...result, finishedFrom: result.finishedFrom });
+  res.json(await recordForfeit(req, team, match, requireCareerSaveId(req.activeCareerSaveId)));
 });
-
-/** The last score the 3D court reported for a watched match: finished sets and the set in play. */
-export async function watchedProgress(match: Match): Promise<{ finished: SetScore[]; current: SetScore }> {
-  const live = await db.query.matchLiveStateTable.findFirst({ where: eq(matchLiveStateTable.matchId, match.id) });
-  const stored = Array.isArray(match.sets) ? (match.sets as SetScore[]) : [];
-  const finished = stored.filter((s) => s && Number.isInteger(s.home) && Number.isInteger(s.away));
-  const current = { home: live?.homeSetScore ?? 0, away: live?.awaySetScore ?? 0 };
-  return isLegalProgress(finished, current) ? { finished, current } : { finished: [], current: { home: 0, away: 0 } };
-}
-
-/**
- * Finish a watched match from its last reported score, with the game's engine
- * at the match's own chance (matchPointChance), and record it through
- * completeMatch, exactly as Sim Result records. Used when the player leaves the
- * court early, and at boot for a match left "in_progress" (the window closed).
- */
-export async function finishWatchedMatchFromProgress(ctx: MatchContext, match: Match) {
-  const from = await watchedProgress(match);
-  const chance = await matchPointChance(ctx.careerSaveId, ctx.team, match);
-  const played = finishMatchFrom(chance.pointChanceHome, from.finished, from.current);
-  // completeMatch refuses nothing "in_progress"; it reads the match row fresh.
-  const result = await completeMatch(ctx, match, { homeScore: played.homeScore, awayScore: played.awayScore, sets: played.sets });
-  await db.delete(matchLiveStateTable).where(eq(matchLiveStateTable.matchId, match.id));
-  return result ? { ...result, finishedFrom: from } : null;
-}
 
 export type MatchContext = {
   careerSaveId: number;
@@ -1148,31 +1119,33 @@ const SQUAD_INCOMPLETE =
   `Your club has fewer than ${MAX_STARTERS} contracted players fit to play — injured players cannot be selected. Sign or renew players on the Contracts page.`;
 
 /**
- * Record a forfeit: a straight-sets loss with the standard loss-side team
- * penalties (losses, sponsor reputation, win streak), ranking credit to both
- * sides, post-match effects, the board's forfeit count and its abandonment rule.
+ * Record a forfeit. Overnight brief 30 Sep, item 24: no score is recorded
+ * (home/away score and sets stay null, `forfeit` is set, and every results
+ * list shows "Forfeit"). The club: a loss (losses, sponsor reputation, win
+ * streak), no prize money, no ranking points (the loss is counted, at 0
+ * points), nothing written against its players. The opponent: the win, the
+ * match's ranking points and, an AI club, the winner's prize
+ * (recordPlayerMatchResult). Then post-match effects, the board's forfeit
+ * count and its abandonment rule.
  *
- * Shared by POST /matches/:id/forfeit and by R-48's empty-squad rule in
- * /simulate, so a forfeit means exactly one thing wherever it comes from. The
- * caller has already passed the World Tour gate.
+ * Shared by POST /matches/:id/forfeit, R-48's empty-squad rule in /simulate,
+ * leaving the 3D court (POST /matches/:id/leave) and a match left in progress
+ * when the window closed (at boot, `req` null), so a forfeit means exactly one
+ * thing wherever it comes from. The caller has already passed the World Tour gate.
  */
-async function recordForfeit(
-  req: Request,
+export async function recordForfeit(
+  req: Request | null,
   team: NonNullable<Awaited<ReturnType<typeof getActiveTeam>>>,
   match: Match,
   careerSaveId: number,
 ) {
   const id = match.id;
-
-  // home_score/away_score are SETS WON (the headline the UI prints), with the
-  // per-set point scores in `sets`. A forfeit is a straight-sets loss; this
-  // used to write 0-21, a point score, which rendered as "0 - 21".
-  const homeScore = 0;
-  const awayScore = 2;
+  const homeScore = null;
+  const awayScore = null;
 
   const [updatedMatch] = await db
     .update(matchesTable)
-    .set({ homeScore, awayScore, status: "completed" })
+    .set({ homeScore, awayScore, sets: null, forfeit: true, status: "completed" })
     .where(eq(matchesTable.id, id))
     .returning();
 
@@ -1188,10 +1161,10 @@ async function recordForfeit(
   // R-29: a forfeit used to count in teams.losses only, so the ranking table and
   // the club's own record disagreed, and the opponent was credited nothing.
   await creditRankingPoints({
-    careerSaveId, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false,
+    careerSaveId, teamId: team.id, seasonYear: match.season, tier: match.tier, won: false, creditPlayers: false,
   });
   recordPlayerMatchResult({
-    careerSaveId, matchId: id, playerWon: false, homeSets: homeScore, awaySets: awayScore, sets: null,
+    careerSaveId, matchId: id, playerWon: false, homeSets: null, awaySets: null, sets: null,
   });
 
   const [facilityRows] = await Promise.all([
@@ -1209,9 +1182,9 @@ async function recordForfeit(
   let fired = false;
   let dismissalClubName: string | null = null;
 
-  if (req.user?.id && board.abandonedDays != null && board.abandonedDays >= ABANDONMENT_DAYS) {
+  if (req?.user?.id && board.abandonedDays != null && board.abandonedDays >= ABANDONMENT_DAYS) {
     const days = board.abandonedDays;
-    const summary = await endCareer(req, team.id, req.user.id, {
+    const summary = await endCareer(req, team.id, req.user!.id, {
       type: "dismissal",
       description: (s) =>
         `${s.managerName} was sacked by ${s.clubName}: the club went ${days} days without two contracted players to put on the sand.`,

@@ -1,3 +1,4 @@
+import { scoreText } from "@/lib/match-score";
 import { managerLevelFor } from "@shared/manager-levels";
 import { continentLabel, continentKeyFrom } from "@shared/continents";
 import { ClubCrest } from "@/components/club-crest";
@@ -807,7 +808,7 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-sm font-bold tabular-nums">{hs} – {as_}</span>
+                  <span className="text-sm font-bold tabular-nums">{scoreText(match)}</span>
                   <Badge className={isWin ? "bg-emerald-500 hover:bg-emerald-500 text-white" : "bg-red-500 hover:bg-red-500 text-white"}>
                     {isWin ? "WIN" : "LOSS"}
                   </Badge>

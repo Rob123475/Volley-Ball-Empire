@@ -8953,6 +8953,7 @@ export const ListMatchesResponseItem = zod.object({
   "prizeAmount": zod.number().nullish(),
   "scheduledAt": zod.string().nullish(),
   "lineup": zod.array(zod.number()).nullish(),
+  "forfeit": zod.boolean().optional().describe('Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as \"Forfeit\". The club lost; the opponent won.'),
   "createdAt": zod.string()
 })
 export const ListMatchesResponse = zod.array(ListMatchesResponseItem)
@@ -8999,6 +9000,7 @@ export const GetMatchResponse = zod.object({
   "prizeAmount": zod.number().nullish(),
   "scheduledAt": zod.string().nullish(),
   "lineup": zod.array(zod.number()).nullish(),
+  "forfeit": zod.boolean().optional().describe('Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as \"Forfeit\". The club lost; the opponent won.'),
   "createdAt": zod.string()
 })
 
@@ -9035,11 +9037,13 @@ export const SimulateMatchResponse = zod.object({
   "prizeAmount": zod.number().nullish(),
   "scheduledAt": zod.string().nullish(),
   "lineup": zod.array(zod.number()).nullish(),
+  "forfeit": zod.boolean().optional().describe('Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as \"Forfeit\". The club lost; the opponent won.'),
   "createdAt": zod.string()
 }),
   "highlights": zod.array(zod.string()),
-  "homeScore": zod.number(),
-  "awayScore": zod.number(),
+  "homeScore": zod.number().nullable().describe('Sets won. Null on a forfeit (no score is recorded).'),
+  "awayScore": zod.number().nullable(),
+  "forfeit": zod.boolean().optional().describe('Only on a forfeit (item 24).'),
   "winner": zod.enum(['home', 'away', 'draw']),
   "prizeEarned": zod.number(),
   "isFinal": zod.boolean(),
@@ -9342,6 +9346,7 @@ export const UpdateMatchLineupResponse = zod.object({
   "prizeAmount": zod.number().nullish(),
   "scheduledAt": zod.string().nullish(),
   "lineup": zod.array(zod.number()).nullish(),
+  "forfeit": zod.boolean().optional().describe('Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as \"Forfeit\". The club lost; the opponent won.'),
   "createdAt": zod.string()
 })
 
@@ -9369,6 +9374,7 @@ export const ListUpcomingMatchesResponseItem = zod.object({
   "prizeAmount": zod.number().nullish(),
   "scheduledAt": zod.string().nullish(),
   "lineup": zod.array(zod.number()).nullish(),
+  "forfeit": zod.boolean().optional().describe('Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as \"Forfeit\". The club lost; the opponent won.'),
   "createdAt": zod.string()
 })
 export const ListUpcomingMatchesResponse = zod.array(ListUpcomingMatchesResponseItem)
@@ -10069,6 +10075,7 @@ export const GetDashboardResponse = zod.object({
   "prizeAmount": zod.number().nullish(),
   "scheduledAt": zod.string().nullish(),
   "lineup": zod.array(zod.number()).nullish(),
+  "forfeit": zod.boolean().optional().describe('Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as \"Forfeit\". The club lost; the opponent won.'),
   "createdAt": zod.string()
 })),
   "topPlayers": zod.array(zod.object({

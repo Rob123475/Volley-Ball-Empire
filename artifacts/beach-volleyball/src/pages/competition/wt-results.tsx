@@ -1,3 +1,4 @@
+import { scoreText } from "@/lib/match-score";
 import { useState } from "react";
 import { useListMatches, useGetCurrentSeason } from "@workspace/api-client-react";
 import { useRoundNames } from "@/hooks/use-calendar";
@@ -94,8 +95,9 @@ export default function WtResults() {
                   </Badge>
                 </div>
                 {roundMatches.map(match => {
-                  const homeWon =
-                    match.homeScore != null && match.awayScore != null
+                  const homeWon = match.forfeit
+                    ? false
+                    : match.homeScore != null && match.awayScore != null
                       ? match.homeScore > match.awayScore
                       : null;
                   return (
@@ -108,7 +110,7 @@ export default function WtResults() {
                           {match.homeTeamName ?? "TBD"}
                         </span>
                         <span className="text-sm font-bold tabular-nums text-center">
-                          {match.homeScore} – {match.awayScore}
+                          {scoreText(match)}
                         </span>
                         <span className={homeWon === false ? "font-semibold text-sm truncate text-right" : "text-sm opacity-60 truncate text-right"}>
                           {match.awayTeamName ?? "TBD"}

@@ -9,22 +9,25 @@
  *   POST /unity/match-progress     the court's score after every point
  *   POST /unity/match-result       the court's final score, recorded through
  *                                  completeMatch, the path Sim Result uses
- *   POST /matches/:id/leave        left early: finished from the last score
- *   boot                           a match left in_progress (window closed)
- *                                  is finished from the last score
+ *   POST /matches/:id/leave        left early: a FORFEIT (overnight 30 Sep, item 24)
+ *   boot                           a match left in_progress (window closed):
+ *                                  the same forfeit
  *
  * Asserted: a posted result is recorded exactly (sets, winner, win/loss, the
  * prize on the ledger); an illegal score is refused and changes nothing;
  * posting the same result twice changes nothing; while watched, Sim Result
- * refuses and the day cannot move on; leaving at 7-4 in set 2 (set 1 won 11-8)
- * records set 1 as 11-8 and set 2 finished from 7-4; and a match whose window
- * was closed at 3-2 is finished from 3-2 on the next boot.
+ * refuses and the day cannot move on. Item 24: leaving a World Tour match at
+ * 7-4 in set 2 records no score and a forfeit: the club a loss, no prize, no
+ * ranking points, nothing against its players; the opponent the win, the
+ * ranking points and (an AI club) the prize; a match whose window was closed
+ * at 3-2 is the same forfeit on the next boot.
  *
  * Usage: node harness/watched-result.mjs
  */
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
@@ -86,6 +89,19 @@ const matchRow = async (id) => (await api("GET", "/matches")).data?.find((m) => 
 const team = async () => (await api("GET", "/team")).data;
 const ledgerFor = async (round) => ((await api("GET", "/finances")).data ?? []).filter((t) => t.category === "prize_money" && new RegExp(`Round ${round}\\b`).test(t.description));
 const fmtSets = (sets) => (sets ?? []).map((s) => `${s.home}-${s.away}`).join(", ");
+const WORLD_TOUR_START = 11;
+const q = (sql, ...a) => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return d.prepare(sql).all(...a); } finally { d.close(); } };
+const fixtureOf = (matchId) => q(`SELECT * FROM world_tour_fixtures WHERE match_id = ?`, matchId)[0] ?? null;
+const competitorOf = (teamId) => q(`SELECT id FROM competitors WHERE team_id = ?`, teamId)[0]?.id;
+const standing = (competitorId) => {
+  const r = q(`SELECT ranking_points AS points, wins, losses FROM competitor_rankings WHERE competitor_id = ? ORDER BY season_year DESC LIMIT 1`, competitorId)[0];
+  return r ?? { points: 0, wins: 0, losses: 0 };
+};
+const playerRows = (competitorId) => q(`SELECT player_id, ranking_points, matches FROM player_ranking_points WHERE competitor_id = ? ORDER BY player_id`, competitorId);
+const poolBalance = (competitorId) => {
+  const pool = q(`SELECT pool_team_id FROM competitors WHERE id = ?`, competitorId)[0]?.pool_team_id;
+  return pool == null ? null : Number(q(`SELECT balance FROM career_pool_team_state WHERE pool_team_id = ?`, pool)[0]?.balance ?? NaN);
+};
 
 let srv = boot("1");
 try {
@@ -141,27 +157,53 @@ try {
   const other = await court("/unity/match-result", { careerSaveId, matchId: m1, sets: [{ home: 5, away: 11 }, { home: 7, away: 11 }] });
   check("a different result for a recorded match is refused", other.status === 409, `HTTP ${other.status}`);
 
-  // ── B. Leaving the court early at 7-4 in set 2 ──────────────────────────
-  console.log("\nB. LEFT EARLY AT 7-4 IN SET 2");
-  await api("POST", "/calendar/skip-match");
-  const m2 = (await api("POST", "/calendar/next-match")).data?.matchDay?.matchId;
+  // ── B. Leaving the court at 7-4 in set 2: a forfeit (overnight 30 Sep, item 24) ──
+  console.log("\nB. LEFT AT 7-4 IN SET 2: A FORFEIT");
+  // A World Tour match, so the opponent is a club on the ranking table.
+  let m2 = null, round2 = 0;
+  for (let i = 0; i < 20; i++) {
+    await api("POST", "/calendar/skip-match");
+    const md = (await api("POST", "/calendar/next-match")).data?.matchDay;
+    if (md?.matchId && (await matchRow(md.matchId))?.round >= WORLD_TOUR_START) { m2 = md.matchId; round2 = (await matchRow(m2)).round; break; }
+  }
+  const b2 = await team();
+  const fx2before = fixtureOf(m2);
+  const opp2 = fx2before ? standing(fx2before.away_competitor_id) : null;
+  const my2 = competitorOf(b2.id);
+  const me2 = standing(my2);
+  const players2 = playerRows(my2);
+  const aiBalance2 = fx2before ? poolBalance(fx2before.away_competitor_id) : null;
   await api("POST", `/matches/${m2}/watch`, {});
   const p2 = await court("/unity/match-progress", { careerSaveId, matchId: m2, sets: [{ home: 11, away: 8 }], current: { home: 7, away: 4 } });
   const left = await api("POST", `/matches/${m2}/leave`);
   const r2 = await matchRow(m2);
-  const s2 = r2?.sets ?? [];
-  check("leaving finishes and records the match", p2.status === 200 && left.status === 200 && r2?.status === "completed", `HTTP ${left.status}; ${r2?.status}`);
-  check("set 1 is the court's 11-8", s2[0]?.home === 11 && s2[0]?.away === 8, fmtSets(s2));
-  check("set 2 was played on from 7-4 (both sides at least there), to a legal finish",
-    s2[1] && s2[1].home >= 7 && s2[1].away >= 4 && ((s2[1].home >= 11 && s2[1].home - s2[1].away >= 2) || (s2[1].away >= 11 && s2[1].away - s2[1].home >= 2)),
-    `${fmtSets(s2)}; finished from ${JSON.stringify(left.data?.finishedFrom)}`);
-  check("the response says what it was finished from",
-    JSON.stringify(left.data?.finishedFrom) === JSON.stringify({ finished: [{ home: 11, away: 8 }], current: { home: 7, away: 4 } }));
+  const a2 = await team();
+  check(`leaving (World Tour round ${round2}) records the match at once, as a forfeit`,
+    p2.status === 200 && left.status === 200 && r2?.status === "completed" && r2.forfeit === true, `HTTP ${left.status}; ${r2?.status}, forfeit ${r2?.forfeit}`);
+  check("no score is recorded: no sets won either side, no set scores",
+    r2.homeScore === null && r2.awayScore === null && (r2.sets === null || r2.sets === undefined), `${r2.homeScore}-${r2.awayScore}, sets ${JSON.stringify(r2.sets)}`);
+  check("the club: a loss, no prize money on the ledger",
+    a2.losses === b2.losses + 1 && a2.wins === b2.wins && (await ledgerFor(round2)).length === 0 && Number(a2.budget) === Number(b2.budget),
+    `losses ${b2.losses} -> ${a2.losses}; balance $${b2.budget} -> $${a2.budget}`);
+  const me2after = standing(my2);
+  check("the club: no ranking points (the loss is counted on the table, at 0 points)",
+    me2after.points === me2.points && me2after.losses === me2.losses + 1, `points ${me2.points} -> ${me2after.points}, losses ${me2.losses} -> ${me2after.losses}`);
+  check("nothing is written against the club's players", JSON.stringify(playerRows(my2)) === JSON.stringify(players2), JSON.stringify(playerRows(my2)));
+  const fx2 = fixtureOf(m2);
+  const opp2after = fx2 ? standing(fx2.away_competitor_id) : null;
+  check("the opponent: the win and the match's ranking points",
+    !!fx2 && fx2.status === "completed" && opp2after.wins === opp2.wins + 1 && opp2after.points > opp2.points,
+    fx2 ? `wins ${opp2.wins} -> ${opp2after.wins}, points ${opp2.points} -> ${opp2after.points}` : "no World Tour fixture");
+  const aiAfter2 = fx2 ? poolBalance(fx2.away_competitor_id) : null;
+  check("an AI opponent is paid the winner's prize", aiBalance2 == null || aiAfter2 > aiBalance2, `$${aiBalance2} -> $${aiAfter2}`);
+  const results = (await api("GET", "/matches")).data ?? [];
+  check("the results carry the forfeit, for every list to show \"Forfeit\"", results.find((m) => m.id === m2)?.forfeit === true);
 
-  // ── C. The window closed mid-match ─────────────────────────────────────
-  console.log("\nC. THE WINDOW CLOSED AT 3-2");
+  // ── C. The window closed mid-match: the same forfeit ───────────────────
+  console.log("\nC. THE WINDOW CLOSED AT 3-2: A FORFEIT");
   await api("POST", "/calendar/skip-match");
   const m3 = (await api("POST", "/calendar/next-match")).data?.matchDay?.matchId;
+  const b3 = await team();
   await api("POST", `/matches/${m3}/watch`, {});
   await court("/unity/match-progress", { careerSaveId, matchId: m3, sets: [], current: { home: 3, away: 2 } });
   check("mid-match, the match is in progress", (await matchRow(m3))?.status === "in_progress");
@@ -173,17 +215,18 @@ try {
   cookie = "";
   await api("POST", `/profiles/${prof.data.id}/select`);
   const r3 = await matchRow(m3);
-  const s3 = r3?.sets ?? [];
-  check("on the next launch the match is finished, never left in progress", r3?.status === "completed", `${r3?.status} ${r3?.homeScore}-${r3?.awayScore}`);
-  check("from the last score the court sent (3-2 in set 1)", s3[0] && s3[0].home >= 3 && s3[0].away >= 2 && s3.length >= 2, fmtSets(s3));
+  const a3 = await team();
+  check("on the next launch the match is forfeited, never left in progress",
+    r3?.status === "completed" && r3.forfeit === true && r3.homeScore === null && r3.awayScore === null, `${r3?.status}, forfeit ${r3?.forfeit}, ${r3?.homeScore}-${r3?.awayScore}`);
+  check("the same forfeit: a loss, no prize", a3.losses === b3.losses + 1 && Number(a3.budget) === Number(b3.budget), `losses ${b3.losses} -> ${a3.losses}`);
   // The logger writes through a worker thread: give the boot line time to land.
   let log = "";
   for (let i = 0; i < 40; i++) {
     log = fs.readFileSync(path.join(WORK, "server-2.log"), "utf8");
-    if (/finished from their last score/.test(log)) break;
+    if (/were forfeited/.test(log)) break;
     await new Promise((r) => setTimeout(r, 250));
   }
-  check("and the boot log says so", /finished from their last score/.test(log) && new RegExp(`"matchId":\\s*${m3}\\b`).test(log));
+  check("and the boot log says so", /were forfeited/.test(log) && new RegExp(`"matchId":\\s*${m3}\\b`).test(log));
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

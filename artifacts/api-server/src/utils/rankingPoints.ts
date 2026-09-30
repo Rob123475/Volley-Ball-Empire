@@ -65,6 +65,8 @@ export async function creditRankingPoints(args: {
   seasonYear: number;
   tier: string | null;
   won: boolean;
+  /** Overnight 30 Sep, item 24: false for a forfeit, which records nothing against the players. */
+  creditPlayers?: boolean;
 }): Promise<number> {
   return db.transaction((tx) => creditCompetitorTx(tx, {
     careerSaveId: args.careerSaveId,
@@ -72,6 +74,7 @@ export async function creditRankingPoints(args: {
     competitorId: competitorIdForTeamTx(tx, args.teamId),
     tier:         args.tier,
     won:          args.won,
+    creditPlayers: args.creditPlayers,
   }));
 }
 
@@ -99,7 +102,10 @@ export function creditCompetitorTx(tx: Tx, args: {
    * is paid in routes/matches.ts from the purse carried on its match row.
    */
   round?: number | null;
+  /** Write the result against the pair on the sand too (R-46). Not for a forfeit (item 24). */
+  creditPlayers?: boolean;
 }): number {
+  const creditPlayers = args.creditPlayers ?? true;
   // The money, in the one place the points are. A club is paid by the same
   // event, in the same instant, as it is scored - and only a POOL club is paid
   // here, so the player's club cannot be paid twice
@@ -136,7 +142,7 @@ export function creditCompetitorTx(tx: Tx, args: {
       wins:          args.won ? 1 : 0,
       losses:        args.won ? 0 : 1,
     }).run();
-    creditPlayersTx(tx, { careerSaveId: args.careerSaveId, seasonYear: args.seasonYear, competitorId: args.competitorId, points });
+    if (creditPlayers) creditPlayersTx(tx, { careerSaveId: args.careerSaveId, seasonYear: args.seasonYear, competitorId: args.competitorId, points });
     return points;
   }
 
@@ -151,7 +157,7 @@ export function creditCompetitorTx(tx: Tx, args: {
     .where(eq(competitorRankingsTable.id, existing.id))
     .run();
 
-  creditPlayersTx(tx, { careerSaveId: args.careerSaveId, seasonYear: args.seasonYear, competitorId: args.competitorId, points });
+  if (creditPlayers) creditPlayersTx(tx, { careerSaveId: args.careerSaveId, seasonYear: args.seasonYear, competitorId: args.competitorId, points });
   return points;
 }
 

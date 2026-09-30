@@ -154,8 +154,9 @@ try {
   check("simulating it is a forfeit, and says why",
     sim.status === 200 && sim.data?.forfeit === true && sim.data?.squadIncomplete === true && /Contracts page/.test(sim.data?.reason ?? ""),
     `HTTP ${sim.status} ${JSON.stringify({ forfeit: sim.data?.forfeit, reason: sim.data?.reason })}`);
-  const matchRow = read(`SELECT status, home_score, away_score, sets FROM matches WHERE id = ?`, matchA)[0];
-  check("the match is completed 0-2 with no sets played", matchRow?.status === "completed" && matchRow.home_score === 0 && matchRow.away_score === 2 && matchRow.sets == null,
+  const matchRow = read(`SELECT status, home_score, away_score, sets, forfeit FROM matches WHERE id = ?`, matchA)[0];
+  // Overnight 30 Sep, item 24: a forfeit records no score (it was written 0-2).
+  check("the match is completed as a forfeit, with no score and no sets", matchRow?.status === "completed" && matchRow.forfeit === 1 && matchRow.home_score == null && matchRow.away_score == null && matchRow.sets == null,
     JSON.stringify(matchRow));
   const teamAfter = read(`SELECT losses, board_confidence FROM teams WHERE id = ?`, a.teamId)[0];
   const boardAfter = read(`SELECT forfeits FROM board_seasons WHERE career_save_id = ? AND season_year = 2026`, a.careerSaveId)[0];
@@ -163,9 +164,11 @@ try {
     teamAfter.losses === teamBefore.losses + 1 && teamAfter.board_confidence === teamBefore.board_confidence
       && boardAfter?.forfeits === (boardBefore?.forfeits ?? -1) + 1,
     `losses ${teamBefore.losses}->${teamAfter.losses}, confidence ${teamBefore.board_confidence}->${teamAfter.board_confidence}, board forfeits ${boardBefore?.forfeits}->${boardAfter?.forfeits}`);
-  const fixture = read(`SELECT status, home_sets, away_sets FROM world_tour_fixtures WHERE match_id = ?`, matchA)[0];
-  check("the World Tour fixture records the opponent's win", fixture?.status === "completed" && fixture.home_sets === 0 && fixture.away_sets === 2,
-    JSON.stringify(fixture));
+  const fixture = read(`SELECT status, home_sets, away_sets, away_competitor_id AS opp FROM world_tour_fixtures WHERE match_id = ?`, matchA)[0];
+  const oppRow = fixture ? read(`SELECT wins FROM competitor_rankings WHERE career_save_id = ? AND competitor_id = ? AND season_year = 2026`, a.careerSaveId, fixture.opp)[0] : null;
+  check("the World Tour fixture is completed, no score, and the opponent is credited the win (item 24)",
+    fixture?.status === "completed" && fixture.home_sets == null && fixture.away_sets == null && (oppRow?.wins ?? 0) >= 1,
+    `${JSON.stringify(fixture)}; opponent wins ${oppRow?.wins}`);
   const ranking = read(`SELECT r.wins, r.losses FROM competitor_rankings r JOIN competitors c ON c.id = r.competitor_id
     WHERE r.career_save_id = ? AND c.team_id = ?`, a.careerSaveId, a.teamId)[0];
   check("the club's ranking row carries the loss", ranking?.losses === 1 && ranking?.wins === 0, JSON.stringify(ranking));

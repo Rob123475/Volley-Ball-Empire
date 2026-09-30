@@ -1,3 +1,4 @@
+import { scoreText } from "@/lib/match-score";
 import { 
   useListMatches, 
   useScheduleMatch, 
@@ -434,7 +435,7 @@ export default function Matches() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <div className="text-2xl font-black">{homeScore} – {awayScore}</div>
+                      <div className="text-2xl font-black">{scoreText(match)}</div>
                       <Badge className={isWin ? "bg-green-500" : "bg-red-500"}>
                         {isWin ? "WIN" : "LOSS"}
                       </Badge>
@@ -466,19 +467,19 @@ export default function Matches() {
           <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle className="text-3xl font-black text-center mb-4">
-                {simulationResult.isFinal ? "🏆 GRAND FINAL RESULT" : "MATCH RESULT"}
+                {simulationResult.forfeit ? "FORFEIT" : simulationResult.isFinal ? "🏆 GRAND FINAL RESULT" : "MATCH RESULT"}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-8 py-4">
               <div className="flex items-center justify-center gap-12">
                 <div className="text-center">
                   <div className="text-4xl font-bold mb-2">HOME</div>
-                  <div className="text-6xl font-black text-primary">{simulationResult.homeScore}</div>
+                  <div className="text-6xl font-black text-primary">{simulationResult.forfeit ? "–" : simulationResult.homeScore}</div>
                 </div>
                 <div className="text-4xl font-black text-muted-foreground">VS</div>
                 <div className="text-center">
                   <div className="text-4xl font-bold mb-2">AWAY</div>
-                  <div className="text-6xl font-black text-secondary">{simulationResult.awayScore}</div>
+                  <div className="text-6xl font-black text-secondary">{simulationResult.forfeit ? "–" : simulationResult.awayScore}</div>
                 </div>
               </div>
 
@@ -667,7 +668,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
           <div className="text-sm font-black text-green-600">{formatCurrency(match.prizeAmount ?? 0)}</div>
           {isCompleted ? (
             <div className="flex items-center gap-1 justify-end">
-              <span className="text-lg font-black">{match.homeScore} – {match.awayScore}</span>
+              <span className="text-lg font-black">{scoreText(match)}</span>
               <Badge className={cn("text-[10px]", homeWon ? "bg-green-500" : "bg-red-500")}>{homeWon ? "W" : "L"}</Badge>
             </div>
           ) : isNext ? (
@@ -929,7 +930,7 @@ function WorldFinalsMatchCard({ label, subtitle, match, locked, isPlayable, onSi
             {isCompleted ? (
               <div className="space-y-1">
                 <div className={cn("font-black", isFinalMatch ? "text-3xl" : "text-2xl")}>
-                  {match.homeScore} – {match.awayScore}
+                  {scoreText(match)}
                 </div>
                 <Badge className={cn(
                   homeWon

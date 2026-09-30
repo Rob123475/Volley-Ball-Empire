@@ -455,8 +455,10 @@ export function recordPlayerMatchResultTx(tx: Tx, args: {
   careerSaveId: number;
   matchId: number;
   playerWon: boolean;
-  homeSets: number;
-  awaySets: number;
+  /** Null for a forfeit (item 24): no score. The player is the home side, so a
+   * fixture with no sets reads as the away side's (the opponent's) win. */
+  homeSets: number | null;
+  awaySets: number | null;
   sets?: SetScore[] | null;
 }): boolean {
   const fx = tx.select().from(worldTourFixturesTable)

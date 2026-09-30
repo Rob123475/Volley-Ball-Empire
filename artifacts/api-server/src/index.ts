@@ -14,7 +14,7 @@ import { finishClublessCareers } from "./utils/clublessCareers";
 import { syncOlympicSeasonFlags } from "./utils/olympics";
 import { repairStaffSalaryUnits } from "./utils/staffSalaryUnits";
 import { renameFacilityLedgerLines } from "./utils/facilityLedgerNames";
-import { finishAbandonedWatchedMatches } from "./utils/abandonedMatches";
+import { forfeitAbandonedWatchedMatches } from "./utils/abandonedMatches";
 import { backfillContracts } from "./utils/backfillContracts";
 import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { backfillPoolClubBooks } from "./utils/poolClubFinances";
@@ -169,12 +169,12 @@ try {
   logger.error({ err }, "pool club books backfill failed");
 }
 
-// Unity brief item 4: a match left "in_progress" by a closed window (the 3D
-// court never sent its result) is finished from the last score it did send,
-// with the game's engine, and recorded. A save is never left mid-match.
-finishAbandonedWatchedMatches()
-  .then((n) => { if (n.length > 0) logger.info({ finished: n }, "watched matches left open were finished from their last score"); })
-  .catch((err) => logger.error({ err }, "finishing abandoned watched matches failed"));
+// Overnight 30 Sep item 24: a match left "in_progress" by a closed window (the
+// 3D court never sent its result) is forfeited, as leaving the court is. A save
+// is never left mid-match.
+forfeitAbandonedWatchedMatches()
+  .then((n) => { if (n.length > 0) logger.info({ forfeited: n }, "watched matches left open when the window closed were forfeited"); })
+  .catch((err) => logger.error({ err }, "forfeiting abandoned watched matches failed"));
 
 // Overnight 30 Sep item 3: records written on the PC's clock before the game
 // dated them itself (achievement unlocks, training sessions, injuries, ledger

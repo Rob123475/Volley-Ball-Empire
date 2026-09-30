@@ -2944,6 +2944,12 @@ components:
           type: ["array", "null"]
           items:
             type: integer
+        forfeit:
+          type: boolean
+          description: >-
+            Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed
+            mid-match, or the club could not field two players). No score is recorded (homeScore,
+            awayScore and sets are null); shown as "Forfeit". The club lost; the opponent won.
         createdAt:
           type: string
 
@@ -2977,9 +2983,13 @@ components:
           items:
             type: string
         homeScore:
-          type: integer
+          type: ["integer", "null"]
+          description: Sets won. Null on a forfeit (no score is recorded).
         awayScore:
-          type: integer
+          type: ["integer", "null"]
+        forfeit:
+          type: boolean
+          description: Only on a forfeit (item 24).
         winner:
           type: string
           enum: [home, away, draw]

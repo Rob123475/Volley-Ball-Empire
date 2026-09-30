@@ -78,9 +78,12 @@ router.get("/news", async (req, res) => {
     items.push({
       id: `result-${m.id}`, type: "result", isUserTeam: true,
       date: m.scheduledAt!.slice(0, 10),
-      headline: mine > theirs
-        ? `${team.name} beat ${opponent} ${mine}–${theirs}`
-        : `${team.name} lose to ${opponent} ${mine}–${theirs}`,
+      // Overnight 30 Sep item 24: a forfeit has no score.
+      headline: m.forfeit
+        ? `${team.name} forfeit to ${opponent}`
+        : mine > theirs
+          ? `${team.name} beat ${opponent} ${mine}–${theirs}`
+          : `${team.name} lose to ${opponent} ${mine}–${theirs}`,
       detail: `Round ${m.round}${m.locationName ? ` · ${m.locationName}` : ""}`,
     });
   }

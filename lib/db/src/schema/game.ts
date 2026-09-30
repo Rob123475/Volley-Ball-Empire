@@ -673,6 +673,9 @@ export const matchesTable = sqliteTable("matches", {
   // Populated as the live tick engine progresses; homeScore/awayScore remain the authoritative
   // final-set (or match-level) totals used everywhere else once status = 'completed'.
   sets: text("sets", { mode: "json" }).$type<{ home: number; away: number }[]>(),
+  // Overnight brief 30 Sep, item 24: a forfeit records no score (home/away
+  // score and sets stay null) and is shown as "Forfeit"; the opponent has the win.
+  forfeit: integer("forfeit", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 

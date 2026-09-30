@@ -1105,6 +1105,8 @@ export interface Match {
   scheduledAt?: string | null;
   /** @nullable */
   lineup?: number[] | null;
+  /** Overnight 30 Sep, item 24: the match was forfeited (left mid-match, the window closed mid-match, or the club could not field two players). No score is recorded (homeScore, awayScore and sets are null); shown as "Forfeit". The club lost; the opponent won. */
+  forfeit?: boolean;
   createdAt: string;
 }
 
@@ -1147,8 +1149,15 @@ export type MatchResultPlayerEventsItem = {
 export interface MatchResult {
   match: Match;
   highlights: string[];
-  homeScore: number;
-  awayScore: number;
+  /**
+     * Sets won. Null on a forfeit (no score is recorded).
+     * @nullable
+     */
+  homeScore: number | null;
+  /** @nullable */
+  awayScore: number | null;
+  /** Only on a forfeit (item 24). */
+  forfeit?: boolean;
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;

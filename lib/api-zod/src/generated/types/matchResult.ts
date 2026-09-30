@@ -13,8 +13,15 @@ import type { Player } from './player';
 export interface MatchResult {
   match: Match;
   highlights: string[];
-  homeScore: number;
-  awayScore: number;
+  /**
+     * Sets won. Null on a forfeit (no score is recorded).
+     * @nullable
+     */
+  homeScore: number | null;
+  /** @nullable */
+  awayScore: number | null;
+  /** Only on a forfeit (item 24). */
+  forfeit?: boolean;
   winner: MatchResultWinner;
   prizeEarned: number;
   isFinal: boolean;

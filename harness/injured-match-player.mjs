@@ -165,9 +165,9 @@ try {
   check("no healthy interchange: nobody is swapped, and the box says the match is forfeited", role(A.id) === "starter" && t2?.willForfeit === true && (t2?.substitutions ?? []).length === 0,
     `${A.name}: ${role(A.id)}, willForfeit ${t2?.willForfeit}`);
   const sim2 = await api("POST", `/matches/${m2}/simulate`);
-  const f = read(`SELECT status, home_score AS h, away_score AS a FROM matches WHERE id = ?`, m2)[0];
-  check("the existing forfeit rule applies", f?.status === "completed" && sim2.data?.squadIncomplete === true && f.h === 0,
-    `simulate ${sim2.status}: ${(sim2.data?.highlights ?? []).join(" ")} (${f?.h}-${f?.a})`);
+  const f = read(`SELECT status, forfeit, home_score AS h, away_score AS a FROM matches WHERE id = ?`, m2)[0];
+  check("the existing forfeit rule applies (overnight 30 Sep, item 24: a forfeit, no score)", f?.status === "completed" && sim2.data?.squadIncomplete === true && f.forfeit === 1 && f.h == null,
+    `simulate ${sim2.status}: ${(sim2.data?.highlights ?? []).join(" ")} (forfeit ${f?.forfeit}, ${f?.h}-${f?.a})`);
 
   // 5. The client: one test, and the box shows it.
   const read_ = (p) => fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", p), "utf8");
