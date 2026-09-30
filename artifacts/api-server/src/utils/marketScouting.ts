@@ -92,14 +92,28 @@ export function staffScoutState(m: { isScoutRevealed: boolean; scoutStartedOn: s
  * of any kind: rating, scouting rating, skill level and attributes are not
  * sent (the page used to draw "Quality ★★★★★ Elite" from the true rating).
  */
-export function withStaffScouting<T extends { isScoutRevealed: boolean; scoutStartedOn: string | null }>(m: T, today: string) {
+export function withStaffScouting<T extends { isScoutRevealed: boolean; scoutStartedOn: string | null; salary: number }>(m: T, today: string) {
   const scouting = staffScoutState(m, today);
   const revealed = scouting.state === "done";
   return {
     ...m,
     ...(revealed ? {} : { overallRating: null, scoutingRating: null, skillLevel: null, attributes: {} }),
+    // Item 8: her wage as a range until the report is in (exact once scouted or hired).
+    ...(revealed ? { salaryRange: null } : { salary: null, salaryRange: staffWageRange(m.salary) }),
     isScoutRevealed: revealed,
     scouting,
+  };
+}
+
+/**
+ * Overnight brief 30 Sep, item 8: a staff or medical candidate's monthly wage
+ * as an unscouted card shows it, by the same rule as a player's price range:
+ * 85% to 115% of the wage, rounded out to $500.
+ */
+export function staffWageRange(salary: number): { low: number; high: number } {
+  return {
+    low:  Math.floor((salary * RANGE_LOW) / RANGE_STEP) * RANGE_STEP,
+    high: Math.ceil((salary * RANGE_HIGH) / RANGE_STEP) * RANGE_STEP,
   };
 }
 

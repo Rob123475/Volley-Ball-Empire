@@ -745,6 +745,15 @@ export interface ScoutingState {
 }
 
 /**
+ * Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).
+ * @nullable
+ */
+export type StaffMemberSalaryRange = {
+  low: number;
+  high: number;
+} | null;
+
+/**
  * 3 role-specific attributes (name → value 1–99).
  */
 export type StaffMemberAttributes = {[key: string]: number};
@@ -754,7 +763,16 @@ export interface StaffMember {
   name: string;
   role: StaffMemberRole;
   specialty: string;
-  salary: number;
+  /**
+     * Monthly wage. Null on a market card until the scout's report is in (item 8); salaryRange instead.
+     * @nullable
+     */
+  salary: number | null;
+  /**
+     * Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).
+     * @nullable
+     */
+  salaryRange?: StaffMemberSalaryRange;
   /**
      * Null on a market card until the scout's report is in (overnight 30 Sep, item 7).
      * @nullable

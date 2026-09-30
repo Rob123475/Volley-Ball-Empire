@@ -174,6 +174,7 @@ export * from './staffMemberAttributes';
 export * from './staffMemberCoachSpeciality';
 export * from './staffMemberPersonality';
 export * from './staffMemberRole';
+export * from './staffMemberSalaryRange';
 export * from './staffUpdate';
 export * from './staffUpdateAttributes';
 export * from './staffWageBill';

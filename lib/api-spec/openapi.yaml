@@ -2768,7 +2768,17 @@ components:
         specialty:
           type: string
         salary:
-          type: number
+          type: ["number", "null"]
+          description: "Monthly wage. Null on a market card until the scout's report is in (item 8); salaryRange instead."
+        salaryRange:
+          type: ["object", "null"]
+          description: "Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500)."
+          required: [low, high]
+          properties:
+            low:
+              type: number
+            high:
+              type: number
         skillLevel:
           type: ["integer", "null"]
           description: "Null on a market card until the scout's report is in (overnight 30 Sep, item 7)."

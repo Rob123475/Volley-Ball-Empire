@@ -19,6 +19,9 @@
  * until the report is in, and the Staff Market card shows "?" (it drew
  * "Quality ★★★★★ Elite" from the true rating).
  *
+ * Item 8: an unscouted, unhired card shows a wage RANGE (85%-115% of the
+ * wage, rounded out to $500, as player prices), exact once scouted or hired.
+ *
  * Asserted on a starter-DB copy: scout 3 people of one medical role, read the
  * market again (leaving the page) and after restarting the server on the same
  * save (a relaunch): all 3 still revealed, no second charge for a second scout;
@@ -120,6 +123,14 @@ try {
   check("the Staff Market card shows \"?\" for an unscouted rating, and no \"Quality\" stars",
     /if \(!revealed \|\| rating == null\)/.test(smSrc) && /data-testid="ovr-unknown"/.test(smSrc) && !/>Quality</.test(smSrc));
 
+  // Item 8: a wage range until the report is in, and it holds her real wage.
+  const wageOf = (id) => Number(read(`SELECT salary FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, careerSaveId, id)[0]?.salary);
+  const noRange = [...m0, ...staffM0].filter((m) => !m.isScoutRevealed && !(m.salary == null && m.salaryRange && m.salaryRange.low < m.salaryRange.high
+    && m.salaryRange.low % 500 === 0 && m.salaryRange.high % 500 === 0 && m.salaryRange.low <= wageOf(m.id) && wageOf(m.id) <= m.salaryRange.high));
+  const eg = m0.find((m) => !m.isScoutRevealed);
+  check("every unscouted card shows a wage range, not the wage, and the range holds her real wage (both markets)",
+    noRange.length === 0, `e.g. ${eg?.name}: $${eg?.salaryRange?.low}-$${eg?.salaryRange?.high}/mo (real $${wageOf(eg?.id)}); wrong: ${noRange.slice(0, 3).map((m) => m.name).join(", ") || "none"}`);
+
   const b0 = await budget();
   const sent = [];
   for (const m of three) sent.push(await api("POST", `/staff/${m.id}/scout`));
@@ -158,6 +169,9 @@ try {
   const day5 = await medMarket();
   check("5 game days on: all 3 reports are in, with their rating and attributes",
     today() === dayAfter(sentOn, 5) && revealed(day5) && three.every((t) => { const m = day5.find((x) => x.id === t.id); return m?.overallRating > 0 && Object.keys(m.attributes ?? {}).length > 0; }), today());
+  check("and each scouted card shows her exact wage, no range",
+    three.every((t) => { const m = day5.find((x) => x.id === t.id); return m?.salary === wageOf(t.id) && m.salaryRange == null; }),
+    three.map((t) => { const m = day5.find((x) => x.id === t.id); return `${m?.name} $${m?.salary}`; }).join(", "));
   check("leaving the page and coming back: all 3 still revealed", revealed(await medMarket()));
 
   // A relaunch: the server stops and starts again on the same save.

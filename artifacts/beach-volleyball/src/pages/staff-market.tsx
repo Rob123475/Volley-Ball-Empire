@@ -93,6 +93,17 @@ const ROLE_ICONS: Record<string, IconFC> = {
 // Massage Therapist moved to the Medical Market — no longer a filter pill here.
 const ROLE_FILTERS = ["all", "head_coach", "assistant_coach", "fitness_trainer", "strength_conditioner", "promotions_manager", "scout"] as const;
 
+/**
+ * Overnight 30 Sep, item 8: a candidate's monthly wage. Until the scout's
+ * report is in the server sends a range (same rule as player prices); exact
+ * once scouted or hired.
+ */
+function wageText(m: { salary: number | null; salaryRange?: { low: number; high: number } | null }): string {
+  const f = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  if (m.salary != null) return f(m.salary);
+  return m.salaryRange ? `${f(m.salaryRange.low)}–${f(m.salaryRange.high)}` : "?";
+}
+
 function OvrDisplay({ rating, revealed }: { rating: number | null; revealed: boolean }) {
   // Overnight 30 Sep, item 7: no star or quality rating for anyone unscouted
   // (it showed "Quality ★★★★★ Elite", from her true rating). The server does
@@ -271,7 +282,7 @@ function StaffMarketCard({
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <DollarSign className="h-3 w-3 text-green-600" />
-            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(member.salary)}/mo
+            {wageText(member)}/mo
           </span>
         </div>
 
@@ -359,7 +370,7 @@ function StaffMarketCard({
                   <AlertDialogTitle>Hire {member.name}?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This will hire {member.name} as your {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}.
-                    Monthly salary: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(member.salary)}.
+                    {" "}{member.salary != null ? <>Monthly salary: {wageText(member)}.</> : <>Monthly salary: between {wageText(member)} (the exact wage shows once she is hired or scouted).</>}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

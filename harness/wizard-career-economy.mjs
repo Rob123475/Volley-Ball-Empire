@@ -154,8 +154,13 @@ try {
   const market = (await api("GET", `/staff/market?search=${encodeURIComponent(HEAD_COACH)}`)).data ?? [];
   const coach = market.find((s) => s.name === HEAD_COACH);
   const monthly = Math.round(HEAD_COACH_ANNUAL / 12);
-  check(`${HEAD_COACH} is on the market at $${monthly.toLocaleString()} a month`, coach?.salary === monthly, `salary ${coach?.salary}`);
+  // Unscouted, the market shows her wage only as a range (item 8); hired, it is exact.
+  check(`${HEAD_COACH} is on the market in a wage range that holds $${monthly.toLocaleString()} a month`,
+    coach?.salary == null && coach?.salaryRange?.low <= monthly && monthly <= coach?.salaryRange?.high,
+    `salary ${coach?.salary}, range ${JSON.stringify(coach?.salaryRange)}`);
   const hire = await api("POST", "/staff", { staffId: coach?.id });
+  const hiredCoach = ((await api("GET", "/staff")).data ?? []).find((s) => s.id === coach?.id);
+  check(`and hired, her wage is $${monthly.toLocaleString()} a month`, hiredCoach?.salary === monthly, `salary ${hiredCoach?.salary}`);
   const afterHire = Number((await api("GET", "/team")).data?.budget);
   check("hiring her costs one month's salary, not a year's",
     hire.status === 201 && afterHire === DESIGN_BUDGET.underdog - monthly,

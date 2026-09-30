@@ -3944,7 +3944,11 @@ export const GetTeamRosterResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -5281,7 +5285,11 @@ export const SwapTeamPlayerResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -6622,7 +6630,11 @@ export const SetPlayerRoleResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -7794,7 +7806,11 @@ export const ListStaffResponseItem = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -7835,7 +7851,11 @@ export const ListAvailableStaffResponseItem = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -7873,7 +7893,11 @@ export const GetStaffMarketResponseItem = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -7914,7 +7938,11 @@ export const RenewStaffContractResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -7959,7 +7987,11 @@ export const UpdateStaffResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -7995,7 +8027,11 @@ export const FireStaffResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -8031,7 +8067,11 @@ export const ScoutStaffResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -8339,7 +8379,11 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -8663,7 +8707,11 @@ export const CancelTrainingResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -8986,7 +9034,11 @@ export const GetTrainingPlanResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -10741,7 +10793,11 @@ export const ListMedicalStaffResponseItem = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -10787,7 +10843,11 @@ export const GetMedicalStaffMarketResponseItem = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
@@ -10824,7 +10884,11 @@ export const FireMedicalStaffResponse = zod.object({
   "name": zod.string(),
   "role": zod.enum(['head_coach', 'assistant_coach', 'fitness_trainer', 'strength_conditioner', 'massage_therapist', 'promotions_manager', 'scout']),
   "specialty": zod.string(),
-  "salary": zod.number(),
+  "salary": zod.number().nullable().describe('Monthly wage. Null on a market card until the scout\'s report is in (item 8); salaryRange instead.'),
+  "salaryRange": zod.object({
+  "low": zod.number(),
+  "high": zod.number()
+}).nullish().describe('Overnight 30 Sep, item 8: the wage range an unscouted market card shows (85%-115% of the wage, rounded out to $500).'),
   "skillLevel": zod.number().nullable().describe('Null on a market card until the scout\'s report is in (overnight 30 Sep, item 7).'),
   "age": zod.number(),
   "overallRating": zod.number().nullable().describe('Staff quality rating 50–99. Null on a market card until the scout\'s report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.'),
