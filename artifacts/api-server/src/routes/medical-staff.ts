@@ -1,3 +1,4 @@
+import { withStaffScouting } from "../utils/marketScouting.js";
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
@@ -126,7 +127,10 @@ router.get("/medical-staff/market", async (req, res) => {
     );
   }
 
-  res.json(filtered.map(serializeStaff));
+  // Item 4: the scouting clock, as on the Staff Market.
+  const team = await getActiveTeam(req);
+  const today = team ? await getGameDate(team.id) : "0000-01-01";
+  res.json(filtered.map((s) => withStaffScouting(serializeStaff(s), today)));
 });
 
 router.delete("/medical-staff/:id", async (req, res) => {

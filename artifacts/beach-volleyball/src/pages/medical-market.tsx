@@ -50,6 +50,9 @@ import { serverMessage } from "@/lib/api-error";
 import { normaliseRole, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 
 
+// Overnight 30 Sep, item 4: every scout costs $1,500 and reports in 5 game days.
+const MEDICAL_SCOUT_COST = 1_500;
+const SCOUT_DAYS = 5;
 const ROLE_LABELS: Record<string, string> = {
   all:                "All Roles",
   doctor:             "Team Doctor",
@@ -210,17 +213,37 @@ function MedicalMarketCard({
         {!revealed && (
           <div className="flex flex-col items-center gap-2 py-3 text-center">
             <Lock className="h-5 w-5 text-muted-foreground/40" />
-            <p className="text-xs text-muted-foreground">Scout to reveal stats & traits</p>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5 text-xs"
-              onClick={() => onScout(member.id)}
-              disabled={isScouting}
-            >
-              <Binoculars className="h-3.5 w-3.5" />
-              {isScouting ? "Scouting…" : "Scout"}
-            </Button>
+            {/* Overnight 30 Sep, item 4: a scout costs $1,500 and reports in 5 game days. */}
+            {member.scouting?.state === "in_progress" ? (
+              <p className="text-xs font-semibold text-muted-foreground" data-testid={`scouting-${member.id}`}>
+                Scout's report in {member.scouting.daysLeft} day{member.scouting.daysLeft === 1 ? "" : "s"}
+              </p>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">Scout to reveal stats & traits</p>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="gap-1.5 text-xs" disabled={isScouting}>
+                      <Binoculars className="h-3.5 w-3.5" />
+                      {isScouting ? "Scouting…" : "Scout"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Scout {member.name}?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        A scout reports on {member.name} in {SCOUT_DAYS} game days: true rating, attributes and traits.
+                        The ${MEDICAL_SCOUT_COST.toLocaleString()} is charged now.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => onScout(member.id)}>Send scout (${MEDICAL_SCOUT_COST.toLocaleString()})</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
           </div>
         )}
 
@@ -328,9 +351,10 @@ export default function MedicalMarket() {
 
   const handleScout = (staffId: number) => {
     scoutMutation.mutate({ id: staffId } as any, {
-      onSuccess: () => {
+      onSuccess: (staff) => {
         queryClient.invalidateQueries({ queryKey: getGetMedicalStaffMarketQueryKey() });
-        toast({ title: "Scouted!", description: "Staff stats and traits have been revealed." });
+        queryClient.invalidateQueries();
+        toast({ title: "Scout sent", description: `The report on ${staff.name} is in ${staff.days} game days. $${staff.cost.toLocaleString()} charged.` });
       },
       onError: (err: any) => {
         const msg = serverMessage(err, "Could not scout this staff member.");

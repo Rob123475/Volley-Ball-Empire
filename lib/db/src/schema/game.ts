@@ -529,6 +529,11 @@ export const careerStaffStateTable = sqliteTable("career_staff_state", {
   contractStartDate: text("contract_start_date"),
   contractEndDate:   text("contract_end_date"),
   isScoutRevealed: integer("is_scout_revealed", { mode: "boolean" }).notNull().default(false),
+  // Overnight brief 30 Sep, item 4: staff and medical scouting takes 5 game days,
+  // as player scouting does (utils/marketScouting.ts). The game date the scout
+  // was sent; revealed on that date + SCOUT_DAYS. is_scout_revealed is kept for
+  // reports that were instant before this rule.
+  scoutStartedOn: text("scout_started_on"),
   updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
   uniqueIndex("career_staff_state_unique").on(t.careerSaveId, t.staffId),

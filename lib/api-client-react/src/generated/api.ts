@@ -81,6 +81,7 @@ import type {
   RenewContractBody,
   ResignResult,
   RunCampInput,
+  ScoutStaff200,
   ScoutingResult,
   Season,
   SeasonInjuryStats,
@@ -2952,11 +2953,11 @@ export const getScoutStaffUrl = (id: number,) => {
 }
 
 /**
- * @summary Reveal a staff member's OVR and attributes using a scout
+ * @summary Send a scout to report on a staff or medical candidate (5 game days, $1,500 charged now)
  */
-export const scoutStaff = async (id: number, options?: RequestInit): Promise<StaffMember> => {
+export const scoutStaff = async (id: number, options?: RequestInit): Promise<ScoutStaff200> => {
 
-  return customFetch<StaffMember>(getScoutStaffUrl(id),
+  return customFetch<ScoutStaff200>(getScoutStaffUrl(id),
   {
     ...options,
     method: 'POST'
@@ -3000,7 +3001,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type ScoutStaffMutationError = ErrorType<void>
 
     /**
- * @summary Reveal a staff member's OVR and attributes using a scout
+ * @summary Send a scout to report on a staff or medical candidate (5 game days, $1,500 charged now)
  */
 export const useScoutStaff = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scoutStaff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}

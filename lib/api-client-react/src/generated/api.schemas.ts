@@ -726,6 +726,24 @@ export const StaffMemberPersonality = {
   Disciplinarian: 'Disciplinarian',
 } as const;
 
+export type ScoutingStateState = typeof ScoutingStateState[keyof typeof ScoutingStateState];
+
+
+export const ScoutingStateState = {
+  none: 'none',
+  in_progress: 'in_progress',
+  done: 'done',
+} as const;
+
+/**
+ * Where a scout's report stands (overnight 30 Sep, item 4: every scout takes 5 game days).
+ */
+export interface ScoutingState {
+  state: ScoutingStateState;
+  readyOn?: string;
+  daysLeft?: number;
+}
+
 /**
  * 3 role-specific attributes (name → value 1–99).
  */
@@ -751,8 +769,14 @@ export interface StaffMember {
   attributes: StaffMemberAttributes;
   /** Unique special trait for this staff member. */
   specialTrait: string;
-  /** Whether OVR has been revealed by a scout. */
+  /** Whether the scout's report is in (item 4: SCOUT_DAYS game days after the scout was sent). */
   isScoutRevealed: boolean;
+  /**
+     * Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.
+     * @nullable
+     */
+  scoutStartedOn?: string | null;
+  scouting?: ScoutingState;
   /** Scouting effectiveness rating 1–100. */
   scoutingRating: number;
   /** @nullable */
@@ -1500,21 +1524,6 @@ export interface PromoDeal {
   imageUrl?: string | null;
 }
 
-export type ScoutingResultScoutingState = typeof ScoutingResultScoutingState[keyof typeof ScoutingResultScoutingState];
-
-
-export const ScoutingResultScoutingState = {
-  none: 'none',
-  in_progress: 'in_progress',
-  done: 'done',
-} as const;
-
-export type ScoutingResultScouting = {
-  state: ScoutingResultScoutingState;
-  readyOn?: string;
-  daysLeft?: number;
-};
-
 /**
  * How reliable the assessment is, based on scout skill.
  */
@@ -1532,8 +1541,11 @@ export const ScoutingResultConfidence = {
  */
 export interface ScoutingResult {
   playerId: number;
-  scouting: ScoutingResultScouting;
+  scouting: ScoutingState;
   days: number;
+  /** Overnight 30 Sep, item 4: what the scout cost, charged when sent ($1,500). */
+  cost?: number;
+  budgetAfter?: number;
   /** How reliable the assessment is, based on scout skill. */
   confidence: ScoutingResultConfidence;
   scoutName: string;
@@ -2382,6 +2394,13 @@ export type RenewContractBody = {
 export type GetStaffMarketParams = {
 role?: string;
 search?: string;
+};
+
+export type ScoutStaff200 = StaffMember & {
+  scouting: ScoutingState;
+  days: number;
+  cost: number;
+  budgetAfter: number;
 };
 
 export type EndCareer200 = {

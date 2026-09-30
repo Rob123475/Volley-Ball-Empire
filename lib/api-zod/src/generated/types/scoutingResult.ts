@@ -6,15 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ScoutingResultConfidence } from './scoutingResultConfidence';
-import type { ScoutingResultScouting } from './scoutingResultScouting';
+import type { ScoutingState } from './scoutingState';
 
 /**
  * Unity brief item 15: scouting takes `days` game days; the report (exact price, attributes, potential) shows on her card from scouting.readyOn.
  */
 export interface ScoutingResult {
   playerId: number;
-  scouting: ScoutingResultScouting;
+  scouting: ScoutingState;
   days: number;
+  /** Overnight 30 Sep, item 4: what the scout cost, charged when sent ($1,500). */
+  cost?: number;
+  budgetAfter?: number;
   /** How reliable the assessment is, based on scout skill. */
   confidence: ScoutingResultConfidence;
   scoutName: string;

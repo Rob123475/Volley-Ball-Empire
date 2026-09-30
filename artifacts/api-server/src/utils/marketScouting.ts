@@ -23,6 +23,12 @@ import { monthlyWage } from "./wageCurve.js";
 import type { PlayerDTO } from "../lib/playerDto.js";
 
 export const SCOUT_DAYS = 5;
+/**
+ * Overnight brief 30 Sep, item 4 (Rob, 30 Sep): every scout costs $1,500:
+ * players, youth, staff and medical alike, charged when the scout is sent
+ * (utils/scoutingCharge.ts), and every report takes SCOUT_DAYS game days.
+ */
+export const SCOUT_COST = 1_500;
 const RANGE_LOW = 0.85, RANGE_HIGH = 1.15, RANGE_STEP = 500;
 
 /** A fixed number in [0, 1) for this player in this career (FNV-1a over the ids). */
@@ -69,6 +75,21 @@ export function scoutState(p: Pick<PlayerDTO, "scoutStartedOn" | "scoutedPotenti
   if (today >= readyOn) return { state: "done", readyOn };
   const daysLeft = Math.round((Date.parse(`${readyOn}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000);
   return { state: "in_progress", readyOn, daysLeft };
+}
+
+/**
+ * Item 4: a staff or medical candidate's scouting, by the same clock as a
+ * player's. A report from before the rule (revealed at once) counts as done.
+ */
+export function staffScoutState(m: { isScoutRevealed: boolean; scoutStartedOn: string | null }, today: string): ScoutState {
+  if (m.isScoutRevealed && !m.scoutStartedOn) return { state: "done", readyOn: today };
+  return scoutState({ scoutStartedOn: m.scoutStartedOn, scoutedPotential: null }, today);
+}
+
+/** Item 4: a market card's scouting, and whether the report is in (on its 5th game day). */
+export function withStaffScouting<T extends { isScoutRevealed: boolean; scoutStartedOn: string | null }>(m: T, today: string) {
+  const scouting = staffScoutState(m, today);
+  return { ...m, isScoutRevealed: scouting.state === "done", scouting };
 }
 
 /** Attributes, rating and exact price are shown: her own club's player, or scouted. */

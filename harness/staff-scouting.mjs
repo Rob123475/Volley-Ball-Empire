@@ -10,6 +10,10 @@
  * "Scouted" label), and a report never lapsed. Hired people already left the
  * market lists (the markets list only unhired staff).
  *
+ * Overnight brief 30 Sep, item 4 (Rob, 30 Sep): staff and medical scouting
+ * takes 5 game days like a player's, and every scout costs $1,500, charged when
+ * sent, on the ledger. It was instant and $1,000.
+ *
  * Asserted on a starter-DB copy: scout 3 people of one medical role, read the
  * market again (leaving the page) and after restarting the server on the same
  * save (a relaunch): all 3 still revealed, no second charge for a second scout;
@@ -101,13 +105,41 @@ try {
   check("three unscouted people of one medical role on the market", three.length === 3 && three.every((m) => !m.isScoutRevealed), `${role}: ${three.map((m) => m.name).join(", ")}`);
 
   const b0 = await budget();
-  for (const m of three) await api("POST", `/staff/${m.id}/scout`);
+  const sent = [];
+  for (const m of three) sent.push(await api("POST", `/staff/${m.id}/scout`));
   const b1 = await budget();
-  const ledger = read(`SELECT amount, description FROM finance_transactions WHERE team_id = ? AND category = 'scouting'`, teamId);
-  check("3 scouts: $3,000, and each is on the ledger", b0 - b1 === 3000 && ledger.length === 3 && ledger.every((r) => Number(r.amount) === 1000), `balance ${b0} -> ${b1}; ${ledger.length} ledger rows`);
+  const ledger = read(`SELECT amount, description, date FROM finance_transactions WHERE team_id = ? AND category = 'scouting'`, teamId);
+  let gameDay = null;
+  const readDay = async () => { gameDay = (await api("GET", "/calendar")).data?.currentDate ?? null; return gameDay; };
+  const today = () => gameDay;
+  const sentOn = await readDay();
+  check("3 scouts: $1,500 each ($4,500), charged when sent, each on the ledger as scouting",
+    b0 - b1 === 4500 && ledger.length === 3 && ledger.every((r) => Number(r.amount) === 1500 && /^Scouting: /.test(r.description) && r.date === sentOn),
+    `balance ${b0} -> ${b1}; ${ledger.map((r) => `${r.date} $${r.amount} ${r.description}`).join("; ")}`);
+  check("each report is due in 5 game days, and nothing is revealed yet",
+    sent.every((r) => r.status === 200 && r.data?.days === 5 && r.data?.cost === 1500 && r.data?.scouting?.state === "in_progress" && r.data.scouting.daysLeft === 5)
+    && (await medMarket()).filter((m) => three.some((t) => t.id === m.id)).every((m) => !m.isScoutRevealed && m.scouting?.state === "in_progress"),
+    sent.map((r) => `${r.status} ${JSON.stringify(r.data?.scouting)}`).join("; "));
   const againScout = await api("POST", `/staff/${three[0].id}/scout`);
-  check("scouting one again is refused, with no second charge", againScout.status === 400 && (await budget()) === b1, `${againScout.status}: ${againScout.data?.error}`);
+  check("scouting one again is refused, with no second charge", againScout.status === 409 && (await budget()) === b1, `${againScout.status}: ${againScout.data?.error}`);
   const revealed = (list) => three.every((t) => list.find((m) => m.id === t.id)?.isScoutRevealed === true);
+  // Day by day to the report: hidden on day 4, in on day 5.
+  const dayAfter = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  const advanceTo = async (date) => {
+    for (let i = 0; i < 40 && (await readDay()) < date; i++) {
+      healAllSquads(dbFile);
+      const r = await api("POST", "/calendar/advance", {});
+      if (r.data?.blocked === "pending_match") { await api("POST", `/matches/${r.data.pendingMatchId}/simulate`); await api("POST", "/calendar/dismiss-match"); continue; }
+      if (r.data?.matchDay?.matchId) { await api("POST", `/matches/${r.data.matchDay.matchId}/simulate`); await api("POST", "/calendar/dismiss-match"); }
+    }
+    await readDay();
+  };
+  await advanceTo(dayAfter(sentOn, 4));
+  const day4 = await medMarket();
+  check("4 game days on: still hidden, report in 1 day", today() === dayAfter(sentOn, 4) && three.every((t) => { const m = day4.find((x) => x.id === t.id); return m && !m.isScoutRevealed && m.scouting?.daysLeft === 1; }),
+    `${today()}: ${three.map((t) => JSON.stringify(day4.find((x) => x.id === t.id)?.scouting)).join(" ")}`);
+  await advanceTo(dayAfter(sentOn, 5));
+  check("5 game days on: all 3 reports are in", today() === dayAfter(sentOn, 5) && revealed(await medMarket()), today());
   check("leaving the page and coming back: all 3 still revealed", revealed(await medMarket()));
 
   // A relaunch: the server stops and starts again on the same save.
@@ -141,12 +173,13 @@ try {
     if (r.data?.matchDay?.matchId) { await api("POST", `/matches/${r.data.matchDay.matchId}/simulate`); await api("POST", "/calendar/dismiss-match"); }
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") rolled = true;
   }
-  const state = read(`SELECT staff_id AS id, team_id AS teamId, is_scout_revealed AS rev FROM career_staff_state WHERE career_save_id = ? AND staff_id IN (?, ?, ?)`,
+  const state = read(`SELECT staff_id AS id, team_id AS teamId, is_scout_revealed AS rev, scout_started_on AS started FROM career_staff_state WHERE career_save_id = ? AND staff_id IN (?, ?, ?)`,
     careerSaveId, three[0].id, three[1].id, three[2].id);
   const hired = state.find((r) => r.id === three[0].id);
   const others = state.filter((r) => r.id !== three[0].id && r.teamId == null);
-  check("at season end the unhired reports lapse; the hired one keeps hers", rolled && others.length === 2 && others.every((r) => r.rev === 0) && hired?.teamId === teamId && hired.rev === 1,
-    `rolled ${rolled}; ${state.map((r) => `${r.id}: team ${r.teamId ?? "-"}, revealed ${r.rev}`).join("; ")}`);
+  check("at season end the unhired reports lapse; the hired one keeps hers",
+    rolled && others.length === 2 && others.every((r) => r.rev === 0 && r.started == null) && hired?.teamId === teamId && hired.started === sentOn,
+    `rolled ${rolled}; ${state.map((r) => `${r.id}: team ${r.teamId ?? "-"}, revealed ${r.rev}, scouted ${r.started ?? "-"}`).join("; ")}`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

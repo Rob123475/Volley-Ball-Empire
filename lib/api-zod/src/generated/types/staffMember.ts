@@ -5,6 +5,7 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { ScoutingState } from './scoutingState';
 import type { StaffMemberAttributes } from './staffMemberAttributes';
 import type { StaffMemberCoachSpeciality } from './staffMemberCoachSpeciality';
 import type { StaffMemberPersonality } from './staffMemberPersonality';
@@ -30,8 +31,14 @@ export interface StaffMember {
   attributes: StaffMemberAttributes;
   /** Unique special trait for this staff member. */
   specialTrait: string;
-  /** Whether OVR has been revealed by a scout. */
+  /** Whether the scout's report is in (item 4: SCOUT_DAYS game days after the scout was sent). */
   isScoutRevealed: boolean;
+  /**
+     * Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.
+     * @nullable
+     */
+  scoutStartedOn?: string | null;
+  scouting?: ScoutingState;
   /** Scouting effectiveness rating 1–100. */
   scoutingRating: number;
   /** @nullable */

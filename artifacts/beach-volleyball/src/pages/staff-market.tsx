@@ -148,7 +148,9 @@ function AttributeBar({ name, value, revealed }: { name: string; value: number; 
   );
 }
 
-const STAFF_SCOUT_COST = 1_000;
+// Overnight 30 Sep, item 4: every scout costs $1,500 and reports in 5 game days.
+const STAFF_SCOUT_COST = 1_500;
+const SCOUT_DAYS = 5;
 
 function StaffMarketCard({
   member,
@@ -294,6 +296,11 @@ function StaffMarketCard({
                 <Eye className="h-3.5 w-3.5" />
                 Scouted
               </span>
+            ) : member.scouting?.state === "in_progress" ? (
+              <span className="inline-flex items-center gap-1 rounded-md border border-border px-2 text-xs font-semibold text-muted-foreground shrink-0 select-none" data-testid={`scouting-${member.id}`}>
+                <Eye className="h-3.5 w-3.5" />
+                Report in {member.scouting.daysLeft} day{member.scouting.daysLeft === 1 ? "" : "s"}
+              </span>
             ) : (
               hasCoach ? (
                 <AlertDialog>
@@ -313,15 +320,15 @@ function StaffMarketCard({
                       <AlertDialogTitle>Scout {member.name}?</AlertDialogTitle>
                       <AlertDialogDescription asChild>
                         <div className="space-y-3 text-sm text-muted-foreground">
-                          <p>Scouting will reveal this staff member's true OVR, role-specific attributes, personality, speciality, and salary confidence.</p>
+                          <p>A scout reports on this staff member in {SCOUT_DAYS} game days: true OVR, role-specific attributes, personality and speciality. The cost is charged now.</p>
                           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-foreground">
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">Scout cost</span>
                               <span className="font-bold text-amber-400">${STAFF_SCOUT_COST.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Reveal time</span>
-                              <span className="font-semibold text-green-400">Instant</span>
+                              <span className="text-muted-foreground">Report in</span>
+                              <span className="font-semibold">{SCOUT_DAYS} game days</span>
                             </div>
                           </div>
                         </div>
@@ -429,9 +436,10 @@ export default function StaffMarket() {
     scoutMutation.mutate({ id: staffId }, {
       onSuccess: (staff) => {
         queryClient.invalidateQueries({ queryKey: getGetStaffMarketQueryKey() });
+        queryClient.invalidateQueries();
         toast({
-          title: "Scout Report Ready",
-          description: `${staff.name} rated ${staff.overallRating} OVR. Attributes revealed.`,
+          title: "Scout sent",
+          description: `The report on ${staff.name} is in ${staff.days} game days. $${staff.cost.toLocaleString()} charged.`,
         });
       },
       onError: (err: any) => {
@@ -504,7 +512,7 @@ export default function StaffMarket() {
         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-2.5 border border-border/40">
           <Eye className="h-3.5 w-3.5 shrink-0" />
           <span>
-            <strong className="text-foreground">Hidden OVR:</strong> Scout staff to reveal their true rating, attributes, personality, and salary confidence. Cost: <span className="font-semibold text-foreground">$1,000</span> per scout.
+            <strong className="text-foreground">Hidden OVR:</strong> Scout staff to reveal their true rating and attributes. Cost: <span className="font-semibold text-foreground">$1,500</span> per scout, charged when sent; the report is in after 5 game days.
           </span>
         </div>
       ) : (

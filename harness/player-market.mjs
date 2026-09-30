@@ -140,9 +140,15 @@ try {
     await api("POST", "/staff", { staffId: offer?.id, length: "6m" });
   }
   const Z = unscouted[5];
+  const bScout = await budget();
   const sc = await api("POST", `/players/${Z.id}/scout`);
   check("scouting starts: 5 game days", sc.status === 200 && sc.data?.scouting?.state === "in_progress" && sc.data.scouting.daysLeft === 5,
     `HTTP ${sc.status} ${JSON.stringify(sc.data?.scouting ?? sc.data)}`);
+  // Overnight 30 Sep, item 4: every scout costs $1,500, charged when sent, on the ledger.
+  const scoutLines = ((await api("GET", "/finances")).data ?? []).filter((t) => t.category === "scouting" && t.description === `Scouting: ${Z.name}`);
+  check("the scout costs $1,500, charged when sent, one scouting line on the ledger",
+    bScout - (await budget()) === 1500 && sc.data?.cost === 1500 && scoutLines.length === 1 && Number(scoutLines[0].amount) === 1500,
+    `balance -$${bScout - (await budget())}; ${scoutLines.map((t) => `${t.date} $${t.amount} ${t.description}`).join("; ")}`);
   const second = await api("POST", `/players/${Z.id}/scout`);
   check("a second scout while one is out is refused (no re-roll)", second.status === 409, `${second.status}: ${second.data?.error}`);
   const day = async () => {

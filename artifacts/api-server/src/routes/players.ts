@@ -17,7 +17,8 @@ import {
 // rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
 const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
-import { marketView, scoutState, SCOUT_DAYS } from "../utils/marketScouting.js";
+import { marketView, scoutState, SCOUT_DAYS, SCOUT_COST } from "../utils/marketScouting.js";
+import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
 import { releasePayout } from "../utils/contractTerms.js";
@@ -614,9 +615,14 @@ router.post("/players/:id/scout", async (req, res) => {
     return;
   }
 
+  // Overnight 30 Sep, item 4: a scout costs SCOUT_COST, charged when sent.
+  const broke = cannotAffordScout(team.budget);
+  if (broke) { res.status(400).json({ error: broke }); return; }
+
   const bestScout = scouts.reduce((a, b) => a.overallRating > b.overallRating ? a : b);
   const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, bestScout.overallRating);
 
+  const budgetAfter = chargeScout(team, `Scouting: ${player.name}`, today);
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential, scoutStartedOn: today });
   const scouting = scoutState({ scoutStartedOn: today, scoutedPotential }, today);
 
@@ -624,6 +630,8 @@ router.post("/players/:id/scout", async (req, res) => {
     playerId,
     scouting,
     days:        SCOUT_DAYS,
+    cost:        SCOUT_COST,
+    budgetAfter,
     confidence,
     scoutName:   bestScout.name,
     scoutRating: bestScout.overallRating,

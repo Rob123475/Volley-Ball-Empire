@@ -487,7 +487,7 @@ function MarketPlayerCard({
             <Search className="h-3 w-3" />
             {scouting === "in_progress"
               ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
-              : isScoutingThis ? "Sending the scout…" : "Scout player (5 days)"}
+              : isScoutingThis ? "Sending the scout…" : "Scout player (5 days, $1,500)"}
           </Button>
         )}
       </CardContent>
@@ -569,7 +569,7 @@ function YouthPoolCard({
             onClick={() => onScout(player.id)} disabled={isScoutingThis}
             data-testid={`button-scout-${player.id}`}>
             <Search className="h-3 w-3" />
-            {isScoutingThis ? "Scouting…" : "Scout"}
+            {isScoutingThis ? "Scouting…" : "Scout (5 days, $1,500)"}
           </Button>
         </div>
         <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
@@ -657,7 +657,7 @@ export default function PlayerMarket() {
     scoutMutation.mutate({ id: playerId }, {
       onSuccess: (result: any) => {
         invalidateAll();
-        toast({ title: "Scout sent", description: `${result.scoutName}'s report is due in ${result.days} days${result.scouting?.readyOn ? ` (${format(new Date(`${result.scouting.readyOn}T00:00:00`), "d MMM")})` : ""}: her exact price, attributes and potential.` });
+        toast({ title: "Scout sent", description: `${result.scoutName}'s report is due in ${result.days} days${result.scouting?.readyOn ? ` (${format(new Date(`${result.scouting.readyOn}T00:00:00`), "d MMM")})` : ""}: her exact price, attributes and potential. $${Number(result.cost ?? 0).toLocaleString()} charged.` });
       },
       onError: (err: any) => {
         toast({ title: "Cannot scout", description: serverMessage(err, "Hire a Scout, Head Coach or Assistant Coach to scout players."), variant: "destructive" });

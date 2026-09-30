@@ -2549,8 +2549,10 @@ export const ScoutPlayerResponse = zod.object({
   "state": zod.enum(['none', 'in_progress', 'done']),
   "readyOn": zod.string().optional(),
   "daysLeft": zod.number().optional()
-}),
+}).describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "days": zod.number(),
+  "cost": zod.number().optional().describe('Overnight 30 Sep, item 4: what the scout cost, charged when sent ($1,500).'),
+  "budgetAfter": zod.number().optional(),
   "confidence": zod.enum(['uncertain', 'likely', 'confident']).describe('How reliable the assessment is, based on scout skill.'),
   "scoutName": zod.string(),
   "scoutRating": zod.number()
@@ -3951,7 +3953,13 @@ export const GetTeamRosterResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -5282,7 +5290,13 @@ export const SwapTeamPlayerResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -6617,7 +6631,13 @@ export const SetPlayerRoleResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7783,7 +7803,13 @@ export const ListStaffResponseItem = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7818,7 +7844,13 @@ export const ListAvailableStaffResponseItem = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7850,7 +7882,13 @@ export const GetStaffMarketResponseItem = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7885,7 +7923,13 @@ export const RenewStaffContractResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7924,7 +7968,13 @@ export const UpdateStaffResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7954,7 +8004,13 @@ export const FireStaffResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -7964,7 +8020,7 @@ export const FireStaffResponse = zod.object({
 
 
 /**
- * @summary Reveal a staff member's OVR and attributes using a scout
+ * @summary Send a scout to report on a staff or medical candidate (5 game days, $1,500 charged now)
  */
 export const ScoutStaffParams = zod.object({
   "id": zod.coerce.number()
@@ -7984,13 +8040,28 @@ export const ScoutStaffResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
   "imageUrl": zod.string().nullish(),
   "createdAt": zod.string()
-})
+}).and(zod.object({
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
+  "days": zod.number(),
+  "cost": zod.number(),
+  "budgetAfter": zod.number()
+}))
 
 
 /**
@@ -8277,7 +8348,13 @@ export const ListTrainingSessionsResponseItem = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -8595,7 +8672,13 @@ export const CancelTrainingResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -8912,7 +8995,13 @@ export const GetTrainingPlanResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -10661,7 +10750,13 @@ export const ListMedicalStaffResponseItem = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -10701,7 +10796,13 @@ export const GetMedicalStaffMarketResponseItem = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),
@@ -10732,7 +10833,13 @@ export const FireMedicalStaffResponse = zod.object({
   "personality": zod.enum(['Motivator', 'Demanding', 'Player Friendly', 'Disciplinarian']).describe('Affects XP multiplier and morale\/fatigue side-effects.'),
   "attributes": zod.record(zod.string(), zod.number()).describe('3 role-specific attributes (name → value 1–99).'),
   "specialTrait": zod.string().describe('Unique special trait for this staff member.'),
-  "isScoutRevealed": zod.boolean().describe('Whether OVR has been revealed by a scout.'),
+  "isScoutRevealed": zod.boolean().describe('Whether the scout\'s report is in (item 4: SCOUT_DAYS game days after the scout was sent).'),
+  "scoutStartedOn": zod.string().nullish().describe('Overnight 30 Sep, item 4: the game date a scout was sent to report on this person.'),
+  "scouting": zod.object({
+  "state": zod.enum(['none', 'in_progress', 'done']),
+  "readyOn": zod.string().optional(),
+  "daysLeft": zod.number().optional()
+}).optional().describe('Where a scout\'s report stands (overnight 30 Sep, item 4: every scout takes 5 game days).'),
   "scoutingRating": zod.number().describe('Scouting effectiveness rating 1–100.'),
   "teamId": zod.number().nullable(),
   "nationality": zod.string().nullish(),

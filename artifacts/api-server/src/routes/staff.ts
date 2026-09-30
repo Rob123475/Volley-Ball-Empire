@@ -6,6 +6,8 @@ import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 import { getGameDate } from "../utils/gameDate.js";
+import { staffScoutState, withStaffScouting, SCOUT_DAYS, SCOUT_COST } from "../utils/marketScouting.js";
+import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import {
   loadStaff, loadStaffMember, updateStaffState, updateStaffReference,
   createCareerStaff, countTeamStaff, requireCareerSaveId, withCareerStateTx,
@@ -199,7 +201,9 @@ router.get("/staff/market", async (req, res) => {
     );
   }
 
-  res.json(filtered.map(serializeStaff));
+  const team = await getActiveTeam(req);
+  const today = team ? await getGameDate(team.id) : "0000-01-01";
+  res.json(filtered.map((s) => withStaffScouting(serializeStaff(s), today)));
 });
 
 router.get("/staff/available", async (req, res) => {
@@ -299,8 +303,9 @@ router.delete("/staff/:id", async (req, res) => {
   res.json({ ...serializeStaff(updated), terminationFee, budgetAfter: teamBudget - terminationFee });
 });
 
-const STAFF_SCOUT_COST = 1_000;
-
+// Overnight brief 30 Sep, item 4: scouting a staff or medical candidate takes
+// SCOUT_DAYS game days and costs SCOUT_COST, charged when the scout is sent, as
+// scouting a player does. It was instant and $1,000.
 router.post("/staff/:id/scout", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id);
@@ -310,37 +315,30 @@ router.post("/staff/:id/scout", async (req, res) => {
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const member = await loadStaffMember(cid, id);
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
-  if (member.isScoutRevealed) { res.status(400).json({ error: "Already revealed" }); return; }
+  const today = await getGameDate(team.id);
+  const now = staffScoutState(member, today);
+  if (now.state !== "none") {
+    res.status(409).json({ error: now.state === "done" ? `${member.name} has already been scouted.` : `${member.name} is already being scouted: ${now.daysLeft} day${now.daysLeft === 1 ? "" : "s"} left.`, scouting: now });
+    return;
+  }
 
   const teamStaff = await loadStaff(cid, { teamId: team.id });
   // Roles are stored as Title Case ("Head Coach", "Scout") — normalise before comparing.
   const hasCoach = teamStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
-
   if (!hasCoach) {
     res.status(400).json({ error: "You need a Head Coach, Assistant Coach, or Scout to scout staff." });
     return;
   }
 
-  const currentBudget = Number(team.budget ?? 0);
-  if (currentBudget < STAFF_SCOUT_COST) {
-    res.status(400).json({ error: `Not enough funds. Staff scouting costs $${STAFF_SCOUT_COST.toLocaleString()}.` });
-    return;
-  }
+  const broke = cannotAffordScout(team.budget);
+  if (broke) { res.status(400).json({ error: broke }); return; }
+  const budgetAfter = chargeScout(team, `Scouting: ${member.name} (${member.role})`, today);
 
-  await db.update(teamsTable)
-    .set({ budget: currentBudget - STAFF_SCOUT_COST })
-    .where(eq(teamsTable.id, team.id));
-  // Item 17: the $1,000 was taken from the balance with no ledger row, so the
-  // ledger stopped reconciling to the balance (item 13) after every scout.
-  await db.insert(financeTransactionsTable).values({
-    teamId: team.id, type: "expense", amount: STAFF_SCOUT_COST, category: "scouting",
-    description: `Staff scouting: ${member.name} (${member.role})`, date: await getGameDate(team.id),
-  });
-
-  // Scouting is per-career knowledge: revealing someone in one save must not
+  // Scouting is per-career knowledge: scouting someone in one save must not
   // reveal them in another.
-  await updateStaffState(cid, id, { isScoutRevealed: true });
-  res.json(serializeStaff({ ...member, isScoutRevealed: true }));
+  await updateStaffState(cid, id, { scoutStartedOn: today });
+  const scouting = staffScoutState({ isScoutRevealed: false, scoutStartedOn: today }, today);
+  res.json({ ...serializeStaff({ ...member, scoutStartedOn: today }), scouting, days: SCOUT_DAYS, cost: SCOUT_COST, budgetAfter });
 });
 
 export default router;

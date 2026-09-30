@@ -283,6 +283,8 @@ export type CareerStaffFields = {
   isAvailable: boolean;
   contractLength: number;
   isScoutRevealed: boolean;
+  /** Item 4: the game date a scout was sent to report on this person (5 game days). */
+  scoutStartedOn: string | null;
   // L-02a: staff and medical contracts expire like players. contractLength was
   // a months integer nothing ever read, so staff were hired forever; these are
   // what the calendar tick acts on.
@@ -301,6 +303,7 @@ export function assembleStaff(reference: StaffReference, state: CareerStaffState
     isAvailable:     state.isAvailable,
     contractLength:  state.contractLength,
     isScoutRevealed: state.isScoutRevealed,
+    scoutStartedOn:  state.scoutStartedOn ?? null,
     contractTerm:      state.contractTerm ?? null,
     contractStartDate: state.contractStartDate ?? null,
     contractEndDate:   state.contractEndDate ?? null,
@@ -552,11 +555,11 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
     },
     lapseStaffScouting(careerSaveId) {
       const r = tx.update(careerStaffStateTable)
-        .set({ isScoutRevealed: false, updatedAt: new Date() })
+        .set({ isScoutRevealed: false, scoutStartedOn: null, updatedAt: new Date() })
         .where(and(
           eq(careerStaffStateTable.careerSaveId, careerSaveId),
           isNull(careerStaffStateTable.teamId),
-          eq(careerStaffStateTable.isScoutRevealed, true),
+          or(eq(careerStaffStateTable.isScoutRevealed, true), isNotNull(careerStaffStateTable.scoutStartedOn)),
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);

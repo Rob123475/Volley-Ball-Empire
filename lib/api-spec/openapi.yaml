@@ -770,7 +770,7 @@ paths:
     post:
       operationId: scoutStaff
       tags: [staff]
-      summary: Reveal a staff member's OVR and attributes using a scout
+      summary: Send a scout to report on a staff or medical candidate (5 game days, $1,500 charged now)
       parameters:
         - name: id
           in: path
@@ -779,13 +779,27 @@ paths:
             type: integer
       responses:
         "200":
-          description: Staff OVR revealed
+          description: The scout is on the way; the report is in on scouting.readyOn
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StaffMember"
+                allOf:
+                  - $ref: "#/components/schemas/StaffMember"
+                  - type: object
+                    required: [scouting, days, cost, budgetAfter]
+                    properties:
+                      scouting:
+                        $ref: "#/components/schemas/ScoutingState"
+                      days:
+                        type: integer
+                      cost:
+                        type: number
+                      budgetAfter:
+                        type: number
         "400":
-          description: No scout available or already revealed
+          description: No scout on staff, or not enough money
+        "409":
+          description: Already scouted, or already being scouted
 
   /training:
     get:
@@ -2727,6 +2741,19 @@ components:
             and charged on signing). The caller confirms it with confirm=true;
             without it the server answers 400 with the price or range.
 
+    ScoutingState:
+      type: object
+      description: "Where a scout's report stands (overnight 30 Sep, item 4: every scout takes 5 game days)."
+      required: [state]
+      properties:
+        state:
+          type: string
+          enum: [none, in_progress, done]
+        readyOn:
+          type: string
+        daysLeft:
+          type: integer
+
     StaffMember:
       type: object
       required: [id, name, role, specialty, salary, skillLevel, age, overallRating, contractLength, coachSpeciality, personality, attributes, specialTrait, isScoutRevealed, scoutingRating, teamId, createdAt]
@@ -2770,7 +2797,12 @@ components:
           description: "Unique special trait for this staff member."
         isScoutRevealed:
           type: boolean
-          description: "Whether OVR has been revealed by a scout."
+          description: "Whether the scout's report is in (item 4: SCOUT_DAYS game days after the scout was sent)."
+        scoutStartedOn:
+          type: ["string", "null"]
+          description: "Overnight 30 Sep, item 4: the game date a scout was sent to report on this person."
+        scouting:
+          $ref: "#/components/schemas/ScoutingState"
         scoutingRating:
           type: integer
           description: "Scouting effectiveness rating 1–100."
@@ -3444,18 +3476,14 @@ components:
         playerId:
           type: integer
         scouting:
-          type: object
-          required: [state]
-          properties:
-            state:
-              type: string
-              enum: [none, in_progress, done]
-            readyOn:
-              type: string
-            daysLeft:
-              type: integer
+          $ref: "#/components/schemas/ScoutingState"
         days:
           type: integer
+        cost:
+          type: number
+          description: "Overnight 30 Sep, item 4: what the scout cost, charged when sent ($1,500)."
+        budgetAfter:
+          type: number
         confidence:
           type: string
           enum: [uncertain, likely, confident]
