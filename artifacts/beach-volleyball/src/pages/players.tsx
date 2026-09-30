@@ -525,8 +525,14 @@ function YouthPoolCard({
   /** Overnight 30 Sep, item 5: only a hired Scout scouts players. */
   hasScout: boolean;
 }) {
-  const overall   = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-  const isScouted = !!player.scoutedPotential;
+  // Overnight 30 Sep, item 12: the youth market by the senior rules. Until a
+  // scout's report is in (or she signs) the server sends no stats: rating "?",
+  // stats hidden, a price range; then her stats, exact price and the scout's
+  // reading of her development potential.
+  const revealed  = player.revealed === true;
+  const overall   = revealed ? Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5) : null;
+  const isScouted = revealed && !!player.scoutedPotential;
+  const scouting  = player.scouting?.state ?? "none";
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all group">
@@ -542,7 +548,7 @@ function YouthPoolCard({
         <NameStrip name={player.name} />
         <div className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center z-10" style={{ width: "19%", gap: "5px", padding: "8px 3px" }}>
           <div className="text-center">
-            <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }}>{overall}</div>
+            <div className="text-[22px] font-black text-white leading-none" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.95)" }} data-testid={`youth-ovr-${player.id}`}>{overall ?? "?"}</div>
             <div className="text-[7px] text-white/55 uppercase tracking-widest font-bold">OVR</div>
           </div>
           <div className="w-4/5 h-px bg-white/20" />
@@ -566,28 +572,38 @@ function YouthPoolCard({
           <Star className="h-2.5 w-2.5" />
           Youth Player • Age {player.age}
         </Badge>
-        <div className="grid grid-cols-2 gap-2">
-          <StatMini label="Power"   value={player.power}   icon={Zap}      color="text-orange-500" />
-          <StatMini label="Speed"   value={player.speed}   icon={Wind}     color="text-blue-500"   />
-          <StatMini label="Defense" value={player.defense} icon={Shield}   color="text-green-500"  />
-          <StatMini label="Serve"   value={player.serve}   icon={Target}   color="text-purple-500" />
-          <StatMini label="Block"   value={player.block}   icon={Shield}   color="text-red-500"    />
-          <StatMini label="Stamina" value={player.stamina} icon={Activity} color="text-cyan-500"   />
-        </div>
+        {revealed ? (
+          <div className="grid grid-cols-2 gap-2">
+            <StatMini label="Power"   value={player.power}   icon={Zap}      color="text-orange-500" />
+            <StatMini label="Speed"   value={player.speed}   icon={Wind}     color="text-blue-500"   />
+            <StatMini label="Defense" value={player.defense} icon={Shield}   color="text-green-500"  />
+            <StatMini label="Serve"   value={player.serve}   icon={Target}   color="text-purple-500" />
+            <StatMini label="Block"   value={player.block}   icon={Shield}   color="text-red-500"    />
+            <StatMini label="Stamina" value={player.stamina} icon={Activity} color="text-cyan-500"   />
+          </div>
+        ) : (
+          <p className="text-[11px] text-muted-foreground text-center py-2" data-testid={`youth-stats-hidden-${player.id}`}>Scout her or sign her to see her stats.</p>
+        )}
+        {player.priceRange && (
+          <div className="text-xs flex justify-between" data-testid={`youth-price-${player.id}`}>
+            <span className="text-muted-foreground">Price</span>
+            <span className="font-semibold">{player.price != null ? money(player.price) : `${money(player.priceRange.low)} – ${money(player.priceRange.high)}`}</span>
+          </div>
+        )}
         <div className="flex items-center justify-between border-t border-border pt-2">
           <div className="text-xs text-muted-foreground flex items-center gap-1.5">
             {isScouted ? (
-              <><span className="font-medium text-foreground">Potential</span><PotentialBadge potential={player.scoutedPotential!} size="xs" /></>
+              <><span className="font-medium text-foreground">Development potential</span><PotentialBadge potential={player.scoutedPotential!} size="xs" /></>
             ) : <span className="italic">Potential not assessed</span>}
           </div>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1"
+          {scouting !== "done" && <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1"
             onClick={() => onScout(player.id)} disabled={isScoutingThis || !hasScout || player.scouting?.state === "in_progress"}
             title={!hasScout ? "Hire a Scout on the Staff Market to scout players." : player.scoutReportBy ?? undefined}
             data-testid={`button-scout-${player.id}`}>
             <Search className="h-3 w-3" />
             {player.scouting?.state === "in_progress" ? `Report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
               : !hasScout ? "Hire a Scout" : isScoutingThis ? "Scouting…" : "Scout (5 days, $1,500)"}
-          </Button>
+          </Button>}
         </div>
         <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
       </CardContent>

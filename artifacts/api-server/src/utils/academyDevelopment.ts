@@ -22,6 +22,7 @@
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import { isYouthPlayer } from "./playerClassification.js";
 import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
+import { potentialMultiplier } from "./potential.js";
 
 /**
  * Take a week off each academy contract. Charges nothing.
@@ -66,6 +67,17 @@ export function academyXpFor(rating: number): number {
   return rating >= 75 ? 21 : rating >= 60 ? 19 : 16;
 }
 
+/**
+ * Overnight brief 30 Sep, item 12: a week in the academy, by her potential.
+ * The band's XP and the focus points are scaled by the same potential
+ * multiplier training sessions use (utils/potential.ts: Low 0.8 to
+ * Generational 1.3), so two youths with the same stats grow differently.
+ */
+export function academyWeek(rating: number, potential: string | null | undefined, focusRoll: number): { xp: number; focusXp: number } {
+  const k = potentialMultiplier(potential);
+  return { xp: Math.round(academyXpFor(rating) * k), focusXp: Math.round((8 + focusRoll) * k) };
+}
+
 /** Academy training, for the academy — see tickAcademyContracts on who that is. */
 export async function developAcademyPlayers(teamId: number): Promise<void> {
   const careerSaveId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
@@ -73,8 +85,9 @@ export async function developAcademyPlayers(teamId: number): Promise<void> {
 
   for (const player of youthPlayers) {
     const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
+    const week = academyWeek(rating, player.potential, Math.floor(Math.random() * 5));
     const updates: Partial<CareerPlayerFields> = {
-      trainingPoints: player.trainingPoints + academyXpFor(rating),
+      trainingPoints: player.trainingPoints + week.xp,
     };
 
     if (player.trainingFocus === "Leadership") {
@@ -83,7 +96,7 @@ export async function developAcademyPlayers(teamId: number): Promise<void> {
       const focusStat = FOCUS_STAT_MAP[player.trainingFocus];
       if (focusStat) {
         const prevFocusXp = player.focusXp ?? 0;
-        const newFocusXp  = prevFocusXp + 8 + Math.floor(Math.random() * 5);
+        const newFocusXp  = prevFocusXp + week.focusXp;
         updates.focusXp   = newFocusXp;
         const focusGain   = Math.floor(newFocusXp / 100) - Math.floor(prevFocusXp / 100);
         if (focusGain > 0) updates[focusStat] = Math.min(99, player[focusStat] + focusGain);

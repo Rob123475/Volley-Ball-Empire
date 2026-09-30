@@ -15,7 +15,7 @@ import {
   contractEndDate, renewalEndDate, releasePayout, readContractLength,
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
-import { marketPrice, isRevealed } from "../utils/marketScouting.js";
+import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
 
 const router = Router();
 
@@ -114,11 +114,13 @@ router.post("/contracts", async (req, res) => {
   // A senior signed off the market costs her price, once, on top of her wage.
   // The caller must confirm it (the page's confirm step): the exact price if
   // this club has scouted her, otherwise the range, and the exact price is then
-  // revealed and charged. Youth players have no price.
+  // revealed and charged. Overnight 30 Sep, item 12: a youth player off the
+  // market (no club) has a price too ($500-$2,000 by talent), by the same
+  // rules and the same confirm step.
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const priceDay = await getGameDate(team.id);
-  const fee = isYouth ? null : marketPrice(cid, player);
-  const blind = !isYouth && !isRevealed(player, team.id, priceDay);
+  const fee = isYouth ? (player.teamId == null ? youthPrice(cid, player) : null) : marketPrice(cid, player);
+  const blind = fee != null && !isRevealed(player, team.id, priceDay);
   if (fee) {
     if (req.body?.confirm !== true) {
       res.status(400).json({

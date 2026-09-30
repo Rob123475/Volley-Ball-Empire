@@ -5,16 +5,17 @@ export interface YouthPlayerData {
   age: number;
   height: number;
   primaryRole: string;
-  attackRating: number;
-  defenceRating: number;
-  serveRating: number;
-  speedRating: number;
-  staminaRating: number;
+  attackRating: number | null;
+  defenceRating: number | null;
+  serveRating: number | null;
+  speedRating: number | null;
+  staminaRating: number | null;
   potential: number;
 }
 
-function StatBar({ value }: { value: number }) {
-  const filled = Math.min(10, Math.max(0, Math.round(value / 10)));
+/** Overnight 30 Sep, item 12: null until a scout's report is in (the stat is not sent): dim, unfilled bars. */
+function StatBar({ value }: { value: number | null }) {
+  const filled = value == null ? 0 : Math.min(10, Math.max(0, Math.round(value / 10)));
   return (
     <div style={{ display: "flex", gap: "2px", width: "100%", height: "100%" }}>
       {Array.from({ length: 10 }, (_, i) => (
@@ -23,7 +24,7 @@ function StatBar({ value }: { value: number }) {
           style={{
             flex: 1,
             height: "100%",
-            background: i < filled ? "#C8A84B" : "#1a1a1a",
+            background: i < filled ? "#C8A84B" : value == null ? "#101010" : "#1a1a1a",
             borderRadius: "1px",
           }}
         />

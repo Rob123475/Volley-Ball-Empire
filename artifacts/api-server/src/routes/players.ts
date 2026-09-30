@@ -17,7 +17,7 @@ import {
 // rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
 const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
-import { marketView, scoutState, SCOUT_DAYS, SCOUT_COST } from "../utils/marketScouting.js";
+import { marketView, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST } from "../utils/marketScouting.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
@@ -165,13 +165,15 @@ router.get("/players/youth-pool", async (req, res) => {
   if (continent && typeof continent === "string") {
     result = result.filter(p => p.continent === continent);
   }
-  // Item 15: a scout's report on a youth player arrives after SCOUT_DAYS game days too.
+  // Overnight brief 30 Sep, item 12: the youth market by the senior rules. An
+  // unscouted youth shows a price range ($500-$2,000 by talent), rating "?" and
+  // no stats; a scout (5 game days) reveals her stats, exact price and his
+  // reading of her development potential. It used to send every stat and show
+  // her rating, with no price at all.
   const youthTeam = await getActiveTeam(req);
-  const youthToday = youthTeam ? await getGameDate(youthTeam.id) : null;
-  res.json(result.map((p) => {
-    const v = serializePlayer(p);
-    return youthToday && scoutState(p, youthToday).state !== "done" ? { ...v, scoutedPotential: null, scouting: scoutState(p, youthToday) } : v;
-  }));
+  const youthToday = youthTeam ? await getGameDate(youthTeam.id) : "0000-01-01";
+  const cidYouth = requireCareerSaveId(req.activeCareerSaveId);
+  res.json(result.map((p) => marketView(cidYouth, { ...p, ...serializePlayer(p) } as PlayerDTO, youthTeam?.id ?? null, youthToday, true, youthPrice)));
 });
 
 /**

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { potentialMultiplier as potentialOf } from "../utils/potential.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
@@ -170,15 +171,7 @@ function computeCoachEffect(coach: StaffMember, programName: string, playerAge?:
 
 // ── Training XP + stat update ─────────────────────────────────────────────────
 
-// ── Potential multipliers (uses true `potential` from DB, never sent to client) ──
-
-const POTENTIAL_MULTIPLIERS: Record<string, number> = {
-  "Generational": 1.30,
-  "Elite":        1.15,
-  "High":         1.00,
-  "Average":      0.90,
-  "Low":          0.80,
-};
+// Potential multipliers: utils/potential.ts (the true `potential`, never sent to the client).
 
 const POINTS_PER_SESSION_MIN = 25;
 const POINTS_PER_SESSION_MAX = 35;
@@ -220,7 +213,7 @@ const applyFatigueAndStats = async (
   const philosophyMultiplier = teamPhilosophy
     ? (PHILOSOPHY_BONUSES[teamPhilosophy]?.[programName] ?? 1.0)
     : 1.0;
-  const potentialMultiplier = POTENTIAL_MULTIPLIERS[(player.potential as string) ?? "Average"] ?? 1.0;
+  const potentialMultiplier = potentialOf(player.potential as string);
 
   // Youth Academy bonus: players aged 14–18 develop 20% faster than the standard
   // age modifier already gives them. This stacks with getAgeModifier (1.25×) for a

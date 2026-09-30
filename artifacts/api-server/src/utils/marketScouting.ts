@@ -56,6 +56,24 @@ export function marketPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "ask
   return { low, high, price };
 }
 
+/**
+ * Overnight brief 30 Sep, item 12 (Rob, 30 Sep): a youth player on the market
+ * has a price too, $500 to $2,000 by her talent (her true potential tier), by
+ * the same rules as a senior's: a range an unscouted card shows (85%-115% of
+ * the tier's price, rounded out to $100, within $500-$2,000) and an exact
+ * price inside it fixed per player and career.
+ */
+const YOUTH_TIER_PRICE: Record<string, number> = { Low: 600, Average: 900, High: 1300, Elite: 1700, Generational: 2000 };
+export const YOUTH_PRICE_MIN = 500, YOUTH_PRICE_MAX = 2000;
+
+export function youthPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "potential">): MarketPrice {
+  const base = YOUTH_TIER_PRICE[p.potential ?? "Average"] ?? YOUTH_TIER_PRICE["Average"]!;
+  const low  = Math.max(YOUTH_PRICE_MIN, Math.floor((base * RANGE_LOW) / 100) * 100);
+  const high = Math.min(YOUTH_PRICE_MAX, Math.ceil((base * RANGE_HIGH) / 100) * 100);
+  const price = Math.min(high, Math.max(low, Math.round((low + (high - low) * unitHash(careerSaveId, p.id)) / 50) * 50));
+  return { low, high, price };
+}
+
 function addDays(date: string, days: number): string {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
@@ -134,12 +152,17 @@ const HIDDEN = {
  */
 export function marketView(
   careerSaveId: number, p: PlayerDTO, myTeamId: number | null, today: string, onMarket: boolean,
+  priceOf: (careerSaveId: number, p: PlayerDTO) => MarketPrice = marketPrice,
 ) {
   const revealed = isRevealed(p, myTeamId, today);
   const scouting = scoutState(p, today);
-  const range = onMarket ? marketPrice(careerSaveId, p) : null;
+  const range = onMarket ? priceOf(careerSaveId, p) : null;
+  // Her TRUE potential and development are never sent (item 12): a card shows
+  // the scout's reading (scoutedPotential) once his report is in. The senior
+  // market re-spread the full record and sent them.
+  const { potential: _potential, development: _development, ...shown } = p as PlayerDTO & { development?: unknown };
   return {
-    ...p,
+    ...shown,
     ...(revealed ? {} : HIDDEN),
     revealed,
     scouting,
