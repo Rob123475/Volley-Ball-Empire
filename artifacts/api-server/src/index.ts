@@ -1,5 +1,6 @@
 import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
+import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { sqlite } from "@workspace/db";
@@ -195,6 +196,12 @@ try {
 } catch (err) {
   logger.error({ err }, "nationality conversion failed");
 }
+
+// Overnight 30 Sep item 33b: a staff or medical hire with no contract end
+// (an older save) gets one: the end of the current season.
+giveOpenStaffContractsAnEnd()
+  .then((n) => { if (n.length > 0) logger.info({ ended: n }, "staff contracts with no end date given the end of the season"); })
+  .catch((err) => logger.error({ err }, "giving staff contracts an end failed"));
 
 // D-3: facility upgrades booked before facility names were shared read
 // "training complex"; they now read as the building's own name.

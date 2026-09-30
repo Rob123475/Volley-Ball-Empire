@@ -5,7 +5,10 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { StaffInputLength } from './staffInputLength';
 
 export interface StaffInput {
   staffId: number;
+  /** Overnight 30 Sep, item 33b: the contract, chosen when hiring: 6 months, 1 season or 2 seasons (default 1 season). */
+  length?: StaffInputLength;
 }

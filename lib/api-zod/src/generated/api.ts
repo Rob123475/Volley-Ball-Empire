@@ -7839,7 +7839,8 @@ export const ListStaffResponse = zod.array(ListStaffResponseItem)
  * @summary Hire a staff member
  */
 export const HireStaffBody = zod.object({
-  "staffId": zod.number()
+  "staffId": zod.number(),
+  "length": zod.enum(['6m', '1s', '2s']).optional().describe('Overnight 30 Sep, item 33b: the contract, chosen when hiring: 6 months, 1 season or 2 seasons (default 1 season).')
 })
 
 
@@ -10827,7 +10828,8 @@ export const ListMedicalStaffResponse = zod.array(ListMedicalStaffResponseItem)
  * @summary Hire a medical staff member
  */
 export const HireMedicalStaffBody = zod.object({
-  "staffId": zod.number()
+  "staffId": zod.number(),
+  "length": zod.enum(['6m', '1s', '2s']).optional().describe('Item 33b: 6 months, 1 season or 2 seasons (default 1 season).')
 })
 
 

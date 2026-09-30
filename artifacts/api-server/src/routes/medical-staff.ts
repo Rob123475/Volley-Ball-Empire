@@ -1,3 +1,4 @@
+import { releaseStaffMember } from "./staff.js";
 import { withStaffScouting } from "../utils/marketScouting.js";
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -128,14 +129,8 @@ router.get("/medical-staff/market", async (req, res) => {
   res.json(filtered.map((s) => withStaffScouting(serializeStaff(s), today)));
 });
 
-router.delete("/medical-staff/:id", async (req, res) => {
-  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const cid = requireCareerSaveId(req.activeCareerSaveId);
-  const id = parseInt(req.params.id);
-  const member = await loadStaffMember(cid, id);
-  if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
-  await updateStaffState(cid, id, { teamId: null, isAvailable: true });
-  res.json(serializeStaff({ ...member, teamId: null, isAvailable: true }));
-});
+// Item 33b: releasing a medic early pays out the rest of her contract, as for
+// any member of staff: the one handler in routes/staff.ts.
+router.delete("/medical-staff/:id", releaseStaffMember);
 
 export default router;

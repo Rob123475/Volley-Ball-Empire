@@ -1,3 +1,5 @@
+import { contractPayout, monthsLeft } from "@/lib/contract-payout";
+import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import { useState } from "react";
 import {
@@ -220,10 +222,12 @@ function StaffCard({
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
+  // Item 33b: releasing her early pays out the rest of her contract (the
+  // server's rule; this showed 50% of a stale 12-month figure).
   const monthlySalary   = Number(member.salary);
-  const monthsRemaining = member.contractLength as number;
-  const remainingValue  = monthlySalary * monthsRemaining;
-  const terminationFee  = Math.round(remainingValue * 0.5);
+  const today           = calendar?.currentDate ?? "";
+  const monthsRemaining = monthsLeft(today, member.contractEndDate);
+  const terminationFee  = contractPayout(monthlySalary, today, member.contractEndDate);
   const balanceAfter    = teamBudget - terminationFee;
   const canAfford       = teamBudget >= terminationFee;
 
@@ -370,19 +374,15 @@ function StaffCard({
                   <span className="font-semibold">{fmt(monthlySalary)}/mo</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Months remaining</span>
-                  <span className="font-semibold">{monthsRemaining} months</span>
+                  <span className="text-muted-foreground">Contract left</span>
+                  <span className="font-semibold">{monthsRemaining} month{monthsRemaining === 1 ? "" : "s"}{member.contractEndDate ? `, to ${member.contractEndDate}` : ""}</span>
                 </div>
               </div>
 
               {/* Fee calculation */}
               <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-2 text-sm">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Remaining contract value</span>
-                  <span>{fmt(remainingValue)}</span>
-                </div>
                 <div className="flex justify-between font-bold text-destructive text-base">
-                  <span>Termination fee (50%)</span>
+                  <span>Paid out: the rest of her contract</span>
                   <span>{fmt(terminationFee)}</span>
                 </div>
               </div>
@@ -498,7 +498,7 @@ function StaffCard({
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {member.contractLength}mo contract
+            {member.contractTerm ? `${CONTRACT_LENGTH_LABELS[member.contractTerm as ContractLength]} contract` : "Contract"}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <DollarSign className="h-3 w-3 text-green-600" />
@@ -600,7 +600,7 @@ export default function StaffManagement() {
         queryClient.invalidateQueries({ queryKey: getGetMyTeamQueryKey() });
         toast({
           title: "Contract Terminated",
-          description: "The termination fee has been deducted from your club balance.",
+          description: "The rest of the contract has been paid out from your club balance.",
         });
       },
       onError: (err: any) => {

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, MAX_STAFF, MAX_MEDICAL_STAFF, isMedicalRole } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
@@ -14,7 +14,7 @@ import {
   type StaffDTO, type StaffReferenceFields,
 } from "../lib/playerDto.js";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
-import { readContractLength, renewalEndDate } from "../utils/contractTerms.js";
+import { readContractLength, renewalEndDate, terminationPayout } from "../utils/contractTerms.js";
 import { staffContractPatch, seasonEndsFrom } from "../utils/seasonDates.js";
 
 const router = Router();
@@ -238,71 +238,65 @@ router.patch("/staff/:id", async (req, res) => {
   res.json(serializeStaff(updated));
 });
 
-router.delete("/staff/:id", async (req, res) => {
+/**
+ * Overnight brief 30 Sep, item 33b: releasing a member of staff or medical
+ * staff early pays out the rest of her contract, the players' rule
+ * (utils/contractTerms.ts terminationPayout: the whole remainder, a part month
+ * paid as a month). One handler for both departments. The staff route charged
+ * 50% of a months figure nothing kept up to date (always 12), and the medical
+ * route charged nothing and did not check she was the club's.
+ */
+export async function releaseStaffMember(req: Request, res: Response): Promise<void> {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
   const cid = requireCareerSaveId(req.activeCareerSaveId);
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   const member = await loadStaffMember(cid, id);
   if (!member) { res.status(404).json({ error: "Staff member not found" }); return; }
   if (member.teamId !== team.id) { res.status(403).json({ error: "Staff member does not belong to your team" }); return; }
 
-  // Termination fee = 50% of remaining contract value
-  const monthlySalary  = Number(member.salary);
-  const monthsRemaining = member.contractLength;
-  const terminationFee  = Math.round(monthlySalary * monthsRemaining * 0.5);
-  const teamBudget      = Number(team.budget);
-
+  const today = await getGameDate(team.id);
+  const terminationFee = member.contractEndDate ? terminationPayout(Number(member.salary), today, member.contractEndDate) : 0;
+  const teamBudget = Number(team.budget);
   if (teamBudget < terminationFee) {
-    res.status(400).json({
-      error: "Insufficient funds",
-      terminationFee,
-      teamBudget,
-    });
+    res.status(400).json({ error: `Not enough money to pay out the rest of ${member.name}'s contract ($${terminationFee.toLocaleString()}).`, terminationFee, teamBudget });
     return;
   }
 
-  // Deduct termination fee from club budget
-  await db.update(teamsTable)
-    .set({ budget: teamBudget - terminationFee })
-    .where(eq(teamsTable.id, team.id));
+  await db.update(teamsTable).set({ budget: teamBudget - terminationFee }).where(eq(teamsTable.id, team.id));
+  // Back to THIS career's market, with no contract.
+  await updateStaffState(cid, id, { teamId: null, isAvailable: true, contractTerm: null, contractStartDate: null, contractEndDate: null });
+  const updated: StaffDTO = { ...member, teamId: null, isAvailable: true, contractTerm: null, contractStartDate: null, contractEndDate: null };
 
-  // Release the staff member back to THIS career's market
-  await updateStaffState(cid, id, { teamId: null, isAvailable: true });
-  const updated: StaffDTO = { ...member, teamId: null, isAvailable: true };
+  if (terminationFee > 0) {
+    await db.insert(financeTransactionsTable).values({
+      teamId:      team.id,
+      type:        "expense",
+      amount:      terminationFee,
+      description: `Contract paid out — ${member.name} (${member.role.replace(/_/g, " ")}), to ${member.contractEndDate}`,
+      category:    "staff_termination",
+      date:        today,
+    });
+  }
 
-  // Finance transaction — staff termination expense
-  const today = await getGameDate(team.id);
-  await db.insert(financeTransactionsTable).values({
-    teamId:      team.id,
-    type:        "expense",
-    amount:      terminationFee,
-    description: `Contract termination — ${member.name} (${member.role.replace(/_/g, " ")})`,
-    category:    "staff_termination",
-    date:        today,
-  });
-
-  // Career history entry
   if (req.user?.id) {
-    const [save] = await db
-      .select()
-      .from(careerSavesTable)
-      .where(eq(careerSavesTable.teamId, team.id));
-
+    const [save] = await db.select().from(careerSavesTable).where(eq(careerSavesTable.teamId, team.id));
     await db.insert(careerHistoryEntriesTable).values({
       userId:       req.user.id,
       careerSaveId: save?.id ?? null,
       type:         "staff_fired",
       clubName:     team.name,
       season:       save?.season ?? null,
-      description:  `Terminated contract of ${member.name} (${member.role.replace(/_/g, " ")}). Termination fee: $${terminationFee.toLocaleString()}.`,
+      description:  `Terminated contract of ${member.name} (${member.role.replace(/_/g, " ")}). Paid out: $${terminationFee.toLocaleString()}.`,
     });
   }
 
   res.json({ ...serializeStaff(updated), terminationFee, budgetAfter: teamBudget - terminationFee });
-});
+}
+
+router.delete("/staff/:id", releaseStaffMember);
 
 // Overnight brief 30 Sep, item 4: scouting a staff or medical candidate takes
 // SCOUT_DAYS game days and costs SCOUT_COST, charged when the scout is sent, as

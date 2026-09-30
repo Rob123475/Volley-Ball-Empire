@@ -5,7 +5,10 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { HireMedicalStaffBodyLength } from './hireMedicalStaffBodyLength';
 
 export type HireMedicalStaffBody = {
   staffId: number;
+  /** Item 33b: 6 months, 1 season or 2 seasons (default 1 season). */
+  length?: HireMedicalStaffBodyLength;
 };

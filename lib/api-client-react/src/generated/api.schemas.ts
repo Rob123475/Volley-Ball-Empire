@@ -970,8 +970,22 @@ export interface ContractInput {
   confirm?: boolean;
 }
 
+/**
+ * Overnight 30 Sep, item 33b: the contract, chosen when hiring: 6 months, 1 season or 2 seasons (default 1 season).
+ */
+export type StaffInputLength = typeof StaffInputLength[keyof typeof StaffInputLength];
+
+
+export const StaffInputLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
 export interface StaffInput {
   staffId: number;
+  /** Overnight 30 Sep, item 33b: the contract, chosen when hiring: 6 months, 1 season or 2 seasons (default 1 season). */
+  length?: StaffInputLength;
 }
 
 export interface StaffMarketFilters {
@@ -2461,8 +2475,22 @@ export type InductIntoHallOfFameBody = {
   playerIds: number[];
 };
 
+/**
+ * Item 33b: 6 months, 1 season or 2 seasons (default 1 season).
+ */
+export type HireMedicalStaffBodyLength = typeof HireMedicalStaffBodyLength[keyof typeof HireMedicalStaffBodyLength];
+
+
+export const HireMedicalStaffBodyLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
 export type HireMedicalStaffBody = {
   staffId: number;
+  /** Item 33b: 6 months, 1 season or 2 seasons (default 1 season). */
+  length?: HireMedicalStaffBodyLength;
 };
 
 export type GetMedicalStaffMarketParams = {

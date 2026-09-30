@@ -1796,6 +1796,10 @@ paths:
               properties:
                 staffId:
                   type: integer
+                length:
+                  type: string
+                  enum: ["6m", "1s", "2s"]
+                  description: "Item 33b: 6 months, 1 season or 2 seasons (default 1 season)."
       responses:
         "201":
           description: Hired medical staff member
@@ -2832,6 +2836,10 @@ components:
       properties:
         staffId:
           type: integer
+        length:
+          type: string
+          enum: ["6m", "1s", "2s"]
+          description: "Overnight 30 Sep, item 33b: the contract, chosen when hiring: 6 months, 1 season or 2 seasons (default 1 season)."
 
     StaffMarketFilters:
       type: object

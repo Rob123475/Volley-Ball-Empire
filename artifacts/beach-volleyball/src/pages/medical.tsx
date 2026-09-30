@@ -1,3 +1,5 @@
+import { contractPayout } from "@/lib/contract-payout";
+import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
   useGetTeamRoster,
@@ -316,7 +318,9 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
             <AlertDialogHeader>
               <AlertDialogTitle>Release {member.name}?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will free up a medical staff slot. The {roleLabel} position will be vacant.
+                This frees a medical place; the {roleLabel} position will be vacant. Releasing her early pays out
+                the rest of her contract: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(contractPayout(Number(member.salary), calendar?.currentDate ?? "", member.contractEndDate))}
+                {member.contractEndDate ? ` (to ${member.contractEndDate})` : ""}.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -363,7 +367,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {member.contractLength}mo contract
+            {member.contractTerm ? `${CONTRACT_LENGTH_LABELS[member.contractTerm as ContractLength]} contract` : "Contract"}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <DollarSign className="h-3 w-3 text-green-600" />

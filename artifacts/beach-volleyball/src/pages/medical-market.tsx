@@ -1,3 +1,5 @@
+import { ContractLengthPicker } from "@/components/contract-length-picker";
+import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
   useGetMedicalStaffMarket,
@@ -163,7 +165,7 @@ function MedicalMarketCard({
 }: {
   member: any;
   isOwned: boolean;
-  onHire: (id: number) => void;
+  onHire: (id: number, length: ContractLength) => void;
   isHiring: boolean;
   canHire: boolean;
   isScouting: boolean;
@@ -172,6 +174,8 @@ function MedicalMarketCard({
   const roleKey = normaliseRole(member.role) ?? "";
   const RoleIcon = ROLE_ICONS[roleKey] ?? Stethoscope;
   const revealed = member.isScoutRevealed || isOwned;
+  // Item 33b: the contract she is offered, chosen in the hire dialog.
+  const [term, setTerm] = useState<ContractLength>("1s");
 
   const attrs = skillAttributes(member.attributes);
 
@@ -266,7 +270,7 @@ function MedicalMarketCard({
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {member.contractLength}mo
+            {isOwned && member.contractTerm ? CONTRACT_LENGTH_LABELS[member.contractTerm as ContractLength] : "6 months, 1 season or 2 seasons"}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <DollarSign className="h-3 w-3 text-green-600" />
@@ -302,10 +306,11 @@ function MedicalMarketCard({
                   This will add {member.name} to your Medical Department as {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}.
                   {" "}{member.salary != null ? <>Monthly salary: {wageText(member)}.</> : <>Monthly salary: between {wageText(member)} (the exact wage shows once she is hired or scouted).</>}
                 </AlertDialogDescription>
+                  <ContractLengthPicker value={term} onChange={setTerm} />
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onHire(member.id)}>
+                <AlertDialogAction onClick={() => onHire(member.id, term)}>
                   Hire
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -343,8 +348,8 @@ export default function MedicalMarket() {
   const myStaffIds = new Set(myMedStaff.map((s: any) => s.id));
   const canHire = myMedStaff.length < MAX_MEDICAL_STAFF;
 
-  const handleHire = (staffId: number) => {
-    hireMutation.mutate({ data: { staffId } }, {
+  const handleHire = (staffId: number, length: ContractLength) => {
+    hireMutation.mutate({ data: { staffId, length } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListMedicalStaffQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetMedicalStaffMarketQueryKey() });
