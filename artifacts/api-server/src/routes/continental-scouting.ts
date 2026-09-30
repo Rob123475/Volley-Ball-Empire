@@ -359,7 +359,7 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
     departmentLevel,
   });
   // A blank explains itself; a find says how many she recommends of how many.
-  const who = scoutName ?? "Your scout";
+  const who = scoutName ?? "The club's scout";
   const report = count === 0
     ? blankReport(who, watched, mission.region)
     : `${who} watched ${watched} players in ${mission.region} and recommends ${count}.`;

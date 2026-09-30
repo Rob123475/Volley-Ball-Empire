@@ -2,7 +2,7 @@
  * R-63 — the academy: how many it holds and what it costs.
  *
  * Rob's decisions (15 Sep):
- *   cap     12 academy players. The signing rule (utils/squadRules.ts), the
+ *   cap     6 academy players (3 youth team + 3 reserves; overnight 30 Sep item 14, was 12). The signing rule (utils/squadRules.ts), the
  *           season intake (utils/youthIntake.ts) and the Team page banner (through
  *           GET /team/roster's `academy.cap`) all read ACADEMY_CAP.
  *   wages   billed ONCE, in the weekly wage run (routes/calendar.ts). They used to

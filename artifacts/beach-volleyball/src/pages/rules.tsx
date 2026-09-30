@@ -115,7 +115,9 @@ const COMP_TIERS = [
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/25",
     points: [
-      "Every new season up to three youth players aged 16 to 18 join your club's academy, never past the academy's limit shown on the Team page",
+      "The academy holds 6 players: 3 on the youth team and 3 reserves",
+      "Every new season up to three youth players aged 16 to 18 join your club's academy, never past 6",
+      "A club that already has more than 6 in its academy keeps every one of them, but signs no one and takes no intake until it is under 6",
       "An academy player is paid a weekly academy wage set by her potential, once a week with the rest of the squad's wages",
       "About half come from your club's country, the rest from the other nations of its region",
       "Their ratings are drawn from the same spread as the game's other youth players",

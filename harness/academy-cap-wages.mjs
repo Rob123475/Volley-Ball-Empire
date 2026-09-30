@@ -1,20 +1,20 @@
 /**
  * R-63 — the academy's cap and its wages.
  *
- * Rob's decisions (15 Sep): the academy holds 12. The intake takes up to 3 a
+ * Rob's decisions (15 Sep; the cap 30 Sep, item 14): the academy holds 6 (3 youth team + 3 reserves; it was 12). The intake takes up to 3 a
  * season but never past the cap; the Team page banner and the signing rule read
  * the same cap constant. An academy player's wage is billed ONCE, in the weekly
  * wage run — the per-match charge is removed.
  *
  * ── What this asserts ───────────────────────────────────────────────────────
- *   code     ACADEMY_CAP = 12 is the only academy number: the signing rule, the
+ *   code     ACADEMY_CAP = 6 (3 + 3) is the only academy number: the signing rule, the
  *            scouting sign route, the intake and GET /team/roster read it, and the
  *            Team page has no number of its own; the academy wage table exists
  *            once; the match route and the contract tick charge nothing
- *   signing  12 youth players sign; the 13th is refused, naming 12/12; the roster
+ *   signing  6 youth players sign; the 7th is refused, naming 6/6; the roster
  *            reports the academy's size and cap
  *   intake   an academy of 11 takes exactly 1 at the next boundary and Club News
- *            says it is now full; an academy of 12 takes no one and Club News says
+ *            says it is now full; an academy of 6 takes no one, and one over 6 from an older save keeps everyone, signs no one and takes no one and Club News says
  *            it is full
  *   wages    every salary week of a season bills once: seniors' monthly salaries /
  *            (52/12) plus each academy player's weekly academy wage; no match
@@ -41,7 +41,7 @@ const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-academy-"));
 const PORT = 4830;
 const BASE = `http://localhost:${PORT}/api`;
-const CAP = 12;
+const CAP = 6;   // overnight brief 30 Sep, item 14 (was 12): 3 youth team + 3 reserves
 const WEEKS_PER_MONTH = 52 / 12;
 const SALARY_CATEGORIES = ["salaries", "player_salary"];
 
@@ -78,8 +78,8 @@ const matches = src("artifacts/api-server/src/routes/matches.ts");
 const tick = src("artifacts/api-server/src/utils/academyDevelopment.ts");
 const calendar = src("artifacts/api-server/src/routes/calendar.ts");
 
-check("the cap is one constant, 12, and the signing rule, the scouting sign route, the intake and the roster read it",
-  /export const ACADEMY_CAP = 12;/.test(squadRules) && /counts\.youth >= ACADEMY_CAP/.test(squadRules)
+check("the cap is one constant, 6 (3 youth team + 3 reserves), and the signing rule, the scouting sign route, the intake and the roster read it",
+  /export const ACADEMY_YOUTH_TEAM = 3;/.test(squadRules) && /export const ACADEMY_RESERVES = 3;/.test(squadRules) && /export const ACADEMY_CAP = ACADEMY_YOUTH_TEAM \+ ACADEMY_RESERVES;/.test(squadRules) && /counts\.youth >= ACADEMY_CAP/.test(squadRules)
     && !serverFiles.some((x) => /MAX_YOUTH/.test(x.text))
     && /refusalReason\(/.test(contracts) && /refusalReason\(/.test(scouting) && !/\b6\/6\b|>= 6\b/.test(scouting)
     && /ACADEMY_CAP - sizeBefore/.test(intake) && /cap: ACADEMY_CAP/.test(teamRoute));
@@ -234,11 +234,11 @@ try {
     JSON.stringify(r12?.academy));
   const season = (await A.api("GET", "/seasons/current")).data;
   const refused = await A.api("POST", "/contracts", { confirm: true, playerId: next.id, salary: next.salary ?? 0, endDate: season.endDate, bonusPerWin: 0, squadRole: "reserve" });
-  check(`the ${CAP + 1}th is refused, naming the cap`, refused.status === 422 && /Academy is full \(12\/12\)/.test(refused.data?.error ?? ""),
+  check(`the ${CAP + 1}th is refused, naming the cap`, refused.status === 422 && new RegExp(`Academy is full \\(${CAP}/${CAP}\\)`).test(refused.data?.error ?? ""),
     `HTTP ${refused.status} ${JSON.stringify(refused.data?.error)}`);
   await A.api("POST", `/players/${signed[CAP - 1].id}/release`, {});
   const r11 = await roster(A);
-  check("releasing one leaves 11 of 12", r11?.academy?.size === CAP - 1, JSON.stringify(r11?.academy));
+  check(`releasing one leaves ${CAP - 1} of ${CAP}`, r11?.academy?.size === CAP - 1, JSON.stringify(r11?.academy));
 
   // ── 2. Wages over a season ────────────────────────────────────────────────
   console.log("\n2. WAGES: ONCE A WEEK, NEVER AFTER A MATCH");
@@ -253,30 +253,42 @@ try {
     seasonA.budgetDrift.slice(0, 3).join(" | ") || `${seasonA.matchesChecked} matches reconciled`);
 
   // ── 3. The intake stops at the cap ────────────────────────────────────────
-  console.log("\n3. THE INTAKE STOPS AT 12");
+  console.log(`\n3. THE INTAKE STOPS AT ${CAP}`);
   const rowA = read(`SELECT player_ids, outcome, academy_size FROM youth_intakes WHERE career_save_id = ? AND season_year = 2027`, A.careerSaveId)[0];
   const rA = await roster(A);
-  check("an academy of 11 takes exactly 1, to 12",
+  check(`an academy of ${CAP - 1} takes exactly 1, to ${CAP}`,
     seasonA.roll.kind === "rolled" && !!rowA && JSON.parse(rowA.player_ids).length === 1 && rowA.outcome === "joined" && rowA.academy_size === CAP
       && seasonA.roll.intake?.players.length === 1 && rA?.academy?.size === CAP,
     rowA ? `${JSON.parse(rowA.player_ids).length} joined, outcome ${rowA.outcome}, academy ${rowA.academy_size}; roster ${JSON.stringify(rA?.academy)}` : `no intake row; roll ${seasonA.roll.kind}`);
   const newsA = ((await A.api("GET", "/news")).data?.items ?? []).find((i) => i.id === "academy-2027");
   check("Club News says one joined and the academy is now full",
-    !!newsA && /^1 youth player joins the .+ academy$/.test(newsA.headline) && /The academy is now full \(12\/12\)/.test(newsA.detail),
+    !!newsA && /^1 youth player joins the .+ academy$/.test(newsA.headline) && newsA.detail.includes(`The academy is now full (${CAP}/${CAP})`),
     newsA ? `"${newsA.headline}" — ${newsA.detail}` : "no academy-2027 item");
 
   const B = await newCareer("CapTwelve");
   await signYouth(B, CAP);
+  // Item 14: a club over the cap from an older save (the cap was 12): one more
+  // youth put in its academy directly, as an old save holds her.
+  const extra = read(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
+                       WHERE s.career_save_id = ? AND s.team_id IS NULL AND p.player_type = 'youth' AND s.age <= 15 ORDER BY s.player_id DESC LIMIT 1`, B.careerSaveId)[0].id;
+  { const d = new DatabaseSync(dbFile); d.prepare(`UPDATE career_player_state SET team_id = ?, squad_role = 'reserve', is_active = 0 WHERE career_save_id = ? AND player_id = ?`).run(B.teamId, B.careerSaveId, extra); d.close(); }
+  const over = await roster(B);
+  const seasonNow = (await B.api("GET", "/seasons/current")).data;
+  const oneMore = ((await B.api("GET", "/players/youth-pool")).data ?? [])[0];
+  const refusedOver = await B.api("POST", "/contracts", { confirm: true, playerId: oneMore.id, salary: 0, endDate: seasonNow.endDate, bonusPerWin: 0, squadRole: "reserve" });
+  check(`a club over the cap (${CAP + 1}) keeps her and signs no one, naming ${CAP + 1}/${CAP}`,
+    over?.academy?.size === CAP + 1 && refusedOver.status === 422 && (refusedOver.data?.error ?? "").includes(`Academy is full (${CAP + 1}/${CAP})`),
+    `${JSON.stringify(over?.academy)}; ${refusedOver.status} ${refusedOver.data?.error}`);
   const seasonB = await playSeasonCheckingWages(B);
   const rowB = read(`SELECT player_ids, outcome, academy_size FROM youth_intakes WHERE career_save_id = ? AND season_year = 2027`, B.careerSaveId)[0];
   const rB = await roster(B);
-  check("an academy of 12 takes no one",
-    seasonB.roll.kind === "rolled" && !!rowB && JSON.parse(rowB.player_ids).length === 0 && rowB.outcome === "full" && rowB.academy_size === CAP
-      && rB?.academy?.size === CAP,
+  check(`an academy over ${CAP} takes no one at the season change, and nobody is released`,
+    seasonB.roll.kind === "rolled" && !!rowB && JSON.parse(rowB.player_ids).length === 0 && rowB.outcome === "full" && rowB.academy_size === CAP + 1
+      && rB?.academy?.size === CAP + 1,
     rowB ? `${JSON.parse(rowB.player_ids).length} joined, outcome ${rowB.outcome}, academy ${rowB.academy_size}` : `no intake row; roll ${seasonB.roll.kind}`);
   const newsB = ((await B.api("GET", "/news")).data?.items ?? []).find((i) => i.id === "academy-2027");
   check("Club News says the academy is full",
-    !!newsB && /academy is full \(12\/12\): no intake this year$/.test(newsB.headline),
+    !!newsB && newsB.headline.endsWith(`academy is full (${CAP + 1}/${CAP}): no intake this year`),
     newsB ? `"${newsB.headline}"` : "no academy-2027 item");
   check("a full academy's season bills its wages once a week too, and never after a match",
     seasonB.badWeeks.length === 0 && seasonB.matchWageRows.length === 0 && seasonB.budgetDrift.length === 0,
@@ -284,16 +296,16 @@ try {
 
   // ── 4. What a full academy costs ──────────────────────────────────────────
   console.log("\n4. WHAT A FULL ACADEMY COSTS");
-  const fullWeeks = seasonB.weeks.filter((w) => w.academyCount === CAP);
+  const fullWeeks = seasonB.weeks.filter((w) => w.academyCount === CAP + 1);
   const perWeek = fullWeeks[0]?.academyWeekly ?? 0;
   const billed = fullWeeks.reduce((s, w) => s + w.academyWeekly, 0);
   const shipped = read(`SELECT potential, COUNT(*) AS n FROM players WHERE player_type = 'youth' AND origin_career_save_id IS NULL GROUP BY potential`);
   const mixWeekly = shipped.reduce((s, r) => s + (WAGE[r.potential] ?? WAGE.Average) * r.n, 0) / shipped.reduce((s, r) => s + r.n, 0);
-  console.log(`  REPORT  CapTwelve's academy of 12 cost $${perWeek}/week; billed in ${fullWeeks.length} salary weeks of 2026: $${billed.toLocaleString()} for the season.`);
+  console.log(`  REPORT  CapTwelve's academy of ${CAP} cost $${perWeek}/week; billed in ${fullWeeks.length} salary weeks of 2026: $${billed.toLocaleString()} for the season.`);
   console.log(`  REPORT  At the shipped youth's potential mix ($${mixWeekly.toFixed(2)}/player/week): $${Math.round(CAP * mixWeekly * fullWeeks.length).toLocaleString()} a season; ` +
     `all Average $${(CAP * WAGE.Average * fullWeeks.length).toLocaleString()}, all Elite $${(CAP * WAGE.Elite * fullWeeks.length).toLocaleString()}. ` +
     `The weekly run also charges staff at 20% of the wage bill, which adds 20% on top.`);
-  check("a full academy's season was billed at 12 players' weekly academy wages",
+  check(`a full academy's season was billed at ${CAP} players' weekly academy wages`,
     fullWeeks.length >= 50 && perWeek > 0, `${fullWeeks.length} weeks at $${perWeek}`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));

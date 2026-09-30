@@ -60,7 +60,7 @@ const PORT = 4820;
 const BASE = `http://localhost:${PORT}/api`;
 const CLUB_COUNTRY = "Brazil"; // locationId 1, Copacabana Beach
 const INTAKE_SIZE = 3;
-const ACADEMY_CAP = 12;
+const ACADEMY_CAP = 6; // Overnight 30 Sep item 14: 3 on the youth team + 3 reserves (was 12)
 
 let failures = 0, checks = 0;
 function check(label, cond, detail = "") {
@@ -237,18 +237,20 @@ try {
 
   // ── 2. The intakes ────────────────────────────────────────────────────────
   console.log("\n2. THE INTAKES");
-  const rows = read(`SELECT season_year, intake_on, player_ids, team_id FROM youth_intakes WHERE career_save_id = ? ORDER BY season_year`, careerSaveId)
+  const rows = read(`SELECT season_year, intake_on, player_ids, team_id, academy_size FROM youth_intakes WHERE career_save_id = ? ORDER BY season_year`, careerSaveId)
     .map((r) => ({ ...r, ids: JSON.parse(r.player_ids) }));
   console.log(`  REPORT  the first 4 boundaries each open a season (2027-2030) and bring an intake; the career carries on past them`);
   check("four intakes, one for each season the career opened (2027-2030), none at career creation",
     rows.length === 4 && JSON.stringify(rows.map((r) => r.season_year)) === JSON.stringify([2027, 2028, 2029, 2030]),
     JSON.stringify(rows.map((r) => r.season_year)));
   // L-02c: at least INTAKE_SIZE, and as many as graduated when more than that
-  // went up. Never past the academy's cap.
-  check(`each intake is for the player's club on the new season's first day, at least ${INTAKE_SIZE} strong and never past the cap of ${ACADEMY_CAP}`,
-    rows.every((r) => r.ids.length >= INTAKE_SIZE && r.ids.length <= ACADEMY_CAP
+  // went up. Never past the academy's cap: item 14 made the cap 6, so an
+  // academy with fewer than INTAKE_SIZE places free takes every free place.
+  const freeBefore = (r) => ACADEMY_CAP - (r.academy_size - r.ids.length);
+  check(`each intake is for the player's club on the new season's first day, at least ${INTAKE_SIZE} strong (or every free place, when fewer are free) and never past the cap of ${ACADEMY_CAP}`,
+    rows.every((r) => r.ids.length >= Math.min(INTAKE_SIZE, freeBefore(r)) && r.academy_size <= ACADEMY_CAP
       && r.team_id === teamId && r.intake_on === `${r.season_year}-01-01`),
-    rows.map((r) => `${r.season_year}: ${r.ids.length} on ${r.intake_on}`).join(" | "));
+    rows.map((r) => `${r.season_year}: ${r.ids.length} on ${r.intake_on}, academy ${r.academy_size}/${ACADEMY_CAP}`).join(" | "));
   check("each rollover reports the intake it made",
     run.rolls.length === 4 && run.rolls.every((x, i) => JSON.stringify(x.roll.intake?.players.map((p) => p.id)) === JSON.stringify(rows[i]?.ids)));
   check("each intake joined the club's academy the day it arrived",
@@ -345,7 +347,7 @@ try {
     const item = x.news.find((n) => n.id === `academy-${r?.season_year}`);
     const names = players.filter((p) => r?.ids.includes(p.id)).map((p) => p.name);
     const ok = !!item && !!r && item.type === "academy" && item.date === r.intake_on
-      && new RegExp(`^${r.ids.length} youth players? join the .+ academy$`).test(item.headline)
+      && new RegExp(`^${r.ids.length} youth (players join|player joins) the .+ academy$`).test(item.headline)
       && names.length === r.ids.length && names.every((n) => item.detail.includes(n));
     return { year: r?.season_year, ok, item };
   });
@@ -380,8 +382,8 @@ try {
   }
   console.log(`  REPORT  the club's region (${region}) still holds ${regionNames} unused names after this career's ${ids.length}: ` +
     `${Math.floor(regionNames / INTAKE_SIZE)} more seasons of intakes of ${INTAKE_SIZE} (${perNation.join(", ")}). The card is a template, so cards never run out.`);
-  check("the academy never ran dry in four intakes, and the region holds names for many more",
-    rows.every((r) => r.ids.length >= INTAKE_SIZE) && regionNames >= 5 * INTAKE_SIZE, `${regionNames} names left`);
+  check("the academy never ran dry in four intakes (each filled its free places), and the region holds names for many more",
+    rows.every((r) => r.ids.length >= Math.min(INTAKE_SIZE, freeBefore(r))) && regionNames >= 5 * INTAKE_SIZE, `${regionNames} names left`);
 
   // Test setup on this harness's own DB copy: every first name x surname in the
   // world is given to a parked athlete (player_type 'spare', owned by no real

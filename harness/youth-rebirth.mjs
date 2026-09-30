@@ -39,7 +39,7 @@ const ELECTRON = requireElectronBinary(REPO);
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-youth-rebirth-"));
 
 const SEASONS = Number(process.env.SEASONS ?? 30);
-const ACADEMY_CAP = 12;
+const ACADEMY_CAP = 6; // Overnight 30 Sep item 14: 3 on the youth team + 3 reserves (was 12)
 /** Read from the source, so this suite cannot disagree with the game. */
 const GRADUATE_CAP = Number(
   /GRADUATE_CAP = (\d+)/.exec(

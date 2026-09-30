@@ -205,7 +205,7 @@ runSuite("olympic tournament", path.join(REPO, "harness", "olympics-tournament.m
 console.log("\n########## 28/83  ACADEMY INTAKE (R-62) ##########");
 runSuite("academy intake", path.join(REPO, "harness", "youth-intake.mjs"));
 
-// R-63: the academy holds 12 — signing and the intake both stop there, and the
+// R-63: the academy holds 6 (overnight 30 Sep item 14: was 12) — signing and the intake both stop there, and the
 // Team page reads the same cap; academy wages are billed once, in the weekly
 // wage run, never after a match. Two careers, a season each. Own DB and server.
 console.log("\n########## 29/83  ACADEMY CAP AND WAGES (R-63) ##########");

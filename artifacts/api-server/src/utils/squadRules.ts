@@ -6,7 +6,8 @@
  *
  *    2 starters      the pair on the sand
  *    1 interchange   the senior reserve
- *   12 academy       youth players (R-63, Rob's decision 15 Sep)
+ *   6 academy        youth players: 3 on the youth team + 3 reserves
+ *                    (overnight brief 30 Sep, item 14; was 12, R-63 15 Sep)
  *
  * Defined here rather than typed into contracts.ts so the numbers exist once.
  * Every previous "one screen kept its own copy" bug in this project started as
@@ -32,15 +33,20 @@ export const MAX_INTERCHANGE = 1;
 export const MAX_SENIORS = MAX_STARTERS + MAX_INTERCHANGE;
 
 /**
- * Academy places. The signing rule below, the season intake and the Team page
- * banner (GET /team/roster `academy.cap`) all read this one number.
+ * Academy places (Rob, 30 Sep: 6, was 12): 3 on the youth team and 3
+ * reserves. The signing rule below, the season intake and the Team page
+ * banner (GET /team/roster `academy.cap`) all read this one number. A club
+ * over it from an older save releases nobody: it signs no one and takes no
+ * intake until it is under.
  */
-export const ACADEMY_CAP = 12;
+export const ACADEMY_YOUTH_TEAM = 3;
+export const ACADEMY_RESERVES = 3;
+export const ACADEMY_CAP = ACADEMY_YOUTH_TEAM + ACADEMY_RESERVES;
 
 /**
  * L-02d — how many of its own graduates a club may hold.
  *
- * Rob's rule (22 Sep): four. An academy may develop twelve, but the club cannot
+ * Rob's rule (22 Sep): four. An academy may develop six, but the club cannot
  * keep everyone it promotes: past four, the surplus goes back to the pool at
  * the season boundary where any club can sign them.
  *

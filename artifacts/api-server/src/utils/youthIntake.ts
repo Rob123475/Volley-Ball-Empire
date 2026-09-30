@@ -5,7 +5,7 @@
  *   who        the player's club only; the AI clubs stay fixed pairs this release
  *              (AI squad turnover is V2, docs/triage.md)
  *   how many   3 per club per intake — R-63: never past the academy's cap
- *              (ACADEMY_CAP, 12). An intake takes the places left, up to 3; an
+ *              (ACADEMY_CAP, 6). An intake takes the places left, up to 3; an
  *              academy already full takes no one and says so
  *   when       every rollover that opens a new season, for as long as the career
  *              runs — one intake at the start of every season from season 2 on
