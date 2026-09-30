@@ -221,10 +221,12 @@ export function useCalendar() {
         description: message.replace(/^HTTP \d+ [^:]*: /, "") || "Please try again.",
       });
     },
-    onSettled:  () => {
-      queryClient.invalidateQueries({ queryKey: ["calendar"] });
-      queryClient.invalidateQueries({ queryKey: ["annual-calendar"] });
-    },
+    // Overnight brief 30 Sep, item 6: a day on, every page on screen reads
+    // itself again. Only the calendar did, so a market card kept "report in 1
+    // day" for days after its scout's report was in, until the page was left.
+    // A day can change anything (scouting reports, injuries, contracts, wages),
+    // as "Next match" already assumes; only the queries on screen refetch.
+    onSettled:  () => { queryClient.invalidateQueries(); },
   });
 
   // F-1: Next match. The server runs the clock's own day, once per day, to
