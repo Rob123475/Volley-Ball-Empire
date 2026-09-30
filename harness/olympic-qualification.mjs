@@ -12,8 +12,8 @@
  *              players who played: each AI club's two players hold exactly the
  *              club's points and matches, the player's two starters hold what the
  *              club earned, nobody else holds any
- *   nations    every player resolves to one nation whatever the column's spelling
- *              ("German" pool players and "Germany" seniors are one country)
+ *   nations    every player resolves to one nation, each stored as its country
+ *              (item 11: the pool players once "German" are "Germany", like the seniors)
  *   season A   a high-rated country H earns few points and a low-rated country L
  *              many, split across two clubs: L qualifies and H does not; L is in
  *              only because its players are summed across clubs; a country tied
@@ -227,6 +227,7 @@ const ownCompetitor = own?.id;
 const now = Math.floor(Date.now() / 1000);
 const poolPlayers = d.prepare(
   `SELECT id, pool_team_id, nationality, speed, power, defense, serve, block, stamina FROM continental_pool_players`).all();
+const honolulu = new Set(d.prepare(`SELECT id FROM continental_pool_teams WHERE team_name LIKE 'Honolulu%'`).all().map((r) => r.id));
 const seniors = d.prepare(
   `SELECT s.player_id AS id, p.nationality, s.speed, s.power, s.defense, s.serve, s.block, s.stamina
    FROM career_player_state s JOIN players p ON p.id = s.player_id
@@ -271,11 +272,15 @@ check("every player's nationality resolves to a nation",
   nations.length > 0 && unresolved.length === 0,
   unresolved.map((c) => c.country).join(", ") || `${nations.length} nations from ${poolPlayers.length + seniors.length} players`);
 check("no nation is listed twice", new Set(nations.map((c) => c.country)).size === nations.length);
+// Overnight 30 Sep item 11: a save's nationalities are stored as countries, so
+// the pool players who were "German" and "Hawaiian" are "Germany" and "USA".
 const germanSpellings = new Set((nations.find((c) => c.country === "Germany")?.players ?? []).map((p) => p.nationality));
-check("\"German\" pool players and \"Germany\" seniors are one country",
-  germanSpellings.has("German") && germanSpellings.has("Germany"), [...germanSpellings].join(" + "));
+check("Germany's pool players and seniors are one country, stored as \"Germany\" (no \"German\" left)",
+  germanSpellings.size === 1 && germanSpellings.has("Germany") && poolPlayers.some((p) => p.nationality === "Germany") && !poolPlayers.some((p) => p.nationality === "German"),
+  [...germanSpellings].join(" + "));
+const hawaii = poolPlayers.filter((p) => honolulu.has(p.pool_team_id));
 check("Hawaii's pool players represent the USA",
-  (nations.find((c) => c.country === "USA")?.players ?? []).some((p) => p.nationality === "Hawaiian"));
+  hawaii.length > 0 && hawaii.every((p) => p.nationality === "USA"), hawaii.map((p) => p.nationality).join(", "));
 
 // Ratings, computed here the way the old rule did: mean of the best two players' six stats.
 const statMean = (p) => (p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6;

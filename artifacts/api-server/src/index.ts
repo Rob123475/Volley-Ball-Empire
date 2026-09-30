@@ -1,4 +1,5 @@
 import { convertRealWorldDates } from "./utils/realWorldDates.js";
+import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { sqlite } from "@workspace/db";
@@ -184,6 +185,15 @@ try {
   if (Object.keys(dates).length > 0) logger.info({ converted: dates }, "real-world dates converted to game dates");
 } catch (err) {
   logger.error({ err }, "real-world date conversion failed");
+}
+
+// Overnight 30 Sep item 11: every stored nationality is the country's name
+// ("British" -> "United Kingdom", "German" -> "Germany"), in older saves too.
+try {
+  const nations = convertNationalitiesToCountries();
+  if (Object.keys(nations).length > 0) logger.info({ converted: nations }, "nationalities stored as demonyms converted to country names");
+} catch (err) {
+  logger.error({ err }, "nationality conversion failed");
 }
 
 // D-3: facility upgrades booked before facility names were shared read

@@ -234,6 +234,7 @@ function iso(code: string, names: string[]): void {
 
 iso("AR", ["Argentina", "Argentine", "Argentinian"]);
 iso("AU", ["Australia", "Australian"]);
+iso("AT", ["Austria", "Austrian"]);   // overnight 30 Sep item 11: staff are generated from Austria
 iso("BS", ["Bahamas", "Bahamian"]);
 iso("BE", ["Belgium", "Belgian"]);
 iso("BO", ["Bolivia", "Bolivian"]);

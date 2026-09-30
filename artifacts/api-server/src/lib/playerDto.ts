@@ -2,7 +2,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   continentalPoolTeamsTable, careerPoolTeamStateTable,
   regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
   regionalLeagueResultsTable, contractsTable,
-  playerRetirementsTable, clubHallOfFameTable } from "@workspace/db";
+  playerRetirementsTable, clubHallOfFameTable, nationName } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
 import { and, eq, gte, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
 
@@ -259,6 +259,15 @@ export async function updatePlayerReference(
 }
 
 /**
+ * Overnight 30 Sep, item 11: a nationality is stored as the country's name
+ * ("Germany", not "German"), whatever spelling a generator or a pool player
+ * hands in. A value the game does not know is kept as given.
+ */
+function asCountry<T extends string | null | undefined>(nationality: T): T {
+  return (nationality ? (nationName(nationality) ?? nationality) : nationality) as T;
+}
+
+/**
  * Create a new athlete: the immutable reference row AND this career's state for
  * them. Both halves or neither — a reference row with no state is invisible to
  * every career, and state without a reference cannot be joined.
@@ -269,7 +278,7 @@ export async function createCareerPlayer(
   state: Partial<CareerPlayerFields> & { age: number },
 ): Promise<PlayerDTO> {
   // R-62: owned by the career that created them, so no other save is seeded with them.
-  const [created] = await db.insert(playersTable).values({ ...reference, originCareerSave: careerSaveId }).returning();
+  const [created] = await db.insert(playersTable).values({ ...reference, nationality: asCountry(reference.nationality), originCareerSave: careerSaveId }).returning();
   const [st] = await db.insert(careerPlayerStateTable)
     .values({ careerSaveId, playerId: created!.id, ...state })
     .returning();
@@ -390,7 +399,7 @@ export async function createCareerStaff(
   reference: typeof staffTable.$inferInsert,
   state: Partial<CareerStaffFields> = {},
 ): Promise<StaffDTO> {
-  const [created] = await db.insert(staffTable).values(reference).returning();
+  const [created] = await db.insert(staffTable).values({ ...reference, nationality: asCountry(reference.nationality) }).returning();
   const [st] = await db.insert(careerStaffStateTable)
     .values({
       careerSaveId,
@@ -710,7 +719,7 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
     },
     createPlayer(careerSaveId, reference, state) {
       const [created] = tx.insert(playersTable)
-        .values({ ...reference, originCareerSave: careerSaveId })
+        .values({ ...reference, nationality: asCountry(reference.nationality), originCareerSave: careerSaveId })
         .returning({ id: playersTable.id })
         .all();
       tx.insert(careerPlayerStateTable)

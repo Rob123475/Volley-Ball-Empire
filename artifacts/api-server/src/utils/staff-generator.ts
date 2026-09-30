@@ -37,11 +37,12 @@ const STAFF_ASSISTANT_COACHES = [
   { id: "assistant_coach_10", name: "Lukas Schmidt",     specialty: "Tactics & Game Strategy",     stars: 4.5, experience: 12, coachingBonus: 18, salary: 15000, nationality: "Germany",    age: 37, image: "images/staff/staff_assistant_coach_10.webp" },
 ];
 
+// Overnight 30 Sep, item 11: country names, as every nationality is stored ("Germany", not "German").
 const NATIONALITIES = [
-  "Brazilian","American","Australian","Spanish","German","French","Italian","Dutch",
-  "Brazilian","Japanese","Chinese","Russian","Canadian","Argentine","Norwegian",
-  "Swedish","Danish","Finnish","Polish","Czech","Swiss","Austrian","Belgian",
-  "Portuguese","Mexican","Colombian","Chilean","Peruvian","South Korean","Thai",
+  "Brazil","USA","Australia","Spain","Germany","France","Italy","Netherlands",
+  "Brazil","Japan","China","Russia","Canada","Argentina","Norway","Sweden",
+  "Denmark","Finland","Poland","Czech Republic","Switzerland","Austria","Belgium","Portugal",
+  "Mexico","Colombia","Chile","Peru","South Korea","Thailand",
 ];
 
 export type StaffRole =

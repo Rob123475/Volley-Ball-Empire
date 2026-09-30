@@ -78,11 +78,12 @@ const STAFF_MASSAGE_THERAPISTS = [
   { id: "massage_10", name: "Daniel Ferreira",  specialty: "Structural Integration & Fascia",    skillLevel: 73, salary: 58000, nationality: "Brazil",       age: 48, image: "images/staff/massage_therapist/staff-10.webp" },
 ] as const;
 
+// Overnight 30 Sep, item 11: country names, as every nationality is stored ("Germany", not "German").
 const NATIONALITIES = [
-  "Brazilian","American","Australian","Spanish","German","French","Italian","Dutch",
-  "Brazilian","Japanese","Chinese","Russian","Canadian","Argentine","Norwegian",
-  "Swedish","Danish","Finnish","Polish","Czech","Swiss","Austrian","Belgian",
-  "Portuguese","Mexican","Colombian","Chilean","Peruvian","South Korean","Thai",
+  "Brazil","USA","Australia","Spain","Germany","France","Italy","Netherlands",
+  "Brazil","Japan","China","Russia","Canada","Argentina","Norway","Sweden",
+  "Denmark","Finland","Poland","Czech Republic","Switzerland","Austria","Belgium","Portugal",
+  "Mexico","Colombia","Chile","Peru","South Korea","Thailand",
 ];
 
 export type MedicalRole =
