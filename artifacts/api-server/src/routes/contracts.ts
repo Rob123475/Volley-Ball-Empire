@@ -142,6 +142,9 @@ router.post("/contracts", async (req, res) => {
     }
   }
 
+  // Overnight brief 30 Sep, item 32 (Rob, Q-8): the club she leaves is paid her price.
+  const sellingTeamId = player.teamId != null && player.teamId !== team.id ? player.teamId : null;
+
   // Transfer window enforcement — if player is already contracted to another team,
   // they can only be approached in the last 6 months of their contract.
   if (player.teamId !== null) {
@@ -201,6 +204,18 @@ router.post("/contracts", async (req, res) => {
       description: `Signing fee: ${player.name}${blind ? ` (signed unscouted: $${fee.low.toLocaleString()}-$${fee.high.toLocaleString()})` : ""}`,
     });
     await db.update(teamsTable).set({ budget: Number(team.budget) - fee.price }).where(eq(teamsTable.id, team.id));
+    // Item 32: bought from another club in the transfer window, the fee is that
+    // club's: on its balance and its ledger. (It was charged and paid to nobody.)
+    if (sellingTeamId != null) {
+      const [seller] = await db.select().from(teamsTable).where(eq(teamsTable.id, sellingTeamId));
+      if (seller) {
+        await db.update(teamsTable).set({ budget: Number(seller.budget) + fee.price }).where(eq(teamsTable.id, seller.id));
+        await db.insert(financeTransactionsTable).values({
+          teamId: seller.id, type: "income", amount: fee.price, category: "transfer_fee", date: today,
+          description: `Transfer fee: ${player.name} sold to ${team.name}`,
+        });
+      }
+    }
   }
   const signed = await loadPlayer(cid, Number(playerId));
 
