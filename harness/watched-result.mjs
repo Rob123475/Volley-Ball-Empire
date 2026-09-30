@@ -87,7 +87,12 @@ async function ready() {
 }
 const matchRow = async (id) => (await api("GET", "/matches")).data?.find((m) => m.id === id);
 const team = async () => (await api("GET", "/team")).data;
-const ledgerFor = async (round) => ((await api("GET", "/finances")).data ?? []).filter((t) => t.category === "prize_money" && new RegExp(`Round ${round}\\b`).test(t.description));
+// Overnight 30 Sep item 27: the ledger names a match by its event's round
+// ("World Tour R5 vs ..."), not the schedule slot ("Round 15").
+const ledgerFor = async (round) => {
+  const name = (await api("GET", "/calendar/round-names")).data?.names?.[String(round)]?.name;
+  return ((await api("GET", "/finances")).data ?? []).filter((t) => t.category === "prize_money" && !!name && t.description.includes(`${name} vs `));
+};
 const fmtSets = (sets) => (sets ?? []).map((s) => `${s.home}-${s.away}`).join(", ");
 const WORLD_TOUR_START = 11;
 const q = (sql, ...a) => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return d.prepare(sql).all(...a); } finally { d.close(); } };

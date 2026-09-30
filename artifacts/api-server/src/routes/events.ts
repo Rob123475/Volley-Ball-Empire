@@ -108,7 +108,7 @@ router.get("/events/upcoming", async (req, res) => {
       id: `match_${m.id}`,
       type: "match",
       title: `vs ${opponent}`,
-      subtitle: `Round ${m.round}${tier}`,
+      subtitle: `${seasonPhase(m.round).name}${tier}`,   // item 27: the event's round, not the schedule slot
       location: m.locationName ?? null,
       daysRemaining: days,
       prizeMoney: formatPrize(m.prizeAmount),

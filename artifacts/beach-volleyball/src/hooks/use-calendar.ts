@@ -166,7 +166,7 @@ async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-type RoundNames = { seasonLength: number; names: Record<string, { name: string; short: string }> };
+type RoundNames = { seasonLength: number; names: Record<string, { name: string; short: string; round: number | null }> };
 
 /**
  * R-70: a match's round as the competition numbers it ("World Tour R31"),
@@ -180,7 +180,12 @@ export function useRoundNames() {
     staleTime: Infinity,
     retry: 1,
   });
-  return (slot: number, form: "name" | "short" = "name"): string => data?.names[String(slot)]?.[form] ?? "…";
+  // Item 27: "round" is the event's own number (World Tour R5 -> "5") for the round badges.
+  return (slot: number, form: "name" | "short" | "round" = "name"): string => {
+    const n = data?.names[String(slot)];
+    if (!n) return "…";
+    return form === "round" ? (n.round != null ? String(n.round) : "–") : n[form];
+  };
 }
 
 export function useCalendar() {

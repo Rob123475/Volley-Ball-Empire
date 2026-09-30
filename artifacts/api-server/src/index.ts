@@ -2,6 +2,7 @@ import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
+import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { sqlite } from "@workspace/db";
@@ -200,6 +201,14 @@ try {
 
 // Overnight 30 Sep item 33b: a staff or medical hire with no contract end
 // (an older save) gets one: the end of the current season.
+// Overnight 30 Sep item 27: prize lines named by the event's round ("World Tour R5"), not the schedule slot.
+try {
+  const renamed = renameLedgerRounds();
+  if (renamed > 0) logger.info({ renamed }, "ledger prize lines renamed to the event's round");
+} catch (err) {
+  logger.error({ err }, "renaming ledger rounds failed");
+}
+
 // Overnight 30 Sep item 26: scouting missions filed as youth academy are refiled as scouting.
 try {
   const refiled = refileScoutingLines();

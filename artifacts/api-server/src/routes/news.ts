@@ -1,3 +1,4 @@
+import { seasonPhase } from "../utils/seasonPhase.js";
 /**
  * Club news — R-43.
  *
@@ -84,7 +85,7 @@ router.get("/news", async (req, res) => {
         : mine > theirs
           ? `${team.name} beat ${opponent} ${mine}–${theirs}`
           : `${team.name} lose to ${opponent} ${mine}–${theirs}`,
-      detail: `Round ${m.round}${m.locationName ? ` · ${m.locationName}` : ""}`,
+      detail: `${seasonPhase(m.round).name}${m.locationName ? ` · ${m.locationName}` : ""}`,   // item 27
     });
   }
 

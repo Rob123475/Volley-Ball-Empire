@@ -80,21 +80,25 @@ function roundToDate(
   return d.toISOString().split("T")[0]!;
 }
 
-/** Return the schedule round (1-indexed) that best represents a given date. */
+/**
+ * The schedule round a date is in: the latest round whose day (roundToDate)
+ * has come. Overnight brief 30 Sep, item 27: the exact inverse of
+ * roundToDate. It used its own rounding, which on most match days gave the
+ * round before the match's (slot 15's day read as 14), so the top bar said
+ * "World Tour R4" on the day of the fifth event.
+ */
 function dateToRound(
   dateStr: string,
   startDate: string,
   endDate: string,
   totalRounds: number,
 ): number {
-  const start    = new Date(startDate + "T00:00:00Z");
-  const end      = new Date(endDate   + "T00:00:00Z");
-  const date     = new Date(dateStr   + "T00:00:00Z");
-  const totalDays = Math.max(1, Math.floor((end.getTime() - start.getTime()) / 86400000));
-  const dayOffset = Math.floor((date.getTime() - start.getTime()) / 86400000);
-  if (dayOffset <= 0) return 1;
-  if (dayOffset >= totalDays) return totalRounds;
-  return Math.min(totalRounds, Math.floor(dayOffset * (totalRounds - 1) / totalDays) + 1);
+  let round = 1;
+  for (let r = 1; r <= totalRounds; r++) {
+    if (roundToDate(startDate, endDate, r, totalRounds) <= dateStr) round = r;
+    else break;
+  }
+  return round;
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -969,10 +973,10 @@ router.post("/calendar/skip-match", async (req, res) => {
 // screen that shows a match's round. One source: utils/seasonPhase.ts.
 
 router.get("/calendar/round-names", (_req, res) => {
-  const names: Record<number, { name: string; short: string }> = {};
+  const names: Record<number, { name: string; short: string; round: number | null }> = {};
   for (let slot = 1; slot <= TOTAL_SLOTS; slot++) {
     const p = seasonPhase(slot);
-    names[slot] = { name: p.name, short: p.short };
+    names[slot] = { name: p.name, short: p.short, round: p.round };
   }
   res.json({ seasonLength: SEASON_LENGTH, names });
 });
@@ -1054,7 +1058,7 @@ router.get("/calendar/annual", async (req, res) => {
       events.push({
         date,
         type: evType,
-        title: `${phase === "world_tour" ? "WT" : phase === "finals" ? "Finals" : "Regional"} R${m.round} · ${location}`,
+        title: `${seasonPhase(m.round).short} · ${location}`,   // item 27: the event's round, not the schedule slot
         subtitle: bye
           ? "Bye — your club rests this round"
           : `vs ${opponent ?? "TBD"} · ${completed ? "Completed" : "Scheduled"}`,

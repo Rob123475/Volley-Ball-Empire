@@ -607,7 +607,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
         <div className="flex items-center gap-4 p-4">
           <div className="flex-shrink-0 h-12 w-12 rounded-full flex flex-col items-center justify-center text-xs font-black bg-muted text-muted-foreground">
             <span className="text-[9px] leading-none">RND</span>
-            <span className="text-base leading-tight">{match.round}</span>
+            <span className="text-base leading-tight">{roundName(match.round, "round")}</span>
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-xs text-muted-foreground">{date}</span>
@@ -638,7 +638,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
           "bg-muted text-muted-foreground"
         )}>
           <span className="text-[9px] leading-none">RND</span>
-          <span className="text-base leading-tight">{match.round}</span>
+          <span className="text-base leading-tight">{roundName(match.round, "round")}</span>
         </div>
 
         {/* Main info */}
@@ -727,7 +727,7 @@ function FixtureRoundCard({ match, isCompleted, isNext, homeWon, onSimulate, isS
             activePlayers={activePlayers}
             teamSize={match.teamSize ?? 2}
             matchId={match.id}
-            matchLabel={`Round ${match.round} vs ${match.awayTeamName ?? "Opponent"}`}
+            matchLabel={`${roundName(match.round)} vs ${match.awayTeamName ?? "Opponent"}`}
             onSimulate={onSimulate}
             isSimulating={isSimulating}
             onWatchMatch={() => setExpanded(true)}

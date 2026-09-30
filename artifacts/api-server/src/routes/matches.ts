@@ -1,3 +1,4 @@
+import { seasonPhase } from "../utils/seasonPhase.js";
 import { Router } from "express";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -842,7 +843,7 @@ export async function completeMatch(
           teamId:      team.id,
           type:        "income",
           amount:      prizeEarned,
-          description: `Prize money: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
+          description: `Prize money: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : seasonPhase(match.round).name} vs ${match.awayTeamName ?? "Opponent"}`,
           category:    "prize_money",
           date:        today,
         }).run();
@@ -871,7 +872,7 @@ export async function completeMatch(
           teamId:      team.id,
           type:        "income",
           amount:      prizeEarned,
-          description: `Runner-up prize: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : `Round ${match.round}`} vs ${match.awayTeamName ?? "Opponent"}`,
+          description: `Runner-up prize: ${isFinal ? "WORLD FINAL" : isWorldSemiFinal ? "SEMI FINAL" : seasonPhase(match.round).name} vs ${match.awayTeamName ?? "Opponent"}`,
           category:    "prize_money",
           date:        today,
         }).run();
