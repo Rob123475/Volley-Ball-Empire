@@ -1,3 +1,4 @@
+import { formatProgress } from "@/lib/achievement-progress";
 import { MANAGER_LEVELS } from "@shared/manager-levels";
 import { useGetTrophyCabinet, getGetTrophyCabinetQueryKey, useGetMyTeam } from "@workspace/api-client-react";
 import { ClubHallOfFame } from "@/components/club-hall-of-fame";
@@ -151,7 +152,7 @@ function AchievementCard({ achievement }: { achievement: {
           <div className="space-y-1">
             <div className="flex justify-between text-[10px] text-muted-foreground">
               <span>Progress</span>
-              <span>{achievement.progress} / {achievement.target}</span>
+              <span>{formatProgress(achievement.progress, achievement.target)}</span>
             </div>
             <Progress value={pct} className="h-1.5" />
           </div>
