@@ -1,3 +1,4 @@
+import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
   useGetStaffMarket,
   useHireStaff,
@@ -133,7 +134,7 @@ function AttributeBar({ name, value, revealed }: { name: string; value: number; 
   return (
     <div className="space-y-0.5">
       <div className="flex justify-between text-[10px]">
-        <span className="text-muted-foreground font-medium truncate pr-2">{name}</span>
+        <span className="text-muted-foreground font-medium truncate pr-2">{attributeLabel(name)}</span>
         {revealed ? (
           <span className="font-bold tabular-nums shrink-0">{value}</span>
         ) : (
@@ -175,19 +176,8 @@ function StaffMarketCard({
   const RoleIcon = ROLE_ICONS[roleKey] ?? Star;
   const revealed = member.isScoutRevealed || isOwned;
 
-  // V2 roles store skill numbers in a nested *Attributes key; legacy roles store them flat.
-  function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
-    for (const [key, val] of Object.entries(attributes)) {
-      if (key.endsWith("Attributes") && val && typeof val === "object" && !Array.isArray(val)) {
-        return Object.entries(val as Record<string, number>).filter(
-          ([, v]) => typeof v === "number"
-        ) as [string, number][];
-      }
-    }
-    return Object.entries(attributes).filter(([, v]) => typeof v === "number") as [string, number][];
-  }
 
-  const attrs = extractSkillAttrs(member.attributes ?? {});
+  const attrs = skillAttributes(member.attributes);
 
   return (
     <Card className={cn(

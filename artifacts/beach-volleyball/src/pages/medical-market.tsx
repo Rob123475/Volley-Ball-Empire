@@ -1,3 +1,4 @@
+import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
   useGetMedicalStaffMarket,
   useHireMedicalStaff,
@@ -130,7 +131,7 @@ function AttributeBar({ name, value, revealed }: { name: string; value: number; 
   return (
     <div className="space-y-0.5">
       <div className="flex justify-between text-[10px]">
-        <span className="text-muted-foreground font-medium truncate pr-2">{name}</span>
+        <span className="text-muted-foreground font-medium truncate pr-2">{attributeLabel(name)}</span>
         {revealed ? (
           <span className="font-bold tabular-nums shrink-0">{value}</span>
         ) : (
@@ -163,21 +164,7 @@ function MedicalMarketCard({
   const RoleIcon = ROLE_ICONS[roleKey] ?? Stethoscope;
   const revealed = member.isScoutRevealed || isOwned;
 
-  function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
-    for (const [key, val] of Object.entries(attributes)) {
-      if (key.endsWith("Attributes") && val && typeof val === "object" && !Array.isArray(val)) {
-        return Object.entries(val as Record<string, number>).filter(
-          ([, v]) => typeof v === "number"
-        ) as [string, number][];
-      }
-    }
-    // Legacy flat: only take numeric values that look like skill ratings (not meta like age/salary)
-    const META_KEYS = new Set(["age","salary","stars","experienceYears","nutritionBonus","morale","fatigue"]);
-    return Object.entries(attributes).filter(
-      ([k, v]) => typeof v === "number" && !META_KEYS.has(k)
-    ) as [string, number][];
-  }
-  const attrs = extractSkillAttrs(member.attributes ?? {});
+  const attrs = skillAttributes(member.attributes);
 
   function normaliseImageUrl(url: string | null | undefined): string | undefined {
     return url ?? undefined;

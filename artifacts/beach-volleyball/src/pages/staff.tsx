@@ -1,3 +1,4 @@
+import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import { useState } from "react";
 import {
   useListStaff,
@@ -127,7 +128,7 @@ function AttributeBar({ name, value }: { name: string; value: number }) {
   return (
     <div className="space-y-0.5">
       <div className="flex justify-between text-[10px]">
-        <span className="text-muted-foreground font-medium truncate pr-2">{name}</span>
+        <span className="text-muted-foreground font-medium truncate pr-2">{attributeLabel(name)}</span>
         <span className="font-bold tabular-nums shrink-0">{value}</span>
       </div>
       <Progress
@@ -169,28 +170,8 @@ function StaffCard({
   const RoleIcon = ROLE_ICONS[roleKey] ?? Star;
   const { calendar } = useCalendar();
 
-  // V2 roles store skill numbers inside a nested *Attributes key (coachingAttributes,
-  // fitnessAttributes, scoutingAttributes, etc.). Legacy roles (e.g. Doctor v1) store
-  // them flat at the top level. Try the nested key first; fall back to flat numbers.
-  function extractSkillAttrs(attributes: Record<string, unknown>): [string, number][] {
-    for (const [key, val] of Object.entries(attributes)) {
-      if (
-        key.endsWith("Attributes") &&
-        val &&
-        typeof val === "object" &&
-        !Array.isArray(val)
-      ) {
-        return Object.entries(val as Record<string, number>).filter(
-          ([, v]) => typeof v === "number"
-        ) as [string, number][];
-      }
-    }
-    return Object.entries(attributes).filter(
-      ([, v]) => typeof v === "number"
-    ) as [string, number][];
-  }
 
-  const attrs = extractSkillAttrs(member.attributes ?? {});
+  const attrs = skillAttributes(member.attributes);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const updateStaffMutation = useUpdateStaff();
@@ -207,7 +188,7 @@ function StaffCard({
       personality: member.personality ?? "",
       specialty:   member.specialty ?? "",
       specialTrait: member.specialTrait ?? "",
-      attributes:  Object.fromEntries(extractSkillAttrs(member.attributes ?? {})),
+      attributes:  Object.fromEntries(skillAttributes(member.attributes)),
     });
     setEditOpen(true);
   };
@@ -337,8 +318,8 @@ function StaffCard({
                   <div className="grid grid-cols-2 gap-2">
                     {Object.entries(editForm.attributes).map(([key, val]) => (
                       <div key={key} className="space-y-1">
-                        <Label htmlFor={`staff-attr-${member.id}-${key}`} className="capitalize text-xs">
-                          {key.replace(/_/g, " ")}
+                        <Label htmlFor={`staff-attr-${member.id}-${key}`} className="text-xs">
+                          {attributeLabel(key)}
                         </Label>
                         <Input id={`staff-attr-${member.id}-${key}`} type="number" min={1} max={99}
                           value={val}

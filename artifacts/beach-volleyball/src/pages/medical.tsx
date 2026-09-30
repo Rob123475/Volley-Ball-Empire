@@ -1,3 +1,4 @@
+import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
 import {
   useGetTeamRoster,
   getGetTeamRosterQueryKey,
@@ -268,7 +269,7 @@ function AttributeBar({ name, value }: { name: string; value: number }) {
   return (
     <div className="space-y-0.5">
       <div className="flex justify-between text-[10px]">
-        <span className="text-muted-foreground font-medium truncate pr-2">{name}</span>
+        <span className="text-muted-foreground font-medium truncate pr-2">{attributeLabel(name)}</span>
         <span className="font-bold tabular-nums shrink-0">{value}</span>
       </div>
       <Progress value={value} className="h-1.5" />
@@ -282,7 +283,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
   const roleKey = normalizeMedicalRole(member.role);
   const RoleIcon = (roleKey ? MEDICAL_ROLE_ICONS[roleKey] : undefined) ?? Stethoscope;
   const roleLabel = (roleKey ? MEDICAL_ROLE_LABELS[roleKey] : undefined) ?? member.role;
-  const attrs = Object.entries(member.attributes ?? {}) as [string, number][];
+  const attrs = skillAttributes(member.attributes);
 
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all border-border">
