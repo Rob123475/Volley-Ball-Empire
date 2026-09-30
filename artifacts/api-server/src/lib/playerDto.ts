@@ -51,6 +51,8 @@ export type CareerPlayerFields = {
   scoutedPotential: string | null;
   discoveredBy: string | null;
   scoutStartedOn: string | null;
+  /** Item 5: the hired Scout whose report this is, "Name (Scouting NN)". */
+  scoutReportBy: string | null;
   ratingAtJoin: number | null;
   joinedTeamId: number | null;
   isRetired: boolean;
@@ -111,6 +113,7 @@ export function assemblePlayer(
     scoutedPotential:     state.scoutedPotential,
     discoveredBy:         state.discoveredBy,
     scoutStartedOn:       state.scoutStartedOn ?? null,
+    scoutReportBy:        state.scoutReportBy ?? null,
     ratingAtJoin:         state.ratingAtJoin ?? null,
     joinedTeamId:         state.joinedTeamId ?? null,
     isRetired:            state.isRetired,
@@ -544,7 +547,7 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
     },
     lapseMarketScouting(careerSaveId) {
       const r = tx.update(careerPlayerStateTable)
-        .set({ scoutStartedOn: null, scoutedPotential: null, updatedAt: new Date() })
+        .set({ scoutStartedOn: null, scoutedPotential: null, scoutReportBy: null, updatedAt: new Date() })
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           isNull(careerPlayerStateTable.teamId),

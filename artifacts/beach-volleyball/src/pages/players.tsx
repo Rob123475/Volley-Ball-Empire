@@ -1,3 +1,4 @@
+import { normaliseRole } from "@shared/staff-roles";
 import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/continents";
 import {
   useSignContract,
@@ -5,7 +6,7 @@ import {
   getListFreeAgentsQueryKey,
   getListTransferWindowQueryKey,
   getListContractsQueryKey,
-  getGetTeamRosterQueryKey,
+  getGetTeamRosterQueryKey, useListStaff, getListStaffQueryKey
 } from "@workspace/api-client-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -340,12 +341,15 @@ function MarketPlayerCard({
   onScout,
   isScoutingThis,
   signPending,
+  hasScout,
 }: {
   player: any;
   onSign: (id: number, values: any) => void;
   onScout: (id: number) => void;
   isScoutingThis: boolean;
   signPending: boolean;
+  /** Overnight 30 Sep, item 5: only a hired Scout scouts players. */
+  hasScout: boolean;
 }) {
   // Item 15: an unscouted player's attributes are not sent; she shows "?".
   const revealed  = player.revealed !== false;
@@ -481,14 +485,22 @@ function MarketPlayerCard({
             size="sm"
             className="w-full h-7 text-[11px] gap-1 text-muted-foreground"
             onClick={() => onScout(player.id)}
-            disabled={isScoutingThis || scouting === "in_progress"}
+            disabled={isScoutingThis || scouting === "in_progress" || !hasScout}
+            title={!hasScout && scouting === "none" ? "Hire a Scout on the Staff Market to scout players." : undefined}
             data-testid={`button-scout-${player.id}`}
           >
             <Search className="h-3 w-3" />
             {scouting === "in_progress"
               ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
+              : !hasScout ? "Hire a Scout to scout players"
               : isScoutingThis ? "Sending the scout…" : "Scout player (5 days, $1,500)"}
           </Button>
+        )}
+        {/* Item 5: whose report it is (the hired Scout who was sent). */}
+        {player.scoutReportBy && scouting !== "none" && (
+          <p className="text-[11px] text-muted-foreground text-center" data-testid={`scout-report-by-${player.id}`}>
+            {scouting === "done" ? "Scout's report" : "Scouting"}: {player.scoutReportBy}
+          </p>
         )}
       </CardContent>
     </Card>
@@ -503,12 +515,15 @@ function YouthPoolCard({
   onScout,
   isScoutingThis,
   signPending,
+  hasScout,
 }: {
   player: any;
   onSign: (id: number, values: any) => void;
   onScout: (id: number) => void;
   isScoutingThis: boolean;
   signPending: boolean;
+  /** Overnight 30 Sep, item 5: only a hired Scout scouts players. */
+  hasScout: boolean;
 }) {
   const overall   = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
   const isScouted = !!player.scoutedPotential;
@@ -566,10 +581,12 @@ function YouthPoolCard({
             ) : <span className="italic">Potential not assessed</span>}
           </div>
           <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] gap-1"
-            onClick={() => onScout(player.id)} disabled={isScoutingThis}
+            onClick={() => onScout(player.id)} disabled={isScoutingThis || !hasScout || player.scouting?.state === "in_progress"}
+            title={!hasScout ? "Hire a Scout on the Staff Market to scout players." : player.scoutReportBy ?? undefined}
             data-testid={`button-scout-${player.id}`}>
             <Search className="h-3 w-3" />
-            {isScoutingThis ? "Scouting…" : "Scout (5 days, $1,500)"}
+            {player.scouting?.state === "in_progress" ? `Report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
+              : !hasScout ? "Hire a Scout" : isScoutingThis ? "Scouting…" : "Scout (5 days, $1,500)"}
           </Button>
         </div>
         <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />
@@ -626,6 +643,9 @@ export default function PlayerMarket() {
 
   const signMutation     = useSignContract();
   const scoutMutation    = useScoutPlayer();
+  // Item 5: player scouting needs a hired Scout.
+  const { data: myStaffList } = useListStaff({ query: { queryKey: getListStaffQueryKey() } });
+  const hasScout = (myStaffList ?? []).some((s) => normaliseRole(s.role) === "scout");
   // Item 15: what signing an unscouted player revealed.
   const [revealedSigning, setRevealedSigning] = useState<any | null>(null);
 
@@ -657,10 +677,10 @@ export default function PlayerMarket() {
     scoutMutation.mutate({ id: playerId }, {
       onSuccess: (result: any) => {
         invalidateAll();
-        toast({ title: "Scout sent", description: `${result.scoutName}'s report is due in ${result.days} days${result.scouting?.readyOn ? ` (${format(new Date(`${result.scouting.readyOn}T00:00:00`), "d MMM")})` : ""}: her exact price, attributes and potential. $${Number(result.cost ?? 0).toLocaleString()} charged.` });
+        toast({ title: "Scout sent", description: `${result.scoutReportBy ?? result.scoutName}: the report is due in ${result.days} days${result.scouting?.readyOn ? ` (${format(new Date(`${result.scouting.readyOn}T00:00:00`), "d MMM")})` : ""}: her exact price, attributes and potential. $${Number(result.cost ?? 0).toLocaleString()} charged.` });
       },
       onError: (err: any) => {
-        toast({ title: "Cannot scout", description: serverMessage(err, "Hire a Scout, Head Coach or Assistant Coach to scout players."), variant: "destructive" });
+        toast({ title: "Cannot scout", description: serverMessage(err, "Hire a Scout on the Staff Market to scout players."), variant: "destructive" });
       },
     });
   };
@@ -917,6 +937,7 @@ export default function PlayerMarket() {
                   onScout={handleScout}
                   isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
                   signPending={signMutation.isPending}
+                  hasScout={hasScout}
                 />
               ))}
               {visiblePlayers.length === 0 && !marketLoading && (
@@ -987,6 +1008,7 @@ export default function PlayerMarket() {
                   onScout={handleScout}
                   isScoutingThis={scoutMutation.isPending && scoutMutation.variables?.id === player.id}
                   signPending={signMutation.isPending}
+                  hasScout={hasScout}
                 />
               ))}
               {youthFiltered.length === 0 && (

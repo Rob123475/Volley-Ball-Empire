@@ -10,7 +10,7 @@ import { playersTable, teamsTable, staffTable, trophiesTable, financeTransaction
 import {
   CONTINENT_KEYS, CONTINENT_LABEL, RESERVE_NATIONS, PLAYERS_PER_NATION,
   coreNationsFor, isCoreNation, isReserveNation, isContinentKey, type ContinentKey,
-  normaliseRole, SCOUTING_ROLE_KEYS,
+  normaliseRole,
 } from "@workspace/db";
 
 // The youngest a senior may be. Not in continents.ts because it is a gameplay
@@ -596,11 +596,15 @@ router.post("/players/:id/scout", async (req, res) => {
   const team = await getActiveTeam(req);
   if (!team)  { res.status(404).json({ error: "No team found" }); return; }
 
+  // Overnight brief 30 Sep, item 5: the report comes from the hired Scout (it
+  // came from the best-rated of any Scout, Head Coach or Assistant Coach, so
+  // Rob's read "Valentino Greco's report": his Head Coach). Her scouting
+  // rating sets how accurate it is. No Scout hired: no player scouting.
   const allStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
-  const scouts   = allStaff.filter(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
+  const scouts   = allStaff.filter(s => normaliseRole(s.role) === "scout");
 
   if (scouts.length === 0) {
-    res.status(400).json({ error: "No Scout, Head Coach or Assistant Coach on staff. Hire one to scout players." });
+    res.status(400).json({ error: "You have no Scout. Hire a Scout on the Staff Market to scout players.", noScout: true });
     return;
   }
 
@@ -619,11 +623,14 @@ router.post("/players/:id/scout", async (req, res) => {
   const broke = cannotAffordScout(team.budget);
   if (broke) { res.status(400).json({ error: broke }); return; }
 
-  const bestScout = scouts.reduce((a, b) => a.overallRating > b.overallRating ? a : b);
-  const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, bestScout.overallRating);
+  const rating = (s: typeof scouts[number]) => s.scoutingRating ?? s.overallRating;
+  const bestScout = scouts.reduce((a, b) => rating(a) >= rating(b) ? a : b);
+  const scoutRating = rating(bestScout);
+  const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, scoutRating);
+  const scoutReportBy = `${bestScout.name} (Scouting ${scoutRating})`;
 
   const budgetAfter = chargeScout(team, `Scouting: ${player.name}`, today);
-  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential, scoutStartedOn: today });
+  await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential, scoutStartedOn: today, scoutReportBy });
   const scouting = scoutState({ scoutStartedOn: today, scoutedPotential }, today);
 
   res.json({
@@ -634,7 +641,8 @@ router.post("/players/:id/scout", async (req, res) => {
     budgetAfter,
     confidence,
     scoutName:   bestScout.name,
-    scoutRating: bestScout.overallRating,
+    scoutRating,
+    scoutReportBy,
   });
 });
 

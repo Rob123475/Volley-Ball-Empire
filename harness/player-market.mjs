@@ -1,4 +1,7 @@
 /**
+ * Overnight brief 30 Sep, items 4-5: a scout costs $1,500 when sent; the
+ * report comes from the hired Scout (no Scout, no player scouting).
+ *
  * Unity match brief (29 Sep), item 15 — Player Market: prices, scouting and
  * buying blind (Rob's design, 29 Sep).
  *
@@ -134,16 +137,28 @@ try {
   }
 
   // 4. Scouting takes exactly 5 game days.
+  // Overnight 30 Sep, item 5: only a hired Scout scouts players; a Head Coach
+  // or Assistant Coach no longer does.
   const staff = (await api("GET", "/staff")).data ?? [];
-  if (!staff.some((s) => /scout|head coach|assistant coach/i.test(s.role))) {
+  const noScoutYet = !staff.some((s) => /^scout$/i.test(s.role));
+  if (noScoutYet) {
+    const refused = await api("POST", `/players/${unscouted[6].id}/scout`);
+    check("with no Scout hired there is no player scouting, and it says so (no charge)",
+      refused.status === 400 && refused.data?.noScout === true && /Hire a Scout/.test(refused.data?.error ?? ""),
+      `${refused.status}: ${refused.data?.error}; staff: ${staff.map((s) => s.role).join(", ")}`);
     const offer = ((await api("GET", "/staff/market?role=scout")).data ?? []).find((m) => /scout/i.test(m.role));
     await api("POST", "/staff", { staffId: offer?.id, length: "6m" });
   }
+  const myScout = ((await api("GET", "/staff")).data ?? []).find((s) => /^scout$/i.test(s.role));
   const Z = unscouted[5];
   const bScout = await budget();
   const sc = await api("POST", `/players/${Z.id}/scout`);
   check("scouting starts: 5 game days", sc.status === 200 && sc.data?.scouting?.state === "in_progress" && sc.data.scouting.daysLeft === 5,
     `HTTP ${sc.status} ${JSON.stringify(sc.data?.scouting ?? sc.data)}`);
+  check("the report comes from the hired Scout, at her scouting rating",
+    sc.data?.scoutName === myScout?.name && sc.data?.scoutRating === myScout?.scoutingRating && sc.data?.scoutReportBy === `${myScout?.name} (Scouting ${myScout?.scoutingRating})`
+    && (await byId(Z.id))?.scoutReportBy === sc.data?.scoutReportBy,
+    `${sc.data?.scoutReportBy}; Scout on staff: ${myScout?.name} (${myScout?.role}, scouting ${myScout?.scoutingRating})`);
   // Overnight 30 Sep, item 4: every scout costs $1,500, charged when sent, on the ledger.
   const scoutLines = ((await api("GET", "/finances")).data ?? []).filter((t) => t.category === "scouting" && t.description === `Scouting: ${Z.name}`);
   check("the scout costs $1,500, charged when sent, one scouting line on the ledger",

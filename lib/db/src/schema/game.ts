@@ -367,6 +367,9 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
   // exact price and attributes show from 5 game days later
   // (utils/marketScouting.ts); cleared at season end while she has no club.
   scoutStartedOn:   text("scout_started_on"),
+  // Overnight brief 30 Sep, item 5: whose report it is: the hired Scout who
+  // was sent, "Name (Scouting NN)". Cleared with the report at season end.
+  scoutReportBy:    text("scout_report_by"),
   // Unity brief item 21: her rating (6-stat OVR) when she joined this club's
   // squad, and which club: "Future Superstar" counts a player who joined below
   // 85 and reached 85 while in it (utils/check-achievements.ts).
