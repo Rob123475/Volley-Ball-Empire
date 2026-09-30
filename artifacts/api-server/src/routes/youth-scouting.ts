@@ -13,7 +13,8 @@ import { generateScoutingProspects } from "../utils/prospect-generator";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
-import { loadPlayers, createCareerPlayer, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, createCareerPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
+import { academyCountTx } from "../utils/youthLoans.js";
 import { refusalReason } from "../utils/squadRules.js";
 import { academySize, academyMonthlySalary } from "../utils/academy.js";
 import type { Team, YouthProspect } from "@workspace/db";
@@ -221,7 +222,8 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   // POST /contracts uses and counted the way the intake counts it.
   const squad = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id });
   const academyFull = refusalReason(
-    { starters: 0, interchange: 0, seniors: 0, youth: academySize(squad) },
+    // C15: with her own youths out on loan, who come back.
+    { starters: 0, interchange: 0, seniors: 0, youth: withCareerStateTx((w) => academyCountTx(w.tx, requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id })) },
     { isYouth: true, squadRole: "reserve" },
   );
   if (academyFull) {

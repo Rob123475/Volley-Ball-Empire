@@ -69,6 +69,10 @@ export type CareerPlayerFields = {
   isDraftPlayer: boolean;
   isPromoted: boolean;
   outfitId: number | null;
+  /** C15: the AI club whose academy holds her (youth at an AI club); null otherwise. */
+  poolTeamId: number | null;
+  /** C15: "youth_team" or "reserve" for an academy player; null otherwise. */
+  academyRole: string | null;
 };
 
 /**
@@ -130,6 +134,8 @@ export function assemblePlayer(
     isDraftPlayer:        state.isDraftPlayer,
     isPromoted:           state.isPromoted,
     outfitId:             state.outfitId,
+    poolTeamId:           state.poolTeamId,
+    academyRole:          state.academyRole,
   };
 }
 
@@ -156,7 +162,8 @@ export async function loadPlayers(
   const conds: SQL[] = [eq(careerPlayerStateTable.careerSaveId, careerSaveId)];
 
   if (filter.teamId != null)   conds.push(eq(careerPlayerStateTable.teamId, filter.teamId));
-  if (filter.freeAgents)       conds.push(isNull(careerPlayerStateTable.teamId));
+  // C15: a youth at an AI club's academy has no team_id either; she is not a free agent.
+  if (filter.freeAgents)       conds.push(isNull(careerPlayerStateTable.teamId), isNull(careerPlayerStateTable.poolTeamId));
   if (filter.isActive != null) conds.push(eq(careerPlayerStateTable.isActive, filter.isActive));
   // "Senior" means player_type = 'senior' OR promoted out of the academy in
   // THIS career; "youth" means the reverse. Filtering on player_type alone
@@ -708,7 +715,9 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           // contract route went on refusing to renew him as a youth player, and
           // the backfill went on skipping him as one, leaving a senior at the
           // club with no contract anything could see.
-          .set({ isPromoted: true, academyContractYears: null, updatedAt: new Date() })
+          // C15: an AI academy's graduate enters the senior market, as the
+          // shipped youth do; she leaves the academy's court-time role too.
+          .set({ isPromoted: true, academyContractYears: null, poolTeamId: null, academyRole: null, updatedAt: new Date() })
           .where(and(
             eq(careerPlayerStateTable.careerSaveId, careerSaveId),
             eq(careerPlayerStateTable.playerId, g.playerId),

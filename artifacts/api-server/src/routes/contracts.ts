@@ -2,7 +2,8 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
-import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
+import { academyCountTx } from "../utils/youthLoans.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
@@ -60,6 +61,12 @@ router.post("/contracts", async (req, res) => {
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
   if (!player) { res.status(404).json({ error: "Player not found." }); return; }
+  // C15: a youth at an AI club's academy (hers, or on loan there) is not on the
+  // market; she can only come on loan, from Team > Youth Loans.
+  if (player.poolTeamId != null) {
+    res.status(422).json({ error: `${player.name} is at an AI club's academy: she can only join you on loan (Team > Youth Loans).` });
+    return;
+  }
   // R-63: an academy player is a youth player not yet promoted — the same test
   // the intake and the Team page use.
   const isYouth = isYouthPlayer(player);
@@ -103,7 +110,8 @@ router.post("/contracts", async (req, res) => {
         starters:    seniorNow.filter((p) => p.squadRole === "starter").length,
         interchange: seniorNow.filter((p) => p.squadRole === "interchange").length,
         seniors:     signedSeniors.length,
-        youth:       youthNow.length,
+        // C15: her own youths out on loan still count: they come back.
+        youth:       withCareerStateTx((w) => academyCountTx(w.tx, requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id })),
       },
       { isYouth, squadRole },
     );

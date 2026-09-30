@@ -38,6 +38,7 @@ import devRouter from "./dev";
 import unityRouter from "./unity";
 import regionalLeagueRouter from "./regional-league";
 import worldTourRouter from "./world-tour";
+import youthLoansRouter from "./youth-loans";
 
 const router: IRouter = Router();
 
@@ -86,5 +87,6 @@ if (process.env.NODE_ENV !== "production") {
 router.use(calendarRouter);
 router.use(regionalLeagueRouter);
 router.use(worldTourRouter);
+router.use(youthLoansRouter);
 
 export default router;

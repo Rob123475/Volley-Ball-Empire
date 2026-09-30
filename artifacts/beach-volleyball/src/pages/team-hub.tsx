@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Users, Star, Activity, FileText } from "lucide-react";
+import { Users, Star, Activity, FileText, ArrowLeftRight } from "lucide-react";
 import TeamRoster   from "@/pages/team";
 import YouthAcademy from "@/pages/youth-academy";
 import Training     from "@/pages/training";
 import Contracts    from "@/pages/contracts";
+import YouthLoans   from "@/pages/youth-loans";
 
-type Tab = "senior" | "youth" | "training" | "contracts";
+type Tab = "senior" | "youth" | "loans" | "training" | "contracts";
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "senior",    label: "Senior Team",  icon: Users     },
   { id: "youth",     label: "Youth Team",   icon: Star      },
+  // Overnight 30 Sep, C15: the youth loan market.
+  { id: "loans",     label: "Youth Loans",  icon: ArrowLeftRight },
   { id: "training",  label: "Training",     icon: Activity  },
   { id: "contracts", label: "Contracts",    icon: FileText  },
 ];
@@ -38,6 +41,7 @@ export default function TeamHub() {
       </div>
       {tab === "senior"    && <TeamRoster />}
       {tab === "youth"     && <YouthAcademy />}
+      {tab === "loans"     && <YouthLoans />}
       {tab === "training"  && <Training />}
       {tab === "contracts" && <Contracts />}
     </div>

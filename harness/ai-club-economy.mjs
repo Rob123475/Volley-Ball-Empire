@@ -173,36 +173,49 @@ try {
   // shared functions say, to the dollar". Measured on a club with no World Tour
   // place, whose week is the ground, its squad and no tour.
   console.log("\n2. THE SAME RULES, TO THE DOLLAR");
-  const before = read(
+  // Overnight 30 Sep, C15: an AI club also keeps an academy, filled and billed
+  // in the same weekly block (utils/youthLoans.ts), and its youths may go on
+  // loan that very week. So every candidate is read before the week, and the
+  // club measured is one with no loan on either side: its week is the ground,
+  // its squad, its academy's wages (utils/academy.ts) and no tour.
+  const candidates = read(
     `SELECT s.pool_team_id AS id, s.balance AS b, s.sponsor_reputation AS rep
        FROM career_pool_team_state s
       WHERE s.career_save_id = ? AND s.pool_team_id NOT IN (
         SELECT pool_team_id FROM world_tour_qualifications WHERE career_save_id = ?)
-      ORDER BY s.pool_team_id LIMIT 1`, careerSaveId, careerSaveId)[0];
-  const wages = read(
-    `SELECT COALESCE(SUM(salary), 0) AS total, COUNT(*) AS n FROM pool_player_contracts
-      WHERE career_save_id = ? AND pool_team_id = ? AND status = 'active'`,
-    careerSaveId, before?.id)[0];
-  const expectedWeek =
-    Math.round(Number(wages.total) / WEEKS_PER_MONTH)
-    + BASE_COST + PER_PLAYER * Number(wages.n)
-    - Math.round(Number(before?.rep ?? 50) * PER_REP);
+      ORDER BY s.pool_team_id`, careerSaveId, careerSaveId);
+  const ACADEMY_WAGE = { Low: 50, Average: 75, High: 100, Elite: 150, Generational: 250 };
 
   // One salary week, and nothing else: advanced far enough for the weekly
   // block to run once, with no match played by that club in between.
   let weeks = 0;
   for (let i = 0; i < 8 && weeks === 0; i++) {
     await api("POST", "/calendar/advance", {});
-    const after = read(
-      `SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`,
-      careerSaveId, before?.id)[0];
-    if (Math.round(Number(after.b)) !== Math.round(Number(before.b))) {
-      const moved = Number(before.b) - Number(after.b);
-      check("a club with no World Tour place pays the ground and its squad, and no tour",
-        Math.round(moved) === Math.round(expectedWeek),
-        `moved ${money(moved)}, the rules say ${money(expectedWeek)}`);
-      weeks++;
-    }
+    const moved0 = Number(candidates[0].b) - Number(read(
+      `SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, candidates[0].id)[0].b);
+    if (Math.round(moved0) === 0) continue;
+    weeks++;
+    const onLoan = new Set(read(`SELECT owner_pool_team_id AS o, borrower_pool_team_id AS b FROM youth_loans WHERE career_save_id = ? AND status = 'active'`, careerSaveId)
+      .flatMap((l) => [l.o, l.b]));
+    const before = candidates.find((c) => !onLoan.has(c.id));
+    const after = read(`SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, before.id)[0];
+    const moved = Number(before.b) - Number(after.b);
+    const wages = read(
+      `SELECT COALESCE(SUM(salary), 0) AS total, COUNT(*) AS n FROM pool_player_contracts
+        WHERE career_save_id = ? AND pool_team_id = ? AND status = 'active'`,
+      careerSaveId, before.id)[0];
+    const academy = read(
+      `SELECT p.potential FROM career_player_state s JOIN players p ON p.id = s.player_id
+        WHERE s.career_save_id = ? AND s.pool_team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0`, careerSaveId, before.id);
+    const academyWeek = academy.reduce((t, y) => t + (ACADEMY_WAGE[y.potential] ?? 75), 0);
+    const expectedWeek =
+      Math.round(Number(wages.total) / WEEKS_PER_MONTH)
+      + BASE_COST + PER_PLAYER * Number(wages.n)
+      + academyWeek
+      - Math.round(Number(before.rep ?? 50) * PER_REP);
+    check("a club with no World Tour place pays the ground, its squad and its academy, and no tour",
+      Math.round(moved) === Math.round(expectedWeek) && academy.length > 0,
+      `club ${before.id}: moved ${money(moved)}, the rules say ${money(expectedWeek)} (academy of ${academy.length}: ${money(academyWeek)})`);
   }
   check("the week was charged at all", weeks === 1, `${weeks} week(s) seen`);
   check("the harness read the real numbers out of the server",
@@ -359,6 +372,32 @@ try {
     careerSaveId)[0].n;
   check("and nobody at any of them is on a term this game does not have",
     orphanContracts === 0, `${orphanContracts} bad contract(s)`);
+
+  // Overnight 30 Sep, C15: the AI clubs' academies across the season boundaries.
+  // Each refills to 4 of its own (youths away on loan counted) in the first
+  // salary week after a boundary, and a player reaching 19 leaves the game at
+  // the boundary rather than staying a youth. The run stops on a boundary, so
+  // one more salary week is played first.
+  {
+    const sponsorWeeks = () => read(`SELECT COUNT(*) AS n FROM finance_transactions WHERE team_id = ? AND description LIKE 'Weekly sponsor%'`, teamId)[0].n;
+    const n0 = sponsorWeeks();
+    for (let i = 0; i < 10 && sponsorWeeks() === n0; i++) {
+      healAllSquads(dbFile);
+      const r = await api("POST", "/calendar/advance", {});
+      if (r.data?.blocked === "pending_match") { await api("POST", `/matches/${r.data.pendingMatchId}/simulate`, {}); await api("POST", "/calendar/skip-match", {}); }
+      else if (r.data?.matchDay?.matchId) { await api("POST", `/matches/${r.data.matchDay.matchId}/simulate`, {}); await api("POST", "/calendar/dismiss-match", {}); }
+    }
+  }
+  const aiYouth = read(
+    `SELECT s.pool_team_id AS club, s.age FROM career_player_state s JOIN players p ON p.id = s.player_id
+      WHERE s.career_save_id = ? AND s.pool_team_id IS NOT NULL AND p.player_type = 'youth' AND s.is_promoted = 0`, careerSaveId);
+  const lentOut = read(`SELECT owner_pool_team_id AS o, borrower_pool_team_id AS b FROM youth_loans WHERE career_save_id = ? AND status = 'active'`, careerSaveId);
+  const liveClubs = read(`SELECT pool_team_id AS id FROM career_pool_team_state WHERE career_save_id = ? AND taken_over_at IS NULL`, careerSaveId).map((r) => r.id);
+  const own = (c) => aiYouth.filter((y) => y.club === c).length - lentOut.filter((l) => l.b === c).length + lentOut.filter((l) => l.o === c).length;
+  const sizes = liveClubs.map(own);
+  check(`after ${SEASONS} seasons every AI club's academy is 4 of its own, and none of its youths is 19 or older`,
+    sizes.length > 0 && sizes.every((n) => n === 4) && aiYouth.every((y) => y.age < 19),
+    `sizes ${[...new Set(sizes)].join(",")}; oldest ${Math.max(...aiYouth.map((y) => y.age))}`);
 
 } finally {
   await stopServer(child);

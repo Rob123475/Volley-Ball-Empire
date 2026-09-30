@@ -42,6 +42,11 @@ export const MAX_SENIORS = MAX_STARTERS + MAX_INTERCHANGE;
 export const ACADEMY_YOUTH_TEAM = 3;
 export const ACADEMY_RESERVES = 3;
 export const ACADEMY_CAP = ACADEMY_YOUTH_TEAM + ACADEMY_RESERVES;
+/**
+ * Overnight 30 Sep, C15: court time. The youth team plays; a reserve does not,
+ * and develops at this share of the youth team's weekly rate.
+ */
+export const RESERVE_COURT_SHARE = 0.5;
 
 /**
  * L-02d — how many of its own graduates a club may hold.

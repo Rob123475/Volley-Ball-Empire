@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, type PlayerDTO, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import { db } from "@workspace/db";
-import { teamsTable, playersTable, staffTable, contractsTable } from "@workspace/db";
+import { teamsTable, playersTable, staffTable, contractsTable, youthLoansTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { readContractLength, contractEndDate } from "../utils/contractTerms.js";
 import { seasonEndsFrom } from "../utils/seasonDates.js";
@@ -41,7 +41,12 @@ const buildRosterResponse = (team: any, players: any[], staff: any[]) => {
     staff: staff.map(s => ({ ...s, salary: Number(s.salary) })),
     // R-63: the academy's size and cap — the Team page banner reads the same cap
     // the signing rule and the season intake enforce.
-    academy: { size: academySize(players), cap: ACADEMY_CAP },
+    // C15: her own youths out on loan count too (they come back), as the signing rule counts them.
+    academy: {
+      size: academySize(players) + db.select({ id: youthLoansTable.id }).from(youthLoansTable)
+        .where(and(eq(youthLoansTable.ownerTeamId, team.id), eq(youthLoansTable.status, "active"))).all().length,
+      cap: ACADEMY_CAP,
+    },
   };
 };
 

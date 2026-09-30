@@ -15,6 +15,7 @@ import {
   olympicMatchesTable,
   olympicMedalsTable,
   youthIntakesTable,
+  youthLoansTable,
   playerRetirementsTable,
   clubHallOfFameTable,
 } from "@workspace/db";
@@ -65,6 +66,8 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     t.delete(olympicTournamentsTable).where(eq(olympicTournamentsTable.careerSaveId, careerSaveId)).run();
     // R-62: the academy intakes reference the save (NOT NULL).
     t.delete(youthIntakesTable).where(eq(youthIntakesTable.careerSaveId, careerSaveId)).run();
+    // Overnight 30 Sep, C15: the youth loans reference the save (NOT NULL).
+    t.delete(youthLoansTable).where(eq(youthLoansTable.careerSaveId, careerSaveId)).run();
     // L-02b: who retired in this career, and who its clubs honoured. Both
     // reference the save (NOT NULL); the honours go first because a retirement
     // row and an induction can name the same athlete.

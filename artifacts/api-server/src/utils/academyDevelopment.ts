@@ -21,7 +21,9 @@
  */
 import { careerSaveIdForTeam } from "../lib/getActiveSeason.js";
 import { isYouthPlayer } from "./playerClassification.js";
-import { loadPlayers, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
+import { loadPlayers, requireCareerSaveId, updatePlayerState, withCareerStateTx, type CareerPlayerFields, type StatKey } from "../lib/playerDto.js";
+import { RESERVE_COURT_SHARE } from "./squadRules.js";
+import { ensureYouthTeamTx } from "./youthLoans.js";
 import { potentialMultiplier } from "./potential.js";
 
 /**
@@ -78,14 +80,23 @@ export function academyWeek(rating: number, potential: string | null | undefined
   return { xp: Math.round(academyXpFor(rating) * k), focusXp: Math.round((8 + focusRoll) * k) };
 }
 
-/** Academy training, for the academy — see tickAcademyContracts on who that is. */
+/**
+ * Academy training, for the academy — see tickAcademyContracts on who that is.
+ *
+ * Overnight 30 Sep, C15: by court time. The youth team (3) develops at the full
+ * rate; a reserve, who does not play, at RESERVE_COURT_SHARE of it. A youth on
+ * loan here develops with this club's court time.
+ */
 export async function developAcademyPlayers(teamId: number): Promise<void> {
   const careerSaveId = requireCareerSaveId((await careerSaveIdForTeam(teamId)) ?? undefined);
+  withCareerStateTx((w) => ensureYouthTeamTx(w, careerSaveId, { teamId }));
   const youthPlayers = (await loadPlayers(careerSaveId, { teamId })).filter(isYouthPlayer);
 
   for (const player of youthPlayers) {
     const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-    const week = academyWeek(rating, player.potential, Math.floor(Math.random() * 5));
+    const full = academyWeek(rating, player.potential, Math.floor(Math.random() * 5));
+    const share = player.academyRole === "reserve" ? RESERVE_COURT_SHARE : 1;
+    const week = { xp: Math.round(full.xp * share), focusXp: Math.round(full.focusXp * share) };
     const updates: Partial<CareerPlayerFields> = {
       trainingPoints: player.trainingPoints + week.xp,
     };

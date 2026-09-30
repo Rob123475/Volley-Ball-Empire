@@ -41,6 +41,8 @@ import {
   teamsTable,
   locationsTable,
   youthIntakesTable,
+  youthLoansTable,
+  careerSavesTable,
   CORE_NATIONS,
   continentKeyForNationality,
   nationName,
@@ -123,9 +125,27 @@ export function intakeNamePoolTx(tx: Tx, nations: readonly string[]): Map<string
     .from(playersTable).where(isNull(playersTable.originCareerSave)).all();
   const pool = tx.select({ name: continentalPoolPlayersTable.name, nationality: continentalPoolPlayersTable.nationality })
     .from(continentalPoolPlayersTable).all();
+  // C15: an athlete a career made and no longer has (an AI academy's graduate
+  // who left the game at 19) gives her name back: sixty AI academies would
+  // otherwise use up a region's names within a career. A name still waiting in
+  // the reusable pool (player_retirements) stays out of the new combinations,
+  // so it is offered once, through that pool.
+  // "Left the game" is exactly that: a youth a career made (the career still
+  // exists) who is no longer in it.
+  const gone = new Set(tx.select({ id: playersTable.id }).from(playersTable)
+    .innerJoin(careerSavesTable, eq(careerSavesTable.id, playersTable.originCareerSave))
+    .leftJoin(careerPlayerStateTable, and(
+      eq(careerPlayerStateTable.playerId, playersTable.id),
+      eq(careerPlayerStateTable.careerSaveId, playersTable.originCareerSave),
+    ))
+    .where(and(eq(playersTable.playerType, "youth"), isNull(careerPlayerStateTable.id)))
+    .all().map((r) => r.id));
+  const waiting = tx.select({ name: playerRetirementsTable.name }).from(playerRetirementsTable)
+    .where(isNull(playerRetirementsTable.nameReusedAt)).all().map((r) => r.name);
   const taken = new Set([
-    ...tx.select({ name: playersTable.name }).from(playersTable).all().map((r) => r.name),
+    ...tx.select({ id: playersTable.id, name: playersTable.name }).from(playersTable).all().filter((r) => !gone.has(r.id)).map((r) => r.name),
     ...pool.map((r) => r.name),
+    ...waiting,
   ]);
 
   const result = new Map<string, string[]>();
@@ -252,7 +272,11 @@ export function academySizeTx(tx: Tx, careerSaveId: number, teamId: number): num
       eq(playersTable.playerType, "youth"),
     ))
     .all();
-  return Number(row?.n ?? 0);
+  // C15: her own youths out on loan still count: they come back.
+  const away = tx.select({ n: sql<number>`COUNT(*)` }).from(youthLoansTable)
+    .where(and(eq(youthLoansTable.careerSaveId, careerSaveId), eq(youthLoansTable.ownerTeamId, teamId), eq(youthLoansTable.status, "active")))
+    .all()[0];
+  return Number(row?.n ?? 0) + Number(away?.n ?? 0);
 }
 
 export type IntakePlayer = { id: number; name: string; nationality: string; age: number; position: string; potential: string };
@@ -264,71 +288,47 @@ export type IntakeResult = {
 };
 
 /**
- * Bring this season's intake into the club's academy, inside the rollover's
- * transaction, after the boundary's promotions. Idempotent: a season that
- * already has its intake returns it.
+ * Overnight brief 30 Sep, C15: one youth player made by the intake's rule (a
+ * name and face from the region, the seeded youth stats, position and
+ * potential), for whichever academy takes her: the player's club (teamId) or an
+ * AI club (poolTeamId). The player's intake and the AI academies use the same
+ * rule. Call stamp() once done, so the names and faces used cannot be taken again.
  */
-export function youthIntakeTx(
-  w: CareerStateTx, careerSaveId: number, teamId: number, seasonYear: number, intakeOn: string,
-  /** L-02c: how many left the academy for the senior squad at this boundary. */
-  graduates = 0,
-): IntakeResult {
+export function youthFactoryTx(
+  w: CareerStateTx, careerSaveId: number, where: { home: string | null; nations: string[] },
+): { make(at: { teamId?: number; poolTeamId?: number }): IntakePlayer | null; stamp(): void } {
   const { tx } = w;
-  const [existing] = tx.select().from(youthIntakesTable)
-    .where(eq(youthIntakesTable.careerSaveId, careerSaveId))
-    .all()
-    .filter((r) => r.seasonYear === seasonYear);
-  if (existing) {
-    return { seasonYear, intakeOn: existing.intakeOn, players: [], outcome: existing.outcome as IntakeOutcome, academySize: existing.academySize };
+  const { home, nations } = where;
+  const names = intakeNamePoolTx(tx, nations);
+  const others = nations.filter((n) => n !== home);
+
+  // L-02c: the last generation's names and faces, taken before any new one is
+  // made up. A recycled name is only used for the nation it belonged to — a
+  // Brazilian name on a Norwegian youth player would be a stranger thing than
+  // a new name — so the pool is indexed by nation and the region's own name
+  // pool covers whatever it cannot.
+  const reusableNames = new Map<string, Array<{ id: number; name: string }>>();
+  for (const r of recycledNamesTx(tx, careerSaveId)) {
+    const nation = r.nationality ? nationName(r.nationality) : null;
+    if (!nation) continue;
+    if (!reusableNames.has(nation)) reusableNames.set(nation, []);
+    reusableNames.get(nation)!.push({ id: r.id, name: r.name });
   }
+  const reusableFaces = recycledPortraitsTx(tx, careerSaveId);
+  const spareFaces = sparePortraitsTx(tx, careerSaveId);
+  const usedRetirementNames: number[] = [];
+  const usedRetirementFaces: number[] = [];
 
-  // Every graduate is replaced, plus up to INTAKE_SIZE more, never past the
-  // academy's cap (R-63).
-  //
-  // The old rule took three a season and no more, so a season that promoted
-  // four left the academy one short with nothing to bring it back: thirty
-  // seasons drained it. Replacing the graduates alone is not enough either —
-  // an academy that starts empty, as every career's does, would then stay
-  // empty, and one that starts small would settle wherever it happened to be.
-  // Growing by INTAKE_SIZE a season takes a new club to a full academy in four
-  // seasons and holds it there for ever after, because once it is full the free
-  // places ARE the graduates. That is Rob's rule — the youth count does not
-  // move — stated in a way a career can actually reach.
-  const sizeBefore = academySizeTx(tx, careerSaveId, teamId);
-  const places = Math.max(0, Math.min(graduates + INTAKE_SIZE, ACADEMY_CAP - sizeBefore));
-  const players: IntakePlayer[] = [];
-
-  if (places > 0) {
-    const { home, nations } = intakeNationsTx(tx, teamId);
-    const names = intakeNamePoolTx(tx, nations);
-    const others = nations.filter((n) => n !== home);
-
-    // L-02c: the last generation's names and faces, taken before any new one is
-    // made up. A recycled name is only used for the nation it belonged to — a
-    // Brazilian name on a Norwegian youth player would be a stranger thing than
-    // a new name — so the pool is indexed by nation and the region's own name
-    // pool covers whatever it cannot.
-    const reusableNames = new Map<string, Array<{ id: number; name: string }>>();
-    for (const r of recycledNamesTx(tx, careerSaveId)) {
-      const nation = r.nationality ? nationName(r.nationality) : null;
-      if (!nation) continue;
-      if (!reusableNames.has(nation)) reusableNames.set(nation, []);
-      reusableNames.get(nation)!.push({ id: r.id, name: r.name });
-    }
-    const reusableFaces = recycledPortraitsTx(tx, careerSaveId);
-    const spareFaces = sparePortraitsTx(tx, careerSaveId);
-    const usedRetirementNames: number[] = [];
-    const usedRetirementFaces: number[] = [];
-
-    for (let i = 0; i < places; i++) {
+  return {
+    make(at) {
       // The club's country half the time, the rest of its region otherwise; a
       // nation with no name left gives way to one that has.
-      const preferred = home && (others.length === 0 || Math.random() < HOME_SHARE) ? home : pick(others);
+      const preferred = home && (others.length === 0 || Math.random() < HOME_SHARE) ? home : pick(others.length ? others : nations);
       const order = [preferred, ...nations.filter((n) => n !== preferred).sort(() => Math.random() - 0.5)];
       const hasName = (n: string) =>
         (reusableNames.get(nationName(n) ?? n)?.length ?? 0) > 0 || (names.get(n)?.length ?? 0) > 0;
       const nationality = order.find(hasName);
-      if (!nationality) break; // no name left anywhere in the club's region
+      if (!nationality) return null;
 
       // A name that belonged to somebody first, while there is one.
       const inherited = reusableNames.get(nationName(nationality) ?? nationality);
@@ -380,8 +380,10 @@ export function youthIntakeTx(
       }, {
         age,
         ...stats,
-        teamId,
+        teamId: at.teamId ?? null,
+        poolTeamId: at.poolTeamId ?? null,
         squadRole: "reserve",
+        academyRole: "reserve",
         isActive: false,
         salary: academyMonthlySalary(potential),
         academyContractYears: 2,
@@ -390,19 +392,66 @@ export function youthIntakeTx(
         fitness: 100,
         injuryStatus: "Healthy",
       });
-      players.push({ id, name, nationality, age, position, potential });
-    }
+      return { id, name, nationality, age, position, potential };
+    },
+    stamp() {
+      // Stamp what this intake took, so no later one can take it again.
+      const now = new Date();
+      for (const id of usedRetirementNames.splice(0)) {
+        tx.update(playerRetirementsTable).set({ nameReusedAt: now })
+          .where(eq(playerRetirementsTable.id, id)).run();
+      }
+      for (const id of usedRetirementFaces.splice(0)) {
+        tx.update(playerRetirementsTable).set({ portraitReusedAt: now })
+          .where(eq(playerRetirementsTable.id, id)).run();
+      }
+    },
+  };
+}
 
-    // Stamp what this intake took, so no later one can take it again.
-    const now = new Date();
-    for (const id of usedRetirementNames) {
-      tx.update(playerRetirementsTable).set({ nameReusedAt: now })
-        .where(eq(playerRetirementsTable.id, id)).run();
+/**
+ * Bring this season's intake into the club's academy, inside the rollover's
+ * transaction, after the boundary's promotions. Idempotent: a season that
+ * already has its intake returns it.
+ */
+export function youthIntakeTx(
+  w: CareerStateTx, careerSaveId: number, teamId: number, seasonYear: number, intakeOn: string,
+  /** L-02c: how many left the academy for the senior squad at this boundary. */
+  graduates = 0,
+): IntakeResult {
+  const { tx } = w;
+  const [existing] = tx.select().from(youthIntakesTable)
+    .where(eq(youthIntakesTable.careerSaveId, careerSaveId))
+    .all()
+    .filter((r) => r.seasonYear === seasonYear);
+  if (existing) {
+    return { seasonYear, intakeOn: existing.intakeOn, players: [], outcome: existing.outcome as IntakeOutcome, academySize: existing.academySize };
+  }
+
+  // Every graduate is replaced, plus up to INTAKE_SIZE more, never past the
+  // academy's cap (R-63).
+  //
+  // The old rule took three a season and no more, so a season that promoted
+  // four left the academy one short with nothing to bring it back: thirty
+  // seasons drained it. Replacing the graduates alone is not enough either —
+  // an academy that starts empty, as every career's does, would then stay
+  // empty, and one that starts small would settle wherever it happened to be.
+  // Growing by INTAKE_SIZE a season takes a new club to a full academy in four
+  // seasons and holds it there for ever after, because once it is full the free
+  // places ARE the graduates. That is Rob's rule — the youth count does not
+  // move — stated in a way a career can actually reach.
+  const sizeBefore = academySizeTx(tx, careerSaveId, teamId);
+  const places = Math.max(0, Math.min(graduates + INTAKE_SIZE, ACADEMY_CAP - sizeBefore));
+  const players: IntakePlayer[] = [];
+
+  if (places > 0) {
+    const youth = youthFactoryTx(w, careerSaveId, intakeNationsTx(tx, teamId));
+    for (let i = 0; i < places; i++) {
+      const made = youth.make({ teamId });
+      if (!made) break; // no name left anywhere in the club's region
+      players.push(made);
     }
-    for (const id of usedRetirementFaces) {
-      tx.update(playerRetirementsTable).set({ portraitReusedAt: now })
-        .where(eq(playerRetirementsTable.id, id)).run();
-    }
+    youth.stamp();
   }
 
   const outcome: IntakeOutcome = places === 0 ? "full" : players.length > 0 ? "joined" : "no_names";

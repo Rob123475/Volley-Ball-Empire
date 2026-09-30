@@ -1,3 +1,4 @@
+import { releaseAiAcademyGraduatesTx, withdrawGraduatedListingsTx } from "./youthLoans.js";
 import {
   db, seasonsTable, careerSavesTable, calendarStateTable, teamsTable,
   seasonFinalStandingsTable, careerHistoryEntriesTable,
@@ -130,7 +131,11 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
 
     // Promote after retiring, so a squad slot freed this boundary can be filled
     // at the same one rather than sitting empty for a season.
+    // C15: an AI academy's 19-year-olds leave the game first (utils/youthLoans.ts);
+    // only the player's academy and the unattached youth graduate into the market.
+    releaseAiAcademyGraduatesTx(tx, careerSaveId);
     const promoted = promoteAgedYouth(careerSaveId, PROMOTION_AGE);
+    withdrawGraduatedListingsTx(tx, careerSaveId, promoted.map((p) => p.playerId));
 
     // Unity brief item 15: scout reports on players without a club lapse with
     // the season (after retirements, so a player who retired is not counted).

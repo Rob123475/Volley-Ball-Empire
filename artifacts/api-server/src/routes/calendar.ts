@@ -25,6 +25,7 @@ import {
 } from "../utils/calendarSlots.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
+import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -542,7 +543,11 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     // charged again after every match.
     const academy       = teamPlayers.filter(isYouthPlayer);
     const monthlySalary = teamPlayers.filter((p) => !isYouthPlayer(p)).reduce((s, p) => s + Number(p.salary), 0);
-    const academyWeekly = academy.reduce((s, p) => s + academyWeeklyWage(p.potential), 0);
+    // C15: a youth on loan costs each club half her wage, on its own ledger line
+    // (utils/youthLoans.ts); one on loan here is left out of the academy's line.
+    const loanWeek      = withCareerStateTx((w) => teamLoanWeekTx(w.tx, careerSaveId, team.id));
+    const loanWages     = loanWeek.lines.reduce((s, l) => s + l.amount, 0);
+    const academyWeekly = academy.filter((p) => !loanWeek.loanedIn.has(p.id)).reduce((s, p) => s + academyWeeklyWage(p.potential), 0);
     const weeklySalary  = Math.round(monthlySalary / WEEKS_PER_MONTH) + academyWeekly;
 
     // L-04: what it costs to be a club this week — the ground, everyone on the
@@ -581,7 +586,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     // P-09: a promotions manager adds up to 18% while employed.
     const promoBonus    = promotionsMultiplier(teamStaff);
     const sponsorIncome = Math.round(sponsorWeeklyIncome(sponsorRep) * promoBonus);
-    const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages;
+    const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages - loanWages;
 
     await db.update(teamsTable)
       .set({ budget: sql`budget + ${net}` })
@@ -622,6 +627,14 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
         category:    "running_costs",
         date:        nextDate,
       },
+      ...loanWeek.lines.map((l) => ({
+        teamId:      team.id,
+        type:        "expense",
+        amount:      l.amount,
+        description: l.description,
+        category:    "salaries",
+        date:        nextDate,
+      })),
     ]);
 
     // Rob, 23 Sep: every club in this world keeps books, not just this one. The
@@ -634,6 +647,14 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
       chargePoolClubsWeekTx(tx, careerSaveId, season.year);
       renewExpiredPoolContractsTx(tx, careerSaveId, nextDate, seasonEndsForCareerTx(tx, careerSaveId));
     });
+    withCareerStateTx((w) => recordTeamLoanWeekTx(w.tx, careerSaveId, team.id));
+    // C15: the AI clubs' academies — filled, developed, billed; their reserves
+    // listed for loan, and a youth borrowed where a club's youth team needs one.
+    const aiWeek = withCareerStateTx((w) => aiAcademiesWeekTx(w, careerSaveId, nextDate));
+    for (const b of aiWeek.borrowed) {
+      const mine = withCareerStateTx((w) => loansTx(w.tx, careerSaveId, "active").find((l) => l.id === b.loanId && l.ownerTeamId === team.id));
+      if (mine) events.push(`A youth of yours goes on loan for ${mine.months} months (until ${mine.endsOn}): see Team > Youth Loans`);
+    }
 
     await db.update(calendarStateTable)
       .set({ lastSalaryDate: nextDate })
@@ -652,6 +673,16 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
         (teamStaff.length > 0 ? `, $${weeklyStaffWages.toLocaleString()} staff wages` : "") +
         `, $${sponsorIncome.toLocaleString()} sponsor income`
     );
+  }
+
+  // C15: loans whose end date has come: she goes back to her club.
+  const back = withCareerStateTx((w) => {
+    const mine = loansTx(w.tx, careerSaveId, "active").filter((l) => l.ownerTeamId === team.id || l.borrowerTeamId === team.id);
+    const due = new Set(returnDueLoansTx(w, careerSaveId, nextDate).map((d) => d.loanId));
+    return mine.filter((l) => due.has(l.id));
+  });
+  for (const l of back) {
+    events.push(l.ownerTeamId === team.id ? "A youth of yours is back from her loan" : "A youth on loan to you has gone back to her club");
   }
 
   // 5. Expire contracts globally — any contracted player whose contractEndDate < nextDate

@@ -105,6 +105,8 @@ const CLEAR_TABLES = [
   "olympic_tournaments",
   // R-62: a career's academy intakes.
   "youth_intakes",
+  // Overnight 30 Sep, C15: a career's youth loans.
+  "youth_loans",
   "promo_deals",
   "regional_league_fixtures",
   "regional_league_results",

@@ -327,7 +327,13 @@ try {
     ...read(`SELECT id, name, nationality FROM players WHERE origin_career_save_id IS NULL`),
     ...read(`SELECT NULL AS id, name, nationality FROM continental_pool_players`),
   ];
-  const everyName = [...read(`SELECT id, name FROM players`), ...read(`SELECT NULL AS id, name FROM continental_pool_players`)];
+  // Overnight 30 Sep, C15: a youth who has left the game (an AI academy's
+  // graduate at 19: made by a career that no longer has her) gives her name
+  // back, so only athletes still in the game count here.
+  const everyName = [...read(`SELECT p.id, p.name FROM players p
+      WHERE NOT (p.player_type = 'youth' AND p.origin_career_save_id IN (SELECT id FROM career_saves)
+        AND NOT EXISTS (SELECT 1 FROM career_player_state s WHERE s.player_id = p.id AND s.career_save_id = p.origin_career_save_id))`),
+    ...read(`SELECT NULL AS id, name FROM continental_pool_players`)];
   const clash = players.filter((p) => everyName.some((a) => a.name === p.name && a.id !== p.id));
   check("every name is new: no other athlete, shipped, pool or created, has it", clash.length === 0,
     clash.map((p) => p.name).join(", ") || players.map((p) => `${p.name} (${p.nationality})`).join(", "));
@@ -346,9 +352,14 @@ try {
     const r = rows[i];
     const item = x.news.find((n) => n.id === `academy-${r?.season_year}`);
     const names = players.filter((p) => r?.ids.includes(p.id)).map((p) => p.name);
+    // Item 14: with a cap of 6, a boundary can find the academy full: that intake
+    // has no one, and the news says the academy is full.
+    const full = r?.ids.length === 0;
     const ok = !!item && !!r && item.type === "academy" && item.date === r.intake_on
-      && new RegExp(`^${r.ids.length} youth (players join|player joins) the .+ academy$`).test(item.headline)
-      && names.length === r.ids.length && names.every((n) => item.detail.includes(n));
+      && (full
+        ? new RegExp(`^The .+ academy is full [(]${ACADEMY_CAP}/${ACADEMY_CAP}[)]: no intake this year$`).test(item.headline)
+        : new RegExp(`^${r.ids.length} youth (players join|player joins) the .+ academy$`).test(item.headline)
+          && names.length === r.ids.length && names.every((n) => item.detail.includes(n)));
     return { year: r?.season_year, ok, item };
   });
   check("Club News reports each intake, with every name in it, on its date",

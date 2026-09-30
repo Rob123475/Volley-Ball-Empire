@@ -406,6 +406,18 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
    */
   isPromoted:       integer("is_promoted", { mode: "boolean" }).notNull().default(false),
   outfitId:         integer("outfit_id"),
+  /**
+   * Overnight brief 30 Sep, C15: the AI club whose academy holds her, for a
+   * youth player at an AI club (team_id is the player's clubs only). Null for
+   * everyone else: a youth with neither is a free agent.
+   */
+  poolTeamId:       integer("pool_team_id"),
+  /**
+   * C15: an academy player's court time. "youth_team" (the academy's 3 who
+   * play, full development) or "reserve" (no court time, reduced development).
+   * Null outside an academy.
+   */
+  academyRole:      text("academy_role"),
 
   updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
@@ -871,6 +883,39 @@ export const youthIntakesTable = sqliteTable("youth_intakes", {
 ]);
 
 export type YouthIntake = typeof youthIntakesTable.$inferSelect;
+
+/**
+ * Overnight brief 30 Sep, C15: the youth loan market. One row per listing; it
+ * becomes the loan when a club borrows her. A club is either one of the
+ * player's clubs (team) or an AI club (pool team), on each side.
+ *   listed    the owner offers her; no borrower yet
+ *   active    on loan: she plays for the borrower until ends_on
+ *   returned  back with the owner on ends_on (there is no early recall)
+ *   withdrawn the owner took the listing down before anyone borrowed her
+ */
+export const youthLoansTable = sqliteTable("youth_loans", {
+  id:                  integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:        integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:            integer("player_id").notNull(),
+  ownerTeamId:         integer("owner_team_id"),
+  ownerPoolTeamId:     integer("owner_pool_team_id"),
+  borrowerTeamId:      integer("borrower_team_id"),
+  borrowerPoolTeamId:  integer("borrower_pool_team_id"),
+  status:              text("status").notNull().default("listed"),
+  listedOn:            text("listed_on").notNull(),
+  startsOn:            text("starts_on"),
+  endsOn:              text("ends_on"),
+  months:              integer("months"),
+  // Her academy wage for a week, when the loan began; each club pays half.
+  weeklyWage:          integer("weekly_wage"),
+  // What each club has paid of her wage so far, week by week (its own ledger
+  // line for the player's club, its balance for an AI club).
+  ownerPaid:           integer("owner_paid").notNull().default(0),
+  borrowerPaid:        integer("borrower_paid").notNull().default(0),
+  createdAt:           integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});
+
+export type YouthLoan = typeof youthLoansTable.$inferSelect;
 
 export const facilitiesTable = sqliteTable("facilities", {
   id: integer("id").primaryKey({ autoIncrement: true }),
