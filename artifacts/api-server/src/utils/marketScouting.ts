@@ -86,10 +86,21 @@ export function staffScoutState(m: { isScoutRevealed: boolean; scoutStartedOn: s
   return scoutState({ scoutStartedOn: m.scoutStartedOn, scoutedPotential: null }, today);
 }
 
-/** Item 4: a market card's scouting, and whether the report is in (on its 5th game day). */
+/**
+ * Item 4: a market card's scouting, and whether the report is in (on its 5th
+ * game day). Item 7: until it is, the card carries no rating, stars or quality
+ * of any kind: rating, scouting rating, skill level and attributes are not
+ * sent (the page used to draw "Quality ★★★★★ Elite" from the true rating).
+ */
 export function withStaffScouting<T extends { isScoutRevealed: boolean; scoutStartedOn: string | null }>(m: T, today: string) {
   const scouting = staffScoutState(m, today);
-  return { ...m, isScoutRevealed: scouting.state === "done", scouting };
+  const revealed = scouting.state === "done";
+  return {
+    ...m,
+    ...(revealed ? {} : { overallRating: null, scoutingRating: null, skillLevel: null, attributes: {} }),
+    isScoutRevealed: revealed,
+    scouting,
+  };
 }
 
 /** Attributes, rating and exact price are shown: her own club's player, or scouted. */

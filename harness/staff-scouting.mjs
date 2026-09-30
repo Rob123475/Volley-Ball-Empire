@@ -14,6 +14,11 @@
  * takes 5 game days like a player's, and every scout costs $1,500, charged when
  * sent, on the ledger. It was instant and $1,000.
  *
+ * Item 7: nobody unscouted and unhired carries a star or quality rating: the
+ * market lists send no rating, scouting rating, skill level or attributes
+ * until the report is in, and the Staff Market card shows "?" (it drew
+ * "Quality ★★★★★ Elite" from the true rating).
+ *
  * Asserted on a starter-DB copy: scout 3 people of one medical role, read the
  * market again (leaving the page) and after restarting the server on the same
  * save (a relaunch): all 3 still revealed, no second charge for a second scout;
@@ -104,6 +109,17 @@ try {
   const three = people.slice(0, 3);
   check("three unscouted people of one medical role on the market", three.length === 3 && three.every((m) => !m.isScoutRevealed), `${role}: ${three.map((m) => m.name).join(", ")}`);
 
+  // Item 7: no rating of any kind on an unscouted, unhired card, in either market.
+  const staffM0 = (await api("GET", "/staff/market")).data ?? [];
+  const bare = (m) => m.overallRating == null && m.scoutingRating == null && m.skillLevel == null && Object.keys(m.attributes ?? {}).length === 0;
+  const leaks = [...m0, ...staffM0].filter((m) => !m.isScoutRevealed && !bare(m));
+  check("no unscouted card carries a rating, scouting rating, skill level or attributes (both markets)",
+    m0.length > 10 && staffM0.length > 10 && leaks.length === 0,
+    `${m0.length} medical + ${staffM0.length} staff cards; carrying a rating: ${leaks.slice(0, 3).map((m) => `${m.name} ${m.overallRating}`).join(", ") || "none"}`);
+  const smSrc = fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/staff-market.tsx"), "utf8");
+  check("the Staff Market card shows \"?\" for an unscouted rating, and no \"Quality\" stars",
+    /if \(!revealed \|\| rating == null\)/.test(smSrc) && /data-testid="ovr-unknown"/.test(smSrc) && !/>Quality</.test(smSrc));
+
   const b0 = await budget();
   const sent = [];
   for (const m of three) sent.push(await api("POST", `/staff/${m.id}/scout`));
@@ -139,7 +155,9 @@ try {
   check("4 game days on: still hidden, report in 1 day", today() === dayAfter(sentOn, 4) && three.every((t) => { const m = day4.find((x) => x.id === t.id); return m && !m.isScoutRevealed && m.scouting?.daysLeft === 1; }),
     `${today()}: ${three.map((t) => JSON.stringify(day4.find((x) => x.id === t.id)?.scouting)).join(" ")}`);
   await advanceTo(dayAfter(sentOn, 5));
-  check("5 game days on: all 3 reports are in", today() === dayAfter(sentOn, 5) && revealed(await medMarket()), today());
+  const day5 = await medMarket();
+  check("5 game days on: all 3 reports are in, with their rating and attributes",
+    today() === dayAfter(sentOn, 5) && revealed(day5) && three.every((t) => { const m = day5.find((x) => x.id === t.id); return m?.overallRating > 0 && Object.keys(m.attributes ?? {}).length > 0; }), today());
   check("leaving the page and coming back: all 3 still revealed", revealed(await medMarket()));
 
   // A relaunch: the server stops and starts again on the same save.

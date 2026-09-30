@@ -520,6 +520,11 @@ function MedicalStaffManagement() {
 
 /* ── Main Page ─────────────────────────────────────────────── */
 
+/** A hired person's skill. Only a market card before its scout's report carries no rating (item 7); your own staff always do. */
+function staffSkill(s: { skillLevel: number | null; overallRating: number | null }): number {
+  return s.skillLevel ?? s.overallRating ?? 0;
+}
+
 export default function MedicalCentre() {
   const { data: roster, isLoading } = useGetTeamRoster({
     query: { queryKey: getGetTeamRosterQueryKey() },
@@ -700,7 +705,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Recovery Speed"
                     staff={doctor}
-                    bonus={`+${recoveryBonusPct(doctor.skillLevel ?? doctor.overallRating)}%`}
+                    bonus={`+${recoveryBonusPct(staffSkill(doctor))}%`}
                     color="text-red-600"
                   />
                 )}
@@ -708,7 +713,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Injury Prevention"
                     staff={specialist}
-                    bonus={`−${Math.round((specialist.skillLevel ?? specialist.overallRating) / 30)}%`}
+                    bonus={`−${Math.round((staffSkill(specialist)) / 30)}%`}
                     color="text-blue-600"
                   />
                 )}
@@ -716,7 +721,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Fatigue Recovery"
                     staff={physio}
-                    bonus={`+${recoveryBonusPct(physio.skillLevel ?? physio.overallRating)}%`}
+                    bonus={`+${recoveryBonusPct(staffSkill(physio))}%`}
                     color="text-teal-600"
                   />
                 )}
@@ -724,7 +729,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Stamina Growth"
                     staff={nutritionist}
-                    bonus={`+${Math.round((nutritionist.skillLevel ?? nutritionist.overallRating) / 20)}%`}
+                    bonus={`+${Math.round((staffSkill(nutritionist)) / 20)}%`}
                     color="text-green-600"
                   />
                 )}
@@ -732,7 +737,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Training Effectiveness"
                     staff={sportsScientist}
-                    bonus={`+${Math.round((sportsScientist.skillLevel ?? sportsScientist.overallRating) / 10)}%`}
+                    bonus={`+${Math.round((staffSkill(sportsScientist)) / 10)}%`}
                     color="text-indigo-600"
                   />
                 )}
@@ -740,7 +745,7 @@ function MedicalReportPanel({ injuredPlayers, allPlayers }: { injuredPlayers: an
                   <ContributionRow
                     label="Muscle & Fatigue Care"
                     staff={massageTherapist}
-                    bonus={`+${Math.round((massageTherapist.skillLevel ?? massageTherapist.overallRating) / 12)}%`}
+                    bonus={`+${Math.round((staffSkill(massageTherapist)) / 12)}%`}
                     color="text-pink-600"
                   />
                 )}

@@ -194,12 +194,17 @@ try {
   const hired = {};
   for (const roleName of HIRE) {
     const key = roles.normaliseRole(roleName);
+    // An unscouted candidate's skill is hidden on the market (item 7): the test
+    // picks the strongest by the database's own skill, and takes the skill it
+    // expects the bonus from off the staff list once she is hired.
     const market = (await api("GET", `/staff/market?role=${key}`)).data ?? [];
-    const pick = market.filter((m) => m.role === roleName).sort((a, b) => b.skillLevel - a.skillLevel)[0];
+    const skillOf = (() => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return new Map(d.prepare("SELECT id, skill_level FROM staff").all().map((r) => [r.id, r.skill_level])); } finally { d.close(); } })();
+    const pick = market.filter((m) => m.role === roleName).sort((a, b) => (skillOf.get(b.id) ?? 0) - (skillOf.get(a.id) ?? 0))[0];
     const h = pick ? await api("POST", "/staff", { staffId: pick.id, length: "6m" }) : { status: 0 };
-    hired[key] = pick;
+    hired[key] = ((await api("GET", "/staff")).data ?? []).find((s) => s.id === pick?.id);
     check(`hired a ${roleName} stored as "${pick?.role}" (the market's ${key} filter found it)`,
-      h.status === 201 && pick?.role === roleName, `${pick?.name ?? "none"}, skill ${pick?.skillLevel}, HTTP ${h.status}`);
+      h.status === 201 && pick?.role === roleName && typeof hired[key]?.skillLevel === "number",
+      `${pick?.name ?? "none"}, skill ${hired[key]?.skillLevel}, HTTP ${h.status}`);
   }
 
   const withStaff = await powerCamp();

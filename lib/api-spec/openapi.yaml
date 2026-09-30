@@ -2770,12 +2770,13 @@ components:
         salary:
           type: number
         skillLevel:
-          type: integer
+          type: ["integer", "null"]
+          description: "Null on a market card until the scout's report is in (overnight 30 Sep, item 7)."
         age:
           type: integer
         overallRating:
-          type: integer
-          description: "Staff quality rating 50–99."
+          type: ["integer", "null"]
+          description: "Staff quality rating 50–99. Null on a market card until the scout's report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted."
         contractLength:
           type: integer
           description: "Contract duration in months."
@@ -2804,8 +2805,8 @@ components:
         scouting:
           $ref: "#/components/schemas/ScoutingState"
         scoutingRating:
-          type: integer
-          description: "Scouting effectiveness rating 1–100."
+          type: ["integer", "null"]
+          description: "Scouting effectiveness rating 1–100. Null on a market card until scouted (item 7)."
         teamId:
           type: ["integer", "null"]
         nationality:

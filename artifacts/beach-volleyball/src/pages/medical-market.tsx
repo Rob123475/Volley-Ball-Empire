@@ -92,8 +92,9 @@ function starTier(rating: number): { stars: number; color: string; label: string
   return               { stars: 2, color: "text-slate-300",   label: "Promising" };
 }
 
-function StarDisplay({ rating, revealed }: { rating: number; revealed: boolean }) {
-  if (!revealed) {
+function StarDisplay({ rating, revealed }: { rating: number | null; revealed: boolean }) {
+  // Overnight 30 Sep, item 7: no stars until the scout's report is in (the server sends no rating before).
+  if (!revealed || rating == null) {
     return (
       <div className="absolute bottom-3 right-3 flex flex-col items-center justify-center rounded-md w-12 h-12 bg-black/60 border border-white/20 leading-none gap-1 shadow-lg">
         <Lock className="h-4 w-4 text-white/40" />

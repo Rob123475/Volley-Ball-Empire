@@ -122,9 +122,10 @@ try {
     && /staff slots filled/.test(staffPage) && /staff slots filled/.test(marketPage));
   check("medical pages read the one medical constant", ["medical.tsx", "medical-market.tsx"].every((f) => !/const MAX_MEDICAL_STAFF = \d/.test(src(`artifacts/beach-volleyball/src/pages/${f}`))));
   check("the Scouting line is only on a Scout's card", /member\.scoutingRating != null && normaliseRole\(member\.role\) === "scout"/.test(marketPage));
-  const nonScouts = market.filter((m) => !/scout/i.test(m.role));
-  check("(the data behind it: non-scouts carry a scouting rating, which is why every card showed one)", nonScouts.some((m) => m.scoutingRating != null),
-    `${nonScouts.filter((m) => m.scoutingRating != null).length} of ${nonScouts.length} non-scouts have one`);
+  // Overnight 30 Sep, item 7: an unscouted card carries no scouting rating at all now.
+  const unscouted = market.filter((m) => !m.isScoutRevealed);
+  check("(and an unscouted card carries no scouting rating to show: item 7)", unscouted.length > 0 && unscouted.every((m) => m.scoutingRating == null),
+    `${unscouted.filter((m) => m.scoutingRating != null).length} of ${unscouted.length} unscouted cards carry one`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

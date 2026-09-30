@@ -755,10 +755,17 @@ export interface StaffMember {
   role: StaffMemberRole;
   specialty: string;
   salary: number;
-  skillLevel: number;
+  /**
+     * Null on a market card until the scout's report is in (overnight 30 Sep, item 7).
+     * @nullable
+     */
+  skillLevel: number | null;
   age: number;
-  /** Staff quality rating 50–99. */
-  overallRating: number;
+  /**
+     * Staff quality rating 50–99. Null on a market card until the scout's report is in or she is hired (item 7): no rating, stars or quality label for anyone unscouted.
+     * @nullable
+     */
+  overallRating: number | null;
   /** Contract duration in months. */
   contractLength: number;
   /** Determines which stats get a training bonus. */
@@ -777,8 +784,11 @@ export interface StaffMember {
      */
   scoutStartedOn?: string | null;
   scouting?: ScoutingState;
-  /** Scouting effectiveness rating 1–100. */
-  scoutingRating: number;
+  /**
+     * Scouting effectiveness rating 1–100. Null on a market card until scouted (item 7).
+     * @nullable
+     */
+  scoutingRating: number | null;
   /** @nullable */
   teamId: number | null;
   /** @nullable */
