@@ -87,6 +87,15 @@ const ROLE_ICONS: Record<string, IconFC> = {
 const ROLE_FILTERS = ["all", "doctor", "medical_specialist", "physiotherapist", "nutritionist", "sports_scientist", "massage_therapist"] as const;
 
 /**
+ * Overnight 30 Sep, item 10: the cards run in the order of the role buttons
+ * above them (then by name), not in the order the server happened to list them.
+ */
+function inButtonOrder<T extends { role: string; name: string }>(list: readonly T[]): T[] {
+  const at = (m: T) => { const i = (ROLE_FILTERS as readonly string[]).indexOf(normaliseRole(m.role) ?? ""); return i < 0 ? ROLE_FILTERS.length : i; };
+  return [...list].sort((a, b) => at(a) - at(b) || a.name.localeCompare(b.name));
+}
+
+/**
  * Overnight 30 Sep, item 8: a candidate's monthly wage. Until the scout's
  * report is in the server sends a range (same rule as player prices); exact
  * once scouted or hired.
@@ -422,7 +431,7 @@ export default function MedicalMarket() {
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {marketStaff.map((member: any) => (
+          {inButtonOrder(marketStaff).map((member: any) => (
             <MedicalMarketCard
               key={member.id}
               member={member}

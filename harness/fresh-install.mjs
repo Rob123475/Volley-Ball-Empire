@@ -212,18 +212,21 @@ check("no orphaned league rows", withState.orphanSeasons === 0,
 const market = await api("GET", "/staff/market");
 const staffMarket = Array.isArray(market.data) ? market.data : [];
 check("staff market is populated", staffMarket.length > 0, `${staffMarket.length} available`);
-check("every staff member has a wage",
-  staffMarket.length > 0 && staffMarket.every((s) => Number(s.salary) > 0),
-  `${staffMarket.filter((s) => Number(s.salary) > 0).length}/${staffMarket.length} priced`);
+// Overnight 30 Sep item 8: an unscouted, unhired card carries a wage range, not
+// the wage, and the range is worked out from the wage: a range above $0 is a wage.
+const priced = (s) => Number(s.salary) > 0 || Number(s.salaryRange?.low) > 0;
+check("every staff member has a wage (exact, or the range it sits in)",
+  staffMarket.length > 0 && staffMarket.every(priced),
+  `${staffMarket.filter(priced).length}/${staffMarket.length} priced`);
 // The general market deliberately excludes Massage Therapists (moved to the
 // Medical Market), which is why this is 110 and not 120. Assert the whole
 // population is priced so the count is explained rather than merely observed.
 const medMarket = await api("GET", "/medical-staff/market");
 const medical = Array.isArray(medMarket.data) ? medMarket.data : [];
 check("medical market is populated", medical.length > 0, `${medical.length} available`);
-check("every medical staff member has a wage",
-  medical.length > 0 && medical.every((s) => Number(s.salary) > 0),
-  `${medical.filter((s) => Number(s.salary) > 0).length}/${medical.length} priced`);
+check("every medical staff member has a wage (exact, or the range it sits in)",
+  medical.length > 0 && medical.every(priced),
+  `${medical.filter(priced).length}/${medical.length} priced`);
 check("general + medical markets cover all 120 staff",
   staffMarket.length + medical.length >= 120,
   `${staffMarket.length} general + ${medical.length} medical`);
