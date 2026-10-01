@@ -1,0 +1,169 @@
+{
+  "songs": 18,
+  "handovers": [
+    {
+      "song": "beach-volleyball-empire.mp3",
+      "seconds": 143.68,
+      "ended": true,
+      "next": "sun-rum-ganja.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.18,
+      "clean": true
+    },
+    {
+      "song": "sun-rum-ganja.mp3",
+      "seconds": 137.12,
+      "ended": true,
+      "next": "pineapple-morning.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.18,
+      "clean": true
+    },
+    {
+      "song": "pineapple-morning.mp3",
+      "seconds": 186.4,
+      "ended": true,
+      "next": "we-own-the-summer-sky.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.13,
+      "clean": true
+    },
+    {
+      "song": "we-own-the-summer-sky.mp3",
+      "seconds": 202.03,
+      "ended": true,
+      "next": "balls-out.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.18,
+      "clean": true
+    },
+    {
+      "song": "balls-out.mp3",
+      "seconds": 126.52,
+      "ended": true,
+      "next": "bobby-farquhar.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.26,
+      "clean": true
+    },
+    {
+      "song": "bobby-farquhar.mp3",
+      "seconds": 220.52,
+      "ended": true,
+      "next": "under-the-lights.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.23,
+      "clean": true
+    },
+    {
+      "song": "under-the-lights.mp3",
+      "seconds": 141.4,
+      "ended": true,
+      "next": "golden-coast-break.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.23,
+      "clean": true
+    },
+    {
+      "song": "golden-coast-break.mp3",
+      "seconds": 92.8,
+      "ended": true,
+      "next": "built-for-this.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.12,
+      "clean": true
+    },
+    {
+      "song": "built-for-this.mp3",
+      "seconds": 144.76,
+      "ended": true,
+      "next": "no-name-beach.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.14,
+      "clean": true
+    },
+    {
+      "song": "no-name-beach.mp3",
+      "seconds": 177.56,
+      "ended": true,
+      "next": "championship-heat.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.23,
+      "clean": true
+    },
+    {
+      "song": "championship-heat.mp3",
+      "seconds": 119.6,
+      "ended": true,
+      "next": "champions.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.19,
+      "clean": true
+    },
+    {
+      "song": "champions.mp3",
+      "seconds": 65.96,
+      "ended": true,
+      "next": "burn-under-the-sun.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.13,
+      "clean": true
+    },
+    {
+      "song": "burn-under-the-sun.mp3",
+      "seconds": 149.96,
+      "ended": true,
+      "next": "rum-under-the-palms.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.22,
+      "clean": true
+    },
+    {
+      "song": "rum-under-the-palms.mp3",
+      "seconds": 119.56,
+      "ended": true,
+      "next": "second-place-sucks.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.2,
+      "clean": true
+    },
+    {
+      "song": "second-place-sucks.mp3",
+      "seconds": 141.88,
+      "ended": true,
+      "next": "barefoot-tonight.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.25,
+      "clean": true
+    },
+    {
+      "song": "barefoot-tonight.mp3",
+      "seconds": 138.36,
+      "ended": true,
+      "next": "give-me-one-more-summer.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.19,
+      "clean": true
+    },
+    {
+      "song": "give-me-one-more-summer.mp3",
+      "seconds": 180,
+      "ended": true,
+      "next": "queen-of-the-sand.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.18,
+      "clean": true
+    },
+    {
+      "song": "queen-of-the-sand.mp3",
+      "seconds": 149.56,
+      "ended": true,
+      "next": "champions.mp3",
+      "nextPlaying": true,
+      "nextAt": 0.14,
+      "clean": true
+    }
+  ],
+  "errors": [],
+  "allEnded": 18
+}
