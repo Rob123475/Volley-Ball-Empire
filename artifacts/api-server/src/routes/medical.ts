@@ -2,7 +2,8 @@ import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, careerPlayerStateTable } from "@workspace/db";
 import { teamsTable, playersTable, seasonInjuryStatsTable, injuryHistoryTable, matchesTable, trainingSessionsTable } from "@workspace/db";
-import { eq, and, desc, gte } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
+import { getGameDate } from "../utils/gameDate.js";
 import { loadPlayers, requireCareerSaveId } from "../lib/playerDto.js";
 import { isInjured } from "../utils/condition.js";
 
@@ -36,32 +37,44 @@ router.get("/medical/injury-history", async (req, res) => {
   })));
 });
 
+/** The first of the last WORKLOAD_DAYS game days, today being the last. */
+export const WORKLOAD_DAYS = 14;
+export function workloadWindowStart(today: string): string {
+  const d = new Date(`${today.slice(0, 10)}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - (WORKLOAD_DAYS - 1));
+  return d.toISOString().slice(0, 10);
+}
+
 router.get("/medical/workload", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const team = await getActiveTeam(req);
   if (!team) { res.status(404).json({ error: "No team" }); return; }
 
-  const fourteenDaysAgo = new Date();
-  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+  // Overnight 1 Oct, N-36: the last 14 GAME days, today included. It compared
+  // each row's createdAt (the PC's clock) with the PC's today, and every fixture
+  // of a season is created at the same moment, so it counted the whole season.
+  const today = await getGameDate(team.id);
+  const from = workloadWindowStart(today);
+  const inWindow = (d: string | null | undefined) => !!d && d.slice(0, 10) >= from && d.slice(0, 10) <= today;
 
-  const [players, recentMatches, recentTraining] = await Promise.all([
+  const [players, completedMatches, completedTraining] = await Promise.all([
     loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }),
-    db.select({ lineup: matchesTable.lineup })
+    db.select({ lineup: matchesTable.lineup, playedOn: matchesTable.scheduledAt })
       .from(matchesTable)
       .where(and(
         eq(matchesTable.homeTeamId, team.id),
         eq(matchesTable.status, "completed"),
-        gte(matchesTable.createdAt, fourteenDaysAgo),
       )),
-    db.select({ playerId: trainingSessionsTable.playerId })
+    db.select({ playerId: trainingSessionsTable.playerId, finishesOn: trainingSessionsTable.finishesOn, scheduledAt: trainingSessionsTable.scheduledAt })
       .from(trainingSessionsTable)
       .where(and(
         eq(trainingSessionsTable.teamId, team.id),
         eq(trainingSessionsTable.status, "completed"),
-        gte(trainingSessionsTable.createdAt, fourteenDaysAgo),
       )),
   ]);
+  const recentMatches = completedMatches.filter((m) => inWindow(m.playedOn));
+  const recentTraining = completedTraining.filter((t) => inWindow(t.finishesOn ?? t.scheduledAt));
 
   const trainingCount = new Map<number, number>();
   for (const t of recentTraining) {

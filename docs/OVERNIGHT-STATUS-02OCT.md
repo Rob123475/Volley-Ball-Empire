@@ -64,6 +64,7 @@ All 60 AI clubs: **before** 145 sales over 30 seasons, 18 never sold, 5 below $0
 | # | Item | Status | Commit | What changed, and how it is proven |
 |---|---|---|---|---|
 | 14 | N-35 Scout report pop-up | Done | this row's commit | A mission's report was a toast in the bottom-right corner. It is now a box in the middle of the screen: "No one recommended" or "N youths recommended", the scout's report in full, the youths found (name, age, country), and a **Confirm** button that closes it; nothing else moves on until then. Proof: new `scripts/webgl-proof/d-items-proof.mjs scout-report` (production server, headless Chrome, a starter-save career): a blank and a mission with finds, each box centred in the view at (640, 360) of 1280×720, no corner toast, Confirm closes it: `docs/proof-02oct/n35-scout-report-found.png`, `n35-scout-report-blank.png`. |
+| 15 | N-36 Workload Monitoring | Done | this row's commit | **Cause:** "last 14 days" compared each match's and session's `createdAt` (the PC's clock) with the PC's today; every fixture of a season is created at the same moment, so it counted every completed match of the season. **Now** the last 14 **game** days, today included: a match by its scheduled date, a session by its finish date. Proof: new `harness/workload-window.mjs` 3/3 on a copy of Rob's 1 Oct save (17 Mar 2026; window 4–17 Mar): Charlotte Wade 3 (season 7), Camila Santiago 3 (season 4), **Nyasha Ncube 0 (season 3): Fresh**, every count equal to a direct count of the copy. |
 
 ## Questions for Rob
 
