@@ -126,6 +126,12 @@ try {
   check("the profile shows that level (stars = level) and the earnings; the old 0-100 reputation is gone from every page",
     /const stars = summary\?\.managerLevel/.test(profile) && /summary\?\.careerEarnings/.test(profile) && !/Experienced/.test(profile)
     && ["pages/profile.tsx", "components/career/RetireModal.tsx", "pages/dashboard.tsx"].every((f) => !/managerReputation/.test(src(`artifacts/beach-volleyball/src/${f}`))));
+  // Overnight 1 Oct, N-40: Career Earnings to the dollar ("$1,249"), not "$1k"; the salary a month, likewise.
+  check("Career Earnings and the salary are shown to the dollar, not rounded to thousands",
+    /value=\{`\$\$\{Math\.round\(careerEarnings\)\.toLocaleString\("en-US"\)\}`\}/.test(profile)
+    && /`\$\$\{Math\.round\(summary\?\.managerSalary \?\? 0\)\.toLocaleString\("en-US"\)\} \/ month`/.test(profile)
+    && !/fmtMoney\(careerEarnings\)/.test(profile),
+    `today ${"$" + Number(sum?.careerEarnings ?? 0).toLocaleString("en-US")} earned, ${"$" + Number(sum?.managerSalary ?? 0).toLocaleString("en-US")} a month`);
   check("the dashboard and the Trophy Cabinet read the one table of levels",
     /managerLevelFor\(pts\)/.test(src("artifacts/beach-volleyball/src/pages/dashboard.tsx")) && /\.\.\.MANAGER_LEVELS\[0\]/.test(src("artifacts/beach-volleyball/src/pages/trophy-cabinet.tsx")));
 } catch (err) {

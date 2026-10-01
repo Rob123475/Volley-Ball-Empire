@@ -33,14 +33,6 @@ function calcWinPct(wins: number, total: number): string {
   return `${Math.round((wins / total) * 100)}%`;
 }
 
-function fmtMoney(val: string | number): string {
-  const n = Number(val);
-  if (isNaN(n) || n === 0) return "$0";
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${Math.round(n / 1_000).toLocaleString()}k`;
-  return `$${n.toLocaleString()}`;
-}
-
 // ── RepStars ──────────────────────────────────────────────────────────────────
 
 function RepStars({ stars }: { stars: number }) {
@@ -208,6 +200,7 @@ export default function ManagerProfile() {
   const seasonsManaged = records?.seasonsManaged ?? 0;
   // Overnight 30 Sep item 2: the salary EARNED to date (it showed the club's
   // prize money), and the one standing measure: level and name, stars = level.
+  // Overnight 1 Oct, N-40: shown to the dollar ("$1,249"), not rounded to "$1k".
   const careerEarnings = summary?.careerEarnings ?? 0;
   const stars = summary?.managerLevel ?? 1;
   const levelName = summary?.managerLevelName ?? "Local Coach";
@@ -358,7 +351,7 @@ export default function ManagerProfile() {
         <HighlightRow
           icon={DollarSign}
           label="Career Earnings"
-          value={fmtMoney(careerEarnings)}
+          value={`$${Math.round(careerEarnings).toLocaleString("en-US")}`}
           iconColour="text-emerald-400"
         />
         <HighlightRow
