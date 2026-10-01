@@ -30,6 +30,12 @@ export const SCOUT_DAYS = 5;
  * (utils/scoutingCharge.ts), and every report takes SCOUT_DAYS game days.
  */
 export const SCOUT_COST = 1_500;
+/**
+ * Overnight brief 1 Oct, N-34 (Rob, 1 Oct): scouting a YOUTH costs $500 (it was
+ * the $1,500 of everyone else), still SCOUT_DAYS game days. Senior players,
+ * staff and medical stay at SCOUT_COST.
+ */
+export const YOUTH_SCOUT_COST = 500;
 const RANGE_LOW = 0.85, RANGE_HIGH = 1.15, RANGE_STEP = 500;
 
 /** A fixed number in [0, 1) for this player in this career (FNV-1a over the ids). */

@@ -202,6 +202,15 @@ function NameStrip({ name }: { name: string }) {
 
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
+/**
+ * What sending the scout costs: $1,500 for a senior, $500 for a youth (overnight
+ * 1 Oct, N-34; the server's SCOUT_COST and YOUTH_SCOUT_COST, utils/marketScouting.ts).
+ */
+const SCOUT_COST = 1_500, YOUTH_SCOUT_COST = 500;
+function scoutCostText(player: any): string {
+  return money(player.playerType === "youth" && !player.isPromoted ? YOUTH_SCOUT_COST : SCOUT_COST);
+}
+
 /** Item 15: the price line a card and its confirm step show. */
 function priceText(player: any): string | null {
   if (!player.priceRange) return null;
@@ -370,7 +379,7 @@ function MarketPlayerCard({
             {scouting === "in_progress"
               ? `Scouting: report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
               : !hasScout ? "Hire a Scout to scout players"
-              : isScoutingThis ? "Sending the scout…" : "Scout player (5 days, $1,500)"}
+              : isScoutingThis ? "Sending the scout…" : `Scout player (5 days, ${scoutCostText(player)})`}
           </Button>
         )}
         {/* Item 5: whose report it is (the hired Scout who was sent). */}
@@ -479,7 +488,7 @@ function YouthPoolCard({
             data-testid={`button-scout-${player.id}`}>
             <Search className="h-3 w-3" />
             {player.scouting?.state === "in_progress" ? `Report in ${player.scouting.daysLeft} day${player.scouting.daysLeft === 1 ? "" : "s"}`
-              : !hasScout ? "Hire a Scout" : isScoutingThis ? "Scouting…" : "Scout (5 days, $1,500)"}
+              : !hasScout ? "Hire a Scout" : isScoutingThis ? "Scouting…" : `Scout (5 days, ${scoutCostText(player)})`}
           </Button>}
         </div>
         <ContractModal player={player} onSign={(v) => onSign(player.id, v)} isPending={signPending} />

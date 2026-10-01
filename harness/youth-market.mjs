@@ -11,7 +11,7 @@
  *     no exact price, no stats, no potential of any kind sent (her true
  *     potential was never shown, but the senior market sent it: neither does now);
  *   - prices follow talent: the higher her true potential, the higher her range;
- *   - scouting her (a hired Scout, $1,500): nothing on day 4; on day 5 her
+ *   - scouting her (a hired Scout, $500 since overnight 1 Oct N-34): nothing on day 4; on day 5 her
  *     stats, her exact price inside the range and the scout's reading of her
  *     development potential;
  *   - signing: refused without the confirm step (which names the price); with
@@ -104,7 +104,10 @@ try {
   const b0 = await budget();
   const sc = await api("POST", `/players/${Y.id}/scout`);
   const sentOn = await readDay();
-  check("scouting a youth: 5 game days, $1,500", sc.status === 200 && sc.data?.scouting?.daysLeft === 5 && b0 - (await budget()) === 1500, `HTTP ${sc.status} ${sc.data?.error ?? ""}`);
+  // Overnight 1 Oct, N-34: a youth's scout costs $500 (a senior's, staff's and medical's stay $1,500).
+  const scoutCharged = b0 - (await budget());
+  check("scouting a youth: 5 game days, $500, on the ledger", sc.status === 200 && sc.data?.scouting?.daysLeft === 5 && scoutCharged === 500 && sc.data?.cost === 500,
+    `HTTP ${sc.status} ${sc.data?.error ?? ""}; -$${scoutCharged}`);
   const dayAfter = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
   const advanceTo = async (date) => {
     for (let i = 0; i < 40 && (await readDay()) < date; i++) {

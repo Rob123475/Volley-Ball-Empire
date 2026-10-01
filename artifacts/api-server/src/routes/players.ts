@@ -17,7 +17,7 @@ import {
 // rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
 const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
-import { marketView, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST } from "../utils/marketScouting.js";
+import { marketView, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST, YOUTH_SCOUT_COST } from "../utils/marketScouting.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
@@ -621,8 +621,10 @@ router.post("/players/:id/scout", async (req, res) => {
     return;
   }
 
-  // Overnight 30 Sep, item 4: a scout costs SCOUT_COST, charged when sent.
-  const broke = cannotAffordScout(team.budget);
+  // Overnight 30 Sep, item 4: a scout costs SCOUT_COST, charged when sent;
+  // overnight 1 Oct, N-34: a youth costs YOUTH_SCOUT_COST ($500).
+  const cost = isYouthPlayer(player) ? YOUTH_SCOUT_COST : SCOUT_COST;
+  const broke = cannotAffordScout(team.budget, cost);
   if (broke) { res.status(400).json({ error: broke }); return; }
 
   const rating = (s: typeof scouts[number]) => s.scoutingRating ?? s.overallRating;
@@ -631,7 +633,7 @@ router.post("/players/:id/scout", async (req, res) => {
   const { scoutedPotential, confidence } = computeScoutedPotential(player.potential, scoutRating);
   const scoutReportBy = `${bestScout.name} (Scouting ${scoutRating})`;
 
-  const budgetAfter = chargeScout(team, `Scouting: ${player.name}`, today);
+  const budgetAfter = chargeScout(team, `Scouting: ${player.name}`, today, cost);
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), playerId, { scoutedPotential, scoutStartedOn: today, scoutReportBy });
   const scouting = scoutState({ scoutStartedOn: today, scoutedPotential }, today);
 
@@ -639,7 +641,7 @@ router.post("/players/:id/scout", async (req, res) => {
     playerId,
     scouting,
     days:        SCOUT_DAYS,
-    cost:        SCOUT_COST,
+    cost,
     budgetAfter,
     confidence,
     scoutName:   bestScout.name,
