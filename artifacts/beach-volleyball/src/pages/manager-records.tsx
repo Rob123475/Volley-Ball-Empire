@@ -45,7 +45,8 @@ export default function ManagerRecords() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-primary">Manager Records</h2>
         <p className="text-muted-foreground text-sm">
-          {r.managerName ?? "Your"} record as a manager{r.clubs.length > 0 ? `, at ${r.clubs.join(" and ")}` : ""}. The club's own honours are in Club &gt; Trophy Cabinet.
+          {/* N-39: "Rob Bonner's record", not "Rob Bonner record". */}
+          {r.managerName ? `${r.managerName}'s` : "Your"} record as a manager{r.clubs.length > 0 ? `, at ${r.clubs.join(" and ")}` : ""}. The club's own honours are in Club &gt; Trophy Cabinet.
         </p>
       </div>
       <div className="grid gap-5 md:grid-cols-2">

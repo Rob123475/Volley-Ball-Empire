@@ -111,6 +111,10 @@ try {
   const hub = fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/career-hub.tsx"), "utf8");
   check("Career > Records renders Manager Records, not the Trophy Cabinet",
     /tab === "records"\s+&& <ManagerRecords \/>/.test(hub) && !/TrophyCabinet/.test(hub));
+  // Overnight 1 Oct, N-39: "Rob Bonner's record as a manager" (it read "Rob Bonner record").
+  const recPage = fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/manager-records.tsx"), "utf8");
+  check("the heading is possessive: \"<name>'s record as a manager\" (\"Your record\" with no name)",
+    recPage.includes("{r.managerName ? `${r.managerName}'s` : \"Your\"} record as a manager"), `here: "${rec.managerName}'s record as a manager"`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

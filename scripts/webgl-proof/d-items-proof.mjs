@@ -192,6 +192,17 @@ try {
       total > 50 && before.rows === 50 && after === total && /Showing \d+ of/.test(before.count), `${before.count} -> ${countAfter} (${after} rows)`);
     check(sc, "no description is cut: every one wraps in full", before.cut === 0 && before.rows > 0, `longest: "${before.longest}"`);
   }
+  // ── N-39: the Records heading ─────────────────────────────────────────────
+  if (scenarios.includes("records")) {
+    const sc = "records";
+    await open("/career", `[...document.querySelectorAll("button")].some(x => /^ *Records *$/.test(x.textContent.trim()))`);
+    await js(`[...document.querySelectorAll("button")].find(x => /^ *Records *$/.test(x.textContent.trim()))?.click()`);
+    let text = "";
+    for (let i = 0; i < 30 && !/record as a manager/.test(text); i++) { await sleep(300); text = await js(`document.body.innerText`); }
+    await shot("n39-records-heading.png");
+    const line = text.split("\n").find((l) => /record as a manager/.test(l)) ?? "";
+    check(sc, "Career > Records: \"Rob Bonner's record as a manager\"", /^Rob Bonner's record as a manager/.test(line), line);
+  }
   ws.close();
 } catch (err) {
   ok = false;
