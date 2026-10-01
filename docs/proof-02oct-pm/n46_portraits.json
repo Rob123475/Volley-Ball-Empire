@@ -1,0 +1,37 @@
+{
+  "pages": {
+    "/staff": {
+      "pictures": 2,
+      "portraits500x500": 2,
+      "others": []
+    },
+    "/staff-market": {
+      "pictures": 108,
+      "portraits500x500": 108,
+      "others": []
+    },
+    "/medical": {
+      "pictures": 0,
+      "portraits500x500": 0,
+      "others": []
+    },
+    "/medical-market": {
+      "pictures": 60,
+      "portraits500x500": 60,
+      "others": []
+    }
+  },
+  "named": {
+    "Valentino Greco": {
+      "page": "/staff",
+      "src": "/images/staff/head_coach/staff-01.webp",
+      "size": "500 x 500"
+    },
+    "Ana Vieira": {
+      "page": "/staff",
+      "src": "/images/staff/scouts/staff-01.webp",
+      "size": "500 x 500"
+    }
+  },
+  "errors": []
+}
