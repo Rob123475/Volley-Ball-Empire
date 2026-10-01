@@ -152,7 +152,9 @@ export function CalendarPanel() {
   const { avgFitness, avgFatigue, injuredCount, totalActive } = calendar.teamFitness;
 
   return (
-    <div className="flex items-center gap-0 min-w-0 overflow-x-auto">
+    // N-42: wraps onto a second line at narrower windows; it scrolled sideways and
+    // the Fit / Tired figures at its end were cut off.
+    <div className="flex flex-wrap items-center gap-x-0 gap-y-1 min-w-0" data-testid="calendar-panel">
 
       {/* ── Date ── R-68: keyed on the date, so each simulated day replays the
           tick animation; the bar under it restarts with the day and fills over
@@ -302,7 +304,7 @@ export function CalendarPanel() {
           <VDiv />
 
           {/* ── Fitness / Fatigue ── */}
-          <div className="flex items-center gap-3 shrink-0 px-2">
+          <div className="flex items-center gap-3 shrink-0 px-2" data-testid="calendar-fitness">
             <div className="flex items-center gap-1.5">
               <Heart className="h-3 w-3 text-emerald-400 shrink-0" />
               <span className="text-[11px] font-bold tabular-nums text-sidebar-foreground/75">

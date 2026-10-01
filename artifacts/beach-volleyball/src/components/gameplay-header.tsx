@@ -93,7 +93,9 @@ export function GameplayHeader() {
 
   return (
     <>
-      <div className="shrink-0 flex items-center gap-0 px-3 bg-sidebar border-b border-sidebar-border text-sidebar-foreground h-12 overflow-hidden">
+      {/* N-42: grows a line rather than scroll sideways or cut off the fitness figures
+          when the window is narrower than the bar (it was a fixed 48px, overflow hidden). */}
+      <div className="shrink-0 flex items-center gap-0 px-3 py-1 bg-sidebar border-b border-sidebar-border text-sidebar-foreground min-h-12" data-testid="top-bar">
 
         {/* ── Calendar HUD ── */}
         <CalendarPanel />

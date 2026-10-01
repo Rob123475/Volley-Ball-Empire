@@ -203,6 +203,27 @@ try {
     const line = text.split("\n").find((l) => /record as a manager/.test(l)) ?? "";
     check(sc, "Career > Records: \"Rob Bonner's record as a manager\"", /^Rob Bonner's record as a manager/.test(line), line);
   }
+  // ── N-42: the top bar at normal window sizes ──────────────────────────────
+  if (scenarios.includes("top-bar")) {
+    const sc = "top-bar";
+    await open("/", `!!document.querySelector('[data-testid="calendar-fitness"]')`);
+    for (const [w, h] of [[1024, 700], [1280, 720], [1366, 768], [1600, 900], [1920, 1080]]) {
+      await send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+      await sleep(700);
+      const m = await js(`(() => {
+        const bar = document.querySelector('[data-testid="top-bar"]'), panel = document.querySelector('[data-testid="calendar-panel"]');
+        const fit = document.querySelector('[data-testid="calendar-fitness"]');
+        const b = bar.getBoundingClientRect(), f = fit?.getBoundingClientRect();
+        return { barH: Math.round(b.height), barScroll: bar.scrollWidth > bar.clientWidth + 1, panelScroll: panel.scrollWidth > panel.clientWidth + 1,
+          fitInside: !!f && f.left >= b.left - 0.5 && f.right <= b.right + 0.5 && f.top >= b.top - 0.5 && f.bottom <= b.bottom + 0.5,
+          fitText: fit?.innerText.replace(/\\s+/g, " "), pageScroll: document.documentElement.scrollWidth > innerWidth };
+      })()`);
+      if (w === 1280) await shot("n42-top-bar-1280.png");
+      check(sc, `${w}x${h}: no sideways scroll, the Fit and Tired figures fully shown`,
+        !m.barScroll && !m.panelScroll && !m.pageScroll && m.fitInside, `bar ${m.barH}px high; "${m.fitText}"`);
+    }
+    await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceScaleFactor: 1, mobile: false });
+  }
   ws.close();
 } catch (err) {
   ok = false;
