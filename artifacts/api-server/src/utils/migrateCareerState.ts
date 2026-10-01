@@ -13,6 +13,7 @@ import { isNull, sql } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
 import { monthlyWage, seniorMonthlyWage } from "./wageCurve.js";
 import { overallRating } from "./overallRating.js";
+import { academyMonthlySalary } from "./academy.js";
 
 /** A regional league is six clubs playing a double round-robin. */
 const LEAGUE_SIZE = 6;
@@ -80,6 +81,8 @@ const SEED_REFERENCE_COLUMNS = [
   "is_draft_player",
   // Overnight 1 Oct, N-41: a senior's wage carries the 1 Oct rise; a youth's does not.
   "player_type",
+  // N-33: a youth's wage is the academy's wage for her talent.
+  "potential",
 ] as const;
 
 /** What a NEW career copies off the staff reference row. */
@@ -609,6 +612,8 @@ export function seedPlayerStateRows(tx: DbTx, careerSaveId: number, playerIds: r
             defense: Number(refs.get(id)?.defense ?? 70), serve: Number(refs.get(id)?.serve ?? 70),
             block: Number(refs.get(id)?.block ?? 70), stamina: Number(refs.get(id)?.stamina ?? 70),
           }))
+        // N-33: a youth asks the academy's wage for her talent (her asking price is empty).
+        : refs.get(id)?.player_type === "youth" ? academyMonthlySalary(refs.get(id)?.potential)
         : monthlyWage(refs.get(id)?.asking_price),
       speed:   Number(refs.get(id)?.speed   ?? 70),
       power:   Number(refs.get(id)?.power   ?? 70),

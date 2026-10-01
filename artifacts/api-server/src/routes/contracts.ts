@@ -4,6 +4,7 @@ import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { academyCountTx } from "../utils/youthLoans.js";
+import { academyMonthlySalary } from "../utils/academy.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
@@ -186,11 +187,15 @@ router.post("/contracts", async (req, res) => {
   const today = await getGameDate(team.id);
   const cidForTerm = requireCareerSaveId(req.activeCareerSaveId);
   const actualEnd = contractEndDate(wanted.length, today, await seasonEndsFrom(cidForTerm, today));
+  // Overnight 1 Oct, N-33: a youth is paid the academy's wage for her talent
+  // (utils/academy.ts, about $325-$650 a month; it is what the weekly run bills
+  // her), whatever the box sends: the offer used to default to $5,000 a month.
+  const wage = isYouth ? academyMonthlySalary(player.potential) : Number(salary);
 
   const [contract] = await db.insert(contractsTable).values({
     playerId: Number(playerId),
     teamId: team.id,
-    salary: Number(salary),
+    salary: wage,
     startDate: today,
     endDate: actualEnd,
     bonusPerWin: Number(bonusPerWin ?? 0),
@@ -199,7 +204,7 @@ router.post("/contracts", async (req, res) => {
   // Squad membership is career state, not a property of the athlete.
   await updatePlayerState(requireCareerSaveId(req.activeCareerSaveId), Number(playerId), {
     teamId: team.id,
-    salary: Number(salary),
+    salary: wage,
     contractEndDate: actualEnd,
     isActive: squadRole === "starter" || squadRole === "interchange",
     squadRole,

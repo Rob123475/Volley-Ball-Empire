@@ -1,4 +1,5 @@
 import { normaliseRole } from "@shared/staff-roles";
+import { youthWageText } from "@/lib/youth-wage";
 import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/continents";
 import {
   useSignContract,
@@ -227,7 +228,8 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
   const [salary, setSalary]   = useState([asking > 0 ? asking : 5000]);
   const [winBonus, setWinBonus] = useState([500]);
   const [length, setLength]   = useState<ContractLength>("1s");
-  const isYouth = player.age >= 14 && player.age <= 17;
+  // An academy youth (not a promoted graduate); the age is the fallback for a record without the type.
+  const isYouth = player.playerType ? player.playerType === "youth" && !player.isPromoted : player.age >= 14 && player.age <= 17;
   const defaultRole: SquadRole = isYouth ? "reserve" : "interchange";
   const [squadRole, setSquadRole] = useState<SquadRole>(defaultRole);
 
@@ -257,6 +259,17 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
           </div>
         )}
         <div className="space-y-6 py-4">
+          {isYouth ? (
+            // N-33: a youth is paid the academy's wage for her talent (it is what the
+            // weekly run bills); the offer defaulted to $5,000 a month.
+            <div className="space-y-1" data-testid="youth-wage">
+              <div className="flex justify-between text-sm font-medium">
+                <span>Wage</span>
+                <span className="text-primary font-bold">{youthWageText(asking)}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">The academy's wage for her talent.</p>
+            </div>
+          ) : (
           <div className="space-y-2">
             <div className="flex justify-between text-sm font-medium">
               <span>Monthly Salary</span>
@@ -265,6 +278,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
             <Slider min={1000} max={salaryMax} step={100} value={salary} onValueChange={setSalary} />
             {asking > 0 && <p className="text-xs text-muted-foreground">She asks ${asking.toLocaleString("en-US")} a month.</p>}
           </div>
+          )}
           <div className="space-y-2">
             <div className="flex justify-between text-sm font-medium">
               <span>Win Bonus</span>
@@ -328,7 +342,7 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
         </div>
         <Button
           className="w-full"
-          onClick={() => onSign({ salary: salary[0], winBonus: winBonus[0], length, squadRole })}
+          onClick={() => onSign({ salary: isYouth ? asking : salary[0], winBonus: winBonus[0], length, squadRole })}
           disabled={isPending}
           data-testid="button-confirm-sign"
         >
@@ -472,7 +486,9 @@ function MarketPlayerCard({
         <div className="flex items-center justify-between text-xs border-t border-border pt-2">
           <span className="flex items-center gap-1 text-muted-foreground">
             <DollarSign className="h-3 w-3" />
-            Asking ${Number(player.salary).toLocaleString()}/mo
+            {player.playerType === "youth" && !player.isPromoted
+              ? <>Wage {youthWageText(Number(player.salary))}</>
+              : <>Asking ${Number(player.salary).toLocaleString()}/mo</>}
           </span>
           {price && (
             <span className="font-semibold text-foreground" data-testid={`price-${player.id}`}>

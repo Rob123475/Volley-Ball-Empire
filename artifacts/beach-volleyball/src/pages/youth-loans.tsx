@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+// N-33: a youth's wage in one unit everywhere: a month, the week in brackets.
+import { youthWageTextFromWeekly } from "@/lib/youth-wage";
 import { ArrowLeftRight, CalendarClock, Handshake, ListPlus, ListX, Shirt, Users } from "lucide-react";
 
 type AcademyRow = {
@@ -37,7 +39,6 @@ type Loans = {
 };
 
 const POSITION: Record<string, string> = { setter: "Setter", spiker: "Spiker", defender: "Defender", blocker: "Blocker", all_rounder: "All-Rounder" };
-const money = (n: number | null | undefined) => `$${Number(n ?? 0).toLocaleString()}`;
 function addMonths(date: string, months: number): string {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCMonth(d.getUTCMonth() + months);
@@ -159,7 +160,7 @@ export default function YouthLoans() {
             {rows.map((l) => (
               <div key={l.loanId} className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
                 <div className="font-medium">{l.name} <span className="text-muted-foreground font-normal">· {word} {l.club}</span></div>
-                <div className="text-xs text-muted-foreground">{l.months} months, {l.startsOn} to {l.endsOn} · you pay {money(l.yourHalf)} of her {money(l.weeklyWage)} a week</div>
+                <div className="text-xs text-muted-foreground">{l.months} months, {l.startsOn} to {l.endsOn} · you pay half her wage: {youthWageTextFromWeekly(l.yourHalf)} of {youthWageTextFromWeekly(l.weeklyWage ?? 0)}</div>
               </div>
             ))}
           </section>
@@ -176,7 +177,7 @@ export default function YouthLoans() {
               <div className="min-w-0 flex-1">
                 <div className="font-medium truncate">{l.name}</div>
                 <div className="text-xs text-muted-foreground">{l.club} · Age {l.age} · {POSITION[l.position] ?? l.position} · Rating {l.rating}{l.nationality ? ` · ${l.nationality}` : ""}</div>
-                <div className="text-xs text-muted-foreground">Wage {money(l.weeklyWage)} a week: you would pay {money(l.yourHalf)}</div>
+                <div className="text-xs text-muted-foreground">Wage {youthWageTextFromWeekly(l.weeklyWage)}: you would pay half, {youthWageTextFromWeekly(l.yourHalf)}</div>
               </div>
               <Button size="sm" disabled={busy} onClick={() => setBorrowing({ listing: l, months: Math.max(...l.allowedMonths) })}>Borrow</Button>
             </div>
@@ -202,7 +203,7 @@ export default function YouthLoans() {
                   <p>
                     She plays for you from {borrowing.listing.club} for {borrowing.months} months, until {addMonths(data.today, borrowing.months)}
                     {team.length < data.youthTeamSize ? ", in your youth team" : ", in your reserves (your youth team is full: you choose who plays)"}, and you pay half her wage:
-                    {" "}{money(borrowing.listing.yourHalf)} of {money(borrowing.listing.weeklyWage)} a week. She returns to {borrowing.listing.club} on that date; neither club can end the loan early.
+                    {" "}{youthWageTextFromWeekly(borrowing.listing.yourHalf)} of {youthWageTextFromWeekly(borrowing.listing.weeklyWage)}. She returns to {borrowing.listing.club} on that date; neither club can end the loan early.
                   </p>
                 )}
               </div>

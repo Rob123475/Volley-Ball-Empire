@@ -24,6 +24,7 @@ import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { backfillPoolClubBooks } from "./utils/poolClubFinances";
 import { applyMoneyPass } from "./utils/moneyPass.js";
 import { rerateOldProspects } from "./utils/youthProspects.js";
+import { alignYouthWages } from "./utils/youthWages.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -200,6 +201,14 @@ try {
   if (rerated > 0) logger.info({ rerated }, "pending scouting finds re-rated by the one youth rule");
 } catch (err) {
   logger.error({ err }, "re-rating pending scouting finds failed");
+}
+
+// Overnight 1 Oct, N-33: every youth's stored wage is the academy's wage for her talent.
+try {
+  const aligned = alignYouthWages();
+  if (aligned > 0) logger.info({ aligned }, "youth wages set to the academy wage for their talent");
+} catch (err) {
+  logger.error({ err }, "aligning youth wages failed");
 }
 
 // Overnight 30 Sep item 3: records written on the PC's clock before the game

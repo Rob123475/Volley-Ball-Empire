@@ -51,6 +51,10 @@ const MIN_M = num(/MIN_MONTHLY_SALARY = ([\d_]+)/, FIN), MAX_M = num(/MAX_MONTHL
 const PER_REP = num(/SPONSOR_INCOME_PER_REPUTATION = ([\d_]+)/, FIN);
 const askingWage = (ask) => { const a = Number(ask ?? 0); return Math.round((a <= KNEE ? Math.max(0, a) : KNEE + (a - KNEE) * COMPRESSION) / 12); };
 const aiWage = (r) => Math.max(MIN_M, Math.min(MAX_M, Math.round((ASK_PER * r + ASK_INT) / 12))) + playerWageRise(r);
+// Overnight 1 Oct, N-33: a youth's wage is the academy's for her talent (utils/academy.ts), never raised.
+const ACADEMY_SRC = src("artifacts/api-server/src/utils/academy.ts");
+const ACADEMY_WEEKLY = Object.fromEntries([...ACADEMY_SRC.matchAll(/(Low|Average|High|Elite|Generational): (\d+)/g)].map((m) => [m[1], Number(m[2])]));
+const academyWage = (potential) => (ACADEMY_WEEKLY[potential] ?? ACADEMY_WEEKLY.Average) * WEEKS_PER_MONTH;
 const ovr = (p) => Math.round((p.speed + p.power + p.defense + p.serve + p.block + p.stamina) / 6);
 
 let failures = 0, checks = 0;
@@ -100,7 +104,7 @@ const hasColumn = (dbFile, table, col) => read(dbFile, `PRAGMA table_info(${tabl
 const playerRows = (dbFile, cid) => read(dbFile,
   `SELECT s.player_id AS id, s.team_id AS teamId, s.salary, s.is_promoted AS promoted,
           ${hasColumn(dbFile, "career_player_state", "pool_team_id") ? "s.pool_team_id" : "NULL"} AS pool,
-          s.speed, s.power, s.defense, s.serve, s.block, s.stamina, p.player_type AS type, p.asking_price AS ask
+          s.speed, s.power, s.defense, s.serve, s.block, s.stamina, p.player_type AS type, p.asking_price AS ask, p.potential
      FROM career_player_state s JOIN players p ON p.id = s.player_id WHERE s.career_save_id = ?`, cid);
 const poolRows = (dbFile, cid) => read(dbFile,
   `SELECT c.id, c.salary, pp.speed, pp.power, pp.defense, pp.serve, pp.block, pp.stamina
@@ -140,8 +144,8 @@ try {
     freeSeniors.length > 0 && badFree.length === 0 && Math.min(...rises) >= MONEY.playerWageRiseMonthly.min && Math.max(...rises) <= MONEY.playerWageRiseMonthly.max,
     `${freeSeniors.length} seniors, rises ${money(Math.min(...rises))}-${money(Math.max(...rises))}, asking ${money(Math.min(...freeSeniors.map((p) => p.salary)))}-${money(Math.max(...freeSeniors.map((p) => p.salary)))}${badFree.length ? `; ${badFree.length} wrong` : ""}`);
   const youth = rows.filter((p) => p.type === "youth" && !p.promoted);
-  check("youth are not raised", youth.length > 0 && youth.every((p) => Number(p.salary) === askingWage(p.ask)),
-    `${youth.length} youth on their old asking wage`);
+  check("youth are not raised: each asks the academy's wage for her talent (N-33)", youth.length > 0 && youth.every((p) => Math.abs(Number(p.salary) - academyWage(p.potential)) < 0.01),
+    `${youth.length} youth, $${Math.round(Math.min(...youth.map((p) => p.salary)))}-$${Math.round(Math.max(...youth.map((p) => p.salary)))} a month`);
   const signed = rows.filter((p) => senior(p) && p.teamId === team.id);
   check("the starting squad signs on those wages", signed.length > 0 && signed.every((p) => Number(p.salary) === askingWage(p.ask) + playerWageRise(ovr(p))),
     signed.map((p) => money(p.salary)).join(", "));
@@ -199,7 +203,8 @@ try {
       for (const p of before.get(s.id)) {
         if (p.pool != null) continue;
         const a = after.get(p.id);
-        if (!senior(p)) { if (Number(a.salary) !== Number(p.salary)) youthBad++; continue; }
+        if (p.type === "youth" && !p.promoted) { if (Math.abs(Number(a.salary) - academyWage(p.potential)) >= 0.01) youthBad++; continue; }
+        if (!senior(p)) continue;                                // a parked spare: neither
         const want = p.teamId != null ? Number(p.salary) + playerWageRise(ovr(p)) : askingWage(p.ask) + playerWageRise(ovr(p));
         const ok = Number(a.salary) === want;
         if (p.teamId != null) ok ? signedOk++ : signedBad++; else ok ? freeOk++ : freeBad++;
@@ -214,7 +219,7 @@ try {
     });
     check("...and her contract by the same sum", contractsAfter.length > 0 && cBad.length === 0, `${contractsAfter.length} active contract(s)${cBad.length ? `, ${cBad.length} wrong` : ""}`);
     check("every senior free agent now asks the market wage (none left on $0)", freeOk > 0 && freeBad === 0, `${freeOk} free agents${freeBad ? `, ${freeBad} wrong` : ""}`);
-    check("youth untouched", youthBad === 0, `${youthBad} changed`);
+    check("youth not raised: each on the academy's wage for her talent (N-33)", youthBad === 0, `${youthBad} not`);
     const poolAfter = saves.flatMap((s) => poolRows(copy, s.id));
     check("every AI contract is on the new AI wage", poolAfter.length === poolBefore && poolAfter.every((c) => Number(c.salary) === aiWage(ovr(c))), `${poolAfter.length} contracts`);
     check("no head coach above the cap", coachOverCap(copy) === 0);
