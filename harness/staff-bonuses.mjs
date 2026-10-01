@@ -42,6 +42,9 @@ const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "vbe-staff-bonuses-"));
 const PORT = 4861;
 const BASE = `http://localhost:${PORT}/api`;
 const SPONSOR_INCOME_PER_REPUTATION = 200;
+// Overnight 1 Oct, N-41: every club's flat weekly sponsor sum, which the
+// Promotions Manager does not multiply (lib/db/src/schema/money.ts).
+const { MONEY } = await import("../lib/db/src/schema/money.ts");
 const HIRE = ["Head Coach", "Assistant Coach", "Fitness Trainer", "Promotional Manager"];
 const POWER_CAMP_FATIGUE = 26;
 
@@ -240,11 +243,11 @@ try {
     weekly = txs.find((t) => !seen.has(t.id) && t.category === "sponsorship" && /^Weekly sponsor & commercial income/.test(t.description));
   }
   const amount = Number(weekly?.amount);
-  const base = Math.round(amount / wantPromo / SPONSOR_INCOME_PER_REPUTATION) * SPONSOR_INCOME_PER_REPUTATION;
+  const base = Math.round((amount - MONEY.sponsorWeeklyBonus) / wantPromo / SPONSOR_INCOME_PER_REPUTATION) * SPONSOR_INCOME_PER_REPUTATION;
   check("a week's sponsor income is paid with the manager on the staff", !!weekly, weekly?.description ?? "none in 3 weeks");
-  check("and it is the unboosted reputation x 200 times the manager's multiplier",
-    !!weekly && base > 0 && Math.round(base * wantPromo) === amount && amount > base,
-    `$${amount} = $${base} x ${wantPromo.toFixed(4)}`);
+  check("and it is the unboosted reputation x 200 times the manager's multiplier, plus the flat weekly sum (not multiplied)",
+    !!weekly && base > 0 && Math.round(base * wantPromo) + MONEY.sponsorWeeklyBonus === amount && amount > base + MONEY.sponsorWeeklyBonus,
+    `$${amount} = $${base} x ${wantPromo.toFixed(4)} + $${MONEY.sponsorWeeklyBonus}`);
   check("and the ledger says why", new RegExp(`\\(\\+${Math.round((wantPromo - 1) * 100)}% Promotions Manager bonus\\)`).test(weekly?.description ?? ""),
     weekly?.description);
 

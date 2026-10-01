@@ -6,8 +6,8 @@
  * of the wage in her contract. The price is a fixed hidden value per player and
  * career, never re-rolled:
  *
- *   base  = one month of her asking wage (utils/wageCurve.ts monthlyWage), the
- *           same figure her opening wage comes from;
+ *   base  = one month of her market wage (utils/wageCurve.ts seniorMonthlyWage,
+ *           the 1 Oct rise included), the figure her asking wage comes from;
  *   range = base x 0.85 to base x 1.15, rounded out to $500: what an UNSCOUTED
  *           card shows;
  *   price = a point inside the range fixed by a hash of (career, player),
@@ -19,7 +19,8 @@
  * shows her exact price and attributes. Scouting lapses at season end for every
  * player without a club (utils/seasonRollover.ts).
  */
-import { monthlyWage } from "./wageCurve.js";
+import { seniorMonthlyWage } from "./wageCurve.js";
+import { overallRating } from "./overallRating.js";
 import type { PlayerDTO } from "../lib/playerDto.js";
 
 export const SCOUT_DAYS = 5;
@@ -41,14 +42,18 @@ function unitHash(careerSaveId: number, playerId: number): number {
   return h / 0x100000000;
 }
 
-function basePrice(p: Pick<PlayerDTO, "askingPrice" | "salary">): number {
-  const fromAsking = monthlyWage(p.askingPrice == null ? null : Number(p.askingPrice));
+/** Her stats, for her rating: the 1 Oct wage rise is by rating (N-41). */
+type PricedPlayer = Pick<PlayerDTO, "id" | "askingPrice" | "salary" | "speed" | "power" | "defense" | "serve" | "block" | "stamina">;
+
+function basePrice(p: Omit<PricedPlayer, "id">): number {
+  // Overnight 1 Oct, N-41: one month of her market wage, the 1 Oct rise included.
+  const fromAsking = seniorMonthlyWage(p.askingPrice == null ? null : Number(p.askingPrice), overallRating(p));
   return fromAsking > 0 ? fromAsking : Math.max(1000, Number(p.salary) || 5000);
 }
 
 export interface MarketPrice { low: number; high: number; price: number }
 
-export function marketPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "askingPrice" | "salary">): MarketPrice {
+export function marketPrice(careerSaveId: number, p: PricedPlayer): MarketPrice {
   const base = basePrice(p);
   const low  = Math.floor((base * RANGE_LOW) / RANGE_STEP) * RANGE_STEP;
   const high = Math.ceil((base * RANGE_HIGH) / RANGE_STEP) * RANGE_STEP;

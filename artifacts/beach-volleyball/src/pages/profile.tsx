@@ -211,7 +211,8 @@ export default function ManagerProfile() {
   const careerEarnings = summary?.careerEarnings ?? 0;
   const stars = summary?.managerLevel ?? 1;
   const levelName = summary?.managerLevelName ?? "Local Coach";
-  const managerSalary = `${fmtMoney(summary?.managerSalary ?? 0)} / season`;
+  // Overnight 1 Oct, N-41: a monthly salary, paid weekly from the club's budget.
+  const managerSalary = `$${Math.round(summary?.managerSalary ?? 0).toLocaleString("en-US")} / month`;
 
   const seasonsLabel =
     seasonsManaged === 0

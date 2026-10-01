@@ -78,12 +78,14 @@ const formatCurrency = (val: number) =>
 interface FinanceForecast {
   weeks: number; from: string; to: string;
   income: { sponsorIncome: number; contractPayments: number; total: number };
-  expenses: { playerWages: number; staffWages: number; runningCosts: number; total: number };
+  expenses: { playerWages: number; staffWages: number; runningCosts: number; managerSalary?: number; total: number };
   net: number; projectedBalance: number;
 }
 type LedgerSummary = FinanceSummary & {
   seasonIncome?: number; seasonExpenses?: number;
   incomeSources: FinanceSummary["incomeSources"] & { other?: number };
+  // Overnight 1 Oct, N-41: the manager's salary, its own line.
+  expenseBreakdown?: FinanceSummary["expenseBreakdown"] & { managerSalary?: number };
   forecast?: FinanceForecast | null;
 };
 type ContractWagePlayer = { id: number; name: string; monthlySalary: number; weeklySalary: number };
@@ -460,6 +462,7 @@ export default function Finances() {
               // most clubs' books, so it is named rather than left in "Other".
               const runningCosts   = summary?.expenseBreakdown?.runningCosts   || 0;
               const trainingCosts  = summary?.expenseBreakdown?.trainingCosts  || 0;
+              const managerSalary  = ledger?.expenseBreakdown?.managerSalary   || 0;
               const other          = summary?.expenseBreakdown?.other          || 0;
               const hasExpenses    = seasonOut > 0;
               return hasExpenses ? (
@@ -467,6 +470,7 @@ export default function Finances() {
                   <BreakdownRow label="Player Salaries" amount={playerSalaries} total={seasonOut} color="bg-red-500" />
                   <BreakdownRow label="Running Costs" amount={runningCosts} total={seasonOut} color="bg-amber-500" />
                   <BreakdownRow label="Staff" amount={staffSalaries} total={seasonOut} color="bg-orange-500" />
+                  <BreakdownRow label="Manager Salary" amount={managerSalary} total={seasonOut} color="bg-sky-500" />
                   <BreakdownRow label="Training" amount={trainingCosts} total={seasonOut} color="bg-purple-500" />
                   <BreakdownRow label="Other" amount={other} total={seasonOut} color="bg-gray-500" />
                 </div>
@@ -700,6 +704,7 @@ function CashflowForecastCard({
                     { label: "Player wages (contracts)", value: forecast.expenses.playerWages },
                     { label: "Staff wages (contracts)",  value: forecast.expenses.staffWages },
                     { label: "Running costs",            value: forecast.expenses.runningCosts },
+                    { label: "Manager salary",           value: forecast.expenses.managerSalary ?? 0 },
                   ].filter(r => r.value > 0).map(row => (
                     <div key={row.label} className="flex items-center justify-between text-xs">
                       <span className="flex items-center gap-1.5 text-muted-foreground">

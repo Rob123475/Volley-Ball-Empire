@@ -23,6 +23,8 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+// Overnight 1 Oct, N-41: the wage rise, from the one config file (Node strips the types).
+import { playerWageRise } from "../lib/db/src/schema/money.ts";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -151,7 +153,8 @@ try {
   check("the expense lines add up to the season's expenses", outParts === seasonOut, `${$(outParts)} vs ${$(seasonOut)}`);
 
   // 4. Player Wages: the contracts, and what the weekly run charged.
-  const contracts = db.prepare(`SELECT cps.player_id AS id, cps.salary AS salary FROM career_player_state cps JOIN players p ON p.id = cps.player_id
+  const contracts = db.prepare(`SELECT cps.player_id AS id, cps.salary AS salary,
+      cps.speed, cps.power, cps.defense, cps.serve, cps.block, cps.stamina FROM career_player_state cps JOIN players p ON p.id = cps.player_id
     WHERE cps.career_save_id = ? AND cps.team_id = ? AND (p.player_type = 'senior' OR (p.player_type = 'youth' AND COALESCE(cps.is_promoted, 0) = 1)) AND COALESCE(cps.is_retired, 0) = 0`).all(careerSaveId, teamId);
   const monthly = contracts.reduce((a, c) => a + Number(c.salary), 0);
   check("Player Wages per month = the signed contracts' monthly salaries", wages.monthlyWages === monthly && wages.playerCount === contracts.length,
@@ -161,7 +164,15 @@ try {
   const youth = db.prepare(`SELECT COUNT(*) AS n FROM career_player_state cps JOIN players p ON p.id = cps.player_id
     WHERE cps.career_save_id = ? AND cps.team_id = ? AND p.player_type = 'youth' AND COALESCE(cps.is_promoted, 0) = 0 AND COALESCE(cps.is_retired, 0) = 0`).get(careerSaveId, teamId).n;
   const lastCharge = db.prepare("SELECT amount, date FROM finance_transactions WHERE team_id = ? AND category = 'salaries' ORDER BY date DESC, id DESC LIMIT 1").get(teamId);
-  if (lastCharge && youth === 0) check("the weekly figure is what the last salary week charged", wages.weeklyWages === Math.abs(Number(lastCharge.amount)), `${$(wages.weeklyWages)} vs ${$(lastCharge.amount)} on ${lastCharge.date}`);
+  // Overnight 1 Oct, N-41: a save older than the money pass had its seniors' wages
+  // raised at boot (each by playerWageRise for her rating), after its last salary
+  // week; that week charged the wages before the rise.
+  const passAt = db.prepare("SELECT money_pass_at AS m FROM career_saves WHERE id = ?").get(careerSaveId)?.m ?? null;
+  const raisedSince = lastCharge && /^\d{4}-\d{2}-\d{2}$/.test(passAt ?? "") && lastCharge.date <= passAt;
+  const rises = raisedSince ? contracts.reduce((a, c) => a + playerWageRise(Math.round((c.speed + c.power + c.defense + c.serve + c.block + c.stamina) / 6)), 0) : 0;
+  if (lastCharge && youth === 0) check("the weekly figure is what the last salary week charged (before any 1 Oct rise since)",
+    Math.round((monthly - rises) / WEEKS_PER_MONTH) === Math.abs(Number(lastCharge.amount)),
+    `${$((monthly - rises) / WEEKS_PER_MONTH)} vs ${$(lastCharge.amount)} on ${lastCharge.date}${raisedSince ? ` (rises since: ${$(rises)} a month, money pass ${passAt})` : ""}`);
   const staffRows = db.prepare(`SELECT css.salary AS salary FROM career_staff_state css WHERE css.career_save_id = ? AND css.team_id = ?`).all(careerSaveId, teamId);
   const staffMonthly = staffRows.reduce((a, s) => a + Number(s.salary), 0);
   check("Staff wages per month = the staff contracts", Math.round(staffW.monthlyWages) === Math.round(staffMonthly), `${$(staffW.monthlyWages)} vs ${$(staffMonthly)}`);
@@ -193,7 +204,7 @@ try {
   const f = summary.forecast;
   check("one forecast: the next 4 weeks, income and expenses adding up", !!f && f.weeks === 4
     && f.income.total === f.income.sponsorIncome + f.income.contractPayments
-    && f.expenses.total === f.expenses.playerWages + f.expenses.staffWages + f.expenses.runningCosts
+    && f.expenses.total === f.expenses.playerWages + f.expenses.staffWages + f.expenses.runningCosts + (f.expenses.managerSalary ?? 0)
     && f.projectedBalance === budget + f.income.total - f.expenses.total,
     f ? `+${$(f.income.total)} -${$(f.expenses.total)} -> ${$(f.projectedBalance)}` : "none");
   check("its wages are four weeks of the contracts", !!f && f.expenses.playerWages >= wages.weeklyWages * 4 && f.expenses.staffWages === staffW.weeklyWages * 4,

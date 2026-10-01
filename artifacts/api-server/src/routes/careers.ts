@@ -228,6 +228,9 @@ router.post("/careers", async (req, res) => {
       worldRanking:        worldRanking ?? null,
       budget:              startingBudget,
       difficulty,
+      // Overnight 1 Oct, N-41: built on Rob's money numbers from the start, so the
+      // boot pass for older saves (utils/moneyPass.ts) never raises it again.
+      moneyPassAt:         "new career",
       lastPlayedAt:        new Date(),
     })
     .returning();

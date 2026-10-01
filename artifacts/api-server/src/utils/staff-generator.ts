@@ -1,3 +1,4 @@
+import { MONEY } from "@workspace/db";
 const STAFF_HEAD_COACHES = [
   { id: "head_coach_01", name: "James Whitmore",   nationality: "Australia",    age: 41, experience: 15, stars: 4.5, salary:  9800, contractYears: 4, personality: "Demanding",    specialties: ["Leadership", "Strategy", "Elite Performance"],          development: 92, matchManagement: 94, tactics: 93, motivation: 90, discipline: 89, image: "images/staff/staff_head_coach_01.webp" },
   { id: "head_coach_02", name: "Marco Ricci",       nationality: "Italy",        age: 52, experience: 21, stars: 4.5, salary: 11200, contractYears: 5, personality: "Calm",          specialties: ["Leadership", "Strategy", "Elite Performance"],          development: 90, matchManagement: 95, tactics: 96, motivation: 87, discipline: 92, image: "images/staff/staff_head_coach_02.webp" },
@@ -85,7 +86,8 @@ const ROLE_TRAITS: Record<StaffRole, string[]> = {
 };
 
 const ROLE_SALARY_RANGES: Record<StaffRole, [number, number]> = {
-  head_coach:           [15000, 35000],
+  // Overnight 1 Oct, N-41: a head coach is capped at MONEY.headCoachSalaryMonthlyMax ($20,000).
+  head_coach:           [15000, MONEY.headCoachSalaryMonthlyMax],
   assistant_coach:      [8000, 18000],
   fitness_trainer:      [6000, 14000],
   strength_conditioner: [5000, 12000],

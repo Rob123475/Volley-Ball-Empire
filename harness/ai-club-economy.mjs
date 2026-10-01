@@ -42,6 +42,8 @@ import { DatabaseSync } from "node:sqlite";
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
 import { healAllSquads, keepSideFielded, renewExpiringContracts, keepClubSolvent } from "./harness-club.mjs";
+// Overnight 1 Oct, N-41: Rob's money numbers, read from the one config file (Node strips the types).
+import { MONEY, managerSalaryFor } from "../lib/db/src/schema/money.ts";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -208,14 +210,18 @@ try {
       `SELECT p.potential FROM career_player_state s JOIN players p ON p.id = s.player_id
         WHERE s.career_save_id = ? AND s.pool_team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0`, careerSaveId, before.id);
     const academyWeek = academy.reduce((t, y) => t + (ACADEMY_WAGE[y.potential] ?? 75), 0);
+    // N-41: its AI manager's salary, a week, and the flat sponsor sum every club earns.
+    const managerWeek = Math.round(managerSalaryFor(`pool:${careerSaveId}:${before.id}`) / WEEKS_PER_MONTH);
     const expectedWeek =
       Math.round(Number(wages.total) / WEEKS_PER_MONTH)
       + BASE_COST + PER_PLAYER * Number(wages.n)
       + academyWeek
-      - Math.round(Number(before.rep ?? 50) * PER_REP);
-    check("a club with no World Tour place pays the ground, its squad and its academy, and no tour",
+      + managerWeek
+      - Math.round(Number(before.rep ?? 50) * PER_REP)
+      - MONEY.sponsorWeeklyBonus;
+    check("a club with no World Tour place pays the ground, its squad, its academy and its manager, earns its sponsors and the flat sum, and pays no tour",
       Math.round(moved) === Math.round(expectedWeek) && academy.length > 0,
-      `club ${before.id}: moved ${money(moved)}, the rules say ${money(expectedWeek)} (academy of ${academy.length}: ${money(academyWeek)})`);
+      `club ${before.id}: moved ${money(moved)}, the rules say ${money(expectedWeek)} (academy of ${academy.length}: ${money(academyWeek)}; manager ${money(managerWeek)}; sponsors' flat ${money(MONEY.sponsorWeeklyBonus)})`);
   }
   check("the week was charged at all", weeks === 1, `${weeks} week(s) seen`);
   check("the harness read the real numbers out of the server",

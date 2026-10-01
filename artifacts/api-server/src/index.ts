@@ -22,6 +22,7 @@ import { forfeitAbandonedWatchedMatches } from "./utils/abandonedMatches";
 import { backfillContracts } from "./utils/backfillContracts";
 import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { backfillPoolClubBooks } from "./utils/poolClubFinances";
+import { applyMoneyPass } from "./utils/moneyPass.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -179,6 +180,17 @@ try {
 forfeitAbandonedWatchedMatches()
   .then((n) => { if (n.length > 0) logger.info({ forfeited: n }, "watched matches left open when the window closed were forfeited"); })
   .catch((err) => logger.error({ err }, "forfeiting abandoned watched matches failed"));
+
+// Overnight 1 Oct, N-41: Rob's money numbers (lib/db/src/schema/money.ts). An
+// older save's players' wages rise once and its AI clubs' contracts follow;
+// head coaches are held to the cap. After the books open, so the AI clubs'
+// contracts exist to be raised.
+try {
+  const money = applyMoneyPass();
+  if (money.careers > 0 || money.headCoaches > 0) logger.info(money, "saves brought onto the 1 Oct money numbers");
+} catch (err) {
+  logger.error({ err }, "money pass failed");
+}
 
 // Overnight 30 Sep item 3: records written on the PC's clock before the game
 // dated them itself (achievement unlocks, training sessions, injuries, ledger

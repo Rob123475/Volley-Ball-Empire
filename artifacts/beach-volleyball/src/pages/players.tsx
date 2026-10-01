@@ -219,7 +219,12 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
   // the exact price for a scouted player, the range for an unscouted one,
   // whose exact price is revealed, with her attributes, when she signs.
   const blind = !!player.priceRange && player.price == null;
-  const [salary, setSalary]   = useState([5000]);
+  // Overnight 1 Oct, N-41: the offer starts at her asking wage (the 1 Oct rise
+  // included), and the slider reaches well past it; it started at $5,000 and
+  // stopped at $20,000, below what most seniors now ask.
+  const asking = Math.round(Number(player.salary) || 0);
+  const salaryMax = Math.max(40_000, Math.ceil((asking * 2) / 1000) * 1000);
+  const [salary, setSalary]   = useState([asking > 0 ? asking : 5000]);
   const [winBonus, setWinBonus] = useState([500]);
   const [length, setLength]   = useState<ContractLength>("1s");
   const isYouth = player.age >= 14 && player.age <= 17;
@@ -257,7 +262,8 @@ function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v:
               <span>Monthly Salary</span>
               <span className="text-primary font-bold">${salary[0].toLocaleString()}</span>
             </div>
-            <Slider min={1000} max={20000} step={100} value={salary} onValueChange={setSalary} />
+            <Slider min={1000} max={salaryMax} step={100} value={salary} onValueChange={setSalary} />
+            {asking > 0 && <p className="text-xs text-muted-foreground">She asks ${asking.toLocaleString("en-US")} a month.</p>}
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm font-medium">

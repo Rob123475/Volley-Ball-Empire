@@ -11,6 +11,7 @@ export const LEDGER_CATEGORY_LABELS: Record<string, string> = {
   salaries:          "Player wages",
   player_salary:     "Player wages",
   staff_salary:      "Staff wages",
+  manager_salary:    "Manager salary",
   staff_termination: "Contract paid out",
   running_costs:     "Running costs",
   facilities:        "Facilities",

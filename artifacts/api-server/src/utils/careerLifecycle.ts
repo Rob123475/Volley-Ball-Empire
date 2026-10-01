@@ -3,8 +3,8 @@ import {
   careerSavesTable, teamsTable, trophiesTable, achievementsTable,
   hallOfFameTable, careerHistoryEntriesTable,
 } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
-import { seasonsTable, managerLevelFor, MANAGER_SALARY_PER_SEASON } from "@workspace/db";
+import { eq, and, inArray } from "drizzle-orm";
+import { seasonsTable, managerLevelFor, MANAGER_SALARY_PER_SEASON, managerSalaryFor, financeTransactionsTable } from "@workspace/db";
 import { getGameDate } from "./gameDate.js";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions.js";
@@ -12,15 +12,31 @@ import type { Request } from "express";
 
 // ── Manager salary ─────────────────────────────────────────────────────────────
 /**
- * Overnight 30 Sep item 2: the salary is MANAGER_SALARY_PER_SEASON (lib/db
- * manager-levels.ts). It was derived from career_saves.manager_reputation,
- * which nothing ever changed, so it was always this figure.
+ * Overnight 1 Oct, N-41: the salary is a month, fixed in Rob's range for the
+ * career (managerSalaryFor, lib/db/src/schema/money.ts), and paid weekly from
+ * the club's budget. Before that (overnight 30 Sep item 2) it was
+ * MANAGER_SALARY_PER_SEASON, $6,000 a season, never paid out.
  *
- * "Career Earnings" is the salary EARNED to date: each season pays it pro rata
- * on the game days the manager has spent in it (a finished season in full, the
- * current one up to today). It used to show the club's prize money.
+ * "Career Earnings" is the salary EARNED to date: the manager-salary lines on
+ * the ledger, plus, for a save older than the pass, the old $6,000 a season pro
+ * rata on the game days served before it. It used to show the club's prize money.
  */
 export async function managerEarnings(careerSaveId: number, today: string): Promise<number> {
+  const [save] = await db.select({ teamId: careerSavesTable.teamId, formerTeamId: careerSavesTable.formerTeamId, moneyPassAt: careerSavesTable.moneyPassAt })
+    .from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId));
+  // Overnight 1 Oct, N-41: from the money pass on, the salary is really paid,
+  // weekly, on the club's ledger ("Manager salary"): what was paid is what was earned.
+  const teams = [save?.teamId, save?.formerTeamId].filter((t): t is number => t != null);
+  const paid = teams.length === 0 ? 0 : (await db.select({ amount: financeTransactionsTable.amount })
+    .from(financeTransactionsTable)
+    .where(and(inArray(financeTransactionsTable.teamId, teams), eq(financeTransactionsTable.category, "manager_salary"))))
+    .reduce((sum, r) => sum + Number(r.amount), 0);
+
+  // Before it (an older save), the old $6,000 a season, pro rata on the game
+  // days served up to the day the pass ran. A career made since has none.
+  const until = /^\d{4}-\d{2}-\d{2}/.test(save?.moneyPassAt ?? "") ? save!.moneyPassAt!.slice(0, 10)
+    : save?.moneyPassAt == null ? today : null;
+  if (until == null) return Math.round(paid);
   const seasons = await db.select({ startDate: seasonsTable.startDate, endDate: seasonsTable.endDate, status: seasonsTable.status })
     .from(seasonsTable).where(eq(seasonsTable.careerSaveId, careerSaveId));
   const day = (d: string) => Date.parse(`${d.slice(0, 10)}T00:00:00Z`) / 86_400_000;
@@ -28,10 +44,12 @@ export async function managerEarnings(careerSaveId: number, today: string): Prom
   for (const s of seasons) {
     const length = day(s.endDate) - day(s.startDate) + 1;
     if (length <= 0) continue;
-    const served = s.status === "completed" ? length : Math.max(0, Math.min(length, day(today) - day(s.startDate) + 1));
+    // A finished season in full, the one the pass ran in (or today) up to that day.
+    const served = s.status === "completed" && s.endDate.slice(0, 10) <= until ? length
+      : Math.max(0, Math.min(length, day(until) - day(s.startDate) + 1));
     earned += MANAGER_SALARY_PER_SEASON * served / length;
   }
-  return Math.round(earned);
+  return Math.round(paid + earned);
 }
 
 // ── Career summary ────────────────────────────────────────────────────────────
@@ -85,7 +103,8 @@ export async function buildCareerSummary(teamId: number, userId: string, careerS
     managerRepPoints:     team?.managerRepPoints ?? 0,
     managerLevel:         managerLevelFor(team?.managerRepPoints ?? 0).level,
     managerLevelName:     managerLevelFor(team?.managerRepPoints ?? 0).name,
-    managerSalary:        MANAGER_SALARY_PER_SEASON,
+    // Overnight 1 Oct, N-41: a month, from Rob's range (lib/db/src/schema/money.ts).
+    managerSalary:        save ? managerSalaryFor(`career:${save.id}`) : 0,
     careerEarnings:       save ? await managerEarnings(save.id, await getGameDate(teamId)) : 0,
   };
 }

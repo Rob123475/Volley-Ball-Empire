@@ -37,6 +37,8 @@ import { REST_RECOVERY, applyWeeklyInjuryRecovery, isInjured, selectPair, PAIR_S
 import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
 import { finishDueTrainingSessions } from "./training.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
+import { seniorMonthlyWage } from "../utils/wageCurve.js";
+import { overallRating } from "../utils/overallRating.js";
 import { ACADEMY_CAP, academyWeeklyWage } from "../utils/academy.js";
 import { SEASON_LENGTH, seasonPhase, CONTINENTAL_ROUNDS, WORLD_TOUR_ROUNDS, FINALS_ROUNDS } from "../utils/seasonPhase.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
@@ -45,7 +47,7 @@ import { weeklyRunningCost, runningCostDescription } from "../utils/runningCosts
 // player's club is charged by the same functions that charge the other sixty
 // (utils/clubFinances.ts, utils/poolClubFinances.ts).
 import {
-  WEEKS_PER_MONTH, SPONSOR_REP_BASELINE, decayedReputation, sponsorWeeklyIncome,
+  WEEKS_PER_MONTH, SPONSOR_REP_BASELINE, decayedReputation, sponsorWeeklyIncome, managerWeeklySalary,
 } from "../utils/clubFinances.js";
 import {
   chargePoolClubsWeekTx, renewExpiredPoolContractsTx,
@@ -54,7 +56,7 @@ import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
 import { promotionsMultiplier } from "../utils/staffBonuses.js";
 import { absoluteRound, completeDueUpgrades } from "../utils/facilityUpgrades.js";
-import { facilityName } from "@workspace/db";
+import { facilityName, managerSalaryFor } from "@workspace/db";
 
 
 const router = Router();
@@ -585,14 +587,25 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
 
     // P-09: a promotions manager adds up to 18% while employed.
     const promoBonus    = promotionsMultiplier(teamStaff);
-    const sponsorIncome = Math.round(sponsorWeeklyIncome(sponsorRep) * promoBonus);
-    const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages - loanWages;
+    const sponsorIncome = sponsorWeeklyIncome(sponsorRep, promoBonus);
+    // Overnight 1 Oct, N-41: the manager is paid from the club's budget, weekly,
+    // like the staff (lib/db/src/schema/money.ts, managerSalaryFor).
+    const managerWeekly = managerWeeklySalary(managerSalaryFor(`career:${careerSaveId}`));
+    const net           = sponsorIncome - weeklySalary - weeklyStaff - weeklyStaffWages - loanWages - managerWeekly;
 
     await db.update(teamsTable)
       .set({ budget: sql`budget + ${net}` })
       .where(eq(teamsTable.id, team.id));
 
     await db.insert(financeTransactionsTable).values([
+      {
+        teamId:      team.id,
+        type:        "expense",
+        amount:      managerWeekly,
+        description: "Manager salary",
+        category:    "manager_salary",
+        date:        nextDate,
+      },
       ...(teamStaff.length > 0 ? [{
         teamId:      team.id,
         type:        "expense",
@@ -671,7 +684,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     events.push(
       `Salary week: $${weeklySalary.toLocaleString()} wages` +
         (teamStaff.length > 0 ? `, $${weeklyStaffWages.toLocaleString()} staff wages` : "") +
-        `, $${sponsorIncome.toLocaleString()} sponsor income`
+        `, $${managerWeekly.toLocaleString()} manager salary, $${sponsorIncome.toLocaleString()} sponsor income`
     );
   }
 
@@ -695,9 +708,12 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
 
   if (expired.length > 0) {
     const expiredIds = expired.map(p => p.id);
-    for (const id of expiredIds) {
-      await updatePlayerState(expiryCareerId, id, {
-        teamId: null, contractEndDate: null, isActive: false, salary: 0,
+    for (const p of expired) {
+      // Overnight 1 Oct, N-41: back on the market at her asking wage (with the
+      // 1 Oct rise), not $0: the market card and the contract box read it.
+      await updatePlayerState(expiryCareerId, p.id, {
+        teamId: null, contractEndDate: null, isActive: false,
+        salary: isYouthPlayer(p) ? 0 : seniorMonthlyWage(p.askingPrice, overallRating(p)),
       });
     }
     await db.update(contractsTable)

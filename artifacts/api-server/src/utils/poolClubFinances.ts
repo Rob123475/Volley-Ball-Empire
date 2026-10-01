@@ -39,7 +39,7 @@ import {
   careerPoolTeamStateTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
   poolClubSeasonsTable, poolPlayerContractsTable, competitorsTable,
   competitorRankingsTable, worldTourQualificationsTable, careerSavesTable,
-  seasonsTable, db,
+  seasonsTable, db, managerSalaryFor,
 } from "@workspace/db";
 import { and, asc, desc, eq, isNull, isNotNull, lt, sql } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour.js";
@@ -47,7 +47,7 @@ import { prizeFor } from "./prizeDistribution.js";
 import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
 import {
   weeklyClubOutgoings, sponsorWeeklyIncome, decayedReputation, monthlySalaryFor,
-  SPONSOR_REP_BASELINE,
+  managerWeeklySalary, SPONSOR_REP_BASELINE,
 } from "./clubFinances.js";
 import { ESTABLISHED_STARTING_BUDGET } from "./careerDifficulty.js";
 import {
@@ -257,6 +257,15 @@ function accessTierByPoolIdTx(tx: Tx, careerSaveId: number, seasonYear: number):
 }
 
 /**
+ * An AI club's AI manager's monthly salary (overnight 1 Oct, N-41): fixed in
+ * MONEY.managerSalaryMonthly's range for this club in this career, the same
+ * rule the player's manager is paid on (lib/db/src/schema/money.ts).
+ */
+export function poolManagerSalary(careerSaveId: number, poolTeamId: number): number {
+  return managerSalaryFor(`pool:${careerSaveId}:${poolTeamId}`);
+}
+
+/**
  * Charge every AI club its week, and pay it its sponsors.
  *
  * Runs in the same weekly block that charges the player's club
@@ -294,10 +303,12 @@ export function chargePoolClubsWeekTx(
     });
     const reputation = decayedReputation(st.reputation);
     const income = sponsorWeeklyIncome(reputation);
-    charged += total;
+    // N-41: its manager is paid weekly from its balance, like the player's.
+    const manager = managerWeeklySalary(poolManagerSalary(careerSaveId, st.poolTeamId));
+    charged += total + manager;
     paid += income;
     tx.update(careerPoolTeamStateTable).set({
-      balance:           Number(st.balance) + income - total,
+      balance:           Number(st.balance) + income - total - manager,
       sponsorReputation: reputation,
       updatedAt:         new Date(),
     }).where(and(

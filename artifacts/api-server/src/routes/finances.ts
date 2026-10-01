@@ -13,7 +13,8 @@ import { promotionsMultiplier } from "../utils/staffBonuses.js";
 import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
 import { purseAccessTierFor } from "../utils/rankingPoints.js";
 import { weeklyRunningCost } from "../utils/runningCosts.js";
-import { WEEKS_PER_MONTH, SPONSOR_REP_BASELINE, decayedReputation, sponsorWeeklyIncome } from "../utils/clubFinances.js";
+import { WEEKS_PER_MONTH, SPONSOR_REP_BASELINE, decayedReputation, sponsorWeeklyIncome, managerWeeklySalary } from "../utils/clubFinances.js";
+import { managerSalaryFor } from "@workspace/db";
 
 /* ── Sponsor reputation helper ──────────────────────────────── */
 
@@ -194,7 +195,9 @@ router.get("/finances/summary", async (req, res) => {
   // L-04's weekly charge writes "running_costs" (routes/calendar.ts).
   const RUNNING_COST_CATEGORIES  = ["running_costs"];
   const TRAINING_CATEGORIES      = ["training_cost"];
-  const NAMED_EXPENSES = [...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, ...TRAINING_CATEGORIES];
+  // Overnight 1 Oct, N-41: the manager's salary, paid weekly by calendar.ts.
+  const MANAGER_SALARY_CATEGORIES = ["manager_salary"];
+  const NAMED_EXPENSES = [...PLAYER_SALARY_CATEGORIES, ...STAFF_SALARY_CATEGORIES, ...RUNNING_COST_CATEGORIES, ...TRAINING_CATEGORIES, ...MANAGER_SALARY_CATEGORIES];
   const NAMED_INCOME   = ["prize_money", "sponsorship", "promo_deal"];
 
   res.json({
@@ -218,6 +221,7 @@ router.get("/finances/summary", async (req, res) => {
       staffSalaries:  inCategories(seasonExpenseRows, STAFF_SALARY_CATEGORIES),
       runningCosts:   inCategories(seasonExpenseRows, RUNNING_COST_CATEGORIES),
       trainingCosts:  inCategories(seasonExpenseRows, TRAINING_CATEGORIES),
+      managerSalary:  inCategories(seasonExpenseRows, MANAGER_SALARY_CATEGORIES),
       other:          total(seasonExpenseRows.filter(t => !NAMED_EXPENSES.includes(t.category))),
     },
     forecast: await forecastWeeks(team, careerSaveId, today, season?.year ?? Number(today.slice(0, 4))),
@@ -251,7 +255,7 @@ async function forecastWeeks(team: typeof teamsTable.$inferSelect, careerSaveId:
   let sponsorIncome = 0;
   for (let w = 0; w < FORECAST_WEEKS; w++) {
     reputation = decayedReputation(reputation);
-    sponsorIncome += Math.round(sponsorWeeklyIncome(reputation) * promoBonus);
+    sponsorIncome += sponsorWeeklyIncome(reputation, promoBonus);
   }
   const horizon = addDays(today, FORECAST_WEEKS * 7);
   const contracts = await db.select().from(promoDealsTable)
@@ -270,14 +274,15 @@ async function forecastWeeks(team: typeof teamsTable.$inferSelect, careerSaveId:
   const playerWages  = (wageBill.weeklyWages + youthWageBill.weeklyWages) * FORECAST_WEEKS;
   const staffWages   = staffWageBill.weeklyWages * FORECAST_WEEKS;
   const runningCosts = weeklyRunningCost(squad.length, tier) * FORECAST_WEEKS;
+  const managerSalary = managerWeeklySalary(managerSalaryFor(`career:${careerSaveId}`)) * FORECAST_WEEKS;
   const income   = sponsorIncome + contractPayments;
-  const expenses = playerWages + staffWages + runningCosts;
+  const expenses = playerWages + staffWages + runningCosts + managerSalary;
   return {
     weeks: FORECAST_WEEKS,
     from: today,
     to: horizon,
     income: { sponsorIncome, contractPayments, total: income },
-    expenses: { playerWages, staffWages, runningCosts, total: expenses },
+    expenses: { playerWages, staffWages, runningCosts, managerSalary, total: expenses },
     net: income - expenses,
     projectedBalance: Number(team.budget) + income - expenses,
   };

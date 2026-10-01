@@ -1296,6 +1296,12 @@ export const careerSavesTable = sqliteTable("career_saves", {
    */
   formerTeamId: integer("former_team_id").references(() => teamsTable.id),
   retiredAt:    integer("retired_at", { mode: "timestamp" }),
+  /**
+   * Overnight 1 Oct, N-41: the game date this career was brought onto Rob's
+   * money numbers (lib/db/src/schema/money.ts; utils/moneyPass.ts). A new
+   * career is stamped when it is made; an older one at its first boot.
+   */
+  moneyPassAt:  text("money_pass_at"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

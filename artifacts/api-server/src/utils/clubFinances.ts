@@ -26,6 +26,7 @@
  * See also utils/runningCosts.ts (the ground, the squad and the tour) and
  * utils/poolClubFinances.ts (the same rules applied to the sixty).
  */
+import { MONEY, playerWageRise } from "@workspace/db";
 import { weeklyRunningCost, type RunningCostTier } from "./runningCosts.js";
 
 /**
@@ -58,9 +59,26 @@ export function decayedReputation(reputation: number): number {
   return Math.max(0, Math.min(100, Math.round(pulled)));
 }
 
-/** A week of sponsor and commercial income at this reputation. */
-export function sponsorWeeklyIncome(reputation: number): number {
-  return Math.round(Math.max(0, reputation) * SPONSOR_INCOME_PER_REPUTATION);
+/**
+ * A week of sponsor and commercial income at this reputation.
+ *
+ * Overnight 1 Oct, N-41 (Rob): every club, AI clubs included, earns
+ * MONEY.sponsorWeeklyBonus a week on top of what its reputation earns
+ * (lib/db/src/schema/money.ts). A Promotions Manager's bonus (P-09) lifts the
+ * reputation part only: the flat sum is the same for every club.
+ */
+export function sponsorWeeklyIncome(reputation: number, promotionsMultiplier = 1): number {
+  return Math.round(Math.max(0, reputation) * SPONSOR_INCOME_PER_REPUTATION * promotionsMultiplier)
+    + MONEY.sponsorWeeklyBonus;
+}
+
+/**
+ * The weekly instalment of a manager's MONTHLY salary (overnight 1 Oct, N-41):
+ * every manager, the player's and each AI club's, is paid from the club's
+ * budget like staff wages.
+ */
+export function managerWeeklySalary(monthlySalary: number): number {
+  return Math.round(monthlySalary / WEEKS_PER_MONTH);
 }
 
 /** The weekly instalment of a set of MONTHLY salaries. */
@@ -117,5 +135,6 @@ export const MAX_MONTHLY_SALARY = 14_500;
 export function monthlySalaryFor(overallRating: number): number {
   const ask = ASK_PER_RATING_POINT * overallRating + ASK_INTERCEPT;
   const monthly = Math.round(ask / 12);
-  return Math.max(MIN_MONTHLY_SALARY, Math.min(MAX_MONTHLY_SALARY, monthly));
+  // Overnight 1 Oct, N-41: every senior's wage rises by MONEY.playerWageRiseMonthly.
+  return Math.max(MIN_MONTHLY_SALARY, Math.min(MAX_MONTHLY_SALARY, monthly)) + playerWageRise(overallRating);
 }

@@ -27,6 +27,7 @@
  * would worsen I3, which is already at 35% against a 15% target — the single
  * World Final is 35% of the season's prize money. Prizes are Phase 3.
  */
+import { playerWageRise } from "@workspace/db";
 
 /** Asking price below which the curve is untouched. */
 export const WAGE_KNEE = 100_000;
@@ -50,6 +51,17 @@ export function effectiveAskingPrice(
 ): number {
   if (!Number.isFinite(askingPrice) || askingPrice <= knee) return Math.max(0, askingPrice || 0);
   return knee + (askingPrice - knee) * compression;
+}
+
+/**
+ * A senior player's monthly wage: her asking wage (below) plus the 1 Oct rise
+ * for her rating (MONEY.playerWageRiseMonthly, lib/db/src/schema/money.ts).
+ * Overnight 1 Oct, N-41: what the market asks, what she signs on, and the one
+ * month her transfer price is made of. Youth are not included (their wage is
+ * the academy's, utils/academy.ts).
+ */
+export function seniorMonthlyWage(askingPrice: number | null | undefined, overallRating: number): number {
+  return monthlyWage(askingPrice) + playerWageRise(overallRating);
 }
 
 /** Monthly wage for an athlete with this asking price. */

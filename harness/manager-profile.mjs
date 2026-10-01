@@ -10,7 +10,10 @@
  *
  * Asserted on a copy of Rob's save (the starter save when it is absent):
  * Career Earnings = the $6,000 salary pro rata on the game days of each season
- * (a direct sum from the copy's seasons and game date), not the prize money;
+ * (a direct sum from the copy's seasons and game date) up to the day the 1 Oct
+ * money pass ran, plus the "Manager salary" lines paid since (overnight 1 Oct,
+ * N-41), not the prize money; the salary shown is the manager's monthly figure
+ * in Rob's range (lib/db/src/schema/money.ts);
  * the level and its name come from the rep points; the profile, the dashboard,
  * the Trophy Cabinet and the retire screen all read the one table.
  *
@@ -23,6 +26,8 @@ import { DatabaseSync } from "node:sqlite";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
+// Overnight 1 Oct, N-41: the manager's salary, from the one config file (Node strips the types).
+import { managerSalaryFor } from "../lib/db/src/schema/money.ts";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -94,15 +99,23 @@ try {
   const today = d.prepare(`SELECT * FROM calendar_state WHERE team_id = ?`).get(team.id).current_date;
   const seasons = d.prepare(`SELECT start_date AS s, end_date AS e, status FROM seasons WHERE career_save_id = ?`).all(careerSaveId);
   const prize = Number(d.prepare(`SELECT COALESCE(SUM(amount), 0) AS t FROM finance_transactions WHERE team_id = ? AND type = 'income' AND category = 'prize_money'`).get(team.id).t);
+  const paid = Number(d.prepare(`SELECT COALESCE(SUM(amount), 0) AS t FROM finance_transactions WHERE team_id = ? AND category = 'manager_salary'`).get(team.id).t);
+  const passAt = d.prepare(`SELECT money_pass_at AS m FROM career_saves WHERE id = ?`).get(careerSaveId)?.m ?? null;
   d.close();
+  const until = /^\d{4}-\d{2}-\d{2}$/.test(passAt ?? "") ? passAt : null;
   const day = (x) => Date.parse(`${x.slice(0, 10)}T00:00:00Z`) / 86400000;
-  const expected = Math.round(seasons.reduce((a, s) => {
+  const before = until == null ? 0 : seasons.reduce((a, s) => {
     const len = day(s.e) - day(s.s) + 1;
-    const served = s.status === "completed" ? len : Math.max(0, Math.min(len, day(today) - day(s.s) + 1));
+    const served = s.status === "completed" && s.e.slice(0, 10) <= until ? len : Math.max(0, Math.min(len, day(until) - day(s.s) + 1));
     return a + SALARY * served / len;
-  }, 0));
-  check("Career Earnings = the $6,000 salary pro rata on the game days served", sum?.careerEarnings === expected && sum.managerSalary === SALARY,
-    `$${sum?.careerEarnings?.toLocaleString()} on ${today} (${seasons.length} season(s)); computed $${expected.toLocaleString()}`);
+  }, 0);
+  const expected = Math.round(paid + before);
+  check("Career Earnings = the old $6,000 a season pro rata up to the money pass, plus the manager salary paid since",
+    sum?.careerEarnings === expected,
+    `$${sum?.careerEarnings?.toLocaleString()} on ${today} (${seasons.length} season(s), pass ${passAt}); computed $${Math.round(before).toLocaleString()} + paid $${paid.toLocaleString()}`);
+  const salaryWant = managerSalaryFor(`career:${careerSaveId}`);
+  check("the salary shown is the manager's monthly figure in Rob's range", sum.managerSalary === salaryWant && salaryWant >= 16000 && salaryWant <= 20000,
+    `$${sum.managerSalary?.toLocaleString()} a month`);
   check("...not the club's prize money", sum.careerEarnings !== prize || prize === 0, `prize money $${prize.toLocaleString()}`);
   const levels = [[0, 1, "Local Coach"], [100, 2, "Regional Coach"], [300, 3, "National Coach"], [700, 4, "World Class Coach"], [1500, 5, "Legend"]];
   const want = [...levels].reverse().find(([min]) => (team.managerRepPoints ?? 0) >= min);

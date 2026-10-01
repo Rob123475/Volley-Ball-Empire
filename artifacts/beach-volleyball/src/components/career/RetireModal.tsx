@@ -398,7 +398,7 @@ export function RetireModal({ onClose, onRetired }: Props) {
               managerRepPoints: 0,
               managerLevel: 1,
               managerLevelName: "Local Coach",
-              managerSalary: 6_000,
+              managerSalary: 0,
               careerEarnings: 0,
             }}
             onDone={onRetired}

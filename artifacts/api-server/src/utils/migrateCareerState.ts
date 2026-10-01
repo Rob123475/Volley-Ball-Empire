@@ -11,7 +11,8 @@ import {
 } from "@workspace/db";
 import { isNull, sql } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
-import { monthlyWage } from "./wageCurve.js";
+import { monthlyWage, seniorMonthlyWage } from "./wageCurve.js";
+import { overallRating } from "./overallRating.js";
 
 /** A regional league is six clubs playing a double round-robin. */
 const LEAGUE_SIZE = 6;
@@ -77,6 +78,8 @@ const SEED_REFERENCE_COLUMNS = [
   // Who starts in the draft pool. Without this a new career sees the column
   // default (false) for all 268 athletes and the draft pool is empty.
   "is_draft_player",
+  // Overnight 1 Oct, N-41: a senior's wage carries the 1 Oct rise; a youth's does not.
+  "player_type",
 ] as const;
 
 /** What a NEW career copies off the staff reference row. */
@@ -599,7 +602,14 @@ export function seedPlayerStateRows(tx: DbTx, careerSaveId: number, playerIds: r
     tx.insert(careerPlayerStateTable).values({
       careerSaveId, playerId: id,
       age:     Number(refs.get(id)?.base_age ?? refs.get(id)?.age ?? 20),
-      salary:  monthlyWage(refs.get(id)?.asking_price),
+      // N-41: a senior's market wage carries the rise for her rating (MONEY.playerWageRiseMonthly).
+      salary:  refs.get(id)?.player_type === "senior"
+        ? seniorMonthlyWage(refs.get(id)?.asking_price, overallRating({
+            speed: Number(refs.get(id)?.speed ?? 70), power: Number(refs.get(id)?.power ?? 70),
+            defense: Number(refs.get(id)?.defense ?? 70), serve: Number(refs.get(id)?.serve ?? 70),
+            block: Number(refs.get(id)?.block ?? 70), stamina: Number(refs.get(id)?.stamina ?? 70),
+          }))
+        : monthlyWage(refs.get(id)?.asking_price),
       speed:   Number(refs.get(id)?.speed   ?? 70),
       power:   Number(refs.get(id)?.power   ?? 70),
       defense: Number(refs.get(id)?.defense ?? 70),
