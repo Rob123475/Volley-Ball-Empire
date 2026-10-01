@@ -1,0 +1,9 @@
+  PASS  both careers ran  established: 12 seasons · underdog: 12 seasons
+  FAIL  a club finishing in the bottom three of the field went backwards, every time  underdog S3 #19 $493,596 · underdog S4 #17 $526,136 · underdog S5 #19 $481,136 · underdog S6 #17 $496,896 · underdog S7 #19 $477,659 · underdog S8 #18 $485,676 · underdog S11 #19 $554,436
+  Gold champions: $788,704, $791,554, $782,354, $780,854, $726,254, $720,754
+  Gold runners-up: $611,354, $716,354, $708,554
+  PASS  established: the Finances page is told what the running costs were this season  summary says $782,400, the ledger says $782,400
+  PASS  underdog: the Finances page is told what the running costs were this season  summary says $413,600, the ledger says $413,600
+  PASS  a club that WON the Gold tour went forwards, every time  established S1 $788,704 · established S2 $791,554 · established S3 $782,354 · established S5 $780,854 · established S6 $726,254 · established S10 $720,754
+  FAIL  and went forwards modestly — under $500,000 a season  biggest gain $791,554
+  FAIL  underdog: 7 seasons at the bottom cost more than the club had  started $1,355,952, lost -$3,515,535 over 7 seasons, left with $4,871,487
