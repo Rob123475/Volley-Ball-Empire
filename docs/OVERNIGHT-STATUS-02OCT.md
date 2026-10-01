@@ -5,6 +5,50 @@ Game repo branch `fix-batch-29sep`; Unity repo `Rob123475/volleyball-unity`, bra
 Rob's live save is never opened: tests use copies of the starter DB or of `Downloads\volleyball-empire-backup-01oct-1225.sqlite` (only ever copied). No Steam upload.
 The ElevenLabs key check (`scripts/check-no-elevenlabs-key.cjs`) runs in the pre-push hook of both repos on every push.
 
+## Summary
+
+- **All 22 items worked, in order.** 21 done, plus one found on the way (F-1, the subtitle's empty box). **Not reproduced:** item 6 (N-30, made to fit by construction anyway) and item 20 (N-43, nothing changed). Both have a question below. Nothing is blocked and nothing was left unstarted.
+- **Money (item 7) is exactly your 1 Oct numbers, untuned.** Over 30 seasons every AI club gets rich and none is ever sold (table below, Q-2).
+- **Finished:** game HEAD `2831f3c` (final WebGL export of Unity `3ea39c8`), Unity HEAD `3ea39c8`, both pushed.
+- **Final full harness** on that HEAD: **98 of 98 suites, 1,578 of 1,578 checks**.
+- **Local package:** `C:\build\vbe-unity-02oct\win-unpacked`. Not launched (see "Package").
+- **ElevenLabs credits** (headers): sound effects 1,108, speech 251.
+- **Questions:** Q-1 to Q-8.
+- **Read "Before you open your own save" first.**
+
+## Harness
+
+**Final full run** (`node harness/run-all.mjs` on game HEAD `2831f3c`, with the server, the page and sync-public rebuilt first): **98 of 98 suites passed, "ALL HARNESSES PASSED"**. That is 1,578 of 1,578 checks and 0 FAIL lines, in 44 minutes (18:24–19:08).
+- The 8 suites new tonight all passed: money pass, runner-up prize, youth ratings, youth wages, youth contract box, workload window, game dates and highest balance.
+- So did schema drift, job market, economy, the AI club economy (30 seasons) and season rollover.
+- Two suites now report a rule that your new numbers break, without asserting it, until you decide (item 7, Q-2). Everything else in them is still asserted.
+  - economy: your 22 Sep rule that the bottom clubs go backwards and broke, and that the Gold champion gains under $500,000.
+  - ai-club-economy: five losing seasons sell an AI club.
+- court-finish now checks the new result box (item 5).
+
+**Earlier full runs tonight:**
+- **After section A:** 89 of 90 suites. The one failure was schema-drift, because the starter DB gained a column (B7) while the run was going; on the B7 build it passes 12/12.
+- **Checkpoint after B and C** (`8a95151` in a copy of the tree): 94 of 95. The one failure was job-market. Its pre-built "losing" season came out profitable under your new money numbers, so the club was never sold and the suite's sale never happened. The suite's setup was fixed in `07c3cb6` (its seasons open higher, so a loss is still a loss); it then passed 54/54 alone. The checkpoint run had started before that fix.
+
+Every item's own suites were run green before its commit (the proof line names them).
+
+## Package
+
+- **Built:** `C:\build\vbe-unity-02oct\win-unpacked` (electron-builder `--win dir`, output redirected; `C:\build\vbe` untouched) from `2831f3c`, with the server, the page and sync-public rebuilt first. 604 MB.
+- **before-pack:** only the Brotli Unity files are packed (the raw .data and .wasm were stripped); better-sqlite3 loads under Electron 32.3.3.
+- **after-pack:** the starter DB has no -wal/-shm; no steam_appid.txt; steamworks.js is unpacked.
+- **Not launched.** The packaged exe opens the save in your AppData. Instead, the package's own server (`resources/server/dist/index.mjs`, run by the package's exe as Node) was booted on a **copy** of your 1 Oct backup. Your career loaded (Sydney Riptide), the page was served (title "Beach Volleyball Empire"), and the Unity files (`data.br` 217,019,058 bytes, loader) were served.
+- **Same check on the dev build** with that copy: 16 pages' data with no errors, 8 game days advanced, and the boot passes logged once each:
+  - money numbers: 1 career, 3 signed, 189 free agents, 120 AI contracts, 2 head coaches;
+  - 72 youth wages;
+  - 1 highest balance raised.
+- **No Steam upload.**
+
+## ElevenLabs key
+
+- **Where it was used:** the key was read at run time from `Downloads\11labs api.txt` by `scripts/elevenlabs-crowd.mjs` and `scripts/elevenlabs-commentary.mjs`, and never written anywhere.
+- **Check before every push:** `check-no-elevenlabs-key.cjs` ran in the pre-push hook of both repos on every push tonight. The last run, on this file's push, reported: "ElevenLabs key not found in 2120 files or the unpushed commits of Volley-Ball-Empire".
+
 ## Items (one proof line each)
 
 | # | Item | Status | Commit | What changed, and how it is proven |
@@ -78,7 +122,7 @@ All 60 AI clubs: **before** 145 sales over 30 seasons, 18 never sold, 5 below $0
 | # | Item | Status | Commit | What changed, and how it is proven |
 |---|---|---|---|---|
 | F-1 | The subtitle's empty dark box stayed on screen | Done | Unity `3ea39c8` | Seen in the item 1–5 renders: between commentary lines (most of a match) the subtitle's dark box stayed up over the court with no words in it. **Cause:** only the text was cleared after a line; the box (the subtitle's parent image) was never hidden. **Now** the box shows only while a line is up, hidden at the start, after each line and when the match ends. Proof: PlayRenderProof `-renderShot subtitle`, 90 s of play: the box showed in 134,338 of 134,338 frames with a line and in 0 of 34,757 without one (22 lines spoken): `docs/proof-02oct/found_subtitle_box.txt`, `found-subtitle-box-quiet.png`. |
-| Export | Final WebGL export (every Unity change tonight) | Done | game: this row's commit (export of Unity `3ea39c8`) | WebBuild.Step7, batch, RESULT Succeeded (its one error is Unity's licence check, as before; 355 warnings). data 256.2 MB, wasm 49.2 MB, framework.js and loader.js; copied into `unity-build/Build` under the deployed names; Brotli regenerated (data.br 217.0 MB, wasm.br 9.0 MB); verify-unity-brotli OK. Headless render on the real GPU of a new career's first match with the server and the page rebuilt (`court-proof.mjs --gpu`): loaded in 3.6 s and the match reported its points to the server; at 25 s, no line spoken and **no subtitle box** (`docs/proof-02oct/final-webgl-quiet-no-box.png`); at 45 s Kailey's line in its box under the court, the larger scoreboard above (`final-webgl-line-in-box.png`). |
+| Export | Final WebGL export (every Unity change tonight) | Done | game `2831f3c` (export of Unity `3ea39c8`) | WebBuild.Step7, batch, RESULT Succeeded (its one error is Unity's licence check, as before; 355 warnings). data 256.2 MB, wasm 49.2 MB, framework.js and loader.js; copied into `unity-build/Build` under the deployed names; Brotli regenerated (data.br 217.0 MB, wasm.br 9.0 MB); verify-unity-brotli OK. Headless render on the real GPU of a new career's first match with the server and the page rebuilt (`court-proof.mjs --gpu`): loaded in 3.6 s and the match reported its points to the server; at 25 s, no line spoken and **no subtitle box** (`docs/proof-02oct/final-webgl-quiet-no-box.png`); at 45 s Kailey's line in its box under the court, the larger scoreboard above (`final-webgl-line-in-box.png`). |
 
 ## Questions for Rob
 
