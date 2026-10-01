@@ -130,7 +130,8 @@ try {
 
   const [toSign, toReject] = youths;
   const b0 = Number((await api("GET", "/team")).data?.budget);
-  const signed = await api("POST", `/youth-scouting/prospects/${toSign.id}/sign`);
+  // N-44 (b): a find signs through the contract box: a length, the youth team or reserves, and the confirm.
+  const signed = await api("POST", `/youth-scouting/prospects/${toSign.id}/sign`, { length: "1s", academyRole: "youth_team", confirm: true });
   const b1 = Number((await api("GET", "/team")).data?.budget);
   check("signing a found youth charges exactly her shown price", signed.status < 300 && b0 - b1 === toSign.signingCost, `HTTP ${signed.status} ${signed.data?.error ?? ""}; -$${b0 - b1} for $${toSign.signingCost}`);
   if (toReject) {
@@ -140,8 +141,9 @@ try {
     check("rejecting one takes her off the list", !still);
   }
   const page = fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/continental-scouting.tsx"), "utf8");
-  check("the page: Sign asks first with her price, Reject, the report shown, a Scout must be chosen",
-    /She joins your Youth Academy for \$\{prospect\.signingCost\.toLocaleString\(\)\}, charged now\./.test(page) && /Reject/.test(page) && /mission\?\.report/.test(page)
+  // Overnight 1 Oct, N-44 (b): Sign opens the shared contract box, whose confirm names her price.
+  check("the page: Sign opens the contract box with her price, Reject, the report shown, a Scout must be chosen",
+    /<ContractModal\s+player=\{findAsSigning\(prospect\)\}/.test(page) && /Reject/.test(page) && /mission\?\.report/.test(page)
     && /disabled=\{startMission\.isPending \|\| !scouts\.some/.test(page) && !/No scout assigned/.test(page));
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));

@@ -14,7 +14,9 @@ import { updateCareerStats, checkAchievements } from "../utils/check-achievement
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate } from "../utils/gameDate.js";
 import { loadPlayers, createCareerPlayer, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
-import { academyCountTx } from "../utils/youthLoans.js";
+import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
+import { readContractLength, contractEndDate } from "../utils/contractTerms.js";
+import { seasonEndsFrom } from "../utils/seasonDates.js";
 import { refusalReason } from "../utils/squadRules.js";
 import { academySize, academyMonthlySalary } from "../utils/academy.js";
 import type { Team, YouthProspect } from "@workspace/db";
@@ -209,6 +211,16 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     return;
   }
 
+  // Overnight 1 Oct, N-44 (b): a find signs through the same contract box as a
+  // market youth: 6 months / 1 season / 2 seasons, the youth team or the
+  // reserves, and the confirm, which names her price.
+  const wanted = readContractLength(req.body ?? {});
+  if ("error" in wanted) { res.status(400).json({ error: wanted.error }); return; }
+  if (req.body?.confirm !== true) {
+    res.status(400).json({ error: `Confirm the signing: ${prospect.name} costs $${prospect.signingCost.toLocaleString()}.` });
+    return;
+  }
+
   // Budget check
   const budget = Number(team.budget ?? 0);
   if (budget < prospect.signingCost) {
@@ -248,10 +260,10 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
   // monthly figure and billed once a week in the weekly wage run.
   const salary = academyMonthlySalary(prospect.potentialStars);
 
-  const today = new Date().toISOString().split("T")[0]!;
-  const contractEnd = new Date();
-  contractEnd.setFullYear(contractEnd.getFullYear() + 3);
-  const endDate = contractEnd.toISOString().split("T")[0]!;
+  // On the game's calendar (it used the PC's clock and three years), for the length chosen.
+  const cid = requireCareerSaveId(req.activeCareerSaveId);
+  const today = await getGameDate(team.id);
+  const endDate = contractEndDate(wanted.length, today, await seasonEndsFrom(cid, today));
 
   // Insert the player into the youth squad (reserve role, not active)
   const newPlayer = await createCareerPlayer(
@@ -285,6 +297,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
       isRetired:     false,
       injuryStatus:  "Healthy",
       salary,
+      contractEndDate: endDate,
       academyContractYears: 2.0,
       morale:        75 + Math.floor(Math.random() * 16),
       fatigue:       0,
@@ -293,15 +306,15 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     },
   );
 
-  // Contract (3-year youth deal)
   await db.insert(contractsTable).values({
     playerId:    newPlayer.id,
     teamId:      team.id,
     salary,
     startDate:   today,
     endDate,
-    bonusPerWin: 250,
+    bonusPerWin: 0,
   });
+  const academyPlace = withCareerStateTx((w) => placeSignedYouthTx(w, cid, team.id, newPlayer.id, req.body?.academyRole === "reserve" ? "reserve" : "youth_team"));
 
   // Deduct signing fee
   await db.update(teamsTable)
@@ -309,12 +322,13 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     .where(eq(teamsTable.id, team.id));
 
   // Finance transaction
+  // Her price, on the ledger as the market's youth signings are.
   await db.insert(financeTransactionsTable).values({
     teamId:      team.id,
     type:        "expense",
     amount:      prospect.signingCost,
-    description: `Youth signing — ${prospect.name}`,
-    category:    "youth_academy",
+    description: `Signing fee: ${prospect.name} (scouting find)`,
+    category:    "signing_fee",
     date:        today,
   });
 
@@ -332,7 +346,7 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     // non-critical
   }
 
-  res.json(serializeProspect(updated));
+  res.json({ ...serializeProspect(updated), academyPlace, contractEndDate: endDate });
 });
 
 router.post("/youth-scouting/prospects/:id/ignore", async (req, res) => {

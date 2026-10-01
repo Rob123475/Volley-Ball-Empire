@@ -156,6 +156,19 @@ export function ensureYouthTeamTx(w: CareerStateTx, careerSaveId: number, club: 
   while (team.length < ACADEMY_YOUTH_TEAM && reserves.length > 0) { const inn = reserves.shift()!; setRole(inn.playerId, "youth_team"); team.push(inn); }
 }
 
+/**
+ * Overnight 1 Oct, N-44 (b): a youth just signed (off the market or a scout's
+ * find) goes where the contract box chose: the youth team if it has a place,
+ * otherwise the reserves (the manager swaps her in from Team > Youth Loans).
+ * Returns where she went.
+ */
+export function placeSignedYouthTx(w: CareerStateTx, careerSaveId: number, teamId: number, playerId: number, wanted: "youth_team" | "reserve"): "youth_team" | "reserve" {
+  const team = academyAtTx(w.tx, careerSaveId, { teamId }).filter((r) => r.academyRole === "youth_team" && r.playerId !== playerId);
+  const role = wanted === "youth_team" && team.length < ACADEMY_YOUTH_TEAM ? "youth_team" : "reserve";
+  w.setPlayerState(careerSaveId, playerId, { academyRole: role });
+  return role;
+}
+
 /** Put her in the youth team (in place of `swapOut` when it is full) or the reserves. */
 export function setAcademyRoleTx(w: CareerStateTx, careerSaveId: number, teamId: number, playerId: number, role: "youth_team" | "reserve", swapOut?: number): string | null {
   const { tx } = w;

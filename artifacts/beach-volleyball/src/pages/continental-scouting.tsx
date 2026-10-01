@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ContractModal, findAsSigning, academyPlaceText, type ContractOffer } from "@/components/contract-offer-dialog";
 import { continentKeyFrom, continentLabel, type ContinentKey } from "@shared/continents";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -172,7 +173,7 @@ function ProspectCard({
   isMutating,
 }: {
   prospect: YouthProspect;
-  onSign: (id: number, name: string) => void;
+  onSign: (id: number, name: string, offer: ContractOffer) => void;
   onIgnore: (id: number, name: string) => void;
   isMutating: boolean;
 }) {
@@ -255,27 +256,16 @@ function ProspectCard({
 
       {/* Actions */}
       <div className="flex gap-2 pt-1 border-t border-border mt-auto">
-        {/* Overnight 30 Sep, item 13: signing is a confirm step with her price on it. */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button size="sm" className="flex-1 gap-1 text-xs h-8" disabled={isMutating} data-testid={`button-sign-prospect-${prospect.id}`}>
-              <UserPlus className="h-3.5 w-3.5" />
-              Sign
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Sign {prospect.name}?</AlertDialogTitle>
-              <AlertDialogDescription>
-                She joins your Youth Academy for ${prospect.signingCost.toLocaleString()}, charged now.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onSign(prospect.id, prospect.name)}>Sign for ${prospect.signingCost.toLocaleString()}</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {/* N-44 (b): the same contract box as a market youth: her price and wage,
+            6 months / 1 season / 2 seasons, Youth Team or Reserves, and the confirm. */}
+        <div className="flex-1">
+          <ContractModal
+            player={findAsSigning(prospect)}
+            onSign={(offer) => onSign(prospect.id, prospect.name, offer)}
+            isPending={isMutating}
+            triggerTestId={`button-sign-prospect-${prospect.id}`}
+          />
+        </div>
         <Button
           size="sm"
           variant="outline"
@@ -555,10 +545,10 @@ export default function ContinentalScouting() {
     });
   }
 
-  function handleSign(id: number, name: string) {
-    signProspect.mutate({ id }, {
-      onSuccess: () => {
-        toast({ title: "Signed!", description: `${name} has joined the Youth Academy.` });
+  function handleSign(id: number, name: string, offer: ContractOffer) {
+    signProspect.mutate({ id, data: { length: offer.length, academyRole: offer.academyRole, confirm: true } }, {
+      onSuccess: (res: any) => {
+        toast({ title: "Signed!", description: `${name} has joined the Youth Academy. ${academyPlaceText(res?.academyPlace, offer.academyRole)}` });
         invalidate();
         qc.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
       },

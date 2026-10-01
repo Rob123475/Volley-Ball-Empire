@@ -6958,6 +6958,7 @@ export const SignContractBody = zod.object({
   "length": zod.enum(['6m', '1s', '2s']).optional().describe('L-02a: how long the contract runs — 6 months, 1 season or 2 seasons, and nothing else. The server resolves the end date from the real season rows, so the caller does not send a date: a season is 418-421 days, and the old endDate was computed from the CALLER\'s clock. Defaults to 1 season when omitted.'),
   "bonusPerWin": zod.number(),
   "squadRole": zod.enum(['starter', 'interchange', 'reserve']).optional().describe('Squad assignment on signing. \'reserve\' is youth-only (ages 14–18).'),
+  "academyRole": zod.enum(['youth_team', 'reserve']).optional().describe('Overnight 1 Oct, N-44 (b): a youth joins the academy\'s youth team (the 3 who play) or its reserves; with the youth team full she starts in the reserves. Ignored for a senior.'),
   "confirm": zod.boolean().optional().describe('Unity brief item 15: a senior signed off the market costs her price (her exact price if scouted, else a range; the exact price is revealed and charged on signing). The caller confirms it with confirm=true; without it the server answers 400 with the price or range.')
 })
 
@@ -11051,6 +11052,7 @@ export const GetYouthProspectsResponseItem = zod.object({
   "age": zod.number(),
   "continent": zod.string(),
   "nationality": zod.string().nullish().describe('Her country, as the scout\'s report names it (overnight 1 Oct, N-44).'),
+  "wage": zod.number().nullish().describe('The academy\'s monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).'),
   "currentRating": zod.number(),
   "potentialStars": zod.string(),
   "speciality": zod.string(),
@@ -11066,11 +11068,17 @@ export const GetYouthProspectsResponse = zod.array(GetYouthProspectsResponseItem
 
 
 /**
- * @summary Reserve a scouted prospect for signing
+ * @summary Sign a scouting mission's find, through the same contract box as the market
  */
 export const SignYouthProspectParams = zod.object({
   "id": zod.coerce.number()
 })
+
+export const SignYouthProspectBody = zod.object({
+  "length": zod.enum(['6m', '1s', '2s']).optional(),
+  "academyRole": zod.enum(['youth_team', 'reserve']).optional(),
+  "confirm": zod.boolean().optional()
+}).describe('Overnight 1 Oct, N-44 (b): a find signs like a market youth: 6 months, 1 season or 2 seasons, the youth team or the reserves, and the confirm. Her wage is the academy\'s for her talent; her price is the find\'s.')
 
 export const SignYouthProspectResponse = zod.object({
   "id": zod.number(),
@@ -11078,6 +11086,7 @@ export const SignYouthProspectResponse = zod.object({
   "age": zod.number(),
   "continent": zod.string(),
   "nationality": zod.string().nullish().describe('Her country, as the scout\'s report names it (overnight 1 Oct, N-44).'),
+  "wage": zod.number().nullish().describe('The academy\'s monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).'),
   "currentRating": zod.number(),
   "potentialStars": zod.string(),
   "speciality": zod.string(),
@@ -11104,6 +11113,7 @@ export const IgnoreYouthProspectResponse = zod.object({
   "age": zod.number(),
   "continent": zod.string(),
   "nationality": zod.string().nullish().describe('Her country, as the scout\'s report names it (overnight 1 Oct, N-44).'),
+  "wage": zod.number().nullish().describe('The academy\'s monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).'),
   "currentRating": zod.number(),
   "potentialStars": zod.string(),
   "speciality": zod.string(),
@@ -11173,6 +11183,7 @@ export const CollectContinentalMissionResponse = zod.object({
   "age": zod.number(),
   "continent": zod.string(),
   "nationality": zod.string().nullish().describe('Her country, as the scout\'s report names it (overnight 1 Oct, N-44).'),
+  "wage": zod.number().nullish().describe('The academy\'s monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).'),
   "currentRating": zod.number(),
   "potentialStars": zod.string(),
   "speciality": zod.string(),
@@ -11224,6 +11235,7 @@ export const GetContinentalProspectsResponseItem = zod.object({
   "age": zod.number(),
   "continent": zod.string(),
   "nationality": zod.string().nullish().describe('Her country, as the scout\'s report names it (overnight 1 Oct, N-44).'),
+  "wage": zod.number().nullish().describe('The academy\'s monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).'),
   "currentRating": zod.number(),
   "potentialStars": zod.string(),
   "speciality": zod.string(),

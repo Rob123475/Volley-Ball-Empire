@@ -1,4 +1,5 @@
 import { useLocation } from "wouter";
+import { ContractModal, findAsSigning, academyPlaceText, type ContractOffer } from "@/components/contract-offer-dialog";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import {
@@ -175,11 +176,11 @@ export default function YouthAcademy() {
     qc.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
   };
 
-  const handleSign = (id: number, name: string) => {
-    signMutation.mutate({ id }, {
-      onSuccess: () => {
+  const handleSign = (id: number, name: string, offer: ContractOffer) => {
+    signMutation.mutate({ id, data: { length: offer.length, academyRole: offer.academyRole, confirm: true } }, {
+      onSuccess: (res: any) => {
         invalidate();
-        toast({ title: "Youth Signed!", description: `${name} has joined the Youth Academy.` });
+        toast({ title: "Youth Signed!", description: `${name} has joined the Youth Academy. ${academyPlaceText(res?.academyPlace, offer.academyRole)}` });
       },
       onError: (err: any) => {
         const msg = serverMessage(err, "Could not sign prospect.");
@@ -429,16 +430,15 @@ export default function YouthAcademy() {
                     </div>
 
                     <div className="flex gap-2 pt-1 border-t border-border mt-auto">
-                      <Button
-                        size="sm"
-                        className="flex-1 gap-1 text-xs h-8"
-                        onClick={() => handleSign(p.id, p.name)}
-                        disabled={isMutating}
-                        data-testid={`button-sign-prospect-${p.id}`}
-                      >
-                        <UserPlus className="h-3.5 w-3.5" />
-                        Sign Prospect
-                      </Button>
+                      {/* N-44 (b): the same contract box as a market youth. */}
+                      <div className="flex-1">
+                        <ContractModal
+                          player={findAsSigning(p as any)}
+                          onSign={(offer) => handleSign(p.id, p.name, offer)}
+                          isPending={isMutating}
+                          triggerTestId={`button-sign-prospect-${p.id}`}
+                        />
+                      </div>
                       <Button
                         size="sm"
                         variant="outline"

@@ -958,6 +958,17 @@ export const ContractInputSquadRole = {
   reserve: 'reserve',
 } as const;
 
+/**
+ * Overnight 1 Oct, N-44 (b): a youth joins the academy's youth team (the 3 who play) or its reserves; with the youth team full she starts in the reserves. Ignored for a senior.
+ */
+export type ContractInputAcademyRole = typeof ContractInputAcademyRole[keyof typeof ContractInputAcademyRole];
+
+
+export const ContractInputAcademyRole = {
+  youth_team: 'youth_team',
+  reserve: 'reserve',
+} as const;
+
 export interface ContractInput {
   playerId: number;
   salary: number;
@@ -966,7 +977,35 @@ export interface ContractInput {
   bonusPerWin: number;
   /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
   squadRole?: ContractInputSquadRole;
+  /** Overnight 1 Oct, N-44 (b): a youth joins the academy's youth team (the 3 who play) or its reserves; with the youth team full she starts in the reserves. Ignored for a senior. */
+  academyRole?: ContractInputAcademyRole;
   /** Unity brief item 15: a senior signed off the market costs her price (her exact price if scouted, else a range; the exact price is revealed and charged on signing). The caller confirms it with confirm=true; without it the server answers 400 with the price or range. */
+  confirm?: boolean;
+}
+
+export type ProspectSignInputLength = typeof ProspectSignInputLength[keyof typeof ProspectSignInputLength];
+
+
+export const ProspectSignInputLength = {
+  '6m': '6m',
+  '1s': '1s',
+  '2s': '2s',
+} as const;
+
+export type ProspectSignInputAcademyRole = typeof ProspectSignInputAcademyRole[keyof typeof ProspectSignInputAcademyRole];
+
+
+export const ProspectSignInputAcademyRole = {
+  youth_team: 'youth_team',
+  reserve: 'reserve',
+} as const;
+
+/**
+ * Overnight 1 Oct, N-44 (b): a find signs like a market youth: 6 months, 1 season or 2 seasons, the youth team or the reserves, and the confirm. Her wage is the academy's for her talent; her price is the find's.
+ */
+export interface ProspectSignInput {
+  length?: ProspectSignInputLength;
+  academyRole?: ProspectSignInputAcademyRole;
   confirm?: boolean;
 }
 
@@ -2096,6 +2135,11 @@ export interface YouthProspect {
      * @nullable
      */
   nationality?: string | null;
+  /**
+     * The academy's monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).
+     * @nullable
+     */
+  wage?: number | null;
   currentRating: number;
   potentialStars: string;
   speciality: string;

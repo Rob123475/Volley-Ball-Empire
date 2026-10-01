@@ -5,6 +5,7 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { ContractInputAcademyRole } from './contractInputAcademyRole';
 import type { ContractInputLength } from './contractInputLength';
 import type { ContractInputSquadRole } from './contractInputSquadRole';
 
@@ -16,6 +17,8 @@ export interface ContractInput {
   bonusPerWin: number;
   /** Squad assignment on signing. 'reserve' is youth-only (ages 14–18). */
   squadRole?: ContractInputSquadRole;
+  /** Overnight 1 Oct, N-44 (b): a youth joins the academy's youth team (the 3 who play) or its reserves; with the youth team full she starts in the reserves. Ignored for a senior. */
+  academyRole?: ContractInputAcademyRole;
   /** Unity brief item 15: a senior signed off the market costs her price (her exact price if scouted, else a range; the exact price is revealed and charged on signing). The caller confirms it with confirm=true; without it the server answers 400 with the price or range. */
   confirm?: boolean;
 }

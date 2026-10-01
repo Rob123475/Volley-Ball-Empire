@@ -129,7 +129,9 @@ try {
   console.log("\n3. THE PAGES");
   const page = (f) => fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src", f), "utf8");
   check("the contract box shows a youth's wage (no $5,000 slider) and the market card and Youth Loans tab use the one formatter",
-    /isYouth \? \(/.test(page("pages/players.tsx")) && /youthWageText\(asking\)/.test(page("pages/players.tsx")) && /youthWageText\(Number\(player\.salary\)\)/.test(page("pages/players.tsx"))
+    // The box is the shared component since N-44 (b) (components/contract-offer-dialog.tsx).
+    /isYouth \? \(/.test(page("components/contract-offer-dialog.tsx")) && /youthWageText\(asking\)/.test(page("components/contract-offer-dialog.tsx"))
+    && /youthWageText\(Number\(player\.salary\)\)/.test(page("pages/players.tsx"))
     && (page("pages/youth-loans.tsx").match(/youthWageTextFromWeekly\(/g) ?? []).length >= 6 && !/a week<\/div>/.test(page("pages/youth-loans.tsx")));
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));

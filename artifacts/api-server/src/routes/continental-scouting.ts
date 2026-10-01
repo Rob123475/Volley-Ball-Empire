@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { academyMonthlySalary } from "../utils/academy.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import {
@@ -392,6 +393,8 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
       continent:            p.continent,
       // N-44: her country, as the scout's report names it.
       nationality:          p.nationality ?? null,
+      // N-33: what she is paid if signed: the academy's wage for her talent.
+      wage:                 academyMonthlySalary(p.potentialStars),
       currentRating:        p.currentRating,
       potentialStars:       p.potentialStars,
       speciality:           p.speciality,
@@ -469,6 +472,8 @@ router.get("/continental-scouting/prospects", async (req, res) => {
       continent:            p.continent,
       // N-44: her country, as the scout's report names it.
       nationality:          p.nationality ?? null,
+      // N-33: what she is paid if signed: the academy's wage for her talent.
+      wage:                 academyMonthlySalary(p.potentialStars),
       currentRating:        p.currentRating,
       potentialStars:       p.potentialStars,
       speciality:           p.speciality,

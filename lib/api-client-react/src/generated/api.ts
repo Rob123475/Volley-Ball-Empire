@@ -78,6 +78,7 @@ import type {
   PlayerWorkload,
   PrizeMoneySummary,
   PromoDeal,
+  ProspectSignInput,
   RenewContractBody,
   ResignResult,
   RunCampInput,
@@ -8201,16 +8202,18 @@ export const getSignYouthProspectUrl = (id: number,) => {
 }
 
 /**
- * @summary Reserve a scouted prospect for signing
+ * @summary Sign a scouting mission's find, through the same contract box as the market
  */
-export const signYouthProspect = async (id: number, options?: RequestInit): Promise<YouthProspect> => {
+export const signYouthProspect = async (id: number,
+    prospectSignInput?: ProspectSignInput, options?: RequestInit): Promise<YouthProspect> => {
 
   return customFetch<YouthProspect>(getSignYouthProspectUrl(id),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      prospectSignInput,)
   }
 );}
 
@@ -8218,8 +8221,8 @@ export const signYouthProspect = async (id: number, options?: RequestInit): Prom
 
 
 export const getSignYouthProspectMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number;data?: BodyType<ProspectSignInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number;data?: BodyType<ProspectSignInput>}, TContext> => {
 
 const mutationKey = ['signYouthProspect'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -8231,10 +8234,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof signYouthProspect>>, {id: number}> = (props) => {
-          const {id} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof signYouthProspect>>, {id: number;data?: BodyType<ProspectSignInput>}> = (props) => {
+          const {id,data} = props ?? {};
 
-          return  signYouthProspect(id,requestOptions)
+          return  signYouthProspect(id,data,requestOptions)
         }
 
 
@@ -8245,18 +8248,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SignYouthProspectMutationResult = NonNullable<Awaited<ReturnType<typeof signYouthProspect>>>
-
+    export type SignYouthProspectMutationBody = BodyType<ProspectSignInput> | undefined
     export type SignYouthProspectMutationError = ErrorType<void>
 
     /**
- * @summary Reserve a scouted prospect for signing
+ * @summary Sign a scouting mission's find, through the same contract box as the market
  */
 export const useSignYouthProspect = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signYouthProspect>>, TError,{id: number;data?: BodyType<ProspectSignInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof signYouthProspect>>,
         TError,
-        {id: number},
+        {id: number;data?: BodyType<ProspectSignInput>},
         TContext
       > => {
       return useMutation(getSignYouthProspectMutationOptions(options));

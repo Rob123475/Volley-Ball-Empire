@@ -1,5 +1,6 @@
 import { normaliseRole } from "@shared/staff-roles";
 import { youthWageText } from "@/lib/youth-wage";
+import { ContractModal, type ContractOffer } from "@/components/contract-offer-dialog";
 import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/continents";
 import {
   useSignContract,
@@ -199,158 +200,12 @@ function NameStrip({ name }: { name: string }) {
   );
 }
 
-type SquadRole = "starter" | "interchange" | "reserve";
-
-const SQUAD_DESTINATIONS: { role: SquadRole; label: string }[] = [
-  { role: "starter",     label: "Main Team" },
-  { role: "interchange", label: "Interchange" },
-  { role: "reserve",     label: "Youth Team" },
-];
-
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 /** Item 15: the price line a card and its confirm step show. */
 function priceText(player: any): string | null {
   if (!player.priceRange) return null;
   return player.price != null ? money(player.price) : `${money(player.priceRange.low)} - ${money(player.priceRange.high)}`;
-}
-
-function ContractModal({ player, onSign, isPending }: { player: any; onSign: (v: any) => void; isPending: boolean }) {
-  // Item 15 (Rob's design): signing is a confirm step with her price on it:
-  // the exact price for a scouted player, the range for an unscouted one,
-  // whose exact price is revealed, with her attributes, when she signs.
-  const blind = !!player.priceRange && player.price == null;
-  // Overnight 1 Oct, N-41: the offer starts at her asking wage (the 1 Oct rise
-  // included), and the slider reaches well past it; it started at $5,000 and
-  // stopped at $20,000, below what most seniors now ask.
-  const asking = Math.round(Number(player.salary) || 0);
-  const salaryMax = Math.max(40_000, Math.ceil((asking * 2) / 1000) * 1000);
-  const [salary, setSalary]   = useState([asking > 0 ? asking : 5000]);
-  const [winBonus, setWinBonus] = useState([500]);
-  const [length, setLength]   = useState<ContractLength>("1s");
-  // An academy youth (not a promoted graduate); the age is the fallback for a record without the type.
-  const isYouth = player.playerType ? player.playerType === "youth" && !player.isPromoted : player.age >= 14 && player.age <= 17;
-  const defaultRole: SquadRole = isYouth ? "reserve" : "interchange";
-  const [squadRole, setSquadRole] = useState<SquadRole>(defaultRole);
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="w-full gap-2" data-testid={`button-sign-${player.id}`}>
-          <UserPlus className="h-4 w-4" />
-          {blind ? "Sign (unscouted)" : "Sign"}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Contract Offer: {player.name}</DialogTitle>
-          <DialogDescription>Negotiate terms. A contract runs 6 months, 1 season or 2 seasons.</DialogDescription>
-        </DialogHeader>
-        {player.priceRange && (
-          <div className={cn("rounded-lg border px-3 py-2 text-sm", blind ? "border-amber-500/40 bg-amber-500/10" : "border-border bg-muted/40")} data-testid="sign-price">
-            {blind ? (
-              <>
-                <p className="font-semibold">Unscouted: her price is between {money(player.priceRange.low)} and {money(player.priceRange.high)}.</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Her exact price and attributes are revealed when she signs, and the price is charged then. Scouting her first (5 days) shows both before you buy.</p>
-              </>
-            ) : (
-              <p className="font-semibold">Her price: {money(player.price)}, charged when she signs, on top of her wage.</p>
-            )}
-          </div>
-        )}
-        <div className="space-y-6 py-4">
-          {isYouth ? (
-            // N-33: a youth is paid the academy's wage for her talent (it is what the
-            // weekly run bills); the offer defaulted to $5,000 a month.
-            <div className="space-y-1" data-testid="youth-wage">
-              <div className="flex justify-between text-sm font-medium">
-                <span>Wage</span>
-                <span className="text-primary font-bold">{youthWageText(asking)}</span>
-              </div>
-              <p className="text-xs text-muted-foreground">The academy's wage for her talent.</p>
-            </div>
-          ) : (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm font-medium">
-              <span>Monthly Salary</span>
-              <span className="text-primary font-bold">${salary[0].toLocaleString()}</span>
-            </div>
-            <Slider min={1000} max={salaryMax} step={100} value={salary} onValueChange={setSalary} />
-            {asking > 0 && <p className="text-xs text-muted-foreground">She asks ${asking.toLocaleString("en-US")} a month.</p>}
-          </div>
-          )}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm font-medium">
-              <span>Win Bonus</span>
-              <span className="text-secondary font-bold">${winBonus[0].toLocaleString()}</span>
-            </div>
-            <Slider min={0} max={5000} step={50} value={winBonus} onValueChange={setWinBonus} />
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Contract Length</p>
-            <div className="grid grid-cols-3 gap-1.5">
-              {CONTRACT_LENGTHS.map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLength(l)}
-                  data-testid={`button-length-${l}`}
-                  className={[
-                    "rounded-md border px-2 py-2 text-xs font-semibold transition-colors",
-                    length === l
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-muted/40 text-foreground hover:border-primary/60 hover:bg-muted/70",
-                  ].join(" ")}
-                >
-                  {CONTRACT_LENGTH_LABELS[l]}
-                </button>
-              ))}
-            </div>
-            <p className="text-[10px] text-muted-foreground text-right">
-              A season ends when the World Tour does — the club sets the date.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Assign To</p>
-            <div className="grid grid-cols-3 gap-1.5">
-              {SQUAD_DESTINATIONS.map(({ role, label }) => {
-                const youthOnly = role === "reserve";
-                const disabled = youthOnly && !isYouth;
-                return (
-                  <div key={role} className="flex flex-col gap-1">
-                    <button
-                      type="button"
-                      disabled={disabled}
-                      onClick={() => !disabled && setSquadRole(role)}
-                      className={[
-                        "rounded-md border px-2 py-2 text-xs font-semibold transition-colors",
-                        disabled
-                          ? "cursor-not-allowed opacity-35 border-border text-muted-foreground bg-muted/30"
-                          : squadRole === role
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-muted/40 text-foreground hover:border-primary/60 hover:bg-muted/70",
-                      ].join(" ")}
-                    >
-                      {label}
-                    </button>
-                    {disabled && <p className="text-[9px] text-muted-foreground text-center leading-tight">Ages 14–17 only</p>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <Button
-          className="w-full"
-          onClick={() => onSign({ salary: isYouth ? asking : salary[0], winBonus: winBonus[0], length, squadRole })}
-          disabled={isPending}
-          data-testid="button-confirm-sign"
-        >
-          {isPending ? "Negotiating..." : player.priceRange ? (blind ? `Confirm: sign for ${money(player.priceRange.low)} - ${money(player.priceRange.high)}` : `Confirm: sign for ${money(player.price)}`) : "Finalize Contract"}
-        </Button>
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 // ── Player card with full stats (free agents, transfer, signed) ───────────────
@@ -697,8 +552,8 @@ export default function PlayerMarket() {
     queryClient.invalidateQueries({ queryKey: ["players-summary"] });
   };
 
-  const handleSign = (playerId: number, values: any) => {
-    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole, confirm: true } }, {
+  const handleSign = (playerId: number, values: ContractOffer) => {
+    signMutation.mutate({ data: { playerId, salary: values.salary, length: values.length, bonusPerWin: values.winBonus, squadRole: values.squadRole, academyRole: values.academyRole, confirm: true } }, {
       onSuccess: (result: any) => {
         invalidateAll();
         queryClient.invalidateQueries();

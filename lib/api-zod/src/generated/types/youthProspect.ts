@@ -19,6 +19,11 @@ export interface YouthProspect {
      * @nullable
      */
   nationality?: string | null;
+  /**
+     * The academy's monthly wage for her talent, what she is paid if signed (overnight 1 Oct, N-33).
+     * @nullable
+     */
+  wage?: number | null;
   currentRating: number;
   potentialStars: string;
   speciality: string;

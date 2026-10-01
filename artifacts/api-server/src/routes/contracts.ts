@@ -3,7 +3,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
-import { academyCountTx } from "../utils/youthLoans.js";
+import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
 import { academyMonthlySalary } from "../utils/academy.js";
 import { db } from "@workspace/db";
 import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
@@ -209,6 +209,10 @@ router.post("/contracts", async (req, res) => {
     isActive: squadRole === "starter" || squadRole === "interchange",
     squadRole,
   });
+  // N-44 (b): a youth goes to the academy's youth team or its reserves, as the box chose.
+  const academyPlace = isYouth
+    ? withCareerStateTx((w) => placeSignedYouthTx(w, cidForTerm, team.id, Number(playerId), req.body?.academyRole === "reserve" ? "reserve" : "youth_team"))
+    : null;
 
   // Item 15: her price, charged and on the ledger.
   if (fee) {
@@ -238,6 +242,8 @@ router.post("/contracts", async (req, res) => {
     fee: fee ? fee.price : 0,
     priceRange: fee ? { low: fee.low, high: fee.high } : null,
     signedBlind: blind,
+    // N-44 (b): where a youth went: the youth team, or the reserves (asked for, or the youth team was full).
+    academyPlace,
     player: signed ? {
       id: signed.id, name: signed.name, speed: signed.speed, power: signed.power, defense: signed.defense,
       serve: signed.serve, block: signed.block, stamina: signed.stamina,
