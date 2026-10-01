@@ -1,0 +1,31 @@
+Item 21 commentary proof: V19, 120 s of play, scene not saved; clips loaded 48 of 48
+lines spoken 29; A/B alternation breaks 0; lines starting before the last ended 0; same line twice in a row 0; crowd ducked (under 0.5) in 152570 of 152570 frames mid-clip, back to full in 39732 of 39732 quiet frames; subtitle names the speaker in 189546 of 189546 frames
+     2.4 s  A:dig:2            3.46 s  Full stretch in the sand, and she gets it up!
+     8.5 s  B:set:3            2.74 s  Tidy set! Here comes the attack!
+    13.6 s  A:set:1            2.98 s  A clean hand set, right on the money!
+    16.9 s  B:rally:2          3.38 s  Wow! They'll need a breather after that!
+    20.5 s  A:point:3          2.66 s  Boom! They take the point!
+    23.4 s  B:rally:3          3.05 s  That's beach volleyball at its best!
+    26.7 s  A:point:1          2.81 s  Yes! And that's the point!
+    29.8 s  B:rally:1          3.89 s  Brilliant rally! Great defence on both sides!
+    33.9 s  A:point:3          2.66 s  Boom! They take the point!
+    36.8 s  B:rally:2          3.38 s  Wow! They'll need a breather after that!
+    40.5 s  A:point:2          3.22 s  Point won! The crowd loves it!
+    43.9 s  B:point:3          2.50 s  That point could be huge in this set!
+    46.7 s  A:point:3          2.66 s  Boom! They take the point!
+    51.7 s  B:set:2            2.81 s  A lovely high set into the wind!
+    57.4 s  A:set:2            3.55 s  Ooh, lovely bump set, tight to the net!
+    61.2 s  B:rally:3          3.05 s  That's beach volleyball at its best!
+    64.6 s  A:point:2          3.22 s  Point won! The crowd loves it!
+    68.1 s  B:rally:1          3.89 s  Brilliant rally! Great defence on both sides!
+    72.2 s  A:rally:2          3.72 s  Long exchange! Both teams dug deep!
+    78.6 s  B:set:1            3.05 s  She puts it right where her partner likes it!
+    81.9 s  A:point:3          2.66 s  Boom! They take the point!
+    84.8 s  B:rally:2          3.38 s  Wow! They'll need a breather after that!
+    90.6 s  A:blockattempt:3   3.22 s  Big block jump, arms reaching over!
+    96.2 s  B:spike:3          2.57 s  She rises high and swings!
+    99.0 s  A:rally:1          2.57 s  What a rally that was!
+   102.1 s  B:point:1          2.81 s  Bang! Another point on the board!
+   105.2 s  A:rally:2          3.72 s  Long exchange! Both teams dug deep!
+   111.2 s  B:blockattempt:2   2.66 s  Blocking the angle, her partner's on the line!
+   116.7 s  A:blockattempt:1   2.26 s  She's up at the net to block!

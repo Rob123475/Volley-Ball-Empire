@@ -5,9 +5,15 @@
  * Voices (read from Rob's history, 30 Sep 2026 02:18 and 02:21 UTC):
  *   A  Kailey                                   h1nUqvAFfvrCaHydX12x
  *   B  Hukum – Sports Commentary: High energy   CSyG9YhQsyznH6ETWS8Q
- * with the model and settings those generations used: eleven_v4, stability
- * 0.5, each line spoken with the [excited] audio tag (the tag is not shown in
- * the subtitle).
+ * with the model those generations used, eleven_v4.
+ *
+ * Overnight brief 1 Oct, N-32 ("more animated"): settings for more energy and
+ * variation: stability 0.0 (the model's "Creative" end; was 0.5), style 0.8
+ * (exaggeration; was the default), similarity 0.75, speaker boost on. Build-up
+ * plays are spoken [excited]; the key moments (block, point, rally) [shouting].
+ * The tag is not shown in the subtitle. A take outside 0.6-3.9 s (a low
+ * stability can wander) is made again, up to 4 times. The 30 Sep clips are
+ * kept in Downloads\bve-commentary\clips-01oct as a fallback.
  *
  * The lines and file names come from the game's clip list
  * (public/unity-build/StreamingAssets/commentary/LINES.txt, written with
@@ -38,7 +44,9 @@ export const VOICES = {
   B: { name: "Hukum", id: "CSyG9YhQsyznH6ETWS8Q" },
 };
 const MODEL = "eleven_v4";
-const SETTINGS = { stability: 0.5 };
+const SETTINGS = { stability: 0.0, style: 0.8, similarity_boost: 0.75, use_speaker_boost: true };
+const TAG = (file) => (/_(block|point|rally)_/.test(file) ? "[shouting]" : "[excited]");
+const MIN_S = 0.6, MAX_S = 3.9;
 const RATE = 24000;
 const TARGET_DB = -18, PEAK_DB = -1;
 
@@ -99,18 +107,24 @@ const lines = fs.readFileSync(path.join(CLIPS, "LINES.txt"), "utf8").split(/\r?\
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "bve-11labs-"));
 const outDir = test ? work : CLIPS;
 fs.mkdirSync(COPY, { recursive: true });
-let chars = 0;
+let chars = 0, sent = 0;
 const report = [];
 for (const l of lines) {
   const v = VOICES[l.speaker];
-  const { pcm, cost } = await speak(v.id, `[excited] ${l.text}`);
-  chars += cost;
-  const n = normalise(pcm);
+  let n, takes = 0;
+  for (;;) {
+    const text = `${TAG(l.file)} ${l.text}`;
+    const { pcm, cost } = await speak(v.id, text);
+    chars += cost; sent += text.length; takes++;
+    n = normalise(pcm);
+    if ((n.seconds >= MIN_S && n.seconds <= MAX_S) || takes >= 4) break;
+    console.log(`  ${l.file}: take ${takes} was ${n.seconds.toFixed(2)} s, again`);
+  }
   const w = path.join(work, l.file.replace(/\.mp3$/, ".wav"));
   fs.writeFileSync(w, wav(n.out));
   execFileSync("powershell", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(REPO, "scripts", "wav-to-mp3.ps1"), w, outDir, l.file], { stdio: "ignore" });
   if (!test) fs.copyFileSync(path.join(outDir, l.file), path.join(COPY, l.file));
-  report.push(`${l.file}\t${v.name}\t${n.seconds.toFixed(2)} s\t${n.before.rmsDb.toFixed(1)} -> ${n.after.rmsDb.toFixed(1)} dBFS (peak ${n.after.peakDb.toFixed(1)})\t${l.text}`);
+  report.push(`${l.file}\t${v.name}\t${n.seconds.toFixed(2)} s (${takes} take${takes > 1 ? "s" : ""})\t${n.before.rmsDb.toFixed(1)} -> ${n.after.rmsDb.toFixed(1)} dBFS (peak ${n.after.peakDb.toFixed(1)})\t${l.text}`);
   console.log(report[report.length - 1]);
 }
-console.log(`characters used: ${chars} (billed, character-cost header); ${lines.reduce((a, l) => a + "[excited] ".length + l.text.length, 0)} characters of text sent; clips: ${lines.length}; to ${outDir}${test ? "" : ` and ${COPY}`}`);
+console.log(`characters used: ${chars} (billed, character-cost header); ${sent} characters of text sent; clips: ${lines.length}; to ${outDir}${test ? "" : ` and ${COPY}`}`);
