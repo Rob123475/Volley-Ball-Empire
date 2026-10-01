@@ -129,7 +129,10 @@ try {
   // that played it: the run belongs to the club, not to the career, or the
   // manager's next club would inherit this one's losses.
   console.log(`\n2. ${TO_SALE - 1} LOSS-MAKING SEASONS ALREADY BEHIND THE CLUB`);
-  const opens = [900_000, 800_000, 700_000, 600_000];
+  // Overnight 1 Oct, N-41: with Rob's money numbers a season brings in about
+  // $430,000 more than it did, so the chain opens high enough that the season
+  // played here (ending near $550,000) is still a loss, as this suite needs.
+  const opens = [2_400_000, 2_300_000, 2_200_000, 2_100_000];
   for (let i = 0; i < opens.length; i++) {
     const year = YEAR - (opens.length - i);
     write(
@@ -141,7 +144,7 @@ try {
   }
   // This season opened on the last of them, and the club is going to end below it.
   write(`UPDATE board_seasons SET season_start_balance = ? WHERE career_save_id = ? AND season_year = ?`,
-    500_000, careerSaveId, YEAR);
+    2_000_000, careerSaveId, YEAR);
   const chain = read(
     `SELECT season_year AS y, season_start_balance AS b FROM board_seasons
       WHERE career_save_id = ? AND team_id = ? ORDER BY season_year`, careerSaveId, teamId);
