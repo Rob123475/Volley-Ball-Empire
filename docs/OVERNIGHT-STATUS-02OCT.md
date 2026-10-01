@@ -47,7 +47,7 @@ Every item's own suites were run green before its commit (the proof line names t
 ## ElevenLabs key
 
 - **Where it was used:** the key was read at run time from `Downloads\11labs api.txt` by `scripts/elevenlabs-crowd.mjs` and `scripts/elevenlabs-commentary.mjs`, and never written anywhere.
-- **Check before every push:** `check-no-elevenlabs-key.cjs` ran in the pre-push hook of both repos on every push tonight. The last run, on this file's push, reported: "ElevenLabs key not found in 2120 files or the unpushed commits of Volley-Ball-Empire".
+- **Check before every push:** `check-no-elevenlabs-key.cjs` ran in the pre-push hook of both repos on every push tonight. The last run, on this file's push, reported: "ElevenLabs key not found in 2120 files or the unpushed commits of Volley-Ball-Empire". The Unity repo's check reported the same over 6417 files. A byte search of the whole package `C:\build\vbe-unity-02oct\win-unpacked` for the key also found nothing; the key was not printed.
 
 ## Items (one proof line each)
 
