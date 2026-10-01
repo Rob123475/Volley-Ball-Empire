@@ -20,7 +20,7 @@ import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
 import { marketView, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST, YOUTH_SCOUT_COST } from "../utils/marketScouting.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
-import { getGameDate } from "../utils/gameDate.js";
+import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { releasePayout } from "../utils/contractTerms.js";
 
 const router = Router();
@@ -504,7 +504,7 @@ router.post("/players/:id/release", async (req, res) => {
           teamId:      before.teamId,
           type:        "expense",
           amount:      payout,
-          description: `Contract paid out — ${before.name} released to ${open.endDate}`,
+          description: `Contract paid out — ${before.name} released to ${gameDateText(open.endDate)}`,
           category:    "player_salary",
           date:        today,
         });

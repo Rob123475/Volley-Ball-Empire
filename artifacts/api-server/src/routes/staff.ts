@@ -5,7 +5,7 @@ import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesT
 import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
-import { getGameDate } from "../utils/gameDate.js";
+import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { staffScoutState, withStaffScouting, SCOUT_DAYS, SCOUT_COST } from "../utils/marketScouting.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import {
@@ -275,7 +275,7 @@ export async function releaseStaffMember(req: Request, res: Response): Promise<v
       teamId:      team.id,
       type:        "expense",
       amount:      terminationFee,
-      description: `Contract paid out — ${member.name} (${member.role.replace(/_/g, " ")}), to ${member.contractEndDate}`,
+      description: `Contract paid out — ${member.name} (${member.role.replace(/_/g, " ")}), to ${gameDateText(member.contractEndDate)}`,
       category:    "staff_termination",
       date:        today,
     });

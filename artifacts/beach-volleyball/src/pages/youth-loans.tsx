@@ -6,6 +6,7 @@
  * other clubs' listed youths to borrow for 6 or 12 months. The wage is split
  * 50/50 for the loan; there is no early recall (the server has no route for it).
  */
+import { gameDateText } from "@/lib/game-date";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
@@ -109,7 +110,7 @@ export default function YouthLoans() {
                   <Shirt className="h-3 w-3 mr-1" />{a.academyRole === "youth_team" ? "Youth team" : "Reserve"}
                 </Badge>
                 {a.listed && <Badge variant="outline" className="border-amber-500 text-amber-600 dark:text-amber-400">Listed for loan</Badge>}
-                {a.onLoanFrom && <Badge variant="outline" className="border-sky-500 text-sky-600 dark:text-sky-400">On loan from {a.onLoanFrom.club} until {a.onLoanFrom.endsOn}</Badge>}
+                {a.onLoanFrom && <Badge variant="outline" className="border-sky-500 text-sky-600 dark:text-sky-400">On loan from {a.onLoanFrom.club} until {gameDateText(a.onLoanFrom.endsOn)}</Badge>}
                 <div className="ml-auto flex flex-wrap gap-2">
                   {a.academyRole === "youth_team" && (
                     <Button size="sm" variant="outline" disabled={busy} onClick={() => act("/api/youth-loans/role", { playerId: a.playerId, role: "reserve" }, `${a.name} moves to the reserves`)}>To reserves</Button>
@@ -160,7 +161,7 @@ export default function YouthLoans() {
             {rows.map((l) => (
               <div key={l.loanId} className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
                 <div className="font-medium">{l.name} <span className="text-muted-foreground font-normal">· {word} {l.club}</span></div>
-                <div className="text-xs text-muted-foreground">{l.months} months, {l.startsOn} to {l.endsOn} · you pay half her wage: {youthWageTextFromWeekly(l.yourHalf)} of {youthWageTextFromWeekly(l.weeklyWage ?? 0)}</div>
+                <div className="text-xs text-muted-foreground">{l.months} months, {gameDateText(l.startsOn)} to {gameDateText(l.endsOn)} · you pay half her wage: {youthWageTextFromWeekly(l.yourHalf)} of {youthWageTextFromWeekly(l.weeklyWage ?? 0)}</div>
               </div>
             ))}
           </section>
@@ -201,7 +202,7 @@ export default function YouthLoans() {
                 </div>
                 {borrowing && (
                   <p>
-                    She plays for you from {borrowing.listing.club} for {borrowing.months} months, until {addMonths(data.today, borrowing.months)}
+                    She plays for you from {borrowing.listing.club} for {borrowing.months} months, until {gameDateText(addMonths(data.today, borrowing.months))}
                     {team.length < data.youthTeamSize ? ", in your youth team" : ", in your reserves (your youth team is full: you choose who plays)"}, and you pay half her wage:
                     {" "}{youthWageTextFromWeekly(borrowing.listing.yourHalf)} of {youthWageTextFromWeekly(borrowing.listing.weeklyWage)}. She returns to {borrowing.listing.club} on that date; neither club can end the loan early.
                   </p>

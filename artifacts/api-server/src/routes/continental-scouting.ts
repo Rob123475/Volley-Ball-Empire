@@ -15,7 +15,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { generateContinentalProspects } from "../utils/prospect-generator";
 import { blankReport } from "../utils/missionFinds.js";
 import { loadStaff, requireCareerSaveId } from "../lib/playerDto.js";
-import { getGameDate } from "../utils/gameDate.js";
+import { getGameDate, gameDateText } from "../utils/gameDate.js";
 
 const router = Router();
 
@@ -327,7 +327,7 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
   const now = gameDay(await getGameDate(team.id));
   if (mission.status === "active" && new Date(mission.endDate) > now) {
     const remaining = Math.ceil((new Date(mission.endDate).getTime() - now.getTime()) / DAY_MS);
-    res.status(422).json({ error: `Mission still in progress: it completes on ${isoDay(mission.endDate)}, ${remaining} game day${remaining === 1 ? "" : "s"} from now.` });
+    res.status(422).json({ error: `Mission still in progress: it completes on ${gameDateText(isoDay(mission.endDate))}, ${remaining} game day${remaining === 1 ? "" : "s"} from now.` });
     return;
   }
 

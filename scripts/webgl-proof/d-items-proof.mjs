@@ -144,6 +144,25 @@ try {
         b ? `centre (${Math.round(b.cx)}, ${Math.round(b.cy)}) of the ${b.vw}x${b.vh} view; "${b.title}"; Confirm closes it: ${b.closedByConfirm}` : "not seen in 40 missions");
     }
   }
+  // ── N-37: loan dates in the game's style ──────────────────────────────────
+  if (scenarios.includes("loan-dates")) {
+    const sc = "loan-dates";
+    let loans = null;
+    for (let i = 0; i < 20 && !(loans?.available?.length > 0); i++) { await api("POST", "/calendar/advance", {}); loans = await api("GET", "/youth-loans"); }
+    const listing = loans?.available?.[0];
+    const b = listing ? await api("POST", "/youth-loans/borrow", { loanId: listing.loanId, months: Math.max(...listing.allowedMonths), confirm: true }) : null;
+    check(sc, "a youth borrowed from an AI club", !!b?.loanId, b ? `${b.startsOn} to ${b.endsOn}` : JSON.stringify(loans).slice(0, 120));
+    const okPage = await open("/team", `[...document.querySelectorAll("button")].some(x => /Youth Loans/.test(x.textContent))`);
+    await clickText("/Youth Loans/");
+    let text = "";
+    for (let i = 0; i < 30 && !/to \d{1,2} [A-Z][a-z]{2} \d{4}/.test(text); i++) { await sleep(300); text = await js(`document.querySelector('[data-testid="loans-in"]')?.innerText ?? ""`); }
+    const page = await js(`document.body.innerText`);
+    await shot("n37-youth-loans-dates.png");
+    const fmt = (iso) => { const [y, m, d] = iso.split("-").map(Number); return `${d} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m - 1]} ${y}`; };
+    check(sc, "the loan shows its dates as \"22 Sep 2026\", and no raw date is on the tab",
+      okPage && b && text.includes(`${fmt(b.startsOn)} to ${fmt(b.endsOn)}`) && !/\d{4}-\d{2}-\d{2}/.test(page),
+      text.split("\n").find((l) => / to /.test(l)) ?? text.slice(0, 120));
+  }
   ws.close();
 } catch (err) {
   ok = false;

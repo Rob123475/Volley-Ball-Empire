@@ -6,6 +6,7 @@
  * the field and its pairs, group tables, the knockout and the medals. Before the
  * first Games of a career there is nothing to show but when they are.
  */
+import { gameDateText } from "@/lib/game-date";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -99,7 +100,7 @@ export default function OlympicSchedule() {
         <h2 className="text-lg font-bold">Olympic Games {data.olympicsYear}</h2>
         <p className="text-sm text-muted-foreground">
           {data.isOlympicYear
-            ? `Played this season on ${data.olympicsDate}, after the last regular World Tour round and before the World Finals.`
+            ? `Played this season on ${gameDateText(data.olympicsDate)}, after the last regular World Tour round and before the World Finals.`
             : `The next Games are in ${data.olympicsYear}, played after the last regular World Tour round and before the World Finals.`}
           {" "}The 12 nations with the most World Tour ranking points that season qualify.
         </p>
@@ -113,7 +114,7 @@ export default function OlympicSchedule() {
         <div className="flex items-center gap-2 mb-1">
           <Flame className="h-5 w-5 text-amber-400" />
           <h2 className="text-xl font-bold">{t.seasonYear} Olympic Beach Volleyball</h2>
-          <Badge variant="outline">Played {t.playedOn}</Badge>
+          <Badge variant="outline">Played {gameDateText(t.playedOn)}</Badge>
         </div>
         {t.passedOver.length > 0 && (
           <p className="text-sm text-muted-foreground">

@@ -1,4 +1,5 @@
 import { CONTINENT_COUNT } from "@workspace/db";
+import { gameDateText } from "../utils/gameDate.js";
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
@@ -666,7 +667,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     const aiWeek = withCareerStateTx((w) => aiAcademiesWeekTx(w, careerSaveId, nextDate));
     for (const b of aiWeek.borrowed) {
       const mine = withCareerStateTx((w) => loansTx(w.tx, careerSaveId, "active").find((l) => l.id === b.loanId && l.ownerTeamId === team.id));
-      if (mine) events.push(`A youth of yours goes on loan for ${mine.months} months (until ${mine.endsOn}): see Team > Youth Loans`);
+      if (mine) events.push(`A youth of yours goes on loan for ${mine.months} months (until ${gameDateText(mine.endsOn)}): see Team > Youth Loans`);
     }
 
     await db.update(calendarStateTable)

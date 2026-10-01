@@ -24,7 +24,7 @@ import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
 import { worldFinalsSummary } from "../utils/worldTour.js";
-import { getGameDate } from "../utils/gameDate.js";
+import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { olympicTournament, olympicYearsPlayed } from "../utils/olympics.js";
 import { ACADEMY_CAP } from "../utils/academy.js";
 
@@ -104,7 +104,7 @@ router.get("/news", async (req, res) => {
       id: `signing-${c.id}`, type: "signing", isUserTeam: true,
       date: c.startDate.slice(0, 10),
       headline: `${team.name} sign ${names.get(c.playerId) ?? "a player"}`,
-      detail: `Contract runs to ${c.endDate.slice(0, 10)}`,
+      detail: `Contract runs to ${gameDateText(c.endDate)}`,
     });
   }
 

@@ -1,3 +1,4 @@
+import { gameDateText } from "@/lib/game-date";
 import { contractPayout, monthsLeft } from "@/lib/contract-payout";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
@@ -375,7 +376,7 @@ function StaffCard({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Contract left</span>
-                  <span className="font-semibold">{monthsRemaining} month{monthsRemaining === 1 ? "" : "s"}{member.contractEndDate ? `, to ${member.contractEndDate}` : ""}</span>
+                  <span className="font-semibold">{monthsRemaining} month{monthsRemaining === 1 ? "" : "s"}{member.contractEndDate ? `, to ${gameDateText(member.contractEndDate)}` : ""}</span>
                 </div>
               </div>
 

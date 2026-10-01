@@ -1,3 +1,4 @@
+import { gameDateText } from "@/lib/game-date";
 import { ledgerCategoryLabel } from "@/lib/ledger-categories";
 import { 
   useGetFinanceSummary, 
@@ -1358,7 +1359,7 @@ function SponsorProgressCard({
                 />
               </div>
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Expires {deal.expiresAt}</span>
+                <span>Expires {gameDateText(deal.expiresAt)}</span>
                 {!deal.isComplete && (
                   <span>{deal.requirementWins - deal.currentWins} wins to go</span>
                 )}

@@ -10,7 +10,7 @@ import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@w
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 import type { Contract } from "@workspace/db";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
-import { getGameDate } from "../utils/gameDate.js";
+import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { seasonEndsFrom } from "../utils/seasonDates.js";
 import {
@@ -314,7 +314,7 @@ router.post("/contracts/:id/renew", async (req, res) => {
   if (!season) { res.status(409).json({ error: "No active season" }); return; }
   if (contract.endDate > season.endDate) {
     res.status(409).json({
-      error: `This contract already runs past this season (to ${contract.endDate}). It can be renewed in its final season.`,
+      error: `This contract already runs past this season (to ${gameDateText(contract.endDate)}). It can be renewed in its final season.`,
     });
     return;
   }
@@ -403,7 +403,7 @@ router.delete("/contracts/:id", async (req, res) => {
       teamId:      team.id,
       type:        "expense",
       amount:      payout,
-      description: `Contract paid out — ${player?.name ?? "player"} released to ${contract.endDate}`,
+      description: `Contract paid out — ${player?.name ?? "player"} released to ${gameDateText(contract.endDate)}`,
       category:    "player_salary",
       date:        today,
     });

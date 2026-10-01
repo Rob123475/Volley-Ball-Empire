@@ -11,6 +11,7 @@
  * Shared by the Staff and Medical pages because they are the same rows, told
  * apart by role, and renewed through the same route.
  */
+import { gameDateText } from "@/lib/game-date";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRenewStaffContract, getListStaffQueryKey } from "@workspace/api-client-react";
@@ -60,7 +61,7 @@ export function ContractRenewBar({
       <div className="flex items-center gap-1.5 text-xs">
         <CalendarClock className={soon ? "h-3 w-3 text-orange-500 shrink-0" : "h-3 w-3 text-muted-foreground shrink-0"} />
         <span className="text-muted-foreground">Contract ends:</span>
-        <span className={soon ? "font-semibold text-orange-500" : "font-semibold"}>{endDate}</span>
+        <span className={soon ? "font-semibold text-orange-500" : "font-semibold"}>{gameDateText(endDate)}</span>
         {soon && daysLeft != null && (
           <span className="text-orange-500">({daysLeft}d)</span>
         )}

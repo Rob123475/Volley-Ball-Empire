@@ -1,3 +1,4 @@
+import { gameDateText } from "@/lib/game-date";
 import { contractPayout } from "@/lib/contract-payout";
 import { CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { attributeLabel, skillAttributes } from "@/lib/staff-attributes";
@@ -320,7 +321,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
               <AlertDialogDescription>
                 This frees a medical place; the {roleLabel} position will be vacant. Releasing her early pays out
                 the rest of her contract: {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(contractPayout(Number(member.salary), calendar?.currentDate ?? "", member.contractEndDate))}
-                {member.contractEndDate ? ` (to ${member.contractEndDate})` : ""}.
+                {member.contractEndDate ? ` (to ${gameDateText(member.contractEndDate)})` : ""}.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
