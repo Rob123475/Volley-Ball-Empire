@@ -1,0 +1,4 @@
+N-26: the banner shows WINNER only (3 words rendered, all WINNER; 10 spikes and 3 blocks played meanwhile, none bannered)
+  7.5 s: "WINNER" in the banner; spikes so far 3, blocks so far 1; action words drawn on players: 0
+  11.9 s: "WINNER" in the banner; spikes so far 4, blocks so far 1; action words drawn on players: 0
+  26.2 s: "WINNER" in the banner; spikes so far 10, blocks so far 3; action words drawn on players: 0

@@ -1,0 +1,99 @@
+N-28 crowd audio proof (V19, one whole match at 4x, scene not saved)
+clips in Resources/Audio/Crowd:
+  bed_calm                     30.00 s, 2 ch, 44100 Hz
+  bed_excited                  30.00 s, 2 ch, 44100 Hz
+  cheer_1                      2.48 s, 2 ch, 44100 Hz
+  cheer_2                      3.00 s, 2 ch, 44100 Hz
+  cheer_3                      2.48 s, 2 ch, 44100 Hz
+  cheer_4                      3.00 s, 2 ch, 44100 Hz
+  crowd-A-sports-crowd-cheer   2.06 s, 2 ch, 44100 Hz
+  crowd-B-sporting-event       1.07 s, 2 ch, 44100 Hz
+  applause_1                   3.00 s, 2 ch, 44100 Hz
+  applause_2                   3.48 s, 2 ch, 44100 Hz
+  applause_3                   3.00 s, 2 ch, 44100 Hz
+  whistle_1                    2.00 s, 2 ch, 44100 Hz
+  whistle_2                    2.48 s, 2 ch, 44100 Hz
+  groan_1                      2.48 s, 2 ch, 44100 Hz
+  groan_2                      2.48 s, 2 ch, 44100 Hz
+  roar_big                     7.00 s, 2 ch, 44100 Hz
+loaded: 16 of 16
+both beds looping all match: yes
+bed level (calm + excited, 0-1 per source, before the duck; average over the frames in each state):
+  between points                   0.21   (2449 frames)
+  start of a rally (1-3 touches)   0.32   (32184 frames)
+  long rally (12+ touches)         0.91   (66763 frames)
+  just after a point               1.07   (19418 frames)
+longest rally: 45 touches
+points: 68; reaction clips heard: 14 (applause_1, applause_2, applause_3, cheer_1, cheer_2, cheer_3, cheer_4, crowd-A-sports-crowd-cheer, crowd-B-sporting-event, groan_1, groan_2, roar_big, whistle_1, whistle_2)
+errors (not set, match point or winning point): 10, each with a groan: 10
+match points with the roar: 1; winning point with the roar: 1
+a commentator speaking: 0 frames, the crowd ducked to 0.40 in 0 of them
+each point:
+  point  1: set 1, 1-0, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event + whistle_1
+  point  2: set 1, 2-0, sets 0-0, ended by Kill        -> Winner     cheer_4 + applause_2
+  point  3: set 1, 3-0, sets 0-0, ended by Ace         -> Winner     crowd-B-sporting-event
+  point  4: set 1, 3-1, sets 0-0, ended by Kill        -> Winner     cheer_3
+  point  5: set 1, 4-1, sets 0-0, ended by Kill        -> Winner     cheer_2 + applause_1
+  point  6: set 1, 4-2, sets 0-0, ended by AttackError -> Error      groan_1 + applause_3
+  point  7: set 1, 5-2, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event + applause_1
+  point  8: set 1, 5-3, sets 0-0, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer + applause_2
+  point  9: set 1, 6-3, sets 0-0, ended by Kill        -> Winner     cheer_2 + whistle_2 + applause_3
+  point 10: set 1, 7-3, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event + applause_2
+  point 11: set 1, 7-4, sets 0-0, ended by Kill        -> Winner     cheer_2 + whistle_1 + applause_3
+  point 12: set 1, 8-4, sets 0-0, ended by AttackError -> Error      groan_2
+  point 13: set 1, 8-5, sets 0-0, ended by AttackError -> Error      groan_1 + applause_1
+  point 14: set 1, 9-5, sets 0-0, ended by Kill        -> Winner     cheer_4 + applause_2
+  point 15: set 1, 9-6, sets 0-0, ended by Kill        -> Winner     cheer_1
+  point 16: set 1, 9-7, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event
+  point 17: set 1, 9-8, sets 0-0, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer + applause_3
+  point 18: set 1, 9-9, sets 0-0, ended by Kill        -> Winner     cheer_1 + whistle_2
+  point 19: set 1, 9-10, sets 0-0, ended by Kill        -> Winner     cheer_3
+  point 20: set 1, 10-10, sets 0-0, ended by Kill        -> Winner     cheer_2
+  point 21: set 1, 10-11, sets 0-0, ended by Kill        -> Winner     cheer_3 + whistle_1
+  point 22: set 1, 11-11, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event
+  point 23: set 1, 12-11, sets 0-0, ended by Kill        -> Winner     cheer_3 + whistle_2
+  point 24: set 1, 12-12, sets 0-0, ended by ServeError  -> Error      groan_2
+  point 25: set 1, 12-13, sets 0-0, ended by Kill        -> Winner     cheer_2 + whistle_1 + applause_1
+  point 26: set 1, 13-13, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event + applause_2
+  point 27: set 1, 13-14, sets 0-0, ended by Kill        -> Winner     cheer_1
+  point 28: set 1, 14-14, sets 0-0, ended by AttackError -> Error      groan_1 + applause_3
+  point 29: set 1, 14-15, sets 0-0, ended by Kill        -> Winner     crowd-B-sporting-event + applause_2
+  point 30: set 2, 14-16, sets 0-1, ended by Kill        -> SetWon     cheer_1 + applause_3
+  point 31: set 2, 1-0, sets 0-1, ended by Kill        -> Winner     cheer_3
+  point 32: set 2, 2-0, sets 0-1, ended by Kill        -> Winner     cheer_1 + whistle_2
+  point 33: set 2, 2-1, sets 0-1, ended by AttackError -> Error      groan_2 + applause_1
+  point 34: set 2, 3-1, sets 0-1, ended by AttackError -> Error      groan_1 + applause_2
+  point 35: set 2, 4-1, sets 0-1, ended by Kill        -> Winner     cheer_4 + applause_3
+  point 36: set 2, 5-1, sets 0-1, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer
+  point 37: set 2, 5-2, sets 0-1, ended by AttackError -> Error      groan_2 + applause_1
+  point 38: set 2, 6-2, sets 0-1, ended by BlockStuff  -> Winner     crowd-B-sporting-event + whistle_1
+  point 39: set 2, 6-3, sets 0-1, ended by Kill        -> Winner     cheer_2 + applause_2
+  point 40: set 2, 6-4, sets 0-1, ended by Kill        -> Winner     crowd-B-sporting-event
+  point 41: set 2, 6-5, sets 0-1, ended by Ace         -> Winner     cheer_2 + whistle_2
+  point 42: set 2, 6-6, sets 0-1, ended by Kill        -> Winner     cheer_3 + applause_3
+  point 43: set 2, 6-7, sets 0-1, ended by Kill        -> Winner     cheer_1 + applause_1
+  point 44: set 2, 7-7, sets 0-1, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer + whistle_1 + applause_3
+  point 45: set 2, 8-7, sets 0-1, ended by BlockStuff  -> Winner     cheer_3 + applause_1
+  point 46: set 2, 9-7, sets 0-1, ended by AttackError -> Error      groan_1 + applause_3
+  point 47: set 2, 9-8, sets 0-1, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer
+  point 48: set 2, 10-8, sets 0-1, ended by Kill        -> Winner     cheer_2 + whistle_2
+  point 49: set 3, 11-8, sets 1-1, ended by Kill        -> SetWon     crowd-A-sports-crowd-cheer + applause_2
+  point 50: set 3, 1-0, sets 1-1, ended by BlockStuff  -> Winner     cheer_1 + whistle_1
+  point 51: set 3, 1-1, sets 1-1, ended by Kill        -> Winner     crowd-B-sporting-event + applause_3
+  point 52: set 3, 2-1, sets 1-1, ended by Kill        -> Winner     cheer_4
+  point 53: set 3, 3-1, sets 1-1, ended by Kill        -> Winner     cheer_3
+  point 54: set 3, 3-2, sets 1-1, ended by Kill        -> Winner     cheer_4 + whistle_2
+  point 55: set 3, 4-2, sets 1-1, ended by ServeError  -> Error      groan_2
+  point 56: set 3, 5-2, sets 1-1, ended by Ace         -> Winner     cheer_2 + whistle_1
+  point 57: set 3, 5-3, sets 1-1, ended by Kill        -> Winner     cheer_1 + applause_1
+  point 58: set 3, 5-4, sets 1-1, ended by Ace         -> Winner     cheer_3
+  point 59: set 3, 6-4, sets 1-1, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer + whistle_2
+  point 60: set 3, 6-5, sets 1-1, ended by Kill        -> Winner     cheer_3 + applause_2
+  point 61: set 3, 7-5, sets 1-1, ended by Kill        -> Winner     cheer_2 + whistle_1
+  point 62: set 3, 7-6, sets 1-1, ended by Kill        -> Winner     cheer_3 + applause_3
+  point 63: set 3, 8-6, sets 1-1, ended by Kill        -> Winner     cheer_2 + whistle_2
+  point 64: set 3, 8-7, sets 1-1, ended by Kill        -> Winner     crowd-A-sports-crowd-cheer + whistle_1 + applause_2
+  point 65: set 3, 8-8, sets 1-1, ended by Kill        -> Winner     cheer_3 + whistle_2
+  point 66: set 3, 8-9, sets 1-1, ended by Kill        -> Winner     crowd-B-sporting-event + whistle_1 + applause_3
+  point 67: set 3, 8-10, sets 1-1, ended by BlockStuff  -> MatchPoint roar_big + applause_2
+  point 68: set 3, 8-11, sets 1-2, ended by AttackError -> MatchWon   roar_big + cheer_2 + whistle_2
