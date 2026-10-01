@@ -1,4 +1,5 @@
 import { db, teamsTable, achievementsTable, playersTable, trophiesTable, careerSavesTable, seasonFinalStandingsTable } from "@workspace/db";
+import { ledgerBalanceHigh } from "./highestBalance.js";
 import type { CareerStats } from "@workspace/db";
 import { eq, and, gte } from "drizzle-orm";
 import { ACHIEVEMENT_DEFS } from "./achievement-definitions";
@@ -142,7 +143,8 @@ export async function checkAchievements(teamId: number, season?: number): Promis
   const derivedStats: CareerStats = {
     ...stats,
     playersDevelopedToFiveStar: Math.max(stats.playersDevelopedToFiveStar, developedNow),
-    highestBalanceReached: Math.max(stats.highestBalanceReached, Number(team.budget)),
+    // N-45: every balance the club has had, its start included (its books), not only today's.
+    highestBalanceReached: Math.max(stats.highestBalanceReached, Number(team.budget), ledgerBalanceHigh(teamId)),
     olympicGolds: Math.max(stats.olympicGolds, olympicGoldRows.length),
     seasonsAtClub: clubSeasons.length,
   };

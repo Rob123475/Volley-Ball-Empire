@@ -25,6 +25,7 @@ import { backfillPoolClubBooks } from "./utils/poolClubFinances";
 import { applyMoneyPass } from "./utils/moneyPass.js";
 import { rerateOldProspects } from "./utils/youthProspects.js";
 import { alignYouthWages } from "./utils/youthWages.js";
+import { raiseHighestBalances } from "./utils/highestBalance.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -209,6 +210,14 @@ try {
   if (aligned > 0) logger.info({ aligned }, "youth wages set to the academy wage for their talent");
 } catch (err) {
   logger.error({ err }, "aligning youth wages failed");
+}
+
+// Overnight 1 Oct, N-45: the highest balance counts the starting balance and every balance since.
+try {
+  const raised = raiseHighestBalances();
+  if (raised > 0) logger.info({ raised }, "highest balances raised to the clubs' ledger highs");
+} catch (err) {
+  logger.error({ err }, "raising highest balances failed");
 }
 
 // Overnight 30 Sep item 3: records written on the PC's clock before the game

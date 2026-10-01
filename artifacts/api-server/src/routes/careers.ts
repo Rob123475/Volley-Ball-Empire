@@ -1,4 +1,4 @@
-import { developedPlayers } from "../utils/check-achievements.js";
+import { developedPlayers, updateCareerStats } from "../utils/check-achievements.js";
 import { MANAGER_SALARY_PER_SEASON } from "@workspace/db";
 import { Router } from "express";
 import { db } from "@workspace/db";
@@ -239,6 +239,9 @@ router.post("/careers", async (req, res) => {
   // career_player_state, so its transfer market is empty and nothing can be
   // signed — players are global reference data and the career half must exist.
   seedCareerState(inserted!.id);
+
+  // N-45: the money the club starts on is the first balance it has had ("Making Money").
+  await updateCareerStats(newTeam.id, (st) => ({ ...st, highestBalanceReached: Math.max(st.highestBalanceReached, startingBudget) }));
 
   // This career's own season timeline. Previously one global season row was
   // created on the first career and every later career reused it, so a second
