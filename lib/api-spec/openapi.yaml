@@ -4329,6 +4329,9 @@ components:
           type: integer
         continent:
           type: string
+        nationality:
+          type: ["string", "null"]
+          description: "Her country, as the scout's report names it (overnight 1 Oct, N-44)."
         currentRating:
           type: integer
         potentialStars:

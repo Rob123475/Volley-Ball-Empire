@@ -388,7 +388,8 @@ export default function YouthAcademy() {
                       <div className="flex items-start justify-between gap-2 flex-1 min-w-0">
                         <div className="min-w-0">
                           <p className="font-bold text-sm leading-tight truncate">{p.name}</p>
-                          <p className="text-xs text-muted-foreground">Age {p.age} · {p.continent}</p>
+                          {/* N-44: her country, as the report names it. */}
+                          <p className="text-xs text-muted-foreground">Age {p.age} · {p.nationality ?? p.continent}</p>
                         </div>
                         <div className="text-right shrink-0">
                           <div className="text-lg font-black text-primary leading-none">{p.currentRating}</div>
@@ -415,7 +416,8 @@ export default function YouthAcademy() {
 
                     {(p as any).scoutingReportText && (
                       <div className="rounded-md bg-muted/20 border border-border/40 px-2.5 py-2">
-                        <p className="text-[10px] text-muted-foreground leading-relaxed italic line-clamp-3">
+                        {/* N-44: the whole report, not cut with "...". */}
+                        <p className="text-[10px] text-muted-foreground leading-relaxed italic whitespace-pre-line">
                           "{(p as any).scoutingReportText}"
                         </p>
                       </div>

@@ -1055,6 +1055,14 @@ export const youthProspectsTable = sqliteTable("youth_prospects", {
   scoutedPotentialLabel: text("scouted_potential_label"),
   continentalMissionId:  integer("continental_mission_id"),
   eliteEventType:        text("elite_event_type"),
+  /**
+   * Overnight 1 Oct, N-44: her country (the scout's report names it; the card
+   * showed only the region) and her six stats, drawn by the one youth rule
+   * (utils/youthIntake.ts drawYouthStats) when she is found, so the player
+   * signed is the youth the card rated.
+   */
+  nationality:           text("nationality"),
+  stats:                 text("stats", { mode: "json" }).$type<{ speed: number; power: number; defense: number; serve: number; block: number; stamina: number }>(),
   createdAt:            integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 

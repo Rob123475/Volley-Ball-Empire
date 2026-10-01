@@ -231,14 +231,15 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     return;
   }
 
-  // Build player stats from prospect rating + speciality
-  const stats = buildStats(prospect.currentRating, prospect.speciality);
-
-  // Pick nationality from continent pool
+  // Overnight 1 Oct, N-44: she is the youth the card rated and the report named:
+  // her own stats (drawn by the one youth rule when she was found) and her
+  // country. A find from before that (no stats kept) is re-rated at boot
+  // (utils/youthProspects.ts), so every pending find has both.
+  const stats = prospect.stats ?? buildStats(prospect.currentRating, prospect.speciality);
   const natPool    = isContinentKey(prospect.continent)
     ? NATIONALITIES[prospect.continent]
     : ["USA"];
-  const nationality = natPool[Math.floor(Math.random() * natPool.length)]!;
+  const nationality = prospect.nationality ?? natPool[Math.floor(Math.random() * natPool.length)]!;
 
   // Position: Setters favour serve/defense; Spikers favour power/speed/block
   const position = ["Serve", "Defense"].includes(prospect.speciality) ? "setter" : "spiker";
@@ -274,6 +275,9 @@ router.post("/youth-scouting/prospects/:id/sign", async (req, res) => {
     },
     {
       age:           prospect.age,
+      // N-44: her stats are career state too; without them she played on the
+      // defaults (70 in everything), not the youth the card rated.
+      ...stats,
       teamId:        team.id,
       isActive:      false,
       squadRole:     "reserve",

@@ -200,7 +200,8 @@ function ProspectCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-bold text-sm leading-tight truncate">{prospect.name}</p>
-          <p className="text-xs text-muted-foreground">Age {prospect.age} · {prospect.continent}</p>
+          {/* N-44: her country, as the scout's report names it (the region only if the find is older and names none). */}
+          <p className="text-xs text-muted-foreground">Age {prospect.age} · {prospect.nationality ?? prospect.continent}</p>
         </div>
         <div className="text-right shrink-0">
           <div className="text-lg font-black text-primary leading-none">{prospect.currentRating}</div>
@@ -239,7 +240,8 @@ function ProspectCard({
       {/* Scouting report */}
       {prospect.scoutingReportText && (
         <div className="rounded-lg bg-muted/30 border border-border/50 p-2.5">
-          <p className="text-[11px] text-muted-foreground leading-relaxed italic line-clamp-4">
+          {/* N-44: the whole report (it was cut at four lines with "..."). */}
+          <p className="text-[11px] text-muted-foreground leading-relaxed italic whitespace-pre-line">
             "{prospect.scoutingReportText}"
           </p>
         </div>

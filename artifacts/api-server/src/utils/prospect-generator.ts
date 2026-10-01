@@ -3,6 +3,8 @@ import { missionQuality, findOdds, rollFound, playersWatched } from "./missionFi
 import { youthTierPrice } from "./marketScouting.js";
 import { youthProspectsTable } from "@workspace/db";
 import { generateScoutingReport } from "./scouting-report-generator";
+import { drawYouthStats } from "./youthIntake.js";
+import { overallRating } from "./overallRating.js";
 
 const NAMES_BY_CONTINENT: Record<string, string[]> = {
   Europe: [
@@ -58,16 +60,15 @@ const REGION_SPECIALITIES: Record<string, string[]> = {
   Oceania:         ["Speed", "Defense", "All-Rounder", "Serve"],
 };
 
-const TALENT_CONFIG: Record<string, {
-  ratingMin: number;
-  ratingMax: number;
-  costMin: number;
-  costMax: number;
-  potentials: string[];
-}> = {
-  Elite:   { ratingMin: 55, ratingMax: 68, costMin: 12000, costMax: 22000, potentials: ["High", "Elite", "Elite", "Generational"] },
-  High:    { ratingMin: 52, ratingMax: 65, costMin:  8000, costMax: 18000, potentials: ["Average", "High", "High", "Elite"]       },
-  Average: { ratingMin: 48, ratingMax: 62, costMin:  5000, costMax: 14000, potentials: ["Average", "Average", "High", "High"]     },
+/**
+ * A region's talent: the potentials its youths are drawn from. Their ratings
+ * are the one youth rule's (N-44) and their price the youth market's
+ * (youthTierPrice); the per-region rating and cost ranges this table held are gone.
+ */
+const TALENT_CONFIG: Record<string, { potentials: string[] }> = {
+  Elite:   { potentials: ["High", "Elite", "Elite", "Generational"] },
+  High:    { potentials: ["Average", "High", "High", "Elite"]       },
+  Average: { potentials: ["Average", "Average", "High", "High"]     },
 };
 
 const CONTINENT_TALENT: Record<string, string> = {
@@ -94,12 +95,19 @@ type EliteEventType =
   | "Physical Freak"
   | "Local Hero";
 
-function rollEliteEvent(): EliteEventType | null {
+/**
+ * Overnight brief 1 Oct, N-44: "Generational Talent" is exactly the 1-in-100
+ * super-gifted youth of the one stats rule (utils/youthIntake.ts drawYouthStats),
+ * so it is not rolled here. The other three rare finds keep their own odds and
+ * shape her potential, age and speciality, but no longer raise her rating: her
+ * rating is her stats', like every other youth's.
+ */
+function rollEliteEvent(superGifted: boolean): EliteEventType | null {
+  if (superGifted) return "Generational Talent";
   const r = Math.random() * 100;
-  if (r < 1)  return "Generational Talent";
-  if (r < 3)  return "Olympic Wonderkid";
-  if (r < 6)  return "Physical Freak";
-  if (r < 10) return "Local Hero";
+  if (r < 2)  return "Olympic Wonderkid";
+  if (r < 5)  return "Physical Freak";
+  if (r < 9)  return "Local Hero";
   return null;
 }
 
@@ -112,21 +120,18 @@ function applyEliteBoosts(
       return {
         ...base,
         age:            rand(14, 16),
-        currentRating:  Math.min(99, base.currentRating + rand(18, 28)),
         potentialStars: "Generational",
       };
     case "Olympic Wonderkid":
       return {
         ...base,
         age:            rand(14, 16),
-        currentRating:  Math.min(99, base.currentRating + rand(12, 20)),
         potentialStars: Math.random() < 0.55 ? "Generational" : "Elite",
       };
     case "Physical Freak":
       return {
         ...base,
         age:            rand(15, 17),
-        currentRating:  Math.min(99, base.currentRating + rand(8, 15)),
         potentialStars: Math.random() < 0.4 ? "Elite" : "High",
         speciality:     Math.random() < 0.5 ? "Power" : "Speed",
       };
@@ -134,7 +139,6 @@ function applyEliteBoosts(
       return {
         ...base,
         age:            rand(15, 18),
-        currentRating:  Math.min(99, base.currentRating + rand(6, 13)),
         potentialStars: Math.random() < 0.35 ? "Elite" : "High",
       };
   }
@@ -172,14 +176,6 @@ function getScoutedPotential(
   return SCOUTED_LABELS[Math.max(0, Math.min(4, baseIdx + error))]!;
 }
 
-function getRatingBonus(scoutingRating: number): number {
-  if (scoutingRating >= 86) return 8;
-  if (scoutingRating >= 71) return 5;
-  if (scoutingRating >= 51) return 3;
-  if (scoutingRating >= 31) return 0;
-  return -5;
-}
-
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -191,6 +187,11 @@ function pickName(continent: string, used: Set<string>): string {
     if (!used.has(candidate)) return candidate;
   }
   return pool[0]!;
+}
+
+/** The nations a region's finds come from (N-44: the boot pass reads the country back out of a report). */
+export function regionNations(region: string): string[] {
+  return [...new Set(NATIONALITIES[region] ?? [])];
 }
 
 function pickNationality(continent: string): string {
@@ -214,15 +215,20 @@ export async function generateScoutingProspects(teamId: number, continent: strin
     const name = pickName(continent, used);
     used.add(name);
 
+    // N-44: rated by the one youth rule, like every other youth.
+    const { stats } = drawYouthStats();
+    const potential = cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!;
     await db.insert(youthProspectsTable).values({
       teamId,
       name,
       age:           rand(14, 18),
       continent,
-      currentRating: rand(cfg.ratingMin, cfg.ratingMax),
-      potentialStars: cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!,
+      nationality:   pickNationality(continent),
+      stats,
+      currentRating: overallRating(stats),
+      potentialStars: potential,
       speciality:    SPECIALITIES[Math.floor(Math.random() * SPECIALITIES.length)]!,
-      signingCost:   rand(cfg.costMin, cfg.costMax),
+      signingCost:   youthTierPrice(potential, Math.random()).price,
       status:        "pending",
     });
   }
@@ -250,7 +256,6 @@ export async function generateContinentalProspects(params: {
 
   const talentKey   = CONTINENT_TALENT[region] ?? "Average";
   const cfg         = TALENT_CONFIG[talentKey]!;
-  const ratingBonus = getRatingBonus(scoutingRating);
   const count       = rollFound(findOdds(missionQuality(scoutingRating, departmentLevel, durationMonths)), Math.random());
   const watched     = Math.max(count, playersWatched(durationMonths, Math.random()));
   const used        = new Set<string>();
@@ -268,10 +273,12 @@ export async function generateContinentalProspects(params: {
     let age           = rand(14, 18);
     let speciality    = pickSpeciality(region);
     let truePotential = cfg.potentials[Math.floor(Math.random() * cfg.potentials.length)]!;
-    let currentRating = Math.min(99, Math.max(40, rand(cfg.ratingMin, cfg.ratingMax) + ratingBonus));
+    // N-44: her stats by the one youth rule; about 1 in 100 is super-gifted.
+    const { stats, superGifted } = drawYouthStats();
+    let currentRating = overallRating(stats);
 
-    // Roll for rare elite event
-    const eliteEvent = rollEliteEvent();
+    // Roll for rare elite event (Generational Talent = the super-gifted one)
+    const eliteEvent = rollEliteEvent(superGifted);
     if (eliteEvent) {
       const boosted = applyEliteBoosts(eliteEvent, { currentRating, potentialStars: truePotential, age, speciality });
       age           = boosted.age;
@@ -298,6 +305,8 @@ export async function generateContinentalProspects(params: {
       name,
       age,
       continent:             region,
+      nationality,
+      stats,
       currentRating,
       potentialStars:        truePotential,
       speciality,

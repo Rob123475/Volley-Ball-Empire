@@ -390,6 +390,8 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
       name:                 p.name,
       age:                  p.age,
       continent:            p.continent,
+      // N-44: her country, as the scout's report names it.
+      nationality:          p.nationality ?? null,
       currentRating:        p.currentRating,
       potentialStars:       p.potentialStars,
       speciality:           p.speciality,
@@ -399,6 +401,8 @@ router.post("/continental-scouting/missions/:id/collect", async (req, res) => {
       discoveredBy:         p.discoveredBy,
       scoutedPotentialLabel: p.scoutedPotentialLabel,
       continentalMissionId: p.continentalMissionId,
+      // The card's banner reads it; it was never sent.
+      eliteEventType:       p.eliteEventType ?? null,
     })),
   });
 });
@@ -463,6 +467,8 @@ router.get("/continental-scouting/prospects", async (req, res) => {
       name:                 p.name,
       age:                  p.age,
       continent:            p.continent,
+      // N-44: her country, as the scout's report names it.
+      nationality:          p.nationality ?? null,
       currentRating:        p.currentRating,
       potentialStars:       p.potentialStars,
       speciality:           p.speciality,
@@ -472,6 +478,8 @@ router.get("/continental-scouting/prospects", async (req, res) => {
       discoveredBy:         p.discoveredBy,
       scoutedPotentialLabel: p.scoutedPotentialLabel,
       continentalMissionId: p.continentalMissionId,
+      // The card's banner reads it; it was never sent.
+      eliteEventType:       p.eliteEventType ?? null,
     })),
   );
 });

@@ -23,6 +23,7 @@ import { backfillContracts } from "./utils/backfillContracts";
 import { backfillBoardSeasonClubs } from "./utils/board-confidence";
 import { backfillPoolClubBooks } from "./utils/poolClubFinances";
 import { applyMoneyPass } from "./utils/moneyPass.js";
+import { rerateOldProspects } from "./utils/youthProspects.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -190,6 +191,15 @@ try {
   if (money.careers > 0 || money.headCoaches > 0) logger.info(money, "saves brought onto the 1 Oct money numbers");
 } catch (err) {
   logger.error({ err }, "money pass failed");
+}
+
+// Overnight 1 Oct, N-44: a scouting mission's pending finds from before the one
+// youth rule are re-rated by it, once, and get the country their report names.
+try {
+  const rerated = rerateOldProspects();
+  if (rerated > 0) logger.info({ rerated }, "pending scouting finds re-rated by the one youth rule");
+} catch (err) {
+  logger.error({ err }, "re-rating pending scouting finds failed");
 }
 
 // Overnight 30 Sep item 3: records written on the PC's clock before the game

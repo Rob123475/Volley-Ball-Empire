@@ -79,6 +79,34 @@ export const SEEDED_YOUTH_STATS = {
 export const SEEDED_YOUTH_POSITIONS: Record<string, number> = { blocker: 27, defender: 23, all_rounder: 22 };
 export const SEEDED_YOUTH_POTENTIAL: Record<string, number> = { High: 47, Elite: 15, Average: 10 };
 
+/**
+ * Overnight brief 1 Oct, N-44 (Rob, 1 Oct): every youth the game makes rates
+ * like the rest - each stat a normal draw on the 72 shipped youth's mean and
+ * spread, so she rates about 50 - and about 1 in 100 is super-gifted: every
+ * stat drawn around SUPER_GIFTED_STATS, so she rates about 70 or more. One rule
+ * for every place a youth is made: the intake and the AI academies
+ * (youthFactoryTx below) and a scouting mission's finds
+ * (utils/prospect-generator.ts). Mission finds rated 74, 72 and 65 while the
+ * loan list's youths were 47-51; that was a second rule, now gone.
+ */
+export const SUPER_GIFTED_CHANCE = 0.01;
+export const SUPER_GIFTED_STATS = { mean: 72, sd: 3, min: 66, max: 80 } as const;
+
+export type YouthStats = { speed: number; power: number; defense: number; serve: number; block: number; stamina: number };
+
+/** A new youth's six stats, by the one rule; `superGifted` says whether she is the 1 in 100. */
+export function drawYouthStats(roll = Math.random()): { stats: YouthStats; superGifted: boolean } {
+  const superGifted = roll < SUPER_GIFTED_CHANCE;
+  const s = SEEDED_YOUTH_STATS, g = SUPER_GIFTED_STATS;
+  const draw = (k: keyof YouthStats) => superGifted
+    ? normal(g.mean, g.sd, g.min, g.max)
+    : normal(s[k].mean, s[k].sd, s[k].min, s[k].max);
+  return {
+    stats: { speed: draw("speed"), power: draw("power"), defense: draw("defense"), serve: draw("serve"), block: draw("block"), stamina: draw("stamina") },
+    superGifted,
+  };
+}
+
 /** Half of each intake comes from the club's own country. */
 const HOME_SHARE = 0.5;
 
@@ -343,14 +371,8 @@ export function youthFactoryTx(
       }
       const age = INTAKE_AGE_MIN + Math.floor(Math.random() * (INTAKE_AGE_MAX - INTAKE_AGE_MIN + 1));
       const s = SEEDED_YOUTH_STATS;
-      const stats = {
-        speed:   normal(s.speed.mean, s.speed.sd, s.speed.min, s.speed.max),
-        power:   normal(s.power.mean, s.power.sd, s.power.min, s.power.max),
-        defense: normal(s.defense.mean, s.defense.sd, s.defense.min, s.defense.max),
-        serve:   normal(s.serve.mean, s.serve.sd, s.serve.min, s.serve.max),
-        block:   normal(s.block.mean, s.block.sd, s.block.min, s.block.max),
-        stamina: normal(s.stamina.mean, s.stamina.sd, s.stamina.min, s.stamina.max),
-      };
+      // N-44: the one rule for a new youth's stats, the 1-in-100 super-gifted included.
+      const { stats } = drawYouthStats();
       const position = weighted(SEEDED_YOUTH_POSITIONS);
       const potential = weighted(SEEDED_YOUTH_POTENTIAL);
 

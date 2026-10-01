@@ -14,6 +14,11 @@ export interface YouthProspect {
   name: string;
   age: number;
   continent: string;
+  /**
+     * Her country, as the scout's report names it (overnight 1 Oct, N-44).
+     * @nullable
+     */
+  nationality?: string | null;
   currentRating: number;
   potentialStars: string;
   speciality: string;
