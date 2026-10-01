@@ -1,0 +1,33 @@
+========================================================================
+  L-04 MONEY MEANS SOMETHING — 12 SEASONS, TWO CLUBS
+========================================================================
+
+── established ──
+  (the club was sold after season 5 — five loss-making seasons, L-02e)
+  Season  Year  Record     Tier     Finish        Prize     Sponsor       Wages     Running      Change        Balance
+       1  2026  32W 23L   Gold         #3     $387,020    $838,800   -$724,776   -$509,600   -$205,376       $294,624
+       2  2027  32W 22L   Bronze      #13     $582,335    $874,800   -$739,076   -$811,200   -$289,961         $4,663
+       3  2028  34W 20L   Gold         #5     $161,469    $876,400   -$757,276   -$436,800   -$353,027      -$348,364
+       4  2029  44W 12L   Gold         #1     $859,333    $889,600   -$776,776   -$847,600    -$72,263      -$420,627
+
+── underdog ──
+  (the club was sold after season 5 — five loss-making seasons, L-02e)
+  Season  Year  Record     Tier     Finish        Prize     Sponsor       Wages     Running      Change        Balance
+       1  2026  21W 33L   Bronze      #19     $145,349    $745,400   -$414,024   -$405,600   -$125,695        $24,305
+       2  2027  23W 31L   Bronze      #16     $143,431    $696,200   -$429,624   -$421,200   -$208,013      -$183,708
+       3  2028  14W 40L   Bronze      #19     $126,415    $684,800   -$450,424   -$436,800   -$272,829      -$456,537
+       4  2029  27W 27L   Silver       #5     $149,165    $702,600   -$468,624   -$452,400   -$266,079      -$722,616
+  PASS  both careers ran  established: 4 seasons · underdog: 4 seasons
+  HOLDS  a club finishing in the bottom three of the field went backwards, every time  underdog S1 #19 -$125,695 · underdog S3 #19 -$272,829
+
+  Gold champions: -$72,263
+  Gold runners-up: none
+  Gold top-three seasons: 2 of 3 Gold seasons
+  PASS  established: the Finances page is told what the running costs were this season  summary says $766,100, the ledger says $766,100
+  PASS  underdog: the Finances page is told what the running costs were this season  summary says $507,600, the ledger says $507,600
+  FAIL  a club that WON the Gold tour went forwards, every time  established S4 -$72,263
+  HOLDS  and went forwards modestly — under $500,000 a season  biggest gain $0
+
+=== 3/4 passed ===
+
+ECO-EXIT:1
