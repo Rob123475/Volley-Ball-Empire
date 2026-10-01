@@ -3,8 +3,9 @@
  * the dashboard; and a way out mid-match.
  *
  * The behaviour inside the 3D court is proven in Unity (Editor/RallyPlanProof,
- * batch Play mode: the banner stays 5 s and then sends the player back by
- * itself, the crowd stops, the serve text goes, the boost stops). The finishing
+ * batch Play mode: the result box stays up by itself until Continue, which
+ * sends the player back (overnight 1 Oct, N-29); the crowd stops, the serve
+ * text goes, the boost stops). The finishing
  * on the server is harness/watched-result.mjs. This suite holds the two sides
  * of the wiring together, reading both repos' code as it is:
  *
@@ -12,9 +13,11 @@
  *                 the whole match, that POSTs /matches/:id/leave and goes to the
  *                 dashboard; and on "unity-match-finished" from the court,
  *                 straight to the dashboard with every screen refreshed
- *   Unity         the result banner (5 s, then CourtBridge.MatchFinished; a
- *                 Continue button); the bridge posts exactly that message to the
- *                 parent page; the in-play header has no clock and no halves;
+ *   Unity         the result box (no automatic return; its Continue button is
+ *                 the only thing that posts CourtBridge.MatchFinished; N-29);
+ *                 the bridge posts exactly that message to the
+ *                 parent page; the in-play header (Scoreboard.cs since N-27) has
+ *                 no clock and no halves;
  *                 no A1/A2/B1/B2 name labels in the V19 scene
  *
  * Usage: node harness/court-finish.mjs
@@ -61,15 +64,20 @@ if (!fs.existsSync(unityFile("Scripts", "MatchManager.cs"))) {
   const bridge = read(unityFile("Scripts", "CourtBridge.cs"));
   const jslib = read(unityFile("Plugins", "WebGL", "CourtBridge.jslib"));
   const mm = read(unityFile("Scripts", "MatchManager.cs"));
-  check("Unity: the banner shows 5 s, then sends the player back by itself; Continue goes at once",
-    /ShowSeconds = 5f/.test(banner) && /CourtBridge\.Post\(CourtBridge\.MatchFinished\)/.test(banner) && /GUI\.Button\(.*"Continue"\)\) Leave\(\)/.test(banner));
+  // Overnight 1 Oct, N-29: the result stays up in a box; only Continue sends the player back.
+  const posts = banner.match(/CourtBridge\.Post\(/g) ?? [];
+  const cont = banner.slice(banner.indexOf("public void Continue()"));
+  check("Unity: the result box has a Continue button, and only Continue sends the player back (no automatic return)",
+    /_continue\.onClick\.AddListener\(Continue\)/.test(banner) && posts.length === 1
+    && /CourtBridge\.Post\(CourtBridge\.MatchFinished\)/.test(cont.slice(0, cont.indexOf("\n    }")))
+    && !/ShowSeconds|OnGUI/.test(banner.replace(/\/\/.*$/gm, "")));
   check("Unity: the banner shows the winner, the sets and each set's points",
     /WIN"/.test(banner) && /HomeSets\} - \{sc\.AwaySets/.test(banner) && /Set \{i \+ 1\}: \{s\[0\]\}-\{s\[1\]\}/.test(banner));
   check("Unity: the message is exactly the one court.tsx listens for, posted to the parent page",
     /MatchFinished = "unity-match-finished"/.test(bridge) && /window\.parent\.postMessage\(message, "\*"\)/.test(jslib));
-  const gui = mm.slice(mm.indexOf("private void OnGUI()"));
+  const board = read(unityFile("Scripts", "Scoreboard.cs"));
   check("Unity: the in-play header is the set, sets won and points: no clock, no halves",
-    /SET \{Score\.SetNumber\}/.test(gui) && !/Time:|HALF|currentTime/.test(mm));
+    /SET \{m\.Score\.SetNumber\}   SETS \{m\.setsA\}-\{m\.setsB\}/.test(board) && !/Time:|HALF|currentTime/.test(mm + board) && !/OnGUI/.test(mm));
   check("Unity: at the end, boosts stop, the serve text and the action word go, the commentators stop, the crowd stops",
     /Boost\.Stop\(\);[\s\S]{0,200}_serveMessage = "";\s*ActionWordBanner\.Clear\(\);\s*if \(CommentaryManager\.Instance != null\) CommentaryManager\.Instance\.Stop\(\);[\s\S]{0,80}StopCrowd\(/.test(mm));
   const scene = read(unityFile("BeachVolleyball V19.unity"));

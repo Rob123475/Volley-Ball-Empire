@@ -1,0 +1,2 @@
+N-29: result box after 15 s: "BLUE SHARKS WIN / BLUE SHARKS 2 - 1 RED GIANTS / Set 1: 11-8     Set 2: 5-11     Set 3: 11-8 / The result could not be sent; the game will finish this match from the last score. / [Continue]"; Continue ready: True; sent back by itself: False
+  after pressing Continue: sent back True (the court posts "unity-match-finished")

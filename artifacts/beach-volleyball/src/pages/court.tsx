@@ -68,8 +68,9 @@ export default function ThreeDCourt() {
   // Listen for a postMessage from the Unity iframe to know it finished loading.
   // Unity calls this automatically when the game is ready if we add the hook.
   // As a fallback we also poll a flag set by the Unity HTML when it finishes.
-  // Unity brief item 5: when the match is over the court shows its result for
-  // five seconds, then says "unity-match-finished": the result is already
+  // Unity brief item 5, overnight 1 Oct N-29: when the match is over the court
+  // shows its result in a box until the player presses Continue (nothing leaves
+  // by itself), then says "unity-match-finished": the result is already
   // recorded, so this goes straight back to the dashboard, with every screen's
   // data refreshed.
   useEffect(() => {
