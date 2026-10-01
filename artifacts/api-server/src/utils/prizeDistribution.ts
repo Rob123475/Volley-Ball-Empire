@@ -62,11 +62,18 @@
  * one of the two copies moves.
  */
 
+/**
+ * Overnight brief 1 Oct, N-31 (Rob, 1 Oct): the runner-up takes ONE THIRD of the
+ * prize, the winner two thirds, in every tier (it was 30/70). The share is of
+ * what the club is paid for the event: a club playing above its purse access
+ * is paid LOCKED_PURSE_MULTIPLIER (10%) of the purse (utils/tierQualification.ts,
+ * R-54), and a third of that.
+ */
 /** Share of the purse taken by the winner of an event. */
-export const WINNER_SHARE = 0.70;
+export const WINNER_SHARE = 2 / 3;
 
 /** Share of the purse taken by the losing finalist. */
-export const RUNNER_UP_SHARE = 0.30;
+export const RUNNER_UP_SHARE = 1 / 3;
 
 /**
  * The two shares must account for the whole purse. A split that quietly summed
