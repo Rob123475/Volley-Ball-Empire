@@ -458,6 +458,9 @@ function NeedAScoutMessage({ className }: { className?: string }) {
 export default function ContinentalScouting() {
   const qc    = useQueryClient();
   const { toast } = useToast();
+  // Overnight 1 Oct, N-35: the scout's report is a box in the middle of the
+  // screen with a Confirm button, for every result (it was a toast in the corner).
+  const [scoutReport, setScoutReport] = useState<{ found: number; report: string; finds: Array<{ name: string; age: number; nationality?: string | null; continent: string }> } | null>(null);
 
   const [dialogRegion,   setDialogRegion]   = useState<ContinentalRegion | null>(null);
   const [selDuration,    setSelDuration]    = useState<1 | 3 | 6>(1);
@@ -514,8 +517,8 @@ export default function ContinentalScouting() {
 
   function handleCollect(id: number) {
     collectMission.mutate({ id }, {
-      onSuccess: (result) => {
-        toast({ title: result.prospectsFound > 0 ? `${result.prospectsFound} youth${result.prospectsFound !== 1 ? "s" : ""} recommended` : "No one recommended", description: result.report });
+      onSuccess: (result: any) => {
+        setScoutReport({ found: Number(result.prospectsFound ?? 0), report: String(result.report ?? ""), finds: result.prospects ?? [] });
         invalidate();
       },
       onError: (err: any) => {
@@ -790,6 +793,37 @@ export default function ContinentalScouting() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* N-35: the scout's report, in the middle of the screen, until Confirm. */}
+      <AlertDialog open={!!scoutReport} onOpenChange={(open) => { if (!open) setScoutReport(null); }}>
+        <AlertDialogContent data-testid="scout-report-box">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {scoutReport && (scoutReport.found > 0
+                ? `${scoutReport.found} youth${scoutReport.found !== 1 ? "s" : ""} recommended`
+                : "No one recommended")}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p className="whitespace-pre-line">{scoutReport?.report}</p>
+                {scoutReport && scoutReport.finds.length > 0 && (
+                  <ul className="space-y-1">
+                    {scoutReport.finds.map((f) => (
+                      <li key={f.name} className="text-foreground">{f.name} · Age {f.age} · {f.nationality ?? f.continent}</li>
+                    ))}
+                  </ul>
+                )}
+                {scoutReport && scoutReport.found > 0 && (
+                  <p className="text-xs">They are on this page under the region's finds: sign or reject each.</p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction data-testid="button-confirm-scout-report" onClick={() => setScoutReport(null)}>Confirm</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
