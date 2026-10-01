@@ -119,7 +119,8 @@ router.get("/finances/history", async (req, res) => {
 
   const rawLimit  = Number(req.query.limit);
   const rawOffset = Number(req.query.offset);
-  const limit  = Number.isFinite(rawLimit)  ? Math.min(Math.max(Math.trunc(rawLimit), 1), 200) : 50;
+  // Overnight 1 Oct, N-38: the page's "Show all" asks for every row (the cap was 200).
+  const limit  = Number.isFinite(rawLimit)  ? Math.min(Math.max(Math.trunc(rawLimit), 1), 20_000) : 50;
   const offset = Number.isFinite(rawOffset) ? Math.max(Math.trunc(rawOffset), 0) : 0;
 
   const [{ total }] = await db
@@ -129,7 +130,10 @@ router.get("/finances/history", async (req, res) => {
 
   const txs = await db.select().from(financeTransactionsTable)
     .where(eq(financeTransactionsTable.teamId, team.id))
-    .orderBy(desc(financeTransactionsTable.createdAt))
+    // N-38: newest game date first, then the row written last. By the PC's
+    // timestamp alone, rows written in the same second (a week advanced at once)
+    // came out in any order, so the list jumped about in time.
+    .orderBy(desc(financeTransactionsTable.date), desc(financeTransactionsTable.id))
     .limit(limit).offset(offset);
 
   res.json({ transactions: txs.map(serializeTx), total: Number(total), limit, offset });

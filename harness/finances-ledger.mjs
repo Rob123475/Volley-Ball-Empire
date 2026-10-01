@@ -191,8 +191,15 @@ try {
   const inGameYear = txs.every((t) => /^\d{4}-\d{2}-\d{2}$/.test(t.date) && t.date <= gd);
   check("every transaction carries its game date, none after today's game date", txs.length > 0 && inGameYear, `${txs.length} rows, ${txs.at(-1)?.date} to ${txs[0]?.date}`);
   const page = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", "pages", "finances.tsx"), "utf8");
+  // Overnight 1 Oct, N-37/N-38: in the game's style ("22 Sep 2026"), through the one formatter.
   check("the Transaction History table prints the game date (t.date), not when the row was written",
-    page.includes("format(new Date(`${t.date}T00:00:00`), \"MMM d, yyyy\")") && !/new Date\(t\.createdAt\)/.test(page));
+    page.includes("{gameDateText(t.date)}") && !/new Date\(t\.createdAt\)/.test(page));
+  // N-38: the whole description, wrapped; and the rest of the ledger a click away.
+  const hist = await api("GET", `/finances/history?limit=100000&offset=0`);
+  check("Transaction History: descriptions wrap (no truncate), and \"Show all\" can fetch every row",
+    !/max-w-\[140px\] truncate">\{t\.description\}/.test(page) && /data-testid="history-description"/.test(page) && /data-testid="history-all"/.test(page)
+    && (hist.data?.transactions?.length ?? -1) === hist.data?.total,
+    `${hist.data?.transactions?.length} of ${hist.data?.total} in one request`);
 
   // 7. Sponsor offers: days on the game calendar.
   const dayDiff = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);

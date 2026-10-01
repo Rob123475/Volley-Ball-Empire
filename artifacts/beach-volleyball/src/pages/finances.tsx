@@ -59,7 +59,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
 import { useState } from "react";
 import { normaliseRole } from "@shared/staff-roles";
 
@@ -150,6 +149,19 @@ export default function Finances() {
   });
   const transactions = history?.transactions;
   const totalTransactions = history?.total ?? 0;
+  // N-38: "Showing 50 of 73": the next 50, or all of them.
+  const moreHistory = transactions && totalTransactions > transactions.length ? (
+    <span className="inline-flex gap-2">
+      <Button variant="outline" size="sm" className="h-7" data-testid="history-more"
+        onClick={() => setHistoryLimit((n) => n + PAGE_SIZE)} disabled={transLoading}>
+        {transLoading ? "Loading…" : `Show ${Math.min(PAGE_SIZE, totalTransactions - transactions.length)} more`}
+      </Button>
+      <Button variant="outline" size="sm" className="h-7" data-testid="history-all"
+        onClick={() => setHistoryLimit(totalTransactions)} disabled={transLoading}>
+        Show all {totalTransactions.toLocaleString()}
+      </Button>
+    </span>
+  ) : null;
   const { data: deals, isLoading: dealsLoading } = useListPromoDeals({
     query: { queryKey: getListPromoDealsQueryKey() }
   });
@@ -527,10 +539,14 @@ export default function Finances() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>Transaction History</CardTitle>
-          <CardDescription>
-            {totalTransactions > 0
-              ? `Showing ${transactions?.length ?? 0} of ${totalTransactions.toLocaleString()} transactions.`
-              : "Complete log of your team's financial movements."}
+          <CardDescription className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span data-testid="history-count">
+              {totalTransactions > 0
+                ? `Showing ${transactions?.length ?? 0} of ${totalTransactions.toLocaleString()} transactions.`
+                : "Complete log of your team's financial movements."}
+            </span>
+            {/* N-38: the rest is one click away, here as well as under the table. */}
+            {moreHistory}
           </CardDescription>
         </CardHeader>
         <CardContent className={transactions && transactions.length > 0 ? "p-0" : "p-6"}>
@@ -549,7 +565,7 @@ export default function Finances() {
               <TableBody>
                 {transactions.map((t) => (
                   <TableRow key={t.id}>
-                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{format(new Date(`${t.date}T00:00:00`), "MMM d, yyyy")}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{gameDateText(t.date)}</TableCell>
                     <TableCell>
                       {t.type === "income" ? (
                         <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1"><ArrowUpRight className="h-3 w-3" /> INCOME</Badge>
@@ -558,7 +574,8 @@ export default function Finances() {
                       )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell"><Badge variant="secondary" className="text-[10px]">{ledgerCategoryLabel(t.category)}</Badge></TableCell>
-                    <TableCell className="font-medium max-w-[140px] truncate">{t.description}</TableCell>
+                    {/* N-38: the whole line, wrapped (it was cut at 140px with "..."). */}
+                    <TableCell className="font-medium whitespace-normal break-words min-w-[12rem]" data-testid="history-description">{t.description}</TableCell>
                     <TableCell className={cn("text-right font-bold whitespace-nowrap tabular-nums", t.type === "income" ? "text-green-600" : "text-red-600")}>
                       {/* The row's sign comes from t.type; some older saves stored
                           expenses as negative amounts, which rendered as "--$20,000". */}
@@ -573,18 +590,7 @@ export default function Finances() {
             <p className="text-sm text-muted-foreground italic">No transactions recorded yet.</p>
           )}
           {transactions && totalTransactions > transactions.length && (
-            <div className="p-4 border-t border-border flex justify-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setHistoryLimit((n) => n + PAGE_SIZE)}
-                disabled={transLoading}
-              >
-                {transLoading
-                  ? "Loading…"
-                  : `Show ${Math.min(PAGE_SIZE, totalTransactions - transactions.length)} more`}
-              </Button>
-            </div>
+            <div className="p-4 border-t border-border flex justify-center">{moreHistory}</div>
           )}
         </CardContent>
       </Card>
@@ -1589,9 +1595,9 @@ function ActiveContractCard({
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="h-3 w-3 flex-shrink-0" />
             <span>
-              {contract.contractStartDate ? format(new Date(contract.contractStartDate), "MMM d, yyyy") : "—"}
+              {contract.contractStartDate ? gameDateText(contract.contractStartDate) : "—"}
               {" → "}
-              {contract.contractEndDate ? format(new Date(contract.contractEndDate), "MMM d, yyyy") : "—"}
+              {contract.contractEndDate ? gameDateText(contract.contractEndDate) : "—"}
             </span>
             {contract.daysRemaining != null && contract.daysRemaining > 0 && (
               <span className="ml-auto text-foreground font-semibold">{contract.daysRemaining}d left</span>

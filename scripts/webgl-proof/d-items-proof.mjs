@@ -163,6 +163,35 @@ try {
       okPage && b && text.includes(`${fmt(b.startsOn)} to ${fmt(b.endsOn)}`) && !/\d{4}-\d{2}-\d{2}/.test(page),
       text.split("\n").find((l) => / to /.test(l)) ?? text.slice(0, 120));
   }
+  // ── N-38: Transaction History ─────────────────────────────────────────────
+  if (scenarios.includes("history")) {
+    const sc = "history";
+    for (let i = 0; i < 12 && Number((await api("GET", "/finances/history?limit=1&offset=0"))?.total ?? 0) <= 60; i++) {
+      const r = await api("POST", "/calendar/next-match", {});
+      const id = r?.matchDay?.matchId; if (!id) continue;
+      await api("POST", `/matches/${id}/simulate`, {}); await api("POST", "/calendar/dismiss-match", {});
+    }
+    const total = Number((await api("GET", "/finances/history?limit=1&offset=0"))?.total ?? 0);
+    await open("/finances", `!!document.querySelector('[data-testid="history-count"]')`);
+    await sleep(800);
+    const before = await js(`({ count: document.querySelector('[data-testid="history-count"]')?.textContent,
+      rows: document.querySelectorAll('[data-testid="history-description"]').length,
+      cut: [...document.querySelectorAll('[data-testid="history-description"]')].filter(c => c.scrollWidth > c.clientWidth + 1).length,
+      longest: [...document.querySelectorAll('[data-testid="history-description"]')].map(c => c.textContent).sort((a, b) => b.length - a.length)[0],
+      dates: [...document.querySelectorAll('[data-testid="history-description"]')].map(c => c.parentElement.firstElementChild.textContent) })`);
+    const toISO = (t) => { const [d, m, y] = t.split(" "); return `${y}-${String(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(m) + 1).padStart(2, "0")}-${d.padStart(2, "0")}`; };
+    const isos = before.dates.map(toISO);
+    check(sc, "newest first, in game-date order", isos.every((d, i) => i === 0 || d <= isos[i - 1]), `${before.dates[0]} ... ${before.dates.at(-1)}`);
+    await js(`document.querySelector('[data-testid="history-description"]')?.scrollIntoView({ block: "center" })`);
+    await shot("n38-history-wrapped.png");
+    await js(`document.querySelector('[data-testid="history-all"]')?.click()`);
+    let after = 0;
+    for (let i = 0; i < 30 && after < total; i++) { await sleep(300); after = await js(`document.querySelectorAll('[data-testid="history-description"]').length`); }
+    const countAfter = await js(`document.querySelector('[data-testid="history-count"]')?.textContent`);
+    check(sc, "more than 50 transactions: \"Showing 50 of N\" with Show more and Show all; Show all lists every one",
+      total > 50 && before.rows === 50 && after === total && /Showing \d+ of/.test(before.count), `${before.count} -> ${countAfter} (${after} rows)`);
+    check(sc, "no description is cut: every one wraps in full", before.cut === 0 && before.rows > 0, `longest: "${before.longest}"`);
+  }
   ws.close();
 } catch (err) {
   ok = false;
