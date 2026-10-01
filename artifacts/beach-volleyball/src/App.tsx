@@ -153,7 +153,10 @@ function Router() {
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>
-          <div style={{ width: "100vw", height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+          {/* N-30: pinned to the window's edges, not 100vw x 100vh: 100vw counts a
+              page scrollbar too, so the court could be wider than the window and
+              the Leave match bar cut off at both ends. */}
+          <div style={{ position: "fixed", inset: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <ThreeDCourt />
           </div>
         </AuthGuard>

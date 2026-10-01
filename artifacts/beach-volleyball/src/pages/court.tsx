@@ -104,22 +104,28 @@ export default function ThreeDCourt() {
     }
   }
 
+  // N-30: the bar always fits the window: it is the full width of the court
+  // page (pinned to the window in App.tsx), the note wraps onto a second line
+  // rather than run under the button, and the button never shrinks or wraps.
   const leaveBar = (
     <div
       data-testid="court-leave-bar"
       style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
+        display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "6px 12px",
         padding: "6px 12px", background: "rgba(0,0,0,0.9)", borderBottom: "1px solid rgba(255,255,255,0.1)",
-        flexShrink: 0, color: "rgba(255,255,255,0.7)", fontSize: "12px",
+        flexShrink: 0, color: "rgba(255,255,255,0.7)", fontSize: "12px", width: "100%", boxSizing: "border-box",
       }}
     >
-      <span>{leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving forfeits the match." : ""}</span>
+      <span style={{ flex: "1 1 160px", minWidth: 0, overflowWrap: "anywhere" }}>
+        {leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving forfeits the match." : ""}
+      </span>
       <button
         type="button"
         data-testid="button-leave-match"
         onClick={() => (matchId ? setConfirmLeave(true) : leaveMatch())}
         disabled={leaving}
         style={{
+          flexShrink: 0, whiteSpace: "nowrap", marginLeft: "auto",
           display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "6px",
           background: "rgba(255,255,255,0.12)", color: "white", fontWeight: 700, fontSize: "12px",
           border: "1px solid rgba(255,255,255,0.25)", cursor: leaving ? "default" : "pointer", opacity: leaving ? 0.6 : 1,

@@ -1,0 +1,125 @@
+{
+  "sizes": [
+    {
+      "size": "1400x900",
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "docW": 1400,
+      "docH": 900,
+      "scrollX": 0,
+      "scrollY": 0,
+      "bar": {
+        "left": 0,
+        "right": 1400,
+        "top": 0,
+        "bottom": 44
+      },
+      "note": {
+        "left": 12,
+        "right": 1252,
+        "top": 13,
+        "bottom": 31
+      },
+      "noteCut": false,
+      "button": {
+        "left": 1264,
+        "right": 1388,
+        "top": 6,
+        "bottom": 37
+      },
+      "buttonCut": false,
+      "zoom": 1.5
+    },
+    {
+      "size": "1280x720",
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "docW": 1400,
+      "docH": 900,
+      "scrollX": 0,
+      "scrollY": 0,
+      "bar": {
+        "left": 0,
+        "right": 1400,
+        "top": 0,
+        "bottom": 44
+      },
+      "note": {
+        "left": 12,
+        "right": 1252,
+        "top": 13,
+        "bottom": 31
+      },
+      "noteCut": false,
+      "button": {
+        "left": 1264,
+        "right": 1388,
+        "top": 6,
+        "bottom": 37
+      },
+      "buttonCut": false,
+      "zoom": 1.5
+    },
+    {
+      "size": "1024x700",
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "docW": 1400,
+      "docH": 900,
+      "scrollX": 0,
+      "scrollY": 0,
+      "bar": {
+        "left": 0,
+        "right": 1400,
+        "top": 0,
+        "bottom": 44
+      },
+      "note": {
+        "left": 12,
+        "right": 1252,
+        "top": 13,
+        "bottom": 31
+      },
+      "noteCut": false,
+      "button": {
+        "left": 1264,
+        "right": 1388,
+        "top": 6,
+        "bottom": 37
+      },
+      "buttonCut": false,
+      "zoom": 1.5
+    },
+    {
+      "size": "maximised",
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "docW": 1400,
+      "docH": 900,
+      "scrollX": 0,
+      "scrollY": 0,
+      "bar": {
+        "left": 0,
+        "right": 1400,
+        "top": 0,
+        "bottom": 44
+      },
+      "note": {
+        "left": 12,
+        "right": 1252,
+        "top": 13,
+        "bottom": 31
+      },
+      "noteCut": false,
+      "button": {
+        "left": 1264,
+        "right": 1388,
+        "top": 6,
+        "bottom": 37
+      },
+      "buttonCut": false,
+      "zoom": 1.5
+    }
+  ],
+  "errors": []
+}
