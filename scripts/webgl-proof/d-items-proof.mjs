@@ -224,6 +224,32 @@ try {
     }
     await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceScaleFactor: 1, mobile: false });
   }
+  // ── N-43: the "Grow Your Squad" card after the first match ────────────────
+  if (scenarios.includes("grow-card")) {
+    const sc = "grow-card";
+    const hasCard = () => js(`[...document.querySelectorAll('#attention-required button')].some(b => /Grow Your Squad/.test(b.textContent))`);
+    await open("/", `!!document.querySelector('#attention-required')`);
+    await sleep(1500);
+    const before = await hasCard();
+    await shot("n43-dashboard-before.png");
+    // As Rob plays: Next match, then the MATCH DAY box's Sim Result.
+    await clickText("/Next match/");
+    let simmed = false;
+    for (let i = 0; i < 60 && !simmed; i++) {
+      await sleep(500);
+      simmed = await js(`(() => { const b = [...document.querySelectorAll('[data-testid="match-day-box"] button')].find(x => /Sim/i.test(x.textContent)); if (b && !b.disabled) { b.click(); return true; } return false; })()`);
+    }
+    await sleep(3000);
+    await js(`[...document.querySelectorAll('[role="dialog"] button')].find(x => /close|continue|done|ok/i.test(x.textContent))?.click()`);
+    await sleep(1500);
+    const attention = await api("GET", "/attention-items");
+    const after = await hasCard();
+    const panel = await js(`document.querySelector('#attention-required')?.innerText ?? "(no panel)"`);
+    await shot("n43-dashboard-after-first-match.png");
+    check(sc, "the card is on the dashboard before the first match", before);
+    check(sc, "...and still there after it (the server still sends it)", simmed && after && (attention.items ?? []).some((x) => x.id === "grow-your-squad"),
+      `simmed ${simmed}; server: ${(attention.items ?? []).map((x) => x.id).join(", ")}; panel: ${panel.slice(0, 120).replace(/\n/g, " / ")}`);
+  }
   ws.close();
 } catch (err) {
   ok = false;
