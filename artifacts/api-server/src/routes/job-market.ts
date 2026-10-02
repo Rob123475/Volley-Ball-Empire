@@ -34,7 +34,7 @@
  */
 import { Router } from "express";
 import {
-  db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable,
+  db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable, contractsTable,
   careerPoolTeamStateTable, locationsTable, seasonsTable, achievementsTable,
   worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality, managerLevelFor, careerHistoryEntriesTable,
   type ContinentKey,
@@ -49,7 +49,8 @@ import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiM
 import { aiSquadsTx } from "../utils/aiSquads.js";
 import { academyAtTx } from "../utils/youthLoans.js";
 import { worldTourFieldTx } from "../utils/worldTour.js";
-import { withCareerStateTx } from "../lib/playerDto.js";
+import { withCareerStateTx, loadPlayers, updatePlayerState } from "../lib/playerDto.js";
+import { overallRating } from "../utils/overallRating.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { getSessionId, getSession, updateSession } from "../lib/auth.js";
 
@@ -270,7 +271,28 @@ router.post("/job-market/accept", async (req, res) => {
       }
       return mine.length;
     });
+    // Their deals carry over to the new club's books: a contract each, on the
+    // wage and to the date they were on (without one a player is not "contracted"
+    // and the club cannot field her).
+    {
+      const term = oneSeasonContract(season);
+      for (const p of (await loadPlayers(save.id, { teamId: newTeam!.id }))) {
+        await db.insert(contractsTable).values({ playerId: p.id, teamId: newTeam!.id, salary: p.salary, startDate: term.startDate, endDate: p.contractEndDate ?? term.endDate, bonusPerWin: 0 });
+        if (!p.contractEndDate) await updatePlayerState(save.id, p.id, { contractEndDate: term.endDate });
+      }
+    }
     if (squad < 2) await seedStartingSquad(save.id, newTeam!.id, oneSeasonContract(season), "underdog");
+    else if (squad < 3) {
+      // Two on the sand and an interchange, as every club starts: a club that
+      // brings only its pair signs the best free agent as its interchange.
+      const term = oneSeasonContract(season);
+      const [fa] = (await loadPlayers(save.id, { freeAgents: true, playerType: "senior" }))
+        .sort((a, b) => overallRating(b) - overallRating(a) || a.id - b.id);
+      if (fa) {
+        await db.insert(contractsTable).values({ playerId: fa.id, teamId: newTeam!.id, salary: fa.salary, startDate: term.startDate, endDate: term.endDate, bonusPerWin: 0 });
+        await updatePlayerState(save.id, fa.id, { teamId: newTeam!.id, salary: fa.salary, contractEndDate: term.endDate, squadRole: "interchange", isActive: true });
+      }
+    }
   }
   await db.insert(careerHistoryEntriesTable).values({
     userId: req.user.id, careerSaveId: save.id, type: "joined_club", clubName: pool.teamName, season: save.season,

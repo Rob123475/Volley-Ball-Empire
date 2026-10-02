@@ -120,7 +120,8 @@ try {
     before.status === 200 && before.data?.seeking === false && (before.data?.vacancies ?? []).length === 0,
     `HTTP ${before.status}, seeking ${before.data?.seeking}`);
   const earlyTake = await api("POST", "/job-market/accept", { poolTeamId: 1 });
-  check("and cannot take another club", earlyTake.status === 409,
+  // U-3 (feat-job-market): club 1 has no vacancy, so it is refused as not on offer.
+  check("and cannot take another club", earlyTake.status === 409 || earlyTake.status === 422,
     `HTTP ${earlyTake.status} ${earlyTake.data?.error ?? ""}`);
 
   // ── 2. Four seasons of losses behind it ───────────────────────────────────
@@ -192,6 +193,19 @@ try {
   // and it is a key nothing here unlocks by accident.
   write(`INSERT INTO achievements (team_id, achievement_key, unlocked_at) VALUES (?, 'world_champion', ?)`,
     teamId, Math.floor(Date.now() / 1000));
+
+  // U-3 (feat-job-market): a vacancy is a club whose AI manager was sacked,
+  // which takes two failed seasons; this sale comes sooner, so one is planted:
+  // the weakest club that has never been in the World Tour field.
+  {
+    const d = new DatabaseSync(dbFile);
+    const everInField = new Set(d.prepare(`SELECT DISTINCT pool_team_id AS id FROM world_tour_qualifications WHERE career_save_id = ?`).all(careerSaveId).map((r) => r.id));
+    // Two: one to take, and one still open when the manager is out again.
+    for (const weakest of d.prepare(`SELECT id FROM continental_pool_teams ORDER BY rating ASC`).all().filter((r) => !everInField.has(r.id)).slice(0, 2)) {
+      d.prepare(`UPDATE career_pool_team_state SET manager_name = NULL, vacant_since = '2099-01-01', vacancy_reason = 'planted by the suite' WHERE career_save_id = ? AND pool_team_id = ?`).run(careerSaveId, weakest.id);
+    }
+    d.close();
+  }
 
   // ── 3. The season ends and the club is sold ───────────────────────────────
   console.log("\n3. THE FIFTH ENDS IT — THE CLUB IS SOLD, NOT THE MANAGER SACKED");

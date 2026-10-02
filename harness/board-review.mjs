@@ -461,10 +461,11 @@ try {
     early.map((f) => `${f.date} day ${f.days}`).join(", "));
   check("the first forfeit 30 or more days in sacks the manager", firing != null && firing.days >= 30,
     firing ? `${firing.date}: day ${firing.days} since ${firing.since}` : "never sacked");
-  const abSave = read(`SELECT id, retired_at FROM career_saves WHERE id = ?`, ab.careerSaveId)[0];
+  const abSave = read(`SELECT id, retired_at, team_id, seeking_club_since AS seeking FROM career_saves WHERE id = ?`, ab.careerSaveId)[0];
   const abHistory = read(`SELECT type, description FROM career_history_entries WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, ab.careerSaveId)[0];
-  check("the career really ended: retired, with a dismissal that says why",
-    !!abSave?.retired_at && abHistory?.type === "dismissal" && /days without two contracted players/.test(abHistory?.description ?? ""),
+  // U-3 (feat-job-market): a sacked manager goes to the Job Market.
+  check("the manager is out of a job and on the Job Market, with a dismissal that says why",
+    abSave?.retired_at == null && abSave?.team_id == null && abSave?.seeking != null && abHistory?.type === "dismissal" && /days without two contracted players/.test(abHistory?.description ?? ""),
     abHistory?.description);
 
   // ── 7. The season review does not sack ──────────────────────────────────

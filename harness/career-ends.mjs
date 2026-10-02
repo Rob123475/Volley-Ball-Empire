@@ -49,12 +49,13 @@ console.log("\n0. THE SCREENS AND THE ROUTES");
 const contractPage = fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/manager-contract.tsx"), "utf8");
 const endPage = fs.readFileSync(path.join(REPO, "artifacts/beach-volleyball/src/pages/career-end.tsx"), "utf8");
 const careers = fs.readFileSync(path.join(REPO, "artifacts/api-server/src/routes/careers.ts"), "utf8");
-const sentence = "This ends your career at {clubName}. There is no job market yet.";
+// U-3 (feat-job-market): both lead to the Job Market now, and the dialogs say so.
+const sentence = "You leave {clubName} and go to the Job Market: the clubs whose manager has been sacked. Your career goes on; you can retire there.";
 check("both confirmation dialogs say it plainly",
   contractPage.split(sentence).length - 1 === 2 && /data-testid="resign-ends-career"/.test(contractPage) && /data-testid="break-ends-career"/.test(contractPage),
   `${contractPage.split(sentence).length - 1} dialog(s) carry "${sentence}"`);
-check("both go to the finished screen, which names each ending",
-  (contractPage.match(/window\.location\.href = "\/career-end"/g) ?? []).length === 2
+check("both go to the Job Market (the finished screen when a career ends), which names each ending",
+  (contractPage.match(/window\.location\.href = data\?\.seekingClub \? "\/job-market" : "\/career-end"/g) ?? []).length === 2
     && /resignation:/.test(endPage) && /contract_break:/.test(endPage) && /dismissal:/.test(endPage));
 check("no route clears a save's club any more", !/teamId:\s*null/.test(careers),
   (careers.match(/teamId:\s*null/g) ?? []).length + " occurrence(s) in routes/careers.ts");
@@ -105,47 +106,63 @@ async function newCareer(api, name) {
   return { userId: prof.data.id, careerSaveId: c.data?.id, teamId: c.data?.teamId };
 }
 const saveRow = (id) => read(`SELECT team_id, retired_at FROM career_saves WHERE id = ?`, id)[0];
-const openClubless = () => read(`SELECT COUNT(*) AS n FROM career_saves WHERE team_id IS NULL AND retired_at IS NULL`)[0].n;
+// U-3: a save on the Job Market (seeking a club) is without one on purpose.
+const openClubless = () => read(`SELECT COUNT(*) AS n FROM career_saves WHERE team_id IS NULL AND retired_at IS NULL AND seeking_club_since IS NULL`)[0].n;
 
 let server = await boot("main");
 let legacy;
 try {
-  console.log("\n1. RESIGN ENDS THE CAREER");
+  // Daytime 2 Oct, U-3 (feat-job-market): resigning and breaking the contract
+  // lead to the Job Market; the career ends only by retiring there. With no
+  // vacancy anywhere they are refused (the manager would have nowhere to go).
+  const plantVacancy = (careerSaveId) => {
+    const d = new DatabaseSync(dbFile);
+    d.prepare(`UPDATE career_pool_team_state SET manager_name = NULL, vacant_since = '2099-01-01', vacancy_reason = 'planted by the suite'
+      WHERE career_save_id = ? AND pool_team_id = (SELECT MIN(pool_team_id) FROM career_pool_team_state WHERE career_save_id = ?)`).run(careerSaveId, careerSaveId);
+    d.close();
+  };
+  const seekingRow = (id) => read(`SELECT team_id, retired_at, seeking_club_since AS seeking FROM career_saves WHERE id = ?`, id)[0];
+
+  console.log("\n1. RESIGN GOES TO THE JOB MARKET");
   const R = session();
   const res = await newCareer(R, "Resigner");
+  const noJob = await R("POST", "/careers/resign", {});
+  check("with no vacancy anywhere, resigning is refused and says why", noJob.status === 409 && /no club has a vacancy/i.test(noJob.data?.error ?? "") && saveRow(res.careerSaveId)?.team_id === res.teamId,
+    `HTTP ${noJob.status}: ${noJob.data?.error}`);
+  plantVacancy(res.careerSaveId);
   const resign = await R("POST", "/careers/resign", {});
-  const rs = saveRow(res.careerSaveId);
+  const rs = seekingRow(res.careerSaveId);
   const rHistory = (await R("GET", "/careers/history")).data ?? [];
   const rHof = read(`SELECT COUNT(*) AS n FROM hall_of_fame WHERE user_id = ?`, res.userId)[0].n;
-  check("the resignation is accepted and says the career ended", resign.status === 200 && resign.data?.careerEnded === true && resign.data?.clubName === "Resigner FC",
+  check("with one, the resignation is accepted and the career goes on", resign.status === 200 && resign.data?.careerEnded === false && resign.data?.seekingClub === true && resign.data?.clubName === "Resigner FC",
     `HTTP ${resign.status} ${JSON.stringify(resign.data)}`);
-  check("the save is finished and keeps its club", rs?.retired_at != null && rs?.team_id === res.teamId,
-    `retired_at ${rs?.retired_at}, team_id ${rs?.team_id} (club ${res.teamId})`);
-  check("its own reason is recorded, first in the history, and it is archived to the Hall of Fame",
-    rHistory[0]?.type === "resignation" && /resigned from Resigner FC/.test(rHistory[0]?.description ?? "") && /no job market yet/.test(rHistory[0]?.description ?? "") && rHof === 1,
+  check("the manager is out of a job and looking for a club, the save not finished", rs?.retired_at == null && rs?.team_id == null && rs?.seeking != null,
+    `retired_at ${rs?.retired_at}, team_id ${rs?.team_id}, seeking ${rs?.seeking}`);
+  check("its own reason is recorded, first in the history, and nothing is archived yet",
+    rHistory[0]?.type === "resignation" && /resigned from Resigner FC/.test(rHistory[0]?.description ?? "") && rHof === 0,
     `"${rHistory[0]?.description}"; hall of fame ${rHof}`);
-  const after = await R("GET", "/dashboard");
   const again = await R("POST", "/careers/resign", {});
-  check("the session no longer has a career, and resigning again is refused", after.status === 404 && again.status === 400,
-    `dashboard ${after.status}, second resign ${again.status}`);
+  check("resigning again is refused: there is no club to resign from", again.status === 400, `second resign ${again.status}`);
 
-  console.log("\n2. BREAK CONTRACT PAYS THE CLAUSE, THEN ENDS THE CAREER");
+  console.log("\n2. BREAK CONTRACT PAYS THE CLAUSE, THEN GOES TO THE JOB MARKET");
   const B = session();
   const brk = await newCareer(B, "Breaker");
+  plantVacancy(brk.careerSaveId);
   const budgetBefore = read(`SELECT budget FROM teams WHERE id = ?`, brk.teamId)[0].budget;
   const broke = await B("POST", "/careers/break-contract", {});
   const budgetAfter = read(`SELECT budget FROM teams WHERE id = ?`, brk.teamId)[0].budget;
-  const bs = saveRow(brk.careerSaveId);
+  const bs = seekingRow(brk.careerSaveId);
   const bHistory = (await B("GET", "/careers/history")).data ?? [];
   check("the release clause comes out of the club's budget", broke.status === 200 && broke.data?.feePaid === RELEASE_FEE && budgetBefore - budgetAfter === RELEASE_FEE,
     `HTTP ${broke.status}; budget ${budgetBefore} -> ${budgetAfter}`);
-  check("the career is finished, keeps its club, and says why",
-    broke.data?.careerEnded === true && bs?.retired_at != null && bs?.team_id === brk.teamId
-      && bHistory[0]?.type === "contract_break" && /release clause/.test(bHistory[0]?.description ?? "") && /no job market yet/.test(bHistory[0]?.description ?? ""),
+  check("the manager is looking for a club, and the history says why",
+    broke.data?.careerEnded === false && bs?.retired_at == null && bs?.team_id == null && bs?.seeking != null
+      && bHistory[0]?.type === "contract_break" && /release clause/.test(bHistory[0]?.description ?? ""),
     `retired_at ${bs?.retired_at}, team_id ${bs?.team_id}; "${bHistory[0]?.description}"`);
 
-  console.log("\n3. NO SAVE IS LEFT WITHOUT A CLUB");
-  check("no open save has no club", openClubless() === 0, `${openClubless()} open save(s) without a club`);
+  console.log("\n3. NO SAVE IS LEFT WITHOUT A CLUB, UNLESS IT IS LOOKING FOR ONE");
+  const lost = () => read(`SELECT COUNT(*) AS n FROM career_saves WHERE team_id IS NULL AND retired_at IS NULL AND seeking_club_since IS NULL`)[0].n;
+  check("no open save has no club unless it is on the Job Market", lost() === 0, `${lost()} open save(s) without a club and not looking for one`);
 
   const L = session();
   legacy = await newCareer(L, "Legacy");
