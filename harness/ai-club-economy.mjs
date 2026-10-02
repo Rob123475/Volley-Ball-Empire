@@ -329,7 +329,9 @@ try {
   // ("don't tune it yourself beyond his numbers"). Reported, not asserted, until
   // he does; the sale's own checks below still run whenever a club is sold.
   // Set RULE_IS_ASSERTED to true to assert it again.
-  const RULE_IS_ASSERTED = false;
+  // Afternoon 2 Oct: Rob picked +$10,000 a week (Q-2); under it AI clubs are
+  // sold again (24 over 30 seasons), so the rule is asserted again.
+  const RULE_IS_ASSERTED = true;
   (RULE_IS_ASSERTED ? check : (label, cond, detail) =>
     console.log(`  ${cond ? "HOLDS" : "RULE NOT MET (Rob decides, N-41)"}  ${label}  ${detail}`))(
     "at least one AI club was sold for its books", sales.length > 0,

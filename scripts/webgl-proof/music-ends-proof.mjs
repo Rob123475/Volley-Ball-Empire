@@ -10,8 +10,15 @@
  * playing, from 0) and how long after the end it did. It keeps going until
  * every song in the soundtrack has ended once.
  *
+ * Afternoon 2 Oct (Rob): only barefoot-tonight, burn-under-the-sun and
+ * rum-under-the-palms fade out over their last 5 seconds. Each song is seeked
+ * to 6 s before its end and the player's volume sampled to the end: those
+ * three must fall from the slider's level to (nearly) nothing; every other song
+ * must stay at the slider's level to its natural end.
+ *
  * Usage: node scripts/webgl-proof/music-ends-proof.mjs <outJson>
- * Exits 1 if any song did not hand over to a different, playing next song.
+ * Exits 1 if any song did not hand over to a different, playing next song, or
+ * a song faded that should not, or one of the three did not fade.
  */
 import { fork, spawn } from "node:child_process";
 import fs from "node:fs";
@@ -33,6 +40,7 @@ const server = fork(path.join(REPO, "artifacts/api-server/dist/index.mjs"), [], 
   env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", NODE_ENV: "production", PUBLIC_DIR: path.join(REPO, "artifacts/api-server/dist/public"),
     DB_PATH: db, PORT: String(PORT), SESSION_SECRET: "music-ends" },
 });
+const FADED = new Set(["barefoot-tonight.mp3", "burn-under-the-sun.mp3", "rum-under-the-palms.mp3"]);
 const out = { songs: SONGS.length, handovers: [], errors: [] };
 let chrome, ok = true;
 try {
@@ -76,15 +84,30 @@ try {
     for (let i = 0; i < 60; i++) { s = await state(); if (s && !s.paused && Number.isFinite(s.duration) && s.duration > 0 && s.time > 0) break; await sleep(250); }
     if (!s || s.paused) { out.errors.push(`song not playing: ${JSON.stringify(s)}`); ok = false; break; }
     const song = s.src, length = s.duration, endsBefore = s.ends;
-    await ev(`(() => { const a = window.__audio; a.currentTime = Math.max(0, a.duration - 1.5); return true; })()`);
+    await ev(`(() => { const a = window.__audio; a.currentTime = Math.max(0, a.duration - 6); return true; })()`);
     let e = null;
-    for (let i = 0; i < 60 && !e; i++) { await sleep(150); e = await ev(`window.__ends.length > ${endsBefore} ? window.__ends[window.__ends.length - 1] : null`); }
+    const samples = [];
+    for (let i = 0; i < 120 && !e; i++) {
+      await sleep(100);
+      const v = await ev(`(() => { const a = window.__audio; return { left: a.duration - a.currentTime, vol: a.volume, src: (a.currentSrc || a.src).split("/").pop() }; })()`);
+      if (v && v.src === song) samples.push({ left: Math.round(v.left * 100) / 100, vol: Math.round(v.vol * 1000) / 1000 });
+      e = await ev(`window.__ends.length > ${endsBefore} ? window.__ends[window.__ends.length - 1] : null`);
+    }
+    const base = samples.find((x) => x.left > 5.2)?.vol ?? samples[0]?.vol ?? 0;
+    const inFade = samples.filter((x) => x.left <= 5);
+    const lastVol = inFade.length ? inFade[inFade.length - 1].vol : base;
+    const fades = FADED.has(song);
+    const fadeOk = fades
+      ? inFade.length > 5 && lastVol <= base * 0.15 && inFade.every((x, i) => i === 0 || x.vol <= inFade[i - 1].vol + 0.001)
+      : samples.length > 5 && samples.every((x) => Math.abs(x.vol - base) < 0.002);
     let next = null;
     for (let i = 0; i < 40; i++) { await sleep(150); next = await state(); if (next && next.src !== song && !next.paused && next.time > 0) break; }
     const gapMs = e && next ? Math.round(await ev(`performance.now()`) - e.t) : null;
     const clean = !!e && e.src === song && !!next && next.src !== song && !next.paused && next.time > 0 && next.time < 5;
-    out.handovers.push({ song, seconds: Math.round(length * 100) / 100, ended: !!e, next: next?.src ?? null, nextPlaying: next ? !next.paused : false, nextAt: next ? Math.round(next.time * 100) / 100 : null, clean });
-    if (!clean) ok = false;
+    const nextVol = next ? await ev(`window.__audio.volume`) : null;
+    out.handovers.push({ song, seconds: Math.round(length * 100) / 100, ended: !!e, next: next?.src ?? null, nextPlaying: next ? !next.paused : false, nextAt: next ? Math.round(next.time * 100) / 100 : null, clean,
+      fades, fadeOk, sliderLevel: base, levelAtEnd: lastVol, nextStartsAt: nextVol, samples: samples.length });
+    if (!clean || !fadeOk) ok = false;
     ended.add(song);
   }
   out.allEnded = ended.size;
@@ -100,6 +123,6 @@ try {
   try { server.kill(); } catch { /* gone */ }
 }
 fs.writeFileSync(outJson, JSON.stringify(out, null, 2));
-for (const h of out.handovers) console.log(`${h.clean ? "clean" : "NOT CLEAN"}  ${h.song.padEnd(30)} ${String(h.seconds).padStart(7)} s  -> ${h.next} (playing ${h.nextPlaying}, at ${h.nextAt} s)`);
+for (const h of out.handovers) console.log(`${h.clean ? "clean" : "NOT CLEAN"}  ${h.fadeOk ? (h.fades ? "faded " : "steady") : (h.fades ? "NO FADE" : "FADED!")}  ${h.song.padEnd(30)} ${String(h.seconds).padStart(7)} s  level ${h.sliderLevel} -> ${h.levelAtEnd}  -> ${h.next} (playing ${h.nextPlaying}, at ${h.nextAt} s, volume ${h.nextStartsAt})`);
 console.log(`songs ended: ${out.allEnded} of ${out.songs}; errors: ${out.errors.length ? out.errors.join("; ") : "none"}`);
 process.exit(ok ? 0 : 1);

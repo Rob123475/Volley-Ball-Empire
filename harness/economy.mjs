@@ -320,7 +320,10 @@ check("a club that WON the Gold tour went forwards, every time",
     champions.map((r) => `${r.label} S${r.season} ${money(r.change)}`).slice(0, 8).join(" · "));
 
 const MODEST = 500_000;
-rule(`and went forwards modestly — under ${money(MODEST)} a season`,
+// Afternoon 2 Oct: under Rob's +$10,000 a week (Q-2) the champion's line holds
+// again ($164k-$208k a season) and is asserted; the two bottom-club lines stay
+// reported (a bottom-three club can still gain a little; see the status file).
+check(`and went forwards modestly — under ${money(MODEST)} a season`,
   champions.every((r) => r.change < MODEST),
   champions.length === 0 ? "no Gold season was won in this run - nothing to judge" :
     `biggest gain ${money(Math.max(0, ...champions.map((r) => r.change)))}`);
