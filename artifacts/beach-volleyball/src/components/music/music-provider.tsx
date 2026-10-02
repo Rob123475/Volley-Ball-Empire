@@ -46,6 +46,13 @@ const DEFAULT_VOLUME = 0.4;
  */
 const COURT_FADE_MS = 1500;
 
+/**
+ * Rob, 2 Oct: the only songs that fade out, over their last FADE_OUT_SECONDS.
+ * Every other song plays to its natural end, untouched.
+ */
+const FADE_OUT_FILES = new Set(["barefoot-tonight.mp3", "burn-under-the-sun.mp3", "rum-under-the-palms.mp3"]);
+const FADE_OUT_SECONDS = 5;
+
 const COURT_PATH = "/court";
 
 // ── Settings persistence ────────────────────────────────────────────────────
@@ -308,6 +315,30 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     audio.muted = muted;
     if (!onCourt) audio.volume = volume;
   }, [volume, muted, onCourt]);
+
+  // ── Three songs fade out over their last seconds (Rob, 2 Oct) ─────────────
+  //
+  // These three end on a hard cut in Rob's own files; only they are faded, in
+  // the player, over their last FADE_OUT_SECONDS. The files are never touched,
+  // and every other song plays to its end exactly as written (many are meant to
+  // stop abruptly). The level is the slider's, times what is left of the fade,
+  // so the slider and Mute keep working during it, and the next song (after the
+  // end, or a skip mid-fade) starts at the slider's volume.
+  useEffect(() => {
+    const audio = audioRef.current;
+    const track = trackIndex === null ? null : MUSIC_TRACKS[trackIndex];
+    if (!audio || onCourt || !track || !FADE_OUT_FILES.has(track.file)) return undefined;
+    // A timer, not animation frames: the fade must run with the window hidden too.
+    const timer = window.setInterval(() => {
+      const left = audio.duration - audio.currentTime;
+      if (!Number.isFinite(left)) return;
+      audio.volume = left < FADE_OUT_SECONDS ? volume * Math.max(0, left / FADE_OUT_SECONDS) : volume;
+    }, 50);
+    return () => {
+      window.clearInterval(timer);
+      if (!wasOnCourt.current) audio.volume = volume;
+    };
+  }, [trackIndex, volume, onCourt]);
 
   // ── The 3D match: fade out, then the next song after it (item 9) ──────────
   const wasOnCourt = useRef(onCourt);
