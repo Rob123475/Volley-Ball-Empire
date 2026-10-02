@@ -1,0 +1,46 @@
+========================================================================
+  L-04 MONEY MEANS SOMETHING — 12 SEASONS, TWO CLUBS
+========================================================================
+
+── established ──
+  Season  Year  Record     Tier     Finish        Prize     Sponsor       Wages     Running      Change        Balance
+       1  2026  34W 22L   Gold         #1     $855,001  $1,072,600   -$724,776   -$509,600    $496,405       $996,405
+       2  2027  36W 20L   Gold         #1     $862,835  $1,145,000   -$739,076   -$811,200    $260,739     $1,257,144
+       3  2028  41W 15L   Gold         #2     $867,501  $1,147,800   -$752,076   -$826,800    $239,605     $1,496,749
+       4  2029  35W 20L   Gold         #2     $726,500  $1,139,800   -$772,876   -$842,400     $54,204     $1,550,953
+       5  2030  32W 23L   Gold         #3     $696,498  $1,128,000   -$780,676   -$847,600       -$598     $1,550,355
+       6  2031  37W 18L   Gold         #3     $715,002  $1,138,800   -$783,276   -$847,600     $26,106     $1,576,461
+       7  2032  41W 14L   Gold         #2     $749,336  $1,166,000   -$797,014   -$863,900     $53,817     $1,630,278
+       8  2033  35W 20L   Gold         #3     $693,332  $1,132,000   -$784,576   -$847,600     -$3,664     $1,626,614
+       9  2034  33W 22L   Gold         #3     $716,670  $1,137,400   -$783,276   -$847,600     $26,374     $1,652,988
+      10  2035  37W 18L   Gold         #3     $749,832  $1,139,600   -$789,776   -$847,600     $55,236     $1,708,224
+      11  2036  36W 20L   Gold         #3     $803,669  $1,142,800   -$781,976   -$847,600    $120,073     $1,828,297
+      12  2037  31W 24L   Gold         #2     $702,334  $1,136,800   -$779,376   -$847,600     $15,338     $1,843,635
+
+── underdog ──
+  Season  Year  Record     Tier     Finish        Prize     Sponsor       Wages     Running      Change        Balance
+       1  2026  16W 38L   Bronze      #19     $548,333    $971,800   -$414,024   -$405,600    $503,689       $653,689
+       2  2027  19W 35L   Bronze      #18     $574,665    $952,600   -$434,824   -$421,200    $474,421     $1,128,110
+       3  2028  19W 35L   Bronze      #19     $512,831    $948,600   -$450,424   -$436,800    $377,387     $1,505,497
+       4  2029  23W 31L   Bronze      #16     $568,501    $952,200   -$473,824   -$457,600    $392,457     $1,897,954
+       5  2030  16W 38L   Bronze      #18     $522,167    $946,000   -$467,324   -$457,600    $346,423     $2,244,377
+       6  2031  26W 28L   Bronze      #15     $585,337    $976,200   -$467,324   -$457,600    $439,793     $2,684,170
+       7  2032  15W 39L   Bronze      #19     $523,833    $980,800   -$477,636   -$466,400    $359,992     $3,044,162
+       8  2033  31W 23L   Silver       #6     $623,165    $993,600   -$473,824   -$457,600    $488,521     $3,532,683
+       9  2034  18W 36L   Bronze      #15     $595,667    $981,000   -$468,624   -$561,600    $349,623     $3,882,306
+      10  2035  19W 35L   Bronze      #19     $533,331    $957,400   -$469,924   -$457,600    $366,387     $4,248,693
+      11  2036  17W 37L   Bronze      #15     $581,165    $948,800   -$479,024   -$457,600    $396,521     $4,645,214
+      12  2037  13W 41L   Bronze      #19     $495,001    $944,600   -$473,824   -$457,600    $311,357     $4,956,571
+  PASS  both careers ran  established: 12 seasons · underdog: 12 seasons
+  RULE NOT MET (Rob decides, N-41)  a club finishing in the bottom three of the field went backwards, every time  underdog S1 #19 $503,689 · underdog S2 #18 $474,421 · underdog S3 #19 $377,387 · underdog S5 #18 $346,423 · underdog S7 #19 $359,992 · underdog S10 #19 $366,387 · underdog S12 #19 $311,357
+
+  Gold champions: $496,405, $260,739
+  Gold runners-up: $239,605, $54,204, $53,817, $15,338
+  Gold top-three seasons: 12 of 12 Gold seasons
+  PASS  established: the Finances page is told what the running costs were this season  summary says $782,400, the ledger says $782,400
+  PASS  underdog: the Finances page is told what the running costs were this season  summary says $413,600, the ledger says $413,600
+  PASS  a club that WON the Gold tour went forwards, every time  established S1 $496,405 · established S2 $260,739
+  HOLDS  and went forwards modestly — under $500,000 a season  biggest gain $496,405
+  RULE NOT MET (Rob decides, N-41)  underdog: 7 seasons at the bottom cost more than the club had  started $150,000, lost -$2,739,656 over 7 seasons, left with $2,889,656
+
+=== 4/4 passed ===
