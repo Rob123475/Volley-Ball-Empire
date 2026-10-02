@@ -9,7 +9,22 @@ Ground rules:
 - One full harness run at a time.
 - No Steam upload. The key check runs on every push.
 
-SUMMARY-PLACEHOLDER
+## Summary
+
+- **Runner-up prize (item 2): A kept.** B (a third of the full purse for every club) fails your 22 Sep test: every bottom-three season gains $311k–$504k and those clubs are never sold, and the champion gains $496k. A (today's rule) passes it at +$10k: champions gain $164k–$208k, 24 AI clubs are sold over 30 seasons, nobody goes below $0. Both tables are below.
+- **1. Sponsor raise +$10,000 a week: done** (`f4a7480`). The champion and AI-sale lines are asserted again; the two bottom-club lines stay reported (Q-1).
+- **2. Runner-up: done** (report only; no code change).
+- **3. Music: done** (`a24cf10`), to your correction. Only Barefoot Tonight, Burn Under the Sun and Rum Under the Palms fade (last 5 s). Champions is your full file. All 18 files are byte-identical to your originals (Bobby Farquhar restored, Q-2).
+- **4. Youth wage: decided, no change.**
+- **5. Launch package: done.** `C:\build\vbe-unity-02oct-pm2\win-unpacked`, after a full harness of **99/99 suites, 1,590 checks**. Not launched against your save.
+- **6. feat-ai-buyable rollover: done** (`55d9132`, 90/90).
+- **7. Job market on your timing: done** (`cb38e0c` + follow-ups `67f5201`, `832596a`). Its suite passes 22/22, and job-market, career-ends and board-review were rewritten and pass. Alone on the branch: season rollover 88/90 (both fixed after the run, not re-run) and ai club economy 13/14 (the branch is still on +$20k).
+- **8. Try package:** TRY-SUMMARY
+- **Add-ons (after the items):**
+  - the music bar's Play/Pause and song list: done (`1a69094`, `087be9a`), proven;
+  - the reference corrections: ADDON2-SUMMARY.
+- **Questions:** Q-1 to Q-6, plus A-6 still open.
+
 
 ## Runner-up prize (item 2): A kept, B tested and rejected
 
