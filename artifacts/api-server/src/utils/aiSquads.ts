@@ -191,6 +191,26 @@ export function materializeAiSeniorsTx(w: CareerStateTx, careerSaveId: number): 
   return pool.length;
 }
 
+/** An AI club's best academy youth (not out on loan), for when no free agent can be signed. */
+function academyBestTx(tx: Tx, careerSaveId: number, poolTeamId: number) {
+  return tx.select({
+    id: playersTable.id,
+    speed: careerPlayerStateTable.speed, power: careerPlayerStateTable.power, defense: careerPlayerStateTable.defense,
+    serve: careerPlayerStateTable.serve, block: careerPlayerStateTable.block, stamina: careerPlayerStateTable.stamina,
+  }).from(careerPlayerStateTable)
+    .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+    .where(and(
+      eq(careerPlayerStateTable.careerSaveId, careerSaveId),
+      eq(careerPlayerStateTable.poolTeamId, poolTeamId),
+      isNull(careerPlayerStateTable.teamId),
+      eq(careerPlayerStateTable.isRetired, false),
+      eq(playersTable.playerType, "youth"),
+      eq(careerPlayerStateTable.isPromoted, false),
+    )).all()
+    .map((p) => ({ id: p.id, rating: overallRating(p) }))
+    .sort((a, b) => b.rating - a.rating || a.id - b.id)[0] ?? null;
+}
+
 /** The free agents an AI club can sign: seniors at no club, best first. */
 function freeAgentsTx(tx: Tx, careerSaveId: number) {
   return tx.select({
@@ -278,8 +298,12 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
     }
     for (let n = squad.length; n < AI_MIN_SQUAD; n++) {
       const fa = bestAffordableFreeAgent(w.tx, careerSaveId, poolTeamId);
-      if (!fa) { short++; break; }
-      signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds);
+      if (fa) { signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds); signed++; continue; }
+      // No free agent it can pay: its own academy's best youth steps up.
+      const youth = academyBestTx(w.tx, careerSaveId, poolTeamId);
+      if (!youth) { short++; break; }
+      w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
+      signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
       signed++;
     }
   }
