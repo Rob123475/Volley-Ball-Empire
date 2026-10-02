@@ -19,7 +19,7 @@
  *     levelNeededFor. The answer says why.
  */
 import {
-  careerPoolTeamStateTable, continentalPoolTeamsTable, competitorRankingsTable, competitorsTable,
+  careerPoolTeamStateTable, continentalPoolTeamsTable, competitorRankingsTable, competitorsTable, careerSavesTable,
   boardSeasonsTable, CONTINENT_LABEL, MANAGER_LEVELS, db, type ContinentKey,
 } from "@workspace/db";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
@@ -99,18 +99,38 @@ function strengthRanksTx(tx: Tx, careerSaveId: number, seasonYear: number): Map<
  * season just played, and a manager on her second failed season running is
  * sacked. Returns who was appointed and who was sacked.
  */
-export function aiManagersSeasonEndTx(tx: Tx, careerSaveId: number, endedYear: number, nextYear: number, today: string):
+export function aiManagersSeasonEndTx(tx: Tx, careerSaveId: number, endedYear: number, nextYear: number, _today: string):
   { appointed: Array<{ club: string; manager: string }>; sacked: Array<{ club: string; manager: string; reason: string }> } {
   ensureAiManagersTx(tx, careerSaveId, endedYear);
+  // Afternoon 2 Oct (J-3): the boards act when the player's season ends (the
+  // off-season window: openWindowIfDue in utils/managerMoves.ts). Only a
+  // season whose window never opened is dealt with here, at its end.
+  const judged = tx.select({ y: careerSavesTable.windowSeason }).from(careerSavesTable).where(eq(careerSavesTable.id, careerSaveId)).get()?.y;
+  if (judged === endedYear) return { appointed: [], sacked: [] };
+  const appointed = appointOldVacanciesTx(tx, careerSaveId, endedYear);
+  return { appointed, sacked: judgeAiManagersTx(tx, careerSaveId, endedYear, `${nextYear}-01-01`) };
+}
+
+/**
+ * A job opened before this season (in an earlier window, or at the rollover
+ * before) has been open a season: the club appoints a new AI manager. One
+ * opened in this season's window stays open into the next season.
+ */
+export function appointOldVacanciesTx(tx: Tx, careerSaveId: number, year: number): Array<{ club: string; manager: string }> {
   const names = new Map(tx.select({ id: continentalPoolTeamsTable.id, n: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).all().map((t) => [t.id, t.n]));
   const appointed: Array<{ club: string; manager: string }> = [];
   for (const c of clubsTx(tx, careerSaveId)) {
-    // A vacancy opened at an earlier season's end has been open a season: filled now.
-    if (c.vacantSince != null && c.vacantSince < `${endedYear}-12-31` && !c.vacantSince.startsWith(`${nextYear}`)) {
+    if (c.vacantSince != null && c.vacantSince <= `${year}-01-01`) {
       const n = 1 + (hash(`${c.poolTeamId}:${c.vacantSince}`) % 1000);
-      appointed.push({ club: names.get(c.poolTeamId) ?? "", manager: appoint(tx, careerSaveId, c, nextYear, n) });
+      appointed.push({ club: names.get(c.poolTeamId) ?? "", manager: appoint(tx, careerSaveId, c, year, n) });
     }
   }
+  return appointed;
+}
+
+/** Each field club's board grades the season; a second failed season running is a sacking (vacant from `vacantFrom`). */
+export function judgeAiManagersTx(tx: Tx, careerSaveId: number, endedYear: number, vacantFrom: string): Array<{ club: string; manager: string; reason: string }> {
+  const names = new Map(tx.select({ id: continentalPoolTeamsTable.id, n: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).all().map((t) => [t.id, t.n]));
   const finishes = finishesTx(tx, careerSaveId, endedYear);
   const ranks = strengthRanksTx(tx, careerSaveId, endedYear);
   const sacked: Array<{ club: string; manager: string; reason: string }> = [];
@@ -122,15 +142,14 @@ export function aiManagersSeasonEndTx(tx: Tx, careerSaveId: number, endedYear: n
     if (failed >= AI_SACKED_AFTER) {
       const club = names.get(c.poolTeamId) ?? "";
       const reason = `${c.managerName} was sacked after ${failed} failed seasons running: ranked ${rank} of ${FIELD_CLUBS} on strength, the board expected ${targetWords(bandsFor(rank).metLine)} and the club finished ${finish}.`;
-      tx.update(careerPoolTeamStateTable).set({ managerName: null, managerFailedSeasons: 0, vacantSince: `${nextYear}-01-01`, vacancyReason: reason, updatedAt: new Date() })
+      tx.update(careerPoolTeamStateTable).set({ managerName: null, managerFailedSeasons: 0, vacantSince: vacantFrom, vacancyReason: reason, updatedAt: new Date() })
         .where(eq(careerPoolTeamStateTable.id, c.id)).run();
       sacked.push({ club, manager: c.managerName, reason });
     } else {
       tx.update(careerPoolTeamStateTable).set({ managerFailedSeasons: failed, updatedAt: new Date() }).where(eq(careerPoolTeamStateTable.id, c.id)).run();
     }
   }
-  void today;
-  return { appointed, sacked };
+  return sacked;
 }
 
 /** The manager level a club wants, by its strength: the stronger the club, the more it asks. */

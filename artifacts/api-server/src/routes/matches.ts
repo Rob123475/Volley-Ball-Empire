@@ -2,7 +2,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
 import { Router } from "express";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db, isContinentKey, type Team } from "@workspace/db";
+import { db, isContinentKey, type Team, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
@@ -1187,11 +1187,11 @@ export async function recordForfeit(
     const days = board.abandonedDays;
     // Daytime 2 Oct, U-3: a sacked manager goes to the Job Market; the career
     // goes on unless he retires there.
-    const { clubName } = await loseClub(req, team.id, {
-      type: "dismissal",
-      text: `The manager was sacked by ${team.name}: the club went ${days} days without two contracted players to put on the sand.`,
-    });
-    dismissalClubName = clubName;
+    // Afternoon 2 Oct, J-3: no sackings mid-season; he is out at its end.
+    await db.update(careerSavesTable).set({ leavingReason: "dismissal" }).where(eq(careerSavesTable.id, careerSaveId));
+    await db.insert(careerHistoryEntriesTable).values({ userId: req.user!.id, careerSaveId, type: "dismissal", clubName: team.name,
+      description: `The manager was sacked by ${team.name}: the club went ${days} days without two contracted players to put on the sand. He leaves at the end of the season.` });
+    dismissalClubName = team.name;
     fired = true;
   }
 

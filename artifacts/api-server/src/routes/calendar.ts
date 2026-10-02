@@ -1,4 +1,6 @@
 import { CONTINENT_COUNT } from "@workspace/db";
+import { executeSeasonStartMove } from "./job-market.js";
+import { openWindowIfDue } from "../utils/managerMoves.js";
 import { gameDateText } from "../utils/gameDate.js";
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -853,10 +855,15 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   let fired = false;
   let clubSold = false;
   let dismissalClubName: string | null = null;
-  if (rollover.kind === "rolled" && rollover.clubSold && req.user?.id) {
-    await loseClub(req, team.id, rollover.review.text);
-    dismissalClubName = team.name;
-    clubSold = true;
+  // Afternoon 2 Oct (J-3): the club's season over, the off-season window opens.
+  if (rollover.kind !== "rolled") {
+    for (const e of await openWindowIfDue(careerSaveId, team.id, nextDate)) events.push(e);
+  }
+  // Afternoon 2 Oct (J-3): any manager move happens now, at the season's start.
+  let jobMove: Awaited<ReturnType<typeof executeSeasonStartMove>> = null;
+  if (rollover.kind === "rolled" && req.user?.id) {
+    jobMove = await executeSeasonStartMove(req, team, { sold: !!rollover.clubSold, sacked: !!rollover.sacked, reviewText: rollover.review.text });
+    if (jobMove) { dismissalClubName = team.name; clubSold = !!rollover.clubSold; fired = jobMove.type === "dismissal"; }
   }
 
   return { status: 200, body: {
@@ -865,6 +872,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     isQuietDay,
     atSeasonEnd,
     seasonRollover: rollover,
+    jobMove,
     fired,
     // L-02e: the club is gone and the manager is looking for another.
     clubSold,

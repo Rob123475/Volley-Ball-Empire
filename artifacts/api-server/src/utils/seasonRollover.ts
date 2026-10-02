@@ -94,6 +94,7 @@ export type RolloverResult =
       review: SeasonReview; intake: IntakeResult | null;
       /** L-02e: the club was sold at this review. The season still opened. */
       clubSold?: boolean;
+      sacked?: boolean;
     };
 
 
@@ -224,6 +225,8 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // takes next to play. The flag rides out with the roll and the calendar
     // route detaches the manager once it has committed.
     const clubSold = review.outcome === "sold";
+    // Afternoon 2 Oct, J-2: the board sacks after two failed seasons running.
+    const sacked = review.outcome === "sacked";
 
     const nextNumber = current + 1;
     const nextYear = yearForSeasonNumber(nextNumber);
@@ -335,6 +338,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       review,
       intake,
       clubSold,
+      sacked,
       releasedGraduates,
       contractsFilled,
     } as const;

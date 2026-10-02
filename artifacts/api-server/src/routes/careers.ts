@@ -22,7 +22,8 @@ import {
   openPoolClubBooksTx, openPoolClubSeasonsTx,
 } from "../utils/poolClubFinances.js";
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
-import { buildCareerSummary, endCareer, loseClub } from "../utils/careerLifecycle.js";
+import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
+import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor } from "../utils/managerMoves.js";
 import { isOlympicYear } from "../utils/olympics.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -546,14 +547,16 @@ router.post("/careers/resign", async (req, res) => {
   if (!teamId) { res.status(400).json({ error: "No active career to resign from" }); return; }
   if (!(await activeSaveFor(teamId, req.user.id))) { res.status(404).json({ error: "Career save not found" }); return; }
 
-  // Daytime 2 Oct, U-3: resigning leads to the Job Market, not the end of the
-  // career. With no vacancy anywhere it would leave him with nowhere to go, so
-  // it is refused and says so (he can still retire).
+  // Afternoon 2 Oct, J-3: a manager leaves only once his season is over; he
+  // goes at the start of the next one (to a club he has agreed, else the best
+  // open club he qualifies for, else the lowest-rated open club: managerMoves.ts).
   const save = (await activeSaveFor(teamId, req.user.id))!;
-  const open = await realVacancyCount(save.id);
-  if (open === 0) { res.status(409).json({ error: "No club has a vacancy right now: resigning would leave you with nowhere to go. You can retire instead, or wait for a job to open (AI managers are sacked at the season's end)." }); return; }
-  const { clubName } = await loseClub(req, teamId, { type: "resignation", text: `${save.managerName} resigned from ${save.clubName}.` });
-  res.json({ ok: true, clubName, careerEnded: false, seekingClub: true });
+  const year = await activeSeasonYearOf(save.id);
+  if (year == null || !(await seasonOverFor(teamId, year))) { res.status(409).json({ error: LEAVE_MID_SEASON }); return; }
+  await db.update(careerSavesTable).set({ leavingReason: "resignation" }).where(eq(careerSavesTable.id, save.id));
+  await db.insert(careerHistoryEntriesTable).values({ userId: req.user.id, careerSaveId: save.id, type: "resignation", clubName: save.clubName, season: save.season,
+    description: `${save.managerName} resigned from ${save.clubName}, leaving at the end of the season.` });
+  res.json({ ok: true, clubName: save.clubName, careerEnded: false, leavingAtSeasonEnd: true });
 });
 
 router.post("/careers/break-contract", async (req, res) => {
@@ -569,17 +572,17 @@ router.post("/careers/break-contract", async (req, res) => {
   if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
-  if ((await realVacancyCount(save.id)) === 0) { res.status(409).json({ error: "No club has a vacancy right now: breaking the contract would leave you with nowhere to go. You can retire instead, or wait for a job to open (AI managers are sacked at the season's end)." }); return; }
+  // Afternoon 2 Oct, J-3: only once the season is over; the penalty applies.
+  { const y = await activeSeasonYearOf(save.id); if (y == null || !(await seasonOverFor(teamId, y))) { res.status(409).json({ error: LEAVE_MID_SEASON }); return; } }
   // The release clause is still paid, from the club's budget, before he goes.
   const newBudget = team.budget - BREAK_CONTRACT_FEE;
   await db.update(teamsTable).set({ budget: newBudget }).where(eq(teamsTable.id, teamId));
 
-  // U-3: to the Job Market, as for resigning.
-  const { clubName } = await loseClub(req, teamId, {
-    type: "contract_break",
-    text: `${save.managerName} broke the contract with ${team.name}, paying the $${BREAK_CONTRACT_FEE.toLocaleString("en-US")} release clause.`,
-  });
-  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName, careerEnded: false, seekingClub: true });
+  // J-3: he leaves at the start of next season, the clause paid now.
+  await db.update(careerSavesTable).set({ leavingReason: "contract_break" }).where(eq(careerSavesTable.id, save.id));
+  await db.insert(careerHistoryEntriesTable).values({ userId: req.user.id, careerSaveId: save.id, type: "contract_break", clubName: team.name, season: save.season,
+    description: `${save.managerName} broke the contract with ${team.name}, paying the $${BREAK_CONTRACT_FEE.toLocaleString("en-US")} release clause, and leaves at the end of the season.` });
+  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName: team.name, careerEnded: false, leavingAtSeasonEnd: true });
 });
 
 export default router;

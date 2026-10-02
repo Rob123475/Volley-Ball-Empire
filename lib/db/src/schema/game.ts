@@ -1338,6 +1338,18 @@ export const careerSavesTable = sqliteTable("career_saves", {
    * career is stamped when it is made; an older one at its first boot.
    */
   moneyPassAt:  text("money_pass_at"),
+  /**
+   * Afternoon 2 Oct, item 7 (J-3): manager moves happen at a season's start
+   * (utils/managerMoves.ts). The club he has agreed to join (an application or
+   * an AI club's offer accepted in the off-season window), why he is leaving
+   * his club (resignation / contract_break / dismissal), and the offers he has
+   * declined this off-season (JSON array of pool team ids).
+   */
+  pendingPoolTeamId: integer("pending_pool_team_id"),
+  leavingReason:     text("leaving_reason"),
+  declinedOffers:    text("declined_offers"),
+  /** Item 7: the season whose off-season window has opened (the AI boards judged then). */
+  windowSeason:      integer("window_season"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

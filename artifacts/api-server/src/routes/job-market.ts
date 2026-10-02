@@ -34,7 +34,7 @@
  */
 import { Router } from "express";
 import {
-  db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable, contractsTable,
+  db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable, contractsTable, boardSeasonsTable,
   careerPoolTeamStateTable, locationsTable, seasonsTable, achievementsTable,
   worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality, managerLevelFor, careerHistoryEntriesTable,
   type ContinentKey,
@@ -46,6 +46,7 @@ import { ensureBoardSeason } from "../utils/board-confidence.js";
 import { startingBudgetFor } from "../utils/careerDifficulty.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiManagers.js";
+import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor, boardVerdict, offersTx, destinationTx, swapOutOfFieldTx, repPointsOf } from "../utils/managerMoves.js";
 import { aiSquadsTx } from "../utils/aiSquads.js";
 import { academyAtTx } from "../utils/youthLoans.js";
 import { worldTourFieldTx } from "../utils/worldTour.js";
@@ -132,64 +133,136 @@ router.get("/job-market", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const save = await seekingCareer(req as never);
   if (!save) { res.status(404).json({ error: "No career" }); return; }
-
-  // U-3: the vacancies are shown to a manager in a job too: he can apply, and
-  // resign to take one. Each says whether the club would have him, and why.
+  const w = await windowOf(save);
   const level = await managerLevelOf(save);
   const vacancies = (await vacanciesFor(save.id)).map((v) => { const d = decideApplication(v, save.managerName, level); return { ...v, accepted: d.accepted, answer: d.reason }; });
+  const offers = w.open && w.year != null
+    ? db.transaction((tx) => offersTx(tx, save.id, w.year!, save.managerName, level.points, w.seasonFailed, declinedOf(save)))
+    : [];
+  const [pending] = save.pendingPoolTeamId == null ? [] : await db.select({ name: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, save.pendingPoolTeamId));
   res.json({
-    seeking: save.seekingClubSince != null && save.teamId == null,
+    employed: save.teamId != null,
+    // Afternoon 2 Oct (J-3): moves happen only once the club's season is over.
+    window: w.open,
+    windowText: w.open ? "Your season is over: the off-season window is open until the next season starts. Moves take effect then." : LEAVE_MID_SEASON,
+    seeking: false,
     managerName: save.managerName,
     formerClub: save.clubName,
     managerLevel: level.level,
     managerLevelName: level.name,
+    verdict: w.verdict,
+    leaving: save.leavingReason,
+    pending: save.pendingPoolTeamId == null ? null : { poolTeamId: save.pendingPoolTeamId, name: pending?.name ?? "" },
+    offers,
     vacancies,
   });
 });
 
-// U-3: apply for a vacancy. The club answers by the manager's level against
-// its standing, in plain words (utils/aiManagers.ts decideApplication).
+/** The off-season window for this career, and what the board has said. */
+async function windowOf(save: typeof careerSavesTable.$inferSelect) {
+  const year = await activeSeasonYearOf(save.id);
+  const open = save.teamId != null && year != null && await seasonOverFor(save.teamId, year);
+  const verdict = open ? await boardVerdict(save.id, year!, save.teamId!) : null;
+  const [row] = year == null || save.teamId == null ? [] : await db.select({ g: boardSeasonsTable.grade, p: boardSeasonsTable.projectedGrade }).from(boardSeasonsTable)
+    .where(and(eq(boardSeasonsTable.careerSaveId, save.id), eq(boardSeasonsTable.seasonYear, year), eq(boardSeasonsTable.teamId, save.teamId)));
+  return { open, year, verdict, seasonFailed: (row?.g ?? row?.p) === "failed" };
+}
+const declinedOf = (save: typeof careerSavesTable.$inferSelect): number[] => { try { return JSON.parse(save.declinedOffers ?? "[]"); } catch { return []; } };
+
+// Apply for a vacancy, in the window. Accepted, the move is agreed and takes
+// effect at the start of next season.
 router.post("/job-market/apply", async (req, res) => {
   if (!req.isAuthenticated() || !req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
   const save = await seekingCareer(req as never);
   if (!save) { res.status(404).json({ error: "No career" }); return; }
+  const w = await windowOf(save);
+  if (!w.open) { res.status(409).json({ error: LEAVE_MID_SEASON }); return; }
   const v = (await vacanciesFor(save.id)).find((x) => x.poolTeamId === Number(req.body?.poolTeamId));
   if (!v) { res.status(422).json({ error: "That club has no vacancy." }); return; }
   const answer = decideApplication(v, save.managerName, await managerLevelOf(save));
-  const blocked = v.inWorldTourNow ? `${v.name} is playing this season's World Tour: the job can be taken once its season is over.` : null;
-  res.json({ ...answer, accepted: answer.accepted && !blocked, reason: blocked ?? answer.reason, employed: save.teamId != null });
+  if (answer.accepted) await db.update(careerSavesTable).set({ pendingPoolTeamId: v.poolTeamId }).where(eq(careerSavesTable.id, save.id));
+  res.json({ ...answer, takesEffect: answer.accepted ? "at the start of next season" : null });
 });
 
-router.post("/job-market/accept", async (req, res) => {
+// An AI club's offer (poaching), accepted or declined, in the window.
+router.post("/job-market/offers/:poolTeamId/:answer", async (req, res) => {
   if (!req.isAuthenticated() || !req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
   const save = await seekingCareer(req as never);
   if (!save) { res.status(404).json({ error: "No career" }); return; }
-  const poolTeamId = Number(req.body?.poolTeamId);
-  const offered = await vacanciesFor(save.id);
-  const pick = offered.find((v) => v.poolTeamId === poolTeamId);
-  if (!pick) { res.status(422).json({ error: "That club is not one of the vacancies on offer." }); return; }
-  // U-3: the club must want him, and must be free to change hands now.
-  const answer = decideApplication(pick, save.managerName, await managerLevelOf(save));
-  if (!answer.accepted) { res.status(409).json({ error: answer.reason }); return; }
-  if (pick.inWorldTourNow) { res.status(409).json({ error: `${pick.name} is playing this season's World Tour: the job can be taken once its season is over.` }); return; }
-  const repPoints = (await managerLevelOf(save)).points;
-  // U-3: a manager in a job resigns to take it ({ resign: true }).
-  if (save.teamId != null) {
-    if (req.body?.resign !== true) { res.status(409).json({ error: `You manage ${save.clubName}: resign to take the ${pick.name} job.`, needsResign: true }); return; }
-    await loseClub(req as never, save.teamId, {
-      type: "resignation",
-      text: `${save.managerName} resigned from ${save.clubName} to take the ${pick.name} job.`,
-    });
-    Object.assign(save, (await db.select().from(careerSavesTable).where(eq(careerSavesTable.id, save.id)))[0]);
+  const w = await windowOf(save);
+  if (!w.open || w.year == null) { res.status(409).json({ error: LEAVE_MID_SEASON }); return; }
+  const id = Number(req.params.poolTeamId);
+  const level = await managerLevelOf(save);
+  const offer = db.transaction((tx) => offersTx(tx, save.id, w.year!, save.managerName, level.points, w.seasonFailed, declinedOf(save))).find((o) => o.poolTeamId === id);
+  if (!offer) { res.status(422).json({ error: "No such offer." }); return; }
+  if (req.params.answer === "accept") {
+    await db.update(careerSavesTable).set({ pendingPoolTeamId: id }).where(eq(careerSavesTable.id, save.id));
+    res.json({ accepted: true, club: offer.name, takesEffect: "at the start of next season" });
+  } else {
+    await db.update(careerSavesTable).set({ declinedOffers: JSON.stringify([...declinedOf(save), id]), ...(save.pendingPoolTeamId === id ? { pendingPoolTeamId: null } : {}) }).where(eq(careerSavesTable.id, save.id));
+    res.json({ declined: true, club: offer.name });
   }
-  if (save.teamId != null || save.seekingClubSince == null) {
-    res.status(409).json({ error: "You already have a club." });
-    return;
-  }
+});
 
+// Retire: in the window, or when he is leaving or has been told he is sacked.
+router.post("/job-market/retire", async (req, res) => {
+  if (!req.isAuthenticated() || !req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const save = await seekingCareer(req as never);
+  if (!save) { res.status(404).json({ error: "No career" }); return; }
+  const teamId = save.teamId ?? save.formerTeamId;
+  const w = await windowOf(save);
+  if (!w.open && save.seekingClubSince == null) { res.status(409).json({ error: "You can retire once your season is over." }); return; }
+  if (teamId == null) { res.status(409).json({ error: "No club to retire from." }); return; }
+  await endCareer(req as never, teamId, req.user.id, {
+    type: "retirement", careerSaveId: save.id,
+    description: (sum) => save.seekingClubSince != null
+      ? `${sum.managerName} retired rather than take another club after ${save.clubName} was sold.`
+      : `${sum.managerName} retired at the end of the season with ${save.clubName}.`,
+  });
+  res.json({ retired: true, managerName: save.managerName, formerClub: save.clubName });
+});
+
+/**
+ * Afternoon 2 Oct (J-3, J-4): the season has rolled over; any move happens
+ * now. Run by the calendar right after the rollover commits. Returns what
+ * happened, or null when he stays.
+ */
+export async function executeSeasonStartMove(req: any, team: { id: number; name: string }, flags: { sold: boolean; sacked: boolean; reviewText: string }) {
+  const [save] = await db.select().from(careerSavesTable).where(eq(careerSavesTable.teamId, team.id));
+  if (!save) return null;
+  const mustGo = flags.sold || flags.sacked || save.leavingReason != null;
+  const year = await activeSeasonYearOf(save.id);
+  if (year == null) return null;
+  const repPoints = await repPointsOf(team.id);
+  const dest = db.transaction((tx) => destinationTx(tx, save.id, year, save.managerName, repPoints, save.pendingPoolTeamId, mustGo));
+  if (!dest) {
+    await db.update(careerSavesTable).set({ declinedOffers: null }).where(eq(careerSavesTable.id, save.id));
+    return null;
+  }
+  const type = flags.sacked ? "dismissal" : flags.sold ? "club_sold" : save.leavingReason ?? "resignation";
+  const words: Record<string, string> = {
+    dismissal: `${save.managerName} was sacked by ${team.name}: a second failed season running.`,
+    resignation: `${save.managerName} left ${team.name} at the end of the season.`,
+    contract_break: `${save.managerName} left ${team.name} at the end of the season, having broken the contract.`,
+  };
+  await loseClub(req, team.id, flags.sold ? flags.reviewText : { type, text: words[type] ?? words.resignation! });
+  const swapped = db.transaction((tx) => swapOutOfFieldTx(tx, save.id, year, dest.poolTeamId));
+  const [fresh] = await db.select().from(careerSavesTable).where(eq(careerSavesTable.id, save.id));
+  const took = await takeOverClub(req, fresh!, dest.poolTeamId, dest.why, repPoints);
+  await db.update(careerSavesTable).set({ pendingPoolTeamId: null, leavingReason: null, declinedOffers: null, seekingClubSince: null }).where(eq(careerSavesTable.id, save.id));
+  return { from: team.name, to: took?.clubName ?? null, why: dest.why + (swapped ? ` ${swapped} takes its place in this season's World Tour field.` : ""), type };
+}
+
+/**
+ * Take over an AI club: a new club of the player's from it, with its players,
+ * academy, balance and World Tour seat (the seat of the club he leaves); his
+ * record, achievements and level come with him. Afternoon 2 Oct (J-3): only
+ * ever at a season's start (executeSeasonStartMove).
+ */
+async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect, poolTeamId: number, note: string | null, repPoints: number) {
   const [pool] = await db.select().from(continentalPoolTeamsTable)
     .where(eq(continentalPoolTeamsTable.id, poolTeamId)).limit(1);
-  if (!pool) { res.status(404).json({ error: "No such club" }); return; }
+  if (!pool) return null;
 
   // A home for it. The game ships eleven locations, and the club takes the
   // first one on its OWN continent — Tokyo Surf Samurai playing out of
@@ -296,7 +369,7 @@ router.post("/job-market/accept", async (req, res) => {
   }
   await db.insert(careerHistoryEntriesTable).values({
     userId: req.user.id, careerSaveId: save.id, type: "joined_club", clubName: pool.teamName, season: save.season,
-    description: `${save.managerName} took over ${pool.teamName}${pick.reason ? ` (the job was open: ${pick.reason})` : ""}.`,
+    description: `${save.managerName} took over ${pool.teamName}${note ? ` (${note})` : ""}.`,
   });
 
   const sid = getSessionId(req as never);
@@ -328,50 +401,7 @@ router.post("/job-market/accept", async (req, res) => {
     req.log.error({ err }, "job market achievement counters failed");
   }
 
-  res.status(201).json({
-    teamId: newTeam!.id,
-    clubName: pool.teamName,
-    budget,
-    continent: pool.continent,
-  });
-});
-
-router.post("/job-market/retire", async (req, res) => {
-  if (!req.isAuthenticated() || !req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const save = await seekingCareer(req as never);
-  if (!save) { res.status(404).json({ error: "No career" }); return; }
-  if (save.seekingClubSince == null) {
-    res.status(409).json({ error: "You are not looking for a club." });
-    return;
-  }
-
-  // Declining every vacancy is retirement, and retirement ends a career the
-  // way every other ending does: archived to the Hall of Fame, with a history
-  // entry in the game's own words, so the career-end screen can say what
-  // happened. It is built from the club the manager last had — there is no
-  // current one — and the save is named explicitly, because a career between
-  // clubs cannot be found by its club.
-  //
-  // Without this the save was simply stamped retired: no archive, no history,
-  // and a career-end screen that fell back to its default and told a manager
-  // who had CHOSEN to stop that they had been sacked.
-  const summary = save.formerTeamId
-    ? await endCareer(req as never, save.formerTeamId, req.user.id, {
-        type: "retirement",
-        careerSaveId: save.id,
-        description: (sum) =>
-          `${sum.managerName} retired rather than take another club after ` +
-          `${save.clubName} was sold.`,
-      })
-    : null;
-
-  if (!summary) {
-    await db.update(careerSavesTable)
-      .set({ retiredAt: new Date(), seekingClubSince: null, formerTeamId: null })
-      .where(eq(careerSavesTable.id, save.id));
-  }
-
-  res.json({ retired: true, managerName: save.managerName, formerClub: save.clubName });
-});
+  return { teamId: newTeam!.id, clubName: pool.teamName, budget, continent: pool.continent };
+}
 
 export default router;
