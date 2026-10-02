@@ -12,7 +12,8 @@
  * It renders nothing at all outside MusicProvider, so it is safe to drop into
  * any screen.
  */
-import { SkipForward, Volume2, VolumeX, Music2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { SkipForward, Volume2, VolumeX, Music2, Play, Pause, ListMusic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 import { useMusic } from "@/components/music/music-provider";
@@ -70,10 +71,19 @@ export function MusicBar({
   className?: string;
 }) {
   const music = useMusic();
+  // Rob, 2 Oct: the song list, opened from the title (or the list icon).
+  const [listOpen, setListOpen] = useState(false);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!listOpen) return;
+    const close = (e: MouseEvent) => { if (listRef.current && !listRef.current.contains(e.target as Node)) setListOpen(false); };
+    window.addEventListener("mousedown", close);
+    return () => window.removeEventListener("mousedown", close);
+  }, [listOpen]);
   if (!music) return null;
 
   const skin = SKIN[variant];
-  const { track, muted, volume, blocked, setVolume, toggleMute, skip } = music;
+  const { track, muted, volume, blocked, setVolume, toggleMute, skip, paused, togglePause, tracks, playTrack, trackIndex } = music;
 
   // What the line of text says. `blocked` only happens in a browser, where
   // audio waits for the first click; the packaged game sets Chromium's
@@ -89,16 +99,49 @@ export function MusicBar({
       className={cn("px-2 pt-2 pb-1 space-y-1.5", skin.wrap, className)}
       data-testid="music-bar"
     >
-      {/* Now playing */}
-      <div className="flex items-center gap-2 px-1 min-w-0">
-        <Music2 className={cn("h-3.5 w-3.5 shrink-0", skin.icon)} />
-        <span
-          className={cn("text-[11px] font-medium truncate", skin.title)}
-          title={label}
-          data-testid="music-title"
+      {/* Now playing: the title opens the song list */}
+      <div className="relative" ref={listRef}>
+        <button
+          type="button"
+          onClick={() => setListOpen((o) => !o)}
+          className="flex w-full items-center gap-2 px-1 min-w-0 text-left"
+          aria-haspopup="listbox"
+          aria-expanded={listOpen}
+          title="Choose a song"
+          data-testid="button-music-list"
         >
-          {label}
-        </span>
+          <Music2 className={cn("h-3.5 w-3.5 shrink-0", skin.icon)} />
+          <span className={cn("text-[11px] font-medium truncate flex-1", skin.title)} title={label} data-testid="music-title">
+            {label}
+          </span>
+          <ListMusic className={cn("h-3.5 w-3.5 shrink-0", skin.title)} />
+        </button>
+        {listOpen && (
+          <ul
+            role="listbox"
+            aria-label="Songs"
+            data-testid="music-song-list"
+            className="absolute bottom-full left-0 right-0 z-50 mb-1 max-h-72 overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+          >
+            {tracks.map((t, i) => (
+              <li key={t.file}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={i === trackIndex}
+                  onClick={() => { playTrack(i); setListOpen(false); }}
+                  data-testid={`music-song-${i}`}
+                  className={cn(
+                    "w-full rounded px-2 py-1 text-left text-xs hover:bg-accent hover:text-accent-foreground",
+                    i === trackIndex && "bg-primary/15 font-semibold text-primary",
+                  )}
+                >
+                  {t.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Controls */}
@@ -116,6 +159,18 @@ export function MusicBar({
           )}
         >
           {muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={togglePause}
+          title={paused ? "Play music" : "Pause music"}
+          aria-label={paused ? "Play music" : "Pause music"}
+          aria-pressed={paused}
+          data-testid="button-music-pause"
+          className={cn("shrink-0 rounded-md p-1.5 transition-colors", skin.button)}
+        >
+          {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
         </button>
 
         <Slider

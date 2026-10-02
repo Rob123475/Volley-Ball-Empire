@@ -92,6 +92,19 @@ function writeSettings(settings: MusicSettings): void {
   }
 }
 
+/**
+ * Rob, 2 Oct: Pause holds the song where it is, and is remembered (across
+ * pages, and the next time the game starts) until Play. Its own key, so the
+ * volume and mute settings above are untouched.
+ */
+const PAUSED_KEY = `${STORAGE_KEY}:paused`;
+function readPaused(): boolean {
+  try { return window.localStorage.getItem(PAUSED_KEY) === "1"; } catch { return false; }
+}
+function writePaused(paused: boolean): void {
+  try { window.localStorage.setItem(PAUSED_KEY, paused ? "1" : "0"); } catch { /* not persisted this run */ }
+}
+
 // ── Play order ──────────────────────────────────────────────────────────────
 
 function shuffled(indexes: number[]): number[] {
@@ -149,6 +162,14 @@ export type MusicState = {
   setVolume: (v: number) => void;
   toggleMute: () => void;
   skip: () => void;
+  /** Rob, 2 Oct: paused by the player (Pause holds the song; Play carries on). */
+  paused: boolean;
+  togglePause: () => void;
+  /** Every song, for the song list. */
+  tracks: readonly MusicTrack[];
+  /** Play this song from the start; after it, the shuffle carries on. */
+  playTrack: (index: number) => void;
+  trackIndex: number | null;
 };
 
 const MusicContext = createContext<MusicState | null>(null);
@@ -181,6 +202,9 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const [blocked, setBlocked] = useState(false);
   const [volume, setVolumeState] = useState(initial.volume);
   const [muted, setMuted] = useState(initial.muted);
+  const [paused, setPaused] = useState(() => (typeof window === "undefined" ? false : readPaused()));
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   const [location] = useLocation();
   const onCourt = location === COURT_PATH;
@@ -203,6 +227,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     if (!track) return;
     setTrackIndex(index);
     audio.src = musicTrackUrl(track);
+    // Paused by the player: the song is cued, and waits for Play.
+    if (pausedRef.current) return;
     const attempt = audio.play();
     if (attempt && typeof attempt.catch === "function") {
       attempt.catch(() => {
@@ -228,8 +254,40 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const skip = useCallback(() => {
     failuresRef.current = 0;
     setBlocked(false);
+    // Skip works as it always has: the next song starts (a pause is over).
+    pausedRef.current = false;
+    setPaused(false);
+    writePaused(false);
     advance();
   }, [advance]);
+
+  const togglePause = useCallback(() => {
+    const audio = audioRef.current;
+    const next = !pausedRef.current;
+    pausedRef.current = next;
+    setPaused(next);
+    writePaused(next);
+    if (!audio) return;
+    if (next) audio.pause();
+    else {
+      // Carries on from the same spot.
+      const attempt = audio.play();
+      if (attempt && typeof attempt.catch === "function") attempt.catch(() => setBlocked(true));
+    }
+  }, []);
+
+  /** A song picked from the list: it plays from the start, then the shuffle carries on after it. */
+  const playTrack = useCallback((index: number) => {
+    if (!MUSIC_TRACKS[index]) return;
+    failuresRef.current = 0;
+    setBlocked(false);
+    pausedRef.current = false;
+    setPaused(false);
+    writePaused(false);
+    queueRef.current = [index, ...nextQueue(index)];
+    positionRef.current = 0;
+    load(index);
+  }, [load]);
 
   // ── Start the first track, and keep the queue moving ──────────────────────
   useEffect(() => {
@@ -401,8 +459,13 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       setVolume,
       toggleMute,
       skip,
+      paused,
+      togglePause,
+      tracks: MUSIC_TRACKS,
+      playTrack,
+      trackIndex,
     }),
-    [trackIndex, playing, volume, muted, blocked, setVolume, toggleMute, skip],
+    [trackIndex, playing, volume, muted, blocked, setVolume, toggleMute, skip, paused, togglePause, playTrack],
   );
 
   return <MusicContext.Provider value={value}>{children}</MusicContext.Provider>;
