@@ -213,7 +213,9 @@ router.get("/players/youth-pool", async (req, res) => {
  */
 router.get("/players/validation", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId));
+  // U-6: an AI club's senior made from a continental pool player belongs to
+  // the pool's world, not this declared roster (checked by its own rules).
+  const all = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId))).filter((p) => p.poolPlayerId == null);
 
   const seniors = all.filter(p => isSeniorPlayer(p));
   const youth   = all.filter(p => isYouthPlayer(p));
