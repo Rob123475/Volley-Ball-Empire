@@ -298,7 +298,8 @@ async function advanceToBoundary(api, maxDays = 500) {
   const rosterN = (await A("GET", "/players/market-all?playerType=senior")).data;
   const list = Array.isArray(rosterN) ? rosterN : [];
   const boundaries = seen.length;
-  const known = list.filter((p) => ages0.has(p.id));
+  // U-6 (feat-ai-buyable): an AI club's pool-made senior does not age while she plays for it.
+  const known = list.filter((p) => ages0.has(p.id) && p.status !== "ai_club");
   const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
   // R-62: each boundary that opens a season brings an academy intake. Those
   // players are traced to the intake that created them (boundary i + 1) and age

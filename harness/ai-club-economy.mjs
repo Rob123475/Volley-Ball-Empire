@@ -202,10 +202,17 @@ try {
     const before = candidates.find((c) => !onLoan.has(c.id));
     const after = read(`SELECT balance AS b FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, before.id)[0];
     const moved = Number(before.b) - Number(after.b);
-    const wages = read(
+    // U-6 (feat-ai-buyable): its squad is its pool contracts still live plus the
+    // career seniors it holds (utils/aiSquads.ts); both are on its wage bill.
+    const poolWages = read(
       `SELECT COALESCE(SUM(salary), 0) AS total, COUNT(*) AS n FROM pool_player_contracts
         WHERE career_save_id = ? AND pool_team_id = ? AND status = 'active'`,
       careerSaveId, before.id)[0];
+    const seniorWages = read(
+      `SELECT COALESCE(SUM(s.salary), 0) AS total, COUNT(*) AS n FROM career_player_state s JOIN players p ON p.id = s.player_id
+        WHERE s.career_save_id = ? AND s.pool_team_id = ? AND s.team_id IS NULL AND s.is_retired = 0 AND (p.player_type = 'senior' OR s.is_promoted = 1)`,
+      careerSaveId, before.id)[0];
+    const wages = { total: Number(poolWages.total) + Number(seniorWages.total), n: Number(poolWages.n) + Number(seniorWages.n) };
     const academy = read(
       `SELECT p.potential FROM career_player_state s JOIN players p ON p.id = s.player_id
         WHERE s.career_save_id = ? AND s.pool_team_id = ? AND p.player_type = 'youth' AND s.is_promoted = 0`, careerSaveId, before.id);
