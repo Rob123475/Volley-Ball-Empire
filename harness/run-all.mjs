@@ -556,6 +556,10 @@ runSuite("staff portraits", path.join(REPO, "harness", "staff-portraits.mjs"));
 console.log("\n########## 98/100  AI CLUBS' PLAYERS ARE BUYABLE (DAYTIME U-6) ##########");
 runSuite("ai buyable", path.join(REPO, "harness", "ai-buyable.mjs"));
 
+// Daytime 2 Oct, U-3 (branch feat-job-market): a real manager job market.
+console.log("\n########## 98b/100  A REAL MANAGER JOB MARKET (DAYTIME U-3) ##########");
+runSuite("ai job market", path.join(REPO, "harness", "ai-job-market.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {
