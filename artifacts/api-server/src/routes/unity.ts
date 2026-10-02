@@ -318,7 +318,10 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   function serializePoolPlayer(pp: PoolOpponent["pair"][number], team: PoolOpponent["team"], teamLabel: string | null) {
     const ratings = { speed: pp.speed, power: pp.power, defense: pp.defense, serve: pp.serve, block: pp.block, stamina: pp.stamina };
     return {
-      id:             pp.id,
+      // U-6: a career senior made from a pool player keeps her pool id here;
+      // a free agent the club signed has none (poolPlayerId null).
+      id:             pp.poolPlayerId ?? pp.id,
+      poolPlayerId:   pp.poolPlayerId,
       name:           pp.name,
       team:           teamLabel,
       position:       null,

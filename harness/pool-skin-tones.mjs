@@ -134,8 +134,11 @@ try {
     const r = await api("GET", `/unity/match-state?matchId=${m.id}`);
     for (const p of (r.data?.players ?? []).slice(2)) {
       away++;
-      const stored = p.source === "pool" ? toneOf.get(p.id)?.skin_tone : undefined;
-      if (stored && p.skinTone === stored) exact++; else wrong.push(`${p.name} sent ${p.skinTone}, stored ${stored}`);
+      // U-6 (feat-ai-buyable): a free agent an AI club signed is no pool player
+      // (poolPlayerId null): she carries a tone of her nation's, never null.
+      const signed = p.source === "pool" && p.poolPlayerId === null;
+      const stored = p.source === "pool" && !signed ? toneOf.get(p.id)?.skin_tone : undefined;
+      if ((stored && p.skinTone === stored) || (signed && p.skinTone)) exact++; else wrong.push(`${p.name} sent ${p.skinTone}, stored ${stored}`);
     }
   }
   d.close();

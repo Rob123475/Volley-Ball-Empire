@@ -193,15 +193,18 @@ const earnedRows = d.prepare(
   `SELECT * FROM player_ranking_points WHERE career_save_id = ? AND season_year = ?`).all(careerSaveId, SEASON_A);
 const aiClubs = clubs.filter((c) => c.poolTeamId != null);
 const aiWrong = [];
+// U-6 (feat-ai-buyable): an AI club's players are its pool players or its career
+// seniors, and an AI-to-AI transfer can change its pair mid-season. So: two
+// players credited per match (the sums are twice the club's), each an AI
+// athlete (a pool player, or a career senior not at the player's club).
+const robIds = new Set(d.prepare(`SELECT player_id AS id FROM career_player_state WHERE career_save_id = ? AND team_id = ?`).all(careerSaveId, teamId).map((r) => r.id));
 for (const c of aiClubs) {
-  const pair = d.prepare(`SELECT id FROM continental_pool_players WHERE pool_team_id = ?`).all(c.poolTeamId).map((p) => p.id);
   const mine = earnedRows.filter((r) => r.competitor_id === c.id);
-  const ok = pair.length === 2 && mine.length === 2 && pair.every((pid) => {
-    const r = mine.find((x) => x.pool_player_id === pid);
-    return r && r.ranking_points === c.points && r.matches === c.matches;
-  });
+  const pts = mine.reduce((a, r) => a + r.ranking_points, 0), m = mine.reduce((a, r) => a + r.matches, 0);
+  const ok = mine.length >= 2 && pts === 2 * c.points && m === 2 * c.matches
+    && mine.every((r) => r.pool_player_id != null || (r.player_id != null && !robIds.has(r.player_id)));
   if (!ok) {
-    aiWrong.push(`club ${c.id} ${c.points}pts/${c.matches}m rows ${JSON.stringify(mine.map((r) => [r.pool_player_id, r.ranking_points, r.matches]))}`);
+    aiWrong.push(`club ${c.id} ${c.points}pts/${c.matches}m rows ${JSON.stringify(mine.map((r) => [r.pool_player_id ?? `p${r.player_id}`, r.ranking_points, r.matches]))}`);
   }
 }
 check(`each AI club's two players hold exactly the club's points and matches`,
@@ -219,8 +222,8 @@ check("the player's club: each of its two starters holds what the club earned an
   }),
   `club ${own?.points} pts (started at ${initialPoints}), ${own?.matches} matches; rows ${JSON.stringify(ownRows.map((r) => [r.player_id, r.ranking_points, r.matches]))}`);
 check("nobody else holds points: the interchange and reserves did not play",
-  earnedRows.length === aiClubs.length * 2 + 2, `${earnedRows.length} rows`);
-check("AI players actually earned points", earnedRows.some((r) => r.pool_player_id != null && r.ranking_points > 0));
+  ownRows.length === 2 && earnedRows.every((r) => r.pool_player_id != null || !robIds.has(r.player_id) || starters.includes(r.player_id)), `${earnedRows.length} rows, ${ownRows.length} of this club's`);
+check("AI players actually earned points", earnedRows.some((r) => (r.pool_player_id != null || (r.player_id != null && !robIds.has(r.player_id))) && r.ranking_points > 0));
 
 // ── 2. every player, one nation ──────────────────────────────────────────────
 const ownCompetitor = own?.id;

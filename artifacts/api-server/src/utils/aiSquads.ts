@@ -88,9 +88,16 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
   const moved = new Set(contracts.filter((c) => c.status === "moved").map((c) => c.poolPlayerId));
 
   const squads = new Map<number, AiMember[]>();
+  // A free agent an AI club signed has no pool player's look: she gets a skin
+  // tone of her nation's, drawn from its pool players the way R-75 seeded them.
+  const tonesByNation = new Map<string, string[]>();
+  const poolRows = tx.select().from(continentalPoolPlayersTable).all();
+  for (const p of poolRows) if (p.skinTone) tonesByNation.set(p.nationality, [...(tonesByNation.get(p.nationality) ?? []), p.skinTone]);
+  const allTones = poolRows.map((p) => p.skinTone).filter((t): t is string => !!t);
+  const toneFor = (nationality: string, id: number) => { const l = tonesByNation.get(nationality) ?? allTones; return l.length ? l[id % l.length]! : null; };
   const add = (m: AiMember) => { const l = squads.get(m.poolTeamId) ?? []; l.push(m); squads.set(m.poolTeamId, l); };
 
-  for (const p of tx.select().from(continentalPoolPlayersTable).all()) {
+  for (const p of poolRows) {
     if (moved.has(p.id)) continue;
     const c = live.get(p.id);
     const stats = { speed: p.speed, power: p.power, defense: p.defense, serve: p.serve, block: p.block, stamina: p.stamina };
@@ -125,7 +132,7 @@ export function aiSquadsTx(tx: Tx, careerSaveId: number): Map<number, AiMember[]
     add({
       kind: "player", id: s.id, poolTeamId: s.poolTeamId!, name: s.name, nationality: s.nationality, age: s.age,
       ...stats, rating: overallRating(stats), salary: Number(s.salary), contractEndDate: s.contractEndDate,
-      imageUrl: s.imageUrl ?? null, skinTone: s.skinTone ?? null, poolPlayerId: s.poolPlayerId, joinedOn: s.joinedOn,
+      imageUrl: s.imageUrl ?? null, skinTone: s.skinTone ?? toneFor(s.nationality, s.id), poolPlayerId: s.poolPlayerId, joinedOn: s.joinedOn,
     });
   }
   for (const l of squads.values()) l.sort(byRating);
