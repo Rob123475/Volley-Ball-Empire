@@ -6,6 +6,7 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
 import { keepAiSquadsTx } from "./aiSquads.js";
+import { aiManagersSeasonEndTx } from "./aiManagers.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-confidence.js";
@@ -282,6 +283,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // Then next season is opened for everybody on what they carry into it,
     // which is the chain the rule is read from.
     const poolSales = sellBrokePoolClubsTx(tx, careerSaveId, season.year);
+    // Daytime 2 Oct, U-3: the AI clubs' boards judge their managers on the
+    // season just played (two failed running = sacked); last season's open
+    // jobs are filled (utils/aiManagers.ts).
+    aiManagersSeasonEndTx(tx, careerSaveId, season.year, nextYear, `${nextYear}-01-01`);
     // Six clubs to a continent, every season, whether anything was sold or not:
     // the regional season's thirty fixtures are built on that number and it
     // throws on any other. Restored rather than reasoned about

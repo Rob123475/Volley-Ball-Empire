@@ -17,7 +17,7 @@ import {
   worldTourQualificationsTable,
   continentalPoolTeamsTable,
 } from "@workspace/db";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray, isNotNull } from "drizzle-orm";
 import { generateDoubleRoundRobin } from "./fixtures.js";
 import { pointProbability, simulateMatch } from "./matchEngine.js";
 import { poolClubRatings } from "./worldTour.js";
@@ -379,6 +379,8 @@ export async function simulateRegionalRound(
   // rated a continent's top club 100 and its tenth 28, against players
   // averaging 83 and 72.
   const ratingByTeamId = poolClubRatings(careerSaveId);
+  const takenOver = new Set((await db.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
+    .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNotNull(careerPoolTeamStateTable.takenOverAt)))).map((r) => r.id));
 
   // Load all scheduled fixtures for this round across all active seasons
   const fixtures = await loadFixtures(careerSaveId, {
@@ -398,6 +400,20 @@ export async function simulateRegionalRound(
       const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId);
       // No invented 70: a club with no rated players is broken data, not an
       // average side.
+      // Daytime 2 Oct, U-3: a club the player has taken over mid-season has left
+      // the AI world with its players (routes/job-market.ts): its remaining
+      // regional fixtures are forfeits, the other side winning 2-0 (21-0, 21-0).
+      const left = (id: number) => takenOver.has(id);
+      if ((homeRating == null && left(fixture.homePoolTeamId)) || (awayRating == null && left(fixture.awayPoolTeamId))) {
+        const homeWins = homeRating != null && !left(fixture.homePoolTeamId);
+        insertLeagueResult(careerSaveId, {
+          fixtureId: fixture.id, winnerId: homeWins ? fixture.homePoolTeamId : fixture.awayPoolTeamId,
+          homeSets: homeWins ? 2 : 0, awaySets: homeWins ? 0 : 2,
+          homeMatchPoints: homeWins ? 42 : 0, awayMatchPoints: homeWins ? 0 : 42,
+        });
+        setFixtureResult(careerSaveId, fixture.id, { status: "completed", homeScore: homeWins ? 2 : 0, awayScore: homeWins ? 0 : 2 });
+        continue;
+      }
       if (homeRating == null || awayRating == null) {
         throw new Error(`Regional fixture ${fixture.id} has a club with no rated players`);
       }

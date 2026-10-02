@@ -143,21 +143,23 @@ export default function ManagerContract() {
   // the same one a sacking shows, with this career's own reason.
   const resignMutation = useResignCareer({
     mutation: {
-      onSuccess: () => {
+      // Daytime 2 Oct, U-3: he goes to the Job Market (the career goes on).
+      onSuccess: (data: any) => {
         queryClient.clear();
-        window.location.href = "/career-end";
+        window.location.href = data?.seekingClub ? "/job-market" : "/career-end";
       },
-      onError: () => setActionError("Something went wrong. Please try again."),
+      onError: (err: any) => setActionError(err?.response?.data?.error ?? err?.data?.error ?? "Something went wrong. Please try again."),
     },
   });
 
   const breakMutation = useBreakContract({
     mutation: {
-      onSuccess: () => {
+      // Daytime 2 Oct, U-3: he goes to the Job Market (the career goes on).
+      onSuccess: (data: any) => {
         queryClient.clear();
-        window.location.href = "/career-end";
+        window.location.href = data?.seekingClub ? "/job-market" : "/career-end";
       },
-      onError: () => setActionError("Something went wrong. Please try again."),
+      onError: (err: any) => setActionError(err?.response?.data?.error ?? err?.data?.error ?? "Something went wrong. Please try again."),
     },
   });
 

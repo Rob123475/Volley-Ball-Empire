@@ -7,8 +7,9 @@ import {
   teamsTable,
   careerHistoryEntriesTable,
   seasonsTable,
+  careerPoolTeamStateTable,
 } from "@workspace/db";
-import { eq, and, desc, isNull } from "drizzle-orm";
+import { eq, and, desc, isNull, isNotNull } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
 import { deleteCareerSave } from "../utils/deleteCareerSave.js";
@@ -21,7 +22,7 @@ import {
   openPoolClubBooksTx, openPoolClubSeasonsTx,
 } from "../utils/poolClubFinances.js";
 import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
-import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
+import { buildCareerSummary, endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear } from "../utils/olympics.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -522,6 +523,13 @@ router.get("/careers/history", async (req, res) => {
 // cleared), each with its own reason. The save keeps its club: no save is ever
 // left with none (utils/clublessCareers.ts finishes any an older build left).
 
+/** U-3: how many real vacancies there are (AI clubs whose manager was sacked). */
+async function realVacancyCount(careerSaveId: number): Promise<number> {
+  const rows = await db.select({ id: careerPoolTeamStateTable.id }).from(careerPoolTeamStateTable).where(and(
+    eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt), isNotNull(careerPoolTeamStateTable.vacantSince)));
+  return rows.length;
+}
+
 async function activeSaveFor(teamId: number, userId: string) {
   const [save] = await db.select().from(careerSavesTable).where(and(
     eq(careerSavesTable.teamId, teamId),
@@ -538,13 +546,14 @@ router.post("/careers/resign", async (req, res) => {
   if (!teamId) { res.status(400).json({ error: "No active career to resign from" }); return; }
   if (!(await activeSaveFor(teamId, req.user.id))) { res.status(404).json({ error: "Career save not found" }); return; }
 
-  const summary = await endCareer(req, teamId, req.user.id, {
-    type: "resignation",
-    description: (s) =>
-      `${s.managerName} resigned from ${s.clubName}. The career has ended: there is no job market yet.`,
-  });
-
-  res.json({ ok: true, clubName: summary.clubName, careerEnded: true });
+  // Daytime 2 Oct, U-3: resigning leads to the Job Market, not the end of the
+  // career. With no vacancy anywhere it would leave him with nowhere to go, so
+  // it is refused and says so (he can still retire).
+  const save = (await activeSaveFor(teamId, req.user.id))!;
+  const open = await realVacancyCount(save.id);
+  if (open === 0) { res.status(409).json({ error: "No club has a vacancy right now: resigning would leave you with nowhere to go. You can retire instead, or wait for a job to open (AI managers are sacked at the season's end)." }); return; }
+  const { clubName } = await loseClub(req, teamId, { type: "resignation", text: `${save.managerName} resigned from ${save.clubName}.` });
+  res.json({ ok: true, clubName, careerEnded: false, seekingClub: true });
 });
 
 router.post("/careers/break-contract", async (req, res) => {
@@ -560,17 +569,17 @@ router.post("/careers/break-contract", async (req, res) => {
   if (!save) { res.status(404).json({ error: "Career save not found" }); return; }
   if (!team) { res.status(404).json({ error: "Team not found" }); return; }
 
-  // The release clause is still paid, from the club's budget, before the career ends.
+  if ((await realVacancyCount(save.id)) === 0) { res.status(409).json({ error: "No club has a vacancy right now: breaking the contract would leave you with nowhere to go. You can retire instead, or wait for a job to open (AI managers are sacked at the season's end)." }); return; }
+  // The release clause is still paid, from the club's budget, before he goes.
   const newBudget = team.budget - BREAK_CONTRACT_FEE;
   await db.update(teamsTable).set({ budget: newBudget }).where(eq(teamsTable.id, teamId));
 
-  const summary = await endCareer(req, teamId, req.user.id, {
+  // U-3: to the Job Market, as for resigning.
+  const { clubName } = await loseClub(req, teamId, {
     type: "contract_break",
-    description: (s) =>
-      `${s.managerName} broke the contract with ${s.clubName}, paying the $${BREAK_CONTRACT_FEE.toLocaleString("en-US")} release clause. The career has ended: there is no job market yet.`,
+    text: `${save.managerName} broke the contract with ${team.name}, paying the $${BREAK_CONTRACT_FEE.toLocaleString("en-US")} release clause.`,
   });
-
-  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName: summary.clubName, careerEnded: true });
+  res.json({ ok: true, feePaid: BREAK_CONTRACT_FEE, newBudget: newBudget.toFixed(2), clubName, careerEnded: false, seekingClub: true });
 });
 
 export default router;

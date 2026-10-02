@@ -36,7 +36,7 @@ import { Router } from "express";
 import {
   db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable,
   careerPoolTeamStateTable, locationsTable, seasonsTable, achievementsTable,
-  worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality,
+  worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality, managerLevelFor, careerHistoryEntriesTable,
   type ContinentKey,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
@@ -44,7 +44,12 @@ import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad
 import { ensureSeasonFixtureRows } from "../utils/seasonFixture.js";
 import { ensureBoardSeason } from "../utils/board-confidence.js";
 import { startingBudgetFor } from "../utils/careerDifficulty.js";
-import { endCareer } from "../utils/careerLifecycle.js";
+import { endCareer, loseClub } from "../utils/careerLifecycle.js";
+import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiManagers.js";
+import { aiSquadsTx } from "../utils/aiSquads.js";
+import { academyAtTx } from "../utils/youthLoans.js";
+import { worldTourFieldTx } from "../utils/worldTour.js";
+import { withCareerStateTx } from "../lib/playerDto.js";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements.js";
 import { getSessionId, getSession, updateSession } from "../lib/auth.js";
 
@@ -86,68 +91,40 @@ async function seekingCareer(
   return save ?? null;
 }
 
+/** The season the career is in (a career between clubs still has one). */
+async function activeSeasonYear(careerSaveId: number): Promise<number | null> {
+  const [season] = await db.select({ year: seasonsTable.year }).from(seasonsTable)
+    .where(and(eq(seasonsTable.careerSaveId, careerSaveId), eq(seasonsTable.status, "active")))
+    .orderBy(desc(seasonsTable.year)).limit(1);
+  return season?.year ?? null;
+}
+
 /**
- * Clubs of the world with a vacancy.
+ * Daytime 2 Oct, U-3 (try): the vacancies are REAL. A vacancy is an AI club
+ * whose manager its board sacked (utils/aiManagers.ts: two failed seasons
+ * running, by the player's board's own bands) and that has not appointed
+ * another. The old rule (any club outside the World Tour field) is gone: every
+ * AI club has a manager now, so a job is open only where one has lost it.
  *
- * A vacancy is a club this career's World Tour field does not hold. There are
- * sixty clubs and the field is nineteen — eighteen qualifiers and the player's
- * own — so the other clubs are the ones a manager can go to without any club
- * being in the world twice. They are real: their names, continents and ratings
- * are the rows the rest of the game plays against.
- *
- * Offered strongest first. There is no AI-manager model in this game, so
- * nothing is competing with the player for the job; a shortlist that pretended
- * otherwise would be the invented news R-43 deleted.
+ * A club in THIS season's World Tour field cannot change hands mid-season (its
+ * World Tour seat and fixtures are shared by the world), so it is listed,
+ * marked, and can be taken once its season is over; the rest can be taken now.
  */
 async function vacanciesFor(careerSaveId: number) {
-  const seasons = await db.select({ year: seasonsTable.year }).from(seasonsTable)
-    .where(eq(seasonsTable.careerSaveId, careerSaveId))
-    .orderBy(desc(seasonsTable.year)).limit(1);
-  const latest = seasons[0]?.year ?? null;
+  const year = await activeSeasonYear(careerSaveId);
+  if (year == null) return [];
+  return db.transaction((tx) => {
+    ensureAiManagersTx(tx, careerSaveId, year);
+    const inField = new Set(worldTourFieldTx(tx, careerSaveId, year).map((f) => f.poolTeamId));
+    return vacanciesTx(tx, careerSaveId, year).map((v) => ({ ...v, inWorldTourNow: inField.has(v.poolTeamId) }));
+  });
+}
 
-  const inField = latest == null ? [] : (await db
-    .select({ poolTeamId: worldTourQualificationsTable.poolTeamId })
-    .from(worldTourQualificationsTable)
-    .where(eq(worldTourQualificationsTable.careerSaveId, careerSaveId)))
-    .map((r) => r.poolTeamId);
-
-  // A club the manager has already taken over is never offered again. Without
-  // this, a second sale sells the club and then lists it among the jobs going:
-  // the vacancies are the highest-rated clubs outside the field, and the club
-  // just lost is exactly that. `is_active_in_league` cannot answer this — a
-  // club leaves and re-enters the regional league by relegation and promotion.
-  const takenOver = new Set(
-    (await db.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId })
-      .from(careerPoolTeamStateTable)
-      .where(and(
-        eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
-        isNotNull(careerPoolTeamStateTable.takenOverAt),
-      ))).map((r) => r.poolTeamId),
-  );
-
-  const inLeague = new Set(
-    (await db.select({ poolTeamId: careerPoolTeamStateTable.poolTeamId })
-      .from(careerPoolTeamStateTable)
-      .where(and(
-        eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
-        eq(careerPoolTeamStateTable.isActiveInLeague, true),
-      ))).map((r) => r.poolTeamId),
-  );
-
-  const clubs = await db.select().from(continentalPoolTeamsTable)
-    .orderBy(desc(continentalPoolTeamsTable.rating));
-
-  return clubs
-    .filter((c) => !inField.includes(c.id) && !takenOver.has(c.id))
-    .slice(0, VACANCIES_OFFERED)
-    .map((c) => ({
-      poolTeamId: c.id,
-      name: c.teamName,
-      continent: c.continent,
-      continentName: CONTINENT_LABEL[c.continent as ContinentKey] ?? c.continent,
-      rating: c.rating,
-      inRegionalLeague: inLeague.has(c.id),
-    }));
+/** The manager's level: the one measure (manager_rep_points of his club, now or last). */
+async function managerLevelOf(save: typeof careerSavesTable.$inferSelect) {
+  const teamId = save.teamId ?? save.formerTeamId;
+  const [team] = teamId == null ? [] : await db.select({ p: teamsTable.managerRepPoints }).from(teamsTable).where(eq(teamsTable.id, teamId));
+  return { ...managerLevelFor(team?.p ?? 0), points: team?.p ?? 0 };
 }
 
 router.get("/job-market", async (req, res) => {
@@ -155,29 +132,59 @@ router.get("/job-market", async (req, res) => {
   const save = await seekingCareer(req as never);
   if (!save) { res.status(404).json({ error: "No career" }); return; }
 
+  // U-3: the vacancies are shown to a manager in a job too: he can apply, and
+  // resign to take one. Each says whether the club would have him, and why.
+  const level = await managerLevelOf(save);
+  const vacancies = (await vacanciesFor(save.id)).map((v) => { const d = decideApplication(v, save.managerName, level); return { ...v, accepted: d.accepted, answer: d.reason }; });
   res.json({
     seeking: save.seekingClubSince != null && save.teamId == null,
     managerName: save.managerName,
     formerClub: save.clubName,
-    vacancies: save.seekingClubSince != null && save.teamId == null
-      ? await vacanciesFor(save.id)
-      : [],
+    managerLevel: level.level,
+    managerLevelName: level.name,
+    vacancies,
   });
+});
+
+// U-3: apply for a vacancy. The club answers by the manager's level against
+// its standing, in plain words (utils/aiManagers.ts decideApplication).
+router.post("/job-market/apply", async (req, res) => {
+  if (!req.isAuthenticated() || !req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const save = await seekingCareer(req as never);
+  if (!save) { res.status(404).json({ error: "No career" }); return; }
+  const v = (await vacanciesFor(save.id)).find((x) => x.poolTeamId === Number(req.body?.poolTeamId));
+  if (!v) { res.status(422).json({ error: "That club has no vacancy." }); return; }
+  const answer = decideApplication(v, save.managerName, await managerLevelOf(save));
+  const blocked = v.inWorldTourNow ? `${v.name} is playing this season's World Tour: the job can be taken once its season is over.` : null;
+  res.json({ ...answer, accepted: answer.accepted && !blocked, reason: blocked ?? answer.reason, employed: save.teamId != null });
 });
 
 router.post("/job-market/accept", async (req, res) => {
   if (!req.isAuthenticated() || !req.user?.id) { res.status(401).json({ error: "Unauthorized" }); return; }
   const save = await seekingCareer(req as never);
   if (!save) { res.status(404).json({ error: "No career" }); return; }
-  if (save.teamId != null || save.seekingClubSince == null) {
-    res.status(409).json({ error: "You already have a club." });
-    return;
-  }
-
   const poolTeamId = Number(req.body?.poolTeamId);
   const offered = await vacanciesFor(save.id);
   const pick = offered.find((v) => v.poolTeamId === poolTeamId);
   if (!pick) { res.status(422).json({ error: "That club is not one of the vacancies on offer." }); return; }
+  // U-3: the club must want him, and must be free to change hands now.
+  const answer = decideApplication(pick, save.managerName, await managerLevelOf(save));
+  if (!answer.accepted) { res.status(409).json({ error: answer.reason }); return; }
+  if (pick.inWorldTourNow) { res.status(409).json({ error: `${pick.name} is playing this season's World Tour: the job can be taken once its season is over.` }); return; }
+  const repPoints = (await managerLevelOf(save)).points;
+  // U-3: a manager in a job resigns to take it ({ resign: true }).
+  if (save.teamId != null) {
+    if (req.body?.resign !== true) { res.status(409).json({ error: `You manage ${save.clubName}: resign to take the ${pick.name} job.`, needsResign: true }); return; }
+    await loseClub(req as never, save.teamId, {
+      type: "resignation",
+      text: `${save.managerName} resigned from ${save.clubName} to take the ${pick.name} job.`,
+    });
+    Object.assign(save, (await db.select().from(careerSavesTable).where(eq(careerSavesTable.id, save.id)))[0]);
+  }
+  if (save.teamId != null || save.seekingClubSince == null) {
+    res.status(409).json({ error: "You already have a club." });
+    return;
+  }
 
   const [pool] = await db.select().from(continentalPoolTeamsTable)
     .where(eq(continentalPoolTeamsTable.id, poolTeamId)).limit(1);
@@ -193,15 +200,18 @@ router.post("/job-market/accept", async (req, res) => {
     locations.find((l) => continentKeyForNationality(l.country) === pool.continent)
     ?? locations[0];
 
-  // A club that has just changed hands is not a rich one: the underdog budget
-  // is the game's own number for a club starting with nothing to spare.
-  const budget = startingBudgetFor("underdog");
+  // U-3: the club comes with what it has: its bank balance (and, below, its squad).
+  const [aiState] = await db.select().from(careerPoolTeamStateTable).where(and(
+    eq(careerPoolTeamStateTable.careerSaveId, save.id), eq(careerPoolTeamStateTable.poolTeamId, poolTeamId)));
+  const budget = Math.round(Number(aiState?.balance ?? startingBudgetFor("underdog")));
 
   const [newTeam] = await db.insert(teamsTable).values({
     userId: req.user.id,
     name: pool.teamName,
     budget,
     reputation: 50,
+    // U-3: the manager's standing comes with the manager.
+    managerRepPoints: repPoints,
     ...(home ? { locationId: home.id } : {}),
     ...(pool.primaryColor ? { logoColor: pool.primaryColor } : {}),
     ...(pool.secondaryColor ? { secondaryLogoColor: pool.secondaryColor } : {}),
@@ -220,7 +230,7 @@ router.post("/job-market/accept", async (req, res) => {
   // And the club the manager has taken over stops being one of the world's own:
   // it is out of the regional league, because it is not an AI club any more.
   await db.update(careerPoolTeamStateTable)
-    .set({ isActiveInLeague: false, takenOverAt: new Date() })
+    .set({ isActiveInLeague: false, takenOverAt: new Date(), managerName: save.managerName, vacantSince: null })
     .where(and(
       eq(careerPoolTeamStateTable.careerSaveId, save.id),
       eq(careerPoolTeamStateTable.poolTeamId, poolTeamId),
@@ -247,8 +257,25 @@ router.post("/job-market/accept", async (req, res) => {
       ensureSeasonFixtureRows(tx, { id: newTeam!.id, name: pool.teamName }, season.year);
     });
     ensureBoardSeason(save.id, season.year, newTeam!.id);
-    await seedStartingSquad(save.id, newTeam!.id, oneSeasonContract(season), "underdog");
+    // U-3: the club's own players come with it (utils/aiSquads.ts); only a
+    // club with fewer than two is topped up from the free agents.
+    const squad = withCareerStateTx((w) => {
+      const mine = (aiSquadsTx(w.tx, save.id).get(poolTeamId) ?? []).filter((m) => m.kind === "player");
+      mine.forEach((m, i) => w.setPlayerState(save.id, m.id, {
+        teamId: newTeam!.id, poolTeamId: null, squadRole: i < 2 ? "starter" : "interchange", isActive: true,
+      }));
+      // Its academy comes too: the youths it holds, in the places they had.
+      for (const y of academyAtTx(w.tx, save.id, { poolTeamId })) {
+        if (y.poolTeamId === poolTeamId) w.setPlayerState(save.id, y.playerId, { teamId: newTeam!.id, poolTeamId: null });
+      }
+      return mine.length;
+    });
+    if (squad < 2) await seedStartingSquad(save.id, newTeam!.id, oneSeasonContract(season), "underdog");
   }
+  await db.insert(careerHistoryEntriesTable).values({
+    userId: req.user.id, careerSaveId: save.id, type: "joined_club", clubName: pool.teamName, season: save.season,
+    description: `${save.managerName} took over ${pool.teamName}${pick.reason ? ` (the job was open: ${pick.reason})` : ""}.`,
+  });
 
   const sid = getSessionId(req as never);
   if (sid) {

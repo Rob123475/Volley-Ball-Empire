@@ -479,6 +479,17 @@ export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
   sponsorReputation:  integer("sponsor_reputation").notNull().default(50),
   /** Stamped when five loss-making seasons sold this club (L-02e, for AI clubs). */
   soldAt:             integer("sold_at", { mode: "timestamp" }),
+  /**
+   * Daytime 2 Oct, U-3 (try): the club's AI manager (utils/aiManagers.ts).
+   * Null with vacant_since set = the job is vacant: her board sacked her (two
+   * failed seasons running, by the player's board's own bands) and nobody has
+   * been appointed yet. The player can apply for it on the Job Market.
+   */
+  managerName:          text("manager_name"),
+  managerSinceYear:     integer("manager_since_year"),
+  managerFailedSeasons: integer("manager_failed_seasons").notNull().default(0),
+  vacantSince:          text("vacant_since"),
+  vacancyReason:        text("vacancy_reason"),
   /** The season it was sold in, so the table of a run can say when. */
   soldInSeason:       integer("sold_in_season"),
   promotionCount:  integer("promotion_count").notNull().default(0),

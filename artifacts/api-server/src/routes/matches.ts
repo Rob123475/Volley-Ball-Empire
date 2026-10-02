@@ -18,7 +18,7 @@ import { developAcademyPlayers, tickAcademyContracts } from "../utils/academyDev
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
-import { endCareer } from "../utils/careerLifecycle.js";
+import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
   selectPair, pairSideRating, isAvailable, matchCosts, injuryRisk, rollInjury,
@@ -1185,12 +1185,13 @@ export async function recordForfeit(
 
   if (req?.user?.id && board.abandonedDays != null && board.abandonedDays >= ABANDONMENT_DAYS) {
     const days = board.abandonedDays;
-    const summary = await endCareer(req, team.id, req.user!.id, {
+    // Daytime 2 Oct, U-3: a sacked manager goes to the Job Market; the career
+    // goes on unless he retires there.
+    const { clubName } = await loseClub(req, team.id, {
       type: "dismissal",
-      description: (s) =>
-        `${s.managerName} was sacked by ${s.clubName}: the club went ${days} days without two contracted players to put on the sand.`,
+      text: `The manager was sacked by ${team.name}: the club went ${days} days without two contracted players to put on the sand.`,
     });
-    dismissalClubName = summary.clubName;
+    dismissalClubName = clubName;
     fired = true;
   }
 
