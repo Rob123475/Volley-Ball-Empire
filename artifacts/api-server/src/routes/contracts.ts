@@ -4,9 +4,10 @@ import { refusalReason } from "../utils/squadRules.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
 import { loadPlayers, loadPlayer, updatePlayerState, requireCareerSaveId, withCareerStateTx } from "../lib/playerDto.js";
 import { academyCountTx, placeSignedYouthTx } from "../utils/youthLoans.js";
+import { canSellTx, aiClubSoldTx } from "../utils/aiSquads.js";
 import { academyMonthlySalary } from "../utils/academy.js";
 import { db } from "@workspace/db";
-import { contractsTable, playersTable, teamsTable, calendarStateTable } from "@workspace/db";
+import { contractsTable, playersTable, teamsTable, calendarStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, and, gte, lte, isNotNull } from "drizzle-orm";
 import type { Contract } from "@workspace/db";
 import { checkSpendingAllowed } from "../utils/board-confidence.js";
@@ -62,15 +63,24 @@ router.post("/contracts", async (req, res) => {
 
   const player = await loadPlayer(requireCareerSaveId(req.activeCareerSaveId), Number(playerId));
   if (!player) { res.status(404).json({ error: "Player not found." }); return; }
-  // C15: a youth at an AI club's academy (hers, or on loan there) is not on the
-  // market; she can only come on loan, from Team > Youth Loans.
-  if (player.poolTeamId != null) {
-    res.status(422).json({ error: `${player.name} is at an AI club's academy: she can only join you on loan (Team > Youth Loans).` });
-    return;
-  }
   // R-63: an academy player is a youth player not yet promoted — the same test
   // the intake and the Team page use.
   const isYouth = isYouthPlayer(player);
+  // C15: a youth at an AI club's academy (hers, or on loan there) is not on the
+  // market; she can only come on loan, from Team > Youth Loans.
+  if (player.poolTeamId != null && isYouth) {
+    res.status(422).json({ error: `${player.name} is at an AI club's academy: she can only join you on loan (Team > Youth Loans).` });
+    return;
+  }
+  // Daytime 2 Oct, U-6: a senior at an AI club is bought from it, on the same
+  // market rules; the club takes the fee and only sells if it can still play.
+  const aiSeller = !isYouth && player.poolTeamId != null && player.teamId == null ? player.poolTeamId : null;
+  const aiSellerName = aiSeller == null ? null
+    : (await db.select({ n: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, aiSeller)))[0]?.n ?? "Her club";
+  if (aiSeller != null) {
+    const can = db.transaction((tx) => canSellTx(tx, requireCareerSaveId(req.activeCareerSaveId), aiSeller, aiSellerName!));
+    if (!can.ok) { res.status(409).json({ error: can.reason }); return; }
+  }
 
   // Resolve squad role: validate and apply age guards
   const validRoles = ["starter", "interchange", "reserve"] as const;
@@ -208,6 +218,8 @@ router.post("/contracts", async (req, res) => {
     contractEndDate: actualEnd,
     isActive: squadRole === "starter" || squadRole === "interchange",
     squadRole,
+    // U-6: she leaves the AI club; her wage is on this club's books from now.
+    ...(aiSeller != null ? { poolTeamId: null } : {}),
   });
   // N-44 (b): a youth goes to the academy's youth team or its reserves, as the box chose.
   const academyPlace = isYouth
@@ -218,8 +230,14 @@ router.post("/contracts", async (req, res) => {
   if (fee) {
     await db.insert(financeTransactionsTable).values({
       teamId: team.id, type: "expense", amount: fee.price, category: "signing_fee", date: today,
-      description: `Signing fee: ${player.name}${blind ? ` (signed unscouted: $${fee.low.toLocaleString()}-$${fee.high.toLocaleString()})` : ""}`,
+      description: `Signing fee: ${player.name}${aiSeller != null ? ` from ${aiSellerName}` : ""}${blind ? ` (signed unscouted: $${fee.low.toLocaleString()}-$${fee.high.toLocaleString()})` : ""}`,
     });
+    // U-6: bought from an AI club, the fee is that club's (its balance), and it
+    // refills its pair from free agents if her going left it short.
+    if (aiSeller != null) {
+      const ends = await seasonEndsFrom(cidForTerm, today);
+      withCareerStateTx((w) => aiClubSoldTx(w, cidForTerm, aiSeller, fee.price, today, ends));
+    }
     await db.update(teamsTable).set({ budget: Number(team.budget) - fee.price }).where(eq(teamsTable.id, team.id));
     // Item 32: bought from another club in the transfer window, the fee is that
     // club's: on its balance and its ledger. (It was charged and paid to nobody.)

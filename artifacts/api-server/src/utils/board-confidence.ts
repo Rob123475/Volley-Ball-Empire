@@ -582,7 +582,7 @@ export function setBoardTargetTx(tx: Tx, careerSaveId: number, seasonYear: numbe
   const field = worldTourFieldTx(tx, careerSaveId, seasonYear);
   if (field.length === 0) return row;
 
-  const ratings = poolClubRatingsTx(tx);
+  const ratings = poolClubRatingsTx(tx, careerSaveId);
   const pair = pairRating(ablePlayersTx(tx, careerSaveId, teamId));
   const strengthRank = 1 + field.filter((f) => pair == null || (ratings.get(f.poolTeamId) ?? 0) > pair).length;
   tx.update(boardSeasonsTable).set({

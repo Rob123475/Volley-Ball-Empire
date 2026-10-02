@@ -410,8 +410,25 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
    * Overnight brief 30 Sep, C15: the AI club whose academy holds her, for a
    * youth player at an AI club (team_id is the player's clubs only). Null for
    * everyone else: a youth with neither is a free agent.
+   *
+   * Daytime 2 Oct, U-6: for a SENIOR (player_type 'senior' or promoted) it is
+   * the AI club she plays for (utils/aiSquads.ts): an AI club's squad is its
+   * seniors here plus the continental pool players still on a live pool
+   * contract.
    */
   poolTeamId:       integer("pool_team_id"),
+  /**
+   * U-6: the continental pool player this row was made from, when an AI club's
+   * senior became a career player (her pool contract then reads "moved"). Her
+   * reference look (skin tone) and her ranking history are found through it.
+   */
+  poolPlayerId:     integer("pool_player_id"),
+  /**
+   * U-6: the game date she joined the AI club she plays for. An AI club keeps
+   * a player it signed for a season before selling her on to another AI club
+   * (no back-and-forth); the Player Market can buy her any time.
+   */
+  poolJoinedOn:     text("pool_joined_on"),
   /**
    * C15: an academy player's court time. "youth_team" (the academy's 3 who
    * play, full development) or "reserve" (no court time, reduced development).

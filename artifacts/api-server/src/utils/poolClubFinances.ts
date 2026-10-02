@@ -41,7 +41,8 @@ import {
   competitorRankingsTable, worldTourQualificationsTable, careerSavesTable,
   seasonsTable, db, managerSalaryFor,
 } from "@workspace/db";
-import { and, asc, desc, eq, isNull, isNotNull, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
+import { aiSquadsTx } from "./aiSquads.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { prizeFor } from "./prizeDistribution.js";
 import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
@@ -147,7 +148,8 @@ export function signMissingPoolContractsTx(
       .from(poolPlayerContractsTable)
       .where(and(
         eq(poolPlayerContractsTable.careerSaveId, careerSaveId),
-        eq(poolPlayerContractsTable.status, "active"),
+        // U-6: "moved" = she is a career senior now (utils/aiSquads.ts).
+        inArray(poolPlayerContractsTable.status, ["active", "moved"]),
       )).all().map((r) => r.poolPlayerId),
   );
 
@@ -319,21 +321,15 @@ export function chargePoolClubsWeekTx(
   return { clubs: states.length, charged, paid };
 }
 
-/** Every AI club's wage bill, as the monthly salaries its contracts carry. */
+/**
+ * Every AI club's wage bill, as the monthly salaries its squad is on (U-6,
+ * utils/aiSquads.ts): its pool players' contracts and its career seniors'.
+ */
 function squadsByPoolIdTx(tx: Tx, careerSaveId: number): Map<number, number[]> {
-  const rows = tx.select({
-    poolTeamId: poolPlayerContractsTable.poolTeamId,
-    salary:     poolPlayerContractsTable.salary,
-  }).from(poolPlayerContractsTable)
-    .where(and(
-      eq(poolPlayerContractsTable.careerSaveId, careerSaveId),
-      eq(poolPlayerContractsTable.status, "active"),
-    )).all();
   const map = new Map<number, number[]>();
-  for (const r of rows) {
-    const list = map.get(r.poolTeamId) ?? [];
-    list.push(Number(r.salary));
-    map.set(r.poolTeamId, list);
+  for (const [poolTeamId, squad] of aiSquadsTx(tx, careerSaveId)) {
+    // A pool player with no contract in this career yet is not on the books yet.
+    map.set(poolTeamId, squad.filter((m) => m.kind === "player" || m.contractEndDate != null).map((m) => m.salary));
   }
   return map;
 }

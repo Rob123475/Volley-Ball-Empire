@@ -77,8 +77,8 @@ const POSITION_LABELS: Record<string, string> = {
 };
 
 type PageSection = "senior" | "youth";
-type MarketFilter = "all" | "free_agents" | "player_pool" | "signed" | "transfer";
-type PlayerStatus = "signed" | "free_agent" | "player_pool" | "transfer_available";
+type MarketFilter = "all" | "free_agents" | "ai_clubs" | "player_pool" | "signed" | "transfer";
+type PlayerStatus = "signed" | "free_agent" | "player_pool" | "transfer_available" | "ai_club";
 
 // ── Status config ─────────────────────────────────────────────────────────────
 
@@ -87,6 +87,8 @@ const STATUS_CONFIG: Record<PlayerStatus, { label: string; badgeClass: string; i
   free_agent:        { label: "Free Agent",        badgeClass: "bg-emerald-500/15 text-emerald-500 border-emerald-400/30", icon: Users as any },
   player_pool:       { label: "Player Pool",       badgeClass: "bg-amber-500/15 text-amber-600 border-amber-400/30",  icon: Package as any },
   transfer_available:{ label: "Transfer Available",badgeClass: "bg-purple-500/15 text-purple-500 border-purple-400/30", icon: Handshake as any },
+  // Daytime 2 Oct, U-6: under contract at an AI club, and buyable from it.
+  ai_club:           { label: "At AI Club",        badgeClass: "bg-sky-500/15 text-sky-500 border-sky-400/30",        icon: Shield as any },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -241,7 +243,7 @@ function MarketPlayerCard({
   const isScouted = !!player.scoutedPotential;
   const status: PlayerStatus = player.status ?? (player.currentTeamName ? "signed" : "free_agent");
   const statusCfg = STATUS_CONFIG[status];
-  const canSign = status === "free_agent" || status === "player_pool" || status === "transfer_available";
+  const canSign = status === "free_agent" || status === "player_pool" || status === "transfer_available" || status === "ai_club";
   const scouting = player.scouting?.state ?? "none";
   const price = priceText(player);
 
@@ -509,6 +511,7 @@ type FilterPillConfig = {
 const FILTER_PILLS: FilterPillConfig[] = [
   { id: "all",         label: "All Players",        icon: Users       as any, desc: "All senior players in the game." },
   { id: "free_agents", label: "Free Agents",         icon: Users       as any, desc: "Unsigned players you have not scouted: a price range, no attributes. Scout one (5 game days) or sign her blind." },
+  { id: "ai_clubs",    label: "At AI Clubs",         icon: Shield      as any, desc: "Seniors under contract at AI clubs. Bought on the same rules: a price range until scouted, the exact price after; the fee goes to her club, which only sells if it can still put two on the sand." },
   { id: "player_pool", label: "Player Pool",         icon: Package     as any, desc: "Unsigned players your scouts have reported on: exact price and attributes. Reports lapse at the end of the season." },
   { id: "signed",      label: "Signed Players",      icon: CheckCircle2 as any, desc: "Players currently under contract with a club." },
   { id: "transfer",    label: "Transfer Available",  icon: Handshake   as any, desc: "Signed players whose contract expires within 6 months — approachable now." },
@@ -594,6 +597,7 @@ export default function PlayerMarket() {
   const counts = {
     all:         all.length,
     free_agents: all.filter(p => p.status === "free_agent").length,
+    ai_clubs:    all.filter(p => p.status === "ai_club").length,
     player_pool: all.filter(p => p.status === "player_pool").length,
     signed:      all.filter(p => p.status === "signed" || p.status === "transfer_available").length,
     transfer:    all.filter(p => p.status === "transfer_available").length,
@@ -609,6 +613,7 @@ export default function PlayerMarket() {
     switch (filter) {
       case "all":         return all;
       case "free_agents": return all.filter(p => p.status === "free_agent");
+      case "ai_clubs":    return all.filter(p => p.status === "ai_club");
       case "player_pool": return all.filter(p => p.status === "player_pool");
       case "signed":      return all.filter(p => p.status === "signed" || p.status === "transfer_available");
       case "transfer":    return all.filter(p => p.status === "transfer_available");

@@ -42,7 +42,6 @@ import {
   olympicMedalsTable,
   careerPlayerStateTable,
   playersTable,
-  continentalPoolPlayersTable,
   continentalPoolTeamsTable,
   teamsTable,
   trophiesTable,
@@ -54,6 +53,7 @@ import {
   type OlympicPlayerEntry,
 } from "@workspace/db";
 import { and, asc, desc, eq, lte } from "drizzle-orm";
+import { aiSquadsTx } from "./aiSquads.js";
 import { sideRating, pointProbability, simulateMatch, type SetScore } from "./matchEngine.js";
 import { olympicQualification, OLYMPIC_SPOTS } from "./olympicQualification.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
@@ -116,21 +116,15 @@ export function nationalPairsTx(tx: Tx, careerSaveId: number, playerTeamId: numb
     nations.set(nation, [...(nations.get(nation) ?? []), p]);
   };
 
-  // Every AI pool club's two players: always at a club, reference stats.
-  for (const p of tx.select({
-    id: continentalPoolPlayersTable.id, name: continentalPoolPlayersTable.name,
-    nationality: continentalPoolPlayersTable.nationality, poolTeamId: continentalPoolPlayersTable.poolTeamId,
-    club: continentalPoolTeamsTable.teamName,
-    speed: continentalPoolPlayersTable.speed, power: continentalPoolPlayersTable.power,
-    defense: continentalPoolPlayersTable.defense, serve: continentalPoolPlayersTable.serve,
-    block: continentalPoolPlayersTable.block, stamina: continentalPoolPlayersTable.stamina,
-  }).from(continentalPoolPlayersTable)
-    .innerJoin(continentalPoolTeamsTable, eq(continentalPoolTeamsTable.id, continentalPoolPlayersTable.poolTeamId))
-    .all()) {
-    if (!p.nationality) continue;
-    add(p.nationality, {
-      kind: "pool", id: p.id, name: p.name, club: p.club, teamId: null, poolTeamId: p.poolTeamId,
-      rating: sideRating([p]),
+  // Every AI club's players in this career (U-6, utils/aiSquads.ts): its pool
+  // players on a live contract and the seniors it has signed.
+  const clubNames = new Map(tx.select({ id: continentalPoolTeamsTable.id, name: continentalPoolTeamsTable.teamName })
+    .from(continentalPoolTeamsTable).all().map((t) => [t.id, t.name]));
+  for (const m of [...aiSquadsTx(tx, careerSaveId).values()].flat()) {
+    if (!m.nationality) continue;
+    add(m.nationality, {
+      kind: m.kind, id: m.id, name: m.name, club: clubNames.get(m.poolTeamId) ?? "", teamId: null, poolTeamId: m.poolTeamId,
+      rating: sideRating([m]),
     });
   }
 

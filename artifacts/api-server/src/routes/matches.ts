@@ -279,7 +279,7 @@ async function resolveOpponentRating(
 
   const fixture = fixtureForMatch(match.id);
   if (fixture) {
-    const rating = competitorRating(fixture.awayCompetitorId);
+    const rating = competitorRating(await careerSaveIdForTeamOrThrow(playerTeamId), fixture.awayCompetitorId);
     if (rating != null) return clampRating(rating);
   }
 

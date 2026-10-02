@@ -32,7 +32,6 @@ import {
   competitorsTable,
   competitorRankingsTable,
   continentalPoolTeamsTable,
-  continentalPoolPlayersTable,
   teamsTable,
   worldTourQualificationsTable,
   worldTourFixturesTable,
@@ -40,6 +39,7 @@ import {
 } from "@workspace/db";
 import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import { sideRating, pointProbability, simulateMatch, type SetScore } from "./matchEngine.js";
+import { aiClubRatingsTx } from "./aiSquads.js";
 import { creditCompetitorTx } from "./rankingPoints.js";
 import { competitorIdForTeamTx, competitorIdForPoolTeamTx } from "./competitors.js";
 import { WORLD_TOUR_START, WORLD_TOUR_END, FINALS_START, FINALS_END, REGIONAL_END } from "./calendarSlots.js";
@@ -78,31 +78,15 @@ function tierForRound(round: number): string {
  * (100 down to 28). Only the players are built by the same rule as the player's
  * side, so only they make "the same engine" true.
  */
-export function poolClubRatingsTx(tx: Tx): Map<number, number> {
-  const rows = tx.select({
-    poolTeamId: continentalPoolPlayersTable.poolTeamId,
-    speed:      continentalPoolPlayersTable.speed,
-    power:      continentalPoolPlayersTable.power,
-    defense:    continentalPoolPlayersTable.defense,
-    serve:      continentalPoolPlayersTable.serve,
-    block:      continentalPoolPlayersTable.block,
-    stamina:    continentalPoolPlayersTable.stamina,
-  }).from(continentalPoolPlayersTable).all();
-
-  const byClub = new Map<number, typeof rows>();
-  for (const r of rows) {
-    const list = byClub.get(r.poolTeamId) ?? [];
-    list.push(r);
-    byClub.set(r.poolTeamId, list);
-  }
-  const ratings = new Map<number, number>();
-  for (const [poolTeamId, players] of byClub) ratings.set(poolTeamId, sideRating(players));
-  return ratings;
+export function poolClubRatingsTx(tx: Tx, careerSaveId: number): Map<number, number> {
+  // Daytime 2 Oct, U-6: the two it plays in THIS career (utils/aiSquads.ts):
+  // its pool players on a live contract and the seniors it has signed.
+  return aiClubRatingsTx(tx, careerSaveId);
 }
 
 /** Async form for callers outside a transaction (the regional league). */
-export function poolClubRatings(): Map<number, number> {
-  return db.transaction((tx) => poolClubRatingsTx(tx));
+export function poolClubRatings(careerSaveId: number): Map<number, number> {
+  return db.transaction((tx) => poolClubRatingsTx(tx, careerSaveId));
 }
 
 // ── Field ────────────────────────────────────────────────────────────────────
@@ -390,7 +374,7 @@ export function playWorldTourUpToTx(
   )).orderBy(asc(worldTourFixturesTable.round), asc(worldTourFixturesTable.id)).all();
   if (due.length === 0) return 0;
 
-  const ratings = poolClubRatingsTx(tx);
+  const ratings = poolClubRatingsTx(tx, careerSaveId);
   const poolOf = poolTeamByCompetitorTx(tx, [
     ...new Set(due.flatMap((f) => [f.homeCompetitorId, f.awayCompetitorId])),
   ]);
@@ -500,11 +484,11 @@ export function fixtureForMatch(matchId: number) {
 }
 
 /** An AI opponent's strength by competitor, for the player's own match. */
-export function competitorRating(competitorId: number): number | null {
+export function competitorRating(careerSaveId: number, competitorId: number): number | null {
   return db.transaction((tx) => {
     const pool = poolTeamByCompetitorTx(tx, [competitorId]).get(competitorId);
     if (pool == null) return null;
-    return poolClubRatingsTx(tx).get(pool) ?? null;
+    return poolClubRatingsTx(tx, careerSaveId).get(pool) ?? null;
   });
 }
 

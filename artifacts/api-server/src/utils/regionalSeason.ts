@@ -378,7 +378,7 @@ export async function simulateRegionalRound(
   // `100 - (poolRanking - 1) * 8`, a formula over a frozen seed ranking that
   // rated a continent's top club 100 and its tenth 28, against players
   // averaging 83 and 72.
-  const ratingByTeamId = poolClubRatings();
+  const ratingByTeamId = poolClubRatings(careerSaveId);
 
   // Load all scheduled fixtures for this round across all active seasons
   const fixtures = await loadFixtures(careerSaveId, {

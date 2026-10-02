@@ -8,7 +8,6 @@ import {
   CONTINENT_KEYS,
   continentKeyFrom,
   continentalPoolTeamsTable,
-  continentalPoolPlayersTable,
   regionalLeagueSeasonsTable,
   regionalLeagueFixturesTable,
   regionalLeagueResultsTable,
@@ -21,6 +20,7 @@ import {
   simulateFixtureResult,
 } from "../utils/regionalSeason.js";
 
+import { aiSquadsTx } from "../utils/aiSquads.js";
 const router = Router();
 
 // The canonical six live in @workspace/db. This module used to keep its own
@@ -209,17 +209,9 @@ router.get("/regional-league/:continent/pools", async (req, res) => {
     return;
   }
 
-  const teamIds = poolTeams.map(t => t.id);
-  const players = await db
-    .select()
-    .from(continentalPoolPlayersTable)
-    .where(inArray(continentalPoolPlayersTable.poolTeamId, teamIds));
-
-  const playersByTeam = new Map<number, typeof players>();
-  for (const p of players) {
-    if (!playersByTeam.has(p.poolTeamId)) playersByTeam.set(p.poolTeamId, []);
-    playersByTeam.get(p.poolTeamId)!.push(p);
-  }
+  // U-6: each club's players in this career (utils/aiSquads.ts), best first.
+  const squads = db.transaction((tx) => aiSquadsTx(tx, requireCareerSaveId(req.activeCareerSaveId)));
+  const playersByTeam = new Map(poolTeams.map((t) => [t.id, squads.get(t.id) ?? []]));
 
   res.json({
     continent,
@@ -238,7 +230,7 @@ router.get("/regional-league/:continent/pools", async (req, res) => {
         id:          p.id,
         name:        p.name,
         nationality: p.nationality,
-        age:         p.baseAge,
+        age:         p.age,
         speed:       p.speed,
         power:       p.power,
         defense:     p.defense,

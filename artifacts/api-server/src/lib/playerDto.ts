@@ -73,6 +73,10 @@ export type CareerPlayerFields = {
   poolTeamId: number | null;
   /** C15: "youth_team" or "reserve" for an academy player; null otherwise. */
   academyRole: string | null;
+  /** U-6: the continental pool player an AI club's senior was made from; null otherwise. */
+  poolPlayerId: number | null;
+  /** U-6: the game date she joined her AI club. */
+  poolJoinedOn: string | null;
 };
 
 /**
@@ -136,6 +140,8 @@ export function assemblePlayer(
     outfitId:             state.outfitId,
     poolTeamId:           state.poolTeamId,
     academyRole:          state.academyRole,
+    poolPlayerId:         state.poolPlayerId ?? null,
+    poolJoinedOn:         state.poolJoinedOn ?? null,
   };
 }
 
