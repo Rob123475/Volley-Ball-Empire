@@ -112,7 +112,7 @@ Brief: `C:\Users\rbonn\Downloads\DAYTIME-BRIEF-02OCT.md`, followed in its order.
     - youth rebirth 19/19, hall of fame 24/24, achievement ipc 12/12, economy 4/4;
     - club kits 14/14 and ai club economy 14/14, after `d6c89fb` updated their reading of the AI squads (the court's pair is the club's best two; the wage bill includes its career seniors);
     - market order 4/4 in the main tree (in the worktree it failed only because files were checked out with Windows line endings; the page is identical on both branches);
-    - season rollover: still running alone at 12:30 (started 12:07; it takes about 17 minutes), so its result is not in this report. Its ageing check now leaves out pool-made seniors at AI clubs, who don't age by design.
+    - season rollover 89/90. Its ageing check now leaves out pool-made seniors at AI clubs, who don't age by design. The one failure ("every senior has a baseline or came from an academy intake: 208 + 12 of 395 traceable") is a side effect of that test edit, not the game: the trace count uses the same list, so it no longer counts the AI-club seniors it left out. The fix is one line in harness/rollover.mjs, not made by 12:30.
   - **Before that full run:** the first full run caught 30-season careers running AI clubs out of players. That was fixed in `c138467`: they keep their players and refill from free agents, then their academy.
 - **`feat-job-market` (item 4):**
   - **Full run** on `c358b6a`: 90 of 100 suites, during the same concurrent run.
@@ -123,7 +123,7 @@ Brief: `C:\Users\rbonn\Downloads\DAYTIME-BRIEF-02OCT.md`, followed in its order.
 ## Packages
 
 - **`C:\build\vbe-unity-02oct-pm\win-unpacked`** (items 1–2): see the "Pkg" row. Built from `b9a4551`, whose full harness passed.
-- **`C:\build\vbe-try-02oct\win-unpacked`: not built.** The brief asks for it only if both features pass their harness. Item 3 does (above), apart from season rollover, still running at 12:30. Item 4 is partly done, and its branch's ai-club-economy and season-rollover suites were not re-run alone after the concurrent full run. What's missing:
+- **`C:\build\vbe-try-02oct\win-unpacked`: not built.** The brief asks for it only if both features pass their harness. Item 3 does (above), apart from that one test-side check in season rollover. Item 4 is partly done, and its branch's ai-club-economy and season-rollover suites were not re-run alone after the concurrent full run. What's missing:
   - those two suites run alone on `feat-job-market`;
   - your answers to Q-3 and Q-4;
   - then the try package, built the same way as the afternoon one.
