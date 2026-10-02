@@ -25,7 +25,7 @@ export const MONEY = {
   managerSalaryMonthly: { min: 16_000, max: 20_000 },
   headCoachSalaryMonthlyMax: 20_000,
   playerWageRiseMonthly: { min: 5_000, max: 10_000, atRating: { min: 66, max: 77 } },
-  sponsorWeeklyBonus: 20_000,
+  sponsorWeeklyBonus: 10_000,
 } as const;
 
 /** A fixed number in [0, 1) for a key (FNV-1a), so a manager's salary never re-rolls. */
