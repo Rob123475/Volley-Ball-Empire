@@ -18,6 +18,7 @@
  */
 import { DatabaseSync } from "node:sqlite";
 import { healAllSquads, keepClubSolvent } from "./harness-club.mjs";
+const readDb = (file, sql, ...a) => { const d = new DatabaseSync(file, { readOnly: true }); try { return d.prepare(sql).all(...a); } finally { d.close(); } };
 const BASE = (process.argv[2] ?? "http://localhost:4199") + "/api";
 
 /**
@@ -579,7 +580,15 @@ async function advanceToBoundary(api, maxDays = 500) {
       const endedYear = 2026 + hit.roll.fromSeason - 1;
       const review = await api("GET", `/seasons/${endedYear}/review`);
       const teamNow = await api("GET", "/team");
+      // Afternoon 2 Oct (J-2/J-3): the board can sack him at a season's end and
+      // he moves club at the next season's start. The season just played was
+      // the old club's: count it from the old club's totals.
+      const oldTeamId = team.id;
       team = teamNow.data;
+      if (team?.id !== oldTeamId && DB_FILE) {
+        const old = readDb(DB_FILE, `SELECT wins, losses FROM teams WHERE id = ?`, oldTeamId)[0];
+        if (old) { team = { ...team, _oldWins: old.wins, _oldLosses: old.losses }; }
+      }
 
       // L-01: the squad after the boundary — ageing, retirement and promotion
       // have all run. "Retired" is read from the review (the rollover wrote it).
@@ -597,8 +606,8 @@ async function advanceToBoundary(api, maxDays = 500) {
       // totals. The first version counted `status === "completed"` rows from
       // GET /matches, which is `.limit(50)` — so it saturated at 50 and both
       // squads reported "50 matches" whatever actually happened.
-      const wins = team.wins - prevWins;
-      const losses = team.losses - prevLosses;
+      const wins = (team._oldWins ?? team.wins) - prevWins;
+      const losses = (team._oldLosses ?? team.losses) - prevLosses;
       const played = wins + losses;
       prevWins = team.wins; prevLosses = team.losses;
 

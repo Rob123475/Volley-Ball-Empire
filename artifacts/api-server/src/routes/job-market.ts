@@ -349,7 +349,8 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
     // and the club cannot field her).
     {
       const term = oneSeasonContract(season);
-      for (const p of (await loadPlayers(save.id, { teamId: newTeam!.id }))) {
+      // The academy's youths are the academy's: no senior contract (Afternoon 2 Oct).
+      for (const p of (await loadPlayers(save.id, { teamId: newTeam!.id })).filter((x) => !(x.playerType === "youth" && !x.isPromoted))) {
         await db.insert(contractsTable).values({ playerId: p.id, teamId: newTeam!.id, salary: p.salary, startDate: term.startDate, endDate: p.contractEndDate ?? term.endDate, bonusPerWin: 0 });
         if (!p.contractEndDate) await updatePlayerState(save.id, p.id, { contractEndDate: term.endDate });
       }
