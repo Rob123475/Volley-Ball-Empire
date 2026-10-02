@@ -392,11 +392,16 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
   // club row (the only writes are inserts — createCareerPoolTeam and the
   // dev-only routes/dev.ts), and the values come from
   // scripts/src/seed-pool-kits.ts alone.
-  continental_pool_teams: ["primary_color", "secondary_color"],
+  // Rob, 2 Oct: and its name (Honolulu -> Maui Hula Warriors). Nothing in the
+  // game renames a pool club, so the starter DB's name is the only one.
+  continental_pool_teams: ["primary_color", "secondary_color", "team_name"],
   // R-75: pool players' skin tones, on the same terms — nothing in the server
   // updates a pool player row, and the values come from
   // scripts/src/seed-pool-skin-tones.ts alone.
-  continental_pool_players: ["skin_tone"],
+  // Rob, 2 Oct: and her club and name (two players swapped, one renamed).
+  // Nothing in the game edits a pool player row (unlike `players`, whose name
+  // the Team page can edit), so these are safe to follow the starter DB.
+  continental_pool_players: ["skin_tone", "pool_team_id", "name"],
 };
 
 export type EnsureReferenceDataResult = {

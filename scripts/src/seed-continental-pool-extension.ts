@@ -185,11 +185,12 @@ const NEW_TEAMS: TeamDef[] = [
         speed: 79, power: 83, defense: 63, serve: 71, block: 67, stamina: 76,
         imageUrl: "/images/players/seniors/player_senior_portugal_01.webp",
       },
+      // Rob, 2 Oct: Aoife O'Sullivan and Yasmin Grech swapped clubs (stable ids kept).
       {
-        stableId: "EUR_09_P2",
-        name: "Aoife O'Sullivan", nationality: "Irish", age: 22,
-        speed: 75, power: 71, defense: 74, serve: 72, block: 70, stamina: 74,
-        imageUrl: "/images/players/seniors/player_senior_ireland_01.webp",
+        stableId: "EUR_10_P2",
+        name: "Yasmin Grech", nationality: "Maltese", age: 24,
+        speed: 68, power: 80, defense: 66, serve: 63, block: 85, stamina: 72,
+        imageUrl: "/images/players/seniors/player_senior_malta_01.webp",
       },
     ],
   },
@@ -205,11 +206,12 @@ const NEW_TEAMS: TeamDef[] = [
         speed: 75, power: 71, defense: 74, serve: 72, block: 70, stamina: 74,
         imageUrl: "/images/players/seniors/player_senior_malta_02.webp",
       },
+      // Rob, 2 Oct: Aoife O'Sullivan and Yasmin Grech swapped clubs (stable ids kept).
       {
-        stableId: "EUR_10_P2",
-        name: "Yasmin Grech", nationality: "Maltese", age: 24,
-        speed: 68, power: 80, defense: 66, serve: 63, block: 85, stamina: 72,
-        imageUrl: "/images/players/seniors/player_senior_malta_01.webp",
+        stableId: "EUR_09_P2",
+        name: "Aoife O'Sullivan", nationality: "Irish", age: 22,
+        speed: 75, power: 71, defense: 74, serve: 72, block: 70, stamina: 74,
+        imageUrl: "/images/players/seniors/player_senior_ireland_01.webp",
       },
     ],
   },

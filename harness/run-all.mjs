@@ -230,6 +230,7 @@ runSuite("calendar tick", path.join(REPO, "harness", "calendar-tick.mjs"));
 // disk, so a renamed mp3 would compile and go silent.
 console.log("\n########## 32/99  SOUNDTRACK PLAYLIST AND PLAYER (R-79) ##########");
 runSuite("music playlist", path.join(REPO, "harness", "music-playlist.mjs"));
+runSuite("reference corrections", path.join(REPO, "harness", "reference-corrections.mjs"));
 
 // L-02a: the three contract lengths, everyone covered, staff contracts that
 // actually end, and the payout when a club tears one up. Own DB and server.

@@ -26,6 +26,7 @@ import { applyMoneyPass } from "./utils/moneyPass.js";
 import { rerateOldProspects } from "./utils/youthProspects.js";
 import { alignYouthWages } from "./utils/youthWages.js";
 import { raiseHighestBalances } from "./utils/highestBalance.js";
+import { applyReferenceRenames } from "./utils/referenceRenames.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -210,6 +211,16 @@ try {
   if (aligned > 0) logger.info({ aligned }, "youth wages set to the academy wage for their talent");
 } catch (err) {
   logger.error({ err }, "aligning youth wages failed");
+}
+
+// Rob, 2 Oct (add-on): two AI players swap clubs, a player and a club renamed;
+// the reference rows came in through ensureReferenceData, this moves what the
+// careers stored (her contract, the names in old rows).
+try {
+  const r = applyReferenceRenames();
+  if (r.contractsMoved + r.namesChanged > 0) logger.info(r, "reference corrections applied to the saves");
+} catch (err) {
+  logger.error({ err }, "applying reference corrections failed");
 }
 
 // Overnight 1 Oct, N-45: the highest balance counts the starting balance and every balance since.
