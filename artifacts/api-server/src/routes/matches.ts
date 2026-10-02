@@ -1190,7 +1190,7 @@ export async function recordForfeit(
     // Afternoon 2 Oct, J-3: no sackings mid-season; he is out at its end.
     await db.update(careerSavesTable).set({ leavingReason: "dismissal" }).where(eq(careerSavesTable.id, careerSaveId));
     await db.insert(careerHistoryEntriesTable).values({ userId: req.user!.id, careerSaveId, type: "dismissal", clubName: team.name,
-      description: `The manager was sacked by ${team.name}: the club went ${days} days without two contracted players to put on the sand. He leaves at the end of the season.` });
+      description: `The manager was sacked by ${team.name}: the club went ${days} days without two contracted players to put on the sand. The manager leaves at the end of the season.` });
     dismissalClubName = team.name;
     fired = true;
   }
