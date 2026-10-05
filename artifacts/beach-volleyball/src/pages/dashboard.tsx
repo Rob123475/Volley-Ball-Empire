@@ -1370,6 +1370,8 @@ const NEWS_META: Record<string, { icon: string; label: string; pill: string; dot
   champion: { icon: "👑", label: "World Final", pill: "bg-amber-400/15 text-amber-300 border-amber-400/25",    dot: "bg-amber-400"  },
   olympic:  { icon: "🥇", label: "Olympics",    pill: "bg-orange-400/15 text-orange-300 border-orange-400/25", dot: "bg-orange-400" },
   academy:  { icon: "🌱", label: "Academy",     pill: "bg-emerald-400/15 text-emerald-300 border-emerald-400/25", dot: "bg-emerald-400" },
+  // Final brief 5 Oct, Part B: a member of staff off ill or hurt, and back.
+  staff:    { icon: "🩹", label: "Staff",       pill: "bg-rose-400/15 text-rose-300 border-rose-400/25",       dot: "bg-rose-400"   },
 };
 
 function gameDateLabel(date: string) {

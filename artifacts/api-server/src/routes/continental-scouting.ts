@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { academyMonthlySalary } from "../utils/academy.js";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db } from "@workspace/db";
+import { db, staffOnDuty } from "@workspace/db";
 import {
   teamsTable,
   financeTransactionsTable,
@@ -220,6 +220,12 @@ router.post("/continental-scouting/start", async (req, res) => {
   // Scouts must be sent (a mission used to go with no one, at rating 50).
   const scouts = (await loadStaff(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }))
     .filter((s) => normaliseRole(s.role) === "scout");
+  // Final brief 5 Oct, Part B: a Scout off ill or hurt cannot be sent.
+  const chosen = scouts.find((s) => s.id === Number(staffId));
+  if (chosen && !staffOnDuty(chosen)) {
+    res.status(409).json({ error: `${chosen.name} is off (back in ${chosen.offDaysLeft} day${chosen.offDaysLeft === 1 ? "" : "s"}): send another Scout, or wait.`, scoutOff: true });
+    return;
+  }
   if (!scouts.some((s) => s.id === Number(staffId))) {
     res.status(400).json({
       error: scouts.length === 0

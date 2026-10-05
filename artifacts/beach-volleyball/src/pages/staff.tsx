@@ -14,6 +14,7 @@ import {
 } from "@workspace/api-client-react";
 import { StaffPortrait } from "@/components/ui/staff-portrait";
 import { ContractRenewBar } from "@/components/contract-renew-bar";
+import { StaffOffBadge, onDuty } from "@/components/staff-off-badge";
 import { useCalendar } from "@/hooks/use-calendar";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -249,6 +250,7 @@ function StaffCard({
             <RoleIcon className="h-2.5 w-2.5" />
             {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
           </Badge>
+          <StaffOffBadge member={member} />
         </div>
 
         {/* Edit + Terminate buttons */}
@@ -532,7 +534,8 @@ function EmptySlot({ slotNumber }: { slotNumber: number }) {
 }
 
 function BonusPanel({ staff }: { staff: any[] }) {
-  const roleSet = new Set<string | null>(staff.map(s => normaliseRole(s.role)));
+  // Final brief 5 Oct, Part B: a member off ill or hurt gives no bonus.
+  const roleSet = new Set<string | null>(staff.filter(onDuty).map(s => normaliseRole(s.role)));
   const activeBonuses = Object.entries(BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role));
   const missingBonuses = Object.entries(BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role));
 

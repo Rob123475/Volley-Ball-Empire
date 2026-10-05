@@ -33,6 +33,11 @@ if (!fs.existsSync(SERVER)) {
 
 const results = [];
 
+// Final brief 5 Oct, Part B: staff go off ill or hurt at random. Every suite
+// but the one about it runs with that roll off, so a coach's flu cannot fail a
+// suite about something else (harness/staff-injuries.mjs turns it back on).
+process.env.VBE_STAFF_ABSENCES = "off";
+
 function runSuite(name, file) {
   const started = Date.now();
   const r = spawnSync(process.execPath, [file], { stdio: "inherit", cwd: REPO });
@@ -557,6 +562,11 @@ runSuite("staff portraits", path.join(REPO, "harness", "staff-portraits.mjs"));
 // graduate has one of her continent, none used twice in a career, every file there.
 console.log("\n########## 97b/99  ROB'S PICTURES FOR GRADUATES (FINAL A4) ##########");
 runSuite("player pictures", path.join(REPO, "harness", "player-pictures.mjs"));
+
+// Final brief 5 Oct, Part B: staff and medical staff off ill or hurt (their own
+// roll on: VBE_STAFF_ABSENCES is off for every other suite, above).
+console.log("\n########## 97c/99  STAFF OFF ILL OR HURT (FINAL PART B) ##########");
+runSuite("staff injuries", path.join(REPO, "harness", "staff-injuries.mjs"));
 
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 98/99  GAMEPLAY SMOKE ##########");

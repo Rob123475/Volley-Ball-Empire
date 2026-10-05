@@ -10132,7 +10132,7 @@ export const GetUpcomingEventsResponse = zod.object({
 export const GetClubNewsResponse = zod.object({
   "items": zod.array(zod.object({
   "id": zod.string().describe('<type>-<row id> — the match, contract, board review or trophy it was built from; champion-<season year> for a World Final; olympic-<season year> for an Olympic tournament; academy-<season year> for an academy intake.'),
-  "type": zod.enum(['result', 'signing', 'board', 'trophy', 'champion', 'olympic', 'academy']),
+  "type": zod.enum(['result', 'signing', 'board', 'trophy', 'champion', 'olympic', 'academy', 'staff']),
   "headline": zod.string(),
   "detail": zod.string(),
   "date": zod.string().describe('Game date (YYYY-MM-DD) it happened on.'),
