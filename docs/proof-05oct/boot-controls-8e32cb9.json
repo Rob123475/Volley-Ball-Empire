@@ -1,0 +1,19 @@
+{
+ "package": "C:\\build\\vbe-controls-05oct\\win-unpacked",
+ "dbCopy": "C:\\Users\\rbonn\\AppData\\Local\\Temp\\pkg-boot-lR0NqZ\\rob-02oct-copy.sqlite",
+ "serverUp": true,
+ "page": "200 app shell",
+ "unityData": "200 br 217010143",
+ "profiles": [
+  "Rob"
+ ],
+ "career": "Sydney Riptide, budget $247,731",
+ "gameDate": "2026-04-24",
+ "liveSaveUntouched": "unchanged (mtime)",
+ "builtFrom": "feat-manual-controls 8e32cb9 (Unity export of volleyball-unity 66ef4bf)",
+ "packagedUnity": {
+  "dataBrMd5": "1f5b912b1246… same as the branch",
+  "indexHtmlSendsSetControlMode": true,
+  "courtControlButtonInBundle": true
+ }
+}
