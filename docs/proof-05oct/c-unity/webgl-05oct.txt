@@ -4,10 +4,9 @@
 [WEB]   textureCompression      = NoOverride (left at default)
 [WEB]   scene   : Assets/BeachVolleyball V19.unity
 [WEB]   outDir  : C:\Users\rbonn\Game_Dev\VolleyBall Empire\webgl-out
-Build Finished, Result: Success.
 [WEB] 
 [WEB]   RESULT      : Succeeded
-[WEB]   total time  : 00:02:06.6457712
+[WEB]   total time  : 00:02:07.2901882
 [WEB]   total size  : 350.9 MB
 [WEB]   errors      : 1   warnings: 355
 [WEB] 
