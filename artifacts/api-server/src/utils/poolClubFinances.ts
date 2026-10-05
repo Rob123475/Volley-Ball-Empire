@@ -71,6 +71,14 @@ export const CLUBS_PER_CONTINENTAL_LEAGUE = 6;
 /** Every club in this world starts where an established career starts. */
 export const POOL_CLUB_STARTING_BALANCE = ESTABLISHED_STARTING_BUDGET;
 
+/**
+ * Rob, 5 Oct (Q-8): "the sale price clears all the club's debts". A club sold
+ * to new owners reopens on the standard reopening balance - what every club of
+ * this world opens on - whatever it owed, so it never reopens below $0. It can
+ * still lose money again afterwards, like any club.
+ */
+export const POOL_CLUB_REOPENING_BALANCE = POOL_CLUB_STARTING_BALANCE;
+
 /** The purse of every scheduled round, from the one schedule the game has. */
 const PURSE_BY_ROUND = new Map<number, number>(WORLD_TOUR.map((e) => [e.round, e.prize]));
 
@@ -504,11 +512,12 @@ export function sellBrokePoolClubsTx(
     // New owners. The club does not vanish - there are sixty in this world and
     // no more are written - it changes hands and opens on what any club of this
     // world opens on. The chain the rule reads breaks here of its own accord,
-    // because next season opens far above the one that sold it.
+    // because next season opens far above the one that sold it. The sale price
+    // clears every debt it had (Q-8): it reopens on the standard balance.
     tx.update(careerPoolTeamStateTable).set({
       soldAt:            new Date(),
       soldInSeason:      seasonYear,
-      balance:           POOL_CLUB_STARTING_BALANCE,
+      balance:           POOL_CLUB_REOPENING_BALANCE,
       sponsorReputation: SPONSOR_REP_BASELINE,
       isActiveInLeague:  false,
       updatedAt:         new Date(),

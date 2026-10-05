@@ -30,6 +30,8 @@
  *   the rule   at least one AI club is sold for five loss-making seasons in a
  *              row, and it is a club whose chain of openings really does fall
  *              five times
+ *   the sale   the sale price clears every debt: each sold club reopens on the
+ *              standard balance, never below $0 (Rob, 5 Oct, Q-8)
  *   the world  the club that is sold changes hands rather than vanishing, its
  *              place in its continent's league is taken by a club of that same
  *              continent, and every continent still has its six — which is what
@@ -377,8 +379,34 @@ try {
       `SELECT balance AS b, sold_in_season AS s FROM career_pool_team_state
         WHERE career_save_id = ? AND pool_team_id = ?`, careerSaveId, first.poolTeamId)[0];
     check("the club that was sold is still in the world, under new owners",
-      stillThere != null && Number(stillThere.b) > 0,
-      `${first.name} carries ${money(stillThere?.b ?? 0)} after changing hands`);
+      stillThere != null && stillThere.s != null,
+      `${first.name}, last sold in ${stillThere?.s}, carries ${money(stillThere?.b ?? 0)} now`);
+
+    // Rob, 5 Oct (Q-8): "the sale price clears all the club's debts". Every
+    // sale, read at the moment the club reopens: the season after the sale
+    // opens on the standard balance (the one every club of this world opened
+    // season 1 on), never below $0, whatever the club owed. After that it can
+    // lose money again like any club (2 Oct's -$61,196 was a balance read at
+    // the end of the run, seasons after the sale).
+    const standard = Number(read(
+      `SELECT season_start_balance AS b FROM pool_club_seasons WHERE career_save_id = ? ORDER BY season_year LIMIT 1`,
+      careerSaveId)[0]?.b);
+    const reopenings = sales.map((s) => {
+      const r = read(
+        `SELECT season_start_balance AS b FROM pool_club_seasons
+          WHERE career_save_id = ? AND pool_team_id = ? AND season_year = ?`,
+        careerSaveId, s.poolTeamId, s.seasonYear + 1)[0];
+      return { ...s, reopened: r == null ? null : Number(r.b) };
+    });
+    const wrong = reopenings.filter((s) => s.reopened == null || s.reopened !== standard || s.reopened < 0);
+    const indebted = reopenings.filter((s) => Number(s.balance) < 0);
+    check("every sold club's debts are cleared by the sale: it reopens on the standard balance, never below $0",
+      reopenings.length === sales.length && standard >= 0 && wrong.length === 0,
+      `${reopenings.length} sale(s), standard ${money(standard)}; ` +
+        (wrong.length
+          ? `WRONG: ${wrong.slice(0, 4).map((s) => `${s.name} ${s.seasonYear + 1} on ${s.reopened == null ? "nothing" : money(s.reopened)}`).join(" · ")}`
+          : `${indebted.length} owed money when sold, e.g. ` +
+            (indebted.slice(0, 3).map((s) => `${s.name} ${money(s.balance)} -> ${money(s.reopened)}`).join(" · ") || "none")));
   }
 
   // ── 6. The world still works ──────────────────────────────────────────────

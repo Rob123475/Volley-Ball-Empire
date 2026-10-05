@@ -79,11 +79,17 @@ function levelOfPoints(points: number) { return managerLevelFor(points); }
  * AI clubs' offers in the window, judged on his level and his season: every
  * club with a vacancy whose level he meets, and every club whose board wants
  * a better manager (its AI manager on a failed season) whose level he meets.
- * Nothing when his own season failed. Declined offers are not made again.
+ * Declined offers are not made again.
+ *
+ * Rob, 5 Oct (Q-4): a failed season means fewer offers, not none. Up to
+ * MAX_OFFERS after a season that wasn't failed; after a failed one, half the
+ * clubs that would have come for him (rounded up, so never none while any
+ * would), at most FAILED_SEASON_MAX_OFFERS, and they are the weaker ones.
  */
+export const MAX_OFFERS = 4;
+export const FAILED_SEASON_MAX_OFFERS = 2;
 export function offersTx(tx: Parameters<Parameters<typeof db.transaction>[0]>[0], careerSaveId: number, seasonYear: number,
   managerName: string, repPoints: number, seasonFailed: boolean, declined: number[]): Offer[] {
-  if (seasonFailed) return [];
   const level = levelOfPoints(repPoints);
   const ratings = poolClubRatingsTx(tx, careerSaveId);
   const names = new Map(tx.select({ id: continentalPoolTeamsTable.id, n: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).all().map((t) => [t.id, t.n]));
@@ -101,7 +107,10 @@ export function offersTx(tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
     out.push({ poolTeamId: c.poolTeamId, name: names.get(c.poolTeamId) ?? "", rating,
       why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind her) and offers you the job.` });
   }
-  return out.sort((a, b) => b.rating - a.rating || a.poolTeamId - b.poolTeamId).slice(0, 4);
+  const best = (a: Offer, b: Offer) => b.rating - a.rating || a.poolTeamId - b.poolTeamId;
+  if (!seasonFailed) return out.sort(best).slice(0, MAX_OFFERS);
+  const fewer = Math.min(FAILED_SEASON_MAX_OFFERS, Math.ceil(out.length / 2));
+  return out.sort((a, b) => best(b, a)).slice(0, fewer).sort(best);
 }
 
 /**
