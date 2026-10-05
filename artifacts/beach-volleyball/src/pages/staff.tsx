@@ -250,7 +250,6 @@ function StaffCard({
             <RoleIcon className="h-2.5 w-2.5" />
             {ROLE_LABELS[normaliseRole(member.role) ?? ""] ?? member.role}
           </Badge>
-          <StaffOffBadge member={member} />
         </div>
 
         {/* Edit + Terminate buttons */}
@@ -450,6 +449,7 @@ function StaffCard({
       </div>
 
       <CardContent className="p-4 space-y-3">
+        <StaffOffBadge member={member} />
         {/* L-02a: when the deal ends, and the three lengths it can be renewed for. */}
         <ContractRenewBar
           staffId={member.id}

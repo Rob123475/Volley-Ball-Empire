@@ -11,7 +11,7 @@ export function StaffOffBadge({ member }: { member: { offCause?: string | null; 
   return (
     <div
       data-testid="staff-off-badge"
-      className="mt-1 inline-flex items-center rounded-md bg-rose-600/90 px-2 py-0.5 text-[10px] font-bold text-white shadow"
+      className="flex w-full items-center justify-center rounded-md bg-rose-600/90 px-2 py-1 text-xs font-bold text-white shadow"
       title="Off ill or hurt: their bonus does not apply until they are back."
     >
       {text}

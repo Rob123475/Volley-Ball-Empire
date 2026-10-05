@@ -304,7 +304,6 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
             <RoleIcon className="h-2.5 w-2.5" />
             {roleLabel}
           </Badge>
-          <StaffOffBadge member={member} />
         </div>
 
         <AlertDialog>
@@ -344,6 +343,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
       </div>
 
       <CardContent className="p-4 space-y-3">
+        <StaffOffBadge member={member} />
         {/* L-02a: medical contracts end and are renewed like any other. */}
         <ContractRenewBar
           staffId={member.id}
