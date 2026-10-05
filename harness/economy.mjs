@@ -153,12 +153,16 @@ async function runOne(spec) {
           const summary = (await api("GET", "/finances/summary")).data ?? null;
           const seasonFrom = summary?.periods?.season?.from, today = summary?.periods?.season?.to;
           if (summary && seasonFrom) {
+            // Final brief 5 Oct: on this branch a manager whose club is sold
+            // moves to another club and plays on (the job market), so the
+            // summary is the club he manages now, and so is the ledger read.
+            const nowTeamId = (await api("GET", "/team")).data?.id ?? teamId;
             finances = {
               summary,
               ledger: Number(read(
                 `SELECT COALESCE(SUM(amount), 0) AS total FROM finance_transactions
                   WHERE team_id = ? AND type = 'expense' AND category = 'running_costs' AND date >= ? AND date <= ?`,
-                teamId, seasonFrom, today)[0]?.total ?? 0),
+                nowTeamId, seasonFrom, today)[0]?.total ?? 0),
             };
           }
         }
