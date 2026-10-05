@@ -28,6 +28,7 @@ import { alignYouthWages } from "./utils/youthWages.js";
 import { raiseHighestBalances } from "./utils/highestBalance.js";
 import { applyReferenceRenames } from "./utils/referenceRenames.js";
 import { assignGraduatePortraitsAtBoot } from "./utils/graduatePortraits.js";
+import { giveAiSeniorsTheirPictures } from "./utils/aiSeniorPortraits.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -231,6 +232,13 @@ try {
 } catch (err) {
   logger.error({ err }, "giving graduate pictures failed");
 }
+
+// Final brief 5 Oct, A4 (try): an AI club senior made a career player before
+// Rob's pictures existed is given hers (the pool's card came in with the
+// reference sync above).
+giveAiSeniorsTheirPictures()
+  .then((n) => { if (n > 0) logger.info({ given: n }, "AI club seniors given their pictures"); })
+  .catch((err) => logger.error({ err }, "giving AI club seniors their pictures failed"));
 
 // Overnight 1 Oct, N-45: the highest balance counts the starting balance and every balance since.
 try {

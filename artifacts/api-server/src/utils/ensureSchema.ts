@@ -401,7 +401,9 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
   // Rob, 2 Oct: and her club and name (two players swapped, one renamed).
   // Nothing in the game edits a pool player row (unlike `players`, whose name
   // the Team page can edit), so these are safe to follow the starter DB.
-  continental_pool_players: ["skin_tone", "pool_team_id", "name"],
+  // Final brief 5 Oct, A4: and her card (Rob's pictures for the AI clubs'
+  // players). Nothing in the game edits a pool player's card either.
+  continental_pool_players: ["skin_tone", "pool_team_id", "name", "image_url"],
 };
 
 export type EnsureReferenceDataResult = {
