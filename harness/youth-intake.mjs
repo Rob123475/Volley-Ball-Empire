@@ -311,10 +311,19 @@ try {
   check("and every graduate it let go left no contract open behind her",
     looseDeals.length === 0, looseDeals.map((p) => p.name).join(", ") || `${letGo.length} released cleanly`);
   const RANGE = { speed: [44, 64], power: [34, 74], defense: [34, 64], serve: [36, 68], block: [32, 76], stamina: [40, 66], height: [163, 193] };
-  const outOfRange = players.filter((p) => Object.entries(RANGE).some(([k, [lo, hi]]) => p[k] < lo || p[k] > hi));
+  // Overnight N-44: about 1 youth in 100 is super-gifted, every stat drawn
+  // around 72 (66-80, utils/youthIntake.ts SUPER_GIFTED_STATS), so she is
+  // outside the shipped youth's range on purpose. Final brief 5 Oct (A5): the
+  // check knew nothing of her, and failed whenever one turned up in its twelve.
+  const STATS = ["speed", "power", "defense", "serve", "block", "stamina"];
+  const gifted = (p) => STATS.every((k) => p[k] >= 66 && p[k] <= 80);
+  const outOfRange = players.filter((p) => gifted(p)
+    ? p.height < RANGE.height[0] || p.height > RANGE.height[1]
+    : Object.entries(RANGE).some(([k, [lo, hi]]) => p[k] < lo || p[k] > hi));
   const avg = (k) => (players.reduce((a, p) => a + p[k], 0) / players.length).toFixed(1);
-  check("every rating inside the range the shipped youth span",
-    outOfRange.length === 0, outOfRange.map((p) => p.name).join(", ") || `means: ${Object.keys(RANGE).map((k) => `${k} ${avg(k)}`).join(", ")}`);
+  check("every rating inside the range the shipped youth span (a super-gifted youth inside hers, 66-80)",
+    outOfRange.length === 0, outOfRange.map((p) => p.name).join(", ") ||
+      `means: ${Object.keys(RANGE).map((k) => `${k} ${avg(k)}`).join(", ")}; super-gifted: ${players.filter(gifted).map((p) => p.name).join(", ") || "none"}`);
 
   const region = continentKeyForNationality(CLUB_COUNTRY);
   const regionNations = CORE_NATIONS[region];

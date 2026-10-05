@@ -346,6 +346,10 @@ export function youthFactoryTx(
   const spareFaces = sparePortraitsTx(tx, careerSaveId);
   const usedRetirementNames: number[] = [];
   const usedRetirementFaces: number[] = [];
+  /** Somebody in this career (on its books, or retired and honoured) has this name now. */
+  const nameInUse = (n: string) => !!tx.select({ id: careerPlayerStateTable.id }).from(careerPlayerStateTable)
+    .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+    .where(and(eq(careerPlayerStateTable.careerSaveId, careerSaveId), eq(playersTable.name, n))).get();
 
   return {
     make(at) {
@@ -359,16 +363,25 @@ export function youthFactoryTx(
       if (!nationality) return null;
 
       // A name that belonged to somebody first, while there is one.
+      // Final brief 5 Oct (A5): never one somebody in this career already
+      // wears. The retirements list can hold a name twice (two athletes of one
+      // name), and a name pool built before another factory in the same
+      // rollover made its youths can offer one it just gave out; the academy
+      // intake suite caught two "Sofía Rodríguez" in one career. A name passed
+      // over is still stamped as offered.
       const inherited = reusableNames.get(nationName(nationality) ?? nationality);
-      let name: string;
-      if (inherited && inherited.length > 0) {
+      let name: string | null = null;
+      while (name == null && inherited && inherited.length > 0) {
         const taken = inherited.shift()!;
         usedRetirementNames.push(taken.id);
-        name = taken.name;
-      } else {
-        const available = names.get(nationality)!;
-        name = available.splice(Math.floor(Math.random() * available.length), 1)[0]!;
+        if (!nameInUse(taken.name)) name = taken.name;
       }
+      const available = names.get(nationality) ?? [];
+      while (name == null && available.length > 0) {
+        const next = available.splice(Math.floor(Math.random() * available.length), 1)[0]!;
+        if (!nameInUse(next)) name = next;
+      }
+      if (name == null) return null;
       const age = INTAKE_AGE_MIN + Math.floor(Math.random() * (INTAKE_AGE_MAX - INTAKE_AGE_MIN + 1));
       const s = SEEDED_YOUTH_STATS;
       // N-44: the one rule for a new youth's stats, the 1-in-100 super-gifted included.
