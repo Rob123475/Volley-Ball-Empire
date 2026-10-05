@@ -1,0 +1,84 @@
+{
+  "steps": [
+    {
+      "label": "the card is on the dashboard before the first match",
+      "ok": true,
+      "detail": "server: grow-your-squad, upgrade-training_complex, upgrade-medical_centre, upgrade-gymnasium"
+    },
+    {
+      "label": "Next match, then Watch Match in the MATCH DAY box",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the court page opened",
+      "ok": true,
+      "detail": "http://localhost:4207/court?matchId=1"
+    },
+    {
+      "label": "the match played to its end on the court; Continue in the result box went back to the dashboard",
+      "ok": true,
+      "detail": "after 504s; match {\"id\":1,\"status\":\"completed\",\"h\":2,\"a\":0,\"sets\":\"[{\\\"home\\\":11,\\\"away\\\":9},{\\\"home\\\":11,\\\"away\\\":3}]\"}"
+    },
+    {
+      "label": "after the watched match: the card on screen / after a reload / sent by the server",
+      "ok": true,
+      "detail": "on screen true; after reload true; server true (grow-your-squad, upgrade-training_complex, upgrade-medical_centre, upgrade-gymnasium)"
+    }
+  ],
+  "errors": [],
+  "squadBefore": [
+    {
+      "name": "Camila Santiago",
+      "role": "interchange",
+      "active": 1,
+      "inj": "Healthy"
+    },
+    {
+      "name": "Yaritza Mendez",
+      "role": "starter",
+      "active": 1,
+      "inj": "Healthy"
+    },
+    {
+      "name": "Nyasha Ncube",
+      "role": "starter",
+      "active": 1,
+      "inj": "Healthy"
+    }
+  ],
+  "continuePresses": 1,
+  "matchSeconds": 504,
+  "panelAfter": "Attention Required\n4\nGrow Your Squad\nInfo\n\nYou're starting with the bare minimum to compete — visit the Player Market to sign more players.\n\nGo to Squad\nUpgrade Ready: Training Centre\nInfo\n\nLevel 1 → 2 for $20,000\n\nGo to Facilities\nUpgrade Ready: Medical Centre\nInfo\n\nLevel 1 → 2 for $20,000\n\nGo to Facilities\nUpgrade Ready: Gymnasium\nInfo\n\nLevel 1 → 2 for $20,000\n\nGo to Facilities",
+  "squadAfter": [
+    {
+      "name": "Camila Santiago",
+      "role": "interchange",
+      "active": 1,
+      "inj": "Healthy"
+    },
+    {
+      "name": "Yaritza Mendez",
+      "role": "starter",
+      "active": 1,
+      "inj": "Healthy"
+    },
+    {
+      "name": "Nyasha Ncube",
+      "role": "starter",
+      "active": 1,
+      "inj": "Healthy"
+    }
+  ],
+  "result": {
+    "before": true,
+    "after": true,
+    "afterReload": true,
+    "serverItems": [
+      "grow-your-squad",
+      "upgrade-training_complex",
+      "upgrade-medical_centre",
+      "upgrade-gymnasium"
+    ]
+  }
+}
