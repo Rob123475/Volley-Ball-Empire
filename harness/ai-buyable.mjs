@@ -19,6 +19,9 @@
  *      club between two and three players, and no player moved on again
  *      within the season she joined (no back-and-forth).
  *   6. A whole season played: no AI club is ever short of two.
+ *   7. A club retirement leaves with nobody, no youth and $0 signs the
+ *      cheapest free agents on credit at the week's turn; with nobody in the
+ *      world to sign, it forfeits and the game goes on (final brief 5 Oct).
  *
  * Usage: node harness/ai-buyable.mjs
  */
@@ -205,6 +208,60 @@ try {
   }
   check("the season ran to the next one", rolled, `${steps} steps, ${year0} -> ${q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0]?.year}${rolled ? "" : `; last reply ${JSON.stringify(lastReply).slice(0, 200)}`}`);
   check("no AI club was ever short of two", shortest >= 2, `smallest squad seen: ${shortest}`);
+
+  // Final brief 5 Oct, found by the full harness: in season 20 of a long
+  // career retirement left a broke AI club with nobody and no youth, and the
+  // regional league stopped the game ("has a club with no rated players").
+  console.log("\n7. A CLUB RETIREMENT LEAVES WITH NOBODY");
+  const fx = q(`SELECT f.id, f.home_pool_team_id AS h, f.away_pool_team_id AS a FROM regional_league_fixtures f
+      JOIN career_pool_team_state s ON s.career_save_id = f.career_save_id AND s.pool_team_id = f.home_pool_team_id AND s.taken_over_at IS NULL
+      WHERE f.career_save_id = ? AND f.status = 'scheduled' ORDER BY f.round, f.id LIMIT 1`, cid)[0];
+  check("a regional fixture is still to play this season", !!fx, fx ? `fixture ${fx.id}` : "none scheduled");
+  const empty = fx.h;
+  const emptyName = q(`SELECT team_name AS n FROM continental_pool_teams WHERE id = ?`, empty)[0].n;
+  const retireClub = () => {
+    w(`UPDATE career_player_state SET is_retired = 1 WHERE career_save_id = ? AND pool_team_id = ? AND team_id IS NULL`, cid, empty);
+    w(`UPDATE pool_player_contracts SET status = 'moved' WHERE career_save_id = ? AND pool_team_id = ? AND status = 'active'`, cid, empty);
+  };
+  retireClub();
+  w(`UPDATE career_pool_team_state SET balance = 0 WHERE career_save_id = ? AND pool_team_id = ?`, cid, empty);
+  check("set up: every player and youth of the club retired, and its bank at $0", (squadSizes(cid).get(empty) ?? 0) === 0 && balanceOf(cid, empty) === 0, emptyName);
+  const tickNow = () => q(`SELECT last_salary_date AS t FROM calendar_state WHERE team_id = ?`, team.id)[0]?.t;
+  const tick0 = tickNow();
+  let errors = [];
+  for (let i = 0; i < 10 && tickNow() === tick0; i++) {
+    const r = await day();
+    if (r.status >= 400) errors.push(`HTTP ${r.status}`);
+  }
+  const signedNow = q(`SELECT p.name, cps.salary FROM career_player_state cps JOIN players p ON p.id = cps.player_id
+      WHERE cps.career_save_id = ? AND cps.pool_team_id = ? AND cps.team_id IS NULL AND cps.is_retired = 0
+        AND (p.player_type = 'senior' OR cps.is_promoted = 1)`, cid, empty);
+  check("at the week's turn it has two to play again: it signed the cheapest free agents, on credit", signedNow.length >= 2 && errors.length === 0,
+    `${emptyName}: ${signedNow.map((s) => `${s.name} (${$(s.salary)} a month)`).join(", ")}; bank ${$(balanceOf(cid, empty))}${errors.length ? `; ${errors.join(", ")}` : ""}`);
+
+  // Nobody at all to sign: every free agent in the world retired too, every day.
+  const retireFreeAgents = () => w(`UPDATE career_player_state SET is_retired = 1 WHERE career_save_id = ? AND team_id IS NULL AND pool_team_id IS NULL
+      AND is_retired = 0 AND (is_promoted = 1 OR player_id IN (SELECT id FROM players WHERE player_type = 'senior'))`, cid);
+  const wtDoneBefore = new Set(q(`SELECT id FROM world_tour_fixtures WHERE career_save_id = ? AND status = 'completed'`, cid).map((r) => r.id));
+  let played = null, wtForfeits = 0, wtOthers = 0;
+  errors = [];
+  for (let i = 0; i < 200 && !played; i++) {
+    retireClub(); retireFreeAgents();
+    const r = await day();
+    if (r.status >= 400) errors.push(`HTTP ${r.status}: ${JSON.stringify(r.data).slice(0, 160)}`);
+    played = q(`SELECT f.home_score AS hs, f.away_score AS aws, r.winner_id AS winner FROM regional_league_fixtures f
+        LEFT JOIN regional_league_results r ON r.fixture_id = f.id WHERE f.id = ? AND f.status = 'completed'`, fx.id)[0] ?? null;
+  }
+  check("with nobody in the world to sign, the game goes on (no error on any day)", errors.length === 0, errors.slice(0, 2).join(" | ") || "every day advanced");
+  check("its regional match is a forfeit, the other club winning 2-0", played?.hs === 0 && played?.aws === 2 && played?.winner === fx.a,
+    played ? `${emptyName} ${played.hs}-${played.aws}` : "not played within 200 days");
+  for (const f of q(`SELECT wf.id, wf.home_sets AS hs, wf.away_sets AS aws, hc.pool_team_id AS hp, ac.pool_team_id AS ap FROM world_tour_fixtures wf
+      JOIN competitors hc ON hc.id = wf.home_competitor_id JOIN competitors ac ON ac.id = wf.away_competitor_id
+      WHERE wf.career_save_id = ? AND wf.status = 'completed' AND (hc.pool_team_id = ? OR ac.pool_team_id = ?)`, cid, empty, empty)) {
+    if (wtDoneBefore.has(f.id)) continue;
+    if ((f.hp === empty && f.hs === 0 && f.aws === 2) || (f.ap === empty && f.hs === 2 && f.aws === 0)) wtForfeits++; else wtOthers++;
+  }
+  console.log(`  REPORT  its World Tour matches in that time: ${wtForfeits} forfeit(s), ${wtOthers} other(s)`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

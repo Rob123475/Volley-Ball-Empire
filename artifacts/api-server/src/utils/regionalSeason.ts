@@ -398,13 +398,15 @@ export async function simulateRegionalRound(
     for (const fixture of fixtures) {
       const homeRating = ratingByTeamId.get(fixture.homePoolTeamId);
       const awayRating = ratingByTeamId.get(fixture.awayPoolTeamId);
-      // No invented 70: a club with no rated players is broken data, not an
-      // average side.
+      // No invented 70: a club with no rated players is not an average side.
       // Daytime 2 Oct, U-3: a club the player has taken over mid-season has left
       // the AI world with its players (routes/job-market.ts): its remaining
       // regional fixtures are forfeits, the other side winning 2-0 (21-0, 21-0).
+      // Final brief 5 Oct: so does a club left with nobody to play when there is
+      // not one free agent in the world to sign (utils/aiSquads.ts), until it
+      // has two again; the season goes on.
       const left = (id: number) => takenOver.has(id);
-      if ((homeRating == null && left(fixture.homePoolTeamId)) || (awayRating == null && left(fixture.awayPoolTeamId))) {
+      if (homeRating == null || awayRating == null) {
         const homeWins = homeRating != null && !left(fixture.homePoolTeamId);
         insertLeagueResult(careerSaveId, {
           fixtureId: fixture.id, winnerId: homeWins ? fixture.homePoolTeamId : fixture.awayPoolTeamId,
@@ -413,9 +415,6 @@ export async function simulateRegionalRound(
         });
         setFixtureResult(careerSaveId, fixture.id, { status: "completed", homeScore: homeWins ? 2 : 0, awayScore: homeWins ? 0 : 2 });
         continue;
-      }
-      if (homeRating == null || awayRating == null) {
-        throw new Error(`Regional fixture ${fixture.id} has a club with no rated players`);
       }
       const result = simulateFixtureResult(homeRating, awayRating);
 

@@ -301,9 +301,20 @@ export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: st
       if (fa) { signToAiClub(w, careerSaveId, poolTeamId, fa.id, fa.rating, today, seasonEnds); signed++; continue; }
       // No free agent it can pay: its own academy's best youth steps up.
       const youth = academyBestTx(w.tx, careerSaveId, poolTeamId);
-      if (!youth) { short++; break; }
-      w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
-      signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
+      if (youth) {
+        w.setPlayerState(careerSaveId, youth.id, { isPromoted: true, academyRole: null });
+        signToAiClub(w, careerSaveId, poolTeamId, youth.id, youth.rating, today, seasonEnds);
+        signed++;
+        continue;
+      }
+      // Final brief 5 Oct (found by the full harness, season 20 of a long
+      // career): retirement can leave a broke club with nobody and no youth.
+      // Two on the sand comes first, so it signs the cheapest free agent there
+      // is, on credit: her wage goes on its books like any other, five
+      // loss-making seasons sell it, and the sale clears its debts.
+      const cheapest = freeAgentsTx(w.tx, careerSaveId).at(-1);
+      if (!cheapest) { short++; break; }
+      signToAiClub(w, careerSaveId, poolTeamId, cheapest.id, cheapest.rating, today, seasonEnds);
       signed++;
     }
   }

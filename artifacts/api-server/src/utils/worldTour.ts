@@ -38,7 +38,7 @@ import {
   matchLiveStateTable,
 } from "@workspace/db";
 import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
-import { sideRating, pointProbability, simulateMatch, type SetScore } from "./matchEngine.js";
+import { sideRating, pointProbability, simulateMatch, type SetScore, type MatchResult } from "./matchEngine.js";
 import { aiClubRatingsTx } from "./aiSquads.js";
 import { creditCompetitorTx } from "./rankingPoints.js";
 import { competitorIdForTeamTx, competitorIdForPoolTeamTx } from "./competitors.js";
@@ -396,15 +396,20 @@ export function playWorldTourUpToTx(
     const awayPool = poolOf.get(fx.awayCompetitorId);
     const home = homePool != null ? ratings.get(homePool) : undefined;
     const away = awayPool != null ? ratings.get(awayPool) : undefined;
-    if (home == null || away == null) {
-      throw new Error(`World Tour fixture ${fx.id} has a side that is not a rated pool club`);
+    if (homePool == null || awayPool == null) {
+      throw new Error(`World Tour fixture ${fx.id} has a side that is not a pool club`);
     }
 
-    const p = pointProbability(home, away, {
+    // Final brief 5 Oct: a club left with nobody to play, when there is not one
+    // free agent in the world to sign (utils/aiSquads.ts), forfeits 11-0 11-0.
+    const walkover = (homeWon: boolean): MatchResult => ({
+      homeScore: homeWon ? 2 : 0, awayScore: homeWon ? 0 : 2, homeWon,
+      sets: [0, 1].map(() => (homeWon ? { home: 11, away: 0 } : { home: 0, away: 11 })),
+    });
+    const result = home == null || away == null ? walkover(home != null) : simulateMatch(pointProbability(home, away, {
       homeAdvantage:  true,
       weatherPenalty: weatherPenaltyByRound.get(fx.round) ?? 0,
-    });
-    const result = simulateMatch(p);
+    }));
     const points = totalPoints(result.sets);
 
     tx.update(worldTourFixturesTable).set({
