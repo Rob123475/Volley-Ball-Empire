@@ -1,0 +1,1837 @@
+$ pnpm run typecheck && pnpm -r --if-present run build && pnpm run sync:public && pnpm run test:harness
+$ pnpm run check:writes && pnpm run check:starter-db && pnpm run check:continents && pnpm run check:roster && pnpm run check:captions && pnpm run check:image-formats && pnpm run check:build-env && pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+$ node scripts/check-write-boundaries.cjs
+[check-write-boundaries] OK - no raw writes or untyped update objects outside lib/playerDto.ts
+$ node scripts/check-starter-db.cjs
+[check-starter-db] OK - shipped database matches the model (56 tables, 276 players, 120 staff)
+$ node scripts/check-continents.cjs
+[check-continents] canonical keys: north_america, south_america, europe, asia, africa_middle_east, oceania
+[check-continents] 11 continent column(s) in volleyball-empire.sqlite
+
+  continental_pool_teams.continent  "south_america"=10  "oceania"=10  "north_america"=10  "europe"=10  "asia"=10  "africa_middle_east"=10
+  matches.continent  (empty)
+  regional_league_seasons.continent  (empty)
+  teams.youth_scouting_continent  (empty)
+  trophies.continent  (empty)
+  world_tour_qualifications.continent  (empty)
+  youth_prospects.continent  (empty)
+  players.continent  "europe"=52  "oceania"=48  "asia"=46  "north_america"=44  "south_america"=43  "africa_middle_east"=43
+  club_templates.continent  "oceania"=3  "north_america"=2  "europe"=2  "asia"=2  "south_america"=1
+  player_retirements.continent  (empty)
+  career_graduate_portraits.continent  (empty)
+
+[check-continents] club templates: 10 clubs across 5/6 regions
+    north_america        2
+    south_america        1
+    europe               2
+    asia                 2
+    africa_middle_east   0
+    oceania              3
+
+  NOTE: no club template in africa_middle_east. The picker will show 5 regions, not 6. That is a content gap, not a bug —
+        add a club template for that region if all 6 should be selectable.
+[check-continents] 6 nationality column(s), 20 known demonym(s)
+
+[check-continents] OK — every continent value is a canonical key,
+                   and every nationality is a country name.
+$ node scripts/check-roster.cjs
+[check-roster] declared: 6 regions x 10 nations x 3 players  (+5 reserve nations)
+    north_america         30 seniors   12 youth
+    south_america         30 seniors   12 youth
+    europe                39 seniors   12 youth
+    asia                  33 seniors   12 youth
+    africa_middle_east    30 seniors   12 youth
+    oceania               30 seniors   12 youth
+    reserve (not counted): Maldives=3  Malta=3  Russia=3  Ireland=3  Monaco=1
+
+[check-roster] OK — the database matches the declared world.
+$ node scripts/check-captions.cjs
+[check-captions] 204 senior/spare rows, 204 audited cards
+
+[check-captions] OK - every row matches the caption printed on its card, and no artwork has changed since it was read.
+$ node scripts/check-image-formats.cjs
+[check-image-formats] 531 images under artifacts\beach-volleyball\public\images, 25.8 MB
+[check-image-formats] OK - every image's extension matches its actual format.
+$ node scripts/check-build-env.mjs
+[check-build-env] beach-volleyball
+[check-build-env]   ok    builds with PORT unset
+[check-build-env]   ok    still refuses to serve without PORT
+[check-build-env]   ok    honours a valid PORT when serving
+[check-build-env] mockup-sandbox
+[check-build-env]   ok    builds with PORT unset
+[check-build-env]   ok    still refuses to serve without PORT
+[check-build-env]   ok    honours a valid PORT when serving
+[check-build-env] OK - build needs no PORT, serve still demands one
+$ tsc --build
+Scope: 4 of 10 workspace projects
+artifacts/api-server typecheck$ tsc -p tsconfig.json --noEmit
+artifacts/beach-volleyball typecheck$ tsc -p tsconfig.json --noEmit
+scripts typecheck$ tsc -p tsconfig.json --noEmit
+artifacts/mockup-sandbox pretypecheck$ pnpm run generate:mockups
+artifacts/mockup-sandbox pretypecheck: $ node generateMockupModule.mjs
+artifacts/mockup-sandbox pretypecheck: [mockup-components] up to date src/.generated/mockup-components.ts
+artifacts/mockup-sandbox pretypecheck: Done
+artifacts/mockup-sandbox typecheck$ tsc -p tsconfig.json --noEmit
+scripts typecheck: Done
+artifacts/mockup-sandbox typecheck: Done
+artifacts/api-server typecheck: Done
+artifacts/beach-volleyball typecheck: Done
+Scope: 9 of 10 workspace projects
+artifacts/mockup-sandbox prebuild$ pnpm run generate:mockups
+artifacts/mockup-sandbox prebuild: $ node generateMockupModule.mjs
+artifacts/mockup-sandbox prebuild: [mockup-components] up to date src/.generated/mockup-components.ts
+artifacts/mockup-sandbox prebuild: Done
+artifacts/mockup-sandbox build$ vite build
+artifacts/mockup-sandbox build: [36mvite v7.3.3 [32mbuilding client environment for production...[36m[39m
+artifacts/mockup-sandbox build: transforming...
+artifacts/mockup-sandbox build: [32m✓[39m 30 modules transformed.
+artifacts/mockup-sandbox build: rendering chunks...
+artifacts/mockup-sandbox build: computing gzip size...
+artifacts/mockup-sandbox build: [2mdist/[22m[32mindex.html                 [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:  1.24 kB[22m
+artifacts/mockup-sandbox build: [2mdist/[22m[35massets/index-Dg2CSGop.css  [39m[1m[2m 89.62 kB[22m[1m[22m[2m │ gzip: 14.86 kB[22m
+artifacts/mockup-sandbox build: [2mdist/[22m[36massets/index-BS5CpR-e.js   [39m[1m[2m187.72 kB[22m[1m[22m[2m │ gzip: 59.51 kB[22m
+artifacts/mockup-sandbox build: [32m✓ built in 493ms[39m
+artifacts/mockup-sandbox build: Done
+artifacts/api-server build$ node ./build.mjs
+artifacts/api-server build:   dist\index.mjs                   3.4mb
+artifacts/api-server build:   dist\pino-worker.mjs           153.4kb
+artifacts/api-server build:   dist\pino-file.mjs             142.1kb
+artifacts/api-server build:   dist\pino-pretty.mjs           114.6kb
+artifacts/api-server build:   dist\thread-stream-worker.mjs    7.3kb
+artifacts/api-server build:   ...and 5 more output files...
+artifacts/api-server build: Done in 283ms
+artifacts/api-server build: [check-write-boundaries] OK - no raw writes or untyped update objects outside lib/playerDto.ts
+artifacts/api-server build: ================================================================
+artifacts/api-server build:   BUILD OK - bundle written and all external deps vendored
+artifacts/api-server build: ================================================================
+artifacts/api-server build: Done
+artifacts/beach-volleyball build$ vite build --config vite.config.ts
+artifacts/beach-volleyball build: [36mvite v7.3.3 [32mbuilding client environment for production...[36m[39m
+artifacts/beach-volleyball build: transforming...
+artifacts/beach-volleyball build: [33msrc/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [33msrc/components/ui/avatar.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [33msrc/components/ui/progress.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [33msrc/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [33msrc/components/ui/label.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [33msrc/components/ui/collapsible.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [33msrc/components/ui/sheet.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m
+artifacts/beach-volleyball build: [32m✓[39m 2267 modules transformed.
+artifacts/beach-volleyball build: rendering chunks...
+artifacts/beach-volleyball build: computing gzip size...
+artifacts/beach-volleyball build: [2mdist/public/[22m[32mindex.html                 [39m[1m[2m    1.72 kB[22m[1m[22m[2m │ gzip:   0.63 kB[22m
+artifacts/beach-volleyball build: [33m
+artifacts/beach-volleyball build: (!) Some chunks are larger than 500 kB after minification. Consider:
+artifacts/beach-volleyball build: - Using dynamic import() to code-split the application
+artifacts/beach-volleyball build: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+artifacts/beach-volleyball build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+artifacts/beach-volleyball build: [2mdist/public/[22m[35massets/index-DKb08e2y.css  [39m[1m[2m  270.92 kB[22m[1m[22m[2m │ gzip:  35.06 kB[22m
+artifacts/beach-volleyball build: [2mdist/public/[22m[36massets/index-DJHmvLyR.js   [39m[1m[33m1,302.61 kB[39m[22m[2m │ gzip: 350.52 kB[22m
+artifacts/beach-volleyball build: [32m✓ built in 4.08s[39m
+artifacts/beach-volleyball build: Done
+$ node scripts/sync-public.cjs
+[sync-public] OK - 739 files -> artifacts/api-server/dist/public
+$ node harness/run-all.mjs
+
+########## 1/99  GUARD SELF-TEST ##########
+
+1. WRITE-BOUNDARY GUARD — one known-bad input per rule
+  PASS  raw write to playersTable
+  PASS  raw write inside a transaction (tx.)
+  PASS  untyped update object (: any)
+  PASS  untyped update object (Record<string, unknown>)
+  PASS  as-cast onto a career-state patch
+  PASS  raw query against a regional_league table
+  PASS  raw write to a regional_league table
+  PASS  raw SQL: players moved column, column BEFORE table
+  PASS  raw SQL: players moved column, table BEFORE column
+  PASS  raw SQL: players.team_id, column BEFORE table
+  PASS  raw SQL: players.team_id, table BEFORE column
+  PASS  raw SQL: staff moved column, column BEFORE table
+  PASS  raw SQL: staff moved column, table BEFORE column
+  PASS  raw SQL: pool team state, column BEFORE table
+  PASS  raw SQL: pool team state, table BEFORE column
+  PASS  raw SQL: pool player age, column BEFORE table
+  PASS  raw SQL: pool player age, table BEFORE column
+  PASS  clean tree is accepted (no false positive)
+
+2. CASCADE DRIFT CHECK — careerSaveId table missing from deleteProfile
+  PASS  unhandled career-scoped table is rejected
+  PASS  handled career-scoped table is accepted
+
+2b. CASCADE DRIFT CHECK — teamId table missing from deleteProfile
+  PASS  unhandled team-scoped table is rejected
+  PASS  handled team-scoped table is accepted
+
+3. STARTER-DB DRIFT CHECK
+  PASS  stale column is rejected
+  PASS  non-pristine database is rejected
+  PASS  the real starter DB is accepted
+
+4. JSON COLLISION SCAN — colliding attributes key
+  PASS  attributes-blob key is classified BLOB, not COLUMN
+  PASS  it is NOT classified as a column
+  PASS  a real column write is classified COLUMN
+
+5. CONTINENT GUARD — a non-canonical continent value
+  PASS  a display label in club_templates is rejected
+  PASS  an unknown continent in players is rejected
+  PASS  a demonym in a nationality column is rejected
+  PASS  the real starter DB is accepted
+
+6. ROSTER GUARD — an off-roster player, and a half-landed expansion
+  PASS  a youth from an undeclared nation is rejected
+  PASS  a nation one player short is rejected
+  PASS  the real starter DB is accepted
+
+7. CAPTION GUARD — a renamed player, and swapped artwork
+  PASS  a row renamed away from its card is rejected
+  PASS  an age that contradicts the card is rejected
+  PASS  a row pointing at unaudited art is rejected
+  PASS  the real starter DB is accepted
+
+8. IMAGE FORMAT GUARD — a PNG wearing a .webp extension
+  PASS  a PNG named .webp is rejected
+  PASS  honestly-named images are accepted
+  PASS  the real images tree is accepted
+
+=== 42/42 passed ===
+
+########## 2/99  SCHEMA DRIFT (R-01) ##########
+========================================================================
+  R-01 SCHEMA DRIFT
+========================================================================
+
+A. AN EMPTY DATABASE, BUILT ENTIRELY BY THE DERIVED REPAIR
+  PASS  every table the installer ships was created from the schema alone  56 tables
+  PASS  every column the derived repair creates matches the shipped file  705 columns
+  PASS  columns the shipped file has but the schema dropped are NOT recreated  legacy leftovers, as expected: players.outfit_id, staff.team_id
+  PASS  every shipped index was recreated  26 indexes
+
+B. A REAL SAVE MISSING teams.crest_shape_index — THE 1 SEP BUG
+  PASS  fixture really is missing the column before boot
+  PASS  boot put teams.crest_shape_index back
+  PASS  GET /api/team no longer 500s  HTTP 401
+  PASS  the boot log names the repair it performed
+
+C. AN UP-TO-DATE SAVE — THE REPAIR MUST DO NOTHING, LOUDLY
+  PASS  schema is byte-for-byte unchanged by a boot
+  PASS  boot log proves the check RAN and found nothing
+  PASS  no NOT NULL stand-in was invented on a healthy save
+  PASS  GET /api/team is fine on a clean save  HTTP 401
+
+=== 12/12 passed ===
+
+########## 3/99  REFERENCE DATA BACKFILL (R-28) ##########
+========================================================================
+  R-28 REFERENCE DATA BACKFILL AT BOOT
+========================================================================
+
+A/B/C. A SAVE MISSING LOCATIONS 9-11 — THE ROOT CAUSE OF THE LIVE-SAVE 500s
+  PASS  fixture really is missing locations 9-11 before boot  ids: 1,2,3,4,5,6,7,8
+  PASS  boot put locations 9, 10 and 11 back  ids: 1,2,3,4,5,6,7,8,9,10,11
+  PASS  an existing row (locations id 1) is byte-for-byte untouched — additive only
+  PASS  POST /careers succeeds once the missing locations are backfilled  HTTP 200 {"id":1,"teamId":1,"slotNumber":1,"managerName":"RefBackfill","clubName":"RefBackfill FC","originalClubName":"RefBackfill FC","season":"Season 1","worldRanking":null,"budget":500000,"lastPlayedAt":"20
+  PASS  the boot log names the backfill and each id it inserted
+
+D. STARTER_DB_PATH NOT SET — MUST NO-OP, NOT CRASH
+  PASS  server still boots cleanly with no STARTER_DB_PATH  HTTP 200
+  PASS  the boot log says the backfill was skipped, not silent
+  PASS  locations 9-11 are still missing — nothing to compare against, nothing invented  ids: 1,2,3,4,5,6,7,8
+
+=== 8/8 passed ===
+
+########## 4/99  REFERENCE DATA UPDATE (R-33) ##########
+========================================================================
+  R-33 REFERENCE DATA UPDATES REACH AN EXISTING SAVE
+========================================================================
+
+A/B/C. A SAVE WITH STALE REFERENCE DATA AND REAL CAREER PROGRESS
+  PASS  career_player_state row exists for the signed player (setup)  id=259
+  PASS  fixture really is stale before the boot under test (height drifted, name manager-edited)  {"id":289,"name":"Manager's Custom Name","height":194}
+  PASS  A. players.height (safe, never gameplay-written) caught up to the starter DB  expected 187, got 187
+  PASS  A. the boot log names the update
+  PASS  B. players.name (gameplay-writable via Edit Player) is NOT overwritten, even though it's stale  expected "Manager's Custom Name", got "Manager's Custom Name"
+  PASS  C. career_player_state.speed (real gameplay-written state) is completely untouched  expected 91, got 91
+
+=== 6/6 passed ===
+
+########## 5/99  REFERENCE DATA NEW PLAYERS (R-34) ##########
+========================================================================
+  R-34 NEW STARTER-DB PLAYERS REACH AN EXISTING SAVE
+========================================================================
+
+A/B/C/D/E. AN EXISTING CAREER GAINS 3 NEW STARTER-DB PLAYERS AT BOOT
+  PASS  existing career created  teamId=1
+  PASS  fixture really is missing all 4 new players before the sync boot  present: 
+  PASS  free-agents request actually succeeded (setup)  HTTP 200 [{"id":31,"name":"Valentina Sosa","nationality":"Argentina","baseAge":25,"height":188,"position":"spiker","speed":75,"power":76,"defense":61,"serve":68,"block":61,"stamina":72,"imageUrl":"/images/play
+  PASS  the boot log names the players insert and the career it seeded
+  PASS  A. all 3 new seniors appear as free agents for the existing career  free agent ids seen: 9001,9002,9003
+  PASS  B. player_v4 was copied verbatim (byte-identical to the starter DB's)
+  PASS  C. the spare (player_type='spare') is NOT in the free-agents list  spare id 9004 present: false
+  PASS  D. career_player_state exists for all 4 new players (spare included), all free (team_id NULL)  [{"player_id":9001,"team_id":null},{"player_id":9002,"team_id":null},{"player_id":9003,"team_id":null},{"player_id":9004,"team_id":null}]
+  PASS  E. regional league season/fixture counts unchanged — not re-seeded against an existing career  before {"seasons":6,"fixtures":180} after {"seasons":6,"fixtures":180}
+
+=== 9/9 passed ===
+
+########## 6/99  SAVE FOLDER MOVES WITH THE RENAME (R-23) ##########
+========================================================================
+  R-23 SAVE FOLDER MOVES WITH THE RENAME
+========================================================================
+  PASS  fixture really is seeded only under the OLD folder name
+  PASS  the new-named folder has the moved DB
+  PASS  the old folder still exists
+  PASS  the old folder is now empty — moved, not copied, and never deleted  left behind: 
+  PASS  the boot log names the move
+  PASS  an unrelated decoy legacy folder (workspace) is left completely untouched
+  PASS  the moved DB opens and both seeded profiles are exactly intact  2 profiles
+
+=== 7/7 passed ===
+
+########## 7/99  CHECKPOINT AND CLOSE ON QUIT (R-31) ##########
+========================================================================
+  R-31 CHECKPOINT AND CLOSE THE DB ON QUIT
+========================================================================
+  PASS  the write succeeded  HTTP 201
+  PASS  the WAL genuinely holds the write before shutdown (not a vacuous test)  12392 bytes
+  PASS  the shutdown message was sent over the fork's IPC channel
+  PASS  the server exited on its own after the shutdown message (not force-killed)
+  PASS  the log says the WAL was checkpointed and the DB closed
+  PASS  the WAL is 0 bytes or absent after shutdown  0 bytes
+  PASS  the written row is present in the main .sqlite file alone, opened read-only  {"id":"97fbaebf-3fe4-46d9-a7e7-ec7de4c8dfd0","first_name":"WalCheckpointTest"}
+
+=== 7/7 passed ===
+
+########## 8/99  UNITY PAYLOAD SKIN TONE / KIT COLOUR (R-22) ##########
+========================================================================
+  R-22 UNITY PAYLOAD CARRIES SKIN TONE AND PER-TEAM KIT COLOUR
+========================================================================
+  PASS  career created (eager fixture generation)  HTTP 200
+  PASS  a real fixture match exists to test against  {"id":1,"homeTeamId":1,"awayTeamId":1,"locationId":7,"weather":"sunny","windSpeed":10.8,"temperature":31.5,"status":"scheduled","season":2026,"round":11,"teamSize":2,"homeScore":null,"awayScore":null,
+  PASS  the fixture's away side is the World Tour shape this bug needs (awayTeamId === homeTeamId)  home 1, away 1
+  PASS  GET /unity/match-state succeeds  HTTP 200
+  PASS  the payload carries 4 players, not 2 — the away side actually fills  4 players
+  PASS  skinTone passes through exactly when the source player_v4 data has it (never dropped, never invented)
+  PASS  of the players with real skin tone data, it genuinely differs (not one value copy-pasted onto everyone)  3 distinct value(s) across 4 player(s): Dark, Light, Medium
+  PASS  2 home-side players are present  2
+  PASS  home players' kit colour matches their team's own logoColor/secondaryLogoColor exactly  [{"name":"Yaritza Mendez","primaryColor":"#123456","secondaryColor":"#abcdef"},{"name":"Nyasha Ncube","primaryColor":"#123456","secondaryColor":"#abcdef"}]
+
+=== 9/9 passed ===
+
+########## 9/99  UNITY MATCH-STATE CAREER SCOPING (R-38) ##########
+========================================================================
+  R-38 /unity/match-state IS CAREER-SCOPED
+========================================================================
+  PASS  two distinct careers exist  A=1 (team 1), B=2 (team 2)
+  PASS  careerSaveId=A returns 200 with no session at all  HTTP 200
+  PASS  careerSaveId=B returns 200 with no session at all  HTTP 200
+  PASS  A returns four players  4 players
+  PASS  B returns four players  4 players
+  PASS  each side's match is its own career's match  A matchId 1, B matchId 60
+  PASS  each side reports its own club, not the other's  A homeTeam 'CareerA FC', B homeTeam 'CareerB FC'
+  PASS  no careerSaveId and no session -> 400  HTTP 400
+  PASS  the 400 names the problem rather than guessing  {"error":"No career specified","detail":"This endpoint is career-scoped. Pass ?careerSaveId=<id>, or call it with a session that has an active career. It will n
+  PASS  unknown careerSaveId -> 404, not a silent fallback  HTTP 404 {"error":"Career not found","detail":"No career_save with id 999999."}
+  PASS  a session with an active career still works with no id  HTTP 200
+  PASS  the session path resolves to the same career as ?careerSaveId=B  session ids [285, 298, 289, 283]
+  PASS  the database really contains two careers  2 career_saves rows
+  PASS  A's four players all resolve inside A's own career state  2 on team 1, 2 free agents, all in career 1
+  PASS  B's four players all resolve inside B's own career state  2 on team 2, 2 free agents, all in career 2
+
+=== 15/15 passed ===
+
+########## 10/99  MIGRATION FIXTURES ##########
+
+workdir C:\Users\rbonn\AppData\Local\Temp\vbe-migration-fucJIm
+
+0. BUILD A PLAYED SAVE (through the real API)
+  built played save: 1 career(s), 3 signed player(s)
+
+1. PRE-SPLIT SAVE (oldest reconstructable schema)
+  PASS  server started
+  PASS  database still opens
+  PASS  no players lost  276 -> 276
+  PASS  career state was created  276 rows
+  PASS  the signed squad survived the migration  3 signed -> 3 in career state
+  PASS  moved columns are gone
+  PASS  logged the drop
+  PASS  no unhandled error
+
+2. ALREADY MIGRATED (second boot must be a clean no-op)
+  PASS  second boot starts
+  PASS  no further drops logged
+  PASS  no snapshot re-taken
+  PASS  state row count unchanged  276 -> 276
+  PASS  player count unchanged
+  PASS  no error on second boot
+
+3. INTERRUPTED MID-MIGRATION (kill, then reboot)
+    kill@150ms: reopened, boot ok, players 276, state 276
+    kill@300ms: reopened, boot ok, players 276, state 276
+    kill@450ms: reopened, boot ok, players 276, state 276
+    kill@600ms: reopened, boot ok, players 276, state 276
+    kill@900ms: reopened, boot ok, players 276, state 276
+    kill@1400ms: reopened, boot ok, players 276, state 276
+  PASS  no interruption corrupted the save  0/6 corrupt
+  PASS  every interrupted save recovered on reboot  6/6
+
+4. CAREER WITHOUT STATE (refuse to drop, still start)
+  PASS  server started anyway
+  PASS  database still opens
+  PASS  columns were NOT dropped  salary still present
+  PASS  no crash logged
+
+5. MIGRATION THROWS (what the player sees)
+  PASS  server STILL listens after a migration failure
+  PASS  failure was logged, not thrown to the window
+  PASS  process did not exit
+
+6. OLDER SCHEMA STILL MISSING NEWER COLUMNS
+  PASS  server started
+  PASS  database still opens
+  PASS  no players lost  276 -> 276
+  PASS  snapshot ran despite the missing columns  276 rows
+  PASS  no unhandled error
+
+7. RENAMED COLUMN (age -> base_age)
+  PASS  fixture is in the pre-rename shape
+  PASS  server started
+  PASS  base_age created, age dropped
+  PASS  no players lost  276 -> 276
+  PASS  every starting age carried across, none defaulted  276/276 match
+  PASS  career state took the age too  276 rows
+  PASS  no unhandled error
+
+8. STAFF SPLIT (salary/age renamed, four columns moved)
+  PASS  server started
+  PASS  base_salary and base_age created
+  PASS  four career-state columns dropped  all gone
+  PASS  no staff lost  120 -> 120
+  PASS  every wage carried across, none defaulted  120/120
+  PASS  every age carried across  120/120
+  PASS  career staff state rebuilt with a WAGE, not zero  120/120 priced
+  PASS  no unhandled error
+
+9. POOL PLAYER RENAME (age -> base_age)
+  PASS  server started
+  PASS  base_age created, age dropped
+  PASS  no pool players lost  120 -> 120
+  PASS  every pool age carried across, none defaulted  120/120
+  PASS  no unhandled error
+
+10. POOL TEAM SPLIT (league state per career)
+  PASS  server started
+  PASS  starts_in_league created, three columns dropped
+  PASS  no pool clubs lost  60 -> 60
+  PASS  league membership carried to the reference seed  60/60
+  PASS  career state rebuilt with the right league size  36 active of 60
+  PASS  promotion counts carried across, not reset  max promotion_count 2
+  PASS  no unhandled error
+
+11. LEAGUE ATTRIBUTION (multi-career)
+  PASS  fixture has two careers and an unowned league  2 careers, 6 seasons, 180 fixtures
+  PASS  server started
+  PASS  both careers own a complete 6-season league  career 1: 6, career 2: 6
+  PASS  both careers own a complete 180-fixture league  career 1: 180, career 2: 180
+  PASS  zero orphaned league rows  0 seasons, 0 fixtures unowned
+  PASS  no season's fixtures are shared between careers
+  PASS  no unhandled error
+
+=== 62/62 passed ===
+
+########## 11/99  FRESH INSTALL CHAIN ##########
+
+workdir C:\Users\rbonn\AppData\Local\Temp\vbe-fresh-WYErFz
+
+1. FIRST LAUNCH: empty userData, starter DB copied in
+  PASS  starter DB copied
+  PASS  roster copied intact: players  276 of 276 shipped
+  PASS  roster copied intact: staff  120 of 120 shipped
+  PASS  every player has an image  276/276
+  PASS  pool clubs shipped  60 pool teams
+  PASS  no regional league shipped  0 seasons in the artifact
+  PASS  no career state yet  0
+    shipped schema carries 0 moved column(s): (none)
+
+2. BOOT (the migration meets this DB for the first time)
+  PASS  server started on a virgin save
+  PASS  moved columns dropped at boot  none left
+  PASS  no roster lost  276 players, 120 staff
+  PASS  images intact  276
+  PASS  pool clubs intact after boot
+  PASS  database integrity ok  ok
+  PASS  no migration error logged
+
+3. CREATE A CAREER ON THE FRESH INSTALL
+  PASS  profile created  HTTP 201
+  PASS  career created  HTTP 200
+  PASS  transfer market is populated  189 free agents
+  PASS  free agents have a wage  189 priced
+  PASS  free agents have a price range, and unscouted ones no stats sent  189 unscouted of 189
+  PASS  career state seeded  276 rows
+  PASS  career generated its own 6-season league  6 seasons
+  PASS  career generated its own 180 fixtures  180 fixtures
+  PASS  no orphaned league rows  0 unowned
+  PASS  staff market is populated  110 available
+  PASS  every staff member has a wage (exact, or the range it sits in)  110/110 priced
+  PASS  medical market is populated  60 available
+  PASS  every medical staff member has a wage (exact, or the range it sits in)  60/60 priced
+  PASS  general + medical markets cover all 120 staff  110 general + 60 medical
+  PASS  staff carry a base age  110/110
+  PASS  world validation passes on a fresh career
+  PASS  validation counted the real world, not a stale expectation  192 seniors, 72 youth, 12 spares
+  PASS  validation reports the declared shape it checked against  6 continents, 3/nation, retire at 40
+  PASS  no nation starts below full strength
+  PASS  no age violations on a fresh career
+  PASS  veterans already past retirement age are reported, not hidden  none
+
+4. THE APP IS SERVED AT /
+  PASS  built frontend is in place for the server  dist/public present
+  PASS  production server started
+  PASS  GET / returns 200  HTTP 200
+  PASS  GET / is NOT Express's 404  no 404 marker
+  PASS  GET / returns the app shell  1718 bytes
+
+=== 40/40 passed ===
+
+########## 12/99  FIXTURE GENERATION IS ONE TRANSACTION (R-05) ##########
+========================================================================
+  R-05 FIXTURE GENERATION IS ONE TRANSACTION
+========================================================================
+  PASS  the sabotaged career creation fails, not succeeds  HTTP 500
+  PASS  the team row exists (creation got far enough to reach fixture generation)  {"id":1}
+  PASS  zero fixture rows remain after the mid-sequence failure  0 rows
+
+=== 3/3 passed ===
+
+########## 13/99  CAREER DIFFICULTY (R-11) ##########
+========================================================================
+  R-11 CAREER DIFFICULTY — UNDERDOG vs ESTABLISHED
+========================================================================
+  PASS  underdog career created  HTTP 200
+  PASS  established career created  HTTP 200
+  PASS  underdog starting budget is the tight constant (150,000), not the client-sent figure  got 150000
+  PASS  established starting budget is the comfortable constant (500,000), not the client-sent figure  got 500000
+  PASS  established starts with strictly more budget than underdog  underdog 150000 vs established 500000
+  PASS  underdog career_saves.difficulty = 'underdog'  underdog
+  PASS  established career_saves.difficulty = 'established'  established
+  PASS  underdog starts at 0 ranking points  got 0
+  PASS  established starts at 0 ranking points too — R-11's 20-point head start is gone  got 0
+  PASS  underdog's season-1 purse access is Bronze: Bronze pays in full, Silver and Gold pay 10%  access Bronze
+  PASS  established's season-1 purse access is Silver: Bronze and Silver pay in full, Gold pays 10%  access Silver
+  PASS  no ranking gate or head start remains in the api source  clean
+  PASS  the scan is real: the old gate line is caught
+  PASS  both careers actually got a starting squad  underdog=62.333333333333336 established=86.60000000000001
+  PASS  established's starting squad is stronger on average than underdog's  underdog avg 62.3 vs established avg 86.6
+
+=== 15/15 passed ===
+
+########## 14/99  BOARD SEASON REVIEW (R-53) ##########
+========================================================================
+  R-53 / R-55 THE BOARD REVIEWS SEASONS AGAINST A BAND OF EXPECTATION
+========================================================================
+
+0. THE OLD +3/-5 PATH AND R-53'S RANK TARGET ARE GONE FROM THE SOURCE
+  PASS  none of the old confidence code remains in 516 api, frontend, generated, spec and schema files  clean
+  PASS  the scan is real: each old line planted back is caught  #1 per-result confidence deltas+arithmetic on board confidence | #2 arithmetic on board confidence | #3 the read-time meter and its money bracket | #4 the forced sale | #5 a write to board confidence outside the review | #6 R-53's rank target
+  PASS  the R-09 ladder harness is gone
+  PASS  the dashboard always renders the board card (no 'only when not safe' guard)
+  PASS  the board card shows the expectation and the verdict in words
+
+1. THE SIX HARNESS CAREERS, THE EARLIER CASES AND R-55'S BANDS, THROUGH THE SERVER'S RULES
+  PASS  the dev review-table endpoint answers  HTTP 200
+  PASS  RollStrong  S1 R1 #1 met +5 hon +4 -> 69, 0 strike(s), safe | S2 R1 #4 met +5 hon +4 -> 78, 0 strike(s), safe | S3 R1 #4 met +5 hon +4 -> 87, 0 strike(s), safe | S4 R1 #3 met +5 hon +4 -> 96, 0 strike(s), safe
+  PASS  RollStrong2  S1 R1 #1 met +5 hon +15 -> 80, 0 strike(s), safe | S2 R1 #2 met +5 hon +8 -> 93, 0 strike(s), safe | S3 R1 #10 failed -25 -> 68, 1 strike(s), final_warning | S4 R1 #4 met +5 hon +4 -> 77, 0 strike(s), safe
+  PASS  RollStrong3  S1 R1 #1 met +5 hon +8 -> 73, 0 strike(s), safe | S2 R1 #5 below -> 73, 0 strike(s), warning | S3 R1 #6 below -> 73, 0 strike(s), warning | S4 R1 #4 met +5 hon +4 -> 82, 0 strike(s), safe
+  PASS  RollWeak  S1 R19 #8 met +5 -> 65, 0 strike(s), safe | S2 R19 #15 met +5 -> 70, 0 strike(s), safe | S3 R19 #19 met +5 -> 75, 0 strike(s), safe | S4 R19 #18 met +5 -> 80, 0 strike(s), safe
+  PASS  RollWeak2 (+ season 5: L-01, an ordinary review, not a verdict)  S1 R19 #12 met +5 -> 65, 0 strike(s), safe | S2 R19 #19 met +5 -> 70, 0 strike(s), safe | S3 R19 #18 met +5 -> 75, 0 strike(s), safe | S4 R19 #19 met +5 -> 80, 0 strike(s), safe | S5 R19 #19 met +5 -> 85, 0 strike(s), safe
+  PASS  L-02e: two failed seasons in a row are a final warning, not a sacking — results never end a career  S1 R1 #4 met +5 -> 65, 0 strike(s), safe | S2 R1 #4 met +5 -> 70, 0 strike(s), safe | S3 R1 #4 met +5 -> 75, 0 strike(s), safe | S4 R1 #4 met +5 -> 80, 0 strike(s), safe | S5 R1 #9 failed -25 -> 55, 1 strike(s), final_warning | S6 R1 #10 failed -25 -> 30, 2 strike(s), final_warning
+  PASS  R-48 run 1 RollStrong  S1 R1 #1 met +5 hon +8 -> 73, 0 strike(s), safe | S2 R1 #11 failed -25 -> 48, 1 strike(s), final_warning | S3 R1 #6 below -> 48, 1 strike(s), final_warning | S4 R1 #19 failed -25 -> 23, 2 strike(s), final_warning
+  PASS  R-48 run 2 RollWeak2  S1 R19 #19 met +5 -> 65, 0 strike(s), safe | S2 R19 #19 met +5 -> 70, 0 strike(s), safe | S3 R19 #19 failed -25 -> 45, 1 strike(s), final_warning | S4 R19 #19 failed -25 -> 20, 2 strike(s), final_warning
+  PASS  R-48 run 2 RollWeak3  S1 R19 #7 met +5 -> 65, 0 strike(s), safe | S2 R19 #16 met +5 -> 70, 0 strike(s), safe | S3 R19 #19 failed -25 -> 45, 1 strike(s), final_warning | S4 R19 #19 failed -25 -> 20, 2 strike(s), final_warning
+  PASS  R-55: 6th, 7th, 8th, 5th is four warnings and no strike (R-54's RollA went 7th, 7th and was sacked for it)  S1 R1 #6 below -> 60, 0 strike(s), warning | S2 R1 #7 below -> 60, 0 strike(s), warning | S3 R1 #8 below -> 60, 0 strike(s), warning | S4 R1 #5 below -> 60, 0 strike(s), warning
+  PASS  R-55: two failed seasons in a row are a second strike (L-02e: a warning now, not a sacking)  S1 R1 #9 failed -25 -> 35, 1 strike(s), final_warning | S2 R1 #10 failed -25 -> 10, 2 strike(s), final_warning
+  PASS  R-55: a below season between two failed seasons resets nothing and adds nothing  S1 R1 #9 failed -25 -> 35, 1 strike(s), final_warning | S2 R1 #6 below -> 35, 1 strike(s), final_warning | S3 R1 #12 failed -25 -> 10, 2 strike(s), final_warning
+  PASS  R-55: a season that meets expectations clears the strike  S1 R1 #9 failed -25 -> 35, 1 strike(s), final_warning | S2 R1 #1 met +5 hon +15 -> 55, 0 strike(s), safe | S3 R1 #9 failed -25 -> 30, 1 strike(s), final_warning | S4 R1 #2 met +5 hon +8 -> 43, 0 strike(s), safe
+  PASS  R-55: an underdog is judged at its level (a #10 squad: top 13 met, 14th-17th below, 18th or worse failed)  S1 R10 #13 met +5 -> 65, 0 strike(s), safe | S2 R10 #15 below -> 65, 0 strike(s), warning | S3 R10 #18 failed -25 -> 40, 1 strike(s), final_warning | S4 R10 #19 failed -25 -> 15, 2 strike(s), final_warning
+  PASS  money is never an immunity either way: $5M and two failed seasons is still a final warning  S1 R1 #10 failed -25 -> 35, 1 strike(s), final_warning | S2 R1 #9 failed -25 -> 10, 2 strike(s), final_warning
+  PASS  in debt at season end costs 15  S1 R19 #19 met +5 money -15 -> 50, 0 strike(s), safe
+  PASS  a balance that fell more than 25% costs 5  S1 R1 #2 met +5 money -5 -> 60, 0 strike(s), safe
+  PASS  a balance that fell 20% costs nothing  S1 R1 #2 met +5 -> 65, 0 strike(s), safe
+  PASS  half the season forfeited is a failed season, whatever the finish  S1 R19 #19 failed -25 -> 35, 1 strike(s), final_warning
+  PASS  just under half forfeited is judged on the finish  S1 R19 #19 met +5 -> 65, 0 strike(s), safe
+  PASS  confidence is clamped at 100  S1 R19 #8 met +5 -> 100, 0 strike(s), safe
+  PASS  an established starting pair (strength #1): top 4 met, 5th-8th below, 9th or worse failed  {"metLine":4,"belowFrom":5,"failedFrom":9}
+  PASS  the weakest squad (strength #19): any finish meets expectations, none fails  {"metLine":19,"belowFrom":null,"failedFrom":null}
+  PASS  mid-season at #19 with the weakest squad (RollWeak3, R-47's RollWeak): met, no warning, no freeze, no sacking  60+(met 5) warn=false frozen=false
+  PASS  projected 6th with the strongest squad: below expectations, a warning, no freeze  60+(below 0) warn=true frozen=false
+  PASS  projected 9th at confidence 60: failed, a warning, confidence + projection 35 does not freeze  60+(failed -25) warn=true frozen=false
+  PASS  projected 9th at confidence 55: 30 freezes spending  55+(failed -25) warn=true frozen=true
+  PASS  between 30 and 35 a freeze holds  58+(failed -25) warn=true frozen=true
+  PASS  between 30 and 35 an unfrozen club stays unfrozen  58+(failed -25) warn=true frozen=false
+  PASS  above 35 the freeze lifts  61+(failed -25) warn=true frozen=false
+
+2. THE EXPECTATION IS SET AT THE DRAW, FROM SQUAD STRENGTH
+  PASS  career creation opens the board's season on the starting budget, with no expectation yet  start balance 500000, budget 500000, target null
+  PASS  before the draw: confidence 60, safe, no expectation, and it says so in words  The board sets this season's expectation when the World Tour is drawn (round 11), from how your best pair ranks in the field. | No verdict yet: the board judges the season once the World Tour is under way. Board confidence 60.
+  PASS  both careers reach the first World Tour match day  est 1, und 60
+  PASS  established: strength #1 in the field; top 4 met, 5th-8th below, 9th or worse failed, in plain words  The board expects a top-4 finish this season: 5th-8th is below expectations, a warning with no strike; 9th or worse fails the season. Your best pair (rated 89.5) ranks 1st of the 19 clubs in this World Tour field.
+  PASS  underdog: strength #19 in the field; any finish meets expectations, in plain words  The board expects any finish this season: no finish counts against you. Your best pair (rated 65.0) ranks 19th of the 19 clubs in this World Tour field.
+
+3. A WIN, A LOSS AND A FORFEIT LEAVE BOARD CONFIDENCE WHERE IT WAS
+  PASS  a win leaves board confidence unchanged (R-09 added 3)  established match 1: 60 -> 60
+  PASS  a loss leaves board confidence unchanged (R-09 took 5)  underdog match 60: 60 -> 60
+  PASS  no result sacked anyone  none
+  PASS  a forfeit leaves board confidence unchanged (R-09 took 5), is counted for the review, and sacks nobody  HTTP 200, confidence 60 -> 60, forfeits 0 -> 1
+
+4. AT CONFIDENCE 0, MORE LOSSES SACK NOBODY MID-SEASON
+  PASS  five more results at confidence 0: nobody fired, the career is still active, confidence still 0  0-2, 0-2, 2-1, 1-2, 2-0; GET /team 200; confidence 0
+
+5. THE MONTHLY CHECK: A CLUB AT CONFIDENCE 0 IS FROZEN, AND CAN STILL RENEW
+  PASS  the first monthly check comes 30 game days after the draw  clock started 2026-02-18, checked 2026-03-20 (30 days): #9 met
+  PASS  at confidence 0 the projection freezes spending  spending_frozen 1
+  PASS  the board says so: stage spending_freeze, spendingBlocked, the verdict names the projection and the freeze  At its last monthly check you were 9th against any finish: so far the board would say you met expectations. Board confidence 0. New signings, staff hires and facility upgrades are frozen until the standings improve; renewing a contract on the same terms is still allowed.
+  PASS  a signing is refused while frozen  HTTP 403 {"error":"The board has frozen new signings, staff hires and facility upgrades until results improve against its expectation."}
+  PASS  a renewal on the same terms goes through the freeze (R-52)  HTTP 200 2027-12-31
+
+6. ABANDONMENT: 30 GAME DAYS WITHOUT A SIDE, SACKED AT THE NEXT FORFEIT
+  PASS  the club is down to one contracted player  1 able
+  PASS  every match is a forfeit  8 matches
+  PASS  forfeits inside 30 days do not sack  2026-02-17 day 0, 2026-02-22 day 5, 2026-02-26 day 9, 2026-03-03 day 14, 2026-03-08 day 19, 2026-03-12 day 23, 2026-03-17 day 28
+  PASS  the first forfeit 30 or more days in sacks the manager  2026-03-22: day 33 since 2026-02-17
+  PASS  the career really ended: retired, with a dismissal that says why  BoardAbandon was sacked by BoardAbandon FC: the club went 33 days without two contracted players to put on the sand.
+
+7. THE SEASON REVIEW WARNS; IT DOES NOT SACK (L-02e)
+  PASS  the boundary rolls into a new season rather than ending the career  rolled, fired false, sold false
+  PASS  the review is a final warning, at the confidence that used to be a sacking  Season 1 review: finished 4th against any finish, met expectations +5, semi-finalist +4. Confidence 0 → 9. Final warning: the board has lost patience with the results. It cannot sack you for them — but a club that keeps losing money gets sold.
+  PASS  the review is recorded on the season  finish #4 vs top-19, met, 0 -> 9
+  PASS  the next season opened, the career is still going, and the club is still the manager's  1 season(s) in 2027; retired false; GET /board-confidence 200
+
+=== 60/60 passed ===
+
+########## 15/99  WORLD TOUR COMPETITORS (R-29) ##########
+========================================================================
+  R-29 THE WORLD TOUR IS A REAL COMPETITION, PER CAREER
+========================================================================
+  PASS  two careers in one database  A=1 (team 1), B=2 (team 2)
+  PASS  career A played through World Tour round 22  110 calendar days
+  PASS  career B played through World Tour round 22  110 calendar days
+
+1. THE FIELD
+  PASS  A's ladder is the whole field of 19, one player row (was 1 row)  19 rows, fieldSize 19
+  PASS  B's ladder is the whole field of 19, one player row  19 rows, fieldSize 19
+  PASS  A's leaderboard is the same 19 clubs  19 rows
+  PASS  a World Tour round is 9 matches and one stored bye, the player's club in exactly one of them  9 matches, bye: Rio Copacabana Queens
+  PASS  A: 18 regional qualifiers, 3 per continent, all carrying its career_save_id  [{"continent":"africa_middle_east","n":3},{"continent":"asia","n":3},{"continent":"europe","n":3},{"continent":"north_america","n":3},{"continent":"oceania","n":3},{"continent":"south_america","n":3}]
+  PASS  B: 18 regional qualifiers, 3 per continent, all carrying its career_save_id  [{"continent":"africa_middle_east","n":3},{"continent":"asia","n":3},{"continent":"europe","n":3},{"continent":"north_america","n":3},{"continent":"oceania","n":3},{"continent":"south_america","n":3}]
+  PASS  no qualification row is written without a career  0 unscoped
+  PASS  GET /regional-league/qualifications returns only this career's qualifiers  18 rows
+
+2. AFTER 12 ROUNDS EVERY AI CLUB HAS PLAYED ITS MATCHES, FOR REAL
+  PASS  A: 18 AI clubs in the field
+  PASS  A: every round has exactly one stored bye, and every club appears in it once
+  PASS  A: every club, the player's included, played exactly 12 rounds minus its byes  played 11-12, byes 0-1
+  PASS  A: every match in rounds 11-22 is completed, and no bye carries a score  108 matches, 12 byes
+  PASS  A: every result is a legal best-of-three (to 11, win by 2)  108 results
+  PASS  A: the player's own 12 rounds (matches and byes) are on the fixture list, linked to their match rows
+
+3. A: RECORDS AND POINTS RECONCILE
+  PASS  A: every ranking row's W/L equals its fixture results  19 rows
+  PASS  A: every ranking row's points equal the recomputation (tier table, every win scores)  19 rows over 108 fixtures
+  PASS  A: AI clubs actually hold ranking points  total 202, best 18
+  PASS  B: 18 AI clubs in the field
+  PASS  B: every round has exactly one stored bye, and every club appears in it once
+  PASS  B: every club, the player's included, played exactly 12 rounds minus its byes  played 11-12, byes 0-1
+  PASS  B: every match in rounds 11-22 is completed, and no bye carries a score  108 matches, 12 byes
+  PASS  B: every result is a legal best-of-three (to 11, win by 2)  108 results
+  PASS  B: the player's own 12 rounds (matches and byes) are on the fixture list, linked to their match rows
+
+3. B: RECORDS AND POINTS RECONCILE
+  PASS  B: every ranking row's W/L equals its fixture results  19 rows
+  PASS  B: every ranking row's points equal the recomputation (tier table, every win scores)  19 rows over 108 fixtures
+  PASS  B: AI clubs actually hold ranking points  total 198, best 16
+
+4. STANDINGS ORDER
+  PASS  A's ladder is in standings order, ranked 1..N
+  PASS  B's ladder is in standings order, ranked 1..N
+
+5. ISOLATION
+  PASS  B's ladder contains nothing of A's club
+  PASS  A's ladder contains nothing of B's club
+  PASS  B's season wrote nothing to A's matches (the old coin flip did)  59 A matches compared
+  PASS  B's season played none of A's World Tour fixtures  108 -> 108
+  (report) A's field: stronger half wins 56.9%, weaker half 43.7%
+
+6. SABOTAGE — the checks above must catch the bugs they exist for
+  PASS  S1 setup: the sabotaged server answered for career A  HTTP 200
+  PASS  S1: with the AI ranking rows gone, the whole-field check FAILS (it caught the one-row ladder)  sabotaged ladder has 1 row(s)
+  PASS  S2: with one AI club's points off by 1, the points check FAILS (it caught it)  competitor 2: table 6, recomputed 5
+  PASS  S3: a forfeit-shaped result (completed, no sets) FAILS the legality check  a real best-of-three passes; null, [], one set, 11-10 and a lying set tally are all rejected
+
+=== 39/39 passed ===
+
+########## 16/99  WORLD TOUR BYES (R-44) ##########
+========================================================================
+  R-44 WORLD TOUR BYES — A FULL REGULAR SEASON
+========================================================================
+  PASS  career created  HTTP 200
+  PASS  the calendar walked the whole regular World Tour with no error  last round 70 decided
+
+1. THE SCHEDULE
+  PASS  57 World Tour event rounds were drawn  57 rounds
+  PASS  the three removed slots (41, 51, 61) hold no fixture and no player match  0 rows
+
+2. EVERY ROUND IS 9 MATCHES AND ONE BYE
+  PASS  every event round: 9 matches + exactly 1 bye  57 rounds
+  PASS  a bye row is one club, unscored  57 bye rows
+  PASS  every match in the regular season is completed  513 matches
+
+3. EVERY CLUB: 54 MATCHES, 3 BYES, ONE BYE PER 19 ROUNDS
+  PASS  19 clubs in the field  19
+  PASS  every club has exactly 54 matches and exactly 3 byes  matches 54-54
+  PASS  every club has exactly one bye in each 19-round cycle  3 cycles × 19 clubs
+
+4. A BYE EARNS NOTHING
+  PASS  every club's ranking row counts exactly its 54 matches (a bye is no W or L)  19 rows
+  PASS  every club's points equal a recomputation from its matches alone  19 clubs
+
+5. THE PLAYER'S BYE IS VISIBLE, AND ADVANCE GOES THROUGH IT
+  PASS  the player's fixture list shows its 3 byes as "Bye" with no purse  R21 Bye $null, R40 Bye $null, R62 Bye $null
+  PASS  each player bye row is linked to that bye on the club's own match list  3 linked
+  PASS  the round view shows the player's club as a Bye, not as a missing match  R21: Bye Season FC bye
+  PASS  the dashboard's Next Match card reports the player's upcoming bye  {"expected":21,"got":21,"nextMatchRound":22}
+  PASS  no pending match ever pointed at a bye (Advance walks through it)  none
+  PASS  the rest of the field played every round the player had a bye  R21, R40, R62
+
+=== 18/18 passed ===
+
+########## 17/99  ALL-STAR REMOVED (R-45) ##########
+========================================================================
+  R-45 THE ALL-STAR EVENTS ARE GONE
+========================================================================
+  PASS  fresh career created  HTTP 200
+
+1. A FRESH CAREER'S SEASON
+  PASS  GET /matches/fixture: zero All-Star fixtures, exactly 59 matches (57 World Tour + 2 finals)  59 fixtures
+  PASS  database: the career's match rows are the same 59, none of them All-Star  59 rows
+
+2. NOTHING THE GAME IS BUILT FROM MENTIONS AN ALL-STAR
+  PASS  no source, schema, spec, generated client, script or harness line mentions an All-Star  8 roots scanned
+  PASS  the All-Star page file is gone
+
+3. NOR DOES WHAT SHIPS
+  PASS  the built server bundle and the served frontend carry no All-Star text  1 frontend script(s) scanned
+
+4. THE SHIPPED DATABASE, AND A SAVE MADE BEFORE R-45
+  PASS  no table, column or value in the shipped starter database mentions an All-Star  every table and row scanned
+  PASS  a save made before R-45 loses the stat on its next launch, every player_v4 byte-identical to the shipped one  276 players, 0 differ; after boot: no All-Star anywhere
+  PASS  the boot log names the R-33 reference update that did it
+
+5. SABOTAGE — the checks above must catch what they exist for
+  PASS  S1: a season with an All-Star fixture planted in it FAILS the fixture check  1 All-Star fixture(s); 60 fixtures, expected 59; unexpected tier(s): All-Star Match
+  PASS  S2: the file scanner finds both planted All-Stars and ignores "overallStars"  ..\..\AppData\Local\Temp\vbe-all-star-removed-mtEecY\planted\stats.json:1: {"mvp_awards": 0, "all_star_selections": 0} | ..\..\AppData\Local\Temp\vbe-all-star-removed-mtEecY\planted\tiers.ts:1: export const T = ["Bronze", "All-Star Match"];
+  PASS  S3: the database scanner found the stat in the pre-R-45 save before it booted  players.player_v4: 276
+
+=== 12/12 passed ===
+
+########## 18/99  OLYMPIC QUALIFICATION (R-46) ##########
+========================================================================
+  R-46 OLYMPIC QUALIFICATION: NATIONAL, ON THIS SEASON'S WORLD TOUR POINTS
+========================================================================
+  PASS  career created  HTTP 200
+  PASS  the calendar played the World Tour through round 16
+
+1. REAL PLAY CREDITS THE PLAYERS WHO EARNED THE POINTS
+  PASS  each AI club's two players hold exactly the club's points and matches  18 clubs
+  PASS  the player's club: each of its two starters holds what the club earned and its matches  club 4 pts (started at 0), 6 matches; rows [[285,4,6],[298,4,6]]
+  PASS  nobody else holds points: the interchange and reserves did not play  38 rows
+  PASS  AI players actually earned points
+
+2. EVERY PLAYER BELONGS TO ONE NATION, WHATEVER THE SPELLING
+  PASS  GET /olympics/qualifiers answers  HTTP 200
+  PASS  every player's nationality resolves to a nation  69 nations from 312 players
+  PASS  no nation is listed twice
+  PASS  Germany's pool players and seniors are one country, stored as "Germany" (no "German" left)  Germany
+  PASS  Hawaii's pool players represent the USA  USA, USA
+  PASS  the scenario is real: Brazil is rated above Malaysia and Venezuela  Brazil 88.5, Malaysia 69.4, Venezuela 70.3
+
+3. SEASON 2026: MALAYSIA (LOW-RATED) EARNS MANY, BRAZIL (HIGH-RATED) FEW
+  PASS  exactly 12 countries qualify
+  PASS  Malaysia (low-rated) qualifies on 45 points  rank 1
+  PASS  Brazil (high-rated) does not qualify on 5 points  rank 14
+  PASS  Malaysia is in only because its players are summed across clubs  total 45, best single 25, 12th place 40, clubs ["Kuala Lumpur Monsoon FC","Olympic Road FC"]
+  PASS  a tie on points is broken by best single-player total: Argentina (40, best 20) is out  rank 13; 11 qualified on the same points with best 40
+  PASS  the Olympic schedule invents nothing: no tournament outside an Olympic year, and the next Games named  {"seasonYear":2026,"isOlympicYear":false,"olympicsYear":2028,"tournament":null}
+  PASS  S1: under the old rating rule Brazil would qualify and Malaysia would not (the checks above discriminate)
+
+4. RATINGS PLAY NO PART
+  PASS  Brazil's players at 99 in every stat and Malaysia's at 40: the qualifying table is identical
+
+5. SEASON 2027 STARTS FROM ZERO
+  PASS  qualifying reads season 2027  seasonYear 2027
+  PASS  Venezuela (low-rated) qualifies on 60 points earned this season  rank 1
+  PASS  Brazil (high-rated) does not qualify on 3 points  rank 13
+  PASS  Malaysia's 2026 points do not carry: 0 this season, not qualified  points 0, rank 33
+
+6. THE RULES PAGE SAYS EXACTLY THIS
+  PASS  source and shipped bundle carry: "The Olympics are for national teams, not clubs"  source true, bundle true
+  PASS  source and shipped bundle carry: "A country qualifies on the World Tour ranking points its players earned this season: the sum across all of that country's players, whichever club they play for"  source true, bundle true
+  PASS  source and shipped bundle carry: "The top 12 countries qualify; ties are broken by the best single-player total"  source true, bundle true
+  PASS  source and shipped bundle carry: "Player ratings play no part in qualifying"  source true, bundle true
+  PASS  the rating-era line is gone from both: "Top 12 World Tour teams qualify"
+
+=== 29/29 passed ===
+
+########## 19/99  STARTING CONTRACTS (R-48) ##########
+========================================================================
+  R-48 (1) STARTING-SQUAD CONTRACTS ARE DATED FROM THE CAREER'S SEASON
+========================================================================
+  PASS  established career created  HTTP 200
+  PASS  underdog career created  HTTP 200
+
+1. EVERY STARTING CONTRACT RUNS FOR THE CAREER'S FIRST SEASON
+  PASS  established: the career has its season row  {"year":2026,"start_date":"2026-01-01","end_date":"2026-12-31"}
+  PASS  established: the starting squad was signed (3 contracts)  3 contracts
+  PASS  established: every contract starts on the season's start date  season 2026-01-01; contracts 2026-01-01
+  PASS  established: every contract ends on the season's end date  season 2026-12-31; contracts 2026-12-31
+  PASS  established: career state carries the same end date for every squad player  3 players
+  PASS  underdog: the career has its season row  {"year":2026,"start_date":"2026-01-01","end_date":"2026-12-31"}
+  PASS  underdog: the starting squad was signed (3 contracts)  3 contracts
+  PASS  underdog: every contract starts on the season's start date  season 2026-01-01; contracts 2026-01-01
+  PASS  underdog: every contract ends on the season's end date  season 2026-12-31; contracts 2026-12-31
+  PASS  underdog: career state carries the same end date for every squad player  3 players
+
+2. THE CAREER-CREATION PATH HOLDS NO LITERAL DATE OR YEAR
+  PASS  artifacts\api-server\src\routes\careers.ts: no quoted date, no literal season year
+  PASS  artifacts\api-server\src\utils\seedStartingSquad.ts: no quoted date, no literal season year
+
+3. SABOTAGE
+  PASS  S1: the source check finds a planted literal date, literal year and literal ranking year — and not a comment  1: await seedStartingSquad(save.id, team.id, { startDate: "2026-01-01", endDate: "2026-12-31" }); | 2: year:                    2026, | 3: await ensureCompetitorRanking(team.id, save.id, 2026, points);
+
+=== 15/15 passed ===
+
+########## 20/99  CONTRACT RENEWAL (R-51) ##########
+========================================================================
+  R-51 CONTRACT RENEWAL, AND EXPIRY ON THE GAME CLOCK
+========================================================================
+  PASS  career A's game clock exists  game date 2026-01-01
+
+1. RENEWING A CONTRACT
+  PASS  career A has its 3 starting contracts, ending at the season's end  2026-12-31, 2026-12-31, 2026-12-31
+  PASS  renewing succeeds  HTTP 200 {"id":1,"playerId":285,"teamId":1,"salary":20800,"startDate":"2026-01-01","endDate":"2027-12-31","bonusPerWin":0,"status":"active","createdAt":"2026-10-05T04:14:51.000Z","origin":"starting_squad"}
+  PASS  the contract now ends one season later, same salary  2026-12-31 -> 2027-12-31, salary 20800 -> 20800
+  PASS  career state carries the new end date, and the player is still in the club  {"contract_end_date":"2027-12-31","team_id":1}
+
+2. WHAT RENEWAL REFUSES
+  PASS  a contract already past this season cannot be renewed again (no stacking)  HTTP 409 {"error":"This contract already runs past this season (to 31 Dec 2027). It can be renewed in its final season."}
+  PASS  another career's contract is not found  HTTP 404
+  PASS  unauthenticated renewal is refused  HTTP 401
+
+2b. A FROZEN CLUB KEEPS ITS SQUAD ON THE SAME TERMS, BUT CANNOT SPEND (R-52)
+  PASS  club B's board has frozen spending  stage spending_freeze, confidence 60
+  PASS  renewing at a raise is refused: a raise is new spending  HTTP 403 {"error":"The board has frozen new signings, staff hires and facility upgrades until results improve against its expectation. A renewal on the same terms is still allowed."}
+  PASS  the refused raise changed nothing  2026-12-31, 20800
+  PASS  renewing at the same salary goes through the freeze  HTTP 200 2027-12-31 20800
+  PASS  renewing with no salary named means the same terms, and goes through too  HTTP 200 2027-12-31 20800
+  PASS  signing a player is refused while frozen  HTTP 403 {"error":"The board has frozen new signings, staff hires and facility upgrades until results improve against its expectation."}
+
+3. THE EXPIRY WARNING RUNS ON THE GAME CLOCK
+  PASS  game day 2026-01-01: no contract warning  0 items
+  PASS  game day 10 Dec: the two unrenewed contracts warn orange, 21 days, pointing at the Contracts page  [["orange","21 days remaining — renew on the Contracts page"],["orange","21 days remaining — renew on the Contracts page"]]
+  PASS  the renewed contract does not warn
+  PASS  game day 20 Dec: they warn red, 11 days, and say to renew  [["red","Only 11 days left — renew on the Contracts page before the player leaves"],["red","Only 11 days left — renew on the Contracts page before the player leaves"]]
+  PASS  on the machine's clock (2026-10-05) the same contracts are 87 days away, so these warnings come from the game clock  87 days on the real clock
+
+4. SIGNING IS DATED ON THE GAME CLOCK
+  PASS  signing on game day 20 Dec 2026 succeeds  HTTP 201 {"id":7,"playerId":31,"teamId":1,"salary":13400,"startDate":"2026-12-20","endDate":"2026-12-31","bonusPerWin":0,"status":"active","createdAt":"2026-10-05T04:14:51.000Z","origin":null,"fee":13200,"priceRange":{"low":11000,"high":15500},"signedBlind":true,"academyPlace":null,"player":{"id":31,"name":"Valentina Sosa","speed":75,"power":76,"defense":61,"serve":68,"block":61,"stamina":72}}
+  PASS  the contract starts on the game date, and ends when the season does — not a year after signing  start 2026-12-20, end 2026-12-31
+  PASS  the end date the client sent is ignored  sent 2030-12-31, got 2026-12-31
+
+4b. A RENEWAL RUNS FOR ONE OF THE THREE LENGTHS (L-02a)
+  PASS  a length outside the three is refused at signing  HTTP 400 Contract length must be one of 6m, 1s, 2s (6 months, 1 season, 2 seasons).
+  PASS  and at renewal  HTTP 400 Contract length must be one of 6m, 1s, 2s (6 months, 1 season, 2 seasons).
+  PASS  a 2-season renewal ends two seasons past the old contract, not one  HTTP 200 2026-12-31 -> 2028-12-31
+
+5. THE CONTRACTS PAGE
+  PASS  the page renews through the API (useRenewContract) and offers the three lengths
+  PASS  the page counts days from the game date, not the machine's clock
+
+=== 27/27 passed ===
+
+########## 21/99  EMPTY SQUAD FORFEIT (R-48) ##########
+========================================================================
+  R-48 A CLUB WITHOUT TWO CONTRACTED PLAYERS FORFEITS
+========================================================================
+  PASS  club A is down to one contracted, active player  1 active
+
+1. THE MANAGER IS TOLD
+  PASS  the dashboard's Squad item is red and says matches are forfeited  {"id":"squad-incomplete","priority":"red","category":"Squad","title":"Build Your Squad","description":"You have no players signed — visit the Player Market to sign your first starters. Until two players can take the sand, every match is forfeited.","navigateTo":"/players"}
+  PASS  both clubs reach a World Tour match day  A 1, B 60
+
+2. THE MATCH CANNOT BE PLAYED
+  PASS  the live match refuses to start  HTTP 409 {"error":"Your club has fewer than 2 contracted players fit to play — injured players cannot be selected. Sign or renew players on the Contracts page. Played or simulated, the match is forfeited.","squadIncomplete":true}
+  PASS  simulating it is a forfeit, and says why  HTTP 200 {"forfeit":true,"reason":"Your club has fewer than 2 contracted players fit to play — injured players cannot be selected. Sign or renew players on the Contracts page."}
+  PASS  the match is completed as a forfeit, with no score and no sets  {"status":"completed","home_score":null,"away_score":null,"sets":null,"forfeit":1}
+  PASS  one more loss; board confidence unchanged and the board counts the forfeit, as a manual forfeit (R-53)  losses 0->1, confidence 60->60, board forfeits 0->1
+  PASS  the World Tour fixture is completed, no score, and the opponent is credited the win (item 24)  {"status":"completed","home_sets":null,"away_sets":null,"opp":34}; opponent wins 1
+  PASS  the club's ranking row carries the loss  {"wins":0,"losses":1}
+
+3. CONTROL: A FULL SQUAD PLAYS FOR REAL
+  PASS  club B's match is not a forfeit  HTTP 200 forfeit=undefined
+  PASS  it is a real best-of-three with set scores  2-0, 2 sets
+
+=== 11/11 passed ===
+
+########## 22/99  INJURIES AND FITNESS (R-50) ##########
+========================================================================
+  R-50 INJURIES AND FITNESS DECIDE WHO PLAYS, AND HOW WELL
+========================================================================
+
+0. THE OLD 'IGNORE FITNESS AND INJURIES' PATHS ARE GONE
+  PASS  none of the old paths remain in 131 api source files  clean
+  PASS  the scan is real: each old line planted back is caught  #1 the whole active squad rated on full stats | #2 the whole active squad as the side | #3 the top two active seniors, injured or not | #4 fitness recovery gated on low fatigue | #5 playing through an injury
+  PASS  every match path picks the side through selectPair
+  PASS  the board's able-to-play check excludes the injured
+
+1. THE SCREENS
+  PASS  the Team page shows each player's fitness, what she plays at, and an injury that rules her out
+  PASS  the Next Match card names the pair, their fitness, and who cannot be selected
+  PASS  Sim Result's auto-pick leaves injured players out
+  PASS  the lineup pickers refuse an injured player
+
+2. THE SAME PAIR, 5,000 MATCHES AT EACH FITNESS
+  PASS  the dev win-rate endpoint answers  HTTP 200
+  PASS  the rating /simulate uses is the pair's stats × (0.6 + 0.4 × fitness/100): 89.5, 71.6, 53.7  89.5 / 71.60000000000001 / 53.699999999999996
+  PASS  a fitness-0 pair loses far more often than the same pair at 100 (z > 10), and 50 sits between  win rate vs an 80-rated side: fitness 100 61.4%, 50 40.3%, 0 20.1% over 5000 each (z = 42.1)
+
+3. AN INJURED STARTER IS NEVER IN A LINEUP
+  PASS  the established starting squad: two starters and an interchange  Yaritza Mendez (starter), Camila Santiago (interchange), Nyasha Ncube (starter)
+  PASS  the career reaches its first World Tour match day  match 1
+  PASS  the dashboard's next match names the fit pair and says the injured starter cannot be selected  {"players":[{"id":298,"name":"Nyasha Ncube","fitness":100,"contribution":100},{"id":292,"name":"Camila Santiago","fitness":100,"contribution":100}],"unavailable":[{"id":285,"name":"Yaritza Mendez","injuryStatus":"Major Injury","weeksOut":3}],"willForfeit":false}
+  PASS  the Unity payload sends the fit pair, never the injured starter  HTTP 200, players 298, 292, 1, 2
+  PASS  a manual lineup with the injured starter is refused, and says why  HTTP 400 That lineup cannot be selected: Yaritza Mendez is injured (Major Injury).
+  PASS  auto-selection skips her: the pair that played is the other starter and the interchange  HTTP 200, lineup 298, 292, stored [298,292]
+  PASS  the injured starter was not charged for the match; the pair was  A fitness 100->100; B 100->94; C 100->94
+
+4. /SIMULATE RATES THE PAIR BY ITS FITNESS
+  PASS  at fitness 0 the side is rated at 0.6 of the pair's stats  squadRating 50.650, pair stats 84.417 × 0.6 = 50.650
+  PASS  at fitness 100 the side is rated at 1 of the pair's stats  squadRating 84.417, pair stats 84.417 × 1 = 84.417
+
+5. REST DAYS EXIST, AND A REST DAY RECOVERS
+  PASS  a rest day: a fit player +2 fitness, -5 fatigue  C 52% / fatigue 35
+  PASS  an injured player recovers more slowly: +1 fitness, -3 fatigue  A (Major Injury) 51% / fatigue 37
+  PASS  the calendar leaves at least one rest day between the club's World Tour matches  match days 2026-02-17, 2026-02-22, 2026-02-26, 2026-03-03, 2026-03-08, 2026-03-12; gaps 5, 4, 5, 5, 4 days
+
+6. INJURIES HEAL WEEKLY; TWO OF THREE OUT FORFEITS
+  PASS  a one-week injury heals on the calendar's weekly tick, with no match rested required  A Healthy, weeks 0
+  PASS  with two of three injured the dashboard says the next match will be forfeited  {"players":[{"id":285,"name":"Yaritza Mendez","fitness":78,"contribution":91}],"unavailable":[{"id":298,"name":"Nyasha Ncube","injuryStatus":"Minor Injury","weeksOut":2},{"id":292,"name":"Camila Santiago","injuryStatus":"Major Injury","weeksOut":3}],"willForfeit":true}
+  PASS  and the attention panel says why  {"id":"squad-unfit","priority":"red","category":"Squad","title":"Not Enough Fit Players","description":"Only 1 of your players can play. Injured players cannot be selected, so every match is forfeited until someone recovers or you sign cover.","navigateTo":"/players"}
+  PASS  the match is forfeited: one fit player cannot take the court  HTTP 200 Your club has fewer than 2 contracted players fit to play — injured players cannot be selected. Sign or renew players on the Contracts page.
+
+=== 27/27 passed ===
+
+########## 23/99  SEASON TROPHIES (R-42) ##########
+========================================================================
+  R-42 TROPHIES ARE WRITTEN AT THE SEASON BOUNDARY
+========================================================================
+
+0. THE CODE PATHS
+  PASS  the season rollover awards the season's trophies
+  PASS  the season review shows the honours won
+  PASS  the club's trophy cabinet shows tier seasons and World Finals placings
+
+1. A NEW CAREER HAS NO TROPHIES
+  PASS  no trophy rows, and every cabinet row is empty  0 rows; cabinet {"worldChampionships":0,"continentalChampionships":0,"continentalFinalsByContinent":{},"grandFinals":0,"runnerUps":0,"bronzes":0,"worldTourTiers":0}
+
+2. EACH SEASON EARNS EXACTLY WHAT HAPPENED IN IT
+  PASS  every season played reached its boundary  T1 runner-up/87, T2 semi-finalist/82, T3 champion/101
+  PASS  every season wrote exactly the trophy rows it earned, dated to that season  T1 runner-up/87, T2 semi-finalist/82, T3 champion/101
+  PASS  every season review showed the same rows as the database  T1 runner-up/87, T2 semi-finalist/82, T3 champion/101
+  PASS  a champion season was played and produced exactly World Champions 2026 plus its tier  Trophy3: world_championship:World Champions 2026 | world_tour_tier:World Tour Gold tier 2026
+  PASS  the champion's trophy cabinet shows the title and its tier season  {"titles":["World Champions 2026"],"tiers":["World Tour Gold tier 2026"]}
+
+=== 9/9 passed ===
+
+########## 24/99  INVENTED CONTENT REMOVED (R-43) ##########
+========================================================================
+  R-43 INVENTED CONTENT IS DELETED, NOT STUBBED
+========================================================================
+
+0. NONE OF IT IS LEFT IN THE SOURCE
+  PASS  none of the invented content remains in 571 api, frontend, spec, schema, script and generated files  clean
+  PASS  the scan is real: a planted line of each is caught  #1 caught | #2 caught | #3 caught | #4 caught | #5 caught | #6 caught | #7 caught | #8 caught | #9 caught
+  PASS  the boot migration drops exactly the six removed tables  REMOVED_TABLES = [ai_manager_events, ai_managers, poaching_offers, youth_championship_trophies, youth_ladder, youth_league_results]
+  PASS  the built frontend (3 js files) shows none of the removed screens  clean
+
+1. THE SHIPPED DATABASE HAS NONE OF IT
+  PASS  no removed table and no youth_result column in the starter  tables left [], youth_result false
+
+2. AN OLDER SAVE LOSES THE TABLES AT BOOT, AND ITS PROFILE CAN STILL BE DELETED
+  PASS  boot drops all six tables and the youth_result column  tables left [], youth_result false
+  PASS  the older save's profile, which had rows in every one of them, deletes cleanly  HTTP 200 ; users left 0
+
+3. EVERY REMOVED ENDPOINT IS GONE
+  PASS  each answers 404  GET /news/world-tour 404 | GET /ai-managers/feed 404 | GET /poaching/offers 404 | POST /poaching/offers/1/accept 404 | POST /careers/apply-job 404 | GET /youth-league/results 404 | GET /youth-league/ladder 404 | GET /youth-league/stars 404 | GET /youth-league/championship 404
+
+4. EVERY NEWS ITEM NAMES A REAL ROW
+  PASS  after 6 match days the feed has real results and signings  HTTP 200; 9 items: 6 results, 3 signings
+  PASS  every item traces to its row, with that row's own game date  9 items checked
+
+5. THE OLYMPIC SCHEDULE INVENTS NOTHING
+  PASS  outside an Olympic year there is no tournament, and two reads are identical  HTTP 200; {"isOlympicYear":false,"olympicsYear":2028,"tournament":null}
+
+=== 11/11 passed ===
+
+########## 25/99  DASHBOARD TIER AND BOARD STANDING (R-58) ##########
+========================================================================
+  R-58 THE DASHBOARD SHOWS THE TIER AND THE BOARD'S STANDING
+========================================================================
+
+0. THE SCREEN READS IT FROM THE API
+  PASS  the dashboard renders a tier badge from the dashboard's ranking
+  PASS  the dashboard renders the board's standing line as the server wrote it
+  PASS  the dashboard does not grade the standing itself  no band arithmetic or verdict words in the page
+
+1. BEFORE THE DRAW, AND AT IT
+  PASS  before the draw: no standing, no current finish  {"standing":null,"currentFinish":null,"currentGrade":null}
+  PASS  a new established career: the badge shows Silver from day one (0 points, paid Silver purses)  {"points":0,"tier":"Silver","pointsTier":"Bronze","purseAccessTier":"Silver"}
+  PASS  at the draw, before a World Tour result: the expectation and that nothing is played yet  "Board expects: top 4 · No World Tour result yet" (strength #1)
+
+2. PLAYED: THE BOARD'S CURRENT FINISH IS THE STANDINGS RANK
+  PASS  current finish = the dashboard's standings rank, graded by the board's bands  rank 14, board 14 failed, strength #1
+  PASS  the standing line says exactly that  "Board expects: top 4 · Currently: 14th · Failing expectations" vs "Board expects: top 4 · Currently: 14th · Failing expectations"
+
+3. THE WORDS FOLLOW THE BAND
+  PASS  a new underdog career: the badge shows Bronze  {"points":0,"tier":"Bronze","pointsTier":"Bronze","purseAccessTier":"Bronze"}
+  PASS  an underdog club sits 9th or worse, so there is room to move the bands  rank 17
+  PASS  the same finish reads below expectations, then failing, exactly as the board grades it  strength #13: "Board expects: top 16 · Currently: 17th · Below expectations" (board below) | strength #9: "Board expects: top 12 · Currently: 17th · Failing expectations" (board failed)
+
+4. THE TIER BADGE IS THE SEASON'S RANKING ROW
+  PASS  points are the ranking row's; the badge is the higher of the tier they reach (R-54) and Silver, the tier it is paid at  row 5, dashboard {"points":5,"tier":"Silver","pointsTier":"Bronze","purseAccessTier":"Silver"}
+
+=== 12/12 passed ===
+
+########## 26/99  RESIGN AND BREAK CONTRACT END THE CAREER (R-60) ##########
+========================================================================
+  R-60 RESIGN AND BREAK CONTRACT END THE CAREER
+========================================================================
+
+0. THE SCREENS AND THE ROUTES
+  PASS  both confirmation dialogs say it plainly  2 dialog(s) carry "This ends your career at {clubName}. There is no job market yet."
+  PASS  both go to the finished screen, which names each ending
+  PASS  no route clears a save's club any more  0 occurrence(s) in routes/careers.ts
+
+1. RESIGN ENDS THE CAREER
+  PASS  the resignation is accepted and says the career ended  HTTP 200 {"ok":true,"clubName":"Resigner FC","careerEnded":true}
+  PASS  the save is finished and keeps its club  retired_at 1791173742, team_id 1 (club 1)
+  PASS  its own reason is recorded, first in the history, and it is archived to the Hall of Fame  "Resigner resigned from Resigner FC. The career has ended: there is no job market yet."; hall of fame 1
+  PASS  the session no longer has a career, and resigning again is refused  dashboard 404, second resign 400
+
+2. BREAK CONTRACT PAYS THE CLAUSE, THEN ENDS THE CAREER
+  PASS  the release clause comes out of the club's budget  HTTP 200; budget 500000 -> 475000
+  PASS  the career is finished, keeps its club, and says why  retired_at 1791173742, team_id 2; "Breaker broke the contract with Breaker FC, paying the $25,000 release clause. The career has ended: there is no job market yet."
+
+3. NO SAVE IS LEFT WITHOUT A CLUB
+  PASS  no open save has no club  0 open save(s) without a club
+
+4. A SAVE AN OLDER BUILD LEFT WITHOUT A CLUB IS FINISHED AT BOOT
+  PASS  the older build's state is really there before the boot  1 open save(s) without a club
+  PASS  the boot finishes it: retired, and no open save is left without a club  retired_at 1791173743; open without a club 0
+
+=== 12/12 passed ===
+
+########## 27/99  OLYMPIC TOURNAMENT (R-61) ##########
+========================================================================
+  R-61 A REAL OLYMPIC TOURNAMENT
+========================================================================
+
+0. THE CODE
+  PASS  the draw-only schedule and the manager-picked squads are gone
+  PASS  the tournament plays on the World Tour's engine
+  PASS  the rules page says what the tournament does
+
+1. A CAREER PLAYED TO 2028
+  PASS  no Games in 2026 or 2027, one in 2028  career 1; tournaments [2028]
+  PASS  only the Olympic year's season row is marked Olympic  [{"year":2026,"is_olympic_season":0},{"year":2027,"is_olympic_season":0},{"year":2028,"is_olympic_season":1}]
+
+2. WHEN IT IS PLAYED
+  PASS  after every regular World Tour fixture, dated between round 70 and the World Finals  played 2028-11-25; 0 regular fixture(s) still open
+  PASS  before the World Finals semi-finals are seeded  2 semi-final fixture(s), created 1791173780,1791173780 vs Games 1791173780
+  PASS  the schedule shows the tournament that was played, the same on every read
+
+3. THE FIELD
+  REPORT  52 nations can field a pair; 2 have fewer than two eligible players: Ireland (1), Portugal (1)
+  PASS  12 nations  USA, Australia, Nigeria, Germany, Brazil, Egypt, China, Peru, South Africa, Spain, Thailand, Argentina
+  PASS  drawn in qualifying order, skipping only nations that cannot field two  ranks 1,2,3,4,5,6,7,8,9,10,11,12; passed over []
+  PASS  every pair is that nation's two highest-rated real players at any club  12 pairs match
+  PASS  real players from real clubs, never invented  12 clubs
+
+4. THE MATCHES
+  PASS  12 group matches: each group a round robin of its three nations
+  PASS  8 knockout matches: 4 quarter-finals, 2 semi-finals, bronze and gold (the brief's line said 16; this format plays 8)  8 knockout
+  PASS  every score is a real best-of-three  20 matches
+
+5. THE BRACKET
+  PASS  the quarter-finalists are each group's top two: A1–C2, B1–D2, A2–C1, B2–D1  [["Peru","Nigeria"],["China","Brazil"],["South Africa","Thailand"],["Spain","Germany"]]
+  PASS  the semi-finalists are the quarter-final winners
+  PASS  bronze is played by the semi-final losers, gold by the winners
+
+6. THE MEDALS
+  PASS  exactly one gold, one silver and one bronze nation, each with its two medallists  gold Germany, silver Peru, bronze Thailand
+  PASS  the medallists are the medal nations' pairs
+  PASS  the club's own players were in the field, so its honours path is exercised  Charlotte Wade (Australia), Mia Anderson (Australia)
+  PASS  a medal is on each of the career's own medallists' records  0 of the club's player(s) medalled
+  PASS  the club's Olympic trophies are exactly the medals and appearance its players earned  expected [olympic_appearance], got [olympic_appearance]
+
+7. CLUB NEWS
+  PASS  Club News reports the Games and who won gold  "Germany win Olympic gold 2028" 2028-11-25
+
+=== 24/24 passed ===
+
+########## 28/99  ACADEMY INTAKE (R-62) ##########
+========================================================================
+  R-62 ACADEMY INTAKE
+========================================================================
+
+0. THE CODE AND THE DATA
+  PASS  the intake's ratings are the 72 shipped youth's distribution, measured again from the starter DB  72 youth; positions {"blocker":27,"defender":23,"all_rounder":22}; potential {"High":47,"Elite":15,"Average":10}
+  PASS  the template card is the one every shipped youth wears, and it is on disk  /images/players/youth/player_youth_all_01_1783432743064.webp
+  PASS  the starter DB owns no players and holds no intakes
+  PASS  the rules page says what the intake does
+
+1. THE FIRST FOUR SEASON BOUNDARIES OF A CAREER
+  PASS  the career crossed 4 boundaries, every one of them opening a season (no career-complete result exists any more)  1->2, 2->3, 3->4, 4->5
+  PASS  the career is still going after them — season 5 is active, not the end  year 2030, Season 5, active
+
+2. THE INTAKES
+  REPORT  the first 4 boundaries each open a season (2027-2030) and bring an intake; the career carries on past them
+  PASS  four intakes, one for each season the career opened (2027-2030), none at career creation  [2027,2028,2029,2030]
+  PASS  each intake is for the player's club on the new season's first day, at least 3 strong (or every free place, when fewer are free) and never past the cap of 6  2027: 3 on 2027-01-01, academy 3/6 | 2028: 5 on 2028-01-01, academy 6/6 | 2029: 0 on 2029-01-01, academy 6/6 | 2030: 4 on 2030-01-01, academy 6/6
+  PASS  each rollover reports the intake it made
+  PASS  each intake joined the club's academy the day it arrived  3 reserves | 8 reserves | 8 reserves | 10 reserves
+
+3. THE NEW PLAYERS
+  PASS  every new player has a card, and the file exists on disk  12 players
+  PASS  every card is a real card, and no two of them share a face unless it is the blank template  player_senior_fiji_04.webp x1, player_senior_monaco_01.webp x1, player_senior_costa_rica_04.webp x1, player_senior_tonga_04.webp x1, player_senior_tahiti_04.webp x1, player_senior_samoa_04.webp x1, player_senior_bolivia_04.webp x1, player_youth_all_01_1783432743064.webp x3, player_senior_morocco_02.webp x1, player_senior_canada_04.webp x1
+  PASS  every one a youth player aged 16-18 at intake, owned by this career  ages 16,18,18,17,17,16,16,17,16,16,17,17
+  PASS  every one is in the academy, a graduate the club holds, or a graduate it let go  4 promoted, 6 in the academy, 2 released over the cap
+  PASS  and every graduate still at the club has the senior contract promotion writes  no graduate without one
+  PASS  and every graduate it let go left no contract open behind her  2 released cleanly
+  PASS  every rating inside the range the shipped youth span  means: speed 52.5, power 48.0, defense 47.9, serve 49.8, block 45.4, stamina 55.2, height 177.5
+  PASS  every nationality is a nation of the club's region (south_america)  5 of 12 from Brazil; others Peru, Bolivia, Peru, Peru, Argentina, Argentina, Ecuador
+  FAIL  every name is new: no other athlete, shipped, pool or created, has it  Sofía Rodríguez, Sofía Rodríguez
+  PASS  every first name and surname belongs to a real athlete of that nation
+
+4. CLUB NEWS
+  PASS  Club News reports each intake, with every name in it, on its date  2027: "3 youth players join the Academy1 FC academy" | 2028: "5 youth players join the Academy1 FC academy" | 2029: "The Academy1 FC academy is full (6/6): no intake this year" | 2030: "4 youth players join the Academy1 FC academy"
+
+5. ANOTHER CAREER NEVER SEES THEM; A DRY ACADEMY SAYS SO
+  PASS  a new career is not seeded with another career's intake  0 state rows; 72 in the new career's youth pool
+  REPORT  the club's region (south_america) still holds 182 unused names after this career's 12: 60 more seasons of intakes of 3 (Chile 18, Argentina 17, Peru 14, Guyana 8, Brazil 41, Ecuador 11, Bolivia 6, Colombia 19, Venezuela 26, Uruguay 22). The card is a template, so cards never run out.
+  PASS  the academy never ran dry in four intakes (each filled its free places), and the region holds names for many more  182 names left
+  (took 75559 names: 255 first names x 298 surnames)
+  PASS  with no name left, the intake creates no one: never a player without a real name  1 intake row(s), 0 players; 0 created
+  PASS  Club News says the academy found no one that year  "The Elsewhere FC academy found no one this year" 2027-01-01
+
+=== 24/25 passed ===
+
+Logs kept: C:\Users\rbonn\AppData\Local\Temp\vbe-intake-u8lXBU
+
+########## 29/99  ACADEMY CAP AND WAGES (R-63) ##########
+========================================================================
+  R-63 ACADEMY CAP AND WAGES
+========================================================================
+
+0. THE CODE
+  PASS  the cap is one constant, 6 (3 youth team + 3 reserves), and the signing rule, the scouting sign route, the intake and the roster read it
+  PASS  the Team page has no academy number of its own: its banner and text read the roster's cap
+  PASS  the academy wage table exists once  artifacts/api-server/src/utils/academy.ts
+  PASS  the match route and the contract tick charge no wages; the weekly wage run bills the academy
+
+1. SIGNING UP TO THE CAP
+  PASS  a new club's roster reports an empty academy and its cap  {"size":0,"cap":6}
+  PASS  6 youth players sign into the academy  {"size":6,"cap":6}
+  PASS  the 7th is refused, naming the cap  HTTP 422 "Academy is full (6/6). Promote or release an academy player before signing another."
+  PASS  releasing one leaves 5 of 6  {"size":5,"cap":6}
+
+2. WAGES: ONCE A WEEK, NEVER AFTER A MATCH
+  PASS  every salary week bills once: seniors' monthly / (52/12) + each academy player's weekly academy wage  52 salary weeks, 52 with 11 in the academy (academy part $525/week)
+  PASS  no match writes a wage row  56 matches
+  PASS  no match moves the budget by anything but its own ledger rows  56 matches reconciled
+
+3. THE INTAKE STOPS AT 6
+  PASS  an academy of 5 takes exactly 1, to 6  1 joined, outcome joined, academy 6; roster {"size":6,"cap":6}
+  PASS  Club News says one joined and the academy is now full  "1 youth player joins the CapEleven FC academy" — Fernanda Fernandes (Brazil, 16) · The academy is now full (6/6)
+  PASS  a club over the cap (7) keeps her and signs no one, naming 7/6  {"size":7,"cap":6}; 422 Academy is full (7/6). Promote or release an academy player before signing another.
+  PASS  an academy over 6 takes no one at the season change, and nobody is released  0 joined, outcome full, academy 7
+  PASS  Club News says the academy is full  "The CapTwelve FC academy is full (7/6): no intake this year"
+  PASS  a full academy's season bills its wages once a week too, and never after a match  52 weeks, 56 matches
+
+4. WHAT A FULL ACADEMY COSTS
+  REPORT  CapTwelve's academy of 6 cost $725/week; billed in 52 salary weeks of 2026: $37,700 for the season.
+  REPORT  At the shipped youth's potential mix ($106.94/player/week): $33,367 a season; all Average $23,400, all Elite $46,800. The weekly run also charges staff at 20% of the wage bill, which adds 20% on top.
+  PASS  a full academy's season was billed at 6 players' weekly academy wages  52 weeks at $725
+
+=== 18/18 passed ===
+
+########## 30/99  WIZARD CAREER ECONOMY AND STAFF WAGES (R-67) ##########
+========================================================================
+  R-67 WIZARD CAREER ECONOMY AND STAFF WAGES
+========================================================================
+
+0. THE STAFF DATA
+  PASS  every staff salary in the starter DB is a monthly figure (none above $25,000)  120 staff, $4,800-$20,000; seeded 118
+  PASS  Sofia Andersen's salary is her annual $145,000 over 12  $12083/month
+  PASS  the seed scripts write monthly figures (annual / 12 where they insert)
+
+1. A WIZARD CAREER STARTS ON THE DESIGN'S BUDGET
+  PASS  underdog: a career from the wizard's payload starts on $150,000  HTTP 200; club "Maldives Coral Kings" template budget 300000; team budget 150000
+  PASS  established: a career from the wizard's payload starts on $500,000  HTTP 200; club "Maldives Coral Kings" template budget 300000; team budget 500000
+
+2. HIRING THE HEAD COACH
+  PASS  Sofia Andersen is on the market in a wage range that holds $12,083 a month  salary null, range {"low":10000,"high":14000}
+  PASS  and hired, her wage is $12,083 a month  salary 12083
+  PASS  hiring her costs one month's salary, not a year's  HTTP 201; budget $150,000 -> $137,917
+
+3. THE WEEKLY STAFF BILL
+  PASS  the first salary week bills her once, at $12,083 / (52/12) = $2,788  2026-01-08 Weekly staff wages (1 staff) $2788
+  PASS  the hire is recorded as a one-month signing fee  "Signed Sofia Andersen (Head Coach) — signing fee, one month's salary" $12083
+  PASS  the Finances staff wage bill shows the same monthly and weekly figures  monthly $12083, weekly $2788
+  REPORT  underdog wizard career: start $150,000; after hiring Sofia Andersen $137,917 (was $5,000 in Rob's save); her wage $12,083/month = $2,788/week (was shown as $145,000/month = $33,462/week)
+
+4. A SAVE MADE BEFORE THE FIX IS REPAIRED ON BOOT
+  PASS  the reference data brings base_salary back to monthly and each career's live wages follow  236 annual live wages planted; log repaired 236; Sofia Andersen base $12083, live $12083; 0 still annual
+  NOTE  graceful shutdown failed, fell back to SIGKILL — shutdown message could not be sent (no IPC channel?)
+
+=== 12/12 passed ===
+
+########## 31/99  CALENDAR CLOCK TICKS VISIBLY (R-68) ##########
+========================================================================
+  R-68 THE CALENDAR CLOCK TICKS VISIBLY
+========================================================================
+  PASS  running means a speed is set and no match is waiting
+  PASS  the date is keyed on the current date and replays the tick animation while running
+  PASS  a bar fills across the ticker's own interval, restarting each day
+  PASS  a pulsing dot shows beside the speed while the clock runs
+  PASS  the animations exist in the stylesheet, and motion is reduced when the player asks
+  PASS  the ticker intervals are the ones the bar uses  slow 3000 ms
+  PASS  the built bundle the server serves carries the tick, the bar and the dot
+
+=== 7/7 passed ===
+
+########## 32/99  SOUNDTRACK PLAYLIST AND PLAYER (R-79) ##########
+========================================================================
+  R-79 SOUNDTRACK PLAYLIST AND PLAYER
+========================================================================
+  PASS  the playlist has tracks in it  18 listed
+  PASS  the music folder has files in it  18 on disk
+  PASS  every track in the playlist has a file on disk  18 files
+  PASS  every file on disk is in the playlist  no orphans
+  PASS  no track is a zero-byte file  all non-empty
+  PASS  no track is listed twice
+  PASS  every track has a title
+  PASS  the title track is first and is the one the game is named after  Beach Volleyball Empire
+  PASS  the frontend build output carries all 18 tracks  18 files
+  PASS  the directory the server serves carries all 18 tracks  18 files
+  PASS  the provider is mounted inside WouterRouter and wraps the whole Router
+  PASS  nothing renders the provider inside Shell or a page
+  PASS  no screen before the dashboard reloads the window (it restarts the music)  4 files, all in-app
+  PASS  the audio element is created once, not rendered as JSX
+  PASS  the first pass is the title track then the rest shuffled
+  PASS  a later pass reshuffles every track and never repeats across the seam
+  PASS  the next track starts on its own when one ends
+  PASS  a track that will not load is skipped with a warning, never a dialog
+  PASS  a whole folder of failures stops instead of looping forever
+  PASS  the bar has skip, mute and a volume slider
+  PASS  the bar shows the song now playing
+  PASS  the bar is in the sidebar (desktop rail and mobile sheet) and on the title screen
+  PASS  volume and mute are saved under one key and restored on launch
+  PASS  every storage access is wrapped so blocked storage cannot break the game  4 storage accesses
+  PASS  the defaults are 40% and not muted
+  PASS  on /court the music fades out and stops; leaving the court plays the next song at the normal volume
+  PASS  Electron lifts Chromium's autoplay block so the music starts on its own
+  PASS  a plain browser still gets a first-gesture retry
+
+=== 28/28 passed ===
+========================================================================
+  ROB, 2 OCT: REFERENCE CORRECTIONS (TWO MOVES, TWO RENAMES)
+========================================================================
+
+1. THE STARTER DB
+  PASS  Aoife O'Sullivan plays for Dublin Emerald Spikers (EUR_10)
+  PASS  Yasmin Grech plays for Lisbon Atlantic Blaze (EUR_09)
+  PASS  AUS_08_P2 is Salote Taufa  Salote Taufa
+  PASS  AUS_04 is Maui Hula Warriors  Maui Hula Warriors
+
+2. ROB'S 2 OCT SAVE (A COPY), AT BOOT
+  PASS  the copy has the old state before the boot  Aoife at EUR_09, Yasmin at EUR_10, Honolulu Hula Warriors, 4 stored rows with the old club name
+  PASS  Aoife O'Sullivan is at Dublin Emerald Spikers, her contract and wage with her  contract #1190 EUR_09 -> EUR_10, to 2026-07-01, $10325 -> $18525 a month (the money pass sets every pool wage at this boot)
+  PASS  Yasmin Grech is at Lisbon Atlantic Blaze, her contract and wage with her  contract #1192 EUR_10 -> EUR_09, to 2026-07-01, $9890 -> $17590 a month
+  PASS  their stats are their own, unchanged
+  PASS  Salote Taufa, and Maui Hula Warriors  Salote Taufa; Maui Hula Warriors
+  PASS  past results and fixtures show the club under its new name  3 matches now Maui Hula Warriors, 0 left with the old name
+  PASS  a second boot changes nothing
+
+=== 11/11 passed ===
+
+########## 33/99  CONTRACT TERMS (L-02a) ##########
+========================================================================
+  L-02a CONTRACT LENGTHS, COVERAGE, STAFF EXPIRY, PAYOUT
+========================================================================
+  PASS  a career was created  HTTP 200
+
+1. THE ONLY THREE LENGTHS
+  PASS  there are free agents to sign  100
+  PASS  a 5-season contract is refused, and the message says what is allowed  HTTP 400 Contract length must be one of 6m, 1s, 2s (6 months, 1 season, 2 seasons).
+  PASS  a numeric month count is refused too  HTTP 400
+
+2. EACH LENGTH ENDS WHERE IT SHOULD
+  PASS  a 6m contract is accepted  HTTP 201 {"id":4,"playerId":31,"teamId":1,"salary":5000,"startDate":"2026-01-01","endDate
+  PASS  a 1s contract is accepted  HTTP 201 {"id":5,"playerId":32,"teamId":1,"salary":5000,"startDate":"2026-01-01","endDate
+  PASS  a 2s contract is accepted  HTTP 201 {"id":6,"playerId":33,"teamId":1,"salary":5000,"startDate":"2026-01-01","endDate
+  PASS  6m ends six months after the GAME date, not the real-world date  signed 2026-01-01 -> ends 2026-07-01
+  PASS  1s ends on the end of the season being played  2026-12-31 vs season end 2026-12-31
+  PASS  2s ends on the end of the season after that  2027-12-31 vs 2027-12-31
+  PASS  a 2-season contract is LONGER than a 1-season one (the old one-year cap made them equal)  2026-12-31 -> 2027-12-31
+
+3. NOBODY AT A CLUB WITHOUT A CONTRACT (fresh career)
+  PASS  zero contract-less players at the club  0
+
+4. STAFF AND MEDICAL CONTRACTS EXIST AND EXPIRE
+  PASS  the staff market has people  110
+  PASS  a staff member can be hired on a 6m contract  HTTP 201
+  PASS  the staff contract has a term and real dates (contract_length alone never ended anything)  term 6m, 2026-01-01 -> 2026-07-01
+  PASS  a staff contract of any other length is refused  HTTP 400
+  PASS  a medical staff member is hired on a contract too  HTTP 201
+  PASS  the medical contract carries its term and end date  term 1s, ends 2026-12-31
+  PASS  the club can field a pair before the clock runs (R-48 abandonment otherwise ends the career)  3 contracted
+  PASS  the harness knows the real warning window  CONTRACT_WARNING_DAYS = 28
+  PASS  the club was warned four weeks before the coach's contract ran out  "Contract Expiring: Valentino Greco" (orange, 28 days out)
+  PASS  past its end date the staff contract expired and returned him to the pool  after 210 days (reached the end date): team null, ends null
+
+5. ENDING A CONTRACT EARLY IS PAID OUT
+  PASS  the free agent pool is readable for the payout scene  HTTP 200, 100
+  PASS  a 2-season deal to pay out was signed  HTTP 201
+  PASS  terminating it early charged the club the remainder  payout 144000; balance 983600 -> 839600
+  PASS  and the ledger says what it was for  Contract paid out — Chloe Bethel released to 31 Dec 2027 $144000
+
+6. THE FRONTEND'S LIST CANNOT DRIFT FROM THE SERVER'S
+  PASS  the two CONTRACT_LENGTHS lists are identical  server [6m,1s,2s] ui [6m,1s,2s]
+  PASS  and so are the labels the player reads  "6m": "6 months"|"1s": "1 season"|"2s": "2 seasons"
+  PASS  the renew bar warns on the server's window, not a number of its own  bar 28, server 28
+  PASS  no screen offers a month-count contract any more
+
+7. PROMOTING A YOUTH PLAYER WRITES HIS SENIOR CONTRACT
+  PASS  promoting him to the senior squad was accepted  HTTP 200
+  PASS  and it wrote the senior contract that promotion used to skip  0 before -> 2027-12-31 after
+  PASS  on the length the promotion asked for, not a length of its own  2027-12-31 vs 2s = 2027-12-31
+  PASS  a promotion on a length that does not exist is refused  HTTP 400 Contract length must be one of 6m, 1s, 2s (6 months, 1 season, 2 seasons).
+
+8. A CONTRACT YOU CAN END IS ONE OF YOURS
+  PASS  a second career was created, with a club of its own  HTTP 200, team 2 vs 1
+  PASS  and a squad under contract to it  contract 12
+  PASS  the first career is the one being played again  HTTP 200
+  PASS  another club's contract cannot be torn up from yours  HTTP 404 Contract not found
+  PASS  and it is still their player, on their books  active at club 2
+  PASS  and nobody was charged a payout for it  $986800 -> $986800
+
+=== 40/40 passed ===
+
+########## 34/99  RETIREMENT AT FORTY (L-02b) ##########
+========================================================================
+  L-02b RETIREMENT AT FORTY, AND THE NAMES AND FACES IT RETURNS
+========================================================================
+  PASS  a career was created  HTTP 200
+  PASS  the career starts with three seniors under contract  3 senior(s)
+  PASS  each of the three holds a live contract  3 of 3
+  PASS  the club's contracts are all live before the boundary  3
+
+1. THE SEASON TURNS AND THE FORTY-YEAR-OLDS GO
+  PASS  the season rolled over  after 419 days
+  PASS  the player who did not turn forty is untouched  {"age":25,"retired":0,"team":1,"year":null}
+
+2. A RETIRED PLAYER'S CONTRACT IS CLOSED, NOT LEFT LYING ACTIVE
+  PASS  neither retiree still holds an active contract row  0 still active
+  PASS  and neither appears on the Contracts page  1 contract(s) listed
+  PASS  renewing a retired player's contract is refused — the thirty-season run hit this 53 times  HTTP 409 Only an active contract can be renewed.
+  PASS  neither is in the squad or on the bench any more  gone from both
+  PASS  and neither is back on the market as a free agent  neither offered
+
+3. THE HALL OF FAME DECIDES WHAT IS KEPT
+  PASS  both retirements were recorded  2 row(s)
+  PASS  the honoured player keeps her career record  {"age":40,"retired":1,"team":null,"year":2026}
+  PASS  and her name and face are hers for good  hof 1, name reused 1791173913, portrait 1791173913
+  PASS  the player nobody honoured has her career record deleted  null
+  PASS  but what she was is remembered — the record is gone, the person is not  Nyasha Ncube, age 40, /images/players/seniors/player_senior_zimbabwe_03.webp
+  PASS  her name is either still in the pool or being worn by a new player  still free
+  PASS  and so is her face  worn by Julia Ferreira
+
+4. THE SEASON REVIEW STILL NAMES EVERY RETIREMENT
+  PASS  the review names both, including the one whose record was deleted  HTTP 200: Yaritza Mendez, Nyasha Ncube
+
+=== 19/19 passed ===
+
+########## 35/99  YOUTH REBIRTH, 30 SEASONS x 3 REGIONS (L-02c) ##########
+========================================================================
+  L-02c THE ACADEMY REFILLS ITSELF — 30 SEASONS x 3 REGIONS
+========================================================================
+
+── Brazil (club in Brazil, 30 seasons) ──
+  PASS  Brazil: played 30 seasons  30 seasons
+  Season  Academy  Intake  Graduates  Squad
+       1        3       3          0      6
+       2        5       4          2     10
+       3        6       4          4     13
+       4        6       5          4     13
+       5        6       1          4     13
+       6        6       1          4     13
+       7        6       4          4     13
+       8        6       2          4     13
+       9        6       4          4     13
+      10        6       5          4     13
+      11        6       3          4     13
+      12        6       2          4     11
+      13        6       3          4     10
+      14        6       2          4     10
+      15        6       3          4     10
+      16        6       4          4     10
+      17        6       5          4     10
+      18        6       2          4     10
+      19        6       2          4     10
+      20        6       6          4     10
+      21        6       3          4     10
+      22        6       1          4     10
+      23        6       5          4     10
+      24        6       4          4     10
+      25        6       5          4     10
+      26        6       3          4     10
+      27        6       3          4     10
+      28        6       1          4     10
+      29        6       3          4     10
+      30        6       4          4     10
+  PASS  Brazil: the academy was never empty  smallest 3
+  PASS  Brazil: once full, the youth count is the same every season after it  6 from season 3 to 30
+  PASS  Brazil: never held more than 4 of its own graduates  most 4, biggest squad 13
+  PASS  Brazil: no athlete in the career is without a portrait  every one has a card
+  PASS  Brazil: every card this career drew exists on disk  3746 created athletes
+  REPORT  298 retirement(s); 283 of their names taken by a later intake
+
+── Australia (club in Australia, 30 seasons) ──
+  PASS  Australia: played 30 seasons  30 seasons
+  Season  Academy  Intake  Graduates  Squad
+       1        3       3          0      6
+       2        6       3          0      9
+       3        6       1          1     10
+       4        6       3          4     13
+       5        6       3          4     13
+       6        6       4          4     13
+       7        6       3          4     13
+       8        6       4          4     13
+       9        6       2          4     13
+      10        6       4          4     13
+      11        6       3          4     13
+      12        6       3          4     11
+      13        6       4          4     10
+      14        6       2          4     10
+      15        6       3          4     10
+      16        6       4          4     10
+      17        6       2          4     10
+      18        6       3          4     10
+      19        6       3          4     10
+      20        6       4          4     10
+      21        6       3          4     10
+      22        6       2          4     10
+      23        6       6          4     10
+      24        6       3          4     10
+      25        6       2          4     10
+      26        6       2          4     10
+      27        6       5          4     10
+      28        6       3          4     10
+      29        6       3          4     10
+      30        6       4          4     10
+  PASS  Australia: the academy was never empty  smallest 3
+  PASS  Australia: once full, the youth count is the same every season after it  6 from season 2 to 30
+  PASS  Australia: never held more than 4 of its own graduates  most 4, biggest squad 13
+  PASS  Australia: no athlete in the career is without a portrait  every one has a card
+  PASS  Australia: every card this career drew exists on disk  3794 created athletes
+  REPORT  296 retirement(s); 282 of their names taken by a later intake
+
+── Spain (club in Spain, 30 seasons) ──
+  PASS  Spain: played 30 seasons  30 seasons
+  Season  Academy  Intake  Graduates  Squad
+       1        3       3          0      6
+       2        5       4          2     10
+       3        6       4          4     13
+       4        6       1          4     13
+       5        6       5          4     13
+       6        6       1          4     13
+       7        6       1          4     13
+       8        6       5          4     13
+       9        6       3          4     13
+      10        6       0          4     13
+      11        6       5          4     13
+      12        6       2          4     11
+      13        6       2          4     10
+      14        6       3          4     10
+      15        6       3          4     10
+      16        6       5          4     10
+      17        6       2          4     10
+      18        6       4          4     10
+      19        6       2          4     10
+      20        6       3          4     10
+      21        6       2          4     10
+      22        6       3          4     10
+      23        6       2          4     10
+      24        6       4          4     10
+      25        6       0          4     10
+      26        6       3          4     10
+      27        6       3          4     10
+      28        6       2          4     10
+      29        6       5          4     10
+      30        6       2          4     10
+  PASS  Spain: the academy was never empty  smallest 3
+  PASS  Spain: once full, the youth count is the same every season after it  6 from season 3 to 30
+  PASS  Spain: never held more than 4 of its own graduates  most 4, biggest squad 13
+  PASS  Spain: no athlete in the career is without a portrait  every one has a card
+  PASS  Spain: every card this career drew exists on disk  3771 created athletes
+  REPORT  297 retirement(s); 279 of their names taken by a later intake
+  PASS  all 3 regions ran the full 30 seasons  3 of 3
+
+=== 19/19 passed ===
+
+########## 36/99  GRADUATE CAP AND TRADING (L-02d) ##########
+========================================================================
+  L-02d A CLUB KEEPS 4 OF ITS OWN GRADUATES, AND CAN TRADE THEM
+========================================================================
+  PASS  a career was created  HTTP 200
+  PASS  there are youth players to put in the academy  8
+
+1. A CLUB MAY PROMOTE 4, AND IS TOLD WHY NOT THE FIFTH
+  PASS  exactly 4 promotions were accepted  Eleni Stavrou:200 Lena Fischer:200 Litia Vakatale:200 Lea Brunner:200 Naomi Kaupa:422 Maja Larsson:422
+  PASS  the rest were refused, and the message says what to do  422 You already hold 4 of your own graduates, and a club may keep 4. Sell or release one before promoting another. | 422 You already hold 4 of your own graduates, and a club may keep 4. Sell or release one before promoting another.
+  PASS  the club holds 4 graduates  4
+  PASS  each graduate holds a contract with an end date on it  4
+
+2. A GRADUATE CAN BE SOLD WITHOUT EVER HAVING PLAYED
+  PASS  the one being sold has never played a match  0 appearances
+  PASS  releasing her is accepted  HTTP 200
+  PASS  she is on the market as a free agent, with no matches behind her  Eleni Stavrou: free_agent
+  PASS  and a club with a place free can sign her straight back  HTTP 201 {"id":8,"playerId":211,"teamId":1,"salary":4000,"startDate":"2026-01-01","endDate":"2026-1
+  PASS  the graduate the club let go left no contract open behind her  Yaritza Mendez released
+
+3. THE SEASON BOUNDARY RELEASES WHATEVER IS OVER 4
+  PASS  the club is over the cap on purpose: 8 graduates  8
+  PASS  the season rolled over  reached the boundary
+  PASS  the club came out of the boundary holding 4  8 -> 4
+  PASS  the rollover says who it let go  Lea Brunner (40), Chiara Moretti (40), Eleni Stavrou (48), Naomi Kaupa (48)
+  PASS  the ones it let go are its weakest  kept 52.7, 59.3, 53.0, 60.3 · released 40, 40, 48, 48
+  PASS  and the released graduates are back in the pool  4 free
+  PASS  with no contract left open behind them  0 open
+
+=== 18/18 passed ===
+
+########## 37/99  CLUB HALL OF FAME (HOF) ##########
+========================================================================
+  HOF THE CLUB HALL OF FAME — EVERY 2 SEASONS, UP TO 6
+========================================================================
+  PASS  a career was created  HTTP 200
+
+1. THE WINDOW OPENS EVERY 2 SEASONS, NOT BEFORE
+  PASS  the Hall of Fame reads on a brand-new career  HTTP 200
+  PASS  it is empty, and the window is shut  0 inducted, open false
+  PASS  and inducting before the first window is refused, with the count to go  HTTP 409 The Hall of Fame opens every 2 seasons — 2 to go.
+
+2. 2 SEASONS LATER
+  PASS  after 2 seasons the window is open  seasons 2, open true
+  PASS  it asks for at most 6  6
+  PASS  and it has somebody to recommend  6 recommended of 9 eligible
+
+3. THE RECOMMENDATION PUTS HONOURS FIRST
+  PASS  the Olympic champion is recommended ahead of the club's points-scorer  Yaritza Mendez > Nyasha Ncube > Camila Santiago (gold: Yaritza Mendez, points: Nyasha Ncube)
+
+4. THE CLUB PICKS, AND THE WINDOW CLOSES BEHIND IT
+  PASS  picking more than 6 is refused  HTTP 422 A club may induct 6 players in a window; you chose 7.
+  PASS  two inductions are accepted  HTTP 201 {"inducted":[{"playerId":285,"name":"Yaritza Mendez","seasonInducted":2},{"playerId":298,"
+  PASS  both are in the Hall of Fame now  Yaritza Mendez (season 2), Nyasha Ncube (season 2)
+  PASS  the window closed behind them  open false, 2 seasons to the next
+  PASS  neither is offered again
+  PASS  a second induction in the same window is refused  HTTP 409 The Hall of Fame opens every 2 seasons — 2 to go.
+
+5. AN INDUCTED PLAYER IS KEPT WHEN SHE RETIRES (L-02b)
+  PASS  another season was played  rolled
+  PASS  she retired but her career record was kept  {"retired":1}
+  PASS  and her name and face were never put back in the pool  hof 1, name 1791174300, face 1791174300
+  PASS  she is still on the club's honour board after retiring  Yaritza Mendez, Nyasha Ncube
+
+6. A CLUB MAY HONOUR NOBODY
+  PASS  a season was played to reach the next window  rolled
+  PASS  an empty induction is allowed once the window is open again  HTTP 200 {"inducted":[],"skipped":true}
+  PASS  and skipping honours nobody  2 on the board
+  PASS  skipping does not use the window up either  open true
+
+7. NAMING THE SAME PLAYER TWICE
+  PASS  it is accepted, and inducts her once  HTTP 201 {"inducted":[{"playerId":292,"name":"Camila Santiago","seasonInducted":4}],"skip
+  PASS  and she is on the board exactly once  3 on the board: Camila Santiago, Yaritza Mendez, Nyasha Ncube
+
+=== 24/24 passed ===
+
+########## 38/99  ACHIEVEMENTS OVER THE FORK CHANNEL (ACH) ##########
+========================================================================
+  ACH THE SERVER ANNOUNCES EVERY UNLOCK ON THE FORK CHANNEL
+========================================================================
+  PASS  a career was created  HTTP 200
+
+1. A NEW CAREER ANNOUNCES NOTHING
+  PASS  no achievement message on a fresh career  silence
+
+2. THE FIRST WIN IS ANNOUNCED
+  PASS  matches were played  1 played
+  PASS  the game unlocked at least one achievement  first_steps
+  PASS  every one the game unlocked was announced to Electron, and nothing else was  announced [first_steps] · unlocked [first_steps]
+  PASS  each is announced once, not once per check  1 messages, 1 distinct
+  PASS  the message is the shape main.js reads  {"type":"achievement","key":"first_steps"}
+
+3. THE BOOT CATCH-UP
+  PASS  the server answers main.js's boot question  {"type":"achievements:unlocked","keys":["first_steps"]}
+  PASS  and the answer is everything this save has unlocked  1 keys: first_steps
+
+4. THE CHECK IS REAL
+  PASS  with the listener off, nothing reaches Electron — so the checks above are the messages, not the HTTP calls  0 slipped through
+  PASS  the announcement is made inside checkAchievements, not at its callers  one place, so a new caller cannot forget it
+  PASS  the server never loads Steam itself — that is main.js's job  no file in the server imports steamworks.js
+
+=== 12/12 passed ===
+
+########## 39/99  MONEY MEANS SOMETHING (L-04) ##########
+========================================================================
+  L-04 MONEY MEANS SOMETHING — 12 SEASONS, TWO CLUBS
+========================================================================
+
+########## 40/99  CLUB SOLD; THE JOB MARKET (L-02e) ##########
+
+########## 41/99  SEASON PHASE IN THE TOP BAR (R-70) ##########
+
+########## 42/99  CLUB KITS REACH THE 3D COURT (R-73) ##########
+
+########## 43/99  POOL PAIRS' SKIN TONES (R-75) ##########
+
+########## 44/99  WATCHED MATCHES COUNT; HONEST ACHIEVEMENTS (R-77) ##########
+
+########## 45/99  HIRED STAFF GIVE THEIR BONUSES (P-09) ##########
+
+########## 46/99  STAFF RENAMES REACH EXISTING SAVES (P-11) ##########
+
+########## 47/99  STARTING SQUAD: FREE CHANGES IN WEEK 1 ONLY (P-05) ##########
+
+########## 48/99  NO UPGRADE CARD WHILE BUILDING (D-1) ##########
+
+########## 49/99  THE CLUB PICKER SHOWS THE REAL STARTING MONEY (D-2) ##########
+
+########## 50/99  ONE BUILDING, ONE NAME (D-3) ##########
+
+########## 51/99  NO ZERO BONUS IN A FACILITY'S TEXT (D-4) ##########
+
+########## 52/99  THE MATCH DAY BOX NAMES THE CLUB (D-5) ##########
+
+########## 53/99  EVERY AMOUNT IN DOLLARS (D-6) ##########
+
+########## 54/99  NEXT MATCH: THE CLOCK, FASTER (F-1) ##########
+
+########## 55/99  ONE SET OF ODDS, ONE FORMAT (UNITY 1) ##########
+
+########## 56/99  BOOSTS IN POINTS, WORTH SOMETHING (UNITY 3) ##########
+
+########## 57/99  THE 3D COURT'S RESULT COUNTS (UNITY 4) ##########
+
+########## 58/99  A PROPER FINISH, AND A WAY OUT (UNITY 5) ##########
+
+########## 59/99  THE 3D COURT'S PAGE LOOKS LIKE OUR GAME (UNITY 6) ##########
+
+########## 60/99  AFTER A MATCH, THE CLOCK STAYS PAUSED (UNITY 11) ##########
+
+########## 61/99  THE DASHBOARD MATCHES THE STANDINGS AFTER EVERY MATCH (UNITY 12) ##########
+
+########## 62/99  THE FINANCES PAGE READS THE LEDGER AND THE CONTRACTS (UNITY 13) ##########
+
+########## 63/99  AN INJURED MATCH PLAYER - THE GAME SAYS SO (UNITY 14) ##########
+
+########## 64/99  PLAYER MARKET - PRICES, SCOUTING AND BUYING BLIND (UNITY 15) ##########
+
+########## 65/99  ONE STAFF SLOT COUNT, AND SCOUTING ONLY ON SCOUTS (UNITY 16) ##########
+
+########## 66/99  STAFF AND MEDICAL SCOUTING IS KEPT AND SHOWN (UNITY 17) ##########
+
+########## 67/99  TRAINING AND YOUTH ACADEMY (UNITY 18) ##########
+
+########## 68/99  TRAINING TAKES GAME DAYS (UNITY 19) ##########
+
+########## 69/99  CLUB PAGES (UNITY 20) ##########
+
+########## 70/99  ACHIEVEMENTS - ONE LIST OF 29, HONEST RULES AND RECORDS (UNITY 21) ##########
+
+########## 71/99  CAREER > RECORDS IS THE MANAGER'S RECORD (OVERNIGHT 1) ##########
+
+########## 72/99  MANAGER EARNINGS AND ONE STANDING (OVERNIGHT 2) ##########
+
+########## 73/99  OLD RECORDS MOVE FROM THE PC'S DATE TO THE GAME'S (OVERNIGHT 3) ##########
+
+########## 74/99  TWO COMMENTATORS, AND THEY SAY SHE (OVERNIGHT 21-22) ##########
+
+########## 75/99  THE PAGES READ THEMSELVES AGAIN WHEN THE DAY CHANGES (OVERNIGHT 6) ##########
+
+########## 76/99  STAFF ATTRIBUTES READ AS WORDS (OVERNIGHT 9) ##########
+
+########## 77/99  MARKET CARDS LIST IN THE FILTER BUTTONS' ORDER (OVERNIGHT 10) ##########
+
+########## 78/99  NATIONALITY IS THE COUNTRY, EVERYWHERE (OVERNIGHT 11) ##########
+
+########## 79/99  YOUTH MARKET ON SENIOR RULES, POTENTIAL DRIVES GROWTH (OVERNIGHT 12) ##########
+
+########## 80/99  SCOUTING MISSIONS FIND YOUTH, SIGN OR REJECT (OVERNIGHT 13) ##########
+
+########## 81/99  THE TRANSFER FEE GOES TO THE SELLING CLUB (OVERNIGHT 32) ##########
+
+########## 82/99  STAFF CONTRACTS: 6 MONTHS, 1 OR 2 SEASONS; WARNING, RENEWAL, PAYOUT (OVERNIGHT 33b) ##########
+
+########## 83/99  THE LEDGER IN PLAIN WORDS, EACH LINE IN ITS CATEGORY (OVERNIGHT 26) ##########
+
+########## 84/99  ONE ROUND NUMBERING PLAYERS SEE (OVERNIGHT 27) ##########
+
+########## 85/99  SPONSOR REPUTATION BADGE READABLE (OVERNIGHT 28) ##########
+
+########## 86/99  ACHIEVEMENT PROGRESS IN ONE FORMAT (OVERNIGHT 29) ##########
+
+########## 87/99  THE YOUTH LOAN MARKET (OVERNIGHT C15) ##########
+
+########## 88/99  EVERY CLUB KEEPS BOOKS (AI CLUB ECONOMY) ##########
+
+########## 89/99  THE MONEY PASS (OVERNIGHT N-41) ##########
+
+########## 90/99  THE RUNNER-UP TAKES A THIRD (OVERNIGHT N-31) ##########
+
+########## 91/99  ONE RULE FOR EVERY YOUTH'S RATING (OVERNIGHT N-44) ##########
+
+########## 92/99  A YOUTH'S WAGE (OVERNIGHT N-33) ##########
+
+########## 93/99  ONE CONTRACT BOX FOR A SCOUT'S FIND (OVERNIGHT N-44 B) ##########
+
+########## 94/99  WORKLOAD = THE LAST 14 GAME DAYS (OVERNIGHT N-36) ##########
+
+########## 95/99  DATES IN THE GAME'S STYLE (OVERNIGHT N-37) ##########
+
+########## 96/99  THE HIGHEST BALANCE COUNTS THE START (OVERNIGHT N-45) ##########
+
+########## 97/99  STAFF PORTRAITS ARE THE PERSON ALONE (DAYTIME N-46) ##########
+
+########## 97b/99  ROB'S PICTURES FOR GRADUATES (FINAL A4) ##########
+
+########## 98/99  GAMEPLAY SMOKE ##########
+
+########## 99/99  SEASON ROLLOVER ##########
+
+========================================================================
+  PASS  guard self-test          2.0s
+  PASS  schema drift             1.7s
+  PASS  reference data backfill  1.2s
+  PASS  reference data update    1.8s
+  PASS  reference data new players 2.4s
+  PASS  save folder migration    1.5s
+  PASS  wal checkpoint on shutdown 0.8s
+  PASS  unity match-state payload 0.7s
+  PASS  unity career scoping     0.8s
+  PASS  migration fixtures       19.9s
+  PASS  fresh install            2.1s
+  PASS  fixture transaction      1.0s
+  PASS  career difficulty        1.1s
+  PASS  board review             15.8s
+  PASS  world tour competitors   11.1s
+  PASS  world tour byes          18.3s
+  PASS  all-star removed         1.3s
+  PASS  olympic qualification    6.3s
+  PASS  starting contracts       0.8s
+  PASS  contract renewal         1.1s
+  PASS  empty squad forfeit      3.3s
+  PASS  injuries and fitness     3.2s
+  PASS  season trophies          34.6s
+  PASS  invented content removed 3.7s
+  PASS  dashboard standing       5.7s
+  PASS  career ends              1.4s
+  PASS  olympic tournament       36.8s
+  FAIL  academy intake           78.0s
+  PASS  academy cap and wages    28.8s
+  PASS  wizard career economy    2.4s
+  PASS  calendar tick            0.0s
+  PASS  music playlist           0.0s
+  PASS  reference corrections    1.1s
+  PASS  contract terms           9.9s
+  PASS  retirement               12.7s
+  PASS  youth rebirth            336.5s
+  PASS  graduates                13.5s
+  PASS  hall of fame             49.2s
+  PASS  achievement ipc          3.3s
+  FAIL  economy                  17.9s
+  FAIL  job market               0.0s
+  FAIL  season phase             0.0s
+  FAIL  club kits                0.0s
+  FAIL  pool skin tones          0.0s
+  FAIL  watched match            0.0s
+  FAIL  staff bonuses            0.0s
+  FAIL  staff name sync          0.0s
+  FAIL  starting squad release   0.0s
+  FAIL  facility upgrades        0.0s
+  FAIL  club picker budget       0.0s
+  FAIL  facility names           0.0s
+  FAIL  facility benefits        0.0s
+  FAIL  match day box            0.0s
+  FAIL  currency                 0.0s
+  FAIL  next match               0.0s
+  FAIL  one set of odds          0.0s
+  FAIL  boosts                   0.0s
+  FAIL  watched result           0.0s
+  FAIL  court finish             0.0s
+  FAIL  court page               0.0s
+  FAIL  pause after match        0.0s
+  FAIL  dashboard fresh          0.0s
+  FAIL  finances ledger          0.0s
+  FAIL  injured match player     0.0s
+  FAIL  player market            0.0s
+  FAIL  staff slots              0.0s
+  FAIL  staff scouting           0.0s
+  FAIL  training and youth       0.0s
+  FAIL  training days            0.0s
+  FAIL  club pages               0.0s
+  FAIL  achievements 29          0.0s
+  FAIL  manager records          0.0s
+  FAIL  manager profile          0.0s
+  FAIL  real world dates         0.0s
+  FAIL  commentary she           0.0s
+  FAIL  clock refresh            0.0s
+  FAIL  staff labels             0.0s
+  FAIL  market order             0.0s
+  FAIL  nationality countries    0.0s
+  FAIL  youth market             0.0s
+  FAIL  scouting missions        0.0s
+  FAIL  transfer fee             0.0s
+  FAIL  staff contracts          0.0s
+  FAIL  ledger words             0.0s
+  FAIL  round numbers            0.0s
+  FAIL  sponsor badge            0.0s
+  FAIL  achievement progress     0.0s
+  FAIL  youth loans              0.0s
+  FAIL  ai club economy          0.0s
+  FAIL  money pass               0.0s
+  FAIL  runner-up prize          0.0s
+  FAIL  youth ratings            0.0s
+  FAIL  youth wages              0.0s
+  FAIL  youth contract box       0.0s
+  FAIL  workload window          0.0s
+  FAIL  game dates               0.0s
+  FAIL  highest balance          0.0s
+  FAIL  staff portraits          0.0s
+  FAIL  player pictures          0.0s
+  FAIL  gameplay smoke           0.3s
+  FAIL  season rollover          0.0s
+========================================================================
+  HARNESS FAILED: academy intake, economy, job market, season phase, club kits, pool skin tones, watched match, staff bonuses, staff name sync, starting squad release, facility upgrades, club picker budget, facility names, facility benefits, match day box, currency, next match, one set of odds, boosts, watched result, court finish, court page, pause after match, dashboard fresh, finances ledger, injured match player, player market, staff slots, staff scouting, training and youth, training days, club pages, achievements 29, manager records, manager profile, real world dates, commentary she, clock refresh, staff labels, market order, nationality countries, youth market, scouting missions, transfer fee, staff contracts, ledger words, round numbers, sponsor badge, achievement progress, youth loans, ai club economy, money pass, runner-up prize, youth ratings, youth wages, youth contract box, workload window, game dates, highest balance, staff portraits, player pictures, gameplay smoke, season rollover
+========================================================================
+[ELIFECYCLE] Command failed with exit code 1.
+[ELIFECYCLE] Command failed with exit code 1.
