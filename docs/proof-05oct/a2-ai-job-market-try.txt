@@ -1,0 +1,42 @@
+========================================================================
+  AFTERNOON 2 OCT, J-2/J-3/J-4: THE JOB MARKET ON ROB'S TIMING
+========================================================================
+
+1. EVERY AI CLUB HAS A MANAGER
+  PASS  every AI club has a named AI manager  60 clubs, e.g. Tomas Berg
+  PASS  and no job is open at the start  0 vacancies
+
+2. MID-SEASON: NO MOVES
+  PASS  resigning mid-season is refused, in Rob's words  You can leave once your season is over (penalties apply if you break your contract).
+  PASS  so is breaking the contract, and nothing is charged  You can leave once your season is over (penalties apply if you break your contract).
+  PASS  the Job Market says moves wait for the season's end
+
+3. THE AI BOARDS SACK ON A SECOND FAILED SEASON
+  PASS  the off-season window opens once the club's last match is played, before the season ends  {"rolledEarly":false}
+  PASS  when the window opens the AI boards' sackings are announced, with the reason  1 sacked; e.g. "Priya Larsen was sacked after 2 failed seasons running: ranked 1 of 19 on strength, the board expected a top-4 finish and the club finished 19."
+  PASS  the Job Market lists the open jobs in the window  1 listed
+  PASS  in the window, AI clubs make offers on his level and season (poaching)  Gold Coast Thunderbirds: Gold Coast Thunderbirds have no manager and want you: Gold Coast Thunderbirds offer Rob Bonner the job: they wanted at least a Level 4 World Class Coach, and Rob Bonner is Level 5 (Legend). | Cancún Coral Storm: Cancún Coral Storm's board wants a better manager than Ana Santos (a failed season behind her) and offers you the job.
+  PASS  an offer declined is not made again  Cancún Coral Storm
+  PASS  an offer accepted is a move agreed for the start of next season  Gold Coast Thunderbirds: at the start of next season
+
+4. THE MOVE TAKES EFFECT AT THE START OF THE NEXT SEASON
+  PASS  the season rolled and he moved, as agreed  Rob Bonner joins Gold Coast Thunderbirds, as agreed in the off-season.
+  PASS  same career, same manager, no 'seeking a club' state
+  PASS  his achievements and level came with him  6 before, 6 now (the season's end may add one)
+  PASS  with two starters at the new club
+  PASS  the Manager History names both clubs  season_completed: Sydney Riptide · resignation: Sydney Riptide · joined_club: Gold Coast Thunderbirds
+  PASS  the club he took is in no World Tour field nor regional league as an AI club (no club twice)  this season's field drawn: true (18 clubs); it among them: false; in a regional league at the rollover: 0
+
+5. HIS OWN BOARD SACKS HIM AFTER TWO FAILED SEASONS
+  PASS  in the window the board's verdict is announced  The board sacks you at the season's end: a second failed season running, by its bands.
+  PASS  after a failed season AI clubs still make offers, just fewer than after a good one  2 after the failed season (Vanuatu Coral Crushers 72, Tonga Polynesian Power 71), 4 after a good one (Honolulu Aloha Warriors 82, Cancún Coral Storm 81, Rio Copacabana Queens 81, São Paulo Beach Warriors 81)
+  PASS  (set-up) every open job is one he does not qualify for  0 filled; open now: Auckland Pacific Diamonds 81 (Level 3)
+  (info) the jobs open before the rollover, after it: Auckland Pacific Diamonds (vacant since 2027-12-03) -> manager Rob Bonner
+  PASS  at the season's start he is sacked  {"from":"Gold Coast Thunderbirds","to":"Auckland Pacific Diamonds","why":"No club Rob Bonner qualifies for has a vacancy: Auckland Pacific Diamonds, the open club with the lowest rating (81), takes Ro
+  PASS  with no club he qualifies for, the open club with the lowest rating takes him, and says so  No club Rob Bonner qualifies for has a vacancy: Auckland Pacific Diamonds, the open club with the lowest rating (81), takes Rob Bonner on.
+
+6. BREAKING THE CONTRACT, AND RETIRING
+  PASS  in the window he can break his contract, and the penalty is paid  HTTP 200: $249,631 -> $224,631 (fee $25,000)
+  PASS  and retire: the career ends  HTTP 200 
+
+=== 24/24 passed ===

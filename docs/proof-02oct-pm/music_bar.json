@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "label": "Pause holds the song where it is",
+      "pass": true,
+      "detail": "beach-volleyball-empire.mp3 at 5.96 s, 1.5 s later 5.96 s"
+    },
+    {
+      "label": "and stays paused on another page",
+      "pass": true,
+      "detail": "beach-volleyball-empire.mp3 at 5.96 s"
+    },
+    {
+      "label": "Play carries on from the same spot",
+      "pass": true,
+      "detail": "beach-volleyball-empire.mp3 at 7.16 s"
+    },
+    {
+      "label": "the title opens the list of all 18 songs, the one playing highlighted",
+      "pass": true,
+      "detail": "18 songs; highlighted: Beach Volleyball Empire; playing: Beach Volleyball Empire"
+    },
+    {
+      "label": "a song picked from the list plays from the start",
+      "pass": true,
+      "detail": "Balls Out: balls-out.mp3 at 1.43 s"
+    },
+    {
+      "label": "Skip moves to another song, playing",
+      "pass": true,
+      "detail": "balls-out.mp3 -> give-me-one-more-summer.mp3 at 1.43 s"
+    }
+  ],
+  "errors": []
+}

@@ -230,7 +230,8 @@ const ownCompetitor = own?.id;
 const now = Math.floor(Date.now() / 1000);
 const poolPlayers = d.prepare(
   `SELECT id, pool_team_id, nationality, speed, power, defense, serve, block, stamina FROM continental_pool_players`).all();
-const honolulu = new Set(d.prepare(`SELECT id FROM continental_pool_teams WHERE team_name LIKE 'Honolulu%'`).all().map((r) => r.id));
+// AUS_04: the Hawaii club (Maui Hula Warriors since Rob's 2 Oct rename).
+const honolulu = new Set(d.prepare(`SELECT id FROM continental_pool_teams WHERE stable_id = 'AUS_04'`).all().map((r) => r.id));
 const seniors = d.prepare(
   `SELECT s.player_id AS id, p.nationality, s.speed, s.power, s.defense, s.serve, s.block, s.stamina
    FROM career_player_state s JOIN players p ON p.id = s.player_id

@@ -230,6 +230,7 @@ runSuite("calendar tick", path.join(REPO, "harness", "calendar-tick.mjs"));
 // disk, so a renamed mp3 would compile and go silent.
 console.log("\n########## 32/100  SOUNDTRACK PLAYLIST AND PLAYER (R-79) ##########");
 runSuite("music playlist", path.join(REPO, "harness", "music-playlist.mjs"));
+runSuite("reference corrections", path.join(REPO, "harness", "reference-corrections.mjs"));
 
 // L-02a: the three contract lengths, everyone covered, staff contracts that
 // actually end, and the payout when a club tears one up. Own DB and server.
@@ -551,6 +552,12 @@ runSuite("highest balance", path.join(REPO, "harness", "highest-balance.mjs"));
 // Daytime 2 Oct, N-46: staff portraits are the person alone (no printed name, flag or card).
 console.log("\n########## 97/100  STAFF PORTRAITS ARE THE PERSON ALONE (DAYTIME N-46) ##########");
 runSuite("staff portraits", path.join(REPO, "harness", "staff-portraits.mjs"));
+
+// Final brief 5 Oct, A4: Rob's pictures for graduating youth: every adult
+// graduate has one of her continent, none used twice in a career, every file
+// there; on this branch also the AI clubs' 120 players' cards.
+console.log("\n########## 97b/100  ROB'S PICTURES FOR GRADUATES AND AI CLUB PLAYERS (FINAL A4) ##########");
+runSuite("player pictures", path.join(REPO, "harness", "player-pictures.mjs"));
 
 // Daytime 2 Oct, U-6 (branch feat-ai-buyable): AI clubs' seniors are buyable.
 console.log("\n########## 98/100  AI CLUBS' PLAYERS ARE BUYABLE (DAYTIME U-6) ##########");

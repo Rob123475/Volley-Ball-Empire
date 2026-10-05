@@ -945,6 +945,26 @@ export const youthLoansTable = sqliteTable("youth_loans", {
 
 export type YouthLoan = typeof youthLoansTable.$inferSelect;
 
+/**
+ * Final brief 5 Oct, A4: Rob's graduate pictures. When a youth graduates (and
+ * is an adult: every picture is of a woman of 21), she is given an unused
+ * picture from her own continent. One row per picture given, kept for the
+ * whole career - even after she retires and leaves it - so no picture is ever
+ * used twice in a career (the unique index says so, not just the code).
+ */
+export const careerGraduatePortraitsTable = sqliteTable("career_graduate_portraits", {
+  id:           integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId: integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  playerId:     integer("player_id").notNull(),
+  imageUrl:     text("image_url").notNull(),
+  continent:    text("continent").notNull(),
+  assignedOn:   text("assigned_on").notNull(),
+  createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex("career_graduate_portraits_image").on(t.careerSaveId, t.imageUrl),
+  uniqueIndex("career_graduate_portraits_player").on(t.careerSaveId, t.playerId),
+]);
+
 export const facilitiesTable = sqliteTable("facilities", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   teamId: integer("team_id").notNull().references(() => teamsTable.id),

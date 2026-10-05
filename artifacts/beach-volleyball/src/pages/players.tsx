@@ -256,6 +256,7 @@ function MarketPlayerCard({
           continent={player.continent}
           nationality={player.nationality}
           playerType={player.playerType}
+          age={player.age}
           heightClass="h-72"
         />
         <NameStrip name={player.name} />
@@ -431,6 +432,7 @@ function YouthPoolCard({
           continent={player.continent}
           nationality={player.nationality}
           playerType={player.playerType}
+          age={player.age}
           heightClass="h-72"
         />
         <NameStrip name={player.name} />

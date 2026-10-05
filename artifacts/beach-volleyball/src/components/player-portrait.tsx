@@ -114,11 +114,22 @@ type PlayerPortraitProps = {
   continent?: string | null;
   nationality?: string | null;
   playerType?: string | null;
+  /** Her age now, when the page knows it: a graduate's picture is shown only to an adult. */
+  age?: number | null;
   /** Tailwind class for height, e.g. "h-72" */
   heightClass?: string;
   objectPosition?: string;
   className?: string;
 };
+
+/** Final brief 5 Oct, A4: the pictures Rob made for graduates (adult women of 21). */
+export const GRADUATE_PORTRAIT_PREFIX = "/images/players/graduates/";
+export const GRADUATE_PORTRAIT_MIN_AGE = 18;
+
+/** A graduate who has been given her picture, and is an adult. */
+export function showsGraduatePortrait(imageUrl: string | null | undefined, age: number | null | undefined): boolean {
+  return !!imageUrl?.startsWith(GRADUATE_PORTRAIT_PREFIX) && (age == null || age >= GRADUATE_PORTRAIT_MIN_AGE);
+}
 
 export function PlayerPortrait({
   name,
@@ -126,6 +137,7 @@ export function PlayerPortrait({
   continent,
   nationality,
   playerType,
+  age,
   heightClass = "h-72",
   objectPosition = "object-top",
   className = "",
@@ -152,7 +164,11 @@ export function PlayerPortrait({
   //
   // Rendered from the nationality rather than from any image, so there is no
   // asset to mislabel and nothing to swap in later by accident.
-  if (playerType === "youth") {
+  //
+  // The one exception (final brief 5 Oct, A4): a youth who has graduated and is
+  // an adult, given one of Rob's graduate pictures by the server (which only
+  // gives them at 18 or over; the age is checked here again where known).
+  if (playerType === "youth" && !showsGraduatePortrait(imageUrl, age)) {
     return (
       <div
         className={`w-full ${heightClass} flex flex-col items-center justify-center select-none ${className}`}

@@ -1,0 +1,364 @@
+
+=== SEASON ROLLOVER ===
+
+  PASS  career starts in season 1  year 2026, name Season 1
+  PASS  season 1 -> 2  now year 2027, name Season 2, 420 days
+  PASS  season 2 -> 3  now year 2028, name Season 3, 420 days
+  PASS  season 3 -> 4  now year 2029, name Season 4, 419 days
+  PASS  season 4 -> 5  now year 2030, name Season 5, 420 days
+  PASS  season 5 -> 6  now year 2031, name Season 6, 418 days
+  PASS  every player aged exactly one year per season boundary  212/212 with a baseline, 8/8 from an academy intake, after 5 boundaries
+  PASS  every senior has a baseline or came from an academy intake (nobody appeared from nowhere)  212 + 8 intake + 171 at AI clubs of 391 traceable
+  PASS  rolled through 5 boundaries  1->2, 2->3, 3->4, 4->5, 5->6
+  PASS  the career keeps going past season 5: season 6 (2031) is active  year 2031, Season 6, active
+  PASS  no rollover ever reported the career complete (careerComplete is gone from the response)  rolled, rolled, rolled, rolled, rolled
+  PASS  the save is not retired after five boundaries  retiredAt null
+  PASS  every rollover names the season to review  5/5 carry reviewYear
+  PASS  reviewYear is the season that ENDED, not the one starting  1->2026, 2->2027, 3->2028, 4->2029, 5->2030
+  PASS  the year the client is handed actually resolves  GET /seasons/2026/review -> HTTP 200
+  PASS  the records page counts the seasons the career actually completed  records 5, career save 5
+  PASS  and the peak balance it actually reached  records 1131770, career save 1131770
+  PASS  a history entry per completed season  5 season_completed entries
+  PASS  the harness knows the real retirement age  retirementAge=40
+  PASS  no active player is at or past the retirement age  0 over-age still active (threshold 40)
+  PASS  the academy promoted players into the senior pool  80 promoted seniors
+  PASS  no player appears as BOTH youth and senior  0 in both
+  PASS  no promoted player is still listed as youth  0 promoted but still in the academy
+  PASS  the arc retired somebody  1 per season
+  PASS  season review responds for a completed season  HTTP 200
+  PASS  review knows which season it is  season 2 (2027)
+  PASS  review carries a final table  10 rows, player rank 1
+  PASS  review carries the ranking  88 pts, 56 entered
+  PASS  review carries a written summary  Season 2 complete — 72W 40L, balance $1,024,953, 24 pro
+  PASS  review reports retirements  0 retired that season
+  PASS  season 5's review is an ordinary review with no final-season flag  HTTP 200, keys 14
+
+=== R-08: FIVE SEASONS, REAL FIXTURES — STRONG vs WEAK SQUAD ===
+
+  RollStrong (established) — starting budget $500,000, 59-match season fixture
+    season 1 (2026): 32W 23L  ·  55/59 played  ·  69 ranking pts  ·  Gold tier  ·  $2,032,236 balance  ·  #2 in the field  ·  finals: semi-finalist  ·  champion: Miami Shoreline Queens  ·  squad 3 (avg age 28.7)  ·  academy 3  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 1 review: finished 2nd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 60 → 69. Safe.
+    season 2 (2027): 35W 21L  ·  56/59 played  ·  83 ranking pts  ·  Gold tier  ·  $3,754,539 balance  ·  #2 in the field  ·  finals: runner-up  ·  champion: Barcelona Playa Elites  ·  squad 3 (avg age 29.7)  ·  academy 6  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 2 review: finished 2nd against a top-4 finish, met expectations +5, runner-up +8. Confidence 69 → 82. Safe.
+    season 3 (2028): 39W 16L  ·  55/59 played  ·  81 ranking pts  ·  Gold tier  ·  $3,866,045 balance  ·  #2 in the field  ·  finals: semi-finalist  ·  champion: Cancún Coral Storm  ·  squad 5 (avg age 26)  ·  academy 6  ·  retired 1  ·  promoted 2  ·  intake 2  ·  fielded 1
+      board: Season 3 review: finished 2nd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 82 → 91. Safe.
+    season 4 (2029): 35W 21L  ·  56/59 played  ·  94 ranking pts  ·  Gold tier  ·  $4,086,718 balance  ·  #1 in the field  ·  finals: champion  ·  champion: RollStrong FC  ·  squad 6 (avg age 25.7)  ·  academy 6  ·  retired 0  ·  promoted 1  ·  intake 1  ·  fielded 0
+      board: Season 4 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 91 → 100. Safe.
+    season 5 (2030): 33W 21L  ·  54/59 played  ·  64 ranking pts  ·  Gold tier  ·  $4,054,157 balance  ·  #6 in the field  ·  finals: did not qualify  ·  champion: Fiji Island Breakers  ·  squad 7 (avg age 25.3)  ·  academy 6  ·  retired 0  ·  promoted 2  ·  intake 5  ·  fielded 0
+      board: Season 5 review: finished 6th against a top-4 finish, below expectations. Confidence 100 → 100. Below expectations: a warning, but no strike.
+  RollStrong2 (established) — starting budget $500,000, 59-match season fixture
+    season 1 (2026): 34W 20L  ·  54/59 played  ·  63 ranking pts  ·  Gold tier  ·  $1,976,119 balance  ·  #5 in the field  ·  finals: did not qualify  ·  champion: Auckland Pacific Diamonds  ·  squad 3 (avg age 28.7)  ·  academy 3  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 1 review: finished 5th against a top-4 finish, below expectations. Confidence 60 → 60. Below expectations: a warning, but no strike.
+    season 2 (2027): 39W 17L  ·  56/59 played  ·  93 ranking pts  ·  Gold tier  ·  $3,737,054 balance  ·  #1 in the field  ·  finals: champion  ·  champion: RollStrong2 FC  ·  squad 3 (avg age 29.7)  ·  academy 6  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 2 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 60 → 80. Safe.
+    season 3 (2028): 35W 20L  ·  55/59 played  ·  66 ranking pts  ·  Gold tier  ·  $3,786,256 balance  ·  #4 in the field  ·  finals: semi-finalist  ·  champion: Miami Shoreline Queens  ·  squad 4 (avg age 27.8)  ·  academy 6  ·  retired 1  ·  promoted 1  ·  intake 1  ·  fielded 1
+      board: Season 3 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 80 → 89. Safe.
+    season 4 (2029): 32W 22L  ·  54/59 played  ·  62 ranking pts  ·  Silver tier  ·  $3,771,023 balance  ·  #5 in the field  ·  finals: did not qualify  ·  champion: Cancún Coral Storm  ·  squad 7 (avg age 24.4)  ·  academy 6  ·  retired 0  ·  promoted 4  ·  intake 4  ·  fielded 0
+      board: Season 4 review: finished 5th against a top-4 finish, below expectations. Confidence 89 → 89. Below expectations: a warning, but no strike.
+    season 5 (2030): 34W 20L  ·  54/59 played  ·  66 ranking pts  ·  Gold tier  ·  $3,716,140 balance  ·  #5 in the field  ·  finals: did not qualify  ·  champion: Rome Beach Gladiators  ·  squad 7 (avg age 25.1)  ·  academy 6  ·  retired 0  ·  promoted 2  ·  intake 3  ·  fielded 1
+      board: Season 5 review: finished 5th against a top-4 finish, below expectations. Confidence 89 → 89. Below expectations: a warning, but no strike.
+  RollStrong3 (established) — starting budget $500,000, 59-match season fixture
+    season 1 (2026): 32W 23L  ·  55/59 played  ·  66 ranking pts  ·  Gold tier  ·  $2,054,534 balance  ·  #4 in the field  ·  finals: semi-finalist  ·  champion: Lagos Surf Queens  ·  squad 3 (avg age 28.7)  ·  academy 3  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 1 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 60 → 69. Safe.
+    season 2 (2027): 31W 25L  ·  56/59 played  ·  73 ranking pts  ·  Gold tier  ·  $3,725,203 balance  ·  #2 in the field  ·  finals: runner-up  ·  champion: Lagos Surf Queens  ·  squad 3 (avg age 29.7)  ·  academy 6  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 2 review: finished 2nd against a top-4 finish, met expectations +5, runner-up +8. Confidence 69 → 82. Safe.
+    season 3 (2028): 27W 27L  ·  54/59 played  ·  62 ranking pts  ·  Silver tier  ·  $3,698,102 balance  ·  #5 in the field  ·  finals: did not qualify  ·  champion: Berlin Sand Queens  ·  squad 5 (avg age 26)  ·  academy 6  ·  retired 1  ·  promoted 2  ·  intake 2  ·  fielded 1
+      board: Season 3 review: finished 5th against a top-4 finish, below expectations. Confidence 82 → 82. Below expectations: a warning, but no strike.
+    season 4 (2029): 37W 18L  ·  55/59 played  ·  75 ranking pts  ·  Gold tier  ·  $3,707,470 balance  ·  #3 in the field  ·  finals: semi-finalist  ·  champion: Mumbai Coastal Warriors  ·  squad 7 (avg age 24.6)  ·  academy 6  ·  retired 0  ·  promoted 3  ·  intake 4  ·  fielded 0
+      board: Season 4 review: finished 3rd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 82 → 91. Safe.
+    season 5 (2030): 36W 20L  ·  56/59 played  ·  76 ranking pts  ·  Gold tier  ·  $3,814,837 balance  ·  #2 in the field  ·  finals: runner-up  ·  champion: Berlin Sand Queens  ·  squad 7 (avg age 25.1)  ·  academy 6  ·  retired 0  ·  promoted 2  ·  intake 2  ·  fielded 1
+      board: Season 5 review: finished 2nd against a top-5 finish, met expectations +5, runner-up +8. Confidence 91 → 100. Safe.
+  RollWeak (underdog) — starting budget $150,000, 59-match season fixture
+    season 1 (2026): 18W 36L  ·  54/59 played  ·  31 ranking pts  ·  Bronze tier  ·  $1,772,437 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Vancouver Pacific Orcas  ·  squad 3 (avg age 26)  ·  academy 3  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 1 review: finished 18th against any finish, met expectations +5. Confidence 60 → 65. Safe.
+    season 2 (2027): 22W 32L  ·  54/59 played  ·  47 ranking pts  ·  Bronze tier  ·  $3,327,122 balance  ·  #14 in the field  ·  finals: did not qualify  ·  champion: Berlin Sand Queens  ·  squad 3 (avg age 27)  ·  academy 6  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 2 review: finished 14th against any finish, met expectations +5. Confidence 65 → 70. Safe.
+    season 3 (2028): 13W 41L  ·  54/59 played  ·  25 ranking pts  ·  Bronze tier  ·  $3,326,277 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Fiji Island Breakers  ·  squad 6 (avg age 23.5)  ·  academy 6  ·  retired 1  ·  promoted 3  ·  intake 3  ·  fielded 1
+      board: Season 3 review: finished 19th against any finish, met expectations +5. Confidence 70 → 75. Safe.
+    season 4 (2029): 24W 30L  ·  54/59 played  ·  43 ranking pts  ·  Bronze tier  ·  $3,308,160 balance  ·  #17 in the field  ·  finals: did not qualify  ·  champion: LA Beach Legends  ·  squad 7 (avg age 23.4)  ·  academy 6  ·  retired 0  ·  promoted 3  ·  intake 3  ·  fielded 0
+      board: Season 4 review: finished 17th against any finish, met expectations +5. Confidence 75 → 80. Safe.
+    season 5 (2030): 15W 39L  ·  54/59 played  ·  30 ranking pts  ·  Bronze tier  ·  $3,263,311 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Honolulu Aloha Warriors  ·  squad 7 (avg age 24)  ·  academy 6  ·  retired 0  ·  promoted 2  ·  intake 4  ·  fielded 1
+      board: Season 5 review: finished 19th against any finish, met expectations +5. Confidence 80 → 85. Safe.
+  RollWeak2 (underdog) — starting budget $150,000, 59-match season fixture
+    season 1 (2026): 18W 36L  ·  54/59 played  ·  32 ranking pts  ·  Bronze tier  ·  $1,754,217 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Shanghai Yangtze Elites  ·  squad 3 (avg age 26)  ·  academy 3  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 1 review: finished 19th against any finish, met expectations +5. Confidence 60 → 65. Safe.
+    season 2 (2027): 23W 31L  ·  54/59 played  ·  45 ranking pts  ·  Bronze tier  ·  $3,306,436 balance  ·  #16 in the field  ·  finals: did not qualify  ·  champion: Shanghai Yangtze Elites  ·  squad 4 (avg age 25)  ·  academy 5  ·  retired 0  ·  promoted 1  ·  intake 3  ·  fielded 1
+      board: Season 2 review: finished 16th against any finish, met expectations +5. Confidence 65 → 70. Safe.
+    season 3 (2028): 17W 37L  ·  54/59 played  ·  33 ranking pts  ·  Bronze tier  ·  $3,309,671 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Lagos Surf Queens  ·  squad 7 (avg age 23)  ·  academy 6  ·  retired 1  ·  promoted 3  ·  intake 4  ·  fielded 0
+      board: Season 3 review: finished 19th against any finish, met expectations +5. Confidence 70 → 75. Safe.
+    season 4 (2029): 16W 38L  ·  54/59 played  ·  37 ranking pts  ·  Bronze tier  ·  $3,264,024 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Cancún Coral Storm  ·  squad 7 (avg age 23.7)  ·  academy 6  ·  retired 0  ·  promoted 2  ·  intake 5  ·  fielded 0
+      board: Season 4 review: finished 18th against any finish, met expectations +5. Confidence 75 → 80. Safe.
+    season 5 (2030): 20W 34L  ·  54/59 played  ·  35 ranking pts  ·  Bronze tier  ·  $3,228,339 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Durban Indian Ocean Tides  ·  squad 7 (avg age 24.7)  ·  academy 6  ·  retired 0  ·  promoted 0  ·  intake 1  ·  fielded 0
+      board: Season 5 review: finished 19th against any finish, met expectations +5. Confidence 80 → 85. Safe.
+  RollWeak3 (underdog) — starting budget $150,000, 59-match season fixture
+    season 1 (2026): 21W 33L  ·  54/59 played  ·  39 ranking pts  ·  Bronze tier  ·  $1,756,385 balance  ·  #17 in the field  ·  finals: did not qualify  ·  champion: Bogotá Altitude Queens  ·  squad 3 (avg age 26)  ·  academy 3  ·  retired 0  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 1 review: finished 17th against any finish, met expectations +5. Confidence 60 → 65. Safe.
+    season 2 (2027): 18W 36L  ·  54/59 played  ·  40 ranking pts  ·  Bronze tier  ·  $3,302,290 balance  ·  #17 in the field  ·  finals: did not qualify  ·  champion: Rome Beach Gladiators  ·  squad 4 (avg age 25)  ·  academy 3  ·  retired 0  ·  promoted 1  ·  intake 1  ·  fielded 1
+      board: Season 2 review: finished 17th against any finish, met expectations +5. Confidence 65 → 70. Safe.
+    season 3 (2028): 18W 36L  ·  54/59 played  ·  38 ranking pts  ·  Bronze tier  ·  $3,325,839 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Shanghai Yangtze Elites  ·  squad 6 (avg age 23.7)  ·  academy 3  ·  retired 1  ·  promoted 2  ·  intake 2  ·  fielded 0
+      board: Season 3 review: finished 18th against any finish, met expectations +5. Confidence 70 → 75. Safe.
+    season 4 (2029): 21W 33L  ·  54/59 played  ·  45 ranking pts  ·  Bronze tier  ·  $3,336,424 balance  ·  #16 in the field  ·  finals: did not qualify  ·  champion: Seoul Han River Queens  ·  squad 7 (avg age 23.9)  ·  academy 2  ·  retired 0  ·  promoted 1  ·  intake 0  ·  fielded 0
+      board: Season 4 review: finished 16th against any finish, met expectations +5. Confidence 75 → 80. Safe.
+    season 5 (2030): 22W 32L  ·  54/59 played  ·  55 ranking pts  ·  Silver tier  ·  $3,344,277 balance  ·  #9 in the field  ·  finals: did not qualify  ·  champion: Seoul Han River Queens  ·  squad 7 (avg age 24.1)  ·  academy 0  ·  retired 0  ·  promoted 2  ·  intake 0  ·  fielded 0
+      board: Season 5 review: finished 9th against any finish, met expectations +5. Confidence 80 → 85. Safe.
+  PASS  RollStrong (established) measured every season it played: all 5, or up to its sacking  5 season(s) measured
+  PASS  RollStrong: every season had its fixture before anything asked for it  all 5 seasons scheduled at their start
+  PASS  RollStrong: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  55/59 | 56/59 | 55/59 | 56/59 | 54/59
+  PASS  RollStrong: its contracts were renewed at the start of every season, none refused  S1 3 renewed | S2 3 renewed | S3 4 renewed | S4 5 renewed | S5 6 renewed
+  PASS  RollStrong: no season was a 0W 0L walkover  32W 23L | 35W 21L | 39W 16L | 35W 21L | 33W 21L
+  PASS  RollStrong: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: safe, safe, safe, safe, warning
+  PASS  RollStrong: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend true
+  PASS  RollStrong: each next season pays full purses up to the tier this season reached  S1 69pts Gold -> S2 access Gold | S2 83pts Gold -> S3 access Gold | S3 81pts Gold -> S4 access Gold | S4 94pts Gold -> S5 access Gold | S5 64pts Gold -> S6 access Gold
+  PASS  RollStrong2 (established) measured every season it played: all 5, or up to its sacking  5 season(s) measured
+  PASS  RollStrong2: every season had its fixture before anything asked for it  all 5 seasons scheduled at their start
+  PASS  RollStrong2: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  54/59 | 56/59 | 55/59 | 54/59 | 54/59
+  PASS  RollStrong2: its contracts were renewed at the start of every season, none refused  S1 3 renewed | S2 3 renewed | S3 4 renewed | S4 4 renewed | S5 7 renewed
+  PASS  RollStrong2: no season was a 0W 0L walkover  34W 20L | 39W 17L | 35W 20L | 32W 22L | 34W 20L
+  PASS  RollStrong2: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: warning, safe, safe, warning, warning
+  PASS  RollStrong2: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend true
+  PASS  RollStrong2: each next season pays full purses up to the tier this season reached  S1 63pts Gold -> S2 access Gold | S2 93pts Gold -> S3 access Gold | S3 66pts Gold -> S4 access Gold | S4 62pts Silver -> S5 access Silver | S5 66pts Gold -> S6 access Gold
+  PASS  RollStrong3 (established) measured every season it played: all 5, or up to its sacking  5 season(s) measured
+  PASS  RollStrong3: every season had its fixture before anything asked for it  all 5 seasons scheduled at their start
+  PASS  RollStrong3: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  55/59 | 56/59 | 54/59 | 55/59 | 56/59
+  PASS  RollStrong3: its contracts were renewed at the start of every season, none refused  S1 3 renewed | S2 3 renewed | S3 4 renewed | S4 5 renewed | S5 7 renewed
+  PASS  RollStrong3: no season was a 0W 0L walkover  32W 23L | 31W 25L | 27W 27L | 37W 18L | 36W 20L
+  PASS  RollStrong3: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: safe, safe, warning, safe, safe
+  PASS  RollStrong3: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend true
+  PASS  RollStrong3: each next season pays full purses up to the tier this season reached  S1 66pts Gold -> S2 access Gold | S2 73pts Gold -> S3 access Gold | S3 62pts Silver -> S4 access Silver | S4 75pts Gold -> S5 access Gold | S5 76pts Gold -> S6 access Gold
+  PASS  RollWeak (underdog) measured every season it played: all 5, or up to its sacking  5 season(s) measured
+  PASS  RollWeak: every season had its fixture before anything asked for it  all 5 seasons scheduled at their start
+  PASS  RollWeak: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  54/59 | 54/59 | 54/59 | 54/59 | 54/59
+  PASS  RollWeak: its contracts were renewed at the start of every season, none refused  S1 3 renewed | S2 3 renewed | S3 4 renewed | S4 6 renewed | S5 7 renewed
+  PASS  RollWeak: no season was a 0W 0L walkover  18W 36L | 22W 32L | 13W 41L | 24W 30L | 15W 39L
+  PASS  RollWeak: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: safe, safe, safe, safe, safe
+  PASS  RollWeak: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend true
+  PASS  RollWeak: each next season pays full purses up to the tier this season reached  S1 31pts Bronze -> S2 access Bronze | S2 47pts Bronze -> S3 access Bronze | S3 25pts Bronze -> S4 access Bronze | S4 43pts Bronze -> S5 access Bronze | S5 30pts Bronze -> S6 access Bronze
+  PASS  RollWeak2 (underdog) measured every season it played: all 5, or up to its sacking  5 season(s) measured
+  PASS  RollWeak2: every season had its fixture before anything asked for it  all 5 seasons scheduled at their start
+  PASS  RollWeak2: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  54/59 | 54/59 | 54/59 | 54/59 | 54/59
+  PASS  RollWeak2: its contracts were renewed at the start of every season, none refused  S1 3 renewed | S2 4 renewed | S3 4 renewed | S4 7 renewed | S5 7 renewed
+  PASS  RollWeak2: no season was a 0W 0L walkover  18W 36L | 23W 31L | 17W 37L | 16W 38L | 20W 34L
+  PASS  RollWeak2: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: safe, safe, safe, safe, safe
+  PASS  RollWeak2: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend true
+  PASS  RollWeak2: each next season pays full purses up to the tier this season reached  S1 32pts Bronze -> S2 access Bronze | S2 45pts Bronze -> S3 access Bronze | S3 33pts Bronze -> S4 access Bronze | S4 37pts Bronze -> S5 access Bronze | S5 35pts Bronze -> S6 access Bronze
+  PASS  RollWeak3 (underdog) measured every season it played: all 5, or up to its sacking  5 season(s) measured
+  PASS  RollWeak3: every season had its fixture before anything asked for it  all 5 seasons scheduled at their start
+  PASS  RollWeak3: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  54/59 | 54/59 | 54/59 | 54/59 | 54/59
+  PASS  RollWeak3: its contracts were renewed at the start of every season, none refused  S1 3 renewed | S2 4 renewed | S3 4 renewed | S4 6 renewed | S5 7 renewed
+  PASS  RollWeak3: no season was a 0W 0L walkover  21W 33L | 18W 36L | 18W 36L | 21W 33L | 22W 32L
+  PASS  RollWeak3: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: safe, safe, safe, safe, safe
+  PASS  RollWeak3: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend true
+  PASS  RollWeak3: each next season pays full purses up to the tier this season reached  S1 39pts Bronze -> S2 access Bronze | S2 40pts Bronze -> S3 access Bronze | S3 38pts Bronze -> S4 access Bronze | S4 45pts Bronze -> S5 access Bronze | S5 55pts Silver -> S6 access Silver
+
+  ── Summary table (for I8/I9 — report only, nothing tuned here) ──
+  Season | Strong: record / played / pts / tier / balance / rank / finals          | Weak: record / played / pts / tier / balance / rank / finals
+       1 | 32W 23L / 55/59 / 69 / Gold / $2,032,236 / #2 / semi-finalist                    | 18W 36L / 54/59 / 31 / Bronze / $1,772,437 / #18 / did not qualify
+       2 | 35W 21L / 56/59 / 83 / Gold / $3,754,539 / #2 / runner-up                        | 22W 32L / 54/59 / 47 / Bronze / $3,327,122 / #14 / did not qualify
+       3 | 39W 16L / 55/59 / 81 / Gold / $3,866,045 / #2 / semi-finalist                    | 13W 41L / 54/59 / 25 / Bronze / $3,326,277 / #19 / did not qualify
+       4 | 35W 21L / 56/59 / 94 / Gold / $4,086,718 / #1 / champion                         | 24W 30L / 54/59 / 43 / Bronze / $3,308,160 / #17 / did not qualify
+       5 | 33W 21L / 54/59 / 64 / Gold / $4,054,157 / #6 / did not qualify                  | 15W 39L / 54/59 / 30 / Bronze / $3,263,311 / #19 / did not qualify
+
+  ── Sackings per arc (R-47: a legitimate result — reported, not failed; 3 careers each) ──
+  Strong (established): sacked in 0 of 3 careers (0%)
+    RollStrong   32W 23L | 35W 21L | 39W 16L | 35W 21L | 33W 21L  ->  still in the job after 5 seasons
+    RollStrong2  34W 20L | 39W 17L | 35W 20L | 32W 22L | 34W 20L  ->  still in the job after 5 seasons
+    RollStrong3  32W 23L | 31W 25L | 27W 27L | 37W 18L | 36W 20L  ->  still in the job after 5 seasons
+  Weak (underdog): sacked in 0 of 3 careers (0%)
+    RollWeak     18W 36L | 22W 32L | 13W 41L | 24W 30L | 15W 39L  ->  still in the job after 5 seasons
+    RollWeak2    18W 36L | 23W 31L | 17W 37L | 16W 38L | 20W 34L  ->  still in the job after 5 seasons
+    RollWeak3    21W 33L | 18W 36L | 18W 36L | 21W 33L | 22W 32L  ->  still in the job after 5 seasons
+
+  ── Board reviews, per season (R-53) ──
+  RollStrong   Season 1 review: finished 2nd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 60 → 69. Safe.
+  RollStrong   Season 2 review: finished 2nd against a top-4 finish, met expectations +5, runner-up +8. Confidence 69 → 82. Safe.
+  RollStrong   Season 3 review: finished 2nd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 82 → 91. Safe.
+  RollStrong   Season 4 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 91 → 100. Safe.
+  RollStrong   Season 5 review: finished 6th against a top-4 finish, below expectations. Confidence 100 → 100. Below expectations: a warning, but no strike.
+  RollStrong2  Season 1 review: finished 5th against a top-4 finish, below expectations. Confidence 60 → 60. Below expectations: a warning, but no strike.
+  RollStrong2  Season 2 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 60 → 80. Safe.
+  RollStrong2  Season 3 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 80 → 89. Safe.
+  RollStrong2  Season 4 review: finished 5th against a top-4 finish, below expectations. Confidence 89 → 89. Below expectations: a warning, but no strike.
+  RollStrong2  Season 5 review: finished 5th against a top-4 finish, below expectations. Confidence 89 → 89. Below expectations: a warning, but no strike.
+  RollStrong3  Season 1 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 60 → 69. Safe.
+  RollStrong3  Season 2 review: finished 2nd against a top-4 finish, met expectations +5, runner-up +8. Confidence 69 → 82. Safe.
+  RollStrong3  Season 3 review: finished 5th against a top-4 finish, below expectations. Confidence 82 → 82. Below expectations: a warning, but no strike.
+  RollStrong3  Season 4 review: finished 3rd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 82 → 91. Safe.
+  RollStrong3  Season 5 review: finished 2nd against a top-5 finish, met expectations +5, runner-up +8. Confidence 91 → 100. Safe.
+  RollWeak     Season 1 review: finished 18th against any finish, met expectations +5. Confidence 60 → 65. Safe.
+  RollWeak     Season 2 review: finished 14th against any finish, met expectations +5. Confidence 65 → 70. Safe.
+  RollWeak     Season 3 review: finished 19th against any finish, met expectations +5. Confidence 70 → 75. Safe.
+  RollWeak     Season 4 review: finished 17th against any finish, met expectations +5. Confidence 75 → 80. Safe.
+  RollWeak     Season 5 review: finished 19th against any finish, met expectations +5. Confidence 80 → 85. Safe.
+  RollWeak2    Season 1 review: finished 19th against any finish, met expectations +5. Confidence 60 → 65. Safe.
+  RollWeak2    Season 2 review: finished 16th against any finish, met expectations +5. Confidence 65 → 70. Safe.
+  RollWeak2    Season 3 review: finished 19th against any finish, met expectations +5. Confidence 70 → 75. Safe.
+  RollWeak2    Season 4 review: finished 18th against any finish, met expectations +5. Confidence 75 → 80. Safe.
+  RollWeak2    Season 5 review: finished 19th against any finish, met expectations +5. Confidence 80 → 85. Safe.
+  RollWeak3    Season 1 review: finished 17th against any finish, met expectations +5. Confidence 60 → 65. Safe.
+  RollWeak3    Season 2 review: finished 17th against any finish, met expectations +5. Confidence 65 → 70. Safe.
+  RollWeak3    Season 3 review: finished 18th against any finish, met expectations +5. Confidence 70 → 75. Safe.
+  RollWeak3    Season 4 review: finished 16th against any finish, met expectations +5. Confidence 75 → 80. Safe.
+  RollWeak3    Season 5 review: finished 9th against any finish, met expectations +5. Confidence 80 → 85. Safe.
+
+  ── World Finals, per season ──
+  RollStrong   season 1: finished #2, finals: semi-finalist, champion: Miami Shoreline Queens
+  RollStrong   season 2: finished #2, finals: runner-up, champion: Barcelona Playa Elites
+  RollStrong   season 3: finished #2, finals: semi-finalist, champion: Cancún Coral Storm
+  RollStrong   season 4: finished #1, finals: champion, champion: RollStrong FC
+  RollStrong   season 5: finished #6, finals: did not qualify, champion: Fiji Island Breakers
+  REPORT  RollStrong   1 title(s) in 5 seasons
+  RollStrong2  season 1: finished #5, finals: did not qualify, champion: Auckland Pacific Diamonds
+  RollStrong2  season 2: finished #1, finals: champion, champion: RollStrong2 FC
+  RollStrong2  season 3: finished #4, finals: semi-finalist, champion: Miami Shoreline Queens
+  RollStrong2  season 4: finished #5, finals: did not qualify, champion: Cancún Coral Storm
+  RollStrong2  season 5: finished #5, finals: did not qualify, champion: Rome Beach Gladiators
+  REPORT  RollStrong2  1 title(s) in 5 seasons
+  RollStrong3  season 1: finished #4, finals: semi-finalist, champion: Lagos Surf Queens
+  RollStrong3  season 2: finished #2, finals: runner-up, champion: Lagos Surf Queens
+  RollStrong3  season 3: finished #5, finals: did not qualify, champion: Berlin Sand Queens
+  RollStrong3  season 4: finished #3, finals: semi-finalist, champion: Mumbai Coastal Warriors
+  RollStrong3  season 5: finished #2, finals: runner-up, champion: Berlin Sand Queens
+  REPORT  RollStrong3  0 title(s) in 5 seasons
+  RollWeak     season 1: finished #18, finals: did not qualify, champion: Vancouver Pacific Orcas
+  RollWeak     season 2: finished #14, finals: did not qualify, champion: Berlin Sand Queens
+  RollWeak     season 3: finished #19, finals: did not qualify, champion: Fiji Island Breakers
+  RollWeak     season 4: finished #17, finals: did not qualify, champion: LA Beach Legends
+  RollWeak     season 5: finished #19, finals: did not qualify, champion: Honolulu Aloha Warriors
+  REPORT  RollWeak     0 title(s) in 5 seasons
+  RollWeak2    season 1: finished #19, finals: did not qualify, champion: Shanghai Yangtze Elites
+  RollWeak2    season 2: finished #16, finals: did not qualify, champion: Shanghai Yangtze Elites
+  RollWeak2    season 3: finished #19, finals: did not qualify, champion: Lagos Surf Queens
+  RollWeak2    season 4: finished #18, finals: did not qualify, champion: Cancún Coral Storm
+  RollWeak2    season 5: finished #19, finals: did not qualify, champion: Durban Indian Ocean Tides
+  REPORT  RollWeak2    0 title(s) in 5 seasons
+  RollWeak3    season 1: finished #17, finals: did not qualify, champion: Bogotá Altitude Queens
+  RollWeak3    season 2: finished #17, finals: did not qualify, champion: Rome Beach Gladiators
+  RollWeak3    season 3: finished #18, finals: did not qualify, champion: Shanghai Yangtze Elites
+  RollWeak3    season 4: finished #16, finals: did not qualify, champion: Seoul Han River Queens
+  RollWeak3    season 5: finished #9, finals: did not qualify, champion: Seoul Han River Queens
+  REPORT  RollWeak3    0 title(s) in 5 seasons
+  PASS  the title is contested — the player's clubs did not win every measured season  2 of 30 measured seasons won by the player's club
+  PASS  a club is only crowned champion in a season it finished inside the finals places  2 title(s), every one from inside the top 4
+  REPORT  underdog arcs: 0 title(s) across 15 seasons, best finish #9
+  PASS  every measured season crowned a real champion from the field  30 seasons: Miami Shoreline Queens | Barcelona Playa Elites | Cancún Coral Storm | RollStrong FC | Fiji Island Breakers | Auckland Pacific Diamonds | RollStrong2 FC | Miami Shoreline Queens | Cancún Coral Storm | Rome Beach Gladiators | Lagos Surf Queens | Lagos Surf Queens | Berlin Sand Queens | Mumbai Coastal Warriors | Berlin Sand Queens | Vancouver Pacific Orcas | Berlin Sand Queens | Fiji Island Breakers | LA Beach Legends | Honolulu Aloha Warriors | Shanghai Yangtze Elites | Shanghai Yangtze Elites | Lagos Surf Queens | Cancún Coral Storm | Durban Indian Ocean Tides | Bogotá Altitude Queens | Rome Beach Gladiators | Shanghai Yangtze Elites | Seoul Han River Queens | Seoul Han River Queens
+
+=== L-01: 30 SEASONS, ONE ESTABLISHED CAREER, REAL FIXTURES ===
+
+  Long (established) — starting budget $500,000, 59-match season fixture
+    season 1 (2026): 36W 20L  ·  56/59 played  ·  93 ranking pts  ·  Gold tier  ·  $2,235,877 balance  ·  #1 in the field  ·  finals: champion  ·  champion: Long FC  ·  squad 3 (avg age 28.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 1 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 60 → 80. Safe.
+    season 2 (2027): 33W 23L  ·  56/59 played  ·  86 ranking pts  ·  Gold tier  ·  $4,006,954 balance  ·  #1 in the field  ·  finals: champion  ·  champion: Long FC  ·  squad 3 (avg age 29.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 2 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 80 → 100. Safe.
+    season 3 (2028): 27W 27L  ·  54/59 played  ·  55 ranking pts  ·  Silver tier  ·  $4,024,395 balance  ·  #7 in the field  ·  finals: did not qualify  ·  champion: Bogotá Altitude Queens  ·  squad 3 (avg age 30.7)  ·  academy 0  ·  retired 1  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 3 review: finished 7th against a top-4 finish, below expectations. Confidence 100 → 100. Below expectations: a warning, but no strike.
+    season 4 (2029): 32W 23L  ·  55/59 played  ·  66 ranking pts  ·  Gold tier  ·  $4,044,837 balance  ·  #4 in the field  ·  finals: semi-finalist  ·  champion: Berlin Sand Queens  ·  squad 3 (avg age 31.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 4 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 100 → 100. Safe.
+    season 5 (2030): 35W 20L  ·  55/59 played  ·  69 ranking pts  ·  Gold tier  ·  $4,165,081 balance  ·  #3 in the field  ·  finals: semi-finalist  ·  champion: Cairo Desert Eagles  ·  squad 3 (avg age 32.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 5 review: finished 3rd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 100 → 100. Safe.
+    season 6 (2031): 34W 21L  ·  55/59 played  ·  70 ranking pts  ·  Gold tier  ·  $4,278,919 balance  ·  #3 in the field  ·  finals: semi-finalist  ·  champion: Cairo Desert Eagles  ·  squad 3 (avg age 33.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 6 review: finished 3rd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 100 → 100. Safe.
+    season 7 (2032): 34W 21L  ·  55/59 played  ·  67 ranking pts  ·  Gold tier  ·  $4,387,481 balance  ·  #3 in the field  ·  finals: semi-finalist  ·  champion: Berlin Sand Queens  ·  squad 3 (avg age 34.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 7 review: finished 3rd against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 100 → 100. Safe.
+    season 8 (2033): 33W 22L  ·  55/59 played  ·  63 ranking pts  ·  Gold tier  ·  $4,480,655 balance  ·  #4 in the field  ·  finals: semi-finalist  ·  champion: Santiago Atacama Aces  ·  squad 3 (avg age 35.7)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 8 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 100 → 100. Safe.
+    season 9 (2034): 28W 26L  ·  54/59 played  ·  56 ranking pts  ·  Silver tier  ·  $4,486,194 balance  ·  #9 in the field  ·  finals: did not qualify  ·  champion: Santiago Atacama Aces  ·  squad 3 (avg age 36.7)  ·  academy 1  ·  retired 2  ·  promoted 0  ·  intake 1  ·  fielded 0
+      board: Season 9 review: finished 9th against a top-4 finish, failed -25. Confidence 100 → 75. Final warning: the board has lost patience with the results. A second failed season running and it sacks you; a club that keeps losing money gets sold.
+    season 10 (2035): 31W 24L  ·  55/59 played  ·  64 ranking pts  ·  Gold tier  ·  $4,550,786 balance  ·  #4 in the field  ·  finals: semi-finalist  ·  champion: Fiji Island Breakers  ·  squad 3 (avg age 37.7)  ·  academy 1  ·  retired 1  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 10 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 75 → 84. Safe.
+    season 11 (2036): 38W 18L  ·  56/59 played  ·  100 ranking pts  ·  Gold tier  ·  $4,862,031 balance  ·  #1 in the field  ·  finals: champion  ·  champion: Long FC  ·  squad 3 (avg age 38.7)  ·  academy 2  ·  retired 5  ·  promoted 0  ·  intake 1  ·  fielded 0
+      board: Season 11 review: finished 1st against a top-4 finish, met expectations +5, champion +15. Confidence 84 → 100. Safe.
+    season 12 (2037): 33W 22L  ·  55/59 played  ·  66 ranking pts  ·  Gold tier  ·  $4,948,273 balance  ·  #4 in the field  ·  finals: semi-finalist  ·  champion: Cairo Desert Eagles  ·  squad 2 (avg age 29)  ·  academy 4  ·  retired 11  ·  promoted 1  ·  intake 3  ·  fielded 1
+      board: Season 12 review: finished 4th against a top-4 finish, met expectations +5, semi-finalist +4. Confidence 100 → 100. Safe.
+    season 13 (2038): 17W 37L  ·  54/59 played  ·  36 ranking pts  ·  Bronze tier  ·  $5,238,024 balance  ·  #17 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 19.3)  ·  academy 2  ·  retired 17  ·  promoted 3  ·  intake 2  ·  fielded 2
+      board: Season 13 review: finished 17th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 14 (2039): 15W 39L  ·  54/59 played  ·  34 ranking pts  ·  Bronze tier  ·  $5,662,293 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Honolulu Hula Warriors  ·  squad 4 (avg age 20)  ·  academy 5  ·  retired 20  ·  promoted 1  ·  intake 4  ·  fielded 1
+      board: Season 14 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 15 (2040): 8W 46L  ·  54/59 played  ·  17 ranking pts  ·  Bronze tier  ·  $6,040,070 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Amsterdam Dune Riders  ·  squad 4 (avg age 21)  ·  academy 6  ·  retired 27  ·  promoted 0  ·  intake 1  ·  fielded 1
+      board: Season 15 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 16 (2041): 16W 38L  ·  54/59 played  ·  32 ranking pts  ·  Bronze tier  ·  $6,425,217 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 20.5)  ·  academy 6  ·  retired 42  ·  promoted 2  ·  intake 3  ·  fielded 0
+      board: Season 16 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 17 (2042): 13W 41L  ·  54/59 played  ·  26 ranking pts  ·  Bronze tier  ·  $6,799,600 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Mumbai Coastal Warriors  ·  squad 4 (avg age 21.3)  ·  academy 6  ·  retired 19  ·  promoted 1  ·  intake 4  ·  fielded 2
+      board: Season 17 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 18 (2043): 12W 42L  ·  54/59 played  ·  18 ranking pts  ·  Bronze tier  ·  $7,171,069 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Athens Aegean Stars  ·  squad 4 (avg age 22.3)  ·  academy 6  ·  retired 32  ·  promoted 0  ·  intake 2  ·  fielded 1
+      board: Season 18 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 19 (2044): 22W 32L  ·  54/59 played  ·  36 ranking pts  ·  Bronze tier  ·  $7,580,254 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Myrtle Beach Sunblazers  ·  squad 4 (avg age 21.8)  ·  academy 4  ·  retired 19  ·  promoted 1  ·  intake 2  ·  fielded 0
+      board: Season 19 review: finished 18th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 20 (2045): 24W 30L  ·  54/59 played  ·  52 ranking pts  ·  Bronze tier  ·  $8,022,687 balance  ·  #11 in the field  ·  finals: did not qualify  ·  champion: Durban Indian Ocean Tides  ·  squad 4 (avg age 22.8)  ·  academy 2  ·  retired 6  ·  promoted 0  ·  intake 1  ·  fielded 1
+      board: Season 20 review: finished 11th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 21 (2046): 22W 32L  ·  54/59 played  ·  48 ranking pts  ·  Bronze tier  ·  $8,479,870 balance  ·  #15 in the field  ·  finals: did not qualify  ·  champion: Casablanca Atlantic Spikers  ·  squad 4 (avg age 23.8)  ·  academy 0  ·  retired 2  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 21 review: finished 15th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 22 (2047): 26W 28L  ·  54/59 played  ·  59 ranking pts  ·  Silver tier  ·  $8,970,569 balance  ·  #7 in the field  ·  finals: did not qualify  ·  champion: Honolulu Aloha Warriors  ·  squad 4 (avg age 24.8)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 22 review: finished 7th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 23 (2048): 18W 36L  ·  54/59 played  ·  35 ranking pts  ·  Bronze tier  ·  $9,528,728 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Gold Coast Thunderbirds  ·  squad 4 (avg age 25.8)  ·  academy 3  ·  retired 24  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 23 review: finished 18th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 24 (2049): 21W 33L  ·  54/59 played  ·  49 ranking pts  ·  Bronze tier  ·  $9,960,945 balance  ·  #11 in the field  ·  finals: did not qualify  ·  champion: Myrtle Beach Sunblazers  ·  squad 4 (avg age 26.8)  ·  academy 6  ·  retired 19  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 24 review: finished 11th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 25 (2050): 27W 27L  ·  54/59 played  ·  60 ranking pts  ·  Silver tier  ·  $10,409,144 balance  ·  #6 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 27.8)  ·  academy 4  ·  retired 15  ·  promoted 0  ·  intake 2  ·  fielded 0
+      board: Season 25 review: finished 6th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 26 (2051): 17W 37L  ·  54/59 played  ·  42 ranking pts  ·  Bronze tier  ·  $10,873,045 balance  ·  #16 in the field  ·  finals: did not qualify  ·  champion: Auckland Pacific Diamonds  ·  squad 4 (avg age 28.8)  ·  academy 4  ·  retired 14  ·  promoted 0  ·  intake 3  ·  fielded 0
+      board: Season 26 review: finished 16th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 27 (2052): 21W 33L  ·  54/59 played  ·  39 ranking pts  ·  Bronze tier  ·  $11,298,714 balance  ·  #16 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 29.8)  ·  academy 2  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 27 review: finished 16th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 28 (2053): 18W 36L  ·  54/59 played  ·  39 ranking pts  ·  Bronze tier  ·  $11,730,081 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Paris Sables Royales  ·  squad 4 (avg age 30.8)  ·  academy 2  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 28 review: finished 18th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 29 (2054): 19W 35L  ·  54/59 played  ·  41 ranking pts  ·  Bronze tier  ·  $12,170,964 balance  ·  #17 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 31.8)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 29 review: finished 17th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 30 (2055): 19W 35L  ·  54/59 played  ·  34 ranking pts  ·  Bronze tier  ·  $12,629,163 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Honolulu Aloha Warriors  ·  squad 4 (avg age 32.8)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 30 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+  PASS  one established career played 30 seasons and is still in the job  Long: 30 seasons, no sacking
+  PASS  every one of its 30 boundaries rolled into a new season (a career ends only by sacking)  30 rollovers
+  PASS  Long: every season had its fixture before anything asked for it  all 30 seasons scheduled at their start
+  PASS  Long: every season played every match it was entitled to  30 full seasons
+  PASS  Long: contracts renewed at the start of every season, none refused  30 seasons renewed
+  PASS  Long: no renewal over 30 seasons was refused as "no longer in your squad"  0 stale contract rows
+  PASS  Long: after 30 seasons, nobody at the club is there without a contract  0 player(s), 0 staff without one
+  PASS  Long: season 31 (2056) opened after the 30th boundary  last measured season 2055, seasonsCompleted 30
+
+  ── Long: per-season table (L-01 — report only, nothing tuned; the input to L-04) ──
+  Squad = the club's non-academy players after the boundary; Retired = retirements that season across the whole career world (the review's list), not only the club's.
+  Season  Year  Record   Played  Pts  Tier    Finish  Finals            Balance        Squad  AvgAge  Academy  Retired  Promoted  Intake  Fielded  Board
+       1  2026  36W 20L      56   93  Gold        #1  champion              $2,235,877      3    28.7        0        0         0       0        0  safe (60->80)
+       2  2027  33W 23L      56   86  Gold        #1  champion              $4,006,954      3    29.7        0        0         0       0        0  safe (80->100)
+       3  2028  27W 27L      54   55  Silver      #7  did not qualify       $4,024,395      3    30.7        0        1         0       0        0  warning (100->100)
+       4  2029  32W 23L      55   66  Gold        #4  semi-finalist         $4,044,837      3    31.7        0        0         0       0        0  safe (100->100)
+       5  2030  35W 20L      55   69  Gold        #3  semi-finalist         $4,165,081      3    32.7        0        0         0       0        0  safe (100->100)
+       6  2031  34W 21L      55   70  Gold        #3  semi-finalist         $4,278,919      3    33.7        0        0         0       0        0  safe (100->100)
+       7  2032  34W 21L      55   67  Gold        #3  semi-finalist         $4,387,481      3    34.7        0        0         0       0        0  safe (100->100)
+       8  2033  33W 22L      55   63  Gold        #4  semi-finalist         $4,480,655      3    35.7        0        0         0       0        0  safe (100->100)
+       9  2034  28W 26L      54   56  Silver      #9  did not qualify       $4,486,194      3    36.7        1        2         0       1        0  final_warning (100->75)
+      10  2035  31W 24L      55   64  Gold        #4  semi-finalist         $4,550,786      3    37.7        1        1         0       0        0  safe (75->84)
+      11  2036  38W 18L      56  100  Gold        #1  champion              $4,862,031      3    38.7        2        5         0       1        0  safe (84->100)
+      12  2037  33W 22L      55   66  Gold        #4  semi-finalist         $4,948,273      2      29        4       11         1       3        1  safe (100->100)
+      13  2038  17W 37L      54   36  Bronze     #17  did not qualify       $5,238,024      4    19.3        2       17         3       2        2  safe (100->100)
+      14  2039  15W 39L      54   34  Bronze     #19  did not qualify       $5,662,293      4      20        5       20         1       4        1  safe (100->100)
+      15  2040  8W 46L       54   17  Bronze     #19  did not qualify       $6,040,070      4      21        6       27         0       1        1  safe (100->100)
+      16  2041  16W 38L      54   32  Bronze     #19  did not qualify       $6,425,217      4    20.5        6       42         2       3        0  safe (100->100)
+      17  2042  13W 41L      54   26  Bronze     #19  did not qualify       $6,799,600      4    21.3        6       19         1       4        2  safe (100->100)
+      18  2043  12W 42L      54   18  Bronze     #19  did not qualify       $7,171,069      4    22.3        6       32         0       2        1  safe (100->100)
+      19  2044  22W 32L      54   36  Bronze     #18  did not qualify       $7,580,254      4    21.8        4       19         1       2        0  safe (100->100)
+      20  2045  24W 30L      54   52  Bronze     #11  did not qualify       $8,022,687      4    22.8        2        6         0       1        1  safe (100->100)
+      21  2046  22W 32L      54   48  Bronze     #15  did not qualify       $8,479,870      4    23.8        0        2         0       0        0  safe (100->100)
+      22  2047  26W 28L      54   59  Silver      #7  did not qualify       $8,970,569      4    24.8        0        0         0       0        0  safe (100->100)
+      23  2048  18W 36L      54   35  Bronze     #18  did not qualify       $9,528,728      4    25.8        3       24         0       3        0  safe (100->100)
+      24  2049  21W 33L      54   49  Bronze     #11  did not qualify       $9,960,945      4    26.8        6       19         0       3        0  safe (100->100)
+      25  2050  27W 27L      54   60  Silver      #6  did not qualify      $10,409,144      4    27.8        4       15         0       2        0  safe (100->100)
+      26  2051  17W 37L      54   42  Bronze     #16  did not qualify      $10,873,045      4    28.8        4       14         0       3        0  safe (100->100)
+      27  2052  21W 33L      54   39  Bronze     #16  did not qualify      $11,298,714      4    29.8        2        0         0       0        0  safe (100->100)
+      28  2053  18W 36L      54   39  Bronze     #18  did not qualify      $11,730,081      4    30.8        2        0         0       0        0  safe (100->100)
+      29  2054  19W 35L      54   41  Bronze     #17  did not qualify      $12,170,964      4    31.8        0        0         0       0        0  safe (100->100)
+      30  2055  19W 35L      54   34  Bronze     #19  did not qualify      $12,629,163      4    32.8        0        0         0       0        0  safe (100->100)
+
+  ── Long: what the 30-season run shows (observations, not checks) ──
+  MONEY    balance $2,235,877 after season 1 -> $12,629,163 after season 30; peak $12,629,163, low $2,235,877; average change $358,389 per season
+  SQUAD    size 3 -> 4 (min 2, max 4); average age 28.7 -> 32.8 (min 19.3, max 38.7) — AGEING OUT: average age reached the mid-thirties
+  RETIRED  276 players retired across 30 seasons; seasons with 3+ retirements: S11:5 S12:11 S13:17 S14:20 S15:27 S16:42 S17:19 S18:32 S19:19 S20:6 S23:24 S24:19 S25:15 S26:14
+  ACADEMY  35 youth taken in, 9 promoted to the senior squad; academy size 0 -> 0 — EMPTY in season(s) 1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 29, 30; no intake in season(s) 1, 2, 3, 4, 5, 6, 7, 8, 10, 21, 22, 27, 28, 29, 30
+  RESULTS  3 World Final title(s) in 30 seasons; finishes #1 to #19; tiers Gold x10, Silver x4, Bronze x16
+  STANDINGS every season had a rank, ranking points and a real champion
+  CONTRACTS see the retirement check above
+  SIDE     9 reserve(s) moved into the side by the harness over the run (the manager's minimum: keep 4 active); refused: S17: 422 You already hold 4 of your own graduates, and a club may keep 4. Sell or release one before promoting another.; S18: 422 You already hold 4 of your own graduates, and a club may keep 4. Sell or release one before promoting another.
+  BOARD    safe x28, warning x1, final_warning x1; confidence ended at 100
+
+=== 90/90 passed ===
+
+[run-rollover] exit 0 in 1311s

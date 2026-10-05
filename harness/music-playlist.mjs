@@ -174,8 +174,10 @@ check("volume and mute are saved under one key and restored on launch",
   && /localStorage\.getItem\(STORAGE_KEY\)/.test(provider)
   && /localStorage\.setItem\(STORAGE_KEY/.test(provider));
 
+// Rob, 2 Oct: the remembered pause added two more; every access is still wrapped.
 check("every storage access is wrapped so blocked storage cannot break the game",
-  (provider.match(/try \{[\s\S]*?localStorage[\s\S]*?\} catch/g) ?? []).length === 2);
+  (provider.match(/try \{[\s\S]*?localStorage[\s\S]*?\} catch/g) ?? []).length === (provider.match(/localStorage\./g) ?? []).length,
+  `${(provider.match(/localStorage\./g) ?? []).length} storage accesses`);
 
 check("the defaults are 40% and not muted",
   /DEFAULT_VOLUME = 0\.4/.test(provider) && /muted: false/.test(provider));
