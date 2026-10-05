@@ -175,7 +175,8 @@ export function deleteProfileCascade(userId: string): void {
       // (R-46) and boardSeasonsTable (R-53) are cleared there too, as are the
       // R-61 Olympic tables: olympicMedalsTable, olympicMatchesTable and
       // olympicTournamentsTable, R-62's academy intakes, youthIntakesTable, C15's
-      // youth loans, youthLoansTable, and
+      // youth loans, youthLoansTable, A4's graduate pictures,
+      // careerGraduatePortraitsTable, and
       // L-02b's retirements and club honours, playerRetirementsTable and
       // clubHallOfFameTable, and the sixty AI clubs' books,
       // poolClubSeasonsTable and poolPlayerContractsTable.

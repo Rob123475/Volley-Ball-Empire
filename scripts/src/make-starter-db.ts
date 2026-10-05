@@ -107,6 +107,8 @@ const CLEAR_TABLES = [
   "youth_intakes",
   // Overnight 30 Sep, C15: a career's youth loans.
   "youth_loans",
+  // Final brief 5 Oct, A4: the graduate pictures a career has given.
+  "career_graduate_portraits",
   "promo_deals",
   "regional_league_fixtures",
   "regional_league_results",

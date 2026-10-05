@@ -2,7 +2,7 @@ import { db, playersTable, careerPlayerStateTable, staffTable, careerStaffStateT
   continentalPoolTeamsTable, careerPoolTeamStateTable,
   regionalLeagueSeasonsTable, regionalLeagueFixturesTable,
   regionalLeagueResultsTable, contractsTable,
-  playerRetirementsTable, clubHallOfFameTable, nationName } from "@workspace/db";
+  playerRetirementsTable, clubHallOfFameTable, careerGraduatePortraitsTable, nationName } from "@workspace/db";
 import type { CareerPlayerState, CareerStaffState, CareerPoolTeamState } from "@workspace/db";
 import { and, eq, gte, isNull, isNotNull, or, sql, type SQL } from "drizzle-orm";
 
@@ -88,9 +88,12 @@ export type PlayerDTO = PlayerReference & CareerPlayerFields;
 export function assemblePlayer(
   reference: PlayerReference,
   state: CareerPlayerState,
+  /** Final brief 5 Oct, A4: her graduate picture in this career, if she has one. */
+  graduatePortrait: string | null = null,
 ): PlayerDTO {
   return {
     ...reference,
+    imageUrl:             graduatePortrait ?? reference.imageUrl,
     teamId:               state.teamId,
     squadRole:            state.squadRole,
     isActive:             state.isActive,
@@ -183,12 +186,16 @@ export async function loadPlayers(
   if (!filter.includeRetired)  conds.push(eq(careerPlayerStateTable.isRetired, false));
 
   const rows = await db
-    .select({ reference: playersTable, state: careerPlayerStateTable })
+    .select({ reference: playersTable, state: careerPlayerStateTable, graduate: careerGraduatePortraitsTable.imageUrl })
     .from(careerPlayerStateTable)
     .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+    .leftJoin(careerGraduatePortraitsTable, and(
+      eq(careerGraduatePortraitsTable.careerSaveId, careerPlayerStateTable.careerSaveId),
+      eq(careerGraduatePortraitsTable.playerId, careerPlayerStateTable.playerId),
+    ))
     .where(and(...conds));
 
-  return rows.map((r) => assemblePlayer(r.reference, r.state));
+  return rows.map((r) => assemblePlayer(r.reference, r.state, r.graduate));
 }
 
 /** One player, career-scoped. Null when the career has no state for them. */
@@ -197,15 +204,19 @@ export async function loadPlayer(
   playerId: number,
 ): Promise<PlayerDTO | null> {
   const [row] = await db
-    .select({ reference: playersTable, state: careerPlayerStateTable })
+    .select({ reference: playersTable, state: careerPlayerStateTable, graduate: careerGraduatePortraitsTable.imageUrl })
     .from(careerPlayerStateTable)
     .innerJoin(playersTable, eq(playersTable.id, careerPlayerStateTable.playerId))
+    .leftJoin(careerGraduatePortraitsTable, and(
+      eq(careerGraduatePortraitsTable.careerSaveId, careerPlayerStateTable.careerSaveId),
+      eq(careerGraduatePortraitsTable.playerId, careerPlayerStateTable.playerId),
+    ))
     .where(and(
       eq(careerPlayerStateTable.careerSaveId, careerSaveId),
       eq(careerPlayerStateTable.playerId, playerId),
     ))
     .limit(1);
-  return row ? assemblePlayer(row.reference, row.state) : null;
+  return row ? assemblePlayer(row.reference, row.state, row.graduate) : null;
 }
 
 /** Update a player's career state. The only write path. */

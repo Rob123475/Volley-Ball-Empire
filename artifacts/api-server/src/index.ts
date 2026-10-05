@@ -27,6 +27,7 @@ import { rerateOldProspects } from "./utils/youthProspects.js";
 import { alignYouthWages } from "./utils/youthWages.js";
 import { raiseHighestBalances } from "./utils/highestBalance.js";
 import { applyReferenceRenames } from "./utils/referenceRenames.js";
+import { assignGraduatePortraitsAtBoot } from "./utils/graduatePortraits.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
 
 // R-31: electron/main.js forks this process and already has a live IPC
@@ -221,6 +222,14 @@ try {
   if (r.contractsMoved + r.namesChanged > 0) logger.info(r, "reference corrections applied to the saves");
 } catch (err) {
   logger.error({ err }, "applying reference corrections failed");
+}
+
+// Final brief 5 Oct, A4: an older save's adult graduates get their pictures now.
+try {
+  const g = assignGraduatePortraitsAtBoot();
+  if (g.given + g.ranOut > 0) logger.info(g, "graduate pictures given at boot");
+} catch (err) {
+  logger.error({ err }, "giving graduate pictures failed");
 }
 
 // Overnight 1 Oct, N-45: the highest balance counts the starting balance and every balance since.

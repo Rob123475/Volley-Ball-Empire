@@ -12,6 +12,7 @@ import { awardSeasonTrophiesTx } from "./seasonTrophies.js";
 import { isOlympicYear } from "./olympics.js";
 import { youthIntakeTx, type IntakeResult } from "./youthIntake.js";
 import { releaseSurplusGraduatesTx, type ReleasedGraduate } from "./graduates.js";
+import { assignGraduatePortraitsTx } from "./graduatePortraits.js";
 import { backfillContractsTx } from "./backfillContracts.js";
 import {
   sellBrokePoolClubsTx, openPoolClubSeasonsTx, renewExpiredPoolContractsTx,
@@ -136,6 +137,9 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     releaseAiAcademyGraduatesTx(tx, careerSaveId);
     const promoted = promoteAgedYouth(careerSaveId, PROMOTION_AGE);
     withdrawGraduatedListingsTx(tx, careerSaveId, promoted.map((p) => p.playerId));
+    // Final brief 5 Oct, A4: every adult graduate without one is given an
+    // unused picture of her continent, never one used before in this career.
+    const graduatePortraits = assignGraduatePortraitsTx(tx, careerSaveId, `${season.year + 1}-01-01`);
 
     // Unity brief item 15: scout reports on players without a club lapse with
     // the season (after retirements, so a player who retired is not counted).
@@ -327,6 +331,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       clubSold,
       releasedGraduates,
       contractsFilled,
+      graduatePortraits,
     } as const;
   });
 }

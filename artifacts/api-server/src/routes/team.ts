@@ -12,6 +12,7 @@ import type { Team } from "@workspace/db";
 import { ACADEMY_CAP, academySize } from "../utils/academy.js";
 import { GRADUATE_CAP } from "../utils/squadRules.js";
 import { isInjured } from "../utils/condition.js";
+import { assignGraduatePortraitsTx } from "../utils/graduatePortraits.js";
 
 const router = Router();
 
@@ -210,6 +211,10 @@ router.patch("/team/roster/:id/role", async (req, res) => {
 
   // Track youth promotions for achievements
   if (isYouthPromotion) {
+    // Final brief 5 Oct, A4: an adult graduate is given her picture now; one
+    // promoted younger keeps her flag card until a boundary finds her 18.
+    const today = (await getGameDate(team.id)).slice(0, 10);
+    db.transaction((tx) => assignGraduatePortraitsTx(tx, careerSaveId, today));
     try {
       await updateCareerStats(team.id, (s) => ({ ...s, youthPromoted: s.youthPromoted + 1 }));
       await checkAchievements(team.id);

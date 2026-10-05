@@ -553,6 +553,11 @@ runSuite("highest balance", path.join(REPO, "harness", "highest-balance.mjs"));
 console.log("\n########## 97/99  STAFF PORTRAITS ARE THE PERSON ALONE (DAYTIME N-46) ##########");
 runSuite("staff portraits", path.join(REPO, "harness", "staff-portraits.mjs"));
 
+// Final brief 5 Oct, A4: Rob's pictures for graduating youth: every adult
+// graduate has one of her continent, none used twice in a career, every file there.
+console.log("\n########## 97b/99  ROB'S PICTURES FOR GRADUATES (FINAL A4) ##########");
+runSuite("player pictures", path.join(REPO, "harness", "player-pictures.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 98/99  GAMEPLAY SMOKE ##########");
 {

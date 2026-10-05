@@ -299,3 +299,66 @@
       board: Season 26 review: finished 16th against any finish, met expectations +5. Confidence 100 → 100. Safe.
     season 27 (2052): 21W 33L  ·  54/59 played  ·  39 ranking pts  ·  Bronze tier  ·  $11,298,714 balance  ·  #16 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 29.8)  ·  academy 2  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
       board: Season 27 review: finished 16th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 28 (2053): 18W 36L  ·  54/59 played  ·  39 ranking pts  ·  Bronze tier  ·  $11,730,081 balance  ·  #18 in the field  ·  finals: did not qualify  ·  champion: Paris Sables Royales  ·  squad 4 (avg age 30.8)  ·  academy 2  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 28 review: finished 18th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 29 (2054): 19W 35L  ·  54/59 played  ·  41 ranking pts  ·  Bronze tier  ·  $12,170,964 balance  ·  #17 in the field  ·  finals: did not qualify  ·  champion: Cairo Desert Eagles  ·  squad 4 (avg age 31.8)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 29 review: finished 17th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+    season 30 (2055): 19W 35L  ·  54/59 played  ·  34 ranking pts  ·  Bronze tier  ·  $12,629,163 balance  ·  #19 in the field  ·  finals: did not qualify  ·  champion: Honolulu Aloha Warriors  ·  squad 4 (avg age 32.8)  ·  academy 0  ·  retired 0  ·  promoted 0  ·  intake 0  ·  fielded 0
+      board: Season 30 review: finished 19th against any finish, met expectations +5. Confidence 100 → 100. Safe.
+  PASS  one established career played 30 seasons and is still in the job  Long: 30 seasons, no sacking
+  PASS  every one of its 30 boundaries rolled into a new season (a career ends only by sacking)  30 rollovers
+  PASS  Long: every season had its fixture before anything asked for it  all 30 seasons scheduled at their start
+  PASS  Long: every season played every match it was entitled to  30 full seasons
+  PASS  Long: contracts renewed at the start of every season, none refused  30 seasons renewed
+  PASS  Long: no renewal over 30 seasons was refused as "no longer in your squad"  0 stale contract rows
+  PASS  Long: after 30 seasons, nobody at the club is there without a contract  0 player(s), 0 staff without one
+  PASS  Long: season 31 (2056) opened after the 30th boundary  last measured season 2055, seasonsCompleted 30
+
+  ── Long: per-season table (L-01 — report only, nothing tuned; the input to L-04) ──
+  Squad = the club's non-academy players after the boundary; Retired = retirements that season across the whole career world (the review's list), not only the club's.
+  Season  Year  Record   Played  Pts  Tier    Finish  Finals            Balance        Squad  AvgAge  Academy  Retired  Promoted  Intake  Fielded  Board
+       1  2026  36W 20L      56   93  Gold        #1  champion              $2,235,877      3    28.7        0        0         0       0        0  safe (60->80)
+       2  2027  33W 23L      56   86  Gold        #1  champion              $4,006,954      3    29.7        0        0         0       0        0  safe (80->100)
+       3  2028  27W 27L      54   55  Silver      #7  did not qualify       $4,024,395      3    30.7        0        1         0       0        0  warning (100->100)
+       4  2029  32W 23L      55   66  Gold        #4  semi-finalist         $4,044,837      3    31.7        0        0         0       0        0  safe (100->100)
+       5  2030  35W 20L      55   69  Gold        #3  semi-finalist         $4,165,081      3    32.7        0        0         0       0        0  safe (100->100)
+       6  2031  34W 21L      55   70  Gold        #3  semi-finalist         $4,278,919      3    33.7        0        0         0       0        0  safe (100->100)
+       7  2032  34W 21L      55   67  Gold        #3  semi-finalist         $4,387,481      3    34.7        0        0         0       0        0  safe (100->100)
+       8  2033  33W 22L      55   63  Gold        #4  semi-finalist         $4,480,655      3    35.7        0        0         0       0        0  safe (100->100)
+       9  2034  28W 26L      54   56  Silver      #9  did not qualify       $4,486,194      3    36.7        1        2         0       1        0  final_warning (100->75)
+      10  2035  31W 24L      55   64  Gold        #4  semi-finalist         $4,550,786      3    37.7        1        1         0       0        0  safe (75->84)
+      11  2036  38W 18L      56  100  Gold        #1  champion              $4,862,031      3    38.7        2        5         0       1        0  safe (84->100)
+      12  2037  33W 22L      55   66  Gold        #4  semi-finalist         $4,948,273      2      29        4       11         1       3        1  safe (100->100)
+      13  2038  17W 37L      54   36  Bronze     #17  did not qualify       $5,238,024      4    19.3        2       17         3       2        2  safe (100->100)
+      14  2039  15W 39L      54   34  Bronze     #19  did not qualify       $5,662,293      4      20        5       20         1       4        1  safe (100->100)
+      15  2040  8W 46L       54   17  Bronze     #19  did not qualify       $6,040,070      4      21        6       27         0       1        1  safe (100->100)
+      16  2041  16W 38L      54   32  Bronze     #19  did not qualify       $6,425,217      4    20.5        6       42         2       3        0  safe (100->100)
+      17  2042  13W 41L      54   26  Bronze     #19  did not qualify       $6,799,600      4    21.3        6       19         1       4        2  safe (100->100)
+      18  2043  12W 42L      54   18  Bronze     #19  did not qualify       $7,171,069      4    22.3        6       32         0       2        1  safe (100->100)
+      19  2044  22W 32L      54   36  Bronze     #18  did not qualify       $7,580,254      4    21.8        4       19         1       2        0  safe (100->100)
+      20  2045  24W 30L      54   52  Bronze     #11  did not qualify       $8,022,687      4    22.8        2        6         0       1        1  safe (100->100)
+      21  2046  22W 32L      54   48  Bronze     #15  did not qualify       $8,479,870      4    23.8        0        2         0       0        0  safe (100->100)
+      22  2047  26W 28L      54   59  Silver      #7  did not qualify       $8,970,569      4    24.8        0        0         0       0        0  safe (100->100)
+      23  2048  18W 36L      54   35  Bronze     #18  did not qualify       $9,528,728      4    25.8        3       24         0       3        0  safe (100->100)
+      24  2049  21W 33L      54   49  Bronze     #11  did not qualify       $9,960,945      4    26.8        6       19         0       3        0  safe (100->100)
+      25  2050  27W 27L      54   60  Silver      #6  did not qualify      $10,409,144      4    27.8        4       15         0       2        0  safe (100->100)
+      26  2051  17W 37L      54   42  Bronze     #16  did not qualify      $10,873,045      4    28.8        4       14         0       3        0  safe (100->100)
+      27  2052  21W 33L      54   39  Bronze     #16  did not qualify      $11,298,714      4    29.8        2        0         0       0        0  safe (100->100)
+      28  2053  18W 36L      54   39  Bronze     #18  did not qualify      $11,730,081      4    30.8        2        0         0       0        0  safe (100->100)
+      29  2054  19W 35L      54   41  Bronze     #17  did not qualify      $12,170,964      4    31.8        0        0         0       0        0  safe (100->100)
+      30  2055  19W 35L      54   34  Bronze     #19  did not qualify      $12,629,163      4    32.8        0        0         0       0        0  safe (100->100)
+
+  ── Long: what the 30-season run shows (observations, not checks) ──
+  MONEY    balance $2,235,877 after season 1 -> $12,629,163 after season 30; peak $12,629,163, low $2,235,877; average change $358,389 per season
+  SQUAD    size 3 -> 4 (min 2, max 4); average age 28.7 -> 32.8 (min 19.3, max 38.7) — AGEING OUT: average age reached the mid-thirties
+  RETIRED  276 players retired across 30 seasons; seasons with 3+ retirements: S11:5 S12:11 S13:17 S14:20 S15:27 S16:42 S17:19 S18:32 S19:19 S20:6 S23:24 S24:19 S25:15 S26:14
+  ACADEMY  35 youth taken in, 9 promoted to the senior squad; academy size 0 -> 0 — EMPTY in season(s) 1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 29, 30; no intake in season(s) 1, 2, 3, 4, 5, 6, 7, 8, 10, 21, 22, 27, 28, 29, 30
+  RESULTS  3 World Final title(s) in 30 seasons; finishes #1 to #19; tiers Gold x10, Silver x4, Bronze x16
+  STANDINGS every season had a rank, ranking points and a real champion
+  CONTRACTS see the retirement check above
+  SIDE     9 reserve(s) moved into the side by the harness over the run (the manager's minimum: keep 4 active); refused: S17: 422 You already hold 4 of your own graduates, and a club may keep 4. Sell or release one before promoting another.; S18: 422 You already hold 4 of your own graduates, and a club may keep 4. Sell or release one before promoting another.
+  BOARD    safe x28, warning x1, final_warning x1; confidence ended at 100
+
+=== 90/90 passed ===
+
+[run-rollover] exit 0 in 1311s

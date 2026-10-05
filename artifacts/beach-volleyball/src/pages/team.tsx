@@ -491,6 +491,7 @@ export default function TeamRoster() {
             continent={(player as any).continent}
             nationality={player.nationality}
             playerType={(player as any).playerType}
+            age={player.age}
             heightClass="h-64"
           />
 
