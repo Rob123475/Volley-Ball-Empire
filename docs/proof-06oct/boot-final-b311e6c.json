@@ -1,0 +1,50 @@
+{
+ "package": "C:\\build\\vbe-final-06oct\\win-unpacked",
+ "builtFrom": "launch-final b311e6c",
+ "dbCopy": "C:\\Users\\rbonn\\AppData\\Local\\Temp\\pkg-boot-otxhL9\\rob-02oct-copy.sqlite",
+ "serverUp": true,
+ "page": "200 app shell",
+ "unityData": "200 br 217010143",
+ "unityWasm": "200 br 9017008",
+ "courtPageSendsControlMode": true,
+ "profiles": [
+  "Rob"
+ ],
+ "career": "Sydney Riptide, budget $247,731",
+ "gameDate": "2026-04-24",
+ "squad": 3,
+ "staffPage": "2 staff, 0 off",
+ "jobMarket": "HTTP 200, window false, 0 open jobs",
+ "marketAiClubPlayers": "120 at AI clubs, 96 with Rob's AI senior pictures",
+ "aiPictureServed": "Annika Bauer: /images/players/seniors/ai/player_senior_ai_eur_01_p1.webp -> 200 65468",
+ "graduatePictureServed": "/images/players/graduates/africa/graduate_africa_01.webp -> 200 69502",
+ "picturesInPackage": {
+  "aiSeniors": 96,
+  "graduates": 121
+ },
+ "saveAfterBoot": {
+  "staffColumns": [
+   "off_cause",
+   "off_since",
+   "off_days_left"
+  ],
+  "staffAbsencesTable": true,
+  "staffOff": 0,
+  "jobMarketColumns": [
+   "pending_pool_team_id",
+   "leaving_reason",
+   "declined_offers",
+   "window_season"
+  ],
+  "aiManagersColumns": [
+   "manager_name",
+   "manager_since_year",
+   "manager_failed_seasons",
+   "vacant_since",
+   "vacancy_reason"
+  ],
+  "graduatePortraitsTable": true,
+  "poolPlayersWithAiPictures": 96
+ },
+ "liveSave": "unchanged (mtime 2026-10-02T03:49:10.935Z, 2314240 bytes, before and after)"
+}
