@@ -67,12 +67,21 @@
         createUnityInstance(canvas, config, function (progress) {
           document.getElementById("fill").style.width = (100 * progress) + "%";
         }).then(function (unityInstance) {
+          window.__vbeUnity = unityInstance;
           document.getElementById("loading").style.display = "none";
           // The game page (pages/court.tsx) waits for this to hide its loading strip.
           try { window.parent.postMessage("unity-loaded", "*"); } catch (e) { console.warn(e); }
         }).catch(showLoadError);
       };
       document.body.appendChild(script);
+
+      // Final brief 5 Oct, Part C: the game page switches Auto / Manual during a match.
+      window.addEventListener("message", function (e) {
+        var d = e.data;
+        if (!d || d.type !== "vbe-control-mode" || !window.__vbeUnity) return;
+        try { window.__vbeUnity.SendMessage("MatchManager", "SetControlMode", d.mode === "manual" ? "manual" : "auto"); }
+        catch (err) { console.warn(err); }
+      });
     </script>
   </body>
 </html>

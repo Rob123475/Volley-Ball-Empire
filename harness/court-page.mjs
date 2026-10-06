@@ -47,7 +47,8 @@ check("\"unity-loaded\" is posted to the game page once the instance is ready",
   /createUnityInstance\([\s\S]*\.then\(function \(unityInstance\) \{[\s\S]*window\.parent\.postMessage\("unity-loaded", "\*"\)/.test(html));
 
 const court = fs.readFileSync(path.join(REPO, "artifacts", "beach-volleyball", "src", "pages", "court.tsx"), "utf8");
-check("court.tsx hides its loading strip on exactly that message", /e\.data === "unity-loaded"\) setUnityLoaded\(true\)/.test(court));
+// Final brief 5 Oct, Part C: the handler is a block now (it also gives the court the keyboard).
+check("court.tsx hides its loading strip on exactly that message", /e\.data === "unity-loaded"\)\s*\{?\s*setUnityLoaded\(true\)/.test(court));
 check("the loading strip carries no stale download size", !/\d+\s*MB/.test(court), (court.match(/Loading[^<]*/) ?? [""])[0]);
 
 const ps = path.join(UNITY, "ProjectSettings", "ProjectSettings.asset");

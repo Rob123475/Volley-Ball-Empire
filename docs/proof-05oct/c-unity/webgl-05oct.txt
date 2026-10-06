@@ -1,0 +1,40 @@
+[WEB] === STEP 7: BUILD WEB ===
+[WEB]   compressionFormat = Disabled
+[WEB]   maxTextureSize override = 2048
+[WEB]   textureCompression      = NoOverride (left at default)
+[WEB]   scene   : Assets/BeachVolleyball V19.unity
+[WEB]   outDir  : C:\Users\rbonn\Game_Dev\VolleyBall Empire\webgl-out
+[WEB] 
+[WEB]   RESULT      : Succeeded
+[WEB]   total time  : 00:02:07.2901882
+[WEB]   total size  : 350.9 MB
+[WEB]   errors      : 1   warnings: 355
+[WEB] 
+[WEB]   --- TOP 15 ASSETS BY PACKED SIZE ---
+[WEB]     1.     25.42 MB  Mesh                   Assets/my assets/Environment/palm1/tripo_convert_2629a417-d0a0-4be5-9804-774838909636.fbx
+[WEB]     2.     25.42 MB  Mesh                   Assets/my assets/Environment/palm11/palm tree 2.fbx
+[WEB]     3.     23.57 MB  Mesh                   Assets/my assets/Environment/palm22/tripo_convert_dee4a94e-b98e-42b6-9390-3da254d687dd.fbx
+[WEB]     4.      6.51 MB  ComputeShader          Packages/com.unity.ai.inference/Runtime/Core/Resources/Sentis/ComputeShaders/ConvGeneric.compute
+[WEB]     5.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_4_OLD_RoughnessMetallic.png
+[WEB]     6.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_3_OLD_RoughnessMetallic.png
+[WEB]     7.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_1_OLD_RoughnessMetallic.png
+[WEB]     8.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_2_OLD_RoughnessMetallic.png
+[WEB]     9.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_rack_balls_1_OLD_RoughnessMetallic.png
+[WEB]    10.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_1_OLD_Normal.png
+[WEB]    11.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_2_OLD_Normal.png
+[WEB]    12.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_3_OLD_Normal.png
+[WEB]    13.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_volleyball_ball_4_OLD_Normal.png
+[WEB]    14.      5.33 MB  Texture2D              Assets/IdaFaber/Textures/Base/T_HEAD_Normal_01_aegyosal.png
+[WEB]    15.      5.33 MB  Texture2D              Assets/Volleyball_Set_1/Textures/Decor/T_rack_balls_1_OLD_Normal.png
+[WEB] 
+[WEB]   packed asset entries : 7882
+[WEB]   packed asset total   : 459.8 MB
+[WEB] 
+[WEB]   --- FILES IN webgl-out/Build ---
+[WEB]           256.24 MB  webgl-out.data
+[WEB]            49.20 MB  webgl-out.wasm
+[WEB]             0.45 MB  webgl-out.framework.js
+[WEB]             0.03 MB  webgl-out.loader.js
+[WEB] === DONE ===
+Exiting batchmode successfully now!
+Exiting without the bug reporter. Application will terminate with return code 0

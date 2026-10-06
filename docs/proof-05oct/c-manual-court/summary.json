@@ -44,8 +44,10 @@
   "console": [
     "[Manual] mode Manual (page); controlling Player_A1\n",
     "[CourtBridge] to the game page: unity-control-mode:manual\n",
-    "[MatchManager] match starts after 4.1s: match data applied; home point chance 0.5262\n",
-    "[Manual] missed: Dig needed, not pressed, 9.2 m away\n",
+    "[MatchManager] match starts after 4.1s: match data applied; home point chance 0.5338\n",
+    "[Manual] missed: Dig needed, not pressed, 6.8 m away\n",
+    "[Manual] point changed by the player: Player_A1 missed the Dig\n",
+    "[Manual] missed: Dig needed, not pressed, 7.2 m away\n",
     "[Manual] point changed by the player: Player_A1 missed the Dig\n",
     "[Manual] paused\n",
     "[Manual] resumed\n",
@@ -53,10 +55,10 @@
     "[CourtBridge] to the game page: unity-control-mode:auto\n",
     "[Manual] mode Manual (page); controlling Yaritza Mendez\n",
     "[CourtBridge] to the game page: unity-control-mode:manual\n",
-    "[Manual] missed: Spike needed, not pressed, 2.8 m away\n",
-    "[Manual] point changed by the player: Player_A1 missed the Spike\n",
-    "[Manual] missed: Dig needed, not pressed, 4.5 m away\n",
-    "[Manual] point changed by the player: Player_A1 missed the Dig\n"
+    "[Manual] missed: Set needed, not pressed, 0.2 m away\n",
+    "[Manual] point changed by the player: Player_A1 missed the Set\n",
+    "[Manual] missed: Set needed, not pressed, 0.2 m away\n",
+    "[Manual] point changed by the player: Player_A1 missed the Set\n"
   ],
   "errors": []
 }

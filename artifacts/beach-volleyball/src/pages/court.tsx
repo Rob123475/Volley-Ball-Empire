@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
-import { Monitor, UploadCloud, Loader2, LogOut } from "lucide-react";
+import { Monitor, UploadCloud, Loader2, LogOut, Gamepad2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,22 @@ import {
 
 type BuildState = "checking" | "available" | "unavailable";
 
+/**
+ * Final brief 5 Oct, Part C: who plays your side on the court. Auto (the AI,
+ * as always) is the default; Manual is a choice, remembered for the next
+ * match. It goes to the court in its URL when the court opens, and to the
+ * running court by message when it is changed during a match (the court can
+ * change it too, with Tab / View / Share, and tells this page).
+ */
+type ControlMode = "auto" | "manual";
+const MODE_KEY = "vbe-court-control-mode";
+function readMode(): ControlMode {
+  try { return localStorage.getItem(MODE_KEY) === "manual" ? "manual" : "auto"; } catch { return "auto"; }
+}
+function saveMode(mode: ControlMode) {
+  try { localStorage.setItem(MODE_KEY, mode); } catch { /* not remembered, still used */ }
+}
+
 export default function ThreeDCourt() {
   const [buildState, setBuildState] = useState<BuildState>("checking");
   const [unityLoaded, setUnityLoaded] = useState(false);
@@ -29,6 +45,9 @@ export default function ThreeDCourt() {
   const [leaveError, setLeaveError] = useState<string | null>(null);
   // Overnight brief 30 Sep, item 23: leaving a match in play asks first.
   const [confirmLeave, setConfirmLeave] = useState(false);
+  // Part C: the mode the court opened with (in its URL, so set once), and now.
+  const [openingMode] = useState<ControlMode>(readMode);
+  const [mode, setMode] = useState<ControlMode>(openingMode);
 
   // matchId set by match-day-modal's "Watch Match" button (navigate(`/court?matchId=...`)).
   // Unity reads this from its own iframe location and calls
@@ -54,6 +73,7 @@ export default function ThreeDCourt() {
     const p = new URLSearchParams();
     if (careerSaveId != null) p.set("careerSaveId", String(careerSaveId));
     if (matchId) p.set("matchId", matchId);
+    if (openingMode === "manual") p.set("mode", "manual");
     const qs = p.toString();
     return qs ? `?${qs}` : "";
   })();
@@ -75,7 +95,18 @@ export default function ThreeDCourt() {
   // data refreshed.
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
-      if (e.data === "unity-loaded") setUnityLoaded(true);
+      if (e.data === "unity-loaded") {
+        setUnityLoaded(true);
+        // Part C: the keyboard goes to the court, so WASD, Tab and the rest work at once.
+        iframeRef.current?.focus();
+        iframeRef.current?.contentWindow?.focus();
+      }
+      // Part C: the court switched mode itself (Tab / View / Share).
+      if (typeof e.data === "string" && e.data.startsWith("unity-control-mode:")) {
+        const m: ControlMode = e.data.endsWith("manual") ? "manual" : "auto";
+        setMode(m);
+        saveMode(m);
+      }
       if (e.data === "unity-match-finished") {
         queryClient.invalidateQueries();
         navigate("/");
@@ -104,6 +135,14 @@ export default function ThreeDCourt() {
     }
   }
 
+  function toggleMode() {
+    const next: ControlMode = mode === "manual" ? "auto" : "manual";
+    setMode(next);
+    saveMode(next);
+    iframeRef.current?.contentWindow?.postMessage({ type: "vbe-control-mode", mode: next }, "*");
+    iframeRef.current?.focus();
+  }
+
   // N-30: the bar always fits the window: it is the full width of the court
   // page (pinned to the window in App.tsx), the note wraps onto a second line
   // rather than run under the button, and the button never shrinks or wraps.
@@ -119,6 +158,24 @@ export default function ThreeDCourt() {
       <span style={{ flex: "1 1 160px", minWidth: 0, overflowWrap: "anywhere" }}>
         {leaveError ? `Could not leave: ${leaveError}` : matchId ? "Leaving forfeits the match." : ""}
       </span>
+      {matchId && (
+        <button
+          type="button"
+          data-testid="button-control-mode"
+          onClick={toggleMode}
+          title="Auto: the AI plays your pair. Manual: you play one of them (Tab / View / Share on the court)."
+          style={{
+            flexShrink: 0, whiteSpace: "nowrap",
+            display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "6px",
+            background: mode === "manual" ? "rgba(250,160,30,0.9)" : "rgba(255,255,255,0.12)",
+            color: mode === "manual" ? "black" : "white", fontWeight: 700, fontSize: "12px",
+            border: "1px solid rgba(255,255,255,0.25)", cursor: "pointer",
+          }}
+        >
+          <Gamepad2 style={{ width: 14, height: 14 }} />
+          {mode === "manual" ? "Manual: you play" : "Auto: AI plays"}
+        </button>
+      )}
       <button
         type="button"
         data-testid="button-leave-match"

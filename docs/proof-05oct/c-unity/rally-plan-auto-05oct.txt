@@ -1,0 +1,11 @@
+[RallyPlanProof] === RALLY PLAN PROOF (no api-server: prefab ratings, chance 0.5) ===
+[RallyPlanProof]   match over: BLUE SHARKS 2-0 RED GIANTS; sets 11-9, 11-7
+[RallyPlanProof]   points played 38; decided at the serve 38; awarded as decided 38
+[RallyPlanProof]   CHECK the match ended on the score (best of 3, to 11): PASS
+[RallyPlanProof]   CHECK every set legal (11 vs 9 or less, or by exactly 2 past 10-10): PASS
+[RallyPlanProof]   CHECK every point awarded to the team decided at its serve: PASS
+[RallyPlanProof]   result box: "BLUE SHARKS WIN / BLUE SHARKS 2 - 0 RED GIANTS / Set 1: 11-9     Set 2: 11-7 / The result could not be sent; the game will finish this match from the last score. / [Continue]"; up 12.0s; sent back before Continue: False; after Continue: True; serve text ""; audio sources playing: 0
+[RallyPlanProof]   CHECK the result box stayed up 12 s by itself, and Continue sent the player back: PASS
+[RallyPlanProof]   CHECK the crowd stopped and the serve text is gone: PASS
+[RallyPlanProof]   RESULT: PASS
+[RallyPlanProof] === DONE (exit 0) ===
