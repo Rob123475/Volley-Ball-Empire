@@ -1,0 +1,94 @@
+
+########## SOLO: ai-job-market  (2026-10-06T03:34:08.485Z) ##########
+========================================================================
+  AFTERNOON 2 OCT, J-2/J-3/J-4: THE JOB MARKET ON ROB'S TIMING
+========================================================================
+
+1. EVERY AI CLUB HAS A MANAGER
+  PASS  every AI club has a named AI manager  60 clubs, e.g. Tomas Berg
+  PASS  and no job is open at the start  0 vacancies
+
+2. MID-SEASON: NO MOVES
+  PASS  resigning mid-season is refused, in Rob's words  You can leave once your season is over (penalties apply if you break your contract).
+  PASS  so is breaking the contract, and nothing is charged  You can leave once your season is over (penalties apply if you break your contract).
+  PASS  the Job Market says moves wait for the season's end
+
+3. THE AI BOARDS SACK ON A SECOND FAILED SEASON
+  PASS  the off-season window opens once the club's last match is played, before the season ends  {"rolledEarly":false}
+  PASS  when the window opens the AI boards' sackings are announced, with the reason  3 sacked; e.g. "Sofia Weber was sacked after 2 failed seasons running: ranked 7 of 19 on strength, the board expected a top-10 finish and the club finished 18."
+  PASS  the Job Market lists the open jobs in the window  3 listed
+  PASS  in the window, AI clubs make offers on his level and season (poaching)  Lima Pacific Soarers: Lima Pacific Soarers have no manager and want you: Lima Pacific Soarers offer Rob Bonner the job: they wanted at least a Level 4 World Class Coach, and Rob Bonner is Level 5 (Legend). | Port Moresby Coral Aces: Port Moresby Coral Aces's board wants a better manager than Ines Lund (a failed season behind her) and offers you the job.
+  PASS  an offer declined is not made again  Port Moresby Coral Aces
+  PASS  an offer accepted is a move agreed for the start of next season  Lima Pacific Soarers: at the start of next season
+
+4. THE MOVE TAKES EFFECT AT THE START OF THE NEXT SEASON
+  PASS  the season rolled and he moved, as agreed  Rob Bonner joins Lima Pacific Soarers, as agreed in the off-season.
+  PASS  same career, same manager, no 'seeking a club' state
+  PASS  his achievements and level came with him  6 before, 6 now (the season's end may add one)
+  PASS  with two starters at the new club
+  PASS  the Manager History names both clubs  season_completed: Sydney Riptide · resignation: Sydney Riptide · joined_club: Lima Pacific Soarers
+  PASS  (set-up) his old club had staff when he moved, one off with a broken leg  1 staff; off: Sofia Bianchi since 2026-12-04
+  PASS  he takes on the new club's staff: the AI club had none, so none of the old club's staff are his  Staff page lists 0
+  PASS  the old club's staff stay at the old club (none came with him, none were released)  1 of 1
+  PASS  staff who were off stay off: the move does not clear the broken leg  {"c":"broken_leg","s":"2026-12-04","d":16}
+  PASS  AI clubs still have no staff rows: every hired member in this career is at a club he has managed  staff at teams [1]; his: 1, 2
+  PASS  at the new club he hires staff, and the day's staff roll runs for them  Daniel Ferreira (Massage Therapist): HTTP 201; day HTTP 200; his staff now [{"id":85,"d":0}]; the hire row [{"team_id":2,"is_available":0,"contract_end_date":"2027-12-31","off_days_left":0}]; team 2
+  PASS  the club he took is in no World Tour field nor regional league as an AI club (no club twice)  this season's field drawn: true (18 clubs); it among them: false; in a regional league at the rollover: 0
+
+5. HIS OWN BOARD SACKS HIM AFTER TWO FAILED SEASONS
+  PASS  in the window the board's verdict is announced  The board sacks you at the season's end: a second failed season running, by its bands.
+  PASS  after a failed season AI clubs still make offers, just fewer than after a good one  2 after the failed season (Vanuatu Coral Crushers 72, Tonga Polynesian Power 71), 4 after a good one (Honolulu Aloha Warriors 82, Cancún Coral Storm 81, Rio Copacabana Queens 81, Bondi Beach Legends 81)
+  PASS  (set-up) every open job is one he does not qualify for  0 filled; open now: Rio Copacabana Queens 81 (Level 3), Bangkok Palm Beach Stars 77 (Level 2)
+  (info) the jobs open before the rollover, after it: Rio Copacabana Queens (vacant since 2027-12-03) -> still open since 2027-12-03 · Bangkok Palm Beach Stars (vacant since 2027-12-03) -> manager Rob Bonner
+  PASS  at the season's start he is sacked  {"from":"Lima Pacific Soarers","to":"Bangkok Palm Beach Stars","why":"No club Rob Bonner qualifies for has a vacancy: Bangkok Palm Beach Stars, the open club with the lowest rating (77), takes Rob Bon
+  PASS  with no club he qualifies for, the open club with the lowest rating takes him, and says so  No club Rob Bonner qualifies for has a vacancy: Bangkok Palm Beach Stars, the open club with the lowest rating (77), takes Rob Bonner on.
+
+6. BREAKING THE CONTRACT, AND RETIRING
+  PASS  in the window he can break his contract, and the penalty is paid  HTTP 200: $717,234 -> $692,234 (fee $25,000)
+  PASS  and retire: the career ends  HTTP 200 
+
+=== 30/30 passed ===
+
+########## SOLO: staff-injuries  (2026-10-06T03:35:05.430Z) ##########
+========================================================================
+  PART B: STAFF AND MEDICAL STAFF OFF ILL OR HURT
+========================================================================
+
+1. THE RATE: 6 SEASONS, PLAYERS AGAINST STAFF
+  PASS  (set-up) the club has its staff: four staff, four medical and a Scout  Head Coach, Assistant Coach, Fitness Trainer, Promotional Manager, Physiotherapist, Doctor, Massage Therapist, Nutritionist, Scout
+  (info) 2185 game days played (2515 advances): players 36 injuries in 11288 player-days (3.19 per 1,000); staff 29 absences in 19665 staff-days (1.47 per 1,000); the game's player figure 3.41 per 1,000
+  PASS  6 seasons played  6
+  PASS  staff go off about half as often as players are injured (0.30-0.80 on one run; designed 0.50)  staff 1.47 per 1,000 staff-days against players' 3.41 per 1,000 player-days: 0.43 x (this run's own players: 3.19, so 0.46 x)
+  (info) this run's players against the game's figure: 3.19 vs 3.41 per 1,000 player-days
+
+2. THE TIME OFF
+  PASS  the causes' average time off is half the players' injury table's (within 10%)  6.63 days against 12.95: 0.512 x
+  PASS  real-life causes, illness and accidents both, each with its own days  a cold 3d, flu 7d, gastro 3d, food poisoning 2d, tonsillitis 7d, a sprained ankle 10d, a bad back 7d, a twisted knee 12d, a broken leg 42d
+  PASS  every absence that ended lasted exactly its cause's days (on the game calendar)  29 ended, 0 wrong; e.g. Ana Vieira food_poisoning 2026-01-03 -> 2026-01-05 · Lena Bauer cold 2026-07-31 -> 2026-08-03 · Alexei Mironov flu 2027-02-21 -> 2027-02-28
+  (info) causes in the run: food_poisoning 3, cold 8, flu 5, knee 2, tonsillitis 1, gastro 4, ankle 3, broken_leg 1, back 2
+
+3. BONUSES DROP OFF AND COME BACK
+  PASS  (set-up) the game date to plant the absences on  2026-01-01
+  PASS  the Staff and Medical lists say who is off, with what, and for how long (the badge reads them)  Staff: Victoria Chen flu 9 -> "Off: flu, back in 9 days"; Medical: Alexei Mironov back 9 -> "Off: a bad back, back in 9 days"
+  PASS  the Scout off: no player scouting, and it says why  HTTP 409: Ana Vieira is off: a cold, back in 3 days. No scouting until your Scout is back.
+  PASS  the Promotions Manager off: that week's sponsor income carries no bonus  Weekly sponsor & commercial income
+  PASS  the physio off: the injured player heals only the week itself (no extra week)  4 -> 3 weeks
+  PASS  after their days they are back on duty  86: 0, 96: 0, 143: 0
+  PASS  the Promotions Manager back: the sponsor income carries the bonus again  Weekly sponsor & commercial income (+17% Promotions Manager bonus)
+  PASS  the physio back (skill 250, so her extra week always comes): the injured player heals two weeks in one  4 -> 2 weeks
+  PASS  the Scout back: player scouting works again  HTTP 200 
+
+4. CLUB NEWS
+  PASS  Club News says when a member of staff went off, with the cause  2026-01-01: Victoria Chen (Promotional Manager) caught the flu — Off for 9 days with flu: no Promotional Manager bonus until back.
+  PASS  and when they came back, the cause's days later  2026-01-10 (9 days later): Victoria Chen (Promotional Manager) is back at work — After 9 days off with flu.
+  PASS  the long run's own absences are in its Club News too  2031-11-28: Valentino Greco (Head Coach) is back at work · 2031-11-26: Valentino Greco (Head Coach) has food poisoning
+
+5. AN OLDER SAVE: A COPY OF ROB'S 2 OCT SAVE
+  PASS  it boots; the new columns and table are added; everyone is on duty  columns before: false, after: off_cause, off_since, off_days_left; staff_absences: 1; 2 hired, 0 days off
+
+=== 19/19 passed ===
+
+============================================================
+  PASS  ai-job-market            56.9s
+  PASS  staff-injuries           124.9s
+  ALL SOLO SUITES PASSED
