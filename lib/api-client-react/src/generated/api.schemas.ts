@@ -1856,6 +1856,7 @@ export const ClubNewsItemType = {
   champion: 'champion',
   olympic: 'olympic',
   academy: 'academy',
+  staff: 'staff',
 } as const;
 
 export interface ClubNewsItem {

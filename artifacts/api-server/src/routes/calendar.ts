@@ -38,6 +38,7 @@ import { boardDay } from "../utils/board-confidence.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { isOlympicYear, olympicDate } from "../utils/olympics.js";
 import { REST_RECOVERY, applyWeeklyInjuryRecovery, isInjured, selectPair, PAIR_SIZE } from "../utils/condition.js";
+import { staffAbsenceDayTx } from "../utils/staffIllness.js";
 import { substituteInjuredMatchPlayers, substitutionNotes } from "../utils/matchDaySubstitution.js";
 import { finishDueTrainingSessions } from "./training.js";
 import { isYouthPlayer } from "../utils/playerClassification.js";
@@ -524,6 +525,14 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     },
     ne(careerPlayerStateTable.injuryStatus, "Healthy"));
 
+  // 3b. Final brief 5 Oct, Part B: the club's staff fall ill or get hurt, half
+  // as often as players and for half as long; while off, their bonus does not
+  // apply (utils/staffIllness.ts). Before the weekly block, so a member who
+  // went off today gives no bonus this week.
+  const staffDay = withCareerStateTx((w) => staffAbsenceDayTx(w, careerSaveId, team.id, calendar.currentDate));
+  for (const m of staffDay.wentOff) events.push(`${m.name} (${m.role}) ${m.cause.news}: off for ${m.cause.days} days`);
+  for (const m of staffDay.cameBack) events.push(`${m.name} (${m.role}) is back at work`);
+
   // 4. Weekly salary & sponsor income (every 7 calendar days)
   const lastSalary = calendar.lastSalaryDate ?? season.startDate;
   const nextDate   = addDays(calendar.currentDate, 1);
@@ -757,6 +766,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
         setStaffState(expiryCareerId, m.id, {
           teamId: null, isAvailable: true, salary: 0,
           contractTerm: null, contractStartDate: null, contractEndDate: null,
+          offCause: null, offSince: null, offDaysLeft: 0,
         });
       }
     });

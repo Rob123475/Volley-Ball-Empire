@@ -11,13 +11,14 @@
  * Each bonus scales with the member's skill above 50, reaching its maximum at
  * 95. No member of that role on the staff: no bonus.
  */
-import { isRole, type StaffRoleKey } from "@workspace/db";
+import { isRole, staffOnDuty, type StaffRoleKey } from "@workspace/db";
 
-type Member = { role: string; skillLevel: number };
+type Member = { role: string; skillLevel: number; offDaysLeft?: number | null };
 
+// Final brief 5 Oct, Part B: a member off ill or hurt gives no bonus.
 function best(staff: readonly Member[], key: StaffRoleKey): Member | undefined {
   return staff
-    .filter((s) => isRole(s.role, key))
+    .filter((s) => isRole(s.role, key) && staffOnDuty(s))
     .sort((a, b) => b.skillLevel - a.skillLevel)[0];
 }
 

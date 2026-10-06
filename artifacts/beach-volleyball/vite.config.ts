@@ -169,6 +169,10 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => ({
       "@shared/injuries": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "injuries.ts",
       ),
+      // Final brief 5 Oct, Part B: staff off ill or hurt (the cards' badge).
+      "@shared/staff-illness": path.resolve(
+        import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "staff-illness.ts",
+      ),
       // Unity brief item 19: how many game days each training programme takes.
       "@shared/training-programs": path.resolve(
         import.meta.dirname, "..", "..", "lib", "db", "src", "schema", "training-programs.ts",

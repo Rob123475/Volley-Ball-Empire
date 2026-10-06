@@ -4,7 +4,7 @@ import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db } from "@workspace/db";
 import { trainingSessionsTable, playersTable, teamsTable, staffTable, facilitiesTable } from "@workspace/db";
 import type { StaffMember } from "@workspace/db";
-import { normaliseRole, TRAINING_PROGRAM_DAYS } from "@workspace/db";
+import { normaliseRole, TRAINING_PROGRAM_DAYS, staffOnDuty } from "@workspace/db";
 import { INJURY_CARE_ROLE_KEYS } from "../utils/condition.js";
 import { trainingStaffBonuses } from "../utils/staffBonuses.js";
 import { eq, and } from "drizzle-orm";
@@ -29,7 +29,8 @@ const serializePlayer  = (p: any) => ({ ...p, height: Number(p.height), salary: 
 
 async function getBestMedicalSkill(teamId: number): Promise<number> {
   const staff = await loadStaff(await careerSaveIdForTeamOrThrow(teamId), { teamId: teamId });
-  const medics = staff.filter(s => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!));
+  // Final brief 5 Oct, Part B: a medic who is off ill or hurt treats nobody.
+  const medics = staff.filter(s => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!) && staffOnDuty(s));
   return medics.length > 0 ? Math.max(...medics.map(s => s.skillLevel)) : 0;
 }
 
@@ -456,7 +457,7 @@ export async function finishDueTrainingSessions(careerSaveId: number, teamId: nu
     }
     if (session.finishesOn > date) continue;
 
-    const coach = session.coachId
+    const coachRow = session.coachId
       ? await db.query.staffTable.findFirst({ where: eq(staffTable.id, session.coachId) })
       : null;
     const team = await db.query.teamsTable.findFirst({ where: eq(teamsTable.id, session.teamId) });
@@ -472,6 +473,9 @@ export async function finishDueTrainingSessions(careerSaveId: number, teamId: nu
     const nutritionLevel      = facilityLevels.nutrition_centre  ?? 1;
 
     const teamStaffAll = await loadStaff(careerSaveId, { teamId: session.teamId });
+    // Final brief 5 Oct, Part B: a coach off ill or hurt on the day the session
+    // finishes gives it nothing; the session still runs.
+    const coach = coachRow && !teamStaffAll.some((m) => m.id === coachRow.id && !staffOnDuty(m)) ? coachRow : null;
     // P-09: head coach, assistant coach and fitness trainer (utils/staffBonuses.ts).
     const staffBonuses = trainingStaffBonuses(teamStaffAll);
     const newRoleFatigueReduction = staffBonuses.fatigueReduction + ((nutritionLevel - 1) * (3 / 9));

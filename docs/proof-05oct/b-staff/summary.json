@@ -1,0 +1,19 @@
+{
+  "found": {
+    "staff": [
+      "Off: flu, back in 7 days",
+      "Off: a bad back, back in 7 days"
+    ],
+    "medical": [
+      "Off: a bad back, back in 7 days"
+    ],
+    "news": [
+      "2026-01-09: Valentino Greco (Head Coach) is back at work",
+      "2026-01-09: Alexei Mironov (Physiotherapist) is back at work",
+      "2026-01-02: Valentino Greco (Head Coach) caught the flu",
+      "2026-01-02: Alexei Mironov (Physiotherapist) threw their back out"
+    ],
+    "staffAfter": 0
+  },
+  "errors": []
+}

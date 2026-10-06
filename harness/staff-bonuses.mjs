@@ -116,7 +116,8 @@ console.log("\n0. ONE NORMALISER");
   const staffPage = read("artifacts/beach-volleyball/src/pages/staff.tsx");
   const bonusKeys = [...staffPage.matchAll(/^  ([a-z_]+):\s*\{ icon:/gm)].map((m) => m[1]);
   check("the Staff page's bonus panel looks roles up normalised",
-    /new Set<string \| null>\(staff\.map\(s => normaliseRole\(s\.role\)\)\)/.test(staffPage));
+    // Final brief 5 Oct, Part B: only staff on duty (not off ill or hurt) count.
+    /new Set<string \| null>\(staff(\.filter\(onDuty\))?\.map\(s => normaliseRole\(s\.role\)\)\)/.test(staffPage));
   const listed = HIRE.map((r) => roles.normaliseRole(r)).filter((k) => bonusKeys.includes(k));
   // P-07: the scout mission dialog assigns a Scout, so it lists Scouts - GET
   // /staff is every hired role, and it used to be mapped straight into the list.

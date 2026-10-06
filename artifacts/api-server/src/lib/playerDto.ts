@@ -327,6 +327,10 @@ export type CareerStaffFields = {
   contractTerm: string | null;
   contractStartDate: string | null;
   contractEndDate: string | null;
+  /** Final brief 5 Oct, Part B: off ill or hurt (schema/staff-illness.ts); 0 days left = on duty. */
+  offCause: string | null;
+  offSince: string | null;
+  offDaysLeft: number;
 };
 
 export type StaffDTO = StaffReference & CareerStaffFields;
@@ -343,6 +347,9 @@ export function assembleStaff(reference: StaffReference, state: CareerStaffState
     contractTerm:      state.contractTerm ?? null,
     contractStartDate: state.contractStartDate ?? null,
     contractEndDate:   state.contractEndDate ?? null,
+    offCause:          state.offCause ?? null,
+    offSince:          state.offSince ?? null,
+    offDaysLeft:       state.offDaysLeft ?? 0,
   };
 }
 

@@ -34,7 +34,7 @@
  *              three-player squad with two out forfeits: 3% base risk a match;
  *              Minor 1 week (65%), Major 3 weeks (30%), Unavailable 6 weeks (5%).
  */
-import { INJURY_WEEKS } from "@workspace/db";
+import { INJURY_WEEKS, staffOnDuty } from "@workspace/db";
 import { db, facilitiesTable, normaliseRole, type StaffRoleKey } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { sideRating, type RatedPlayer } from "./matchEngine.js";
@@ -183,7 +183,8 @@ export async function applyWeeklyInjuryRecovery(careerSaveId: number, teamId: nu
     loadStaff(careerSaveId, { teamId }),
     db.select().from(facilitiesTable).where(eq(facilitiesTable.teamId, teamId)),
   ]);
-  const medics = staff.filter((s) => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!));
+  // Final brief 5 Oct, Part B: a medic who is off ill or hurt treats nobody.
+  const medics = staff.filter((s) => INJURY_CARE_ROLE_KEYS.has(normaliseRole(s.role)!) && staffOnDuty(s));
   const medicSkill = medics.length > 0 ? Math.max(...medics.map((s) => s.skillLevel)) : 0;
   const medCentreLevel = facilities.find((f) => f.type === "medical_centre")?.level ?? 1;
 

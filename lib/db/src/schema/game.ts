@@ -577,9 +577,37 @@ export const careerStaffStateTable = sqliteTable("career_staff_state", {
   // was sent; revealed on that date + SCOUT_DAYS. is_scout_revealed is kept for
   // reports that were instant before this rule.
   scoutStartedOn: text("scout_started_on"),
+  // Final brief 5 Oct, Part B: off ill or hurt (schema/staff-illness.ts). The
+  // cause's key, the game date it began, and the game days left; 0 = on duty.
+  // While off, the member's bonus does not apply.
+  offCause:     text("off_cause"),
+  offSince:     text("off_since"),
+  offDaysLeft:  integer("off_days_left").notNull().default(0),
   updatedAt:    integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (t) => [
   uniqueIndex("career_staff_state_unique").on(t.careerSaveId, t.staffId),
+]);
+
+/**
+ * Final brief 5 Oct, Part B: every time a member of the club's staff went off
+ * ill or hurt, and when they came back. Club News reads it ("X caught the flu,
+ * back in 7 days" on the day; "X is back at work" on the day they return).
+ */
+export const staffAbsencesTable = sqliteTable("staff_absences", {
+  id:            integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:  integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  teamId:        integer("team_id").notNull(),
+  staffId:       integer("staff_id").notNull(),
+  staffName:     text("staff_name").notNull(),
+  role:          text("role").notNull(),
+  cause:         text("cause").notNull(),
+  days:          integer("days").notNull(),
+  startedOn:     text("started_on").notNull(),
+  /** Null while still off. */
+  returnedOn:    text("returned_on"),
+  createdAt:     integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  index("staff_absences_career").on(t.careerSaveId, t.startedOn),
 ]);
 
 export type CareerStaffState = typeof careerStaffStateTable.$inferSelect;

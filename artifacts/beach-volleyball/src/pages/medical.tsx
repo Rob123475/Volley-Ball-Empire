@@ -80,6 +80,7 @@ import { cn } from "@/lib/utils";
 import { serverMessage } from "@/lib/api-error";
 import { normaliseRole, MEDICAL_ROLE_KEYS, MAX_MEDICAL_STAFF } from "@shared/staff-roles";
 import { INJURY_WEEKS } from "@shared/injuries";
+import { StaffOffBadge, onDuty } from "@/components/staff-off-badge";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
 
@@ -342,6 +343,7 @@ function MedicalStaffCard({ member, onFire }: { member: any; onFire: (id: number
       </div>
 
       <CardContent className="p-4 space-y-3">
+        <StaffOffBadge member={member} />
         {/* L-02a: medical contracts end and are renewed like any other. */}
         <ContractRenewBar
           staffId={member.id}
@@ -403,7 +405,8 @@ function MedicalEmptySlot({ slotNumber }: { slotNumber: number }) {
 /* ── Medical Bonus Panel ───────────────────────────────────── */
 
 function MedicalBonusPanel({ staff }: { staff: any[] }) {
-  const roleSet = new Set(staff.map((s: any) => normalizeMedicalRole(s.role)).filter((r): r is MedicalRoleKey => r !== null));
+  // Final brief 5 Oct, Part B: a member off ill or hurt gives no bonus.
+  const roleSet = new Set(staff.filter(onDuty).map((s: any) => normalizeMedicalRole(s.role)).filter((r): r is MedicalRoleKey => r !== null));
   const activeBonuses   = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => roleSet.has(role as MedicalRoleKey));
   const missingBonuses  = Object.entries(MEDICAL_BONUS_DESCRIPTIONS).filter(([role]) => !roleSet.has(role as MedicalRoleKey));
 
@@ -542,8 +545,10 @@ export default function MedicalCentre() {
   const { data: medStaffForBestSkill = [] } = useListMedicalStaff({
     query: { queryKey: getListMedicalStaffQueryKey() },
   });
-  const bestMedicalSkill = medStaffForBestSkill.length > 0
-    ? Math.max(...medStaffForBestSkill.map((s: any) => s.skillLevel ?? s.overallRating ?? 0))
+  // Final brief 5 Oct, Part B: a medic who is off ill or hurt treats nobody.
+  const onDutyMedics = (medStaffForBestSkill as any[]).filter(onDuty);
+  const bestMedicalSkill = onDutyMedics.length > 0
+    ? Math.max(...onDutyMedics.map((s: any) => s.skillLevel ?? s.overallRating ?? 0))
     : 0;
 
   if (isLoading) {

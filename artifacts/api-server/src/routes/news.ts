@@ -10,6 +10,8 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  *   champion-<season year>    that season's World Final
  *   olympic-<season year>     that year's Olympic tournament (R-61)
  *   academy-<season year>     that season's academy intake (R-62)
+ *   staff-off-<absence id>    a member of staff went off ill or hurt (final brief 5 Oct, Part B)
+ *   staff-back-<absence id>   ... and came back
  * Each carries the game date it happened on.
  *
  * This replaced a day-seeded generator of invented players, nations,
@@ -19,7 +21,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
  * contract in place and records no date.
  */
 import { Router } from "express";
-import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable } from "@workspace/db";
+import { db, matchesTable, contractsTable, trophiesTable, boardSeasonsTable, playersTable, youthIntakesTable, staffAbsencesTable, staffAbsenceCause } from "@workspace/db";
 import { and, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { requireCareerSaveId } from "../lib/playerDto.js";
@@ -32,7 +34,7 @@ const router = Router();
 
 type NewsItem = {
   id: string;
-  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy";
+  type: "result" | "signing" | "board" | "trophy" | "champion" | "olympic" | "academy" | "staff";
   headline: string;
   detail: string;
   date: string;
@@ -44,7 +46,7 @@ const RECENT_SIGNINGS = 5;
 const MAX_ITEMS = 15;
 
 // On one date, the bigger story first.
-const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, result: 5, signing: 6 };
+const KIND_ORDER: Record<NewsItem["type"], number> = { trophy: 0, olympic: 1, champion: 2, board: 3, academy: 4, result: 5, signing: 6, staff: 7 };
 const OLYMPIC_TROPHY_TYPES = new Set(["olympic_gold", "olympic_silver", "olympic_bronze", "olympic_appearance"]);
 
 const GRADE_WORDS: Record<string, string> = {
@@ -183,6 +185,27 @@ router.get("/news", async (req, res) => {
       : OLYMPIC_TROPHY_TYPES.has(t.type) ? olympicPlayedOn.get(t.year) : reviewedOn.get(t.year);
     if (!date) continue;
     items.push({ id: `trophy-${t.id}`, type: "trophy", isUserTeam: true, date, headline: t.name, detail: t.notes ?? "" });
+  }
+
+  // Final brief 5 Oct, Part B: staff off ill or hurt, and back (staff_absences).
+  const absences = await db.select().from(staffAbsencesTable).where(and(
+    eq(staffAbsencesTable.careerSaveId, careerSaveId),
+    eq(staffAbsencesTable.teamId, team.id),
+  ));
+  for (const a of absences) {
+    const cause = staffAbsenceCause(a.cause);
+    items.push({
+      id: `staff-off-${a.id}`, type: "staff", isUserTeam: true, date: a.startedOn,
+      headline: `${a.staffName} (${a.role}) ${cause?.news ?? "is off"}`,
+      detail: `Off for ${a.days} day${a.days === 1 ? "" : "s"}${cause ? ` with ${cause.short}` : ""}: no ${a.role} bonus until back.`,
+    });
+    if (a.returnedOn) {
+      items.push({
+        id: `staff-back-${a.id}`, type: "staff", isUserTeam: true, date: a.returnedOn,
+        headline: `${a.staffName} (${a.role}) is back at work`,
+        detail: cause ? `After ${a.days} day${a.days === 1 ? "" : "s"} off with ${cause.short}.` : "",
+      });
+    }
   }
 
   items.sort((a, b) => b.date.localeCompare(a.date) || KIND_ORDER[a.type] - KIND_ORDER[b.type]);

@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
 import { db, MAX_STAFF, MAX_MEDICAL_STAFF, isMedicalRole } from "@workspace/db";
 import { staffTable, teamsTable, financeTransactionsTable, careerHistoryEntriesTable, careerSavesTable } from "@workspace/db";
-import { isRole, normaliseRole, SCOUTING_ROLE_KEYS } from "@workspace/db";
+import { isRole, normaliseRole, SCOUTING_ROLE_KEYS, staffOnDuty } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { generateStaffMarket, generateAttributesForRole, pickTraitForRole, type StaffRole } from "../utils/staff-generator";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
@@ -267,7 +267,7 @@ export async function releaseStaffMember(req: Request, res: Response): Promise<v
 
   await db.update(teamsTable).set({ budget: teamBudget - terminationFee }).where(eq(teamsTable.id, team.id));
   // Back to THIS career's market, with no contract.
-  await updateStaffState(cid, id, { teamId: null, isAvailable: true, contractTerm: null, contractStartDate: null, contractEndDate: null });
+  await updateStaffState(cid, id, { teamId: null, isAvailable: true, contractTerm: null, contractStartDate: null, contractEndDate: null, offCause: null, offSince: null, offDaysLeft: 0 });
   const updated: StaffDTO = { ...member, teamId: null, isAvailable: true, contractTerm: null, contractStartDate: null, contractEndDate: null };
 
   if (terminationFee > 0) {
@@ -319,7 +319,12 @@ router.post("/staff/:id/scout", async (req, res) => {
 
   const teamStaff = await loadStaff(cid, { teamId: team.id });
   // Roles are stored as Title Case ("Head Coach", "Scout") — normalise before comparing.
-  const hasCoach = teamStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!));
+  // Final brief 5 Oct, Part B: only staff on duty (not off ill or hurt) scout.
+  const hasCoach = teamStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!) && staffOnDuty(s));
+  if (!hasCoach && teamStaff.some(s => SCOUTING_ROLE_KEYS.has(normaliseRole(s.role)!))) {
+    res.status(409).json({ error: "Your Head Coach, Assistant Coach and Scout are all off ill or hurt: no staff scouting until one is back." });
+    return;
+  }
   if (!hasCoach) {
     res.status(400).json({ error: "You need a Head Coach, Assistant Coach, or Scout to scout staff." });
     return;

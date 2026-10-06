@@ -11,7 +11,7 @@ import { playersTable, teamsTable, staffTable, trophiesTable, financeTransaction
 import {
   CONTINENT_KEYS, CONTINENT_LABEL, RESERVE_NATIONS, PLAYERS_PER_NATION,
   coreNationsFor, isCoreNation, isReserveNation, isContinentKey, type ContinentKey,
-  normaliseRole,
+  normaliseRole, staffOnDuty, staffAbsenceBadge,
 } from "@workspace/db";
 
 // The youngest a senior may be. Not in continents.ts because it is a gameplay
@@ -617,10 +617,17 @@ router.post("/players/:id/scout", async (req, res) => {
   // Rob's read "Valentino Greco's report": his Head Coach). Her scouting
   // rating sets how accurate it is. No Scout hired: no player scouting.
   const allStaff = await loadStaff(await careerSaveIdForTeamOrThrow(team.id), { teamId: team.id });
-  const scouts   = allStaff.filter(s => normaliseRole(s.role) === "scout");
+  const hiredScouts = allStaff.filter(s => normaliseRole(s.role) === "scout");
 
-  if (scouts.length === 0) {
+  if (hiredScouts.length === 0) {
     res.status(400).json({ error: "You have no Scout. Hire a Scout on the Staff Market to scout players.", noScout: true });
+    return;
+  }
+  // Final brief 5 Oct, Part B: a Scout off ill or hurt scouts nobody until back.
+  const scouts = hiredScouts.filter(staffOnDuty);
+  if (scouts.length === 0) {
+    const off = hiredScouts[0]!;
+    res.status(409).json({ error: `${off.name} is ${staffAbsenceBadge(off.offCause, off.offDaysLeft)?.replace(/^Off:/, "off:") ?? "off"}. No scouting until your Scout is back.`, scoutOff: true });
     return;
   }
 
