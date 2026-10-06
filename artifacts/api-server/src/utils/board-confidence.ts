@@ -120,7 +120,7 @@ export const GRADE_WORDS: Record<Grade, string> = {
   met: "met expectations", below: "below expectations", failed: "failed",
 };
 export type FinalsResult = "champion" | "runner-up" | "semi-finalist" | "did not qualify" | null;
-export type Outcome = "safe" | "warning" | "final_warning" | "sold";
+export type Outcome = "safe" | "warning" | "final_warning" | "sold" | "sacked";
 export type BoardStage = "safe" | "warning" | "spending_freeze" | "final_warning";
 
 export const SPENDING_FROZEN_MESSAGE =
@@ -339,8 +339,10 @@ export function bandWords(b: Bands): string {
 const OUTCOME_WORDS: Record<Outcome, string> = {
   safe: "Safe.",
   warning: "Below expectations: a warning, but no strike.",
-  final_warning: "Final warning: the board has lost patience with the results. It cannot sack you for them — but a club that keeps losing money gets sold.",
+  // Afternoon 2 Oct, J-2: the board sacks after a second failed season running.
+  final_warning: "Final warning: the board has lost patience with the results. A second failed season running and it sacks you; a club that keeps losing money gets sold.",
   sold: "The club has been sold.",
+  sacked: "Sacked: a second failed season running. You leave at the start of the new season.",
 };
 
 export function expectationText(row: BoardSeason, fieldClubs: number | null, previous: BoardSeason | null): string {
@@ -582,7 +584,7 @@ export function setBoardTargetTx(tx: Tx, careerSaveId: number, seasonYear: numbe
   const field = worldTourFieldTx(tx, careerSaveId, seasonYear);
   if (field.length === 0) return row;
 
-  const ratings = poolClubRatingsTx(tx);
+  const ratings = poolClubRatingsTx(tx, careerSaveId);
   const pair = pairRating(ablePlayersTx(tx, careerSaveId, teamId));
   const strengthRank = 1 + field.filter((f) => pair == null || (ratings.get(f.poolTeamId) ?? 0) > pair).length;
   tx.update(boardSeasonsTable).set({
@@ -759,6 +761,13 @@ export function boardReviewTx(
     previousStrikes: strikesBeforeTx(tx, careerSaveId, seasonYear, teamId),
     lossMakingRun: lossMakingRunTx(tx, careerSaveId, seasonYear, Number(team?.budget ?? 0), teamId),
   });
+  // Afternoon 2 Oct, J-2 (Rob: "yes, it's a fair comp"): a second failed season
+  // running is a sacking, by the same bands as the AI boards'
+  // (utils/aiManagers.ts). A sale still comes first.
+  const lastGrade = tx.select({ g: boardSeasonsTable.grade }).from(boardSeasonsTable).where(and(
+    eq(boardSeasonsTable.careerSaveId, careerSaveId), eq(boardSeasonsTable.seasonYear, seasonYear - 1),
+    eq(boardSeasonsTable.teamId, teamId))).get()?.g;
+  if (r.outcome !== "sold" && r.grade === "failed" && lastGrade === "failed") r.outcome = "sacked";
 
   tx.update(boardSeasonsTable).set({
     strengthRank, target: bandsFor(strengthRank).metLine, finish, worldTourMatches,

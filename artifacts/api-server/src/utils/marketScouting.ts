@@ -49,9 +49,12 @@ function unitHash(careerSaveId: number, playerId: number): number {
 }
 
 /** Her stats, for her rating: the 1 Oct wage rise is by rating (N-41). */
-type PricedPlayer = Pick<PlayerDTO, "id" | "askingPrice" | "salary" | "speed" | "power" | "defense" | "serve" | "block" | "stamina">;
+type PricedPlayer = Pick<PlayerDTO, "id" | "askingPrice" | "salary" | "speed" | "power" | "defense" | "serve" | "block" | "stamina"> & { poolTeamId?: number | null };
 
 function basePrice(p: Omit<PricedPlayer, "id">): number {
+  // Daytime 2 Oct, U-6: at an AI club, one month of the wage she is on there
+  // (Rob, 30 Sep: one month of wage, ±15%).
+  if (p.poolTeamId != null && Number(p.salary) > 0) return Number(p.salary);
   // Overnight 1 Oct, N-41: one month of her market wage, the 1 Oct rise included.
   const fromAsking = seniorMonthlyWage(p.askingPrice == null ? null : Number(p.askingPrice), overallRating(p));
   return fromAsking > 0 ? fromAsking : Math.max(1000, Number(p.salary) || 5000);

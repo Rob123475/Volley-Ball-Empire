@@ -1,0 +1,25 @@
+{
+  "shots": [
+    "a4-ai-club-card-1.png",
+    "a4-ai-club-card-2.png",
+    "a4-ai-club-card-3.png",
+    "a4-ai-clubs-market-page.png"
+  ],
+  "found": {
+    "aiMarket": [
+      {
+        "name": "Annika Bauer",
+        "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p1.webp"
+      },
+      {
+        "name": "Sophie Müller",
+        "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p2.webp"
+      },
+      {
+        "name": "Carmen Ruiz",
+        "src": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp"
+      }
+    ]
+  },
+  "errors": []
+}

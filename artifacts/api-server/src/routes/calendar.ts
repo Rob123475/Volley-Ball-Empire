@@ -1,4 +1,6 @@
 import { CONTINENT_COUNT } from "@workspace/db";
+import { executeSeasonStartMove } from "./job-market.js";
+import { openWindowIfDue } from "../utils/managerMoves.js";
 import { gameDateText } from "../utils/gameDate.js";
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
@@ -27,6 +29,7 @@ import {
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
+import { materializeAiSeniorsTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -665,6 +668,13 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     // C15: the AI clubs' academies — filled, developed, billed; their reserves
     // listed for loan, and a youth borrowed where a club's youth team needs one.
     const aiWeek = withCareerStateTx((w) => aiAcademiesWeekTx(w, careerSaveId, nextDate));
+    // Daytime 2 Oct, U-6: the AI clubs' senior squads, as career seniors: their
+    // contracts renewed, a club below two refilled from the free agents, and a
+    // few AI-to-AI transfers by squad need (utils/aiSquads.ts).
+    withCareerStateTx((w) => {
+      materializeAiSeniorsTx(w, careerSaveId);
+      return aiTransfersWeekTx(w, careerSaveId, nextDate, seasonEndsForCareerTx(w.tx, careerSaveId));
+    });
     for (const b of aiWeek.borrowed) {
       const mine = withCareerStateTx((w) => loansTx(w.tx, careerSaveId, "active").find((l) => l.id === b.loanId && l.ownerTeamId === team.id));
       if (mine) events.push(`A youth of yours goes on loan for ${mine.months} months (until ${gameDateText(mine.endsOn)}): see Team > Youth Loans`);
@@ -845,10 +855,15 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
   let fired = false;
   let clubSold = false;
   let dismissalClubName: string | null = null;
-  if (rollover.kind === "rolled" && rollover.clubSold && req.user?.id) {
-    await loseClub(req, team.id, rollover.review.text);
-    dismissalClubName = team.name;
-    clubSold = true;
+  // Afternoon 2 Oct (J-3): the club's season over, the off-season window opens.
+  if (rollover.kind !== "rolled") {
+    for (const e of await openWindowIfDue(careerSaveId, team.id, nextDate)) events.push(e);
+  }
+  // Afternoon 2 Oct (J-3): any manager move happens now, at the season's start.
+  let jobMove: Awaited<ReturnType<typeof executeSeasonStartMove>> = null;
+  if (rollover.kind === "rolled" && req.user?.id) {
+    jobMove = await executeSeasonStartMove(req, team, { sold: !!rollover.clubSold, sacked: !!rollover.sacked, reviewText: rollover.review.text });
+    if (jobMove) { dismissalClubName = team.name; clubSold = !!rollover.clubSold; fired = jobMove.type === "dismissal"; }
   }
 
   return { status: 200, body: {
@@ -857,6 +872,7 @@ async function advanceOneDay(req: Request): Promise<DayResult> {
     isQuietDay,
     atSeasonEnd,
     seasonRollover: rollover,
+    jobMove,
     fired,
     // L-02e: the club is gone and the manager is looking for another.
     clubSold,

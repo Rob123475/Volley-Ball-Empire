@@ -184,10 +184,11 @@ async function runSeed(seed) {
     const faceless = read(
       `SELECT p.id, p.name, p.image_url AS url FROM players p
          JOIN career_player_state ps ON ps.player_id = p.id
-        WHERE ps.career_save_id = ? AND (p.image_url IS NULL OR p.image_url = '')`, careerSaveId);
+        WHERE ps.career_save_id = ? AND (p.image_url IS NULL OR p.image_url = '') AND ps.pool_player_id IS NULL`, careerSaveId);
     const created = read(
       `SELECT p.name, p.image_url AS url FROM players p
-        WHERE p.origin_career_save_id = ?`, careerSaveId);
+        WHERE p.origin_career_save_id = ?
+          AND NOT EXISTS (SELECT 1 FROM career_player_state x WHERE x.player_id = p.id AND x.pool_player_id IS NOT NULL)`, careerSaveId);
     const missingFile = created.filter((p) => !p.url || !fs.existsSync(path.join(PUBLIC, p.url)));
     const reused = read(
       `SELECT COUNT(*) AS n FROM player_retirements

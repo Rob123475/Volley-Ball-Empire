@@ -73,6 +73,10 @@ export type CareerPlayerFields = {
   poolTeamId: number | null;
   /** C15: "youth_team" or "reserve" for an academy player; null otherwise. */
   academyRole: string | null;
+  /** U-6: the continental pool player an AI club's senior was made from; null otherwise. */
+  poolPlayerId: number | null;
+  /** U-6: the game date she joined her AI club. */
+  poolJoinedOn: string | null;
 };
 
 /**
@@ -139,6 +143,8 @@ export function assemblePlayer(
     outfitId:             state.outfitId,
     poolTeamId:           state.poolTeamId,
     academyRole:          state.academyRole,
+    poolPlayerId:         state.poolPlayerId ?? null,
+    poolJoinedOn:         state.poolJoinedOn ?? null,
   };
 }
 
@@ -510,6 +516,19 @@ export type CareerStateTx = {
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0];
 };
 
+/**
+ * Daytime 2 Oct, U-6: an AI club's senior made from a continental pool player
+ * (utils/aiSquads.ts), still at an AI club. She keeps the pool player's
+ * timelessness there: she does not age or retire while she plays for an AI
+ * club, exactly as the pool player never did (the AI world's strength holds over
+ * thirty seasons). Bought by the player or released, she ages like anyone.
+ */
+const notAiPoolSenior = or(
+  isNull(careerPlayerStateTable.poolPlayerId),
+  isNull(careerPlayerStateTable.poolTeamId),
+  isNotNull(careerPlayerStateTable.teamId),
+)!;
+
 export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
   return db.transaction((tx) => fn({
     tx,
@@ -568,6 +587,7 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
         .where(and(
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
+          notAiPoolSenior,
         ))
         .run();
       return Number((r as { changes?: number }).changes ?? 0);
@@ -610,6 +630,7 @@ export function withCareerStateTx<T>(fn: (w: CareerStateTx) => T): T {
           eq(careerPlayerStateTable.careerSaveId, careerSaveId),
           eq(careerPlayerStateTable.isRetired, false),
           gte(careerPlayerStateTable.age, minAge),
+          notAiPoolSenior,
         ))
         .all();
 

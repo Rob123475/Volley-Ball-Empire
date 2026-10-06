@@ -425,10 +425,12 @@ try {
     w.close();
     console.log(`  (took ${n} names: ${firsts.size} first names x ${lasts.size} surnames)`);
   }
-  const before = read(`SELECT COUNT(*) AS n FROM players WHERE origin_career_save_id = ?`, other.careerSaveId)[0].n;
+  // U-6: the AI clubs' pool players made into career seniors are not intake.
+  const made = `SELECT COUNT(*) AS n FROM players p WHERE p.origin_career_save_id = ? AND NOT EXISTS (SELECT 1 FROM career_player_state x WHERE x.player_id = p.id AND x.pool_player_id IS NOT NULL)`;
+  const before = read(made, other.careerSaveId)[0].n;
   const dry = await play(other, 1);
   const dryRow = read(`SELECT season_year, player_ids FROM youth_intakes WHERE career_save_id = ?`, other.careerSaveId);
-  const after = read(`SELECT COUNT(*) AS n FROM players WHERE origin_career_save_id = ?`, other.careerSaveId)[0].n;
+  const after = read(made, other.careerSaveId)[0].n;
   const dryNews = dry.rolls[0]?.news.find((n) => n.id === "academy-2027");
   check("with no name left, the intake creates no one: never a player without a real name",
     !dry.sacked && dryRow.length === 1 && JSON.parse(dryRow[0].player_ids).length === 0 && after === before && dry.rolls[0]?.roll.intake?.players.length === 0,

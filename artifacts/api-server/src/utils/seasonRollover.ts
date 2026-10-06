@@ -5,6 +5,8 @@ import {
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { withCareerStateTx } from "../lib/playerDto.js";
+import { keepAiSquadsTx } from "./aiSquads.js";
+import { aiManagersSeasonEndTx } from "./aiManagers.js";
 import { ensureSeasonFixtureRows } from "./seasonFixture.js";
 import { worldTourStandingsTx } from "./worldTour.js";
 import { boardReviewTx, ensureBoardSeasonTx, type SeasonReview } from "./board-confidence.js";
@@ -93,6 +95,7 @@ export type RolloverResult =
       review: SeasonReview; intake: IntakeResult | null;
       /** L-02e: the club was sold at this review. The season still opened. */
       clubSold?: boolean;
+      sacked?: boolean;
     };
 
 
@@ -226,6 +229,8 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // takes next to play. The flag rides out with the roll and the calendar
     // route detaches the manager once it has committed.
     const clubSold = review.outcome === "sold";
+    // Afternoon 2 Oct, J-2: the board sacks after two failed seasons running.
+    const sacked = review.outcome === "sacked";
 
     const nextNumber = current + 1;
     const nextYear = yearForSeasonNumber(nextNumber);
@@ -285,6 +290,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     // Then next season is opened for everybody on what they carry into it,
     // which is the chain the rule is read from.
     const poolSales = sellBrokePoolClubsTx(tx, careerSaveId, season.year);
+    // Daytime 2 Oct, U-3: the AI clubs' boards judge their managers on the
+    // season just played (two failed running = sacked); last season's open
+    // jobs are filled (utils/aiManagers.ts).
+    aiManagersSeasonEndTx(tx, careerSaveId, season.year, nextYear, `${nextYear}-01-01`);
     // Six clubs to a continent, every season, whether anything was sold or not:
     // the regional season's thirty fixtures are built on that number and it
     // throws on any other. Restored rather than reasoned about
@@ -294,6 +303,10 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
     renewExpiredPoolContractsTx(
       tx, careerSaveId, `${nextYear}-01-01`, seasonEndsForCareerTx(tx, careerSaveId),
     );
+    // Daytime 2 Oct, U-6: every AI club opens the season able to play: its
+    // seniors' contracts renewed, and a club that retirement left short signs
+    // from the free agents (utils/aiSquads.ts).
+    keepAiSquadsTx(w, careerSaveId, `${nextYear}-01-01`, seasonEndsForCareerTx(tx, careerSaveId));
 
     // R-62: the new season's academy intake, in the transaction that opened the
     // season, dated its first day — so no season opens without its intake.
@@ -329,6 +342,7 @@ export function rolloverSeason(careerSaveId: number, teamId: number): RolloverRe
       review,
       intake,
       clubSold,
+      sacked,
       releasedGraduates,
       contractsFilled,
       graduatePortraits,

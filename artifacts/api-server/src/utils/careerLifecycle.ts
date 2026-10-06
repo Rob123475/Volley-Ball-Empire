@@ -141,7 +141,7 @@ export type CareerSummary = Awaited<ReturnType<typeof buildCareerSummary>>;
  * checks it: this is the one time a save is without a club on purpose.
  */
 export async function loseClub(
-  req: Request, teamId: number, verdict: string,
+  req: Request, teamId: number, verdict: string | { type: string; text: string },
 ): Promise<{ clubName: string }> {
   const [save] = await db
     .select()
@@ -154,12 +154,15 @@ export async function loseClub(
     await db.insert(careerHistoryEntriesTable).values({
       userId:       save.userId,
       careerSaveId: save.id,
-      type:         "club_sold",
+      // Daytime 2 Oct, U-3: losing a job is not only a sale: resigning,
+      // breaking the contract and being sacked lead to the job market too.
+      type:         typeof verdict === "string" ? "club_sold" : verdict.type,
       clubName,
       season:       save.season,
-      description:
-        `${clubName} was sold after five seasons of losses. ` +
-        `${save.managerName} is out of a job. ${verdict}`,
+      description: typeof verdict === "string"
+        ? `${clubName} was sold after five seasons of losses. ` +
+          `${save.managerName} is out of a job. ${verdict}`
+        : verdict.text,
     });
 
     await db.update(careerSavesTable)

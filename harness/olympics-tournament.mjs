@@ -235,7 +235,8 @@ try {
   check("real players from real clubs, never invented",
     field.every((e) => e.pair.every((p) => p.kind === "pool"
       ? read(`SELECT COUNT(*) AS n FROM continental_pool_players WHERE id = ?`, p.id)[0].n === 1
-      : read(`SELECT COUNT(*) AS n FROM career_player_state WHERE career_save_id = ? AND player_id = ? AND team_id = ?`, careerSaveId, p.id, teamId)[0].n === 1)),
+      // U-6 (feat-ai-buyable): or a career senior at the AI club she is listed for.
+      : read(`SELECT COUNT(*) AS n FROM career_player_state WHERE career_save_id = ? AND player_id = ? AND (team_id = ? OR (team_id IS NULL AND pool_team_id = ?))`, careerSaveId, p.id, teamId, p.poolTeamId ?? -1)[0].n === 1)),
     `${clubsInField.size} clubs`);
 
   console.log("\n4. THE MATCHES");

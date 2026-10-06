@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable,
-  worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
+  worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable,
 } from "@workspace/db";
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
@@ -11,11 +11,13 @@ import { overallRating } from "../utils/overallRating.js";
 import { matchPointChance, completeMatch, type MatchContext } from "./matches.js";
 import { isLegalResult, isLegalProgress, type SetScore } from "../utils/matchEngine.js";
 
+import { aiPairTx, type AiMember } from "../utils/aiSquads.js";
 const router = Router();
 
 type PoolOpponent = {
   team: typeof continentalPoolTeamsTable.$inferSelect;
-  pair: Array<typeof continentalPoolPlayersTable.$inferSelect>;
+  /** U-6: the two the AI club plays in this career (utils/aiSquads.ts). */
+  pair: AiMember[];
 };
 
 /**
@@ -36,10 +38,8 @@ function poolOpponentFor(careerSaveId: number, matchId: number, teamId: number |
   const team = db.select().from(continentalPoolTeamsTable)
     .where(eq(continentalPoolTeamsTable.id, other.poolTeamId)).get();
   if (!team) return null;
-  const pair = db.select().from(continentalPoolPlayersTable)
-    .where(eq(continentalPoolPlayersTable.poolTeamId, team.id))
-    .orderBy(continentalPoolPlayersTable.id).all();
-  return { team, pair: pair.slice(0, 2) };
+  const pair = db.transaction((tx) => aiPairTx(tx, careerSaveId, team.id));
+  return { team, pair };
 }
 
 // Crowd size estimate by match tier
@@ -318,7 +318,10 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
   function serializePoolPlayer(pp: PoolOpponent["pair"][number], team: PoolOpponent["team"], teamLabel: string | null) {
     const ratings = { speed: pp.speed, power: pp.power, defense: pp.defense, serve: pp.serve, block: pp.block, stamina: pp.stamina };
     return {
-      id:             pp.id,
+      // U-6: a career senior made from a pool player keeps her pool id here;
+      // a free agent the club signed has none (poolPlayerId null).
+      id:             pp.poolPlayerId ?? pp.id,
+      poolPlayerId:   pp.poolPlayerId,
       name:           pp.name,
       team:           teamLabel,
       position:       null,
@@ -329,7 +332,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       fitness:        team.fitness,
       injured:        false,
       injuryStatus:   "Healthy",
-      age:            pp.baseAge,
+      age:            pp.age,
       height:         0,
       primaryColor:   team.primaryColor ?? null,
       secondaryColor: team.secondaryColor ?? null,

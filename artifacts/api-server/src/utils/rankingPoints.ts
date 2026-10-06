@@ -2,11 +2,11 @@ import {
   db,
   competitorRankingsTable,
   competitorsTable,
-  continentalPoolPlayersTable,
   careerPlayerStateTable,
   playerRankingPointsTable,
   careerSavesTable,
 } from "@workspace/db";
+import { aiPairTx } from "./aiSquads.js";
 import { and, eq, sql } from "drizzle-orm";
 import { competitorIdForTeam, competitorIdForTeamTx } from "./competitors.js";
 import { tierForPoints, type Tier } from "./tierQualification.js";
@@ -185,11 +185,9 @@ function creditPlayersTx(tx: Tx, args: {
 
   const pair: Array<{ playerId: number | null; poolPlayerId: number | null }> =
     competitor.poolTeamId != null
-      ? tx.select({ id: continentalPoolPlayersTable.id })
-          .from(continentalPoolPlayersTable)
-          .where(eq(continentalPoolPlayersTable.poolTeamId, competitor.poolTeamId))
-          .all()
-          .map((p) => ({ playerId: null, poolPlayerId: p.id }))
+      // U-6: the two the AI club plays in this career (utils/aiSquads.ts).
+      ? aiPairTx(tx, args.careerSaveId, competitor.poolTeamId)
+          .map((m) => m.kind === "pool" ? { playerId: null, poolPlayerId: m.id } : { playerId: m.id, poolPlayerId: null })
       : competitor.teamId != null
         ? tx.select({ id: careerPlayerStateTable.playerId })
             .from(careerPlayerStateTable)

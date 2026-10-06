@@ -410,8 +410,25 @@ export const careerPlayerStateTable = sqliteTable("career_player_state", {
    * Overnight brief 30 Sep, C15: the AI club whose academy holds her, for a
    * youth player at an AI club (team_id is the player's clubs only). Null for
    * everyone else: a youth with neither is a free agent.
+   *
+   * Daytime 2 Oct, U-6: for a SENIOR (player_type 'senior' or promoted) it is
+   * the AI club she plays for (utils/aiSquads.ts): an AI club's squad is its
+   * seniors here plus the continental pool players still on a live pool
+   * contract.
    */
   poolTeamId:       integer("pool_team_id"),
+  /**
+   * U-6: the continental pool player this row was made from, when an AI club's
+   * senior became a career player (her pool contract then reads "moved"). Her
+   * reference look (skin tone) and her ranking history are found through it.
+   */
+  poolPlayerId:     integer("pool_player_id"),
+  /**
+   * U-6: the game date she joined the AI club she plays for. An AI club keeps
+   * a player it signed for a season before selling her on to another AI club
+   * (no back-and-forth); the Player Market can buy her any time.
+   */
+  poolJoinedOn:     text("pool_joined_on"),
   /**
    * C15: an academy player's court time. "youth_team" (the academy's 3 who
    * play, full development) or "reserve" (no court time, reduced development).
@@ -462,6 +479,17 @@ export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
   sponsorReputation:  integer("sponsor_reputation").notNull().default(50),
   /** Stamped when five loss-making seasons sold this club (L-02e, for AI clubs). */
   soldAt:             integer("sold_at", { mode: "timestamp" }),
+  /**
+   * Daytime 2 Oct, U-3 (try): the club's AI manager (utils/aiManagers.ts).
+   * Null with vacant_since set = the job is vacant: her board sacked her (two
+   * failed seasons running, by the player's board's own bands) and nobody has
+   * been appointed yet. The player can apply for it on the Job Market.
+   */
+  managerName:          text("manager_name"),
+  managerSinceYear:     integer("manager_since_year"),
+  managerFailedSeasons: integer("manager_failed_seasons").notNull().default(0),
+  vacantSince:          text("vacant_since"),
+  vacancyReason:        text("vacancy_reason"),
   /** The season it was sold in, so the table of a run can say when. */
   soldInSeason:       integer("sold_in_season"),
   promotionCount:  integer("promotion_count").notNull().default(0),
@@ -1330,6 +1358,18 @@ export const careerSavesTable = sqliteTable("career_saves", {
    * career is stamped when it is made; an older one at its first boot.
    */
   moneyPassAt:  text("money_pass_at"),
+  /**
+   * Afternoon 2 Oct, item 7 (J-3): manager moves happen at a season's start
+   * (utils/managerMoves.ts). The club he has agreed to join (an application or
+   * an AI club's offer accepted in the off-season window), why he is leaving
+   * his club (resignation / contract_break / dismissal), and the offers he has
+   * declined this off-season (JSON array of pool team ids).
+   */
+  pendingPoolTeamId: integer("pending_pool_team_id"),
+  leavingReason:     text("leaving_reason"),
+  declinedOffers:    text("declined_offers"),
+  /** Item 7: the season whose off-season window has opened (the AI boards judged then). */
+  windowSeason:      integer("window_season"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

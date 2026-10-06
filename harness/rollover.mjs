@@ -298,7 +298,8 @@ async function advanceToBoundary(api, maxDays = 500) {
   const rosterN = (await A("GET", "/players/market-all?playerType=senior")).data;
   const list = Array.isArray(rosterN) ? rosterN : [];
   const boundaries = seen.length;
-  const known = list.filter((p) => ages0.has(p.id));
+  // U-6 (feat-ai-buyable): an AI club's pool-made senior does not age while she plays for it.
+  const known = list.filter((p) => ages0.has(p.id) && p.status !== "ai_club");
   const correct = known.filter((p) => p.age === ages0.get(p.id) + boundaries);
   // R-62: each boundary that opens a season brings an academy intake. Those
   // players are traced to the intake that created them (boundary i + 1) and age
@@ -311,8 +312,8 @@ async function advanceToBoundary(api, maxDays = 500) {
     known.length > 0 && correct.length === known.length && intakeCorrect.length === fromIntake.length,
     `${correct.length}/${known.length} with a baseline, ${intakeCorrect.length}/${fromIntake.length} from an academy intake, after ${boundaries} boundaries`);
   check("every senior has a baseline or came from an academy intake (nobody appeared from nowhere)",
-    known.length + fromIntake.length === list.length,
-    `${known.length} + ${fromIntake.length} intake of ${list.length} traceable`);
+    known.length + fromIntake.length + list.filter((p) => p.status === "ai_club").length === list.length,
+    `${known.length} + ${fromIntake.length} intake + ${list.filter((p) => p.status === "ai_club").length} at AI clubs of ${list.length} traceable`);
 
   check(`rolled through ${WALK_BOUNDARIES} boundaries`, seen.length === WALK_BOUNDARIES,
     seen.map((r) => `${r.fromSeason}->${r.toSeason}`).join(", "));

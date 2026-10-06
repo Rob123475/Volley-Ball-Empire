@@ -1,0 +1,25 @@
+{
+  "filters": {
+    "At AI Clubs": {
+      "count": 120,
+      "atAiBadges": 119,
+      "freeAgentBadges": -1,
+      "underContractAt": [
+        "Berlin Sand Queens",
+        "Berlin Sand Queens",
+        "Barcelona Playa Elites",
+        "Barcelona Playa Elites",
+        "Paris Sables Royales",
+        "Paris Sables Royales"
+      ]
+    },
+    "Free Agents": {
+      "count": 189,
+      "atAiBadges": -1,
+      "freeAgentBadges": 188,
+      "underContractAt": []
+    }
+  },
+  "cards": [],
+  "errors": []
+}

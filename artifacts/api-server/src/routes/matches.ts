@@ -2,7 +2,7 @@ import { seasonPhase } from "../utils/seasonPhase.js";
 import { Router } from "express";
 import type { Request } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { db, isContinentKey, type Team } from "@workspace/db";
+import { db, isContinentKey, type Team, careerSavesTable, careerHistoryEntriesTable } from "@workspace/db";
 import { matchesTable, teamsTable, playersTable, financeTransactionsTable, locationsTable, staffTable, facilitiesTable, wellbeingEffectsTable, seasonInjuryStatsTable, injuryHistoryTable, promoDealsTable, seasonFinalStandingsTable, managerSeasonSummaryTable, seasonsTable, matchLiveStateTable, continentalPoolTeamsTable } from "@workspace/db";
 import { eq, desc, gt, gte, and, sql, inArray } from "drizzle-orm";
 import { WORLD_TOUR } from "../data/worldTour";
@@ -18,7 +18,7 @@ import { developAcademyPlayers, tickAcademyContracts } from "../utils/academyDev
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
-import { endCareer } from "../utils/careerLifecycle.js";
+import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { MAX_STARTERS } from "../utils/squadRules.js";
 import {
   selectPair, pairSideRating, isAvailable, matchCosts, injuryRisk, rollInjury,
@@ -279,7 +279,7 @@ async function resolveOpponentRating(
 
   const fixture = fixtureForMatch(match.id);
   if (fixture) {
-    const rating = competitorRating(fixture.awayCompetitorId);
+    const rating = competitorRating(await careerSaveIdForTeamOrThrow(playerTeamId), fixture.awayCompetitorId);
     if (rating != null) return clampRating(rating);
   }
 
@@ -1185,12 +1185,13 @@ export async function recordForfeit(
 
   if (req?.user?.id && board.abandonedDays != null && board.abandonedDays >= ABANDONMENT_DAYS) {
     const days = board.abandonedDays;
-    const summary = await endCareer(req, team.id, req.user!.id, {
-      type: "dismissal",
-      description: (s) =>
-        `${s.managerName} was sacked by ${s.clubName}: the club went ${days} days without two contracted players to put on the sand.`,
-    });
-    dismissalClubName = summary.clubName;
+    // Daytime 2 Oct, U-3: a sacked manager goes to the Job Market; the career
+    // goes on unless he retires there.
+    // Afternoon 2 Oct, J-3: no sackings mid-season; he is out at its end.
+    await db.update(careerSavesTable).set({ leavingReason: "dismissal" }).where(eq(careerSavesTable.id, careerSaveId));
+    await db.insert(careerHistoryEntriesTable).values({ userId: req.user!.id, careerSaveId, type: "dismissal", clubName: team.name,
+      description: `The manager was sacked by ${team.name}: the club went ${days} days without two contracted players to put on the sand. The manager leaves at the end of the season.` });
+    dismissalClubName = team.name;
     fired = true;
   }
 

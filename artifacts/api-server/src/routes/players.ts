@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { getActiveTeam } from "../lib/getActiveTeam.js";
-import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
+import { loadPlayers, loadPlayer, updatePlayerState, updatePlayerReference, createCareerPlayer, requireCareerSaveId, type PlayerDTO, type CareerPlayerFields, loadStaff, careerSaveIdForTeamOrThrow, withCareerStateTx } from "../lib/playerDto.js";
+import { materializeAiSeniorsTx } from "../utils/aiSquads.js";
 import {
   isSeniorPlayer, isYouthPlayer, isSparePlayer, YOUTH_AGE_MIN, YOUTH_AGE_MAX,
 } from "../utils/playerClassification.js";
 import { RETIREMENT_AGE } from "../utils/seasonRollover.js";
 import { db } from "@workspace/db";
-import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable, contractsTable } from "@workspace/db";
+import { playersTable, teamsTable, staffTable, trophiesTable, financeTransactionsTable, calendarStateTable, contractsTable, continentalPoolTeamsTable } from "@workspace/db";
 import {
   CONTINENT_KEYS, CONTINENT_LABEL, RESERVE_NATIONS, PLAYERS_PER_NATION,
   coreNationsFor, isCoreNation, isReserveNation, isContinentKey, type ContinentKey,
@@ -212,7 +213,9 @@ router.get("/players/youth-pool", async (req, res) => {
  */
 router.get("/players/validation", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId));
+  // U-6: an AI club's senior made from a continental pool player belongs to
+  // the pool's world, not this declared roster (checked by its own rules).
+  const all = (await loadPlayers(requireCareerSaveId(req.activeCareerSaveId))).filter((p) => p.poolPlayerId == null);
 
   const seniors = all.filter(p => isSeniorPlayer(p));
   const youth   = all.filter(p => isYouthPlayer(p));
@@ -341,7 +344,13 @@ router.get("/players/validation", async (req, res) => {
 // All senior players with status — powers the Player Market filter pills
 router.get("/players/market-all", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  // Daytime 2 Oct, U-6: the AI clubs' seniors are on the market too. The first
+  // time it lists them in a career, each becomes a career senior at her club
+  // (utils/aiSquads.ts), so she is scouted, priced and signed like anyone.
+  withCareerStateTx((w) => materializeAiSeniorsTx(w, requireCareerSaveId(req.activeCareerSaveId)));
   const all = await loadPlayers(requireCareerSaveId(req.activeCareerSaveId), { playerType: "senior" });
+  const aiClubNames = new Map((await db.select({ id: continentalPoolTeamsTable.id, name: continentalPoolTeamsTable.teamName })
+    .from(continentalPoolTeamsTable)).map((t) => [t.id, t.name]));
 
   // Build team name lookup for signed players
   const teamIdSet = [...new Set(all.filter(p => p.teamId).map(p => p.teamId!))];
@@ -380,8 +389,11 @@ router.get("/players/market-all", async (req, res) => {
   // fixed 6-month deal in one click) is gone.
   const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
   const result = all.map(p => {
-    let status: "signed" | "free_agent" | "player_pool" | "transfer_available";
-    if (p.teamId) {
+    let status: "signed" | "free_agent" | "player_pool" | "transfer_available" | "ai_club";
+    if (p.poolTeamId != null && !p.teamId) {
+      // U-6: under contract at an AI club, and buyable through the same market rules.
+      status = "ai_club";
+    } else if (p.teamId) {
       const inWindow = p.teamId !== myTeamId && transferCutoff && p.contractEndDate
         && p.contractEndDate >= currentDate
         && p.contractEndDate <= transferCutoff;
@@ -393,8 +405,10 @@ router.get("/players/market-all", async (req, res) => {
     return {
       ...marketView(careerSaveId, { ...p, ...serializePlayer(p) } as PlayerDTO, myTeamId, currentDate, onMarket),
       status,
-      currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : null,
+      currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : p.poolTeamId != null ? (aiClubNames.get(p.poolTeamId) ?? null) : null,
       currentTeamId: p.teamId ?? null,
+      /** U-6: the AI club she plays for, when she is at one. */
+      aiClubId: p.teamId ? null : (p.poolTeamId ?? null),
     };
   });
 

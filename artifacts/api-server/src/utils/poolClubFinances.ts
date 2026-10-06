@@ -41,7 +41,8 @@ import {
   competitorRankingsTable, worldTourQualificationsTable, careerSavesTable,
   seasonsTable, db, managerSalaryFor,
 } from "@workspace/db";
-import { and, asc, desc, eq, isNull, isNotNull, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, isNotNull, lt, sql } from "drizzle-orm";
+import { aiSquadsTx } from "./aiSquads.js";
 import { WORLD_TOUR } from "../data/worldTour.js";
 import { prizeFor } from "./prizeDistribution.js";
 import { purseAccessFor, tierForPoints, type Tier } from "./tierQualification.js";
@@ -69,6 +70,14 @@ export const CLUBS_PER_CONTINENTAL_LEAGUE = 6;
 
 /** Every club in this world starts where an established career starts. */
 export const POOL_CLUB_STARTING_BALANCE = ESTABLISHED_STARTING_BUDGET;
+
+/**
+ * Rob, 5 Oct (Q-8): "the sale price clears all the club's debts". A club sold
+ * to new owners reopens on the standard reopening balance - what every club of
+ * this world opens on - whatever it owed, so it never reopens below $0. It can
+ * still lose money again afterwards, like any club.
+ */
+export const POOL_CLUB_REOPENING_BALANCE = POOL_CLUB_STARTING_BALANCE;
 
 /** The purse of every scheduled round, from the one schedule the game has. */
 const PURSE_BY_ROUND = new Map<number, number>(WORLD_TOUR.map((e) => [e.round, e.prize]));
@@ -147,7 +156,8 @@ export function signMissingPoolContractsTx(
       .from(poolPlayerContractsTable)
       .where(and(
         eq(poolPlayerContractsTable.careerSaveId, careerSaveId),
-        eq(poolPlayerContractsTable.status, "active"),
+        // U-6: "moved" = she is a career senior now (utils/aiSquads.ts).
+        inArray(poolPlayerContractsTable.status, ["active", "moved"]),
       )).all().map((r) => r.poolPlayerId),
   );
 
@@ -319,21 +329,15 @@ export function chargePoolClubsWeekTx(
   return { clubs: states.length, charged, paid };
 }
 
-/** Every AI club's wage bill, as the monthly salaries its contracts carry. */
+/**
+ * Every AI club's wage bill, as the monthly salaries its squad is on (U-6,
+ * utils/aiSquads.ts): its pool players' contracts and its career seniors'.
+ */
 function squadsByPoolIdTx(tx: Tx, careerSaveId: number): Map<number, number[]> {
-  const rows = tx.select({
-    poolTeamId: poolPlayerContractsTable.poolTeamId,
-    salary:     poolPlayerContractsTable.salary,
-  }).from(poolPlayerContractsTable)
-    .where(and(
-      eq(poolPlayerContractsTable.careerSaveId, careerSaveId),
-      eq(poolPlayerContractsTable.status, "active"),
-    )).all();
   const map = new Map<number, number[]>();
-  for (const r of rows) {
-    const list = map.get(r.poolTeamId) ?? [];
-    list.push(Number(r.salary));
-    map.set(r.poolTeamId, list);
+  for (const [poolTeamId, squad] of aiSquadsTx(tx, careerSaveId)) {
+    // A pool player with no contract in this career yet is not on the books yet.
+    map.set(poolTeamId, squad.filter((m) => m.kind === "player" || m.contractEndDate != null).map((m) => m.salary));
   }
   return map;
 }
@@ -508,11 +512,12 @@ export function sellBrokePoolClubsTx(
     // New owners. The club does not vanish - there are sixty in this world and
     // no more are written - it changes hands and opens on what any club of this
     // world opens on. The chain the rule reads breaks here of its own accord,
-    // because next season opens far above the one that sold it.
+    // because next season opens far above the one that sold it. The sale price
+    // clears every debt it had (Q-8): it reopens on the standard balance.
     tx.update(careerPoolTeamStateTable).set({
       soldAt:            new Date(),
       soldInSeason:      seasonYear,
-      balance:           POOL_CLUB_STARTING_BALANCE,
+      balance:           POOL_CLUB_REOPENING_BALANCE,
       sponsorReputation: SPONSOR_REP_BASELINE,
       isActiveInLeague:  false,
       updatedAt:         new Date(),

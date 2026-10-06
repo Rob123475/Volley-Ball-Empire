@@ -62,10 +62,15 @@ console.log("=".repeat(72));
 console.log("\n0. NONE OF IT IS LEFT IN THE SOURCE");
 const PATTERNS = [
   ["the invented World Tour news generator", /generateWorldNews|news\/world-tour|WorldTourNews/, "function generateWorldNews(seed: number): NewsItem[] {"],
-  ["Manager Movements (invented AI managers)", /aiManager|ai_manager|ai-managers|AiManager|ManagerMovements/, "router.get(\"/ai-managers/feed\", async (req, res) => {"],
+  // U-3 (feat-job-market): AI managers are real now (utils/aiManagers.ts, judged
+  // by their boards): what stays banned is the invented feed of their moves.
+  ["Manager Movements (invented AI managers)", /ai-managers\/feed|ManagerMovements/, "router.get(\"/ai-managers/feed\", async (req, res) => {"],
   ["the youth league's results, ladder and championship", /youthLeague|youth-league|youth_league|youthLadder|youth_ladder|youthChampionship|youth_championship|YouthLeague|YouthLadder|YouthChampionship|AI_LADDER_TEAMS|OPPOSITION_NAMES/, "const AI_LADDER_TEAMS = [\"Valley Smashers\"];"],
   ["the youth form strip hashed from a club name", /mockForm/, "const form = mockForm(entry.competitorName, entry.wins, entry.losses);"],
-  ["poaching offers from a hardcoded club pool", /POACHING_POOL|poaching|Poaching/, "const POACHING_POOL = [{ clubName: \"Rio Praia SC\" }];"],
+  // Afternoon 2 Oct (J-3): AI clubs' offers are real now (utils/managerMoves.ts
+  // offersTx, real clubs judged on the manager's level and season); what stays
+  // banned is the hardcoded pool and its old table and routes.
+  ["poaching offers from a hardcoded club pool", /POACHING_POOL|poaching_offers|\/poaching\//, "const POACHING_POOL = [{ clubName: \"Rio Praia SC\" }];"],
   // L-02e: the pattern used to include `JobMarket|job-market`, which banned
   // the WORDS rather than the invented thing. What R-43 deleted was a
   // hardcoded list of offers from clubs that did not exist. There is a real
@@ -110,7 +115,8 @@ check("the boot migration drops exactly the six removed tables",
   JSON.stringify(declared) === JSON.stringify([...REMOVED_TABLES].sort()),
   `REMOVED_TABLES = [${declared.join(", ")}]`);
 
-const BUNDLE_TEXT = ["World Tour News", "Live circuit updates", "Manager Movements", "Development League", "Youth League", "Reputation Bonus", "Job Market", "Poaching Approach"];
+// U-3 (feat-job-market): the Job Market is real now (routes/job-market.ts), so its name is no longer banned text.
+const BUNDLE_TEXT = ["World Tour News", "Live circuit updates", "Manager Movements", "Development League", "Youth League", "Reputation Bonus", "Poaching Approach"];
 const bundleFiles = walk(PUBLIC).filter((f) => f.endsWith(".js"));
 const bundleHits = [];
 for (const f of bundleFiles) {

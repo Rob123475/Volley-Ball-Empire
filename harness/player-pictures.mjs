@@ -19,6 +19,11 @@
  *      - the database refuses a picture twice in one career (unique index).
  *   3. AT BOOT    an older save is given the table and its adult graduates
  *      their pictures; a second boot changes nothing.
+ *   4. AI CLUBS   (this branch) the 120 AI club players: the 96 Rob made
+ *      pictures for have them (matched by continent and skin tone), the 24
+ *      others keep the card his list names, no card twice, every file there;
+ *      the Player Market lists every AI club player with her picture; an
+ *      older save gets them at boot.
  *
  * Usage: node harness/player-pictures.mjs
  */
@@ -95,7 +100,7 @@ async function api(method, p, body) {
   return { status: res.status, data };
 }
 const boot = (db, out) => forkServer({ server: SERVER, electron: ELECTRON, out,
-  env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: db, PORT: String(PORT), NODE_ENV: "development", SESSION_SECRET: "player-pictures" } });
+  env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", DB_PATH: db, PORT: String(PORT), NODE_ENV: "development", SESSION_SECRET: "player-pictures", STARTER_DB_PATH: SHIPPED } });
 const up = async () => { for (let i = 0; i < 240; i++) { try { if ((await fetch(`${BASE}/healthz`)).ok) return true; } catch { /* booting */ } await new Promise((r) => setTimeout(r, 250)); } return false; };
 const continentOf = (u) => Object.entries(byContinent).find(([, v]) => v.includes(u))?.[0] ?? null;
 
@@ -230,6 +235,78 @@ try {
   child = boot(OLD, fs.openSync(path.join(WORK, "server-old2.log"), "w"));
   await up(); await stopServer(child); child = null;
   check("a second boot changes nothing", JSON.stringify(qo(`SELECT player_id AS p, image_url AS u FROM career_graduate_portraits WHERE career_save_id = ?`, cid)) === before2);
+
+// ── 4. The AI clubs' players (try branch) ────────────────────────────────────
+// Rob's list (scripts/portraits/ai-senior-cards.json, made from his CSV): the
+// 96 "needs card" players with his new pictures, matched by continent and skin
+// tone, and the 24 others on the card the list names.
+{
+  console.log("\n4. THE AI CLUBS' PLAYERS");
+  const list = JSON.parse(fs.readFileSync(path.join(REPO, "scripts/portraits/ai-senior-cards.json"), "utf8")).players;
+  const S = new DatabaseSync(SHIPPED, { readOnly: true });
+  const pool = new Map(S.prepare(`SELECT stable_id AS sid, name, image_url AS img, skin_tone AS tone FROM continental_pool_players`).all().map((r) => [r.sid, r]));
+  S.close();
+  const fresh = list.filter((p) => p.kind === "new"), kept = list.filter((p) => p.kind === "kept");
+  check("the list: 120 AI club players, 96 with Rob's new pictures and 24 keeping their cards",
+    list.length === 120 && fresh.length === 96 && kept.length === 24 && pool.size === 120, `${list.length} / ${fresh.length} / ${kept.length}; ${pool.size} in the starter DB`);
+  const wrong = list.filter((p) => pool.get(p.stableId)?.img !== p.card);
+  check("every one of the 120 has the card the list says, in the starter DB", wrong.length === 0,
+    wrong.slice(0, 3).map((p) => `${p.name}: ${pool.get(p.stableId)?.img}`).join(" · ") || "all 120");
+  const cards = list.map((p) => p.card);
+  check("no card is used twice among them", new Set(cards).size === cards.length, `${new Set(cards).size} different`);
+  const gone = cards.filter((u) => !fs.existsSync(path.join(PUBLIC, u)));
+  check("every card file exists", gone.length === 0, gone.slice(0, 3).join(", ") || `${cards.length} files`);
+  const tone = fresh.filter((p) => p.imageBand !== p.skinTone || pool.get(p.stableId)?.tone !== p.skinTone);
+  check("each new picture matches her continent's folder and her skin tone", tone.length === 0 && fresh.every((p) => p.card.startsWith("/images/players/seniors/ai/")),
+    tone.slice(0, 3).map((p) => `${p.name} ${p.skinTone} / picture ${p.imageBand}`).join(" · ") || "96 of 96");
+  const md5 = (u) => crypto.createHash("md5").update(fs.readFileSync(path.join(PUBLIC, u))).digest("hex");
+  const everyPicture = [...all, ...fresh.map((p) => p.card)];
+  check("and none of Rob's 217 new pictures is the same picture as another (graduates and seniors)",
+    new Set(everyPicture.map(md5)).size === everyPicture.length, `${new Set(everyPicture.map(md5)).size} different of ${everyPicture.length}`);
+
+  // In a career: the Player Market lists them, each with her picture.
+  const DB4 = path.join(WORK, "ai.sqlite");
+  fs.copyFileSync(SHIPPED, DB4);
+  child = boot(DB4, fs.openSync(path.join(WORK, "server-ai.log"), "w"));
+  await up();
+  cookie = "";
+  const prof4 = await api("POST", "/profiles", { name: "AI Cards" });
+  await api("POST", `/profiles/${prof4.data.id}/select`);
+  const club4 = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
+  await api("POST", "/careers", { slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club4.name, originalClubName: club4.name,
+    budget: club4.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
+  const market = (await api("GET", "/players/market-all")).data ?? [];
+  const atAi = (Array.isArray(market) ? market : []).filter((p) => p.poolTeamId != null || p.status === "ai_club");
+  const byName = new Map(list.map((p) => [p.name, p.card]));
+  const noPic = atAi.filter((p) => !p.imageUrl || !fs.existsSync(path.join(PUBLIC, p.imageUrl)));
+  const mismatched = atAi.filter((p) => byName.has(p.name) && byName.get(p.name) !== p.imageUrl);
+  check("on the Player Market every AI club player has her picture, and it is the one on the list",
+    atAi.length >= 100 && noPic.length === 0 && mismatched.length === 0,
+    `${atAi.length} at AI clubs; ${noPic.length} without a picture; ${mismatched.length} with another; e.g. ${atAi.slice(0, 2).map((p) => `${p.name}: ${p.imageUrl}`).join(" · ")}`);
+  await stopServer(child); child = null;
+
+  // An older save: the pictures come in at boot, and an AI senior already made
+  // a player before them is given hers.
+  const DB5 = path.join(WORK, "ai-old.sqlite");
+  fs.copyFileSync(DB4, DB5);
+  {
+    const d = new DatabaseSync(DB5);
+    d.exec(`UPDATE continental_pool_players SET image_url = NULL WHERE image_url LIKE '/images/players/seniors/ai/%'`);
+    d.exec(`UPDATE players SET image_url = NULL WHERE image_url LIKE '/images/players/seniors/ai/%'`);
+    d.close();
+  }
+  child = boot(DB5, fs.openSync(path.join(WORK, "server-ai-old.log"), "w"));
+  await up();
+  await new Promise((r) => setTimeout(r, 1500));
+  await stopServer(child); child = null;
+  const d5 = new DatabaseSync(DB5, { readOnly: true });
+  const poolOld = d5.prepare(`SELECT COUNT(*) AS n FROM continental_pool_players WHERE image_url LIKE '/images/players/seniors/ai/%'`).get().n;
+  const playersOld = d5.prepare(`SELECT COUNT(*) AS n FROM players p JOIN career_player_state s ON s.player_id = p.id
+    JOIN continental_pool_players cp ON cp.id = s.pool_player_id WHERE p.image_url IS NULL AND cp.image_url IS NOT NULL`).get().n;
+  d5.close();
+  check("an older save gets the 96 new pictures at boot, and her career copy too", poolOld === 96 && playersOld === 0,
+    `${poolOld} pool players with the new pictures; ${playersOld} career copies still without`);
+}
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

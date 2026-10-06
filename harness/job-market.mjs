@@ -119,8 +119,9 @@ try {
   check("the job market says the manager is not looking",
     before.status === 200 && before.data?.seeking === false && (before.data?.vacancies ?? []).length === 0,
     `HTTP ${before.status}, seeking ${before.data?.seeking}`);
-  const earlyTake = await api("POST", "/job-market/accept", { poolTeamId: 1 });
-  check("and cannot take another club", earlyTake.status === 409,
+  // Afternoon 2 Oct, J-3 (feat-job-market): no moves mid-season.
+  const earlyTake = await api("POST", "/job-market/apply", { poolTeamId: 1 });
+  check("and cannot take another club mid-season", earlyTake.status === 409,
     `HTTP ${earlyTake.status} ${earlyTake.data?.error ?? ""}`);
 
   // ── 2. Four seasons of losses behind it ───────────────────────────────────
@@ -193,6 +194,19 @@ try {
   write(`INSERT INTO achievements (team_id, achievement_key, unlocked_at) VALUES (?, 'world_champion', ?)`,
     teamId, Math.floor(Date.now() / 1000));
 
+  // U-3 (feat-job-market): a vacancy is a club whose AI manager was sacked,
+  // which takes two failed seasons; this sale comes sooner, so one is planted:
+  // the weakest club that has never been in the World Tour field.
+  {
+    const d = new DatabaseSync(dbFile);
+    const everInField = new Set(d.prepare(`SELECT DISTINCT pool_team_id AS id FROM world_tour_qualifications WHERE career_save_id = ?`).all(careerSaveId).map((r) => r.id));
+    // Two: one to take, and one still open when the manager is out again.
+    for (const weakest of d.prepare(`SELECT id FROM continental_pool_teams ORDER BY rating ASC`).all().filter((r) => !everInField.has(r.id)).slice(0, 2)) {
+      d.prepare(`UPDATE career_pool_team_state SET manager_name = NULL, vacant_since = '2099-01-01', vacancy_reason = 'planted by the suite' WHERE career_save_id = ? AND pool_team_id = ?`).run(careerSaveId, weakest.id);
+    }
+    d.close();
+  }
+
   // ── 3. The season ends and the club is sold ───────────────────────────────
   console.log("\n3. THE FIFTH ENDS IT — THE CLUB IS SOLD, NOT THE MANAGER SACKED");
   let boundary = null, stopped = "";
@@ -225,17 +239,21 @@ try {
   const save = () => read(
     `SELECT team_id AS team, seeking_club_since AS seeking, retired_at AS retired, club_name AS club
        FROM career_saves WHERE id = ?`, careerSaveId)[0];
-  check("the career is without a club, and is NOT finished",
-    save()?.team === null && save()?.seeking != null && save()?.retired == null,
-    JSON.stringify(save()));
+  // Afternoon 2 Oct, J-3/J-4 (feat-job-market): a move happens at the season's
+  // start, and nobody is left without a club: the manager of a sold club is
+  // placed at once at the best open club he qualifies for (or the lowest-rated
+  // open club). The "seeking a club" state is gone.
+  check("the career is NOT finished: at the season's start he is at a club again",
+    save()?.team != null && save()?.team !== teamId && save()?.seeking == null && save()?.retired == null && boundary?.jobMove?.type === "club_sold",
+    `${JSON.stringify(save())}; ${boundary?.jobMove?.why}`);
   const keysBeforeSale = read(
-    `SELECT achievement_key AS k FROM achievements WHERE team_id = ?`, teamId).map((r) => r.k).sort();
+    `SELECT achievement_key AS k FROM achievements WHERE team_id = ?`, save()?.team ?? -1).map((r) => r.k).sort();
   check("the manager had achievements at the club that was sold",
     keysBeforeSale.includes("world_champion") && keysBeforeSale.length >= 1,
     keysBeforeSale.join(", ") || "nothing unlocked");
   const history = read(
     `SELECT type, description FROM career_history_entries
-      WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, careerSaveId)[0];
+      WHERE career_save_id = ? AND type = 'club_sold' ORDER BY id DESC LIMIT 1`, careerSaveId)[0];
   check("and the history says what happened, in the club's words",
     history?.type === "club_sold" && /sold after five seasons of losses/.test(history?.description ?? ""),
     history?.description);
@@ -244,8 +262,8 @@ try {
   console.log("\n4. REAL CLUBS, REAL VACANCIES");
   const market = await api("GET", "/job-market");
   const vacancies = market.data?.vacancies ?? [];
-  check("the manager is now looking for a club", market.data?.seeking === true,
-    `seeking ${market.data?.seeking}, former club ${market.data?.formerClub}`);
+  check("the move says where he went and why", !!boundary?.jobMove?.to && !!boundary?.jobMove?.why,
+    `${boundary?.jobMove?.why}`);
   check("and is offered clubs", vacancies.length > 0, `${vacancies.length} offered`);
 
   const worldClubs = read(`SELECT id, team_name AS name FROM continental_pool_teams`);
@@ -264,8 +282,8 @@ try {
     inField.length > 0 && vacancies.every((v) => !inField.includes(v.poolTeamId)),
     `${inField.length} clubs in the field, ${vacancies.length} offered`);
 
-  const refused = await api("POST", "/job-market/accept", { poolTeamId: inField[0] });
-  check("a club that is not on offer cannot be taken", refused.status === 422,
+  const refused = await api("POST", "/job-market/apply", { poolTeamId: inField[0] });
+  check("a club that is not on offer cannot be taken (and nothing moves mid-season)", refused.status === 422 || refused.status === 409,
     `HTTP ${refused.status} ${refused.data?.error ?? ""}`);
 
   // ── 4b. Closing the game and coming back ──────────────────────────────────
@@ -281,8 +299,8 @@ try {
   const backIn = await api("POST", `/profiles/${prof.data.id}/select`);
   check("the profile is selected again on a fresh session", backIn.status < 400, `HTTP ${backIn.status}`);
   const resumed = await api("GET", "/job-market");
-  check("the game comes back to the job market, not to somebody else's club",
-    resumed.data?.seeking === true && resumed.data?.formerClub === "JobMarket FC",
+  check("the game comes back to his own club, not to somebody else's",
+    resumed.data?.formerClub === boundary?.jobMove?.to,
     `seeking ${resumed.data?.seeking}, former club ${resumed.data?.formerClub}`);
   check("and the vacancies are still there",
     (resumed.data?.vacancies ?? []).length === (market.data?.vacancies ?? []).length,
@@ -290,10 +308,9 @@ try {
 
   // ── 5. Taking the job ─────────────────────────────────────────────────────
   console.log("\n5. TAKING ONE, AND KEEPING THE CAREER");
-  const pick = vacancies[0];
-  const accepted = await api("POST", "/job-market/accept", { poolTeamId: pick.poolTeamId });
-  check(`taking ${pick?.name} is accepted`, accepted.status === 201,
-    `HTTP ${accepted.status} ${JSON.stringify(accepted.data).slice(0, 90)}`);
+  // J-3: the move already happened at the season's start (section 3).
+  const pick = { name: boundary?.jobMove?.to, poolTeamId: read(`SELECT id FROM continental_pool_teams WHERE team_name = ?`, boundary?.jobMove?.to ?? "")[0]?.id };
+  check(`he was placed at ${pick?.name} at the season's start`, !!pick.poolTeamId, boundary?.jobMove?.why);
 
   const team = (await api("GET", "/team")).data;
   check("the manager has a club again, and it is that club",

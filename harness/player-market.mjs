@@ -197,7 +197,8 @@ try {
   const zNext = await byId(Z.id);
   const mine = await byId(X.id);
   check("season end: her scouting report has lapsed (she is a Free Agent again, attributes hidden)",
-    rolled && (zNext == null || (zNext.currentTeamId != null) || (zNext.revealed === false && zNext.status === "free_agent" && zNext.scouting?.state === "none")),
+    // U-6 (feat-ai-buyable): an AI club may have signed her meanwhile; her report lapses all the same.
+    rolled && (zNext == null || (zNext.currentTeamId != null) || (zNext.revealed === false && (zNext.status === "free_agent" || zNext.status === "ai_club") && zNext.scouting?.state === "none")),
     zNext ? `status ${zNext.status}, revealed ${zNext.revealed}, club ${zNext.currentTeamName ?? "none"}` : "retired");
   check("...while a player the club signed stays revealed", mine?.revealed === true || mine?.currentTeamId !== teamId, `${mine?.name}: revealed ${mine?.revealed}`);
 } catch (err) {

@@ -175,14 +175,20 @@ try {
     JOIN competitors c ON c.id IN (f.home_competitor_id, f.away_competitor_id) AND c.pool_team_id IS NOT NULL
     JOIN continental_pool_teams p ON p.id = c.pool_team_id
     WHERE f.career_save_id = ? AND f.match_id = ?`);
-  const pairOf = d.prepare("SELECT name FROM continental_pool_players WHERE pool_team_id = ? ORDER BY id");
+  // U-6 (feat-ai-buyable): an AI club plays the best two of ITS squad in this
+  // career: its pool players on a live contract and the career seniors it has.
+  const squadOf = d.prepare(`SELECT p.name FROM career_player_state c JOIN players p ON p.id = c.player_id
+      WHERE c.career_save_id = ? AND c.pool_team_id = ? AND c.team_id IS NULL AND c.is_retired = 0
+    UNION SELECT cp.name FROM continental_pool_players cp JOIN pool_player_contracts k ON k.pool_player_id = cp.id
+      WHERE k.career_save_id = ? AND k.status = 'active' AND k.pool_team_id = ?`);
   let right = 0; const wrong = [];
   const kitByClub = new Map();
   for (const p of served) {
     const opp = opponentOf.get(cid, p.match.id);
     const away = p.data.players.slice(2);
-    const names = opp ? pairOf.all(opp.pool_team_id).map((r) => r.name).join(" & ") : "(no fixture)";
-    const ok = !!opp && away.map((a) => a.name).join(" & ") === names && away.every((a) => a.source === "pool"
+    const squad = opp ? squadOf.all(cid, opp.pool_team_id, cid, opp.pool_team_id).map((r) => r.name) : [];
+    const names = opp ? squad.join(" & ") : "(no fixture)";
+    const ok = !!opp && away.length === 2 && away.every((a) => squad.includes(a.name)) && away.every((a) => a.source === "pool"
       && a.primaryColor === opp.primary_color && a.secondaryColor === opp.secondary_color && a.team === p.data.awayTeam);
     if (ok) right++; else wrong.push(`match ${p.match.id}: sent ${away.map((a) => `${a.name} ${a.primaryColor}/${a.secondaryColor}`).join(", ")}; fixture ${names}`);
     if (opp) {

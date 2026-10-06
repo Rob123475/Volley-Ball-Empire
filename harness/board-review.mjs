@@ -461,10 +461,12 @@ try {
     early.map((f) => `${f.date} day ${f.days}`).join(", "));
   check("the first forfeit 30 or more days in sacks the manager", firing != null && firing.days >= 30,
     firing ? `${firing.date}: day ${firing.days} since ${firing.since}` : "never sacked");
-  const abSave = read(`SELECT id, retired_at FROM career_saves WHERE id = ?`, ab.careerSaveId)[0];
+  const abSave = read(`SELECT id, retired_at, team_id, seeking_club_since AS seeking, leaving_reason AS leaving FROM career_saves WHERE id = ?`, ab.careerSaveId)[0];
   const abHistory = read(`SELECT type, description FROM career_history_entries WHERE career_save_id = ? ORDER BY id DESC LIMIT 1`, ab.careerSaveId)[0];
-  check("the career really ended: retired, with a dismissal that says why",
-    !!abSave?.retired_at && abHistory?.type === "dismissal" && /days without two contracted players/.test(abHistory?.description ?? ""),
+  // Afternoon 2 Oct, J-3: no sackings mid-season: he is out at the season's end
+  // (and placed at a club then: harness/ai-job-market.mjs).
+  check("the sacking is recorded, and takes effect at the season's end, with a dismissal that says why",
+    abSave?.retired_at == null && abSave?.team_id != null && abSave?.leaving === "dismissal" && abHistory?.type === "dismissal" && /days without two contracted players/.test(abHistory?.description ?? ""),
     abHistory?.description);
 
   // ── 7. The season review does not sack ──────────────────────────────────
@@ -490,7 +492,8 @@ try {
     `${roll?.kind}, fired ${boundary?.data?.fired}, sold ${boundary?.data?.clubSold}`);
   check("the review is a final warning, at the confidence that used to be a sacking",
     roll?.review?.outcome === "final_warning" && roll.review.confidenceBefore === 0
-      && roll.review.confidenceAfter <= 20 && /cannot sack you/.test(roll.review.text ?? ""),
+      // Afternoon 2 Oct, J-2: the warning now says a second failed season is a sacking.
+      && roll.review.confidenceAfter <= 20 && /second failed season running and it sacks you/.test(roll.review.text ?? ""),
     roll?.review?.text ?? JSON.stringify(boundary?.data ?? boundary?.error?.data));
   const undBoard = boardRow(und.careerSaveId);
   check("the review is recorded on the season", undBoard?.outcome === "final_warning" && undBoard?.reviewed_on === `${YEAR}-12-31`

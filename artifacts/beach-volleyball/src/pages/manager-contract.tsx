@@ -143,21 +143,23 @@ export default function ManagerContract() {
   // the same one a sacking shows, with this career's own reason.
   const resignMutation = useResignCareer({
     mutation: {
-      onSuccess: () => {
+      // Daytime 2 Oct, U-3: he goes to the Job Market (the career goes on).
+      onSuccess: (data: any) => {
         queryClient.clear();
-        window.location.href = "/career-end";
+        window.location.href = data?.leavingAtSeasonEnd ? "/job-market" : "/career-end";
       },
-      onError: () => setActionError("Something went wrong. Please try again."),
+      onError: (err: any) => setActionError(err?.response?.data?.error ?? err?.data?.error ?? "Something went wrong. Please try again."),
     },
   });
 
   const breakMutation = useBreakContract({
     mutation: {
-      onSuccess: () => {
+      // Daytime 2 Oct, U-3: he goes to the Job Market (the career goes on).
+      onSuccess: (data: any) => {
         queryClient.clear();
-        window.location.href = "/career-end";
+        window.location.href = data?.leavingAtSeasonEnd ? "/job-market" : "/career-end";
       },
-      onError: () => setActionError("Something went wrong. Please try again."),
+      onError: (err: any) => setActionError(err?.response?.data?.error ?? err?.data?.error ?? "Something went wrong. Please try again."),
     },
   });
 
@@ -271,7 +273,7 @@ export default function ManagerContract() {
               <div className="space-y-3 mt-1">
                 <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-4">
                   <p className="text-sm text-amber-200 font-semibold leading-relaxed" data-testid="resign-ends-career">
-                    This ends your career at {clubName}. There is no job market yet.
+                    You can leave once your season is over: you go at the start of the next season, to a club you agree on the Job Market, or the best open club that will have you. Your career goes on.
                   </p>
                   <p className="text-xs text-amber-300/70 mt-2 leading-relaxed">
                     You receive no compensation.
@@ -335,7 +337,7 @@ export default function ManagerContract() {
                 </div>
                 <div className="rounded-xl border border-rose-500/20 bg-rose-500/8 p-4">
                   <p className="text-sm text-rose-200 font-semibold leading-relaxed" data-testid="break-ends-career">
-                    This ends your career at {clubName}. There is no job market yet.
+                    You can leave once your season is over: you go at the start of the next season, to a club you agree on the Job Market, or the best open club that will have you. Your career goes on.
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/8 bg-white/3 p-4 space-y-2 text-sm text-white/55">

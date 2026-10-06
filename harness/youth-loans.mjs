@@ -263,7 +263,9 @@ try {
   const aiToAi = all.filter((l) => l.owner_pool_team_id != null && l.borrower_pool_team_id != null);
   check("AI clubs borrow from each other by their needs", aiToAi.length > 0, `${aiToAi.length} AI-to-AI loans of ${all.length} rows`);
   check("never both sides of one loan", all.every((l) => !(l.owner_pool_team_id != null && l.owner_pool_team_id === l.borrower_pool_team_id) && !(l.owner_team_id != null && l.owner_team_id === l.borrower_team_id)));
-  const sizes = aiClubs.map((c) => q(`SELECT COUNT(*) AS n FROM career_player_state WHERE career_save_id = ? AND pool_team_id = ?`, cid, c)[0].n
+  // U-6 (feat-ai-buyable): an AI club's seniors carry its pool_team_id too; the academy is its youths.
+  const sizes = aiClubs.map((c) => q(`SELECT COUNT(*) AS n FROM career_player_state cps JOIN players p ON p.id = cps.player_id
+      WHERE cps.career_save_id = ? AND cps.pool_team_id = ? AND p.player_type = 'youth' AND cps.is_promoted = 0`, cid, c)[0].n
     + q(`SELECT COUNT(*) AS n FROM youth_loans WHERE career_save_id = ? AND owner_pool_team_id = ? AND status = 'active'`, cid, c)[0].n);
   check("no AI academy past 6 (its youths away on loan counted)", Math.max(...sizes) <= 6, `largest ${Math.max(...sizes)}`);
 
