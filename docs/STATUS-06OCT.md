@@ -4,7 +4,14 @@ Brief: `C:\Users\rbonn\Downloads\MERGE-BRIEF-06OCT.md`, steps 1 to 8 in order.
 
 ## Summary
 
-(Written at the end.)
+**All three new builds are in the game, on one branch, `launch-final`, and its package is ready for you to check: `C:\build\vbe-final-06oct\win-unpacked`.** Nothing is merged into `main` (still `2c17431`), nothing went to Steam, and the launch-only fallback `C:\build\vbe-launch-05oct` and the four old branches are untouched.
+
+- **Try** (AI players buyable, the job market, your AI senior pictures) joined with no conflicts. Its six suites passed alone.
+- **Staff injuries** joined with two conflicts, both resolved keeping both features (the suite list; the starter DB rebuilt as try's plus staff's three columns and table). With the job market: a manager who moves takes on the new club's staff (an AI club has none), the old club's staff stay there, and anyone off stays off. AI clubs still have no staff rows. **The new check found a real bug, now fixed:** on the day of a move, a staff hire was dated 1 Jan 2026 and its contract ran out the next day.
+- **Manual controls** joined with no conflicts. On the court, in Auto and in Manual, the AI club plays its squad as it is now, after I bought one of its pair: each player's picture is served and her skin tone on the court is her picture's. A full match was played in Auto, and the manual-court proof passed 8/8.
+- **The full harness:** the first run found a fault in one suite. With the job market joined in, the suite's own manager could be sacked and move clubs, and the suite then let his new club go broke. I fixed the suite, and the second run passed: **104/104 suites, 1,703 checks, ALL HARNESSES PASSED at `b311e6c`**.
+- **The package** is built from `b311e6c`, its before-pack and after-pack checks passed, and it booted on a copy of your 2 Oct save. Your career loaded, the Unity data and the pictures were served, and your live save was not changed.
+- **Q-4 is settled** (the AI seniors' pictures are in the launch build now). The other eight questions from 5 Oct stand as decided and are listed again at the end, with one new one (Q-11).
 
 ## Steps
 
@@ -77,3 +84,58 @@ Screenshots in each folder (`ai-court-auto-play.png`: Sydney Riptide v Athens Ae
 - **Booted on a copy of your 2 Oct backup** (MD5 `f2c55790…`, the original) with the package's own exe as its server, never the app (`docs/proof-06oct/boot-final-b311e6c.json`): **your career loaded** (profile Rob, Sydney Riptide, $247,731, 24 Apr 2026, 3 players, 2 staff); the page served; **Unity data and wasm served Brotli** (217,010,143 and 9,017,008 bytes); the court page carries the Auto/Manual switch; **pictures served**: an AI senior's (Annika Bauer, `player_senior_ai_eur_01_p1.webp`, 200) and a graduate's (200); the package holds your 96 AI senior pictures and 121 graduate pictures; the Player Market lists 120 AI club players, 96 with your new pictures (the other 24 keep the card your CSV names); the Job Market answers. The save copy gained, additively: the staff columns and `staff_absences` (nobody off), the job market's columns, the AI managers' columns, the graduate table, the 96 pictures.
 - **Your live save is unchanged:** its timestamp and size were read before and after (2 Oct 03:49 UTC, 2,314,240 bytes); it was never opened.
 - `C:\build\vbe-launch-05oct` (the launch-only fallback) was not touched.
+
+### 7. Questions the join settles
+
+**Done.**
+- **Old Q-4 is settled by the join.** The AI club seniors' pictures came to launch with try: your 96 new ones, matched by continent and skin tone, and the 24 that keep the card your CSV names. In `launch-final` every AI club player has her picture. `player-pictures` checks all 120 in the full run (28/28), the package's Player Market lists them with their pictures, and the court draws each player with her picture's skin tone (step 4). Q-4 had one detail: the South America senior whose skin words stop at "medium" is still counted Medium Dark. Say if that is wrong.
+- Old Q-10 (the branch head is ahead of the harness commit by `docs/` only) applies again. The table in step 8 answers it the same way.
+- Every other open question from `STATUS-05OCT.md` (Q-1, Q-2, Q-3, Q-5, Q-6, Q-7, Q-8, Q-9) stays as I decided it on 5 Oct. They are listed again under "Questions for Rob", with one new question the join raised (Q-11).
+
+### 8. Final check
+
+| Branch | Head = harness = package = GitHub | Full harness | Package | Boot on copy |
+|---|---|---|---|---|
+| **`launch-final`** (launch + try + staff injuries + manual controls) | **`b311e6c`** for the harness and the package. GitHub's head is this status commit; every commit after `b311e6c` is proof files and this report under `docs/` (`git diff --name-only b311e6c HEAD` lists nothing outside `docs/`). Unity: `volleyball-unity` **`66ef4bf`**, the same on GitHub | **104/104 suites, 1,703 checks, ALL HARNESSES PASSED** at `b311e6c`, 16:06–17:10 (`docs/proof-06oct/full-harness-b311e6c.txt`). Run #1 at `adbd5de`: 103/104, a suite fault, fixed (step 5) | `C:\build\vbe-final-06oct\win-unpacked`, built from `b311e6c`; before-pack and after-pack OK | **Yes**: Sydney Riptide loaded, $247,731, 24 Apr 2026; Brotli Unity data and pictures served; live save unchanged (`boot-final-b311e6c.json`) |
+| `fix-batch-29sep` (the fallback, untouched) | `715073e` code, head `636f4a2`, unchanged, the same on GitHub | 101/101 at `715073e` (5 Oct) | `C:\build\vbe-launch-05oct\win-unpacked`, not touched (last changed 5 Oct 16:34) | Yes (5 Oct) |
+
+`try-02oct` (`29cdfaa`), `feat-staff-injuries` (`98b969a`), `feat-manual-controls` (`8e32cb9`) and `main` (`2c17431`) are unchanged, locally and on GitHub. The merge was rehearsed in a scratch worktree (`C:\vbe-mergetrial`, never pushed). Every resolution was then made again on `launch-final` and checked there.
+
+**The brief, re-read top to bottom:**
+- **Rules of engagement:** kept. **The live save was never opened:** tests used copies of the starter DB, and the package boot used a copy of the 2 Oct backup (MD5 `f2c55790…`, the original). Only the live save's timestamp and size were read, and they are unchanged. **Your files were never moved, renamed or edited:** this run only read the backup, to copy it. No music changes. No Steam upload. The ElevenLabs key check passed on every push. **One full harness at a time:** run #2 started after run #1 ended, and the solo suites and court proofs never ran during a full harness. **Committed and pushed after each step.** Nothing was merged into `main`. **The fallback is kept:** `C:\build\vbe-launch-05oct` and the old branches are untouched. **Merge conflicts:** each one was read on both sides and resolved keeping both features. The starter DB was rebuilt, not picked, so nothing was layered over a broken join. The join left no dead code: the one stale comment, in `calendar.ts`, was updated. **The report** was written as the steps went, with the summary first and "What Rob must check on screen" and "Questions for Rob" at the end.
+- **1:** done. `launch-final` was made from `fix-batch-29sep` at `636f4a2` (code `715073e`).
+- **2:** done. try was merged with no conflicts. `ai-buyable`, `ai-job-market`, `ai-club-economy`, `season rollover`, `player-pictures` and `economy` each passed alone.
+- **3:** done. Staff injuries was merged. With the job market, the manager takes on the new club's staff and staff who are off stay off. That check found a real bug, now fixed. AI clubs still have no staff rows (try added none), so no AI staff illness rule was needed. `staff-injuries` passed alone (19/19).
+- **4:** done. Manual controls was merged. The court shows try's AI squads and pictures in Auto and in Manual. The manual-court proof passed 8/8, and a full match was played in Auto in headless Chromium.
+- **5:** done. The first run found a suite fault, which was fixed and committed; the second run passed every suite.
+- **6:** done. The package was built from `b311e6c`, the before-pack and after-pack checks passed, and it booted on a copy of the 2 Oct backup: your career loaded, the Unity data and pictures were served, and the live save is unchanged.
+- **7:** done. Q-4 is settled; Q-1, Q-2, Q-3, Q-5, Q-6, Q-7, Q-8 and Q-9 are listed again below.
+- **8:** this table and this re-read.
+
+Stopped here.
+
+## What Rob must check on screen
+
+All in **`C:\build\vbe-final-06oct`**. Make a backup of your save first, as always.
+
+1. **Your career loads** as before (Sydney Riptide). The **music bar** and the **reference corrections** (Maui Hula Warriors and the others) from the launch build are there.
+2. **Graduates' pictures:** move an 18-year-old from the Youth Team into the senior squad. Her card shows one of your pictures of her continent.
+3. **Player Market, At AI Clubs:** every AI club player has a picture, with the right skin tone and continent. **Buy one:** the fee goes to her club, and that club signs a free agent so it can still field two.
+4. **Job Market:** in the off-season window you get offers (one or two after a failed season, up to four after a good one). If you move clubs, the new club has **no staff** (AI clubs have none, so hire on the Staff page; Q-11), and your old club's staff stay behind.
+5. **Staff off ill or hurt:** about once every couple of months with eight staff, someone is off. Their card shows a red "Off: …, back in N days" strip, Club News gets two lines, and their bonus is left out.
+6. **The court in Auto:** Watch Match against an AI club. The away pair is that club's current pair, and the match plays exactly as before.
+7. **The court in Manual, with a pad and the keyboard** (the full list is in `STATUS-05OCT.md`, items 7–11): click "Auto: AI plays" to switch to "Manual: you play". Then try W A S D, J dig, K set, L spike/block/serve, Space dive, Q switch, Tab Auto/Manual, Esc pause, H help. On an Xbox pad use A/X/Y/B, LB and View; on a PlayStation pad use Cross/Square/Triangle/Circle, L1 and Share. Check that it is forgiving enough and that the mouse only does the boosts.
+
+## Questions for Rob
+
+Where the decision was yours, I took the safest option and carried on. Each one is easy to change.
+
+- **Q-1 (5 Oct) The pictures' size.** In the game they are cut down to 600×800 WebP and show the whole picture, head to toe. Your originals in Downloads are untouched. Is that fine, or should I crop closer?
+- **Q-2 (5 Oct) When a continent runs out of graduate pictures** (about 20 each, never used twice in a career), she keeps her flag card. Should a picture come free again when the player who wore it retires, or would you rather make more pictures?
+- **Q-3 (5 Oct) "Grow Your Squad"** sits in the Attention panel, off the first screen at 1280×720. Move the panel higher?
+- **Q-5 (5 Oct) AI club sales:** on `launch-final` there were 134 to 148 sales over 30 seasons (134 in the full run that passed), many of them clubs in credit, because your rule sells a club after five loss-making seasons whatever is in the bank. Every sale clears the debts. Do you want that many, or should only clubs in debt be sold?
+- **Q-6 (5 Oct) Staff illness hits only your club.** AI clubs have no staff in this game (this is still true after the join). Is that fine?
+- **Q-7 (5 Oct) How often staff fall ill:** the daily chance is half the players' measured rate. This run measured 1.47 per 1,000 staff-days against the players' 3.19. Keep it, or make it more frequent?
+- **Q-8 (5 Oct) What your touches decide in Manual:** a point is still decided by the game's odds; your touches can lose it or save it. Should timing and skill change the odds?
+- **Q-9 (5 Oct) Space is dive in a manual match,** so the camera's Space, the A/D boost keys and the wheel stand down there. Is that fine?
+- **Q-11 (new) Staff after a move to another club.** AI clubs have no staff, so after a move (sacked, sold, resigned, or an offer taken) you start at the new club with no staff and hire on the Staff page. Your old club's staff stay with the old club, and anyone off there stays off; they are no longer yours. Should some staff follow you, or should an AI club come with staff of its own?
