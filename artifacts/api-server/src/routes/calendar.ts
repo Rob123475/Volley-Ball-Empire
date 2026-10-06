@@ -150,7 +150,8 @@ async function getOrCreateCalendar(teamId: number, season: typeof seasonsTable.$
 
   // R-24: this used to default to "medium" — the sole place a calendar_state
   // row is ever created (checked: exactly one `insert(calendarStateTable)`
-  // in this file). getOrCreateCalendar runs from GET /calendar, which the
+  // in this file; the job market's takeover makes a new club's, also paused).
+  // getOrCreateCalendar runs from GET /calendar, which the
   // dashboard calls on every load, so the moment a brand-new career opened
   // the dashboard its clock started running on its own — the ticker in
   // calendar-panel.tsx correctly does nothing while speed is "pause", it was

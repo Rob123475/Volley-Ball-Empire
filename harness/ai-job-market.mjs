@@ -13,7 +13,10 @@
  *      clubs make offers (poaching) on his level and season; one declined,
  *      one accepted; the move takes effect at the start of the next season, at
  *      the new club, with his record and achievements, and the club he took is
- *      not also in the season's World Tour field.
+ *      not also in the season's World Tour field. Merge brief 6 Oct (staff
+ *      injuries joined): his old club's staff, one off with a broken leg, stay
+ *      at the old club and stay off; the AI club brings no staff (AI clubs have
+ *      none); he hires at the new club and the day's staff roll runs.
  *   5. His own board sacks him after two failed seasons running (planted: last
  *      season failed, and this one projected failed), announced in the window;
  *      after the failed season AI clubs still make offers, just fewer than
@@ -182,6 +185,25 @@ try {
   check("an offer accepted is a move agreed for the start of next season", yes.data?.accepted === true && (await api("GET", "/job-market")).data.pending?.poolTeamId === first?.poolTeamId, `${first?.name}: ${yes.data?.takesEffect}`);
   const achBefore = q(`SELECT COUNT(*) AS n FROM achievements WHERE team_id = ?`, team.id)[0].n;
   const oldName = team.name;
+  // Merge brief 6 Oct, step 3 (staff injuries joined with the job market): his
+  // club has staff, one of them off with a broken leg (planted: 42 days, and a
+  // contract that runs on, so still off and still there at the season's start)
+  // when he moves.
+  if (q(`SELECT COUNT(*) AS n FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id)[0].n === 0) {
+    const free = (await api("GET", "/staff/available")).data ?? [];
+    const pick = [...free].sort((a, b) => Number(a.salary) - Number(b.salary))[0];
+    if (pick) await api("POST", "/staff", { staffId: pick.id, length: "2s" });
+  }
+  const oldTeamId = team.id;
+  const oldStaff = q(`SELECT staff_id AS id FROM career_staff_state WHERE career_save_id = ? AND team_id = ? ORDER BY staff_id`, cid, oldTeamId).map((r) => r.id);
+  const offId = oldStaff[0];
+  const today0 = q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, oldTeamId)[0]?.d;
+  if (offId != null && today0) {
+    w(`UPDATE career_staff_state SET off_cause = 'broken_leg', off_since = ?, off_days_left = 42, contract_end_date = ? WHERE career_save_id = ? AND staff_id = ?`, today0, `${year1 + 3}-12-31`, cid, offId);
+    const nm = q(`SELECT name, role FROM staff WHERE id = ?`, offId)[0];
+    w(`INSERT INTO staff_absences (career_save_id, team_id, staff_id, staff_name, role, cause, days, started_on, created_at) VALUES (?, ?, ?, ?, ?, 'broken_leg', 42, ?, ?)`,
+      cid, oldTeamId, offId, nm.name, nm.role, today0, Math.floor(Date.now() / 1000));
+  }
   const roll1 = await toRollover();
 
   console.log("\n4. THE MOVE TAKES EFFECT AT THE START OF THE NEXT SEASON");
@@ -194,7 +216,35 @@ try {
   const history = (await api("GET", "/careers/history")).data ?? [];
   check("the Manager History names both clubs", history.some((h) => h.clubName === oldName) && history.some((h) => h.clubName === first?.name && h.type === "joined_club"),
     history.slice(0, 3).map((h) => `${h.type}: ${h.clubName}`).join(" · "));
-  const year2 = q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0].year;
+  // Merge brief 6 Oct, step 3: the staff, with staff injuries joined in.
+  check("(set-up) his old club had staff when he moved, one off with a broken leg", oldStaff.length > 0 && offId != null && !!today0,
+    `${oldStaff.length} staff; off: ${q(`SELECT name FROM staff WHERE id = ?`, offId ?? -1)[0]?.name} since ${today0}`);
+  const staffNow = (await api("GET", "/staff")).data ?? [];
+  check("he takes on the new club's staff: the AI club had none, so none of the old club's staff are his",
+    Array.isArray(staffNow) && staffNow.length === 0 && q(`SELECT COUNT(*) AS n FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id)[0].n === 0,
+    `Staff page lists ${Array.isArray(staffNow) ? staffNow.length : "?"}`);
+  const leftBehind = q(`SELECT staff_id AS id FROM career_staff_state WHERE career_save_id = ? AND team_id = ? ORDER BY staff_id`, cid, oldTeamId).map((r) => r.id);
+  check("the old club's staff stay at the old club (none came with him, none were released)", JSON.stringify(leftBehind) === JSON.stringify(oldStaff), `${leftBehind.length} of ${oldStaff.length}`);
+  const offRow = q(`SELECT off_cause AS c, off_since AS s, off_days_left AS d FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, offId ?? -1)[0];
+  const openAbsence = q(`SELECT returned_on AS r FROM staff_absences WHERE career_save_id = ? AND staff_id = ? ORDER BY id DESC LIMIT 1`, cid, offId ?? -1)[0];
+  check("staff who were off stay off: the move does not clear the broken leg", offRow?.c === "broken_leg" && offRow?.s === today0 && offRow?.d > 0 && openAbsence && openAbsence.r == null,
+    JSON.stringify(offRow));
+  const staffClubs = q(`SELECT DISTINCT team_id AS t FROM career_staff_state WHERE career_save_id = ? AND team_id IS NOT NULL`, cid).map((r) => r.t);
+  check("AI clubs still have no staff rows: every hired member in this career is at a club he has managed",
+    staffClubs.every((t) => t === oldTeamId || t === team.id), `staff at teams ${JSON.stringify(staffClubs)}; his: ${oldTeamId}, ${team.id}`);
+  {
+    w(`UPDATE teams SET budget = MAX(budget, 250000) WHERE id = ?`, team.id); // planted: the AI club's balance may not cover a signing fee
+    const free = (await api("GET", "/staff/available")).data ?? [];
+    const pick = [...free].sort((a, b) => Number(a.salary) - Number(b.salary))[0];
+    const hired = pick ? await api("POST", "/staff", { staffId: pick.id }) : { status: 0 };
+    const d = await day();
+    // (The Staff page lists the staff department; medical staff have their own page.)
+    const mine = q(`SELECT staff_id AS id, off_days_left AS d FROM career_staff_state WHERE career_save_id = ? AND team_id = ?`, cid, team.id);
+    check("at the new club he hires staff, and the day's staff roll runs for them",
+      hired.status === 201 && d.status === 200 && mine.length === 1 && mine[0].id === pick.id && mine[0].d === 0,
+      `${pick?.name} (${pick?.role}): HTTP ${hired.status}; day HTTP ${d.status}; his staff now ${JSON.stringify(mine)}; the hire row ${JSON.stringify(q(`SELECT team_id, is_available, contract_end_date, off_days_left FROM career_staff_state WHERE career_save_id = ? AND staff_id = ?`, cid, pick?.id ?? -1))}; team ${team.id}`);
+  }
+  const year2 =q(`SELECT year FROM seasons WHERE career_save_id = ? AND status = 'active'`, cid)[0].year;
   const inLeague = q(`SELECT is_active_in_league AS a FROM career_pool_team_state WHERE career_save_id = ? AND pool_team_id = ?`, cid, first?.poolTeamId ?? -1)[0]?.a;
   // A2 (5 Oct): this season's field, not last season's. The field is drawn
   // from the regional leagues played in this season's first rounds, so at the

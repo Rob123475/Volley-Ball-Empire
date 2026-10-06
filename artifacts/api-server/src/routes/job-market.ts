@@ -35,7 +35,7 @@
 import { Router } from "express";
 import {
   db, careerSavesTable, teamsTable, competitorsTable, continentalPoolTeamsTable, contractsTable, boardSeasonsTable,
-  careerPoolTeamStateTable, locationsTable, seasonsTable, achievementsTable,
+  careerPoolTeamStateTable, locationsTable, seasonsTable, achievementsTable, calendarStateTable,
   worldTourQualificationsTable, CONTINENT_LABEL, continentKeyForNationality, managerLevelFor, careerHistoryEntriesTable,
   type ContinentKey,
 } from "@workspace/db";
@@ -327,6 +327,15 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
     .where(and(eq(seasonsTable.careerSaveId, save.id), eq(seasonsTable.status, "active")))
     .orderBy(desc(seasonsTable.year)).limit(1);
   if (season) {
+    // Merge brief 6 Oct: the new club's calendar starts on the career's date,
+    // paused, as every calendar starts. It used to be made only by the next
+    // GET /calendar, so anything done before that (a staff hire on the day of
+    // the move) was dated 1 Jan 2026 and its contract ran out the next day.
+    const [was] = save.formerTeamId != null
+      ? await db.select({ d: calendarStateTable.currentDate }).from(calendarStateTable).where(eq(calendarStateTable.teamId, save.formerTeamId))
+      : [];
+    const startsOn = was?.d && was.d >= season.startDate ? was.d : season.startDate;
+    await db.insert(calendarStateTable).values({ teamId: newTeam!.id, currentDate: startsOn, calendarSpeed: "pause", lastSalaryDate: season.startDate });
     db.transaction((tx) => {
       ensureSeasonFixtureRows(tx, { id: newTeam!.id, name: pool.teamName }, season.year);
     });
