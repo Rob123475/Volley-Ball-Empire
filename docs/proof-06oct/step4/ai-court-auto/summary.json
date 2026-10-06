@@ -1,0 +1,173 @@
+{
+  "mode": "auto",
+  "checks": [
+    {
+      "label": "(set-up) a match against an AI club",
+      "pass": true,
+      "detail": "match 1: Sydney Riptide v Athens Aegean Stars"
+    },
+    {
+      "label": "(set-up) bought Eleni Papadaki from Athens Aegean Stars on the Player Market",
+      "pass": true,
+      "detail": "Athens Aegean Stars had 2 players: Eleni Papadaki, Niki Stavros; HTTP 201 "
+    },
+    {
+      "label": "the court's match-state plays the AI club as it is now: not the player bought from it",
+      "pass": true,
+      "detail": "before: Eleni Papadaki & Niki Stavros; now: Camila Santiago & Niki Stavros"
+    },
+    {
+      "label": "both are on the club's squad in the Player Market",
+      "pass": true,
+      "detail": "Camila Santiago, Niki Stavros"
+    },
+    {
+      "label": "each has her picture, and the file is served",
+      "pass": true,
+      "detail": "Camila Santiago: /images/players/seniors/player_senior_puerto_rico_03.webp (200) | Niki Stavros: /images/players/seniors/ai/player_senior_ai_eur_06_p2.webp (200)"
+    },
+    {
+      "label": "each one's skin tone on the court is her picture's",
+      "pass": true,
+      "detail": "Camila Santiago: court 'Dark', picture '(not one of the 120 AI cards)' | Niki Stavros: court 'Medium', picture 'Medium'"
+    },
+    {
+      "label": "Next match, then Watch Match",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the court opens on match 1, in Auto (the remembered choice)",
+      "pass": true,
+      "detail": "/unity-build/index.html?careerSaveId=1&matchId=1"
+    },
+    {
+      "label": "the court page's button says so",
+      "pass": true,
+      "detail": "Auto: AI plays"
+    },
+    {
+      "label": "the court's loader puts that pair on the away side, with those skin tones",
+      "pass": true,
+      "detail": "Camila Santiago (Athens Aegean Stars) skin Dark | Niki Stavros (Athens Aegean Stars) skin Medium"
+    },
+    {
+      "label": "and Rob's pair on the home side",
+      "pass": true,
+      "detail": "Yaritza Mendez & Nyasha Ncube"
+    },
+    {
+      "label": "in Auto no manual code runs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the match was played to its end in Auto",
+      "pass": true,
+      "detail": "{\"status\":\"completed\",\"score\":\"1-2\",\"sets\":[{\"home\":10,\"away\":12},{\"home\":11,\"away\":5},{\"home\":5,\"away\":11}],\"away\":\"Athens Aegean Stars\"}"
+    },
+    {
+      "label": "and no manual code ran in it",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "no page errors",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "loader": [
+    {
+      "name": "Yaritza Mendez",
+      "team": "Sydney Riptide",
+      "side": "home",
+      "skinTone": "Dark"
+    },
+    {
+      "name": "Nyasha Ncube",
+      "team": "Sydney Riptide",
+      "side": "home",
+      "skinTone": "Light"
+    },
+    {
+      "name": "Camila Santiago",
+      "team": "Athens Aegean Stars",
+      "side": "away",
+      "skinTone": "Dark"
+    },
+    {
+      "name": "Niki Stavros",
+      "team": "Athens Aegean Stars",
+      "side": "away",
+      "skinTone": "Medium"
+    }
+  ],
+  "console": [
+    "[UnityMatchDataLoader] point chance for the home pair: 0.5304\n",
+    "[UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs ATHENS AEGEAN STARS (away)\n",
+    "[MatchManager] match starts after 4.2s: match data applied; home point chance 0.5304\n"
+  ],
+  "errors": [],
+  "awayPair": [
+    {
+      "name": "Camila Santiago",
+      "team": "Athens Aegean Stars",
+      "skinTone": "Dark",
+      "poolPlayerId": null
+    },
+    {
+      "name": "Niki Stavros",
+      "team": "Athens Aegean Stars",
+      "skinTone": "Medium",
+      "poolPlayerId": 12
+    }
+  ],
+  "awaySquadNow": [
+    {
+      "name": "Camila Santiago",
+      "imageUrl": "/images/players/seniors/player_senior_puerto_rico_03.webp"
+    },
+    {
+      "name": "Niki Stavros",
+      "imageUrl": "/images/players/seniors/ai/player_senior_ai_eur_06_p2.webp"
+    }
+  ],
+  "pictures": [
+    {
+      "name": "Camila Santiago",
+      "card": "/images/players/seniors/player_senior_puerto_rico_03.webp",
+      "served": 200,
+      "skinTone": "Dark",
+      "pictureBand": null,
+      "rob": null
+    },
+    {
+      "name": "Niki Stavros",
+      "card": "/images/players/seniors/ai/player_senior_ai_eur_06_p2.webp",
+      "served": 200,
+      "skinTone": "Medium",
+      "pictureBand": "Medium",
+      "rob": "new"
+    }
+  ],
+  "match": {
+    "status": "completed",
+    "score": "1-2",
+    "sets": [
+      {
+        "home": 10,
+        "away": 12
+      },
+      {
+        "home": 11,
+        "away": 5
+      },
+      {
+        "home": 5,
+        "away": 11
+      }
+    ],
+    "away": "Athens Aegean Stars"
+  }
+}

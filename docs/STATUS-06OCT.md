@@ -45,3 +45,16 @@ ALL SOLO SUITES PASSED.
 - **A real bug found and fixed (`a37e034`):** on the day of the move the new club had no calendar row until the next `GET /calendar`, so a staff hire that day was dated 1 Jan 2026 and its contract "expired" the next day (the hired member was gone). The takeover now starts the new club's calendar on the career's date, paused. In the game the dashboard's calendar call usually made the row first, so it would rarely show; it no longer can.
 
 **Alone, on `a37e034`** (`docs/proof-06oct/step3-solo-suites-a37e034.txt`, run as the full harness runs them, the staff roll off except in its own suite): **`ai-job-market` 30/30** (24 before + 6 new), **`staff-injuries` 19/19** (staff 29 absences in 19,665 staff-days, 1.47 per 1,000, against the players' 3.19).
+
+### 4. Merge manual controls (`feat-manual-controls`, `8e32cb9`; Unity `66ef4bf`)
+
+**Done.** Merge commit `d9e319d`: **no conflicts** (it touches only the court page, the Unity export and their suites, none of which try or staff changed). The Unity export in `launch-final` is the controls branch's exactly (same git blobs for `.data`, `.wasm`, `.framework.js`, `.loader.js`: Unity `66ef4bf`). New proof script `scripts/webgl-proof/ai-court-proof.mjs` (`1696fcc`).
+
+**The court shows try's AI club squads and pictures, in Auto and in Manual** (headless Chromium, real GPU, the court opened as you open it: the remembered Auto/Manual choice, Next match, Watch Match). Each run is a new career whose first match is against an AI club; before it, I **bought one of that club's pair on the Player Market** (try's rule), so the club had to play its replacement:
+- **Manual** (`step4/ai-court-manual/`, 13/13): Paris Sables Royales sold Élise Fontaine and signed Camila Santiago. The court's data, the Player Market and the court's own loader log all have **Camila Santiago & Céline Moreau** on the away side, not Élise; each has her picture (served, HTTP 200: Céline's is your AI senior picture `player_senior_ai_eur_03_p2`); each one's skin tone on the court is her picture's (Céline "Medium Light" = her picture's band); the court started in Manual from the page; no page errors.
+- **Auto, a full match** (`step4/ai-court-auto/`, 15/15): Athens Aegean Stars sold Eleni Papadaki; the court played **Camila Santiago & Niki Stavros** (Niki "Medium" = her picture's band); **the match played to its end in Auto: 1-2 (10-12, 11-5, 5-11), recorded completed**; no manual code ran; no page errors.
+- The 3D court itself shows no pictures (it draws the players in 3D): "pictures correctly" there means each AI player is drawn with her picture's skin tone, which is what is checked. The pictures themselves are on the cards (Player Market, AI club pages).
+
+**The manual-court proof** (`scripts/webgl-proof/manual-court-proof.mjs`, `step4/manual-court/`): **8/8**: opens in Manual from the remembered choice; the page's button says Manual; the court started in Manual; Esc pauses and resumes; Tab switches to Auto and the page's button follows; the page's button switches back; no page errors.
+
+Screenshots in each folder (`ai-court-auto-play.png`: Sydney Riptide v Athens Aegean Stars in Auto).

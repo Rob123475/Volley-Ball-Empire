@@ -1,0 +1,15 @@
+PASS  (set-up) a match against an AI club  match 1: Sydney Riptide v Paris Sables Royales
+PASS  (set-up) bought Élise Fontaine from Paris Sables Royales on the Player Market  Paris Sables Royales had 2 players: Élise Fontaine, Céline Moreau; HTTP 201 
+PASS  the court's match-state plays the AI club as it is now: not the player bought from it  before: Élise Fontaine & Céline Moreau; now: Camila Santiago & Céline Moreau
+PASS  both are on the club's squad in the Player Market  Camila Santiago, Céline Moreau
+PASS  each has her picture, and the file is served  Camila Santiago: /images/players/seniors/player_senior_puerto_rico_03.webp (200) | Céline Moreau: /images/players/seniors/ai/player_senior_ai_eur_03_p2.webp (200)
+PASS  each one's skin tone on the court is her picture's  Camila Santiago: court 'Dark', picture '(not one of the 120 AI cards)' | Céline Moreau: court 'Medium Light', picture 'Medium Light'
+PASS  Next match, then Watch Match  
+PASS  the court opens on match 1, in Manual (the remembered choice)  /unity-build/index.html?careerSaveId=1&matchId=1&mode=manual
+PASS  the court page's button says so  Manual: you play
+PASS  the court's loader puts that pair on the away side, with those skin tones  Camila Santiago (Paris Sables Royales) skin Dark | Céline Moreau (Paris Sables Royales) skin Medium Light
+PASS  and Rob's pair on the home side  Yaritza Mendez & Nyasha Ncube
+PASS  the court started in Manual, from the page  [Manual] mode Manual (page); controlling Player_A1
+
+PASS  no page errors  
+{"mode":"manual","ok":true,"checks":["PASS (set-up) a match against an AI club","PASS (set-up) bought Élise Fontaine from Paris Sables Royales on the Player Market","PASS the court's match-state plays the AI club as it is now: not the player bought from it","PASS both are on the club's squad in the Player Market","PASS each has her picture, and the file is served","PASS each one's skin tone on the court is her picture's","PASS Next match, then Watch Match","PASS the court opens on match 1, in Manual (the remembered choice)","PASS the court page's button says so","PASS the court's loader puts that pair on the away side, with those skin tones","PASS and Rob's pair on the home side","PASS the court started in Manual, from the page","PASS no page errors"]}

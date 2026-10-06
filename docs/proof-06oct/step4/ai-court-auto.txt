@@ -1,0 +1,16 @@
+PASS  (set-up) a match against an AI club  match 1: Sydney Riptide v Athens Aegean Stars
+PASS  (set-up) bought Eleni Papadaki from Athens Aegean Stars on the Player Market  Athens Aegean Stars had 2 players: Eleni Papadaki, Niki Stavros; HTTP 201 
+PASS  the court's match-state plays the AI club as it is now: not the player bought from it  before: Eleni Papadaki & Niki Stavros; now: Camila Santiago & Niki Stavros
+PASS  both are on the club's squad in the Player Market  Camila Santiago, Niki Stavros
+PASS  each has her picture, and the file is served  Camila Santiago: /images/players/seniors/player_senior_puerto_rico_03.webp (200) | Niki Stavros: /images/players/seniors/ai/player_senior_ai_eur_06_p2.webp (200)
+PASS  each one's skin tone on the court is her picture's  Camila Santiago: court 'Dark', picture '(not one of the 120 AI cards)' | Niki Stavros: court 'Medium', picture 'Medium'
+PASS  Next match, then Watch Match  
+PASS  the court opens on match 1, in Auto (the remembered choice)  /unity-build/index.html?careerSaveId=1&matchId=1
+PASS  the court page's button says so  Auto: AI plays
+PASS  the court's loader puts that pair on the away side, with those skin tones  Camila Santiago (Athens Aegean Stars) skin Dark | Niki Stavros (Athens Aegean Stars) skin Medium
+PASS  and Rob's pair on the home side  Yaritza Mendez & Nyasha Ncube
+PASS  in Auto no manual code runs  
+PASS  the match was played to its end in Auto  {"status":"completed","score":"1-2","sets":[{"home":10,"away":12},{"home":11,"away":5},{"home":5,"away":11}],"away":"Athens Aegean Stars"}
+PASS  and no manual code ran in it  
+PASS  no page errors  
+{"mode":"auto","ok":true,"checks":["PASS (set-up) a match against an AI club","PASS (set-up) bought Eleni Papadaki from Athens Aegean Stars on the Player Market","PASS the court's match-state plays the AI club as it is now: not the player bought from it","PASS both are on the club's squad in the Player Market","PASS each has her picture, and the file is served","PASS each one's skin tone on the court is her picture's","PASS Next match, then Watch Match","PASS the court opens on match 1, in Auto (the remembered choice)","PASS the court page's button says so","PASS the court's loader puts that pair on the away side, with those skin tones","PASS and Rob's pair on the home side","PASS in Auto no manual code runs","PASS the match was played to its end in Auto","PASS and no manual code ran in it","PASS no page errors"]}
