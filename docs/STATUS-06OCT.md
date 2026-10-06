@@ -58,3 +58,11 @@ ALL SOLO SUITES PASSED.
 **The manual-court proof** (`scripts/webgl-proof/manual-court-proof.mjs`, `step4/manual-court/`): **8/8**: opens in Manual from the remembered choice; the page's button says Manual; the court started in Manual; Esc pauses and resumes; Tab switches to Auto and the page's button follows; the page's button switches back; no page errors.
 
 Screenshots in each folder (`ai-court-auto-play.png`: Sydney Riptide v Athens Aegean Stars in Auto).
+
+### 5. Full harness on `launch-final`
+
+**Run #1, at `adbd5de`: 103 of 104 suites passed; `ai-club-economy` failed** (`docs/proof-06oct/full-harness-adbd5de-economy-fail.txt`). Two of its checks: "the world played 30 seasons: the player's own club was sold" and "every continent kept its six clubs: season 11, asia:5".
+
+**The cause (a fault in the suite, which predates managers moving):** in that run the suite's own manager had two failed seasons running, so with try's job market his board sacked him at season 11 and he took Tokyo Surf Samurai (an AI club, which then leaves its league: hence Asia's 5; its balance froze at -$78k in the suite's table). The suite keeps the player's club solvent so it is never sold, but it topped up only his **first** club, so the new one ran five losing seasons and was sold at season 16, which ends the suite. It passed alone in step 2 because there his board never sacked him: it is random. Not a fault in the game: a sacked manager moving to the open club is try's rule, and the taken club's league place is played out (as forfeits) and filled from the bench the next season, as before.
+
+**Fixed (`harness/ai-club-economy.mjs`, the suite only):** his job is `ai-job-market`'s subject, as his club's sale already was, so after every season's turn his board's verdict on the season just ended is planted as "met" (two failed seasons running never happen), the club kept solvent is always the one he has now, and a new check says he stayed at his club. **Alone: 22/22** (`step5-ai-club-economy-fixed-alone.txt`: 30 seasons, every continent six clubs every season, he stayed at his club all 30).

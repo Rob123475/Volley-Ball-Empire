@@ -250,15 +250,30 @@ try {
   // (harness/job-market.mjs). Five loss-making seasons in a row would sell it
   // and end the world's run early, which happened about 1 run in 6 (29 Sep).
   // So its balance never ends a day below where its season began.
-  const budgetOf = () => Number(read(`SELECT budget AS b FROM teams WHERE id = ?`, teamId)[0].b);
+  //
+  // Merge brief 6 Oct: nor is his board. With try's job market joined in, a
+  // second failed season running gets him sacked, and he takes another club
+  // (an AI club, which then leaves its league): the full run at adbd5de did
+  // exactly that in season 11, and the club he was moved to, never kept
+  // solvent here, was sold in season 16. His job is ai-job-market's subject,
+  // so after every season's turn his board's verdict on the season just
+  // ended is planted as "met": two failed seasons running never happen. And
+  // the club kept solvent is always the one he has now.
+  const myTeam = () => read(`SELECT team_id AS t FROM career_saves WHERE id = ?`, careerSaveId)[0]?.t ?? teamId;
+  const budgetOf = () => Number(read(`SELECT budget AS b FROM teams WHERE id = ?`, myTeam())[0].b);
+  const boardNeverSacks = () => {
+    const d = new DatabaseSync(dbFile);
+    try { d.prepare(`UPDATE board_seasons SET grade = 'met' WHERE career_save_id = ? AND grade = 'failed'`).run(careerSaveId); } finally { d.close(); }
+  };
+  const moves = [];
   let seasonStart = budgetOf();
 
   for (let i = 0; i < 20000 && seasons < SEASONS; i++) {
     healAllSquads(dbFile);
-    keepClubSolvent(dbFile, teamId);
+    keepClubSolvent(dbFile, myTeam());
     {
       const now = budgetOf();
-      if (now < seasonStart) keepClubSolvent(dbFile, teamId, seasonStart - now + 1, Number.MAX_SAFE_INTEGER);
+      if (now < seasonStart) keepClubSolvent(dbFile, myTeam(), seasonStart - now + 1, Number.MAX_SAFE_INTEGER);
     }
     await keepSideFielded(api);
     await renewExpiringContracts(api);
@@ -274,6 +289,8 @@ try {
     if (!r.data?.seasonRollover || r.data.seasonRollover.kind === "none") continue;
 
     seasons++;
+    boardNeverSacks();
+    if (r.data.jobMove) moves.push(`season ${seasons}: ${r.data.jobMove.from} -> ${r.data.jobMove.to}`);
     seasonStart = budgetOf();
     for (const row of read(
       `SELECT pool_team_id AS id, balance AS b FROM career_pool_team_state WHERE career_save_id = ?`,
@@ -304,6 +321,8 @@ try {
   }
   check(`the world played ${SEASONS} seasons`, seasons === SEASONS,
     stopped || `${seasons} season(s)`);
+  check("(set-up) the player's manager stayed at his club (his job is ai-job-market's subject)", moves.length === 0,
+    moves.length ? moves.join(" · ") : `at ${read(`SELECT name AS n FROM teams WHERE id = ?`, myTeam())[0]?.n} all ${seasons} seasons`);
 
   // ── The table ─────────────────────────────────────────────────────────────
   console.log(`\n  EVERY CLUB'S BALANCE, PER SEASON, IN THOUSANDS ($k) — * = sold that season`);
