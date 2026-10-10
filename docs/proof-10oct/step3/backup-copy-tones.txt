@@ -1,0 +1,3 @@
+Pictures brief 10 Oct, step 3: the built server (step 3 code) booted on a COPY of Downloads/volleyball-empire-backup-02oct-0845.sqlite (MD5 f2c55790e9f67fa2a3dd49bdb2519c26 before and after; the original only copied), STARTER_DB_PATH = this branch's starter DB.
+49 players whose tone changed: 49 had the old tone in the backup; 49 have the new tone after boot; all 120 AI club players' tones equal their cards' skinTone (scripts/portraits/ai-senior-cards.json).
+Server log: 'AI club players' skin tones brought to their pictures'.

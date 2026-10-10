@@ -395,15 +395,22 @@ const REFERENCE_UPDATE_ONLY: Record<string, readonly string[]> = {
   // Rob, 2 Oct: and its name (Honolulu -> Maui Hula Warriors). Nothing in the
   // game renames a pool club, so the starter DB's name is the only one.
   continental_pool_teams: ["primary_color", "secondary_color", "team_name"],
-  // R-75: pool players' skin tones, on the same terms — nothing in the server
-  // updates a pool player row, and the values come from
-  // scripts/src/seed-pool-skin-tones.ts alone.
-  // Rob, 2 Oct: and her club and name (two players swapped, one renamed).
+  // Rob, 2 Oct: pool players' club and name (two players swapped, one renamed).
   // Nothing in the game edits a pool player row (unlike `players`, whose name
   // the Team page can edit), so these are safe to follow the starter DB.
   // Final brief 5 Oct, A4: and her card (Rob's pictures for the AI clubs'
   // players). Nothing in the game edits a pool player's card either.
-  continental_pool_players: ["skin_tone", "pool_team_id", "name", "image_url"],
+  // Her skin tone is in REFERENCE_FILL_ONLY below.
+  continental_pool_players: ["pool_team_id", "name", "image_url"],
+};
+
+// Columns a save gets from the starter DB only when it has no value: R-75's
+// pool players' skin tones, for a save from before them (the values come from
+// scripts/src/seed-pool-skin-tones.ts). A tone a save already has changes only
+// where a listed correction finds the old tone still there (pictures brief
+// 10 Oct: utils/aiSkinTones.ts), never by following the starter DB over it.
+const REFERENCE_FILL_ONLY: Record<string, readonly string[]> = {
+  continental_pool_players: ["skin_tone"],
 };
 
 export type EnsureReferenceDataResult = {
@@ -515,7 +522,12 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
     }
 
     // ── Pass 2 (R-33): players/staff — update-only, whitelisted columns only ──
-    for (const [table, updateCols] of Object.entries(REFERENCE_UPDATE_ONLY)) {
+    // REFERENCE_FILL_ONLY's columns the same way, but only where the save has none.
+    const updatePasses = [
+      ...Object.entries(REFERENCE_UPDATE_ONLY).map(([t, c]) => [t, c, false] as const),
+      ...Object.entries(REFERENCE_FILL_ONLY).map(([t, c]) => [t, c, true] as const),
+    ];
+    for (const [table, updateCols, onlyEmpty] of updatePasses) {
       if (!tableExists(table)) continue;
 
       const pkCol = primaryKeyColumn(table);
@@ -532,7 +544,7 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
       if (sharedCols.length === 0) continue;
 
       const starterRows = starter.prepare(`SELECT * FROM \`${table}\``).all() as Record<string, unknown>[];
-      updateExistingRows(table, pkCol, sharedCols, starterRows, updated);
+      updateExistingRows(table, pkCol, sharedCols, starterRows, updated, onlyEmpty);
     }
 
     // ── Pass 3 (R-34): players — insert missing ROWS, then give every
@@ -688,7 +700,8 @@ export function ensureReferenceData(): EnsureReferenceDataResult {
  * Shared by both R-33 passes: for every starter row whose primary key also
  * exists live, compare `cols` and UPDATE only the ones that differ — never a
  * blanket overwrite, so a row with nothing changed runs zero statements, and
- * a row with one changed column writes exactly one column.
+ * a row with one changed column writes exactly one column. With `onlyEmpty`
+ * (REFERENCE_FILL_ONLY) a column is written only where the save has no value.
  */
 function updateExistingRows(
   table: string,
@@ -696,6 +709,7 @@ function updateExistingRows(
   cols: readonly string[],
   starterRows: Record<string, unknown>[],
   updated: Record<string, Array<string | number>>,
+  onlyEmpty = false,
 ): void {
   const liveRows = db.all<Record<string, unknown>>(
     sql.raw(`SELECT \`${pkCol}\`, ${cols.map((c) => `\`${c}\``).join(", ")} FROM \`${table}\``),
@@ -707,7 +721,7 @@ function updateExistingRows(
     const liveRow = liveByPk.get(pk);
     if (!liveRow) continue; // missing entirely — Pass 1's job (or not backfilled at all for players/staff), not this one
 
-    const changedCols = cols.filter((c) => (starterRow[c] ?? null) !== (liveRow[c] ?? null));
+    const changedCols = cols.filter((c) => (starterRow[c] ?? null) !== (liveRow[c] ?? null) && (!onlyEmpty || (liveRow[c] ?? null) === null));
     if (changedCols.length === 0) continue;
 
     const setClause = changedCols.map((c) => `\`${c}\` = ?`).join(", ");

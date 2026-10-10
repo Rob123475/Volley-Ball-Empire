@@ -1,41 +1,62 @@
 {
- "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them.",
+ "about": "Final brief 5 Oct, A4: the 120 AI club players and their cards. 96 new (Rob's pictures, by continent and skin tone), 24 kept as Rob's CSV names them. Pictures brief 10 Oct: the 96 reshuffled within each continent so each player has the picture that best fits her country, the white kit recoloured in her country's colours (pictureFrom: the slot whose original picture it is; kit: the colours, null where it stayed white). Her skinTone is her picture's band (imageBand); skinToneBefore10Oct is what it was (49 changed; artifacts/api-server/src/utils/aiSkinTones.ts brings older saves forward).",
  "players": [
   {
    "stableId": "AFM_01_P1",
    "name": "Amara Okafor",
    "continent": "africa_middle_east",
    "country": "Nigeria",
-   "skinTone": "Medium",
+   "skinTone": "Dark",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_01_p1.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Yemeni woman aged 30 with medium brown skin_ thick wavy dark ha.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Nigerian woman aged 24 with deep dark brown skin_ a short natur.png",
+   "pictureFrom": "AFM_06_P1",
+   "pictureMadeAs": "Nigerian",
+   "kit": [
+    "#008751",
+    "#008751"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "AFM_01_P2",
    "name": "Chisom Nwosu",
    "continent": "africa_middle_east",
    "country": "Nigeria",
-   "skinTone": "Medium Light",
+   "skinTone": "Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_01_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Tunisian woman aged 22 with medium-light tan skin_ long dark br.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Senegalese woman aged 35 with very deep dark brown skin_ a slee.png",
+   "pictureFrom": "AFM_04_P2",
+   "pictureMadeAs": "Senegalese",
+   "kit": [
+    "#008751",
+    "#008751"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AFM_02_P1",
    "name": "Fatima Al-Rashid",
    "continent": "africa_middle_east",
    "country": "Egypt",
-   "skinTone": "Dark",
+   "skinTone": "Medium Light",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_02_p1.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Ghanaian woman aged 27 with deep dark skin_ a high puff of natu.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Egyptian woman aged 28 with medium-light warm beige skin_ long.png",
+   "pictureFrom": "AFM_07_P2",
+   "pictureMadeAs": "Egyptian",
+   "kit": [
+    "#CE1126",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AFM_02_P2",
@@ -47,7 +68,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_02_p2.webp",
    "kind": "new",
    "imageBand": "Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Iranian woman aged 24 with light skin_ thick black hair in a hi (2).png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Lebanese woman aged 27 with light skin_ long wavy dark brown ha.png",
+   "pictureFrom": "AFM_07_P1",
+   "pictureMadeAs": "Lebanese",
+   "kit": [
+    "#CE1126",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "AFM_03_P1",
@@ -59,7 +87,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_03_p1.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Israeli woman aged 29 with medium-light olive skin_ a tousled s.png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Israeli woman aged 29 with medium-light olive skin_ a tousled s.png",
+   "pictureFrom": "AFM_03_P1",
+   "pictureMadeAs": "Israeli",
+   "kit": [
+    "#007749",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AFM_03_P2",
@@ -71,43 +106,71 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_03_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Ethiopian woman aged 26 with medium warm brown skin_ long soft.png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Ethiopian woman aged 26 with medium warm brown skin_ long soft.png",
+   "pictureFrom": "AFM_03_P2",
+   "pictureMadeAs": "Ethiopian",
+   "kit": [
+    "#007749",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "AFM_04_P1",
    "name": "Rania Al-Mansouri",
    "continent": "africa_middle_east",
    "country": "UAE",
-   "skinTone": "Light",
+   "skinTone": "Medium",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_04_p1.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Turkish woman aged 31 with light skin_ a sleek shoulder-length.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Yemeni woman aged 30 with medium brown skin_ thick wavy dark ha.png",
+   "pictureFrom": "AFM_01_P1",
+   "pictureMadeAs": "Yemeni",
+   "kit": [
+    "#00732F",
+    "#EF3340"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "AFM_04_P2",
    "name": "Sara Al-Hashimi",
    "continent": "africa_middle_east",
    "country": "UAE",
-   "skinTone": "Dark",
+   "skinTone": "Light",
    "age": 24,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_04_p2.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Senegalese woman aged 35 with very deep dark brown skin_ a slee.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Iranian woman aged 24 with light skin_ thick black hair in a hi (2).png",
+   "pictureFrom": "AFM_02_P2",
+   "pictureMadeAs": "Iranian",
+   "kit": [
+    "#00732F",
+    "#EF3340"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AFM_05_P1",
    "name": "Wanjiru Kamau",
    "continent": "africa_middle_east",
    "country": "Kenya",
-   "skinTone": "Medium Light",
+   "skinTone": "Dark",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_05_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Moroccan woman aged 33 with medium-light olive skin_ short wavy.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult South Sudanese woman aged 23 with deep dark skin_ long thin bra.png",
+   "pictureFrom": "AFM_06_P2",
+   "pictureMadeAs": "South Sudanese",
+   "kit": [
+    "#151515",
+    "#BB0000"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AFM_05_P2",
@@ -119,31 +182,52 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_05_p2.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Kenyan woman aged 32 with rich dark brown skin_ long box braids.png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Kenyan woman aged 32 with rich dark brown skin_ long box braids.png",
+   "pictureFrom": "AFM_05_P2",
+   "pictureMadeAs": "Kenyan",
+   "kit": [
+    "#151515",
+    "#BB0000"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AFM_06_P1",
    "name": "Nadia Benali",
    "continent": "africa_middle_east",
    "country": "Morocco",
-   "skinTone": "Dark",
+   "skinTone": "Medium Light",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_06_p1.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Nigerian woman aged 24 with deep dark brown skin_ a short natur.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Moroccan woman aged 33 with medium-light olive skin_ short wavy.png",
+   "pictureFrom": "AFM_05_P1",
+   "pictureMadeAs": "Moroccan",
+   "kit": [
+    "#C1272D",
+    "#006233"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AFM_06_P2",
    "name": "Samira El-Fassi",
    "continent": "africa_middle_east",
    "country": "Morocco",
-   "skinTone": "Dark",
+   "skinTone": "Medium Light",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_06_p2.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult South Sudanese woman aged 23 with deep dark skin_ long thin bra.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Tunisian woman aged 22 with medium-light tan skin_ long dark br.png",
+   "pictureFrom": "AFM_01_P2",
+   "pictureMadeAs": "Tunisian",
+   "kit": [
+    "#C1272D",
+    "#006233"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AFM_07_P1",
@@ -155,19 +239,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_07_p1.webp",
    "kind": "new",
    "imageBand": "Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Lebanese woman aged 27 with light skin_ long wavy dark brown ha.png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Turkish woman aged 31 with light skin_ a sleek shoulder-length.png",
+   "pictureFrom": "AFM_04_P1",
+   "pictureMadeAs": "Turkish",
+   "kit": [
+    "#FCD116",
+    "#006B3F"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "AFM_07_P2",
    "name": "Efua Mensah",
    "continent": "africa_middle_east",
    "country": "Ghana",
-   "skinTone": "Medium Light",
+   "skinTone": "Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_afm_07_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Egyptian woman aged 28 with medium-light warm beige skin_ long.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Ghanaian woman aged 27 with deep dark skin_ a high puff of natu.png",
+   "pictureFrom": "AFM_02_P1",
+   "pictureMadeAs": "Ghanaian",
+   "kit": [
+    "#FCD116",
+    "#006B3F"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AFM_08_P1",
@@ -179,7 +277,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_08_p1.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Jordanian woman aged 35 with medium-light warm skin_ long strai.png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Jordanian woman aged 35 with medium-light warm skin_ long strai.png",
+   "pictureFrom": "AFM_08_P1",
+   "pictureMadeAs": "Jordanian",
+   "kit": [
+    "#006C35",
+    "#006C35"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AFM_08_P2",
@@ -191,7 +296,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_afm_08_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Saudi woman aged 25 with medium-light golden skin_ thick wavy b.png"
+   "robSource": "downloads-senior-cards-africa\\Agent Image - Photograph a new adult Saudi woman aged 25 with medium-light golden skin_ thick wavy b.png",
+   "pictureFrom": "AFM_08_P2",
+   "pictureMadeAs": "Saudi",
+   "kit": [
+    "#006C35",
+    "#006C35"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AFM_09_P1",
@@ -238,36 +350,57 @@
    "name": "Yuki Tanaka",
    "continent": "asia",
    "country": "Japan",
-   "skinTone": "Dark",
+   "skinTone": "Medium Dark",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_01_p1.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Indian woman aged 35 with dark skin_ short wavy black hair with.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Sri Lankan woman aged 33 with medium-dark deep tan skin_ a slee.png",
+   "pictureFrom": "ASI_02_P1",
+   "pictureMadeAs": "Sri Lankan",
+   "kit": [
+    "#BC002D",
+    "#BC002D"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "ASI_01_P2",
    "name": "Aoi Yamamoto",
    "continent": "asia",
    "country": "Japan",
-   "skinTone": "Medium Light",
+   "skinTone": "Light",
    "age": 24,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_01_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Vietnamese woman aged 32 with medium-light golden skin_ long wa.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Japanese woman aged 24 with light porcelain skin_ a sleek strai.png",
+   "pictureFrom": "ASI_04_P2",
+   "pictureMadeAs": "Japanese",
+   "kit": [
+    "#BC002D",
+    "#BC002D"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "ASI_02_P1",
    "name": "Wei Lin",
    "continent": "asia",
    "country": "China",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium Light",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_02_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Sri Lankan woman aged 33 with medium-dark deep tan skin_ a slee.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Chinese woman aged 26 with medium-light warm beige skin_ a shou.png",
+   "pictureFrom": "ASI_03_P2",
+   "pictureMadeAs": "Chinese",
+   "kit": [
+    "#DE2910",
+    "#DE2910"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "ASI_02_P2",
@@ -279,7 +412,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_02_p2.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Bangladeshi woman aged 31 with dark brown skin_ long wavy black.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Bangladeshi woman aged 31 with dark brown skin_ long wavy black.png",
+   "pictureFrom": "ASI_02_P2",
+   "pictureMadeAs": "Bangladeshi",
+   "kit": [
+    "#DE2910",
+    "#DE2910"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "ASI_03_P1",
@@ -291,19 +431,30 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_03_p1.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Pakistani woman aged 28 with medium-dark brown skin_ thick wavy.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Pakistani woman aged 28 with medium-dark brown skin_ thick wavy.png",
+   "pictureFrom": "ASI_03_P1",
+   "pictureMadeAs": "Pakistani",
+   "kit": [
+    "#CD2E3A",
+    "#0047A0"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "ASI_03_P2",
    "name": "Min-Seo Kim",
    "continent": "asia",
    "country": "South Korea",
-   "skinTone": "Medium Light",
+   "skinTone": "Light",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_03_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Chinese woman aged 26 with medium-light warm beige skin_ a shou.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Korean woman aged 29 with light fair skin_ long straight dark b.png",
+   "pictureFrom": "ASI_06_P1",
+   "pictureMadeAs": "Korean",
+   "kit": null,
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "ASI_04_P1",
@@ -315,19 +466,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_04_p1.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Thai woman aged 23 with medium golden-tan skin_ long straight b.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Thai woman aged 23 with medium golden-tan skin_ long straight b.png",
+   "pictureFrom": "ASI_04_P1",
+   "pictureMadeAs": "Thai",
+   "kit": [
+    "#241D4F",
+    "#241D4F"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "ASI_04_P2",
    "name": "Pimchanok Meesuk",
    "continent": "asia",
    "country": "Thailand",
-   "skinTone": "Light",
+   "skinTone": "Medium Light",
    "age": 24,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_04_p2.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Japanese woman aged 24 with light porcelain skin_ a sleek strai.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Vietnamese woman aged 32 with medium-light golden skin_ long wa.png",
+   "pictureFrom": "ASI_01_P2",
+   "pictureMadeAs": "Vietnamese",
+   "kit": [
+    "#241D4F",
+    "#241D4F"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "ASI_05_P1",
@@ -339,31 +504,52 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_05_p1.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Tamil Indian woman aged 24 with dark deep brown skin_ long thic.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Tamil Indian woman aged 24 with dark deep brown skin_ long thic.png",
+   "pictureFrom": "ASI_05_P1",
+   "pictureMadeAs": "Tamil Indian",
+   "kit": [
+    "#0A1F6B",
+    "#0A1F6B"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "ASI_05_P2",
    "name": "Ananya Nair",
    "continent": "asia",
    "country": "India",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_05_p2.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Uzbek woman aged 22 with medium warm skin_ long thick dark brow.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Indian woman aged 25 with medium-dark warm brown skin_ very lon.png",
+   "pictureFrom": "ASI_07_P2",
+   "pictureMadeAs": "Indian",
+   "kit": [
+    "#0A1F6B",
+    "#0A1F6B"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "ASI_06_P1",
    "name": "Dewi Santoso",
    "continent": "asia",
    "country": "Indonesia",
-   "skinTone": "Light",
+   "skinTone": "Dark",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_06_p1.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Korean woman aged 29 with light fair skin_ long straight dark b.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Papuan Indonesian woman aged 22 with very dark skin_ short tigh.png",
+   "pictureFrom": "ASI_08_P1",
+   "pictureMadeAs": "Papuan Indonesian",
+   "kit": [
+    "#CE1126",
+    "#CE1126"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "ASI_06_P2",
@@ -375,7 +561,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_06_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Indonesian woman aged 30 with medium brown skin_ long straight.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Indonesian woman aged 30 with medium brown skin_ long straight.png",
+   "pictureFrom": "ASI_06_P2",
+   "pictureMadeAs": "Indonesian",
+   "kit": [
+    "#CE1126",
+    "#CE1126"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "ASI_07_P1",
@@ -387,19 +580,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_07_p1.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Filipina woman aged 27 with medium warm tan skin_ thick wavy da.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Filipina woman aged 27 with medium warm tan skin_ thick wavy da.png",
+   "pictureFrom": "ASI_07_P1",
+   "pictureMadeAs": "Filipina",
+   "kit": [
+    "#0038A8",
+    "#CE1126"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "ASI_07_P2",
    "name": "Ana Reyes",
    "continent": "asia",
    "country": "Philippines",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_asi_07_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Indian woman aged 25 with medium-dark warm brown skin_ very lon.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Uzbek woman aged 22 with medium warm skin_ long thick dark brow.png",
+   "pictureFrom": "ASI_05_P2",
+   "pictureMadeAs": "Uzbek",
+   "kit": [
+    "#0038A8",
+    "#CE1126"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "ASI_08_P1",
@@ -411,7 +618,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_08_p1.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Papuan Indonesian woman aged 22 with very dark skin_ short tigh.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Indian woman aged 35 with dark skin_ short wavy black hair with.png",
+   "pictureFrom": "ASI_01_P1",
+   "pictureMadeAs": "Indian",
+   "kit": [
+    "#CC0001",
+    "#010066"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "ASI_08_P2",
@@ -423,7 +637,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_asi_08_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Malaysian woman aged 34 with medium olive-brown skin_ a tousled.png"
+   "robSource": "downloads-senior-cards-asia\\Agent Image - Photograph a new adult Malaysian woman aged 34 with medium olive-brown skin_ a tousled.png",
+   "pictureFrom": "ASI_08_P2",
+   "pictureMadeAs": "Malaysian",
+   "kit": [
+    "#CC0001",
+    "#010066"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "ASI_09_P1",
@@ -475,7 +696,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_01_p1.webp",
    "kind": "new",
    "imageBand": "Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Australian woman aged 24 with light fair skin and a touch of su.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Australian woman aged 24 with light fair skin and a touch of su.png",
+   "pictureFrom": "AUS_01_P1",
+   "pictureMadeAs": "Australian",
+   "kit": [
+    "#00843D",
+    "#00843D"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "AUS_01_P2",
@@ -487,7 +715,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_01_p2.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Aboriginal Australian woman aged 32 with deep dark brown skin.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Aboriginal Australian woman aged 32 with deep dark brown skin.png",
+   "pictureFrom": "AUS_01_P2",
+   "pictureMadeAs": "Aboriginal Australian",
+   "kit": [
+    "#00843D",
+    "#00843D"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AUS_02_P1",
@@ -499,31 +734,52 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_02_p1.webp",
    "kind": "new",
    "imageBand": "Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Australian woman aged 33 with light skin_ a sleek dark brown po.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Australian woman aged 33 with light skin_ a sleek dark brown po.png",
+   "pictureFrom": "AUS_02_P1",
+   "pictureMadeAs": "Australian",
+   "kit": [
+    "#00843D",
+    "#00843D"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "AUS_02_P2",
    "name": "Lily Mitchell",
    "continent": "oceania",
    "country": "Australia",
-   "skinTone": "Light",
+   "skinTone": "Medium Light",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_02_p2.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult New Zealand woman aged 29 with light fair freckled skin_ a shou.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Chinese Australian woman aged 31 with medium-light golden skin.png",
+   "pictureFrom": "AUS_04_P1",
+   "pictureMadeAs": "Chinese Australian",
+   "kit": [
+    "#00843D",
+    "#00843D"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "AUS_03_P1",
    "name": "Aroha Tane",
    "continent": "oceania",
    "country": "New Zealand",
-   "skinTone": "Medium Dark",
+   "skinTone": "Light",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_03_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Native Hawaiian woman aged 27 with medium-dark deep golden-tan.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult New Zealand woman aged 29 with light fair freckled skin_ a shou.png",
+   "pictureFrom": "AUS_02_P2",
+   "pictureMadeAs": "New Zealand",
+   "kit": [
+    "#151515",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "AUS_03_P2",
@@ -535,19 +791,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_03_p2.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Maori woman from New Zealand aged 25 with medium-dark warm brow.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Maori woman from New Zealand aged 25 with medium-dark warm brow.png",
+   "pictureFrom": "AUS_03_P2",
+   "pictureMadeAs": "Maori",
+   "kit": [
+    "#151515",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "AUS_04_P1",
    "name": "Leilani Kahananui",
    "continent": "oceania",
    "country": "USA",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_04_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Chinese Australian woman aged 31 with medium-light golden skin.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Native Hawaiian woman aged 27 with medium-dark deep golden-tan.png",
+   "pictureFrom": "AUS_03_P1",
+   "pictureMadeAs": "Native Hawaiian",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AUS_04_P2",
@@ -559,7 +829,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_04_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Italian Australian woman aged 22 with medium-light tan skin_ th.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Italian Australian woman aged 22 with medium-light tan skin_ th.png",
+   "pictureFrom": "AUS_04_P2",
+   "pictureMadeAs": "Italian Australian",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AUS_05_P1",
@@ -571,7 +848,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_05_p1.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Fijian Indian woman aged 30 with medium-dark warm brown skin_ a.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Fijian Indian woman aged 30 with medium-dark warm brown skin_ a.png",
+   "pictureFrom": "AUS_05_P1",
+   "pictureMadeAs": "Fijian Indian",
+   "kit": [
+    "#0B2A6F",
+    "#0B2A6F"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "AUS_05_P2",
@@ -583,19 +867,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_05_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Greek Australian woman aged 26 with medium-light warm olive ski.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Greek Australian woman aged 26 with medium-light warm olive ski.png",
+   "pictureFrom": "AUS_05_P2",
+   "pictureMadeAs": "Greek Australian",
+   "kit": [
+    "#0B2A6F",
+    "#0B2A6F"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AUS_06_P1",
    "name": "Sina Faleolo",
    "continent": "oceania",
    "country": "Samoa",
-   "skinTone": "Dark",
+   "skinTone": "Medium Dark",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_06_p1.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Papua New Guinean woman aged 24 with deep dark brown skin_ shor.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Cook Islander woman aged 34 with medium-dark golden-brown skin.png",
+   "pictureFrom": "AUS_07_P1",
+   "pictureMadeAs": "Cook Islander",
+   "kit": [
+    "#C8102E",
+    "#C8102E"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AUS_06_P2",
@@ -607,43 +905,71 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_06_p2.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Samoan woman aged 28 with medium-dark rich brown skin_ thick wa.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Samoan woman aged 28 with medium-dark rich brown skin_ thick wa.png",
+   "pictureFrom": "AUS_06_P2",
+   "pictureMadeAs": "Samoan",
+   "kit": [
+    "#C8102E",
+    "#C8102E"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "AUS_07_P1",
    "name": "Mandy Tari",
    "continent": "oceania",
    "country": "Vanuatu",
-   "skinTone": "Medium Dark",
+   "skinTone": "Dark",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_07_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Cook Islander woman aged 34 with medium-dark golden-brown skin.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Solomon Islander woman aged 22 with very deep dark skin_ a shor.png",
+   "pictureFrom": "AUS_08_P1",
+   "pictureMadeAs": "Solomon Islander",
+   "kit": [
+    "#D21034",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "AUS_07_P2",
    "name": "Lisa Natuman",
    "continent": "oceania",
    "country": "Vanuatu",
-   "skinTone": "Medium Dark",
+   "skinTone": "Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_07_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Tongan woman aged 23 with medium-dark deep tan skin_ long strai.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Papua New Guinean woman aged 24 with deep dark brown skin_ shor.png",
+   "pictureFrom": "AUS_06_P1",
+   "pictureMadeAs": "Papua New Guinean",
+   "kit": [
+    "#D21034",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "AUS_08_P1",
    "name": "Mele Taufa",
    "continent": "oceania",
    "country": "Tonga",
-   "skinTone": "Dark",
+   "skinTone": "Medium Dark",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_aus_08_p1.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Solomon Islander woman aged 22 with very deep dark skin_ a shor.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Tongan woman aged 23 with medium-dark deep tan skin_ long strai.png",
+   "pictureFrom": "AUS_07_P2",
+   "pictureMadeAs": "Tongan",
+   "kit": [
+    "#C10000",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "AUS_08_P2",
@@ -655,7 +981,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_aus_08_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Filipina Australian woman aged 35 with medium-light warm beige.png"
+   "robSource": "downloads-senior-card-oceania\\Agent Image - Photograph a new adult Filipina Australian woman aged 35 with medium-light warm beige.png",
+   "pictureFrom": "AUS_08_P2",
+   "pictureMadeAs": "Filipina Australian",
+   "kit": [
+    "#C10000",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "AUS_09_P1",
@@ -702,12 +1035,19 @@
    "name": "Annika Bauer",
    "continent": "europe",
    "country": "Germany",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_01_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Andalusian Spanish woman aged 24 with medium-dark deep tan skin.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Croatian woman aged 23 with medium light-olive skin_ long wavy.png",
+   "pictureFrom": "EUR_05_P2",
+   "pictureMadeAs": "Croatian",
+   "kit": [
+    "#DD0000",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "EUR_01_P2",
@@ -719,19 +1059,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_eur_01_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Italian woman aged 25 with medium olive skin_ a high dark brown.png"
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Serbian woman aged 31 with medium tan skin_ thick straight blac.png",
+   "pictureFrom": "EUR_08_P1",
+   "pictureMadeAs": "Serbian",
+   "kit": [
+    "#DD0000",
+    "#151515"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_02_P1",
    "name": "María Alonso",
    "continent": "europe",
    "country": "Spain",
-   "skinTone": "Medium",
+   "skinTone": "Medium Dark",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_02_p1.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Romanian woman aged 28 with medium warm olive skin_ a sleek sho.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Andalusian Spanish woman aged 24 with medium-dark deep tan skin.png",
+   "pictureFrom": "EUR_01_P1",
+   "pictureMadeAs": "Andalusian Spanish",
+   "kit": [
+    "#C60B1E",
+    "#C60B1E"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_02_P2",
@@ -743,19 +1097,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Bulgarian woman aged 26 with medium warm skin_ a short wavy che.png"
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Spanish woman aged 22 with medium warm olive skin_ long straigh.png",
+   "pictureFrom": "EUR_08_P2",
+   "pictureMadeAs": "Spanish",
+   "kit": [
+    "#C60B1E",
+    "#C60B1E"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_03_P1",
    "name": "Élise Fontaine",
    "continent": "europe",
    "country": "France",
-   "skinTone": "Light",
+   "skinTone": "Medium Dark",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_03_p1.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Swedish woman aged 24 with light fair skin_ long straight honey.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult French woman of North African heritage aged 30 with medium-dark.png",
+   "pictureFrom": "EUR_06_P1",
+   "pictureMadeAs": "French",
+   "kit": [
+    "#002395",
+    "#ED2939"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "EUR_03_P2",
@@ -767,67 +1135,109 @@
    "card": "/images/players/seniors/ai/player_senior_ai_eur_03_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult French woman aged 33 with medium-light skin and a faint tan_ a.png"
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult French woman aged 33 with medium-light skin and a faint tan_ a.png",
+   "pictureFrom": "EUR_03_P2",
+   "pictureMadeAs": "French",
+   "kit": [
+    "#002395",
+    "#ED2939"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "EUR_04_P1",
    "name": "Giulia Ricci",
    "continent": "europe",
    "country": "Italy",
-   "skinTone": "Light",
+   "skinTone": "Medium",
    "age": 29,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_04_p1.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Irish woman aged 30 with light fair freckled skin_ thick wavy c.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Italian woman aged 25 with medium olive skin_ a high dark brown.png",
+   "pictureFrom": "EUR_01_P2",
+   "pictureMadeAs": "Italian",
+   "kit": [
+    "#0066CC",
+    "#0066CC"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "EUR_04_P2",
    "name": "Valentina Bianchi",
    "continent": "europe",
    "country": "Italy",
-   "skinTone": "Dark",
+   "skinTone": "Medium",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_04_p2.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult British woman of Nigerian heritage aged 27 with deep dark brown.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Portuguese woman aged 34 with medium golden tan skin_ long dark.png",
+   "pictureFrom": "EUR_07_P1",
+   "pictureMadeAs": "Portuguese",
+   "kit": [
+    "#0066CC",
+    "#0066CC"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "EUR_05_P1",
    "name": "Emma van Dijk",
    "continent": "europe",
    "country": "Netherlands",
-   "skinTone": "Medium Light",
+   "skinTone": "Light",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_05_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Polish woman aged 27 with medium-light warm beige skin_ a sleek.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Irish woman aged 30 with light fair freckled skin_ thick wavy c.png",
+   "pictureFrom": "EUR_04_P1",
+   "pictureMadeAs": "Irish",
+   "kit": [
+    "#FF6F00",
+    "#FF6F00"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "EUR_05_P2",
    "name": "Lisa de Boer",
    "continent": "europe",
    "country": "Netherlands",
-   "skinTone": "Medium",
+   "skinTone": "Dark",
    "age": 23,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_05_p2.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Croatian woman aged 23 with medium light-olive skin_ long wavy.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult British woman of Nigerian heritage aged 27 with deep dark brown.png",
+   "pictureFrom": "EUR_04_P2",
+   "pictureMadeAs": "British",
+   "kit": [
+    "#FF6F00",
+    "#FF6F00"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_06_P1",
    "name": "Eleni Papadaki",
    "continent": "europe",
    "country": "Greece",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_06_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult French woman of North African heritage aged 30 with medium-dark.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Bulgarian woman aged 26 with medium warm skin_ a short wavy che.png",
+   "pictureFrom": "EUR_02_P2",
+   "pictureMadeAs": "Bulgarian",
+   "kit": [
+    "#0D5EAF",
+    "#0D5EAF"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "EUR_06_P2",
@@ -839,19 +1249,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_eur_06_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Greek woman aged 29 with medium sun-kissed olive skin_ thick wa.png"
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Greek woman aged 29 with medium sun-kissed olive skin_ thick wa.png",
+   "pictureFrom": "EUR_06_P2",
+   "pictureMadeAs": "Greek",
+   "kit": [
+    "#0D5EAF",
+    "#0D5EAF"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_07_P1",
    "name": "Agnieszka Kowal",
    "continent": "europe",
    "country": "Poland",
-   "skinTone": "Medium",
+   "skinTone": "Medium Light",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_07_p1.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Portuguese woman aged 34 with medium golden tan skin_ long dark.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Polish woman aged 27 with medium-light warm beige skin_ a sleek.png",
+   "pictureFrom": "EUR_05_P1",
+   "pictureMadeAs": "Polish",
+   "kit": [
+    "#DC143C",
+    "#DC143C"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_07_P2",
@@ -863,19 +1287,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_eur_07_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Albanian woman aged 35 with medium olive-tan skin_ long dark br.png"
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Romanian woman aged 28 with medium warm olive skin_ a sleek sho.png",
+   "pictureFrom": "EUR_02_P1",
+   "pictureMadeAs": "Romanian",
+   "kit": [
+    "#DC143C",
+    "#DC143C"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_08_P1",
    "name": "Ingrid Larsson",
    "continent": "europe",
    "country": "Sweden",
-   "skinTone": "Medium",
+   "skinTone": "Light",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_eur_08_p1.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Serbian woman aged 31 with medium tan skin_ thick straight blac.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Swedish woman aged 24 with light fair skin_ long straight honey.png",
+   "pictureFrom": "EUR_03_P1",
+   "pictureMadeAs": "Swedish",
+   "kit": [
+    "#FECC02",
+    "#006AA7"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_08_P2",
@@ -887,7 +1325,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_eur_08_p2.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Spanish woman aged 22 with medium warm olive skin_ long straigh.png"
+   "robSource": "downloads-senior-cards-europe\\Agent Image - Photograph a new adult Albanian woman aged 35 with medium olive-tan skin_ long dark br.png",
+   "pictureFrom": "EUR_07_P2",
+   "pictureMadeAs": "Albanian",
+   "kit": [
+    "#FECC02",
+    "#006AA7"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "EUR_09_P1",
@@ -934,96 +1379,152 @@
    "name": "Ashley Carter",
    "continent": "north_america",
    "country": "USA",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_01_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Canadian woman aged 28 with medium-light skin and a light tan.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Native American woman aged 25 with medium-dark warm copper-brow.png",
+   "pictureFrom": "NAM_03_P1",
+   "pictureMadeAs": "Native American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_01_P2",
    "name": "Taylor Brooks",
    "continent": "north_america",
    "country": "USA",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_01_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Dominican American woman aged 23 with medium-dark rich brown sk.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Filipina American woman aged 30 with medium golden-brown skin.png",
+   "pictureFrom": "NAM_06_P2",
+   "pictureMadeAs": "Filipina American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "NAM_02_P1",
    "name": "Destiny Rivera",
    "continent": "north_america",
    "country": "USA",
-   "skinTone": "Medium Light",
+   "skinTone": "Dark",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_02_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Mexican American woman aged 31 with medium-light golden skin_ t.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult African American woman aged 26 with deep dark brown skin_ shoul.png",
+   "pictureFrom": "NAM_03_P2",
+   "pictureMadeAs": "African American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_02_P2",
    "name": "Jasmine Washington",
    "continent": "north_america",
    "country": "USA",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_02_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Cuban American woman aged 22 with medium-light warm tan skin_ l.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Indian American woman aged 32 with medium-dark warm brown skin.png",
+   "pictureFrom": "NAM_04_P1",
+   "pictureMadeAs": "Indian American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_03_P1",
    "name": "Valentina Torres",
    "continent": "north_america",
    "country": "Mexico",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_03_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Native American woman aged 25 with medium-dark warm copper-brow.png"
+   "imageBand": "Medium",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Mexican woman aged 27 with medium warm tan skin_ thick straight.png",
+   "pictureFrom": "NAM_04_P2",
+   "pictureMadeAs": "Mexican",
+   "kit": [
+    "#006847",
+    "#006847"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "NAM_03_P2",
    "name": "Sofía Herrera",
    "continent": "north_america",
    "country": "Mexico",
-   "skinTone": "Dark",
+   "skinTone": "Medium Light",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_03_p2.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult African American woman aged 26 with deep dark brown skin_ shoul.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Mexican American woman aged 31 with medium-light golden skin_ t.png",
+   "pictureFrom": "NAM_02_P1",
+   "pictureMadeAs": "Mexican American",
+   "kit": [
+    "#006847",
+    "#006847"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "NAM_04_P1",
    "name": "Lisandra Pérez",
    "continent": "north_america",
    "country": "Cuba",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium Light",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_04_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Indian American woman aged 32 with medium-dark warm brown skin.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Cuban American woman aged 22 with medium-light warm tan skin_ l.png",
+   "pictureFrom": "NAM_02_P2",
+   "pictureMadeAs": "Cuban American",
+   "kit": [
+    "#002A8F",
+    "#CF142B"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "NAM_04_P2",
    "name": "Yoanna Fuentes",
    "continent": "north_america",
    "country": "Cuba",
-   "skinTone": "Medium",
+   "skinTone": "Dark",
    "age": 26,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_04_p2.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Mexican woman aged 27 with medium warm tan skin_ thick straight.png"
+   "imageBand": "Dark",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Haitian American woman aged 28 with deep dark brown skin_ a sho.png",
+   "pictureFrom": "NAM_08_P1",
+   "pictureMadeAs": "Haitian American",
+   "kit": [
+    "#002A8F",
+    "#CF142B"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "NAM_05_P1",
@@ -1035,7 +1536,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_nam_05_p1.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Korean American woman aged 26 with medium-light neutral beige s.png"
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Korean American woman aged 26 with medium-light neutral beige s.png",
+   "pictureFrom": "NAM_05_P1",
+   "pictureMadeAs": "Korean American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_05_P2",
@@ -1047,7 +1555,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_nam_05_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult American woman aged 24 with medium-light warm beige skin_ long.png"
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult American woman aged 24 with medium-light warm beige skin_ long.png",
+   "pictureFrom": "NAM_05_P2",
+   "pictureMadeAs": "American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_06_P1",
@@ -1059,19 +1574,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_nam_06_p1.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Jamaican Canadian woman aged 34 with very deep dark skin_ long.png"
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Jamaican Canadian woman aged 34 with very deep dark skin_ long.png",
+   "pictureFrom": "NAM_06_P1",
+   "pictureMadeAs": "Jamaican Canadian",
+   "kit": [
+    "#D80621",
+    "#D80621"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "NAM_06_P2",
    "name": "Cassandra Tremblay",
    "continent": "north_america",
    "country": "Canada",
-   "skinTone": "Medium",
+   "skinTone": "Medium Light",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_06_p2.webp",
    "kind": "new",
-   "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Filipina American woman aged 30 with medium golden-brown skin.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Canadian woman aged 28 with medium-light skin and a light tan.png",
+   "pictureFrom": "NAM_01_P1",
+   "pictureMadeAs": "Canadian",
+   "kit": [
+    "#D80621",
+    "#D80621"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "NAM_07_P1",
@@ -1083,7 +1612,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_nam_07_p1.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Lebanese American woman aged 35 with medium-light olive skin_ l.png"
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Lebanese American woman aged 35 with medium-light olive skin_ l.png",
+   "pictureFrom": "NAM_07_P1",
+   "pictureMadeAs": "Lebanese American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_07_P2",
@@ -1095,19 +1631,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_nam_07_p2.webp",
    "kind": "new",
    "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Italian American woman aged 33 with medium-light olive skin_ a.png"
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Italian American woman aged 33 with medium-light olive skin_ a.png",
+   "pictureFrom": "NAM_07_P2",
+   "pictureMadeAs": "Italian American",
+   "kit": [
+    "#1B2A4A",
+    "#B22234"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "NAM_08_P1",
    "name": "Mariela Colon",
    "continent": "north_america",
    "country": "Puerto Rico",
-   "skinTone": "Dark",
+   "skinTone": "Medium Dark",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_nam_08_p1.webp",
    "kind": "new",
-   "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Haitian American woman aged 28 with deep dark brown skin_ a sho.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Dominican American woman aged 23 with medium-dark rich brown sk.png",
+   "pictureFrom": "NAM_01_P2",
+   "pictureMadeAs": "Dominican American",
+   "kit": [
+    "#0050F0",
+    "#ED0000"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "NAM_08_P2",
@@ -1119,7 +1669,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_nam_08_p2.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Puerto Rican woman aged 29 with medium-dark caramel brown skin.png"
+   "robSource": "downloads-senior-cards-north-america\\Agent Image - Photograph a new adult Puerto Rican woman aged 29 with medium-dark caramel brown skin.png",
+   "pictureFrom": "NAM_08_P2",
+   "pictureMadeAs": "Puerto Rican",
+   "kit": [
+    "#0050F0",
+    "#ED0000"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "NAM_09_P1",
@@ -1166,12 +1723,19 @@
    "name": "Fernanda Silva",
    "continent": "south_america",
    "country": "Brazil",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium Light",
    "age": 28,
    "card": "/images/players/seniors/ai/player_senior_ai_sam_01_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Ecuadorian woman aged 25 with medium-dark golden-brown skin_ a.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Brazilian woman aged 26 with medium-light warm beige skin_ long.png",
+   "pictureFrom": "SAM_07_P2",
+   "pictureMadeAs": "Brazilian",
+   "kit": [
+    "#009C3B",
+    "#002776"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_01_P2",
@@ -1183,19 +1747,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_01_p2.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Brazilian woman aged 22 with medium-dark deep tan skin_ thick c.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Brazilian woman aged 22 with medium-dark deep tan skin_ thick c.png",
+   "pictureFrom": "SAM_01_P2",
+   "pictureMadeAs": "Brazilian",
+   "kit": [
+    "#009C3B",
+    "#002776"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_02_P1",
    "name": "Carolina Souza",
    "continent": "south_america",
    "country": "Brazil",
-   "skinTone": "Medium Dark",
+   "skinTone": "Medium Light",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_sam_02_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Peruvian woman aged 35 with medium-dark tan skin_ a short wavy.png"
+   "imageBand": "Medium Light",
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Brazilian woman of Japanese heritage aged 31 with medium-light.png",
+   "pictureFrom": "SAM_07_P1",
+   "pictureMadeAs": "Brazilian",
+   "kit": [
+    "#009C3B",
+    "#002776"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_02_P2",
@@ -1207,7 +1785,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_02_p2.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Afro-Brazilian woman aged 24 with deep dark brown skin_ long bo.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Afro-Brazilian woman aged 24 with deep dark brown skin_ long bo.png",
+   "pictureFrom": "SAM_02_P2",
+   "pictureMadeAs": "Afro-Brazilian",
+   "kit": [
+    "#009C3B",
+    "#002776"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "SAM_03_P1",
@@ -1219,7 +1804,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_03_p1.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Bolivian woman aged 28 with medium-dark bronze skin_ long thick.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Paraguayan woman aged 34 with medium-dark warm brown skin_ long.png",
+   "pictureFrom": "SAM_06_P2",
+   "pictureMadeAs": "Paraguayan",
+   "kit": [
+    "#74ACDF",
+    "#1E3A8A"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_03_P2",
@@ -1231,7 +1823,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_03_p2.webp",
    "kind": "new",
    "imageBand": "Light",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Argentine woman aged 24 with light fair skin_ long wavy honey-b.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Argentine woman aged 24 with light fair skin_ long wavy honey-b.png",
+   "pictureFrom": "SAM_03_P2",
+   "pictureMadeAs": "Argentine",
+   "kit": [
+    "#74ACDF",
+    "#1E3A8A"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "SAM_04_P1",
@@ -1243,19 +1842,33 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_04_p1.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Peruvian woman aged 23 with medium-dark warm brown skin_ long s.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Peruvian woman aged 23 with medium-dark warm brown skin_ long s.png",
+   "pictureFrom": "SAM_04_P1",
+   "pictureMadeAs": "Peruvian",
+   "kit": [
+    "#D91023",
+    "#D91023"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_04_P2",
    "name": "Andrea Huanca",
    "continent": "south_america",
    "country": "Peru",
-   "skinTone": "Light",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_sam_04_p2.webp",
    "kind": "new",
-   "imageBand": "Light",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Uruguayan woman aged 29 with light skin_ a sleek chestnut bob w.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Peruvian woman aged 35 with medium-dark tan skin_ a short wavy.png",
+   "pictureFrom": "SAM_02_P1",
+   "pictureMadeAs": "Peruvian",
+   "kit": [
+    "#D91023",
+    "#D91023"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "SAM_05_P1",
@@ -1267,7 +1880,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_05_p1.webp",
    "kind": "new",
    "imageBand": "Medium",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Colombian woman aged 27 with medium warm olive-tan skin_ thick.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Colombian woman aged 27 with medium warm olive-tan skin_ thick.png",
+   "pictureFrom": "SAM_05_P1",
+   "pictureMadeAs": "Colombian",
+   "kit": [
+    "#FCD116",
+    "#003893"
+   ],
+   "skinToneBefore10Oct": "Medium"
   },
   {
    "stableId": "SAM_05_P2",
@@ -1279,7 +1899,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_05_p2.webp",
    "kind": "new",
    "imageBand": "Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Afro-Colombian woman aged 32 with very deep dark skin_ a short.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Afro-Colombian woman aged 32 with very deep dark skin_ a short.png",
+   "pictureFrom": "SAM_05_P2",
+   "pictureMadeAs": "Afro-Colombian",
+   "kit": [
+    "#FCD116",
+    "#003893"
+   ],
+   "skinToneBefore10Oct": "Dark"
   },
   {
    "stableId": "SAM_06_P1",
@@ -1291,7 +1918,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_06_p1.webp",
    "kind": "new",
    "imageBand": "Light",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Chilean woman aged 33 with light skin_ a high dark brown ponyta.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Chilean woman aged 33 with light skin_ a high dark brown ponyta.png",
+   "pictureFrom": "SAM_06_P1",
+   "pictureMadeAs": "Chilean",
+   "kit": [
+    "#D52B1E",
+    "#0039A6"
+   ],
+   "skinToneBefore10Oct": "Light"
   },
   {
    "stableId": "SAM_06_P2",
@@ -1303,31 +1937,52 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_06_p2.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Paraguayan woman aged 34 with medium-dark warm brown skin_ long.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Ecuadorian woman aged 25 with medium-dark golden-brown skin_ a.png",
+   "pictureFrom": "SAM_01_P1",
+   "pictureMadeAs": "Ecuadorian",
+   "kit": [
+    "#D52B1E",
+    "#0039A6"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_07_P1",
    "name": "Verónica Martínez",
    "continent": "south_america",
    "country": "Uruguay",
-   "skinTone": "Medium Light",
+   "skinTone": "Light",
    "age": 27,
    "card": "/images/players/seniors/ai/player_senior_ai_sam_07_p1.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Brazilian woman of Japanese heritage aged 31 with medium-light.png"
+   "imageBand": "Light",
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Uruguayan woman aged 29 with light skin_ a sleek chestnut bob w.png",
+   "pictureFrom": "SAM_04_P2",
+   "pictureMadeAs": "Uruguayan",
+   "kit": [
+    "#6CACE4",
+    "#6CACE4"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "SAM_07_P2",
    "name": "Paula Álvarez",
    "continent": "south_america",
    "country": "Uruguay",
-   "skinTone": "Medium Light",
+   "skinTone": "Medium Dark",
    "age": 25,
    "card": "/images/players/seniors/ai/player_senior_ai_sam_07_p2.webp",
    "kind": "new",
-   "imageBand": "Medium Light",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Brazilian woman aged 26 with medium-light warm beige skin_ long.png"
+   "imageBand": "Medium Dark",
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Bolivian woman aged 28 with medium-dark bronze skin_ long thick.png",
+   "pictureFrom": "SAM_03_P1",
+   "pictureMadeAs": "Bolivian",
+   "kit": [
+    "#6CACE4",
+    "#6CACE4"
+   ],
+   "skinToneBefore10Oct": "Medium Light"
   },
   {
    "stableId": "SAM_08_P1",
@@ -1339,7 +1994,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_08_p1.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Colombian woman of Afro-Caribbean heritage aged 26 with medium.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Colombian woman of Afro-Caribbean heritage aged 26 with medium.png",
+   "pictureFrom": "SAM_08_P1",
+   "pictureMadeAs": "Colombian",
+   "kit": [
+    "#FFCC00",
+    "#00247D"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_08_P2",
@@ -1351,7 +2013,14 @@
    "card": "/images/players/seniors/ai/player_senior_ai_sam_08_p2.webp",
    "kind": "new",
    "imageBand": "Medium Dark",
-   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Venezuelan woman aged 30 with medium-dark caramel tan skin_ lon.png"
+   "robSource": "downloads-senior-cards-south-america\\Agent Image - Photograph a new adult Venezuelan woman aged 30 with medium-dark caramel tan skin_ lon.png",
+   "pictureFrom": "SAM_08_P2",
+   "pictureMadeAs": "Venezuelan",
+   "kit": [
+    "#FFCC00",
+    "#00247D"
+   ],
+   "skinToneBefore10Oct": "Medium Dark"
   },
   {
    "stableId": "SAM_09_P1",

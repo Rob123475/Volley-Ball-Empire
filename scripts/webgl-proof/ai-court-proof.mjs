@@ -20,6 +20,12 @@
  *     and with --until-finished the match is played to its end;
  *   - no page errors.
  *
+ * Pictures brief 10 Oct: the match is against an AI club one of whose pair's
+ * skin tone changed with Rob's reshuffled pictures; that player is the one
+ * bought, and she is then put in Rob's pair: on his side of the court she has
+ * her new picture's tone (her pool player's), in the match-state and the
+ * court's loader log alike.
+ *
  * Usage: node scripts/webgl-proof/ai-court-proof.mjs <outDir> --mode manual|auto [--until-finished 900] [--gpu]
  * Prints one JSON summary line; exits 1 if a check fails.
  */
@@ -83,21 +89,28 @@ try {
   const state = async (matchId) => (await api("GET", `/unity/match-state?careerSaveId=${cid}&matchId=${matchId}`)).data;
   const away = (s) => (s?.players ?? []).slice(2);
 
-  // The first match against an AI club (the court is opened from "Next match").
+  // Pictures brief 10 Oct: a player whose tone changed with her new picture.
+  const cardOfPool = (id) => CARDS.get(q(`SELECT image_url AS u FROM continental_pool_players WHERE id = ?`, id)[0]?.u ?? "") ?? null;
+  const changedTone = (p) => { const c = p.poolPlayerId != null ? cardOfPool(p.poolPlayerId) : null; return !!c && c.kind === "new" && c.skinToneBefore10Oct !== c.skinTone; };
+
+  // The first match against an AI club (the court is opened from "Next match")
+  // whose pair has a player whose tone changed on 10 Oct.
   let matchId = null, ms = null;
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 16; i++) {
     const nm = await api("POST", "/calendar/next-match");
     matchId = nm.data?.matchDay?.matchId ?? null;
     if (matchId == null) break;
     ms = await state(matchId);
-    if (away(ms).length === 2 && away(ms).every((p) => p.source === "pool")) break;
+    if (away(ms).length === 2 && away(ms).every((p) => p.source === "pool") && away(ms).some(changedTone)) break;
     await api("POST", `/matches/${matchId}/simulate`, {});
     await api("POST", "/calendar/dismiss-match", {});
     matchId = null;
   }
-  check("(set-up) a match against an AI club", matchId != null, `match ${matchId}: ${ms?.players?.[0]?.team} v ${away(ms)[0]?.team}`);
+  check("(set-up) a match against an AI club, one of whose pair's tone changed with her new picture", matchId != null,
+    `match ${matchId}: ${ms?.players?.[0]?.team} v ${away(ms)[0]?.team}: ${away(ms).map((p) => `${p.name}${changedTone(p) ? ` (${cardOfPool(p.poolPlayerId).skinToneBefore10Oct} -> ${p.skinTone})` : ""}`).join(" & ")}`);
   const awayClub = away(ms)[0]?.team;
-  const pairBefore = away(ms).map((p) => p.name);
+  // The one bought is the one whose tone changed (the first, if both did).
+  const pairBefore = [...away(ms)].sort((a, b) => Number(changedTone(b)) - Number(changedTone(a))).map((p) => p.name);
 
   // Try's Player Market: buy one of the AI club's pair (it then plays its next).
   w(`UPDATE teams SET budget = 5000000 WHERE id = ?`, team.id);
@@ -134,6 +147,22 @@ try {
   check("each has her picture, and the file is served", pics.every((x) => x.card && x.served === 200), pics.map((x) => `${x.name}: ${x.card} (${x.served})`).join(" | "));
   check("each one's skin tone on the court is her picture's", pics.every((x) => x.skinTone && (x.pictureBand == null || x.pictureBand === x.skinTone)),
     pics.map((x) => `${x.name}: court '${x.skinTone}', picture '${x.pictureBand ?? "(not one of the 120 AI cards)"}'`).join(" | "));
+
+  // Pictures brief 10 Oct: the player bought plays for Rob, with her picture's tone.
+  let mine = null;
+  if (bought?.status === 201) {
+    for (const p of (await api("GET", "/players")).data) if (p.id !== target.id && p.squadRole === "starter") await api("PATCH", `/team/roster/${p.id}/role`, { role: "interchange" });
+    await api("PATCH", `/team/roster/${target.id}/role`, { role: "starter" });
+    ms = await state(matchId);
+    const her = (ms?.players ?? []).slice(0, 2).find((p) => p.name === target.name);
+    const card = CARDS.get(target.imageUrl) ?? null;
+    mine = { name: target.name, card: target.imageUrl, served: (await fetch(BASE + target.imageUrl)).status, skinTone: her?.skinTone ?? null,
+      pictureBand: card?.imageBand ?? null, before10Oct: card?.skinToneBefore10Oct ?? null };
+    summary.boughtOnHomeSide = mine;
+  }
+  check(`${pairBefore[0]}, bought, plays on Rob's side with her new picture's skin tone`,
+    !!mine?.skinTone && mine.skinTone === mine.pictureBand && mine.served === 200,
+    mine ? `court '${mine.skinTone}', picture '${mine.pictureBand}' (before 10 Oct '${mine.before10Oct}'); ${mine.card} (${mine.served})` : "");
 
   // The court, opened as Rob opens it: the remembered choice, Next match, Watch Match.
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), "ai-court-chrome-"));
@@ -199,6 +228,8 @@ try {
     pair.every((p) => awayLoaded.some((x) => x.name === p.name && x.team === awayClub && x.skinTone.includes(p.skinTone))),
     awayLoaded.map((x) => `${x.name} (${x.team}) skin ${x.skinTone}`).join(" | "));
   check("and Rob's pair on the home side", loader.filter((x) => x.side === "home").length === 2, loader.filter((x) => x.side === "home").map((x) => x.name).join(" & "));
+  check("the player bought is in it, with her new picture's skin tone", !!mine && loader.some((x) => x.side === "home" && x.name === mine.name && x.skinTone === mine.pictureBand),
+    loader.filter((x) => x.side === "home").map((x) => `${x.name} skin ${x.skinTone}`).join(" | "));
   if (MODE === "manual") {
     check("the court started in Manual, from the page", await waitFor(/\[Manual\] mode Manual \(page\)/, 30000), lines.find((l) => /\[Manual\] mode/.test(l)) ?? "");
   } else {

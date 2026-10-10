@@ -1,0 +1,3692 @@
+[
+ {
+  "file": "player_senior_argentina_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   782
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.471,
+  "oldSha1": "3142d9528070c13f71370a220d56533c1503e680",
+  "newSha1": "366ad2991efa50ddbdf856106d5f0a501b29edb3",
+  "otherMeanDiff": 25.765
+ },
+ {
+  "file": "player_senior_argentina_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   786
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.479,
+  "oldSha1": "b2cf38e624b2cf6e083580735253f8b79b6fbeca",
+  "newSha1": "2f6d7ba461e5b524698491b03d75c50bfaee3cee",
+  "otherMeanDiff": 23.1
+ },
+ {
+  "file": "player_senior_argentina_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   781
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.605,
+  "oldSha1": "213304bd195ff9d33bd0023f557b84b2a7ca4a76",
+  "newSha1": "21585ccc3cb940526ebb2dfffa470ab5e00ef92b",
+  "otherMeanDiff": 67.067
+ },
+ {
+  "file": "player_senior_australia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   743
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.161,
+  "oldSha1": "39cad8073f791940316ab7b54f2acbf835682282",
+  "newSha1": "66c0bc7110dd30ad119b2d7b5cdcf36f2cc50fd9",
+  "otherMeanDiff": 47.227
+ },
+ {
+  "file": "player_senior_australia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   748
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.427,
+  "oldSha1": "687d1ffa359607a149747287989bdc4e5755d44f",
+  "newSha1": "eff7e5a84ded02e96ed8a6fa3eba70ca2a4080a2",
+  "otherMeanDiff": 38.408
+ },
+ {
+  "file": "player_senior_australia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   714
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.549,
+  "oldSha1": "8eea58dee184e715de6d9bebced98fe4ccd2de4f",
+  "newSha1": "dbffe07f581587af2e824c747d1611331b730f04",
+  "otherMeanDiff": 26.936
+ },
+ {
+  "file": "player_senior_australia_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   743
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.419,
+  "oldSha1": "fc3632c5f900565bccdea5e3d4e046ea6769c012",
+  "newSha1": "095fb5d99434823750c7e9c71663bc7b055da181",
+  "otherMeanDiff": 40.981
+ },
+ {
+  "file": "player_senior_bahamas_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 50,
+  "meanDiff": 1.619,
+  "oldSha1": "9a43cd79b151254991882e43d90ab8f3cf515eda",
+  "newSha1": "a9f46f258f7b5b714d58daf5f4e3e1fd3d8cda50",
+  "otherMeanDiff": 21.874
+ },
+ {
+  "file": "player_senior_bahamas_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   769
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.39,
+  "oldSha1": "3385c949a81f76d446b0e16fcdf775fbbb0b448a",
+  "newSha1": "30e8b245118a4ab665836191ea333daf187e3e1f",
+  "otherMeanDiff": 37.283
+ },
+ {
+  "file": "player_senior_bahamas_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 50,
+  "meanDiff": 1.623,
+  "oldSha1": "9e527f7cef616646adcf74fc6d88a9049f47efc9",
+  "newSha1": "4131e7d52eb0859d05233449236866e32fcc572e",
+  "otherMeanDiff": 38.923
+ },
+ {
+  "file": "player_senior_bolivia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   769
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.558,
+  "oldSha1": "f97cf3ec550a466f8c1210531824344aa54f7fd8",
+  "newSha1": "985d0d1dee010de44455725ef6f2c950e725f95e",
+  "otherMeanDiff": 23.583
+ },
+ {
+  "file": "player_senior_bolivia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   754
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.581,
+  "oldSha1": "ca6e96f4577fb41d0f53437038d17cb66b864b92",
+  "newSha1": "a508fc63f634ac35d18723b91e90324499aac4fb",
+  "otherMeanDiff": 20.527
+ },
+ {
+  "file": "player_senior_bolivia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.563,
+  "oldSha1": "3fac5d7b0393658a7b672d93e1105df39f4c89c9",
+  "newSha1": "01396d122a203f6059d753368d3ab7624a67a2f7",
+  "otherMeanDiff": 23.391
+ },
+ {
+  "file": "player_senior_bolivia_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.555,
+  "oldSha1": "68aae78318921d89b4d0390e29d8929afcd0612d",
+  "newSha1": "52cd073d1915c0fcebabe01ec656d0b9cab0324e",
+  "otherMeanDiff": 56.117
+ },
+ {
+  "file": "player_senior_brazil_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   766
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 48,
+  "meanDiff": 1.551,
+  "oldSha1": "b4dad64f6383669435df9eeab91d02afc6db036a",
+  "newSha1": "a8fb830eebb16969503cbadaa7ad701d71ccdc3a",
+  "otherMeanDiff": 36.536
+ },
+ {
+  "file": "player_senior_brazil_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   765
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.524,
+  "oldSha1": "2192b251d3f7fbd6462347c7cb038f6fc386e4a0",
+  "newSha1": "0b3029874396bd9d85292e9e66ce848f992a29e8",
+  "otherMeanDiff": 28.363
+ },
+ {
+  "file": "player_senior_brazil_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.605,
+  "oldSha1": "a03d808d18542e87ee172899e4c3475f13c39974",
+  "newSha1": "d0abfc9d22ba906de6dbf1a881f9c0c99f01ffe8",
+  "otherMeanDiff": 50.425
+ },
+ {
+  "file": "player_senior_canada_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   751
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 26,
+  "meanDiff": 1.063,
+  "oldSha1": "63750b88a5054c85ffef2763f82b5808effca882",
+  "newSha1": "eb669b21f48b66a79a42e5f848f278538979e11c",
+  "otherMeanDiff": 33.19
+ },
+ {
+  "file": "player_senior_canada_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   754
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.282,
+  "oldSha1": "97ac9bfc495fc088ff2dc3c5901206e143314466",
+  "newSha1": "74c4f06b53bcc3259ed340a5f248f9fc63e0fd74",
+  "otherMeanDiff": 22.338
+ },
+ {
+  "file": "player_senior_canada_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   757
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.257,
+  "oldSha1": "aee5aebadabb4f5cc068d707a79de1a17d06325f",
+  "newSha1": "562c9c8c4f5104e30793918cf27b441ee238e975",
+  "otherMeanDiff": 32.521
+ },
+ {
+  "file": "player_senior_canada_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   770
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 25,
+  "meanDiff": 1.164,
+  "oldSha1": "dfea736e6b4864d503919be66a1b86fa1631c308",
+  "newSha1": "cf6ffdc831a3e05f36c182485378625caf6fb18a",
+  "otherMeanDiff": 44.997
+ },
+ {
+  "file": "player_senior_chile_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   755
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.468,
+  "oldSha1": "c3c397af407d0fddeddd7f07f4cf4ed8903f5410",
+  "newSha1": "f90566e3793ebb014de7ece258a978f6436cc113",
+  "otherMeanDiff": 32.248
+ },
+ {
+  "file": "player_senior_chile_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   762
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.529,
+  "oldSha1": "5dcf6b81c9f01f6ed31041af690f8d85556025bb",
+  "newSha1": "d94f4041fb9c6a68415d70f3ba8b529c807223b4",
+  "otherMeanDiff": 24.938
+ },
+ {
+  "file": "player_senior_chile_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   755
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.542,
+  "oldSha1": "c91d8d9fdd20ba04d3e633ff27843a68a80d9abd",
+  "newSha1": "3ecf5c750599619d9895ba5225cb06977f942540",
+  "otherMeanDiff": 46.768
+ },
+ {
+  "file": "player_senior_china_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.147,
+  "oldSha1": "eef9b681151bb6f1dd66bd85d9941d984c30b54e",
+  "newSha1": "fc7f6ad77a57bb0080bda48ebda995426fa5b175",
+  "otherMeanDiff": 12.565
+ },
+ {
+  "file": "player_senior_china_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 26,
+  "meanDiff": 1.132,
+  "oldSha1": "233a0ef96fe13ecb94301964ffcc491df5b82565",
+  "newSha1": "d5c44e559684edd361a18ca0ea3d54ae02b3ceb9",
+  "otherMeanDiff": 14.26
+ },
+ {
+  "file": "player_senior_china_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.246,
+  "oldSha1": "79c9142caf98ab4dd79a3f18bffc8ed4b13bc674",
+  "newSha1": "0978ae69ce5177340bbe453be32b2a1e937c94c5",
+  "otherMeanDiff": 49.185
+ },
+ {
+  "file": "player_senior_colombia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   784
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 47,
+  "meanDiff": 1.689,
+  "oldSha1": "0874acaef5123ce51fd3b87c158ff685551f1f94",
+  "newSha1": "91e71ab0b25dc6d15c967ec16a2275cd0304cd7e",
+  "otherMeanDiff": 15.769
+ },
+ {
+  "file": "player_senior_colombia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   783
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.744,
+  "oldSha1": "3f5e58297c2419efc20b3155c0bc30296a022483",
+  "newSha1": "a393b4c2c81c4276359d34f3abfaec34214c04c7",
+  "otherMeanDiff": 32.36
+ },
+ {
+  "file": "player_senior_colombia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   788
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.61,
+  "oldSha1": "cf7f1f3b6b37e4e85107b0abebb7dc372524e9ef",
+  "newSha1": "dd252b3bd6d3b41c3593d474837ac2d671edc183",
+  "otherMeanDiff": 54.522
+ },
+ {
+  "file": "player_senior_cook_islands_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   798
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.317,
+  "oldSha1": "5e4c710d7c704bfbf11def8f82a45a02bc2d10f8",
+  "newSha1": "8ef60d873a56a8dd97b7d896a1a609ece6fe2e5e",
+  "otherMeanDiff": 27.627
+ },
+ {
+  "file": "player_senior_cook_islands_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   780
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.368,
+  "oldSha1": "611144d1b08677285a1f98bd8d473c169290300b",
+  "newSha1": "8ee24361804ab005e5f8974cee73d758518507fb",
+  "otherMeanDiff": 26.049
+ },
+ {
+  "file": "player_senior_cook_islands_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   784
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.37,
+  "oldSha1": "61845bb4d954166a10234a2198aa64a87543eab0",
+  "newSha1": "6c38e96c7f4c74ffc5d608033fbdb9e5df67e852",
+  "otherMeanDiff": 53.975
+ },
+ {
+  "file": "player_senior_costa_rica_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.301,
+  "oldSha1": "2495c5fc712e69175d7aad101310d3a48363143b",
+  "newSha1": "9cd70ca7bd89de3ead49d69b75825938168e3dbd",
+  "otherMeanDiff": 28.077
+ },
+ {
+  "file": "player_senior_costa_rica_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.345,
+  "oldSha1": "6580eb71f6b55f0c69f2b397dd366292039cb6ec",
+  "newSha1": "2b10a389e36facc6b4da861e1cd87d39a4ce5bf8",
+  "otherMeanDiff": 28.689
+ },
+ {
+  "file": "player_senior_costa_rica_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   760
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 38,
+  "meanDiff": 1.365,
+  "oldSha1": "38456af5e95ea40ab06bcf98917c8673ad217c24",
+  "newSha1": "e73b5c5bf9836b9dbd6a65ccd949ae16d5023013",
+  "otherMeanDiff": 19.732
+ },
+ {
+  "file": "player_senior_costa_rica_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   761
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.267,
+  "oldSha1": "649d33cb54ca9217d778087ddd0d46ea204a9659",
+  "newSha1": "e7d4c11c33f6cf09b246c8b04802bf4171576916",
+  "otherMeanDiff": 32.933
+ },
+ {
+  "file": "player_senior_cuba_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   760
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.252,
+  "oldSha1": "cc5ec30270f683d507a93284b73f965b6d054879",
+  "newSha1": "5394c58a2fa2fde35a39f4ad7b6328868f6a0792",
+  "otherMeanDiff": 27.38
+ },
+ {
+  "file": "player_senior_cuba_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   757
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.321,
+  "oldSha1": "92dd3c70ca5e87de5e43378787437ef93c1bf4d3",
+  "newSha1": "1a6ea0dfca34d648273d9e4f0edd2eb118693cfa",
+  "otherMeanDiff": 25.37
+ },
+ {
+  "file": "player_senior_cuba_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   760
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.307,
+  "oldSha1": "813bc792cfc705da0f7b8edacf8168cbda725f3b",
+  "newSha1": "f80fb2b16a392f1bf46099e13edc29862de402e3",
+  "otherMeanDiff": 50.26
+ },
+ {
+  "file": "player_senior_dominican_republic_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   740
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.711,
+  "oldSha1": "1717a409fef362e11d1e41d289549c84690347c9",
+  "newSha1": "804a3012dde58d749eb7ec4b2d726d353425de45",
+  "otherMeanDiff": 20.362
+ },
+ {
+  "file": "player_senior_dominican_republic_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   740
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.516,
+  "oldSha1": "8696041e558972a05f5d736a2347b78f7a6fc890",
+  "newSha1": "43f7d277cd7b688d4b13a3bed8b9d7fc7330440e",
+  "otherMeanDiff": 15.219
+ },
+ {
+  "file": "player_senior_dominican_republic_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   740
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.524,
+  "oldSha1": "8024e625977413347c123604f0d8aea6de8418c2",
+  "newSha1": "e402ccacb8f157e23a5220546dda2639919f95a2",
+  "otherMeanDiff": 57.963
+ },
+ {
+  "file": "player_senior_ecuador_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   787
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 47,
+  "meanDiff": 1.376,
+  "oldSha1": "487fa4d58c697a8a8edd0cfe3fdeddfe272a2900",
+  "newSha1": "d580f5e03b9b62280ea2cd9dd7ad1ee7c8f28d24",
+  "otherMeanDiff": 21.278
+ },
+ {
+  "file": "player_senior_ecuador_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   788
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 49,
+  "meanDiff": 1.348,
+  "oldSha1": "46dc0c539fd4e3ba03b879e96c4eb4b15c377e13",
+  "newSha1": "1652431ba03bb81a118b3e0770e6c811e98b6b1e",
+  "otherMeanDiff": 20.047
+ },
+ {
+  "file": "player_senior_ecuador_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   789
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 45,
+  "meanDiff": 1.221,
+  "oldSha1": "beb599f5b4a7083b8b4712223be541bd58f74679",
+  "newSha1": "94a20c1cad4298bd25dd1f05061127b776a47279",
+  "otherMeanDiff": 55.773
+ },
+ {
+  "file": "player_senior_egypt_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   766
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.536,
+  "oldSha1": "8fbab88948f151c118462197f4872bd3f07c02cf",
+  "newSha1": "a3c81549b5715b14d8583be0397d82c2160e6830",
+  "otherMeanDiff": 31.492
+ },
+ {
+  "file": "player_senior_egypt_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   780
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.456,
+  "oldSha1": "1e697e9642a443d5153af3b590e4b79406aa41d4",
+  "newSha1": "b665bcc90e7386ea3b41144cab7c51c66c322155",
+  "otherMeanDiff": 30.551
+ },
+ {
+  "file": "player_senior_egypt_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   764
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.526,
+  "oldSha1": "ac7c18d3a9331071cedf284b73e7190c0686b9c5",
+  "newSha1": "0b7e837af076b14355ba40c6bc1a399d30a3bd5e",
+  "otherMeanDiff": 40.257
+ },
+ {
+  "file": "player_senior_england_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   754
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 39,
+  "meanDiff": 1.593,
+  "oldSha1": "dc2c750d62d59e98297f9ccfb08509831358dc4c",
+  "newSha1": "9fe8eedb5b3e0d9909a176272fcaec20e10e68fb",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_england_02.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1313
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.257,
+  "oldSha1": "4016f996f8a6db91abc2df6e15a87fac1ed9005b",
+  "newSha1": "2eb70b666ed41b73821753b165657dc3fcab35b5",
+  "otherMeanDiff": 33.703
+ },
+ {
+  "file": "player_senior_england_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1293
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 27,
+  "meanDiff": 1.307,
+  "oldSha1": "daffef7e40022cb888eeca65bc24cc42910ff4d9",
+  "newSha1": "1d65555b393c46c3c2f92a7623645c763e5229bb",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_fiji_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   733
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.553,
+  "oldSha1": "3d29f1f55ff0c650a7ca8204e9b8697354cf6cd6",
+  "newSha1": "301fe3a6ad7002dad39fde171a22b174cb3aa059",
+  "otherMeanDiff": 38.588
+ },
+ {
+  "file": "player_senior_fiji_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   761
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 51,
+  "meanDiff": 1.563,
+  "oldSha1": "22b8dee6e7c937435a6dd773dde93819468faa8c",
+  "newSha1": "12665ce7e8ad4b3bfe3f14769bb6606ec5c0c28f",
+  "otherMeanDiff": 37.461
+ },
+ {
+  "file": "player_senior_fiji_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   733
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.577,
+  "oldSha1": "5e4d8a8c0ea62cbc69be062c2ae9f65e76151933",
+  "newSha1": "3033adac6c483135312eb1b7d1a84aae55f0815a",
+  "otherMeanDiff": 29.511
+ },
+ {
+  "file": "player_senior_fiji_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   741
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.523,
+  "oldSha1": "29d409e68ea1ed0290a86e33a69e92e3cfc2f10a",
+  "newSha1": "296f4e1b990b84b0acb4bc58410eb1ccbc5a6dc7",
+  "otherMeanDiff": 53.801
+ },
+ {
+  "file": "player_senior_france_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   790
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.513,
+  "oldSha1": "228b83dfee2d9af8be46da6aefc378a84f664184",
+  "newSha1": "86e307a2bb0df050b27b4e5f6ce2f26ee756a66a",
+  "otherMeanDiff": 33.0
+ },
+ {
+  "file": "player_senior_france_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   778
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.531,
+  "oldSha1": "f2c0ed789c3e5630705e993b1284c1fde6f90b70",
+  "newSha1": "808b3bd7241b303c83ccb8ae8fdb8b08792e0d1c",
+  "otherMeanDiff": 32.303
+ },
+ {
+  "file": "player_senior_france_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   791
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.563,
+  "oldSha1": "7e8884d36a44e121a11c92fbd88a9c618a238cbe",
+  "newSha1": "a6a3b633482ef39ce11790a6c40f6cb1b81ba156",
+  "otherMeanDiff": 34.526
+ },
+ {
+  "file": "player_senior_germany_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   780
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.502,
+  "oldSha1": "9d78000a85d3c4f806e77646be05357c01890fb4",
+  "newSha1": "e4ab1fbec185577af2346e641dde50a1e15a2188",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_germany_02.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1318
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.316,
+  "oldSha1": "7b6fce189cb59263b8f9a31e3bf518a6d183656a",
+  "newSha1": "ace2bf23768679cf31d980bc69d736ebf5619e95",
+  "otherMeanDiff": 34.445
+ },
+ {
+  "file": "player_senior_germany_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1311
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.213,
+  "oldSha1": "d235e8b4c088e131402526878f920f958438c64d",
+  "newSha1": "013d8321722a516f94c52ff75575293961ededaa",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_greece_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   794
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.506,
+  "oldSha1": "4354021483cfd3c03e0b264383969d80d4e7e481",
+  "newSha1": "e84e9664c46b959db571a180b0c724c355c02eb4",
+  "otherMeanDiff": 28.674
+ },
+ {
+  "file": "player_senior_greece_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   808
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.589,
+  "oldSha1": "78e59f39b1bba8d9c202cf7aa4cbc908238e23ef",
+  "newSha1": "d5415d79edf24def2843e4e0a31df4a3e0aefafb",
+  "otherMeanDiff": 34.307
+ },
+ {
+  "file": "player_senior_greece_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   784
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.539,
+  "oldSha1": "3758295123624e29d4041f88c6844a56368a9069",
+  "newSha1": "264f0268026f5d5c18f4466b0ac3aabf4575dac9",
+  "otherMeanDiff": 44.371
+ },
+ {
+  "file": "player_senior_guyana_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   744
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.703,
+  "oldSha1": "3b22ba1ffa5db79efb01e076c09766ee42546550",
+  "newSha1": "938b82055f722928515628811c1e58fab4268220",
+  "otherMeanDiff": 13.826
+ },
+ {
+  "file": "player_senior_guyana_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   744
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.709,
+  "oldSha1": "ba2484054c727e4e18b2d7b458c11a1da07edfbb",
+  "newSha1": "9df5f46b941622bec661aa44220ee509420fe8cf",
+  "otherMeanDiff": 13.65
+ },
+ {
+  "file": "player_senior_guyana_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   745
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.722,
+  "oldSha1": "62190426a98f767ed858219ab0eb5b0625bbbf90",
+  "newSha1": "681b36d90bfbd913d1a86c9fae08e73b279754f8",
+  "otherMeanDiff": 50.609
+ },
+ {
+  "file": "player_senior_india_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   723
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.16,
+  "oldSha1": "20b124f92e5d829ba758c96bb9cf74b08e21d2ad",
+  "newSha1": "c519703775b756697f432c5153624989eafb01cb",
+  "otherMeanDiff": 9.502
+ },
+ {
+  "file": "player_senior_india_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   736
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.24,
+  "oldSha1": "db20a87eb80ad5eabb09654df4f6c74c844c4346",
+  "newSha1": "22fc8fd9c90e7e59faf8e3388768a61b32e536a9",
+  "otherMeanDiff": 51.408
+ },
+ {
+  "file": "player_senior_india_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.644,
+  "oldSha1": "8859f9f84939eea9ff7d89116c56b06fd8beced9",
+  "newSha1": "b091d6a5cbf2626107806455c87a297f9d6b737f",
+  "otherMeanDiff": 37.528
+ },
+ {
+  "file": "player_senior_indonesia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   765
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.56,
+  "oldSha1": "ed36edd308e006de172c9664c33f47a675fc061e",
+  "newSha1": "cf731f1004e93cea34c7510af073305e7e4a46e3",
+  "otherMeanDiff": 33.415
+ },
+ {
+  "file": "player_senior_indonesia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   762
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 45,
+  "meanDiff": 1.507,
+  "oldSha1": "c65c455e39025f67ba2637f7bf721f83f2360012",
+  "newSha1": "ae07610513fcca4110d5c0db09ec6f495bb86412",
+  "otherMeanDiff": 20.524
+ },
+ {
+  "file": "player_senior_indonesia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   762
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.59,
+  "oldSha1": "ae0384b31a82cdc259d20afbb0680d5c34d3169d",
+  "newSha1": "2e93c2b26ecca036e82f5c0fb384a1b6ea60866f",
+  "otherMeanDiff": 30.232
+ },
+ {
+  "file": "player_senior_ireland_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.524,
+  "oldSha1": "5822c404ff057a5cb6e904d1a2322cdb7ee8dead",
+  "newSha1": "708d7829b07c028b7bc6d5e988a9ccb415e93689",
+  "otherMeanDiff": 11.746
+ },
+ {
+  "file": "player_senior_ireland_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   767
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.574,
+  "oldSha1": "32607d2be180e2e12ca0de4085bfeaeb76a1d180",
+  "newSha1": "4304aa49d5b4e3d33b8c99d4e906a6844f4d1894",
+  "otherMeanDiff": 14.063
+ },
+ {
+  "file": "player_senior_ireland_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.554,
+  "oldSha1": "fd13ffa4a12b4412672f5ed2f9f347871ac39b96",
+  "newSha1": "6dfdd2a58c5c6322e6a367ddbdc5049df4e313d2",
+  "otherMeanDiff": 34.543
+ },
+ {
+  "file": "player_senior_italy_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   789
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.532,
+  "oldSha1": "b13db1ecbc854ea3101862469d4c18e15ea4ba94",
+  "newSha1": "ff18be6c3db8fedaebb1a8dc35f157f6f2477cf1",
+  "otherMeanDiff": 21.383
+ },
+ {
+  "file": "player_senior_italy_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   797
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.579,
+  "oldSha1": "9f0b66d8b7497b053d264957441d3ceec3cb93ae",
+  "newSha1": "2ec2d4a7dad465055b11a346b908c0519ede819c",
+  "otherMeanDiff": 35.54
+ },
+ {
+  "file": "player_senior_italy_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   779
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.667,
+  "oldSha1": "4c8c8f35b690b8b8144b349efaa59f30ec7cc11c",
+  "newSha1": "aa97f7cc0bada02fe3ca318651077ceda492a88c",
+  "otherMeanDiff": 40.379
+ },
+ {
+  "file": "player_senior_jamaica_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   790
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.524,
+  "oldSha1": "c9c6c29bfe11bfa38ad85dad0c89682ebe61c6a7",
+  "newSha1": "2d4ae47c019f3d7cc31c8289aa83d7555e411e1f",
+  "otherMeanDiff": 27.29
+ },
+ {
+  "file": "player_senior_jamaica_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   778
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.55,
+  "oldSha1": "04ac8b27efb5375797e009eb7a1fee1d445ddad8",
+  "newSha1": "c6343134f888f982053b4d7d85ff002c389d4bb5",
+  "otherMeanDiff": 23.399
+ },
+ {
+  "file": "player_senior_jamaica_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   790
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 47,
+  "meanDiff": 1.556,
+  "oldSha1": "1b117f7d114097e002d3e5bc921616ec5b718cdb",
+  "newSha1": "7fa1c453dfeeb1dc3135f308054cd1834974845a",
+  "otherMeanDiff": 52.185
+ },
+ {
+  "file": "player_senior_japan_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   730
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 0.957,
+  "oldSha1": "2e834c134fd2b081d72e6c4e355d980985bf64d9",
+  "newSha1": "e5321c17eefaf72bedd1e17897e1c4a3ad271204",
+  "otherMeanDiff": 17.148
+ },
+ {
+  "file": "player_senior_japan_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   730
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.111,
+  "oldSha1": "c6153e81e7500838aa8525ca61c0c9893a70a1fd",
+  "newSha1": "fa99a45b90ecb4eb6cec834e3aac84204afd5060",
+  "otherMeanDiff": 13.462
+ },
+ {
+  "file": "player_senior_japan_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   730
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.094,
+  "oldSha1": "644ede944d5d02192a036ccc8a2d477dff77c94c",
+  "newSha1": "11e0bd3d55eeb6db7613c02b7c2fe7bdf8e003b2",
+  "otherMeanDiff": 50.86
+ },
+ {
+  "file": "player_senior_kenya_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 39,
+  "meanDiff": 1.58,
+  "oldSha1": "febb086142864095df0117fcd20aa3bb360a74f7",
+  "newSha1": "d7bda2e97fe0ea64b6a7f05bfd1b579af80907b3",
+  "otherMeanDiff": 14.02
+ },
+ {
+  "file": "player_senior_kenya_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.635,
+  "oldSha1": "4edf1eab29710d73a9a6806a197ba22a2b8ef1f6",
+  "newSha1": "7f007121ac3bc58348ac22ce7ac4e314afa1379c",
+  "otherMeanDiff": 19.38
+ },
+ {
+  "file": "player_senior_kenya_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 39,
+  "meanDiff": 1.627,
+  "oldSha1": "2f70c5989d8d3e8806c92bfc5620af5171d23916",
+  "newSha1": "f11e49aceb248bee41efa332fd41a2f7a5d6136e",
+  "otherMeanDiff": 51.753
+ },
+ {
+  "file": "player_senior_laos_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   764
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.675,
+  "oldSha1": "b50cc6f636cc3eb9c43d0d46a44b2e5b6374e08b",
+  "newSha1": "074e12bf632c7c29ef4ef961c91936918bff95d3",
+  "otherMeanDiff": 30.951
+ },
+ {
+  "file": "player_senior_laos_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.576,
+  "oldSha1": "5c157d76f58fb6490541b8e53383bda5faee90f6",
+  "newSha1": "f54b313a67b1421cab673b81232ab138ade136b6",
+  "otherMeanDiff": 36.173
+ },
+ {
+  "file": "player_senior_laos_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   766
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 38,
+  "meanDiff": 1.581,
+  "oldSha1": "d166f4bfd59d1484b714f14a4db33694d46cdafe",
+  "newSha1": "9696e2bca18428d98237129e438c02ca085cef48",
+  "otherMeanDiff": 48.056
+ },
+ {
+  "file": "player_senior_madagascar_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   779
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.404,
+  "oldSha1": "e11989e916b9685de573320298c8a9cfa208ca4f",
+  "newSha1": "cbe86d8e00dc3404b4850e6fa1c1548b1a2bb526",
+  "otherMeanDiff": 28.063
+ },
+ {
+  "file": "player_senior_madagascar_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   784
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.422,
+  "oldSha1": "ab216ed2555e1fd45af7e43c3b29d80740e25bae",
+  "newSha1": "64dd4a38d70587f2a0eb1f0586de6494c41561eb",
+  "otherMeanDiff": 22.055
+ },
+ {
+  "file": "player_senior_madagascar_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   784
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.327,
+  "oldSha1": "2d62399eb60fa803642fbd124b14ac0d44eb2777",
+  "newSha1": "5eb9cd6d63a82fef668b025b050383399e9f34a6",
+  "otherMeanDiff": 63.076
+ },
+ {
+  "file": "player_senior_malaysia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   782
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.553,
+  "oldSha1": "d0a3502a318915a3bf0fa8e4095ce5ae2b62ea21",
+  "newSha1": "4098857970273d3679b081b458cd2fbe7446d07c",
+  "otherMeanDiff": 16.935
+ },
+ {
+  "file": "player_senior_malaysia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   782
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.686,
+  "oldSha1": "fde55d8ab419c653f8a27e06ac28b7fbba5e2376",
+  "newSha1": "5b4f7bd75a8a18d4ea7d153bdac30278b337dc52",
+  "otherMeanDiff": 17.789
+ },
+ {
+  "file": "player_senior_malaysia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   782
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.735,
+  "oldSha1": "01216342e16d68823421ba28f147c31f42d026af",
+  "newSha1": "37bd429087f28c4bcfaeb23f9b184746a15ab635",
+  "otherMeanDiff": 30.202
+ },
+ {
+  "file": "player_senior_maldives_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   773
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.414,
+  "oldSha1": "c5c314a1c677e97d3f4689f6c067c492ebdd11cc",
+  "newSha1": "f6f4cbb51069401504a59817faa273b6b394617b",
+  "otherMeanDiff": 24.051
+ },
+ {
+  "file": "player_senior_maldives_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   782
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 38,
+  "meanDiff": 1.562,
+  "oldSha1": "2dcfef2236581a99fb05b439dd08b648d208ea0f",
+  "newSha1": "ace040b73ae259dd595f06735f095d40471251d7",
+  "otherMeanDiff": 24.385
+ },
+ {
+  "file": "player_senior_maldives_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   772
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.633,
+  "oldSha1": "2d7f98280897b794ac0828b17e0604942043d56e",
+  "newSha1": "10efe71d6b2780605e4d6a3f62c9032ec9ca50e5",
+  "otherMeanDiff": 35.083
+ },
+ {
+  "file": "player_senior_malta_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   763
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.484,
+  "oldSha1": "2567a457053a14942f55c6bef331944d54709c72",
+  "newSha1": "a38c04f353c5618fd76e1fa6bb58b44896f6f5cf",
+  "otherMeanDiff": 23.78
+ },
+ {
+  "file": "player_senior_malta_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   771
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.492,
+  "oldSha1": "e56e6c31d16da9e78cff8645507e40a9c5572495",
+  "newSha1": "c471d3e690034ee25ad6053e98bb277ebb8e0b3f",
+  "otherMeanDiff": 21.789
+ },
+ {
+  "file": "player_senior_malta_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   766
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 48,
+  "meanDiff": 1.584,
+  "oldSha1": "7aab6d1964dac7b7ef1bd1d901b909c3f3dc4e5f",
+  "newSha1": "96111ec1947158a2fc32826b6ceac1914279a8be",
+  "otherMeanDiff": 60.206
+ },
+ {
+  "file": "player_senior_mexico_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   714
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 0.833,
+  "oldSha1": "bb71529826a8d079c6ffc3c51a7a15fcea6694a6",
+  "newSha1": "2420a6c49b67497912fd8de924c1b01ce7da9eb1",
+  "otherMeanDiff": 13.4
+ },
+ {
+  "file": "player_senior_mexico_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   714
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.05,
+  "oldSha1": "b06aad6e07ae712464e56b492f493798488aaa4c",
+  "newSha1": "9d3b1fa423bcf2ed94d43e40827ece0e8c8c305b",
+  "otherMeanDiff": 50.558
+ },
+ {
+  "file": "player_senior_mexico_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   760
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.27,
+  "oldSha1": "1be83ab59414afeda166c0885b7ca73abaa4c3f4",
+  "newSha1": "ca1c266571f0005d5f6b11ab37acd917228ee264",
+  "otherMeanDiff": 49.977
+ },
+ {
+  "file": "player_senior_monaco_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   786
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.554,
+  "oldSha1": "829cc24dc8d962af7e50e88a037ab6452116d796",
+  "newSha1": "58b1e072a2cd5ad18c6ef238eb05867664ad21c5",
+  "otherMeanDiff": 40.749
+ },
+ {
+  "file": "player_senior_morocco_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.577,
+  "oldSha1": "fc0806ecba6fd692703d036061158ffb8debbe52",
+  "newSha1": "43e6f67a126494d38f3cd73624f0a4f66eb025c9",
+  "otherMeanDiff": 33.947
+ },
+ {
+  "file": "player_senior_morocco_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   763
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.699,
+  "oldSha1": "2cb923f48d19c6b5c527f15fecee5489092fd6fd",
+  "newSha1": "cee5920e6b86a17f964eb111117ef8f91f11c158",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_morocco_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1305
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.403,
+  "oldSha1": "5cf9b9433eb6c47ec261938b0d475105cd068648",
+  "newSha1": "c6b7c3991dc752fa2e2721d4675f133006598163",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_morocco_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   763
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.602,
+  "oldSha1": "71dae0fb7d28ed2cd4afa80c290e9a484e0ce80b",
+  "newSha1": "d6de5d75bdf68d74dc63ea56dd32095d566db434",
+  "otherMeanDiff": 55.409
+ },
+ {
+  "file": "player_senior_mozambique_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.468,
+  "oldSha1": "2d4ea0bbdf89814849f8bf238ff23c02880eccab",
+  "newSha1": "5dc48896ec5345bf2d708baf7037fe823bda2b5c",
+  "otherMeanDiff": 17.856
+ },
+ {
+  "file": "player_senior_mozambique_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.517,
+  "oldSha1": "1268caba53cce4ea6bef5b59a5d6d7d8f97adb00",
+  "newSha1": "c413f4571664c9dd082154ef560b24a4a9b24a4e",
+  "otherMeanDiff": 18.182
+ },
+ {
+  "file": "player_senior_mozambique_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.475,
+  "oldSha1": "eecf52e45934d679ff1b281e2c87a0f001834d51",
+  "newSha1": "eddbe070be5c8b0c24da04557e211413e730bf2a",
+  "otherMeanDiff": 47.707
+ },
+ {
+  "file": "player_senior_netherlands_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   785
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.514,
+  "oldSha1": "680050ae9ad376804a2ab2dadaf351850af71638",
+  "newSha1": "90a564517ca7d637093db2603b47c3aa656d37a4",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_netherlands_02.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1337
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.232,
+  "oldSha1": "317c99520c3c3d147ea09df92a3321ff98a743c3",
+  "newSha1": "59aa1928d0f144afae633d9d07c361daba4ccc70",
+  "otherMeanDiff": 21.081
+ },
+ {
+  "file": "player_senior_netherlands_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1328
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 27,
+  "meanDiff": 1.333,
+  "oldSha1": "5a123597b5e312c17238df10a591bdbca05ea51d",
+  "newSha1": "c4625a35c048f60682889457e991a3f25b93ba05",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_new_zealand_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   763
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.419,
+  "oldSha1": "aaaf54b832d2af2c0634a9c04f48a3f7662fc31e",
+  "newSha1": "f4aec53e151a693de1544db11b5e86a68eb652ef",
+  "otherMeanDiff": 21.425
+ },
+ {
+  "file": "player_senior_new_zealand_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   762
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 45,
+  "meanDiff": 1.533,
+  "oldSha1": "67d8d6793f39e5870dc6ed362f925838647a1b10",
+  "newSha1": "a2ce7055f96b6017e75dfffb62c2aea27d6d13bc",
+  "otherMeanDiff": 46.103
+ },
+ {
+  "file": "player_senior_new_zealand_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   778
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 38,
+  "meanDiff": 1.614,
+  "oldSha1": "b7363636a43d6df68f2445a9951afe368c623258",
+  "newSha1": "bab3fab959cdba0066fcc890aaea85306da98f30",
+  "otherMeanDiff": 44.32
+ },
+ {
+  "file": "player_senior_nigeria_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   758
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.643,
+  "oldSha1": "36a79009a9ce0af3da50f52196699d67e41bc6c6",
+  "newSha1": "252243814bf98d3a52d1055074d0c3621bd392a3",
+  "otherMeanDiff": 42.363
+ },
+ {
+  "file": "player_senior_nigeria_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   737
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.637,
+  "oldSha1": "90fc49ef4789ab8742f15cbf6a7fe4d780dcfd92",
+  "newSha1": "efcc5c0f2f9cb0d386606fa72486987e5e9d56fc",
+  "otherMeanDiff": 54.664
+ },
+ {
+  "file": "player_senior_nigeria_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   783
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.507,
+  "oldSha1": "3636f9fffc7a3f206ab9f5abc11d771c174a4daf",
+  "newSha1": "0444a84bb83c684721e9b3299619807e2791c7f8",
+  "otherMeanDiff": 59.339
+ },
+ {
+  "file": "player_senior_panama_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   790
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.321,
+  "oldSha1": "f3b0c15b10fd5ba62da881aed03de2bbf0aa43ba",
+  "newSha1": "ef87107abdb124228df00e15b8eaca80788edb3e",
+  "otherMeanDiff": 8.832
+ },
+ {
+  "file": "player_senior_panama_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.302,
+  "oldSha1": "ded12e38c95d54d940295cd879ad8095828c4570",
+  "newSha1": "874eea901bc5b848e30442c35c618cbaa25e2be7",
+  "otherMeanDiff": 14.321
+ },
+ {
+  "file": "player_senior_panama_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   767
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.263,
+  "oldSha1": "eea971c1f3f06a80455210c70c4f27dab569607f",
+  "newSha1": "8116714596336162e44f1d818adde776d417c549",
+  "otherMeanDiff": 53.971
+ },
+ {
+  "file": "player_senior_papua_new_guinea_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   779
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.503,
+  "oldSha1": "e8f1c80d879a40fe3cc2b2f3598ac3e72061a8d4",
+  "newSha1": "44b822a794f033f7aa5d214840d74c253e1072fa",
+  "otherMeanDiff": 13.857
+ },
+ {
+  "file": "player_senior_papua_new_guinea_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   779
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.502,
+  "oldSha1": "ef1ae37a75dcc1df2fa37ba6d585c8c763abeae4",
+  "newSha1": "b8edd78af569e9f24804b899252bce2c9f632e4e",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_papua_new_guinea_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1335
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.526,
+  "oldSha1": "5e6cbdf791104fa5fba3c87b0b9eff7bf6bdd99a",
+  "newSha1": "ea709525e50edb3cf6290d9b782dcac748b479b1",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_papua_new_guinea_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   772
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.523,
+  "oldSha1": "4b077822c68e8587ae0b65218861c037f333182e",
+  "newSha1": "cbb817295d0e04b70a3b786f98d7ce0f71fa0ae5",
+  "otherMeanDiff": 55.118
+ },
+ {
+  "file": "player_senior_peru_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.572,
+  "oldSha1": "349ae30eb56445a8f85e5f39d6ee0b24f422b309",
+  "newSha1": "605067bc5f3afe3f912bfb539ef9a1b612a82177",
+  "otherMeanDiff": 18.042
+ },
+ {
+  "file": "player_senior_peru_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.597,
+  "oldSha1": "3989fcdc331ef3f01222f01611d5b3623bd4fc25",
+  "newSha1": "068e2ac9d61546e76da4bb8e27b4b9a03d7a4c4c",
+  "otherMeanDiff": 11.438
+ },
+ {
+  "file": "player_senior_peru_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   759
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.637,
+  "oldSha1": "42e54c9631036905143042dd10f7c34ce76f0943",
+  "newSha1": "c025ab285c6bbd7992704526b02dfe34f09586e8",
+  "otherMeanDiff": 24.818
+ },
+ {
+  "file": "player_senior_peru_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   762
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 37,
+  "meanDiff": 1.617,
+  "oldSha1": "e78d9173a0426bd242016f920fb5dfd71e13c2c6",
+  "newSha1": "a0f8c618202a8de9f8fdfbc6d754221137b366f8",
+  "otherMeanDiff": 53.435
+ },
+ {
+  "file": "player_senior_philippines_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   724
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.057,
+  "oldSha1": "9239be55de6135abfbe7bc396f85f0101b89c012",
+  "newSha1": "cf41fe30255f31bf8690aadb009e4ec0d45fe640",
+  "otherMeanDiff": 14.135
+ },
+ {
+  "file": "player_senior_philippines_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   724
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.13,
+  "oldSha1": "5f143769cfbd760e2bd912d0764d7bfa85d6bf63",
+  "newSha1": "a76c9e84acb3794cacac774d6384eafc108b8c11",
+  "otherMeanDiff": 23.49
+ },
+ {
+  "file": "player_senior_philippines_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   702
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.25,
+  "oldSha1": "a47b5cafa0be21d53de839bd753d562c4022dfb8",
+  "newSha1": "d8ba79ca000cb8511aa0a2bc734a21548c0290b8",
+  "otherMeanDiff": 54.314
+ },
+ {
+  "file": "player_senior_portugal_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   770
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.654,
+  "oldSha1": "54f7c24011ff2b334480b2d65fc9449f9e4a2528",
+  "newSha1": "10208a3c7ccb139c55aa3582144bea451038bcd0",
+  "otherMeanDiff": 21.015
+ },
+ {
+  "file": "player_senior_portugal_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.538,
+  "oldSha1": "76475c25d2267b77ba7b19182638166f0929fff6",
+  "newSha1": "5bd63be897bea89906d09b09c5ded36d463a240e",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_portugal_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1308
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.421,
+  "oldSha1": "06fe173a270ab64da3c87bf5d47b225eec4a65c3",
+  "newSha1": "f59d157472ec9e5c95a49da2346978cf9ec48fd6",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_puerto_rico_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   751
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.639,
+  "oldSha1": "884325ede48958114dbfa2fc0b4a4f8f78535a82",
+  "newSha1": "21354572f0f39662c347107c329a571242ec794a",
+  "otherMeanDiff": 24.44
+ },
+ {
+  "file": "player_senior_puerto_rico_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.703,
+  "oldSha1": "2f2bdd2bcf81fc2b04eea4451f44069c9d6a4f9a",
+  "newSha1": "335e87b7a96ba331dddceb8bb415078604ff57be",
+  "otherMeanDiff": 24.959
+ },
+ {
+  "file": "player_senior_puerto_rico_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   752
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.569,
+  "oldSha1": "f29e3c1a9b0a16b42a62622d6b49162a2f3af42c",
+  "newSha1": "bb555dc419ba95114fa7ca97471878c1cc621c75",
+  "otherMeanDiff": 47.647
+ },
+ {
+  "file": "player_senior_russia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   770
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.51,
+  "oldSha1": "dffb4ca2effce9764a9111d45e48639e9ffa2bf9",
+  "newSha1": "cf336643f41ea59514db7ecdf11087a6db6040e0",
+  "otherMeanDiff": 28.434
+ },
+ {
+  "file": "player_senior_russia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.585,
+  "oldSha1": "44fe1eb8193a03f37d4e0a33de4d5eece3765eb1",
+  "newSha1": "e3e892c219a4fb86d4f3baf68784aced8644a2c2",
+  "otherMeanDiff": 20.126
+ },
+ {
+  "file": "player_senior_russia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   773
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 48,
+  "meanDiff": 1.47,
+  "oldSha1": "d95b1a77d6589cdd3c50f93bb7fce618467aa0c6",
+  "newSha1": "072227ffd1e24d6111f49a8dc8e58541bbb24ce9",
+  "otherMeanDiff": 48.215
+ },
+ {
+  "file": "player_senior_samoa_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   743
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 25,
+  "meanDiff": 1.362,
+  "oldSha1": "8d280cb86a7a2760ec271fe11b24419ee7a43fd8",
+  "newSha1": "94b9649261d13dcc5b0537c2eca904f8edf9875b",
+  "otherMeanDiff": 16.241
+ },
+ {
+  "file": "player_senior_samoa_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   761
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.524,
+  "oldSha1": "8b01f8e3cb7fe82ae5760ac16db8a237cc783b2c",
+  "newSha1": "908fad6191d69eefb4278b5ccc2cbc033b2b94cb",
+  "otherMeanDiff": 18.695
+ },
+ {
+  "file": "player_senior_samoa_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   762
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.6,
+  "oldSha1": "a17bd588392bce29654e5f271e9f74fbfe5ea146",
+  "newSha1": "c7bc3a8786e5d929c984906c933ad3e573060eba",
+  "otherMeanDiff": 30.324
+ },
+ {
+  "file": "player_senior_samoa_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.497,
+  "oldSha1": "923652e3d0fecce934da166c5f943dc3272210a4",
+  "newSha1": "dffef6d172c1fb35a6dbb598e13afbc4afeb2c39",
+  "otherMeanDiff": 58.143
+ },
+ {
+  "file": "player_senior_solomon_islands_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   770
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 44,
+  "meanDiff": 1.413,
+  "oldSha1": "d77366abf4d3be8b30b32ed1c4f461d93d0af96d",
+  "newSha1": "55750a8484820d33bfab381398b1e481e6628a64",
+  "otherMeanDiff": 19.906
+ },
+ {
+  "file": "player_senior_solomon_islands_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   771
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.275,
+  "oldSha1": "c45428da1c0a2de22a0ca8f4261d1fe893405c53",
+  "newSha1": "711aa46e5455995d35ac03df2f768054f8c0378b",
+  "otherMeanDiff": 22.525
+ },
+ {
+  "file": "player_senior_solomon_islands_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.252,
+  "oldSha1": "3a832026b02e4f8a789e0bf1ec2cdf4faf3ed423",
+  "newSha1": "92bf37726be57aa274172745769548a430f1e808",
+  "otherMeanDiff": 57.935
+ },
+ {
+  "file": "player_senior_south_africa_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   771
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.592,
+  "oldSha1": "e0f2e112399ae38a389d20299505bdb741422b75",
+  "newSha1": "7caa8bb796121b06b453e07def54f4ee5593ddb2",
+  "otherMeanDiff": 33.69
+ },
+ {
+  "file": "player_senior_south_africa_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   758
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.68,
+  "oldSha1": "81d01f548775e75c233f2e95dcbe9daf26936bb2",
+  "newSha1": "d1054bc627badf9071575086ed77938b42a43912",
+  "otherMeanDiff": 30.081
+ },
+ {
+  "file": "player_senior_south_africa_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   777
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.598,
+  "oldSha1": "f50e957e3c700a323a30a561f90ee1ad21f6dd55",
+  "newSha1": "23019e1ff1be1fe7740a8ccb3c076bf2811b36d5",
+  "otherMeanDiff": 34.105
+ },
+ {
+  "file": "player_senior_spain_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   784
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.535,
+  "oldSha1": "85480a5e701361172873388a10e10063f0abd963",
+  "newSha1": "23966563a0895fe176b144a2b8ebbf6cf222f5d0",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_spain_02.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1335
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 1.292,
+  "oldSha1": "5b816a9fc3d61dcb1af65c0b89f4d50679451275",
+  "newSha1": "f54a14a5da3729ec898ac3b92e00c09f1eb92145",
+  "otherMeanDiff": 18.108
+ },
+ {
+  "file": "player_senior_spain_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1335
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.303,
+  "oldSha1": "1d5d3f0112e1e86a0b1e1165145d2760590fdf96",
+  "newSha1": "3ac5659af566d6fc5a8405258779e0f1768a7eb2",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_sweden_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   793
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.412,
+  "oldSha1": "ec5e3aaeb19c14d72027a382b3fc03d6eac00b72",
+  "newSha1": "3d70e1ea2d9f7c7326fb6a98f898dc84ea2c984b",
+  "otherMeanDiff": 36.347
+ },
+ {
+  "file": "player_senior_sweden_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   788
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 45,
+  "meanDiff": 1.663,
+  "oldSha1": "8abd68a51d14672735fd364b2c654bc602101c08",
+  "newSha1": "f19c5e294f780a505b10523c59ec41343d50ca80",
+  "otherMeanDiff": 21.862
+ },
+ {
+  "file": "player_senior_sweden_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   788
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 54,
+  "meanDiff": 1.72,
+  "oldSha1": "862a7be5595ef6385be35d1bda98d5ab67c9de2c",
+  "newSha1": "44a4fea56e17c03c9786784b7d76634bd5462e0f",
+  "otherMeanDiff": 41.869
+ },
+ {
+  "file": "player_senior_switzerland_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 57,
+  "meanDiff": 1.614,
+  "oldSha1": "6aaffc1944f5d9c5b17918db37d51aff31fc5e45",
+  "newSha1": "c106266234cf750127e839ad2230fba48a5c1ac0",
+  "otherMeanDiff": 9.746
+ },
+ {
+  "file": "player_senior_switzerland_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 49,
+  "meanDiff": 1.592,
+  "oldSha1": "28fb767ee10d01bea1742eacf0483b3912b5ae80",
+  "newSha1": "659325e1783a347173c387f27f0160abddb173a4",
+  "otherMeanDiff": 24.265
+ },
+ {
+  "file": "player_senior_switzerland_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 45,
+  "meanDiff": 1.486,
+  "oldSha1": "d7d1c2118ee982778b897b6748fc427acae567ac",
+  "newSha1": "6abc572aaa5eb6d16178b98fb86386212ae059f0",
+  "otherMeanDiff": 40.641
+ },
+ {
+  "file": "player_senior_tahiti_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   795
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.611,
+  "oldSha1": "84ea1a5ea937f62defd05f3f7ea6fecf62c319eb",
+  "newSha1": "2dc567de22a88e8d4bce5554ff79f54080cbbeac",
+  "otherMeanDiff": 14.998
+ },
+ {
+  "file": "player_senior_tahiti_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   794
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.745,
+  "oldSha1": "a357ec9ba9e9fe02084103e291bffea7f143cd59",
+  "newSha1": "a1743e3d7e150bf2b21ddf8b4c393bf08b6fe980",
+  "otherMeanDiff": 19.653
+ },
+ {
+  "file": "player_senior_tahiti_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   795
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.826,
+  "oldSha1": "cfe8d7f26082dcc785bd1519b08b9cea15f13d30",
+  "newSha1": "8a2eeb7c4106f5a8ae3c1b71fb2686cba91f02b4",
+  "otherMeanDiff": 34.42
+ },
+ {
+  "file": "player_senior_tahiti_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   764
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.548,
+  "oldSha1": "64f60973b1bb0b545695401829cd807a32957825",
+  "newSha1": "c6f01e60a9f914a7a040357ab2db42126e6e75a2",
+  "otherMeanDiff": 41.086
+ },
+ {
+  "file": "player_senior_taiwan_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   764
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.491,
+  "oldSha1": "4396e1ebd134e32cec8eaba2cba946673844bbc0",
+  "newSha1": "5b7f1fa6fcdf97b690ce9b514a0a1ca817925c28",
+  "otherMeanDiff": 8.16
+ },
+ {
+  "file": "player_senior_taiwan_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   765
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 39,
+  "meanDiff": 1.494,
+  "oldSha1": "c0f03bf53c88c6c357f01f1c45a3d2c3910f66db",
+  "newSha1": "c0393265942d36cbbe4ca37ace4cd594c561d237",
+  "otherMeanDiff": 20.568
+ },
+ {
+  "file": "player_senior_taiwan_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   764
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 51,
+  "meanDiff": 1.454,
+  "oldSha1": "bf2db7aa4cb3a6c78bab5bda159759f9318855a3",
+  "newSha1": "94d318e4c719c689c5a23bae258c6876fd92f541",
+  "otherMeanDiff": 33.972
+ },
+ {
+  "file": "player_senior_tanzania_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 49,
+  "meanDiff": 1.417,
+  "oldSha1": "6c89b1d07d1e862359ef6be3fb8e3a4600bad7ee",
+  "newSha1": "a877d7f1fc45d026460aca712f0d7f7571954a48",
+  "otherMeanDiff": 16.409
+ },
+ {
+  "file": "player_senior_tanzania_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.404,
+  "oldSha1": "bf1e5af261ff78a392b3aa51bf08d94938ffe897",
+  "newSha1": "b198ccb259799fb655f25907e5e3fe89579d6788",
+  "otherMeanDiff": 14.402
+ },
+ {
+  "file": "player_senior_tanzania_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   776
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 46,
+  "meanDiff": 1.459,
+  "oldSha1": "840f4f8eca2e5b4ffcd2476867f9430b9bc6b83e",
+  "newSha1": "dd4c45eb74d3fad673cbf50844627fb6fb3fb4da",
+  "otherMeanDiff": 43.892
+ },
+ {
+  "file": "player_senior_thailand_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   749
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 29,
+  "meanDiff": 0.952,
+  "oldSha1": "84751afeb52135d14815bf6a51b0bc697ac3a104",
+  "newSha1": "db6d3adcb56d431452c30b4e8e4b374f87aacb1e",
+  "otherMeanDiff": 16.874
+ },
+ {
+  "file": "player_senior_thailand_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 1.04,
+  "oldSha1": "8845bd4f58e579b39843460d39fc03a01521584e",
+  "newSha1": "61f2b216bfb4cf3a312db9a152bf4f7c8e20f2e1",
+  "otherMeanDiff": 22.393
+ },
+ {
+  "file": "player_senior_thailand_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.098,
+  "oldSha1": "5b9aeeffca58e5bab7eb0784e59d389a48ac645c",
+  "newSha1": "1503de88f7e177a2836d572f47f3785de55e0fa2",
+  "otherMeanDiff": 22.889
+ },
+ {
+  "file": "player_senior_thailand_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   750
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.008,
+  "oldSha1": "bad5fd900a5c0cdc56bb47b823a58bc23474656d",
+  "newSha1": "f0efd705e8f65e115f0f304aefe1bcb9f24317b0",
+  "otherMeanDiff": 45.736
+ },
+ {
+  "file": "player_senior_tonga_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   778
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.563,
+  "oldSha1": "78cc8332795839ff56a669b3b132b2085227a564",
+  "newSha1": "74ce0575c65f22cfa77b7063f188c21425f97ebc",
+  "otherMeanDiff": 27.289
+ },
+ {
+  "file": "player_senior_tonga_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   774
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.575,
+  "oldSha1": "57e9598b5013af6a770bdea79bd4e602396b85bf",
+  "newSha1": "1b2f5f06f9d6de1b3f80b020e30f1b2644a20018",
+  "otherMeanDiff": 28.577
+ },
+ {
+  "file": "player_senior_tonga_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   778
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.585,
+  "oldSha1": "82990a03746540680c9bf5cdb6c5c215c042f397",
+  "newSha1": "2fe3f277a37a495dec374b6cd6e7c4da1a0c2930",
+  "otherMeanDiff": 28.65
+ },
+ {
+  "file": "player_senior_tonga_04.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.563,
+  "oldSha1": "3411d80b0fcd95ea1b64f34a9108aaf23ccf7241",
+  "newSha1": "0b3e3bb51e25b1970b73daa1c33a466aae88d5c0",
+  "otherMeanDiff": 43.896
+ },
+ {
+  "file": "player_senior_tunisia_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   768
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 27,
+  "meanDiff": 1.441,
+  "oldSha1": "dc9d02d17c3c1aa91599bcfa121804d4295d9ed4",
+  "newSha1": "16841b22ea30e9777ae5611578972805f3607f4e",
+  "otherMeanDiff": 13.193
+ },
+ {
+  "file": "player_senior_tunisia_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   767
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 30,
+  "meanDiff": 1.49,
+  "oldSha1": "b9c2b67ac892b6188cce1e4e0b5d7706ef1ec4f3",
+  "newSha1": "01875cbcb6b18a17bc8c9d48c8ae7220f0688384",
+  "otherMeanDiff": 32.715
+ },
+ {
+  "file": "player_senior_tunisia_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   770
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 34,
+  "meanDiff": 1.478,
+  "oldSha1": "aefec419a970f5d1f78409feedf5fa9d0e16ff3f",
+  "newSha1": "4e70c29d051e6a7997bc646806b4d785105f548a",
+  "otherMeanDiff": 53.508
+ },
+ {
+  "file": "player_senior_uruguay_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   780
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 38,
+  "meanDiff": 1.435,
+  "oldSha1": "e727db7386fd2f3e43a5eb8c3f17ee2507f1d107",
+  "newSha1": "7ace71d9a4ef73009c8f1b5b04b94b64731c1ad9",
+  "otherMeanDiff": 8.443
+ },
+ {
+  "file": "player_senior_uruguay_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   783
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 36,
+  "meanDiff": 1.422,
+  "oldSha1": "01c51cea8af8839e5d1c399d8e6c95efd7c3ef20",
+  "newSha1": "75decea528f99301d23951f6726f1c658d3f8f77",
+  "otherMeanDiff": 18.604
+ },
+ {
+  "file": "player_senior_uruguay_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   785
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 39,
+  "meanDiff": 1.484,
+  "oldSha1": "8764ce63bf66fcb29d1bd8b067d74635713acb02",
+  "newSha1": "f6aeaafea5f974784157b1ace0e7c2c54fec275e",
+  "otherMeanDiff": 71.267
+ },
+ {
+  "file": "player_senior_usa_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   700
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 28,
+  "meanDiff": 0.859,
+  "oldSha1": "d3c90e60cc347ad2faf314b948bc611c5689b44d",
+  "newSha1": "fd4f55708e83b790b5fa0dc7aa56775ad67f9ff8",
+  "otherMeanDiff": 59.239
+ },
+ {
+  "file": "player_senior_usa_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   732
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 1.284,
+  "oldSha1": "e471efee7d81cf144e960dfb51d91f098353e633",
+  "newSha1": "d3e9cfab65d44d5a990d8cb3e80d1b9facaf72b9",
+  "otherMeanDiff": 39.271
+ },
+ {
+  "file": "player_senior_usa_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   798
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 33,
+  "meanDiff": 1.494,
+  "oldSha1": "93f4c6b82c41fd8315bc05d5f6814e0cf6ea906c",
+  "newSha1": "a2547825706476e2b48b95caaeee5628e4cdbe63",
+  "otherMeanDiff": 52.873
+ },
+ {
+  "file": "player_senior_vanuatu_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   740
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.615,
+  "oldSha1": "89012f829ef588ea20c5d5061e00d9bcf72b630c",
+  "newSha1": "33078a7b20973e4f66a5126222cd315f1407a81e",
+  "otherMeanDiff": 13.875
+ },
+ {
+  "file": "player_senior_vanuatu_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   741
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 38,
+  "meanDiff": 1.547,
+  "oldSha1": "cd591a426b25d4e0f9ccb194cab6c1ff19cd4028",
+  "newSha1": "2b772a0d3f1465185b0c8a4d263d37c031cf297e",
+  "otherMeanDiff": 18.759
+ },
+ {
+  "file": "player_senior_vanuatu_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   742
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.707,
+  "oldSha1": "db49bbd76dceb467990837ec848b14cc17fa7897",
+  "newSha1": "f92efed12b4d4557450157267a9447fafce5ad7a",
+  "otherMeanDiff": 48.877
+ },
+ {
+  "file": "player_senior_venezuela_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   778
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 40,
+  "meanDiff": 1.515,
+  "oldSha1": "b5745e0a47b1ae9521373f0795ec767df38ff312",
+  "newSha1": "0b45a7983b889c39f5af4b887d7cd8120c779e5b",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_venezuela_02.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1328
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 42,
+  "meanDiff": 1.228,
+  "oldSha1": "36c128da2db91ededea55b175b5ad6d8d553d81f",
+  "newSha1": "c896f177216a6f129d1a0cc08e8d37d901ed6b13",
+  "otherMeanDiff": 21.035
+ },
+ {
+  "file": "player_senior_venezuela_03.webp",
+  "old": [
+   1023,
+   1537
+  ],
+  "new": [
+   1023,
+   1332
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.261,
+  "oldSha1": "23e3d59c0db1473672f99a6ad2497d8b4435501d",
+  "newSha1": "8b66c918182218fa349766867a7620e9b58917ad",
+  "otherMeanDiff": null
+ },
+ {
+  "file": "player_senior_vietnam_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   742
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 31,
+  "meanDiff": 0.954,
+  "oldSha1": "f3b5078bf3ec1408c3f5a2dcc09421af40930fdd",
+  "newSha1": "caf0aae163ed43a1da70f86eb6bd50159cc8305e",
+  "otherMeanDiff": 15.816
+ },
+ {
+  "file": "player_senior_vietnam_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   742
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 35,
+  "meanDiff": 1.118,
+  "oldSha1": "343fc7a7b31df4f44be93deb8657df25db1f31c7",
+  "newSha1": "9b7f43ac64a2a7550927bcbc78c50b0dfe64a8d5",
+  "otherMeanDiff": 34.178
+ },
+ {
+  "file": "player_senior_vietnam_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   699
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 32,
+  "meanDiff": 1.103,
+  "oldSha1": "0357594f9435e64b53ebb589922c86bba48cc655",
+  "newSha1": "ab46b7cc8a10e60074e401e35bf1f02520486f30",
+  "otherMeanDiff": 48.612
+ },
+ {
+  "file": "player_senior_zimbabwe_01.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   746
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 43,
+  "meanDiff": 1.72,
+  "oldSha1": "e5871288cc32ebf6d6ba4f06054a0a7b9bb95e7b",
+  "newSha1": "89e462a2159d4c0185025eadafa83f9c2da0266c",
+  "otherMeanDiff": 14.347
+ },
+ {
+  "file": "player_senior_zimbabwe_02.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   747
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 39,
+  "meanDiff": 1.642,
+  "oldSha1": "0782e6715a94fa5acedbc24f59f5e56f20ca3639",
+  "newSha1": "a4f8e0ffc3db3994b7da98474817f6646aae0be7",
+  "otherMeanDiff": 11.904
+ },
+ {
+  "file": "player_senior_zimbabwe_03.webp",
+  "old": [
+   600,
+   901
+  ],
+  "new": [
+   600,
+   748
+  ],
+  "sameWidth": true,
+  "shorter": true,
+  "maxDiff": 41,
+  "meanDiff": 1.694,
+  "oldSha1": "8b4f8a5f2351cd02eac9ad9ae77b204d9734d3ae",
+  "newSha1": "796e9aa13b0500cf1212bbb733cbd322e8e51e92",
+  "otherMeanDiff": 42.176
+ }
+]

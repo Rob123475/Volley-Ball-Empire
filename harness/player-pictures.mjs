@@ -24,6 +24,10 @@
  *      others keep the card his list names, no card twice, every file there;
  *      the Player Market lists every AI club player with her picture; an
  *      older save gets them at boot.
+ *   5. 10 OCT     Rob's AI pictures reshuffled to fit each player's country:
+ *      the 49 players whose tone changed are the boot list; an older save
+ *      still on the old tones gets the new ones at boot, by stable_id and only
+ *      where the old tone is still there; a second boot changes nothing.
  *
  * Usage: node harness/player-pictures.mjs
  */
@@ -306,6 +310,49 @@ try {
   d5.close();
   check("an older save gets the 96 new pictures at boot, and her career copy too", poolOld === 96 && playersOld === 0,
     `${poolOld} pool players with the new pictures; ${playersOld} career copies still without`);
+
+  // ── 5. Pictures brief 10 Oct: skin tones follow the reshuffled pictures ────
+  console.log("\n5. SKIN TONES FOLLOW THE PICTURES (10 OCT)");
+  const changes = list.filter((p) => p.kind === "new" && p.skinToneBefore10Oct !== p.skinTone);
+  const SRC = fs.readFileSync(path.join(REPO, "artifacts/api-server/src/utils/aiSkinTones.ts"), "utf8");
+  const listed = [...SRC.matchAll(/stableId: "(\w+)", was: "([^"]+)", now: "([^"]+)"/g)].map((m) => `${m[1]} ${m[2]} -> ${m[3]}`).sort();
+  check("the boot list is the 49 players whose tone changed, each from her old tone to her new picture's band",
+    changes.length === 49 && JSON.stringify(listed) === JSON.stringify(changes.map((p) => `${p.stableId} ${p.skinToneBefore10Oct} -> ${p.imageBand}`).sort()),
+    `${listed.length} listed, ${changes.length} changed in the list of cards`);
+  // An older save (DB4's career: its AI seniors are career players now) with
+  // the old tones; one of the 49 has a tone that is neither (left alone), and
+  // one other player has none (given the starter DB's).
+  const DB6 = path.join(WORK, "ai-tones-old.sqlite");
+  fs.copyFileSync(DB4, DB6);
+  const odd = changes[0], other = list.find((p) => !changes.includes(p));
+  const third = ["Light", "Medium Light", "Medium", "Medium Dark", "Dark"].find((b) => b !== odd.skinToneBefore10Oct && b !== odd.skinTone);
+  {
+    const d = new DatabaseSync(DB6);
+    const set = d.prepare(`UPDATE continental_pool_players SET skin_tone = ? WHERE stable_id = ?`);
+    for (const p of changes) set.run(p.skinToneBefore10Oct, p.stableId);
+    set.run(third, odd.stableId);
+    set.run(null, other.stableId);
+    d.close();
+  }
+  const tones6 = () => { const d = new DatabaseSync(DB6, { readOnly: true }); try { return new Map(d.prepare(`SELECT stable_id AS s, skin_tone AS t FROM continental_pool_players`).all().map((r) => [r.s, r.t])); } finally { d.close(); } };
+  child = boot(DB6, fs.openSync(path.join(WORK, "server-ai-tones.log"), "w"));
+  await up(); await stopServer(child); child = null;
+  const t6 = tones6();
+  const moved = changes.filter((p) => p !== odd && t6.get(p.stableId) === p.skinTone);
+  check("at boot each of the other 48 still on her old tone gets her new picture's band", moved.length === 48,
+    `${moved.length} of 48; e.g. ${changes.slice(1, 3).map((p) => `${p.name} ${p.skinToneBefore10Oct} -> ${t6.get(p.stableId)}`).join(" · ")}`);
+  check("a tone that is not her old one is left alone", t6.get(odd.stableId) === third, `${odd.name}: ${t6.get(odd.stableId)} (set to ${third}; old ${odd.skinToneBefore10Oct}, new ${odd.skinTone})`);
+  check("a player with no tone is given the starter DB's", t6.get(other.stableId) === pool.get(other.stableId)?.tone, `${other.name}: ${t6.get(other.stableId)}`);
+  const allNow = list.filter((p) => p !== odd).every((p) => t6.get(p.stableId) === pool.get(p.stableId)?.tone);
+  check("so every AI club player's tone is the starter DB's (the one set by hand aside)", allNow, `${list.length - 1} of 120`);
+  // Her career copy has no tone of its own: it reads her pool player's.
+  const copies = (() => { const d = new DatabaseSync(DB6, { readOnly: true }); try { return d.prepare(`SELECT COUNT(*) AS n FROM career_player_state s JOIN players p ON p.id = s.player_id
+    WHERE s.pool_player_id IS NOT NULL AND json_extract(p.player_v4, '$.visual_identity.skin_tone') IS NOT NULL`).get().n; } finally { d.close(); } })();
+  check("her career copy keeps no tone of its own (the court reads her pool player's)", copies === 0, `${copies} career copies with a player_v4 tone`);
+  const before6 = JSON.stringify([...t6]);
+  child = boot(DB6, fs.openSync(path.join(WORK, "server-ai-tones2.log"), "w"));
+  await up(); await stopServer(child); child = null;
+  check("a second boot changes nothing", JSON.stringify([...tones6()]) === before6);
 }
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));

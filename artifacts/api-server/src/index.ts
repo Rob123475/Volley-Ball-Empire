@@ -27,6 +27,7 @@ import { rerateOldProspects } from "./utils/youthProspects.js";
 import { alignYouthWages } from "./utils/youthWages.js";
 import { raiseHighestBalances } from "./utils/highestBalance.js";
 import { applyReferenceRenames } from "./utils/referenceRenames.js";
+import { applyAiSkinToneChanges } from "./utils/aiSkinTones.js";
 import { assignGraduatePortraitsAtBoot } from "./utils/graduatePortraits.js";
 import { giveAiSeniorsTheirPictures } from "./utils/aiSeniorPortraits.js";
 import { registerSteamCatchUp } from "./utils/steamBridge";
@@ -223,6 +224,15 @@ try {
   if (r.contractsMoved + r.namesChanged > 0) logger.info(r, "reference corrections applied to the saves");
 } catch (err) {
   logger.error({ err }, "applying reference corrections failed");
+}
+
+// Pictures brief 10 Oct: an AI club player's skin tone follows her new picture,
+// in a save that still has her old tone.
+try {
+  const n = applyAiSkinToneChanges();
+  if (n > 0) logger.info({ changed: n }, "AI club players' skin tones brought to their pictures");
+} catch (err) {
+  logger.error({ err }, "bringing AI club players' skin tones to their pictures failed");
 }
 
 // Final brief 5 Oct, A4: an older save's adult graduates get their pictures now.

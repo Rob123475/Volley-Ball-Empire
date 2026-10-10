@@ -41,6 +41,29 @@ On every card her head is at the top of the frame. **The pop-up** (the lightbox 
 
 **Done.** The 96 files were copied over the same names in `public/images/players/seniors/ai/` (all 96 byte-identical to Rob's afterwards; every one of the 96 differs from the file it replaced; no two of them are the same file; `check-image-formats` OK). Same names, so the cards in the starter DB and in every save (`/images/players/seniors/ai/player_senior_ai_<slot>.webp`) show the new picture without a database change. The card layout is the one fixed in step 1 (3:4, no band at any size).
 
+### 3. Skin tones follow the pictures
+
+**Done.** For the 49 rows of `reshuffle.json` whose tone changes, the player's tone is now her new picture's band, in the starter DB and in every existing save at boot, keyed by `stable_id`, and only where the save still has the old tone.
+
+**Where the game keeps an AI player's tone: one place,** `continental_pool_players.skin_tone`. The court reads it there for the AI club's pool players, and through `career_player_state.pool_player_id` for the career player she becomes (the Player Market makes one of each AI club senior; `utils/aiSquads.ts`). Her career copy has no `player_v4` of its own (checked: none in a career with all 120 made career players), so there is nothing else to change. `/unity/match-state` reads that same column.
+
+What changed:
+- **The starter DB:** the 49 tones (by `stable_id`, each from `skinToneWas` to `skinToneNow`); nothing else (every other table and column compared row by row with the DB before: identical). `check-starter-db` OK.
+- **The R-75 tone script** (`scripts/src/seed-pool-skin-tones.ts`, which wrote every pool player's tone from her nation's draw): a player with one of Rob's 96 pictures now takes her picture's band instead of a draw. Run on the starter DB it changed exactly those 49 (the same 49, `was` → `now`, as the list), and run again it changes nothing, so the `pool-skin-tones` suite's "re-running changes nothing" check still holds.
+- **Existing saves at boot (new `utils/aiSkinTones.ts`, called in `index.ts` next to the 2 Oct reference corrections):** the 49 as a list (`stableId`, `was`, `now`); each is set only where the save still has `was`. A second boot changes nothing.
+- **The boot sync no longer follows the starter DB over a tone a save has** (`ensureSchema.ts`). It used to copy the starter DB's tone over every save's, without looking. Now it only fills a tone a save has none of (a save from before R-75, as before), so "only when the save still has the old value" holds. A tone changes only through a listed correction like this one.
+- **A gap closed on Rob's side of the court** (`routes/unity.ts`): an AI club player Rob buys (or takes over with an AI club through the job market) played for him with **no** skin tone, because his side read only `player_v4`, which her career copy does not have. His side now falls back to her pool player's tone, which is her picture's band.
+- **`scripts/portraits/ai-senior-cards.json`** follows the reshuffle: for each of the 96, `robSource` and `imageBand` are now those of the picture she has (`pictureFrom`'s), and `skinTone` is `skinToneNow` (= `imageBand`, all 96). New fields so the next person is not misled: `pictureFrom`, `pictureMadeAs`, `kit` (the colours; `null` for the Korean picture left white) and `skinToneBefore10Oct`.
+- **The caption guard (`check-captions`) had to follow the cropped cards.** It pins each senior card's sha1 to the name, nationality, age and height printed in the card's banner, read by hand on 3 Sep. Rob's crop removed that banner, so all 204 audited cards failed as "artwork changed". Each new card was checked against the card that was read: same width, shorter, and its pixels are that card's top. The mean difference is 0.8–1.8 (out of 255; WebP re-encoding), against 8–71 when compared with any other card (`docs/proof-10oct/step3/senior-cards-crop-check.json`, all 205). So each 3 Sep reading was carried to the cropped file, with `croppedFrom` = the sha1 of the card that was read (`scripts/captions.json`), and the guard's header says so. The guard passes. A card replaced from now on can't be read from the picture (Q-12).
+
+**On a copy of the 2 Oct backup** (MD5 `f2c55790…` before and after; only copied): all 49 had their old tone; after one boot of this build all 49 have their new picture's band, and all 120 AI club players' tones equal their cards' (`docs/proof-10oct/step3/backup-copy-tones.txt`).
+
+**New checks** (run in step 4):
+- `player-pictures`, new section 5: the boot list is exactly the 49; on an older save still on the old tones, the 48 left on their old tone are brought forward; one deliberately set to a third tone is left alone; one with no tone is given the starter DB's; career copies keep no tone of their own; a second boot changes nothing.
+- `pool-skin-tones`: the script's 96 picture bands; a tone a save already has is not overwritten by the starter DB's.
+- `unity match-state`: an AI club player whose tone changed is bought and made a Match Player, and she is on Rob's side of the payload with her new picture's band.
+- The AI court proof now chooses a match whose AI pair includes a changed tone, buys that player, and checks her on Rob's side too.
+
 ## What Rob must check on screen
 
 (Filled in at the end.)

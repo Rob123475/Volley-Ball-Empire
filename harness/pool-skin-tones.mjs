@@ -6,16 +6,20 @@
  * agents, R-73). Each pool player now has a tone drawn from her nation's own
  * tone counts among the seeded players. If her nation has no seeded player, the
  * draw uses her continent's counts. There is no hand-made nation→tone table
- * (scripts/src/seed-pool-skin-tones.ts).
+ * (scripts/src/seed-pool-skin-tones.ts). Pictures brief 10 Oct: a player with
+ * one of Rob's AI pictures is not drawn; her tone is her picture's band.
  *
  * ── What this asserts ───────────────────────────────────────────────────────
  *   data     every pool player has one of the five bands the court knows
- *   derived  re-running the seed script's draw against the shipped DB changes
+ *   derived  re-running the seed script against the shipped DB changes
  *            nothing: the stored tones are exactly the counted distribution's
- *            draw, not hand-edited
+ *            draw (and, for Rob's 96 pictures, the picture's band), not
+ *            hand-edited
  *   court    after the World Tour draw, every away pool pair's skinTone in
  *            /unity/match-state is her stored tone, never null
- *   old save a save from before the column gets every tone on boot
+ *   old save a save from before the column gets every tone on boot; a tone a
+ *            save already has is not overwritten by the starter DB's (10 Oct:
+ *            a tone changes only through utils/aiSkinTones.ts's list)
  *
  * Usage: node harness/pool-skin-tones.mjs
  */
@@ -74,8 +78,9 @@ console.log("\n1. THE STORED TONES ARE THE COUNTED DISTRIBUTION'S OWN DRAW");
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`;
   const m = /R-75 tones: (\d+) of (\d+) pool players; (\d+) changed/.exec(out);
   const cont = /continent's distribution \(nation had no seeded player\): (\d+)/.exec(out);
-  check("re-running the draw against the shipped DB changes nothing", r.status === 0 && !!m && m[1] === "120" && m[3] === "0",
-    m ? `${m[1]} of ${m[2]} drawn, ${m[3]} changed; ${cont?.[1] ?? "?"} from the continent's distribution` : out.slice(-400));
+  const pic = /her picture's band \(one of Rob's AI pictures\): (\d+)/.exec(out);
+  check("re-running the draw against the shipped DB changes nothing", r.status === 0 && !!m && m[1] === "120" && m[3] === "0" && pic?.[1] === "96",
+    m ? `${m[1]} of ${m[2]} set, ${m[3]} changed; ${pic?.[1] ?? "?"} from Rob's pictures; ${cont?.[1] ?? "?"} from the continent's distribution` : out.slice(-400));
 }
 
 if (!fs.existsSync(SERVER)) { console.error(`[pool-skin-tones] FAILED: ${SERVER} not built.`); process.exit(1); }
@@ -157,6 +162,22 @@ try {
   const byId = new Map(pool.map((p) => [p.id, p.skin_tone]));
   const same = got.filter((g) => g.skin_tone && g.skin_tone === byId.get(g.id)).length;
   check("the column is added and every tone is brought forward from the starter DB", same === 120, `${same} of 120`);
+
+  // 10 Oct: the starter DB fills a tone a save has none of, and never follows
+  // over one it has.
+  const keptFile = path.join(WORK, "kept.sqlite");
+  fs.copyFileSync(SHIPPED, keptFile);
+  // One whose tone did not change on 10 Oct, so no correction applies to her.
+  const unchanged = new Set(JSON.parse(fs.readFileSync(path.join(REPO, "scripts", "portraits", "ai-senior-cards.json"), "utf8")).players
+    .filter((c) => c.kind !== "new" || c.skinToneBefore10Oct === c.skinTone).map((c) => c.name));
+  const mine = pool.find((p) => unchanged.has(p.name)), other = BANDS.find((b) => b !== mine.skin_tone);
+  { const w = new DatabaseSync(keptFile); w.prepare("UPDATE continental_pool_players SET skin_tone = ? WHERE id = ?").run(other, mine.id); w.close(); }
+  srv = await boot(keptFile, "kept", { STARTER_DB_PATH: SHIPPED });
+  await srv.stop();
+  const k = new DatabaseSync(keptFile, { readOnly: true });
+  const kept = k.prepare("SELECT skin_tone FROM continental_pool_players WHERE id = ?").get(mine.id).skin_tone;
+  k.close();
+  check("a tone a save already has is not overwritten by the starter DB's", kept === other, `${mine.name}: ${kept} (starter DB ${mine.skin_tone})`);
 } catch (err) {
   check("the run completed", false, String(err?.stack ?? err));
 } finally {

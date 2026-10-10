@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   db, matchesTable, locationsTable, playersTable, teamsTable, matchLiveStateTable, careerSavesTable,
-  worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable,
+  worldTourFixturesTable, competitorsTable, continentalPoolTeamsTable, continentalPoolPlayersTable,
 } from "@workspace/db";
 import { eq, desc, inArray, or, and, isNull, notInArray, sql } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
@@ -276,12 +276,22 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
     : [];
   const teamColorMap = new Map(teamRows.map((t) => [t.id, t]));
 
+  // Pictures brief 10 Oct: an AI club player Rob bought (or took over with an
+  // AI club) is a career player with no player_v4 of her own; her skin tone is
+  // her pool player's, the band of her picture (utils/aiSkinTones.ts).
+  const poolIds = [...new Set(allRows.map((p) => p.poolPlayerId).filter((id): id is number => id != null))];
+  const poolToneMap = new Map(poolIds.length > 0
+    ? (await db.select({ id: continentalPoolPlayersTable.id, skinTone: continentalPoolPlayersTable.skinTone })
+        .from(continentalPoolPlayersTable).where(inArray(continentalPoolPlayersTable.id, poolIds))).map((r) => [r.id, r.skinTone])
+    : []);
+
   // Serialise a player row, tagging it with its match-side team label
   function serializeMatchPlayer(p: PlayerRow, teamLabel: string | null) {
     const teamRow      = p.teamId != null ? teamColorMap.get(p.teamId) : undefined;
     const primaryColor   = teamRow?.logoColor          ?? null;
     const secondaryColor = teamRow?.secondaryLogoColor ?? null;
-    const skinTone       = (p.playerV4 as any)?.visual_identity?.skin_tone ?? null;
+    const skinTone       = (p.playerV4 as any)?.visual_identity?.skin_tone
+      ?? (p.poolPlayerId != null ? poolToneMap.get(p.poolPlayerId) : null) ?? null;
 
     return {
       id:            p.id,

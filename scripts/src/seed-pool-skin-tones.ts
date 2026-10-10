@@ -15,10 +15,17 @@
  * Teammates of one nation draw from the same distribution, so a pair usually
  * looks like one country.
  *
+ * Pictures brief 10 Oct: a pool player with one of Rob's pictures
+ * (scripts/portraits/ai-senior-cards.json, kind "new") is not drawn: her tone
+ * is her picture's band (imageBand), so the court draws her as her card shows
+ * her. A save that still has her old tone gets the new one at boot
+ * (artifacts/api-server/src/utils/aiSkinTones.ts).
+ *
  * Usage (from scripts/):  npx tsx src/seed-pool-skin-tones.ts <sqlite file> [--apply]
  * Without --apply it only reports.
  */
 import { DatabaseSync } from "node:sqlite";
+import fs from "node:fs";
 import { continentKeyForNationality, nationName } from "@workspace/db/schema";
 
 const BANDS = ["Light", "Medium Light", "Medium", "Medium Dark", "Dark"] as const;
@@ -74,10 +81,24 @@ const pool = d.prepare(
    FROM continental_pool_players ORDER BY pool_team_id, id`,
 ).all() as { id: number; pool_team_id: number; stable_id: string; name: string; nationality: string; skin_tone: string | null }[];
 
+const cards = JSON.parse(fs.readFileSync(new URL("../portraits/ai-senior-cards.json", import.meta.url), "utf8")).players as
+  { stableId: string; kind: string; imageBand: string | null }[];
+const pictureBand = new Map(cards.filter((c) => c.kind === "new" && c.imageBand).map((c) => [c.stableId, c.imageBand!]));
+const badBand = [...pictureBand.values()].filter((b) => !(BANDS as readonly string[]).includes(b));
+if (badBand.length > 0) throw new Error(`picture bands the court does not know: ${badBand.join(", ")}`);
+
 const tones = new Map<number, string>();
 const viaContinent: string[] = [];
 const unresolved: string[] = [];
+let fromPicture = 0;
 for (const p of pool) {
+  const band = pictureBand.get(p.stable_id);
+  if (band) {
+    tones.set(p.id, band);
+    fromPicture++;
+    console.log(`  ${p.name.padEnd(24)} ${p.nationality.padEnd(18)} ${band.padEnd(13)} from Rob's picture`);
+    continue;
+  }
   const nation = nationName(p.nationality) ?? p.nationality;
   let counts = byNation.get(nation);
   let source = `nation ${nation}`;
@@ -99,6 +120,7 @@ const pairs = new Map<number, string[]>();
 for (const p of pool) pairs.set(p.pool_team_id, [...(pairs.get(p.pool_team_id) ?? []), tones.get(p.id) ?? ""]);
 const sameTone = [...pairs.values()].filter((t) => t.length === 2 && t[0] === t[1]).length;
 console.log(`\nR-75 tones: ${tones.size} of ${pool.length} pool players; ${changed} changed from what the table held (${hadTone ? "skin_tone column existed" : "there was no skin_tone column: every pool player had no tone"})`);
+console.log(`  her picture's band (one of Rob's AI pictures): ${fromPicture}`);
 console.log(`  drew from the continent's distribution (nation had no seeded player): ${viaContinent.length}${viaContinent.length ? ": " + [...new Set(viaContinent)].join(", ") : ""}`);
 console.log(`  pairs whose two players share a tone: ${sameTone} of ${pairs.size}`);
 console.log(`  bands: ${BANDS.map((b) => `${b} ${[...tones.values()].filter((t) => t === b).length}`).join(", ")}`);

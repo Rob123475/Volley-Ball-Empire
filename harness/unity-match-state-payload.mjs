@@ -36,6 +36,11 @@
  * — proving the colour genuinely comes from the CURRENT team, per-request,
  * not a stored per-player value).
  *
+ * Pictures brief 10 Oct: an AI club player Rob buys is a career player with no
+ * player_v4 of her own. Bought and put in his pair, she is on his side of the
+ * payload with her pool player's skin tone, which is her new picture's band
+ * (scripts/portraits/ai-senior-cards.json), not none.
+ *
  * Usage: node harness/unity-match-state-payload.mjs
  */
 import { DatabaseSync } from "node:sqlite";
@@ -161,8 +166,12 @@ try {
         const row = poolHasTone ? src.prepare("SELECT skin_tone FROM continental_pool_players WHERE id = ?").get(p.id) : null;
         sourceHasSkinTone = !!row?.skin_tone;
       } else {
+        // Her own player_v4, or (a career player made from an AI club's pool
+        // player) her pool player's tone.
         const row = src.prepare("SELECT player_v4 FROM players WHERE id = ?").get(p.id);
-        sourceHasSkinTone = !!(row?.player_v4 && JSON.parse(row.player_v4)?.visual_identity?.skin_tone);
+        const pool = poolHasTone ? src.prepare(`SELECT cp.skin_tone FROM career_player_state s JOIN continental_pool_players cp ON cp.id = s.pool_player_id
+          WHERE s.player_id = ? ORDER BY s.career_save_id DESC LIMIT 1`).get(p.id) : null;
+        sourceHasSkinTone = !!(row?.player_v4 && JSON.parse(row.player_v4)?.visual_identity?.skin_tone) || !!pool?.skin_tone;
       }
       const payloadHasSkinTone = typeof p.skinTone === "string" && p.skinTone.length > 0;
       if (sourceHasSkinTone !== payloadHasSkinTone) { passThroughOk = false; mismatches.push(p.name); }
@@ -181,6 +190,34 @@ try {
     const homeColorsMatch = homePlayers.every((p) => p.primaryColor === "#123456" && p.secondaryColor === "#abcdef");
     check("home players' kit colour matches their team's own logoColor/secondaryLogoColor exactly",
       homeColorsMatch, JSON.stringify(homePlayers.map((p) => ({ name: p.name, primaryColor: p.primaryColor, secondaryColor: p.secondaryColor }))));
+
+    // Pictures brief 10 Oct: buy an AI club player whose tone changed with her
+    // new picture, make her a Match Player, and read his side of the court.
+    const cards = JSON.parse(fs.readFileSync(path.join(REPO, "scripts", "portraits", "ai-senior-cards.json"), "utf8")).players;
+    const changed = new Map(cards.filter((c) => c.kind === "new" && c.skinToneBefore10Oct && c.skinToneBefore10Oct !== c.skinTone).map((c) => [c.name, c]));
+    { const w = new DatabaseSync(dbFile); w.prepare("UPDATE teams SET budget = 5000000 WHERE id = ?").run(teamId); w.close(); }
+    const market = (await api("GET", "/players/market-all")).data ?? [];
+    for (const p of (await api("GET", "/players")).data.filter((p) => p.squadRole === "interchange")) await api("POST", `/players/${p.id}/release`, {});
+    let boughtCard = null, bought = null;
+    for (const p of market.filter((p) => p.status === "ai_club" && changed.has(p.name))) {
+      const wage = (() => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return d.prepare("SELECT salary FROM career_player_state WHERE player_id = ? ORDER BY career_save_id DESC LIMIT 1").get(p.id)?.salary; } finally { d.close(); } })();
+      const r = await api("POST", "/contracts", { playerId: p.id, salary: wage, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+      if (r.status === 201) { bought = p; boughtCard = changed.get(p.name); break; }
+    }
+    check("(set-up) bought an AI club player whose skin tone changed with her new picture", !!bought,
+      bought ? `${bought.name} (${boughtCard.stableId}): ${boughtCard.skinToneBefore10Oct} -> ${boughtCard.skinTone}` : "none could be bought");
+    if (bought) {
+      for (const p of (await api("GET", "/players")).data) {
+        if (p.id !== bought.id && p.squadRole === "starter") await api("PATCH", `/team/roster/${p.id}/role`, { role: "interchange" });
+      }
+      const made = await api("PATCH", `/team/roster/${bought.id}/role`, { role: "starter" });
+      const after = (await api("GET", `/unity/match-state?matchId=${match.id}`)).data?.players ?? [];
+      const her = after.slice(0, 2).find((p) => p.name === bought.name);
+      const pool = (() => { const d = new DatabaseSync(dbFile, { readOnly: true }); try { return d.prepare("SELECT skin_tone FROM continental_pool_players WHERE stable_id = ?").get(boughtCard.stableId)?.skin_tone; } finally { d.close(); } })();
+      check("she plays on his side of the court with her new picture's skin tone (her pool player's), not none",
+        made.status === 200 && !!her && her.skinTone === boughtCard.imageBand && her.skinTone === pool,
+        `home: ${after.slice(0, 2).map((p) => `${p.name} '${p.skinTone}'`).join(" & ")}; her picture '${boughtCard.imageBand}', her pool tone '${pool}'`);
+    }
   }
 } finally {
   // R-36: quit through R-31's shutdown path rather than SIGKILL, so the

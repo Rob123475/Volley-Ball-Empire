@@ -8,6 +8,14 @@
  * Venezuela, Papua New Guinea, ten fitness trainers) were all found by opening
  * an image, and none of them by inspecting a name.
  *
+ * Pictures brief 10 Oct: Rob cut that banner off every senior card (the same
+ * picture, shorter), so the cards in the game no longer print it. Each reading
+ * is the 3 Sep reading of the uncropped card (captions.json `croppedFrom`: its
+ * sha1), carried to the cropped file once the cropped file was checked to be
+ * that card's top, pixel for pixel (docs/proof-10oct/step3/). A card replaced
+ * from now on cannot be read from the picture: who she is has to be checked
+ * against the uncropped original before this file is updated.
+ *
  * On 3 September 2026 all 204 senior and spare cards were opened and read. The
  * result is scripts/captions.json: for each file, what the card actually says,
  * pinned to that file's sha1.
