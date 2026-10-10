@@ -1,0 +1,917 @@
+{
+  "pages": {
+    "team 1280x720": {
+      "cards": 3,
+      "gapMin": -29,
+      "gapMax": -29,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        10,
+        10
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "306x256"
+      ],
+      "naturals": [
+        "600x901"
+      ],
+      "sample": [
+        {
+          "name": "Yaritza Mendez",
+          "src": "/images/players/seniors/player_senior_dominican_republic_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            306,
+            256
+          ],
+          "column": [
+            190,
+            285
+          ],
+          "gap": -29,
+          "cutBottomPct": 10,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Nyasha Ncube",
+          "src": "/images/players/seniors/player_senior_zimbabwe_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            306,
+            256
+          ],
+          "column": [
+            190,
+            285
+          ],
+          "gap": -29,
+          "cutBottomPct": 10,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Camila Santiago",
+          "src": "/images/players/seniors/player_senior_puerto_rico_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            306,
+            256
+          ],
+          "column": [
+            190,
+            285
+          ],
+          "gap": -29,
+          "cutBottomPct": 10,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "market 1280x720": {
+      "cards": 216,
+      "gapMin": 1,
+      "gapMax": 2,
+      "showsFillUnder": 216,
+      "cutBottomPct": [
+        0,
+        0
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "308x288"
+      ],
+      "naturals": [
+        "600x901",
+        "1023x1537"
+      ],
+      "sample": [
+        {
+          "name": "Valentina Sosa",
+          "src": "/images/players/seniors/player_senior_argentina_01.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            308,
+            288
+          ],
+          "column": [
+            191,
+            286
+          ],
+          "gap": 2,
+          "cutBottomPct": 0,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Aaliyah Rolle",
+          "src": "/images/players/seniors/player_senior_bahamas_01.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            308,
+            288
+          ],
+          "column": [
+            191,
+            286
+          ],
+          "gap": 2,
+          "cutBottomPct": 0,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Jada Knowles",
+          "src": "/images/players/seniors/player_senior_bahamas_02.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            308,
+            288
+          ],
+          "column": [
+            191,
+            286
+          ],
+          "gap": 2,
+          "cutBottomPct": 0,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "ai-clubs 1280x720": {
+      "cards": 96,
+      "gapMin": 34,
+      "gapMax": 34,
+      "showsFillUnder": 96,
+      "cutBottomPct": [
+        0,
+        0
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "308x288"
+      ],
+      "naturals": [
+        "600x800"
+      ],
+      "sample": [
+        {
+          "name": "Annika Bauer",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p1.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            308,
+            288
+          ],
+          "column": [
+            191,
+            254
+          ],
+          "gap": 34,
+          "cutBottomPct": 0,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Sophie Müller",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p2.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            308,
+            288
+          ],
+          "column": [
+            191,
+            254
+          ],
+          "gap": 34,
+          "cutBottomPct": 0,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Carmen Ruiz",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            308,
+            288
+          ],
+          "column": [
+            191,
+            254
+          ],
+          "gap": 34,
+          "cutBottomPct": 0,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "contracts 1280x720": {
+      "avatars": 3,
+      "sample": [
+        {
+          "name": "Yaritza Mendez",
+          "w": 32,
+          "h": 32,
+          "fit": "cover",
+          "pos": "50% 10%"
+        },
+        {
+          "name": "Nyasha Ncube",
+          "w": 32,
+          "h": 32,
+          "fit": "cover",
+          "pos": "50% 10%"
+        }
+      ]
+    },
+    "team 1440x900": {
+      "cards": 3,
+      "gapMin": -78,
+      "gapMax": -78,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        23,
+        23
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "359x256"
+      ],
+      "naturals": [
+        "600x901"
+      ],
+      "sample": [
+        {
+          "name": "Yaritza Mendez",
+          "src": "/images/players/seniors/player_senior_dominican_republic_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            359,
+            256
+          ],
+          "column": [
+            223,
+            334
+          ],
+          "gap": -78,
+          "cutBottomPct": 23,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Nyasha Ncube",
+          "src": "/images/players/seniors/player_senior_zimbabwe_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            359,
+            256
+          ],
+          "column": [
+            223,
+            334
+          ],
+          "gap": -78,
+          "cutBottomPct": 23,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Camila Santiago",
+          "src": "/images/players/seniors/player_senior_puerto_rico_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            359,
+            256
+          ],
+          "column": [
+            223,
+            334
+          ],
+          "gap": -78,
+          "cutBottomPct": 23,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "market 1440x900": {
+      "cards": 216,
+      "gapMin": -48,
+      "gapMax": -48,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        14,
+        14
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "361x288"
+      ],
+      "naturals": [
+        "600x901",
+        "1023x1537"
+      ],
+      "sample": [
+        {
+          "name": "Valentina Sosa",
+          "src": "/images/players/seniors/player_senior_argentina_01.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            361,
+            288
+          ],
+          "column": [
+            224,
+            336
+          ],
+          "gap": -48,
+          "cutBottomPct": 14,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Aaliyah Rolle",
+          "src": "/images/players/seniors/player_senior_bahamas_01.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            361,
+            288
+          ],
+          "column": [
+            224,
+            336
+          ],
+          "gap": -48,
+          "cutBottomPct": 14,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Jada Knowles",
+          "src": "/images/players/seniors/player_senior_bahamas_02.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            361,
+            288
+          ],
+          "column": [
+            224,
+            336
+          ],
+          "gap": -48,
+          "cutBottomPct": 14,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "ai-clubs 1440x900": {
+      "cards": 96,
+      "gapMin": -10,
+      "gapMax": -10,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        3,
+        3
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "361x288"
+      ],
+      "naturals": [
+        "600x800"
+      ],
+      "sample": [
+        {
+          "name": "Annika Bauer",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p1.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            361,
+            288
+          ],
+          "column": [
+            224,
+            298
+          ],
+          "gap": -10,
+          "cutBottomPct": 3,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Sophie Müller",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p2.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            361,
+            288
+          ],
+          "column": [
+            224,
+            298
+          ],
+          "gap": -10,
+          "cutBottomPct": 3,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Carmen Ruiz",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            361,
+            288
+          ],
+          "column": [
+            224,
+            298
+          ],
+          "gap": -10,
+          "cutBottomPct": 3,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "contracts 1440x900": {
+      "avatars": 3,
+      "sample": [
+        {
+          "name": "Yaritza Mendez",
+          "w": 32,
+          "h": 32,
+          "fit": "cover",
+          "pos": "50% 10%"
+        },
+        {
+          "name": "Nyasha Ncube",
+          "w": 32,
+          "h": 32,
+          "fit": "cover",
+          "pos": "50% 10%"
+        }
+      ]
+    },
+    "team 1920x1080": {
+      "cards": 3,
+      "gapMin": -123,
+      "gapMax": -123,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        32,
+        32
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "407x256"
+      ],
+      "naturals": [
+        "600x901"
+      ],
+      "sample": [
+        {
+          "name": "Yaritza Mendez",
+          "src": "/images/players/seniors/player_senior_dominican_republic_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            407,
+            256
+          ],
+          "column": [
+            252,
+            379
+          ],
+          "gap": -123,
+          "cutBottomPct": 32,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Nyasha Ncube",
+          "src": "/images/players/seniors/player_senior_zimbabwe_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            407,
+            256
+          ],
+          "column": [
+            252,
+            379
+          ],
+          "gap": -123,
+          "cutBottomPct": 32,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Camila Santiago",
+          "src": "/images/players/seniors/player_senior_puerto_rico_03.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            407,
+            256
+          ],
+          "column": [
+            252,
+            379
+          ],
+          "gap": -123,
+          "cutBottomPct": 32,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "market 1920x1080": {
+      "cards": 216,
+      "gapMin": -93,
+      "gapMax": -92,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        24,
+        24
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "409x288"
+      ],
+      "naturals": [
+        "600x901",
+        "1023x1537"
+      ],
+      "sample": [
+        {
+          "name": "Valentina Sosa",
+          "src": "/images/players/seniors/player_senior_argentina_01.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            409,
+            288
+          ],
+          "column": [
+            253,
+            380
+          ],
+          "gap": -92,
+          "cutBottomPct": 24,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Aaliyah Rolle",
+          "src": "/images/players/seniors/player_senior_bahamas_01.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            409,
+            288
+          ],
+          "column": [
+            253,
+            380
+          ],
+          "gap": -92,
+          "cutBottomPct": 24,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Jada Knowles",
+          "src": "/images/players/seniors/player_senior_bahamas_02.webp",
+          "natural": [
+            600,
+            901
+          ],
+          "fit": "fill",
+          "frame": [
+            409,
+            288
+          ],
+          "column": [
+            253,
+            380
+          ],
+          "gap": -92,
+          "cutBottomPct": 24,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "ai-clubs 1920x1080": {
+      "cards": 96,
+      "gapMin": -50,
+      "gapMax": -50,
+      "showsFillUnder": 0,
+      "cutBottomPct": [
+        15,
+        15
+      ],
+      "sideCropPct": [
+        0,
+        0
+      ],
+      "headAtTop": true,
+      "frames": [
+        "409x288"
+      ],
+      "naturals": [
+        "600x800"
+      ],
+      "sample": [
+        {
+          "name": "Annika Bauer",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p1.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            409,
+            288
+          ],
+          "column": [
+            253,
+            338
+          ],
+          "gap": -50,
+          "cutBottomPct": 15,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Sophie Müller",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_01_p2.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            409,
+            288
+          ],
+          "column": [
+            253,
+            338
+          ],
+          "gap": -50,
+          "cutBottomPct": 15,
+          "sideCropPct": 0,
+          "headAtTop": true
+        },
+        {
+          "name": "Carmen Ruiz",
+          "src": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp",
+          "natural": [
+            600,
+            800
+          ],
+          "fit": "fill",
+          "frame": [
+            409,
+            288
+          ],
+          "column": [
+            253,
+            338
+          ],
+          "gap": -50,
+          "cutBottomPct": 15,
+          "sideCropPct": 0,
+          "headAtTop": true
+        }
+      ]
+    },
+    "contracts 1920x1080": {
+      "avatars": 3,
+      "sample": [
+        {
+          "name": "Yaritza Mendez",
+          "w": 32,
+          "h": 32,
+          "fit": "cover",
+          "pos": "50% 10%"
+        },
+        {
+          "name": "Nyasha Ncube",
+          "w": 32,
+          "h": 32,
+          "fit": "cover",
+          "pos": "50% 10%"
+        }
+      ]
+    }
+  },
+  "lightbox": {
+    "1280x720": {
+      "src": "/images/players/seniors/player_senior_dominican_republic_03.webp",
+      "natural": [
+        600,
+        901
+      ],
+      "drawn": [
+        432,
+        648
+      ],
+      "inside": true,
+      "ratioKept": true
+    },
+    "1440x900": {
+      "src": "/images/players/seniors/player_senior_dominican_republic_03.webp",
+      "natural": [
+        600,
+        901
+      ],
+      "drawn": [
+        539,
+        810
+      ],
+      "inside": true,
+      "ratioKept": true
+    },
+    "1920x1080": {
+      "src": "/images/players/seniors/player_senior_dominican_republic_03.webp",
+      "natural": [
+        600,
+        901
+      ],
+      "drawn": [
+        600,
+        901
+      ],
+      "inside": true,
+      "ratioKept": true
+    }
+  },
+  "shots": [
+    "team-card-1280x720.png",
+    "team-page-1280x720.png",
+    "lightbox-1280x720.png",
+    "market-card-1280x720.png",
+    "market-page-1280x720.png",
+    "ai-clubs-card-1280x720.png",
+    "contracts-page-1280x720.png",
+    "team-card-1440x900.png",
+    "team-page-1440x900.png",
+    "lightbox-1440x900.png",
+    "market-card-1440x900.png",
+    "market-page-1440x900.png",
+    "ai-clubs-card-1440x900.png",
+    "contracts-page-1440x900.png",
+    "team-card-1920x1080.png",
+    "team-page-1920x1080.png",
+    "lightbox-1920x1080.png",
+    "market-card-1920x1080.png",
+    "market-page-1920x1080.png",
+    "ai-clubs-card-1920x1080.png",
+    "contracts-page-1920x1080.png"
+  ],
+  "errors": [],
+  "squad": [
+    {
+      "name": "Yaritza Mendez",
+      "img": "/images/players/seniors/player_senior_dominican_republic_03.webp"
+    },
+    {
+      "name": "Camila Santiago",
+      "img": "/images/players/seniors/player_senior_puerto_rico_03.webp"
+    },
+    {
+      "name": "Nyasha Ncube",
+      "img": "/images/players/seniors/player_senior_zimbabwe_03.webp"
+    }
+  ]
+}

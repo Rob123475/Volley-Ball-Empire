@@ -233,10 +233,17 @@ export function PlayerPortrait({
           transformOrigin: "top center",
         }}
       />
+      {/* Pictures brief 10 Oct: her picture fills the centre column, top first.
+          It used to be drawn at the column's width and its own height, which
+          filled the frame only for a 2:3 picture; Rob's cards are shorter now
+          (the banner cut off) and his AI and graduate pictures are 3:4, so a
+          band of the blurred fill showed under her. Cover keeps her head at
+          the top: a short picture loses a little of each side, a tall one its
+          bottom, as before. The whole picture is in the lightbox. */}
       <img
         src={src}
         alt={name}
-        className="absolute top-0 left-1/2 -translate-x-1/2 h-auto"
+        className={`absolute top-0 left-1/2 -translate-x-1/2 h-full object-cover ${objectPosition}`}
         style={{ width: "62%", zIndex: 1 }}
         onError={() => setFailed(true)}
       />
