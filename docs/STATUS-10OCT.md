@@ -85,10 +85,27 @@ ALL SOLO SUITES PASSED.
 
 The 3D court shows no pictures (it draws the players in 3D): "the tone on the court equals her picture's band" is checked from the court's data and its own loader log, as on 6 Oct.
 
+### 5. Full harness on `launch-final`
+
+**Run #1, at `da18281` (the step 4 proof commit; its code is `d86b217`'s, and every commit after `d86b217` is `docs/` only): 104/104 suites, 1,713 checks, ALL HARNESSES PASSED** (22:06–23:10; `docs/proof-10oct/full-harness-da18281.txt`). 1,713 = 6 Oct's 1,703 + this run's 10 new checks (player-pictures 7, unity match-state 2, pool-skin-tones 1). The typecheck stage includes `check-captions` (OK on the cropped cards) and `check-image-formats`. It passed first time, so no fix and no second run. Nothing else ran during it, and the run left the tree clean (no tracked file changed).
+
 ## What Rob must check on screen
 
-(Filled in at the end.)
+All in **`C:\build\vbe-final-10oct\win-unpacked`**. Make a backup of your save first, as always.
+
+1. **Your career loads** as before (Sydney Riptide).
+2. **The senior cards, without the banner** (Team page, Player Market): her head at the top of the card, no dark band under her, the name down the left and the OVR column on the right as before. At 1280×720 a little of each side of the picture is now off the card (up to 11% each side for the shortest pictures) instead of a dark band at the bottom. Click a card: the pop-up shows the whole picture.
+3. **Player Market, At AI Clubs:** the 96 new pictures, each in her country's colours. Min-Seo Kim (Korea) is in white, as you meant.
+4. **The court:** Watch Match against an AI club. Each AI player's skin matches her new card. **Buy one** and put her in your pair: on your side of the court she now has her card's skin tone too (before, she had none).
 
 ## Questions for Rob
 
-(Filled in at the end.)
+Where the decision was yours, I took the safest option and carried on. Each one is easy to change.
+
+- **Q-12 (new) The caption check can no longer read the cards.** Since 3 Sep a build check has held each senior card to the name, country, age and height printed in its banner, read by hand. The banner is gone, so I carried each reading over to the cropped card, after checking pixel by pixel that each cropped card is the top of the card that was read. If a senior card is replaced from now on, nobody can tell from the picture who she is. Should the uncropped originals be kept somewhere for that, or is the check against the old reading enough?
+- **Q-13 (new) The cards now fill their frame by trimming the sides.** I chose this over leaving a dark band under the shorter pictures, which also happened before with your 3:4 AI and graduate pictures (34 px at 1280×720). At 1280×720 up to 11% of each side of the shortest pictures is off the card; at larger windows nothing is off the sides and less is off the bottom than before. Fine, or would you rather see the band?
+- **Q-14 (new) A save's AI skin tones no longer follow the starter DB blindly.** Until now every boot copied the starter DB's AI skin tones over the save's. Now a tone is only filled where a save has none, and a change reaches a save only through a list like today's 49, and only where the old tone is still there. That is the rule this brief asked for; it means a future tone change must be listed in `utils/aiSkinTones.ts`. Fine?
+- **Q-15 (new, for your information) A bought AI player had no skin tone on your side of the court.** Your side read only the player's own appearance data, which an AI club player bought from the market (or taken over with a club through the job market) doesn't have, so the court drew her with its default. Your side now uses her AI player's tone, which is her picture's. Say if that is wrong.
+- **Note: the zip has its own top folder,** so `Expand-Archive` to `Downloads\PICTURES-10OCT\` put the files in `Downloads\PICTURES-10OCT\PICTURES-10OCT\`. I left it as it is (your files: copied from, not moved).
+- **Note: your live save was written at 21:35:40 today** (2,314,240 bytes), 30 seconds after I extracted the zip. No server, proof or app of this run had started by then (the first one started at 21:42), and none of them ever used that file, so I took it to be your game closing. From then on it was only looked at (date and size), never opened.
+- **The questions from 5 and 6 Oct** (Q-1 to Q-3, Q-5 to Q-9, Q-11; `STATUS-06OCT.md`) stand as decided then. Q-1 (the pictures' size) now reads with Q-13: the cards fill their frame, and the whole picture is in the pop-up.
