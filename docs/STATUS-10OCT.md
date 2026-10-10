@@ -37,6 +37,10 @@ Measured in headless Chrome on the built game (`scripts/webgl-proof/senior-cards
 
 On every card her head is at the top of the frame. **The pop-up** (the lightbox a card opens when clicked; no other pop-up in the game shows a player's picture) shows the whole picture at its own shape, inside the window at all three sizes (`lightbox-*.png`). **The Contracts page's round avatars** still show her face (`contracts-page-*.png`).
 
+### 2. The 96 AI pictures
+
+**Done.** The 96 files were copied over the same names in `public/images/players/seniors/ai/` (all 96 byte-identical to Rob's afterwards; every one of the 96 differs from the file it replaced; no two of them are the same file; `check-image-formats` OK). Same names, so the cards in the starter DB and in every save (`/images/players/seniors/ai/player_senior_ai_<slot>.webp`) show the new picture without a database change. The card layout is the one fixed in step 1 (3:4, no band at any size).
+
 ## What Rob must check on screen
 
 (Filled in at the end.)
