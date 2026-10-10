@@ -4,7 +4,16 @@ Brief: `C:\Users\rbonn\Downloads\PICTURES-BRIEF-10OCT.md`, steps 1 to 7 in order
 
 ## Summary
 
-(Written as the steps go; finished at step 7.)
+**Your new pictures are in the game on `launch-final`, and its package is ready for you to check: `C:\build\vbe-final-10oct\win-unpacked`.** Nothing is merged into `main` (still `2c17431`), nothing went to Steam, and the fallbacks `C:\build\vbe-final-06oct` and `C:\build\vbe-launch-05oct` were not touched.
+
+- **The 205 senior cards without the banner** are in. The cards relied on the old 2:3 shape, and a shorter picture would have left a dark band under her, so the card was fixed: her picture now fills its column, head at the top. This was checked on every card at three window sizes (Team, Player Market, At AI Clubs, the pop-up, Contracts).
+- **The 96 AI pictures** (each the best fit for her country, in her country's colours) are in.
+- **Skin tones follow the pictures:** the 49 who changed now have their picture's band, in the starter DB and in every save at boot. Each change is keyed by player and made only where the save still has the old tone (on a copy of your 2 Oct save, 49 of 49). Two things this needed:
+  - The boot no longer copies the starter DB's tones over a save's.
+  - **A gap was fixed:** an AI player you buy used to play on your side of the court with no skin tone; she now has her picture's.
+- **The caption check had to follow the crop.** It read the name from each card's banner, which is now gone. I checked pixel by pixel that each new card is the top of the card that was read, and carried each reading over (Q-12).
+- **The checks:** the four suites alone passed; the AI court in Auto passed 17/17 with a full match; the full harness passed first time, **104/104 suites, 1,713 checks, at `da18281`**. The package was built from that commit, and on a copy of your 2 Oct save your career loaded and your pictures were served, byte for byte. Your live save was never opened.
+- Four new questions (Q-12 to Q-15) and two notes are at the end.
 
 ## The pictures
 
@@ -102,6 +111,41 @@ The 3D court shows no pictures (it draws the players in 3D): "the tone on the co
   - **The skin tones:** all 49 had their old tone in the save copy, all 49 have their new picture's band after the boot, and all 120 AI club players' tones equal their cards'.
 - **Your live save is unchanged:** only its date and size were read, before and after (10 Oct 21:35:40, 2,314,240 bytes); it was never opened.
 - **The fallbacks were not touched:** `C:\build\vbe-final-06oct` (last changed 6 Oct 17:21) and `C:\build\vbe-launch-05oct` (5 Oct 16:34).
+
+### 7. Final check
+
+| Branch | Head = harness = package = GitHub | Full harness | Package | Boot on copy |
+|---|---|---|---|---|
+| **`launch-final`** (6 Oct join + 10 Oct pictures) | **`da18281`** for the harness and the package. GitHub's head is this status commit; every commit after `d86b217` (the last code commit) is proof files and this report under `docs/` (`git diff --name-only d86b217 HEAD` lists nothing outside `docs/`), so head, harness and package run the same code. Pushed after every step; local = GitHub | **104/104 suites, 1,713 checks, ALL HARNESSES PASSED** at `da18281`, 22:06–23:10, first run (`docs/proof-10oct/full-harness-da18281.txt`) | `C:\build\vbe-final-10oct\win-unpacked`, built from `da18281`; before-pack and after-pack OK | **Yes**: Sydney Riptide loaded, $247,731, 24 Apr 2026; your 205 + 96 pictures served byte for byte; 49 of 49 tones brought forward; live save unchanged (`boot-final-da18281.json`) |
+| `fix-batch-29sep` (launch fallback, untouched) | `636f4a2`, the same on GitHub | 101/101 at `715073e` (5 Oct) | `C:\build\vbe-launch-05oct`, not touched (5 Oct 16:34) | Yes (5 Oct) |
+
+`main` is `2c17431`, locally and on GitHub, unchanged. `C:\build\vbe-final-06oct` (the 6 Oct package) was not touched (6 Oct 17:21).
+
+**The brief, re-read top to bottom:**
+- **Extract and check:** done. 205 + 96 pictures, the same names as in the game. Only the senior cards' height changed. 96 reshuffle rows, 49 tone changes, and the Korean picture at `ASI_03_P2` left white. The zip's own top folder put the files one level down (note at the end).
+- **Rules of engagement:** kept.
+  - **The live save was never opened.** Tests used copies of the starter DB, and the backup checks used copies of the 2 Oct backup (MD5 unchanged). Only the live save's date and size were read.
+  - **Your files were never moved, renamed or edited:** `PICTURES-10OCT\` was only copied from. No music changes. No Steam upload. The ElevenLabs key check passed on every push (7 pushes).
+  - **One full harness at a time:** one run; nothing else ran during it. **Committed and pushed after each step.** Nothing merged into `main`.
+  - **The fallbacks were kept:** `vbe-final-06oct` and `vbe-launch-05oct` were not touched.
+  - **Pathways that would not take the change were rebuilt, not patched over:**
+    - the card's picture rule (one line, the 2:3 assumption gone);
+    - the tone script (Rob's pictures give the tone, instead of a draw that was then overwritten);
+    - the boot sync (fill-only, instead of follow-and-correct);
+    - the court's home-side tone (one rule: her own data, else her pool player's);
+    - the caption fixture (each reading re-pinned with where it came from, not the guard switched off).
+  - **The report** was written as the steps went: summary first, "What Rob must check on screen" and "Questions for Rob" at the end.
+- **1:** done. The 205 cards were copied. The layout depended on 2:3 and was fixed in the card (the one component that draws them). Checked on Team, Player Market, At AI Clubs, the pop-up (the lightbox, the only pop-up with her picture) and the Contracts avatars, at three window sizes, before and after.
+- **2:** done. The 96 AI pictures were copied.
+- **3:** done.
+  - The 49 tones were changed in the starter DB and in every save at boot, by `stable_id`, only where the old tone remains. The game keeps an AI player's tone in one place (the AI player table), and `/unity/match-state` reads it there; her career copy has no `player_v4` of its own (checked).
+  - `ai-senior-cards.json` was updated (`robSource`, `imageBand`, `skinTone`, plus the reshuffle's fields).
+- **4:** done. `player-pictures` 35/35, `ai-buyable` 25/25 and `unity match-state` 11/11 passed alone (and `pool-skin-tones` 5/5, which this run changed). The AI court proof in Auto passed 17/17: each AI player's tone on the court equals her new picture's band, on the away side and, once bought, on yours. A full match was played.
+- **5:** done. Passed first time, every suite.
+- **6:** done. The package was built from the commit the harness passed on, and the before-pack and after-pack checks passed. On a copy of the 2 Oct backup your career loaded, the pictures were served, and the live save is unchanged.
+- **7:** this table and this re-read.
+
+Stopped here.
 
 ## What Rob must check on screen
 
