@@ -1,0 +1,50 @@
+========================================================================
+  A4: ROB'S PICTURES FOR GRADUATES
+========================================================================
+
+1. THE FILES
+  PASS  six continents; Africa 21 pictures, every other continent 20  {"africa_middle_east":21,"oceania":20,"asia":20,"europe":20,"north_america":20,"south_america":20}
+  PASS  no picture is listed twice  121 listed, 121 different
+  PASS  every file exists  121 files under public/
+  PASS  every file is a WebP, cut down for the game (under 400 KB)  all
+  PASS  every picture is a different picture (no two files alike)  121 different of 121
+  PASS  each continent's pictures are in the graduates folder  all
+
+2. A CAREER
+  PASS  the 72 youth on the market keep their flag cards (no picture given)  72 youth, 72 on the flag card, 0 pictures given
+  PASS  a youth of the club's academy promoted by hand at 18 is given a picture of her own continent at once  Litia Vakatale (oceania): HTTP 200, /images/players/graduates/oceania/graduate_oceania_01.webp
+  PASS  and the Team page sends it as her picture  /images/players/graduates/oceania/graduate_oceania_01.webp
+  PASS  (set-up) 31 youth turn 19 at the boundary, Europeans among them  12 Europeans, own academy: Shanice Beckford (north_america)
+  PASS  the season rolled over
+  PASS  every graduate of another continent was given a picture of her own continent  20 graduates; 20 with their continent's picture
+  PASS  Europe had one picture left: one European graduate got it, the rest keep their flag cards and are reported  12 European graduates: 1 given /images/players/graduates/europe/graduate_europe_01.webp, 11 reported as run out
+  PASS  the club's own graduate is served first  Shanice Beckford (north_america): /images/players/graduates/northam/graduate_northam_03.webp
+  PASS  no picture is used twice in the career  40 given, 40 different
+  PASS  the youth who have not graduated keep their cards: the shipped ones their flag cards, and none has a picture  40 shipped youth still in the academies or on the market; 215 youth in all, 0 with a picture
+  PASS  a graduate on the market is sent with her picture  Eleni Stavrou, 19: /images/players/graduates/europe/graduate_europe_01.webp
+  PASS  the database refuses the same picture twice in one career  /images/players/graduates/oceania/graduate_oceania_01.webp
+
+3. AT BOOT, AN OLDER SAVE
+  PASS  an older save is given the table, and every adult graduate in it a picture of her own continent, none twice  33 pictures for 33 adult graduates, the one from before pictures existed included
+  PASS  a second boot changes nothing
+
+4. THE AI CLUBS' PLAYERS
+  PASS  the list: 120 AI club players, 96 with Rob's new pictures and 24 keeping their cards  120 / 96 / 24; 120 in the starter DB
+  PASS  every one of the 120 has the card the list says, in the starter DB  all 120
+  PASS  no card is used twice among them  120 different
+  PASS  every card file exists  120 files
+  PASS  each new picture matches her continent's folder and her skin tone  96 of 96
+  PASS  and none of Rob's 217 new pictures is the same picture as another (graduates and seniors)  217 different of 217
+  PASS  on the Player Market every AI club player has her picture, and it is the one on the list  120 at AI clubs; 0 without a picture; 0 with another; e.g. Annika Bauer: /images/players/seniors/ai/player_senior_ai_eur_01_p1.webp · Sophie Müller: /images/players/seniors/ai/player_senior_ai_eur_01_p2.webp
+  PASS  an older save gets the 96 new pictures at boot, and her career copy too  96 pool players with the new pictures; 0 career copies still without
+
+5. SKIN TONES FOLLOW THE PICTURES (10 OCT)
+  PASS  the boot list is the 49 players whose tone changed, each from her old tone to her new picture's band  49 listed, 49 changed in the list of cards
+  PASS  at boot each of the other 48 still on her old tone gets her new picture's band  48 of 48; e.g. Chisom Nwosu Medium Light -> Dark · Fatima Al-Rashid Dark -> Medium Light
+  PASS  a tone that is not her old one is left alone  Amara Okafor: Light (set to Light; old Medium, new Dark)
+  PASS  a player with no tone is given the starter DB's  Nour Ibrahim: Light
+  PASS  so every AI club player's tone is the starter DB's (the one set by hand aside)  119 of 120
+  PASS  her career copy keeps no tone of its own (the court reads her pool player's)  0 career copies with a player_v4 tone
+  PASS  a second boot changes nothing
+
+=== 35/35 passed ===

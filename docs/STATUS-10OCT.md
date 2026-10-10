@@ -64,6 +64,27 @@ What changed:
 - `unity match-state`: an AI club player whose tone changed is bought and made a Match Player, and she is on Rob's side of the payload with her new picture's band.
 - The AI court proof now chooses a match whose AI pair includes a changed tone, buys that player, and checks her on Rob's side too.
 
+### 4. The suites alone, then the AI court in Auto
+
+**The suites, alone, one after another, on `d86b217`** (built: typecheck, build, sync; each on its own copy of the starter DB; run as the full harness runs them, the staff roll off): `docs/proof-10oct/step4/solo-*.txt`.
+
+| Suite | Result | Time | The 10 Oct checks |
+|---|---|---|---|
+| `player-pictures` | **35/35** | 25 s | the boot list is the 49; on an older save 48 of 48 still on the old tone get the new; the one set to a third tone is left alone; the one with none gets the starter DB's; no career copy keeps a tone of its own; a second boot changes nothing. Section 4: all 96 new pictures' tones = their bands in the starter DB |
+| `ai-buyable` | **25/25** | 22 s | (unchanged suite: AI players are still bought on the same rules) |
+| `unity match-state` | **11/11** | 1 s | bought Annika Bauer (EUR_01_P1, Medium Dark → Medium) and made her a Match Player: Rob's side of the payload has her as **Medium**, her picture's band and her pool tone (before this fix it would have been no tone: Rob's side read only `player_v4`) |
+| `pool-skin-tones` (also changed) | **5/5** | 6 s | re-running the tone script changes nothing (96 from Rob's pictures); a tone a save has is not overwritten by the starter DB's |
+
+ALL SOLO SUITES PASSED.
+
+**The AI court proof in Auto** (`scripts/webgl-proof/ai-court-proof.mjs --mode auto --until-finished 900 --gpu`; headless Chrome, real GPU; `docs/proof-10oct/step4/ai-court-auto.txt` and `ai-court-auto/`): **17/17**.
+- A new Sydney Riptide career; its first match is against **Rome Beach Gladiators**, whose pair both changed tone on 10 Oct: **Giulia Ricci** (Light → Medium) and **Valentina Bianchi** (Dark → Medium).
+- Giulia was bought on the Player Market, so the club played its replacement, **Camila Santiago** (a national senior, not one of the 120 AI cards), with Valentina. Each picture is served (HTTP 200). On the court Valentina is **Medium**, her new picture's band; Camila is Medium Dark (her nation's tone, as before).
+- **Giulia, now Rob's, was put in his pair:** the match-state and the court's own loader log both have her on the home side as **Medium**, her new picture's band (`player_senior_ai_eur_04_p1.webp`, 200).
+- The court's loader put exactly that pair on the away side with those tones. Auto ran with no manual code. **The match was played to its end in Auto: 2-1 (11-6, 11-13, 11-6), recorded completed.** No page errors.
+
+The 3D court shows no pictures (it draws the players in 3D): "the tone on the court equals her picture's band" is checked from the court's data and its own loader log, as on 6 Oct.
+
 ## What Rob must check on screen
 
 (Filled in at the end.)

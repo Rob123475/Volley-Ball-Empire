@@ -1,0 +1,22 @@
+========================================================================
+  R-75 POOL PAIRS' SKIN TONES FROM THEIR NATION'S DISTRIBUTION
+========================================================================
+
+0. EVERY POOL PLAYER HAS A TONE THE COURT KNOWS
+  PASS  every pool player has one of the five bands  120 of 120
+  REPORT  58 of 60 pairs share a nationality; 20 of those share a tone; bands Light 20, Medium Light 27, Medium 26, Medium Dark 26, Dark 21
+
+1. THE STORED TONES ARE THE COUNTED DISTRIBUTION'S OWN DRAW
+  PASS  re-running the draw against the shipped DB changes nothing  120 of 120 set, 0 changed; 96 from Rob's pictures; 0 from the continent's distribution
+(node:16568) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+2. THE COURT'S AWAY PAIR CARRIES HER STORED TONE
+  PASS  every away pool player's skinTone is her stored tone, never null  108 of 108 across 54 matches
+
+3. A SAVE FROM BEFORE THE COLUMN GETS EVERY TONE ON BOOT
+  PASS  the column is added and every tone is brought forward from the starter DB  120 of 120
+  PASS  a tone a save already has is not overwritten by the starter DB's  Sophie Müller: Light (starter DB Medium)
+  NOTE  graceful shutdown failed, fell back to SIGKILL — shutdown message could not be sent (no IPC channel?)
+
+=== 5/5 passed ===

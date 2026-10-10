@@ -1,0 +1,191 @@
+{
+  "mode": "auto",
+  "checks": [
+    {
+      "label": "(set-up) a match against an AI club, one of whose pair's tone changed with her new picture",
+      "pass": true,
+      "detail": "match 1: Sydney Riptide v Rome Beach Gladiators: Giulia Ricci (Light -> Medium) & Valentina Bianchi (Dark -> Medium)"
+    },
+    {
+      "label": "(set-up) bought Giulia Ricci from Rome Beach Gladiators on the Player Market",
+      "pass": true,
+      "detail": "Rome Beach Gladiators had 2 players: Giulia Ricci, Valentina Bianchi; HTTP 201 "
+    },
+    {
+      "label": "the court's match-state plays the AI club as it is now: not the player bought from it",
+      "pass": true,
+      "detail": "before: Giulia Ricci & Valentina Bianchi; now: Camila Santiago & Valentina Bianchi"
+    },
+    {
+      "label": "both are on the club's squad in the Player Market",
+      "pass": true,
+      "detail": "Camila Santiago, Valentina Bianchi"
+    },
+    {
+      "label": "each has her picture, and the file is served",
+      "pass": true,
+      "detail": "Camila Santiago: /images/players/seniors/player_senior_puerto_rico_03.webp (200) | Valentina Bianchi: /images/players/seniors/ai/player_senior_ai_eur_04_p2.webp (200)"
+    },
+    {
+      "label": "each one's skin tone on the court is her picture's",
+      "pass": true,
+      "detail": "Camila Santiago: court 'Medium Dark', picture '(not one of the 120 AI cards)' | Valentina Bianchi: court 'Medium', picture 'Medium'"
+    },
+    {
+      "label": "Giulia Ricci, bought, plays on Rob's side with her new picture's skin tone",
+      "pass": true,
+      "detail": "court 'Medium', picture 'Medium' (before 10 Oct 'Light'); /images/players/seniors/ai/player_senior_ai_eur_04_p1.webp (200)"
+    },
+    {
+      "label": "Next match, then Watch Match",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the court opens on match 1, in Auto (the remembered choice)",
+      "pass": true,
+      "detail": "/unity-build/index.html?careerSaveId=1&matchId=1"
+    },
+    {
+      "label": "the court page's button says so",
+      "pass": true,
+      "detail": "Auto: AI plays"
+    },
+    {
+      "label": "the court's loader puts that pair on the away side, with those skin tones",
+      "pass": true,
+      "detail": "Camila Santiago (Rome Beach Gladiators) skin Medium Dark | Valentina Bianchi (Rome Beach Gladiators) skin Medium"
+    },
+    {
+      "label": "and Rob's pair on the home side",
+      "pass": true,
+      "detail": "Giulia Ricci & Yaritza Mendez"
+    },
+    {
+      "label": "the player bought is in it, with her new picture's skin tone",
+      "pass": true,
+      "detail": "Giulia Ricci skin Medium | Yaritza Mendez skin Dark"
+    },
+    {
+      "label": "in Auto no manual code runs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the match was played to its end in Auto",
+      "pass": true,
+      "detail": "{\"status\":\"completed\",\"score\":\"2-1\",\"sets\":[{\"home\":11,\"away\":6},{\"home\":11,\"away\":13},{\"home\":11,\"away\":6}],\"away\":\"Rome Beach Gladiators\"}"
+    },
+    {
+      "label": "and no manual code ran in it",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "no page errors",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "loader": [
+    {
+      "name": "Giulia Ricci",
+      "team": "Sydney Riptide",
+      "side": "home",
+      "skinTone": "Medium"
+    },
+    {
+      "name": "Yaritza Mendez",
+      "team": "Sydney Riptide",
+      "side": "home",
+      "skinTone": "Dark"
+    },
+    {
+      "name": "Camila Santiago",
+      "team": "Rome Beach Gladiators",
+      "side": "away",
+      "skinTone": "Medium Dark"
+    },
+    {
+      "name": "Valentina Bianchi",
+      "team": "Rome Beach Gladiators",
+      "side": "away",
+      "skinTone": "Medium"
+    }
+  ],
+  "console": [
+    "[UnityMatchDataLoader] point chance for the home pair: 0.5118\n",
+    "[UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs ROME BEACH GLADIATORS (away)\n",
+    "[MatchManager] match starts after 4.4s: match data applied; home point chance 0.5118\n"
+  ],
+  "errors": [],
+  "awayPair": [
+    {
+      "name": "Camila Santiago",
+      "team": "Rome Beach Gladiators",
+      "skinTone": "Medium Dark",
+      "poolPlayerId": null
+    },
+    {
+      "name": "Valentina Bianchi",
+      "team": "Rome Beach Gladiators",
+      "skinTone": "Medium",
+      "poolPlayerId": 8
+    }
+  ],
+  "awaySquadNow": [
+    {
+      "name": "Camila Santiago",
+      "imageUrl": "/images/players/seniors/player_senior_puerto_rico_03.webp"
+    },
+    {
+      "name": "Valentina Bianchi",
+      "imageUrl": "/images/players/seniors/ai/player_senior_ai_eur_04_p2.webp"
+    }
+  ],
+  "pictures": [
+    {
+      "name": "Camila Santiago",
+      "card": "/images/players/seniors/player_senior_puerto_rico_03.webp",
+      "served": 200,
+      "skinTone": "Medium Dark",
+      "pictureBand": null,
+      "rob": null
+    },
+    {
+      "name": "Valentina Bianchi",
+      "card": "/images/players/seniors/ai/player_senior_ai_eur_04_p2.webp",
+      "served": 200,
+      "skinTone": "Medium",
+      "pictureBand": "Medium",
+      "rob": "new"
+    }
+  ],
+  "boughtOnHomeSide": {
+    "name": "Giulia Ricci",
+    "card": "/images/players/seniors/ai/player_senior_ai_eur_04_p1.webp",
+    "served": 200,
+    "skinTone": "Medium",
+    "pictureBand": "Medium",
+    "before10Oct": "Light"
+  },
+  "match": {
+    "status": "completed",
+    "score": "2-1",
+    "sets": [
+      {
+        "home": 11,
+        "away": 6
+      },
+      {
+        "home": 11,
+        "away": 13
+      },
+      {
+        "home": 11,
+        "away": 6
+      }
+    ],
+    "away": "Rome Beach Gladiators"
+  }
+}

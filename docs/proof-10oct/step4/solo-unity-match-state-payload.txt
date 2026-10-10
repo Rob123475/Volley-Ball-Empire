@@ -1,0 +1,16 @@
+========================================================================
+  R-22 UNITY PAYLOAD CARRIES SKIN TONE AND PER-TEAM KIT COLOUR
+========================================================================
+  PASS  career created (eager fixture generation)  HTTP 200
+  PASS  a real fixture match exists to test against  {"id":1,"homeTeamId":1,"awayTeamId":1,"locationId":7,"weather":"rain","windSpeed":13.5,"temperature":22.3,"status":"scheduled","season":2026,"round":11,"teamSize":2,"homeScore":null,"awayScore":null,"
+  PASS  the fixture's away side is the World Tour shape this bug needs (awayTeamId === homeTeamId)  home 1, away 1
+  PASS  GET /unity/match-state succeeds  HTTP 200
+  PASS  the payload carries 4 players, not 2 — the away side actually fills  4 players
+  PASS  skinTone passes through exactly when the source player_v4 data has it (never dropped, never invented)
+  PASS  of the players with real skin tone data, it genuinely differs (not one value copy-pasted onto everyone)  3 distinct value(s) across 4 player(s): Dark, Light, Medium
+  PASS  2 home-side players are present  2
+  PASS  home players' kit colour matches their team's own logoColor/secondaryLogoColor exactly  [{"name":"Yaritza Mendez","primaryColor":"#123456","secondaryColor":"#abcdef"},{"name":"Nyasha Ncube","primaryColor":"#123456","secondaryColor":"#abcdef"}]
+  PASS  (set-up) bought an AI club player whose skin tone changed with her new picture  Annika Bauer (EUR_01_P1): Medium Dark -> Medium
+  PASS  she plays on his side of the court with her new picture's skin tone (her pool player's), not none  home: Annika Bauer 'Medium' & Yaritza Mendez 'Dark'; her picture 'Medium', her pool tone 'Medium'
+
+=== 11/11 passed ===

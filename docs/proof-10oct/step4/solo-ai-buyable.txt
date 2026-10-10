@@ -1,0 +1,45 @@
+========================================================================
+  DAYTIME 2 OCT, U-6: AI CLUBS' PLAYERS ARE BUYABLE
+========================================================================
+
+1. THE MARKET LISTS THEM, AND THE WORLD IS UNCHANGED
+  PASS  the Player Market lists the AI clubs' seniors, each with her club  120 at AI clubs (e.g. Annika Bauer at Berlin Sand Queens)
+  PASS  listing them changed nothing: the same players at the same clubs on the same wages  120 of 120; their pool contracts now read "moved": 120
+  PASS  the free agents are still free agents (no AI club's player among them)  189 free agents
+
+2. HER PRICE: "?" UNTIL SCOUTED, THEN EXACT
+  PASS  unscouted: a price range and no exact price  Annika Bauer: $20,500-$28,500 (her wage at Berlin Sand Queens $24,500 a month)
+  PASS  scouting her costs $1,500, by the hired Scout  HTTP 200, $1,500
+  PASS  five game days later her exact price is known, within one month of her wage ±15%  $23,600 against $24,500
+
+3. BOUGHT FROM HER AI CLUB
+  PASS  the confirm box first: her price to confirm  Confirm the price first: Annika Bauer costs $23,600.
+  PASS  she signs for this club, as Interchange, on the box's wage and length  HTTP 201 
+  PASS  her wage is on this club's books, and she is no longer at the AI club  team 1, wage $24,500, to 2026-12-31
+  PASS  the fee goes to the selling AI club  Berlin Sand Queens: $500,000 -> $523,600 (+$23,600)
+  PASS  this club pays it, on the ledger  "Signing fee: Annika Bauer from Berlin Sand Queens" $23,600
+  PASS  the AI club still has two to play: it signed a free agent  Berlin Sand Queens: 2 players (signed Camila Santiago)
+
+4. AN AI CLUB THAT CANNOT PLAY WITHOUT HER DOES NOT SELL
+  PASS  refused, in plain words  HTTP 409: Barcelona Playa Elites won't sell: it would be left without two players to put on the sand, and there is no free agent it can sign in her place.
+  PASS  and she is still at her club
+
+5. THE AI CLUBS BUY FROM EACH OTHER
+  PASS  AI clubs bought each other's players over ten weeks  20 players at a different AI club than they started, over 10 weeks (2 2 2 2 2 2 2 2 2 2)
+  PASS  a few moves a week at most (two)  most in one week: 2
+  PASS  no player moved on again within the season she joined  20 moved, most moves for one player: 1
+  PASS  every AI club kept two or three players throughout  smallest 2, largest 3
+
+6. A WHOLE SEASON: NO AI CLUB LEFT SHORT
+  PASS  the season ran to the next one  344 steps, 2026 -> 2027
+  PASS  no AI club was ever short of two  smallest squad seen: 2
+
+7. A CLUB RETIREMENT LEAVES WITH NOBODY
+  PASS  a regional fixture is still to play this season  fixture 361
+  PASS  set up: every player and youth of the club retired, and its bank at $0  Lagos Surf Queens
+  PASS  at the week's turn it has two to play again: it signed the cheapest free agents, on credit  Lagos Surf Queens: Fara Razafindranaivo ($11,500 a month), Tariro Dube ($11,500 a month); bank $8,440
+  PASS  with nobody in the world to sign, the game goes on (no error on any day)  every day advanced
+  PASS  its regional match is a forfeit, the other club winning 2-0  Lagos Surf Queens 0-2
+  REPORT  its World Tour matches in that time: 0 forfeit(s), 0 other(s)
+
+=== 25/25 passed ===
