@@ -1,0 +1,11 @@
+[verify-unity-brotli] Stripped raw Volleyball_WebGL_Uncompressed_2.data from packaging input (double-ship trap).
+[verify-unity-brotli] Stripped raw Volleyball_WebGL_Uncompressed_2.wasm from packaging input (double-ship trap).
+[verify-unity-brotli] OK - only Brotli-compressed Unity assets will be packaged.
+[verify-native-abi] OK - better-sqlite3 loads correctly under Electron's runtime.
+  • packaging       platform=win32 arch=x64 electron=32.3.3 appOutDir=C:\build\vbe-final-10oct\win-unpacked
+[after-pack] OK - resources/starter-db holds only volleyball-empire.sqlite (no -wal/-shm).
+[after-pack] OK - no steam_appid.txt in the package (development file only).
+[after-pack] OK - steamworks.js unpacked at resources\app.asar.unpacked\node_modules\steamworks.js (dll and .node present).
+starter DB: branch and package MD5 9e8c01d16db92a8f78eefe4e63d89c6d (both)
+Unity .data.br MD5 1f5b912b1246bddb14b0a8d36c09d579 (same as vbe-final-06oct); .wasm.br eaeca5d774a0b704931bf83b327a609d
+package size 615 MB

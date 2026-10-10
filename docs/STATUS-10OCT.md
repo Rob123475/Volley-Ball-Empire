@@ -89,6 +89,20 @@ The 3D court shows no pictures (it draws the players in 3D): "the tone on the co
 
 **Run #1, at `da18281` (the step 4 proof commit; its code is `d86b217`'s, and every commit after `d86b217` is `docs/` only): 104/104 suites, 1,713 checks, ALL HARNESSES PASSED** (22:06–23:10; `docs/proof-10oct/full-harness-da18281.txt`). 1,713 = 6 Oct's 1,703 + this run's 10 new checks (player-pictures 7, unity match-state 2, pool-skin-tones 1). The typecheck stage includes `check-captions` (OK on the cropped cards) and `check-image-formats`. It passed first time, so no fix and no second run. Nothing else ran during it, and the run left the tree clean (no tracked file changed).
 
+### 6. Package `C:\build\vbe-final-10oct\win-unpacked`
+
+**Done.** Built from **`da18281`**, the commit the harness passed on: the worktree was checked out at exactly that commit for the build, then went back to the branch. The steps: the Unity data Brotli-compressed (`compress-unity-data`; already up to date), the workspaces rebuilt from that commit, then `electron-builder --win dir` into `C:\build\vbe-final-10oct` (615 MB).
+- **Before-pack:** only the Brotli Unity data was packaged (the raw `.data`/`.wasm` stripped), and better-sqlite3 loads under Electron. **After-pack:** the starter DB alone (no -wal/-shm), no `steam_appid.txt`, steamworks.js unpacked (`docs/proof-10oct/package-checks-da18281.txt`).
+- The packaged starter DB is the branch's (MD5 `9e8c01d1…` both, with the 49 new tones). The packaged `.data.br` is the same file as 6 Oct's (MD5 `1f5b912b…`; Unity unchanged). The packaged frontend has the new card layout and the packaged server has the tone correction.
+- **Booted on a copy of your 2 Oct backup** (MD5 `f2c55790…` before and after; the original was only copied), with the package's own exe as its server, never the app (`docs/proof-10oct/boot-final-da18281.json`):
+  - **Your career loaded:** profile Rob, Sydney Riptide, $247,731, 24 Apr 2026, 3 players, 2 staff.
+  - The page is served, and the Unity data and wasm are served Brotli.
+  - **The pictures are served, and they are yours:** the package's 205 senior cards and 96 AI pictures are byte-identical to the files in your `PICTURES-10OCT` folder. Valentina Sosa's cropped card was served at 200, the same 55,574 bytes as your file. Annika Bauer's new AI picture was served at 200, 61,076 bytes, the same as your file. A graduate's picture was served at 200.
+  - The Player Market lists 120 AI club players, 96 with your new pictures.
+  - **The skin tones:** all 49 had their old tone in the save copy, all 49 have their new picture's band after the boot, and all 120 AI club players' tones equal their cards'.
+- **Your live save is unchanged:** only its date and size were read, before and after (10 Oct 21:35:40, 2,314,240 bytes); it was never opened.
+- **The fallbacks were not touched:** `C:\build\vbe-final-06oct` (last changed 6 Oct 17:21) and `C:\build\vbe-launch-05oct` (5 Oct 16:34).
+
 ## What Rob must check on screen
 
 All in **`C:\build\vbe-final-10oct\win-unpacked`**. Make a backup of your save first, as always.
