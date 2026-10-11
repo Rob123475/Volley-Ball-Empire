@@ -1,0 +1,3 @@
+BeachKit_Bikini: shader Universal Render Pipeline/Lit, Smoothness 0.82, Metallic 0.05, SpecularHighlights 1, EnvironmentReflections 1
+BeachKit_Skin_T_BODY_F_UPD_BaseColor_01: shader Universal Render Pipeline/Lit, Smoothness 0.25, Metallic 0.00, SpecularHighlights 1, EnvironmentReflections 1
+BeachKit_Skin_T_HEAD_F_BaseColor_16_04: shader Universal Render Pipeline/Lit, Smoothness 0.25, Metallic 0.00, SpecularHighlights 1, EnvironmentReflections 1

@@ -77,6 +77,21 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 
 **AI club players never reach it on their own:** they do not train or develop while at an AI club. The best, 92, stays 92 unless you buy her and train her, about 45 days at the same rate.
 
+### 4. Bikinis too matte (3D court, bikinis only)
+
+**Done.** Unity `1bb6d26`.
+- **The material:** `Assets/Materials/BeachKit_Bikini` (URP/Lit), and nothing else. **Smoothness 0.5 → 0.82, Metallic 0 → 0.05**: a fabric sheen, the highlight of wet Lycra, not plastic. Specular highlights and environment reflections were already on. The per-player kit colour (`_BaseColor`, through the MaterialPropertyBlock) and the base map are unchanged.
+- **Left alone:** the skin materials (`BeachKit_Skin_*`, still Smoothness 0.25, Metallic 0, written in the proof's `materials.txt`) and everything else on the model.
+- **Proof:** a new Unity batch proof, `BikiniCloseProof`. In Play, at a serve with everyone standing on her spot, a camera 2.2 m in front of each of the four players, aimed at her hips, renders her through the scene's own lights. **Two kit colours** are set the way the match data sets them: Team A navy and amber (Sydney Riptide's), Team B red and white. The proof was run once before and once after the change; the pictures are like for like.
+
+**Pictures to open** (`docs/proof-11oct/bikini/`):
+- Side by side, before on the left and after on the right, zoomed in:
+  - **`bikini-compare-team-b.png`** (red kit): the highlights on the top are new; the skin is the same.
+  - **`bikini-compare-team-a.png`** (navy kit).
+  - `bikini-compare-team-a-2.png` and `bikini-compare-team-b-2.png`: the other two players.
+- The full frames: `unity-before/bikini-close-team-a.png` … and `unity-after/…`.
+- **The court from the close camera, zoomed in, in the browser:** `webgl-before/bikini-close-1.png` to `-3.png` are the 10 Oct court. At its closest the close camera is still well back, so they show the whole court rather than the fabric. The after frames from the new export are in `webgl-after/` (with item 6's zoom; see below).
+
 ## What Rob must check on screen
 
 (Filled in at the end.)
