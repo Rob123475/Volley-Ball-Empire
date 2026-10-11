@@ -1,0 +1,58 @@
+== Elise (box x 0-182, y 120-420)
+{
+ "new": {
+  "format": "WEBP",
+  "size": [
+   600,
+   800
+  ],
+  "mode": "RGB",
+  "lossless": false
+ },
+ "outsideBox": {
+  "pixels": 424917,
+  "differFromLastNight": 128718,
+  "maxChannelDiff": 20,
+  "over8": 1404,
+  "where": "x 0-599, y 0-799"
+ },
+ "insideBox": {
+  "pixels": 55083,
+  "differFromLastNight": 25650,
+  "differFromOriginal_over24": 3,
+  "lastNightDifferedFromOriginal_over24": 3001
+ }
+}
+last night re-saved as lossy WebP (the yardstick):
+q80: 49816 bytes, mean 2.399, max 36, over8 7984, over24 24
+q90: 66360 bytes, mean 1.484, max 28, over8 2349, over24 1
+q95: 77562 bytes, mean 0.943, max 19, over8 1290, over24 0
+== Andreina (box x 398-480, y 250-405)
+{
+ "new": {
+  "format": "WEBP",
+  "size": [
+   600,
+   800
+  ],
+  "mode": "RGB",
+  "lossless": false
+ },
+ "outsideBox": {
+  "pixels": 467052,
+  "differFromLastNight": 144579,
+  "maxChannelDiff": 40,
+  "over8": 4260,
+  "where": "x 0-599, y 0-799"
+ },
+ "insideBox": {
+  "pixels": 12948,
+  "differFromLastNight": 7811,
+  "differFromOriginal_over24": 7,
+  "lastNightDifferedFromOriginal_over24": 1443
+ }
+}
+last night re-saved as lossy WebP (the yardstick):
+q80: 38424 bytes, mean 2.589, max 46, over8 12759, over24 256
+q90: 54308 bytes, mean 1.608, max 45, over8 6340, over24 149
+q95: 64890 bytes, mean 1.088, max 40, over8 4215, over24 124
