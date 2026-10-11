@@ -44,6 +44,12 @@ function check(label, cond, detail = "") {
  * the throwaway database, because a contract-less person is invisible over HTTP
  * - the squad screen lists them like anyone else.
  */
+/** A club's running win and loss totals, read from the throwaway database. */
+function teamTotals(dbPath, teamId) {
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try { return db.prepare(`SELECT wins, losses FROM teams WHERE id = ?`).get(teamId) ?? null; } finally { db.close(); }
+}
+
 function contractlessAtClub(label) {
   if (!DB_FILE) return null;
   const db = new DatabaseSync(DB_FILE, { readOnly: true });
@@ -579,6 +585,7 @@ async function advanceToBoundary(api, maxDays = 500) {
       const endedYear = 2026 + hit.roll.fromSeason - 1;
       const review = await api("GET", `/seasons/${endedYear}/review`);
       const teamNow = await api("GET", "/team");
+      const seasonTeam = team;                 // the club that played the season
       team = teamNow.data;
 
       // L-01: the squad after the boundary — ageing, retirement and promotion
@@ -597,9 +604,16 @@ async function advanceToBoundary(api, maxDays = 500) {
       // totals. The first version counted `status === "completed"` rows from
       // GET /matches, which is `.limit(50)` — so it saturated at 50 and both
       // squads reported "50 matches" whatever actually happened.
-      const wins = team.wins - prevWins;
-      const losses = team.losses - prevLosses;
+      // With the job market (6 Oct join), a manager the board sacks at the
+      // review carries on at the club he is given, and the boundary comes back
+      // "rolled": GET /team is then the new club. The season just ended was his
+      // old club's, so its record is that club's totals (read from the save).
+      const moved = team.id !== seasonTeam.id;
+      const oldClub = moved && DB_FILE ? teamTotals(DB_FILE, seasonTeam.id) : null;
+      const wins = moved ? (oldClub ? oldClub.wins : NaN) - prevWins : team.wins - prevWins;
+      const losses = moved ? (oldClub ? oldClub.losses : NaN) - prevLosses : team.losses - prevLosses;
       const played = wins + losses;
+      if (moved) console.log(`    (season ${hit.roll.fromSeason}: the board sacked him at the review and the job market moved him from ${seasonTeam.name} to ${team.name}; the season is ${seasonTeam.name}'s)`);
       prevWins = team.wins; prevLosses = team.losses;
 
       const rankingPoints = review.data?.ranking?.rankingPoints ?? null;

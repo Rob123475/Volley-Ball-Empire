@@ -4,7 +4,23 @@ Brief: `C:\Users\rbonn\Downloads\SERVE-BRIEF-11OCT.md`. Game repo branch `launch
 
 ## Summary
 
-(Written as the items go; finished at the end.)
+**All six items are in one new package for you to check: `C:\build\vbe-final-11oct\win-unpacked`.** It has one Unity export, from `volleyball-unity` `dd7465d`. Nothing is merged into `main`, nothing went to Steam, no music changed, and the fallbacks (`vbe-final-10oct`, `vbe-final-06oct`, `vbe-launch-05oct` and the 10 Oct originals zip) were not touched.
+
+1. **Start positions:** after every rally the game walks all four back to their spots, your player included. The server stands just behind her own baseline, the serve waits until everyone is there, and it is always the player who walked back who serves. Rebuilt as one rule; the old code picked the server twice and walked the wrong player.
+2. **The serve meter:** it sweeps WEAK ↔ MAX without stopping, and one tap of Y serves at the power shown. The top 8% (marked green) is full power; under 12% goes into the net. Hold-and-release is gone.
+3. **The ace ability:** a server rated 95 or more aces with a tap in the MAX zone, and in Auto aces 1 serve in 12. 95 is one constant, `AceServeRating`. Nobody starts at 95, but Serving Academy training gets there: **Yaritza Mendez went 88 → 95 in 100 game days, measured**, and the court uses the career's current rating.
+4. **Bikinis:** a fabric sheen, Smoothness 0.5 → 0.82 on the bikini material only; skin untouched. Before/after close-ups are in `docs/proof-11oct/bikini/`.
+5. **White on the AI pictures:** the pale rims and white tips cleaned on 95 of the 96 pictures; Min-Seo Kim (white on purpose) untouched. The originals are zipped in `C:\build\_KEEP-originals\`. Contact sheet `docs/proof-11oct/ai-pictures-before-after-1..8.png`. Five pictures to look at, and four 10 Oct leftovers outside the bikinis, are listed under item 5.
+6. **Zoom buttons 1x 2x 4x** on the court magnify the camera 2 and 4 times. **Note:** item 6 was never in the brief file (it is still the 12:30 version), so I built it from your message.
+
+**Proof:**
+- The Unity proofs pass with all the new checks:
+  - positions at every serve: 34 in Auto, 15 in Manual;
+  - the meter sweeps, a weak tap faults, a MAX tap is full speed;
+  - aces at 95 but not at 94, and 111 of 1,200 Auto serves at 95;
+  - the zoom measured at ×2.000 and ×4.000.
+- In the browser, on the real GPU: positions, the meter and the 4x zoom on screen; the AI court played a full match in Auto (2-1); the manual court 8/8.
+- **The full harness:** run #1 found a fault in one suite (unrelated: the staff-injuries suite read Club News too late), fixed; run #2: see "The full harness" below.
 
 ## Items
 
@@ -147,6 +163,12 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 - The check passed on 10 Oct only because an absence happened to fall late in that run.
 - **Fixed in the suite (`harness/staff-injuries.mjs`):** it now reads Club News on the day of the first absence the game rolls itself, and checks that line is there on its date. Alone: **19/19** (`docs/proof-11oct/staff-injuries-fixed-alone.txt`: "2026-02-13: Dr. Karim Hassan (Doctor) caught the flu").
 - The brief asked for one full harness run. A run with a failed suite can't be packaged, so after the fix I ran it a second time (below), with nothing else running.
+
+**Run #2, at `5c48a66` (the staff fix): 103 of 104 again.** `staff injuries` passed this time, and `season rollover` failed two checks (`docs/proof-11oct/full-harness-5c48a66-rollover-move-fail.txt`): RollStrong's season 5 read **"-217 played"** and **"-130W -87L"**.
+- **The cause was again the suite, and again random.** RollStrong had two failed seasons, so his board sacked him at the season-5 review. Since the job market (6 Oct join), a sacked manager carries on at the club he is given, and the boundary comes back as an ordinary "rolled".
+- The suite then took the season's record as the new club's running totals minus the old club's: a negative number. The game was right; the same kind of suite fault was fixed in `ai-club-economy` on 6 Oct. It passed in run #1 and on 10 Oct because nobody was sacked then.
+- **Fixed in the suite (`harness/rollover.mjs`):** when the club changes at a boundary, the season is the old club's, so its record is read from that club's own totals in the save. The move is logged, and the arc goes on with the new club.
+- **Alone, after the fix: 90/90** (`docs/proof-11oct/season-rollover-fixed-alone.txt`). Nobody was sacked in that run, so the new "moved club" branch did not come up; it reads the old club's own totals, which nothing resets on a move.
 
 ## What Rob must check on screen
 
