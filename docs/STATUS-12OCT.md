@@ -123,3 +123,41 @@ So I could not make 4–5 m happen from the dig target itself. **If you still se
 4. **The new AI pictures.** Open the market or an AI club and look through the AI players' pictures.
 5. **Élise Fontaine (`EUR_03_P1`):** part of her umbrella still looks tinted red/blue. **Andreína Colmenares (`SAM_08_P2`):** a patch on the right of the picture changed. If either is wrong, the old set is in `C:\build\_KEEP-originals\ai-pictures-11oct-cleaned.zip`.
 6. **Your career** opens as before in `C:\build\vbe-final-12oct\win-unpacked\Beach Volleyball Empire.exe`. Use a copy of your save if you want to be safe.
+
+## 12 Oct: the two picture fixes, package `vbe-final-12oct-b`
+
+**Plain summary.** Your two corrected pictures are installed. **Élise Fontaine's umbrella is blue and white again**, and **Andreína Colmenares's hair patch is back** to the original. The full harness passed once on that commit (**104 of 104 suites** at `launch-final` **`898b449`**). The new package is **`C:\build\vbe-final-12oct-b`**, built from that exact commit. Its before-pack and after-pack checks passed, and it booted on a copy of the 2 Oct backup with your career intact. **One thing differs from `READY-FIX.txt`:** the kit lettering is smaller in both pictures (below, check F1).
+
+- **Install** (`898b449`): `player_senior_ai_eur_03_p1.webp` and `player_senior_ai_sam_08_p2.webp` from `Downloads\PICTURES-11OCT\fix-12oct` were copied over the same names, byte-identical to your files. Nothing else changed, and there is no database change. Nothing in `fix-12oct` was moved, renamed or deleted.
+- **Checks:** both WebP at 600x800; `check-image-formats` OK; `check-captions` OK.
+- **Compared with the 5 Oct originals:**
+  - Élise's original is `EUR_06_P1`, as `pictureFrom` says. Her umbrella now matches it: the only changes left are on her kit.
+  - Andreína's original is her own file. The patch at the right (x 420–480) now matches it: the only changes left are on her kit.
+- **What else changed since last night.** Inside the kit, the lettering is **smaller in both**:
+  - **"FRA"** on Élise's top is about half the size it was last night;
+  - **"VEN"** on Andreína's top is smaller and sits further right.
+
+  The kit colours are the same. `READY-FIX.txt` says "The kit is unchanged", so this may not be what you meant; the other 94 still have last night's lettering. The crops, each showing original | 11 Oct | fix, are in `docs/proof-12oct-fix/fix-elise.png` and `fix-andreina.png`.
+- **Full harness, run once at `898b449`: ALL HARNESSES PASSED, 104 of 104 suites** (`docs/proof-12oct-fix/harness-898b449.txt`).
+- **Package** `C:\build\vbe-final-12oct-b\win-unpacked`, built from `898b449` (`docs/proof-12oct-fix/package-checks-898b449.txt`):
+  - **before pack:** only the Brotli Unity files are shipped, and `better-sqlite3` loads under Electron;
+  - **after pack:** the starter DB has no `-wal`/`-shm`; there is no `steam_appid.txt`; `steamworks.js` is unpacked with its DLL.
+- **Boot on a copy of the 2 Oct backup** (`docs/proof-12oct-fix/boot-898b449.json`):
+  - the app shell, `data.br` (217.0 MB) and `wasm.br` (9.0 MB) all served;
+  - the Unity export is the same as `launch-final`'s (Unity `4674c7f`, items A and B);
+  - your career loaded: Sydney Riptide, 24 Apr 2026, $247,731;
+  - 96 of 120 AI-club players have AI pictures;
+  - **all 96 AI pictures in the package are byte-identical to `launch-final`'s, the two fixes included**;
+  - the 205 cropped senior cards are still yours, and all 120 skin tones match their cards.
+- **Rules kept:**
+  - `vbe-final-12oct` (11 Oct 22:43) and every older package (`vbe-final-11oct`, live on Steam; `10oct`, `06oct`, `launch-05oct`) are untouched, with the same times as before;
+  - `_KEEP-originals` is unchanged;
+  - the live save was only stat'ed: 11 Oct 19:25, 2,314,240 bytes, the same before and after;
+  - no merge into main, no Steam upload, no music change; the ElevenLabs key check passed on the push.
+
+### What Rob must check on screen (the fixes)
+
+1. **F1. Élise Fontaine:** the umbrella is blue and white, with no red. Is the smaller "FRA" on her top all right next to the other players' lettering?
+2. **F2. Andreína Colmenares:** the hair at the right of her top looks natural, with no yellow. Is the smaller, right-shifted "VEN" all right?
+3. **F3.** If you want the larger lettering back, last night's versions are in git at `7f81091` and in `Downloads\PICTURES-11OCT`. Tell me and I'll install them.
+4. **F4.** Your career opens as before in `C:\build\vbe-final-12oct-b\win-unpacked\Beach Volleyball Empire.exe`. It uses your live save, so keep a copy first if you want to be safe.

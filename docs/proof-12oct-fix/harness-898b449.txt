@@ -1,0 +1,106 @@
+Full harness at launch-final 898b449 (pnpm run build), 12 Oct 2026
+  PASS  guard self-test          2.3s
+  PASS  schema drift             1.7s
+  PASS  reference data backfill  1.2s
+  PASS  reference data update    2.2s
+  PASS  reference data new players 2.7s
+  PASS  save folder migration    1.5s
+  PASS  wal checkpoint on shutdown 0.8s
+  PASS  unity match-state payload 0.9s
+  PASS  unity career scoping     0.8s
+  PASS  migration fixtures       19.9s
+  PASS  fresh install            2.2s
+  PASS  fixture transaction      1.0s
+  PASS  career difficulty        1.1s
+  PASS  board review             22.5s
+  PASS  world tour competitors   13.9s
+  PASS  world tour byes          22.7s
+  PASS  all-star removed         1.4s
+  PASS  olympic qualification    7.8s
+  PASS  starting contracts       0.7s
+  PASS  contract renewal         1.1s
+  PASS  empty squad forfeit      4.7s
+  PASS  injuries and fitness     4.6s
+  PASS  season trophies          17.5s
+  PASS  invented content removed 4.7s
+  PASS  dashboard standing       8.4s
+  PASS  career ends              1.4s
+  PASS  olympic tournament       51.7s
+  PASS  academy intake           103.7s
+  PASS  academy cap and wages    40.8s
+  PASS  wizard career economy    2.6s
+  PASS  calendar tick            0.0s
+  PASS  music playlist           0.0s
+  PASS  reference corrections    1.1s
+  PASS  contract terms           12.9s
+  PASS  retirement               18.5s
+  PASS  youth rebirth            511.8s
+  PASS  graduates                19.1s
+  PASS  hall of fame             71.1s
+  PASS  achievement ipc          4.9s
+  PASS  economy                  231.7s
+  PASS  job market               71.5s
+  PASS  season phase             1.1s
+  PASS  club kits                5.0s
+  PASS  pool skin tones          6.2s
+  PASS  watched match            4.2s
+  PASS  staff bonuses            2.5s
+  PASS  staff name sync          1.1s
+  PASS  starting squad release   2.2s
+  PASS  facility upgrades        1.5s
+  PASS  club picker budget       2.8s
+  PASS  facility names           1.5s
+  PASS  facility benefits        2.2s
+  PASS  match day box            3.3s
+  PASS  currency                 1.1s
+  PASS  next match               8.6s
+  PASS  one set of odds          6.5s
+  PASS  boosts                   1.4s
+  PASS  watched result           4.3s
+  PASS  court finish             0.1s
+  PASS  court page               0.0s
+  PASS  pause after match        3.4s
+  PASS  dashboard fresh          3.1s
+  PASS  finances ledger          0.7s
+  PASS  injured match player     3.0s
+  PASS  player market            19.2s
+  PASS  staff slots              0.9s
+  PASS  staff scouting           19.6s
+  PASS  training and youth       3.2s
+  PASS  training days            1.4s
+  PASS  club pages               2.8s
+  PASS  achievements 29          4.6s
+  PASS  manager records          0.6s
+  PASS  manager profile          0.7s
+  PASS  real world dates         1.1s
+  PASS  commentary she           0.1s
+  PASS  clock refresh            0.0s
+  PASS  staff labels             0.1s
+  PASS  market order             0.1s
+  PASS  nationality countries    2.3s
+  PASS  youth market             4.1s
+  PASS  scouting missions        1.9s
+  PASS  transfer fee             0.9s
+  PASS  staff contracts          13.4s
+  PASS  ledger words             3.4s
+  PASS  round numbers            5.0s
+  PASS  sponsor badge            0.0s
+  PASS  achievement progress     0.1s
+  PASS  youth loans              6.1s
+  PASS  ai club economy          1102.0s
+  PASS  money pass               2.2s
+  PASS  runner-up prize          4.2s
+  PASS  youth ratings            9.2s
+  PASS  youth wages              2.2s
+  PASS  youth contract box       1.1s
+  PASS  workload window          0.6s
+  PASS  game dates               0.1s
+  PASS  highest balance          4.5s
+  PASS  staff portraits          0.1s
+  PASS  player pictures          23.8s
+  PASS  ai buyable               20.8s
+  PASS  ai job market            56.9s
+  PASS  staff injuries           125.2s
+  PASS  gameplay smoke           13.7s
+  PASS  season rollover          1029.6s
+  ALL HARNESSES PASSED
