@@ -1,0 +1,20 @@
+{
+  "mode": "auto",
+  "frames": {
+    "serve-team-a.png": "[Point] awarded: SYDNEY RIPTIDE by Kill after 8 attack(s), 23 touches -> [Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.532)",
+    "serve-team-b.png": "[Point] awarded: AMSTERDAM DUNE RIDERS by Kill after 5 attack(s), 13 touches -> [Point] decided: AMSTERDAM DUNE RIDERS by AttackError (server B, final attack by A after 1, chance 0.532)"
+  },
+  "lines": [
+    "[UnityMatchDataLoader] Player_A1 <- Yaritza Mendez | team Sydney Riptide (home) | skinTone Dark | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 90 pwr 96 spd 80 def 88 srv 88 blk 99 sta 88 mor 75 | (not applied: fatigue 0, fitness 100, injured False)\n",
+    "[UnityMatchDataLoader] Player_A2 <- Nyasha Ncube | team Sydney Riptide (home) | skinTone Light | kit #1e3a8a/#f59e0b | appearance controller found | applied ovr 89 pwr 96 spd 82 def 88 srv 85 blk 98 sta 86 mor 75 | (not applied: fatigue 0, fitness 100, injured False)\n",
+    "[UnityMatchDataLoader] Player_B1 <- Emma van Dijk | team Amsterdam Dune Riders (away) | skinTone Light | kit #C2185B/#FFD100 | appearance controller found | applied ovr 75 pwr 68 spd 82 def 76 srv 74 blk 72 sta 80 mor 56 | (not applied: fatigue 0, fitness 80, injured False)\n",
+    "[UnityMatchDataLoader] Player_B2 <- Lisa de Boer | team Amsterdam Dune Riders (away) | skinTone Dark | kit #C2185B/#FFD100 | appearance controller found | applied ovr 73 pwr 66 spd 80 def 74 srv 72 blk 70 sta 76 mor 56 | (not applied: fatigue 0, fitness 80, injured False)\n",
+    "[MatchManager] match starts after 4.5s: match data applied; home point chance 0.5322\n",
+    "[Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.532)\n",
+    "[Point] decided: SYDNEY RIPTIDE by Kill (server A, final attack by A after 1, chance 0.532)\n",
+    "[Point] decided: SYDNEY RIPTIDE by AttackError (server A, final attack by B after 3, chance 0.532)\n",
+    "[Point] decided: AMSTERDAM DUNE RIDERS by Kill (server A, final attack by B after 4, chance 0.532)\n",
+    "[Point] decided: AMSTERDAM DUNE RIDERS by AttackError (server B, final attack by A after 1, chance 0.532)\n"
+  ],
+  "errors": []
+}

@@ -1,0 +1,1 @@
+{"mode":"auto","ok":false,"frames":["zoom-4x-buttons.png","bikini-close-1.png","bikini-close-2.png","bikini-close-3.png","serve-team-a.png","serve-team-b.png"],"errors":["the serve meter never came up"]}

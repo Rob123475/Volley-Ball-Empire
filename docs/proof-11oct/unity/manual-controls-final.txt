@@ -1,0 +1,43 @@
+[ManualProof] === MANUAL CONTROLS PROOF (no api-server: prefab ratings, chance 0.5) ===
+[ManualProof]   devices: keyboard 1, gamepad 2
+[ManualProof]   match started; mode Auto; switching to Manual (the page's ?mode=manual does this in the build)
+[ManualProof]   CHECK Tab (keyboard) switches to Auto: PASS  toggles keyboard 1
+[ManualProof]   CHECK View / Share (gamepad) switches back to Manual: PASS
+[ManualProof]   CHECK Q (keyboard) switches the controlled player: PASS  Player_A1 -> Player_A2
+[ManualProof]   CHECK LB / L1 (gamepad) switches back: PASS  -> Player_A1
+[ManualProof]   CHECK H (keyboard) hides the controls help (shown at the start): PASS
+[ManualProof]   CHECK D-pad down (gamepad) shows it again: PASS
+[ManualProof]   CHECK Esc (keyboard) pauses: time stops: PASS  time scale 0
+[ManualProof]   CHECK Menu / Options (gamepad) resumes: PASS  time scale 2
+[ManualProof]   CHECK Space (keyboard) and B / Circle (gamepad) dive: PASS
+[ManualProof]   CHECK WASD (keyboard) and the left stick (gamepad) move the controlled player: PASS  moved 3.6 m; move frames keyboard 858, gamepad 1
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.851, point planned ServeError to TeamB
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Kill to TeamA
+[Manual] point changed by the player: Player_A1 tapped in the MAX zone with the ace ability: an ace
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.850, point planned ServeError to TeamB
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Kill to TeamB
+[Manual] point changed by the player: Player_A2 tapped in the MAX zone with the ace ability: an ace
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned ServeError to TeamB
+[ManualProof]   CHECK the serve meter sweeps WEAK to MAX and back without stopping: PASS  0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns
+[ManualProof]   CHECK a tap under 12% is a fault into the net (the point to the other side): PASS  0% -> ServeError to TeamB; 0% -> ServeError to TeamB
+[ManualProof]   CHECK a tap in the MAX zone serves at full speed: PASS  94% -> x1.150; 94% -> x1.150; 94% -> x1.150; 94% -> x1.150
+[ManualProof]   CHECK a server rated 95+ tapping in the MAX zone aces: PASS  rating 95: Ace to TeamA (ability); rating 95: Ace to TeamA (ability)
+[ManualProof]   CHECK a server rated 94 tapping in the MAX zone does not get the ability's ace: PASS  rating 94: Kill to TeamA; rating 94: Kill to TeamB
+[ManualProof]   serves in Manual: 15; your player serving 7, receiving 8, her partner serving 0
+[ServePositions] Manual: 15 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_B2,Player_A1,Player_B1,Player_A2; players placed by the 3 s rule 0
+[ServePositions]   CHECK Manual (10+ serves): non-servers within 0.3 m of home 15/15; server 0.5-1.5 m behind her baseline 15/15; between the sidelines 15/15; server = the rally sequence's server 15/15: PASS
+[ManualProof]   CHECK serve positions in Manual (your player serving and receiving): PASS
+[ManualProof]   CHECK Dig fires from the keyboard and the gamepad: PASS  keyboard 6, gamepad 9
+[ManualProof]   CHECK Set fires from the keyboard and the gamepad: PASS  keyboard 16, gamepad 18
+[ManualProof]   CHECK Spike fires from the keyboard and the gamepad: PASS  keyboard 36, gamepad 31
+[ManualProof]   CHECK Serve fires from the keyboard and the gamepad: PASS  keyboard 5, gamepad 2
+[ManualProof]   CHECK Block fires from the keyboard and the gamepad: PASS  keyboard 4, gamepad 1
+[ManualProof]   CHECK Cheer fires from the keyboard and the gamepad: PASS  keyboard 4, gamepad 3
+[ManualProof]   touches made in time 62; points the player changed 11; points played 15; awarded as planned 15; score sets 0-0 (, now 7-8)
+[ManualProof]   CHECK the player's touches keep rallies going (touches made in time): PASS  62
+[ManualProof]   CHECK every point so far was awarded to the team its plan (or the player's change to it) said: PASS  15 of 15
+[ManualProof]   CHECK every finished set is legal: PASS
+[ManualProof]   RESULT: PASS
+[ManualProof] === DONE (exit 0) ===

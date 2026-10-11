@@ -90,7 +90,7 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
   - **`bikini-compare-team-a.png`** (navy kit).
   - `bikini-compare-team-a-2.png` and `bikini-compare-team-b-2.png`: the other two players.
 - The full frames: `unity-before/bikini-close-team-a.png` … and `unity-after/…`.
-- **The court from the close camera, zoomed in, in the browser:** `webgl-before/bikini-close-1.png` to `-3.png` are the 10 Oct court. At its closest the close camera is still well back, so they show the whole court rather than the fabric. The after frames from the new export are in `webgl-after/` (with item 6's zoom; see below).
+- **The court from the close camera, zoomed in, in the browser:** `webgl-before/bikini-close-1.png` to `-3.png` are the 10 Oct court. At its closest the close camera is still well back, so they show the whole court rather than the fabric. The after frames from the new export are in `webgl-after/` (with the 4x zoom button of item 6).
 
 ### 5. White tips and splashes on the AI pictures' bikinis
 
@@ -118,6 +118,26 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 - **Agnieszka Kowal**: red streaks in her hair.
 - **Mariela Colon**: blue patches in her hair.
 - **Brittany MacLeod**: a small red mark at the top's neckline.
+
+### 6. Zoom buttons 1x, 2x, 4x
+
+**Done, from your message; the brief file never had it.** You wrote that item 6 (zoom buttons 1x 2x 4x) was added to `SERVE-BRIEF-11OCT.md` at 12:32, and that it was updated at 12:35. The file in Downloads is still the 12:30 version (9,018 bytes, saved 12:30:36), with items 1–5 only. No other brief was written today, and nothing on the PC mentions zoom buttons. So I built item 6 from your words, before the Unity export as you asked; if the brief says more, it is easy to change. Unity `dd7465d`.
+- **Three buttons on the court, `1x` `2x` `4x`**, top right under the weather box. The one in use is lit amber. They work in Auto and in Manual (they are buttons, like the boosts).
+- **What they do:** they magnify the camera in use 1, 2 or 4 times. The field of view is narrowed so the picture is that much larger: the close camera goes 60° → 32.2° → 16.4°. It is a true zoom, so nothing on the court moves.
+- The mouse wheel and +/- (the dolly) still work on top of it. The zoom chosen stays when you switch camera (1 / 2 / 3); only the camera in use is ever magnified.
+- **Proof:** `RallyPlanProof` clicks the three buttons (their own `onClick`) and measures the camera: **×2.000 and ×4.000, and back to 60.00° at 1x: PASS** (`docs/proof-11oct/unity/rally-plan-item6.txt`). In the browser, the court proof clicks the 4x button with the mouse (`docs/proof-11oct/bikini/webgl-after/zoom-4x-buttons.png`).
+
+### The Unity export, and the court in the browser
+
+**One WebGL export** of Unity `dd7465d` (items 1–4 and 6), using the 5 and 6 Oct route:
+- `WebBuild.Step7` in batch: **Succeeded** (4 min). The output is data 268.7 MB and wasm 51.6 MB.
+- Copied into `launch-final` under the deployed names (`unity-build/Build/Volleyball_WebGL_Uncompressed_2.*`, the four files; the page, `index.html`, and the commentary clips are unchanged).
+- Brotli regenerated with `compress-unity-data`: data.br 217.0 MB, wasm.br 9.0 MB.
+
+**Headless Chrome on the real game page, real GPU** (`scripts/webgl-proof/court-frames-proof.mjs`, a new Sydney Riptide career's first match, opened with Next match → Watch Match):
+- **Positions (item 1):** `docs/proof-11oct/court-positions/serve-team-a.png` ("SYDNEY RIPTIDE TO SERVE": the Team A server stands just outside the left baseline, the other three on their spots) and `serve-team-b.png` ("AMSTERDAM DUNE RIDERS TO SERVE": the Team B server just outside the right baseline). Each frame is taken 1.8 s after the point, while the serve waits for everyone.
+- **The serve meter (item 2):** `docs/proof-11oct/court-meter/serve-meter.png` and `-2.png`. The WEAK…MAX bar has the red weak end and the green MAX zone, the needle sweeping, the prompt "SERVE: tap L at MAX", and the help panel's "(serve: tap at the right time, at MAX)". The proof plays in Auto, and after a point Sydney Riptide wins it presses Tab, so Yaritza Mendez serves in Manual.
+- **Zoom (item 6) and the bikinis (item 4):** `docs/proof-11oct/bikini/webgl-after/zoom-4x-buttons.png` shows the 4x button clicked with the mouse: it is lit and the close camera is magnified 4 times (the court logged "zoom 4x … field of view 16.4"). `bikini-close-1..3.png` are frames at 4x before a serve. Compare `bikini/webgl-before/` (the 10 Oct court at its closest). The fabric itself is clearest in the Unity close-ups (item 4).
 
 ## What Rob must check on screen
 
