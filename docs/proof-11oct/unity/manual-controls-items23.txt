@@ -1,0 +1,72 @@
+[ManualProof] === MANUAL CONTROLS PROOF (no api-server: prefab ratings, chance 0.5) ===
+[ManualProof]   devices: keyboard 1, gamepad 2
+[ManualProof]   match started; mode Auto; switching to Manual (the page's ?mode=manual does this in the build)
+[ManualProof]   CHECK Tab (keyboard) switches to Auto: PASS  toggles keyboard 1
+[ManualProof]   CHECK View / Share (gamepad) switches back to Manual: PASS
+[ManualProof]   CHECK Q (keyboard) switches the controlled player: PASS  Player_A1 -> Player_A2
+[ManualProof]   CHECK LB / L1 (gamepad) switches back: PASS  -> Player_A1
+[ManualProof]   CHECK H (keyboard) hides the controls help (shown at the start): PASS
+[ManualProof]   CHECK D-pad down (gamepad) shows it again: PASS
+[ManualProof]   CHECK Esc (keyboard) pauses: time stops: PASS  time scale 0
+[ManualProof]   CHECK Menu / Options (gamepad) resumes: PASS  time scale 2
+[Manual] point changed by the player: Player_A1 missed the Set
+[ManualProof]   CHECK Space (keyboard) and B / Circle (gamepad) dive: PASS
+[ManualProof]   CHECK WASD (keyboard) and the left stick (gamepad) move the controlled player: PASS  moved 3.6 m; move frames keyboard 890, gamepad 1
+[Manual] point changed by the player: Player_A1 missed the Dig
+[Manual] serve tapped at 0%
+[Manual] point changed by the player: the serve was tapped too weak: into the net
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.851, point planned ServeError to TeamB
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamA by Kill after 8)
+[Manual] serve tapped at 94% (MAX)
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned BlockStuff to TeamB
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamB by Kill after 10)
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamA by Kill after 13)
+[Manual] serve tapped at 94% (MAX)
+[Manual] point changed by the player: Player_A2 tapped in the MAX zone with the ace ability: an ace
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[Manual] serve tapped at 0%
+[Manual] point changed by the player: the serve was tapped too weak: into the net
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.850, point planned ServeError to TeamB
+[Manual] serve tapped at 94% (MAX)
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Kill to TeamA
+[Manual] serve tapped at 94% (MAX)
+[Manual] point changed by the player: Player_A2 tapped in the MAX zone with the ace ability: an ace
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[Manual] serve tapped at 45%
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamB by Kill after 5)
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamB by Kill after 18)
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamA by Kill after 28)
+[Manual] serve tapped at 45%
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned BlockStuff to TeamA
+[Manual] serve tapped at 45%
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.986, point planned Kill to TeamB
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamA by Kill after 3)
+[Manual] serve tapped at 45%
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamB by Kill after 4)
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamA by Kill after 9)
+[Manual] serve tapped at 45%
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.986, point planned Kill to TeamB
+[Manual] point changed by the player: Player_A2 dug a winner: the rally goes on (TeamA by Kill after 8)
+[ManualProof]   CHECK the serve meter sweeps WEAK to MAX and back without stopping: PASS  0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns
+[ManualProof]   CHECK a tap under 12% is a fault into the net (the point to the other side): PASS  0% -> ServeError to TeamB; 0% -> ServeError to TeamB
+[ManualProof]   CHECK a tap in the MAX zone serves at full speed: PASS  94% -> x1.150; 94% -> x1.150; 94% -> x1.150; 94% -> x1.150
+[ManualProof]   CHECK a server rated 95+ tapping in the MAX zone aces: PASS  rating 95: Ace to TeamA (ability); rating 95: Ace to TeamA (ability)
+[ManualProof]   CHECK a server rated 94 tapping in the MAX zone does not get the ability's ace: PASS  rating 94: BlockStuff to TeamB; rating 94: Kill to TeamA
+[ManualProof]   serves in Manual: 23; your player serving 11, receiving 7, her partner serving 5
+[ServePositions] Manual: 23 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_B2,Player_B1,Player_A2,Player_A1; players placed by the 3 s rule 0
+[ServePositions]   CHECK Manual (10+ serves): non-servers within 0.3 m of home 23/23; server 0.5-1.5 m behind her baseline 23/23; between the sidelines 23/23; server = the rally sequence's server 23/23: PASS
+[ManualProof]   CHECK serve positions in Manual (your player serving and receiving): PASS
+[ManualProof]   CHECK Dig fires from the keyboard and the gamepad: PASS  keyboard 13, gamepad 10
+[ManualProof]   CHECK Set fires from the keyboard and the gamepad: PASS  keyboard 8, gamepad 6
+[ManualProof]   CHECK Spike fires from the keyboard and the gamepad: PASS  keyboard 74, gamepad 67
+[ManualProof]   CHECK Serve fires from the keyboard and the gamepad: PASS  keyboard 4, gamepad 7
+[ManualProof]   CHECK Block fires from the keyboard and the gamepad: PASS  keyboard 1, gamepad 2
+[ManualProof]   CHECK Cheer fires from the keyboard and the gamepad: PASS  keyboard 8, gamepad 8
+[ManualProof]   touches made in time 95; points the player changed 16; points played 23; awarded as planned 23; score sets 1-0 (11-6, now 5-1)
+[ManualProof]   CHECK the player's touches keep rallies going (touches made in time): PASS  95
+[ManualProof]   CHECK every point so far was awarded to the team its plan (or the player's change to it) said: PASS  23 of 23
+[ManualProof]   CHECK every finished set is legal: PASS
+[ManualProof]   RESULT: PASS
+[ManualProof] === DONE (exit 0) ===

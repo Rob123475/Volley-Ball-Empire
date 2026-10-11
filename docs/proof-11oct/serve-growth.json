@@ -1,0 +1,66 @@
+{
+ "player": {
+  "id": 285,
+  "name": "Yaritza Mendez",
+  "age": 28,
+  "potential": "Elite"
+ },
+ "start": {
+  "date": "2026-01-01",
+  "serve": 88
+ },
+ "steps": [
+  {
+   "date": "2026-01-21",
+   "serve": 89,
+   "age": 28,
+   "sessions": 4
+  },
+  {
+   "date": "2026-01-31",
+   "serve": 90,
+   "age": 28,
+   "sessions": 6
+  },
+  {
+   "date": "2026-02-15",
+   "serve": 91,
+   "age": 28,
+   "sessions": 9
+  },
+  {
+   "date": "2026-03-02",
+   "serve": 92,
+   "age": 28,
+   "sessions": 12
+  },
+  {
+   "date": "2026-03-12",
+   "serve": 93,
+   "age": 28,
+   "sessions": 14
+  },
+  {
+   "date": "2026-03-27",
+   "serve": 94,
+   "age": 28,
+   "sessions": 17
+  },
+  {
+   "date": "2026-04-11",
+   "serve": 95,
+   "age": 28,
+   "sessions": 20
+  }
+ ],
+ "reached": {
+  "date": "2026-04-11",
+  "days": 100,
+  "age": 28,
+  "sessions": 20
+ },
+ "sessions": 20,
+ "matchesSimulated": 11,
+ "courtServeBefore": 88,
+ "courtServeAfter": 95
+}

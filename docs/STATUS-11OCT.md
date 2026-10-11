@@ -31,6 +31,52 @@ Brief: `C:\Users\rbonn\Downloads\SERVE-BRIEF-11OCT.md`. Game repo branch `launch
 - `RallyPlanProof` (Auto, a full match, 56 points): **PASS**. At all **56 serves** the non-servers stood within 0.3 m of home (furthest 0.00 m), the server stood 0.75 m behind her own baseline between the sidelines, and the server was the rally sequence's server (all four players served). Nobody needed the 3 s placing. Every other check still passes.
 - `ManualControlsProof` (Manual, virtual keyboard and pad): **PASS**. **10 serves in Manual:** your player served 3, received 3, and her partner served 4. All 10 serves were in position by the same checks, and every action still fires from both devices.
 
+### 2. The serve meter (Manual)
+
+**Done.** Unity `1fbfc24`.
+- When it's your player's serve, a **power meter sweeps WEAK ↔ MAX**, 1.2 s end to end, without stopping (`ManualControl.MeterAt`).
+- **One tap** of Y / L / Triangle serves at the power the meter shows at that moment.
+- **Below 12%** is a fault into the net, as before. The power sets the serve's speed through `ServeSpeedFactor()` (×0.85 to ×1.15).
+- **The MAX zone is the top 8%**, marked green on the bar; a tap in it is full power. The bottom 12% is marked red. WEAK and MAX are written under the bar, and a white needle shows where the meter is.
+- **The prompt** reads `SERVE: tap L at MAX` on the keyboard, or `SERVE: tap Y / Triangle at MAX` on a pad. The controls help now says "(serve: tap at the right time, at MAX)".
+- **Nobody taps:** the 12 s auto-serve, as before.
+- **Deleted:** the hold-and-release code (the press time, the release flag, the `canceled` handler and `ServePowerSeconds`).
+
+**Proof:** `ManualControlsProof` taps through the virtual keyboard and pad at real speed (`docs/proof-11oct/unity/manual-controls-items23.txt`):
+- the meter swept 0.00–1.00 and back (2 turns) on each of the 4 MAX serves;
+- **taps at 0% faulted** (ServeError, the point to the other side, 2 of 2);
+- **taps in the MAX zone (94%) served at full speed** (×1.150, 4 of 4).
+
+The run passed overall.
+
+### 3. The ace ability (Rob's rule)
+
+**Done.** Unity `a632e3c`.
+- **One named constant:** `MatchManager.AceServeRating = 95`. `HasAceAbility(player)` reads her `PlayerStats.serve`. (The 1 in 12 is `AbilityAceOneIn = 12`.)
+- **Manual:** a server with the ability whose tap lands in the MAX zone gets an **ace for her team**, through `OverridePlan(..., PointEnding.Ace, ...)`, reported like any other point. A MAX tap by a server under 95 is just a full-power serve.
+- **Auto:** when the AI serves, a server with the ability aces **1 in 12** of her serves, decided in `DecidePoint` as the point is planned. This counts on top of the plan's own aces, which every server has. It also applies to the AI's serves in a Manual match, since the manual player earns her aces with the meter.
+- **Proof, Manual** (`ManualControlsProof`): rated 95 and tapping MAX → **Ace to her team, 2 of 2**. Rated 94 and tapping MAX → **no ability ace, 2 of 2** (the points were a block and a kill, as planned). PASS.
+- **Proof, Auto** (`RallyPlanProof`, after a full match): the match's own `DecidePoint`, run 1,200 times per rating:
+
+  | Server rated | Ability aces in 1,200 serves | Aces in all (ability + the plan's own) |
+  |---|---|---|
+  | 95 | **91** (1 in 12 is 100; check range 71–129) | 157 |
+  | 94 | **0** | 58 |
+
+  PASS.
+- **The rating Unity uses is the career's current one.** `/api/unity/match-state` sends `serve` from the player's career state (`playerDto.ts`: `serve: state.serve`), and the court's loader copies it into `PlayerStats.serve`. Measured below: the court read 88 at the start and 95 after training.
+
+**Can a player grow into it? Yes, measured** (`scripts/webgl-proof/serve-growth-measure.mjs`, `docs/proof-11oct/serve-growth.json`).
+
+Training's **Serving Academy** (5 game days a session) adds +1 serve per 100 training XP, up to 99. I made a new Sydney Riptide career on a copy of the starter DB and trained its best server, **Yaritza Mendez** (serve 88, age 28, Elite potential, no coach hired), with sessions back to back, every match simulated as it came:
+- She went 88 → 95 by **11 Apr 2026: 100 game days, 20 sessions**, about +1 every 15 days.
+- A first run took 105 days and 21 sessions; the XP per session is random.
+- `/unity/match-state` sent her serve as **88 before and 95 after**.
+
+Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a coach or for a younger one.
+
+**AI club players never reach it on their own:** they do not train or develop while at an AI club. The best, 92, stays 92 unless you buy her and train her, about 45 days at the same rate.
+
 ## What Rob must check on screen
 
 (Filled in at the end.)
