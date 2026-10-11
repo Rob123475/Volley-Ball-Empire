@@ -20,7 +20,12 @@ Brief: `C:\Users\rbonn\Downloads\SERVE-BRIEF-11OCT.md`. Game repo branch `launch
   - aces at 95 but not at 94, and 111 of 1,200 Auto serves at 95;
   - the zoom measured at ×2.000 and ×4.000.
 - In the browser, on the real GPU: positions, the meter and the 4x zoom on screen; the AI court played a full match in Auto (2-1); the manual court 8/8.
-- **The full harness:** run #1 found a fault in one suite (unrelated: the staff-injuries suite read Club News too late), fixed; run #2: see "The full harness" below.
+- **The full harness took three runs.** Runs #1 and #2 each found a random fault in a different test suite, not in the game and not from this brief:
+  - the staff-injuries suite read Club News too late;
+  - the rollover suite mis-counted a season when the board sacked the manager and the job market moved him.
+
+  Both were fixed in the suites. **Run #3 passed: 104/104 suites, 1,713 checks, at `5e2f599`**, the commit the package is built from.
+- **The package** passed its before-pack and after-pack checks. It booted on a copy of your 2 Oct save: your career loaded, the new court and the cleaned pictures were served, and your live save was not opened.
 
 ## Items
 
@@ -174,7 +179,38 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 
 ### The package
 
-(Below, after it was built.)
+**`C:\build\vbe-final-11oct\win-unpacked`** (616 MB), built from **`5e2f599`**, the commit run #3 passed on. For the build the worktree was checked out at exactly that commit, then went back to the branch. The steps: Brotli up to date (`compress-unity-data`), the workspaces rebuilt, then `electron-builder --win dir`.
+- **Before-pack:** only the Brotli Unity data was packaged, and better-sqlite3 loads under Electron. **After-pack:** the starter DB alone, no `steam_appid.txt`, steamworks.js unpacked (`docs/proof-11oct/package-checks-5e2f599.txt`).
+- The starter DB is the branch's (MD5 `9e8c01d1…`). The Unity data and wasm are the 11 Oct export (`.data.br` `e4a0e232…`, `.wasm.br` `c7d35062…`), the same files as in the branch.
+- **Booted on a copy of your 2 Oct backup** (MD5 `f2c55790…` before and after; only copied), with the package's own exe as its server, never the app (`docs/proof-11oct/boot-final-5e2f599.json`):
+  - **your career loaded**: profile Rob, Sydney Riptide, $247,731, 24 Apr 2026, 3 players, 2 staff;
+  - the page is served, and the **new Unity data and wasm are served Brotli** (217,002,286 and 9,013,774 bytes);
+  - the court page carries the Auto/Manual switch;
+  - **pictures:**
+    - the package's 96 AI pictures are the cleaned ones, byte for byte (Annika Bauer's served, HTTP 200);
+    - the 205 senior cards are still your cropped ones;
+    - a graduate's picture is served;
+  - the Player Market lists 120 AI club players, 96 with your pictures;
+  - skin tones: all 120 AI players equal their cards, the 49 of 10 Oct brought forward on this copy;
+  - the Job Market answers.
+- **Your live save is unchanged:** only its date and size were read, before and after (11 Oct 12:38:31, 2,314,240 bytes, which is when you were playing, before this run started any game server). It was never opened.
+- **The fallbacks were not touched:**
+  - `C:\build\vbe-final-10oct` (10 Oct 23:11);
+  - `vbe-final-06oct` (6 Oct 17:21);
+  - `vbe-launch-05oct` (5 Oct 16:34);
+  - `_KEEP-originals\senior-cards-UNCROPPED-originals-before-10oct.zip` (11 Oct 12:10, as it was).
+
+### The rules, as kept
+
+- **Fallbacks** untouched (above).
+- **The live save** was never opened. Copies only: the starter DB and the 2 Oct backup.
+- **`main`** is unchanged (`2c17431`). **No Steam upload.** **No music changes.**
+- **Broken pathways rebuilt, dead code deleted:**
+  - the rally reset and walk-home (`ResetRallySequence` and `MoveEveryoneToHome` are gone);
+  - the hold-and-release serve (deleted);
+  - the boot of the first serve (now through the same gate).
+- **Committed and pushed after each item.** Unity `1f26ee4`, `1fbfc24`, `a632e3c`, `1bb6d26`, `dd7465d`; game `launch-final` after each item, the export, each harness run and the package. The ElevenLabs key check passed on every push in both repos.
+- **One full harness run:** not kept. It took three, for the two suite faults above; each fix was committed and run alone before the next full run, and no two runs overlapped.
 
 ## What Rob must check on screen
 
