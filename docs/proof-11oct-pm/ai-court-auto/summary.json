@@ -1,0 +1,191 @@
+{
+  "mode": "auto",
+  "checks": [
+    {
+      "label": "(set-up) a match against an AI club, one of whose pair's tone changed with her new picture",
+      "pass": true,
+      "detail": "match 1: Sydney Riptide v Barcelona Playa Elites: Carmen Ruiz & María Alonso (Medium -> Medium Dark)"
+    },
+    {
+      "label": "(set-up) bought María Alonso from Barcelona Playa Elites on the Player Market",
+      "pass": true,
+      "detail": "Barcelona Playa Elites had 2 players: Carmen Ruiz, María Alonso; HTTP 201 "
+    },
+    {
+      "label": "the court's match-state plays the AI club as it is now: not the player bought from it",
+      "pass": true,
+      "detail": "before: María Alonso & Carmen Ruiz; now: Carmen Ruiz & Camila Santiago"
+    },
+    {
+      "label": "both are on the club's squad in the Player Market",
+      "pass": true,
+      "detail": "Camila Santiago, Carmen Ruiz"
+    },
+    {
+      "label": "each has her picture, and the file is served",
+      "pass": true,
+      "detail": "Carmen Ruiz: /images/players/seniors/ai/player_senior_ai_eur_02_p2.webp (200) | Camila Santiago: /images/players/seniors/player_senior_puerto_rico_03.webp (200)"
+    },
+    {
+      "label": "each one's skin tone on the court is her picture's",
+      "pass": true,
+      "detail": "Carmen Ruiz: court 'Medium', picture 'Medium' | Camila Santiago: court 'Medium Dark', picture '(not one of the 120 AI cards)'"
+    },
+    {
+      "label": "María Alonso, bought, plays on Rob's side with her new picture's skin tone",
+      "pass": true,
+      "detail": "court 'Medium Dark', picture 'Medium Dark' (before 10 Oct 'Medium'); /images/players/seniors/ai/player_senior_ai_eur_02_p1.webp (200)"
+    },
+    {
+      "label": "Next match, then Watch Match",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the court opens on match 1, in Auto (the remembered choice)",
+      "pass": true,
+      "detail": "/unity-build/index.html?careerSaveId=1&matchId=1"
+    },
+    {
+      "label": "the court page's button says so",
+      "pass": true,
+      "detail": "Auto: AI plays"
+    },
+    {
+      "label": "the court's loader puts that pair on the away side, with those skin tones",
+      "pass": true,
+      "detail": "Carmen Ruiz (Barcelona Playa Elites) skin Medium | Camila Santiago (Barcelona Playa Elites) skin Medium Dark"
+    },
+    {
+      "label": "and Rob's pair on the home side",
+      "pass": true,
+      "detail": "María Alonso & Yaritza Mendez"
+    },
+    {
+      "label": "the player bought is in it, with her new picture's skin tone",
+      "pass": true,
+      "detail": "María Alonso skin Medium Dark | Yaritza Mendez skin Dark"
+    },
+    {
+      "label": "in Auto no manual code runs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "the match was played to its end in Auto",
+      "pass": true,
+      "detail": "{\"status\":\"completed\",\"score\":\"2-1\",\"sets\":[{\"home\":7,\"away\":11},{\"home\":11,\"away\":8},{\"home\":14,\"away\":12}],\"away\":\"Barcelona Playa Elites\"}"
+    },
+    {
+      "label": "and no manual code ran in it",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "no page errors",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "loader": [
+    {
+      "name": "María Alonso",
+      "team": "Sydney Riptide",
+      "side": "home",
+      "skinTone": "Medium Dark"
+    },
+    {
+      "name": "Yaritza Mendez",
+      "team": "Sydney Riptide",
+      "side": "home",
+      "skinTone": "Dark"
+    },
+    {
+      "name": "Carmen Ruiz",
+      "team": "Barcelona Playa Elites",
+      "side": "away",
+      "skinTone": "Medium"
+    },
+    {
+      "name": "Camila Santiago",
+      "team": "Barcelona Playa Elites",
+      "side": "away",
+      "skinTone": "Medium Dark"
+    }
+  ],
+  "console": [
+    "[UnityMatchDataLoader] point chance for the home pair: 0.5109\n",
+    "[UnityMatchDataLoader] team names: SYDNEY RIPTIDE (home) vs BARCELONA PLAYA ELITES (away)\n",
+    "[MatchManager] match starts after 4.1s: match data applied; home point chance 0.5109\n"
+  ],
+  "errors": [],
+  "awayPair": [
+    {
+      "name": "Carmen Ruiz",
+      "team": "Barcelona Playa Elites",
+      "skinTone": "Medium",
+      "poolPlayerId": 4
+    },
+    {
+      "name": "Camila Santiago",
+      "team": "Barcelona Playa Elites",
+      "skinTone": "Medium Dark",
+      "poolPlayerId": null
+    }
+  ],
+  "awaySquadNow": [
+    {
+      "name": "Camila Santiago",
+      "imageUrl": "/images/players/seniors/player_senior_puerto_rico_03.webp"
+    },
+    {
+      "name": "Carmen Ruiz",
+      "imageUrl": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp"
+    }
+  ],
+  "pictures": [
+    {
+      "name": "Carmen Ruiz",
+      "card": "/images/players/seniors/ai/player_senior_ai_eur_02_p2.webp",
+      "served": 200,
+      "skinTone": "Medium",
+      "pictureBand": "Medium",
+      "rob": "new"
+    },
+    {
+      "name": "Camila Santiago",
+      "card": "/images/players/seniors/player_senior_puerto_rico_03.webp",
+      "served": 200,
+      "skinTone": "Medium Dark",
+      "pictureBand": null,
+      "rob": null
+    }
+  ],
+  "boughtOnHomeSide": {
+    "name": "María Alonso",
+    "card": "/images/players/seniors/ai/player_senior_ai_eur_02_p1.webp",
+    "served": 200,
+    "skinTone": "Medium Dark",
+    "pictureBand": "Medium Dark",
+    "before10Oct": "Medium"
+  },
+  "match": {
+    "status": "completed",
+    "score": "2-1",
+    "sets": [
+      {
+        "home": 7,
+        "away": 11
+      },
+      {
+        "home": 11,
+        "away": 8
+      },
+      {
+        "home": 14,
+        "away": 12
+      }
+    ],
+    "away": "Barcelona Playa Elites"
+  }
+}

@@ -1,0 +1,18 @@
+PASS  (set-up) a match against an AI club, one of whose pair's tone changed with her new picture  match 1: Sydney Riptide v Barcelona Playa Elites: Carmen Ruiz & María Alonso (Medium -> Medium Dark)
+PASS  (set-up) bought María Alonso from Barcelona Playa Elites on the Player Market  Barcelona Playa Elites had 2 players: Carmen Ruiz, María Alonso; HTTP 201 
+PASS  the court's match-state plays the AI club as it is now: not the player bought from it  before: María Alonso & Carmen Ruiz; now: Carmen Ruiz & Camila Santiago
+PASS  both are on the club's squad in the Player Market  Camila Santiago, Carmen Ruiz
+PASS  each has her picture, and the file is served  Carmen Ruiz: /images/players/seniors/ai/player_senior_ai_eur_02_p2.webp (200) | Camila Santiago: /images/players/seniors/player_senior_puerto_rico_03.webp (200)
+PASS  each one's skin tone on the court is her picture's  Carmen Ruiz: court 'Medium', picture 'Medium' | Camila Santiago: court 'Medium Dark', picture '(not one of the 120 AI cards)'
+PASS  María Alonso, bought, plays on Rob's side with her new picture's skin tone  court 'Medium Dark', picture 'Medium Dark' (before 10 Oct 'Medium'); /images/players/seniors/ai/player_senior_ai_eur_02_p1.webp (200)
+PASS  Next match, then Watch Match  
+PASS  the court opens on match 1, in Auto (the remembered choice)  /unity-build/index.html?careerSaveId=1&matchId=1
+PASS  the court page's button says so  Auto: AI plays
+PASS  the court's loader puts that pair on the away side, with those skin tones  Carmen Ruiz (Barcelona Playa Elites) skin Medium | Camila Santiago (Barcelona Playa Elites) skin Medium Dark
+PASS  and Rob's pair on the home side  María Alonso & Yaritza Mendez
+PASS  the player bought is in it, with her new picture's skin tone  María Alonso skin Medium Dark | Yaritza Mendez skin Dark
+PASS  in Auto no manual code runs  
+PASS  the match was played to its end in Auto  {"status":"completed","score":"2-1","sets":[{"home":7,"away":11},{"home":11,"away":8},{"home":14,"away":12}],"away":"Barcelona Playa Elites"}
+PASS  and no manual code ran in it  
+PASS  no page errors  
+{"mode":"auto","ok":true,"checks":["PASS (set-up) a match against an AI club, one of whose pair's tone changed with her new picture","PASS (set-up) bought María Alonso from Barcelona Playa Elites on the Player Market","PASS the court's match-state plays the AI club as it is now: not the player bought from it","PASS both are on the club's squad in the Player Market","PASS each has her picture, and the file is served","PASS each one's skin tone on the court is her picture's","PASS María Alonso, bought, plays on Rob's side with her new picture's skin tone","PASS Next match, then Watch Match","PASS the court opens on match 1, in Auto (the remembered choice)","PASS the court page's button says so","PASS the court's loader puts that pair on the away side, with those skin tones","PASS and Rob's pair on the home side","PASS the player bought is in it, with her new picture's skin tone","PASS in Auto no manual code runs","PASS the match was played to its end in Auto","PASS and no manual code ran in it","PASS no page errors"]}
