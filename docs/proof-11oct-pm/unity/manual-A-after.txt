@@ -1,0 +1,52 @@
+[ManualProof] === MANUAL CONTROLS PROOF (no api-server: prefab ratings, chance 0.5) ===
+[ManualProof]   devices: keyboard 1, gamepad 2
+[ManualProof]   match started; mode Auto; switching to Manual (the page's ?mode=manual does this in the build)
+[ManualProof]   CHECK Tab (keyboard) switches to Auto: PASS  toggles keyboard 1
+[ManualProof]   CHECK View / Share (gamepad) switches back to Manual: PASS
+[ManualProof]   CHECK Q (keyboard) switches the controlled player: PASS  Player_A1 -> Player_A2
+[ManualProof]   CHECK LB / L1 (gamepad) switches back: PASS  -> Player_A1
+[ManualProof]   CHECK H (keyboard) hides the controls help (shown at the start): PASS
+[ManualProof]   CHECK D-pad down (gamepad) shows it again: PASS
+[ManualProof]   CHECK Esc (keyboard) pauses: time stops: PASS  time scale 0
+[ManualProof]   CHECK Menu / Options (gamepad) resumes: PASS  time scale 2
+[Manual] missed: Dig needed, not pressed, 5.3 m away
+[ManualProof]   CHECK Space (keyboard) and B / Circle (gamepad) dive: PASS
+[ManualProof]   CHECK WASD (keyboard) and the left stick (gamepad) move the controlled player: PASS  moved 3.6 m; move frames keyboard 915, gamepad 1
+[Manual] missed: Dig needed, not pressed, 2.9 m away
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.851, point planned ServeError to TeamB
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Kill to TeamB
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[ManualProof]   serve test fault: rating 50, meter swept 0.00-0.00 (0 turns), tapped at 0%, speed x0.851, point planned ServeError to TeamB
+[ManualProof]   serve test max94: rating 94, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Kill to TeamB
+[ManualProof]   serve test max95: rating 95, meter swept 0.00-1.00 (2 turns), tapped at 94% (MAX), speed x1.150, point planned Ace to TeamA, by the ace ability
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamA
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.986, point planned Kill to TeamB
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamA
+[ManualProof]   serve test mid: rating 50, meter swept 0.00-0.45 (0 turns), tapped at 45%, speed x0.985, point planned Kill to TeamB
+[ManualProof]   CHECK the serve meter sweeps WEAK to MAX and back without stopping: PASS  0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns; 0.00-1.00, 2 turns
+[ManualProof]   CHECK a tap under 12% is a fault into the net (the point to the other side): PASS  0% -> ServeError to TeamB; 0% -> ServeError to TeamB
+[ManualProof]   CHECK a tap in the MAX zone serves at full speed: PASS  94% -> x1.150; 94% -> x1.150; 94% -> x1.150; 94% -> x1.150
+[ManualProof]   CHECK a server rated 95+ tapping in the MAX zone aces: PASS  rating 95: Ace to TeamA (ability); rating 95: Ace to TeamA (ability)
+[ManualProof]   CHECK a server rated 94 tapping in the MAX zone does not get the ability's ace: PASS  rating 94: Kill to TeamB; rating 94: Kill to TeamB
+[ManualProof]   first digs after a serve, your team (weak diggers: defence 5, in light rain): 20 (13 set by you); without the aid they would have landed 0.63-1.18 m from the setter (4 over 1.0 m); the setter's distance from the spot as it came down 0.00-0.35 m; ring up at the strike for your sets 13 of 13
+[ManualProof]   first digs after a serve, your team: 20 (13 set by you); landing from the setter: 0.63-1.00 m, mean 0.85, over 1.0 m 0; next touch made 20, missed 0
+[ManualProof]   CHECK over 20+ points in Manual, every first dig after a serve by your team (10+) landed within 1.0 m of the teammate who sets it: PASS  43 points in Manual, 20 first digs by your team; 0.63-1.00 m, mean 0.85, over 1.0 m 0
+[ManualProof]   CHECK the aid had work to do: some of those digs would have landed over 1.0 m away without it: PASS  4 of 20
+[ManualProof]   CHECK your landing ring was up the moment the dig was struck, every time you were the setter: PASS  13 of 13
+[ManualProof]   CHECK and the next touch was never missed for distance (the setter in reach, 2.4 m, every time): PASS  made 20 of 20 (13 of 13 by you)
+[ManualProof]   serves in Manual: 43; your player serving 10, receiving 22, her partner serving 11
+[ServePositions] Manual: 43 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_B1,Player_A2,Player_B2,Player_A1; players placed by the 3 s rule 0
+[ServePositions]   CHECK Manual (10+ serves): non-servers within 0.3 m of home 43/43; server 0.5-1.5 m behind her baseline 43/43; between the sidelines 43/43; server = the rally sequence's server 43/43: PASS
+[ManualProof]   CHECK serve positions in Manual (your player serving and receiving): PASS
+[ManualProof]   CHECK Dig fires from the keyboard and the gamepad: PASS  keyboard 15, gamepad 11
+[ManualProof]   CHECK Set fires from the keyboard and the gamepad: PASS  keyboard 42, gamepad 44
+[ManualProof]   CHECK Spike fires from the keyboard and the gamepad: PASS  keyboard 52, gamepad 51
+[ManualProof]   CHECK Serve fires from the keyboard and the gamepad: PASS  keyboard 2, gamepad 8
+[ManualProof]   CHECK Block fires from the keyboard and the gamepad: PASS  keyboard 12, gamepad 6
+[ManualProof]   CHECK Cheer fires from the keyboard and the gamepad: PASS  keyboard 11, gamepad 10
+[ManualProof]   touches made in time 125; points the player changed 15; points played 43; awarded as planned 43; score sets 1-1 (9-11, 11-9, now 1-2)
+[ManualProof]   CHECK the player's touches keep rallies going (touches made in time): PASS  125
+[ManualProof]   CHECK every point so far was awarded to the team its plan (or the player's change to it) said: PASS  43 of 43
+[ManualProof]   CHECK every finished set is legal: PASS
+[ManualProof]   RESULT: PASS
+[ManualProof] === DONE (exit 0) ===
