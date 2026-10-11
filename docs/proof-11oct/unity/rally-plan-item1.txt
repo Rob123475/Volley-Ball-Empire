@@ -1,0 +1,125 @@
+[RallyPlanProof] === RALLY PLAN PROOF (no api-server: prefab ratings, chance 0.5) ===
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 3, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 3 attack(s), 8 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 1, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Point] decided: RED GIANTS by BlockStuff (server A, final attack by A after 4, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 10 attack(s), 30 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 2, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 3 attack(s), 8 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 3, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 14 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 2, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 3 attack(s), 8 touches
+[Point] decided: RED GIANTS by BlockStuff (server B, final attack by A after 3, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 4 attack(s), 11 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 3 attack(s), 7 touches
+[Point] decided: BLUE SHARKS by BlockStuff (server A, final attack by B after 3, chance 0.500)
+[Point] awarded: BLUE SHARKS by BlockStuff after 7 attack(s), 22 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 2, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 3 attack(s), 7 touches
+[Point] decided: RED GIANTS by AttackError (server B, final attack by A after 4, chance 0.500)
+[Point] awarded: RED GIANTS by AttackError after 6 attack(s), 18 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 2, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 8 attack(s), 23 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 3 attack(s), 7 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 4, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 15 touches
+[Point] decided: RED GIANTS by BlockStuff (server B, final attack by A after 1, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 2 attack(s), 5 touches
+[Point] decided: RED GIANTS by AttackError (server B, final attack by A after 1, chance 0.500)
+[Point] awarded: RED GIANTS by AttackError after 2 attack(s), 4 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 3, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 16 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 4, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 14 touches
+[Point] decided: BLUE SHARKS by ServeError (server B, final attack by B after 0, chance 0.500)
+[Point] awarded: BLUE SHARKS by ServeError after 1 attack(s), 1 touches
+[Point] decided: RED GIANTS by BlockStuff (server A, final attack by A after 3, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 8 attack(s), 24 touches
+[Point] decided: BLUE SHARKS by AttackError (server B, final attack by B after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by AttackError after 3 attack(s), 8 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 2, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 6 attack(s), 18 touches
+[Point] decided: BLUE SHARKS by BlockStuff (server B, final attack by B after 3, chance 0.500)
+[Point] awarded: BLUE SHARKS by BlockStuff after 6 attack(s), 20 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 3, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Point] decided: BLUE SHARKS by AttackError (server A, final attack by B after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by AttackError after 3 attack(s), 7 touches
+[Point] decided: RED GIANTS by BlockStuff (server A, final attack by A after 2, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 4 attack(s), 12 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 3, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 5 attack(s), 15 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 3, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 15 touches
+[Point] decided: BLUE SHARKS by BlockStuff (server B, final attack by B after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by BlockStuff after 8 attack(s), 24 touches
+[Point] decided: BLUE SHARKS by AttackError (server A, final attack by B after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by AttackError after 3 attack(s), 7 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 3, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 15 touches
+[Point] decided: BLUE SHARKS by ServeError (server B, final attack by B after 0, chance 0.500)
+[Point] awarded: BLUE SHARKS by ServeError after 1 attack(s), 1 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 4, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 5 attack(s), 14 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 4, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 5 attack(s), 14 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 4, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 5 attack(s), 14 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 1, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 2 attack(s), 4 touches
+[Point] decided: BLUE SHARKS by ServeError (server B, final attack by B after 0, chance 0.500)
+[Point] awarded: BLUE SHARKS by ServeError after 1 attack(s), 1 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 1, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 4, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 5 attack(s), 13 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 1, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 2 attack(s), 4 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 3 attack(s), 8 touches
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Point] decided: RED GIANTS by ServeError (server A, final attack by A after 0, chance 0.500)
+[Point] awarded: RED GIANTS by ServeError after 1 attack(s), 1 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 2, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 11 attack(s), 33 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 1, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 2 attack(s), 4 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 3, chance 0.500)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 10 touches
+[Point] decided: RED GIANTS by AttackError (server A, final attack by A after 2, chance 0.500)
+[Point] awarded: RED GIANTS by AttackError after 7 attack(s), 20 touches
+[Point] decided: BLUE SHARKS by AttackError (server B, final attack by B after 4, chance 0.500)
+[Point] awarded: BLUE SHARKS by AttackError after 5 attack(s), 16 touches
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 1, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 2 attack(s), 4 touches
+[Point] decided: RED GIANTS by BlockStuff (server B, final attack by A after 2, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 3 attack(s), 8 touches
+[Point] decided: RED GIANTS by BlockStuff (server B, final attack by A after 2, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 4 attack(s), 13 touches
+[Point] decided: RED GIANTS by BlockStuff (server B, final attack by A after 4, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 9 attack(s), 28 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 3, chance 0.500)
+[Point] awarded: RED GIANTS by Kill after 4 attack(s), 11 touches
+[Point] decided: RED GIANTS by BlockStuff (server B, final attack by A after 2, chance 0.500)
+[Point] awarded: RED GIANTS by BlockStuff after 3 attack(s), 8 touches
+[RallyPlanProof]   match over: BLUE SHARKS 1-2 RED GIANTS; sets 7-11, 11-7, 9-11
+[RallyPlanProof]   points played 56; decided at the serve 56; awarded as decided 56
+[RallyPlanProof]   CHECK the match ended on the score (best of 3, to 11): PASS
+[RallyPlanProof]   CHECK every set legal (11 vs 9 or less, or by exactly 2 past 10-10): PASS
+[RallyPlanProof]   CHECK every point awarded to the team decided at its serve: PASS
+[ServePositions] Auto: 56 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_A1,Player_A2,Player_B1,Player_B2; players placed by the 3 s rule 0
+[ServePositions]   CHECK Auto (10+ serves): non-servers within 0.3 m of home 56/56; server 0.5-1.5 m behind her baseline 56/56; between the sidelines 56/56; server = the rally sequence's server 56/56: PASS
+[RallyPlanProof]   result box: "RED GIANTS WIN / BLUE SHARKS 1 - 2 RED GIANTS / Set 1: 7-11     Set 2: 11-7     Set 3: 9-11 / The result could not be sent; the game will finish this match from the last score. / [Continue]"; up 12.0s; sent back before Continue: False; after Continue: True; serve text ""; audio sources playing: 0
+[RallyPlanProof]   CHECK the result box stayed up 12 s by itself, and Continue sent the player back: PASS
+[RallyPlanProof]   CHECK the crowd stopped and the serve text is gone: PASS
+[RallyPlanProof]   RESULT: PASS
+[RallyPlanProof] === DONE (exit 0) ===

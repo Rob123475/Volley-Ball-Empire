@@ -1,0 +1,96 @@
+[ManualProof] === MANUAL CONTROLS PROOF (no api-server: prefab ratings, chance 0.5) ===
+[ManualProof]   devices: keyboard 1, gamepad 2
+[Point] decided: BLUE SHARKS by Ace (server A, final attack by A after 0, chance 0.500)
+[ManualProof]   match started; mode Auto; switching to Manual (the page's ?mode=manual does this in the build)
+[Manual] mode Manual (proof); controlling Player_A1
+[Manual] mode Auto (keyboard); controlling Player_A1
+[ManualProof]   CHECK Tab (keyboard) switches to Auto: PASS  toggles keyboard 1
+[Point] awarded: BLUE SHARKS by Ace after 1 attack(s), 1 touches
+[Manual] mode Manual (gamepad); controlling Player_A1
+[ManualProof]   CHECK View / Share (gamepad) switches back to Manual: PASS
+[Manual] now controlling Player_A2
+[ManualProof]   CHECK Q (keyboard) switches the controlled player: PASS  Player_A1 -> Player_A2
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 3, chance 0.500)
+[Manual] now controlling Player_A1
+[ManualProof]   CHECK LB / L1 (gamepad) switches back: PASS  -> Player_A1
+[ManualProof]   CHECK H (keyboard) hides the controls help (shown at the start): PASS
+[ManualProof]   CHECK D-pad down (gamepad) shows it again: PASS
+[Manual] paused
+[ManualProof]   CHECK Esc (keyboard) pauses: time stops: PASS  time scale 0
+[Manual] resumed
+[ManualProof]   CHECK Menu / Options (gamepad) resumes: PASS  time scale 2
+[Manual] missed: Dig needed, not pressed, 6.2 m away
+[Manual] point changed by the player: Player_A1 missed the Dig
+[Point] awarded: RED GIANTS by Miss after 2 attack(s), 5 touches
+[ManualProof]   CHECK Space (keyboard) and B / Circle (gamepad) dive: PASS
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 3, chance 0.500)
+[ManualProof]   CHECK WASD (keyboard) and the left stick (gamepad) move the controlled player: PASS  moved 3.6 m; move frames keyboard 889, gamepad 1
+[Manual] Set by Player_A1 (0.3 m)
+[Manual] Set by Player_A1 (0.2 m)
+[Point] awarded: BLUE SHARKS by Kill after 8 attack(s), 24 touches
+[Manual] Player_A1 cheers
+[Point] decided: BLUE SHARKS by AttackError (server A, final attack by B after 4, chance 0.500)
+[Manual] serve released at 90% power
+[Manual] Dig by Player_A1 (1.5 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Manual] Spike by Player_A1 (0.2 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Point] awarded: BLUE SHARKS by AttackError after 9 attack(s), 27 touches
+[Manual] Player_A1 cheers
+[Point] decided: RED GIANTS by BlockStuff (server A, final attack by A after 4, chance 0.500)
+[Manual] Set by Player_A1 (0.3 m)
+[Manual] Set by Player_A1 (0.2 m)
+[Manual] Set by Player_A1 (0.3 m)
+[Point] awarded: RED GIANTS by BlockStuff after 5 attack(s), 14 touches
+[Point] decided: BLUE SHARKS by Kill (server B, final attack by A after 2, chance 0.500)
+[Manual] Dig by Player_A1 (0.3 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Manual] Dig by Player_A1 (0.6 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Point] awarded: BLUE SHARKS by Kill after 7 attack(s), 21 touches
+[Manual] Player_A1 cheers
+[Point] decided: RED GIANTS by AttackError (server A, final attack by A after 4, chance 0.500)
+[Manual] serve released at 90% power
+[Manual] Dig by Player_A1 (2.1 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Manual] Dig by Player_A1 (1.7 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Point] awarded: RED GIANTS by AttackError after 8 attack(s), 25 touches
+[Point] decided: RED GIANTS by Kill (server B, final attack by B after 4, chance 0.500)
+[Manual] Dig by Player_A1 (0.3 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Manual] Dig by Player_A1 (2.0 m)
+[Manual] point changed by the player: Player_A1 dug a winner: the rally goes on (TeamA by BlockStuff after 8)
+[Manual] Spike by Player_A1 (0.3 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Point] awarded: BLUE SHARKS by BlockStuff after 9 attack(s), 28 touches
+[Manual] Player_A1 cheers
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 1, chance 0.500)
+[Manual] serve released at 90% power
+[Manual] Dig by Player_A1 (2.1 m)
+[Manual] Spike by Player_A1 (0.3 m)
+[Point] awarded: BLUE SHARKS by Kill after 4 attack(s), 11 touches
+[Manual] Player_A1 cheers
+[Point] decided: BLUE SHARKS by Kill (server A, final attack by A after 3, chance 0.500)
+[Manual] Set by Player_A1 (0.3 m)
+[Manual] Set by Player_A1 (0.3 m)
+[Point] awarded: BLUE SHARKS by Kill after 5 attack(s), 15 touches
+[Manual] Player_A1 cheers
+[Point] decided: RED GIANTS by Kill (server A, final attack by B after 4, chance 0.500)
+[ManualProof]   serves in Manual: 10; your player serving 3, receiving 3, her partner serving 4
+[ServePositions] Manual: 10 serves; non-servers furthest from home 0.00 m; server behind her baseline 0.75-0.75 m; servers Player_A1,Player_B1,Player_A2,Player_B2; players placed by the 3 s rule 0
+[ServePositions]   CHECK Manual (10+ serves): non-servers within 0.3 m of home 10/10; server 0.5-1.5 m behind her baseline 10/10; between the sidelines 10/10; server = the rally sequence's server 10/10: PASS
+[ManualProof]   CHECK serve positions in Manual (your player serving and receiving): PASS
+[ManualProof]   CHECK Dig fires from the keyboard and the gamepad: PASS  keyboard 7, gamepad 3
+[ManualProof]   CHECK Set fires from the keyboard and the gamepad: PASS  keyboard 9, gamepad 3
+[ManualProof]   CHECK Spike fires from the keyboard and the gamepad: PASS  keyboard 18, gamepad 23
+[ManualProof]   CHECK Serve fires from the keyboard and the gamepad: PASS  keyboard 1, gamepad 2
+[ManualProof]   CHECK Block fires from the keyboard and the gamepad: PASS  keyboard 6, gamepad 8
+[ManualProof]   CHECK Cheer fires from the keyboard and the gamepad: PASS  keyboard 3, gamepad 3
+[ManualProof]   touches made in time 39; points the player changed 2; points played 10; awarded as planned 10; score sets 0-0 (, now 7-3)
+[ManualProof]   CHECK the player's touches keep rallies going (touches made in time): PASS  39
+[ManualProof]   CHECK every point so far was awarded to the team its plan (or the player's change to it) said: PASS  10 of 10
+[ManualProof]   CHECK every finished set is legal: PASS
+[ManualProof]   RESULT: PASS
+[ManualProof] === DONE (exit 0) ===
