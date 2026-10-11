@@ -20,7 +20,7 @@
  *                       before a serve (item 4).
  * Writes summary.json with the court's own lines for each frame.
  *
- * Usage: node scripts/webgl-proof/court-frames-proof.mjs <outDir> [--mode auto|manual] [--gpu] [--only bikini] [--zoom-buttons] [--meter] (--only bikini | meter | positions)
+ * Usage: node scripts/webgl-proof/court-frames-proof.mjs <outDir> [--mode auto|manual] [--gpu] [--only bikini] [--zoom-buttons] [--meter] (--only bikini | meter | positions | controls)
  */
 import { fork, spawn } from "node:child_process";
 import fs from "node:fs";
@@ -150,9 +150,36 @@ try {
     return z ? z.line : null;
   };
 
+  // Monday brief B (--only controls, in Manual): the controls panel with its hint line and
+  // ×, then × clicked with the mouse (the panel hidden, the Controls button showing), then
+  // Controls clicked (the panel back). Where ManualControl's canvas puts them: the panel at
+  // the bottom left, 16 px in and up, 400 x 272, the × 28 x 26 in its top-right corner 4 px in;
+  // Controls 104 x 30 at 16, 16; a 1280x720 canvas scaled with width and height weighted equally.
+  if (ONLY === "controls") {
+    const r = await js(`(() => { const b = document.querySelector("iframe").getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; })()`);
+    const sc = Math.pow(2, 0.5 * Math.log2(r.w / 1280) + 0.5 * Math.log2(r.h / 720));
+    const fromBottomLeft = (x, y) => ({ x: r.x + x * sc, y: r.y + r.h - y * sc });
+    const click = async (p) => { for (const type of ["mouseMoved", "mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: p.x, y: p.y, button: "left", clickCount: 1 }); };
+    await nextLine(/\[Manual\] mode Manual/, 0, 60000);
+    await sleep(3000);
+    await shot("controls-shown.png", "the panel as Manual starts");
+    let z0 = lines.length;
+    await click(fromBottomLeft(16 + 400 - 4 - 14, 16 + 272 - 4 - 13));
+    const hid = await nextLine(/\[Manual\] controls panel hidden/, z0, 5000);
+    if (!hid) { ok = false; summary.errors.push("the × click was not seen by the court"); }
+    await sleep(600);
+    await shot("controls-hidden.png", hid ? hid.line : null);
+    z0 = lines.length;
+    await click(fromBottomLeft(16 + 52, 16 + 15));
+    const back = await nextLine(/\[Manual\] controls panel shown/, z0, 5000);
+    if (!back) { ok = false; summary.errors.push("the Controls click was not seen by the court"); }
+    await sleep(600);
+    await shot("controls-shown-again.png", back ? back.line : null);
+  }
+
   // Item 4 (and 6): the close camera (the match starts on it), zoomed in, before a serve.
   let from = lines.length;
-  if (ONLY === "meter" || ONLY === "positions") { /* straight on */ }
+  if (ONLY === "meter" || ONLY === "positions" || ONLY === "controls") { /* straight on */ }
   else if (ZOOM_BUTTONS) {
     summary.zoomClick = await zoomTo(4);
     await sleep(600);
@@ -160,7 +187,7 @@ try {
   } else {
     await key("=", "Equal", 187, 1600);
   }
-  for (let k = 0; k < (ONLY === "meter" || ONLY === "positions" ? 0 : 3); k++) {
+  for (let k = 0; k < (ONLY === "meter" || ONLY === "positions" || ONLY === "controls" ? 0 : 3); k++) {
     const hit = await nextLine(/\[Point\] decided:/, from, 300000);
     if (!hit) break;
     await sleep(150);
@@ -168,7 +195,7 @@ try {
     from = hit.i + 1;
   }
 
-  if (ONLY !== "bikini") {
+  if (ONLY !== "bikini" && ONLY !== "controls") {
     if (ZOOM_BUTTONS && !ONLY) { await zoomTo(1); await sleep(600); }
     // Item 1: a Team A serve and a Team B serve, while everyone stands on her spot: the
     // winner of a point serves the next, and 1.8 s after the point (the score shows for 2 s,

@@ -43,6 +43,29 @@ So I could not make 4–5 m happen from the dig target itself. **If you still se
   - **48 first digs at 0.15–0.30 m (mean 0.23), none aided**, the same spread as before the change (54 digs at 0.16–0.29 m, mean 0.23).
   - Every other check passes.
 
+### B. The controls panel: how to hide it
+
+**Done.** Unity `4674c7f`.
+- **Hint line** at the top of the panel, in the prompt's amber: `Hide: D-pad down · H · or click ×`.
+- **The ×** in the panel's top-right corner hides it with a mouse click. It is drawn as "×" rather than "✕", because the game's font has ×; a missing glyph would show as a box.
+- **The `Controls` button** sits at the court's bottom-left while the panel is hidden (Manual only). A click, D-pad down or H shows the panel again.
+- **Remembered** for the rest of the match. The panel still shows by itself the first time Manual is turned on, as before.
+- **Mouse:** only these two buttons take clicks on that canvas; everything else on it is still click-through. The old "Hide this" line is gone (the hint replaces it).
+
+**Proof:**
+- **`ManualControlsProof`: PASS.** The panel is shown with no Controls button; × hides it and Controls appears; Controls brings it back (`docs/proof-11oct-pm/unity/manual-B.txt`). Every other check still passes, item A's included.
+- I also fixed one proof check: the movement test now takes the furthest the stick moved her. A point ending mid-test had walked her back and read 0 m.
+- **In the browser, real GPU, on the new export** (`docs/proof-11oct-pm/controls/`):
+  - **`controls-shown.png`**: the panel with the amber hint line and the ×.
+  - **`controls-hidden.png`**: after a real mouse click on the ×, the panel is gone and **`Controls`** is at the bottom left.
+  - `controls-shown-again.png`: after clicking `Controls`.
+
+  The court logged each click ("controls panel hidden" / "shown").
+
+### The Unity export (A and B)
+
+**One WebGL export** of Unity `4674c7f` (`WebBuild.Step7`, Succeeded), copied into `launch-final` under the deployed names. Brotli regenerated: data.br 217.0 MB, wasm.br 9.0 MB.
+
 ## What Rob must check on screen
 
 (Filled in at the end.)
