@@ -92,6 +92,33 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 - The full frames: `unity-before/bikini-close-team-a.png` … and `unity-after/…`.
 - **The court from the close camera, zoomed in, in the browser:** `webgl-before/bikini-close-1.png` to `-3.png` are the 10 Oct court. At its closest the close camera is still well back, so they show the whole court rather than the fabric. The after frames from the new export are in `webgl-after/` (with item 6's zoom; see below).
 
+### 5. White tips and splashes on the AI pictures' bikinis
+
+**Done.** Game repo, this item's commit (the 95 pictures, `scripts/portraits/clean-ai-kit-white.py`, `scripts/portraits/ai-kit-contact-sheet.py`).
+- **The originals are kept:** `C:\build\_KEEP-originals\ai-pictures-before-11oct.zip`, the 96 files as they were (6.5 MB), made before anything changed. That folder is not to be deleted; the 10 Oct zip beside it was not touched.
+- **What was wrong** (read off the pictures, as Rob saw on Annika Bauer, Élise Fontaine, Céline Moreau and Carmen Ruiz): the 10 Oct recolour left **a pale, fuzzy rim along the edges** of most bikinis, where the white kit's edge was only half coloured, plus **white tips** (ties, strap ends) and small splashes.
+- **How it was found without touching anything else** (`clean-ai-kit-white.py`):
+  1. Each picture was compared with the 5 Oct picture it was made from (the slot in `pictureFrom`, from git, white kit and all; same size, same pixels outside what the recolour changed).
+  2. The bikini is the changed areas on the body (centre of the card, 17–85% down). Any other area the recolour changed is left as it is; that was only Élise Fontaine's umbrella (see below).
+  3. A leftover is a pixel in, or within 3 px of, the original's white kit that is not the kit's colour now; or a grey/white pixel within 3 px of the coloured fabric. White fabric is colourless; skin is warm and sky is blue, so neither is ever picked.
+  4. Leftovers are filled from the kit around them (OpenCV inpainting), so they take the kit's colour and shading. 1,130–5,504 pixels a picture.
+- **Min-Seo Kim (`ASI_03_P2`), white on purpose (`kit: null`), was not touched at all**: the file is byte for byte as before. No other kit includes white.
+- **Contact sheet, all 96, before (left) and after (right), bikinis enlarged:** `docs/proof-11oct/ai-pictures-before-after-1.png` to `-8.png` (12 players a page). Per-picture counts and the bikini areas are in `ai-pictures-clean-report.json`.
+- **Installed** under the same names. `check-image-formats` OK, `check-captions` OK, no two of the 96 files are the same.
+- **Skin tones:** unchanged (same people, same pictures).
+
+**Pictures I'm not sure about** (all on the contact sheet):
+- **Leilani Kahananui** (AUS_04_P1) and **Lisa Natuman** (AUS_07_P2): a beige band under the top. It may be the top's lining in shade, or skin. It is not white or grey, so it is left as it is.
+- **Lindiwe Dlamini** (AFM_03_P1): a little pale lining shows on the inside of her top (she is turned).
+- **Wei Lin** (ASI_02_P1): a thin white strap at her back is still white. The recolour missed it altogether, and it doesn't touch the coloured kit in the picture, so the cleaner cannot tell it from the background.
+- **The pale-blue kits** (Argentina: Valentina Rodríguez, Camila Gómez; Uruguay: Verónica Martínez, Paula Álvarez): the kit is itself pale, so a very faint pale edge may remain.
+
+**Found outside the bikini, left alone as the brief says** (they came with the 10 Oct recolour, and are in the zip and in Rob's own 10 Oct files):
+- **Élise Fontaine**: the blue-and-white umbrella was recoloured blue and red.
+- **Agnieszka Kowal**: red streaks in her hair.
+- **Mariela Colon**: blue patches in her hair.
+- **Brittany MacLeod**: a small red mark at the top's neckline.
+
 ## What Rob must check on screen
 
 (Filled in at the end.)

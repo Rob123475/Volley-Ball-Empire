@@ -1,0 +1,3742 @@
+[
+ {
+  "stableId": "AFM_01_P1",
+  "name": "Amara Okafor",
+  "kit": [
+   "#008751",
+   "#008751"
+  ],
+  "pictureFrom": "AFM_06_P1",
+  "fixed": 2844,
+  "bikiniRegions": [
+   {
+    "box": [
+     244,
+     196,
+     114,
+     105
+    ],
+    "area": 4240
+   },
+   {
+    "box": [
+     236,
+     375,
+     124,
+     65
+    ],
+    "area": 3560
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   232,
+   193,
+   361,
+   440
+  ]
+ },
+ {
+  "stableId": "AFM_01_P2",
+  "name": "Chisom Nwosu",
+  "kit": [
+   "#008751",
+   "#008751"
+  ],
+  "pictureFrom": "AFM_04_P2",
+  "fixed": 3149,
+  "bikiniRegions": [
+   {
+    "box": [
+     229,
+     180,
+     121,
+     111
+    ],
+    "area": 8340
+   },
+   {
+    "box": [
+     212,
+     355,
+     142,
+     139
+    ],
+    "area": 4920
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   211,
+   177,
+   357,
+   501
+  ]
+ },
+ {
+  "stableId": "AFM_02_P1",
+  "name": "Fatima Al-Rashid",
+  "kit": [
+   "#CE1126",
+   "#151515"
+  ],
+  "pictureFrom": "AFM_07_P2",
+  "fixed": 2899,
+  "bikiniRegions": [
+   {
+    "box": [
+     231,
+     185,
+     128,
+     107
+    ],
+    "area": 7379
+   },
+   {
+    "box": [
+     219,
+     360,
+     136,
+     82
+    ],
+    "area": 4705
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   217,
+   185,
+   362,
+   441
+  ]
+ },
+ {
+  "stableId": "AFM_02_P2",
+  "name": "Nour Ibrahim",
+  "kit": [
+   "#CE1126",
+   "#151515"
+  ],
+  "pictureFrom": "AFM_07_P1",
+  "fixed": 2498,
+  "bikiniRegions": [
+   {
+    "box": [
+     227,
+     205,
+     117,
+     99
+    ],
+    "area": 6179
+   },
+   {
+    "box": [
+     216,
+     351,
+     134,
+     101
+    ],
+    "area": 3993
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   214,
+   203,
+   352,
+   450
+  ]
+ },
+ {
+  "stableId": "AFM_03_P1",
+  "name": "Lindiwe Dlamini",
+  "kit": [
+   "#007749",
+   "#151515"
+  ],
+  "pictureFrom": "AFM_03_P1",
+  "fixed": 4045,
+  "bikiniRegions": [
+   {
+    "box": [
+     168,
+     244,
+     155,
+     215
+    ],
+    "area": 7932
+   },
+   {
+    "box": [
+     353,
+     495,
+     95,
+     121
+    ],
+    "area": 2500
+   },
+   {
+    "box": [
+     243,
+     543,
+     79,
+     75
+    ],
+    "area": 2281
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   168,
+   246,
+   455,
+   617
+  ]
+ },
+ {
+  "stableId": "AFM_03_P2",
+  "name": "Thandi Nkosi",
+  "kit": [
+   "#007749",
+   "#151515"
+  ],
+  "pictureFrom": "AFM_03_P2",
+  "fixed": 2464,
+  "bikiniRegions": [
+   {
+    "box": [
+     240,
+     220,
+     121,
+     84
+    ],
+    "area": 6280
+   },
+   {
+    "box": [
+     236,
+     367,
+     134,
+     81
+    ],
+    "area": 4026
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   233,
+   219,
+   372,
+   446
+  ]
+ },
+ {
+  "stableId": "AFM_04_P1",
+  "name": "Rania Al-Mansouri",
+  "kit": [
+   "#00732F",
+   "#EF3340"
+  ],
+  "pictureFrom": "AFM_01_P1",
+  "fixed": 2595,
+  "bikiniRegions": [
+   {
+    "box": [
+     229,
+     194,
+     133,
+     106
+    ],
+    "area": 7204
+   },
+   {
+    "box": [
+     221,
+     368,
+     148,
+     83
+    ],
+    "area": 4803
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   192,
+   370,
+   448
+  ]
+ },
+ {
+  "stableId": "AFM_04_P2",
+  "name": "Sara Al-Hashimi",
+  "kit": [
+   "#00732F",
+   "#EF3340"
+  ],
+  "pictureFrom": "AFM_02_P2",
+  "fixed": 4258,
+  "bikiniRegions": [
+   {
+    "box": [
+     300,
+     244,
+     87,
+     188
+    ],
+    "area": 5315
+   },
+   {
+    "box": [
+     211,
+     321,
+     38,
+     98
+    ],
+    "area": 2427
+   },
+   {
+    "box": [
+     249,
+     535,
+     162,
+     140
+    ],
+    "area": 11907
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   208,
+   242,
+   411,
+   672
+  ]
+ },
+ {
+  "stableId": "AFM_05_P1",
+  "name": "Wanjiru Kamau",
+  "kit": [
+   "#151515",
+   "#BB0000"
+  ],
+  "pictureFrom": "AFM_06_P2",
+  "fixed": 1617,
+  "bikiniRegions": [
+   {
+    "box": [
+     242,
+     211,
+     86,
+     72
+    ],
+    "area": 3515
+   },
+   {
+    "box": [
+     227,
+     341,
+     122,
+     79
+    ],
+    "area": 4476
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   227,
+   209,
+   349,
+   414
+  ]
+ },
+ {
+  "stableId": "AFM_05_P2",
+  "name": "Aisha Mwangi",
+  "kit": [
+   "#151515",
+   "#BB0000"
+  ],
+  "pictureFrom": "AFM_05_P2",
+  "fixed": 2002,
+  "bikiniRegions": [
+   {
+    "box": [
+     240,
+     213,
+     100,
+     91
+    ],
+    "area": 4984
+   },
+   {
+    "box": [
+     249,
+     377,
+     102,
+     68
+    ],
+    "area": 3235
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   237,
+   212,
+   352,
+   443
+  ]
+ },
+ {
+  "stableId": "AFM_06_P1",
+  "name": "Nadia Benali",
+  "kit": [
+   "#C1272D",
+   "#006233"
+  ],
+  "pictureFrom": "AFM_05_P1",
+  "fixed": 2835,
+  "bikiniRegions": [
+   {
+    "box": [
+     236,
+     181,
+     126,
+     112
+    ],
+    "area": 6830
+   },
+   {
+    "box": [
+     232,
+     362,
+     133,
+     77
+    ],
+    "area": 4051
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   230,
+   177,
+   366,
+   438
+  ]
+ },
+ {
+  "stableId": "AFM_06_P2",
+  "name": "Samira El-Fassi",
+  "kit": [
+   "#C1272D",
+   "#006233"
+  ],
+  "pictureFrom": "AFM_01_P2",
+  "fixed": 3032,
+  "bikiniRegions": [
+   {
+    "box": [
+     247,
+     169,
+     113,
+     130
+    ],
+    "area": 7450
+   },
+   {
+    "box": [
+     226,
+     353,
+     137,
+     129
+    ],
+    "area": 4643
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   221,
+   164,
+   362,
+   486
+  ]
+ },
+ {
+  "stableId": "AFM_07_P1",
+  "name": "Abena Asante",
+  "kit": [
+   "#FCD116",
+   "#006B3F"
+  ],
+  "pictureFrom": "AFM_04_P1",
+  "fixed": 2640,
+  "bikiniRegions": [
+   {
+    "box": [
+     248,
+     188,
+     107,
+     85
+    ],
+    "area": 3437
+   },
+   {
+    "box": [
+     232,
+     364,
+     135,
+     76
+    ],
+    "area": 4179
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   231,
+   187,
+   368,
+   439
+  ]
+ },
+ {
+  "stableId": "AFM_07_P2",
+  "name": "Efua Mensah",
+  "kit": [
+   "#FCD116",
+   "#006B3F"
+  ],
+  "pictureFrom": "AFM_02_P1",
+  "fixed": 2678,
+  "bikiniRegions": [
+   {
+    "box": [
+     238,
+     212,
+     118,
+     105
+    ],
+    "area": 6078
+   },
+   {
+    "box": [
+     237,
+     371,
+     110,
+     80
+    ],
+    "area": 2920
+   },
+   {
+    "box": [
+     218,
+     416,
+     33,
+     21
+    ],
+    "area": 449
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   212,
+   211,
+   358,
+   450
+  ]
+ },
+ {
+  "stableId": "AFM_08_P1",
+  "name": "Hessa Al-Mutairi",
+  "kit": [
+   "#006C35",
+   "#006C35"
+  ],
+  "pictureFrom": "AFM_08_P1",
+  "fixed": 2632,
+  "bikiniRegions": [
+   {
+    "box": [
+     245,
+     206,
+     96,
+     103
+    ],
+    "area": 5434
+   },
+   {
+    "box": [
+     232,
+     358,
+     137,
+     94
+    ],
+    "area": 4829
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   230,
+   204,
+   370,
+   451
+  ]
+ },
+ {
+  "stableId": "AFM_08_P2",
+  "name": "Dalal Al-Saud",
+  "kit": [
+   "#006C35",
+   "#006C35"
+  ],
+  "pictureFrom": "AFM_08_P2",
+  "fixed": 3038,
+  "bikiniRegions": [
+   {
+    "box": [
+     239,
+     195,
+     127,
+     100
+    ],
+    "area": 7429
+   },
+   {
+    "box": [
+     231,
+     377,
+     138,
+     69
+    ],
+    "area": 4338
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   229,
+   191,
+   371,
+   445
+  ]
+ },
+ {
+  "stableId": "ASI_01_P1",
+  "name": "Yuki Tanaka",
+  "kit": [
+   "#BC002D",
+   "#BC002D"
+  ],
+  "pictureFrom": "ASI_02_P1",
+  "fixed": 2544,
+  "bikiniRegions": [
+   {
+    "box": [
+     247,
+     201,
+     114,
+     81
+    ],
+    "area": 4045
+   },
+   {
+    "box": [
+     234,
+     367,
+     134,
+     78
+    ],
+    "area": 4429
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   233,
+   199,
+   370,
+   442
+  ]
+ },
+ {
+  "stableId": "ASI_01_P2",
+  "name": "Aoi Yamamoto",
+  "kit": [
+   "#BC002D",
+   "#BC002D"
+  ],
+  "pictureFrom": "ASI_04_P2",
+  "fixed": 2664,
+  "bikiniRegions": [
+   {
+    "box": [
+     237,
+     190,
+     119,
+     110
+    ],
+    "area": 4825
+   },
+   {
+    "box": [
+     229,
+     386,
+     134,
+     67
+    ],
+    "area": 4058
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   227,
+   189,
+   364,
+   452
+  ]
+ },
+ {
+  "stableId": "ASI_02_P1",
+  "name": "Wei Lin",
+  "kit": [
+   "#DE2910",
+   "#DE2910"
+  ],
+  "pictureFrom": "ASI_03_P2",
+  "fixed": 2186,
+  "bikiniRegions": [
+   {
+    "box": [
+     241,
+     225,
+     30,
+     65
+    ],
+    "area": 1258
+   },
+   {
+    "box": [
+     302,
+     246,
+     46,
+     50
+    ],
+    "area": 1006
+   },
+   {
+    "box": [
+     268,
+     361,
+     96,
+     91
+    ],
+    "area": 3662
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   240,
+   229,
+   366,
+   451
+  ]
+ },
+ {
+  "stableId": "ASI_02_P2",
+  "name": "Jing Chen",
+  "kit": [
+   "#DE2910",
+   "#DE2910"
+  ],
+  "pictureFrom": "ASI_02_P2",
+  "fixed": 2393,
+  "bikiniRegions": [
+   {
+    "box": [
+     238,
+     194,
+     120,
+     105
+    ],
+    "area": 5664
+   },
+   {
+    "box": [
+     231,
+     372,
+     132,
+     70
+    ],
+    "area": 4148
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   227,
+   192,
+   366,
+   440
+  ]
+ },
+ {
+  "stableId": "ASI_03_P1",
+  "name": "Ji-Yeon Park",
+  "kit": [
+   "#CD2E3A",
+   "#0047A0"
+  ],
+  "pictureFrom": "ASI_03_P1",
+  "fixed": 2575,
+  "bikiniRegions": [
+   {
+    "box": [
+     233,
+     204,
+     126,
+     106
+    ],
+    "area": 7421
+   },
+   {
+    "box": [
+     228,
+     379,
+     136,
+     74
+    ],
+    "area": 4254
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   226,
+   203,
+   366,
+   452
+  ]
+ },
+ {
+  "stableId": "ASI_03_P2",
+  "name": "Min-Seo Kim",
+  "kit": null,
+  "pictureFrom": "ASI_06_P1",
+  "skipped": "kit meant to be white (kit: null): not written, the picture stays as it is",
+  "fixed": 0
+ },
+ {
+  "stableId": "ASI_04_P1",
+  "name": "Nisa Suwannaphat",
+  "kit": [
+   "#241D4F",
+   "#241D4F"
+  ],
+  "pictureFrom": "ASI_04_P1",
+  "fixed": 2435,
+  "bikiniRegions": [
+   {
+    "box": [
+     235,
+     190,
+     107,
+     105
+    ],
+    "area": 5959
+   },
+   {
+    "box": [
+     224,
+     367,
+     137,
+     82
+    ],
+    "area": 4596
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   221,
+   188,
+   362,
+   447
+  ]
+ },
+ {
+  "stableId": "ASI_04_P2",
+  "name": "Pimchanok Meesuk",
+  "kit": [
+   "#241D4F",
+   "#241D4F"
+  ],
+  "pictureFrom": "ASI_01_P2",
+  "fixed": 2199,
+  "bikiniRegions": [
+   {
+    "box": [
+     232,
+     229,
+     123,
+     71
+    ],
+    "area": 5614
+   },
+   {
+    "box": [
+     228,
+     375,
+     137,
+     78
+    ],
+    "area": 4143
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   226,
+   228,
+   368,
+   452
+  ]
+ },
+ {
+  "stableId": "ASI_05_P1",
+  "name": "Priya Sharma",
+  "kit": [
+   "#0A1F6B",
+   "#0A1F6B"
+  ],
+  "pictureFrom": "ASI_05_P1",
+  "fixed": 3009,
+  "bikiniRegions": [
+   {
+    "box": [
+     246,
+     182,
+     107,
+     116
+    ],
+    "area": 3325
+   },
+   {
+    "box": [
+     231,
+     366,
+     116,
+     83
+    ],
+    "area": 2716
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   228,
+   180,
+   355,
+   448
+  ]
+ },
+ {
+  "stableId": "ASI_05_P2",
+  "name": "Ananya Nair",
+  "kit": [
+   "#0A1F6B",
+   "#0A1F6B"
+  ],
+  "pictureFrom": "ASI_07_P2",
+  "fixed": 1925,
+  "bikiniRegions": [
+   {
+    "box": [
+     254,
+     222,
+     90,
+     60
+    ],
+    "area": 3982
+   },
+   {
+    "box": [
+     233,
+     363,
+     130,
+     72
+    ],
+    "area": 3713
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   232,
+   222,
+   365,
+   434
+  ]
+ },
+ {
+  "stableId": "ASI_06_P1",
+  "name": "Dewi Santoso",
+  "kit": [
+   "#CE1126",
+   "#CE1126"
+  ],
+  "pictureFrom": "ASI_08_P1",
+  "fixed": 2440,
+  "bikiniRegions": [
+   {
+    "box": [
+     250,
+     203,
+     113,
+     100
+    ],
+    "area": 7107
+   },
+   {
+    "box": [
+     247,
+     342,
+     125,
+     98
+    ],
+    "area": 4121
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   245,
+   201,
+   374,
+   439
+  ]
+ },
+ {
+  "stableId": "ASI_06_P2",
+  "name": "Sari Wulandari",
+  "kit": [
+   "#CE1126",
+   "#CE1126"
+  ],
+  "pictureFrom": "ASI_06_P2",
+  "fixed": 2647,
+  "bikiniRegions": [
+   {
+    "box": [
+     238,
+     179,
+     122,
+     111
+    ],
+    "area": 6876
+   },
+   {
+    "box": [
+     223,
+     365,
+     138,
+     75
+    ],
+    "area": 4262
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   221,
+   177,
+   363,
+   440
+  ]
+ },
+ {
+  "stableId": "ASI_07_P1",
+  "name": "Maria Santos",
+  "kit": [
+   "#0038A8",
+   "#CE1126"
+  ],
+  "pictureFrom": "ASI_07_P1",
+  "fixed": 2952,
+  "bikiniRegions": [
+   {
+    "box": [
+     239,
+     217,
+     123,
+     103
+    ],
+    "area": 7437
+   },
+   {
+    "box": [
+     230,
+     396,
+     138,
+     66
+    ],
+    "area": 3565
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   227,
+   215,
+   369,
+   461
+  ]
+ },
+ {
+  "stableId": "ASI_07_P2",
+  "name": "Ana Reyes",
+  "kit": [
+   "#0038A8",
+   "#CE1126"
+  ],
+  "pictureFrom": "ASI_05_P2",
+  "fixed": 4773,
+  "bikiniRegions": [
+   {
+    "box": [
+     194,
+     252,
+     181,
+     171
+    ],
+    "area": 9868
+   },
+   {
+    "box": [
+     357,
+     424,
+     11,
+     61
+    ],
+    "area": 463
+   },
+   {
+    "box": [
+     180,
+     542,
+     208,
+     126
+    ],
+    "area": 9537
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   180,
+   257,
+   389,
+   667
+  ]
+ },
+ {
+  "stableId": "ASI_08_P1",
+  "name": "Nur Aisyah",
+  "kit": [
+   "#CC0001",
+   "#010066"
+  ],
+  "pictureFrom": "ASI_01_P1",
+  "fixed": 3276,
+  "bikiniRegions": [
+   {
+    "box": [
+     235,
+     175,
+     121,
+     135
+    ],
+    "area": 8425
+   },
+   {
+    "box": [
+     225,
+     365,
+     139,
+     69
+    ],
+    "area": 4462
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   221,
+   176,
+   365,
+   433
+  ]
+ },
+ {
+  "stableId": "ASI_08_P2",
+  "name": "Siti Rahimah",
+  "kit": [
+   "#CC0001",
+   "#010066"
+  ],
+  "pictureFrom": "ASI_08_P2",
+  "fixed": 2577,
+  "bikiniRegions": [
+   {
+    "box": [
+     281,
+     224,
+     61,
+     90
+    ],
+    "area": 2179
+   },
+   {
+    "box": [
+     221,
+     255,
+     57,
+     67
+    ],
+    "area": 1490
+   },
+   {
+    "box": [
+     229,
+     379,
+     132,
+     70
+    ],
+    "area": 3620
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   225,
+   364,
+   448
+  ]
+ },
+ {
+  "stableId": "AUS_01_P1",
+  "name": "Scarlett Thompson",
+  "kit": [
+   "#00843D",
+   "#00843D"
+  ],
+  "pictureFrom": "AUS_01_P1",
+  "fixed": 2440,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     230,
+     119,
+     64
+    ],
+    "area": 4561
+   },
+   {
+    "box": [
+     233,
+     370,
+     134,
+     79
+    ],
+    "area": 3876
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   231,
+   229,
+   370,
+   448
+  ]
+ },
+ {
+  "stableId": "AUS_01_P2",
+  "name": "Ruby Walker",
+  "kit": [
+   "#00843D",
+   "#00843D"
+  ],
+  "pictureFrom": "AUS_01_P2",
+  "fixed": 2984,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     202,
+     124,
+     87
+    ],
+    "area": 6614
+   },
+   {
+    "box": [
+     235,
+     323,
+     149,
+     107
+    ],
+    "area": 4493
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   232,
+   204,
+   385,
+   430
+  ]
+ },
+ {
+  "stableId": "AUS_02_P1",
+  "name": "Chloe Harrison",
+  "kit": [
+   "#00843D",
+   "#00843D"
+  ],
+  "pictureFrom": "AUS_02_P1",
+  "fixed": 3160,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     193,
+     111,
+     111
+    ],
+    "area": 4216
+   },
+   {
+    "box": [
+     229,
+     377,
+     134,
+     70
+    ],
+    "area": 3958
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   227,
+   195,
+   364,
+   446
+  ]
+ },
+ {
+  "stableId": "AUS_02_P2",
+  "name": "Lily Mitchell",
+  "kit": [
+   "#00843D",
+   "#00843D"
+  ],
+  "pictureFrom": "AUS_04_P1",
+  "fixed": 3003,
+  "bikiniRegions": [
+   {
+    "box": [
+     237,
+     197,
+     122,
+     125
+    ],
+    "area": 7945
+   },
+   {
+    "box": [
+     225,
+     388,
+     131,
+     71
+    ],
+    "area": 4077
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   223,
+   193,
+   359,
+   458
+  ]
+ },
+ {
+  "stableId": "AUS_03_P1",
+  "name": "Aroha Tane",
+  "kit": [
+   "#151515",
+   "#151515"
+  ],
+  "pictureFrom": "AUS_02_P2",
+  "fixed": 2871,
+  "bikiniRegions": [
+   {
+    "box": [
+     235,
+     177,
+     115,
+     84
+    ],
+    "area": 6297
+   },
+   {
+    "box": [
+     215,
+     335,
+     144,
+     100
+    ],
+    "area": 5112
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   212,
+   177,
+   366,
+   434
+  ]
+ },
+ {
+  "stableId": "AUS_03_P2",
+  "name": "Mia Patel",
+  "kit": [
+   "#151515",
+   "#151515"
+  ],
+  "pictureFrom": "AUS_03_P2",
+  "fixed": 2655,
+  "bikiniRegions": [
+   {
+    "box": [
+     225,
+     185,
+     121,
+     111
+    ],
+    "area": 4367
+   },
+   {
+    "box": [
+     212,
+     340,
+     138,
+     105
+    ],
+    "area": 4523
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   210,
+   188,
+   352,
+   444
+  ]
+ },
+ {
+  "stableId": "AUS_04_P1",
+  "name": "Leilani Kahananui",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "AUS_03_P1",
+  "fixed": 1987,
+  "bikiniRegions": [
+   {
+    "box": [
+     250,
+     232,
+     96,
+     58
+    ],
+    "area": 2689
+   },
+   {
+    "box": [
+     229,
+     383,
+     144,
+     76
+    ],
+    "area": 4266
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   227,
+   232,
+   374,
+   458
+  ]
+ },
+ {
+  "stableId": "AUS_04_P2",
+  "name": "Kaimana Akana",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "AUS_04_P2",
+  "fixed": 2801,
+  "bikiniRegions": [
+   {
+    "box": [
+     233,
+     189,
+     130,
+     107
+    ],
+    "area": 7906
+   },
+   {
+    "box": [
+     228,
+     375,
+     139,
+     74
+    ],
+    "area": 4295
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   225,
+   187,
+   368,
+   447
+  ]
+ },
+ {
+  "stableId": "AUS_05_P1",
+  "name": "Mere Volavola",
+  "kit": [
+   "#0B2A6F",
+   "#0B2A6F"
+  ],
+  "pictureFrom": "AUS_05_P1",
+  "fixed": 2702,
+  "bikiniRegions": [
+   {
+    "box": [
+     237,
+     201,
+     112,
+     82
+    ],
+    "area": 3741
+   },
+   {
+    "box": [
+     219,
+     365,
+     137,
+     78
+    ],
+    "area": 4180
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   218,
+   199,
+   358,
+   442
+  ]
+ },
+ {
+  "stableId": "AUS_05_P2",
+  "name": "Adi Cakobau",
+  "kit": [
+   "#0B2A6F",
+   "#0B2A6F"
+  ],
+  "pictureFrom": "AUS_05_P2",
+  "fixed": 3871,
+  "bikiniRegions": [
+   {
+    "box": [
+     204,
+     312,
+     194,
+     109
+    ],
+    "area": 12983
+   },
+   {
+    "box": [
+     187,
+     532,
+     210,
+     129
+    ],
+    "area": 9551
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   185,
+   313,
+   398,
+   660
+  ]
+ },
+ {
+  "stableId": "AUS_06_P1",
+  "name": "Sina Faleolo",
+  "kit": [
+   "#C8102E",
+   "#C8102E"
+  ],
+  "pictureFrom": "AUS_07_P1",
+  "fixed": 2976,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     184,
+     117,
+     113
+    ],
+    "area": 6137
+   },
+   {
+    "box": [
+     247,
+     368,
+     102,
+     79
+    ],
+    "area": 2653
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   241,
+   181,
+   360,
+   444
+  ]
+ },
+ {
+  "stableId": "AUS_06_P2",
+  "name": "Losa Tuilagi",
+  "kit": [
+   "#C8102E",
+   "#C8102E"
+  ],
+  "pictureFrom": "AUS_06_P2",
+  "fixed": 2752,
+  "bikiniRegions": [
+   {
+    "box": [
+     235,
+     200,
+     127,
+     103
+    ],
+    "area": 7489
+   },
+   {
+    "box": [
+     224,
+     373,
+     140,
+     75
+    ],
+    "area": 4093
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   223,
+   197,
+   366,
+   446
+  ]
+ },
+ {
+  "stableId": "AUS_07_P1",
+  "name": "Mandy Tari",
+  "kit": [
+   "#D21034",
+   "#151515"
+  ],
+  "pictureFrom": "AUS_08_P1",
+  "fixed": 2278,
+  "bikiniRegions": [
+   {
+    "box": [
+     246,
+     185,
+     114,
+     118
+    ],
+    "area": 6092
+   },
+   {
+    "box": [
+     243,
+     358,
+     128,
+     75
+    ],
+    "area": 3817
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   237,
+   183,
+   374,
+   433
+  ]
+ },
+ {
+  "stableId": "AUS_07_P2",
+  "name": "Lisa Natuman",
+  "kit": [
+   "#D21034",
+   "#151515"
+  ],
+  "pictureFrom": "AUS_06_P1",
+  "fixed": 2050,
+  "bikiniRegions": [
+   {
+    "box": [
+     185,
+     204,
+     103,
+     134
+    ],
+    "area": 3970
+   },
+   {
+    "box": [
+     305,
+     358,
+     76,
+     82
+    ],
+    "area": 1384
+   },
+   {
+    "box": [
+     259,
+     393,
+     29,
+     30
+    ],
+    "area": 393
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   182,
+   202,
+   382,
+   440
+  ]
+ },
+ {
+  "stableId": "AUS_08_P1",
+  "name": "Mele Taufa",
+  "kit": [
+   "#C10000",
+   "#151515"
+  ],
+  "pictureFrom": "AUS_07_P2",
+  "fixed": 3199,
+  "bikiniRegions": [
+   {
+    "box": [
+     217,
+     168,
+     118,
+     119
+    ],
+    "area": 6854
+   },
+   {
+    "box": [
+     190,
+     341,
+     154,
+     106
+    ],
+    "area": 4946
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   182,
+   165,
+   348,
+   448
+  ]
+ },
+ {
+  "stableId": "AUS_08_P2",
+  "name": "Siosaia Taufa",
+  "kit": [
+   "#C10000",
+   "#151515"
+  ],
+  "pictureFrom": "AUS_08_P2",
+  "fixed": 2771,
+  "bikiniRegions": [
+   {
+    "box": [
+     267,
+     192,
+     96,
+     109
+    ],
+    "area": 5351
+   },
+   {
+    "box": [
+     238,
+     256,
+     23,
+     46
+    ],
+    "area": 450
+   },
+   {
+    "box": [
+     226,
+     379,
+     136,
+     73
+    ],
+    "area": 4238
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   224,
+   189,
+   364,
+   451
+  ]
+ },
+ {
+  "stableId": "EUR_01_P1",
+  "name": "Annika Bauer",
+  "kit": [
+   "#DD0000",
+   "#151515"
+  ],
+  "pictureFrom": "EUR_05_P2",
+  "fixed": 5214,
+  "bikiniRegions": [
+   {
+    "box": [
+     235,
+     170,
+     128,
+     159
+    ],
+    "area": 5996
+   },
+   {
+    "box": [
+     206,
+     334,
+     163,
+     138
+    ],
+    "area": 6046
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   204,
+   169,
+   372,
+   478
+  ]
+ },
+ {
+  "stableId": "EUR_01_P2",
+  "name": "Sophie Müller",
+  "kit": [
+   "#DD0000",
+   "#151515"
+  ],
+  "pictureFrom": "EUR_08_P1",
+  "fixed": 2490,
+  "bikiniRegions": [
+   {
+    "box": [
+     299,
+     186,
+     42,
+     88
+    ],
+    "area": 2224
+   },
+   {
+    "box": [
+     238,
+     239,
+     28,
+     48
+    ],
+    "area": 667
+   },
+   {
+    "box": [
+     233,
+     345,
+     62,
+     73
+    ],
+    "area": 1766
+   },
+   {
+    "box": [
+     323,
+     352,
+     21,
+     37
+    ],
+    "area": 376
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   230,
+   178,
+   347,
+   418
+  ]
+ },
+ {
+  "stableId": "EUR_02_P1",
+  "name": "María Alonso",
+  "kit": [
+   "#C60B1E",
+   "#C60B1E"
+  ],
+  "pictureFrom": "EUR_01_P1",
+  "fixed": 2440,
+  "bikiniRegions": [
+   {
+    "box": [
+     246,
+     199,
+     112,
+     95
+    ],
+    "area": 4904
+   },
+   {
+    "box": [
+     230,
+     369,
+     138,
+     84
+    ],
+    "area": 4436
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   229,
+   199,
+   370,
+   450
+  ]
+ },
+ {
+  "stableId": "EUR_02_P2",
+  "name": "Carmen Ruiz",
+  "kit": [
+   "#C60B1E",
+   "#C60B1E"
+  ],
+  "pictureFrom": "EUR_08_P2",
+  "fixed": 3410,
+  "bikiniRegions": [
+   {
+    "box": [
+     254,
+     184,
+     133,
+     114
+    ],
+    "area": 8003
+   },
+   {
+    "box": [
+     248,
+     355,
+     137,
+     109
+    ],
+    "area": 4513
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   246,
+   180,
+   394,
+   450
+  ]
+ },
+ {
+  "stableId": "EUR_03_P1",
+  "name": "Élise Fontaine",
+  "kit": [
+   "#002395",
+   "#ED2939"
+  ],
+  "pictureFrom": "EUR_06_P1",
+  "fixed": 4379,
+  "bikiniRegions": [
+   {
+    "box": [
+     250,
+     151,
+     127,
+     154
+    ],
+    "area": 9285
+   },
+   {
+    "box": [
+     227,
+     351,
+     158,
+     110
+    ],
+    "area": 5334
+   }
+  ],
+  "otherChangedRegions": [
+   {
+    "box": [
+     97,
+     195,
+     35,
+     15
+    ],
+    "area": 348
+   },
+   {
+    "box": [
+     91,
+     212,
+     46,
+     16
+    ],
+    "area": 478
+   },
+   {
+    "box": [
+     81,
+     230,
+     65,
+     37
+    ],
+    "area": 1293
+   },
+   {
+    "box": [
+     75,
+     266,
+     76,
+     20
+    ],
+    "area": 795
+   },
+   {
+    "box": [
+     64,
+     283,
+     97,
+     44
+    ],
+    "area": 1967
+   },
+   {
+    "box": [
+     48,
+     319,
+     129,
+     82
+    ],
+    "area": 5666
+   }
+  ],
+  "fixedBox": [
+   224,
+   148,
+   387,
+   466
+  ]
+ },
+ {
+  "stableId": "EUR_03_P2",
+  "name": "Céline Moreau",
+  "kit": [
+   "#002395",
+   "#ED2939"
+  ],
+  "pictureFrom": "EUR_03_P2",
+  "fixed": 2081,
+  "bikiniRegions": [
+   {
+    "box": [
+     222,
+     214,
+     105,
+     115
+    ],
+    "area": 3665
+   },
+   {
+    "box": [
+     239,
+     393,
+     89,
+     54
+    ],
+    "area": 2605
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   221,
+   213,
+   330,
+   436
+  ]
+ },
+ {
+  "stableId": "EUR_04_P1",
+  "name": "Giulia Ricci",
+  "kit": [
+   "#0066CC",
+   "#0066CC"
+  ],
+  "pictureFrom": "EUR_01_P2",
+  "fixed": 2971,
+  "bikiniRegions": [
+   {
+    "box": [
+     246,
+     185,
+     49,
+     86
+    ],
+    "area": 1654
+   },
+   {
+    "box": [
+     302,
+     188,
+     53,
+     85
+    ],
+    "area": 1659
+   },
+   {
+    "box": [
+     232,
+     370,
+     134,
+     78
+    ],
+    "area": 4502
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   229,
+   184,
+   370,
+   447
+  ]
+ },
+ {
+  "stableId": "EUR_04_P2",
+  "name": "Valentina Bianchi",
+  "kit": [
+   "#0066CC",
+   "#0066CC"
+  ],
+  "pictureFrom": "EUR_07_P1",
+  "fixed": 2912,
+  "bikiniRegions": [
+   {
+    "box": [
+     240,
+     197,
+     125,
+     107
+    ],
+    "area": 6527
+   },
+   {
+    "box": [
+     230,
+     387,
+     143,
+     71
+    ],
+    "area": 4392
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   223,
+   196,
+   374,
+   458
+  ]
+ },
+ {
+  "stableId": "EUR_05_P1",
+  "name": "Emma van Dijk",
+  "kit": [
+   "#FF6F00",
+   "#FF6F00"
+  ],
+  "pictureFrom": "EUR_04_P1",
+  "fixed": 3168,
+  "bikiniRegions": [
+   {
+    "box": [
+     234,
+     189,
+     125,
+     119
+    ],
+    "area": 8567
+   },
+   {
+    "box": [
+     388,
+     220,
+     17,
+     29
+    ],
+    "area": 322
+   },
+   {
+    "box": [
+     226,
+     372,
+     140,
+     75
+    ],
+    "area": 4566
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   225,
+   187,
+   412,
+   443
+  ]
+ },
+ {
+  "stableId": "EUR_05_P2",
+  "name": "Lisa de Boer",
+  "kit": [
+   "#FF6F00",
+   "#FF6F00"
+  ],
+  "pictureFrom": "EUR_04_P2",
+  "fixed": 2331,
+  "bikiniRegions": [
+   {
+    "box": [
+     222,
+     194,
+     126,
+     100
+    ],
+    "area": 7615
+   },
+   {
+    "box": [
+     225,
+     364,
+     132,
+     66
+    ],
+    "area": 3461
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   193,
+   357,
+   430
+  ]
+ },
+ {
+  "stableId": "EUR_06_P1",
+  "name": "Eleni Papadaki",
+  "kit": [
+   "#0D5EAF",
+   "#0D5EAF"
+  ],
+  "pictureFrom": "EUR_02_P2",
+  "fixed": 2813,
+  "bikiniRegions": [
+   {
+    "box": [
+     244,
+     201,
+     106,
+     101
+    ],
+    "area": 4076
+   },
+   {
+    "box": [
+     232,
+     377,
+     130,
+     76
+    ],
+    "area": 3851
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   230,
+   205,
+   369,
+   453
+  ]
+ },
+ {
+  "stableId": "EUR_06_P2",
+  "name": "Niki Stavros",
+  "kit": [
+   "#0D5EAF",
+   "#0D5EAF"
+  ],
+  "pictureFrom": "EUR_06_P2",
+  "fixed": 4841,
+  "bikiniRegions": [
+   {
+    "box": [
+     209,
+     250,
+     192,
+     191
+    ],
+    "area": 16629
+   },
+   {
+    "box": [
+     198,
+     557,
+     210,
+     94
+    ],
+    "area": 9129
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   197,
+   248,
+   409,
+   650
+  ]
+ },
+ {
+  "stableId": "EUR_07_P1",
+  "name": "Agnieszka Kowal",
+  "kit": [
+   "#DC143C",
+   "#DC143C"
+  ],
+  "pictureFrom": "EUR_05_P1",
+  "fixed": 3283,
+  "bikiniRegions": [
+   {
+    "box": [
+     238,
+     138,
+     118,
+     150
+    ],
+    "area": 5195
+   },
+   {
+    "box": [
+     220,
+     363,
+     133,
+     78
+    ],
+    "area": 3871
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   218,
+   135,
+   357,
+   438
+  ]
+ },
+ {
+  "stableId": "EUR_07_P2",
+  "name": "Marta Wiśniewska",
+  "kit": [
+   "#DC143C",
+   "#DC143C"
+  ],
+  "pictureFrom": "EUR_02_P1",
+  "fixed": 2622,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     191,
+     116,
+     99
+    ],
+    "area": 6867
+   },
+   {
+    "box": [
+     247,
+     360,
+     130,
+     85
+    ],
+    "area": 4038
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   241,
+   189,
+   380,
+   443
+  ]
+ },
+ {
+  "stableId": "EUR_08_P1",
+  "name": "Ingrid Larsson",
+  "kit": [
+   "#FECC02",
+   "#006AA7"
+  ],
+  "pictureFrom": "EUR_03_P1",
+  "fixed": 3504,
+  "bikiniRegions": [
+   {
+    "box": [
+     231,
+     178,
+     124,
+     126
+    ],
+    "area": 7515
+   },
+   {
+    "box": [
+     232,
+     368,
+     133,
+     80
+    ],
+    "area": 4318
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   229,
+   176,
+   367,
+   447
+  ]
+ },
+ {
+  "stableId": "EUR_08_P2",
+  "name": "Astrid Eriksson",
+  "kit": [
+   "#FECC02",
+   "#006AA7"
+  ],
+  "pictureFrom": "EUR_07_P2",
+  "fixed": 3292,
+  "bikiniRegions": [
+   {
+    "box": [
+     245,
+     182,
+     129,
+     120
+    ],
+    "area": 6913
+   },
+   {
+    "box": [
+     239,
+     350,
+     147,
+     97
+    ],
+    "area": 4584
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   232,
+   182,
+   388,
+   446
+  ]
+ },
+ {
+  "stableId": "NAM_01_P1",
+  "name": "Ashley Carter",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_03_P1",
+  "fixed": 1929,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     183,
+     101,
+     101
+    ],
+    "area": 3398
+   },
+   {
+    "box": [
+     234,
+     358,
+     138,
+     79
+    ],
+    "area": 4062
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   233,
+   181,
+   374,
+   435
+  ]
+ },
+ {
+  "stableId": "NAM_01_P2",
+  "name": "Taylor Brooks",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_06_P2",
+  "fixed": 2478,
+  "bikiniRegions": [
+   {
+    "box": [
+     237,
+     195,
+     118,
+     109
+    ],
+    "area": 7076
+   },
+   {
+    "box": [
+     245,
+     377,
+     114,
+     79
+    ],
+    "area": 3615
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   236,
+   192,
+   366,
+   454
+  ]
+ },
+ {
+  "stableId": "NAM_02_P1",
+  "name": "Destiny Rivera",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_03_P2",
+  "fixed": 2503,
+  "bikiniRegions": [
+   {
+    "box": [
+     179,
+     261,
+     165,
+     161
+    ],
+    "area": 7319
+   },
+   {
+    "box": [
+     231,
+     475,
+     168,
+     120
+    ],
+    "area": 6060
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   177,
+   262,
+   400,
+   588
+  ]
+ },
+ {
+  "stableId": "NAM_02_P2",
+  "name": "Jasmine Washington",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_04_P1",
+  "fixed": 2327,
+  "bikiniRegions": [
+   {
+    "box": [
+     248,
+     201,
+     109,
+     92
+    ],
+    "area": 5773
+   },
+   {
+    "box": [
+     232,
+     372,
+     135,
+     76
+    ],
+    "area": 4206
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   231,
+   200,
+   368,
+   445
+  ]
+ },
+ {
+  "stableId": "NAM_03_P1",
+  "name": "Valentina Torres",
+  "kit": [
+   "#006847",
+   "#006847"
+  ],
+  "pictureFrom": "NAM_04_P2",
+  "fixed": 2873,
+  "bikiniRegions": [
+   {
+    "box": [
+     235,
+     192,
+     130,
+     101
+    ],
+    "area": 6960
+   },
+   {
+    "box": [
+     222,
+     361,
+     141,
+     84
+    ],
+    "area": 4686
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   189,
+   366,
+   444
+  ]
+ },
+ {
+  "stableId": "NAM_03_P2",
+  "name": "Sofía Herrera",
+  "kit": [
+   "#006847",
+   "#006847"
+  ],
+  "pictureFrom": "NAM_02_P1",
+  "fixed": 4954,
+  "bikiniRegions": [
+   {
+    "box": [
+     205,
+     244,
+     182,
+     173
+    ],
+    "area": 9402
+   },
+   {
+    "box": [
+     198,
+     520,
+     201,
+     113
+    ],
+    "area": 8842
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   198,
+   243,
+   402,
+   631
+  ]
+ },
+ {
+  "stableId": "NAM_04_P1",
+  "name": "Lisandra Pérez",
+  "kit": [
+   "#002A8F",
+   "#CF142B"
+  ],
+  "pictureFrom": "NAM_02_P2",
+  "fixed": 5504,
+  "bikiniRegions": [
+   {
+    "box": [
+     206,
+     137,
+     32,
+     54
+    ],
+    "area": 380
+   },
+   {
+    "box": [
+     205,
+     144,
+     168,
+     137
+    ],
+    "area": 8329
+   },
+   {
+    "box": [
+     216,
+     353,
+     175,
+     98
+    ],
+    "area": 4749
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   197,
+   131,
+   397,
+   437
+  ]
+ },
+ {
+  "stableId": "NAM_04_P2",
+  "name": "Yoanna Fuentes",
+  "kit": [
+   "#002A8F",
+   "#CF142B"
+  ],
+  "pictureFrom": "NAM_08_P1",
+  "fixed": 2600,
+  "bikiniRegions": [
+   {
+    "box": [
+     240,
+     204,
+     121,
+     100
+    ],
+    "area": 6865
+   },
+   {
+    "box": [
+     229,
+     379,
+     126,
+     68
+    ],
+    "area": 3616
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   225,
+   202,
+   361,
+   446
+  ]
+ },
+ {
+  "stableId": "NAM_05_P1",
+  "name": "Kalani Akana",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_05_P1",
+  "fixed": 1946,
+  "bikiniRegions": [
+   {
+    "box": [
+     249,
+     220,
+     101,
+     75
+    ],
+    "area": 3600
+   },
+   {
+    "box": [
+     222,
+     381,
+     137,
+     76
+    ],
+    "area": 4265
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   220,
+   362,
+   454
+  ]
+ },
+ {
+  "stableId": "NAM_05_P2",
+  "name": "Lani Kealoha",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_05_P2",
+  "fixed": 2171,
+  "bikiniRegions": [
+   {
+    "box": [
+     227,
+     215,
+     131,
+     67
+    ],
+    "area": 3765
+   },
+   {
+    "box": [
+     228,
+     360,
+     133,
+     78
+    ],
+    "area": 3910
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   225,
+   216,
+   364,
+   436
+  ]
+ },
+ {
+  "stableId": "NAM_06_P1",
+  "name": "Brittany MacLeod",
+  "kit": [
+   "#D80621",
+   "#D80621"
+  ],
+  "pictureFrom": "NAM_06_P1",
+  "fixed": 2309,
+  "bikiniRegions": [
+   {
+    "box": [
+     255,
+     194,
+     108,
+     104
+    ],
+    "area": 6536
+   },
+   {
+    "box": [
+     237,
+     364,
+     130,
+     80
+    ],
+    "area": 3968
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   236,
+   192,
+   368,
+   443
+  ]
+ },
+ {
+  "stableId": "NAM_06_P2",
+  "name": "Cassandra Tremblay",
+  "kit": [
+   "#D80621",
+   "#D80621"
+  ],
+  "pictureFrom": "NAM_01_P1",
+  "fixed": 2874,
+  "bikiniRegions": [
+   {
+    "box": [
+     246,
+     189,
+     109,
+     90
+    ],
+    "area": 3664
+   },
+   {
+    "box": [
+     229,
+     367,
+     132,
+     80
+    ],
+    "area": 3965
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   228,
+   188,
+   364,
+   445
+  ]
+ },
+ {
+  "stableId": "NAM_07_P1",
+  "name": "Madison Hughes",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_07_P1",
+  "fixed": 2539,
+  "bikiniRegions": [
+   {
+    "box": [
+     255,
+     184,
+     104,
+     111
+    ],
+    "area": 3562
+   },
+   {
+    "box": [
+     217,
+     357,
+     150,
+     89
+    ],
+    "area": 4594
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   216,
+   181,
+   370,
+   444
+  ]
+ },
+ {
+  "stableId": "NAM_07_P2",
+  "name": "Brooke Simmons",
+  "kit": [
+   "#1B2A4A",
+   "#B22234"
+  ],
+  "pictureFrom": "NAM_07_P2",
+  "fixed": 2571,
+  "bikiniRegions": [
+   {
+    "box": [
+     237,
+     196,
+     123,
+     110
+    ],
+    "area": 7199
+   },
+   {
+    "box": [
+     222,
+     381,
+     133,
+     75
+    ],
+    "area": 4068
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   193,
+   362,
+   453
+  ]
+ },
+ {
+  "stableId": "NAM_08_P1",
+  "name": "Mariela Colon",
+  "kit": [
+   "#0050F0",
+   "#ED0000"
+  ],
+  "pictureFrom": "NAM_01_P2",
+  "fixed": 4686,
+  "bikiniRegions": [
+   {
+    "box": [
+     362,
+     120,
+     17,
+     77
+    ],
+    "area": 595
+   },
+   {
+    "box": [
+     225,
+     153,
+     109,
+     131
+    ],
+    "area": 4333
+   },
+   {
+    "box": [
+     344,
+     213,
+     38,
+     81
+    ],
+    "area": 1222
+   },
+   {
+    "box": [
+     232,
+     339,
+     62,
+     85
+    ],
+    "area": 1856
+   },
+   {
+    "box": [
+     324,
+     339,
+     32,
+     63
+    ],
+    "area": 655
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   217,
+   114,
+   384,
+   424
+  ]
+ },
+ {
+  "stableId": "NAM_08_P2",
+  "name": "Xiomara Cruz",
+  "kit": [
+   "#0050F0",
+   "#ED0000"
+  ],
+  "pictureFrom": "NAM_08_P2",
+  "fixed": 2626,
+  "bikiniRegions": [
+   {
+    "box": [
+     248,
+     216,
+     109,
+     93
+    ],
+    "area": 5180
+   },
+   {
+    "box": [
+     245,
+     378,
+     122,
+     73
+    ],
+    "area": 3575
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   244,
+   213,
+   370,
+   450
+  ]
+ },
+ {
+  "stableId": "SAM_01_P1",
+  "name": "Fernanda Silva",
+  "kit": [
+   "#009C3B",
+   "#002776"
+  ],
+  "pictureFrom": "SAM_07_P2",
+  "fixed": 5282,
+  "bikiniRegions": [
+   {
+    "box": [
+     170,
+     282,
+     224,
+     151
+    ],
+    "area": 18708
+   },
+   {
+    "box": [
+     189,
+     544,
+     228,
+     160
+    ],
+    "area": 14420
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   167,
+   283,
+   417,
+   701
+  ]
+ },
+ {
+  "stableId": "SAM_01_P2",
+  "name": "Beatriz Costa",
+  "kit": [
+   "#009C3B",
+   "#002776"
+  ],
+  "pictureFrom": "SAM_01_P2",
+  "fixed": 2561,
+  "bikiniRegions": [
+   {
+    "box": [
+     260,
+     214,
+     97,
+     104
+    ],
+    "area": 3345
+   },
+   {
+    "box": [
+     257,
+     382,
+     88,
+     77
+    ],
+    "area": 2156
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   256,
+   213,
+   358,
+   458
+  ]
+ },
+ {
+  "stableId": "SAM_02_P1",
+  "name": "Carolina Souza",
+  "kit": [
+   "#009C3B",
+   "#002776"
+  ],
+  "pictureFrom": "SAM_07_P1",
+  "fixed": 3177,
+  "bikiniRegions": [
+   {
+    "box": [
+     222,
+     196,
+     123,
+     103
+    ],
+    "area": 7101
+   },
+   {
+    "box": [
+     220,
+     370,
+     131,
+     81
+    ],
+    "area": 3680
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   217,
+   193,
+   353,
+   450
+  ]
+ },
+ {
+  "stableId": "SAM_02_P2",
+  "name": "Amanda Lima",
+  "kit": [
+   "#009C3B",
+   "#002776"
+  ],
+  "pictureFrom": "SAM_02_P2",
+  "fixed": 2466,
+  "bikiniRegions": [
+   {
+    "box": [
+     248,
+     234,
+     92,
+     58
+    ],
+    "area": 3846
+   },
+   {
+    "box": [
+     234,
+     256,
+     12,
+     42
+    ],
+    "area": 278
+   },
+   {
+    "box": [
+     226,
+     352,
+     124,
+     89
+    ],
+    "area": 3799
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   225,
+   232,
+   351,
+   442
+  ]
+ },
+ {
+  "stableId": "SAM_03_P1",
+  "name": "Valentina Rodríguez",
+  "kit": [
+   "#74ACDF",
+   "#1E3A8A"
+  ],
+  "pictureFrom": "SAM_06_P2",
+  "fixed": 1701,
+  "bikiniRegions": [
+   {
+    "box": [
+     247,
+     185,
+     94,
+     96
+    ],
+    "area": 5036
+   },
+   {
+    "box": [
+     232,
+     369,
+     138,
+     80
+    ],
+    "area": 4577
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   231,
+   182,
+   373,
+   448
+  ]
+ },
+ {
+  "stableId": "SAM_03_P2",
+  "name": "Camila Gómez",
+  "kit": [
+   "#74ACDF",
+   "#1E3A8A"
+  ],
+  "pictureFrom": "SAM_03_P2",
+  "fixed": 2159,
+  "bikiniRegions": [
+   {
+    "box": [
+     240,
+     183,
+     130,
+     103
+    ],
+    "area": 4639
+   },
+   {
+    "box": [
+     226,
+     372,
+     140,
+     69
+    ],
+    "area": 4063
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   225,
+   181,
+   371,
+   440
+  ]
+ },
+ {
+  "stableId": "SAM_04_P1",
+  "name": "Lucía Quispe",
+  "kit": [
+   "#D91023",
+   "#D91023"
+  ],
+  "pictureFrom": "SAM_04_P1",
+  "fixed": 2458,
+  "bikiniRegions": [
+   {
+    "box": [
+     240,
+     187,
+     117,
+     96
+    ],
+    "area": 5348
+   },
+   {
+    "box": [
+     247,
+     366,
+     117,
+     71
+    ],
+    "area": 3822
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   238,
+   185,
+   366,
+   436
+  ]
+ },
+ {
+  "stableId": "SAM_04_P2",
+  "name": "Andrea Huanca",
+  "kit": [
+   "#D91023",
+   "#D91023"
+  ],
+  "pictureFrom": "SAM_02_P1",
+  "fixed": 2983,
+  "bikiniRegions": [
+   {
+    "box": [
+     225,
+     188,
+     125,
+     112
+    ],
+    "area": 8483
+   },
+   {
+    "box": [
+     217,
+     372,
+     138,
+     73
+    ],
+    "area": 4176
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   214,
+   186,
+   356,
+   443
+  ]
+ },
+ {
+  "stableId": "SAM_05_P1",
+  "name": "Isabella Vargas",
+  "kit": [
+   "#FCD116",
+   "#003893"
+  ],
+  "pictureFrom": "SAM_05_P1",
+  "fixed": 3006,
+  "bikiniRegions": [
+   {
+    "box": [
+     243,
+     186,
+     126,
+     114
+    ],
+    "area": 7535
+   },
+   {
+    "box": [
+     237,
+     373,
+     137,
+     68
+    ],
+    "area": 4097
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   235,
+   183,
+   375,
+   440
+  ]
+ },
+ {
+  "stableId": "SAM_05_P2",
+  "name": "Sara Moreno",
+  "kit": [
+   "#FCD116",
+   "#003893"
+  ],
+  "pictureFrom": "SAM_05_P2",
+  "fixed": 3226,
+  "bikiniRegions": [
+   {
+    "box": [
+     220,
+     231,
+     156,
+     153
+    ],
+    "area": 7754
+   },
+   {
+    "box": [
+     207,
+     461,
+     180,
+     123
+    ],
+    "area": 7188
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   205,
+   228,
+   388,
+   583
+  ]
+ },
+ {
+  "stableId": "SAM_06_P1",
+  "name": "Daniela Rojas",
+  "kit": [
+   "#D52B1E",
+   "#0039A6"
+  ],
+  "pictureFrom": "SAM_06_P1",
+  "fixed": 3262,
+  "bikiniRegions": [
+   {
+    "box": [
+     230,
+     182,
+     119,
+     123
+    ],
+    "area": 8401
+   },
+   {
+    "box": [
+     207,
+     363,
+     147,
+     83
+    ],
+    "area": 4807
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   205,
+   180,
+   356,
+   446
+  ]
+ },
+ {
+  "stableId": "SAM_06_P2",
+  "name": "Catalina Fuentes",
+  "kit": [
+   "#D52B1E",
+   "#0039A6"
+  ],
+  "pictureFrom": "SAM_01_P1",
+  "fixed": 2592,
+  "bikiniRegions": [
+   {
+    "box": [
+     239,
+     196,
+     128,
+     94
+    ],
+    "area": 6603
+   },
+   {
+    "box": [
+     238,
+     372,
+     128,
+     71
+    ],
+    "area": 3475
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   235,
+   196,
+   368,
+   442
+  ]
+ },
+ {
+  "stableId": "SAM_07_P1",
+  "name": "Verónica Martínez",
+  "kit": [
+   "#6CACE4",
+   "#6CACE4"
+  ],
+  "pictureFrom": "SAM_04_P2",
+  "fixed": 2499,
+  "bikiniRegions": [
+   {
+    "box": [
+     241,
+     185,
+     115,
+     96
+    ],
+    "area": 4249
+   },
+   {
+    "box": [
+     223,
+     368,
+     134,
+     78
+    ],
+    "area": 4246
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   220,
+   182,
+   359,
+   446
+  ]
+ },
+ {
+  "stableId": "SAM_07_P2",
+  "name": "Paula Álvarez",
+  "kit": [
+   "#6CACE4",
+   "#6CACE4"
+  ],
+  "pictureFrom": "SAM_03_P1",
+  "fixed": 2074,
+  "bikiniRegions": [
+   {
+    "box": [
+     239,
+     186,
+     113,
+     102
+    ],
+    "area": 3759
+   },
+   {
+    "box": [
+     232,
+     375,
+     139,
+     72
+    ],
+    "area": 4264
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   229,
+   184,
+   373,
+   446
+  ]
+ },
+ {
+  "stableId": "SAM_08_P1",
+  "name": "Gabriela Herrera",
+  "kit": [
+   "#FFCC00",
+   "#00247D"
+  ],
+  "pictureFrom": "SAM_08_P1",
+  "fixed": 3255,
+  "bikiniRegions": [
+   {
+    "box": [
+     194,
+     276,
+     191,
+     167
+    ],
+    "area": 8929
+   },
+   {
+    "box": [
+     244,
+     492,
+     179,
+     127
+    ],
+    "area": 6150
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   193,
+   280,
+   424,
+   618
+  ]
+ },
+ {
+  "stableId": "SAM_08_P2",
+  "name": "Andreína Colmenares",
+  "kit": [
+   "#FFCC00",
+   "#00247D"
+  ],
+  "pictureFrom": "SAM_08_P2",
+  "fixed": 5140,
+  "bikiniRegions": [
+   {
+    "box": [
+     206,
+     262,
+     214,
+     177
+    ],
+    "area": 17882
+   },
+   {
+    "box": [
+     424,
+     313,
+     26,
+     79
+    ],
+    "area": 1363
+   },
+   {
+    "box": [
+     182,
+     509,
+     230,
+     186
+    ],
+    "area": 12066
+   }
+  ],
+  "otherChangedRegions": [],
+  "fixedBox": [
+   181,
+   259,
+   456,
+   693
+  ]
+ }
+]
