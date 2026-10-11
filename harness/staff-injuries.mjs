@@ -129,7 +129,7 @@ try {
   // Person-days are counted once per game date the calendar played (a match
   // day is advanced to twice: once to the match, once past it).
   const gameDate = () => q(`SELECT "current_date" AS d FROM calendar_state WHERE team_id = ?`, run.team.id)[0]?.d ?? null;
-  let seasons = 0, playerDays = 0, staffDays = 0, days = 0, calls = 0;
+  let seasons = 0, playerDays = 0, staffDays = 0, days = 0, calls = 0, firstNews = null;
   for (let i = 0; i < 4000 && seasons < SEASONS; i++) {
     if (i % 20 === 0) { await keepSideFielded(api); await renewExpiringContracts(api); }
     const before = gameDate();
@@ -140,6 +140,13 @@ try {
     calls++;
     if (gameDate() !== before) { playerDays += players; staffDays += staffNow; days++; }
     if (r.data?.seasonRollover && r.data.seasonRollover.kind !== "none") seasons++;
+    // Club News on the day of the first absence the game rolls itself. (Read after the
+    // run, its newest 15 items were matches and signings of the last season; the check
+    // passed only when an absence fell late in the run.)
+    if (!firstNews) {
+      const ab = q(`SELECT staff_name AS name, started_on AS d FROM staff_absences WHERE career_save_id = ? ORDER BY id LIMIT 1`, run.cid)[0];
+      if (ab) firstNews = { absence: ab, items: ((await api("GET", "/news")).data?.items ?? []).filter((n) => n.type === "staff") };
+    }
   }
   const playerInjuries = q(`SELECT COUNT(*) AS n FROM injury_history WHERE team_id = ?`, run.team.id)[0].n;
   const absences = q(`SELECT * FROM staff_absences WHERE career_save_id = ?`, run.cid);
@@ -181,7 +188,6 @@ try {
     `${ended.length} ended, ${wrong.length} wrong; e.g. ${ended.slice(0, 3).map((a) => `${a.staff_name} ${a.cause} ${a.started_on} -> ${a.returned_on}`).join(" · ")}`);
   const causesSeen = [...new Set(absences.map((a) => a.cause))];
   console.log(`  (info) causes in the run: ${causesSeen.map((k) => `${k} ${absences.filter((a) => a.cause === k).length}`).join(", ")}`);
-  const runNews = ((await api("GET", "/news")).data?.items ?? []).filter((n) => n.type === "staff");
   await stopServer(child); child = null;
 
   // ── 3. Bonuses drop off and come back ─────────────────────────────────────
@@ -263,9 +269,10 @@ try {
   check("Club News says when a member of staff went off, with the cause", !!offLine, offLine ? `${offLine.date}: ${offLine.headline} — ${offLine.detail}` : JSON.stringify(news.slice(0, 2)));
   const gap = backLine && offLine ? Math.round((Date.parse(backLine.date) - Date.parse(offLine.date)) / 86400000) : null;
   check("and when they came back, the cause's days later", !!backLine && gap === 9, backLine ? `${backLine.date} (${gap} days later): ${backLine.headline} — ${backLine.detail}` : "none");
-  // The long run's own lines, from absences the game rolled itself (read before its server stopped).
-  check("the long run's own absences are in its Club News too", runNews.length > 0 || absences.length === 0,
-    runNews.slice(0, 2).map((n) => `${n.date}: ${n.headline}`).join(" · "));
+  // The long run's own lines: the first absence the game rolled itself, in Club News on its day.
+  const firstLine = firstNews?.items.find((n) => n.headline.startsWith(firstNews.absence.name) && n.date === firstNews.absence.d);
+  check("the long run's own absences are in its Club News too (the first one, on its day)", !!firstLine || absences.length === 0,
+    firstLine ? `${firstLine.date}: ${firstLine.headline}` : firstNews ? `not listed: ${firstNews.absence.name} off ${firstNews.absence.d}` : "no absence in the run");
   await stopServer(child); child = null;
 
   // ── 5. An older save ──────────────────────────────────────────────────────

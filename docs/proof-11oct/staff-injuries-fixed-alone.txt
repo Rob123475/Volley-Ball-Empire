@@ -1,0 +1,37 @@
+========================================================================
+  PART B: STAFF AND MEDICAL STAFF OFF ILL OR HURT
+========================================================================
+
+1. THE RATE: 6 SEASONS, PLAYERS AGAINST STAFF
+  PASS  (set-up) the club has its staff: four staff, four medical and a Scout  Head Coach, Assistant Coach, Fitness Trainer, Promotional Manager, Physiotherapist, Doctor, Massage Therapist, Nutritionist, Scout
+  (info) 2185 game days played (2518 advances): players 38 injuries in 11287 player-days (3.37 per 1,000); staff 32 absences in 19665 staff-days (1.63 per 1,000); the game's player figure 3.41 per 1,000
+  PASS  6 seasons played  6
+  PASS  staff go off about half as often as players are injured (0.30-0.80 on one run; designed 0.50)  staff 1.63 per 1,000 staff-days against players' 3.41 per 1,000 player-days: 0.48 x (this run's own players: 3.37, so 0.48 x)
+  (info) this run's players against the game's figure: 3.37 vs 3.41 per 1,000 player-days
+
+2. THE TIME OFF
+  PASS  the causes' average time off is half the players' injury table's (within 10%)  6.63 days against 12.95: 0.512 x
+  PASS  real-life causes, illness and accidents both, each with its own days  a cold 3d, flu 7d, gastro 3d, food poisoning 2d, tonsillitis 7d, a sprained ankle 10d, a bad back 7d, a twisted knee 12d, a broken leg 42d
+  PASS  every absence that ended lasted exactly its cause's days (on the game calendar)  32 ended, 0 wrong; e.g. Dr. Karim Hassan flu 2026-02-13 -> 2026-02-20 · Dr. Elena Sokolova flu 2026-02-17 -> 2026-02-24 · Alexei Mironov food_poisoning 2026-07-20 -> 2026-07-22
+  (info) causes in the run: flu 12, food_poisoning 1, cold 8, back 1, tonsillitis 1, knee 1, ankle 5, gastro 2, broken_leg 1
+
+3. BONUSES DROP OFF AND COME BACK
+  PASS  (set-up) the game date to plant the absences on  2026-01-01
+  PASS  the Staff and Medical lists say who is off, with what, and for how long (the badge reads them)  Staff: Victoria Chen flu 9 -> "Off: flu, back in 9 days"; Medical: Alexei Mironov back 9 -> "Off: a bad back, back in 9 days"
+  PASS  the Scout off: no player scouting, and it says why  HTTP 409: Ana Vieira is off: a cold, back in 3 days. No scouting until your Scout is back.
+  PASS  the Promotions Manager off: that week's sponsor income carries no bonus  Weekly sponsor & commercial income
+  PASS  the physio off: the injured player heals only the week itself (no extra week)  4 -> 3 weeks
+  PASS  after their days they are back on duty  86: 0, 96: 0, 143: 0
+  PASS  the Promotions Manager back: the sponsor income carries the bonus again  Weekly sponsor & commercial income (+17% Promotions Manager bonus)
+  PASS  the physio back (skill 250, so her extra week always comes): the injured player heals two weeks in one  4 -> 2 weeks
+  PASS  the Scout back: player scouting works again  HTTP 200 
+
+4. CLUB NEWS
+  PASS  Club News says when a member of staff went off, with the cause  2026-01-01: Victoria Chen (Promotional Manager) caught the flu — Off for 9 days with flu: no Promotional Manager bonus until back.
+  PASS  and when they came back, the cause's days later  2026-01-10 (9 days later): Victoria Chen (Promotional Manager) is back at work — After 9 days off with flu.
+  PASS  the long run's own absences are in its Club News too (the first one, on its day)  2026-02-13: Dr. Karim Hassan (Doctor) caught the flu
+
+5. AN OLDER SAVE: A COPY OF ROB'S 2 OCT SAVE
+  PASS  it boots; the new columns and table are added; everyone is on duty  columns before: false, after: off_cause, off_since, off_days_left; staff_absences: 1; 2 hired, 0 days off
+
+=== 19/19 passed ===

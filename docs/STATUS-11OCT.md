@@ -139,6 +139,34 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 - **The serve meter (item 2):** `docs/proof-11oct/court-meter/serve-meter.png` and `-2.png`. The WEAK…MAX bar has the red weak end and the green MAX zone, the needle sweeping, the prompt "SERVE: tap L at MAX", and the help panel's "(serve: tap at the right time, at MAX)". The proof plays in Auto, and after a point Sydney Riptide wins it presses Tab, so Yaritza Mendez serves in Manual.
 - **Zoom (item 6) and the bikinis (item 4):** `docs/proof-11oct/bikini/webgl-after/zoom-4x-buttons.png` shows the 4x button clicked with the mouse: it is lit and the close camera is magnified 4 times (the court logged "zoom 4x … field of view 16.4"). `bikini-close-1..3.png` are frames at 4x before a serve. Compare `bikini/webgl-before/` (the 10 Oct court at its closest). The fabric itself is clearest in the Unity close-ups (item 4).
 
+### The full harness
+
+**Run #1, at `669fd0e` (the export and every proof): 103 of 104 suites passed. `staff injuries` failed one check** (18/19): "the long run's own absences are in its Club News too" (`docs/proof-11oct/full-harness-669fd0e-staff-news-fail.txt`).
+- **The cause was a fault in the suite, not in the game, and not from this brief** (nothing here touches staff).
+- The suite plays 6 seasons, then reads Club News once, at the end. Club News shows the newest 15 items, which by then are the last season's matches and signings. In this run the last staff absence was in October 2028 and the run ended in December 2032, so no staff line could be in the newest 15.
+- The check passed on 10 Oct only because an absence happened to fall late in that run.
+- **Fixed in the suite (`harness/staff-injuries.mjs`):** it now reads Club News on the day of the first absence the game rolls itself, and checks that line is there on its date. Alone: **19/19** (`docs/proof-11oct/staff-injuries-fixed-alone.txt`: "2026-02-13: Dr. Karim Hassan (Doctor) caught the flu").
+- The brief asked for one full harness run. A run with a failed suite can't be packaged, so after the fix I ran it a second time (below), with nothing else running.
+
 ## What Rob must check on screen
 
-(Filled in at the end.)
+All in **`C:\build\vbe-final-11oct\win-unpacked`**. Make a backup of your save first, as always.
+
+1. **Your career loads** as before (Sydney Riptide).
+2. **Start positions, in Auto:** Watch Match. At the end of every rally, all four walk back to their spots. The server walks to **just behind her own baseline**, and the serve goes only when everyone is there. It is the same player who walked back who serves.
+3. **Start positions, in Manual, with the Xbox pad:**
+   - When a point ends, your player is **walked back by the game**: let go of the stick, she goes by herself.
+   - When she serves, she stands behind the baseline and the stick moves her **left and right only** until she serves.
+   - When the other side serves, she waits on her spot, and **the stick takes over the moment the serve is in the air**.
+4. **The serve meter:** when it's your serve, the bar under the court **sweeps WEAK ↔ MAX without stopping**.
+   - **One tap of Y** serves at the power shown; the green MAX zone at the right end is full power.
+   - A tap in the red bit at the left (under 12%) goes into the net.
+   - The prompt says `SERVE: tap Y / Triangle at MAX`, and the help panel says "tap at the right time, at MAX".
+   - Leave it alone and it serves by itself after 12 s.
+5. **The ace ability:** nobody starts at 95.
+   - To try it, train a player's serve: Serving Academy, back to back; Yaritza Mendez takes about 100 game days from 88.
+   - Once she is 95, a tap in the MAX zone is an **ace**. In Auto she aces about 1 serve in 12 on her own.
+   - A 94 tapping MAX just serves hard.
+6. **The bikinis on the court:** a little sheen on the fabric now, like wet Lycra; the skin as before. Zoom in (item 7) to see it.
+7. **The zoom buttons 1x 2x 4x**, top right under the weather: click them, in Auto and in Manual. The picture should get 2× and 4× larger, the button in use lit. The wheel and +/- still work. Say if item 6 of the brief asked for something else (see item 6 above).
+8. **The AI club pictures:** Player Market, At AI Clubs. The pale rims and white tips on the bikinis should be gone. Have a look at the ones listed under item 5 (Leilani Kahananui, Lisa Natuman, Lindiwe Dlamini, Wei Lin, the pale-blue kits), and at the 10 Oct leftovers outside the bikinis (Élise Fontaine's umbrella, Agnieszka Kowal's and Mariela Colon's hair, Brittany MacLeod's neckline).
