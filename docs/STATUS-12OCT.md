@@ -4,7 +4,11 @@ Brief: `C:\Users\rbonn\Downloads\MONDAY-BRIEF-11OCT.md`. Game repo branch `launc
 
 ## Summary
 
-(Written as the items go; finished at the end.)
+All three items are done, and the new package is **`C:\build\vbe-final-12oct`**, built from `launch-final` **`7f81091`**. It is not uploaded to Steam, and nothing was merged into main.
+- **A. The first dig in Manual:** after the other side serves, your team's first dig now lands within **1.0 m** of the teammate who sets. Auto is unchanged. Proved over 43 Manual points: 20 first digs, all within 1.0 m. The Auto spread was the same before and after.
+- **B. The controls panel:** it now has an amber hint line (`Hide: D-pad down · H · or click ×`) and a **×** in its corner. A **`Controls`** button at the bottom left brings it back, and your choice holds for the match. Proved in Unity and in the browser with real mouse clicks.
+- **C. The 96 AI pictures:** your new set is installed (95 changed, Min-Seo Kim unchanged) and both checks pass. The previous 96 are kept in `_KEEP-originals`. Two pictures differ from their originals away from the body: **Élise Fontaine's umbrella** and a patch on **Andreína Colmenares**. Please look at both (check 5).
+- **The full harness passed once:** 104 of 104 suites at `7f81091`. The package's before-pack and after-pack checks passed. It booted on a copy of the 2 Oct backup with your career intact. The fallback packages and the live save were not touched.
 
 ## Items
 
@@ -79,6 +83,43 @@ So I could not make 4–5 m happen from the dig target itself. **If you still se
 
   You approved the set, so both are installed as delivered. They are in the on-screen checks below.
 
+## Build
+
+- **Unity:** `feat-manual-controls` committed and pushed: `3e311a4` (A), then `4674c7f` (B). **One WebGL export** of `4674c7f`, Brotli, in `launch-final` (above).
+- **Full harness, run once at `launch-final` `7f81091`: ALL HARNESSES PASSED, 104 of 104 suites** (`docs/proof-11oct-pm/harness-7f81091.txt`). A first attempt stopped before any suite ran: pnpm's dependency check refuses a worktree whose `node_modules` points at the main tree. I set the usual worktree flag and ran it again; no code changed.
+- **Package:** `C:\build\vbe-final-12oct\win-unpacked`, built from `7f81091`, the harness commit (`docs/proof-11oct-pm/package-checks-7f81091.txt`).
+  - **Before pack:** only the Brotli Unity files are shipped (the raw `.data` and `.wasm` were stripped), and `better-sqlite3` loads under Electron.
+  - **After pack:** the starter DB has no `-wal` or `-shm`; there is no `steam_appid.txt`; `steamworks.js` is unpacked with its DLL.
+- **Boot on a copy of the 2 Oct backup** (`docs/proof-11oct-pm/boot-final-7f81091.json`):
+  - the app shell, `data.br` (217.0 MB) and `wasm.br` (9.0 MB) all served;
+  - the Unity export in the package is the same as `launch-final`'s;
+  - your career loaded: Sydney Riptide, 24 Apr 2026, budget $247,731;
+  - 120 AI-club players, 96 of them with the AI pictures;
+  - **the 96 AI pictures in the package are byte-identical to the newly installed set**;
+  - the 205 cropped senior cards are still yours, and all 120 skin tones match their cards;
+  - the save gained the staff and job-market columns as before.
+  - (One label in that file is from yesterday's script: "1 of 96 still Rob's 10 Oct files" means Min-Seo Kim; the other 95 are now tonight's set.)
+
+## Rules kept
+
+- **Fallbacks untouched.** Their times are the same as before this brief: `vbe-final-11oct` (live on Steam, 11 Oct 18:33), `vbe-final-10oct` (10 Oct 23:11), `vbe-final-06oct` (6 Oct 17:21), `vbe-launch-05oct` (5 Oct 16:34). In `_KEEP-originals` the two older zips are unchanged, and only the new zip was added.
+- **Live save never opened, only stat'ed.** Its time is 19:25 tonight (11 Oct), 2,314,240 bytes. That is your play since the 11 Oct build; it was the same before and after the boot check.
+- **No merge into main. No Steam upload. No music changes.**
+- **Nothing in `Downloads\PICTURES-11OCT` was moved, renamed or deleted.** The before-after PNGs are not committed.
+- **Dead code removed:**
+  - the old "Hide this" line in the panel;
+  - the line that switched off mouse clicks on the panel's canvas.
+- **Committed and pushed after each item.** The ElevenLabs key check passed on every push.
+
 ## What Rob must check on screen
 
-(Filled in at the end.)
+1. **The first dig in Manual.** Start a match in Manual and let the other side serve. When you or your partner dig the serve, the ball should come down within about a metre of whoever sets, and that player should already be moving to it. If someone is still stranded, tell me which touch it was (your dig, her dig, or the set after it).
+2. **Auto feels the same** as in the 11 Oct build.
+3. **The controls panel.** In Manual, the panel shows the amber line `Hide: D-pad down · H · or click ×`.
+   - Click the **×**: the panel goes and **`Controls`** appears at the bottom left.
+   - Click `Controls`, press H, or press D-pad down: the panel comes back.
+   - After a point or two, it stays the way you left it.
+   - The boosts still work with the mouse.
+4. **The new AI pictures.** Open the market or an AI club and look through the AI players' pictures.
+5. **Élise Fontaine (`EUR_03_P1`):** part of her umbrella still looks tinted red/blue. **Andreína Colmenares (`SAM_08_P2`):** a patch on the right of the picture changed. If either is wrong, the old set is in `C:\build\_KEEP-originals\ai-pictures-11oct-cleaned.zip`.
+6. **Your career** opens as before in `C:\build\vbe-final-12oct\win-unpacked\Beach Volleyball Empire.exe`. Use a copy of your save if you want to be safe.
