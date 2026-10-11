@@ -66,6 +66,19 @@ So I could not make 4–5 m happen from the dig target itself. **If you still se
 
 **One WebGL export** of Unity `4674c7f` (`WebBuild.Step7`, Succeeded), copied into `launch-final` under the deployed names. Brotli regenerated: data.br 217.0 MB, wasm.br 9.0 MB.
 
+### C. The 96 AI pictures
+
+**Done**, after `READY.txt` (approved 9:34 pm).
+- **Kept first:** the current 96 are zipped to `C:\build\_KEEP-originals\ai-pictures-11oct-cleaned.zip` (96 files, 7,219,436 bytes).
+- **Installed:** the 96 from `Downloads\PICTURES-11OCT\` were copied over the same names in `artifacts/beach-volleyball/public/images/players/seniors/ai/`. All 96 are byte-identical to the delivered files; 95 changed, and Min-Seo Kim (`ASI_03_P2`) was delivered unchanged. No database change. Nothing in `PICTURES-11OCT` was moved, renamed or deleted, and the before-after PNGs are not committed.
+- **Checked before installing:** 96 files with the same names; all WebP at 600x800; no two the same.
+- **Checks:** `check-image-formats` OK; `check-captions` OK ("no artwork has changed since it was read").
+- **Two things I saw comparing each picture with its 5 Oct original.** Away from the body, only two pictures changed:
+  - **`EUR_03_P1` Élise Fontaine:** part of her umbrella is still tinted red/blue (a patch about 3,000 px at the left, x≈44, y≈263). `READY.txt` says the umbrellas are unchanged.
+  - **`SAM_08_P2` Andreína Colmenares:** a patch of about 1,500 px changed at the right (x≈422, y≈303).
+
+  You approved the set, so both are installed as delivered. They are in the on-screen checks below.
+
 ## What Rob must check on screen
 
 (Filled in at the end.)
