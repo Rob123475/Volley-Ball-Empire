@@ -170,6 +170,12 @@ Slower for an older player: XP is ×0.9 from 30 and ×0.8 from 34. Faster with a
 - **Fixed in the suite (`harness/rollover.mjs`):** when the club changes at a boundary, the season is the old club's, so its record is read from that club's own totals in the save. The move is logged, and the arc goes on with the new club.
 - **Alone, after the fix: 90/90** (`docs/proof-11oct/season-rollover-fixed-alone.txt`). Nobody was sacked in that run, so the new "moved club" branch did not come up; it reads the old club's own totals, which nothing resets on a move.
 
+**Run #3, at `5e2f599` (both suite fixes; every commit after it is `docs/` only): 104/104 suites, 1,713 checks, ALL HARNESSES PASSED** (17:26–18:33; `docs/proof-11oct/full-harness-5e2f599.txt`). Nothing else ran during any of the three runs.
+
+### The package
+
+(Below, after it was built.)
+
 ## What Rob must check on screen
 
 All in **`C:\build\vbe-final-11oct\win-unpacked`**. Make a backup of your save first, as always.
