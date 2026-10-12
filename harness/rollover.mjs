@@ -50,6 +50,22 @@ function teamTotals(dbPath, teamId) {
   try { return db.prepare(`SELECT wins, losses FROM teams WHERE id = ?`).get(teamId) ?? null; } finally { db.close(); }
 }
 
+/**
+ * The season's fixture as GET /seasons/:year/review counts it, for a given club. The
+ * review reads the manager's current club, so after the job market has moved him it
+ * describes the new club's season; the season he just finished was the old club's.
+ */
+function seasonFixtureOf(dbPath, teamId, year) {
+  const db = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    const rows = db.prepare(`SELECT status FROM matches WHERE home_team_id = ? AND season = ?`).all(teamId, year);
+    return {
+      notQualified: rows.filter((m) => m.status === "not_qualified").length,
+      byes: rows.filter((m) => m.status === "bye").length,
+    };
+  } finally { db.close(); }
+}
+
 function contractlessAtClub(label) {
   if (!DB_FILE) return null;
   const db = new DatabaseSync(DB_FILE, { readOnly: true });
@@ -136,9 +152,13 @@ async function playPendingMatch(api, matchId) {
 async function renewExpiringContracts(api) {
   const season = (await api("GET", "/seasons/current")).data;
   const contracts = (await api("GET", "/contracts")).data;
-  const result = { renewed: 0, refused: [], stale: 0 };
+  const result = { renewed: 0, refused: [], stale: 0, academy: 0 };
   if (!season?.endDate || !Array.isArray(contracts)) return result;
   for (const c of contracts.filter((k) => k.endDate <= season.endDate)) {
+    // An academy player's deal is run by the youth academy (routes/contracts.ts
+    // refuses it with 403 by design). A club the job market hands the manager can
+    // have academy players under contract; they are counted, not renewed.
+    if (c.player?.academyContractYears != null) { result.academy++; continue; }
     const r = await api("POST", `/contracts/${c.id}/renew`);
     if (r.status === 200) result.renewed++;
     // L-01 finding: a retired player's contract row stays in GET /contracts
@@ -542,6 +562,7 @@ async function advanceToBoundary(api, maxDays = 500) {
     const seasons = [];
     let sacked = null;
     const renewals = [];
+    const moves = [];                        // seasons after which the job market moved him
     let prevWins = team.wins, prevLosses = team.losses;
     // L-01: the squad the club started with, so squad size, average age and
     // retirements can be reported per season. GET /players is the club's own
@@ -613,6 +634,8 @@ async function advanceToBoundary(api, maxDays = 500) {
       const wins = moved ? (oldClub ? oldClub.wins : NaN) - prevWins : team.wins - prevWins;
       const losses = moved ? (oldClub ? oldClub.losses : NaN) - prevLosses : team.losses - prevLosses;
       const played = wins + losses;
+      if (moved) moves.push({ season: hit.roll.fromSeason, from: seasonTeam.name, to: team.name });
+      const movedFixture = moved && DB_FILE ? seasonFixtureOf(DB_FILE, seasonTeam.id, endedYear) : null;
       if (moved) console.log(`    (season ${hit.roll.fromSeason}: the board sacked him at the review and the job market moved him from ${seasonTeam.name} to ${team.name}; the season is ${seasonTeam.name}'s)`);
       prevWins = team.wins; prevLosses = team.losses;
 
@@ -634,8 +657,8 @@ async function advanceToBoundary(api, maxDays = 500) {
         rank: review.data?.playerRank ?? null,
         finals: review.data?.worldFinals?.playerResult ?? "?",
         champion: review.data?.worldFinals?.champion ?? "?",
-        notQualified: review.data?.fixture?.notQualified ?? null,
-        byes: review.data?.fixture?.byes ?? null,
+        notQualified: moved ? (movedFixture?.notQualified ?? null) : (review.data?.fixture?.notQualified ?? null),
+        byes: moved ? (movedFixture?.byes ?? null) : (review.data?.fixture?.byes ?? null),
         // R-53: the board's review of this season, as the rollover returned it.
         board: hit.roll.review ?? null,
         nextAccess: openedFixture?.purse?.accessTier ?? null,
@@ -669,7 +692,7 @@ async function advanceToBoundary(api, maxDays = 500) {
     // L-02a: read after the last boundary, so it covers every rollover above.
     const contractless = contractlessAtClub(label);
 
-    return { label, difficulty, seasons, fixtureSize, sacked, renewals, careerEnd, contractless };
+    return { label, difficulty, seasons, fixtureSize, sacked, renewals, careerEnd, contractless, moves };
   }
 
   // R-47: a sacking is a legitimate result, so one career per arc could only say
@@ -745,9 +768,15 @@ async function advanceToBoundary(api, maxDays = 500) {
     // R-77: seasons are counted at every season boundary, so a career that
     // plays five seasons has completed five and unlocks Local Legend — and
     // L-01: it is still going.
-    if (!arc.sacked) {
+    // L-02e: Local Legend is "5 seasons with the same club", so a career the job
+    // market moved has completed five seasons but not unlocked it.
+    if (!arc.sacked && arc.moves.length === 0) {
       check(`${arc.label}: five seasons played counts five completed seasons and unlocks Local Legend`,
         arc.careerEnd?.seasonsCompleted === 5 && arc.careerEnd?.localLegend === true,
+        `seasonsCompleted ${arc.careerEnd?.seasonsCompleted}, Local Legend ${arc.careerEnd?.localLegend}`);
+    } else if (!arc.sacked) {
+      check(`${arc.label}: five seasons played counts five completed seasons; moved clubs (${arc.moves.map((m) => `after season ${m.season}`).join(", ")}), so no Local Legend yet`,
+        arc.careerEnd?.seasonsCompleted === 5 && arc.careerEnd?.localLegend === false,
         `seasonsCompleted ${arc.careerEnd?.seasonsCompleted}, Local Legend ${arc.careerEnd?.localLegend}`);
     }
 
