@@ -1,0 +1,9 @@
+Full harness at launch-final 4fed3d3, 12 Oct 2026: season rollover failed (fixed in the suite at 480cd99)
+    (season 2: the board sacked him at the review and the job market moved him from RollStrong3 FC to Tonga Polynesian Power; the season is RollStrong3 FC's)
+  FAIL  RollStrong3: every season played every match it was entitled to (fixture of 59 less byes and finals not qualified for)  season 2 played 54, byes 0, not qualified for 0
+  FAIL  RollStrong3: its contracts were renewed at the start of every season, none refused  season 3: 403 Academy contracts are managed by the youth academy, not renewed here.; season 4: 403 Academy contracts are managed by the youth academy, not renewed here.
+  PASS  RollStrong3: the board reviewed every season it closed, and none of them was a "verdict"  5/5 reviews: final_warning, sacked, safe, safe, safe
+  FAIL  RollStrong3: five seasons played counts five completed seasons and unlocks Local Legend  seasonsCompleted 5, Local Legend false
+  RollStrong3  season 2: finished #?, finals: did not qualify, champion: Havana Salsa Spikers
+  FAIL  season rollover          1042.1s
+  HARNESS FAILED: season rollover

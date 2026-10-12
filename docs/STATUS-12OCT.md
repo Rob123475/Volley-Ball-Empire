@@ -161,3 +161,63 @@ So I could not make 4–5 m happen from the dig target itself. **If you still se
 2. **F2. Andreína Colmenares:** the hair at the right of her top looks natural, with no yellow. Is the smaller, right-shifted "VEN" all right?
 3. **F3.** If you want the larger lettering back, last night's versions are in git at `7f81091` and in `Downloads\PICTURES-11OCT`. Tell me and I'll install them.
 4. **F4.** Your career opens as before in `C:\build\vbe-final-12oct-b\win-unpacked\Beach Volleyball Empire.exe`. It uses your live save, so keep a copy first if you want to be safe.
+
+## 12 Oct (b): the corrected picture fixes, package `vbe-final-12oct-c`
+
+**Plain summary.** The two `fix-12oct-b` pictures are installed over the `fix-12oct` ones. **The lettering is back to last night's size and position**, Élise Fontaine's umbrella is blue and white, and Andreína Colmenares's hair is back to the original. Outside your two boxes, both match the `7f81091` versions, with one exception: the tiny pixel noise any lossy WebP re-save leaves (details below; nothing visible). The first full harness run failed one suite, season rollover. The fault was in the suite's own expectations, not the game; I fixed the suite, and the rerun passed **104 of 104 suites at `launch-final` `480cd99`**. The new package is **`C:\build\vbe-final-12oct-c`**, built from `480cd99`. Its before-pack and after-pack checks passed, and it booted on a copy of the 2 Oct backup with your career intact. **This package replaces `vbe-final-12oct-b`, which has the small-lettering pictures.**
+
+### The two pictures (`4fed3d3`)
+
+- **Installed:** `player_senior_ai_eur_03_p1.webp` and `player_senior_ai_sam_08_p2.webp` from `Downloads\PICTURES-11OCT\fix-12oct-b`, byte-identical to your files. There is no database change. Nothing in `fix-12oct-b` was moved, renamed or deleted.
+- **Checks:** both WebP at 600x800; `check-image-formats` OK; `check-captions` OK.
+- **Outside the boxes, against the `7f81091` versions** (`docs/proof-12oct-fix-b/box-check.txt`):
+  - Both files are lossy WebP, so they are not pixel-for-pixel identical to last night's: about a third of the pixels outside the boxes differ, by 0.7–0.9 levels out of 255 on average.
+  - To tell whether that is a real change, I re-saved last night's own file at WebP quality 95. **The fixed files differ from last night's exactly as much as that re-save does**:
+
+    | | Mean | Max | Over 8 | Over 24 |
+    |---|---|---|---|---|
+    | Élise, fix | 0.72 | 20 | 1,404 | 0 |
+    | Élise, last night re-saved | 0.94 | 19 | 1,290 | 0 |
+    | Andreína, fix | 0.89 | 40 | 4,260 | 135 |
+    | Andreína, last night re-saved | 1.09 | 40 | 4,215 | 124 |
+  - The differences trace sharp edges only: the letter outlines and the kit borders (`boxdiff-elise.png`, `boxdiff-andreina.png`, with differences over 8 painted magenta and the box in green). **The lettering is the same size and in the same place** (`fixb-elise.png`, `fixb-andreina.png`, each showing original | 11 Oct | fix-b).
+- **Inside the boxes:** only **3** (Élise) and **7** (Andreína) pixels still differ from the 5 Oct originals by more than 24 levels; last night's pictures had **3,001** and **1,443** there. Élise's original is `EUR_06_P1`, as `pictureFrom` says.
+
+### The harness
+
+- **Run 1 at `4fed3d3`: 103 of 104 suites passed; season rollover failed** (`docs/proof-12oct-fix-b/harness-4fed3d3-failed.txt`).
+  - One test career, RollStrong3, failed two seasons running, so the board sacked it after season 2 and the job market moved it to Tonga Polynesian Power. Both are game rules working as designed.
+  - The suite then made three wrong assumptions, and each caused one failing check:
+    1. **Matches played:** it read season 2's byes and finals not qualified for from the season review. The review describes the manager's *current* club, so it described Tonga, and the old club's 54 of 59 looked short.
+    2. **Contract renewals:** at Tonga it tried to renew academy players' contracts, which the game refuses by design ("Academy contracts are managed by the youth academy").
+    3. **Local Legend:** it expected Local Legend, which means 5 seasons *with the same club*. A career that moved correctly doesn't get it.
+- **Fix, suite only (`480cd99`, `harness/rollover.mjs`), no game code changed:**
+  1. a moved season's byes and finals not qualified for are read from the club that played it;
+  2. academy contracts are counted, not renewed;
+  3. a career that moved is checked for 5 seasons completed and no Local Legend.
+- **Run 2 at `480cd99`: ALL HARNESSES PASSED, 104 of 104 suites** (`docs/proof-12oct-fix-b/harness-480cd99.txt`). **Caveat:** no career was sacked in this run (it is random: here 1 of 6 careers), so the new moved-club paths did not run. They will be exercised the next time a career moves.
+- **A small game fault this found (not fixed: outside a picture package).** After the job market hands you an AI club, its academy players' contracts appear on the Contracts page with a **Renew** button in their final season. Clicking it gives "Renewal refused: Academy contracts are managed by the youth academy". The page should show those as academy deals rather than offer Renew. Tell me if you want it fixed.
+
+### Package and boot
+
+- **Package** `C:\build\vbe-final-12oct-c\win-unpacked`, built from `480cd99`, the harness commit (`docs/proof-12oct-fix-b/package-checks-480cd99.txt`):
+  - **before pack:** only the Brotli Unity files are shipped, and `better-sqlite3` loads under Electron;
+  - **after pack:** the starter DB has no `-wal`/`-shm`; there is no `steam_appid.txt`; `steamworks.js` is unpacked with its DLL.
+- **Boot on a copy of the 2 Oct backup** (`docs/proof-12oct-fix-b/boot-480cd99.json`):
+  - the app shell, `data.br` (217.0 MB) and `wasm.br` (9.0 MB) all served;
+  - the Unity export is the same as `launch-final`'s (Unity `4674c7f`, items A and B);
+  - your career loaded: Sydney Riptide, 24 Apr 2026, $247,731;
+  - 96 of 120 AI-club players have AI pictures;
+  - **all 96 AI pictures in the package are byte-identical to `launch-final`'s, both fix-b pictures included**;
+  - the 205 cropped senior cards are still yours, and all 120 skin tones match their cards.
+- **Rules kept:**
+  - every older package is untouched, with the same times as before: `vbe-final-12oct-b` (12 Oct 09:20), `vbe-final-12oct` (11 Oct 22:43), `vbe-final-11oct` (live on Steam), `10oct`, `06oct`, `launch-05oct`;
+  - `_KEEP-originals` is unchanged;
+  - the live save was only stat'ed: 11 Oct 19:25, 2,314,240 bytes, the same before and after;
+  - no merge into main, no Steam upload, no music change; the ElevenLabs key check passed on every push.
+
+### What Rob must check on screen (fix-b)
+
+1. **Élise Fontaine:** the umbrella is blue and white with no red, and "FRA" on her top is the same size as the other players' codes.
+2. **Andreína Colmenares:** the hair beside her top looks natural with no yellow, and "VEN" is the same size and position as last night.
+3. Use **`C:\build\vbe-final-12oct-c`**, not `-12oct-b`. It starts with your live save, so keep a copy first if you want to be safe.
