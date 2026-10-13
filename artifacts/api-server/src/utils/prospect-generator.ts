@@ -5,6 +5,7 @@ import { youthProspectsTable } from "@workspace/db";
 import { generateScoutingReport } from "./scouting-report-generator";
 import { drawYouthStats } from "./youthIntake.js";
 import { overallRating } from "./overallRating.js";
+import { specialityFactor } from "./managerFaces.js";
 
 const NAMES_BY_CONTINENT: Record<string, string[]> = {
   Europe: [
@@ -228,7 +229,7 @@ export async function generateScoutingProspects(teamId: number, continent: strin
       currentRating: overallRating(stats),
       potentialStars: potential,
       speciality:    SPECIALITIES[Math.floor(Math.random() * SPECIALITIES.length)]!,
-      signingCost:   youthTierPrice(potential, Math.random()).price,
+      signingCost:   youthTierPrice(potential, Math.random(), specialityFactor(teamId, "Negotiator")).price,
       status:        "pending",
     });
   }
@@ -286,7 +287,7 @@ export async function generateContinentalProspects(params: {
       truePotential = boosted.potentialStars;
       currentRating = boosted.currentRating;
     }
-    const signingCost = youthTierPrice(truePotential, Math.random()).price;
+    const signingCost = youthTierPrice(truePotential, Math.random(), specialityFactor(teamId, "Negotiator")).price;
 
     const scoutedLabel = getScoutedPotential(truePotential, scoutingRating, eliteEvent);
 

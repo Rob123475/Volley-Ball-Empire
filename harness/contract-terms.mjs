@@ -114,7 +114,7 @@ try {
   await api("POST", `/profiles/${prof.data.id}/select`);
   const clubs = (await api("GET", "/club-templates")).data;
   const club = (Array.isArray(clubs) ? clubs : clubs?.clubs ?? [])[0];
-  const career = await api("POST", "/careers", {
+  const career = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "ContractTerms", managerNationality: "Australia",
     clubName: "ContractTerms FC", originalClubName: "ContractTerms FC",
     budget: club?.startingBudget ?? "500000", difficulty: "established",
@@ -161,7 +161,7 @@ try {
       if (c) await api("DELETE", `/contracts/${c.id}`);
     }
     const r = await api("POST", "/contracts", { confirm: true,
-      playerId: freeAgents[i].id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length,
+      playerId: freeAgents[i].id, salary: freeAgents[i].salary, bonusPerWin: 0, squadRole: "interchange", length,   // her asking wage (Update 1, B)
     });
     signed[length] = r;
     check(`a ${length} contract is accepted`, r.status === 201, `HTTP ${r.status} ${JSON.stringify(r.data).slice(0, 80)}`);
@@ -242,7 +242,7 @@ try {
   const forSquad = ((await api("GET", "/players/free-agents")).data ?? []).filter((p) => !p.teamId);
   for (const p of forSquad.slice(0, 2)) {
     await api("POST", "/contracts", { confirm: true,
-      playerId: p.id, salary: 5000, bonusPerWin: 0, squadRole: "starter", length: "2s",
+      playerId: p.id, salary: p.salary, bonusPerWin: 0, squadRole: "starter", length: "2s",
     });
   }
   const squadNow = (await api("GET", "/team/roster")).data ?? {};
@@ -305,7 +305,7 @@ try {
   // 15 a signing costs the player's price: fund the club so the scene can sign.
   write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);
   const long = await api("POST", "/contracts", { confirm: true,
-    playerId: target.id, salary: 8000, bonusPerWin: 0, squadRole: "interchange", length: "2s",
+    playerId: target.id, salary: target.salary, bonusPerWin: 0, squadRole: "interchange", length: "2s",
   });
   check("a 2-season deal to pay out was signed", long.status === 201, `HTTP ${long.status}`);
 
@@ -363,7 +363,7 @@ try {
   const free3 = (Array.isArray(pool3) ? pool3 : (pool3?.players ?? [])).filter((p) => !p.teamId);
   write(`UPDATE teams SET budget = 1000000 WHERE id = ?`, teamId);   // see section 5
   const signed3 = await api("POST", "/contracts", { confirm: true,
-    playerId: free3[0]?.id, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length: "1s",
+    playerId: free3[0]?.id, salary: free3[0]?.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s",
   });
   const spare = signed3.status === 201 ? { id: free3[0].id } : null;
   if (!spare) {
@@ -416,7 +416,7 @@ try {
   // Done last, and with the first career loaded again afterwards, so nothing
   // above it is played out on a second career by accident.
   console.log("\n8. A CONTRACT YOU CAN END IS ONE OF YOURS");
-  const second = await api("POST", "/careers", {
+  const second = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 2, managerName: "SecondClub", managerNationality: "Australia",
     clubName: "Second Club FC", originalClubName: "Second Club FC",
     budget: "500000", difficulty: "established",

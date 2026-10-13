@@ -104,7 +104,7 @@ async function anon(p) {
 async function makeCareer(api, label, slot) {
   const r = await api("POST", "/profiles", { name: label });
   await api("POST", `/profiles/${r.data.id}/select`);
-  const c = await api("POST", "/careers", {
+  const c = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: slot, managerName: label, managerNationality: "Australia",
     clubName: `${label} FC`, originalClubName: `${label} FC`, season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

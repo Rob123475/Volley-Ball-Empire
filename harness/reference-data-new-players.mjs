@@ -147,7 +147,7 @@ console.log("\nA/B/C/D/E. AN EXISTING CAREER GAINS 3 NEW STARTER-DB PLAYERS AT B
     const profileRes = await srv.api("POST", "/profiles", { name: "RefNewPlayers" });
     profileId = profileRes.data.id;
     await srv.api("POST", `/profiles/${profileId}/select`);
-    const careerRes = await srv.api("POST", "/careers", {
+    const careerRes = await srv.api("POST", "/careers", { managerFaceId: 8,
       slotNumber: 1, managerName: "RefNewPlayers", managerNationality: "Australia",
       clubName: "RefNewPlayers FC", originalClubName: "RefNewPlayers FC", season: "Season 1",
       budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

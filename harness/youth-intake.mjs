@@ -166,7 +166,7 @@ async function newCareer(name) {
   const api = session();
   const prof = await api("POST", "/profiles", { name });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const c = await api("POST", "/careers", {
+  const c = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: name, managerNationality: "Brazil", clubName: `${name} FC`, originalClubName: `${name} FC`,
     season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
   });

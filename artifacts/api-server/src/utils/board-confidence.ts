@@ -54,12 +54,18 @@ import { sideRating } from "./matchEngine.js";
 import { WORLD_TOUR_START } from "./calendarSlots.js";
 import { seasonNumberForYear } from "./seasonRollover.js";
 import { getActiveSeasonForCareer } from "../lib/getActiveSeason.js";
+import { faceById, LEADER_CONFIDENCE_BONUS } from "./managerFaces.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 // ── The numbers ──────────────────────────────────────────────────────────────
 
 export const CONFIDENCE_START = 60;
+
+/** Update 1, item 2: the confidence a new board starts on: 70 under a Leader (utils/managerFaces.ts), else CONFIDENCE_START. */
+export function startingBoardConfidence(faceId: number | null | undefined): number {
+  return CONFIDENCE_START + (faceById(faceId)?.speciality === "Leader" ? LEADER_CONFIDENCE_BONUS : 0);
+}
 /** The World Tour field: 18 qualifiers and the player's club. */
 export const FIELD_CLUBS = 19;
 /** Met: a finish no more than this many places below the pair's strength rank. */

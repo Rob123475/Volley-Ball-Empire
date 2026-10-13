@@ -42,7 +42,7 @@ import {
 import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad.js";
 import { ensureSeasonFixtureRows } from "../utils/seasonFixture.js";
-import { ensureBoardSeason } from "../utils/board-confidence.js";
+import { ensureBoardSeason, startingBoardConfidence } from "../utils/board-confidence.js";
 import { startingBudgetFor } from "../utils/careerDifficulty.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiManagers.js";
@@ -286,6 +286,8 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
     reputation: 50,
     // U-3: the manager's standing comes with the manager.
     managerRepPoints: repPoints,
+    // Update 1, item 2: a new board, starting at 70 under a Leader, else 60.
+    boardConfidence: startingBoardConfidence(save.managerFaceId),
     ...(home ? { locationId: home.id } : {}),
     ...(pool.primaryColor ? { logoColor: pool.primaryColor } : {}),
     ...(pool.secondaryColor ? { secondaryLogoColor: pool.secondaryColor } : {}),

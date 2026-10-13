@@ -11,6 +11,8 @@ import { eq, and } from "drizzle-orm";
 import { loadPlayers, loadPlayer, requireCareerSaveId, updatePlayerState, type CareerPlayerFields, type StatKey, loadStaff, careerSaveIdForTeamOrThrow } from "../lib/playerDto.js";
 import type { TrainingSession, TrainingSessionResult } from "@workspace/db";
 import { getGameDate } from "../utils/gameDate.js";
+import { isYouthPlayer } from "../utils/playerClassification.js";
+import { specialityFactor } from "../utils/managerFaces.js";
 
 const router = Router();
 
@@ -190,6 +192,7 @@ const applyFatigueAndStats = async (
   medCentreLevel = 1,
   newRoleXpBonus = 1.0,
   newRoleFatigueReduction = 0,
+  managerXpMultiplier = 1,
 ) => {
   const player = await loadPlayer(careerSaveId, playerId);
   if (!player) return null;
@@ -222,7 +225,9 @@ const applyFatigueAndStats = async (
   // senior development rates are completely unchanged.
   const youthAcademyMultiplier = (player.age >= 14 && player.age <= 18) ? 1.20 : 1.0;
 
-  const totalMultiplier = program.xpModifier * coachXpMultiplier * newRoleXpBonus * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier * youthAcademyMultiplier;
+  // Update 1, item 2: a Coach's club's seniors gain 10% more XP (utils/managerFaces.ts).
+  const managerXp = isYouthPlayer(player) ? 1 : managerXpMultiplier;
+  const totalMultiplier = program.xpModifier * coachXpMultiplier * newRoleXpBonus * ageModifier * philosophyMultiplier * potentialMultiplier * facilityMultiplier * youthAcademyMultiplier * managerXp;
   const sessionXp = Math.round(baseXp * totalMultiplier);
 
   const prevPoints = player.trainingPoints;
@@ -342,6 +347,7 @@ const applyFatigueAndStats = async (
     xpGained: sessionXp,
     baseXp,
     totalXp: newPoints,
+    managerXpMultiplier: managerXp,
     nextThreshold: nextMilestone,
     xpToNextStat: nextMilestone - newPoints,
     coachEffect,
@@ -487,9 +493,9 @@ export async function finishDueTrainingSessions(careerSaveId: number, teamId: nu
 
     const result = await applyFatigueAndStats(
       careerSaveId, session.playerId, session.type, coach ?? null, teamPhilosophy, facilityMultiplier,
-      psychLevel, medCentreLevel, staffBonuses.xpMultiplier, newRoleFatigueReduction);
+      psychLevel, medCentreLevel, staffBonuses.xpMultiplier, newRoleFatigueReduction, specialityFactor(session.teamId, "Coach"));
     if (!result) continue;
-    const { newPlayer, statGains, xpGained, baseXp, totalXp, programName, fatigueBefore, moraleBefore } = result;
+    const { newPlayer, statGains, xpGained, baseXp, totalXp, programName, fatigueBefore, moraleBefore, managerXpMultiplier } = result;
     // Young player development bonus: manager rep when a player aged 22 or under gains a stat.
     if (Object.keys(statGains).length > 0 && (newPlayer.age ?? 99) <= 22 && team) {
       await db.update(teamsTable)
@@ -500,6 +506,7 @@ export async function finishDueTrainingSessions(careerSaveId: number, teamId: nu
       programName, statGains, xpGained, baseXp, totalXp,
       fatigueBefore, fatigueAfter: newPlayer.fatigue, moraleBefore, moraleAfter: newPlayer.morale,
       staffXpMultiplier: staffBonuses.xpMultiplier, staffFatigueReduction: staffBonuses.fatigueReduction,
+      managerXpMultiplier,
     };
     await db.update(trainingSessionsTable).set({ result: record }).where(eq(trainingSessionsTable.id, session.id));
     const gains = Object.entries(statGains).map(([k, v]) => `+${v} ${k}`).join(", ");

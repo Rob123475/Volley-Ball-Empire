@@ -19,6 +19,8 @@ import {
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
 import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
+import { askingWage } from "../utils/wageCurve.js";
+import { specialityFactor } from "../utils/managerFaces.js";
 
 const router = Router();
 
@@ -138,7 +140,9 @@ router.post("/contracts", async (req, res) => {
   // rules and the same confirm step.
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const priceDay = await getGameDate(team.id);
-  const fee = isYouth ? (player.teamId == null ? youthPrice(cid, player) : null) : marketPrice(cid, player);
+  // Update 1, item 2: a Negotiator's club pays 10% less (the market shows the same figure).
+  const negotiator = specialityFactor(team.id, "Negotiator");
+  const fee = isYouth ? (player.teamId == null ? youthPrice(cid, player, negotiator) : null) : marketPrice(cid, player, negotiator);
   const blind = fee != null && !isRevealed(player, team.id, priceDay);
   if (fee) {
     if (req.body?.confirm !== true) {
@@ -157,6 +161,19 @@ router.post("/contracts", async (req, res) => {
     const mustHave = blind ? fee.high : fee.price;
     if (Number(team.budget) < mustHave) {
       res.status(422).json({ error: `Not enough money: ${player.name} costs ${blind ? `up to $${fee.high.toLocaleString()}` : `$${fee.price.toLocaleString()}`}, the club has $${Math.round(Number(team.budget)).toLocaleString()}.` });
+      return;
+    }
+  }
+
+  // Update 1, item 2 (Rob, 14 Oct, B): a senior refuses an offer below her
+  // asking wage (her wage, less 10% at a Contracts Expert's club: the figure
+  // the market shows and the offer starts at).
+  if (!isYouth) {
+    const asks = askingWage(player.salary, specialityFactor(team.id, "Contracts Expert"));
+    const offered = Number(salary);
+    if (!Number.isFinite(offered) || offered < asks) {
+      const turned = Number.isFinite(offered) ? `$${Math.round(offered).toLocaleString()}` : "an offer with no wage";
+      res.status(422).json({ error: `${player.name} asks $${asks.toLocaleString()} a month and turns down ${turned}. Offer at least her asking wage.`, asks });
       return;
     }
   }

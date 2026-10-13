@@ -92,7 +92,7 @@ try {
       const prof = await api("POST", "/profiles", { name: `Picker ${++n}` });
       await api("POST", `/profiles/${prof.data.id}/select`);
       // Exactly what the wizard sends.
-      const c = await api("POST", "/careers", {
+      const c = await api("POST", "/careers", { managerFaceId: 8,
         slotNumber: 1, managerName: `Picker ${n}`, managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
         budget: club.startingBudget, difficulty, primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
       });

@@ -702,6 +702,8 @@ export interface TrainingSessionResult {
   moraleAfter: number;
   staffXpMultiplier: number;
   staffFatigueReduction: number;
+  /** Update 1, item 2: the manager's speciality on this session's XP (Coach: 1.1 for a senior; absent before it). */
+  managerXpMultiplier?: number;
 }
 
 export type TrainingSession = typeof trainingSessionsTable.$inferSelect;

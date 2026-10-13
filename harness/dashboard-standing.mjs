@@ -129,7 +129,7 @@ async function nextMatchDay() {
 try {
   const prof = await api("POST", "/profiles", { name: "Standing" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const c = await api("POST", "/careers", {
+  const c = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Standing", managerNationality: "Australia", clubName: "Standing FC", originalClubName: "Standing FC",
     season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
   });
@@ -178,7 +178,7 @@ try {
   // itself does not move; only the rank the bands are measured from does.
   const prof2 = await api("POST", "/profiles", { name: "Standing Low" });
   await api("POST", `/profiles/${prof2.data.id}/select`);
-  const low = await api("POST", "/careers", {
+  const low = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Standing Low", managerNationality: "Australia", clubName: "Standing Low FC", originalClubName: "Standing Low FC",
     season: "Season 1", budget: "150000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "underdog",
   });

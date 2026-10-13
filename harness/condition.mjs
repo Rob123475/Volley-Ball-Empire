@@ -177,7 +177,7 @@ try {
   const api = session();
   const prof = await api("POST", "/profiles", { name: "CondEst" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const created = await api("POST", "/careers", {
+  const created = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "CondEst", managerNationality: "Australia", clubName: "CondEst FC", originalClubName: "CondEst FC",
     season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
   });

@@ -13,6 +13,7 @@ import {
 } from "@workspace/db";
 import { eq, and, inArray } from "drizzle-orm";
 import { generateContinentalProspects } from "../utils/prospect-generator";
+import { specialityFactor } from "../utils/managerFaces.js";
 import { blankReport } from "../utils/missionFinds.js";
 import { loadStaff, requireCareerSaveId } from "../lib/playerDto.js";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
@@ -79,6 +80,12 @@ const REGIONS = [
 ] as const;
 
 const MISSION_COSTS: Record<number, number> = { 1: 20000, 3: 45000, 6: 75000 };
+
+/** What a mission costs this club: Update 1, a Talent Recruiter's club pays 25% less. */
+function missionCostsFor(teamId: number): Record<number, number> {
+  const f = specialityFactor(teamId, "Talent Recruiter");
+  return Object.fromEntries(Object.entries(MISSION_COSTS).map(([months, cost]) => [months, Math.round(cost * f)]));
+}
 
 // Unity brief item 18 (Rob, 29 Sep): a "1-month" mission ran 3 REAL days (3
 // months 7, 6 months 14) on the PC's clock, so the page could only say "Advance
@@ -168,7 +175,7 @@ router.get("/continental-scouting/regions", async (req, res) => {
     const m = missionByRegion[r.id];
     return {
       ...r,
-      costs:         MISSION_COSTS,
+      costs:         missionCostsFor(team.id),
       activeMission: m
         ? {
             id:             m.id,
@@ -257,7 +264,7 @@ router.post("/continental-scouting/start", async (req, res) => {
     return;
   }
 
-  const cost = MISSION_COSTS[durationMonths as keyof typeof MISSION_COSTS]!;
+  const cost = missionCostsFor(team.id)[durationMonths]!;
   const budget = Number(team.budget ?? 0);
   if (budget < cost) {
     res.status(422).json({ error: `Insufficient funds. This mission costs $${cost.toLocaleString()}.` });

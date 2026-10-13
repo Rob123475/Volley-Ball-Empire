@@ -25,6 +25,7 @@ import { loadPlayers, requireCareerSaveId, updatePlayerState, withCareerStateTx,
 import { RESERVE_COURT_SHARE } from "./squadRules.js";
 import { ensureYouthTeamTx } from "./youthLoans.js";
 import { potentialMultiplier } from "./potential.js";
+import { specialityFactor } from "./managerFaces.js";
 
 /**
  * Take a week off each academy contract. Charges nothing.
@@ -75,9 +76,9 @@ export function academyXpFor(rating: number): number {
  * multiplier training sessions use (utils/potential.ts: Low 0.8 to
  * Generational 1.3), so two youths with the same stats grow differently.
  */
-export function academyWeek(rating: number, potential: string | null | undefined, focusRoll: number): { xp: number; focusXp: number } {
+export function academyWeek(rating: number, potential: string | null | undefined, focusRoll: number, factor = 1): { xp: number; focusXp: number } {
   const k = potentialMultiplier(potential);
-  return { xp: Math.round(academyXpFor(rating) * k), focusXp: Math.round((8 + focusRoll) * k) };
+  return { xp: Math.round(academyXpFor(rating) * factor * k), focusXp: Math.round((8 + focusRoll) * k) };
 }
 
 /**
@@ -92,9 +93,11 @@ export async function developAcademyPlayers(teamId: number): Promise<void> {
   withCareerStateTx((w) => ensureYouthTeamTx(w, careerSaveId, { teamId }));
   const youthPlayers = (await loadPlayers(careerSaveId, { teamId })).filter(isYouthPlayer);
 
+  // Update 1, item 2: a Youth Developer's academy gains 15% more XP (utils/managerFaces.ts).
+  const youthDeveloper = specialityFactor(teamId, "Youth Developer");
   for (const player of youthPlayers) {
     const rating = Math.round((player.power + player.speed + player.defense + player.serve + player.block) / 5);
-    const full = academyWeek(rating, player.potential, Math.floor(Math.random() * 5));
+    const full = academyWeek(rating, player.potential, Math.floor(Math.random() * 5), youthDeveloper);
     const share = player.academyRole === "reserve" ? RESERVE_COURT_SHARE : 1;
     const week = { xp: Math.round(full.xp * share), focusXp: Math.round(full.focusXp * share) };
     const updates: Partial<CareerPlayerFields> = {

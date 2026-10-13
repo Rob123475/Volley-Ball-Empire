@@ -146,7 +146,7 @@ let careerSaveId = null, teamId = null, initialPoints = 0;
   try {
     const prof = await api("POST", "/profiles", { name: "Olympics" });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const c = await api("POST", "/careers", {
+    const c = await api("POST", "/careers", { managerFaceId: 8,
       slotNumber: 1, managerName: "Olympics", managerNationality: "Australia",
       clubName: "Olympic Road FC", originalClubName: "Olympic Road FC", season: "Season 1",
       budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

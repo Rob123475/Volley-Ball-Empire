@@ -91,7 +91,7 @@ try {
   const prof = await api("POST", "/profiles", { name: "Scout Test" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-  await api("POST", "/careers", {
+  await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Scout Test", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
   });

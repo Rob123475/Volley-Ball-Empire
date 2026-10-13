@@ -136,7 +136,7 @@ async function runSeed(seed) {
 
     const prof = await api("POST", "/profiles", { name: `Youth${seed.label}` });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const career = await api("POST", "/careers", {
+    const career = await api("POST", "/careers", { managerFaceId: 8,
       slotNumber: 1, managerName: `Youth${seed.label}`, managerNationality: "Australia",
       clubName: `Youth${seed.label} FC`, originalClubName: `Youth${seed.label} FC`,
       budget: "500000", difficulty: "established",

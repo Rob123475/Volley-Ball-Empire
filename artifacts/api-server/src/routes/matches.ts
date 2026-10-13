@@ -15,6 +15,7 @@ import { prizeFor } from "../utils/prizeDistribution.js";
 import type { WorldTourEvent } from "../data/worldTour";
 import { generateScoutingProspects } from "../utils/prospect-generator";
 import { developAcademyPlayers, tickAcademyContracts } from "../utils/academyDevelopment.js";
+import { specialityFactor } from "../utils/managerFaces.js";
 import { autoCompleteContinentalMissions } from "./continental-scouting";
 import { updateCareerStats, checkAchievements } from "../utils/check-achievements";
 import { recordBoardForfeit, ABANDONMENT_DAYS } from "../utils/board-confidence.js";
@@ -204,6 +205,8 @@ export async function applyPostMatchEffects(
   const players = await loadPlayers(cid, { teamId });
   const sportsLabLevel = facilityLevels.sports_science_lab ?? 1;
   const wx = getWeatherEffects(weather, windSpeed, temperature);
+  // Update 1, item 2: a Fitness Guru's club runs 20% less injury risk (utils/managerFaces.ts).
+  const fitnessGuru = specialityFactor(teamId, "Fitness Guru");
   const events: PlayerEvent[] = [];
 
   for (const player of players) {
@@ -217,7 +220,7 @@ export async function applyPostMatchEffects(
       updates.consecutiveMatchesPlayed = consecutive + 1;
 
       const risk = Math.min(
-        injuryRisk(player.fatigue ?? 0, player.stamina, consecutive, sportsLabLevel, hasRecoveryCamp) * wx.injuryRiskMultiplier,
+        injuryRisk(player.fatigue ?? 0, player.stamina, consecutive, sportsLabLevel, hasRecoveryCamp) * wx.injuryRiskMultiplier * fitnessGuru,
         0.70,
       );
       if (Math.random() < risk) {

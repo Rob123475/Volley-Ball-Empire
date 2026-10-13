@@ -121,7 +121,7 @@ if (!up) {
 try {
   const profileRes = await api("POST", "/profiles", { name: "UnityPayloadTest" });
   await api("POST", `/profiles/${profileRes.data.id}/select`);
-  const careerRes = await api("POST", "/careers", {
+  const careerRes = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "UnityPayloadTest", managerNationality: "Australia",
     clubName: "Unity Payload FC", originalClubName: "Unity Payload FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#123456", secondaryColor: "#abcdef",

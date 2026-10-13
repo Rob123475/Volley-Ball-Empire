@@ -175,7 +175,7 @@ const api = async (method, p, body) => {
 const prof = await api("POST", "/profiles", { name: "FreshInstall" });
 check("profile created", prof.status < 400, `HTTP ${prof.status}`);
 await api("POST", `/profiles/${prof.data?.id}/select`);
-const career = await api("POST", "/careers", {
+const career = await api("POST", "/careers", { managerFaceId: 8,
   slotNumber: 1, managerName: "FreshInstall", managerNationality: "Australia",
   clubName: "Fresh FC", originalClubName: "Fresh FC", season: "Season 1",
   budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

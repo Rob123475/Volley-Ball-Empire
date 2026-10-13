@@ -82,7 +82,7 @@ try {
   const prof = await api("POST", "/profiles", { name: "Market Test" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-  await api("POST", "/careers", {
+  await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Market Test", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0,
   });
@@ -124,7 +124,8 @@ try {
   // 3. Two blind signings.
   for (const [P, role] of [[X, "starter"], [Y, "interchange"]]) {
     const before = await budget();
-    const r = await api("POST", "/contracts", { playerId: P.id, salary: 5000, bonusPerWin: 0, squadRole: role, length: "1s", confirm: true });
+    // Update 1, item 2 (Rob, 14 Oct, B): offered her asking wage (the market's figure).
+    const r = await api("POST", "/contracts", { playerId: P.id, salary: P.salary, bonusPerWin: 0, squadRole: role, length: "1s", confirm: true });
     const after = await budget();
     const ledger = read(`SELECT amount FROM finance_transactions WHERE team_id = ? AND category = 'signing_fee' AND description LIKE ?`, teamId, `%${P.name}%`);
     const now = await byId(P.id);

@@ -123,7 +123,7 @@ try {
   await api("POST", `/profiles/${prof.data.id}/select`);
   const clubs = (await api("GET", "/club-templates")).data;
   const club = (Array.isArray(clubs) ? clubs : clubs?.clubs ?? [])[0];
-  await api("POST", "/careers", {
+  await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Tones", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "underdog", primaryColor: "#223344", secondaryColor: "#FFFFFF", crestShapeIndex: 0,
   });

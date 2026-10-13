@@ -32,6 +32,26 @@ export const SPECIALITIES = [
 ] as const;
 export type Speciality = typeof SPECIALITIES[number];
 
+/**
+ * M-1: what each speciality does for the club its manager runs, in one line
+ * (the new-career card shows it), and its size: a multiplier on the number the
+ * game already works out, or (Leader) points added to the board's starting
+ * confidence. M-6: for now only the PLAYER's manager's speciality is used;
+ * an AI manager's is shown, not used, until AI clubs train (item 3).
+ */
+export const SPECIALITY_EFFECTS: Record<Speciality, { effect: string; factor: number }> = {
+  "Talent Recruiter": { effect: "Scouting missions cost 25% less", factor: 0.75 },
+  "Negotiator":       { effect: "Players' signing fees are 10% lower", factor: 0.9 },
+  "Contracts Expert": { effect: "New seniors ask 10% less in wages", factor: 0.9 },
+  "Sponsor Magnet":   { effect: "Sponsor offers are worth 10% more", factor: 1.1 },
+  "Leader":           { effect: "Board confidence starts at 70, not 60", factor: 1 },
+  "Coach":            { effect: "Seniors gain 10% more XP in training", factor: 1.1 },
+  "Youth Developer":  { effect: "Academy players gain 15% more XP", factor: 1.15 },
+  "Fitness Guru":     { effect: "Match injury risk is 20% lower", factor: 0.8 },
+};
+/** Leader: board confidence starts this many points above CONFIDENCE_START. */
+export const LEADER_CONFIDENCE_BONUS = 10;
+
 export type ManagerFace = {
   id: number;
   /** Under public/, as every picture the game shows. */
@@ -48,6 +68,21 @@ const BY_ID = new Map(MANAGER_FACES.map((f) => [f.id, f]));
 
 export function faceById(id: number | null | undefined): ManagerFace | null {
   return id == null ? null : BY_ID.get(id) ?? null;
+}
+
+/** The player's manager's speciality, for the club he runs (a `teams` row: only the player's clubs have one). */
+export function playerSpecialityForTeam(teamId: number | null | undefined): Speciality | null {
+  if (teamId == null) return null;
+  const row = db.select({ f: careerSavesTable.managerFaceId }).from(careerSavesTable).where(eq(careerSavesTable.teamId, teamId)).get();
+  return faceById(row?.f)?.speciality ?? null;
+}
+
+/**
+ * The one multiplier a speciality puts on its number: the effect's factor when
+ * the manager of this club (the player's) has `speciality`, else 1.
+ */
+export function specialityFactor(teamId: number | null | undefined, speciality: Speciality): number {
+  return playerSpecialityForTeam(teamId) === speciality ? SPECIALITY_EFFECTS[speciality].factor : 1;
 }
 
 /** He or she, from the face (Addendum point 1). */

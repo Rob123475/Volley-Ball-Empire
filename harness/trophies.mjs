@@ -105,7 +105,7 @@ function read(sqlText, ...args) {
 async function newCareer(api, label) {
   const prof = await api("POST", "/profiles", { name: label });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const c = await api("POST", "/careers", {
+  const c = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: label, managerNationality: "Australia", clubName: `${label} FC`, originalClubName: `${label} FC`,
     season: "Season 1", budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a", difficulty: "established",
   });

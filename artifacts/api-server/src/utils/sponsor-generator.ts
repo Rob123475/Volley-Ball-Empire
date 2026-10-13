@@ -231,8 +231,10 @@ export function generateOffer(params: {
   usedNames: Set<string>;
   gameDate: string;
   appealScore: number;
+  /** Update 1, item 2: a Sponsor Magnet's club is offered 10% more (utils/managerFaces.ts). */
+  factor?: number;
 }): GeneratedOffer {
-  const { tier, slot, usedNames, gameDate, appealScore } = params;
+  const { tier, slot, usedNames, gameDate, appealScore, factor = 1 } = params;
   const category = pickRandom(TIER_CATEGORIES[tier]);
   const sponsor  = generateSponsorName(category, usedNames);
 
@@ -242,11 +244,14 @@ export function generateOffer(params: {
   const lengthMult = LENGTH_MONTHLY_MULT[contractLength];
 
   const baseMonthly   = rand(monthlyMin, monthlyMax);
-  const monthlyPayment = Math.round(baseMonthly * slotMult * lengthMult / 100) * 100;
+  const offeredMonthly = Math.round(baseMonthly * slotMult * lengthMult / 100) * 100;
 
   const [sigMultMin, sigMultMax] = TIER_SIGNING_MULT[tier];
   const signingMult  = sigMultMin + Math.random() * (sigMultMax - sigMultMin);
-  const signingBonus = Math.round(monthlyPayment * signingMult / 100) * 100;
+  const offeredSigning = Math.round(offeredMonthly * signingMult / 100) * 100;
+  // The offer as the sponsor makes it, then the speciality on it.
+  const monthlyPayment = Math.round(offeredMonthly * factor);
+  const signingBonus   = Math.round(offeredSigning * factor);
 
   const totalValue = signingBonus + monthlyPayment * contractLength * 3;
 
@@ -288,8 +293,9 @@ export function generateOfferBatch(params: {
   usedNames: Set<string>;
   gameDate: string;
   count: number;
+  factor?: number;
 }): GeneratedOffer[] {
-  const { team, usedNames, gameDate, count } = params;
+  const { team, usedNames, gameDate, count, factor = 1 } = params;
   const appealScore = computeAppealScore(team);
 
   const slotOrder: SponsorSlot[] = [
@@ -301,6 +307,6 @@ export function generateOfferBatch(params: {
 
   return slotAssignments.map(slot => {
     const tier = selectTier(appealScore);
-    return generateOffer({ tier, slot, usedNames, gameDate, appealScore });
+    return generateOffer({ tier, slot, usedNames, gameDate, appealScore, factor });
   });
 }

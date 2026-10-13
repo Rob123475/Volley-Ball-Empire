@@ -116,7 +116,7 @@ try {
   const prof = await api("POST", "/profiles", { name: "Pictures" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-  await api("POST", "/careers", { slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
+  await api("POST", "/careers", { managerFaceId: 8, slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
   const team = (await api("GET", "/team")).data;
   const cid = q(`SELECT id FROM career_saves WHERE team_id = ?`, team.id)[0].id;
@@ -277,7 +277,7 @@ try {
   const prof4 = await api("POST", "/profiles", { name: "AI Cards" });
   await api("POST", `/profiles/${prof4.data.id}/select`);
   const club4 = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-  await api("POST", "/careers", { slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club4.name, originalClubName: club4.name,
+  await api("POST", "/careers", { managerFaceId: 8, slotNumber: 1, managerName: "Rob Bonner", managerNationality: "Australia", clubName: club4.name, originalClubName: club4.name,
     budget: club4.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
   const market = (await api("GET", "/players/market-all")).data ?? [];
   const atAi = (Array.isArray(market) ? market : []).filter((p) => p.poolTeamId != null || p.status === "ai_club");

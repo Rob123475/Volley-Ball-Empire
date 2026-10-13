@@ -104,7 +104,7 @@ async function runOne(spec) {
 
     const prof = await api("POST", "/profiles", { name: `Econ${spec.label}` });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const career = await api("POST", "/careers", {
+    const career = await api("POST", "/careers", { managerFaceId: 8,
       slotNumber: 1, managerName: `Econ${spec.label}`, managerNationality: "Australia",
       clubName: `Econ${spec.label} FC`, originalClubName: `Econ${spec.label} FC`,
       budget: "500000", difficulty: spec.difficulty,

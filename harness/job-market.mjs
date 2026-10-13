@@ -101,7 +101,7 @@ try {
 
   const prof = await api("POST", "/profiles", { name: "JobMarket" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const career = await api("POST", "/careers", {
+  const career = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "JobMarket", managerNationality: "Australia",
     clubName: "JobMarket FC", originalClubName: "JobMarket FC",
     budget: "500000", difficulty: "established",
@@ -548,7 +548,7 @@ try {
   cookie = "";
   const prof2 = await api("POST", "/profiles", { name: "JobMarketGone" });
   await api("POST", `/profiles/${prof2.data.id}/select`);
-  const career2 = await api("POST", "/careers", {
+  const career2 = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "JobMarketGone", managerNationality: "Australia",
     clubName: "JobMarketGone FC", originalClubName: "JobMarketGone FC",
     budget: "500000", difficulty: "established",

@@ -123,10 +123,17 @@ const REGION_ACCENT: Record<ContinentKey, string> = {
 };
 
 const DURATION_OPTIONS = [
-  { months: 1, label: "1 Month",  cost: 20000, hint: "Quick scan — fewer prospects"   },
-  { months: 3, label: "3 Months", cost: 45000, hint: "Thorough search"                },
-  { months: 6, label: "6 Months", cost: 75000, hint: "Deep dive — most prospects"     },
+  { months: 1, label: "1 Month",  hint: "Quick scan — fewer prospects"   },
+  { months: 3, label: "3 Months", hint: "Thorough search"                },
+  { months: 6, label: "6 Months", hint: "Deep dive — most prospects"     },
 ] as const;
+
+/**
+ * Update 1, item 2: what a mission costs this club, as the server charges it
+ * (a Talent Recruiter's club pays 25% less), never a figure of the page's own.
+ */
+const missionCost = (region: ContinentalRegion | null | undefined, months: number): number => region?.costs?.[months] ?? 0;
+const inK = (n: number) => `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
 
 const POTENTIAL_CONFIG: Record<string, { stars: number; className: string }> = {
   "Very Low": { stars: 1, className: "text-gray-400 border-gray-500/30 bg-gray-500/10" },
@@ -357,7 +364,7 @@ function RegionCard({
               {DURATION_OPTIONS.map((opt) => (
                 <div key={opt.months} className="rounded bg-muted/20 px-1 py-1.5">
                   <div className="text-[10px] font-bold text-foreground/80">{opt.label}</div>
-                  <div className="text-[10px] text-muted-foreground">${(opt.cost / 1000).toFixed(0)}k</div>
+                  <div className="text-[10px] text-muted-foreground">{inK(missionCost(region, opt.months))}</div>
                 </div>
               ))}
             </div>
@@ -718,7 +725,7 @@ export default function ContinentalScouting() {
                     )}
                   >
                     <div className="text-xs font-bold">{opt.label}</div>
-                    <div className="text-[11px] mt-0.5 font-semibold">${(opt.cost / 1000).toFixed(0)}k</div>
+                    <div className="text-[11px] mt-0.5 font-semibold">{inK(missionCost(dialogRegion, opt.months))}</div>
                   </button>
                 ))}
               </div>
@@ -768,7 +775,7 @@ export default function ContinentalScouting() {
             <div className="rounded-lg bg-muted/20 border border-border/50 p-3 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-sm">
                 <DollarSign className="h-4 w-4 text-amber-500" />
-                <span className="font-semibold">${selectedDurationOpt.cost.toLocaleString()}</span>
+                <span className="font-semibold">${missionCost(dialogRegion, selectedDurationOpt.months).toLocaleString()}</span>
                 <span className="text-muted-foreground">mission cost</span>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">

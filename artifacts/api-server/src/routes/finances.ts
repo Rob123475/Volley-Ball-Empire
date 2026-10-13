@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { financeTransactionsTable, matchesTable, playersTable, promoDealsTable, staffTable, teamsTable, calendarStateTable } from "@workspace/db";
 import { eq, and, desc, sql, count } from "drizzle-orm";
 import { generateOfferBatch } from "../utils/sponsor-generator.js";
+import { specialityFactor } from "../utils/managerFaces.js";
 import { getGameDate } from "../utils/gameDate.js";
 import { isSeniorPlayer, isActiveYouthPlayer } from "../utils/playerClassification.js";
 import { academyWeeklyWage } from "../utils/academy.js";
@@ -440,7 +441,7 @@ router.get("/finances/sponsor-offers", async (req, res) => {
     const usedNames = new Set(allTeamDeals.map(d => d.sponsor));
 
     const toGenerate = 6 - available.length;
-    const newOffers = generateOfferBatch({ team, usedNames, gameDate, count: toGenerate });
+    const newOffers = generateOfferBatch({ team, usedNames, gameDate, count: toGenerate, factor: specialityFactor(team.id, "Sponsor Magnet") });
 
     for (const offer of newOffers) {
       await db.insert(promoDealsTable).values({

@@ -123,7 +123,7 @@ try {
   await api("POST", `/profiles/${prof.data.id}/select`);
   const clubs = (await api("GET", "/club-templates")).data;
   const club = (Array.isArray(clubs) ? clubs : clubs?.clubs ?? []).find((c) => c.name === "Sydney Riptide") ?? clubs[0];
-  const created = await api("POST", "/careers", {
+  const created = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Kits", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "underdog", ...WIZARD, crestShapeIndex: 0,
   });

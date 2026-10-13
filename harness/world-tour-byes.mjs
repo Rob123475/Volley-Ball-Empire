@@ -128,7 +128,7 @@ let roundViewBye = null;
 try {
   const prof = await api("POST", "/profiles", { name: "ByeSeason" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const c = await api("POST", "/careers", {
+  const c = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "ByeSeason", managerNationality: "Australia",
     clubName: "Bye Season FC", originalClubName: "Bye Season FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

@@ -166,7 +166,7 @@ console.log("\nA/B/C. A SAVE MISSING LOCATIONS 9-11 — THE ROOT CAUSE OF THE LI
   // 11 locations, including the 3 that were just missing.
   const profileRes = await srv.api("POST", "/profiles", { name: "RefBackfill" });
   await srv.api("POST", `/profiles/${profileRes.data.id}/select`);
-  const careerRes = await srv.api("POST", "/careers", {
+  const careerRes = await srv.api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "RefBackfill", managerNationality: "Australia",
     clubName: "RefBackfill FC", originalClubName: "RefBackfill FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

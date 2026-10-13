@@ -198,7 +198,7 @@ let apiRows = [], teamId = null;
   try {
     const prof = await api("POST", "/profiles", { name: "NoAllStar" });
     await api("POST", `/profiles/${prof.data.id}/select`);
-    const c = await api("POST", "/careers", {
+    const c = await api("POST", "/careers", { managerFaceId: 8,
       slotNumber: 1, managerName: "NoAllStar", managerNationality: "Australia",
       clubName: "No All Star FC", originalClubName: "No All Star FC", season: "Season 1",
       budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

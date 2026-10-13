@@ -120,7 +120,7 @@ async function buildPlayedSave() {
 
   const prof = await api("POST", "/profiles", { name: "FixtureMgr" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const car = await api("POST", "/careers", {
+  const car = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "FixtureMgr", managerNationality: "Australia",
     clubName: "Fixture FC", originalClubName: "Fixture FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",

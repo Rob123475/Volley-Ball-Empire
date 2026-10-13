@@ -109,7 +109,7 @@ try {
 
   const prof = await api("POST", "/profiles", { name: "Retirement" });
   await api("POST", `/profiles/${prof.data.id}/select`);
-  const career = await api("POST", "/careers", {
+  const career = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "Retirement", managerNationality: "Australia",
     clubName: "Retirement FC", originalClubName: "Retirement FC",
     budget: "500000", difficulty: "established",

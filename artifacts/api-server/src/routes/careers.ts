@@ -17,7 +17,7 @@ import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad
 import { FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
-import { ensureBoardSeason } from "../utils/board-confidence.js";
+import { ensureBoardSeason, startingBoardConfidence } from "../utils/board-confidence.js";
 import {
   openPoolClubBooksTx, openPoolClubSeasonsTx,
 } from "../utils/poolClubFinances.js";
@@ -25,7 +25,7 @@ import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
 import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor } from "../utils/managerMoves.js";
 import { isOlympicYear } from "../utils/olympics.js";
-import { faceById, randomFreeFaceTx } from "../utils/managerFaces.js";
+import { faceById } from "../utils/managerFaces.js";
 import { ensureAiManagersTx } from "../utils/aiManagers.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -141,7 +141,7 @@ router.post("/careers", async (req, res) => {
     slotNumber:           number;
     managerName:          string;
     managerNationality?:  string | null;
-    managerFaceId?:       number | null;
+    managerFaceId:        number;
     clubName:             string;
     originalClubName?:    string | null;
     season?:              string;
@@ -161,9 +161,9 @@ router.post("/careers", async (req, res) => {
   ) {
     res.status(400).json({ error: "Invalid body" }); return;
   }
-  // Update 1, item 2: the face the player picked in the wizard, one of the 61.
-  if (managerFaceId != null && faceById(managerFaceId) == null) {
-    res.status(400).json({ error: "managerFaceId must be one of the manager faces" }); return;
+  // Update 1, item 2: the face the player picks in the wizard, one of the 61.
+  if (typeof managerFaceId !== "number" || faceById(managerFaceId) == null) {
+    res.status(400).json({ error: "Pick your manager's face: managerFaceId must be one of the manager faces." }); return;
   }
 
   // R-11: an unset or unrecognised difficulty defaults to "established" —
@@ -216,6 +216,8 @@ router.post("/careers", async (req, res) => {
       name:               clubName.trim(),
       budget:             startingBudget,
       reputation:         50,
+      // Update 1, item 2: the board starts at 70 under a Leader, else 60.
+      boardConfidence:    startingBoardConfidence(managerFaceId),
       ...(locationId   ? { locationId }                   : {}),
       ...(primaryColor ? { logoColor: primaryColor }      : {}),
       ...(secondaryColor ? { secondaryLogoColor: secondaryColor } : {}),
@@ -231,7 +233,7 @@ router.post("/careers", async (req, res) => {
       slotNumber,
       managerName:         managerName.trim(),
       managerNationality:  managerNationality?.trim() ?? null,
-      managerFaceId:       managerFaceId ?? null,
+      managerFaceId,
       clubName:            clubName.trim(),
       originalClubName:    originalClubName?.trim() ?? null,
       season:              season ?? "Season 1",
@@ -291,12 +293,8 @@ router.post("/careers", async (req, res) => {
   db.transaction((tx) => {
     openPoolClubBooksTx(tx, inserted!.id, `${firstYear}-01-01`, seasonEndsForCareerTx(tx, inserted!.id));
     openPoolClubSeasonsTx(tx, inserted!.id, season1!.year);
-    // Update 1, item 2: a caller without the wizard's pick gets a face at
-    // random; then the other faces are dealt at random to the AI clubs, so
-    // every new career is a different set-up.
-    if (managerFaceId == null) {
-      tx.update(careerSavesTable).set({ managerFaceId: randomFreeFaceTx(tx, inserted!.id) }).where(eq(careerSavesTable.id, inserted!.id)).run();
-    }
+    // Update 1, item 2: the other faces are dealt at random to the AI clubs,
+    // so every new career is a different set-up.
     ensureAiManagersTx(tx, inserted!.id, season1!.year);
   });
 

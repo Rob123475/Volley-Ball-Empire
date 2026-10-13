@@ -51,7 +51,11 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
   // Overnight 1 Oct, N-41: the offer starts at her asking wage (the 1 Oct rise
   // included), and the slider reaches well past it; it started at $5,000 and
   // stopped at $20,000, below what most seniors now ask.
+  // Update 1, item 2 (Rob, 14 Oct, B): she refuses less than her asking wage
+  // (the server's figure: 10% less at a Contracts Expert's club), so the
+  // slider starts there.
   const asking = Math.round(Number(player.salary) || 0);
+  const salaryMin = asking > 0 ? asking : 1000;
   const salaryMax = Math.max(40_000, Math.ceil((asking * 2) / 1000) * 1000);
   const [salary, setSalary]   = useState([asking > 0 ? asking : 5000]);
   const [winBonus, setWinBonus] = useState([500]);
@@ -105,8 +109,8 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
               <span>Monthly Salary</span>
               <span className="text-primary font-bold">${salary[0].toLocaleString()}</span>
             </div>
-            <Slider min={1000} max={salaryMax} step={100} value={salary} onValueChange={setSalary} />
-            {asking > 0 && <p className="text-xs text-muted-foreground">She asks ${asking.toLocaleString("en-US")} a month.</p>}
+            <Slider min={salaryMin} max={salaryMax} step={100} value={salary} onValueChange={setSalary} />
+            {asking > 0 && <p className="text-xs text-muted-foreground">She asks ${asking.toLocaleString("en-US")} a month, and turns down less.</p>}
           </div>
           )}
           <div className="space-y-2">

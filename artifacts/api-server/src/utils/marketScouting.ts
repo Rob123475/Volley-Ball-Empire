@@ -62,12 +62,21 @@ function basePrice(p: Omit<PricedPlayer, "id">): number {
 
 export interface MarketPrice { low: number; high: number; price: number }
 
-export function marketPrice(careerSaveId: number, p: PricedPlayer): MarketPrice {
+/**
+ * Update 1, item 2: the price the buying club pays, after its manager's
+ * speciality (a Negotiator's club: `factor` 0.9, utils/managerFaces.ts). The
+ * range and the exact price move together, so the card and the charge agree.
+ */
+function priceFor(m: MarketPrice, factor: number): MarketPrice {
+  return factor === 1 ? m : { low: Math.round(m.low * factor), high: Math.round(m.high * factor), price: Math.round(m.price * factor) };
+}
+
+export function marketPrice(careerSaveId: number, p: PricedPlayer, factor = 1): MarketPrice {
   const base = basePrice(p);
   const low  = Math.floor((base * RANGE_LOW) / RANGE_STEP) * RANGE_STEP;
   const high = Math.ceil((base * RANGE_HIGH) / RANGE_STEP) * RANGE_STEP;
   const price = Math.min(high, Math.max(low, Math.round((low + (high - low) * unitHash(careerSaveId, p.id)) / 100) * 100));
-  return { low, high, price };
+  return priceFor({ low, high, price }, factor);
 }
 
 /**
@@ -80,8 +89,8 @@ export function marketPrice(careerSaveId: number, p: PricedPlayer): MarketPrice 
 const YOUTH_TIER_PRICE: Record<string, number> = { Low: 600, Average: 900, High: 1300, Elite: 1700, Generational: 2000 };
 export const YOUTH_PRICE_MIN = 500, YOUTH_PRICE_MAX = 2000;
 
-export function youthPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "potential">): MarketPrice {
-  return youthTierPrice(p.potential, unitHash(careerSaveId, p.id));
+export function youthPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "potential">, factor = 1): MarketPrice {
+  return youthTierPrice(p.potential, unitHash(careerSaveId, p.id), factor);
 }
 
 /**
@@ -89,12 +98,12 @@ export function youthPrice(careerSaveId: number, p: Pick<PlayerDTO, "id" | "pote
  * tier's range. Item 13: a youth a scouting mission finds is priced by the
  * same rule (she cost $3,000-$35,000 before, up to $80,000).
  */
-export function youthTierPrice(potential: string | null | undefined, unit: number): MarketPrice {
+export function youthTierPrice(potential: string | null | undefined, unit: number, factor = 1): MarketPrice {
   const base = YOUTH_TIER_PRICE[potential ?? "Average"] ?? YOUTH_TIER_PRICE["Average"]!;
   const low  = Math.max(YOUTH_PRICE_MIN, Math.floor((base * RANGE_LOW) / 100) * 100);
   const high = Math.min(YOUTH_PRICE_MAX, Math.ceil((base * RANGE_HIGH) / 100) * 100);
   const price = Math.min(high, Math.max(low, Math.round((low + (high - low) * unit) / 50) * 50));
-  return { low, high, price };
+  return priceFor({ low, high, price }, factor);
 }
 
 function addDays(date: string, days: number): string {

@@ -60,7 +60,7 @@ try {
   const prof = await api("POST", "/profiles", { name: "Transfer" });
   await api("POST", `/profiles/${prof.data.id}/select`);
   const club = ((await api("GET", "/club-templates")).data?.clubs ?? []).find((c) => c.name === "Sydney Riptide");
-  await api("POST", "/careers", { slotNumber: 1, managerName: "Transfer", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
+  await api("POST", "/careers", { managerFaceId: 8, slotNumber: 1, managerName: "Transfer", managerNationality: "Australia", clubName: club.name, originalClubName: club.name,
     budget: club.startingBudget, difficulty: "established", primaryColor: "#1e3a8a", secondaryColor: "#f59e0b", crestShapeIndex: 0 });
   const me = (await api("GET", "/team")).data;
   const careerSaveId = ((await api("GET", "/careers")).data?.saves ?? [])[0]?.id;
@@ -80,7 +80,8 @@ try {
   const mine = () => q(`SELECT s.player_id AS id FROM career_player_state s JOIN players p ON p.id = s.player_id
                          WHERE s.career_save_id = ? AND s.team_id = ? AND p.player_type = 'senior' AND s.squad_role = 'interchange'`, careerSaveId, me.id)[0]?.id;
   await api("POST", `/players/${mine()}/release`, {});
-  const terms = { playerId: her, salary: 5000, bonusPerWin: 0, squadRole: "interchange", length: "1s" };
+  // Update 1, item 2 (Rob, 14 Oct, B): offered her asking wage, which she accepts.
+  const terms = { playerId: her, salary: listed?.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s" };
   const ask = await api("POST", "/contracts", terms);
   check("buying her needs the confirm step, which names her price range", ask.status === 400 && ask.data?.needsConfirm === true && ask.data?.priceRange?.low > 0, `${ask.status}: ${ask.data?.error}`);
   const sellerBefore = Number(q(`SELECT budget FROM teams WHERE id = ?`, sellerId)[0].budget);
@@ -104,7 +105,7 @@ try {
   const freeOne = ((await api("GET", "/players/market-all")).data ?? []).find((p) => p.status === "free_agent");
   const incomeBefore = q(`SELECT COUNT(*) AS n FROM finance_transactions WHERE category = 'transfer_fee'`)[0].n;
   await api("POST", `/players/${mine()}/release`, {});
-  const signFree = await api("POST", "/contracts", { playerId: freeOne.id, salary: 4000, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
+  const signFree = await api("POST", "/contracts", { playerId: freeOne.id, salary: freeOne.salary, bonusPerWin: 0, squadRole: "interchange", length: "1s", confirm: true });
   check("a free agent's price goes to nobody", (signFree.status === 201 || signFree.status === 422) && q(`SELECT COUNT(*) AS n FROM finance_transactions WHERE category = 'transfer_fee'`)[0].n === incomeBefore,
     `HTTP ${signFree.status} ${signFree.data?.error ?? ""}`);
 } catch (err) {

@@ -116,6 +116,7 @@ async function wizardCareer(api, name, difficulty) {
   const club = (Array.isArray(clubs) ? clubs : clubs?.clubs ?? [])[0];
   const body = {
     slotNumber: 1,
+    managerFaceId: 8,
     managerName: name,
     managerNationality: "Australia",
     clubName: club.name,

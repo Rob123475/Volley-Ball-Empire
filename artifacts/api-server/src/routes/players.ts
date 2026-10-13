@@ -18,7 +18,9 @@ import {
 // rule, not a shape-of-the-world one; the old endpoint hardcoded 18 inline.
 const SENIOR_AGE_MIN = 18;
 import { eq, isNull, isNotNull, and, sql, inArray } from "drizzle-orm";
-import { marketView, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST, YOUTH_SCOUT_COST } from "../utils/marketScouting.js";
+import { marketView, marketPrice, scoutState, youthPrice, SCOUT_DAYS, SCOUT_COST, YOUTH_SCOUT_COST } from "../utils/marketScouting.js";
+import { askingWage } from "../utils/wageCurve.js";
+import { specialityFactor } from "../utils/managerFaces.js";
 import { cannotAffordScout, chargeScout } from "../utils/scoutingCharge.js";
 import { generateDevelopment } from "../utils/player-development";
 import { getGameDate, gameDateText } from "../utils/gameDate.js";
@@ -174,7 +176,10 @@ router.get("/players/youth-pool", async (req, res) => {
   const youthTeam = await getActiveTeam(req);
   const youthToday = youthTeam ? await getGameDate(youthTeam.id) : "0000-01-01";
   const cidYouth = requireCareerSaveId(req.activeCareerSaveId);
-  res.json(result.map((p) => marketView(cidYouth, { ...p, ...serializePlayer(p) } as PlayerDTO, youthTeam?.id ?? null, youthToday, true, youthPrice)));
+  // Update 1, item 2: a Negotiator's club sees (and pays) 10% less.
+  const youthNegotiator = specialityFactor(youthTeam?.id, "Negotiator");
+  res.json(result.map((p) => marketView(cidYouth, { ...p, ...serializePlayer(p) } as PlayerDTO, youthTeam?.id ?? null, youthToday, true,
+    (c, pl) => youthPrice(c, pl, youthNegotiator))));
 });
 
 /**
@@ -388,6 +393,10 @@ router.get("/players/market-all", async (req, res) => {
   // The old pool (is_draft_player: stats hidden by the page only, signed on a
   // fixed 6-month deal in one click) is gone.
   const careerSaveId = requireCareerSaveId(req.activeCareerSaveId);
+  // Update 1, item 2: the price and the asking wage this club is shown are the
+  // ones it pays (utils/marketScouting.ts marketPrice, utils/wageCurve.ts askingWage).
+  const negotiator = specialityFactor(myTeamId, "Negotiator");
+  const contractsExpert = specialityFactor(myTeamId, "Contracts Expert");
   const result = all.map(p => {
     let status: "signed" | "free_agent" | "player_pool" | "transfer_available" | "ai_club";
     if (p.poolTeamId != null && !p.teamId) {
@@ -402,8 +411,11 @@ router.get("/players/market-all", async (req, res) => {
       status = scoutState(p, currentDate).state === "done" ? "player_pool" : "free_agent";
     }
     const onMarket = status !== "signed";
+    const view = marketView(careerSaveId, { ...p, ...serializePlayer(p) } as PlayerDTO, myTeamId, currentDate, onMarket,
+      (c, pl) => marketPrice(c, pl, negotiator));
     return {
-      ...marketView(careerSaveId, { ...p, ...serializePlayer(p) } as PlayerDTO, myTeamId, currentDate, onMarket),
+      ...view,
+      ...(onMarket && !isYouthPlayer(p) ? { salary: askingWage(view.salary, contractsExpert) } : {}),
       status,
       currentTeamName: p.teamId ? (teamMap[p.teamId] ?? null) : p.poolTeamId != null ? (aiClubNames.get(p.poolTeamId) ?? null) : null,
       currentTeamId: p.teamId ?? null,

@@ -64,6 +64,16 @@ export function seniorMonthlyWage(askingPrice: number | null | undefined, overal
   return monthlyWage(askingPrice) + playerWageRise(overallRating);
 }
 
+/**
+ * Update 1, item 2 (Rob, 14 Oct, B): what a senior asks a month to sign: her
+ * wage, less 10% at a Contracts Expert's club (`factor` 0.9,
+ * utils/managerFaces.ts). The market shows it, the offer starts at it, and an
+ * offer below it is refused. Contracts already signed keep their wages.
+ */
+export function askingWage(salary: number | string | null | undefined, factor = 1): number {
+  return Math.round(Number(salary ?? 0) * factor);
+}
+
 /** Monthly wage for an athlete with this asking price. */
 export function monthlyWage(
   askingPrice: number | null | undefined,

@@ -140,7 +140,7 @@ try {
   // R-26: fixture generation is now eager, inside POST /careers itself, so
   // the sabotaged insert fails career creation — there is no longer a
   // separate successful-creation-then-failing-GET step.
-  const careerRes = await api("POST", "/careers", {
+  const careerRes = await api("POST", "/careers", { managerFaceId: 8,
     slotNumber: 1, managerName: "FixtureTx", managerNationality: "Australia",
     clubName: "FixtureTx FC", originalClubName: "FixtureTx FC", season: "Season 1",
     budget: "500000", locationId: 1, primaryColor: "#0a0", secondaryColor: "#00a",
