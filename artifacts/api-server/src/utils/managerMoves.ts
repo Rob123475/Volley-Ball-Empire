@@ -31,7 +31,7 @@ import {
 import { and, desc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { levelNeededFor, decideApplication, vacanciesTx, ensureAiManagersTx, judgeAiManagersTx, appointOldVacanciesTx, type Vacancy } from "./aiManagers.js";
 import { poolClubRatingsTx } from "./worldTour.js";
-import { faceById, pronounsOf } from "./managerFaces.js";
+import { faceById, pronounsOf, managerCard, type ManagerCard } from "./managerFaces.js";
 import { seasonNumberForYear } from "./seasonRollover.js";
 
 /** Mid-season, in the words Rob gave (J-3). */
@@ -72,7 +72,8 @@ export async function boardVerdict(careerSaveId: number, seasonYear: number, tea
     : null;
 }
 
-export type Offer = { poolTeamId: number; name: string; rating: number; why: string };
+/** Update 1, item 2 (M-5): `replacing` is the manager the club's job is being offered over. */
+export type Offer = { poolTeamId: number; name: string; rating: number; why: string; replacing: ManagerCard | null };
 
 function levelOfPoints(points: number) { return managerLevelFor(points); }
 
@@ -97,7 +98,7 @@ export function offersTx(tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
   const out: Offer[] = [];
   for (const v of vacanciesTx(tx, careerSaveId, seasonYear)) {
     const d = decideApplication(v, managerName, level);
-    if (d.accepted && !declined.includes(v.poolTeamId)) out.push({ poolTeamId: v.poolTeamId, name: v.name, rating: v.rating, why: `${v.name} have no manager and want you: ${d.reason}` });
+    if (d.accepted && !declined.includes(v.poolTeamId)) out.push({ poolTeamId: v.poolTeamId, name: v.name, rating: v.rating, why: `${v.name} have no manager and want you: ${d.reason}`, replacing: v.replacing });
   }
   const warned = tx.select().from(careerPoolTeamStateTable).where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId),
     isNull(careerPoolTeamStateTable.takenOverAt), isNull(careerPoolTeamStateTable.vacantSince), isNotNull(careerPoolTeamStateTable.managerName))).all()
@@ -106,7 +107,8 @@ export function offersTx(tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
     const rating = Math.round(ratings.get(c.poolTeamId) ?? 0);
     if (level.level < levelNeededFor(rating) || declined.includes(c.poolTeamId)) continue;
     out.push({ poolTeamId: c.poolTeamId, name: names.get(c.poolTeamId) ?? "", rating,
-      why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind ${pronounsOf(faceById(c.managerFaceId)).him}) and offers you the job.` });
+      why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind ${pronounsOf(faceById(c.managerFaceId)).him}) and offers you the job.`,
+      replacing: managerCard(faceById(c.managerFaceId), c.managerName) });
   }
   const best = (a: Offer, b: Offer) => b.rating - a.rating || a.poolTeamId - b.poolTeamId;
   if (!seasonFailed) return out.sort(best).slice(0, MAX_OFFERS);

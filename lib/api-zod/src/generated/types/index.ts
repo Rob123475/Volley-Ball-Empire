@@ -95,6 +95,8 @@ export * from './leaderboardEntry';
 export * from './lineupUpdate';
 export * from './loadCareerSave200';
 export * from './location';
+export * from './managerCard';
+export * from './managerCardGender';
 export * from './managerContract';
 export * from './managerContractStatus';
 export * from './managerRecords';

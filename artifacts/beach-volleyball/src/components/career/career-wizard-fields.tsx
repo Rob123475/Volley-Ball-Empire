@@ -10,6 +10,7 @@
  * own copy that can drift.
  */
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ClubCrest, CREST_SHAPE_COUNT } from "@/components/club-crest";
 import { cn } from "@/lib/utils";
 import { Check, Sprout, Building2 } from "lucide-react";
@@ -325,6 +326,78 @@ export function DifficultyPicker({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+// ── Update 1, item 2: the manager's face ─────────────────────────────────────
+
+/** A face the wizard offers (GET /manager-faces): the speciality comes with it. */
+export type ManagerFaceOption = {
+  id: number; image: string; gender: "male" | "female"; age: number; nationality: string;
+  speciality: string; effect: string;
+};
+
+export function useManagerFaces() {
+  return useQuery<ManagerFaceOption[]>({
+    queryKey: ["manager-faces"],
+    queryFn: async ({ signal }) => {
+      const res = await fetch("/api/manager-faces", { signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return (await res.json()).faces ?? [];
+    },
+    staleTime: Infinity,
+  });
+}
+
+/**
+ * Rob, 13 Oct (C): the new career shows all 61 faces and the player picks one.
+ * Each card shows the face, its speciality and the speciality's one-line
+ * effect; the speciality stays with the face (M-2). The player still types
+ * their own name and nationality.
+ */
+export function ManagerFacePicker({
+  value,
+  onChange,
+  accentClassName = "border-secondary/60 bg-secondary/10",
+}: {
+  value: number | null;
+  onChange: (faceId: number) => void;
+  accentClassName?: string;
+}) {
+  const { data: faces, isLoading, isError } = useManagerFaces();
+  const picked = faces?.find((f) => f.id === value) ?? null;
+  if (isLoading) return <p className="text-xs text-white/40">Loading the managers…</p>;
+  if (isError || !faces) return <p className="text-xs text-red-300">The manager faces could not be loaded.</p>;
+  return (
+    <div className="space-y-2" data-testid="manager-face-picker">
+      <p className="text-xs text-white/55 min-h-[1rem]" data-testid="manager-face-picked">
+        {picked ? <><span className="font-bold text-white">{picked.speciality}</span>: {picked.effect}.</> : "Pick the face of your manager. Each one brings a speciality to your club."}
+      </p>
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 max-h-[22rem] overflow-y-auto pr-1">
+        {faces.map((f) => {
+          const selected = f.id === value;
+          return (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => onChange(f.id)}
+              data-testid={`manager-face-${f.id}`}
+              className={cn(
+                "relative text-left rounded-xl border overflow-hidden transition-all hover:bg-white/8",
+                selected ? accentClassName : "border-white/10 bg-white/5",
+              )}
+            >
+              <img src={f.image} alt="" loading="lazy" className="w-full aspect-[3/4] object-cover" />
+              {selected && <Check className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-black/60 p-0.5 text-white" />}
+              <div className="p-1.5">
+                <p className="text-[10px] font-black text-white leading-tight">{f.speciality}</p>
+                <p className="text-[9px] text-white/50 leading-tight mt-0.5">{f.effect}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -85,6 +85,42 @@ export function specialityFactor(teamId: number | null | undefined, speciality: 
   return playerSpecialityForTeam(teamId) === speciality ? SPECIALITY_EFFECTS[speciality].factor : 1;
 }
 
+/**
+ * M-4, M-5: a manager as the screens show one: the face, the name (an AI
+ * manager's is the face's; the player's is the one he typed), the speciality
+ * and its one-line effect.
+ */
+export type ManagerCard = {
+  faceId: number; name: string; image: string; gender: "male" | "female";
+  speciality: Speciality; effect: string; isPlayer: boolean;
+};
+
+export function managerCard(face: ManagerFace | null, name?: string | null, isPlayer = false): ManagerCard | null {
+  if (!face) return null;
+  return {
+    faceId: face.id, name: name ?? face.name, image: `/${face.file}`, gender: face.gender,
+    speciality: face.speciality, effect: SPECIALITY_EFFECTS[face.speciality].effect, isPlayer,
+  };
+}
+
+/** The player's manager in this career, as the screens show him. */
+export function playerManagerCard(careerSaveId: number): ManagerCard | null {
+  const save = db.select({ f: careerSavesTable.managerFaceId, n: careerSavesTable.managerName }).from(careerSavesTable)
+    .where(eq(careerSavesTable.id, careerSaveId)).get();
+  return save ? managerCard(faceById(save.f), save.n, true) : null;
+}
+
+/**
+ * Who runs each AI pool club in this career: its manager's face, or the
+ * player's at a club he took over. Null while the job is vacant.
+ */
+export function clubManagersOf(careerSaveId: number): Map<number, ManagerCard | null> {
+  const mine = playerManagerCard(careerSaveId);
+  const rows = db.select().from(careerPoolTeamStateTable).where(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId)).all();
+  return new Map(rows.map((r) => [r.poolTeamId,
+    r.takenOverAt != null ? mine : r.managerName == null ? null : managerCard(faceById(r.managerFaceId), r.managerName)]));
+}
+
 /** He or she, from the face (Addendum point 1). */
 export function pronounsOf(face: ManagerFace | null): { he: string; him: string; his: string } {
   return face?.gender === "male" ? { he: "he", him: "him", his: "his" } : { he: "she", him: "her", his: "her" };

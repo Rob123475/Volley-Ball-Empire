@@ -3808,6 +3808,10 @@ components:
           type: integer
           nullable: true
           description: "Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape."
+        manager:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/ManagerCard"
         retiredAt:
           type: string
           nullable: true
@@ -3861,6 +3865,27 @@ components:
           type: integer
           description: "Salary earned to date: each season's salary pro rata on the game days served."
 
+    ManagerCard:
+      type: object
+      description: "Update 1, item 2 (M-4, M-5): a manager as the screens show one."
+      required: [faceId, name, image, gender, speciality, effect, isPlayer]
+      properties:
+        faceId:
+          type: integer
+        name:
+          type: string
+        image:
+          type: string
+        gender:
+          type: string
+          enum: [male, female]
+        speciality:
+          type: string
+        effect:
+          type: string
+        isPlayer:
+          type: boolean
+
     CareerSaveList:
       type: object
       required: [saves]
@@ -3875,12 +3900,15 @@ components:
 
     UpsertCareerSaveBody:
       type: object
-      required: [slotNumber, managerName, clubName]
+      required: [slotNumber, managerName, clubName, managerFaceId]
       properties:
         slotNumber:
           type: integer
         managerName:
           type: string
+        managerFaceId:
+          type: integer
+          description: "Update 1, item 2: the manager face the player picked (GET /manager-faces), one of the 61."
         managerNationality:
           type: string
           nullable: true

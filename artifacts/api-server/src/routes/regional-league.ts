@@ -21,6 +21,7 @@ import {
 } from "../utils/regionalSeason.js";
 
 import { aiSquadsTx } from "../utils/aiSquads.js";
+import { clubManagersOf } from "../utils/managerFaces.js";
 const router = Router();
 
 // The canonical six live in @workspace/db. This module used to keep its own
@@ -85,6 +86,8 @@ router.get("/regional-league/qualifications", async (req, res) => {
         .where(inArray(continentalPoolTeamsTable.id, teamIds))
     : [];
   const nameMap = new Map(teams.map(t => [t.id, t.teamName]));
+  // Update 1, item 2 (M-5): each club's manager: face, name and speciality.
+  const managers = clubManagersOf(cid);
 
   res.json({
     seasonYear: latestYear,
@@ -95,6 +98,7 @@ router.get("/regional-league/qualifications", async (req, res) => {
       poolTeamId:        q.poolTeamId,
       teamName:          nameMap.get(q.poolTeamId) ?? "Unknown",
       qualifyingPosition:q.qualifyingPosition,
+      manager:           managers.get(q.poolTeamId) ?? null,
     })),
   });
 });

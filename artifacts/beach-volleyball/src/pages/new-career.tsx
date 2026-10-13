@@ -25,6 +25,7 @@ import {
   ShapePicker,
   NationalityPicker,
   DifficultyPicker,
+  ManagerFacePicker,
   type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
 // D-2: the money the career will really start with — the server's own table.
@@ -197,6 +198,7 @@ export default function NewCareer() {
 
   const [step, setStep]               = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName] = useState("");
+  const [faceId, setFaceId]           = useState<number | null>(null);
   const [nationality, setNationality] = useState("");
   const [difficulty, setDifficulty]   = useState<CareerDifficulty | null>(null);
   const [selectedClub, setSelectedClub]     = useState<ClubTemplate | null>(null);
@@ -237,7 +239,7 @@ export default function NewCareer() {
   const selectedNat = NATIONALITIES.find(n => n.name === nationality);
 
   const startingMoney = difficulty ? STARTING_BUDGET[difficulty] : null;
-  const canStep1 = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null;
+  const canStep1 = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null && faceId !== null;
   const canStep2 = selectedClub !== null;
 
   const advanceToStep3 = () => {
@@ -250,13 +252,14 @@ export default function NewCareer() {
   };
 
   const handleSubmit = () => {
-    if (!selectedClub || !difficulty) return;
+    if (!selectedClub || !difficulty || faceId == null) return;
     const clubName = customClubName.trim() || selectedClub.name;
     upsertMutation.mutate(
       {
         data: {
           slotNumber:          1,
           managerName:         managerName.trim(),
+          managerFaceId:       faceId,
           managerNationality:  nationality || null,
           clubName,
           originalClubName:    selectedClub.name,
@@ -430,6 +433,14 @@ export default function NewCareer() {
                     onChange={setNationality}
                     accentClassName="bg-secondary/15 text-secondary"
                   />
+                </div>
+
+                {/* Update 1, item 2: the manager's face, and the speciality that comes with it */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                    <User className="h-3 w-3" /> Your Face
+                  </label>
+                  <ManagerFacePicker value={faceId} onChange={setFaceId} accentClassName="border-secondary/60 bg-secondary/10" />
                 </div>
 
                 {/* Difficulty (R-11) */}

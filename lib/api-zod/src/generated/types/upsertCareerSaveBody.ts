@@ -10,6 +10,8 @@ import type { CareerDifficulty } from './careerDifficulty';
 export interface UpsertCareerSaveBody {
   slotNumber: number;
   managerName: string;
+  /** Update 1, item 2: the manager face the player picked (GET /manager-faces), one of the 61. */
+  managerFaceId: number;
   managerNationality?: string | null;
   clubName: string;
   originalClubName?: string | null;

@@ -6,7 +6,6 @@ import {
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  UserCog,
   Globe,
   Building2,
   DollarSign,
@@ -25,6 +24,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { RetireModal } from "@/components/career/RetireModal";
+import { useMyManager } from "@/lib/my-manager";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -154,6 +154,7 @@ export default function ManagerProfile() {
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
+  const myManager = useMyManager();
   const { data: summary, isLoading: summaryLoading } = useGetCareerSummary({
     query: { queryKey: getGetCareerSummaryQueryKey() },
   });
@@ -186,6 +187,7 @@ export default function ManagerProfile() {
 
   // ── Data (real or safe placeholder) ──
   const managerName    = summary?.managerName   ?? "Manager";
+  const manager        = myManager.data ?? null;
   const clubName       = summary?.clubName      ?? "No Club";
   // Collected by the new-career wizard and stored as managerNationality; this
   // page used to hardcode "Not set" and throw the player's choice away.
@@ -226,10 +228,13 @@ export default function ManagerProfile() {
 
       {/* ── Hero card ── */}
       <div className="rounded-2xl border border-white/10 bg-white/3 p-6 flex flex-col sm:flex-row sm:items-center gap-5">
-        {/* Avatar */}
-        <div className="h-20 w-20 shrink-0 rounded-2xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">
-          <UserCog className="h-10 w-10 text-purple-400" />
-        </div>
+        {/* Update 1, item 2 (M-4): the manager's face, and the speciality it brings */}
+        {manager?.image ? (
+          <img src={manager.image} alt={managerName} data-testid="profile-manager-face"
+            className="h-28 w-[5.25rem] shrink-0 rounded-2xl object-cover object-top border border-white/15" />
+        ) : (
+          <div className="h-28 w-[5.25rem] shrink-0 rounded-2xl bg-white/5 border border-white/10" />
+        )}
 
         {/* Name + rep */}
         <div className="flex-1 min-w-0 space-y-2">
@@ -238,6 +243,11 @@ export default function ManagerProfile() {
             <p className="text-sm text-white/45 mt-1 font-medium">
               Club Manager · {clubName} · {season}
             </p>
+            {manager && (
+              <p className="text-sm text-white/70 mt-1" data-testid="profile-manager-speciality">
+                <span className="font-bold text-white">{manager.speciality}</span>: {manager.effect}.
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <RepStars stars={stars} />

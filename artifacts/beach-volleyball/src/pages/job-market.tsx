@@ -37,9 +37,24 @@ type Vacancy = {
   accepted: boolean;
   answer: string;
   inWorldTourNow: boolean;
+  /** Update 1, item 2 (M-5): the manager being replaced (the one the board sacked). */
+  replacing: Replacing | null;
 };
 
-type Offer = { poolTeamId: number; name: string; rating: number; why: string };
+type Replacing = { name: string; image: string; speciality: string; effect: string };
+
+type Offer = { poolTeamId: number; name: string; rating: number; why: string; replacing: Replacing | null };
+
+/** Update 1, item 2 (M-5): the manager whose job it is, on an offer or a vacancy. */
+function ReplacingLine({ m, testId }: { m: Replacing | null; testId: string }) {
+  if (!m) return null;
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid={testId}>
+      <img src={m.image} alt="" className="h-8 w-8 rounded-full object-cover object-top border shrink-0" />
+      <span>Replacing <span className="font-semibold text-foreground">{m.name}</span> · <span title={m.effect}>{m.speciality}</span></span>
+    </div>
+  );
+}
 
 type JobMarket = {
   employed: boolean;
@@ -123,7 +138,8 @@ export default function JobMarketPage() {
           {data.offers.map((o) => (
             <Card key={o.poolTeamId} data-testid={`card-offer-${o.poolTeamId}`}>
               <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="space-y-1"><span className="font-bold">{o.name}</span> <Badge variant="outline">{o.rating}</Badge><p className="text-xs text-muted-foreground">{o.why}</p></div>
+                <div className="space-y-1"><span className="font-bold">{o.name}</span> <Badge variant="outline">{o.rating}</Badge><p className="text-xs text-muted-foreground">{o.why}</p>
+                  <ReplacingLine m={o.replacing} testId={`offer-replacing-${o.poolTeamId}`} /></div>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={() => answer.mutate({ id: o.poolTeamId, yes: true })}>Accept</Button>
                   <Button size="sm" variant="outline" onClick={() => answer.mutate({ id: o.poolTeamId, yes: false })}>Decline</Button>
@@ -146,6 +162,7 @@ export default function JobMarketPage() {
               </div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Globe className="h-3 w-3" />{v.continentName} · {v.tier} · ${v.budget.toLocaleString("en-US")} in the bank</div>
               <p className="text-xs">The board expects {v.expectation}.</p>
+              <ReplacingLine m={v.replacing} testId={`vacancy-replacing-${v.poolTeamId}`} />
               {v.reason && <p className="text-xs text-muted-foreground">{v.reason}</p>}
               <p className={cn("text-xs font-medium", v.accepted ? "text-emerald-500" : "text-red-500")} data-testid={`vacancy-answer-${v.poolTeamId}`}>{v.answer}</p>
             </CardContent>

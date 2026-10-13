@@ -83,6 +83,7 @@ import { INJURY_WEEKS } from "@shared/injuries";
 import { StaffOffBadge, onDuty } from "@/components/staff-off-badge";
 // D-3: every facility's name comes from one table, shared with the server.
 import { FACILITY_NAMES } from "@shared/facility-names";
+import { useMyManager } from "@/lib/my-manager";
 
 /* ── Constants ─────────────────────────────────────────────── */
 
@@ -205,8 +206,9 @@ function fitnessColor(v: number) {
 function fatigueColor(v: number) {
   return v <= 30 ? "bg-green-500" : v <= 60 ? "bg-yellow-500" : "bg-red-500";
 }
-function calcInjuryRisk(fitness: number, fatigue: number): number {
-  return Math.min(95, Math.round(1 + fatigue / 2 + (100 - fitness) / 4));
+/** Update 1, item 2: `factor` is the manager's speciality on injury risk (a Fitness Guru: 0.8). */
+function calcInjuryRisk(fitness: number, fatigue: number, factor = 1): number {
+  return Math.min(95, Math.round((1 + fatigue / 2 + (100 - fitness) / 4) * factor));
 }
 const RISK_LEVELS = [
   { max: 10,  label: "Low",      dot: "bg-green-500",  text: "text-green-600"  },
@@ -830,6 +832,7 @@ function ContributionRow({ label, staff, bonus, color }: { label: string; staff:
 /* ── Squad Fitness Overview ────────────────────────────────── */
 
 function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
+  const riskFactor = useMyManager().data?.injuryRiskFactor ?? 1;
   return (
     <section className="space-y-3">
       <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -848,7 +851,7 @@ function SquadFitnessOverview({ allPlayers }: { allPlayers: any[] }) {
                 const Icon = INJURY_ICONS[status] ?? CheckCircle2;
                 const fitness = player.fitness as number;
                 const fatigue = player.fatigue as number;
-                const risk = calcInjuryRisk(fitness, fatigue);
+                const risk = calcInjuryRisk(fitness, fatigue, riskFactor);
                 const riskLevel = getRiskLevel(risk);
 
                 return (

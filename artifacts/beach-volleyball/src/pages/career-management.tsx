@@ -16,6 +16,7 @@ import {
   ShapePicker,
   NationalityPicker,
   DifficultyPicker,
+  ManagerFacePicker,
   type CareerDifficulty,
 } from "@/components/career/career-wizard-fields";
 // D-2: the money the career will really start with — the server's own table.
@@ -268,6 +269,7 @@ interface NewCareerModalProps {
   onSave: (data: {
     slotNumber:          number;
     managerName:         string;
+    managerFaceId:       number;
     managerNationality:  string;
     clubName:            string;
     originalClubName:    string;
@@ -283,6 +285,7 @@ interface NewCareerModalProps {
 function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModalProps) {
   const [step, setStep]                   = useState<1 | 2 | 3>(1);
   const [managerName, setManagerName]     = useState("");
+  const [faceId, setFaceId]               = useState<number | null>(null);
   const [nationality, setNationality]     = useState("");
   const [difficulty, setDifficulty]       = useState<CareerDifficulty | null>(null);
   const [selectedClub, setSelectedClub]   = useState<ClubTemplate | null>(null);
@@ -345,7 +348,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
   };
 
   const startingMoney    = difficulty ? STARTING_BUDGET[difficulty] : null;
-  const canProceedStep1  = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null;
+  const canProceedStep1  = managerName.trim().length > 0 && nationality.length > 0 && difficulty !== null && faceId !== null;
   const canProceedStep2  = selectedClub !== null;
   const displayClubName  = customClubName.trim() || selectedClub?.name || "";
   const canSave          = canProceedStep1 && canProceedStep2 && displayClubName.length > 0;
@@ -364,6 +367,7 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
   const buildSavePayload = (club: NonNullable<typeof selectedClub>) => ({
     slotNumber,
     managerName:         managerName.trim(),
+    managerFaceId:       faceId!,
     managerNationality:  nationality,
     clubName:            customClubName.trim() || club.name,
     originalClubName:    club.name,
@@ -450,6 +454,13 @@ function NewCareerModal({ slotNumber, onClose, onSave, isSaving }: NewCareerModa
                   <Globe className="h-3 w-3" /> Nationality
                 </label>
                 <NationalityPicker value={nationality} onChange={setNationality} />
+              </div>
+              {/* Update 1, item 2: the manager's face, and the speciality that comes with it */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
+                  <User className="h-3 w-3" /> Your Face
+                </label>
+                <ManagerFacePicker value={faceId} onChange={setFaceId} />
               </div>
               <div>
                 <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5">
@@ -780,9 +791,15 @@ function FilledSlotCard({ save, isActive, onLoad, onDelete, onEndCareer }: Fille
           />
           <div className="space-y-1 min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <User className="h-3.5 w-3.5 text-white/35 shrink-0" />
+              {/* Update 1, item 2 (M-4): the manager's face on the slot card. */}
+              {save.manager?.image
+                ? <img src={save.manager.image} alt="" className="h-7 w-7 rounded-full object-cover object-top border border-white/15 shrink-0" data-testid={`save-slot-face-${save.slotNumber}`} />
+                : <User className="h-3.5 w-3.5 text-white/35 shrink-0" />}
               <span className="text-base font-black text-white leading-tight truncate">{save.managerName}</span>
             </div>
+            {save.manager && (
+              <p className="text-[11px] text-white/45 truncate">{save.manager.speciality}: {save.manager.effect}</p>
+            )}
             <div className="flex items-center gap-2">
               <Trophy className="h-3.5 w-3.5 text-amber-400/70 shrink-0" />
               <span className="text-sm font-semibold text-white/70 truncate">{save.clubName}</span>
@@ -926,6 +943,7 @@ export default function CareerManagement() {
   const handleCreate = (body: {
     slotNumber:          number;
     managerName:         string;
+    managerFaceId:       number;
     managerNationality:  string;
     clubName:            string;
     originalClubName:    string;
@@ -939,6 +957,7 @@ export default function CareerManagement() {
       { data: {
         slotNumber:          body.slotNumber,
         managerName:         body.managerName,
+        managerFaceId:       body.managerFaceId,
         managerNationality:  body.managerNationality,
         clubName:            body.clubName,
         originalClubName:    body.originalClubName,

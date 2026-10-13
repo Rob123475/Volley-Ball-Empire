@@ -9955,6 +9955,15 @@ export const ListCareerSavesResponse = zod.object({
   "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
   "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
   "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
+  "manager": zod.object({
+  "faceId": zod.number(),
+  "name": zod.string(),
+  "image": zod.string(),
+  "gender": zod.enum(['male', 'female']),
+  "speciality": zod.string(),
+  "effect": zod.string(),
+  "isPlayer": zod.boolean()
+}).describe('Update 1, item 2 (M-4, M-5): a manager as the screens show one.').nullish(),
   "retiredAt": zod.string().nullish().describe('ISO timestamp of when this career was retired. Null if still active.'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()
@@ -9969,6 +9978,7 @@ export const ListCareerSavesResponse = zod.object({
 export const UpsertCareerSaveBody = zod.object({
   "slotNumber": zod.number(),
   "managerName": zod.string(),
+  "managerFaceId": zod.number().describe('Update 1, item 2: the manager face the player picked (GET \/manager-faces), one of the 61.'),
   "managerNationality": zod.string().nullish(),
   "clubName": zod.string(),
   "originalClubName": zod.string().nullish(),
@@ -9997,6 +10007,15 @@ export const UpsertCareerSaveResponse = zod.object({
   "primaryColor": zod.string().nullish().describe('Club primary colour (from team logo colour)'),
   "secondaryColor": zod.string().nullish().describe('Club secondary colour (from team secondary logo colour)'),
   "crestShapeIndex": zod.number().nullish().describe('Player-chosen club crest shape (index into ClubCrest\'s shape variants). Null falls back to a name-hash shape.'),
+  "manager": zod.object({
+  "faceId": zod.number(),
+  "name": zod.string(),
+  "image": zod.string(),
+  "gender": zod.enum(['male', 'female']),
+  "speciality": zod.string(),
+  "effect": zod.string(),
+  "isPlayer": zod.boolean()
+}).describe('Update 1, item 2 (M-4, M-5): a manager as the screens show one.').nullish(),
   "retiredAt": zod.string().nullish().describe('ISO timestamp of when this career was retired. Null if still active.'),
   "lastPlayedAt": zod.string(),
   "createdAt": zod.string()

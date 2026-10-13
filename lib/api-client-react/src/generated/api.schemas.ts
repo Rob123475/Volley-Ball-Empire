@@ -1761,6 +1761,27 @@ export interface ClubTemplateList {
   clubs: ClubTemplate[];
 }
 
+export type ManagerCardGender = typeof ManagerCardGender[keyof typeof ManagerCardGender];
+
+
+export const ManagerCardGender = {
+  male: 'male',
+  female: 'female',
+} as const;
+
+/**
+ * Update 1, item 2 (M-4, M-5): a manager as the screens show one.
+ */
+export interface ManagerCard {
+  faceId: number;
+  name: string;
+  image: string;
+  gender: ManagerCardGender;
+  speciality: string;
+  effect: string;
+  isPlayer: boolean;
+}
+
 export interface CareerSaveSlot {
   id: number;
   teamId?: number | null;
@@ -1779,6 +1800,7 @@ export interface CareerSaveSlot {
   secondaryColor?: string | null;
   /** Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape. */
   crestShapeIndex?: number | null;
+  manager?: ManagerCard | null;
   /** ISO timestamp of when this career was retired. Null if still active. */
   retiredAt?: string | null;
   lastPlayedAt: string;
@@ -1828,6 +1850,8 @@ export const CareerDifficulty = {
 export interface UpsertCareerSaveBody {
   slotNumber: number;
   managerName: string;
+  /** Update 1, item 2: the manager face the player picked (GET /manager-faces), one of the 61. */
+  managerFaceId: number;
   managerNationality?: string | null;
   clubName: string;
   originalClubName?: string | null;

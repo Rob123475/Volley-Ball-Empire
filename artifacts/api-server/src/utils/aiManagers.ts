@@ -27,7 +27,7 @@ import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { worldTourFieldTx, worldTourStandingsTx, poolClubRatingsTx } from "./worldTour.js";
 import { bandsFor, gradeFor, targetWords, FIELD_CLUBS } from "./board-confidence.js";
 import { tierForPoints } from "./tierQualification.js";
-import { faceById, pickFaceTx } from "./managerFaces.js";
+import { faceById, pickFaceTx, managerCard, type ManagerCard } from "./managerFaces.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -163,6 +163,8 @@ export type Vacancy = {
   vacantSince: string;
   levelNeeded: number;
   levelNeededName: string;
+  /** Update 1, item 2 (M-5): the manager being replaced: the one the board sacked. */
+  replacing: ManagerCard | null;
 };
 
 /** The real vacancies: AI clubs whose manager has gone and nobody has been appointed. */
@@ -190,6 +192,7 @@ export function vacanciesTx(tx: Tx, careerSaveId: number, seasonYear: number): V
       expectation: rank != null ? `${targetWords(bandsFor(rank).metLine)} on the World Tour (ranked ${rank} of ${FIELD_CLUBS} on strength)` : "a World Tour place: it plays its regional league this season",
       reason: c.vacancyReason, vacantSince: c.vacantSince!,
       levelNeeded: level, levelNeededName: MANAGER_LEVELS[level - 1]!.name,
+      replacing: managerCard(faceById(c.managerFaceId)),
     };
   }).sort((a, b) => b.rating - a.rating || a.poolTeamId - b.poolTeamId);
 }

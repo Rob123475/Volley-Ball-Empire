@@ -5,6 +5,7 @@
  * Beach Volleyball Empire API
  * OpenAPI spec version: 0.1.0
  */
+import type { ManagerCard } from './managerCard';
 
 export interface CareerSaveSlot {
   id: number;
@@ -24,6 +25,7 @@ export interface CareerSaveSlot {
   secondaryColor?: string | null;
   /** Player-chosen club crest shape (index into ClubCrest's shape variants). Null falls back to a name-hash shape. */
   crestShapeIndex?: number | null;
+  manager?: ManagerCard | null;
   /** ISO timestamp of when this career was retired. Null if still active. */
   retiredAt?: string | null;
   lastPlayedAt: string;

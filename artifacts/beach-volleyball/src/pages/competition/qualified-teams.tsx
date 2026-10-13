@@ -23,6 +23,8 @@ type Qualification = {
   poolTeamId: number;
   teamName: string;
   qualifyingPosition: number;
+  /** Update 1, item 2 (M-5): who runs the club; null while its job is vacant. */
+  manager: { name: string; image: string; speciality: string; effect: string; isPlayer: boolean } | null;
 };
 
 type QualificationsData = {
@@ -161,10 +163,20 @@ export default function QualifiedTeams() {
                         </span>
                         <div className="flex-1 min-w-0">
                           {q ? (
-                            <>
-                              <p className="text-sm font-medium truncate">{q.teamName}</p>
-                              <p className="text-xs text-muted-foreground">Regional {posLabel(pos)}</p>
-                            </>
+                            <div className="flex items-center gap-3">
+                              {q.manager?.image && (
+                                <img src={q.manager.image} alt="" title={q.manager.effect} data-testid={`qualified-manager-${q.poolTeamId}`}
+                                  className="h-10 w-10 rounded-full object-cover object-top border shrink-0" />
+                              )}
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{q.teamName}</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  Regional {posLabel(pos)} · {q.manager
+                                    ? <>{q.manager.isPlayer ? "You" : q.manager.name} · <span title={q.manager.effect}>{q.manager.speciality}</span></>
+                                    : "Manager's job vacant"}
+                                </p>
+                              </div>
+                            </div>
                           ) : (
                             <p className="text-sm text-muted-foreground italic">
                               Pending regional round 10

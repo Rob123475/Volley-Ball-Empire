@@ -25,7 +25,7 @@ import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
 import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor } from "../utils/managerMoves.js";
 import { isOlympicYear } from "../utils/olympics.js";
-import { faceById } from "../utils/managerFaces.js";
+import { faceById, managerCard } from "../utils/managerFaces.js";
 import { ensureAiManagersTx } from "../utils/aiManagers.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -44,6 +44,7 @@ router.get("/careers", async (req, res) => {
       teamId:            careerSavesTable.teamId,
       slotNumber:        careerSavesTable.slotNumber,
       managerName:       careerSavesTable.managerName,
+      managerFaceId:     careerSavesTable.managerFaceId,
       clubName:          careerSavesTable.clubName,
       originalClubName:  careerSavesTable.originalClubName,
       season:            careerSavesTable.season,
@@ -75,6 +76,8 @@ router.get("/careers", async (req, res) => {
       teamId:            s.teamId ?? null,
       slotNumber:        s.slotNumber,
       managerName:       s.managerName,
+      // Update 1, item 2 (M-4): the manager's face on the save slot card.
+      manager:           managerCard(faceById(s.managerFaceId), s.managerName, true),
       clubName:          s.clubName,
       originalClubName:  s.originalClubName ?? null,
       season:            s.season,
