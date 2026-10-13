@@ -577,6 +577,11 @@ runSuite("ai job market", path.join(REPO, "harness", "ai-job-market.mjs"));
 console.log("\n########## 98c/100  STAFF OFF ILL OR HURT (FINAL PART B) ##########");
 runSuite("staff injuries", path.join(REPO, "harness", "staff-injuries.mjs"));
 
+// Update 1, item 2 (Rob, 13-14 Oct): manager faces, their names and specialities,
+// the deal, the sacking rule and the job-offer pronouns.
+console.log("\n########## 98d/100  MANAGER FACES AND SPECIALITIES (UPDATE 1, ITEM 2) ##########");
+runSuite("manager faces", path.join(REPO, "harness", "manager-faces.mjs"));
+
 // ── Smoke needs a server; boot one on a throwaway copy of the shipped DB ─────
 console.log("\n########## 99/100  GAMEPLAY SMOKE ##########");
 {
