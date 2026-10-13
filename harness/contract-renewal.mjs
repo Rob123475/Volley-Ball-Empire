@@ -18,6 +18,8 @@
  *   freeze    R-52: a club whose board has frozen spending CAN renew at the
  *             same salary (named or omitted), CANNOT renew at a raise and
  *             CANNOT sign a player
+ *   youth     a youth signed off the market renews like anyone else once the
+ *             academy has given her academy years, and stays on the academy wage
  *   warning   with the game date at 1 Jan nothing warns; at 10 Dec the two
  *             unrenewed contracts warn orange (21 days) and the renewed one does
  *             not; at 20 Dec they warn red (11 days) — on the machine's clock the
@@ -199,6 +201,36 @@ try {
   check("signing a player is refused while frozen", signFrozen.status === 403,
     `HTTP ${signFrozen.status} ${JSON.stringify(signFrozen.data)}`);
   writeOne(`UPDATE board_seasons SET spending_frozen = 0 WHERE career_save_id = ? AND season_year = 2026`, b.careerSaveId);
+
+  console.log("\n2c. A YOUTH SIGNED OFF THE MARKET CAN BE RENEWED (BVE update 1, Rob 13 Oct, option A)");
+  // She used to be refused ("Academy contracts are managed by the youth
+  // academy") once the weekly academy tick had given her academy years, while
+  // the calendar still expired her contract at its end date: the club could not
+  // keep a youth it had signed and paid for.
+  await B("GET", "/calendar");
+  const youthPool = (await B("GET", "/players/youth-pool")).data ?? [];
+  const youth = (Array.isArray(youthPool) ? youthPool : []).find((p) => p.teamId == null);
+  const signYouth = await B("POST", "/contracts", {
+    playerId: youth?.id, salary: 0, bonusPerWin: 0, length: "1s",
+    squadRole: "reserve", academyRole: "reserve", confirm: true,
+  });
+  check("club B signs a market youth for 1 season", signYouth.status === 201 && signYouth.data?.endDate === "2026-12-31",
+    `HTTP ${signYouth.status} ${signYouth.data?.endDate ?? JSON.stringify(signYouth.data)}`);
+  // What the weekly academy tick does after her first match (academyDevelopment.ts).
+  writeOne(`UPDATE career_player_state SET academy_contract_years = 1.98 WHERE career_save_id = ? AND player_id = ?`,
+    b.careerSaveId, youth?.id);
+  const youthRenew = await B("POST", `/contracts/${signYouth.data?.id}/renew`, { salary: Number(signYouth.data?.salary) + 5000 });
+  check("renewing her succeeds (it was refused: 'Academy contracts are managed by the youth academy')",
+    youthRenew.status === 200 && youthRenew.data?.endDate === "2027-12-31",
+    `HTTP ${youthRenew.status} ${youthRenew.data?.endDate ?? JSON.stringify(youthRenew.data)}`);
+  check("she stays on the academy wage: a raise named for a youth is not applied",
+    Number(youthRenew.data?.salary) === Number(signYouth.data?.salary),
+    `${signYouth.data?.salary} -> ${youthRenew.data?.salary}`);
+  const youthState = read(`SELECT contract_end_date, team_id, academy_contract_years FROM career_player_state WHERE career_save_id = ? AND player_id = ?`,
+    b.careerSaveId, youth?.id)[0];
+  check("career state carries her new end date, she is still at the club, and her academy years show the new deal",
+    youthState?.contract_end_date === "2027-12-31" && youthState?.team_id === b.teamId && Number(youthState?.academy_contract_years) > 1,
+    JSON.stringify(youthState));
 
   console.log("\n3. THE EXPIRY WARNING RUNS ON THE GAME CLOCK");
   const realToday = new Date().toISOString().slice(0, 10);

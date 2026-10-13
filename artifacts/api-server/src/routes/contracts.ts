@@ -301,31 +301,40 @@ router.post("/contracts/:id/renew", async (req, res) => {
     return;
   }
 
-  const currentSalary = Number(contract.salary);
-  const rawSalary = (req.body ?? {}).salary;
-  const newSalary = rawSalary == null ? currentSalary : Number(rawSalary);
-  if (!Number.isFinite(newSalary) || newSalary < 0) {
-    res.status(400).json({ error: "salary must be a non-negative number" });
-    return;
-  }
-  // R-52: only a raise is new spending, so only a raise meets the freeze.
-  if (newSalary > currentSalary) {
-    const spendingBlocked = await checkSpendingAllowed(requireCareerSaveId(req.activeCareerSaveId));
-    if (spendingBlocked) {
-      res.status(403).json({ error: `${spendingBlocked} A renewal on the same terms is still allowed.` });
-      return;
-    }
-  }
-
   const cid = requireCareerSaveId(req.activeCareerSaveId);
   const player = await loadPlayer(cid, contract.playerId);
   if (!player || player.teamId !== team.id) {
     res.status(409).json({ error: "This player is no longer in your squad." });
     return;
   }
-  if (player.academyContractYears != null) {
-    res.status(403).json({ error: "Academy contracts are managed by the youth academy, not renewed here." });
+
+  // BVE update 1, Rob 13 Oct (option A): a youth signed off the market renews
+  // like everyone else. She used to be refused here ("Academy contracts are
+  // managed by the youth academy") while the calendar still expired her
+  // contract at its end date, so a youth the club had signed and paid for could
+  // not be kept: the Contracts page offered Renew, the server said no, and she
+  // walked to free agency. Rob's rule stands for her too: every player holds a
+  // contract, it can be renewed, and only a deal that is not renewed ends.
+  // She stays on the academy's wage for her talent (what the weekly run bills
+  // her); a raise is not something a youth renewal offers.
+  const isAcademyYouth = isYouthPlayer(player);
+
+  const currentSalary = Number(contract.salary);
+  const rawSalary = (req.body ?? {}).salary;
+  const newSalary = isAcademyYouth
+    ? academyMonthlySalary(player.potential)
+    : rawSalary == null ? currentSalary : Number(rawSalary);
+  if (!Number.isFinite(newSalary) || newSalary < 0) {
+    res.status(400).json({ error: "salary must be a non-negative number" });
     return;
+  }
+  // R-52: only a raise is new spending, so only a raise meets the freeze.
+  if (!isAcademyYouth && newSalary > currentSalary) {
+    const spendingBlocked = await checkSpendingAllowed(cid);
+    if (spendingBlocked) {
+      res.status(403).json({ error: `${spendingBlocked} A renewal on the same terms is still allowed.` });
+      return;
+    }
   }
 
   const season = await getActiveSeason(req);
@@ -358,7 +367,16 @@ router.post("/contracts/:id/renew", async (req, res) => {
     .set({ endDate: newEnd, salary: newSalary })
     .where(eq(contractsTable.id, id))
     .returning();
-  await updatePlayerState(cid, contract.playerId, { contractEndDate: newEnd, salary: newSalary });
+  // The Team page's academy card counts down `academyContractYears`; after a
+  // renewal it has to show the new deal, not the old one running out.
+  const academyYears = isAcademyYouth
+    ? Number(Math.max(0, (Date.parse(`${newEnd}T00:00:00Z`) - Date.parse(`${await getGameDate(team.id)}T00:00:00Z`)) / (365 * 86_400_000)).toFixed(2))
+    : undefined;
+  await updatePlayerState(cid, contract.playerId, {
+    contractEndDate: newEnd,
+    salary: newSalary,
+    ...(academyYears != null ? { academyContractYears: academyYears } : {}),
+  });
 
   res.json(serializeContract(renewed));
 });
