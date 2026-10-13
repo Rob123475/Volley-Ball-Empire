@@ -1,0 +1,564 @@
+{
+  "about": "Update 1, item 2 (Rob, 13 Oct 2026): the 61 manager faces. A face is a character: face, name and speciality always together, wherever it is dealt. Names: docs/manager-face-names.json. Specialities dealt round-robin in this order over the faces in this order. Written by scripts/install-manager-faces.cjs.",
+  "specialityOrder": [
+    "Talent Recruiter",
+    "Negotiator",
+    "Contracts Expert",
+    "Sponsor Magnet",
+    "Leader",
+    "Coach",
+    "Youth Developer",
+    "Fitness Guru"
+  ],
+  "faces": [
+    {
+      "id": 1,
+      "file": "images/managers/manager_01_estonian_woman.webp",
+      "name": "Kadri Tamm",
+      "gender": "female",
+      "age": 35,
+      "nationality": "Estonia",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 2,
+      "file": "images/managers/manager_02_swedish_man.webp",
+      "name": "Erik Lindqvist",
+      "gender": "male",
+      "age": 35,
+      "nationality": "Sweden",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 3,
+      "file": "images/managers/manager_03_vietnamese_woman.webp",
+      "name": "Lan Nguyen",
+      "gender": "female",
+      "age": 35,
+      "nationality": "Vietnam",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 4,
+      "file": "images/managers/manager_04_haitian_woman.webp",
+      "name": "Mirlande Joseph",
+      "gender": "female",
+      "age": 36,
+      "nationality": "Haiti",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 5,
+      "file": "images/managers/manager_05_indian_woman.webp",
+      "name": "Priya Raghavan",
+      "gender": "female",
+      "age": 36,
+      "nationality": "India",
+      "speciality": "Leader"
+    },
+    {
+      "id": 6,
+      "file": "images/managers/manager_06_peruvian_man.webp",
+      "name": "Diego Quispe",
+      "gender": "male",
+      "age": 36,
+      "nationality": "Peru",
+      "speciality": "Coach"
+    },
+    {
+      "id": 7,
+      "file": "images/managers/manager_07_thai_woman.webp",
+      "name": "Siriporn Chaiyaporn",
+      "gender": "female",
+      "age": 36,
+      "nationality": "Thailand",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 8,
+      "file": "images/managers/manager_08_ukrainian_woman.webp",
+      "name": "Olena Kovalenko",
+      "gender": "female",
+      "age": 36,
+      "nationality": "Ukraine",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 9,
+      "file": "images/managers/manager_09_finnish_woman.webp",
+      "name": "Aino Virtanen",
+      "gender": "female",
+      "age": 37,
+      "nationality": "Finland",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 10,
+      "file": "images/managers/manager_10_indonesian_woman.webp",
+      "name": "Dewi Kusumawati",
+      "gender": "female",
+      "age": 37,
+      "nationality": "Indonesia",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 11,
+      "file": "images/managers/manager_11_korean_man.webp",
+      "name": "Min-jun Kim",
+      "gender": "male",
+      "age": 37,
+      "nationality": "South Korea",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 12,
+      "file": "images/managers/manager_12_brazilian_man.webp",
+      "name": "Rafael Souza",
+      "gender": "male",
+      "age": 38,
+      "nationality": "Brazil",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 13,
+      "file": "images/managers/manager_13_brazilian_woman.webp",
+      "name": "Fernanda Oliveira",
+      "gender": "female",
+      "age": 38,
+      "nationality": "Brazil",
+      "speciality": "Leader"
+    },
+    {
+      "id": 14,
+      "file": "images/managers/manager_14_czech_man.webp",
+      "name": "Tomáš Novák",
+      "gender": "male",
+      "age": 38,
+      "nationality": "Czech Republic",
+      "speciality": "Coach"
+    },
+    {
+      "id": 15,
+      "file": "images/managers/manager_15_filipina_woman.webp",
+      "name": "Maricel Santos",
+      "gender": "female",
+      "age": 38,
+      "nationality": "Philippines",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 16,
+      "file": "images/managers/manager_16_spanish_woman.webp",
+      "name": "Lucía Fernández",
+      "gender": "female",
+      "age": 38,
+      "nationality": "Spain",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 17,
+      "file": "images/managers/manager_17_venezuelan_man.webp",
+      "name": "Andrés Rodríguez",
+      "gender": "male",
+      "age": 38,
+      "nationality": "Venezuela",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 18,
+      "file": "images/managers/manager_18_jamaican_woman.webp",
+      "name": "Simone Campbell",
+      "gender": "female",
+      "age": 39,
+      "nationality": "Jamaica",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 19,
+      "file": "images/managers/manager_19_pakistani_man.webp",
+      "name": "Imran Qureshi",
+      "gender": "male",
+      "age": 39,
+      "nationality": "Pakistan",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 20,
+      "file": "images/managers/manager_20_polish_man.webp",
+      "name": "Piotr Kowalski",
+      "gender": "male",
+      "age": 39,
+      "nationality": "Poland",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 21,
+      "file": "images/managers/manager_21_sri_lankan_woman.webp",
+      "name": "Nilmini Perera",
+      "gender": "female",
+      "age": 39,
+      "nationality": "Sri Lanka",
+      "speciality": "Leader"
+    },
+    {
+      "id": 22,
+      "file": "images/managers/manager_22_colombian_woman.webp",
+      "name": "Catalina Restrepo",
+      "gender": "female",
+      "age": 40,
+      "nationality": "Colombia",
+      "speciality": "Coach"
+    },
+    {
+      "id": 23,
+      "file": "images/managers/manager_23_kenyan_woman.webp",
+      "name": "Wanjiru Kamau",
+      "gender": "female",
+      "age": 40,
+      "nationality": "Kenya",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 24,
+      "file": "images/managers/manager_24_maori_woman.webp",
+      "name": "Aroha Ngata",
+      "gender": "female",
+      "age": 40,
+      "nationality": "New Zealand",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 25,
+      "file": "images/managers/manager_25_chilean_woman.webp",
+      "name": "Javiera Muñoz",
+      "gender": "female",
+      "age": 41,
+      "nationality": "Chile",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 26,
+      "file": "images/managers/manager_26_irish_man.webp",
+      "name": "Ciarán O'Brien",
+      "gender": "male",
+      "age": 41,
+      "nationality": "Ireland",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 27,
+      "file": "images/managers/manager_27_japanese_woman.webp",
+      "name": "Yuko Tanaka",
+      "gender": "female",
+      "age": 41,
+      "nationality": "Japan",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 28,
+      "file": "images/managers/manager_28_moroccan_woman.webp",
+      "name": "Fatima Benali",
+      "gender": "female",
+      "age": 41,
+      "nationality": "Morocco",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 29,
+      "file": "images/managers/manager_29_senegalese_man.webp",
+      "name": "Moussa Diop",
+      "gender": "male",
+      "age": 41,
+      "nationality": "Senegal",
+      "speciality": "Leader"
+    },
+    {
+      "id": 30,
+      "file": "images/managers/manager_30_greek_man.webp",
+      "name": "Nikos Papadopoulos",
+      "gender": "male",
+      "age": 42,
+      "nationality": "Greece",
+      "speciality": "Coach"
+    },
+    {
+      "id": 31,
+      "file": "images/managers/manager_31_lebanese_woman.webp",
+      "name": "Rania Haddad",
+      "gender": "female",
+      "age": 42,
+      "nationality": "Lebanon",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 32,
+      "file": "images/managers/manager_32_nigerian_woman.webp",
+      "name": "Ngozi Okafor",
+      "gender": "female",
+      "age": 42,
+      "nationality": "Nigeria",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 33,
+      "file": "images/managers/manager_33_romanian_woman.webp",
+      "name": "Ioana Popescu",
+      "gender": "female",
+      "age": 42,
+      "nationality": "Romania",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 34,
+      "file": "images/managers/manager_34_argentine_man.webp",
+      "name": "Martín Gómez",
+      "gender": "male",
+      "age": 43,
+      "nationality": "Argentina",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 35,
+      "file": "images/managers/manager_35_bangladeshi_man.webp",
+      "name": "Rafiqul Islam",
+      "gender": "male",
+      "age": 43,
+      "nationality": "Bangladesh",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 36,
+      "file": "images/managers/manager_36_french_woman.webp",
+      "name": "Isabelle Moreau",
+      "gender": "female",
+      "age": 43,
+      "nationality": "France",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 37,
+      "file": "images/managers/manager_37_russian_man.webp",
+      "name": "Dmitri Volkov",
+      "gender": "male",
+      "age": 43,
+      "nationality": "Russia",
+      "speciality": "Leader"
+    },
+    {
+      "id": 38,
+      "file": "images/managers/manager_38_croatian_man.webp",
+      "name": "Ivan Horvat",
+      "gender": "male",
+      "age": 44,
+      "nationality": "Croatia",
+      "speciality": "Coach"
+    },
+    {
+      "id": 39,
+      "file": "images/managers/manager_39_dutch_woman.webp",
+      "name": "Marieke de Vries",
+      "gender": "female",
+      "age": 44,
+      "nationality": "Netherlands",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 40,
+      "file": "images/managers/manager_40_nigerian_man.webp",
+      "name": "Oluwaseun Adeyemi",
+      "gender": "male",
+      "age": 44,
+      "nationality": "Nigeria",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 41,
+      "file": "images/managers/manager_41_samoan_man.webp",
+      "name": "Tavita Leota",
+      "gender": "male",
+      "age": 44,
+      "nationality": "Samoa",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 42,
+      "file": "images/managers/manager_42_chinese_man.webp",
+      "name": "Wei Zhang",
+      "gender": "male",
+      "age": 45,
+      "nationality": "China",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 43,
+      "file": "images/managers/manager_43_egyptian_man.webp",
+      "name": "Ahmed Mansour",
+      "gender": "male",
+      "age": 45,
+      "nationality": "Egypt",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 44,
+      "file": "images/managers/manager_44_israeli_woman.webp",
+      "name": "Michal Levi",
+      "gender": "female",
+      "age": 45,
+      "nationality": "Israel",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 45,
+      "file": "images/managers/manager_45_mexican_woman.webp",
+      "name": "Guadalupe Hernández",
+      "gender": "female",
+      "age": 46,
+      "nationality": "Mexico",
+      "speciality": "Leader"
+    },
+    {
+      "id": 46,
+      "file": "images/managers/manager_46_portuguese_woman.webp",
+      "name": "Sofia Carvalho",
+      "gender": "female",
+      "age": 46,
+      "nationality": "Portugal",
+      "speciality": "Coach"
+    },
+    {
+      "id": 47,
+      "file": "images/managers/manager_47_tanzanian_man.webp",
+      "name": "Baraka Mwakyusa",
+      "gender": "male",
+      "age": 46,
+      "nationality": "Tanzania",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 48,
+      "file": "images/managers/manager_48_german_woman.webp",
+      "name": "Katrin Schneider",
+      "gender": "female",
+      "age": 47,
+      "nationality": "Germany",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 49,
+      "file": "images/managers/manager_49_norwegian_man.webp",
+      "name": "Lars Haugen",
+      "gender": "male",
+      "age": 47,
+      "nationality": "Norway",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 50,
+      "file": "images/managers/manager_50_ethiopian_woman.webp",
+      "name": "Meron Tesfaye",
+      "gender": "female",
+      "age": 48,
+      "nationality": "Ethiopia",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 51,
+      "file": "images/managers/manager_51_malaysian_man.webp",
+      "name": "Faizal Rahman",
+      "gender": "male",
+      "age": 48,
+      "nationality": "Malaysia",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 52,
+      "file": "images/managers/manager_52_south_african_man.webp",
+      "name": "Johan van der Merwe",
+      "gender": "male",
+      "age": 48,
+      "nationality": "South Africa",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 53,
+      "file": "images/managers/manager_53_turkish_woman.webp",
+      "name": "Elif Yildiz",
+      "gender": "female",
+      "age": 48,
+      "nationality": "Turkey",
+      "speciality": "Leader"
+    },
+    {
+      "id": 54,
+      "file": "images/managers/manager_54_danish_woman.webp",
+      "name": "Mette Nielsen",
+      "gender": "female",
+      "age": 49,
+      "nationality": "Denmark",
+      "speciality": "Coach"
+    },
+    {
+      "id": 55,
+      "file": "images/managers/manager_55_italian_man.webp",
+      "name": "Marco Bianchi",
+      "gender": "male",
+      "age": 49,
+      "nationality": "Italy",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 56,
+      "file": "images/managers/manager_56_australian_man.webp",
+      "name": "Greg Mitchell",
+      "gender": "male",
+      "age": 50,
+      "nationality": "Australia",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 57,
+      "file": "images/managers/manager_57_canadian_man.webp",
+      "name": "Mark Tremblay",
+      "gender": "male",
+      "age": 50,
+      "nationality": "Canada",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 58,
+      "file": "images/managers/manager_58_cape_verdean_man.webp",
+      "name": "Carlos Tavares",
+      "gender": "male",
+      "age": 50,
+      "nationality": "Cape Verde",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 59,
+      "file": "images/managers/manager_59_cuban_man.webp",
+      "name": "Raúl Martínez",
+      "gender": "male",
+      "age": 50,
+      "nationality": "Cuba",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 60,
+      "file": "images/managers/manager_60_ghanaian_man.webp",
+      "name": "Kwame Mensah",
+      "gender": "male",
+      "age": 50,
+      "nationality": "Ghana",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 61,
+      "file": "images/managers/manager_61_serbian_man.webp",
+      "name": "Dragan Petrović",
+      "gender": "male",
+      "age": 50,
+      "nationality": "Serbia",
+      "speciality": "Leader"
+    }
+  ]
+}
