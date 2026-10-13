@@ -3,11 +3,11 @@
  * faces.
  *
  * A face is a character: its picture, its name and its speciality, always
- * together, wherever it is dealt (Addendum point 1). The 61 are in
- * data/manager-faces.json (scripts/install-manager-faces.cjs).
+ * together, wherever it is dealt (Addendum point 1). The 69 (61, and Rob's 8
+ * spares of 14 Oct) are in data/manager-faces.json (scripts/install-manager-faces.cjs).
  *
  *   - The player's manager has one face, career_saves.manager_face_id, picked
- *     in the new-career wizard. The player keeps the name he typed.
+ *     in the new-career wizard. The player keeps the name they typed.
  *   - Each AI club's manager is a face, career_pool_team_state.manager_face_id,
  *     and the club's manager_name is that face's name. A new career deals the
  *     other faces to the AI clubs at random, so every career is a different
@@ -15,12 +15,14 @@
  *   - A face is IN USE when it is the player's, or the face of an AI club whose
  *     manager is in post (manager_name set, not taken over). A sacked manager's
  *     face stays on the vacant club's row (the Job Market shows the manager
- *     being replaced) but is free to be dealt again; a club the player takes
- *     over frees its face the same way.
+ *     being replaced) but is out of work from the sacking; a club the player
+ *     takes over puts its manager out of work the same way.
+ *   - Rob, 14 Oct: a club appointing a manager takes the free face out of work
+ *     longest, never one it sacked (career_manager_faces, pickFaceTx).
  *   - Older saves: a career with no face is dealt them once at boot
  *     (dealFacesToOlderCareers). Never again once it has one.
  */
-import { db, careerSavesTable, careerPoolTeamStateTable } from "@workspace/db";
+import { db, careerSavesTable, careerPoolTeamStateTable, careerManagerFacesTable, seasonsTable } from "@workspace/db";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import manifest from "../data/manager-faces.json";
 
@@ -139,22 +141,57 @@ export function facesInUseTx(tx: Tx, careerSaveId: number): Set<number> {
   return used;
 }
 
+/** Each face's record in this career: out of work since (null in post), and the clubs that sacked it. */
+function faceRecordsTx(tx: Tx, careerSaveId: number): Map<number, { since: string | null; sackedBy: number[] }> {
+  return new Map(tx.select().from(careerManagerFacesTable).where(eq(careerManagerFacesTable.careerSaveId, careerSaveId)).all()
+    .map((r) => [r.faceId, { since: r.outOfWorkSince, sackedBy: JSON.parse(r.sackedBy) as number[] }]));
+}
+
 /**
- * A face for a club appointing a manager: one at random that is not in use and
- * is not still shown on another club's vacancy. If none, the club's own last
- * face (the one just freed); then any face not in use. Null only if all 61 are
- * in use, which a career (one player, at most sixty AI clubs) cannot reach.
+ * Rob, 14 Oct: a club appointing a manager takes the free face (not in use)
+ * that has been out of work longest, and never one it sacked. A free face with
+ * no record has been out of work since the career began, the longest of all;
+ * faces out of work equally long are taken in random order, so a new career's
+ * deal is different every time. Null when no face is free for this club, and
+ * its job stays open.
  */
-export function pickFaceTx(tx: Tx, careerSaveId: number, justFreed: number | null, random: () => number = Math.random): number | null {
+export function pickFaceTx(tx: Tx, careerSaveId: number, poolTeamId: number, random: () => number = Math.random): number | null {
   const used = facesInUseTx(tx, careerSaveId);
-  const onVacancies = new Set(tx.select({ f: careerPoolTeamStateTable.managerFaceId }).from(careerPoolTeamStateTable).where(and(
-    eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt),
-    isNull(careerPoolTeamStateTable.managerName), isNotNull(careerPoolTeamStateTable.managerFaceId))).all().map((r) => r.f!));
-  const free = MANAGER_FACES.filter((f) => !used.has(f.id));
-  const fresh = free.filter((f) => !onVacancies.has(f.id));
-  if (fresh.length > 0) return fresh[Math.floor(random() * fresh.length)]!.id;
-  if (justFreed != null && !used.has(justFreed)) return justFreed;
-  return free.length > 0 ? free[Math.floor(random() * free.length)]!.id : null;
+  const records = faceRecordsTx(tx, careerSaveId);
+  const since = (id: number) => records.get(id)?.since ?? "";
+  const free = MANAGER_FACES.filter((f) => !used.has(f.id) && !(records.get(f.id)?.sackedBy ?? []).includes(poolTeamId));
+  if (free.length === 0) return null;
+  const longest = free.reduce((min, f) => (since(f.id) < min ? since(f.id) : min), since(free[0]!.id));
+  const pool = free.filter((f) => since(f.id) === longest);
+  return pool[Math.floor(random() * pool.length)]!.id;
+}
+
+/** The face is out of work from `since` (a game date); `sackedByClub`, when given, is the club that sacked it. */
+export function markOutOfWorkTx(tx: Tx, careerSaveId: number, faceId: number, since: string, sackedByClub: number | null = null): void {
+  const row = tx.select().from(careerManagerFacesTable).where(and(
+    eq(careerManagerFacesTable.careerSaveId, careerSaveId), eq(careerManagerFacesTable.faceId, faceId))).get();
+  const sackedBy = row ? (JSON.parse(row.sackedBy) as number[]) : [];
+  if (sackedByClub != null && !sackedBy.includes(sackedByClub)) sackedBy.push(sackedByClub);
+  if (row) {
+    tx.update(careerManagerFacesTable).set({ outOfWorkSince: since, sackedBy: JSON.stringify(sackedBy) }).where(eq(careerManagerFacesTable.id, row.id)).run();
+  } else {
+    tx.insert(careerManagerFacesTable).values({ careerSaveId, faceId, outOfWorkSince: since, sackedBy: JSON.stringify(sackedBy) }).run();
+  }
+}
+
+/** The face is in post again (its record of the clubs that sacked it stays). */
+export function markInPostTx(tx: Tx, careerSaveId: number, faceId: number): void {
+  tx.update(careerManagerFacesTable).set({ outOfWorkSince: null }).where(and(
+    eq(careerManagerFacesTable.careerSaveId, careerSaveId), eq(careerManagerFacesTable.faceId, faceId))).run();
+}
+
+/** Every free face with no record yet is out of work from `since` (the deal at a career's start). */
+export function recordFreeFacesTx(tx: Tx, careerSaveId: number, since: string): void {
+  const used = facesInUseTx(tx, careerSaveId);
+  const records = faceRecordsTx(tx, careerSaveId);
+  for (const f of MANAGER_FACES) {
+    if (!used.has(f.id) && !records.has(f.id)) markOutOfWorkTx(tx, careerSaveId, f.id, since);
+  }
 }
 
 /** A face for the player's manager when none was picked (an older save, or a caller without the wizard). */
@@ -180,11 +217,15 @@ export function dealFacesToOlderCareers(): number {
         eq(careerPoolTeamStateTable.careerSaveId, id), isNull(careerPoolTeamStateTable.takenOverAt),
         isNotNull(careerPoolTeamStateTable.managerName), isNull(careerPoolTeamStateTable.managerFaceId))).all();
       for (const c of clubs) {
-        const face = faceById(pickFaceTx(tx, id, null));
+        const face = faceById(pickFaceTx(tx, id, c.poolTeamId));
         if (!face) break;
         tx.update(careerPoolTeamStateTable).set({ managerFaceId: face.id, managerName: face.name, updatedAt: new Date() })
           .where(eq(careerPoolTeamStateTable.id, c.id)).run();
       }
+      // The faces left over are out of work from the season the career is in.
+      const season = tx.select({ start: seasonsTable.startDate }).from(seasonsTable)
+        .where(and(eq(seasonsTable.careerSaveId, id), eq(seasonsTable.status, "active"))).get();
+      if (season) recordFreeFacesTx(tx, id, season.start);
     });
   }
   return careers.length;

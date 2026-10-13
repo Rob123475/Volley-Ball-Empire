@@ -27,7 +27,7 @@ import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { worldTourFieldTx, worldTourStandingsTx, poolClubRatingsTx } from "./worldTour.js";
 import { bandsFor, gradeFor, targetWords, FIELD_CLUBS } from "./board-confidence.js";
 import { tierForPoints } from "./tierQualification.js";
-import { faceById, pickFaceTx, managerCard, type ManagerCard } from "./managerFaces.js";
+import { faceById, pickFaceTx, markInPostTx, markOutOfWorkTx, managerCard, type ManagerCard } from "./managerFaces.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -42,13 +42,15 @@ function clubsTx(tx: Tx, careerSaveId: number): ClubRow[] {
 }
 
 /**
- * Update 1, item 2: the club's new manager is a face not in use, dealt at
- * random (utils/managerFaces.ts pickFaceTx), and the manager's name is the
- * face's. Null when no face is free, and the job stays open.
+ * Update 1, item 2: the club's new manager is the free face out of work
+ * longest, never one it sacked (Rob, 14 Oct: utils/managerFaces.ts pickFaceTx),
+ * and the manager's name is the face's. Null when no face is free for it, and
+ * the job stays open.
  */
 function appoint(tx: Tx, careerSaveId: number, c: ClubRow, year: number): string | null {
-  const face = faceById(pickFaceTx(tx, careerSaveId, c.managerFaceId));
+  const face = faceById(pickFaceTx(tx, careerSaveId, c.poolTeamId));
   if (!face) return null;
+  markInPostTx(tx, careerSaveId, face.id);
   tx.update(careerPoolTeamStateTable).set({
     managerName: face.name, managerFaceId: face.id, managerSinceYear: year, managerFailedSeasons: 0, vacantSince: null, vacancyReason: null, updatedAt: new Date(),
   }).where(eq(careerPoolTeamStateTable.id, c.id)).run();
@@ -135,6 +137,8 @@ export function judgeAiManagersTx(tx: Tx, careerSaveId: number, endedYear: numbe
       const reason = `${c.managerName} was sacked after ${failed} failed seasons running: ranked ${rank} of ${FIELD_CLUBS} on strength, the board expected ${targetWords(bandsFor(rank).metLine)} and the club finished ${finish}.`;
       tx.update(careerPoolTeamStateTable).set({ managerName: null, managerFailedSeasons: 0, vacantSince: vacantFrom, vacancyReason: reason, updatedAt: new Date() })
         .where(eq(careerPoolTeamStateTable.id, c.id)).run();
+      // Update 1, item 2: out of work from the sacking, and never this club's manager again.
+      if (c.managerFaceId != null) markOutOfWorkTx(tx, careerSaveId, c.managerFaceId, vacantFrom, c.poolTeamId);
       sacked.push({ club, manager: c.managerName, reason });
     } else {
       tx.update(careerPoolTeamStateTable).set({ managerFailedSeasons: failed, updatedAt: new Date() }).where(eq(careerPoolTeamStateTable.id, c.id)).run();

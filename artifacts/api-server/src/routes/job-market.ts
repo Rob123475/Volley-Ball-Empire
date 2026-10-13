@@ -43,6 +43,7 @@ import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad.js";
 import { ensureSeasonFixtureRows } from "../utils/seasonFixture.js";
 import { ensureBoardSeason, startingBoardConfidence } from "../utils/board-confidence.js";
+import { markOutOfWorkTx } from "../utils/managerFaces.js";
 import { startingBudgetFor } from "../utils/careerDifficulty.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiManagers.js";
@@ -306,7 +307,8 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
   // And the club the manager has taken over stops being one of the world's own:
   // it is out of the regional league, because it is not an AI club any more.
   // Update 1, item 2: its AI manager's face is free from now (taken_over_at
-  // set: utils/managerFaces.ts facesInUseTx no longer counts it).
+  // set: utils/managerFaces.ts facesInUseTx no longer counts it), out of work
+  // from the season's start (below).
   await db.update(careerPoolTeamStateTable)
     .set({ isActiveInLeague: false, takenOverAt: new Date(), managerName: save.managerName, vacantSince: null })
     .where(and(
@@ -330,6 +332,11 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
   const [season] = await db.select().from(seasonsTable)
     .where(and(eq(seasonsTable.careerSaveId, save.id), eq(seasonsTable.status, "active")))
     .orderBy(desc(seasonsTable.year)).limit(1);
+  // Update 1, item 2: the AI manager the player replaces is out of work from
+  // the season's start (when a move takes effect).
+  if (season && aiState?.managerName != null && aiState.managerFaceId != null) {
+    db.transaction((tx) => markOutOfWorkTx(tx, save.id, aiState.managerFaceId!, season.startDate));
+  }
   if (season) {
     // Merge brief 6 Oct: the new club's calendar starts on the career's date,
     // paused, as every calendar starts. It used to be made only by the next

@@ -9,6 +9,7 @@ import {
   playerRankingPointsTable,
   boardSeasonsTable,
   poolClubSeasonsTable,
+  careerManagerFacesTable,
   poolPlayerContractsTable,
   careerHistoryEntriesTable,
   olympicTournamentsTable,
@@ -61,6 +62,7 @@ export function deleteCareerSave(careerSaveId: number, tx?: DbTx): void {
     // contract can name the same club.
     t.delete(poolPlayerContractsTable).where(eq(poolPlayerContractsTable.careerSaveId, careerSaveId)).run();
     t.delete(poolClubSeasonsTable).where(eq(poolClubSeasonsTable.careerSaveId, careerSaveId)).run();
+    t.delete(careerManagerFacesTable).where(eq(careerManagerFacesTable.careerSaveId, careerSaveId)).run();
     // R-61: the Olympic tournaments reference the save (NOT NULL); medals and
     // matches reference their tournament, so they go first.
     t.delete(olympicMedalsTable).where(eq(olympicMedalsTable.careerSaveId, careerSaveId)).run();

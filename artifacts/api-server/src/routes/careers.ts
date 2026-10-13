@@ -25,7 +25,7 @@ import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
 import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor } from "../utils/managerMoves.js";
 import { isOlympicYear } from "../utils/olympics.js";
-import { faceById, managerCard } from "../utils/managerFaces.js";
+import { faceById, managerCard, recordFreeFacesTx } from "../utils/managerFaces.js";
 import { ensureAiManagersTx } from "../utils/aiManagers.js";
 import {
   isCareerDifficulty, startingBudgetFor,
@@ -297,8 +297,10 @@ router.post("/careers", async (req, res) => {
     openPoolClubBooksTx(tx, inserted!.id, `${firstYear}-01-01`, seasonEndsForCareerTx(tx, inserted!.id));
     openPoolClubSeasonsTx(tx, inserted!.id, season1!.year);
     // Update 1, item 2: the other faces are dealt at random to the AI clubs,
-    // so every new career is a different set-up.
+    // so every new career is a different set-up; the faces left over are out
+    // of work from the career's first day.
     ensureAiManagersTx(tx, inserted!.id, season1!.year);
+    recordFreeFacesTx(tx, inserted!.id, season1!.startDate);
   });
 
   // A startup squad so the manager isn't staring at zero players (R-04).

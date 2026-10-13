@@ -530,6 +530,23 @@ export const poolClubSeasonsTable = sqliteTable("pool_club_seasons", {
 export type PoolClubSeason = typeof poolClubSeasonsTable.$inferSelect;
 
 /**
+ * Update 1, item 2 (Rob, 14 Oct): a manager face out of work in a career, and
+ * the clubs that have sacked it (utils/managerFaces.ts). A club appointing a
+ * manager takes the free face that has been out of work longest, never one it
+ * sacked. `out_of_work_since` is a game date, null while the face is in post;
+ * `sacked_by` is a JSON list of pool club ids and is kept for good.
+ */
+export const careerManagerFacesTable = sqliteTable("career_manager_faces", {
+  id:             integer("id").primaryKey({ autoIncrement: true }),
+  careerSaveId:   integer("career_save_id").notNull().references(() => careerSavesTable.id),
+  faceId:         integer("face_id").notNull(),
+  outOfWorkSince: text("out_of_work_since"),
+  sackedBy:       text("sacked_by").notNull().default("[]"),
+}, (t) => [
+  uniqueIndex("career_manager_faces_unique").on(t.careerSaveId, t.faceId),
+]);
+
+/**
  * An AI club's player, under contract, on one of the three lengths.
  *
  * Rob's rule is that every player at every club is on a 6m/1s/2s deal, and a
