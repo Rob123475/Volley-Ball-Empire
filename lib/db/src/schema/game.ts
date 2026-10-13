@@ -486,6 +486,12 @@ export const careerPoolTeamStateTable = sqliteTable("career_pool_team_state", {
    * been appointed yet. The player can apply for it on the Job Market.
    */
   managerName:          text("manager_name"),
+  /**
+   * Update 1, item 2: the manager's face (utils/managerFaces.ts), whose name
+   * manager_name is. Kept when the manager is sacked (the vacancy shows who is
+   * being replaced); the face is free to be dealt again from then.
+   */
+  managerFaceId:        integer("manager_face_id"),
   managerSinceYear:     integer("manager_since_year"),
   managerFailedSeasons: integer("manager_failed_seasons").notNull().default(0),
   vacantSince:          text("vacant_since"),
@@ -1398,6 +1404,8 @@ export const careerSavesTable = sqliteTable("career_saves", {
   declinedOffers:    text("declined_offers"),
   /** Item 7: the season whose off-season window has opened (the AI boards judged then). */
   windowSeason:      integer("window_season"),
+  /** Update 1, item 2: the player's manager's face (utils/managerFaces.ts), picked in the new-career wizard. */
+  managerFaceId:     integer("manager_face_id"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

@@ -31,6 +31,7 @@ import {
 import { and, desc, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import { levelNeededFor, decideApplication, vacanciesTx, ensureAiManagersTx, judgeAiManagersTx, appointOldVacanciesTx, type Vacancy } from "./aiManagers.js";
 import { poolClubRatingsTx } from "./worldTour.js";
+import { faceById, pronounsOf } from "./managerFaces.js";
 import { seasonNumberForYear } from "./seasonRollover.js";
 
 /** Mid-season, in the words Rob gave (J-3). */
@@ -105,7 +106,7 @@ export function offersTx(tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
     const rating = Math.round(ratings.get(c.poolTeamId) ?? 0);
     if (level.level < levelNeededFor(rating) || declined.includes(c.poolTeamId)) continue;
     out.push({ poolTeamId: c.poolTeamId, name: names.get(c.poolTeamId) ?? "", rating,
-      why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind her) and offers you the job.` });
+      why: `${names.get(c.poolTeamId)}'s board wants a better manager than ${c.managerName} (a failed season behind ${pronounsOf(faceById(c.managerFaceId)).him}) and offers you the job.` });
   }
   const best = (a: Offer, b: Offer) => b.rating - a.rating || a.poolTeamId - b.poolTeamId;
   if (!seasonFailed) return out.sort(best).slice(0, MAX_OFFERS);

@@ -1,5 +1,6 @@
 import { convertRealWorldDates } from "./utils/realWorldDates.js";
 import { convertNationalitiesToCountries } from "./utils/nationalityNames.js";
+import { dealFacesToOlderCareers } from "./utils/managerFaces.js";
 import { giveOpenStaffContractsAnEnd } from "./utils/staffContractBackfill.js";
 import { refileScoutingLines } from "./utils/ledgerRefile.js";
 import { renameLedgerRounds } from "./utils/ledgerRoundNames.js";
@@ -275,6 +276,16 @@ try {
   if (Object.keys(nations).length > 0) logger.info({ converted: nations }, "nationalities stored as demonyms converted to country names");
 } catch (err) {
   logger.error({ err }, "nationality conversion failed");
+}
+
+// Update 1, item 2: a career made before the manager faces is dealt them once
+// (the player's manager one at random, each AI manager one of the rest, with
+// its name). A career that has a face is never dealt again.
+try {
+  const dealt = dealFacesToOlderCareers();
+  if (dealt > 0) logger.info({ dealt }, "manager faces dealt to careers made before them");
+} catch (err) {
+  logger.error({ err }, "dealing manager faces failed");
 }
 
 // Overnight 30 Sep item 33b: a staff or medical hire with no contract end

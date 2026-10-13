@@ -2,8 +2,9 @@
  * Daytime brief 2 Oct, U-3 ("have a crack", branch feat-job-market): the AI
  * clubs' managers, their boards, and the jobs that come of it.
  *
- *   - Every AI club has a named AI manager in a career (career_pool_team_state
- *     .manager_name), appointed when the career first needs one.
+ *   - Every AI club has an AI manager in a career: a face (Update 1, item 2:
+ *     career_pool_team_state.manager_face_id, utils/managerFaces.ts) whose name
+ *     is manager_name, dealt at random when the career starts.
  *   - At each season's end its board judges her by the player's board's own
  *     rules (utils/board-confidence.ts): the club's strength rank in the drawn
  *     World Tour field sets the bands, its finish grades the season (met /
@@ -26,28 +27,12 @@ import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { worldTourFieldTx, worldTourStandingsTx, poolClubRatingsTx } from "./worldTour.js";
 import { bandsFor, gradeFor, targetWords, FIELD_CLUBS } from "./board-confidence.js";
 import { tierForPoints } from "./tierQualification.js";
+import { faceById, pickFaceTx } from "./managerFaces.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /** Failed seasons running that cost an AI manager her job (the brief: two). */
 export const AI_SACKED_AFTER = 2;
-
-const FIRST = ["Marco", "Ana", "Kenji", "Lucia", "Tomas", "Priya", "Jonas", "Amara", "Diego", "Sofia", "Erik", "Leila", "Rafael", "Hannah", "Mateo",
-  "Ines", "Nikolai", "Chloe", "Samir", "Elena", "Bruno", "Yara", "Oskar", "Mei", "Pablo", "Freya", "Kofi", "Valeria", "Henrik", "Nadia"];
-const LAST = ["Rossi", "Silva", "Tanaka", "Moreno", "Novak", "Sharma", "Berg", "Okafor", "Ramos", "Costa", "Lund", "Haddad", "Duarte", "Weber", "Garcia",
-  "Ferreira", "Petrov", "Martin", "Aziz", "Popescu", "Santos", "Ali", "Nilsson", "Chen", "Ortega", "Hansen", "Mensah", "Rojas", "Larsen", "Karimi"];
-
-function hash(s: string): number {
-  let h = 0x811c9dc5;
-  for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
-  return h;
-}
-
-/** A fixed name for the club's n-th manager in this career. */
-export function aiManagerName(careerSaveId: number, poolTeamId: number, n: number): string {
-  const h = hash(`${careerSaveId}:${poolTeamId}:${n}:manager`);
-  return `${FIRST[h % FIRST.length]} ${LAST[(h >>> 8) % LAST.length]}`;
-}
 
 type ClubRow = typeof careerPoolTeamStateTable.$inferSelect;
 
@@ -56,19 +41,25 @@ function clubsTx(tx: Tx, careerSaveId: number): ClubRow[] {
     .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all();
 }
 
-function appoint(tx: Tx, careerSaveId: number, c: ClubRow, year: number, n: number): string {
-  const name = aiManagerName(careerSaveId, c.poolTeamId, n);
+/**
+ * Update 1, item 2: the club's new manager is a face not in use, dealt at
+ * random (utils/managerFaces.ts pickFaceTx), and the manager's name is the
+ * face's. Null when no face is free, and the job stays open.
+ */
+function appoint(tx: Tx, careerSaveId: number, c: ClubRow, year: number): string | null {
+  const face = faceById(pickFaceTx(tx, careerSaveId, c.managerFaceId));
+  if (!face) return null;
   tx.update(careerPoolTeamStateTable).set({
-    managerName: name, managerSinceYear: year, managerFailedSeasons: 0, vacantSince: null, vacancyReason: null, updatedAt: new Date(),
+    managerName: face.name, managerFaceId: face.id, managerSinceYear: year, managerFailedSeasons: 0, vacantSince: null, vacancyReason: null, updatedAt: new Date(),
   }).where(eq(careerPoolTeamStateTable.id, c.id)).run();
-  return name;
+  return face.name;
 }
 
 /** Every AI club without a manager and without a vacancy gets one (a career's first). */
 export function ensureAiManagersTx(tx: Tx, careerSaveId: number, year: number): number {
   let n = 0;
   for (const c of clubsTx(tx, careerSaveId)) {
-    if (c.managerName == null && c.vacantSince == null) { appoint(tx, careerSaveId, c, year, 0); n++; }
+    if (c.managerName == null && c.vacantSince == null && appoint(tx, careerSaveId, c, year) != null) n++;
   }
   return n;
 }
@@ -121,8 +112,8 @@ export function appointOldVacanciesTx(tx: Tx, careerSaveId: number, year: number
   const appointed: Array<{ club: string; manager: string }> = [];
   for (const c of clubsTx(tx, careerSaveId)) {
     if (c.vacantSince != null && c.vacantSince <= `${year}-01-01`) {
-      const n = 1 + (hash(`${c.poolTeamId}:${c.vacantSince}`) % 1000);
-      appointed.push({ club: names.get(c.poolTeamId) ?? "", manager: appoint(tx, careerSaveId, c, year, n) });
+      const manager = appoint(tx, careerSaveId, c, year);
+      if (manager != null) appointed.push({ club: names.get(c.poolTeamId) ?? "", manager });
     }
   }
   return appointed;

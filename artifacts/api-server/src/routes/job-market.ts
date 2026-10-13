@@ -303,6 +303,8 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
 
   // And the club the manager has taken over stops being one of the world's own:
   // it is out of the regional league, because it is not an AI club any more.
+  // Update 1, item 2: its AI manager's face is free from now (taken_over_at
+  // set: utils/managerFaces.ts facesInUseTx no longer counts it).
   await db.update(careerPoolTeamStateTable)
     .set({ isActiveInLeague: false, takenOverAt: new Date(), managerName: save.managerName, vacantSince: null })
     .where(and(
