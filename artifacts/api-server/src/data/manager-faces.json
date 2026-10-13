@@ -1,5 +1,5 @@
 {
-  "about": "Update 1, item 2 (Rob, 13 Oct 2026): the 61 manager faces. A face is a character: face, name and speciality always together, wherever it is dealt. Names: docs/manager-face-names.json. Specialities dealt round-robin in this order over the faces in this order. Written by scripts/install-manager-faces.cjs.",
+  "about": "Update 1, item 2 (Rob, 13 Oct 2026; 8 spares added 14 Oct): the manager faces. A face is a character: face, name and speciality always together, wherever it is dealt. Names: docs/manager-face-names.json. Specialities dealt round-robin in this order over the faces in this order. Written by scripts/install-manager-faces.cjs.",
   "specialityOrder": [
     "Talent Recruiter",
     "Negotiator",
@@ -558,6 +558,78 @@
       "gender": "male",
       "age": 50,
       "nationality": "Serbia",
+      "speciality": "Leader"
+    },
+    {
+      "id": 62,
+      "file": "images/managers/manager_62_mexican_woman.webp",
+      "name": "Valeria Torres",
+      "gender": "female",
+      "age": 30,
+      "nationality": "Mexico",
+      "speciality": "Coach"
+    },
+    {
+      "id": 63,
+      "file": "images/managers/manager_63_japanese_man.webp",
+      "name": "Kenji Watanabe",
+      "gender": "male",
+      "age": 33,
+      "nationality": "Japan",
+      "speciality": "Youth Developer"
+    },
+    {
+      "id": 64,
+      "file": "images/managers/manager_64_korean_woman.webp",
+      "name": "Ji-yeon Park",
+      "gender": "female",
+      "age": 36,
+      "nationality": "South Korea",
+      "speciality": "Fitness Guru"
+    },
+    {
+      "id": 65,
+      "file": "images/managers/manager_65_turkish_man.webp",
+      "name": "Emre Demir",
+      "gender": "male",
+      "age": 40,
+      "nationality": "Turkey",
+      "speciality": "Talent Recruiter"
+    },
+    {
+      "id": 66,
+      "file": "images/managers/manager_66_polish_woman.webp",
+      "name": "Agnieszka Nowakowska",
+      "gender": "female",
+      "age": 46,
+      "nationality": "Poland",
+      "speciality": "Negotiator"
+    },
+    {
+      "id": 67,
+      "file": "images/managers/manager_67_lebanese_man.webp",
+      "name": "Karim Khoury",
+      "gender": "male",
+      "age": 49,
+      "nationality": "Lebanon",
+      "speciality": "Contracts Expert"
+    },
+    {
+      "id": 68,
+      "file": "images/managers/manager_68_indian_woman.webp",
+      "name": "Sunita Mehta",
+      "gender": "female",
+      "age": 52,
+      "nationality": "India",
+      "speciality": "Sponsor Magnet"
+    },
+    {
+      "id": 69,
+      "file": "images/managers/manager_69_kenyan_man.webp",
+      "name": "Joseph Otieno",
+      "gender": "male",
+      "age": 57,
+      "nationality": "Kenya",
       "speciality": "Leader"
     }
   ]

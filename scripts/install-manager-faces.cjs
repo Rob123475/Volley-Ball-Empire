@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 /**
  * Update 1, item 2 (Rob, 13 Oct; docs/UPDATE1-MANAGERS-BRIEF.md): install the
- * 61 manager faces and write their manifest.
+ * manager faces (61 on 13 Oct; 69 since Rob's 8 spares, 14 Oct) and write
+ * their manifest.
  *
  * ── What it does ────────────────────────────────────────────────────────────
- *   1. reads Rob's folder of manager pictures (2560 x 1440 PNGs, the face
- *      roughly centred). A file whose name ends "(1)" is skipped once it is
+ *   1. reads Rob's folder of manager pictures (PNGs, 2560 x 1440 with the face
+ *      roughly centred, or 1920 x 2560 portraits already 3:4). A file whose name ends "(1)" is skipped once it is
  *      proved byte-identical to the file without it (the Jamaican duplicate)
  *   2. reads each file name for the age, nationality and gender ("...portrait
  *      of a 42-year-old Nigerian woman_ ...") and looks the face up in
  *      docs/manager-face-names.json (Rob's one fixed name per face). A file
  *      that matches no key, or a key no file matches, stops the run
- *   3. crops the centre to a 3:4 portrait, resizes it to 600 x 800 and writes
+ *   3. crops the centre to a 3:4 portrait (a 3:4 picture is taken whole),
+ *      resizes it to 600 x 800 and writes
  *      WebP at q=82, the setting the player cards use (install-player-cards.cjs)
  *      into public/images/managers/
  *   4. deals the eight specialities round-robin over the faces in a fixed order
@@ -162,7 +164,7 @@ const slug = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").rep
   console.log(`${TAG} ${rows.length} WebP files written to ${path.relative(REPO, OUT_DIR)} (${Math.round(total / 1024)} KB, ${Math.round(total / 1024 / rows.length)} KB each on average)`);
 
   const manifest = {
-    about: "Update 1, item 2 (Rob, 13 Oct 2026): the 61 manager faces. A face is a character: face, name and speciality always together, wherever it is dealt. Names: docs/manager-face-names.json. Specialities dealt round-robin in this order over the faces in this order. Written by scripts/install-manager-faces.cjs.",
+    about: "Update 1, item 2 (Rob, 13 Oct 2026; 8 spares added 14 Oct): the manager faces. A face is a character: face, name and speciality always together, wherever it is dealt. Names: docs/manager-face-names.json. Specialities dealt round-robin in this order over the faces in this order. Written by scripts/install-manager-faces.cjs.",
     specialityOrder: SPECIALITIES,
     faces: rows.map(({ source, ...r }) => r),
   };

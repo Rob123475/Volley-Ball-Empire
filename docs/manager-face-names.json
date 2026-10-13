@@ -1,5 +1,5 @@
 {
-  "_note": "One fixed name per manager face (Rob, 13 Oct 2026). Key = the age, nationality and gender words from the picture's file name. The player's own pick uses the name the player types; this name is used when the face manages an AI club.",
+  "_note": "One fixed name per manager face (Rob, 13 Oct 2026). Key = the age, nationality and gender words from the picture's file name. The player's own pick uses the name the player types; this name is used when the face manages an AI club. 14 Oct: 8 more faces added (spares), 69 in all.",
   "35 Estonian woman": "Kadri Tamm",
   "35 Swedish man": "Erik Lindqvist",
   "35 Vietnamese woman": "Lan Nguyen",
@@ -60,5 +60,13 @@
   "50 Cape Verdean man": "Carlos Tavares",
   "50 Cuban man": "Raúl Martínez",
   "50 Ghanaian man": "Kwame Mensah",
-  "50 Serbian man": "Dragan Petrović"
+  "50 Serbian man": "Dragan Petrović",
+  "30 Mexican woman": "Valeria Torres",
+  "33 Japanese man": "Kenji Watanabe",
+  "36 Korean woman": "Ji-yeon Park",
+  "40 Turkish man": "Emre Demir",
+  "46 Polish woman": "Agnieszka Nowakowska",
+  "49 Lebanese man": "Karim Khoury",
+  "52 Indian woman": "Sunita Mehta",
+  "57 Kenyan man": "Joseph Otieno"
 }
