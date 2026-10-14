@@ -44,6 +44,7 @@ import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad
 import { ensureSeasonFixtureRows } from "../utils/seasonFixture.js";
 import { ensureBoardSeason, startingBoardConfidence } from "../utils/board-confidence.js";
 import { markOutOfWorkTx } from "../utils/managerFaces.js";
+import { seniorWageBill, fitsUnderCap } from "../utils/salaryCap.js";
 import { startingBudgetFor } from "../utils/careerDifficulty.js";
 import { endCareer, loseClub } from "../utils/careerLifecycle.js";
 import { ensureAiManagersTx, vacanciesTx, decideApplication } from "../utils/aiManagers.js";
@@ -378,8 +379,11 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
     else if (squad < 3) {
       // Two on the sand and an interchange, as every club starts: a club that
       // brings only its pair signs the best free agent as its interchange.
+      // Update 1, item 4a: the best who fits under the salary cap (none if none does).
       const term = oneSeasonContract(season);
+      const bill = seniorWageBill(save.id, { teamId: newTeam!.id });
       const [fa] = (await loadPlayers(save.id, { freeAgents: true, playerType: "senior" }))
+        .filter((p) => fitsUnderCap(bill, Number(p.salary)))
         .sort((a, b) => overallRating(b) - overallRating(a) || a.id - b.id);
       if (fa) {
         await db.insert(contractsTable).values({ playerId: fa.id, teamId: newTeam!.id, salary: fa.salary, startDate: term.startDate, endDate: term.endDate, bonusPerWin: 0 });

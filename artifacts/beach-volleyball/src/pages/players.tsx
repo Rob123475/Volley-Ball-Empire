@@ -1,4 +1,5 @@
 import { normaliseRole } from "@shared/staff-roles";
+import { WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
 import { youthWageText } from "@/lib/youth-wage";
 import { ContractModal, type ContractOffer } from "@/components/contract-offer-dialog";
 import { CONTINENT_KEYS, continentLabel, type ContinentKey } from "@shared/continents";
@@ -564,6 +565,7 @@ export default function PlayerMarket() {
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
     queryClient.invalidateQueries({ queryKey: ["players-summary"] });
+    queryClient.invalidateQueries({ queryKey: WAGE_CAP_QUERY_KEY });
   };
 
   const handleSign = (playerId: number, values: ContractOffer) => {

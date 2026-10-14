@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { WageCapLine, WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
 import {
   useGetTeamRoster,
   useGetTeamStrength,
@@ -270,7 +271,11 @@ export default function TeamRoster() {
   const youthCount   = roster?.academy?.size ?? 0;
   const youthFull    = academyCap > 0 && youthCount >= academyCap;
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: getGetTeamRosterQueryKey() });
+    // Update 1, item 4a: a release or promotion moves the senior wages.
+    queryClient.invalidateQueries({ queryKey: WAGE_CAP_QUERY_KEY });
+  };
 
   const handleRelease = (playerId: number) => {
     releaseMutation.mutate({ id: playerId }, {
@@ -1096,6 +1101,8 @@ export default function TeamRoster() {
         <p className="text-muted-foreground">
           Manage match players, interchange, and youths. All swaps work live — even during a match.
         </p>
+        {/* Update 1, item 4a: the salary cap (seniors only). */}
+        <WageCapLine className="mt-1" />
       </div>
 
       {/* ── Team Strength + Top Players ─────────────────────────── */}

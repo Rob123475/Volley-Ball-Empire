@@ -10,6 +10,7 @@ import {
   getListContractsQueryKey
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { WageCapLine, WAGE_CAP_QUERY_KEY } from "@/lib/wage-cap";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,7 @@ export default function Contracts() {
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: getListContractsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: WAGE_CAP_QUERY_KEY });
     queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0] ?? "").includes("attention") });
   };
 
@@ -133,7 +135,9 @@ export default function Contracts() {
         <p className="text-muted-foreground">
           Monitor player obligations and payroll. A contract can be renewed for one more season once it is in its final season;
           a player whose contract runs out leaves the club, and a club without two contracted players forfeits its matches.
+          A senior renews at the wage for her rating now.
         </p>
+        <WageCapLine className="mt-2" />
       </div>
 
       <Card>
@@ -156,6 +160,8 @@ export default function Contracts() {
                 const daysLeft = gameToday ? daysBetween(gameToday, c.endDate) : null;
                 const renewable = c.status === "active" && !!seasonEnd && c.endDate <= seasonEnd;
                 const playerName = c.player?.name ?? `Player #${c.playerId}`;
+                // Update 1, item 4a (C-4): what she asks to renew, and whether it fits under the cap.
+                const renewal = (c as typeof c & { renewal?: { wage: number; capRefusal: string | null } | null }).renewal ?? null;
                 return (
                   <TableRow key={c.id}>
                     <TableCell className="font-medium">
@@ -210,17 +216,24 @@ export default function Contracts() {
                               </Button>
                             </div>
                           ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-1"
-                              disabled={renewMutation.isPending}
-                              onClick={() => setRenewing(c.id)}
-                              data-testid={`button-renew-${c.id}`}
-                            >
-                              <RefreshCw className="h-3.5 w-3.5" />
-                              Renew
-                            </Button>
+                            <div className="flex flex-col items-end gap-0.5">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1"
+                                disabled={renewMutation.isPending || !!renewal?.capRefusal}
+                                onClick={() => setRenewing(c.id)}
+                                data-testid={`button-renew-${c.id}`}
+                              >
+                                <RefreshCw className="h-3.5 w-3.5" />
+                                Renew
+                              </Button>
+                              {renewal && (
+                                <span className={renewal.capRefusal ? "text-[10px] text-red-500 max-w-[16rem] text-right" : "text-[10px] text-muted-foreground"} data-testid={`renew-terms-${c.id}`}>
+                                  {renewal.capRefusal ?? `at ${formatCurrency(renewal.wage)}/mo`}
+                                </span>
+                              )}
+                            </div>
                           )
                         ) : (
                           <span className="text-xs text-muted-foreground mr-2">Runs past this season</span>

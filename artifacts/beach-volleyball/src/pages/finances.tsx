@@ -1,4 +1,5 @@
 import { gameDateText } from "@/lib/game-date";
+import { WageCapLine } from "@/lib/wage-cap";
 import { ledgerCategoryLabel } from "@/lib/ledger-categories";
 import { 
   useGetFinanceSummary, 
@@ -299,6 +300,8 @@ export default function Finances() {
       <div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">Financial Office</h2>
         <p className="text-muted-foreground text-sm">Manage your team's budget, transactions, and sponsorships.</p>
+        {/* Update 1, item 4a: the salary cap (seniors only). */}
+        <WageCapLine className="mt-1" />
       </div>
 
       {/* KPI Cards */}

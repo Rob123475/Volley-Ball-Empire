@@ -22,6 +22,7 @@ import { Slider } from "@/components/ui/slider";
 import { CONTRACT_LENGTHS, CONTRACT_LENGTH_LABELS, type ContractLength } from "@/lib/contract-lengths";
 import { youthWageText } from "@/lib/youth-wage";
 import { cn } from "@/lib/utils";
+import { useWageCap, capRefusalText, WageCapLine } from "@/lib/wage-cap";
 
 export type SquadRole = "starter" | "interchange" | "reserve";
 export type AcademyRole = "youth_team" | "reserve";
@@ -66,6 +67,9 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
   const [squadRole, setSquadRole] = useState<SquadRole>(defaultRole);
   // N-44 (b): a youth goes to the academy's youth team (3 who play) or its reserves.
   const [academyRole, setAcademyRole] = useState<AcademyRole>("youth_team");
+  // Update 1, item 4a: the room under the salary cap (seniors only; academy youths don't count).
+  const { data: wageCap } = useWageCap();
+  const overCap = isYouth ? null : capRefusalText(wageCap, salary[0]);
 
   return (
     <Dialog>
@@ -187,10 +191,13 @@ export function ContractModal({ player, onSign, isPending, triggerTestId }: { pl
             )}
           </div>
         </div>
+        {/* Update 1, item 4a: a senior's wage counts against the salary cap; a deal that would break it is never offered. */}
+        {!isYouth && <WageCapLine />}
+        {overCap && <p className="text-sm text-red-500" data-testid="sign-over-cap">{overCap}</p>}
         <Button
           className="w-full"
           onClick={() => onSign({ salary: isYouth ? asking : salary[0], winBonus: winBonus[0], length, squadRole: isYouth ? "reserve" : squadRole, ...(isYouth ? { academyRole } : {}) })}
-          disabled={isPending}
+          disabled={isPending || !!overCap}
           data-testid="button-confirm-sign"
         >
           {isPending ? "Negotiating..." : player.priceRange ? (blind ? `Confirm: sign for ${money(player.priceRange.low)} - ${money(player.priceRange.high)}` : `Confirm: sign for ${money(player.price)}`) : "Finalize Contract"}

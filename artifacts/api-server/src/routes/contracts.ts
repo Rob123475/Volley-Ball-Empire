@@ -20,6 +20,9 @@ import {
 import { financeTransactionsTable } from "@workspace/db";
 import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
 import { askingWage } from "../utils/wageCurve.js";
+import { monthlySalaryFor } from "../utils/clubFinances.js";
+import { overallRating } from "../utils/overallRating.js";
+import { seniorWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 
 const router = Router();
@@ -41,15 +44,39 @@ router.get("/contracts", async (req, res) => {
     and(eq(contractsTable.teamId, team.id), eq(contractsTable.status, "active"))
   );
   const cid = requireCareerSaveId(req.activeCareerSaveId);
+  // Update 1, item 4a (C-4): what each senior asks to renew (the wage for her
+  // current rating) and whether it fits under the cap, so the page never offers
+  // a renewal the server then refuses.
+  const bill = seniorWageBill(cid, { teamId: team.id });
+  const contractsExpert = specialityFactor(team.id, "Contracts Expert");
   const withPlayers = await Promise.all(contracts.map(async (c) => {
     const player = await loadPlayer(cid, c.playerId);
+    const ask = player && !isYouthPlayer(player) ? renewalAsk(player, contractsExpert) : null;
     return {
       ...serializeContract(c),
       player: player ? { ...player, height: Number(player.height), salary: Number(player.salary) } : null,
+      renewal: ask == null ? null : { wage: ask, capRefusal: wageCapRefusal(bill, ask - Number(c.salary)) },
     };
   }));
   res.json(withPlayers);
 });
+
+/** Update 1, item 4a: "Senior wages $X of $60,000", and the room left, for the screens. */
+router.get("/contracts/wage-cap", async (req, res) => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const team = await getActiveTeam(req);
+  if (!team) { res.status(404).json({ error: "No team" }); return; }
+  res.json(wageCapView(seniorWageBill(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id })));
+});
+
+/**
+ * Update 1, item 4a (C-4): what a senior asks at renewal: the wage for her
+ * CURRENT rating (utils/clubFinances.ts monthlySalaryFor, the AI clubs' rule
+ * too), less 10% at a Contracts Expert's club. A player who has improved asks more.
+ */
+function renewalAsk(player: Parameters<typeof overallRating>[0], contractsExpert: number): number {
+  return askingWage(monthlySalaryFor(overallRating(player)), contractsExpert);
+}
 
 router.post("/contracts", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -80,7 +107,7 @@ router.post("/contracts", async (req, res) => {
   const aiSellerName = aiSeller == null ? null
     : (await db.select({ n: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, aiSeller)))[0]?.n ?? "Her club";
   if (aiSeller != null) {
-    const can = db.transaction((tx) => canSellTx(tx, requireCareerSaveId(req.activeCareerSaveId), aiSeller, aiSellerName!));
+    const can = db.transaction((tx) => canSellTx(tx, requireCareerSaveId(req.activeCareerSaveId), aiSeller, aiSellerName!, Number(player.salary)));
     if (!can.ok) { res.status(409).json({ error: can.reason }); return; }
   }
 
@@ -176,6 +203,9 @@ router.post("/contracts", async (req, res) => {
       res.status(422).json({ error: `${player.name} asks $${asks.toLocaleString()} a month and turns down ${turned}. Offer at least her asking wage.`, asks });
       return;
     }
+    // Update 1, item 4a (C-3 A): a signing that takes the senior wages over the cap is refused.
+    const overCap = wageCapRefusal(seniorWageBill(requireCareerSaveId(req.activeCareerSaveId), { teamId: team.id }), offered);
+    if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 
   // Overnight brief 30 Sep, item 32 (Rob, Q-8): the club she leaves is paid her price.
@@ -336,22 +366,32 @@ router.post("/contracts/:id/renew", async (req, res) => {
   // her); a raise is not something a youth renewal offers.
   const isAcademyYouth = isYouthPlayer(player);
 
+  // Update 1, item 4a (C-4): a senior asks the wage for her CURRENT rating
+  // (renewalAsk), and refuses less (rule B, item 2). No salary named: her ask.
   const currentSalary = Number(contract.salary);
   const rawSalary = (req.body ?? {}).salary;
+  const ask = isAcademyYouth ? null : renewalAsk(player, specialityFactor(team.id, "Contracts Expert"));
   const newSalary = isAcademyYouth
     ? academyMonthlySalary(player.potential)
-    : rawSalary == null ? currentSalary : Number(rawSalary);
+    : rawSalary == null ? ask! : Number(rawSalary);
   if (!Number.isFinite(newSalary) || newSalary < 0) {
     res.status(400).json({ error: "salary must be a non-negative number" });
+    return;
+  }
+  if (ask != null && newSalary < ask) {
+    res.status(422).json({ error: `${player.name} asks $${ask.toLocaleString()} a month to renew (the wage for her rating now) and turns down $${Math.round(newSalary).toLocaleString()}.`, asks: ask });
     return;
   }
   // R-52: only a raise is new spending, so only a raise meets the freeze.
   if (!isAcademyYouth && newSalary > currentSalary) {
     const spendingBlocked = await checkSpendingAllowed(cid);
     if (spendingBlocked) {
-      res.status(403).json({ error: `${spendingBlocked} A renewal on the same terms is still allowed.` });
+      res.status(403).json({ error: `${spendingBlocked} A renewal at no more than her current wage is still allowed.` });
       return;
     }
+    // Update 1, item 4a (C-3 A, C-4): a renewal at a higher wage that breaks the cap is refused.
+    const overCap = wageCapRefusal(seniorWageBill(cid, { teamId: team.id }), newSalary - currentSalary);
+    if (overCap) { res.status(422).json({ error: overCap, wageCap: true }); return; }
   }
 
   const season = await getActiveSeason(req);
