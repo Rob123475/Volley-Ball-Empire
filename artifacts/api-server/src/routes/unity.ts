@@ -247,7 +247,7 @@ router.get("/unity/match-state", async (req, res): Promise<void> => {
       //
       // R-22: this used to also filter isActive: true, which a free agent
       // can never be — is_active is only ever set true when a player is
-      // signed to a roster (seedStartingSquad.ts; confirmed on the live
+      // signed to a roster (POST /contracts; confirmed on the live
       // save: 0 of 265 free agents have it, all 3 signed players do). That
       // made this query return zero rows unconditionally, every time, for
       // every career — which for World Tour matches (every awayTeamId

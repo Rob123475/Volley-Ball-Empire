@@ -15,7 +15,7 @@ import { getGameDate, gameDateText } from "../utils/gameDate.js";
 import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { seasonEndsFrom } from "../utils/seasonDates.js";
 import {
-  contractEndDate, renewalEndDate, releasePayout, readContractLength,
+  contractEndDate, renewalEndDate, releasePayout, readContractLength, STARTING_SQUAD,
 } from "../utils/contractTerms.js";
 import { financeTransactionsTable } from "@workspace/db";
 import { marketPrice, youthPrice, isRevealed } from "../utils/marketScouting.js";
@@ -23,6 +23,7 @@ import { askingWage } from "../utils/wageCurve.js";
 import { monthlySalaryFor } from "../utils/clubFinances.js";
 import { overallRating } from "../utils/overallRating.js";
 import { seniorWageBill, wageCapRefusal, wageCapView } from "../utils/salaryCap.js";
+import { day1DraftOpen } from "../utils/day1Draft.js";
 import { specialityFactor } from "../utils/managerFaces.js";
 
 const router = Router();
@@ -106,7 +107,11 @@ router.post("/contracts", async (req, res) => {
   const aiSeller = !isYouth && player.poolTeamId != null && player.teamId == null ? player.poolTeamId : null;
   const aiSellerName = aiSeller == null ? null
     : (await db.select({ n: continentalPoolTeamsTable.teamName }).from(continentalPoolTeamsTable).where(eq(continentalPoolTeamsTable.id, aiSeller)))[0]?.n ?? "Her club";
-  if (aiSeller != null) {
+  // Update 1, item 4b (C-5 B): the Day 1 draft. No club owns anyone yet, so a
+  // senior (a free agent or an AI club's) costs no fee, only her wage; the AI
+  // club she leaves fills its gap when the draft closes (utils/day1Draft.ts).
+  const draftOpen = day1DraftOpen(requireCareerSaveId(req.activeCareerSaveId));
+  if (aiSeller != null && !draftOpen) {
     const can = db.transaction((tx) => canSellTx(tx, requireCareerSaveId(req.activeCareerSaveId), aiSeller, aiSellerName!, Number(player.salary)));
     if (!can.ok) { res.status(409).json({ error: can.reason }); return; }
   }
@@ -169,7 +174,7 @@ router.post("/contracts", async (req, res) => {
   const priceDay = await getGameDate(team.id);
   // Update 1, item 2: a Negotiator's club pays 10% less (the market shows the same figure).
   const negotiator = specialityFactor(team.id, "Negotiator");
-  const fee = isYouth ? (player.teamId == null ? youthPrice(cid, player, negotiator) : null) : marketPrice(cid, player, negotiator);
+  const fee = isYouth ? (player.teamId == null ? youthPrice(cid, player, negotiator) : null) : draftOpen ? null : marketPrice(cid, player, negotiator);
   const blind = fee != null && !isRevealed(player, team.id, priceDay);
   if (fee) {
     if (req.body?.confirm !== true) {
@@ -256,6 +261,9 @@ router.post("/contracts", async (req, res) => {
     startDate: today,
     endDate: actualEnd,
     bonusPerWin: Number(bonusPerWin ?? 0),
+    // Update 1, item 4b: a Day 1 pick is the starting squad (Rob's 28 Sep rule:
+    // it can be changed for free in the first game week).
+    ...(draftOpen ? { origin: STARTING_SQUAD } : {}),
   }).returning();
 
   // Squad membership is career state, not a property of the athlete.

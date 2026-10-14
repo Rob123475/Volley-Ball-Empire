@@ -335,14 +335,17 @@ export function canSellTx(tx: Tx, careerSaveId: number, poolTeamId: number, club
  * and fit under its cap. Update 1, item 4a (C-4): a renewal re-prices her to
  * the wage for her current rating; if that fits under the club's cap she
  * renews (the club's own length), and if not the club lets her go and she is
- * a free agent on the market, asking that wage. Returns what it did.
+ * a free agent on the market, asking that wage. Update 1, item 4b: `random`
+ * puts the clubs in random order (the Day 1 draft's fill), so the same club is
+ * not always first to the free agents. Returns what it did.
  */
-export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[]): { renewed: number; released: number; signed: number; short: number } {
+export function keepAiSquadsTx(w: CareerStateTx, careerSaveId: number, today: string, seasonEnds: readonly string[], random?: () => number): { renewed: number; released: number; signed: number; short: number } {
   let renewed = 0, released = 0, signed = 0, short = 0;
   const squads = aiSquadsTx(w.tx, careerSaveId);
   // Every club still in the world, including one left with nobody.
-  const clubs = w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
+  const listed = w.tx.select({ id: careerPoolTeamStateTable.poolTeamId }).from(careerPoolTeamStateTable)
     .where(and(eq(careerPoolTeamStateTable.careerSaveId, careerSaveId), isNull(careerPoolTeamStateTable.takenOverAt))).all();
+  const clubs = random ? listed.map((c) => ({ c, k: random() })).sort((a, b) => a.k - b.k).map((e) => e.c) : listed;
   for (const { id: poolTeamId } of clubs) {
     const squad = squads.get(poolTeamId) ?? [];
     let left = squad.length;

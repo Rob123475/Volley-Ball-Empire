@@ -1,4 +1,4 @@
-import { developedPlayers, updateCareerStats } from "../utils/check-achievements.js";
+import { updateCareerStats } from "../utils/check-achievements.js";
 import { MANAGER_SALARY_PER_SEASON } from "@workspace/db";
 import { Router } from "express";
 import { db } from "@workspace/db";
@@ -13,7 +13,6 @@ import { eq, and, desc, isNull, isNotNull } from "drizzle-orm";
 import { getSession, getSessionId, updateSession } from "../lib/auth.js";
 import { seedCareerState } from "../utils/migrateCareerState.js";
 import { deleteCareerSave } from "../utils/deleteCareerSave.js";
-import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad.js";
 import { FIRST_SEASON_YEAR } from "../utils/seasonRollover.js";
 import { ensureSeasonFixture } from "./matches.js";
 import { ensureCompetitorRanking } from "../utils/competitors.js";
@@ -25,8 +24,9 @@ import { seasonEndsForCareerTx } from "../utils/seasonDates.js";
 import { buildCareerSummary, endCareer } from "../utils/careerLifecycle.js";
 import { LEAVE_MID_SEASON, activeSeasonYearOf, seasonOverFor } from "../utils/managerMoves.js";
 import { isOlympicYear } from "../utils/olympics.js";
-import { faceById, managerCard, recordFreeFacesTx } from "../utils/managerFaces.js";
-import { ensureAiManagersTx } from "../utils/aiManagers.js";
+import { faceById, managerCard } from "../utils/managerFaces.js";
+import { openDay1DraftTx } from "../utils/day1Draft.js";
+import { withCareerStateTx } from "../lib/playerDto.js";
 import {
   isCareerDifficulty, startingBudgetFor,
   type CareerDifficulty,
@@ -296,17 +296,13 @@ router.post("/careers", async (req, res) => {
   db.transaction((tx) => {
     openPoolClubBooksTx(tx, inserted!.id, `${firstYear}-01-01`, seasonEndsForCareerTx(tx, inserted!.id));
     openPoolClubSeasonsTx(tx, inserted!.id, season1!.year);
-    // Update 1, item 2: the other faces are dealt at random to the AI clubs,
-    // so every new career is a different set-up; the faces left over are out
-    // of work from the career's first day.
-    ensureAiManagersTx(tx, inserted!.id, season1!.year);
-    recordFreeFacesTx(tx, inserted!.id, season1!.startDate);
   });
 
-  // A startup squad so the manager isn't staring at zero players (R-04).
-  // R-11: quality now follows difficulty — see seedStartingSquad.ts.
-  // R-48: contracts for the career's first season, dated from its season row.
-  await seedStartingSquad(inserted!.id, newTeam.id, oneSeasonContract(season1!), difficulty);
+  // Update 1, item 4b (Rob, 14 Oct, C-5 B): no squad is picked for the player.
+  // The Day 1 draft opens (utils/day1Draft.ts): he picks his seniors from every
+  // senior in the world before the first day; then the AI clubs fill their
+  // gaps and the AI managers' faces are dealt (finishDay1DraftTx).
+  withCareerStateTx((w) => openDay1DraftTx(w, inserted!.id));
 
   // R-26: fixture generation used to be lazy — only GET /matches/fixture ever
   // called it, so a career had no schedule until the player happened to open
@@ -330,9 +326,6 @@ router.post("/careers", async (req, res) => {
   // R-54: every club starts at zero. R-11's established head start is gone;
   // difficulty sets season 1's purse access instead (careerDifficulty.ts).
   await ensureCompetitorRanking(newTeam.id, inserted!.id, season1!.year);
-  // Item 21: the starting squad's ratings as they join, so a player the club
-  // already had at 90 is not "developed" (Future Superstar).
-  await developedPlayers(newTeam.id);
 
   const sid = getSessionId(req);
   if (sid) {

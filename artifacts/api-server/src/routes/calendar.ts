@@ -30,6 +30,7 @@ import { getActiveSeason } from "../lib/getActiveSeason.js";
 import { loadPlayers, loadStaff, requireCareerSaveId, updatePlayerState, updateTeamPlayerState, withCareerStateTx } from "../lib/playerDto.js";
 import { aiAcademiesWeekTx, loansTx, recordTeamLoanWeekTx, returnDueLoansTx, teamLoanWeekTx } from "../utils/youthLoans.js";
 import { materializeAiSeniorsTx, aiSeniorsTrainWeekTx, aiTransfersWeekTx } from "../utils/aiSquads.js";
+import { day1DraftOpen } from "../utils/day1Draft.js";
 import { loadLeagueSeasons } from "../lib/regionalLeague.js";
 import {
   rolloverSeason, yearForSeasonNumber, type RolloverResult,
@@ -339,6 +340,10 @@ type DayResult = { status: number; body: Record<string, any> };
 async function advanceOneDay(req: Request): Promise<DayResult> {
   const team = await getActiveTeam(req);
   if (!team) return { status: 401, body: { error: "No active team" } };
+  // Update 1, item 4b: no day is played until the Day 1 draft is done.
+  if (day1DraftOpen(req.activeCareerSaveId)) {
+    return { status: 409, body: { error: "Pick your seniors first: the Day 1 draft is open.", day1Draft: true } };
+  }
 
   const season = await getActiveSeason(req);
   if (!season) return { status: 400, body: { error: "No active season" } };

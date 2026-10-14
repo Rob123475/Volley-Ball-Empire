@@ -140,8 +140,24 @@ export function terminationPayout(monthlySalary: number, today: string, endDate:
   return Math.max(0, Math.round(monthlySalary * months));
 }
 
-/** contracts.origin for the squad a new career opens with (P-05). */
+/**
+ * contracts.origin for the squad a new career opens with (P-05). Since Update
+ * 1, item 4b, that is the player's Day 1 draft picks (utils/day1Draft.ts).
+ */
 export const STARTING_SQUAD = "starting_squad";
+
+/** A contract's dates, in GAME time. */
+export type ContractTerm = { startDate: string; endDate: string };
+
+/**
+ * R-48: a first-season contract runs for the season, dated from that season's
+ * own row (it used to be signed to a literal "2026-12-31" on the computer's
+ * clock). Moved here from utils/seedStartingSquad.ts (Update 1, item 4b deleted
+ * the automatic starting squad it served).
+ */
+export function oneSeasonContract(season: { startDate: string; endDate: string }): ContractTerm {
+  return { startDate: season.startDate, endDate: season.endDate };
+}
 
 /** The first game week: days 1-7 of the contract. It has passed on day 8. */
 const FIRST_WEEK_DAYS = 7;

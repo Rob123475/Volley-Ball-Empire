@@ -16,6 +16,7 @@ import Matches          from "@/pages/matches";
 import ThreeDCourt      from "@/pages/court";
 import Finances         from "@/pages/finances";
 import NewCareer        from "@/pages/new-career";
+import Day1Draft        from "@/pages/day1-draft";
 import CareerEnd        from "@/pages/career-end";
 import JobMarket        from "@/pages/job-market";
 import ProfilePicker    from "@/pages/profile-picker";
@@ -150,6 +151,12 @@ function Router() {
       <Route path="/career-end" component={CareerEnd} />
       {/* L-02e: the club was sold. The career is not over — this is where it carries on. */}
       <Route path="/job-market" component={JobMarket} />
+      {/* Update 1, item 4b: the Day 1 draft, full screen, before the first day. */}
+      <Route path="/day1-draft">
+        <AuthGuard>
+          <Day1Draft />
+        </AuthGuard>
+      </Route>
       {/* Court page rendered outside Shell — full viewport, no sidebar */}
       <Route path="/court">
         <AuthGuard>

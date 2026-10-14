@@ -1425,6 +1425,12 @@ export const careerSavesTable = sqliteTable("career_saves", {
   windowSeason:      integer("window_season"),
   /** Update 1, item 2: the player's manager's face (utils/managerFaces.ts), picked in the new-career wizard. */
   managerFaceId:     integer("manager_face_id"),
+  /**
+   * Update 1, item 4b (Rob, 14 Oct, C-5 B): the Day 1 draft. "open" from a new
+   * career's creation until the player has picked his seniors; "done" after.
+   * Null for a career made before the draft: it never sees one.
+   */
+  day1Draft:         text("day1_draft"),
   lastPlayedAt: integer("last_played_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   createdAt:    integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

@@ -40,7 +40,7 @@ import {
   type ContinentKey,
 } from "@workspace/db";
 import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
-import { seedStartingSquad, oneSeasonContract } from "../utils/seedStartingSquad.js";
+import { oneSeasonContract } from "../utils/contractTerms.js";
 import { ensureSeasonFixtureRows } from "../utils/seasonFixture.js";
 import { ensureBoardSeason, startingBoardConfidence } from "../utils/board-confidence.js";
 import { markOutOfWorkTx } from "../utils/managerFaces.js";
@@ -375,20 +375,20 @@ async function takeOverClub(req: any, save: typeof careerSavesTable.$inferSelect
         if (!p.contractEndDate) await updatePlayerState(save.id, p.id, { contractEndDate: term.endDate });
       }
     }
-    if (squad < 2) await seedStartingSquad(save.id, newTeam!.id, oneSeasonContract(season), "underdog");
-    else if (squad < 3) {
-      // Two on the sand and an interchange, as every club starts: a club that
-      // brings only its pair signs the best free agent as its interchange.
-      // Update 1, item 4a: the best who fits under the salary cap (none if none does).
-      const term = oneSeasonContract(season);
+    // Two on the sand and an interchange, as every club starts: a club that
+    // brings fewer signs the best free agents as its gaps. Update 1: the best
+    // who fit under the salary cap (item 4a), one at a time (the automatic
+    // weakest-three starting squad it used for a club of fewer than two is gone,
+    // item 4b).
+    const term = oneSeasonContract(season);
+    for (let n = squad; n < 3; n++) {
       const bill = seniorWageBill(save.id, { teamId: newTeam!.id });
       const [fa] = (await loadPlayers(save.id, { freeAgents: true, playerType: "senior" }))
         .filter((p) => fitsUnderCap(bill, Number(p.salary)))
         .sort((a, b) => overallRating(b) - overallRating(a) || a.id - b.id);
-      if (fa) {
-        await db.insert(contractsTable).values({ playerId: fa.id, teamId: newTeam!.id, salary: fa.salary, startDate: term.startDate, endDate: term.endDate, bonusPerWin: 0 });
-        await updatePlayerState(save.id, fa.id, { teamId: newTeam!.id, salary: fa.salary, contractEndDate: term.endDate, squadRole: "interchange", isActive: true });
-      }
+      if (!fa) break;
+      await db.insert(contractsTable).values({ playerId: fa.id, teamId: newTeam!.id, salary: fa.salary, startDate: term.startDate, endDate: term.endDate, bonusPerWin: 0 });
+      await updatePlayerState(save.id, fa.id, { teamId: newTeam!.id, salary: fa.salary, contractEndDate: term.endDate, squadRole: n < 2 ? "starter" : "interchange", isActive: true });
     }
   }
   await db.insert(careerHistoryEntriesTable).values({
