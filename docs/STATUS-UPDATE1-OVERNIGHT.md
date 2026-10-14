@@ -5,7 +5,27 @@ Written as the night goes, part by part. The newest state is at the bottom of ea
 
 ## What got done
 
-(Filled in part by part below.)
+All ten parts were built, in order, each committed on update-1 (details per part at the bottom):
+
+1. **1a** The AI clubs take a coach and a medical member each on Day 8, from what is spare (5 of every
+   role always left for you); wages from their balance; existing careers dealt at boot. **1b** The
+   injured-wage line is 4 weeks.
+2. **Item 4c** AI clubs hold 3 seniors, get the player's injury roll after their matches, heal on the
+   same weekly clock (free agents too), forfeit with fewer than two fit; injured free agents ask 50% /
+   75%; long-injured AI seniors aren't renewed; a full AI club can buy by releasing its weakest.
+3. **AI staff bonuses** through the player's own functions (training XP, healing; off ill gives nothing).
+4. **B-1/B-2/B-3** The development profile counts; the age table (with a peak shift) replaces the old
+   age modifier; seasons end with a fade; serious injuries cost speed, stamina and XP; the Watch list,
+   re-scouting and every scout report kept.
+5. **Pre-season camp** (camp / Rest / Skip on day 7 of the off-season), AI clubs too.
+6. **Difficulty** Easy / Medium / Hard, in both wizards and on Profile, driving AI training and camps.
+7. **Kits** too alike → the away pair wears white; ladder dots are the real kit colours.
+8. **Settings** (display, sound, controls, rules), with the gear in the sidebar and on the title screen.
+9. **Build and test** (below).
+10. **Soak** (below).
+
+New suites (all in run-all): ai-staff, ai-injuries, scouting-history, preseason-camp, difficulty,
+settings; club-kits extended. A soak script, harness/long-career-update1.mjs (not in run-all).
 
 ## Build counts
 
@@ -57,6 +77,9 @@ Not run yet (part 9).
 16. **B-1, the profile counts in the shared session rule only** (player's sessions, AI training, the
     camp). The academy's weekly development has its own rule and is untouched (the brief: the
     academy's own youth bonus stays).
+17. **B-2, "read from the injury history":** the injury_history table only holds the player's club, so
+    each player's serious injuries are counted on her career state (serious_injuries) when they
+    happen, for every club. Older injuries aren't counted backwards.
 18. **Camp sessions run on the camp's last day** (all at once), not spread over it; and a camp only
     builds through the shared session rule with the club's staff bonus and manager's Coach (no session
     coach, philosophy or facilities: it's away from home).
@@ -71,11 +94,15 @@ Not run yet (part 9).
 23. **Kits "too alike":** RGB distance under 100 (of 441) between the two primary colours. The away
     pair wears white with its own primary as the trim (near-black if the home kit is near white).
     *Change:* KITS.tooAlike in utils/kits.ts.
-17. **B-2, "read from the injury history":** the injury_history table only holds the player's club, so
-    each player's serious injuries are counted on her career state (serious_injuries) when they
-    happen, for every club. Older injuries aren't counted backwards.
 
 ## Skipped, and why
+
+- **Match sound volume** (part 8): the 3D court takes no volume message; it needs a Unity method and a
+  rebuild, which the brief said not to do. Music volume and mute are in Settings.
+- **More AI staff than are spare** (part 1a): needs 90 new portraits (below). The deal takes what is
+  spare and fills as contracts end.
+- **The three GPU proof scripts** in scripts/webgl-proof/ still look for the match screen's old Auto/Manual
+  button; they are run by hand with a GPU, not by the build, and were not updated.
 
 ## Images Rob must make
 
@@ -107,7 +134,35 @@ an Olympic or qualifying date. No length is withheld for them.
 
 ## Rob's on-screen check list for all of Update 1
 
-(Written at the end.)
+Use a **test profile** (not your Steam save). In this order:
+
+1. **Faces.** New career: the wizard's face picker; pick a face and read its speciality. Profile shows
+   the face, the speciality and (new) **Difficulty**. Club pages show AI managers' faces.
+2. **The draft.** Still in the wizard, pick **Easy / Medium / Hard** (new, beside Underdog / Established).
+   Then the Day 1 draft: draft a star from an AI club, plus one or two more; the calendar won't move
+   until you have 2 or 3. Play a day and open that AI club: it has filled its gap.
+3. **The salary cap.** Team and Finances show "Senior wages $X of $60,000". Try a signing that would go
+   over: it is refused, with the amount to free up.
+4. **Staff on Day 8.** Hire a coach or medic in the first week; play to Day 8: the Staff and Medical
+   Markets lose some (5 of every role always stay); open an AI club to see its coach/medic.
+5. **An injured bargain.** Play a few weeks; on the Player Market find a free agent with the red
+   "injured, out N weeks" box: she asks half (4+ weeks out) or three quarters of her wage. Sign her at
+   that and check the contract keeps it.
+6. **AI training and scouting history.** Watch AI clubs' ratings creep up over a few weeks (every 2 weeks
+   on Medium). Hire a Scout, scout a player, star her (Watch List tab), and scout her again after 5 days:
+   the card shows two dated reports.
+7. **A camp.** Play to the end of the season: on day 7 of the off-season the Dashboard asks for a camp,
+   Rest or Skip. Book a camp (a length that won't end before your first match is greyed out with the
+   reason); the ledger shows "Pre-season camp"; your seniors can't train while there; at the end their
+   XP and fatigue go up. (Or choose Rest and see fitness 100 / fatigue 0 at the new season.)
+8. **Difficulty.** Profile says which. On Easy the AI clubs train every 4 weeks and never camp; on Hard
+   every week and they camp if they can afford it.
+9. **Kits.** Pick a club colour close to an AI club's kit and watch a match against it on the 3D court:
+   the away pair wears white. Ladders: each club's dot is its kit colour.
+10. **Settings.** The gear on the title screen and in the sidebar: Windowed/Fullscreen, a window size, the
+    zoom slider (all apply at once and again next launch); music volume and mute; Auto/Manual and the
+    controls list (the match screen no longer has the Auto/Manual button; Tab still switches on court);
+    Rules shows "New in Update 1".
 
 ---
 

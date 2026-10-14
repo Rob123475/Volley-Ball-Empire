@@ -51,7 +51,7 @@ import os from "node:os";
 
 import { requireElectronBinary } from "./electron-binary.mjs";
 import { forkServer, stopServer } from "./server-harness.mjs";
-import { healAllSquads, startCareer } from "./harness-club.mjs";
+import { healAllSquads, startCareer, maxOutSquad } from "./harness-club.mjs";
 
 const REPO = path.join(import.meta.dirname, "..");
 const SHIPPED = path.join(REPO, "lib", "db", "volleyball-empire.sqlite");
@@ -316,6 +316,10 @@ try {
   console.log("\n2. THE EXPECTATION IS SET AT THE DRAW, FROM SQUAD STRENGTH");
   const EST = session(), UND = session();
   const est = await newCareer(EST, "BoardEst", "established");
+  // Update 1, items 4a/4b: the Day 1 draft under the salary cap no longer gives an
+  // established career the strongest squad, and this section is about the board's
+  // expectation for the strongest. Its squad is made the strongest outright.
+  maxOutSquad(dbFile, est.careerSaveId, est.teamId);
   const und = await newCareer(UND, "BoardUnd", "underdog");
   const estBudget = read(`SELECT budget FROM teams WHERE id = ?`, est.teamId)[0]?.budget;
   const estRow0 = boardRow(est.careerSaveId);
