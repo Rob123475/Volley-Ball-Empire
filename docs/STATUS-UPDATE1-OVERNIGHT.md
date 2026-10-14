@@ -31,7 +31,7 @@ settings; club-kits extended. A soak script, harness/long-career-update1.mjs (no
 
 - Typecheck (the build's first step, run once on its own first so the build could reach the harness):
   clean on the first try.
-- **Full build 2** (15 Oct 02:26 – 04:01): **111 suites passed, 2 failed**:
+- **Full build 2** (15 Oct 02:26 – 04:01): **111 of 113 suites passed, 2 failed**:
   - **ai job market:** an AI staff member inherited with a club the player took over can have a contract
     that ends the next day, and the check counted him. Fixed (the check allows it); re-run alone: **30/30**.
   - **season rollover, one check of 90 (open):** "no renewal over 30 seasons was refused as 'no longer in your
@@ -42,7 +42,7 @@ settings; club-kits extended. A soak script, harness/long-career-update1.mjs (no
     which row it was. **Not fixed**; worth a look at what a takeover's contracts do to a player who later
     leaves (routes/job-market.ts inserts a contract for every player who comes with the club).
   - So after the fix: every suite passes except that one check on that one path.
-- **Full build 1** (`pnpm run build`, 14 Oct 23:10 – 15 Oct 00:43): **92 of 112 suites passed, 20 failed**:
+- **Full build 1** (`pnpm run build`, 14 Oct 23:10 – 15 Oct 00:43): **93 of 113 suites passed, 20 failed**:
   board review, olympic tournament, academy intake, contract terms, youth rebirth, ledger words, ai club
   economy, money pass, youth ratings, game dates, player pictures, ai buyable, ai job market, salary cap,
   ai staff, ai injuries, scouting history, preseason camp, gameplay smoke, season rollover. Many were
@@ -460,7 +460,7 @@ page's preview (aliased `@shared/ageing`, as money.ts is now `@shared/money`).
 
 ### Part 9: build, test, fix
 
-**Build 1: 92 of 112 suites passed, 20 failed.** Each failure, its cause and the fix (re-run alone):
+**Build 1: 93 of 113 suites passed, 20 failed.** Each failure, its cause and the fix (re-run alone):
 
 | Suite | Cause | Fix | Re-run |
 |---|---|---|---|
